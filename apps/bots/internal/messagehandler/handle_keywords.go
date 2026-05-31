@@ -14,7 +14,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/entity"
 	"github.com/twirapp/twir/apps/bots/internal/services/keywords"
-	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -43,6 +43,10 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMes
 	}
 
 	message := msg.Message.Text
+	messagePlatform := platformentity.Platform(msg.Platform)
+	if messagePlatform == "" {
+		messagePlatform = platformentity.PlatformTwitch
+	}
 	var messagesForSend []string
 
 	matchedKeywords := make([]entity.Keyword, 0, len(entities))
@@ -89,7 +93,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMes
 			continue
 		}
 
-		if !platformentity.ShouldExecute(k.Platforms, platformentity.PlatformTwitch) {
+		if !platformentity.ShouldExecute(k.Platforms, messagePlatform) {
 			continue
 		}
 
@@ -160,16 +164,30 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMes
 			}
 
 			response := c.keywordsParseResponse(ctx, msg, k)
+			internalChannelID := msg.EnrichedData.DbChannel.ID
+			channelName := msg.BroadcasterUserLogin
 
 			c.keywordsTriggerEvent(ctx, msg, k, response)
-			c.twitchActions.SendMessage(
-				ctx, twitchactions.SendMessageOpts{
-					BroadcasterID:        msg.BroadcasterUserId,
-					SenderID:             msg.EnrichedData.DbChannel.BotID,
-					Message:              response,
-					ReplyParentMessageID: lo.If(k.IsReply, msg.MessageID).Else(""),
+			if _, err := c.twirBus.Bots.SendMessage.Request(
+				ctx,
+				botsbus.SendMessageRequest{
+					ChannelName:       &channelName,
+					ChannelId:         internalChannelID.String(),
+					InternalChannelID: &internalChannelID,
+					PlatformChannelID: msg.PlatformChannelID,
+					Platform:          string(messagePlatform),
+					Message:           response,
+					ReplyTo:           lo.If(k.IsReply, msg.MessageID).Else(""),
+					SkipRateLimits:    false,
+					SkipToxicityCheck: false,
 				},
-			)
+			); err != nil {
+				c.logger.Error(
+					"cannot send keyword response",
+					logger.Error(err),
+					slog.String("channelId", internalChannelID.String()),
+				)
+			}
 			c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID.String()])
 			c.keywordsTriggerAlert(ctx, k)
 		}()
@@ -213,12 +231,18 @@ func (c *MessageHandler) keywordsTriggerEvent(
 	keyword entity.Keyword,
 	response string,
 ) {
+	messagePlatform := platformentity.Platform(msg.Platform)
+	if messagePlatform == "" {
+		messagePlatform = platformentity.PlatformTwitch
+	}
+
 	err := c.twirBus.Events.KeywordMatched.Publish(
 		ctx,
 		events.KeywordMatchedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   msg.BroadcasterUserId,
+				ChannelID:   msg.EnrichedData.DbChannel.ID.String(),
 				ChannelName: msg.BroadcasterUserLogin,
+				Platform:    messagePlatform,
 			},
 			KeywordID:       keyword.ID.String(),
 			KeywordName:     keyword.Text,
@@ -232,7 +256,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 		c.logger.Error(
 			"cannot send keywords matched event",
 			logger.Error(err),
-			slog.String("channelId", msg.BroadcasterUserId),
+			slog.String("channelId", msg.EnrichedData.DbChannel.ID.String()),
 			slog.String("userId", msg.ChatterUserId),
 		)
 	}

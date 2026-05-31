@@ -946,21 +946,23 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 	msg events.KeywordMatchedMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeKeywordMatched,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     msg.BaseInfo.ChannelID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					KeywordName:     msg.KeywordName,
 					KeywordResponse: msg.KeywordResponse,
 					KeywordID:       msg.KeywordID,
 					UserID:          msg.UserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
