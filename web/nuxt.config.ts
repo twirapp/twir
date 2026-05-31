@@ -70,6 +70,9 @@ export default defineNuxtConfig({
 				'tailwind-merge',
 			],
 		},
+		server: {
+			allowedHosts: ['dev.twir.app', 'localhost'],
+		},
 	},
 	css: ['~/assets/css/tailwind.css', '~/assets/css/global.css'],
 

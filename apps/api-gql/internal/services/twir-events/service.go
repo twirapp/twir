@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/goccy/go-json"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
 
@@ -334,116 +334,173 @@ func (s *Service) titleOrCategoryChanged(
 	ctx context.Context,
 	msg events.TitleOrCategoryChangedMessage,
 ) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.TitleOrCategoryChangedSubject, msg),
+	)
 }
 
 func (s *Service) streamOnline(ctx context.Context, msg bustwitch.StreamOnlineMessage) (
 	struct{},
 	error,
 ) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.ChannelID),
+		createMessage(events.StreamOnlineSubject, msg),
+	)
 }
 
 func (s *Service) streamOffline(ctx context.Context, msg bustwitch.StreamOfflineMessage) (
 	struct{},
 	error,
 ) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.ChannelID),
+		createMessage(events.StreamOfflineSubject, msg),
+	)
 }
 
 func (s *Service) chatClear(ctx context.Context, msg events.ChatClearMessage) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.ChatClearSubject, msg),
+	)
 }
 
 func (s *Service) donate(ctx context.Context, msg events.DonateMessage) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.DonateSubject, msg),
+	)
 }
 
 func (s *Service) keywordMatched(ctx context.Context, msg events.KeywordMatchedMessage) (
 	struct{},
 	error,
 ) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.KeywordMatchedSubject, msg),
+	)
 }
 
 func (s *Service) greetingSended(ctx context.Context, msg events.GreetingSendedMessage) (
 	struct{},
 	error,
 ) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.GreetingSendedSubject, msg),
+	)
 }
 
 func (s *Service) pollBegin(ctx context.Context, msg events.PollBeginMessage) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.PollBeginSubject, msg),
+	)
 }
 
 func (s *Service) pollProgress(ctx context.Context, msg events.PollProgressMessage) (
 	struct{},
 	error,
 ) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.PollProgressSubject, msg),
+	)
 }
 
 func (s *Service) pollEnd(ctx context.Context, msg events.PollEndMessage) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.PollEndSubject, msg),
+	)
 }
 
 func (s *Service) predictionBegin(ctx context.Context, msg events.PredictionBeginMessage) (
 	struct{},
 	error,
 ) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.PredictionBeginSubject, msg),
+	)
 }
 
 func (s *Service) predictionProgress(
 	ctx context.Context,
 	msg events.PredictionProgressMessage,
 ) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.PredictionProgressSubject, msg),
+	)
 }
 
 func (s *Service) predictionLock(ctx context.Context, msg events.PredictionLockMessage) (
 	struct{},
 	error,
 ) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.PredictionLockSubject, msg),
+	)
 }
 
 func (s *Service) predictionEnd(ctx context.Context, msg events.PredictionEndMessage) (
 	struct{},
 	error,
 ) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.PredictionEndSubject, msg),
+	)
 }
 
 func (s *Service) streamFirstUserJoin(
 	ctx context.Context,
 	msg events.StreamFirstUserJoinMessage,
 ) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.StreamFirstUserJoinSubject, msg),
+	)
 }
 
 func (s *Service) channelBan(ctx context.Context, msg events.ChannelBanMessage) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.ChannelBanSubject, msg),
+	)
 }
 
 func (s *Service) channelUnbanRequestCreate(
 	ctx context.Context,
 	msg events.ChannelUnbanRequestCreateMessage,
 ) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.ChannelUnbanRequestCreateSubject, msg),
+	)
 }
 
 func (s *Service) channelUnbanRequestResolve(
 	ctx context.Context,
 	msg events.ChannelUnbanRequestResolveMessage,
 ) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.ChannelUnbanRequestResolveSubject, msg),
+	)
 }
 
 func (s *Service) channelMessageDelete(
 	ctx context.Context,
 	msg events.ChannelMessageDeleteMessage,
 ) (struct{}, error) {
-	return struct{}{}, s.wsRouter.Publish(CreateSubscribeKey(msg.BaseInfo.ChannelID), msg)
+	return struct{}{}, s.wsRouter.Publish(
+		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		createMessage(events.ChannelMessageDeleteSubject, msg),
+	)
 }
