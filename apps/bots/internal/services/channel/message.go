@@ -99,7 +99,7 @@ func (s *Service) sendKickMessage(ctx context.Context, req bots.SendMessageReque
 		return fmt.Errorf("kick chat client is not configured")
 	}
 
-	return s.kickChatClient.SendMessage(ctx, kickChannelID, req.Message)
+	return s.kickChatClient.SendMessage(ctx, kickChannelID, req.Message, req.ReplyTo)
 }
 
 func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageRequest) error {

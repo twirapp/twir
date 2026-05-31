@@ -37,14 +37,14 @@ func NewChatClient(twirBus *buscore.Bus, config cfg.Config) *ChatClient {
 	}
 }
 
-func (c *ChatClient) SendMessage(ctx context.Context, broadcasterKickID string, text string) error {
+func (c *ChatClient) SendMessage(ctx context.Context, broadcasterKickID string, text string, replyToMessageID string) error {
 	broadcasterUserID, err := strconv.Atoi(broadcasterKickID)
 	if err != nil {
 		return fmt.Errorf("parse broadcaster kick id: %w", err)
 	}
 
 	for _, part := range splitMessage(text) {
-		err = c.sendMessagePart(ctx, broadcasterUserID, broadcasterKickID, part)
+		err = c.sendMessagePart(ctx, broadcasterUserID, broadcasterKickID, part, replyToMessageID)
 		if err != nil {
 			return err
 		}
@@ -58,6 +58,7 @@ func (c *ChatClient) sendMessagePart(
 	broadcasterUserID int,
 	broadcasterKickID string,
 	text string,
+	replyToMessageID string,
 ) error {
 	tokenResp, err := c.requestBotToken.Request(ctx, buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformKick})
 	if err != nil {
@@ -74,7 +75,12 @@ func (c *ChatClient) sendMessagePart(
 		return fmt.Errorf("create gokick client: %w", err)
 	}
 
-	_, err = kickClient.SendChatMessage(ctx, &broadcasterUserID, text, nil, gokick.MessageTypeUser)
+	var replyToPtr *string
+	if replyToMessageID != "" {
+		replyToPtr = &replyToMessageID
+	}
+
+	_, err = kickClient.SendChatMessage(ctx, &broadcasterUserID, text, replyToPtr, gokick.MessageTypeUser)
 	if err != nil {
 		var apiErr gokick.Error
 		if errors.As(err, &apiErr) {

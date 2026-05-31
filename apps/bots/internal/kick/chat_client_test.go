@@ -8,11 +8,11 @@ import (
 	"testing"
 	"unicode/utf8"
 
+	"github.com/stretchr/testify/require"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"github.com/stretchr/testify/require"
 )
 
 func TestSplitMessage_UsesByteLimit(t *testing.T) {
@@ -51,7 +51,7 @@ func TestSendMessage_RequestsKickTokenFromBus(t *testing.T) {
 		requestBotToken: requester,
 	}
 
-	err := client.SendMessage(context.Background(), "42", "hello")
+	err := client.SendMessage(context.Background(), "42", "hello", "")
 	require.NoError(t, err)
 	require.Equal(t, 1, requester.calls)
 	require.Equal(t, platformentity.PlatformKick, requester.req.Platform)
@@ -87,10 +87,16 @@ func (f *fakeBotTokenRequester) Unsubscribe() {}
 
 type captureTransport struct {
 	authorization string
+	body          string
 }
 
 func (t *captureTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	t.authorization = req.Header.Get("Authorization")
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		return nil, err
+	}
+	t.body = string(body)
 
 	return &http.Response{
 		StatusCode: http.StatusOK,
@@ -98,4 +104,52 @@ func (t *captureTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 		Body:       io.NopCloser(strings.NewReader(`{"message":"OK","data":{"is_sent":true,"message_id":"msg-1"}}`)),
 		Request:    req,
 	}, nil
+}
+
+func TestSendMessage_OmitsReplyToWhenEmpty(t *testing.T) {
+	t.Parallel()
+
+	requester := &fakeBotTokenRequester{
+		resp: &buscore.QueueResponse[buscoretokens.TokenResponse]{
+			Data: buscoretokens.TokenResponse{AccessToken: "kick-access-token"},
+		},
+	}
+	transport := &captureTransport{}
+
+	client := &ChatClient{
+		config: cfg.Config{},
+		httpClient: &http.Client{
+			Transport: transport,
+		},
+		requestBotToken: requester,
+	}
+
+	err := client.SendMessage(context.Background(), "42", "hello", "")
+	require.NoError(t, err)
+	require.Contains(t, transport.body, `"content":"hello"`)
+	require.NotContains(t, transport.body, `"reply_to_message_id"`)
+}
+
+func TestSendMessage_IncludesReplyToWhenProvided(t *testing.T) {
+	t.Parallel()
+
+	requester := &fakeBotTokenRequester{
+		resp: &buscore.QueueResponse[buscoretokens.TokenResponse]{
+			Data: buscoretokens.TokenResponse{AccessToken: "kick-access-token"},
+		},
+	}
+	transport := &captureTransport{}
+
+	client := &ChatClient{
+		config: cfg.Config{},
+		httpClient: &http.Client{
+			Transport: transport,
+		},
+		requestBotToken: requester,
+	}
+
+	replyToMessageID := "opaque-reply-id-123"
+	err := client.SendMessage(context.Background(), "42", "hello", replyToMessageID)
+	require.NoError(t, err)
+	require.Contains(t, transport.body, `"reply_to_message_id":"opaque-reply-id-123"`)
 }
