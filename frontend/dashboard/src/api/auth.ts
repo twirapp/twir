@@ -105,9 +105,13 @@ export const useProfile = createGlobalState(() => {
 
 		return {
 			id: user.id,
-			avatar: isKick ? (user.kickProfile?.profilePicture ?? '') : (user.twitchProfile?.profileImageUrl ?? ''),
+			avatar: isKick
+				? (user.kickProfile?.profilePicture ?? '')
+				: (user.twitchProfile?.profileImageUrl ?? ''),
 			login: isKick ? (user.kickProfile?.slug ?? '') : (user.twitchProfile?.login ?? ''),
-			displayName: isKick ? (user.kickProfile?.displayName ?? '') : (user.twitchProfile?.displayName ?? ''),
+			displayName: isKick
+				? (user.kickProfile?.displayName ?? '')
+				: (user.twitchProfile?.displayName ?? ''),
 			kickProfile: user.kickProfile,
 			linkedAccounts: user.linkedAccounts,
 			currentPlatform: user.currentPlatform,
@@ -151,8 +155,10 @@ export function useLogout() {
 		const result = await executeMutation({})
 		if (result.error) throw new Error(result.error.toString())
 
-		window.rybbit.clearUserId()
-		window.location.replace('/')
+		if (window.rybbit) {
+			window.rybbit.clearUserId()
+			window.location.replace('/')
+		}
 	}
 
 	return execute

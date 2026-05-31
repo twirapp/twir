@@ -1,10 +1,11 @@
-import tailwindcss from '@tailwindcss/vite';
-import path from 'node:path';
-import process from 'node:process';
+import path from 'node:path'
+import process from 'node:process'
 
-import gqlcodegen from './modules/gql-codegen';
+import tailwindcss from '@tailwindcss/vite'
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+import gqlcodegen from './modules/gql-codegen'
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -60,15 +61,15 @@ export default defineNuxtConfig({
 	vite: {
 		plugins: [tailwindcss()],
 		optimizeDeps: {
-	      include: [
-	        '@urql/vue',
-	        'graphql-ws',
-	        'lucide-vue-next',
-	        'vue-sonner',
-	        'clsx',
-	        'tailwind-merge',
-	      ]
-	    }
+			include: [
+				'@urql/vue',
+				'graphql-ws',
+				'lucide-vue-next',
+				'vue-sonner',
+				'clsx',
+				'tailwind-merge',
+			],
+		},
 	},
 	css: ['~/assets/css/tailwind.css', '~/assets/css/global.css'],
 
@@ -85,13 +86,13 @@ export default defineNuxtConfig({
 	app: {
 		head: {
 			script: [
-				{
-					src: 'https://rybbit.twir.app/api/script.js',
-					async: true,
-					defer: true,
-					'data-site-id': '8eaa535a44ba',
-					'data-mask-patterns': '["/overlays/**"]',
-				},
+				// {
+				// 	src: 'https://rybbit.twir.app/api/script.js',
+				// 	async: true,
+				// 	defer: true,
+				// 	'data-site-id': '8eaa535a44ba',
+				// 	'data-mask-patterns': '["/overlays/**"]',
+				// },
 			],
 		},
 	},
@@ -152,4 +153,4 @@ export default defineNuxtConfig({
 		enabled: true,
 		consent: 1,
 	},
-});
+})
