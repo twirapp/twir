@@ -247,6 +247,32 @@ type kickEmoteSpan struct {
 	text  string
 }
 
+type kickEmoteLookup struct {
+	id  string
+	url string
+}
+
+func kickNativeEmoteURL(emoteID string) string {
+	if emoteID == "" {
+		return ""
+	}
+
+	return fmt.Sprintf("https://files.kick.com/emotes/%s/fullsize", emoteID)
+}
+
+func emoteCacherURL(emote emotes_cacher.Emote) string {
+	switch emote.Service {
+	case emotes_cacher.ServiceNameSevenTV:
+		return fmt.Sprintf("https://cdn.7tv.app/emote/%s/4x.webp", emote.ID)
+	case emotes_cacher.ServiceNameBTTV:
+		return fmt.Sprintf("https://cdn.betterttv.net/emote/%s/3x", emote.ID)
+	case emotes_cacher.ServiceNameFFZ:
+		return fmt.Sprintf("https://cdn.frankerfacez.com/emote/%s/4", emote.ID)
+	default:
+		return ""
+	}
+}
+
 func kickContentSlice(runes []rune, start, end int) string {
 	if start < 0 || end < start || end >= len(runes) {
 		return ""
@@ -272,6 +298,7 @@ func appendKickFragment(
 	fragmentType generic.FragmentType,
 	text string,
 	emoteID string,
+	emoteURL string,
 ) []generic.ChatMessageMessageFragment {
 	if text == "" {
 		return fragments
@@ -286,7 +313,7 @@ func appendKickFragment(
 		},
 	}
 	if fragmentType == generic.FragmentType_EMOTE {
-		fragment.Emote = &generic.ChatMessageMessageFragmentEmote{ID: emoteID}
+		fragment.Emote = &generic.ChatMessageMessageFragmentEmote{ID: emoteID, URL: emoteURL}
 	}
 
 	*position += utf8.RuneCountInString(text)
@@ -296,7 +323,7 @@ func appendKickFragment(
 
 func splitTextIntoKickFragments(
 	text string,
-	channelEmoteNames map[string]string,
+	channelEmoteNames map[string]kickEmoteLookup,
 	position *int,
 	fragments []generic.ChatMessageMessageFragment,
 ) []generic.ChatMessageMessageFragment {
@@ -307,7 +334,7 @@ func splitTextIntoKickFragments(
 			for j < len(runes) && unicode.IsSpace(runes[j]) {
 				j++
 			}
-			fragments = appendKickFragment(fragments, position, generic.FragmentType_TEXT, string(runes[i:j]), "")
+			fragments = appendKickFragment(fragments, position, generic.FragmentType_TEXT, string(runes[i:j]), "", "")
 			i = j
 			continue
 		}
@@ -318,10 +345,10 @@ func splitTextIntoKickFragments(
 		}
 
 		token := string(runes[i:j])
-		if emoteID, ok := channelEmoteNames[token]; ok {
-			fragments = appendKickFragment(fragments, position, generic.FragmentType_EMOTE, token, emoteID)
+		if emote, ok := channelEmoteNames[token]; ok {
+			fragments = appendKickFragment(fragments, position, generic.FragmentType_EMOTE, token, emote.id, emote.url)
 		} else {
-			fragments = appendKickFragment(fragments, position, generic.FragmentType_TEXT, token, "")
+			fragments = appendKickFragment(fragments, position, generic.FragmentType_TEXT, token, "", "")
 		}
 
 		i = j
@@ -336,7 +363,7 @@ func (h *Handlers) buildKickMessageContent(
 	content string,
 	emotes []kickEmote,
 ) (string, []generic.ChatMessageMessageFragment, []generic.ChatMessageEmote, error) {
-	channelEmoteNames := map[string]string{}
+	channelEmoteNames := map[string]kickEmoteLookup{}
 	if h.channelEmotes != nil {
 		lookupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
 		defer cancel()
@@ -344,7 +371,7 @@ func (h *Handlers) buildKickMessageContent(
 		resp, err := h.channelEmotes.Request(lookupCtx, emotes_cacher.GetChannelEmotesRequest{ChannelID: channelID})
 		if err == nil {
 			for _, emote := range resp.Data.Emotes {
-				channelEmoteNames[emote.Name] = emote.ID
+				channelEmoteNames[emote.Name] = kickEmoteLookup{id: emote.ID, url: emoteCacherURL(emote)}
 			}
 		} else {
 			h.logger.DebugContext(ctx, "kick: failed to get channel emotes for message normalization",
@@ -386,7 +413,7 @@ func (h *Handlers) buildKickMessageContent(
 		fragments = splitTextIntoKickFragments(plainText, channelEmoteNames, &normalizedPosition, fragments)
 		normalized.WriteString(plainText)
 
-		fragments = appendKickFragment(fragments, &normalizedPosition, generic.FragmentType_EMOTE, span.text, span.id)
+		fragments = appendKickFragment(fragments, &normalizedPosition, generic.FragmentType_EMOTE, span.text, span.id, kickNativeEmoteURL(span.id))
 		normalized.WriteString(span.text)
 		parsedEmotes = append(parsedEmotes, generic.ChatMessageEmote{ID: span.id, Text: span.text})
 		current = span.end + 1
@@ -399,15 +426,16 @@ func (h *Handlers) buildKickMessageContent(
 	for _, fragment := range fragments {
 		if fragment.Type == generic.FragmentType_EMOTE && fragment.Emote != nil {
 			if fragment.Emote.ID == "" {
-				if emoteID, ok := channelEmoteNames[fragment.Text]; ok {
-					fragment.Emote.ID = emoteID
+				if emote, ok := channelEmoteNames[fragment.Text]; ok {
+					fragment.Emote.ID = emote.id
+					fragment.Emote.URL = emote.url
 				}
 			}
 		}
 	}
 
 	if len(fragments) == 0 {
-		fragments = appendKickFragment(fragments, &normalizedPosition, generic.FragmentType_TEXT, content, "")
+		fragments = appendKickFragment(fragments, &normalizedPosition, generic.FragmentType_TEXT, content, "", "")
 		normalized.WriteString(content)
 	}
 

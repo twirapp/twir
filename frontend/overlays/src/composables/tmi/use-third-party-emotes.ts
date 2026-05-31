@@ -30,7 +30,7 @@ export function useThirdPartyEmotes(options: Ref<ChatSettings>) {
 		if (!options.channelId) return;
 
 		if (options.emotes.sevenTv) {
-			fetchSevenTvEmotes(options.channelId);
+			fetchSevenTvEmotes(options.channelId, 'twitch');
 		}
 
 		if (options.emotes.bttv) {

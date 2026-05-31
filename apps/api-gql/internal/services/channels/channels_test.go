@@ -1,4 +1,4 @@
-package resolvers
+package channels
 
 import (
 	"context"
@@ -60,12 +60,14 @@ func TestResolveApiKeyChannelIdentity(t *testing.T) {
 				KickPlatformID:   &kickPlatformID,
 			}}
 
-			identity, err := resolveApiKeyChannelIdentity(context.Background(), Deps{
+			service := New(Opts{
 				UsersRepository:    users,
 				ChannelsRepository: channels,
-			}, "api-key")
+			})
+
+			identity, err := service.ResolveApiKeyChannelIdentity(context.Background(), "api-key")
 			if err != nil {
-				t.Fatalf("resolveApiKeyChannelIdentity() error = %v", err)
+				t.Fatalf("ResolveApiKeyChannelIdentity() error = %v", err)
 			}
 
 			if identity.InternalChannelID != tt.wantChannelID {

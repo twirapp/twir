@@ -537,6 +537,57 @@ func TestHandleChatMessage(t *testing.T) {
 	}
 }
 
+func TestBuildKickMessageContentPreservesCommandEmotePositions(t *testing.T) {
+	h := &Handlers{logger: slog.Default()}
+
+	normalizedText, fragments, parsedEmotes, err := h.buildKickMessageContent(
+		context.Background(),
+		"123",
+		"!kappagen [emote:4148074:vahui]",
+		[]kickEmote{
+			{
+				EmoteID: "4148074",
+				Positions: []struct {
+					S int `json:"s"`
+					E int `json:"e"`
+				}{
+					{S: 10, E: 30},
+				},
+			},
+		},
+	)
+	if err != nil {
+		t.Fatalf("buildKickMessageContent() error = %v", err)
+	}
+
+	if normalizedText != "!kappagen vahui" {
+		t.Fatalf("normalizedText = %q, want %q", normalizedText, "!kappagen vahui")
+	}
+
+	if len(parsedEmotes) != 1 || parsedEmotes[0].ID != "4148074" || parsedEmotes[0].Text != "vahui" {
+		t.Fatalf("parsedEmotes = %#v, want vahui emote", parsedEmotes)
+	}
+
+	for _, fragment := range fragments {
+		if fragment.Type != generic.FragmentType_EMOTE {
+			continue
+		}
+
+		if fragment.Emote == nil || fragment.Emote.ID != "4148074" {
+			t.Fatalf("emote fragment = %#v, want id 4148074", fragment)
+		}
+		if fragment.Emote.URL != "https://files.kick.com/emotes/4148074/fullsize" {
+			t.Fatalf("emote fragment url = %q, want native kick url", fragment.Emote.URL)
+		}
+		if fragment.Position.Start != 10 || fragment.Position.End != 15 {
+			t.Fatalf("emote fragment position = %d-%d, want 10-15", fragment.Position.Start, fragment.Position.End)
+		}
+		return
+	}
+
+	t.Fatalf("expected emote fragment in %#v", fragments)
+}
+
 func TestHandleChatMessageIdempotency(t *testing.T) {
 	userID := uuid.New().String()
 	channelUUID := uuid.New()

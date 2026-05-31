@@ -19,17 +19,14 @@ import (
 
 // TwirEvents is the resolver for the twirEvents field.
 func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<-chan gqlmodel.EventMessage, error) {
-	identity, err := resolveApiKeyChannelIdentity(ctx, r.deps, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
 	if err != nil {
 		return nil, err
 	}
 
 	chann := make(chan gqlmodel.EventMessage, 1)
 
-	subscriptionKeys := []string{twir_events.CreateSubscribeKey(identity.InternalChannelID)}
-	for _, target := range identity.ChatTargets {
-		subscriptionKeys = append(subscriptionKeys, twir_events.CreateSubscribeKey(target.PlatformChannelID))
-	}
+	subscriptionKeys := buildTwirEventSubscriptionKeys(identity)
 
 	wsSubscription, err := r.deps.WsRouter.Subscribe(subscriptionKeys)
 	if err != nil {

@@ -11,31 +11,31 @@ import (
 )
 
 type ChatMessage struct {
-	Message                     *ChatMessageMessage        `json:"message,omitempty"`
-	Cheer                       *ChatMessageCheer          `json:"cheer,omitempty"`
-	Reply                       *ChatMessageReply          `json:"reply,omitempty"`
-	ID                          string                     `json:"id,omitempty"`
-	BroadcasterUserId           string                     `json:"broadcaster_user_id,omitempty"`
-	BroadcasterUserName         string                     `json:"broadcaster_user_name,omitempty"`
-	BroadcasterUserLogin        string                     `json:"broadcaster_user_login,omitempty"`
-	ChatterUserId               string                     `json:"chatter_user_id,omitempty"`
-	ChatterUserName             string                     `json:"chatter_user_name,omitempty"`
-	ChatterUserLogin            string                     `json:"chatter_user_login,omitempty"`
-	MessageType                 string                     `json:"message_type,omitempty"`
-	ChannelPointsCustomRewardId string                     `json:"channel_points_custom_reward_id,omitempty"`
-	Platform          string                  `json:"platform"`
-	ChannelID         string                  `json:"channel_id"`
-	UserID            string                  `json:"user_id"`
-	PlatformChannelID string                  `json:"platform_channel_id"`
-	SenderID          string                  `json:"sender_id"`
-	SenderLogin       string                  `json:"sender_login"`
-	SenderDisplayName string                  `json:"sender_display_name"`
-	MessageID         string                  `json:"message_id"`
-	Text              string                  `json:"text"`
-	Badges            []ChatMessageBadge      `json:"badges,omitempty"`
-	Color             string                  `json:"color"`
-	Emotes            []ChatMessageEmote      `json:"emotes,omitempty"`
-	EnrichedData      ChatMessageEnrichedData `json:"enriched_data,omitempty"`
+	Message                     *ChatMessageMessage     `json:"message,omitempty"`
+	Cheer                       *ChatMessageCheer       `json:"cheer,omitempty"`
+	Reply                       *ChatMessageReply       `json:"reply,omitempty"`
+	ID                          string                  `json:"id,omitempty"`
+	BroadcasterUserId           string                  `json:"broadcaster_user_id,omitempty"`
+	BroadcasterUserName         string                  `json:"broadcaster_user_name,omitempty"`
+	BroadcasterUserLogin        string                  `json:"broadcaster_user_login,omitempty"`
+	ChatterUserId               string                  `json:"chatter_user_id,omitempty"`
+	ChatterUserName             string                  `json:"chatter_user_name,omitempty"`
+	ChatterUserLogin            string                  `json:"chatter_user_login,omitempty"`
+	MessageType                 string                  `json:"message_type,omitempty"`
+	ChannelPointsCustomRewardId string                  `json:"channel_points_custom_reward_id,omitempty"`
+	Platform                    string                  `json:"platform"`
+	ChannelID                   string                  `json:"channel_id"`
+	UserID                      string                  `json:"user_id"`
+	PlatformChannelID           string                  `json:"platform_channel_id"`
+	SenderID                    string                  `json:"sender_id"`
+	SenderLogin                 string                  `json:"sender_login"`
+	SenderDisplayName           string                  `json:"sender_display_name"`
+	MessageID                   string                  `json:"message_id"`
+	Text                        string                  `json:"text"`
+	Badges                      []ChatMessageBadge      `json:"badges,omitempty"`
+	Color                       string                  `json:"color"`
+	Emotes                      []ChatMessageEmote      `json:"emotes,omitempty"`
+	EnrichedData                ChatMessageEnrichedData `json:"enriched_data,omitempty"`
 }
 
 const (
@@ -190,6 +190,7 @@ type ChatMessageMessageFragmentPosition struct {
 
 type ChatMessageMessageFragmentEmote struct {
 	ID         string   `json:"id,omitempty"`
+	URL        string   `json:"url,omitempty"`
 	EmoteSetID string   `json:"emote_set_id,omitempty"`
 	OwnerID    string   `json:"owner_id,omitempty"`
 	Format     []string `json:"format,omitempty"`

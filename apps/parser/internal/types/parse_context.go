@@ -40,6 +40,7 @@ type ParseContextEmotePosition struct {
 type ParseContextEmote struct {
 	Name      string
 	ID        string
+	URL       string
 	Positions []*ParseContextEmotePosition
 	Count     int64
 }

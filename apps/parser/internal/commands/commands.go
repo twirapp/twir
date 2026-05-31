@@ -335,6 +335,7 @@ func (c *Commands) ParseCommandResponses(
 			emotes, &types.ParseContextEmote{
 				Name:  f.Text,
 				ID:    f.Emote.ID,
+				URL:   f.Emote.URL,
 				Count: 1,
 				Positions: []*types.ParseContextEmotePosition{
 					{
@@ -684,24 +685,26 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMess
 	go func() {
 		withoutCancel := context.WithoutCancel(ctx)
 
-		c.services.Bus.Events.CommandUsed.Publish(
-			withoutCancel,
-			events.CommandUsedMessage{
-				BaseInfo: events.BaseInfo{
-					ChannelID:   channelDBID,
-					ChannelName: data.BroadcasterUserLogin,
+		if !isKappagenCommand(cmd.Cmd) {
+			c.services.Bus.Events.CommandUsed.Publish(
+				withoutCancel,
+				events.CommandUsedMessage{
+					BaseInfo: events.BaseInfo{
+						ChannelID:   channelDBID,
+						ChannelName: data.BroadcasterUserLogin,
+					},
+					CommandID:          cmd.Cmd.ID.String(),
+					CommandName:        cmd.Cmd.Name,
+					CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy)+1:]),
+					UserName:           data.ChatterUserLogin,
+					UserDisplayName:    data.ChatterUserName,
+					UserID:             data.ChatterUserId,
+					IsDefault:          cmd.Cmd.Default,
+					DefaultCommandName: cmd.Cmd.DefaultName,
+					MessageID:          data.MessageID,
 				},
-				CommandID:          cmd.Cmd.ID.String(),
-				CommandName:        cmd.Cmd.Name,
-				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy)+1:]),
-				UserName:           data.ChatterUserLogin,
-				UserDisplayName:    data.ChatterUserName,
-				UserID:             data.ChatterUserId,
-				IsDefault:          cmd.Cmd.Default,
-				DefaultCommandName: cmd.Cmd.DefaultName,
-				MessageID:          data.MessageID,
-			},
-		)
+			)
+		}
 
 		alert := model.ChannelAlert{}
 		if err := c.services.Gorm.WithContext(withoutCancel).Where(
@@ -737,4 +740,8 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMess
 	)
 
 	return result, nil
+}
+
+func isKappagenCommand(cmd *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses) bool {
+	return cmd != nil && cmd.Default && cmd.DefaultName != nil && *cmd.DefaultName == "kappagen"
 }

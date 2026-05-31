@@ -15,6 +15,7 @@ import (
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	channelsservice "github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
@@ -141,6 +142,7 @@ type Deps struct {
 	RolesWithUsersService                 *roles_with_roles_users.Service
 	TwitchService                         *twitchservice.Service
 	ChatMessagesService                   *chat_messages.Service
+	ChannelsService                       *channelsservice.Service
 	ChannelsCommandsPrefix                *channels_commands_prefix.Service
 	ChannelsEmotesUsagesService           *channels_emotes_usages.Service
 	TTSService                            *tts.Service

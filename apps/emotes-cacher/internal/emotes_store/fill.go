@@ -66,7 +66,9 @@ func (c *EmotesStore) fillChannels() {
 					} else {
 						c.logger.Debug("failed to fetch 7tv emotes", slog.String("channel_id", channelID), logger.Error(err))
 					}
-				} else if channelData.KickPlatformID != nil {
+				}
+
+				if channelData.KickPlatformID != nil {
 					sevenTvEmotes, err := seventvfetcher.GetChannelSevenTvEmotes(ctx, platform.PlatformKick, *channelData.KickPlatformID)
 					if err == nil {
 						result := make([]emote.Emote, 0)

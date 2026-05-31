@@ -39,6 +39,11 @@ func (r *kappagenOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.Kap
 	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
 }
 
+// ChannelIdentities is the resolver for the channelIdentities field.
+func (r *kappagenOverlayResolver) ChannelIdentities(ctx context.Context, obj *gqlmodel.KappagenOverlay) ([]gqlmodel.KappagenChannelIdentity, error) {
+	return mapKappagenChannelIdentitiesForResolver(ctx, r.Resolver, obj.ChannelID)
+}
+
 // Channel is the resolver for the channel field.
 func (r *kappagenTriggerPayloadResolver) Channel(ctx context.Context, obj *gqlmodel.KappagenTriggerPayload) (*gqlmodel.TwirUserTwitchInfo, error) {
 	channelID, err := uuid.Parse(obj.ChannelID)
@@ -55,6 +60,11 @@ func (r *kappagenTriggerPayloadResolver) Channel(ctx context.Context, obj *gqlmo
 	}
 
 	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+}
+
+// ChannelIdentities is the resolver for the channelIdentities field.
+func (r *kappagenTriggerPayloadResolver) ChannelIdentities(ctx context.Context, obj *gqlmodel.KappagenTriggerPayload) ([]gqlmodel.KappagenChannelIdentity, error) {
+	return mapKappagenChannelIdentitiesForResolver(ctx, r.Resolver, obj.ChannelID)
 }
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
@@ -189,7 +199,7 @@ func (r *queryResolver) OverlaysKappagenAvailableAnimations(ctx context.Context)
 
 // OverlaysKappagen is the resolver for the overlaysKappagen field.
 func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context, apiKey string) (<-chan *gqlmodel.KappagenOverlay, error) {
-	identity, err := resolveApiKeyChannelIdentity(ctx, r.deps, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +248,7 @@ func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context, apiKey stri
 
 // OverlaysKappagenTrigger is the resolver for the overlaysKappagenTrigger field.
 func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiKey string) (<-chan *gqlmodel.KappagenTriggerPayload, error) {
-	identity, err := resolveApiKeyChannelIdentity(ctx, r.deps, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
 	if err != nil {
 		return nil, err
 	}
@@ -271,6 +281,7 @@ func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiK
 					emotes = append(
 						emotes, gqlmodel.KappagenTriggerRequestEmote{
 							ID:        e.Id,
+							URL:       e.Url,
 							Positions: e.Positions,
 						},
 					)
@@ -290,7 +301,7 @@ func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiK
 
 // OverlaysKappagenChatMessages is the resolver for the overlaysKappagenChatMessages field.
 func (r *subscriptionResolver) OverlaysKappagenChatMessages(ctx context.Context, apiKey string) (<-chan *gqlmodel.ChatMessage, error) {
-	identity, err := resolveApiKeyChannelIdentity(ctx, r.deps, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
 	if err != nil {
 		return nil, err
 	}

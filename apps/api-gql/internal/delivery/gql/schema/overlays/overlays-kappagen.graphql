@@ -49,6 +49,7 @@ type KappagenOverlay {
 	updatedAt: Time!
 	channelID: String!
 	channel: TwirUserTwitchInfo @goField(forceResolver: true)
+	channelIdentities: [KappagenChannelIdentity!]! @goField(forceResolver: true)
 }
 
 type KappagenEmoteSettings {
@@ -159,9 +160,16 @@ type KappagenTriggerPayload {
 	emotes: [KappagenTriggerRequestEmote!]!
 	channelID: String!
 	channel: TwirUserTwitchInfo @goField(forceResolver: true)
+	channelIdentities: [KappagenChannelIdentity!]! @goField(forceResolver: true)
+}
+
+type KappagenChannelIdentity {
+	platform: Platform!
+	id: String!
 }
 
 type KappagenTriggerRequestEmote {
 	id: String!
+	url: String!
 	positions: [String!]!
 }

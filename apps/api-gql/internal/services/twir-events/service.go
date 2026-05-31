@@ -2,6 +2,7 @@ package twir_events
 
 import (
 	"context"
+	"sync"
 
 	"github.com/goccy/go-json"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -20,14 +21,17 @@ type Opts struct {
 }
 
 type Service struct {
-	wsRouter wsrouter.WsRouter
-	twirBus  *buscore.Bus
+	wsRouter        wsrouter.WsRouter
+	twirBus         *buscore.Bus
+	offlineChannels map[string]struct{}
+	offlineMu       sync.Mutex
 }
 
 func New(opts Opts) *Service {
 	s := &Service{
-		wsRouter: opts.WsRouter,
-		twirBus:  opts.TwirBus,
+		wsRouter:        opts.WsRouter,
+		twirBus:         opts.TwirBus,
+		offlineChannels: make(map[string]struct{}),
 	}
 
 	opts.LC.Append(
@@ -344,6 +348,10 @@ func (s *Service) streamOnline(ctx context.Context, msg bustwitch.StreamOnlineMe
 	struct{},
 	error,
 ) {
+	s.offlineMu.Lock()
+	delete(s.offlineChannels, msg.ChannelID)
+	s.offlineMu.Unlock()
+
 	return struct{}{}, s.wsRouter.Publish(
 		CreateSubscribeKey(msg.ChannelID),
 		createMessage(events.StreamOnlineSubject, msg),
@@ -354,6 +362,14 @@ func (s *Service) streamOffline(ctx context.Context, msg bustwitch.StreamOffline
 	struct{},
 	error,
 ) {
+	s.offlineMu.Lock()
+	if _, ok := s.offlineChannels[msg.ChannelID]; ok {
+		s.offlineMu.Unlock()
+		return struct{}{}, nil
+	}
+	s.offlineChannels[msg.ChannelID] = struct{}{}
+	s.offlineMu.Unlock()
+
 	return struct{}{}, s.wsRouter.Publish(
 		CreateSubscribeKey(msg.ChannelID),
 		createMessage(events.StreamOfflineSubject, msg),
