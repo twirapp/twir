@@ -30,9 +30,22 @@ func (c *ChatAlerts) follow(
 	}
 
 	sample := lo.Sample(settings.Followers.Messages)
+	internalChannelID := req.BaseInfo.ChannelDBID
+	if internalChannelID == "" {
+		internalChannelID = req.BaseInfo.ChannelID
+	}
+	platformChannelID := req.BaseInfo.ChannelID
+	eventPlatform := req.BaseInfo.Platform
+	if eventPlatform == "" {
+		eventPlatform = platform.PlatformTwitch
+	}
+	streamUserID := platformChannelID
+	if eventPlatform == platform.PlatformKick {
+		streamUserID = internalChannelID
+	}
 
 	var stream *deprecatedgormmodel.ChannelsStreams
-	if err := c.db.Where(`"userId" = ?`, req.BaseInfo.ChannelID).
+	if err := c.db.Where(`"userId" = ?`, streamUserID).
 		Find(&stream).Error; err != nil {
 		return err
 	}
@@ -42,14 +55,10 @@ func (c *ChatAlerts) follow(
 	var followersCount int64
 	if stream != nil && stream.ID != "" {
 		t := model.ChannelEventListItemTypeFollow
-		eventPlatform := req.BaseInfo.Platform
-		if eventPlatform == "" {
-			eventPlatform = platform.PlatformTwitch
-		}
 		count, err := c.channelEventListsRepo.CountBy(
 			ctx,
 			channelseventslist.CountByInput{
-				ChannelID:    &req.BaseInfo.ChannelID,
+				ChannelID:    &internalChannelID,
 				Platform:     &eventPlatform,
 				CreatedAtGTE: &stream.StartedAt,
 				Type:         &t,
@@ -64,8 +73,8 @@ func (c *ChatAlerts) follow(
 
 	text = strings.ReplaceAll(text, "{streamFollowers}", fmt.Sprint(followersCount))
 
-	if req.BaseInfo.Platform == "" || req.BaseInfo.Platform == platform.PlatformTwitch {
-		user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, req.BaseInfo.ChannelID)
+	if eventPlatform == platform.PlatformTwitch {
+		user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, platformChannelID)
 		if err != nil {
 			return fmt.Errorf("cannot get user by platform id: %w", err)
 		}
@@ -77,7 +86,7 @@ func (c *ChatAlerts) follow(
 
 		followersReq, err := twitchClient.GetChannelFollows(
 			&helix.GetChannelFollowsParams{
-				BroadcasterID: req.BaseInfo.ChannelID,
+				BroadcasterID: platformChannelID,
 			},
 		)
 		if err != nil {
@@ -97,9 +106,9 @@ func (c *ChatAlerts) follow(
 		ctx,
 		bots.SendMessageRequest{
 			ChannelName:       lo.If(req.BaseInfo.ChannelName != "", &req.BaseInfo.ChannelName).Else(nil),
-			ChannelId:         req.BaseInfo.ChannelID,
-			PlatformChannelID: req.BaseInfo.ChannelID,
-			Platform:          req.BaseInfo.Platform.String(),
+			ChannelId:         internalChannelID,
+			PlatformChannelID: platformChannelID,
+			Platform:          eventPlatform.String(),
 			Message:           text,
 			SkipRateLimits:    true,
 		},

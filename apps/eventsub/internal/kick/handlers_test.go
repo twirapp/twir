@@ -715,8 +715,11 @@ func TestHandleChannelFollow(t *testing.T) {
 		t.Fatalf("expected 1 follow event published, got %d", followQueue.PublishedCount())
 	}
 	follow := followQueue.FirstPublished()
-	if follow.BaseInfo.ChannelID != channelUUID.String() {
-		t.Errorf("expected channelID %q, got %q", channelUUID.String(), follow.BaseInfo.ChannelID)
+	if follow.BaseInfo.ChannelID != "777" {
+		t.Errorf("expected channelID %q, got %q", "777", follow.BaseInfo.ChannelID)
+	}
+	if follow.BaseInfo.ChannelDBID != channelUUID.String() {
+		t.Errorf("expected channelDBID %q, got %q", channelUUID.String(), follow.BaseInfo.ChannelDBID)
 	}
 	if follow.UserName != "followerlogin" {
 		t.Errorf("expected UserName %q, got %q", "followerlogin", follow.UserName)
@@ -724,8 +727,31 @@ func TestHandleChannelFollow(t *testing.T) {
 	if follow.UserID != "111" {
 		t.Errorf("expected UserID %q, got %q", "111", follow.UserID)
 	}
+	if follow.UserDisplayName != "followerlogin" {
+		t.Errorf("expected UserDisplayName %q, got %q", "followerlogin", follow.UserDisplayName)
+	}
 	if follow.BaseInfo.Platform != platform.PlatformKick {
 		t.Errorf("expected platform %q, got %q", platform.PlatformKick, follow.BaseInfo.Platform)
+	}
+	eventsListRepo := h.eventsListRepo.(*mockEventsListRepo)
+	if len(eventsListRepo.created) != 1 {
+		t.Fatalf("expected 1 event list item, got %d", len(eventsListRepo.created))
+	}
+	eventListItem := eventsListRepo.created[0]
+	if eventListItem.ChannelID != channelUUID.String() {
+		t.Errorf("expected event list channelID %q, got %q", channelUUID.String(), eventListItem.ChannelID)
+	}
+	if eventListItem.UserID == nil || *eventListItem.UserID != "111" {
+		t.Errorf("expected event list userID %q, got %v", "111", eventListItem.UserID)
+	}
+	if eventListItem.Platform != platform.PlatformKick {
+		t.Errorf("expected event list platform %q, got %q", platform.PlatformKick, eventListItem.Platform)
+	}
+	if eventListItem.Type != channelseventslistmodel.ChannelEventListItemTypeFollow {
+		t.Errorf("expected event list type %q, got %q", channelseventslistmodel.ChannelEventListItemTypeFollow, eventListItem.Type)
+	}
+	if eventListItem.Data == nil || eventListItem.Data.FollowUserName != "followerlogin" || eventListItem.Data.FollowUserDisplayName != "followerlogin" {
+		t.Errorf("unexpected event list data: %#v", eventListItem.Data)
 	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {

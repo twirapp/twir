@@ -917,17 +917,36 @@ func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Att
 		return nil, fmt.Errorf("resolve ids for follow broadcaster_user_id=%s: %w", broadcasterUserID, err)
 	}
 	channelID := channelUUID.String()
+	followerUserID := strconv.Itoa(payload.Follower.UserID)
+	followerUserName := payload.Follower.Username
+
+	if h.eventsListRepo != nil {
+		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
+			ChannelID: channelID,
+			UserID:    &followerUserID,
+			Platform:  platform.PlatformKick,
+			Type:      channelseventslistmodel.ChannelEventListItemTypeFollow,
+			Data: &channelseventslistmodel.ChannelsEventsListItemData{
+				FollowUserName:        followerUserName,
+				FollowUserDisplayName: followerUserName,
+			},
+		}); err != nil {
+			return nil, fmt.Errorf("create follow event list item: %w", err)
+		}
+	}
 
 	if err := h.eventsFollow.Publish(
 		ctx,
 		events.FollowMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   channelID,
+				ChannelID:   broadcasterUserID,
+				ChannelDBID: channelID,
 				ChannelName: kickChannelName(payload.Broadcaster),
 				Platform:    platform.PlatformKick,
 			},
-			UserID:   strconv.Itoa(payload.Follower.UserID),
-			UserName: payload.Follower.Username,
+			UserID:          followerUserID,
+			UserName:        followerUserName,
+			UserDisplayName: followerUserName,
 		},
 	); err != nil {
 		return nil, fmt.Errorf("publish follow event: %w", err)

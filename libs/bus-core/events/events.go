@@ -39,6 +39,7 @@ const (
 
 type BaseInfo struct {
 	ChannelID   string            `json:"channel_id"`
+	ChannelDBID string            `json:"channel_db_id,omitempty"`
 	ChannelName string            `json:"channel_name"`
 	Platform    platform.Platform `json:"platform,omitempty"`
 }

@@ -66,6 +66,7 @@ func (c *Handler) HandleChannelFollow(
 		events.FollowMessage{
 			BaseInfo: events.BaseInfo{
 				ChannelID:   event.BroadcasterUserId,
+				ChannelDBID: channelID,
 				ChannelName: event.BroadcasterUserLogin,
 				Platform:    platformentity.PlatformTwitch,
 			},

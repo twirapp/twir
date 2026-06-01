@@ -342,11 +342,24 @@ func (c *EventsGrpcImplementation) Follow(
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID := msg.BaseInfo.ChannelDBID
+	if channelDBID == "" {
+		resolvedChannelID, err := c.resolveInternalChannelID(ctx, eventPlatform, msg.BaseInfo.ChannelID)
+		if err != nil {
+			return struct{}{}, fmt.Errorf("resolve internal channel id: %w", err)
+		}
+		channelDBID = resolvedChannelID
+	}
+
+	streamUserID := msg.BaseInfo.ChannelID
+	if eventPlatform == platform.PlatformKick {
+		streamUserID = channelDBID
+	}
 
 	wg.Go(
 		func() {
 			var stream *deprecatedgormmodel.ChannelsStreams
-			if err := c.db.Where(`"userId" = ?`, msg.BaseInfo.ChannelID).
+			if err := c.db.Where(`"userId" = ?`, streamUserID).
 				Find(&stream).Error; err != nil {
 				c.logger.Error("Error get stream", logger.Error(err))
 				return
@@ -354,17 +367,11 @@ func (c *EventsGrpcImplementation) Follow(
 
 			var streamFollowersCount int64
 			if stream != nil && stream.ID != "" {
-				channelID, err := c.resolveInternalChannelID(ctx, eventPlatform, msg.BaseInfo.ChannelID)
-				if err != nil {
-					c.logger.Error("Error resolve internal channel id", logger.Error(err))
-					return
-				}
-
 				t := channelseventslistmodel.ChannelEventListItemTypeFollow
 				count, err := c.channelsEventsListRepo.CountBy(
 					ctx,
 					channelseventslist.CountByInput{
-						ChannelID:    &channelID,
+						ChannelID:    &channelDBID,
 						Platform:     &eventPlatform,
 						CreatedAtGTE: &stream.StartedAt,
 						Type:         &t,
@@ -415,6 +422,7 @@ func (c *EventsGrpcImplementation) Follow(
 				model.EventTypeFollow,
 				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:              msg.BaseInfo.ChannelID,
+					ChannelDBID:            channelDBID,
 					UserName:               msg.UserName,
 					UserDisplayName:        msg.UserDisplayName,
 					UserID:                 msg.UserID,
@@ -432,7 +440,7 @@ func (c *EventsGrpcImplementation) Follow(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeFollow,
 				msg,
 			)

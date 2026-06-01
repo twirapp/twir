@@ -451,7 +451,7 @@ bun lint
 | File                       | Purpose                            |
 | -------------------------- | ---------------------------------- |
 | `package.json`             | Root workspace config, Bun scripts |
-| `.bun-version`             | Pinned Bun version (1.3.10)        |
+| `.bun-version`             | Pinned Bun version                 |
 | `go.work`                  | Go workspace definition            |
 | `docker-compose.dev.yml`   | Local infrastructure               |
 | `docker-compose.stack.yml` | Production stack (Swarm)           |
