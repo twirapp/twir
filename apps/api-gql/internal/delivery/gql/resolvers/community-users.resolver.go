@@ -143,7 +143,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	}
 	if channel.BotID != "" {
 		botFilter := squirrel.Expr(
-			`"users_stats"."userId" NOT IN (SELECT id::text FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+			`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
 			channel.BotID,
 		)
 		queryBuilder = queryBuilder.Where(botFilter)

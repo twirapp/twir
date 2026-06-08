@@ -82,7 +82,7 @@ SELECT
     )
   END AS stats
 FROM users as u
-LEFT JOIN users_stats us ON us."userId" = $1::text AND us."channelId" = $2::uuid
+LEFT JOIN users_stats us ON us."userId" = $1::uuid AND us."channelId" = $2::uuid
 WHERE u.id = $1::uuid
 LIMIT 1;
 `

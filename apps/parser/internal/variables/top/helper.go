@@ -147,7 +147,7 @@ func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelmodel.C
 	if channel.BotID != "" {
 		qb = qb.Where(
 			squirrel.Expr(
-				`"users_stats"."userId" NOT IN (SELECT id::text FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+				`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
 				channel.BotID,
 			),
 		)
