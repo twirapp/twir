@@ -39,7 +39,8 @@ async function handleUnlink(platform: string) {
 }
 
 function handleConnectKick() {
-	window.location.href = `/api/auth/kick/authorize?redirect_to=${userSettingsPath}`
+	if (!kickAuthLink.value) return
+	window.location.href = kickAuthLink.value
 }
 
 function handleConnectTwitch() {
@@ -131,6 +132,7 @@ function handleConnectTwitch() {
 					<Button
 						variant="default"
 						size="sm"
+						:disabled="!kickAuthLink"
 						@click="handleConnectKick"
 					>
 						<LinkIcon class="mr-2 h-4 w-4" />
