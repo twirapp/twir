@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/google/uuid"
-	"github.com/lib/pq"
-	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/crypto"
 	"io"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/lib/pq"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/crypto"
 )
 
 type TwitchResponse struct {
@@ -116,7 +117,12 @@ func CreateDefaultBot(db *sql.DB, config *cfg.Config) error {
 		panic("🚨 Failed to create bot access token")
 	}
 
-	_, err = db.Exec(`INSERT INTO "bots" ("id", "type", "tokenId") VALUES ($1, $2, $3)`, token.UserID, "DEFAULT", tokenId)
+	_, err = db.Exec(
+		`INSERT INTO "bots" ("id", "type", "tokenId") VALUES ($1, $2, $3)`,
+		token.UserID,
+		"DEFAULT",
+		tokenId,
+	)
 	if err != nil {
 		return err
 	}
