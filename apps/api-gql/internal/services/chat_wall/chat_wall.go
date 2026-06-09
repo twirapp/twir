@@ -31,7 +31,7 @@ type Service struct {
 func (c *Service) mapModelToEntity(m chatwallmodel.ChatWall) entity.ChatWall {
 	return entity.ChatWall{
 		ID:                     m.ID.String(),
-		ChannelID:              m.ChannelID,
+		ChannelID:              m.ChannelID.String(),
 		CreatedAt:              m.CreatedAt,
 		UpdatedAt:              m.UpdatedAt,
 		Phrase:                 m.Phrase,
@@ -48,7 +48,7 @@ func (c *Service) mapModelToEntityLog(m chatwallmodel.ChatWallLog) entity.ChatWa
 		ID:        m.ID.String(),
 		CreatedAt: m.CreatedAt,
 		Text:      m.Text,
-		UserID:    m.UserID,
+		UserID:    m.UserID.String(),
 	}
 }
 
@@ -56,10 +56,15 @@ func (c *Service) GetChatWalls(ctx context.Context, channelID string) (
 	[]entity.ChatWall,
 	error,
 ) {
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse channel id: %w", err)
+	}
+
 	walls, err := c.Repository.GetMany(
 		ctx,
 		chatwallrepository.GetManyInput{
-			ChannelID: channelID,
+			ChannelID: parsedChannelID,
 		},
 	)
 	if err != nil {
@@ -88,7 +93,7 @@ func (c *Service) GetLogs(ctx context.Context, channelId, wallID string) (
 		return nil, fmt.Errorf("failed to get chat wall: %w", err)
 	}
 
-	if wall.ChannelID != channelId {
+	if wall.ChannelID.String() != channelId {
 		return nil, fmt.Errorf("wall does not belong to channel")
 	}
 
@@ -111,7 +116,12 @@ func (c *Service) GetChannelSettings(ctx context.Context, channelID string) (
 	entity.ChatWallSettings,
 	error,
 ) {
-	settings, err := c.Repository.GetChannelSettings(ctx, channelID)
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return entity.ChatWallSettings{}, fmt.Errorf("failed to parse channel id: %w", err)
+	}
+
+	settings, err := c.Repository.GetChannelSettings(ctx, parsedChannelID)
 	if err != nil {
 		if errors.Is(err, chatwallrepository.ErrSettingsNotFound) {
 			return entity.ChatWallSettings{}, ErrSettingsNotFound
@@ -132,10 +142,15 @@ func (c *Service) UpdateChannelSettings(
 	muteSubscribers bool,
 	muteVips bool,
 ) error {
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return fmt.Errorf("failed to parse channel id: %w", err)
+	}
+
 	return c.Repository.UpdateChannelSettings(
 		ctx,
 		chatwallrepository.UpdateChannelSettingsInput{
-			ChannelID:       channelID,
+			ChannelID:       parsedChannelID,
 			MuteSubscribers: muteSubscribers,
 			MuteVips:        muteVips,
 		},

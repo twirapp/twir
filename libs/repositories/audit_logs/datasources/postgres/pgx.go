@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories/audit_logs"
@@ -51,11 +50,16 @@ func (p *Pgx) GetMany(ctx context.Context, input audit_logs.GetManyInput) (
 		OrderBy("created_at DESC")
 
 	perPage := input.Limit
-	if perPage == 0 {
+	if perPage <= 0 {
 		perPage = 20
 	}
 
-	offset := input.Page * perPage
+	page := input.Page
+	if page < 0 {
+		page = 0
+	}
+
+	offset := page * perPage
 
 	selectBuilder = selectBuilder.Limit(uint64(perPage)).Offset(uint64(offset)).OrderBy("created_at DESC")
 
@@ -87,7 +91,7 @@ func (p *Pgx) GetMany(ctx context.Context, input audit_logs.GetManyInput) (
 	if len(input.Systems) > 0 {
 		selectBuilder = selectBuilder.Where(
 			squirrel.Eq{
-				"system": input.Systems,
+				"table_name": input.Systems,
 			},
 		)
 	}
@@ -117,6 +121,35 @@ func (p *Pgx) Count(ctx context.Context, input audit_logs.GetCountInput) (uint64
 
 	if input.ChannelID != nil {
 		selectBuilder = selectBuilder.Where("channel_id = ?", input.ChannelID)
+	}
+
+	if input.ActorID != nil {
+		selectBuilder = selectBuilder.Where("user_id = ?", input.ActorID)
+	}
+
+	if input.ObjectID != nil {
+		selectBuilder = selectBuilder.Where("object_id = ?", input.ObjectID)
+	}
+
+	if len(input.OperationTypes) > 0 {
+		operations := make([]string, 0, len(input.OperationTypes))
+		for _, operation := range input.OperationTypes {
+			operations = append(operations, string(operation))
+		}
+
+		selectBuilder = selectBuilder.Where(
+			squirrel.Eq{
+				"operation_type": operations,
+			},
+		)
+	}
+
+	if len(input.Systems) > 0 {
+		selectBuilder = selectBuilder.Where(
+			squirrel.Eq{
+				"table_name": input.Systems,
+			},
+		)
 	}
 
 	query, args, err := selectBuilder.ToSql()
@@ -152,8 +185,7 @@ func (p *Pgx) Create(ctx context.Context, input audit_logs.CreateInput) error {
 		return err
 	}
 
-	var id uuid.UUID
-	err = p.pool.QueryRow(ctx, query, args...).Scan(&id)
+	_, err = p.pool.Exec(ctx, query, args...)
 	if err != nil {
 		return err
 	}

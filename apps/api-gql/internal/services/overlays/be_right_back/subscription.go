@@ -7,7 +7,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/bus-core/api"
-	usermodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func createSettingsSubscriptionKey(channelID string) string {
@@ -26,15 +25,12 @@ func (s *Service) SettingsSubscriptionSignalerByApiKey(
 	ctx context.Context,
 	apiKey string,
 ) (<-chan entity.BeRightBackOverlay, error) {
-	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
+	channelID, err := s.resolveChannelIDByAPIKey(ctx, apiKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user by api key: %w", err)
-	}
-	if user == usermodel.Nil {
-		return nil, fmt.Errorf("user not found for provided api key")
+		return nil, fmt.Errorf("failed to resolve channel by api key: %w", err)
 	}
 
-	wsRouterSub, err := s.wsRouter.Subscribe([]string{createSettingsSubscriptionKey(user.ID)})
+	wsRouterSub, err := s.wsRouter.Subscribe([]string{createSettingsSubscriptionKey(channelID)})
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +38,7 @@ func (s *Service) SettingsSubscriptionSignalerByApiKey(
 	chann := make(chan entity.BeRightBackOverlay, 1)
 
 	// get initial initialSettings
-	initialSettings, err := s.GetOrCreate(ctx, user.ID)
+	initialSettings, err := s.GetOrCreate(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get be right back overlay: %w", err)
 	}
@@ -77,15 +73,12 @@ func (s *Service) StartSubscriptionSignalerByApiKey(
 	ctx context.Context,
 	apiKey string,
 ) (<-chan api.TriggerBrbStart, error) {
-	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
+	channelID, err := s.resolveChannelIDByAPIKey(ctx, apiKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user by api key: %w", err)
-	}
-	if user == usermodel.Nil {
-		return nil, fmt.Errorf("user not found for provided api key")
+		return nil, fmt.Errorf("failed to resolve channel by api key: %w", err)
 	}
 
-	wsRouterSub, err := s.wsRouter.Subscribe([]string{createStartSubscriptionKey(user.ID)})
+	wsRouterSub, err := s.wsRouter.Subscribe([]string{createStartSubscriptionKey(channelID)})
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +101,7 @@ func (s *Service) StartSubscriptionSignalerByApiKey(
 					panic(err)
 				}
 
-				if msg.ChannelId != user.ID {
+				if msg.ChannelId != channelID {
 					continue
 				}
 
@@ -124,15 +117,12 @@ func (s *Service) StopSubscriptionSignalerByApiKey(
 	ctx context.Context,
 	apiKey string,
 ) (<-chan bool, error) {
-	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
+	channelID, err := s.resolveChannelIDByAPIKey(ctx, apiKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user by api key: %w", err)
-	}
-	if user == usermodel.Nil {
-		return nil, fmt.Errorf("user not found for provided api key")
+		return nil, fmt.Errorf("failed to resolve channel by api key: %w", err)
 	}
 
-	wsRouterSub, err := s.wsRouter.Subscribe([]string{createStopSubscriptionKey(user.ID)})
+	wsRouterSub, err := s.wsRouter.Subscribe([]string{createStopSubscriptionKey(channelID)})
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +145,7 @@ func (s *Service) StopSubscriptionSignalerByApiKey(
 					panic(err)
 				}
 
-				if msg.ChannelId != user.ID {
+				if msg.ChannelId != channelID {
 					continue
 				}
 

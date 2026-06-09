@@ -223,23 +223,23 @@ onMounted(() => {
 						<CommandMenuItem
 							v-for="dashboard in profile.availableDashboards"
 							:key="dashboard.id"
-							:value="`dashboard ${dashboard.twitchProfile.login} ${dashboard.twitchProfile.displayName}`"
+							:value="`dashboard ${dashboard.twitchProfile?.login ?? ''} ${dashboard.twitchProfile?.displayName ?? ''}`"
 							:is-active="dashboard.id === currentDashboard?.id"
 							@select="() => runCommand(() => setDashboard(dashboard.id))"
 							class="cursor-pointer"
 						>
 							<Avatar class="mr-2 h-4 w-4 flex-shrink-0">
 								<AvatarImage
-									:src="dashboard.twitchProfile.profileImageUrl"
-									:alt="dashboard.twitchProfile.displayName"
+									:src="dashboard.twitchProfile?.profileImageUrl ?? ''"
+									:alt="dashboard.twitchProfile?.displayName ?? ''"
 								/>
 								<AvatarFallback>
 									<User class="h-3 w-3" />
 								</AvatarFallback>
 							</Avatar>
-							<span class="truncate">{{ dashboard.twitchProfile.displayName }}</span>
+							<span class="truncate">{{ dashboard.twitchProfile?.displayName ?? '' }}</span>
 							<span class="text-muted-foreground ml-2 truncate text-xs">
-								@{{ dashboard.twitchProfile.login }}
+								@{{ dashboard.twitchProfile?.login ?? '' }}
 							</span>
 						</CommandMenuItem>
 					</CommandGroup>

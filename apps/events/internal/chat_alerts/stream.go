@@ -35,9 +35,10 @@ func (c *ChatAlerts) streamOnline(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:      req.ChannelID,
-			Message:        text,
-			SkipRateLimits: true,
+			ChannelId:         req.ChannelID,
+			PlatformChannelID: req.ChannelID,
+			Message:           text,
+			SkipRateLimits:    true,
 		},
 	)
 }
@@ -65,9 +66,10 @@ func (c *ChatAlerts) streamOffline(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:      req.ChannelID,
-			Message:        text,
-			SkipRateLimits: true,
+			ChannelId:         req.ChannelID,
+			PlatformChannelID: req.ChannelID,
+			Message:           text,
+			SkipRateLimits:    true,
 		},
 	)
 }

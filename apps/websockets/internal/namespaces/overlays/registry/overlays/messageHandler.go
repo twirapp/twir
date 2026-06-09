@@ -85,6 +85,32 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			return
 		}
 
+		var channel model.Channels
+		if err := c.gorm.
+			Select("twitch_user_id").
+			First(&channel, "id = ?", layer.Overlay.ChannelID).
+			Error; err != nil {
+			c.logger.Error(err.Error())
+			return
+		}
+		var channelTwitchUserID string
+		if channel.TwitchUserID != nil {
+			channelTwitchUserID = *channel.TwitchUserID
+		}
+
+		var twitchPlatformID string
+		if channel.TwitchUserID != nil {
+			var platformID string
+			if err := c.gorm.Raw(
+				`SELECT platform_id FROM users WHERE id = ? LIMIT 1`,
+				*channel.TwitchUserID,
+			).Scan(&platformID).Error; err != nil {
+				c.logger.Error(err.Error())
+				return
+			}
+			twitchPlatformID = platformID
+		}
+
 		// Handle both old base64-encoded data and new plain text data
 		// Try to decode as base64. If successful, use decoded text.
 		// Otherwise, use the original text (new GraphQL format stores plain text).
@@ -96,8 +122,9 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 		res, err := c.bus.Parser.ParseVariablesInText.Request(
 			context.Background(),
 			parser.ParseVariablesInTextRequest{
-				ChannelID: layer.Overlay.ChannelID,
-				Text:      text,
+				ChannelID:           twitchPlatformID,
+				ChannelTwitchUserID: channelTwitchUserID,
+				Text:                text,
 			},
 		)
 		if err != nil {

@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/libs/audit"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/errors"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
@@ -26,6 +27,7 @@ type UpdateInput struct {
 	TimeInterval    *int
 	MessageInterval *int
 	Responses       []CreateResponse
+	Platforms       []platform.Platform
 }
 
 func (c *Service) Update(ctx context.Context, data UpdateInput) (timersentity.Timer, error) {
@@ -67,6 +69,7 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (timersentity.Ti
 			TimeInterval:    data.TimeInterval,
 			MessageInterval: data.MessageInterval,
 			Responses:       responses,
+			Platforms:       data.Platforms,
 		},
 	)
 	if err != nil {

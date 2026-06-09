@@ -24,6 +24,8 @@ func (c *Activity) RaidChannel(
 
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -38,7 +40,7 @@ func (c *Activity) RaidChannel(
 		return errors.New("no channel id provided")
 	}
 
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(context.TODO(), data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(context.TODO(), data.ChannelTwitchUserID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}

@@ -31,9 +31,6 @@ Follow these steps to enable the Twitch mock server in your local Twir environme
    bun dev
    ```
 
-4. **Login and Test:**
-   Visit `http://localhost:3010` in your browser. You can now log in using the mock credentials.
-
 ## Fake Users
 
 The mock server comes pre-configured with two primary user accounts. Use these IDs and logins when testing features that require specific roles.

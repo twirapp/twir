@@ -33,6 +33,8 @@ type Config struct {
 	RedisUrl           string `required:"true"  default:"redis://localhost:6379/0"    envconfig:"REDIS_URL"`
 	TwitchClientId     string `required:"true"                                        envconfig:"TWITCH_CLIENTID"`
 	TwitchClientSecret string `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
+	KickClientId       string `required:"false"                                       envconfig:"KICK_CLIENT_ID"`
+	KickClientSecret   string `required:"false"                                       envconfig:"KICK_CLIENT_SECRET"`
 	DatabaseUrl        string `required:"true"                                        envconfig:"DATABASE_URL"`
 	ClickhouseUrl      string `required:"true"  default:"clickhouse://twir:twir@127.0.0.1:9000/twir" envconfig:"CLICKHOUSE_URL"`
 	AppEnv             string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
@@ -84,6 +86,7 @@ type Config struct {
 	ExecutronCfClientSecret string `required:"false" envconfig:"EXECUTRON_CF_CLIENT_SECRET"`
 
 	EventSubDisableSignatureVerification bool `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
+	EventsubHttpPort                     int  `required:"false" default:"3030"  envconfig:"EVENTSUB_HTTP_PORT"`
 
 	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
 	DonationAlertsSecret   string `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
@@ -122,6 +125,15 @@ func (c *Config) GetTwitchCallbackUrl() string {
 	}
 
 	return u.JoinPath("login").String()
+}
+
+func (c *Config) GetKickCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("login", "kick").String()
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

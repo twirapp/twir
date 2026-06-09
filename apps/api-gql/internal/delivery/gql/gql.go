@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
@@ -97,12 +98,22 @@ func New(opts Opts) *Gql {
 		func(ctx context.Context, err error) *gqlerror.Error {
 			gerr := graphql.DefaultErrorPresenter(ctx, err)
 
-			opts.Logger.Error(
+			logErr := err
+			if gerr.Extensions != nil {
+				if cause, ok := gerr.Extensions[gqlerrors.InternalCauseKey]; ok {
+					if causeErr, ok := cause.(error); ok {
+						logErr = causeErr
+					}
+					delete(gerr.Extensions, gqlerrors.InternalCauseKey)
+				}
+			}
+
+			opts.Logger.ErrorContext(
+				ctx,
 				"GraphQL error",
-				slog.String("message", gerr.Message),
 				slog.String("path", gerr.Path.String()),
 				slog.Any("extensions", gerr.Extensions),
-				logger.Error(gerr.Err),
+				logger.Error(logErr),
 			)
 
 			return gerr

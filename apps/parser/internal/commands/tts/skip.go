@@ -29,7 +29,7 @@ var SkipCommand = &types.DefaultCommand{
 		err := parseCtx.Services.Bus.Api.TriggerTtsSkip.Publish(
 			ctx,
 			api.TriggerTtsSkip{
-				ChannelId: parseCtx.Channel.ID,
+				ChannelId: parseCtx.Channel.DBChannelID,
 			},
 		)
 		if err != nil {

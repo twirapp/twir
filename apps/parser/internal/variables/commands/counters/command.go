@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -21,18 +20,10 @@ var CommandCounter = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		commandUUID, err := uuid.Parse(parseCtx.Command.ID.String())
-		if err != nil {
-			parseCtx.Services.Logger.Sugar().Error(err)
-
-			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Commands.Info.GetCount)
-			return result, nil
-		}
-
 		count, err := parseCtx.Services.ChannelsCommandsUsagesRepo.Count(
 			ctx, channelscommandsusages.CountInput{
 				ChannelID: &parseCtx.Channel.ID,
-				CommandID: &commandUUID,
+				CommandID: &parseCtx.Command.ID,
 			},
 		)
 		if err != nil {

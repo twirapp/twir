@@ -2,15 +2,22 @@ package entity
 
 import (
 	"time"
+
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type User struct {
 	ID                string
+	Platform          platformentity.Platform
+	PlatformID        string
 	TokenID           *string
 	IsBotAdmin        bool
 	ApiKey            string
 	IsBanned          bool
 	HideOnLandingPage bool
+	Login             string
+	DisplayName       string
+	Avatar            string
 }
 
 var UserNil = User{}

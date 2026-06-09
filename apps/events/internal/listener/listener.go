@@ -2,6 +2,8 @@ package listener
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 
@@ -16,12 +18,16 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/utils"
 	"go.uber.org/fx"
@@ -43,7 +49,9 @@ type Opts struct {
 	EventsWorkflow         *workflows.EventWorkflow
 	SongRequest            *song_request.SongRequest
 	TwirBus                *buscore.Bus
+	ChannelsRepo           channelsrepository.Repository
 	ChannelsEventsListRepo channelseventslist.Repository
+	UsersRepo              usersrepository.Repository
 }
 
 func New(opts Opts) error {
@@ -57,7 +65,9 @@ func New(opts Opts) error {
 		eventsWorkflow:         opts.EventsWorkflow,
 		songsRequest:           opts.SongRequest,
 		twirBus:                opts.TwirBus,
+		channelsRepo:           opts.ChannelsRepo,
 		channelsEventsListRepo: opts.ChannelsEventsListRepo,
+		usersRepo:              opts.UsersRepo,
 	}
 
 	opts.Lc.Append(
@@ -283,7 +293,59 @@ type EventsGrpcImplementation struct {
 	eventsWorkflow         *workflows.EventWorkflow
 	songsRequest           *song_request.SongRequest
 	twirBus                *buscore.Bus
+	channelsRepo           channelsrepository.Repository
 	channelsEventsListRepo channelseventslist.Repository
+	usersRepo              usersrepository.Repository
+}
+
+func normalizeEventPlatform(p platform.Platform) platform.Platform {
+	if p == "" {
+		return platform.PlatformTwitch
+	}
+
+	return p
+}
+
+func withPlatform(p platform.Platform, data shared.EventData) shared.EventData {
+	data.Platform = normalizeEventPlatform(p)
+	return data
+}
+
+func (c *EventsGrpcImplementation) resolveInternalChannelID(
+	ctx context.Context,
+	plat platform.Platform,
+	platformChannelID string,
+) (string, error) {
+	user, err := c.usersRepo.GetByPlatformID(ctx, plat, platformChannelID)
+	if err != nil {
+		return "", fmt.Errorf("resolve user by platform id: %w", err)
+	}
+
+	switch plat {
+	case platform.PlatformKick:
+		channel, err := c.channelsRepo.GetByKickUserID(ctx, user.ID)
+		if err != nil {
+			return "", fmt.Errorf("resolve channel by kick user id: %w", err)
+		}
+		return channel.ID.String(), nil
+	default:
+		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+		if err != nil {
+			return "", fmt.Errorf("resolve channel by twitch user id: %w", err)
+		}
+		return channel.ID.String(), nil
+	}
+}
+
+func (c *EventsGrpcImplementation) resolveChannelDBID(
+	ctx context.Context,
+	eventPlatform platform.Platform,
+	baseInfo *events.BaseInfo,
+) (string, error) {
+	if baseInfo.ChannelDBID != "" {
+		return baseInfo.ChannelDBID, nil
+	}
+	return c.resolveInternalChannelID(ctx, eventPlatform, baseInfo.ChannelID)
 }
 
 func (c *EventsGrpcImplementation) Follow(
@@ -291,11 +353,25 @@ func (c *EventsGrpcImplementation) Follow(
 	msg events.FollowMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID := msg.BaseInfo.ChannelDBID
+	if channelDBID == "" {
+		resolvedChannelID, err := c.resolveInternalChannelID(ctx, eventPlatform, msg.BaseInfo.ChannelID)
+		if err != nil {
+			return struct{}{}, fmt.Errorf("resolve internal channel id: %w", err)
+		}
+		channelDBID = resolvedChannelID
+	}
+
+	streamUserID := msg.BaseInfo.ChannelID
+	if eventPlatform == platform.PlatformKick {
+		streamUserID = channelDBID
+	}
 
 	wg.Go(
 		func() {
 			var stream *deprecatedgormmodel.ChannelsStreams
-			if err := c.db.Where(`"userId" = ?`, msg.BaseInfo.ChannelID).
+			if err := c.db.Where(`"userId" = ?`, streamUserID).
 				Find(&stream).Error; err != nil {
 				c.logger.Error("Error get stream", logger.Error(err))
 				return
@@ -307,7 +383,8 @@ func (c *EventsGrpcImplementation) Follow(
 				count, err := c.channelsEventsListRepo.CountBy(
 					ctx,
 					channelseventslist.CountByInput{
-						ChannelID:    &msg.BaseInfo.ChannelID,
+						ChannelID:    &channelDBID,
+						Platform:     &eventPlatform,
 						CreatedAtGTE: &stream.StartedAt,
 						Type:         &t,
 					},
@@ -320,38 +397,50 @@ func (c *EventsGrpcImplementation) Follow(
 				streamFollowersCount = count
 			}
 
-			twitchClient, err := twitchlib.NewUserClientWithContext(
-				ctx,
-				msg.BaseInfo.ChannelID,
-				c.cfg,
-				c.twirBus,
-			)
-			if err != nil {
-				c.logger.Error("Error create twitch client", logger.Error(err))
-				return
+			var totalFollowers int64
+			if eventPlatform == platform.PlatformTwitch {
+				user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, msg.BaseInfo.ChannelID)
+				if err != nil {
+					c.logger.Error("Error get user by platform ID", logger.Error(err))
+					return
+				}
+
+				twitchClient, err := twitchlib.NewUserClientWithContext(
+					ctx,
+					user.ID,
+					c.cfg,
+					c.twirBus,
+				)
+				if err != nil {
+					c.logger.Error("Error create twitch client", logger.Error(err))
+					return
+				}
+
+				followersReq, err := twitchClient.GetChannelFollows(
+					&helix.GetChannelFollowsParams{
+						BroadcasterID: msg.BaseInfo.ChannelID,
+					},
+				)
+				if err != nil {
+					c.logger.Error("Error get channel followers", logger.Error(err))
+					return
+				}
+
+				totalFollowers = int64(followersReq.Data.Total)
 			}
 
-			followersReq, err := twitchClient.GetChannelFollows(
-				&helix.GetChannelFollowsParams{
-					BroadcasterID: msg.BaseInfo.ChannelID,
-				},
-			)
-			if err != nil {
-				c.logger.Error("Error get channel followers", logger.Error(err))
-				return
-			}
-
-			err = c.eventsWorkflow.Execute(
+			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeFollow,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:              msg.BaseInfo.ChannelID,
+					ChannelDBID:            channelDBID,
 					UserName:               msg.UserName,
 					UserDisplayName:        msg.UserDisplayName,
 					UserID:                 msg.UserID,
-					ChannelFollowers:       int64(followersReq.Data.Total),
+					ChannelFollowers:       totalFollowers,
 					ChannelStreamFollowers: streamFollowersCount,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -363,7 +452,7 @@ func (c *EventsGrpcImplementation) Follow(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeFollow,
 				msg,
 			)
@@ -380,18 +469,25 @@ func (c *EventsGrpcImplementation) Subscribe(
 	msg events.SubscribeMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeSubscribe,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserDisplayName: msg.UserDisplayName,
 					SubLevel:        msg.Level,
 					UserID:          msg.UserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -403,12 +499,14 @@ func (c *EventsGrpcImplementation) Subscribe(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeSubscribe,
 				chat_alerts.SubscribeMessage{
-					UserName:  msg.UserName,
-					Months:    0,
-					ChannelId: msg.BaseInfo.ChannelID,
+					UserName:    msg.UserName,
+					Months:      0,
+					ChannelId:   channelDBID,
+					ChannelName: msg.BaseInfo.ChannelName,
+					Platform:    eventPlatform,
 				},
 			)
 		},
@@ -424,21 +522,28 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 	msg events.ReSubscribeMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeResubscribe,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserDisplayName: msg.UserDisplayName,
 					SubLevel:        msg.Level,
 					ResubMessage:    msg.Message,
 					ResubMonths:     msg.Months,
 					ResubStreak:     msg.Streak,
 					UserID:          msg.UserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -450,7 +555,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeResubscribe,
 				msg,
 			)
@@ -467,14 +572,21 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 	msg events.RedemptionCreatedMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeRedemptionCreated,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					RewardCost:      msg.RewardCost,
@@ -482,7 +594,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 					RewardName:      msg.RewardName,
 					RewardID:        msg.ID,
 					UserID:          msg.UserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -494,7 +606,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeRedemptionCreated,
 				msg,
 			)
@@ -511,6 +623,12 @@ func (c *EventsGrpcImplementation) CommandUsed(
 	msg events.CommandUsedMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -519,6 +637,7 @@ func (c *EventsGrpcImplementation) CommandUsed(
 				model.EventTypeCommandUsed,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					CommandName:     msg.CommandName,
@@ -544,6 +663,12 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 	msg events.FirstUserMessageMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -552,6 +677,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 				model.EventTypeFirstUserMessage,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					UserID:          msg.UserID,
@@ -567,7 +693,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeFirstUserMessage,
 				msg,
 			)
@@ -584,6 +710,12 @@ func (c *EventsGrpcImplementation) Raided(
 	msg events.RaidedMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -592,6 +724,7 @@ func (c *EventsGrpcImplementation) Raided(
 				model.EventTypeRaided,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					RaidViewers:     msg.Viewers,
@@ -608,7 +741,7 @@ func (c *EventsGrpcImplementation) Raided(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeRaided,
 				msg,
 			)
@@ -625,6 +758,12 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 	msg events.TitleOrCategoryChangedMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -633,6 +772,7 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 				model.EventTypeTitleOrCategoryChanged,
 				shared.EventData{
 					ChannelID:         msg.BaseInfo.ChannelID,
+					ChannelDBID:       channelDBID,
 					OldStreamCategory: msg.OldCategory,
 					NewStreamCategory: msg.NewCategory,
 					OldStreamTitle:    msg.OldTitle,
@@ -655,6 +795,14 @@ func (c *EventsGrpcImplementation) StreamOnline(
 	msg twitch.StreamOnlineMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	channelDBID, err := c.resolveInternalChannelID(ctx, platform.PlatformTwitch, msg.ChannelID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) || errors.Is(err, channelsrepository.ErrNotFound) {
+			return struct{}{}, nil
+		}
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -663,6 +811,7 @@ func (c *EventsGrpcImplementation) StreamOnline(
 				model.EventTypeStreamOnline,
 				shared.EventData{
 					ChannelID:      msg.ChannelID,
+					ChannelDBID:    channelDBID,
 					StreamTitle:    msg.Title,
 					StreamCategory: msg.CategoryName,
 				},
@@ -677,7 +826,7 @@ func (c *EventsGrpcImplementation) StreamOnline(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.ChannelID,
+				channelDBID,
 				model.EventTypeStreamOnline,
 				msg,
 			)
@@ -694,6 +843,14 @@ func (c *EventsGrpcImplementation) StreamOffline(
 	msg twitch.StreamOfflineMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	channelDBID, err := c.resolveInternalChannelID(ctx, platform.PlatformTwitch, msg.ChannelID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) || errors.Is(err, channelsrepository.ErrNotFound) {
+			return struct{}{}, nil
+		}
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -701,7 +858,8 @@ func (c *EventsGrpcImplementation) StreamOffline(
 				ctx,
 				model.EventTypeStreamOffline,
 				shared.EventData{
-					ChannelID: msg.ChannelID,
+					ChannelID:   msg.ChannelID,
+					ChannelDBID: channelDBID,
 				},
 			)
 			if err != nil {
@@ -714,7 +872,7 @@ func (c *EventsGrpcImplementation) StreamOffline(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.ChannelID,
+				channelDBID,
 				model.EventTypeStreamOffline,
 				msg,
 			)
@@ -731,19 +889,26 @@ func (c *EventsGrpcImplementation) SubGift(
 	msg events.SubGiftMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeSubGift,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:             msg.BaseInfo.ChannelID,
+					ChannelDBID:           channelDBID,
 					TargetUserName:        msg.TargetUserName,
 					TargetUserDisplayName: msg.TargetDisplayName,
 					SubLevel:              msg.Level,
 					UserID:                msg.SenderUserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -761,6 +926,12 @@ func (c *EventsGrpcImplementation) ChatClear(
 	msg events.ChatClearMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -768,7 +939,8 @@ func (c *EventsGrpcImplementation) ChatClear(
 				ctx,
 				model.EventTypeOnChatClear,
 				shared.EventData{
-					ChannelID: msg.BaseInfo.ChannelID,
+					ChannelID:   msg.BaseInfo.ChannelID,
+					ChannelDBID: channelDBID,
 				},
 			)
 			if err != nil {
@@ -781,7 +953,7 @@ func (c *EventsGrpcImplementation) ChatClear(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeOnChatClear,
 				msg,
 			)
@@ -798,6 +970,12 @@ func (c *EventsGrpcImplementation) Donate(
 	msg events.DonateMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -806,6 +984,7 @@ func (c *EventsGrpcImplementation) Donate(
 				model.EventTypeDonate,
 				shared.EventData{
 					ChannelID:      msg.BaseInfo.ChannelID,
+					ChannelDBID:    channelDBID,
 					UserName:       msg.UserName,
 					DonateAmount:   msg.Amount,
 					DonateCurrency: msg.Currency,
@@ -822,7 +1001,7 @@ func (c *EventsGrpcImplementation) Donate(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeDonate,
 				msg,
 			)
@@ -834,7 +1013,7 @@ func (c *EventsGrpcImplementation) Donate(
 			err := c.songsRequest.ProcessFromDonation(
 				ctx, song_request.ProcessFromDonationInput{
 					Text:      msg.Message,
-					ChannelID: msg.BaseInfo.ChannelID,
+					ChannelID: channelDBID,
 				},
 			)
 			if err != nil {
@@ -853,21 +1032,28 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 	msg events.KeywordMatchedMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeKeywordMatched,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					KeywordName:     msg.KeywordName,
 					KeywordResponse: msg.KeywordResponse,
 					KeywordID:       msg.KeywordID,
 					UserID:          msg.UserID,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -915,6 +1101,12 @@ func (c *EventsGrpcImplementation) PollBegin(
 	msg events.PollBeginMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -923,6 +1115,7 @@ func (c *EventsGrpcImplementation) PollBegin(
 				model.EventTypePollBegin,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					PollTitle:       msg.Info.Title,
@@ -957,6 +1150,12 @@ func (c *EventsGrpcImplementation) PollProgress(
 	)
 
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -965,6 +1164,7 @@ func (c *EventsGrpcImplementation) PollProgress(
 				model.EventTypePollProgress,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserDisplayName: msg.UserDisplayName,
 					PollTitle:       msg.Info.Title,
 					PollOptionsNames: strings.Join(
@@ -1006,6 +1206,12 @@ func (c *EventsGrpcImplementation) PollEnd(
 	)
 
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -1014,6 +1220,7 @@ func (c *EventsGrpcImplementation) PollEnd(
 				model.EventTypePollEnd,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserDisplayName: msg.UserDisplayName,
 					PollTitle:       msg.Info.Title,
 					PollOptionsNames: strings.Join(
@@ -1045,6 +1252,12 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 	ctx context.Context, msg events.PredictionBeginMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -1053,6 +1266,7 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 				model.EventTypePredictionBegin,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
@@ -1086,6 +1300,12 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 	)
 
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -1094,6 +1314,7 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 				model.EventTypePredictionProgress,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
 					PredictionOptionsNames: strings.Join(
@@ -1128,6 +1349,12 @@ func (c *EventsGrpcImplementation) PredictionLock(
 	)
 
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -1136,6 +1363,7 @@ func (c *EventsGrpcImplementation) PredictionLock(
 				model.EventTypePredictionLock,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
 					PredictionOptionsNames: strings.Join(
@@ -1176,6 +1404,12 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 	)
 
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -1184,6 +1418,7 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 				model.EventTypePredictionEnd,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelID,
+					ChannelDBID:     channelDBID,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
 					PredictionOptionsNames: strings.Join(
@@ -1245,20 +1480,27 @@ func (c *EventsGrpcImplementation) ChannelBan(
 	msg events.ChannelBanMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeChannelBan,
-				shared.EventData{
+				withPlatform(eventPlatform, shared.EventData{
 					ChannelID:            msg.BaseInfo.ChannelID,
+					ChannelDBID:          channelDBID,
 					UserDisplayName:      msg.UserName,
 					ModeratorDisplayName: msg.ModeratorUserName,
 					ModeratorName:        msg.ModeratorUserLogin,
 					BanReason:            msg.Reason,
 					BanEndsInMinutes:     msg.EndsAt,
-				},
+				}),
 			)
 			if err != nil {
 				c.logger.Error("Error execute workflow", logger.Error(err))
@@ -1270,7 +1512,7 @@ func (c *EventsGrpcImplementation) ChannelBan(
 		func() {
 			c.chatAlerts.ProcessEvent(
 				ctx,
-				msg.BaseInfo.ChannelID,
+				channelDBID,
 				model.EventTypeChannelBan,
 				msg,
 			)
@@ -1286,18 +1528,26 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestCreate(
 	ctx context.Context,
 	msg events.ChannelUnbanRequestCreateMessage,
 ) (struct{}, error) {
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
+
 	c.chatAlerts.ProcessEvent(
 		ctx,
-		msg.BaseInfo.ChannelID,
+		channelDBID,
 		model.EventTypeRedemptionCreated,
 		msg,
 	)
 
-	err := c.eventsWorkflow.Execute(
+	err = c.eventsWorkflow.Execute(
 		ctx,
 		model.EventTypeRedemptionCreated,
 		shared.EventData{
 			ChannelID:       msg.BaseInfo.ChannelID,
+			ChannelDBID:     channelDBID,
 			UserName:        msg.UserLogin,
 			UserDisplayName: msg.UserName,
 			Message:         msg.Text,
@@ -1314,11 +1564,19 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestResolve(
 	ctx context.Context,
 	msg events.ChannelUnbanRequestResolveMessage,
 ) (struct{}, error) {
-	err := c.eventsWorkflow.Execute(
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
+
+	err = c.eventsWorkflow.Execute(
 		ctx,
 		model.EventTypeChannelUnbanRequestResolve,
 		shared.EventData{
 			ChannelID:                          msg.BaseInfo.ChannelID,
+			ChannelDBID:                        channelDBID,
 			UserName:                           msg.UserLogin,
 			UserDisplayName:                    msg.UserName,
 			Message:                            msg.Reason,
@@ -1338,18 +1596,26 @@ func (c *EventsGrpcImplementation) ChannelMessageDelete(
 	ctx context.Context,
 	msg events.ChannelMessageDeleteMessage,
 ) (struct{}, error) {
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
+
 	c.chatAlerts.ProcessEvent(
 		ctx,
-		msg.BaseInfo.ChannelID,
+		channelDBID,
 		model.EventTypeChannelMessageDelete,
 		msg,
 	)
 
-	err := c.eventsWorkflow.Execute(
+	err = c.eventsWorkflow.Execute(
 		ctx,
 		model.EventTypeChannelMessageDelete,
 		shared.EventData{
 			ChannelID:       msg.BaseInfo.ChannelID,
+			ChannelDBID:     channelDBID,
 			UserName:        msg.UserLogin,
 			UserDisplayName: msg.UserName,
 			ChatMessageId:   msg.MessageId,

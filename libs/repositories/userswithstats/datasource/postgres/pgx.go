@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -35,7 +34,6 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 }
 
 var _ userswithstats.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -44,12 +42,12 @@ type Pgx struct {
 
 type userStatScanJsonRow struct {
 	ID             uuid.UUID `json:"id"`
-	UserID         string    `json:"user_id"`
-	ChannelID      string    `json:"channel_id"`
+	UserID         uuid.UUID `json:"user_id"`
+	ChannelID      uuid.UUID `json:"channel_id"`
 	Messages       int       `json:"messages"`
 	Emotes         int       `json:"emotes"`
 	Watched        int       `json:"watched"`
-	UsedChannelPts int       `json:"used_channel_emotes"`
+	UsedChannelPts int       `json:"used_channel_points"`
 	IsMod          bool      `json:"is_mod"`
 	IsVip          bool      `json:"is_vip"`
 	IsSubscriber   bool      `json:"is_subscriber"`
@@ -74,9 +72,9 @@ SELECT
       'messages', us."messages",
       'emotes', us."emotes",
       'watched', us."watched",
-      'used_channel_emotes', us."usedChannelPoints",
+			'used_channel_points', us."usedChannelPoints",
       'is_mod', us."is_mod",
-      'isVip', us."is_vip",
+			'is_vip', us."is_vip",
       'is_subscriber', us."is_subscriber",
       'reputation', us."reputation",
       'created_at', us."created_at",
@@ -84,8 +82,8 @@ SELECT
     )
   END AS stats
 FROM users as u
-LEFT JOIN users_stats us ON us."userId" = u.id AND us."channelId" = $2
-WHERE u.id = $1
+LEFT JOIN users_stats us ON us."userId" = $1::uuid AND us."channelId" = $2::uuid
+WHERE u.id = $1::uuid
 LIMIT 1;
 `
 

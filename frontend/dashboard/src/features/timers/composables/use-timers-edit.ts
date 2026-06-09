@@ -23,6 +23,7 @@ export const formSchema = object({
 	enabled: boolean().default(true),
 	offlineEnabled: boolean().default(false),
 	onlineEnabled: boolean().default(true),
+	platforms: array(string()).default([]),
 });
 
 type FormSchema = TypeOf<typeof formSchema>;

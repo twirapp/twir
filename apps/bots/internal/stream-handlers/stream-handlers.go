@@ -6,18 +6,20 @@ import (
 
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 )
 
 type PubSubHandlers struct {
-	db                  *gorm.DB
 	logger              *slog.Logger
 	bus                 *bus_core.Bus
+	channelsRepo        channelsrepository.Repository
 	greetingsRepository greetings.Repository
 	greetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+	usersRepo           usersrepository.Repository
 }
 
 type Opts struct {
@@ -25,20 +27,22 @@ type Opts struct {
 
 	LC fx.Lifecycle
 
-	DB                  *gorm.DB
 	Bus                 *bus_core.Bus
+	ChannelsRepo        channelsrepository.Repository
 	Logger              *slog.Logger
 	GreetingsRepository greetings.Repository
 	GreetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+	UsersRepo           usersrepository.Repository
 }
 
 func New(opts Opts) {
 	service := &PubSubHandlers{
-		db:                  opts.DB,
 		logger:              opts.Logger,
 		bus:                 opts.Bus,
+		channelsRepo:        opts.ChannelsRepo,
 		greetingsRepository: opts.GreetingsRepository,
 		greetingsCacher:     opts.GreetingsCacher,
+		usersRepo:           opts.UsersRepo,
 	}
 
 	opts.LC.Append(

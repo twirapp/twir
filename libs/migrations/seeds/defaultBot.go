@@ -72,7 +72,7 @@ func CreateDefaultBot(db *sql.DB, config *cfg.Config) error {
 	}
 
 	if resp.StatusCode != 200 {
-		panic("🚨 Invalid bot access token " + string(body))
+		panic("🚨 Invalid bot access token " + string(body) + " " + config.BotAccessToken[0:5] + "...")
 	}
 
 	token := TwitchResponse{}

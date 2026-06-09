@@ -1239,7 +1239,7 @@ Wave FINAL — Review (after ALL implementation tasks):
   - Message: `feat(session): store internal UUID + current platform; add Kick session support`
   - Files: `apps/api-gql/internal/auth/sessions_user.go`, `apps/api-gql/internal/auth/auth.go`
 
-- [ ] 12. kick_bots Repository (pgx)
+- [x] 12. kick_bots Repository (pgx)
 
   **What to do**:
   - Create `libs/repositories/kick_bots/repository.go`:
@@ -1290,7 +1290,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ---
 
-- [ ] 13. HTTP Server Setup in apps/eventsub
+- [x] 13. HTTP Server Setup in apps/eventsub
 
   **What to do**:
   - Add an HTTP server to `apps/eventsub` (alongside or wrapping the existing Twitch WebSocket
@@ -1361,7 +1361,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ---
 
-- [ ] 14. Kick Webhook HMAC-SHA256 Verification Middleware
+- [x] 14. Kick Webhook HMAC-SHA256 Verification Middleware
 
   **What to do**:
   - Implement an HTTP middleware (or handler-level check) for the `/webhook/kick` route that
@@ -1444,7 +1444,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ---
 
-- [ ] 15. Kick EventSub Subscription Manager
+- [x] 15. Kick EventSub Subscription Manager
 
   **What to do**:
   - Create `apps/eventsub/internal/kick/subscription_manager.go` that manages Kick EventSub
@@ -1522,7 +1522,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ---
 
-- [ ] 16. Kick EventSub Bus Topics in libs/bus-core
+- [x] 16. Kick EventSub Bus Topics in libs/bus-core
 
   **What to do**:
   - Add new NATS subjects for Kick-specific events in `libs/bus-core`. Mirror the structure of
@@ -1593,7 +1593,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ---
 
-- [ ] 17. Generic ChatMessage Struct + Bus Fields in libs/bus-core
+- [x] 17. Generic ChatMessage Struct + Bus Fields in libs/bus-core
 
   **What to do**:
   - Create `libs/bus-core/generic/chat-message.go` with a `ChatMessage` struct:
@@ -1692,7 +1692,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ---
 
-- [ ] 18. Kick Webhook Event Handlers
+- [x] 18. Kick Webhook Event Handlers
 
   **What to do**:
   - Create `apps/eventsub/internal/kick/handlers.go` with HTTP handlers for each Kick event type.
@@ -2234,7 +2234,7 @@ Wave FINAL — Review (after ALL implementation tasks):
 
 ---
 
-- [ ] 24. Command/Timer/Keyword Platform Filtering in Execution
+- [x] 24. Command/Timer/Keyword Platform Filtering in Execution
 
   **What to do**:
   - In the parser's command, timer, and keyword execution logic, apply platform filtering using the

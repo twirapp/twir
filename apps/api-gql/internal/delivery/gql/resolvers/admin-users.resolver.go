@@ -93,6 +93,15 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 		manyInput.SearchQuery = *opts.Search.Value()
 	}
 
+	if opts.Platforms.IsSet() {
+		platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		manyInput.Platforms = platforms
+	}
+
 	dbUsers, err := r.deps.TwirUsersService.GetMany(ctx, manyInput)
 	if err != nil {
 		r.deps.Logger.Error("failed to get many users", logger.Error(err))
@@ -112,7 +121,11 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *twirAdminUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.TwirAdminUser) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.ID)
+	if obj.Platform != gqlmodel.PlatformTwitch || obj.PlatformID == "" {
+		return nil, nil
+	}
+
+	return data_loader.GetHelixUserById(ctx, obj.PlatformID)
 }
 
 // TwirAdminUser returns graph.TwirAdminUserResolver implementation.

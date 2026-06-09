@@ -605,6 +605,13 @@ func MapEventToGqlType(eventName string, data []byte) (gqlmodel.EventMessage, er
 			return nil, err
 		}
 		return TwirEventDonateToGql(donateMessage), nil
+	case events.KeywordMatchedSubject:
+		keywordMatchedMessage := events.KeywordMatchedMessage{}
+		err := json.Unmarshal(data, &keywordMatchedMessage)
+		if err != nil {
+			return nil, err
+		}
+		return TwirEventKeywordMatchedToGql(keywordMatchedMessage), nil
 	case events.GreetingSendedSubject:
 		greetingSendedMessage := events.GreetingSendedMessage{}
 		err := json.Unmarshal(data, &greetingSendedMessage)
@@ -612,6 +619,13 @@ func MapEventToGqlType(eventName string, data []byte) (gqlmodel.EventMessage, er
 			return nil, err
 		}
 		return TwirEventGreetingSendedToGql(greetingSendedMessage), nil
+	case events.PollBeginSubject:
+		pollBeginMessage := events.PollBeginMessage{}
+		err := json.Unmarshal(data, &pollBeginMessage)
+		if err != nil {
+			return nil, err
+		}
+		return TwirEventPollBeginToGql(pollBeginMessage), nil
 	case events.SubGiftSubject:
 		subGiftMessage := events.SubGiftMessage{}
 		err := json.Unmarshal(data, &subGiftMessage)

@@ -46,7 +46,7 @@ type Service struct {
 func (c *Service) mapToEntity(m model.Keyword) entity.Keyword {
 	return entity.Keyword{
 		ID:               m.ID,
-		ChannelID:        m.ChannelID,
+		ChannelID:        m.ChannelID.String(),
 		Text:             m.Text,
 		Response:         m.Response,
 		Enabled:          m.Enabled,
@@ -56,6 +56,7 @@ func (c *Service) mapToEntity(m model.Keyword) entity.Keyword {
 		IsRegular:        m.IsRegular,
 		Usages:           m.Usages,
 		RolesIDs:         m.RolesIDs,
+		Platforms:        m.Platforms,
 	}
 }
 
@@ -70,14 +71,29 @@ func (c *Service) GetUserAccessibleRoles(
 	ctx context.Context,
 	channelID, userID string,
 ) ([]rolesmodel.Role, error) {
-	return c.rolesRepository.GetUserAccessibleRoles(ctx, channelID, userID)
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.rolesRepository.GetUserAccessibleRoles(ctx, parsedChannelID, parsedUserID)
 }
 
 func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 	[]entity.Keyword,
 	error,
 ) {
-	models, err := c.keywordsCacher.Get(ctx, channelID)
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	models, err := c.keywordsCacher.Get(ctx, parsedChannelID.String())
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +122,11 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, channelID string, in
 	entity.Keyword,
 	error,
 ) {
+	currentKeyword, err := c.keywordsRepository.GetByID(ctx, id)
+	if err != nil {
+		return entity.Keyword{}, err
+	}
+
 	updateInput := keywords.UpdateInput{
 		Text:             input.Text,
 		Response:         input.Response,
@@ -116,6 +137,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, channelID string, in
 		IsRegular:        input.IsRegular,
 		Usages:           input.Usages,
 		RolesIDs:         input.RolesIDs,
+		Platforms:        currentKeyword.Platforms,
 	}
 
 	m, err := c.keywordsRepository.Update(ctx, id, updateInput)

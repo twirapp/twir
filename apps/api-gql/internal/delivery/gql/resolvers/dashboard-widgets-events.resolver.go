@@ -7,6 +7,7 @@ package resolvers
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
@@ -37,7 +38,7 @@ func (r *subscriptionResolver) DashboardWidgetsEvents(ctx context.Context) (<-ch
 					100,
 				)
 				if err != nil {
-					r.deps.Logger.Error("cannot get dashboard events", err)
+					r.deps.Logger.Error("cannot get dashboard events", slog.Any("error", err))
 					time.Sleep(5 * time.Second)
 					continue
 				}
@@ -47,7 +48,7 @@ func (r *subscriptionResolver) DashboardWidgetsEvents(ctx context.Context) (<-ch
 				for _, event := range events {
 					mappedEvent, err := mappers.DashboardEventsDbToGql(event)
 					if err != nil {
-						r.deps.Logger.Error("cannot map dashboard event", err)
+						r.deps.Logger.Error("cannot map dashboard event", slog.Any("error", err))
 						continue
 					}
 

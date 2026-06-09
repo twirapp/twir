@@ -11,10 +11,12 @@ export type ChatMessage = ChatMessageQuery['chatMessages'][number]
 
 export function useChatMessages(input: MaybeRef<ChatMessageInput>) {
 	return useQuery({
+		// @ts-ignore
 		query: graphql(`
 			query ChatMessage($input: ChatMessageInput!) {
 				chatMessages(input: $input) {
 					id
+					platform
 					channelId
 					channelName
 					channelLogin
@@ -24,6 +26,7 @@ export function useChatMessages(input: MaybeRef<ChatMessageInput>) {
 					userColor
 					text
 					createdAt
+					platform
 				}
 			}
 		`),
@@ -37,10 +40,12 @@ export function useChatMessages(input: MaybeRef<ChatMessageInput>) {
 
 export function useChatMessagesSubscription() {
 	return useSubscription({
+		// @ts-ignore
 		query: graphql(`
 			subscription ChatMessageSubscription {
 				chatMessages {
 					id
+					platform
 					channelId
 					channelLogin
 					channelName
@@ -50,6 +55,7 @@ export function useChatMessagesSubscription() {
 					userColor
 					text
 					createdAt
+					platform
 				}
 			}
 		`),
@@ -62,10 +68,12 @@ export function useChatMessagesSubscription() {
 // Global state for chat messages API
 export const useChatMessagesApi = createGlobalState(() => {
 	const useChatMessagesQuery = (input: MaybeRef<ChatMessageInput>, opts?: { manual?: boolean }) => useQuery({
+		// @ts-ignore
 		query: graphql(`
 			query ChatMessage($input: ChatMessageInput!) {
 				chatMessages(input: $input) {
 					id
+					platform
 					channelId
 					channelName
 					channelLogin
@@ -75,6 +83,7 @@ export const useChatMessagesApi = createGlobalState(() => {
 					userColor
 					text
 					createdAt
+					platform
 				}
 			}
 		`),
@@ -88,10 +97,12 @@ export const useChatMessagesApi = createGlobalState(() => {
 
 	// Subscription for new chat messages
 	const subscribeToChatMessages = () => useSubscription({
+		// @ts-ignore
 		query: graphql(`
 			subscription SubscribeToChatMessages {
 				chatMessages {
 					id
+					platform
 					channelId
 					channelLogin
 					channelName
@@ -101,6 +112,7 @@ export const useChatMessagesApi = createGlobalState(() => {
 					userColor
 					text
 					createdAt
+					platform
 				}
 			}
 		`),

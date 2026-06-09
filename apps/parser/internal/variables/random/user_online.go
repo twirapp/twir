@@ -3,6 +3,7 @@ package random
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -20,10 +21,18 @@ var OnlineUser = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		channelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+		if err != nil {
+			return result, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Variables.Random.Errors.GetOnlineUser),
+				Err:     err,
+			}
+		}
+
 		randomUser, err := parseCtx.Services.UsersRepo.GetRandomOnlineUser(
 			ctx,
 			usersrepository.GetRandomOnlineUserInput{
-				ChannelID: parseCtx.Channel.ID,
+				ChannelID: channelID,
 			},
 		)
 		if err != nil {

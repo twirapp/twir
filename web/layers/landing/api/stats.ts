@@ -6,6 +6,8 @@ export function useLandingStats() {
 			query LandingStats {
 				twirStats {
 					channels
+					twitchChannels
+					kickChannels
 					createdCommands
 					messages
 					usedCommands

@@ -64,9 +64,11 @@ function onMessage(m: ChatMessage) {
 }
 
 const chatSettings = computed<ChatSettings>(() => {
+	const twitchProfile = neededData.value?.authenticatedUser.twitchProfile
+
 	return {
 		channelId: neededData.value?.authenticatedUser.id ?? '',
-		channelName: neededData.value?.authenticatedUser.twitchProfile.login ?? '',
+		channelName: twitchProfile?.login ?? '',
 		emotes: {
 			ffz: true,
 			bttv: true,

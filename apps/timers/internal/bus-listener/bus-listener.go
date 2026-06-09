@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/timers/internal/manager"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/timers"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"go.uber.org/fx"
 )
 
@@ -66,7 +66,7 @@ func (c *server) onRemoveTimerFromQueue(
 	return struct{}{}, nil
 }
 
-func (c *server) onChatMessage(ctx context.Context, m twitch.TwitchChatMessage) (struct{}, error) {
+func (c *server) onChatMessage(ctx context.Context, m generic.ChatMessage) (struct{}, error) {
 	c.manager.OnChatMessage(m.BroadcasterUserId)
 	return struct{}{}, nil
 }

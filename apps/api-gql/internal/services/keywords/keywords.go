@@ -43,7 +43,7 @@ type Service struct {
 func (c *Service) dbToModel(m model.Keyword) entity.Keyword {
 	return entity.Keyword{
 		ID:               m.ID,
-		ChannelID:        m.ChannelID,
+		ChannelID:        m.ChannelID.String(),
 		Text:             m.Text,
 		Response:         m.Response,
 		Enabled:          m.Enabled,
@@ -53,5 +53,6 @@ func (c *Service) dbToModel(m model.Keyword) entity.Keyword {
 		IsRegular:        m.IsRegular,
 		Usages:           m.Usages,
 		RolesIDs:         m.RolesIDs,
+		Platforms:        m.Platforms,
 	}
 }

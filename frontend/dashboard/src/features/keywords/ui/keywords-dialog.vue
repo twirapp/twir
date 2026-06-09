@@ -13,7 +13,7 @@ import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -21,6 +21,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'vue-sonner'
 import VariableInput from '@/components/variable-input.vue'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
+import PlatformSelector from '@/components/platform-selector.vue'
 
 const props = defineProps<{
 	keyword?: Omit<KeywordResponse, 'id'> & { id?: string }
@@ -46,6 +47,7 @@ const keywordsForm = useForm({
 			usageCount: z.number().min(0).optional(),
 			rolesIds: z.array(z.string()).optional(),
 			enabled: z.boolean().optional().default(true),
+			platforms: z.array(z.string()).default([]),
 		})
 	),
 	initialValues: {
@@ -57,6 +59,7 @@ const keywordsForm = useForm({
 		isReply: true,
 		response: null,
 		rolesIds: [],
+		platforms: [],
 	},
 	keepValuesOnUnmount: true,
 })
@@ -72,6 +75,7 @@ function resetFormValue() {
 			isReply: true,
 			response: null,
 			rolesIds: [],
+			platforms: [],
 		},
 	})
 }
@@ -212,6 +216,22 @@ const save = keywordsForm.handleSubmit(async (values) => {
 					<Label class="flex gap-2"> Roles </Label>
 					<FormRolesSelector class="xl:w-full xl:max-w-full" field-name="rolesIds" />
 				</div>
+
+				<FormField v-slot="{ field }" name="platforms">
+					<FormItem class="flex flex-col gap-2 mt-2">
+						<FormLabel>Platforms</FormLabel>
+						<FormDescription class="mb-2">
+							Select which platforms this keyword runs on. If none selected, it runs on all platforms.
+						</FormDescription>
+						<FormControl>
+							<PlatformSelector
+							:model-value="field.value"
+							@update:model-value="field['onUpdate:modelValue']"
+						/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				</FormField>
 
 				<FormField v-slot="{ componentField }" name="cooldown">
 					<FormItem>

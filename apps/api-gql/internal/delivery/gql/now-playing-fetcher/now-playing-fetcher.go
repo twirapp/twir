@@ -10,16 +10,17 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 	vkintegration "github.com/twirapp/twir/libs/repositories/vk_integration"
-	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -28,7 +29,7 @@ type Opts struct {
 	LastfmRepository  channelsintegrationslastfm.Repository
 	VKRepository      vkintegration.Repository
 	Config            cfg.Config
-	Gorm              *gorm.DB
+	TwirBus           *buscore.Bus
 	Kv                kv.KV
 	ChannelID         string
 }
@@ -36,8 +37,6 @@ type Opts struct {
 type NowPlayingFetcher struct {
 	spotifyRepository channelsintegrationsspotify.Repository
 	logger            *slog.Logger
-
-	gorm *gorm.DB
 	kv   kv.KV
 
 	lastfmService  *lastfm.Lastfm
@@ -74,15 +73,22 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		return nil, fmt.Errorf("failed to get spotify integration: %w", err)
 	}
 	if spotifyEntity.AccessToken != "" && spotifyEntity.RefreshToken != "" {
-		spotifyIntegration := model.Integrations{}
-		if err := opts.Gorm.
-			Where("service = ?", "SPOTIFY").
-			First(&spotifyIntegration).
-			Error; err != nil {
-			return nil, fmt.Errorf("failed to get spotify integration: %w", err)
+		spotifyToken, err := opts.TwirBus.Tokens.RequestChannelIntegrationToken.Request(
+			ctx,
+			buscoretokens.GetChannelIntegrationTokenRequest{
+				ChannelID: opts.ChannelID,
+				Service:   integrationsmodel.ServiceSpotify,
+			},
+		)
+		if err != nil {
+			opts.Logger.Error(
+				"failed to get spotify token from tokens service",
+				logger.Error(err),
+				slog.String("channel_id", opts.ChannelID),
+			)
+		} else {
+			spotifyService = spotify.NewStatic(spotifyToken.Data.AccessToken, spotifyEntity.Scopes)
 		}
-
-		spotifyService = spotify.New(spotifyIntegration, spotifyEntity, opts.SpotifyRepository)
 	}
 
 	// Get VK integration from the new repository
@@ -101,7 +107,6 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 	return &NowPlayingFetcher{
 		spotifyRepository: opts.SpotifyRepository,
 		channelId:         opts.ChannelID,
-		gorm:              opts.Gorm,
 		kv:                opts.Kv,
 		lastfmService:     lfmService,
 		spotifyService:    spotifyService,
@@ -207,7 +212,7 @@ type Track struct {
 	Artist    string `json:"artist"`
 	Title     string `json:"title"`
 	ImageUrl  string `json:"image_url,omitempty"`
-	fromCache bool   `json:"from_cache,omitempty"`
+	fromCache bool
 }
 
 func (i Track) MarshalBinary() ([]byte, error) {

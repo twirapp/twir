@@ -1,0 +1,1080 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gql
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: api-gql
+spec:
+  selector:
+    app.kubernetes.io/name: api-gql
+  ports:
+    - name: http
+      port: 3009
+      targetPort: 3009
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gql
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: api-gql
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api-gql
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: api-gql
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: api-gql
+          image: registry.twir.app/twirapp/api-gql:latest
+          ports:
+            - name: http
+              containerPort: 3009
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+          resources:
+            limits:
+              cpu: "2"
+              memory: 3Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bots
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: bots
+spec:
+  selector:
+    app.kubernetes.io/name: bots
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bots
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: bots
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bots
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bots
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: bots
+          image: registry.twir.app/twirapp/bots:latest
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parser
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: parser
+spec:
+  replicas: 6
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: parser
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: parser
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: parser
+          image: registry.twir.app/twirapp/parser:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timers
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: timers
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: timers
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: timers
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: timers
+          image: registry.twir.app/twirapp/timers:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: scheduler
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: scheduler
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: scheduler
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: scheduler
+          image: registry.twir.app/twirapp/scheduler:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventsub
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: eventsub
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: eventsub
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eventsub
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: eventsub
+spec:
+  serviceName: eventsub
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: eventsub
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: eventsub
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: eventsub
+          image: registry.twir.app/twirapp/eventsub:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: REPLICA
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: integrations
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: integrations
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: integrations
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: integrations
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: integrations
+          image: registry.twir.app/twirapp/integrations:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: web
+spec:
+  selector:
+    app.kubernetes.io/name: web
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: web
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: web
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: web
+          image: registry.twir.app/twirapp/web:latest
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: dashboard
+spec:
+  selector:
+    app.kubernetes.io/name: dashboard
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: dashboard
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dashboard
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: dashboard
+          image: registry.twir.app/twirapp/dashboard:latest
+          args:
+            - --gzip
+            - --brotli
+            - --threshold
+            - 500
+            - --ignore-cache-control-paths
+            - "/sw.js,/index.html,/manifest.webmanifest,/pluginWebUpdateNotice/web_version_by_plugin.json"
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: overlays
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: overlays
+spec:
+  selector:
+    app.kubernetes.io/name: overlays
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overlays
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: overlays
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: overlays
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: overlays
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: overlays
+          image: registry.twir.app/twirapp/overlays:latest
+          args:
+            - --gzip
+            - --brotli
+            - --threshold
+            - 500
+          ports:
+            - name: http
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: websockets
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: websockets
+spec:
+  selector:
+    app.kubernetes.io/name: websockets
+  ports:
+    - name: http
+      port: 3004
+      targetPort: 3004
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: websockets
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: websockets
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: websockets
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: websockets
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: websockets
+          image: registry.twir.app/twirapp/websockets:latest
+          ports:
+            - name: http
+              containerPort: 3004
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+          resources:
+            limits:
+              cpu: "1"
+              memory: 3Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokens
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: tokens
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tokens
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tokens
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: tokens
+          image: registry.twir.app/twirapp/tokens:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emotes-cacher
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: emotes-cacher
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: emotes-cacher
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: emotes-cacher
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: emotes-cacher
+          image: registry.twir.app/twirapp/emotes-cacher:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: events
+spec:
+  replicas: 6
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: events
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: events
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: events
+          image: registry.twir.app/twirapp/events:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tts
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: tts
+spec:
+  selector:
+    app.kubernetes.io/name: tts
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tts
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: tts
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tts
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tts
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: tts
+          image: aculeasis/rhvoice-rest:latest
+          ports:
+            - name: http
+              containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: language-processor
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: language-processor
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: language-processor
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: language-processor
+    spec:
+      serviceAccountName: twir-workloads
+      nodeSelector:
+        twir.app/apps: "true"
+      containers:
+        - name: language-processor
+          image: twirapp/language-processor-py:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+            - name: APP_ENV
+              value: production
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toxicity-detector
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: toxicity-detector
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: toxicity-detector
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: toxicity-detector
+    spec:
+      serviceAccountName: twir-workloads
+      nodeSelector:
+        twir.app/apps: "true"
+      containers:
+        - name: toxicity-detector
+          image: registry.twir.app/twirapp/toxicity-detector:latest
+          env:
+            - name: TOXICITY_THRESHOLD
+              value: "-4"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: music-recognizer
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: music-recognizer
+spec:
+  selector:
+    app.kubernetes.io/name: music-recognizer
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: music-recognizer
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: music-recognizer
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: music-recognizer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: music-recognizer
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: music-recognizer
+          image: registry.twir.app/twirapp/music-recognizer:latest
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: adminer
+spec:
+  selector:
+    app.kubernetes.io/name: adminer
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminer
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: adminer
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: adminer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: adminer
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: adminer
+          image: adminer:latest
+          ports:
+            - name: http
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: temporal
+spec:
+  selector:
+    app.kubernetes.io/name: temporal
+  ports:
+    - name: http
+      port: 7233
+      targetPort: 7233
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: temporal
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: temporal
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: temporal
+          image: twirapp/temporal:latest
+          ports:
+            - name: http
+              containerPort: 7233
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+            - name: TWIR_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_POSTGRES_USER
+            - name: TWIR_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_POSTGRES_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-ui
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: temporal-ui
+spec:
+  selector:
+    app.kubernetes.io/name: temporal-ui
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-ui
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: temporal-ui
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: temporal-ui
+    spec:
+      serviceAccountName: twir-workloads
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: temporal-ui
+          image: temporalio/ui:2.21.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: temporal:7233
+            - name: TEMPORAL_CORS_ORIGINS
+              value: http://localhost:3000

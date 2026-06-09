@@ -33,7 +33,7 @@ var DuelStats = &types.DefaultCommand{
 
 		if err := parseCtx.Services.Gorm.WithContext(ctx).Model(&model.ChannelDuel{}).Where(
 			`channel_id = ? and finished_at is not null and (sender_id = ? OR target_id = ?)`,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 			parseCtx.Sender.ID,
 			parseCtx.Sender.ID,
 		).Count(&duelsCount).Error; err != nil {
@@ -42,7 +42,7 @@ var DuelStats = &types.DefaultCommand{
 
 		if err := parseCtx.Services.Gorm.WithContext(ctx).Model(&model.ChannelDuel{}).Where(
 			`channel_id = ? and finished_at is not null and (sender_id = ? OR target_id = ?) and loser_id != ?`,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 			parseCtx.Sender.ID,
 			parseCtx.Sender.ID,
 			parseCtx.Sender.ID,

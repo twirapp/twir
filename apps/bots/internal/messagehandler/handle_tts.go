@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	"github.com/twirapp/twir/libs/utils"
@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleTts(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *MessageHandler) handleTts(ctx context.Context, msg generic.ChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -22,7 +22,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg twitch.TwitchChatMes
 		return nil
 	}
 
-	settings, err := c.ttsService.GetChannelTTSSettings(ctx, msg.BroadcasterUserId)
+	settings, err := c.ttsService.GetChannelTTSSettings(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		if errors.Is(err, overlays_tts.ErrNotFound) {
 			return nil
@@ -36,7 +36,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg twitch.TwitchChatMes
 
 	ttsCommand := &model.ChannelsCommands{}
 	err = c.gorm.WithContext(ctx).
-		Where(`"channelId" = ?`, msg.BroadcasterUserId).
+		Where(`"channelId" = ?::uuid`, msg.EnrichedData.DbChannel.ID.String()).
 		Where(`"module" = ?`, "TTS").
 		Where(`"defaultName" = ?`, "tts").
 		Find(&ttsCommand).

@@ -57,10 +57,11 @@ var Emotes = &types.Variable{
 		emotes, err := parseCtx.Services.ChannelEmotesUsagesRepo.GetEmotesStatistics(
 			ctx,
 			channelsemotesusagesrepository.GetEmotesStatisticsInput{
-				ChannelID: parseCtx.Channel.ID,
-				PerPage:   limit,
-				Sort:      channelsemotesusagesrepository.SortDesc,
-				Page:      page - 1,
+				Platform:          string(parseCtx.Platform),
+				PlatformChannelID: parseCtx.Channel.ID,
+				PerPage:           limit,
+				Sort:              channelsemotesusagesrepository.SortDesc,
+				Page:              page - 1,
 			},
 		)
 		if err != nil {

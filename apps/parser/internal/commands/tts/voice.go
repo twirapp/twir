@@ -39,7 +39,7 @@ var VoiceCommand = &types.DefaultCommand{
 
 		channelSettings, _, err := parseCtx.Services.TTSService.GetChannelSettings(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -55,7 +55,7 @@ var VoiceCommand = &types.DefaultCommand{
 
 		userSettings, _, err := parseCtx.Services.TTSService.GetUserSettings(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 			parseCtx.Sender.ID,
 		)
 		if err != nil {
@@ -85,7 +85,7 @@ var VoiceCommand = &types.DefaultCommand{
 
 		text := textArg.String()
 
-		wantedVoice, err := parseCtx.Services.TTSService.ValidateVoice(ctx, parseCtx.Channel.ID, text)
+		wantedVoice, err := parseCtx.Services.TTSService.ValidateVoice(ctx, parseCtx.Channel.DBChannelID, text)
 		if err != nil {
 			result.Result = append(result.Result, err.Error())
 			return result, nil
@@ -96,7 +96,7 @@ var VoiceCommand = &types.DefaultCommand{
 			channelSettings.Voice = wantedVoice.Name
 			err := parseCtx.Services.TTSService.UpdateChannelSettings(
 				ctx,
-				parseCtx.Channel.ID,
+				parseCtx.Channel.DBChannelID,
 				channelSettings,
 			)
 			if err != nil {
@@ -110,7 +110,7 @@ var VoiceCommand = &types.DefaultCommand{
 			if userSettings == nil {
 				_, err := parseCtx.Services.TTSService.CreateUserSettings(
 					ctx,
-					parseCtx.Channel.ID,
+					parseCtx.Channel.DBChannelID,
 					parseCtx.Sender.ID,
 					50,
 					50,
@@ -126,7 +126,7 @@ var VoiceCommand = &types.DefaultCommand{
 				userSettings.Voice = wantedVoice.Name
 				err := parseCtx.Services.TTSService.UpdateUserSettings(
 					ctx,
-					parseCtx.Channel.ID,
+					parseCtx.Channel.DBChannelID,
 					parseCtx.Sender.ID,
 					userSettings,
 				)
@@ -141,7 +141,7 @@ var VoiceCommand = &types.DefaultCommand{
 
 		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Tts.Info.ChangeVoice.SetVars(locales.KeysCommandsTtsInfoChangeVoiceVars{NewVoice: wantedVoice.Name})))
 
-		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		return result, nil
 	},

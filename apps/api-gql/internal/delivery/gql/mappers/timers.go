@@ -31,6 +31,7 @@ func TimerEntityToGql(m timersentity.Timer) gqlmodel.Timer {
 		TimeInterval:    m.TimeInterval,
 		MessageInterval: m.MessageInterval,
 		Responses:       responses,
+		Platforms:       PlatformsToStrings(m.Platforms),
 	}
 }
 

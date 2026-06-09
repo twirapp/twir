@@ -24,6 +24,7 @@ export const useGreetingsApi = createGlobalState(() => {
 					isReply
 					withShoutOut
 					twitchProfile {
+						id
 						login
 						displayName
 						profileImageUrl

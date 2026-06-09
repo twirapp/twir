@@ -7,12 +7,14 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 type ChannelsEventsListItem struct {
 	ID        uuid.UUID
 	ChannelID string
 	UserID    *string
+	Platform  platform.Platform
 	Type      ChannelEventListItemType
 	Data      *ChannelsEventsListItemData
 	CreatedAt time.Time

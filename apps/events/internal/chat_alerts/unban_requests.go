@@ -36,9 +36,10 @@ func (c *ChatAlerts) unbanRequestCreate(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelID,
-			Message:        text,
-			SkipRateLimits: true,
+			ChannelId:         req.BaseInfo.ChannelID,
+			PlatformChannelID: req.BaseInfo.ChannelID,
+			Message:           text,
+			SkipRateLimits:    true,
 		},
 	)
 }
@@ -76,9 +77,10 @@ func (c *ChatAlerts) unbanRequestResolved(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:      req.BaseInfo.ChannelID,
-			Message:        text,
-			SkipRateLimits: true,
+			ChannelId:         req.BaseInfo.ChannelID,
+			PlatformChannelID: req.BaseInfo.ChannelID,
+			Message:           text,
+			SkipRateLimits:    true,
 		},
 	)
 }

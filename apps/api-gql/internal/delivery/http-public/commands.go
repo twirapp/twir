@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
@@ -30,7 +31,12 @@ func (p *Public) HandleChannelCommandsGet(
 	ctx context.Context,
 	channelId string,
 ) (*publicCommandsOutput, error) {
-	channel, err := p.channelsService.GetByID(ctx, channelId)
+	channelUUID, err := uuid.Parse(channelId)
+	if err != nil {
+		return nil, huma.Error400BadRequest("invalid channel id")
+	}
+
+	channel, err := p.channelsService.GetByID(ctx, channelUUID)
 	if err != nil {
 		if errors.Is(err, channels.ErrNotFound) {
 			return nil, huma.Error404NotFound("channel not found")

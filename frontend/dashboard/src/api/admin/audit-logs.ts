@@ -23,13 +23,17 @@ export function useAdminAuditLogs(input: MaybeRef<AdminAuditLogsInput>) {
 							profileImageUrl
 							displayName
 							login
+							notFound
 						}
+						userPlatform
 						channel {
 							id
 							profileImageUrl
 							displayName
 							login
+							notFound
 						}
+						channelPlatform
 					}
 					total
 				}

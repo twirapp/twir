@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	goredislib "github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
@@ -17,6 +18,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
@@ -29,6 +31,7 @@ type Manager struct {
 	logger             *slog.Logger
 	gorm               *gorm.DB
 	twirBus            *buscore.Bus
+	channelsRepo       channelsrepo.Repository
 	conduitsRepository twitchconduits.Repository
 	redSync            *redsync.Redsync
 	eventsub           eventsub.EventSub
@@ -50,6 +53,7 @@ type Opts struct {
 	Logger             *slog.Logger
 	Gorm               *gorm.DB
 	TwirBus            *buscore.Bus
+	ChannelsRepo       channelsrepo.Repository
 	ConduitsRepository twitchconduits.Repository
 	Redis              *goredislib.Client
 	Handler            *handler.Handler
@@ -76,6 +80,7 @@ func NewManager(opts Opts) (*Manager, error) {
 		logger:             opts.Logger,
 		gorm:               opts.Gorm,
 		twirBus:            opts.TwirBus,
+		channelsRepo:       opts.ChannelsRepo,
 		conduitsRepository: opts.ConduitsRepository,
 		redSync:            redsync.New(goredis.NewPool(opts.Redis)),
 		eventsub:           eventsub.New(),
@@ -168,13 +173,7 @@ func (c *Manager) SubscribeToEvent(
 	version,
 	channelId string,
 ) error {
-	channel := model.Channels{}
-	err := c.gorm.
-		WithContext(ctx).
-		Where(
-			`"id" = ?`,
-			channelId,
-		).First(&channel).Error
+	broadcasterID, botID, err := c.resolveTwitchSubscriptionIdentities(ctx, channelId)
 	if err != nil {
 		return err
 	}
@@ -187,9 +186,27 @@ func (c *Manager) SubscribeToEvent(
 			ConduitId: c.currentConduit.Id,
 		},
 		version,
-		channel.ID,
-		channel.BotID,
+		broadcasterID,
+		botID,
 	)
 
 	return err
+}
+
+func (c *Manager) resolveTwitchSubscriptionIdentities(ctx context.Context, channelID string) (string, string, error) {
+	channelUUID, err := uuid.Parse(channelID)
+	if err != nil {
+		return "", "", err
+	}
+
+	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
+	if err != nil {
+		return "", "", err
+	}
+
+	if channel.TwitchPlatformID == nil || *channel.TwitchPlatformID == "" {
+		return "", "", errors.New("channel has no twitch platform id")
+	}
+
+	return *channel.TwitchPlatformID, channel.BotID, nil
 }

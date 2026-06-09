@@ -3,6 +3,7 @@ package userswithstats
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/repositories/userswithstats/model"
 )
 
@@ -14,6 +15,6 @@ type Repository interface {
 }
 
 type GetByUserAndChannelIDInput struct {
-	UserID    string
-	ChannelID string
+	UserID    uuid.UUID
+	ChannelID uuid.UUID
 }

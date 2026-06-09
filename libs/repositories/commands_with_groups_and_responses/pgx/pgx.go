@@ -99,7 +99,7 @@ func (c *Pgx) GetManyByChannelID(
 		LeftJoin(`channels_commands_groups g ON c."groupId" = g.id`).
 		LeftJoin(`channels_commands_responses r ON c.id = r."commandId"`).
 		LeftJoin(`channels_commands_role_cooldowns rc ON c.id = rc.command_id`).
-		Where(`c."channelId" = ?`, channelID).
+		Where(`c."channelId" = ?::uuid`, channelID).
 		GroupBy("c.id", "g.id")
 
 	query, args, err := selectBuilder.ToSql()

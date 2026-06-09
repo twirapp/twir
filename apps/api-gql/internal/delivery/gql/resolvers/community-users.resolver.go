@@ -10,21 +10,27 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"time"
 
 	"github.com/Masterminds/squirrel"
-	helix "github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
+	"github.com/google/uuid"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *communityUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.CommunityUser) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.ID)
+	if obj.Platform != gqlmodel.PlatformTwitch || obj.PlatformID == "" {
+		return nil, nil
+	}
+
+	return data_loader.GetHelixUserById(ctx, obj.PlatformID)
 }
 
 // CommunityResetStats is the resolver for the communityResetStats field.
@@ -39,7 +45,12 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		return false, gqlerrors.HandleError(err)
 	}
 
-	if user.ID != dashboardId {
+	var channel model.Channels
+	if err := r.deps.Gorm.WithContext(ctx).Where("id = ?", dashboardId).First(&channel).Error; err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	if !channel.IsOwner(user.ID) {
 		return false, fmt.Errorf("you cannot reset stats for this user")
 	}
 
@@ -84,12 +95,12 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		perPage = *opts.PerPage.Value()
 	}
 
-	channel := &model.Channels{}
-	err := r.deps.Gorm.
-		WithContext(ctx).
-		Where("channels.id = ?", opts.ChannelID).
-		Joins("User").
-		First(channel).Error
+	channelID, err := uuid.Parse(opts.ChannelID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
@@ -97,45 +108,74 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	queryBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
 		Select(
 			`users_stats.*`,
+			`users.platform`,
+			`users.platform_id`,
+			`users.login`,
+			`users.display_name`,
+			`users.avatar`,
 		).
 		From("users_stats").
-		Where(
-			squirrel.And{
-				squirrel.Eq{`"users_stats"."channelId"`: opts.ChannelID},
-				squirrel.NotEq{`"users_stats"."userId"`: opts.ChannelID},
-				squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
-			},
-		).
-		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
+		Join(`users ON users.id::text = "users_stats"."userId"`).
+		Where(squirrel.Expr(`"users_stats"."channelId" = ?::uuid`, opts.ChannelID)).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = "users_stats"."userId")`).
 		Limit(uint64(perPage)).
-		Offset(uint64(page * perPage)).
-		GroupBy(`"users_stats"."id"`)
+		Offset(uint64(page*perPage)).
+		GroupBy(`"users_stats"."id"`, `users.platform`, `users.platform_id`, `users.login`, `users.display_name`, `users.avatar`)
 
-	var foundTwitchChannels []helix.Channel
+	countBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
+		Select(`COUNT(DISTINCT "users_stats"."id")`).
+		From("users_stats").
+		Join(`users ON users.id::text = "users_stats"."userId"`).
+		Where(squirrel.Expr(`"users_stats"."channelId" = ?::uuid`, opts.ChannelID)).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = "users_stats"."userId")`)
+
+	if channel.TwitchUserID != nil {
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.TwitchUserID.String()})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.TwitchUserID.String()})
+	}
+	if channel.KickUserID != nil {
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickUserID.String()})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickUserID.String()})
+	}
+	if channel.KickBotID != nil {
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickBotID.String()})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickBotID.String()})
+	}
+	if channel.BotID != "" {
+		botFilter := squirrel.Expr(
+			`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+			channel.BotID,
+		)
+		queryBuilder = queryBuilder.Where(botFilter)
+		countBuilder = countBuilder.Where(botFilter)
+	}
+
 	if opts.Search.IsSet() {
-		channels, err := r.deps.CachedTwitchClient.SearchChannels(ctx, *opts.Search.Value())
+		searchQuery := "%" + strings.TrimSpace(*opts.Search.Value()) + "%"
+		searchFilter := squirrel.Or{
+			squirrel.Expr(`users.login ILIKE ?`, searchQuery),
+			squirrel.Expr(`users.display_name ILIKE ?`, searchQuery),
+			squirrel.Expr(`users.platform_id ILIKE ?`, searchQuery),
+		}
+		queryBuilder = queryBuilder.Where(searchFilter)
+		countBuilder = countBuilder.Where(searchFilter)
+	}
+
+	if opts.Platforms.IsSet() {
+		platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
 		if err != nil {
 			return nil, gqlerrors.HandleError(err)
 		}
 
-		foundTwitchChannels = channels
-	}
+		if len(platforms) > 0 {
+			platformValues := make([]string, 0, len(platforms))
+			for _, platform := range platforms {
+				platformValues = append(platformValues, platform.String())
+			}
 
-	if len(foundTwitchChannels) > 0 {
-		var ids []string
-		for _, user := range foundTwitchChannels {
-			ids = append(ids, user.ID)
+			queryBuilder = queryBuilder.Where(squirrel.Eq{"users.platform": platformValues})
+			countBuilder = countBuilder.Where(squirrel.Eq{"users.platform": platformValues})
 		}
-		queryBuilder = queryBuilder.Where(
-			squirrel.Eq{
-				`"users_stats"."userId"`: lo.Map(
-					foundTwitchChannels,
-					func(channel helix.Channel, _ int) string {
-						return channel.ID
-					},
-				),
-			},
-		)
 	}
 
 	var sortBy string
@@ -183,10 +223,32 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		)
 		return nil, gqlerrors.HandleError(err)
 	}
+	defer rows.Close()
 
-	var dbUsers []model.UsersStats
+	type communityUserRow struct {
+		ID                string
+		Messages          int32
+		Watched           int64
+		ChannelID         string
+		UserID            string
+		UsedChannelPoints int64
+		IsMod             bool
+		IsVip             bool
+		IsSubscriber      bool
+		Reputation        int64
+		Emotes            int
+		CreatedAt         time.Time
+		UpdatedAt         time.Time
+		Platform          platformentity.Platform
+		PlatformID        string
+		Login             string
+		DisplayName       string
+		Avatar            string
+	}
+
+	var dbUsers []communityUserRow
 	for rows.Next() {
-		var dbUser model.UsersStats
+		var dbUser communityUserRow
 
 		err = rows.Scan(
 			&dbUser.ID,
@@ -202,6 +264,11 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			&dbUser.Emotes,
 			&dbUser.CreatedAt,
 			&dbUser.UpdatedAt,
+			&dbUser.Platform,
+			&dbUser.PlatformID,
+			&dbUser.Login,
+			&dbUser.DisplayName,
+			&dbUser.Avatar,
 		)
 		if err != nil {
 			return nil, gqlerrors.HandleError(err)
@@ -210,21 +277,86 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		dbUsers = append(dbUsers, dbUser)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	twitchUserIDs := make([]string, 0, len(dbUsers))
+	twitchUserIndex := make(map[string]int, len(dbUsers))
+	for i, user := range dbUsers {
+		if user.Platform != platformentity.PlatformTwitch {
+			continue
+		}
+
+		if user.Login != "" && user.DisplayName != "" && user.Avatar != "" {
+			continue
+		}
+
+		if _, exists := twitchUserIndex[user.PlatformID]; exists {
+			continue
+		}
+
+		twitchUserIndex[user.PlatformID] = i
+		twitchUserIDs = append(twitchUserIDs, user.PlatformID)
+	}
+
+	if len(twitchUserIDs) > 0 {
+		twitchUsers, err := data_loader.GetHelixUsersByIds(ctx, twitchUserIDs)
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		for i, userID := range twitchUserIDs {
+			profile := twitchUsers[i]
+			if profile == nil {
+				continue
+			}
+
+			index := twitchUserIndex[userID]
+			if dbUsers[index].Login == "" {
+				dbUsers[index].Login = profile.Login
+			}
+			if dbUsers[index].DisplayName == "" {
+				dbUsers[index].DisplayName = profile.DisplayName
+			}
+			if dbUsers[index].Avatar == "" {
+				dbUsers[index].Avatar = profile.ProfileImageURL
+			}
+		}
+	}
+
+	countQuery, countArgs, err := countBuilder.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("invalid count query on backend: %w", err)
+	}
+
 	var totalStats int64
-	err = r.deps.Gorm.WithContext(ctx).
-		Model(&model.UsersStats{}).
-		Where(`"channelId" = ?`, opts.ChannelID).
-		Count(&totalStats).Error
+	err = r.deps.Gorm.WithContext(ctx).Raw(countQuery, countArgs...).Scan(&totalStats).Error
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
 
 	mappedUsers := make([]gqlmodel.CommunityUser, 0, len(dbUsers))
 	for _, user := range dbUsers {
+		platform, err := mappers.EntityPlatformToGraphQL(user.Platform)
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		var avatar *string
+		if user.Avatar != "" {
+			avatar = &user.Avatar
+		}
+
 		mappedUsers = append(
 			mappedUsers,
 			gqlmodel.CommunityUser{
-				ID:                user.UserID,
+				ID:                user.PlatformID,
+				Platform:          platform,
+				PlatformID:        user.PlatformID,
+				Login:             user.Login,
+				DisplayName:       user.DisplayName,
+				Avatar:            avatar,
 				WatchedMs:         int(user.Watched),
 				Messages:          int(user.Messages),
 				UsedEmotes:        user.Emotes,

@@ -10,11 +10,11 @@ import (
 )
 
 type Repository interface {
-	GetManyByChannelID(ctx context.Context, channelID string) ([]channels_giveaways.Giveaway, error)
-	GetManyActiveByChannelID(ctx context.Context, channelID string) ([]channels_giveaways.Giveaway, error)
+	GetManyByChannelID(ctx context.Context, channelID uuid.UUID) ([]channels_giveaways.Giveaway, error)
+	GetManyActiveByChannelID(ctx context.Context, channelID uuid.UUID) ([]channels_giveaways.Giveaway, error)
 	GetByChannelIDAndKeyword(
 		ctx context.Context,
-		channelID, keyword string,
+		channelID uuid.UUID, keyword string,
 	) (channels_giveaways.Giveaway, error)
 	GetByID(ctx context.Context, id uuid.UUID) (channels_giveaways.Giveaway, error)
 	Create(ctx context.Context, input CreateInput) (channels_giveaways.Giveaway, error)
@@ -28,7 +28,7 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	ChannelID            string
+	ChannelID            uuid.UUID
 	Type                 channels_giveaways.GiveawayType
 	Keyword              *string
 	MinWatchedTime       *int64
@@ -36,7 +36,7 @@ type CreateInput struct {
 	MinUsedChannelPoints *int64
 	MinFollowDuration    *int64
 	RequireSubscription  bool
-	CreatedByUserID      string
+	CreatedByUserID      uuid.UUID
 }
 
 type UpdateInput struct {

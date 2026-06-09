@@ -1,10 +1,13 @@
 package entity
 
+import "github.com/twirapp/twir/libs/entities/platform"
+
 var EventNil = Event{}
 
 type Event struct {
 	ID          string
 	ChannelID   string
+	Platforms   []platform.Platform
 	Type        EventType
 	RewardID    *string
 	CommandID   *string

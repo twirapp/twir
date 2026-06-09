@@ -28,6 +28,8 @@ func (c *Activity) ChangeVariableValue(
 
 	hydratedInput, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)
@@ -77,6 +79,8 @@ func (c *Activity) IncrementORDecrementVariable(
 
 	hydratedInput, err := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
+		data.ChannelTwitchUserID,
+		data.ChannelDBID,
 		*operation.Input,
 		data,
 	)

@@ -96,7 +96,7 @@ func (c *Service) start(ctx context.Context) error {
 		WithContext(ctx).
 		Model(&model.Channel{}).
 		Select("id").
-		Where(`"isEnabled" = true`).
+		Where(`twitch_bot_enabled = true`).
 		Find(&channels).Error; err != nil {
 		return err
 	}

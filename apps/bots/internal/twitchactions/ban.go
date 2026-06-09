@@ -26,9 +26,18 @@ type BanOpts struct {
 }
 
 func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
+	channel, err := c.channelsByTwitchIDCache.Get(ctx, opts.BroadcasterID)
+	if err != nil {
+		return fmt.Errorf("cannot get channel by twitch id: %w", err)
+	}
+	if channel.TwitchUserID == nil {
+		return fmt.Errorf("channel has no twitch user id for broadcaster %s", opts.BroadcasterID)
+	}
+	twitchUserID := *channel.TwitchUserID
+
 	broadcasterHelixClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		opts.BroadcasterID,
+		twitchUserID,
 		c.config,
 		c.twirBus,
 	)
@@ -51,8 +60,9 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 		err := c.modTaskDistributor.DistributeModUser(
 			ctx,
 			&mod_task_queue.TaskModUserPayload{
-				ChannelID: opts.BroadcasterID,
-				UserID:    opts.UserID,
+				ChannelID:    opts.BroadcasterID,
+				TwitchUserID: twitchUserID,
+				UserID:       opts.UserID,
 			}, asynq.ProcessIn(time.Duration(opts.Duration+1)*time.Second),
 		)
 		if err != nil {

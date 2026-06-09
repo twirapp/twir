@@ -1,16 +1,15 @@
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { webUpdateNotice } from '@plugin-web-update-notification/vite'
 import tailwindcss from '@tailwindcss/vite'
 import svgSprite from '@twirapp/vite-plugin-svg-spritemap'
 import vue from '@vitejs/plugin-vue'
-import path from 'node:path'
-import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 import { type PluginOption, defineConfig, loadEnv } from 'vite'
 import { analyzer, unstableRolldownAdapter } from 'vite-bundle-analyzer'
 import { watch } from 'vite-plugin-watch'
-
-
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -72,6 +71,7 @@ export default defineConfig(({ mode }) => {
 			hmr: {
 				protocol: env.USE_WSS === 'true' ? 'wss' : 'ws',
 			},
+			allowedHosts: ['dev.twir.app'],
 		},
 		clearScreen: false,
 
@@ -82,7 +82,7 @@ export default defineConfig(({ mode }) => {
 					chunkFileNames: 'assets/[name]-[hash].js',
 					entryFileNames: 'assets/[name]-[hash].js',
 					assetFileNames: 'assets/[name]-[hash].[ext]',
-					advancedChunks: {
+					codeSplitting: {
 						groups: [
 							{
 								test: /@vue\+/,

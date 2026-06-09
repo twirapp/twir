@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Settings2Icon } from 'lucide-vue-next'
+import { CheckIcon, ListFilterIcon, Settings2Icon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -9,8 +9,17 @@ import {
 	useCommunityUsersTable,
 } from '../composables/use-community-users-table.js'
 
+import { Platform } from '@/gql/graphql.js'
 import SearchBar from '@/components/search-bar.vue'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+	Command,
+	CommandGroup,
+	CommandItem,
+	CommandList,
+	CommandSeparator,
+} from '@/components/ui/command'
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -19,10 +28,37 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
+import { Separator } from '@/components/ui/separator'
 
 const { t } = useI18n()
 const communityTableActions = useCommunityTableActions()
 const communityUsersTable = useCommunityUsersTable()
+
+const platformOptions = [
+	{ label: 'Twitch', value: Platform.Twitch },
+	{ label: 'Kick', value: Platform.Kick },
+]
+
+function togglePlatform(platform: Platform) {
+	if (communityTableActions.selectedPlatforms.value.includes(platform)) {
+		communityTableActions.selectedPlatforms.value = communityTableActions.selectedPlatforms.value.filter((item) => item !== platform)
+		communityUsersTable.table.setPageIndex(0)
+		return
+	}
+
+	communityTableActions.selectedPlatforms.value = [...communityTableActions.selectedPlatforms.value, platform]
+	communityUsersTable.table.setPageIndex(0)
+}
+
+function clearFilters() {
+	communityTableActions.selectedPlatforms.value = []
+	communityUsersTable.table.setPageIndex(0)
+}
 
 // TODO: column labels
 const columns = computed(() => {
@@ -42,6 +78,58 @@ const columns = computed(() => {
 			v-model="communityTableActions.searchInput.value"
 			:placeholder="t('community.users.searchPlaceholder')"
 		/>
+		<Popover>
+			<PopoverTrigger as-child>
+				<Button variant="outline" size="sm" class="h-9">
+					<ListFilterIcon class="mr-2 h-4 w-4" />
+					Filters
+
+					<template v-if="communityTableActions.selectedFiltersCount.value">
+						<Separator orientation="vertical" class="mx-2 h-4" />
+						<Badge variant="secondary" class="rounded-sm px-1 font-normal">
+							{{ communityTableActions.selectedFiltersCount.value }}
+						</Badge>
+					</template>
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent class="w-[200px] p-0" align="end">
+				<Command>
+					<CommandList>
+						<CommandGroup heading="Platforms">
+							<CommandItem
+								v-for="option in platformOptions"
+								:key="option.value"
+								:value="option.value"
+								@select="togglePlatform(option.value)"
+							>
+								<div
+									class="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
+									:class="communityTableActions.selectedPlatforms.value.includes(option.value)
+										? 'bg-primary text-primary-foreground'
+										: 'opacity-50 [&_svg]:invisible'"
+								>
+									<CheckIcon class="h-4 w-4" />
+								</div>
+								<span>{{ option.label }}</span>
+							</CommandItem>
+						</CommandGroup>
+
+						<template v-if="communityTableActions.selectedFiltersCount.value">
+							<CommandSeparator />
+							<CommandGroup>
+								<CommandItem
+									value="clear-filters"
+									class="justify-center text-center cursor-pointer"
+									@select="clearFilters"
+								>
+									Clear filters
+								</CommandItem>
+							</CommandGroup>
+						</template>
+					</CommandList>
+				</Command>
+			</PopoverContent>
+		</Popover>
 		<DropdownMenu>
 			<DropdownMenuTrigger as-child>
 				<Button variant="outline" size="sm" class="flex ml-auto h-9">

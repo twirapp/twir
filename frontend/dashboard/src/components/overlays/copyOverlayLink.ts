@@ -4,9 +4,9 @@ import { useI18n } from 'vue-i18n'
 import { useProfile } from '@/api/auth.js'
 import { toast } from 'vue-sonner'
 
-export function useCopyOverlayLink(overlayPath: string) {
-	const { data: profile } = useProfile()
-	const { t } = useI18n()
+	export function useCopyOverlayLink(overlayPath: string) {
+		const { data: profile } = useProfile()
+		const { t } = useI18n()
 
 	const selectedDashboardUser = computed(() => {
 		return profile.value?.availableDashboards.find(
@@ -14,13 +14,19 @@ export function useCopyOverlayLink(overlayPath: string) {
 		)
 	})
 
+	const overlayApiKey = computed(() => {
+		return selectedDashboardUser.value?.apiKey || profile.value?.apiKey || ''
+	})
+
 	const overlayLink = computed(() => {
-		if (!selectedDashboardUser.value?.apiKey) {
+		if (!overlayApiKey.value) {
 			return ''
 		}
 
-		return `${window.location.origin}/overlays/${selectedDashboardUser.value?.apiKey}/${overlayPath}`
+		return `${window.location.origin}/overlays/${overlayApiKey.value}/${overlayPath}`
 	})
+
+		const canCopyOverlayLink = computed(() => Boolean(overlayLink.value))
 
 	const copyOverlayLink = (query?: Record<string, string>) => {
 		if (!overlayLink.value) {
@@ -44,8 +50,9 @@ export function useCopyOverlayLink(overlayPath: string) {
 		})
 	}
 
-	return {
-		overlayLink,
-		copyOverlayLink,
+		return {
+			canCopyOverlayLink,
+			overlayLink,
+			copyOverlayLink,
+		}
 	}
-}

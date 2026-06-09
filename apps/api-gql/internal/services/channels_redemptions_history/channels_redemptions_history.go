@@ -5,6 +5,7 @@ import (
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	"go.uber.org/fx"
 )
@@ -53,6 +54,7 @@ func (c *Service) GetMany(
 
 	repoInput := channelsredemptionshistory.GetManyInput{
 		ChannelID:  input.ChannelID,
+		Platform:   platformPtr(platformentity.PlatformTwitch),
 		Page:       page,
 		PerPage:    perPage,
 		RewardsIDs: input.RewardsIDs,
@@ -109,7 +111,12 @@ func (c *Service) Count(
 		ctx,
 		channelsredemptionshistory.CountInput{
 			ChannelID:  input.ChannelID,
+			Platform:   platformPtr(platformentity.PlatformTwitch),
 			RewardsIDs: input.RewardsIDs,
 		},
 	)
+}
+
+func platformPtr(value platformentity.Platform) *platformentity.Platform {
+	return &value
 }

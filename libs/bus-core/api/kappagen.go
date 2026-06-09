@@ -12,5 +12,6 @@ type TriggerKappagenMessage struct {
 
 type TriggerKappagenEmote struct {
 	Id        string
+	Url       string
 	Positions []string
 }
