@@ -343,9 +343,14 @@ jobs:
             exit 0
           fi
 
+          deploy_url="${DEPLOY_WEBHOOK_URL%/}"
+          if [ "${deploy_url##*/}" != "deploy" ]; then
+            deploy_url="${deploy_url}/deploy"
+          fi
+
           curl --fail-with-body --show-error --silent \
             -X POST \
             -H "Authorization: Bearer ${DEPLOY_WEBHOOK_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "{\"imageTag\":\"${IMAGE_TAG}\",\"refName\":\"${REF_NAME}\",\"trigger\":\"github-actions\"}" \
-            "${DEPLOY_WEBHOOK_URL}"
+            "${deploy_url}"
