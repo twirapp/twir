@@ -2,6 +2,7 @@ package shared
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -113,4 +114,58 @@ func GetKickKicksLeaderboard(ctx context.Context, parseCtx *types.VariableParseC
 	}
 
 	return &resp.Result, nil
+}
+
+type KickChannelUser struct {
+	CreatedAt      string `json:"created_at"`
+	FollowingSince string `json:"following_since"`
+}
+
+func GetKickChannelUser(
+	ctx context.Context,
+	parseCtx *types.VariableParseContext,
+	channelSlug string,
+	userSlug string,
+) (*KickChannelUser, error) {
+	accessToken, err := kickAppTokenRequester(ctx, parseCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	httpClient := kickHTTPClient
+	if httpClient == nil {
+		httpClient = &http.Client{}
+	}
+
+	apiBaseURL := kickAPIBaseURL
+	if apiBaseURL == "" {
+		apiBaseURL = "https://api.kick.com"
+	}
+
+	url := fmt.Sprintf("%s/v2/channels/%s/users/%s", apiBaseURL, channelSlug, userSlug)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
+	if err != nil {
+		return nil, fmt.Errorf("create kick channel user request: %w", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("get kick channel user: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("kick channel user returned status %d", resp.StatusCode)
+	}
+
+	var user KickChannelUser
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		return nil, fmt.Errorf("decode kick channel user: %w", err)
+	}
+
+	return &user, nil
 }
