@@ -61,7 +61,7 @@ func (c *Pgx) GetMany(ctx context.Context, input chat_messages.GetManyInput) (
 	).From("chat_messages")
 
 	if input.PlatformChannelID != nil {
-		builder = builder.Where(squirrel.Expr("channel_id = ?::uuid", *input.PlatformChannelID))
+		builder = builder.Where(squirrel.Expr("channel_id::text = ?::text", *input.PlatformChannelID))
 	}
 
 	if input.UserNameLike != nil && *input.UserNameLike != "" {

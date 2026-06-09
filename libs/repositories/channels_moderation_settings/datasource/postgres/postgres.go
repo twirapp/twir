@@ -157,7 +157,7 @@ func (c *Pgx) GetByChannelID(
 ) ([]model.ChannelModerationSettings, error) {
 	query, args, err := sq.Select(selectColumns...).
 		From("channels_moderation_settings").
-		Where(squirrel.Expr("channel_id = ?::uuid", channelID)).
+		Where(squirrel.Expr("channel_id::text = ?::text", channelID)).
 		OrderBy("created_at DESC").
 		ToSql()
 	if err != nil {

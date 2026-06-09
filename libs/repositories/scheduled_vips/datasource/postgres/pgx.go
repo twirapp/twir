@@ -124,7 +124,7 @@ func (c *Pgx) GetByUserAndChannelID(
 	query := `
 SELECT id, channel_id, user_id, created_at, remove_at, remove_type
 FROM channels_scheduled_vips
-WHERE channel_id = $1::uuid AND user_id = $2::uuid
+WHERE channel_id::text = $1::text AND user_id::text = $2::text
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -170,7 +170,7 @@ func (c *Pgx) GetMany(ctx context.Context, input scheduled_vips.GetManyInput) (
 	}
 
 	if input.ChannelID != nil {
-		builder = builder.Where(squirrel.Expr("channel_id = ?::uuid", *input.ChannelID))
+		builder = builder.Where(squirrel.Expr("channel_id::text = ?::text", *input.ChannelID))
 	}
 
 	query, args, err := builder.ToSql()

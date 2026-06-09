@@ -57,7 +57,7 @@ func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model
 	query := `
 SELECT id, channel_id, audio_id, name, audio_volume, command_ids, reward_ids, greetings_ids, keywords_ids
 FROM channels_alerts
-WHERE channel_id = $1
+WHERE channel_id::text = $1::text
 `
 
 	rows, err := c.pool.Query(ctx, query, channelID)
