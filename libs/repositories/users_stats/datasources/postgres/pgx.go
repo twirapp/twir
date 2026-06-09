@@ -226,14 +226,7 @@ func (c *Pgx) GetByUserAndChannelID(
 	ctx context.Context,
 	userID, channelID uuid.UUID,
 ) (*model.UserStat, error) {
-	query := fmt.Sprintf(
-		`
-SELECT %s
-FROM users_stats
-WHERE "userId" = $1::uuid AND "channelId" = $2::uuid
-LIMIT 1
-`, selectFieldsJoined,
-	)
+	query := buildGetByUserAndChannelIDQuery()
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, userID, channelID)
@@ -251,4 +244,15 @@ LIMIT 1
 	}
 
 	return &stat, nil
+}
+
+func buildGetByUserAndChannelIDQuery() string {
+	return fmt.Sprintf(
+		`
+SELECT %s
+FROM users_stats
+WHERE "userId"::text = $1::text AND "channelId"::text = $2::text
+LIMIT 1
+`, selectFieldsJoined,
+	)
 }

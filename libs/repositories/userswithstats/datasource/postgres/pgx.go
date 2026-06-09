@@ -60,32 +60,7 @@ func (c *Pgx) GetByUserAndChannelID(
 	ctx context.Context,
 	input userswithstats.GetByUserAndChannelIDInput,
 ) (model.UserWithStats, error) {
-	query := `
-SELECT
-	u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned, u.created_at,
-	CASE
-    WHEN us.id IS NULL THEN NULL
-    ELSE JSON_BUILD_OBJECT(
-      'id', us.id,
-      'user_id', us."userId",
-      'channel_id', us."channelId",
-      'messages', us."messages",
-      'emotes', us."emotes",
-      'watched', us."watched",
-			'used_channel_points', us."usedChannelPoints",
-      'is_mod', us."is_mod",
-			'is_vip', us."is_vip",
-      'is_subscriber', us."is_subscriber",
-      'reputation', us."reputation",
-      'created_at', us."created_at",
-      'updated_at', us."updated_at"
-    )
-  END AS stats
-FROM users as u
-LEFT JOIN users_stats us ON us."userId" = $1::uuid AND us."channelId" = $2::uuid
-WHERE u.id = $1::uuid
-LIMIT 1;
-`
+	query := getByUserAndChannelIDQuery
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	row := conn.QueryRow(ctx, query, input.UserID, input.ChannelID)
@@ -138,3 +113,30 @@ LIMIT 1;
 		Stats: userStats,
 	}, nil
 }
+
+const getByUserAndChannelIDQuery = `
+SELECT
+	u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned, u.created_at,
+	CASE
+    WHEN us.id IS NULL THEN NULL
+    ELSE JSON_BUILD_OBJECT(
+      'id', us.id,
+      'user_id', us."userId",
+      'channel_id', us."channelId",
+      'messages', us."messages",
+      'emotes', us."emotes",
+      'watched', us."watched",
+			'used_channel_points', us."usedChannelPoints",
+      'is_mod', us."is_mod",
+			'is_vip', us."is_vip",
+      'is_subscriber', us."is_subscriber",
+      'reputation', us."reputation",
+      'created_at', us."created_at",
+      'updated_at', us."updated_at"
+    )
+  END AS stats
+FROM users as u
+LEFT JOIN users_stats us ON us."userId"::text = $1::text AND us."channelId"::text = $2::text
+WHERE u.id = $1::uuid
+LIMIT 1;
+`
