@@ -157,6 +157,15 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		return struct{}{}, nil
 	}
 
+	// Unsubscribe first (idempotent) to prevent race condition where
+	// a separate Unsubscribe bus message arrives after we subscribe.
+	if (platform == "" || platform == platformentity.PlatformTwitch) && channel.TwitchPlatformID != nil {
+		if err := c.eventSubClient.UnsubscribeChannel(ctx, *channel.TwitchPlatformID); err != nil {
+			c.logger.Warn("error unsubscribing twitch before resubscribe (continuing)",
+				logger.Error(err), slog.String("channel_id", channelID))
+		}
+	}
+
 	hasActiveSubscription := false
 
 	if (platform == "" || platform == platformentity.PlatformKick) && channel.KickBotJoined() {
