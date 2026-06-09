@@ -39,7 +39,7 @@ func (c *Manager) SubscribeWithLimits(
 	broadcasterId string,
 	botId string,
 ) error {
-	condition, err := c.getConditionForTopic(eventType, broadcasterId)
+	condition, err := c.getConditionForTopic(eventType, broadcasterId, botId)
 	if err != nil {
 		return err
 	}
@@ -202,12 +202,13 @@ func (c *Manager) SubscribeWithLimits(
 func (c *Manager) getConditionForTopic(
 	eventType eventsub.EventType,
 	broadcasterId string,
+	botId string,
 ) (eventsub.Condition, error) {
 	switch eventType {
 	case eventsub.EventTypeAutomodMessageHold:
 		return eventsub.AutomodMessageHoldCondition{
 			BroadcasterUserId: broadcasterId,
-			ModeratorUserId:   broadcasterId,
+			ModeratorUserId:   botId,
 		}, nil
 	case eventsub.EventTypeUserAuthorizationRevoke:
 		return eventsub.UserAuthorizationRevokeCondition{
@@ -216,7 +217,7 @@ func (c *Manager) getConditionForTopic(
 	case eventsub.EventTypeChannelFollow:
 		return eventsub.ChannelFollowCondition{
 			BroadcasterUserId: broadcasterId,
-			ModeratorUserId:   broadcasterId,
+			ModeratorUserId:   botId,
 		}, nil
 	case eventsub.EventTypeChannelBan:
 		return eventsub.ChannelBanCondition{
@@ -229,22 +230,22 @@ func (c *Manager) getConditionForTopic(
 	case eventsub.EventTypeChannelChatClear:
 		return eventsub.ChannelChatClearCondition{
 			BroadcasterUserId: broadcasterId,
-			UserId:            broadcasterId,
+			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelChatClearUserMessages:
 		return eventsub.ChannelChatClearUserMessagesCondition{
 			BroadcasterUserId: broadcasterId,
-			UserId:            broadcasterId,
+			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelChatMessage:
 		return eventsub.ChannelChatMessageCondition{
 			BroadcasterUserId: broadcasterId,
-			UserId:            broadcasterId,
+			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelChatNotification:
 		return eventsub.ChannelChatNotificationCondition{
 			BroadcasterUserId: broadcasterId,
-			UserId:            broadcasterId,
+			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelModeratorAdd:
 		return eventsub.ChannelModeratorAddCondition{
@@ -337,12 +338,12 @@ func (c *Manager) getConditionForTopic(
 	case eventsub.EventTypeChannelUnbanRequestCreate:
 		return eventsub.ChannelUnbanRequestCreateCondition{
 			BroadcasterUserId: broadcasterId,
-			ModeratorUserId:   broadcasterId,
+			ModeratorUserId:   botId,
 		}, nil
 	case eventsub.EventTypeChannelUnbanRequestResolve:
 		return eventsub.ChannelUnbanRequestResolveCondition{
 			BroadcasterUserId: broadcasterId,
-			ModeratorUserId:   broadcasterId,
+			ModeratorUserId:   botId,
 		}, nil
 	case eventsub.EventTypeUserUpdate:
 		return eventsub.UserUpdateCondition{
@@ -359,7 +360,7 @@ func (c *Manager) getConditionForTopic(
 	case eventsub.EventTypeChannelMessageDelete:
 		return eventsub.ChannelChatMessageDeleteCondition{
 			BroadcasterUserId: broadcasterId,
-			UserId:            broadcasterId,
+			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelUpdate:
 		return eventsub.ChannelUpdateCondition{
@@ -368,7 +369,7 @@ func (c *Manager) getConditionForTopic(
 	case eventsub.EventTypeChannelModerate:
 		return eventsub.ChannelModerateV2Condition{
 			BroadcasterUserId: broadcasterId,
-			ModeratorUserId:   broadcasterId,
+			ModeratorUserId:   botId,
 		}, nil
 	default:
 		return nil, errors.New("unsupported event type for topic")
