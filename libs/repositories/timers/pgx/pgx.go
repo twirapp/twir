@@ -455,53 +455,9 @@ func (c *Pgx) Count(ctx context.Context, input timers.CountInput) (int64, error)
 }
 
 func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]timersentity.Timer, error) {
-	qb := sq.Select(
-		"t.id",
-		`t."channelId"`,
-		"t.name",
-		"t.enabled",
-		`t."offline_enabled"`,
-		`t."online_enabled"`,
-		`t."timeInterval"`,
-		`t."messageInterval"`,
-		`t."lastTriggerMessageNumber"`,
-		`COALESCE(
-		json_agg(
-			json_build_object(
-				'id',            tr.id,
-				'text',          tr.text,
-				'isAnnounce',    tr."isAnnounce",
-				'timerId',       tr."timerId",
-				'count',         tr.count,
-				'announce_color',tr.announce_color
-			)
-		),
-		'[]'::json
-	) AS responses`,
-	).
-		From("channels_timers t").
-		LeftJoin(`channels_timers_responses tr ON t.id = tr."timerId"`).
-		GroupBy("t.id")
-
-	if input.ChannelID != nil {
-		qb = qb.Where(squirrel.Expr(`t."channelId" = ?::uuid`, *input.ChannelID))
-	}
-	if input.Enabled != nil {
-		qb = qb.Where(squirrel.Eq{"t.enabled": *input.Enabled})
-	}
-
-	if input.Limit > 0 {
-		qb = qb.Limit(uint64(input.Limit))
-	}
-	if input.Offset > 0 {
-		qb = qb.Offset(uint64(input.Offset))
-	}
-
-	qb = qb.OrderBy("t.id")
-
-	query, args, err := qb.ToSql()
+	query, args, err := buildGetManyQuery(input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to build get many query: %w", err)
+		return nil, err
 	}
 
 	rows, err := c.pool.Query(ctx, query, args...)
@@ -544,4 +500,58 @@ func (c *Pgx) GetMany(ctx context.Context, input timers.GetManyInput) ([]timerse
 	}
 
 	return result, nil
+}
+
+func buildGetManyQuery(input timers.GetManyInput) (string, []any, error) {
+	qb := sq.Select(
+		"t.id",
+		`t."channelId"`,
+		"t.name",
+		"t.enabled",
+		`t."offline_enabled"`,
+		`t."online_enabled"`,
+		`t."timeInterval"`,
+		`t."messageInterval"`,
+		`t."lastTriggerMessageNumber"`,
+		"t.platforms",
+		`COALESCE(
+		json_agg(
+			json_build_object(
+				'id',            tr.id,
+				'text',          tr.text,
+				'isAnnounce',    tr."isAnnounce",
+				'timerId',       tr."timerId",
+				'count',         tr.count,
+				'announce_color',tr.announce_color
+			)
+		),
+		'[]'::json
+	) AS responses`,
+	).
+		From("channels_timers t").
+		LeftJoin(`channels_timers_responses tr ON t.id = tr."timerId"`).
+		GroupBy("t.id")
+
+	if input.ChannelID != nil {
+		qb = qb.Where(squirrel.Expr(`t."channelId" = ?::uuid`, *input.ChannelID))
+	}
+	if input.Enabled != nil {
+		qb = qb.Where(squirrel.Eq{"t.enabled": *input.Enabled})
+	}
+
+	if input.Limit > 0 {
+		qb = qb.Limit(uint64(input.Limit))
+	}
+	if input.Offset > 0 {
+		qb = qb.Offset(uint64(input.Offset))
+	}
+
+	qb = qb.OrderBy("t.id")
+
+	query, args, err := qb.ToSql()
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to build get many query: %w", err)
+	}
+
+	return query, args, nil
 }
