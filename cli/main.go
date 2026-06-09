@@ -6,6 +6,7 @@ import (
 
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
+	"github.com/twirapp/twir/cli/internal/cmds/deploy"
 	"github.com/twirapp/twir/cli/internal/cmds/dev"
 	"github.com/twirapp/twir/cli/internal/cmds/execbin"
 	"github.com/twirapp/twir/cli/internal/cmds/generate"
@@ -22,6 +23,8 @@ func main() {
 		Commands: []*cli.Command{
 			dependencies.Cmd,
 			migrations.Cmd,
+			deploy.WebhookCmd,
+			deploy.ApplyCmd,
 			proxy.Cmd,
 			generate.Cmd,
 			build.Cmd,
