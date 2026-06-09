@@ -87,6 +87,7 @@ type Config struct {
 
 	EventSubDisableSignatureVerification bool `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
 	EventsubHttpPort                     int  `required:"false" default:"3030"  envconfig:"EVENTSUB_HTTP_PORT"`
+	EventSubCallbackBaseUrl              string `required:"false" envconfig:"EVENTSUB_CALLBACK_BASE_URL"`
 
 	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
 	DonationAlertsSecret   string `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`

@@ -65,6 +65,9 @@ func NewManager(opts Opts) *Manager {
 
 func (m *Manager) start(ctx context.Context) error {
 	callbackBaseURL := m.config.SiteBaseUrl
+	if m.config.EventSubCallbackBaseUrl != "" {
+		callbackBaseURL = m.config.EventSubCallbackBaseUrl
+	}
 
 	m.logger.InfoContext(
 		ctx,
