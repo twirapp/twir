@@ -137,6 +137,6 @@ SELECT
   END AS stats
 FROM users as u
 LEFT JOIN users_stats us ON us."userId"::text = $1::text AND us."channelId"::text = $2::text
-WHERE u.id = $1::uuid
+WHERE u.id::text = $1::text
 LIMIT 1;
 `
