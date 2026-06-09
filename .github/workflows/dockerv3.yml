@@ -72,6 +72,7 @@ jobs:
           echo "app=$(basename ${{ matrix.folders.path }})" >> $GITHUB_ENV
 
       - name: Get changed files
+        if: needs.release-meta.outputs.is_release != 'true'
         id: changed-files
         uses: tj-actions/changed-files@v45
         with:
@@ -189,6 +190,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Get changed files
+        if: needs.release-meta.outputs.is_release != 'true'
         id: changed-files
         uses: tj-actions/changed-files@v47
         with:
@@ -233,6 +235,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Get changed files
+        if: needs.release-meta.outputs.is_release != 'true'
         id: changed-files
         uses: tj-actions/changed-files@v47
         with:
@@ -281,6 +284,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Get changed files
+        if: needs.release-meta.outputs.is_release != 'true'
         id: changed-files
         uses: tj-actions/changed-files@v47
         with:
