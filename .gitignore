@@ -48,4 +48,5 @@ apps/*/main
 worktrees
 .local.md
 .playwright-mcp
+.omo/drafts
 .omo/run-continuation

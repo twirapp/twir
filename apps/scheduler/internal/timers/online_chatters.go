@@ -115,7 +115,7 @@ func (c *onlineUsers) getStreams(
 }
 
 func (c *onlineUsers) shouldSkipStream(stream *model.ChannelsStreams) bool {
-	return stream.Channel == nil || (!stream.Channel.IsEnabled || stream.Channel.User.IsBanned)
+	return stream == nil || stream.Channel == nil || stream.Channel.User == nil || (!stream.Channel.IsEnabled || stream.Channel.User.IsBanned)
 }
 
 func (c *onlineUsers) updateStreamUsers(
@@ -262,7 +262,6 @@ func (c *onlineUsers) updateStreamUsers(
 				return nil
 			},
 		)
-
 		if err != nil {
 			return fmt.Errorf("cannot update stream users: %w", err)
 		}
