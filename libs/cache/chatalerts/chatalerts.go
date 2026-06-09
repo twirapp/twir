@@ -32,7 +32,7 @@ func New(
 				if err := db.
 					WithContext(ctx).
 					Where(
-						`"channelId" = ?::uuid AND "userId" IS NULL AND type = 'chat_alerts'`,
+						`"channelId"::text = ?::text AND "userId" IS NULL AND type = 'chat_alerts'`,
 						key,
 					).First(&entity).Error; err != nil {
 					if errors.Is(err, gorm.ErrRecordNotFound) {
