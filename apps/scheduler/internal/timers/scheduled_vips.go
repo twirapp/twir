@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -179,6 +180,10 @@ func (s *scheduledVips) process(ctx context.Context) {
 			continue
 		}
 		if resp.ErrorMessage != "" {
+			if strings.Contains(strings.ToLower(resp.ErrorMessage), "not a vip") {
+				s.logger.Info("user is already not a VIP, skipping", slog.String("user_id", vip.UserID), slog.String("channel_id", vip.ChannelID))
+				continue
+			}
 			s.logger.Error("failed to remove vip", slog.String("error", resp.ErrorMessage))
 			continue
 		}

@@ -17,7 +17,7 @@ var (
 
 type Channels struct {
 	ID               string    `gorm:"primaryKey;column:id;type:UUID;"                json:"id"`
-	TwitchUserID     *string   `gorm:"column:twitch_user_id;type:UUID;"               json:"twitchUserId"`
+	TwitchUserID     *string   `gorm:"column:twitch_user_id;type:TEXT;"               json:"twitchUserId"`
 	TwitchBotEnabled bool      `gorm:"column:twitch_bot_enabled;type:BOOL;default:false;" json:"twitchBotEnabled"`
 	KickUserID       *string   `gorm:"column:kick_user_id;type:UUID;"                 json:"kickUserId"`
 	KickBotEnabled   bool      `gorm:"column:kick_bot_enabled;type:BOOL;default:false;" json:"kickBotEnabled"`
