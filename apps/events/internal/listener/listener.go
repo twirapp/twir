@@ -2,6 +2,7 @@ package listener
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -26,6 +27,7 @@ import (
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/utils"
 	"go.uber.org/fx"
@@ -795,6 +797,9 @@ func (c *EventsGrpcImplementation) StreamOnline(
 	wg := utils.NewGoroutinesGroup()
 	channelDBID, err := c.resolveInternalChannelID(ctx, platform.PlatformTwitch, msg.ChannelID)
 	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) || errors.Is(err, channelsrepository.ErrNotFound) {
+			return struct{}{}, nil
+		}
 		c.logger.Error("resolve channel db id", logger.Error(err))
 		return struct{}{}, nil
 	}
@@ -840,6 +845,9 @@ func (c *EventsGrpcImplementation) StreamOffline(
 	wg := utils.NewGoroutinesGroup()
 	channelDBID, err := c.resolveInternalChannelID(ctx, platform.PlatformTwitch, msg.ChannelID)
 	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) || errors.Is(err, channelsrepository.ErrNotFound) {
+			return struct{}{}, nil
+		}
 		c.logger.Error("resolve channel db id", logger.Error(err))
 		return struct{}{}, nil
 	}
