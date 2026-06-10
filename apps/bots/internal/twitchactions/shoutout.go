@@ -18,7 +18,7 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 	if err != nil {
 		return fmt.Errorf("cannot get channel: %w", err)
 	}
-	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
+	if !channel.TwitchBotEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
 		return nil
 	}
 	if channel.TwitchUserID == nil {

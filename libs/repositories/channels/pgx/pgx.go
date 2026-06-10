@@ -57,8 +57,8 @@ LEFT JOIN users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'`
 func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
 	query := `
 WITH inserted AS (
-	INSERT INTO channels (twitch_user_id, kick_user_id, twitch_bot_enabled, kick_bot_enabled, "botId", kick_bot_id)
-	VALUES ($1, $2, $3, $4, $5, $6)
+	INSERT INTO channels (twitch_user_id, kick_user_id, twitch_bot_enabled, kick_bot_enabled, "isEnabled", "botId", kick_bot_id)
+	VALUES ($1, $2, $3, $4, $3 OR $4, $5, $6)
 	RETURNING *
 )
 SELECT
@@ -265,6 +265,18 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 
 	if input.Enabled != nil {
 		selectBuilder = selectBuilder.Where(`c."isEnabled" = ?`, *input.Enabled)
+	}
+
+	if input.TwitchBotEnabled != nil {
+		selectBuilder = selectBuilder.Where("c.twitch_bot_enabled = ?", *input.TwitchBotEnabled)
+	}
+
+	if input.KickBotEnabled != nil {
+		selectBuilder = selectBuilder.Where("c.kick_bot_enabled = ?", *input.KickBotEnabled)
+	}
+
+	if input.AnyBotEnabled != nil && *input.AnyBotEnabled {
+		selectBuilder = selectBuilder.Where("(c.twitch_bot_enabled = true OR c.kick_bot_enabled = true)")
 	}
 
 	if input.HasKickUserID != nil && *input.HasKickUserID {

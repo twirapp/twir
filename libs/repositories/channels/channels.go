@@ -37,11 +37,14 @@ type UpdateInput struct {
 }
 
 type GetManyInput struct {
-	Enabled         *bool
-	HasKickUserID   *bool
-	HasTwitchUserID *bool
-	PerPage         int
-	Page            int
+	Enabled           *bool
+	TwitchBotEnabled  *bool
+	KickBotEnabled    *bool
+	AnyBotEnabled     *bool
+	HasKickUserID     *bool
+	HasTwitchUserID   *bool
+	PerPage           int
+	Page              int
 }
 
 type GetCountInput struct {

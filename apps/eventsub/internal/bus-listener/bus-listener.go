@@ -148,9 +148,30 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		return struct{}{}, err
 	}
 
-	if channel.BotID == "" || !channel.IsEnabled {
+	if channel.BotID == "" {
 		c.logger.Warn(
-			"channel is not enabled or bot ID is missing",
+			"channel bot ID is missing",
+			slog.String("channel_id", channelID),
+			slog.String("platform", platformLabel),
+		)
+		return struct{}{}, nil
+	}
+
+	botEnabled := channel.TwitchBotEnabled
+	if platform == platformentity.PlatformKick {
+		botEnabled = channel.KickBotEnabled
+	}
+	if !botEnabled && platform != "" {
+		c.logger.Warn(
+			"channel bot is not enabled for platform",
+			slog.String("channel_id", channelID),
+			slog.String("platform", platformLabel),
+		)
+		return struct{}{}, nil
+	}
+	if !channel.AnyBotJoined() {
+		c.logger.Warn(
+			"no bot joined for channel",
 			slog.String("channel_id", channelID),
 			slog.String("platform", platformLabel),
 		)
@@ -325,7 +346,7 @@ func (c *BusListener) reinitChannels(
 	}
 
 	enabledChannels, err := c.channelsRepo.GetMany(ctx, channels.GetManyInput{
-		Enabled: lo.ToPtr(true),
+		AnyBotEnabled: lo.ToPtr(true),
 	})
 	if err != nil {
 		c.logger.Error("error getting channels", logger.Error(err))

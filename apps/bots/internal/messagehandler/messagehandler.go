@@ -249,7 +249,11 @@ func (c *MessageHandler) Handle(ctx context.Context, req generic.ChatMessage) er
 		attribute.String("user.login", req.ChatterUserLogin),
 	)
 
-	if !req.EnrichedData.DbChannel.IsEnabled {
+	botEnabled := req.EnrichedData.DbChannel.TwitchBotEnabled
+	if req.Platform == "kick" {
+		botEnabled = req.EnrichedData.DbChannel.KickBotEnabled
+	}
+	if !botEnabled {
 		return nil
 	}
 

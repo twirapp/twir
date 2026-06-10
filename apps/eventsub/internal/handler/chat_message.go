@@ -211,13 +211,20 @@ func (c *Handler) HandleChannelChatMessage(
 		},
 	)
 
-	wg.Go(
+		wg.Go(
 		func() {
 			isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
 			// ignore bot himself from chat commands
 			if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 				return
-			} else if isCommand && data.EnrichedData.DbChannel.IsEnabled {
+			}
+
+			botEnabled := data.EnrichedData.DbChannel.TwitchBotEnabled
+			if data.Platform == "kick" {
+				botEnabled = data.EnrichedData.DbChannel.KickBotEnabled
+			}
+
+			if isCommand && botEnabled {
 				if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
 					c.logger.Error("cannot publish process command", logger.Error(err))
 				}
@@ -232,7 +239,12 @@ func (c *Handler) HandleChannelChatMessage(
 				return
 			}
 
-			if isCommand && data.EnrichedData.DbChannel.IsEnabled {
+			botEnabled := data.EnrichedData.DbChannel.TwitchBotEnabled
+			if data.Platform == "kick" {
+				botEnabled = data.EnrichedData.DbChannel.KickBotEnabled
+			}
+
+			if isCommand && botEnabled {
 				if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
 					c.logger.Error("cannot publish process command", logger.Error(err))
 				}

@@ -158,7 +158,7 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 	)
 
 	for _, ch := range kickChannels {
-		if ch.KickUserID == nil || !ch.IsEnabled {
+		if ch.KickUserID == nil || !ch.KickBotEnabled {
 			continue
 		}
 
