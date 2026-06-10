@@ -443,7 +443,7 @@ func (h *Handlers) buildKickMessageContent(
 }
 
 func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	messageID := KickMessageIDFromContext(ctx)
 	eventType := KickEventTypeFromContext(ctx)
@@ -595,7 +595,7 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	var payload kickLivestreamMetadataPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
@@ -646,7 +646,7 @@ func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) ([]slo
 }
 
 func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	h.logger.DebugContext(ctx, "kick: handling chat message",
 		slog.Int("body_size", len(body)),
@@ -904,7 +904,7 @@ func (h *Handlers) shouldIgnoreBotSelfMessage(
 }
 
 func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	var payload kickFollowPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
@@ -991,7 +991,7 @@ func kickChannelName(user kickUser) string {
 }
 
 func (h *Handlers) handleSubscriptionNew(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	var payload kickSubscriptionPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
@@ -1045,7 +1045,7 @@ func (h *Handlers) handleSubscriptionNew(r *http.Request, body []byte) ([]slog.A
 }
 
 func (h *Handlers) handleSubscriptionRenewal(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	var payload kickSubscriptionPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
@@ -1106,7 +1106,7 @@ func (h *Handlers) handleSubscriptionRenewal(r *http.Request, body []byte) ([]sl
 }
 
 func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	var payload kickSubscriptionGiftsPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
@@ -1168,7 +1168,7 @@ func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog
 }
 
 func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	var payload kickRewardRedemptionPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
@@ -1255,7 +1255,7 @@ func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) (
 }
 
 func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	var payload kickModerationBannedPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
@@ -1335,7 +1335,7 @@ func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.
 }
 
 func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) ([]slog.Attr, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	var payload kickLivestreamStatusPayload
 	if err := json.Unmarshal(body, &payload); err != nil {
@@ -1402,7 +1402,7 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) ([]slog.
 }
 
 func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.UUID, uuid.UUID, error) {
-	ctx := r.Context()
+	ctx := context.WithoutCancel(r.Context())
 
 	user, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, broadcasterUserID)
 	if err != nil {
