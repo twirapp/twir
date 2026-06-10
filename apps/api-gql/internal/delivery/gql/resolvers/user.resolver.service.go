@@ -186,10 +186,10 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 
 	for _, stat := range usersStats {
 		var channelRoles []model.ChannelRole
-		if err := r.deps.Gorm.WithContext(ctx).Where(
-			`"channelId" = ?::uuid`,
-			stat.ChannelID,
-		).Find(&channelRoles).
+		if err := r.deps.Gorm.WithContext(ctx).
+			Where(`"channelId" = ?::uuid`, stat.ChannelID).
+			Preload("Channel").
+			Find(&channelRoles).
 			Error; err != nil {
 			return nil, err
 		}
@@ -224,7 +224,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			flags = append(flags, gqlmodel.ChannelRolePermissionEnum(flag))
 		}
 
-		if role.ID != "" && len(flags) > 0 {
+		if role.ID != "" && len(flags) > 0 && role.Channel != nil {
 			existing := dashboardsEntities[role.ChannelID]
 			platform := existing.Platform
 			if platform == "" {
