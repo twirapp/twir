@@ -110,8 +110,65 @@ func (c *onlineUsers) getStreams(
 	ctx context.Context,
 ) ([]*model.ChannelsStreams, error) {
 	var streams []*model.ChannelsStreams
-	err := c.db.WithContext(ctx).Preload("Channel").Preload("Channel.User").Find(&streams).Error
-	return streams, err
+	err := c.db.WithContext(ctx).Find(&streams).Error
+	if err != nil {
+		return nil, err
+	}
+
+	platformIDs := lo.Map(streams, func(s *model.ChannelsStreams, _ int) string {
+		return s.UserId
+	})
+	platformIDs = lo.Uniq(platformIDs)
+
+	if len(platformIDs) == 0 {
+		return streams, nil
+	}
+
+	type channelRow struct {
+		ChannelID    string `gorm:"column:channel_id"`
+		PlatformID   string `gorm:"column:platform_id"`
+		UserID       string `gorm:"column:user_id"`
+		IsEnabled    bool   `gorm:"column:is_enabled"`
+		IsBanned     bool   `gorm:"column:is_banned"`
+	}
+	var rows []channelRow
+	err = c.db.WithContext(ctx).Raw(`
+		SELECT c.id AS channel_id, u.platform_id, u.id AS user_id, c."isEnabled" AS is_enabled, u.is_banned
+		FROM channels c
+		JOIN users u ON u.id = c.twitch_user_id AND u.platform = 'twitch'
+		WHERE u.platform_id IN ?
+	`, platformIDs).Scan(&rows).Error
+	if err != nil {
+		return nil, fmt.Errorf("lookup channels by platform id: %w", err)
+	}
+
+	channelByPlatform := make(map[string]*model.Channels, len(rows))
+	userByID := make(map[string]*model.Users, len(rows))
+	for _, r := range rows {
+		ch := &model.Channels{
+			ID:        r.ChannelID,
+			IsEnabled: r.IsEnabled,
+		}
+		channelByPlatform[r.PlatformID] = ch
+		userByID[r.UserID] = &model.Users{
+			ID:       r.UserID,
+			IsBanned: r.IsBanned,
+		}
+	}
+
+	for _, s := range streams {
+		if ch, ok := channelByPlatform[s.UserId]; ok {
+			s.Channel = ch
+			for uid, u := range userByID {
+				if ch.TwitchUserID != nil && *ch.TwitchUserID == uid {
+					ch.User = u
+					break
+				}
+			}
+		}
+	}
+
+	return streams, nil
 }
 
 func (c *onlineUsers) shouldSkipStream(stream *model.ChannelsStreams) bool {
