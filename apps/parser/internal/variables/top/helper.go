@@ -41,7 +41,13 @@ func getTop(
 	offset := (*page - 1) * limit
 
 	channelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
-	if err != nil {
+	if err != nil && parseCtx.Channel.TwitchUserID != uuid.Nil {
+		channel, chanErr := parseCtx.Services.ChannelsRepo.GetByTwitchUserID(ctx, parseCtx.Channel.TwitchUserID)
+		if chanErr == nil && !channel.IsNil() {
+			channelID = channel.ID
+		}
+	}
+	if err != nil && channelID == uuid.Nil {
 		parseCtx.Services.Logger.Sugar().Error(err)
 		return nil, false
 	}

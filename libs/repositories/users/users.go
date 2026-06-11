@@ -39,7 +39,7 @@ type UpdateInput struct {
 }
 
 type GetRandomOnlineUserInput struct {
-	ChannelID uuid.UUID
+	ChannelID string
 }
 
 type GetOnlineUsersWithFiltersInput struct {
