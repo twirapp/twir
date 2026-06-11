@@ -9,7 +9,6 @@ import type { PopoverContentProps } from 'reka-ui'
 
 import { useDashboard, useProfile } from '@/api/auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
 	SidebarMenu,
@@ -20,6 +19,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import KickIcon from '@/components/kick-icon.vue'
+import TwitchIcon from '@/components/twitch-icon.vue'
 
 const { t } = useI18n()
 const { open: sidebarOpen } = useSidebar()
@@ -139,7 +139,7 @@ const {
 						<span class="truncate text-xs flex items-center gap-1">
 							{{ t(`dashboard.header.managingUser`) }}
 							<KickIcon v-if="currentDashboard.platform === 'kick'" class="text-[#53FC18]" />
-							<Badge v-else variant="outline" class="uppercase text-[10px] px-1 py-0 h-4">T</Badge>
+							<TwitchIcon v-else-if="currentDashboard.platform === 'twitch'" class="text-[#9146FF]" />
 						</span>
 					</div>
 						<ChevronsUpDown class="ml-auto" />
@@ -177,11 +177,10 @@ const {
 									v-if="option.data.platform === 'kick'"
 									class="text-[#53FC18] ml-auto"
 								/>
-								<Badge
-									v-else
-									variant="outline"
-									class="uppercase text-[10px] px-1 py-0 h-4 ml-auto"
-								>T</Badge>
+								<TwitchIcon
+									v-else-if="option.data.platform === 'twitch'"
+									class="text-[#9146FF] ml-auto"
+								/>
 							</Button>
 						</div>
 					</div>

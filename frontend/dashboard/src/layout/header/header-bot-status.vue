@@ -5,7 +5,6 @@ import { ChevronsUpDown, Loader2, LogIn, LogOut } from 'lucide-vue-next'
 import { useBotJoinPart, useBotStatuses } from '@/api/dashboard'
 import { BotJoinLeaveAction } from '@/gql/graphql.ts'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -15,6 +14,7 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import KickIcon from '@/components/kick-icon.vue'
+import TwitchIcon from '@/components/twitch-icon.vue'
 import CircleSvg from '@/assets/images/circle.svg?use'
 
 const { botStatuses, executeSubscription } = useBotStatuses()
@@ -116,13 +116,10 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 				<div class="flex items-center gap-1">
 					<template v-for="status in sortedBotStatuses" :key="statusKey(status)">
 						<KickIcon v-if="status.platform === 'kick'" class="size-4 text-[#53FC18]" />
-						<Badge
+						<TwitchIcon
 							v-else-if="status.platform === 'twitch'"
-							variant="outline"
-							class="h-4 px-1 text-[10px]"
-						>
-							T
-						</Badge>
+							class="size-4 text-[#9146FF]"
+						/>
 					</template>
 				</div>
 				<span class="max-w-44 truncate">{{ statusSummary }}</span>
@@ -142,13 +139,10 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 				>
 				<div class="flex size-7 items-center justify-center rounded-md border border-border bg-background">
 					<KickIcon v-if="status.platform === 'kick'" class="size-4 text-[#53FC18]" />
-					<Badge
+					<TwitchIcon
 						v-else-if="status.platform === 'twitch'"
-						variant="outline"
-						class="h-4 px-1 text-[10px]"
-					>
-						T
-					</Badge>
+						class="size-4 text-[#9146FF]"
+					/>
 				</div>
 				<div class="min-w-0 flex-1">
 					<p class="truncate text-sm font-medium">

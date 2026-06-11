@@ -31,8 +31,8 @@ import {
 import { useTheme } from '@/composables/use-theme.ts'
 import { AVAILABLE_LOCALES } from '@/plugins/i18n.ts'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import KickIcon from '@/components/kick-icon.vue'
+import TwitchIcon from '@/components/twitch-icon.vue'
 import type { DropdownMenuContentProps } from 'reka-ui'
 
 const { t, locale } = useI18n()
@@ -74,13 +74,10 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 							v-if="account.platform === 'kick'"
 							class="size-4 text-[#53FC18]"
 						/>
-						<Badge
+						<TwitchIcon
 							v-else-if="account.platform === 'twitch'"
-							variant="outline"
-							class="h-4 px-1 text-[10px]"
-						>
-							T
-						</Badge>
+							class="size-4 text-[#9146FF]"
+						/>
 					</template>
 				</div>
 				<ChevronsUpDown class="ml-auto size-4" />
