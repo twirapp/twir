@@ -170,7 +170,7 @@ func (c *MessageHandler) moderationHandleResult(
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 ) *moderationHandleResult {
 	var channelRoles []model.ChannelRole
-	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?`, msg.EnrichedData.DbUser.ID).Where(
+	if err := c.gorm.WithContext(ctx).Preload("Users", `user_id = ?`, msg.EnrichedData.DbUser.ID).Where(
 		`"channelId" = ?::uuid`,
 		settings.ChannelID,
 	).

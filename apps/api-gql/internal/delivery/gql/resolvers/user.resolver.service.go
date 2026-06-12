@@ -137,7 +137,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		if err := r.deps.Gorm.
 			WithContext(ctx).
 			Where(
-				`"userId" = ?`,
+				`user_id = ?`,
 				obj.ID,
 			).
 			Preload("Role").

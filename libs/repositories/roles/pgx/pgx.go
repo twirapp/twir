@@ -53,13 +53,13 @@ SELECT
     cr.required_used_channel_points
 FROM public.channels_roles AS cr
          LEFT JOIN public.channels_roles_users AS cru
-                    ON cr.id = cru."roleId" AND cru."userId" = @user_id::uuid
+                    ON cr.id = cru."roleId" AND cru.user_id = @user_id::uuid
          LEFT JOIN public.users_stats AS us
                     ON cr."channelId" = us.channel_id AND us.user_id = @user_id::uuid
 WHERE
     cr."channelId" = @channel_id::uuid
 		AND (
-			cru."userId" IS NOT NULL OR (
+			cru.user_id IS NOT NULL OR (
 				(cr.required_messages > 0 AND us.messages >= cr.required_messages) OR
 				(cr.required_watch_time > 0 AND us.watched >= cr.required_watch_time) OR
 				(cr.required_used_channel_points > 0 AND us."usedChannelPoints" >= cr.required_used_channel_points)

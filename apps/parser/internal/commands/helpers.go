@@ -164,7 +164,7 @@ func (c *Commands) prepareCooldownAndPermissionsCheck(
 	if err = c.services.Gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, channelId).
-		Preload("Users", `"userId" = ?`, userId).
+		Preload("Users", `user_id = ?`, userId).
 		Find(&channelRoles).Error; err != nil {
 		return
 	}

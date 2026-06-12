@@ -38,7 +38,7 @@ func (c *Directives) HasAccessToSelectedDashboard(
 	if err := c.gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ?::uuid`, dashboardId).
-		Preload("Users", `"userId" = ?`, user.ID).
+		Preload("Users", `user_id = ?`, user.ID).
 		Find(&channelRoles).
 		Error; err != nil {
 		return nil, fmt.Errorf("cannot get channel roles: %w", err)
