@@ -185,7 +185,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 
 	// Base WHERE conditions shared between data and count queries
 	applyBaseFilters := func(b squirrel.SelectBuilder) squirrel.SelectBuilder {
-		b = b.Where(`users_stats.channel_id = ?`, opts.ChannelID)
+		b = b.Where(squirrel.Expr(`users_stats.channel_id = ?::uuid`, opts.ChannelID))
 
 		// Exclude ignored users (only twitch platform has users_ignored)
 		b = b.Where(
@@ -199,13 +199,13 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		)
 
 		if channel.TwitchUserID != nil {
-			b = b.Where(`users_stats.user_id <> ?`, channel.TwitchUserID.String())
+			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.TwitchUserID.String()))
 		}
 		if channel.KickUserID != nil {
-			b = b.Where(`users_stats.user_id <> ?`, channel.KickUserID.String())
+			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.KickUserID.String()))
 		}
 		if channel.KickBotID != nil {
-			b = b.Where(`users_stats.user_id <> ?`, channel.KickBotID.String())
+			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.KickBotID.String()))
 		}
 		if channel.BotID != "" {
 			b = b.Where(
