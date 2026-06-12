@@ -130,16 +130,16 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`)
 
 	if channel.TwitchUserID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.TwitchUserID.String()})
-		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.TwitchUserID.String()})
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: *channel.TwitchUserID})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: *channel.TwitchUserID})
 	}
 	if channel.KickUserID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickUserID.String()})
-		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickUserID.String()})
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: *channel.KickUserID})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: *channel.KickUserID})
 	}
 	if channel.KickBotID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickBotID.String()})
-		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickBotID.String()})
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: *channel.KickBotID})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: *channel.KickBotID})
 	}
 	if channel.BotID != "" {
 		botFilter := squirrel.Expr(
