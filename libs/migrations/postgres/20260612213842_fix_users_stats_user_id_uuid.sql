@@ -1,3 +1,4 @@
+-- +goose Up
 -- +goose StatementBegin
 
 -- The users_multi_platform migration missed users_stats.user_id because
@@ -40,7 +41,6 @@ WITH ranked AS (
         SUM(emotes)              OVER (PARTITION BY user_id, channel_id) AS total_emotes,
         SUM("usedChannelPoints") OVER (PARTITION BY user_id, channel_id) AS total_pts,
         SUM(reputation)          OVER (PARTITION BY user_id, channel_id) AS total_rep,
-        -- pick is_mod/vip/sub from the row that has TRUE (any), prefer old (earliest created_at)
         BOOL_OR(is_mod)          OVER (PARTITION BY user_id, channel_id) AS any_mod,
         BOOL_OR(is_vip)          OVER (PARTITION BY user_id, channel_id) AS any_vip,
         BOOL_OR(is_subscriber)   OVER (PARTITION BY user_id, channel_id) AS any_sub,
@@ -50,9 +50,6 @@ WITH ranked AS (
 ),
 to_update AS (
     SELECT * FROM ranked WHERE rn = 1
-),
-to_delete AS (
-    SELECT id FROM ranked WHERE rn > 1
 )
 UPDATE users_stats us
 SET
@@ -116,4 +113,9 @@ WHERE u.platform = 'twitch'
 
 ALTER TABLE users_online ALTER COLUMN "userId" TYPE UUID USING "userId"::uuid;
 
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+SELECT 'fix_users_stats_user_id_uuid is not reversible';
 -- +goose StatementEnd
