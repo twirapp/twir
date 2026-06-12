@@ -115,9 +115,9 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			`users.avatar`,
 		).
 		From("users_stats").
-		Join(`users ON users.id = users_stats.user_id`).
+		Join(`users ON users.id::text = users_stats.user_id::text`).
 		Where(squirrel.Expr(`users_stats.channel_id = ?::uuid`, opts.ChannelID)).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = users_stats.user_id::text)`).
 		Limit(uint64(perPage)).
 		Offset(uint64(page*perPage)).
 		GroupBy(`users_stats.id`, `users.platform`, `users.platform_id`, `users.login`, `users.display_name`, `users.avatar`)
@@ -125,9 +125,9 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	countBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
 		Select(`COUNT(DISTINCT users_stats.id)`).
 		From("users_stats").
-		Join(`users ON users.id = users_stats.user_id`).
+		Join(`users ON users.id::text = users_stats.user_id::text`).
 		Where(squirrel.Expr(`users_stats.channel_id = ?::uuid`, opts.ChannelID)).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`)
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = users_stats.user_id::text)`)
 
 	if channel.TwitchUserID != nil {
 		queryBuilder = queryBuilder.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.TwitchUserID.String()))
@@ -143,7 +143,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	}
 	if channel.BotID != "" {
 		botFilter := squirrel.Expr(
-			`users_stats.user_id NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+			`users_stats.user_id::text NOT IN (SELECT id::text FROM users WHERE platform_id = ? AND platform = 'twitch')`,
 			channel.BotID,
 		)
 		queryBuilder = queryBuilder.Where(botFilter)
