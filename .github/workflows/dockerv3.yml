@@ -102,7 +102,7 @@ jobs:
       - name: Compute affected apps
         id: affected
         run: |
-          if [ "${{ needs.release-meta.outputs.is_release }}" = "true" ] || [ "${{ github.event.inputs.skip-change-detect }}" = "true" ]; then
+          if [ "${{ github.event.inputs.skip-change-detect }}" = "true" ]; then
             apps=$(go run ./cli/main.go affected --files "ALL" --output json)
           else
             apps=$(go run ./cli/main.go affected --files "${{ steps.changed.outputs.files }}" --output json)
@@ -176,7 +176,7 @@ jobs:
       - name: Determine if build should run
         id: should-build
         run: |
-          if [ "${{ needs.release-meta.outputs.is_release }}" = "true" ] || [ "${{ github.event.inputs.skip-change-detect }}" = "true" ]; then
+          if [ "${{ github.event.inputs.skip-change-detect }}" = "true" ]; then
             echo "run-build=true" >> "$GITHUB_ENV"
           else
             affected='${{ needs.detect-affected.outputs.affected }}'
@@ -257,23 +257,13 @@ jobs:
 
       - name: Build and push
         uses: docker/build-push-action@v6
-        if: env.run-build == 'true' && needs.release-meta.outputs.is_release == 'true'
+        if: env.run-build == 'true'
         with:
           context: .
           file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
           push: true
           tags: |
             registry.twir.app/twirapp/${{ env.app }}:${{ needs.release-meta.outputs.image_tag }}
-            registry.twir.app/twirapp/${{ env.app }}:latest
-
-      - name: Build and push latest only
-        uses: docker/build-push-action@v6
-        if: env.run-build == 'true' && needs.release-meta.outputs.is_release != 'true'
-        with:
-          context: .
-          file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
-          push: true
-          tags: |
             registry.twir.app/twirapp/${{ env.app }}:latest
 
   migrations:
@@ -301,7 +291,7 @@ jobs:
           username: ${{ secrets.DOCKER_TWIR_LOGIN }}
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
       - name: Build docker image
-        if: needs.release-meta.outputs.is_release == 'true'
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -309,16 +299,6 @@ jobs:
           push: true
           tags: |
             registry.twir.app/twirapp/migrations:${{ needs.release-meta.outputs.image_tag }}
-            registry.twir.app/twirapp/migrations:latest
-
-      - name: Build docker image latest only
-        if: needs.release-meta.outputs.is_release != 'true' && (steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true')
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./libs/migrations/Dockerfile
-          push: true
-          tags: |
             registry.twir.app/twirapp/migrations:latest
 
   web:
@@ -350,7 +330,7 @@ jobs:
           username: ${{ secrets.DOCKER_TWIR_LOGIN }}
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
       - name: Build docker image
-        if: needs.release-meta.outputs.is_release == 'true'
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -358,16 +338,6 @@ jobs:
           push: true
           tags: |
             registry.twir.app/twirapp/web:${{ needs.release-meta.outputs.image_tag }}
-            registry.twir.app/twirapp/web:latest
-
-      - name: Build docker image latest only
-        if: needs.release-meta.outputs.is_release != 'true' && (steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true')
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./web/Dockerfile
-          push: true
-          tags: |
             registry.twir.app/twirapp/web:latest
 
   deploy-receiver:
@@ -394,7 +364,7 @@ jobs:
           username: ${{ secrets.DOCKER_TWIR_LOGIN }}
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
       - name: Build deploy receiver image
-        if: needs.release-meta.outputs.is_release == 'true'
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -402,15 +372,6 @@ jobs:
           push: true
           tags: |
             registry.twir.app/twirapp/deploy-receiver:${{ needs.release-meta.outputs.image_tag }}
-            registry.twir.app/twirapp/deploy-receiver:latest
-      - name: Build deploy receiver latest only
-        if: needs.release-meta.outputs.is_release != 'true' && (steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true')
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./cli/Dockerfile
-          push: true
-          tags: |
             registry.twir.app/twirapp/deploy-receiver:latest
 
   deploy-release:
@@ -421,7 +382,6 @@ jobs:
       - migrations
       - web
       - deploy-receiver
-    if: needs.release-meta.outputs.is_release == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Trigger deploy webhook
