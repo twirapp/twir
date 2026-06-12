@@ -30,6 +30,34 @@ jobs:
             echo "image_tag=latest" >> "$GITHUB_OUTPUT"
           fi
 
+  changelog:
+    runs-on: ubuntu-latest
+    outputs:
+      release_notes: ${{ steps.changelog.outputs.content }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=v0.0.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate Changelog
+        id: changelog
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-matrix:
     needs: release-meta
     runs-on: ubuntu-latest
@@ -354,3 +382,22 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"imageTag\":\"${IMAGE_TAG}\",\"refName\":\"${REF_NAME}\",\"trigger\":\"github-actions\"}" \
             "${deploy_url}"
+
+  release:
+    needs:
+      - release-meta
+      - changelog
+      - deploy-release
+    if: needs.release-meta.outputs.is_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.changelog.outputs.version }}
+          name: Release ${{ needs.changelog.outputs.version }}
+          body: ${{ needs.changelog.outputs.release_notes }}
+          draft: false
+          prerelease: false
