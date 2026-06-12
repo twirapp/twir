@@ -60,6 +60,10 @@ func (c *Handler) handleModerateActionBan(
 			return
 		}
 
+		if userId != channel.BotID {
+			return
+		}
+
 		isEnabled := false
 		overallEnabled := channel.KickBotJoined()
 
