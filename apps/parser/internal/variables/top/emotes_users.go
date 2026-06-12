@@ -14,7 +14,7 @@ import (
 )
 
 type emotesUsersRow struct {
-	UserID string `gorm:"column:userId" json:"userId" db:"userId"`
+	UserID string `gorm:"column:user_id" json:"userId" db:"user_id"`
 	Emotes int    `gorm:"column:emotes" json:"emotes" db:"emotes"`
 }
 
@@ -54,9 +54,9 @@ var EmotesUsers = &types.Variable{
 		}
 
 		query := `
-SELECT "userId", "emotes"
+SELECT user_id, emotes
 FROM users_stats
-WHERE "channelId" = ?::uuid AND emotes > 0
+WHERE channel_id = ?::uuid AND emotes > 0
 ORDER BY emotes DESC
 LIMIT ?
 OFFSET ?

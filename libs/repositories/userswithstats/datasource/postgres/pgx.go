@@ -121,8 +121,8 @@ SELECT
     WHEN us.id IS NULL THEN NULL
     ELSE JSON_BUILD_OBJECT(
       'id', us.id,
-      'user_id', us."userId",
-      'channel_id', us."channelId",
+      'user_id', us.user_id,
+      'channel_id', us.channel_id,
       'messages', us."messages",
       'emotes', us."emotes",
       'watched', us."watched",
@@ -136,7 +136,7 @@ SELECT
     )
   END AS stats
 FROM users as u
-LEFT JOIN users_stats us ON us."userId"::text = $1::text AND us."channelId"::text = $2::text
-WHERE u.id::text = $1::text
+LEFT JOIN users_stats us ON us.user_id = $1::uuid AND us.channel_id = $2::uuid
+WHERE u.id = $1::uuid
 LIMIT 1;
 `

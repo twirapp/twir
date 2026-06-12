@@ -73,7 +73,7 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 
 	err = r.deps.Gorm.WithContext(ctx).
 		Model(&model.UsersStats{}).
-		Where(`"channelId" = ?`, dashboardId).
+		Where(`channel_id = ?`, dashboardId).
 		Update(field, 0).Error
 	if err != nil {
 		return false, gqlerrors.HandleError(err)
@@ -115,35 +115,35 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			`users.avatar`,
 		).
 		From("users_stats").
-		Join(`users ON users.id::text = "users_stats"."userId"`).
-		Where(squirrel.Expr(`"users_stats"."channelId" = ?::uuid`, opts.ChannelID)).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = "users_stats"."userId")`).
+		Join(`users ON users.id = users_stats.user_id`).
+		Where(squirrel.Expr(`users_stats.channel_id = ?::uuid`, opts.ChannelID)).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`).
 		Limit(uint64(perPage)).
 		Offset(uint64(page*perPage)).
-		GroupBy(`"users_stats"."id"`, `users.platform`, `users.platform_id`, `users.login`, `users.display_name`, `users.avatar`)
+		GroupBy(`users_stats.id`, `users.platform`, `users.platform_id`, `users.login`, `users.display_name`, `users.avatar`)
 
 	countBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-		Select(`COUNT(DISTINCT "users_stats"."id")`).
+		Select(`COUNT(DISTINCT users_stats.id)`).
 		From("users_stats").
-		Join(`users ON users.id::text = "users_stats"."userId"`).
-		Where(squirrel.Expr(`"users_stats"."channelId" = ?::uuid`, opts.ChannelID)).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = "users_stats"."userId")`)
+		Join(`users ON users.id = users_stats.user_id`).
+		Where(squirrel.Expr(`users_stats.channel_id = ?::uuid`, opts.ChannelID)).
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`)
 
 	if channel.TwitchUserID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.TwitchUserID.String()})
-		countBuilder = countBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.TwitchUserID.String()})
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.TwitchUserID.String()})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.TwitchUserID.String()})
 	}
 	if channel.KickUserID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickUserID.String()})
-		countBuilder = countBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickUserID.String()})
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickUserID.String()})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickUserID.String()})
 	}
 	if channel.KickBotID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickBotID.String()})
-		countBuilder = countBuilder.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickBotID.String()})
+		queryBuilder = queryBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickBotID.String()})
+		countBuilder = countBuilder.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickBotID.String()})
 	}
 	if channel.BotID != "" {
 		botFilter := squirrel.Expr(
-			`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+			`users_stats.user_id NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
 			channel.BotID,
 		)
 		queryBuilder = queryBuilder.Where(botFilter)
@@ -194,14 +194,14 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 
 	if sortBy != "" && !opts.Order.IsSet() {
 		queryBuilder = queryBuilder.
-			OrderBy(`"users_stats"."watched" DESC`)
-		// GroupBy(`"users_stats"."watched"`)
+			OrderBy(`users_stats.watched DESC`)
+		// GroupBy(`users_stats.watched`)
 	} else if sortBy != "" && opts.Order.IsSet() {
 		order := *opts.Order.Value()
 		queryBuilder = queryBuilder.
 			OrderBy(
 				fmt.Sprintf(
-					`"users_stats"."%s" %s`,
+					`users_stats.%s %s`,
 					sortBy,
 					strings.ToLower(order.String()),
 				),

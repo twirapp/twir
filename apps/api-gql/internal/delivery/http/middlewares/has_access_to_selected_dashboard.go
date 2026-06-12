@@ -76,7 +76,7 @@ func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(hu
 	var userStat model.UsersStats
 	if err := c.gorm.
 		WithContext(ctx).
-		Where(`"userId" = ? AND "channelId" = ?::uuid`, user.ID, dashboardId).
+		Where(`user_id = ? AND channel_id = ?::uuid`, user.ID, dashboardId).
 		First(&userStat).
 		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 

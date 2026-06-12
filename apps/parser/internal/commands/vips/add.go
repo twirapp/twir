@@ -119,7 +119,7 @@ var Add = &types.DefaultCommand{
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Where(`"id" = ?`, targetDbUser.ID).
-			Preload("Stats", `"channelId" = ? AND "userId" = ?`, parseCtx.Channel.DBChannelID, targetDbUser.ID.String()).
+			Preload("Stats", `channel_id = ? AND user_id = ?`, parseCtx.Channel.DBChannelID, targetDbUser.ID.String()).
 			First(&dbUser).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(

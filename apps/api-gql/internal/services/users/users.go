@@ -196,7 +196,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 	if err := c.gorm.
 		WithContext(ctx).
 		Where("id = ?::uuid", input.UserID).
-		Preload("Stats", `"channelId" = ?::uuid AND "userId" = ?`, input.ChannelID, input.UserID).
+		Preload("Stats", `channel_id = ?::uuid AND user_id = ?`, input.ChannelID, input.UserID).
 		First(&dbUserInfo).
 		Error; err != nil {
 		return entity.ChannelUserInfo{}, err

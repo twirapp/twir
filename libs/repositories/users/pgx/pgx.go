@@ -210,7 +210,7 @@ func (c *Pgx) GetOnlineUsersWithFilters(
 		`"users_online"."userName"`,
 	).
 		From("users_online").
-		LeftJoin(`users_stats ON users_stats."userId" = "users_online"."userId" AND users_stats."channelId" = "users_online"."channelId"`).
+		LeftJoin(`users_stats ON users_stats.user_id = "users_online"."userId" AND users_stats.channel_id = "users_online"."channelId"`).
 		Where(squirrel.Eq{`"users_online"."channelId"`: input.ChannelID}).
 		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = "users_online"."userId")`)
 

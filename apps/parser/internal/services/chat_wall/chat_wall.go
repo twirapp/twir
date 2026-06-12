@@ -241,7 +241,7 @@ func (c *Service) HandlePastMessages(
 	if err := c.gorm.
 		WithContext(ctx).
 		Where(
-			`"userId" IN ? AND "channelId" = ?::uuid`,
+			`user_id IN ? AND channel_id = ?::uuid`,
 			messageUserIDs,
 			parsedChannelID,
 		).

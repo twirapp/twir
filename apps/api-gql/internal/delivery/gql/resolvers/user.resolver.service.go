@@ -179,7 +179,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	var usersStats []model.UsersStats
 	if err := r.deps.Gorm.
 		WithContext(ctx).
-		Where(`"userId" = ?`, obj.ID).
+		Where(`user_id = ?`, obj.ID).
 		Find(&usersStats).Error; err != nil {
 		return nil, err
 	}

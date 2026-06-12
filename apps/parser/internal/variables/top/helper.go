@@ -20,7 +20,7 @@ type userStats struct {
 }
 
 type userStatsPlatform struct {
-	UserID            string `db:"userId"`
+	UserID            string `db:"user_id"`
 	Messages          int64  `db:"messages"`
 	Watched           int64  `db:"watched"`
 	UsedChannelPoints int64  `db:"usedChannelPoints"`
@@ -59,23 +59,23 @@ func getTop(
 	}
 
 	qb := squirrel.
-		Select(`"users_stats"."userId"`, `"users_stats"."messages"`, `"users_stats"."watched"`, `"users_stats"."usedChannelPoints"`).
+		Select(`users_stats.user_id`, `users_stats.messages`, `users_stats.watched`, `users_stats."usedChannelPoints"`).
 		From("users_stats").
 		Where(
 			squirrel.And{
-				squirrel.Eq{`"users_stats"."channelId"`: parseCtx.Channel.DBChannelID},
-				squirrel.Gt{`"users_stats"."messages"`: 0},
+				squirrel.Eq{`users_stats.channel_id`: parseCtx.Channel.DBChannelID},
+				squirrel.Gt{`users_stats.messages`: 0},
 			},
 		).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id::text = "users_stats"."userId")`).
-		Where(`NOT EXISTS (SELECT 1 FROM bots b JOIN users u ON u.platform_id = b.id AND u.platform = 'twitch' WHERE u.id::text = "users_stats"."userId")`)
+		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`).
+		Where(`NOT EXISTS (SELECT 1 FROM bots b JOIN users u ON u.platform_id = b.id AND u.platform = 'twitch' WHERE u.id = users_stats.user_id)`)
 
 	qb = applyTopChannelBotFilters(qb, channel)
 
 	query, args, err := qb.
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).
-		OrderBy(fmt.Sprintf(`"users_stats"."%s" DESC`, topType)).
+		OrderBy(fmt.Sprintf(`users_stats.%s DESC`, topType)).
 		ToSql()
 	query = parseCtx.Services.Sqlx.Rebind(query)
 
@@ -153,22 +153,22 @@ func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelmodel.C
 	if channel.BotID != "" {
 		qb = qb.Where(
 			squirrel.Expr(
-				`"users_stats"."userId" NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
+				`users_stats.user_id NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
 				channel.BotID,
 			),
 		)
 	}
 
 	if channel.KickBotID != nil {
-		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickBotID.String()})
+		qb = qb.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickBotID.String()})
 	}
 
 	if channel.TwitchUserID != nil {
-		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.TwitchUserID.String()})
+		qb = qb.Where(squirrel.NotEq{`users_stats.user_id`: channel.TwitchUserID.String()})
 	}
 
 	if channel.KickUserID != nil {
-		qb = qb.Where(squirrel.NotEq{`"users_stats"."userId"`: channel.KickUserID.String()})
+		qb = qb.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickUserID.String()})
 	}
 
 	return qb

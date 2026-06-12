@@ -59,8 +59,8 @@ func NewWatched(opts WatchedOpts) {
 								if err := opts.Gorm.WithContext(ctx).Exec(`
 									UPDATE users_stats
 									SET watched = watched + $1
-									WHERE "channelId" = $2::uuid
-									  AND "userId" IN (
+									WHERE channel_id = $2::uuid
+									  AND user_id IN (
 									      SELECT "userId" FROM users_online WHERE "channelId" = $2::uuid
 									  )
 								`, timeTick.Milliseconds(), ch.ID).Error; err != nil {

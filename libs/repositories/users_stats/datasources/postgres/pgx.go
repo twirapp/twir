@@ -42,8 +42,8 @@ var selectFields = []string{
 	`id`,
 	`messages`,
 	`watched`,
-	`"channelId"`,
-	`"userId"`,
+	`channel_id`,
+	`user_id`,
 	`"usedChannelPoints"`,
 	`is_mod`,
 	`is_vip`,
@@ -62,7 +62,7 @@ func init() {
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (*model.UserStat, error) {
 	query := `
-SELECT id, messages, watched, "channelId", "userId", "usedChannelPoints", is_mod, is_vip, is_subscriber, reputation, emotes, created_at, updated_at
+SELECT id, messages, watched, channel_id, user_id, "usedChannelPoints", is_mod, is_vip, is_subscriber, reputation, emotes, created_at, updated_at
 FROM users_stats
 WHERE id = $1
 LIMIT 1
@@ -89,8 +89,8 @@ func (c *Pgx) Create(ctx context.Context, input usersstats.CreateInput) (*model.
 	insertBuilder := sq.Insert("users_stats").
 		SetMap(
 			map[string]any{
-				`"userId"`:            input.UserID,
-				`"channelId"`:         input.ChannelID,
+				`user_id`:             input.UserID,
+				`channel_id`:          input.ChannelID,
 				`messages`:            input.Messages,
 				`watched`:             input.Watched,
 				`"usedChannelPoints"`: input.UsedChannelPoints,
@@ -132,8 +132,8 @@ func (c *Pgx) CreateOrUpdate(
 ) (*model.UserStat, error) {
 	queryInsert := `
 INSERT INTO users_stats (
-    "userId",
-    "channelId",
+    user_id,
+    channel_id,
     messages,
     watched,
     "usedChannelPoints",
@@ -157,7 +157,7 @@ INSERT INTO users_stats (
     COALESCE(@emotes, 0),
     NOW(),
     NOW()
-) ON CONFLICT ("userId", "channelId") DO UPDATE SET `
+) ON CONFLICT (user_id, channel_id) DO UPDATE SET `
 
 	setClauses := []string{
 		"updated_at = NOW()",
@@ -251,7 +251,7 @@ func buildGetByUserAndChannelIDQuery() string {
 		`
 SELECT %s
 FROM users_stats
-WHERE "userId"::text = $1::text AND "channelId"::text = $2::text
+WHERE user_id = $1 AND channel_id = $2
 LIMIT 1
 `, selectFieldsJoined,
 	)

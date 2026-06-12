@@ -98,13 +98,15 @@ func (c *streams) processStreams(ctx context.Context) error {
 		return fmt.Errorf("cannot get channels: %w", err)
 	}
 
-	usersIds := make([]string, len(channels))
-	for i, channel := range channels {
+	usersIds := make([]string, 0, len(channels))
+	for _, channel := range channels {
 		if !channel.TwitchBotEnabled && !channel.User.IsBanned {
 			continue
 		}
 
-		usersIds[i] = channel.ID
+		if channel.User != nil && channel.User.PlatformID != "" {
+			usersIds = append(usersIds, channel.User.PlatformID)
+		}
 	}
 
 	discordIntegration := &model.Integrations{}

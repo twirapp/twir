@@ -272,9 +272,9 @@ func (c *onlineUsers) updateStreamUsers(
 						)
 						statsArgs = append(statsArgs, uuid.New().String(), row.ID, channelUUID)
 					}
-					statsSQL := `INSERT INTO users_stats (id, "userId", "channelId") VALUES ` +
+					statsSQL := `INSERT INTO users_stats (id, user_id, channel_id) VALUES ` +
 						strings.Join(statsParts, ", ") +
-						` ON CONFLICT ("channelId", "userId") DO NOTHING`
+						` ON CONFLICT (channel_id, user_id) DO NOTHING`
 					if err := tx.Exec(statsSQL, statsArgs...).Error; err != nil {
 						return fmt.Errorf("cannot upsert users stats: %w", err)
 					}

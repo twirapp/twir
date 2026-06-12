@@ -55,7 +55,7 @@ FROM public.channels_roles AS cr
          LEFT JOIN public.channels_roles_users AS cru
                     ON cr.id = cru."roleId" AND cru."userId" = @user_id::uuid
          LEFT JOIN public.users_stats AS us
-                    ON cr."channelId" = us."channelId" AND us."userId" = @user_id::uuid
+                    ON cr."channelId" = us.channel_id AND us.user_id = @user_id::uuid
 WHERE
     cr."channelId" = @channel_id::uuid
 		AND (

@@ -128,9 +128,9 @@ var Command = &types.DefaultCommand{
 
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"userId" IN ? AND "channelId" = ?::uuid`, usersIDsForCheckUUIDs, parseCtx.Channel.DBChannelID).
-			Where(`"is_mod" = ? AND "is_vip" = ? AND "is_subscriber" = ?`, false, false, false).
-			Where(`"userId" != ?::uuid`, parseCtx.Channel.TwitchUserID).
+			Where(`user_id IN ? AND channel_id = ?::uuid`, usersIDsForCheckUUIDs, parseCtx.Channel.DBChannelID).
+			Where(`is_mod = ? AND is_vip = ? AND is_subscriber = ?`, false, false, false).
+			Where(`user_id != ?`, parseCtx.Channel.TwitchUserID).
 			Find(&usersStats).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Nuke.Errors.CannotGetUsersStats),
