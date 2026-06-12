@@ -107,14 +107,21 @@ jobs:
           else
             apps=$(go run ./cli/main.go affected --files "${{ steps.changed.outputs.files }}" --output json)
           fi
-          echo "apps=${apps}" >> "$GITHUB_OUTPUT"
+
+          echo "apps<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$apps" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
           # Services for deploy webhook: affected apps + migrations
           if [ "$apps" = "null" ] || [ "$apps" = "[]" ]; then
-            echo 'services=["migrations"]' >> "$GITHUB_OUTPUT"
+            echo 'services<<EOF' >> "$GITHUB_OUTPUT"
+            echo '["migrations"]' >> "$GITHUB_OUTPUT"
+            echo 'EOF' >> "$GITHUB_OUTPUT"
           else
             services=$(echo "$apps" | sed 's/^\[/["migrations",/')
-            echo "services=${services}" >> "$GITHUB_OUTPUT"
+            echo "services<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$services" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
           fi
 
   build-matrix:
