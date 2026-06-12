@@ -27,6 +27,16 @@
         "postgres://twir:twir@127.0.0.1:6432/twir?sslmode=disable",
       ],
     },
+    "postgres-prod": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "bunx",
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "{file:.pg-prod-url}",
+      ],
+    },
     "codegraph": {
       "type": "local",
       "command": ["bunx", "-y", "codegraph", "serve", "--mcp"],

@@ -110,3 +110,7 @@ Inside the webhook container or from the same image:
 ```bash
 docker exec -it $(docker ps -q -f name=deploy-webhook) /app/twir-cli deploy-apply --service api-gql --image-tag 1-0-0
 ```
+
+# Postgres tunel
+
+ssh -fN -L 54322:postgres:5432 satont@ssh.twir.app
