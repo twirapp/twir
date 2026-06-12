@@ -124,7 +124,7 @@ func (c *Pgx) GetByUserAndChannelID(
 	query := `
 SELECT id, channel_id, user_id, created_at, remove_at, remove_type
 FROM channels_scheduled_vips
-WHERE channel_id::text = $1::text AND user_id::text = $2::text
+WHERE channel_id = $1 AND user_id = $2
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)

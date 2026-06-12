@@ -136,7 +136,7 @@ SELECT
     )
   END AS stats
 FROM users as u
-LEFT JOIN users_stats us ON us.user_id::text = $1::text AND us.channel_id::text = $2::text
-WHERE u.id::text = $1::text
+LEFT JOIN users_stats us ON us.user_id = $1 AND us.channel_id = $2
+WHERE u.id = $1
 LIMIT 1;
 `

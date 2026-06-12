@@ -5,14 +5,14 @@ import (
 	"testing"
 )
 
-func TestBuildGetByUserAndChannelIDQueryCastsIDsToText(t *testing.T) {
+func TestBuildGetByUserAndChannelIDQueryComparesIDs(t *testing.T) {
 	query := buildGetByUserAndChannelIDQuery()
 
-	if !strings.Contains(query, `"userId"::text = $1::text`) {
-		t.Fatalf("query must compare userId via text cast: %s", query)
+	if !strings.Contains(query, `user_id = $1`) {
+		t.Fatalf("query must compare user_id: %s", query)
 	}
 
-	if !strings.Contains(query, `"channelId"::text = $2::text`) {
-		t.Fatalf("query must compare channelId via text cast: %s", query)
+	if !strings.Contains(query, `channel_id = $2`) {
+		t.Fatalf("query must compare channel_id: %s", query)
 	}
 }
