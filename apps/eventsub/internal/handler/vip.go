@@ -105,7 +105,7 @@ func (c *Handler) HandleChannelVipAdd(
 	}
 
 	if err := c.gorm.WithContext(ctx).Model(&model.UsersStats{}).
-		Where(`user_id = ? and channel_id = ?::uuid`, userID, channelID).
+		Where(`user_id::text = ? and channel_id::text = ?`, userID, channelID).
 		Update(`is_vip`, true).Error; err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 	}
@@ -133,7 +133,7 @@ func (c *Handler) HandleChannelVipRemove(
 	}
 
 	if err := c.gorm.WithContext(ctx).Model(&model.UsersStats{}).
-		Where(`user_id = ? and channel_id = ?::uuid`, userID, channelID).
+		Where(`user_id::text = ? and channel_id::text = ?`, userID, channelID).
 		Update(`is_vip`, false).Error; err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 	}
