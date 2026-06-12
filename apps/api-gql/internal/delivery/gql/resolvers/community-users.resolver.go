@@ -46,7 +46,10 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 	}
 
 	var channel model.Channels
-	if err := r.deps.Gorm.WithContext(ctx).Where("id = ?", dashboardId).First(&channel).Error; err != nil {
+	if err := r.deps.Gorm.WithContext(ctx).Where(
+		"id = ?",
+		dashboardId,
+	).First(&channel).Error; err != nil {
 		return false, gqlerrors.HandleError(err)
 	}
 
@@ -105,6 +108,129 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		return nil, gqlerrors.HandleError(err)
 	}
 
+	// Determine which platforms are requested
+	requestedPlatforms := platformentity.All()
+	if opts.Platforms.IsSet() {
+		requestedPlatforms, err = mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+	}
+
+	isPlatformsRequested := make(map[platformentity.Platform]bool)
+	for _, requestedPlatform := range requestedPlatforms {
+		isPlatformsRequested[requestedPlatform] = true
+	}
+
+	// Search: Twitch via API, Kick via DB ILIKE
+	var searchUserUUIDs []string
+	if opts.Search.IsSet() {
+		searchTerm := strings.TrimSpace(*opts.Search.Value())
+
+		if searchTerm != "" && isPlatformsRequested[platformentity.PlatformTwitch] {
+			channels, err := r.deps.CachedTwitchClient.SearchChannels(ctx, searchTerm)
+			if err != nil {
+				r.deps.Logger.Error("cannot search twitch channels", logger.Error(err))
+			}
+
+			if len(channels) > 0 {
+				twitchIDs := make([]string, 0, len(channels))
+				for _, ch := range channels {
+					twitchIDs = append(twitchIDs, ch.ID)
+				}
+
+				var twitchUUIDs []string
+				err = r.deps.Gorm.WithContext(ctx).
+					Model(&model.Users{}).
+					Where(
+						`platform = ? AND platform_id IN (?)`,
+						platformentity.PlatformTwitch.String(),
+						twitchIDs,
+					).
+					Pluck("id", &twitchUUIDs).Error
+				if err != nil {
+					return nil, gqlerrors.HandleError(err)
+				}
+
+				searchUserUUIDs = append(searchUserUUIDs, twitchUUIDs...)
+			}
+		}
+
+		if searchTerm != "" && isPlatformsRequested[platformentity.PlatformKick] {
+			searchQuery := "%" + searchTerm + "%"
+			var kickUUIDs []string
+			err = r.deps.Gorm.WithContext(ctx).
+				Model(&model.Users{}).
+				Where(
+					`platform = ? AND (login ILIKE ? OR display_name ILIKE ? OR platform_id ILIKE ?)`,
+					platformentity.PlatformKick.String(),
+					searchQuery, searchQuery, searchQuery,
+				).
+				Pluck("id", &kickUUIDs).Error
+			if err != nil {
+				return nil, gqlerrors.HandleError(err)
+			}
+
+			searchUserUUIDs = append(searchUserUUIDs, kickUUIDs...)
+		}
+
+		// No results from either platform → return empty
+		if len(searchUserUUIDs) == 0 {
+			return &gqlmodel.CommunityUsersResponse{
+				Users: []gqlmodel.CommunityUser{},
+				Total: 0,
+			}, nil
+		}
+	}
+
+	// Base WHERE conditions shared between data and count queries
+	applyBaseFilters := func(b squirrel.SelectBuilder) squirrel.SelectBuilder {
+		b = b.Where(`users_stats.channel_id = ?`, opts.ChannelID)
+
+		// Exclude ignored users (only twitch platform has users_ignored)
+		b = b.Where(
+			`NOT EXISTS (
+			SELECT 1 FROM users_ignored ui
+			WHERE ui.id = (
+				SELECT u.platform_id FROM users u
+				WHERE u.id = users_stats.user_id AND u.platform = 'twitch'
+			)
+		)`,
+		)
+
+		if channel.TwitchUserID != nil {
+			b = b.Where(`users_stats.user_id <> ?`, channel.TwitchUserID.String())
+		}
+		if channel.KickUserID != nil {
+			b = b.Where(`users_stats.user_id <> ?`, channel.KickUserID.String())
+		}
+		if channel.KickBotID != nil {
+			b = b.Where(`users_stats.user_id <> ?`, channel.KickBotID.String())
+		}
+		if channel.BotID != "" {
+			b = b.Where(
+				`users_stats.user_id != (
+				SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch' LIMIT 1
+			)`, channel.BotID,
+			)
+		}
+
+		if len(searchUserUUIDs) > 0 {
+			b = b.Where(squirrel.Eq{"users_stats.user_id": searchUserUUIDs})
+		}
+
+		if len(requestedPlatforms) > 0 {
+			platformValues := make([]string, 0, len(requestedPlatforms))
+			for _, p := range requestedPlatforms {
+				platformValues = append(platformValues, p.String())
+			}
+			b = b.Where(squirrel.Eq{"users.platform": platformValues})
+		}
+
+		return b
+	}
+
+	// Data query
 	queryBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
 		Select(
 			`users_stats.*`,
@@ -116,67 +242,26 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		).
 		From("users_stats").
 		Join(`users ON users.id = users_stats.user_id`).
-		Where(squirrel.Expr(`users_stats.channel_id = ?::uuid`, opts.ChannelID)).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`).
 		Limit(uint64(perPage)).
 		Offset(uint64(page*perPage)).
-		GroupBy(`users_stats.id`, `users.platform`, `users.platform_id`, `users.login`, `users.display_name`, `users.avatar`)
-
-	countBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-		Select(`COUNT(DISTINCT users_stats.id)`).
-		From("users_stats").
-		Join(`users ON users.id = users_stats.user_id`).
-		Where(squirrel.Expr(`users_stats.channel_id = ?::uuid`, opts.ChannelID)).
-		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`)
-
-	if channel.TwitchUserID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.Expr(`users_stats.user_id <> ?`, channel.TwitchUserID.String()))
-		countBuilder = countBuilder.Where(squirrel.Expr(`users_stats.user_id <> ?`, channel.TwitchUserID.String()))
-	}
-	if channel.KickUserID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.Expr(`users_stats.user_id <> ?`, channel.KickUserID.String()))
-		countBuilder = countBuilder.Where(squirrel.Expr(`users_stats.user_id <> ?`, channel.KickUserID.String()))
-	}
-	if channel.KickBotID != nil {
-		queryBuilder = queryBuilder.Where(squirrel.Expr(`users_stats.user_id <> ?`, channel.KickBotID.String()))
-		countBuilder = countBuilder.Where(squirrel.Expr(`users_stats.user_id <> ?`, channel.KickBotID.String()))
-	}
-	if channel.BotID != "" {
-		botFilter := squirrel.Expr(
-			`users_stats.user_id NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
-			channel.BotID,
+		GroupBy(
+			`users_stats.id`,
+			`users.platform`,
+			`users.platform_id`,
+			`users.login`,
+			`users.display_name`,
+			`users.avatar`,
 		)
-		queryBuilder = queryBuilder.Where(botFilter)
-		countBuilder = countBuilder.Where(botFilter)
-	}
 
-	if opts.Search.IsSet() {
-		searchQuery := "%" + strings.TrimSpace(*opts.Search.Value()) + "%"
-		searchFilter := squirrel.Or{
-			squirrel.Expr(`users.login ILIKE ?`, searchQuery),
-			squirrel.Expr(`users.display_name ILIKE ?`, searchQuery),
-			squirrel.Expr(`users.platform_id ILIKE ?`, searchQuery),
-		}
-		queryBuilder = queryBuilder.Where(searchFilter)
-		countBuilder = countBuilder.Where(searchFilter)
-	}
+	queryBuilder = applyBaseFilters(queryBuilder)
 
-	if opts.Platforms.IsSet() {
-		platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
-		if err != nil {
-			return nil, gqlerrors.HandleError(err)
-		}
+	// Count query
+	countBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
+		Select(`COUNT(*)`).
+		From("users_stats").
+		Join(`users ON users.id = users_stats.user_id`)
 
-		if len(platforms) > 0 {
-			platformValues := make([]string, 0, len(platforms))
-			for _, platform := range platforms {
-				platformValues = append(platformValues, platform.String())
-			}
-
-			queryBuilder = queryBuilder.Where(squirrel.Eq{"users.platform": platformValues})
-			countBuilder = countBuilder.Where(squirrel.Eq{"users.platform": platformValues})
-		}
-	}
+	countBuilder = applyBaseFilters(countBuilder)
 
 	var sortBy string
 	if opts.SortBy.IsSet() {
@@ -195,7 +280,6 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	if sortBy != "" && !opts.Order.IsSet() {
 		queryBuilder = queryBuilder.
 			OrderBy(`users_stats.watched DESC`)
-		// GroupBy(`users_stats.watched`)
 	} else if sortBy != "" && opts.Order.IsSet() {
 		order := *opts.Order.Value()
 		queryBuilder = queryBuilder.

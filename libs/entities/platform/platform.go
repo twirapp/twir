@@ -53,3 +53,10 @@ func ShouldExecute(platforms []Platform, current Platform) bool {
 
 	return false
 }
+
+func All() []Platform {
+	return []Platform{
+		PlatformTwitch,
+		PlatformKick,
+	}
+}
