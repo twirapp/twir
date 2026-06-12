@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/twirapp/twir/cli/internal/cmds/affected"
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/deploy"
@@ -21,6 +22,7 @@ func main() {
 		Name:        "go run cmd/main.go",
 		Description: "TwirApp cli for helping in manage project",
 		Commands: []*cli.Command{
+			affected.Cmd,
 			dependencies.Cmd,
 			migrations.Cmd,
 			deploy.WebhookCmd,
