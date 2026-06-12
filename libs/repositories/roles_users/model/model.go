@@ -5,9 +5,9 @@ import (
 )
 
 type RoleUser struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
-	RoleID uuid.UUID
+	ID     uuid.UUID `db:"id"`
+	UserID uuid.UUID `db:"userId"`
+	RoleID uuid.UUID `db:"roleId"`
 }
 
 var RoleUserNil = RoleUser{}
