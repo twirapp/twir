@@ -110,7 +110,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 
 	// Determine which platforms are requested
 	requestedPlatforms := platformentity.All()
-	if opts.Platforms.IsSet() {
+	if opts.Platforms.IsSet() && len(opts.Platforms.Value()) > 0 {
 		requestedPlatforms, err = mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
 		if err != nil {
 			return nil, gqlerrors.HandleError(err)
@@ -124,10 +124,10 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 
 	// Search: Twitch via API, Kick via DB ILIKE
 	var searchUserUUIDs []string
-	if opts.Search.IsSet() {
+	if opts.Search.IsSet() && opts.Search.Value() != nil && *opts.Search.Value() != "" {
 		searchTerm := strings.TrimSpace(*opts.Search.Value())
 
-		if searchTerm != "" && isPlatformsRequested[platformentity.PlatformTwitch] {
+		if isPlatformsRequested[platformentity.PlatformTwitch] {
 			channels, err := r.deps.CachedTwitchClient.SearchChannels(ctx, searchTerm)
 			if err != nil {
 				r.deps.Logger.Error("cannot search twitch channels", logger.Error(err))
@@ -156,7 +156,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			}
 		}
 
-		if searchTerm != "" && isPlatformsRequested[platformentity.PlatformKick] {
+		if isPlatformsRequested[platformentity.PlatformKick] {
 			searchQuery := "%" + searchTerm + "%"
 			var kickUUIDs []string
 			err = r.deps.Gorm.WithContext(ctx).
