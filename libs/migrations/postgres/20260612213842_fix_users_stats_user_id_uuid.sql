@@ -1,11 +1,5 @@
--- +goose Up
 -- +goose NO TRANSACTION
-
--- The users_multi_platform migration missed users_stats.user_id because
--- there was no FK constraint from users_stats.user_id to users.id.
--- As a result, users_stats.user_id still contains old Twitch TEXT platform IDs
--- (e.g. "684505240") instead of UUIDs, making 99% of stats invisible to code.
--- Same issue affects users_online.userId.
+-- +goose Up
 
 -- STEP 1: Convert old TEXT user_id values to UUID strings via platform_id mapping
 -- +goose StatementBegin
@@ -13,46 +7,52 @@ UPDATE users_stats us
 SET user_id = u.id::text
 FROM users u
 WHERE u.platform = 'twitch'
-  AND u.platform_id = us.user_id
-  AND us.user_id !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+	AND u.platform_id = us.user_id
+	AND us.user_id !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
 -- +goose StatementEnd
 
--- STEP 2: Drop indexes BEFORE type conversion (unique index blocks UUID normalization)
+-- STEP 2: Drop indexes BEFORE type conversion
 -- +goose StatementBegin
 DROP INDEX IF EXISTS users_stats_user_id_channel_id_key;
 DROP INDEX IF EXISTS users_stats_user_id_idx;
 -- +goose StatementEnd
 
 -- STEP 3: Convert user_id column from TEXT to UUID
--- This normalizes case: "019EAE62..." and "019eae62..." become the same UUID
 -- +goose StatementBegin
-ALTER TABLE users_stats ALTER COLUMN user_id TYPE UUID USING user_id::uuid;
+ALTER TABLE users_stats
+	ALTER COLUMN user_id TYPE UUID USING user_id::uuid;
 -- +goose StatementEnd
 
--- STEP 4: Deduplicate — merge rows that collided after UUID normalization
+-- STEP 4: Deduplicate — delete non-canonical rows first, then update survivors
 -- +goose StatementBegin
-WITH ranked AS (
-    SELECT
-        id,
-        ROW_NUMBER() OVER (
-            PARTITION BY user_id, channel_id
-            ORDER BY created_at ASC
-        ) AS rn,
-        SUM(messages)            OVER (PARTITION BY user_id, channel_id) AS total_messages,
-        SUM(watched)             OVER (PARTITION BY user_id, channel_id) AS total_watched,
-        SUM(emotes)              OVER (PARTITION BY user_id, channel_id) AS total_emotes,
-        SUM("usedChannelPoints") OVER (PARTITION BY user_id, channel_id) AS total_pts,
-        SUM(reputation)          OVER (PARTITION BY user_id, channel_id) AS total_rep,
-        BOOL_OR(is_mod)          OVER (PARTITION BY user_id, channel_id) AS any_mod,
-        BOOL_OR(is_vip)          OVER (PARTITION BY user_id, channel_id) AS any_vip,
-        BOOL_OR(is_subscriber)   OVER (PARTITION BY user_id, channel_id) AS any_sub,
-        MIN(created_at)          OVER (PARTITION BY user_id, channel_id) AS earliest_created,
-        MAX(updated_at)          OVER (PARTITION BY user_id, channel_id) AS latest_updated
-    FROM users_stats
-)
+DELETE
+FROM users_stats
+WHERE id IN (SELECT id
+             FROM (SELECT id,
+                          ROW_NUMBER() OVER (
+														PARTITION BY user_id, channel_id
+														ORDER BY created_at ASC
+														) AS rn
+                   FROM users_stats) sub
+             WHERE rn > 1);
+-- +goose StatementEnd
+
+-- +goose StatementBegin
+WITH ranked AS (SELECT id,
+                       SUM(messages) OVER (PARTITION BY user_id, channel_id)            AS total_messages,
+                       SUM(watched) OVER (PARTITION BY user_id, channel_id)             AS total_watched,
+                       SUM(emotes) OVER (PARTITION BY user_id, channel_id)              AS total_emotes,
+                       SUM("usedChannelPoints")
+                       OVER (PARTITION BY user_id, channel_id)                          AS total_pts,
+                       SUM(reputation) OVER (PARTITION BY user_id, channel_id)          AS total_rep,
+                       BOOL_OR(is_mod) OVER (PARTITION BY user_id, channel_id)          AS any_mod,
+                       BOOL_OR(is_vip) OVER (PARTITION BY user_id, channel_id)          AS any_vip,
+                       BOOL_OR(is_subscriber) OVER (PARTITION BY user_id, channel_id)   AS any_sub,
+                       MIN(created_at) OVER (PARTITION BY user_id, channel_id)          AS earliest_created,
+                       MAX(updated_at) OVER (PARTITION BY user_id, channel_id)          AS latest_updated
+                FROM users_stats)
 UPDATE users_stats us
-SET
-    messages            = r.total_messages,
+SET messages            = r.total_messages,
     watched             = r.total_watched,
     emotes              = r.total_emotes,
     "usedChannelPoints" = r.total_pts,
@@ -63,45 +63,31 @@ SET
     created_at          = r.earliest_created,
     updated_at          = r.latest_updated
 FROM ranked r
-WHERE us.id = r.id
-  AND r.rn = 1;
-
-DELETE FROM users_stats
-WHERE id IN (
-    SELECT id FROM (
-        SELECT id,
-            ROW_NUMBER() OVER (
-                PARTITION BY user_id, channel_id
-                ORDER BY created_at ASC
-            ) AS rn
-        FROM users_stats
-    ) sub
-    WHERE rn > 1
-);
+WHERE us.id = r.id;
 -- +goose StatementEnd
 
 -- STEP 5: Recreate indexes and add FK
 -- +goose StatementBegin
-CREATE UNIQUE INDEX users_stats_user_id_channel_id_key ON users_stats(user_id, channel_id);
-CREATE INDEX users_stats_user_id_idx ON users_stats(user_id);
-
+CREATE UNIQUE INDEX users_stats_user_id_channel_id_key ON users_stats (user_id, channel_id);
+CREATE INDEX users_stats_user_id_idx ON users_stats (user_id);
 ALTER TABLE users_stats
-    ADD CONSTRAINT users_stats_user_id_fkey
-    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT users_stats_user_id_fkey
+		FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE;
 -- +goose StatementEnd
 
--- STEP 6: Fix users_online.userId (same issue, no merge needed)
+-- STEP 6: Fix users_online.userId
 -- +goose StatementBegin
 UPDATE users_online uo
 SET "userId" = u.id::text
 FROM users u
 WHERE u.platform = 'twitch'
-  AND u.platform_id = uo."userId"
-  AND uo."userId" !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+	AND u.platform_id = uo."userId"
+	AND uo."userId" !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
 -- +goose StatementEnd
 
 -- +goose StatementBegin
-ALTER TABLE users_online ALTER COLUMN "userId" TYPE UUID USING "userId"::uuid;
+ALTER TABLE users_online
+	ALTER COLUMN "userId" TYPE UUID USING "userId"::uuid;
 -- +goose StatementEnd
 
 -- +goose Down
