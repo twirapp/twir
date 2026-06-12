@@ -16,7 +16,13 @@ import (
 )
 
 func Migrate(ctx context.Context, config *cfg.Config, migrationsPath string) error {
-	opts, err := pq.ParseURL(config.DatabaseUrl)
+	dbUrl := config.DatabaseUrl
+	if config.MigrationDatabaseUrl != "" {
+		dbUrl = config.MigrationDatabaseUrl
+		slog.Info("using direct postgres url for migrations")
+	}
+
+	opts, err := pq.ParseURL(dbUrl)
 	if err != nil {
 		return fmt.Errorf("failed to parse database url: %w", err)
 	}

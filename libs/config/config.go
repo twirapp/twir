@@ -36,6 +36,7 @@ type Config struct {
 	KickClientId       string `required:"false"                                       envconfig:"KICK_CLIENT_ID"`
 	KickClientSecret   string `required:"false"                                       envconfig:"KICK_CLIENT_SECRET"`
 	DatabaseUrl        string `required:"true"                                        envconfig:"DATABASE_URL"`
+	MigrationDatabaseUrl string `required:"false"                                       envconfig:"MIGRATION_DATABASE_URL"`
 	ClickhouseUrl      string `required:"true"  default:"clickhouse://twir:twir@127.0.0.1:9000/twir" envconfig:"CLICKHOUSE_URL"`
 	AppEnv             string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
 	SentryDsn          string `required:"false"                                       envconfig:"SENTRY_DSN"`
