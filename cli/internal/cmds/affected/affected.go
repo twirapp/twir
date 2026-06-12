@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 )
 
@@ -42,14 +41,12 @@ var Cmd = &cli.Command{
 
 		changedFiles := splitFiles(filesRaw)
 		if len(changedFiles) == 0 {
-			pterm.Warning.Println("No changed files provided")
 			printOutput(nil, outputFormat)
 			return nil
 		}
 
 		for _, f := range changedFiles {
 			if isRootFile(f) {
-				pterm.Info.Println("Root config file changed, all apps affected")
 				allApps := allAppNames(rootDir)
 				printOutput(allApps, outputFormat)
 				return nil

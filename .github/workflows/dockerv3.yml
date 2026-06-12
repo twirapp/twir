@@ -103,9 +103,9 @@ jobs:
         id: affected
         run: |
           if [ "${{ github.event.inputs.skip-change-detect }}" = "true" ]; then
-            apps=$(go run ./cli/main.go affected --files "ALL" --output json)
+            apps=$(go run ./cli/main.go affected --files "ALL" --output json 2>/dev/null)
           else
-            apps=$(go run ./cli/main.go affected --files "${{ steps.changed.outputs.files }}" --output json)
+            apps=$(go run ./cli/main.go affected --files "${{ steps.changed.outputs.files }}" --output json 2>/dev/null)
           fi
 
           echo "apps<<EOF" >> "$GITHUB_OUTPUT"
