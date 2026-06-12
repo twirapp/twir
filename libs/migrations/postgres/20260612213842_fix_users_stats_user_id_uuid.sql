@@ -1,5 +1,5 @@
 -- +goose Up
--- +goose StatementBegin
+-- +goose NO TRANSACTION
 
 -- The users_multi_platform migration missed users_stats.user_id because
 -- there was no FK constraint from users_stats.user_id to users.id.
@@ -8,24 +8,29 @@
 -- Same issue affects users_online.userId.
 
 -- STEP 1: Convert old TEXT user_id values to UUID strings via platform_id mapping
+-- +goose StatementBegin
 UPDATE users_stats us
 SET user_id = u.id::text
 FROM users u
 WHERE u.platform = 'twitch'
   AND u.platform_id = us.user_id
   AND us.user_id !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+-- +goose StatementEnd
 
--- STEP 2: Drop ALL indexes on user_id BEFORE type conversion
--- The unique index blocks ALTER TYPE because UUID normalization creates duplicates
+-- STEP 2: Drop indexes BEFORE type conversion (unique index blocks UUID normalization)
+-- +goose StatementBegin
 DROP INDEX IF EXISTS users_stats_user_id_channel_id_key;
 DROP INDEX IF EXISTS users_stats_user_id_idx;
+-- +goose StatementEnd
 
 -- STEP 3: Convert user_id column from TEXT to UUID
 -- This normalizes case: "019EAE62..." and "019eae62..." become the same UUID
+-- +goose StatementBegin
 ALTER TABLE users_stats ALTER COLUMN user_id TYPE UUID USING user_id::uuid;
+-- +goose StatementEnd
 
 -- STEP 4: Deduplicate — merge rows that collided after UUID normalization
--- First, update surviving rows (earliest per group) with aggregated values
+-- +goose StatementBegin
 WITH ranked AS (
     SELECT
         id,
@@ -61,7 +66,6 @@ FROM ranked r
 WHERE us.id = r.id
   AND r.rn = 1;
 
--- Delete duplicate rows (keep only rn=1)
 DELETE FROM users_stats
 WHERE id IN (
     SELECT id FROM (
@@ -74,25 +78,30 @@ WHERE id IN (
     ) sub
     WHERE rn > 1
 );
+-- +goose StatementEnd
 
 -- STEP 5: Recreate indexes and add FK
+-- +goose StatementBegin
 CREATE UNIQUE INDEX users_stats_user_id_channel_id_key ON users_stats(user_id, channel_id);
 CREATE INDEX users_stats_user_id_idx ON users_stats(user_id);
 
 ALTER TABLE users_stats
     ADD CONSTRAINT users_stats_user_id_fkey
     FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+-- +goose StatementEnd
 
 -- STEP 6: Fix users_online.userId (same issue, no merge needed)
+-- +goose StatementBegin
 UPDATE users_online uo
 SET "userId" = u.id::text
 FROM users u
 WHERE u.platform = 'twitch'
   AND u.platform_id = uo."userId"
   AND uo."userId" !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+-- +goose StatementEnd
 
+-- +goose StatementBegin
 ALTER TABLE users_online ALTER COLUMN "userId" TYPE UUID USING "userId"::uuid;
-
 -- +goose StatementEnd
 
 -- +goose Down
