@@ -260,7 +260,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 - `@editorjs/editorjs`, `@editorjs/header`, `@editorjs/list`, `@editorjs/paragraph`, `@editorjs/quote`, `@editorjs/simple-image`, `@editorjs/underline`, `@editorjs/delimiter`
 - `@formkit/drag-and-drop`
 - `vue-draggable-plus`
-- `vue-i18n`
+- `@nuxtjs/i18n`
 - `@vuepic/vue-datepicker`
 - `grid-layout-plus`
 - `@discord-message-components/vue`
@@ -295,23 +295,36 @@ Recommendation: Keep `lucide-vue-next` direct imports initially, convert to `<Ic
 ### i18n
 
 Dashboard uses `vue-i18n` with locale files in `src/locales/`.
-Web doesn't use i18n.
+Web doesn't currently use i18n.
 
-Solution: Add `vue-i18n` as a Nuxt plugin in the dashboard layer:
+Solution: Use `@nuxtjs/i18n` module — the standard Nuxt i18n solution. This makes i18n available to all layers consistently.
+
+**Web nuxt.config.ts changes:**
 ```typescript
-// layers/dashboard/plugins/i18n.ts
-import { createI18n } from 'vue-i18n'
-import en from '../locales/en.json'
-
-export default defineNuxtPlugin((nuxtApp) => {
-  const i18n = createI18n({
-    legacy: false,
-    locale: 'en',
-    messages: { en },
-  })
-  nuxtApp.vueApp.use(i18n)
-})
+modules: [
+  // existing modules...
+  '@nuxtjs/i18n',
+],
+i18n: {
+  locales: [
+    { code: 'en', file: 'en.json' },
+  ],
+  defaultLocale: 'en',
+  lazy: true,
+  langDir: './layers/dashboard/locales/',
+},
 ```
+
+**Dashboard layer locales:**
+- Move `frontend/dashboard/src/locales/` → `web/layers/dashboard/locales/`
+- Module auto-discovers locale files from layers
+
+**Benefits over raw vue-i18n plugin:**
+- Automatic route localization (if needed later)
+- Lazy-loaded translations
+- SEO meta tag localization
+- Consistent pattern for other layers that may need i18n
+- Built-in `useI18n()` composable
 
 ### Codegen Integration
 
