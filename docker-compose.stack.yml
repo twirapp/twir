@@ -26,13 +26,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     deploy:
       mode: global
+      placement:
+        constraints:
+          - node.role == manager
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 30
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         # Traefik dashboard (internal)
         - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.twir.app`)"
         - "traefik.http.routers.traefik-dashboard.service=api@internal"
@@ -59,7 +62,7 @@ services:
           - node.labels.databases != true
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         - "traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)"
         - "traefik.http.routers.twir-adminer.entrypoints=web"
         - "traefik.http.routers.twir-adminer.service=twir-adminer"
@@ -84,7 +87,7 @@ services:
           - node.labels.databases != true
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         - "traefik.http.routers.twir-nats.rule=Host(`nats.twir.app`)"
         - "traefik.http.routers.twir-nats.entrypoints=web"
         - "traefik.http.routers.twir-nats.service=twir-nats"
@@ -304,7 +307,7 @@ services:
           - node.labels.databases != true
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         - "traefik.http.routers.twir-temporal.rule=Host(`temporal.twir.app`)"
         - "traefik.http.routers.twir-temporal.entrypoints=web"
         - "traefik.http.routers.twir-temporal.service=twir-temporal"
@@ -351,7 +354,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
 
         # Shared service definition
         - "traefik.http.services.twir-api-gql.loadbalancer.server.port=3009"
@@ -424,7 +427,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         - "traefik.http.routers.twir-bots.rule=Host(`services-bots.twir.app`)"
         - "traefik.http.routers.twir-bots.entrypoints=web"
         - "traefik.http.routers.twir-bots.service=twir-bots"
@@ -551,7 +554,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         # twir.app catch-all (lower priority than path-specific routes)
         - "traefik.http.routers.twir-web.rule=Host(`twir.app`)"
         - "traefik.http.routers.twir-web.entrypoints=web"
@@ -595,7 +598,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         # twir.app/dashboard
         - "traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)"
         - "traefik.http.routers.twir-dashboard.entrypoints=web"
@@ -630,7 +633,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         # twir.app/overlays
         - "traefik.http.routers.twir-overlays.rule=Host(`twir.app`) && PathPrefix(`/overlays`)"
         - "traefik.http.routers.twir-overlays.entrypoints=web"
@@ -666,7 +669,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         # twir.app/socket (WebSocket — no gzip)
         - "traefik.http.routers.twir-websockets.rule=Host(`twir.app`) && PathPrefix(`/socket`)"
         - "traefik.http.routers.twir-websockets.entrypoints=web"
@@ -836,7 +839,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
+        - "traefik.swarm.network=traefik-public"
         - "traefik.http.routers.music-recognizer.rule=Host(`music-recognizer.twir.app`)"
         - "traefik.http.routers.music-recognizer.entrypoints=web"
         - "traefik.http.routers.music-recognizer.service=music-recognizer"
