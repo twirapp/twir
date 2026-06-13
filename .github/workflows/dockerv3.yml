@@ -73,8 +73,8 @@ jobs:
         id: base
         run: |
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            prev_tag=$(git tag --sort=-creatordate | sed -n '2p')
-            if [ -n "$prev_tag" ]; then
+            prev_tag=$(git tag --sort=-version:refname | grep -A1 "^${GITHUB_REF_NAME}$" | tail -1)
+            if [ -n "$prev_tag" ] && [ "$prev_tag" != "${GITHUB_REF_NAME}" ]; then
               echo "base_sha=$prev_tag" >> "$GITHUB_OUTPUT"
             else
               echo "base_sha=$(git rev-list --max-parents=0 HEAD | head -1)" >> "$GITHUB_OUTPUT"
@@ -86,7 +86,7 @@ jobs:
       - name: Get changed files
         id: changed
         run: |
-          files=$(git diff --name-only ${{ steps.base.outputs.base_sha }}...HEAD | tr '\n' ',')
+          files=$(git diff --name-only ${{ steps.base.outputs.base_sha }}..HEAD | tr '\n' ',')
           echo "files=${files}" >> "$GITHUB_OUTPUT"
 
       - uses: oven-sh/setup-bun@v2
