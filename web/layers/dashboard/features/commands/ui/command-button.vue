@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PencilIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -28,7 +27,7 @@ const { t } = useI18n()
 				<Button as="a" :href="href" variant="default" @click="navigate">
 					<div class="flex items-center min-w-20 justify-between gap-2">
 						<span>!{{ command.name }}</span>
-						<PencilIcon class="h-4 w-4" />
+						<Icon name="lucide:pencil" class="h-4 w-4" />
 					</div>
 				</Button>
 			</RouterLink>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ChevronDownIcon, Trash } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -43,9 +42,9 @@ const selectOptions = Object.values(CommunityUsersResetType).map(v => {
 	<DropdownMenu>
 		<DropdownMenuTrigger as-child>
 			<Button variant="destructive" size="sm">
-				<Trash class="mr-2 h-3.5 w-3.5 text-white" />
+				<Icon name="lucide:trash" class="mr-2 h-3.5 w-3.5 text-white" />
 				{{ t('community.users.reset.label') }}
-				<ChevronDownIcon class="ml-2 h-3.5 w-3.5 text-white" />
+				<Icon name="lucide:chevron-down" class="ml-2 h-3.5 w-3.5 text-white" />
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CopyIcon } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -190,7 +189,7 @@ const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 					{{ isUpdating ? 'Saving...' : 'Save Changes' }}
 				</Button>
 				<Button variant="outline" class="flex items-center gap-2" @click="copyOverlayLink()">
-					<CopyIcon class="size-4" />
+					<Icon name="lucide:copy" class="size-4" />
 					Copy overlay link
 				</Button>
 			</div>

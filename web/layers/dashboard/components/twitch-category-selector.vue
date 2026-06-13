@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
@@ -85,7 +84,7 @@ function selectCategory(category: (typeof searchResults.value)[0] | null) {
 					<span>{{ selectedCategory.name }}</span>
 				</div>
 				<span v-else class="text-muted-foreground">{{ placeholder }}</span>
-				<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+				<Icon name="lucide:chevrons-up-down" class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 			</Button>
 		</PopoverTrigger>
 		<PopoverContent class="w-[400px] p-0">
@@ -117,9 +116,8 @@ function selectCategory(category: (typeof searchResults.value)[0] | null) {
 									class="h-14 w-10 object-cover rounded shrink-0"
 								/>
 								<span class="flex-1 truncate">{{ category.name }}</span>
-								<Check
-									:class="cn('h-4 w-4', categoryId === category.id ? 'opacity-100' : 'opacity-0')"
-								/>
+								<Icon name="lucide:check"
+									:class="cn('h-4 w-4', categoryId === category.id ? 'opacity-100' : 'opacity-0')" />
 							</div>
 						</CommandItem>
 					</CommandGroup>

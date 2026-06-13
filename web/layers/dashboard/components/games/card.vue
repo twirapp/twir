@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Settings } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import type { FunctionalComponent } from 'vue'
@@ -40,7 +39,7 @@ const userCanManageGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.Ma
 				@click="$emit('openSettings')"
 			>
 				{{ t('sharedButtons.settings') }}
-				<Settings class="ml-2 h-4 w-4" />
+				<Icon name="lucide:settings" class="ml-2 h-4 w-4" />
 			</Button>
 		</template>
 	</Card>

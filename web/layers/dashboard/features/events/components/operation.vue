@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { PlusIcon } from 'lucide-vue-next'
 import { useField, useFieldArray } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -371,7 +370,7 @@ function onRemoveFilter(filterIndex: number) {
 						variant="outline"
 						@click="() => onAddFilter()"
 					>
-						<PlusIcon class="mr-2 h-4 w-4" />
+						<Icon name="lucide:plus" class="mr-2 h-4 w-4" />
 						{{ t('sharedTexts.create') }}
 					</Button>
 				</div>

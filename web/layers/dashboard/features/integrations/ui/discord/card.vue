@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ExternalLink, Settings } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -54,9 +53,9 @@ function getGuildIconUrl(guildId: string, icon: string | null | undefined) {
 						as="a"
 						:href="href"
 					>
-						<Settings class="mr-2 h-4 w-4" />
+						<Icon name="lucide:settings" class="mr-2 h-4 w-4" />
 						{{ t('sharedButtons.settings') }}
-						<ExternalLink class="ml-2 h-3 w-3" />
+						<Icon name="lucide:external-link" class="ml-2 h-3 w-3" />
 					</Button>
 				</RouterLink>
 

@@ -3,8 +3,6 @@ import { useI18n } from 'vue-i18n'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { InfoIcon } from 'lucide-vue-next'
-
 const { t } = useI18n()
 </script>
 
@@ -18,7 +16,7 @@ const { t } = useI18n()
 
 			<CardContent class="space-y-4">
 				<Alert>
-					<InfoIcon class="h-4 w-4" />
+					<Icon name="lucide:info" class="h-4 w-4" />
 					<AlertTitle>{{ t('overlays.tts.commands.info') }}</AlertTitle>
 					<AlertDescription>
 						{{ t('overlays.tts.commands.infoDescription') }}

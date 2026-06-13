@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
-import { PlusIcon } from "lucide-vue-next";
 import { useForm } from "vee-validate";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -122,7 +121,7 @@ const handleSubmit = giveawayCreateForm.handleSubmit(async (values) => {
 	<Dialog v-model:open="open">
 		<DialogTrigger as-child>
 			<Button size="sm" class="flex gap-2 items-center" :disabled="!canManageGiveaways">
-				<PlusIcon class="size-4" />
+				<Icon name="lucide:plus" class="size-4" />
 				{{ t("giveaways.createNew") }}
 			</Button>
 		</DialogTrigger>

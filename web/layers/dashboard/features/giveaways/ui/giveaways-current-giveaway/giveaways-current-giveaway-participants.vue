@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useVirtualizer } from "@tanstack/vue-virtual";
 import { debouncedRef } from "@vueuse/core";
-import { InfoIcon } from "lucide-vue-next";
 import { computed, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -42,7 +41,7 @@ const totalSize = computed(() => rowVirtualizer.value.getTotalSize());
 	<div class="flex-1 flex flex-col h-full min-h-0">
 		<div class="p-2 border-b space-y-2">
 			<Alert v-if="isOnlineChatterGiveaway" variant="default">
-				<InfoIcon class="h-4 w-4" />
+				<Icon name="lucide:info" class="h-4 w-4" />
 				<AlertTitle>{{ t("giveaways.onlineChatterNotice.title") }}</AlertTitle>
 				<AlertDescription>
 					{{ t("giveaways.onlineChatterNotice.description") }}

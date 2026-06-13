@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, XIcon } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 
 import type { GetChannelRewardsQuery } from '@/gql/graphql.ts'
@@ -103,7 +102,7 @@ const filteredRewards = computed(() => {
 									<span>
 										{{ reward.title }}
 									</span>
-									<CheckIcon v-if="modelValue === reward.id" class="ml-auto" />
+									<Icon name="lucide:check" v-if="modelValue === reward.id" class="ml-auto" />
 								</div>
 							</CommandItem>
 						</CommandGroup>
@@ -112,7 +111,7 @@ const filteredRewards = computed(() => {
 			</PopoverContent>
 		</Popover>
 		<Button v-if="deselect" size="icon" variant="secondary" @click="handleDeselect">
-			<XIcon />
+			<Icon name="lucide:x"  />
 		</Button>
 	</div>
 </template>

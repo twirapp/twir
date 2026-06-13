@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ListMusic, Pause, Play, SkipForward, Volume2, VolumeX } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 import { useYoutubeSocket } from '~/layers/dashboard/components/songRequests/hook.js'
@@ -68,7 +67,7 @@ function handleVolumeChange(value: number[] | undefined) {
 			class="flex items-center gap-2 min-w-0 hover:bg-accent/50 rounded p-1.5 transition-colors text-left"
 			@click="goToSongRequests"
 		>
-			<ListMusic class="size-4 shrink-0 text-muted-foreground" />
+			<Icon name="lucide:list-music" class="size-4 shrink-0 text-muted-foreground" />
 			<div class="flex flex-col min-w-0 flex-1">
 				<span class="text-xs font-medium truncate">{{ currentVideo?.title }}</span>
 				<span class="text-[10px] text-muted-foreground truncate">
@@ -99,14 +98,12 @@ function handleVolumeChange(value: number[] | undefined) {
 				:disabled="!currentVideo"
 				@click="togglePlay"
 			>
-				<Play
+				<Icon name="lucide:play"
 					v-if="!isPlaying"
-					class="size-3.5"
-				/>
-				<Pause
+					class="size-3.5" />
+				<Icon name="lucide:pause"
 					v-else
-					class="size-3.5"
-				/>
+					class="size-3.5" />
 			</Button>
 
 			<Button
@@ -116,7 +113,7 @@ function handleVolumeChange(value: number[] | undefined) {
 				:disabled="!currentVideo"
 				@click="playNext"
 			>
-				<SkipForward class="size-3.5" />
+				<Icon name="lucide:skip-forward" class="size-3.5" />
 			</Button>
 
 			<div class="flex-1" />
@@ -127,14 +124,12 @@ function handleVolumeChange(value: number[] | undefined) {
 				class="size-7"
 				@click="toggleMute"
 			>
-				<Volume2
+				<Icon name="lucide:volume2"
 					v-if="!isMuted"
-					class="size-3.5"
-				/>
-				<VolumeX
+					class="size-3.5" />
+				<Icon name="lucide:volume-x"
 					v-else
-					class="size-3.5"
-				/>
+					class="size-3.5" />
 			</Button>
 		</div>
 

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { EditIcon, WrenchIcon, XIcon } from 'lucide-vue-next'
-
 import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
@@ -63,7 +61,7 @@ function computeSelectedGroupColor(id: string) {
 			<div></div>
 
 			<CardTitle class="flex items-center gap-2">
-				<WrenchIcon />
+				<Icon name="lucide:wrench"  />
 				General
 			</CardTitle>
 
@@ -137,7 +135,7 @@ function computeSelectedGroupColor(id: string) {
 							<DialogTrigger as-child>
 								<span class="flex flex-row gap-1 items-center cursor-pointer underline">
 									{{ t('commands.groups.manageButton') }}
-									<EditIcon class="size-4" />
+									<Icon name="lucide:edit" class="size-4" />
 								</span>
 
 								<DialogOrSheet>
@@ -178,7 +176,7 @@ function computeSelectedGroupColor(id: string) {
 							type="button"
 							@click="componentField['onUpdate:modelValue'](null)"
 						>
-							<XIcon class="size-4" />
+							<Icon name="lucide:x" class="size-4" />
 						</Button>
 					</div>
 					<Alert v-else class="py-2">

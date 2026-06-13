@@ -1,14 +1,4 @@
 <script setup lang="ts">
-import {
-	Copy,
-	Eye,
-	EyeOff,
-	GripVertical,
-	Lock,
-	LockOpen,
-	Plus,
-	Trash2,
-} from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 
@@ -109,7 +99,7 @@ function getLayerTypeIcon(type: string): string {
 				class="h-7 text-xs"
 				@click="emit('addLayer')"
 			>
-				<Plus class="h-3 w-3 mr-1" />
+				<Icon name="lucide:plus" class="h-3 w-3 mr-1" />
 				Add
 			</Button>
 		</div>
@@ -148,7 +138,7 @@ function getLayerTypeIcon(type: string): string {
 								>
 									<!-- Drag Handle -->
 									<div class="drag-handle cursor-grab active:cursor-grabbing">
-										<GripVertical class="h-4 w-4 text-muted-foreground" />
+										<Icon name="lucide:grip-vertical" class="h-4 w-4 text-muted-foreground" />
 									</div>
 
 									<!-- Layer Type Icon -->
@@ -182,8 +172,8 @@ function getLayerTypeIcon(type: string): string {
 														class="h-7 w-7"
 														@click.stop="emit('toggleVisibility', layer.id)"
 													>
-														<Eye v-if="layer.visible" class="h-3.5 w-3.5" />
-														<EyeOff v-else class="h-3.5 w-3.5 text-muted-foreground" />
+														<Icon name="lucide:eye" v-if="layer.visible" class="h-3.5 w-3.5" />
+														<Icon name="lucide:eye-off" v-else class="h-3.5 w-3.5 text-muted-foreground" />
 													</Button>
 												</TooltipTrigger>
 												<TooltipContent>
@@ -202,8 +192,8 @@ function getLayerTypeIcon(type: string): string {
 														class="h-7 w-7"
 														@click.stop="emit('toggleLock', layer.id)"
 													>
-														<LockOpen v-if="!layer.locked" class="h-3.5 w-3.5" />
-														<Lock v-else class="h-3.5 w-3.5 text-muted-foreground" />
+														<Icon name="lucide:lock-open" v-if="!layer.locked" class="h-3.5 w-3.5" />
+														<Icon name="lucide:lock" v-else class="h-3.5 w-3.5 text-muted-foreground" />
 													</Button>
 												</TooltipTrigger>
 												<TooltipContent>
@@ -222,7 +212,7 @@ function getLayerTypeIcon(type: string): string {
 														class="h-7 w-7"
 														@click.stop="emit('duplicate', layer.id)"
 													>
-														<Copy class="h-3.5 w-3.5" />
+														<Icon name="lucide:copy" class="h-3.5 w-3.5" />
 													</Button>
 												</TooltipTrigger>
 												<TooltipContent>
@@ -241,7 +231,7 @@ function getLayerTypeIcon(type: string): string {
 														class="h-7 w-7 text-destructive hover:text-destructive"
 														@click.stop="emit('remove', layer.id)"
 													>
-														<Trash2 class="h-3.5 w-3.5" />
+														<Icon name="lucide:trash2" class="h-3.5 w-3.5" />
 													</Button>
 												</TooltipTrigger>
 												<TooltipContent>

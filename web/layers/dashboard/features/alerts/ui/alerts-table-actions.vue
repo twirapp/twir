@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -34,13 +33,13 @@ function deleteAlert() {
 			<AlertsDialog :alert="alert">
 				<template #dialog-trigger>
 					<Button variant="secondary" size="icon">
-						<PencilIcon class="h-4 w-4" />
+						<Icon name="lucide:pencil" class="h-4 w-4" />
 					</Button>
 				</template>
 			</AlertsDialog>
 
 			<Button variant="destructive" size="icon" @click="showDelete = true">
-				<TrashIcon class="h-4 w-4" />
+				<Icon name="lucide:trash" class="h-4 w-4" />
 			</Button>
 		</div>
 

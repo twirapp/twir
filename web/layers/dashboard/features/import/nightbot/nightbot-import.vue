@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { InfoIcon, LoaderCircleIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 
 import { useUserAccessFlagChecker } from '@/api/auth.js'
@@ -101,7 +100,7 @@ const userCanManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 							</ul>
 						</div>
 						<Alert v-else>
-							<InfoIcon class="size-4" />
+							<Icon name="lucide:info" class="size-4" />
 							<AlertDescription>Waiting import...</AlertDescription>
 						</Alert>
 					</CardContent>
@@ -113,7 +112,7 @@ const userCanManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 							"
 							@click="importCommands"
 						>
-							<LoaderCircleIcon v-if="commandsImporting" class="animate-spin size-4 mr-2" />
+							<Icon name="lucide:loader-circle" v-if="commandsImporting" class="animate-spin size-4 mr-2" />
 							Import
 						</Button>
 					</CardFooter>
@@ -138,7 +137,7 @@ const userCanManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 							</ul>
 						</div>
 						<Alert v-else>
-							<InfoIcon class="size-4" />
+							<Icon name="lucide:info" class="size-4" />
 							<AlertDescription>Waiting import...</AlertDescription>
 						</Alert>
 					</CardContent>
@@ -148,7 +147,7 @@ const userCanManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 							:disabled="!isNightbotIntegrationEnabled || !userCanManageTimers || timersImporting"
 							@click="importTimers"
 						>
-							<LoaderCircleIcon v-if="timersImporting" class="animate-spin size-4 mr-2" />
+							<Icon name="lucide:loader-circle" v-if="timersImporting" class="animate-spin size-4 mr-2" />
 							Import
 						</Button>
 					</CardFooter>

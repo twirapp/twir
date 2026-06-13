@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, ListFilterIcon, Settings2Icon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -81,7 +80,7 @@ const columns = computed(() => {
 		<Popover>
 			<PopoverTrigger as-child>
 				<Button variant="outline" size="sm" class="h-9">
-					<ListFilterIcon class="mr-2 h-4 w-4" />
+					<Icon name="lucide:list-filter" class="mr-2 h-4 w-4" />
 					Filters
 
 					<template v-if="communityTableActions.selectedFiltersCount.value">
@@ -108,7 +107,7 @@ const columns = computed(() => {
 										? 'bg-primary text-primary-foreground'
 										: 'opacity-50 [&_svg]:invisible'"
 								>
-									<CheckIcon class="h-4 w-4" />
+									<Icon name="lucide:check" class="h-4 w-4" />
 								</div>
 								<span>{{ option.label }}</span>
 							</CommandItem>
@@ -133,7 +132,7 @@ const columns = computed(() => {
 		<DropdownMenu>
 			<DropdownMenuTrigger as-child>
 				<Button variant="outline" size="sm" class="flex ml-auto h-9">
-					<Settings2Icon class="mr-2 h-4 w-4" />
+					<Icon name="lucide:settings2" class="mr-2 h-4 w-4" />
 					{{ t('sharedTexts.view') }}
 				</Button>
 			</DropdownMenuTrigger>

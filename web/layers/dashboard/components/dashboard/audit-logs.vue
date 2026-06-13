@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ExternalLinkIcon } from 'lucide-vue-next'
 import { UseTimeAgo } from '@vueuse/components'
 import { useI18n } from 'vue-i18n'
 
@@ -81,7 +80,7 @@ function openPopup() {
 							variant="ghost"
 							@click="openPopup"
 						>
-							<ExternalLinkIcon class="h-4 w-4" />
+							<Icon name="lucide:external-link" class="h-4 w-4" />
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>

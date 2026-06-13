@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -72,7 +71,7 @@ async function toggleSwitch(newState: boolean) {
 			:disabled="!userCanManageEvents"
 			@click="editEvent"
 		>
-			<PencilIcon class="size-4" />
+			<Icon name="lucide:pencil" class="size-4" />
 		</Button>
 		<Button
 			type="button"
@@ -81,7 +80,7 @@ async function toggleSwitch(newState: boolean) {
 			:disabled="!userCanManageEvents"
 			@click="showDeleteDialog = true"
 		>
-			<TrashIcon class="size-4" />
+			<Icon name="lucide:trash" class="size-4" />
 		</Button>
 
 		<ActionConfirmation v-model:open="showDeleteDialog" @confirm="deleteEvent" />

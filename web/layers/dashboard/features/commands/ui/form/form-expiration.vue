@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { HourglassIcon, XIcon } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -43,7 +42,7 @@ function reset() {
 	<Card>
 		<CardHeader class="flex flex-row place-content-center flex-wrap">
 			<CardTitle class="flex items-center gap-2">
-				<HourglassIcon />
+				<Icon name="lucide:hourglass"  />
 				{{ t('commands.modal.expiration.label') }}
 			</CardTitle>
 		</CardHeader>
@@ -70,7 +69,7 @@ function reset() {
 							</Select>
 						</FormControl>
 						<Button variant="outline" type="button" @click="reset">
-							<XIcon class="size-4" />
+							<Icon name="lucide:x" class="size-4" />
 						</Button>
 					</div>
 					<FormMessage />

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CopyIcon, EyeIcon, EyeOffIcon, RefreshCwIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 import { useProfile, useUserSettings } from '~/layers/dashboard/api/auth'
@@ -96,14 +95,14 @@ async function copyApiKey() {
 							readonly
 						/>
 						<Button variant="outline" size="icon" type="button" @click="showApiKey = !showApiKey">
-							<EyeIcon v-if="!showApiKey" />
-							<EyeOffIcon v-else />
+							<Icon name="lucide:eye" v-if="!showApiKey" />
+							<Icon name="lucide:eye-off" v-else />
 						</Button>
 						<Button variant="outline" size="icon" type="button" @click="copyApiKey">
-							<CopyIcon />
+							<Icon name="lucide:copy"  />
 						</Button>
 						<Button variant="outline" class="min-w-37.5 sm:w-full" @click="callRegenerateKey">
-							<RefreshCwIcon />
+							<Icon name="lucide:refresh-cw"  />
 							{{ t('userSettings.account.regenerateApiKey.button') }}
 						</Button>
 					</div>

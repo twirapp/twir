@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ArrowDownIcon, ArrowUpIcon, EditIcon, TrashIcon } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { computed, ref, watch } from 'vue'
@@ -198,7 +197,7 @@ function updateLinkHref(index: number, newHref: string | number) {
 											:disabled="!socialLinksWithEditing[idx + 1]"
 											@click="changeSort(idx, idx + 1)"
 										>
-											<ArrowDownIcon class="size-4" />
+											<Icon name="lucide:arrow-down" class="size-4" />
 										</Button>
 										<Button
 											variant="ghost"
@@ -208,7 +207,7 @@ function updateLinkHref(index: number, newHref: string | number) {
 											:disabled="idx === 0"
 											@click="changeSort(idx, idx - 1)"
 										>
-											<ArrowUpIcon class="size-4" />
+											<Icon name="lucide:arrow-up" class="size-4" />
 										</Button>
 										<Button
 											variant="ghost"
@@ -217,7 +216,7 @@ function updateLinkHref(index: number, newHref: string | number) {
 											type="button"
 											@click="toggleEdit(idx)"
 										>
-											<EditIcon class="size-4" />
+											<Icon name="lucide:edit" class="size-4" />
 										</Button>
 										<Button
 											variant="ghost"
@@ -226,7 +225,7 @@ function updateLinkHref(index: number, newHref: string | number) {
 											type="button"
 											@click="removeLink(idx)"
 										>
-											<TrashIcon class="size-4" />
+											<Icon name="lucide:trash" class="size-4" />
 										</Button>
 									</div>
 								</div>

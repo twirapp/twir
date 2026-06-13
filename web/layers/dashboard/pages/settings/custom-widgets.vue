@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Plus, Trash2 } from "lucide-vue-next";
 import { computed, ref } from "vue";
 
 import {
@@ -122,7 +121,7 @@ async function deleteWidget(id: string, name: string) {
 							@click="deleteWidget(widget.id, widget.name)"
 							:disabled="deleteMutation.fetching.value"
 						>
-							<Trash2 class="h-4 w-4" />
+							<Icon name="lucide:trash2" class="h-4 w-4" />
 						</Button>
 					</div>
 				</div>
@@ -144,7 +143,7 @@ async function deleteWidget(id: string, name: string) {
 	<Dialog v-model:open="isDialogOpen">
 		<DialogTrigger as-child>
 			<Button size="icon" class="fixed right-8 bottom-8 h-14 w-14 rounded-full shadow-lg z-50">
-				<Plus class="h-6 w-6" />
+				<Icon name="lucide:plus" class="h-6 w-6" />
 			</Button>
 		</DialogTrigger>
 		<DialogContent>

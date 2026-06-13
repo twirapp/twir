@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { PlusIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -58,7 +57,7 @@ const { t } = useI18n()
 			}"
 		>
 			<CardContent class="flex items-center justify-center p-6">
-				<PlusIcon class="h-8 w-8" />
+				<Icon name="lucide:plus" class="h-8 w-8" />
 			</CardContent>
 		</Card>
 

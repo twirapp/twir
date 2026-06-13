@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CopyIcon, SettingsIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useCopyOverlayLink } from './copyOverlayLink.js'
@@ -56,7 +55,7 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 				class="flex items-center gap-2"
 				@click="$emit('openSettings')"
 			>
-				<SettingsIcon class="size-4" />
+				<Icon name="lucide:settings" class="size-4" />
 				<span>{{ t('sharedButtons.settings') }}</span>
 			</Button>
 			<TooltipProvider v-if="showCopy">
@@ -67,7 +66,7 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 							class="flex items-center gap-2"
 							@click="copyOverlayLink()"
 						>
-							<CopyIcon class="size-4" />
+							<Icon name="lucide:copy" class="size-4" />
 							<span>{{ t('overlays.copyOverlayLink') }}</span>
 						</Button>
 					</TooltipTrigger>

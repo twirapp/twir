@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ChevronsUpDown, Loader2, LogIn, LogOut } from 'lucide-vue-next'
-
 import { useBotJoinPart, useBotStatuses } from '~/layers/dashboard/api/dashboard'
 import { BotJoinLeaveAction } from '~/gql/graphql.js'
 import { Button } from '@/components/ui/button'
@@ -123,7 +121,7 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 					</template>
 				</div>
 				<span class="max-w-44 truncate">{{ statusSummary }}</span>
-				<ChevronsUpDown class="size-4" />
+				<Icon name="lucide:chevrons-up-down" class="size-4" />
 			</Button>
 		</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" class="w-72">
@@ -158,9 +156,9 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 						<span v-if="status.botName" class="truncate">via {{ status.botName }}</span>
 					</p>
 				</div>
-					<Loader2 v-if="isStatusPending(status)" class="size-4 animate-spin text-muted-foreground" />
-					<LogOut v-else-if="status.enabled" class="size-4 text-red-500" />
-					<LogIn v-else class="size-4 text-green-500" />
+					<Icon name="lucide:loader2" v-if="isStatusPending(status)" class="size-4 animate-spin text-muted-foreground" />
+					<Icon name="lucide:log-out" v-else-if="status.enabled" class="size-4 text-red-500" />
+					<Icon name="lucide:log-in" v-else class="size-4 text-green-500" />
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

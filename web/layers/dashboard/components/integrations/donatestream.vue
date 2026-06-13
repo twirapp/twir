@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ExternalLink, Info } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
 import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
@@ -60,7 +59,7 @@ async function saveSecret() {
 								class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
 							>
 								Open donate.stream
-								<ExternalLink class="h-3 w-3" />
+								<Icon name="lucide:external-link" class="h-3 w-3" />
 							</a>
 						</div>
 						<p class="text-sm text-muted-foreground">
@@ -92,7 +91,7 @@ async function saveSecret() {
 								class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
 							>
 								View example
-								<ExternalLink class="h-3 w-3" />
+								<Icon name="lucide:external-link" class="h-3 w-3" />
 							</a>
 						</div>
 						<p class="text-sm text-muted-foreground">
@@ -125,7 +124,7 @@ async function saveSecret() {
 				</div>
 
 				<Alert>
-					<Info class="h-4 w-4" />
+					<Icon name="lucide:info" class="h-4 w-4" />
 					<AlertDescription>
 						After completing these steps, your Donate.stream integration will be active
 					</AlertDescription>

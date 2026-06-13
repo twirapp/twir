@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ChevronDown } from 'lucide-vue-next'
 import {
 	AccordionContent,
 	AccordionHeader,
@@ -50,7 +49,7 @@ const content = [
 						class="flex h-[45px] flex-1 cursor-pointer items-center justify-between bg-stone-700/40 px-5 text-[15px] leading-none outline-hidden group rounded-md hover"
 					>
 						<span>{{ item.title }}</span>
-						<ChevronDown class="group-data-[state=open]:rotate-180" />
+						<Icon name="lucide:chevron-down" class="group-data-[state=open]:rotate-180" />
 					</AccordionTrigger>
 				</AccordionHeader>
 				<AccordionContent

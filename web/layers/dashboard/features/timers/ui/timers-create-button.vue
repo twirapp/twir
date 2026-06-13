@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -32,7 +31,7 @@ const maxTimers = computed(() => {
 				:disabled="!userCanManageTimers || timersLength >= maxTimers"
 				@click="navigate"
 			>
-				<PlusIcon class="size-4 mr-2" />
+				<Icon name="lucide:plus" class="size-4 mr-2" />
 				{{ timersLength >= maxTimers ? t('timers.limitExceeded') : t('sharedButtons.create') }} ({{
 					timersLength }}/{{ maxTimers }})
 			</Button>

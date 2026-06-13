@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { SlidersHorizontalIcon } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -67,7 +66,7 @@ const checkboxes = computed(() => {
 	<Card>
 		<CardHeader class="flex flex-row place-content-center flex-wrap">
 			<CardTitle class="flex items-center gap-2">
-				<SlidersHorizontalIcon />
+				<Icon name="lucide:sliders-horizontal"  />
 				Conditions
 			</CardTitle>
 		</CardHeader>

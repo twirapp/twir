@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Trash2, Volume2 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -104,7 +103,7 @@ function testUserVoice(user: (typeof users.value)[0]) {
 							:disabled="selectedCount === 0"
 							@click="showDeleteDialog = true"
 						>
-							<Trash2 class="h-4 w-4 mr-2" />
+							<Icon name="lucide:trash2" class="h-4 w-4 mr-2" />
 							{{ t('sharedButtons.delete') }} ({{ selectedCount }})
 						</Button>
 					</div>
@@ -168,7 +167,7 @@ function testUserVoice(user: (typeof users.value)[0]) {
 
 								<div class="flex items-center gap-2" @click.stop>
 									<Button variant="ghost" size="icon" @click="testUserVoice(user)">
-										<Volume2 class="h-4 w-4" />
+										<Icon name="lucide:volume2" class="h-4 w-4" />
 									</Button>
 									<Checkbox
 										:model-value="selectedUsers.has(user.userId)"

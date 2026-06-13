@@ -2,7 +2,6 @@
 import { IconEdit } from "@tabler/icons-vue";
 import { useIntervalFn, useLocalStorage, useMediaQuery } from "@vueuse/core";
 import { intervalToDuration } from "date-fns";
-import { Edit3, GripVertical, Plus, X } from "lucide-vue-next";
 import { computed, onBeforeUnmount, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -241,7 +240,7 @@ function onDragEnd() {
 						class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
 						@mousedown.stop
 					>
-						<GripVertical :size="16" :stroke-width="1.5" />
+						<Icon name="lucide:grip-vertical" :size="16" :stroke-width="1.5" />
 					</div>
 
 					<!-- Edit mode: Remove button -->
@@ -250,7 +249,7 @@ function onDragEnd() {
 						class="hover-show absolute right-1.5 top-1.5 text-muted-foreground/50 hover:text-red-400 transition-colors opacity-0"
 						@click.stop="removeWidget(widget.id)"
 					>
-						<X :size="14" />
+						<Icon name="lucide:x" :size="14" />
 					</button>
 
 					<!-- Widget content -->
@@ -272,7 +271,7 @@ function onDragEnd() {
 				:class="{ 'bg-white/5 border-white/10 text-foreground': isEditMode }"
 				@click="toggleEditMode"
 			>
-				<Edit3 :size="14" />
+				<Icon name="lucide:edit3" :size="14" />
 				<span>{{ isEditMode ? t("sharedButtons.close") : t("sharedButtons.edit") }}</span>
 			</button>
 
@@ -282,7 +281,7 @@ function onDragEnd() {
 					<button
 						class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
 					>
-						<Plus :size="14" />
+						<Icon name="lucide:plus" :size="14" />
 						<span>{{ t("sharedButtons.add") }}</span>
 					</button>
 				</PopoverTrigger>
@@ -297,7 +296,7 @@ function onDragEnd() {
 							class="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-foreground hover:bg-white/10 rounded transition-colors text-left"
 							@click="addWidget(widget.id)"
 						>
-							<Plus :size="12" />
+							<Icon name="lucide:plus" :size="12" />
 							<span>{{ t(`dashboard.statsWidgets.${widget.id}`) }}</span>
 						</button>
 					</div>

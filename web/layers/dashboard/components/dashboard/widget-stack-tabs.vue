@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { X } from "lucide-vue-next";
 import type { WidgetItem } from "./widgets.ts";
 
 interface Props {
@@ -49,7 +48,7 @@ function getWidgetLabel(widget: WidgetItem): string {
 				class="ml-1 hover:text-destructive transition-colors"
 				@click.stop="emit('unstack', widget.i)"
 			>
-				<X class="size-3" />
+				<Icon name="lucide:x" class="size-3" />
 			</button>
 		</div>
 	</div>

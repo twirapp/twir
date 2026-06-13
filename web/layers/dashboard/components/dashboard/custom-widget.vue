@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Pencil, Trash2 } from "lucide-vue-next";
 import { ref } from "vue";
 import { toast } from "vue-sonner";
 
@@ -104,10 +103,10 @@ const onDelete = async () => {
 		<Card :item="item" class="h-full">
 			<template #header-extra>
 				<Button size="sm" variant="ghost" @click="onEdit">
-					<Pencil class="h-4 w-4" />
+					<Icon name="lucide:pencil" class="h-4 w-4" />
 				</Button>
 				<Button size="sm" variant="ghost" @click="onDelete">
-					<Trash2 class="h-4 w-4" />
+					<Icon name="lucide:trash2" class="h-4 w-4" />
 				</Button>
 			</template>
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ChevronRight, Command, Hash, Search, User, Variable } from 'lucide-vue-next'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -161,7 +160,7 @@ onMounted(() => {
 				class="text-muted-foreground relative h-9 w-full justify-start text-sm sm:pr-12 md:w-48 lg:w-64"
 				@click="open = true"
 			>
-				<Command class="mr-2 h-4 w-4" />
+				<Icon name="lucide:command" class="mr-2 h-4 w-4" />
 				<span class="hidden lg:inline-flex">Search...</span>
 				<span class="inline-flex lg:hidden">Search...</span>
 				<div class="absolute top-1.5 right-1.5 hidden gap-1 sm:flex">
@@ -176,7 +175,7 @@ onMounted(() => {
 				class="h-9 w-9"
 				@click="open = true"
 			>
-				<Search class="h-5 w-5" />
+				<Icon name="lucide:search" class="h-5 w-5" />
 			</Button>
 		</DialogTrigger>
 		<DialogContent
@@ -234,7 +233,7 @@ onMounted(() => {
 									:alt="dashboard.twitchProfile?.displayName ?? ''"
 								/>
 								<AvatarFallback>
-									<User class="h-3 w-3" />
+									<Icon name="lucide:user" class="h-3 w-3" />
 								</AvatarFallback>
 							</Avatar>
 							<span class="truncate">{{ dashboard.twitchProfile?.displayName ?? '' }}</span>
@@ -283,7 +282,7 @@ onMounted(() => {
 							"
 							class="cursor-pointer"
 						>
-							<Command class="mr-2 h-4 w-4 flex-shrink-0" />
+							<Icon name="lucide:command" class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ command.name }}</span>
 							<span
 								v-if="command.description"
@@ -306,7 +305,7 @@ onMounted(() => {
 							@select="() => runCommand(() => router.push(`/dashboard/keywords`))"
 							class="cursor-pointer"
 						>
-							<Hash class="mr-2 h-4 w-4 flex-shrink-0" />
+							<Icon name="lucide:hash" class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ keyword.text }}</span>
 						</CommandMenuItem>
 					</CommandGroup>
@@ -323,7 +322,7 @@ onMounted(() => {
 							@select="() => runCommand(() => router.push(`/dashboard/variables/${variable.id}`))"
 							class="cursor-pointer"
 						>
-							<Variable class="mr-2 h-4 w-4 flex-shrink-0" />
+							<Icon name="lucide:variable" class="mr-2 h-4 w-4 flex-shrink-0" />
 							<span class="truncate">{{ variable.name }}</span>
 							<span
 								v-if="variable.description"
@@ -338,7 +337,7 @@ onMounted(() => {
 			<div class="text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-xs">
 				<div class="flex items-center gap-1">
 					<CommandMenuKbd>
-						<ChevronRight class="h-3 w-3" />
+						<Icon name="lucide:chevron-right" class="h-3 w-3" />
 					</CommandMenuKbd>
 					<span>to navigate</span>
 				</div>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { EditIcon, MoreVerticalIcon, ToggleLeftIcon, ToggleRightIcon, TrashIcon, UserIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import BadgesPreview from './badges-preview.vue'
@@ -41,31 +40,31 @@ const badgesActions = useBadgesActions()
 				<DropdownMenu>
 					<DropdownMenuTrigger as-child>
 						<Button variant="ghost" size="icon">
-							<MoreVerticalIcon class="size-4" />
+							<Icon name="lucide:more-vertical" class="size-4" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem @click="badgesActions.applyUserSearchBadgeFilter(badge)">
-							<UserIcon class="mr-2 h-4 w-4" />
+							<Icon name="lucide:user" class="mr-2 h-4 w-4" />
 							<span>{{ t('adminPanel.manageBadges.users') }}</span>
 						</DropdownMenuItem>
 						<DropdownMenuItem @click="badgesActions.editBadge(badge)">
-							<EditIcon class="mr-2 h-4 w-4" />
+							<Icon name="lucide:edit" class="mr-2 h-4 w-4" />
 							<span>{{ t('sharedButtons.edit') }}</span>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem @click="badgesActions.toggleBadgeEnabled(badge)">
 							<template v-if="badge.enabled">
-								<ToggleRightIcon class="mr-2 h-4 w-4" />
+								<Icon name="lucide:toggle-right" class="mr-2 h-4 w-4" />
 								<span>{{ t('sharedTexts.enabled') }}</span>
 							</template>
 							<template v-else>
-								<ToggleLeftIcon class="mr-2 h-4 w-4" />
+								<Icon name="lucide:toggle-left" class="mr-2 h-4 w-4" />
 								<span>{{ t('sharedTexts.disabled') }}</span>
 							</template>
 						</DropdownMenuItem>
 						<DropdownMenuItem @click="badgesActions.showModalDeleteBadge(badge)">
-							<TrashIcon class="mr-2 h-4 w-4" />
+							<Icon name="lucide:trash" class="mr-2 h-4 w-4" />
 							<span>{{ t('sharedButtons.delete') }}</span>
 						</DropdownMenuItem>
 					</DropdownMenuContent>

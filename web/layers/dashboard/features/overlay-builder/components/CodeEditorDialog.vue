@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { VueMonacoEditor, useMonaco } from '@guolao/vue-monaco-editor'
-import { Check, ChevronLeft, ChevronRight, Code2, Copy, ExternalLink, Eye, EyeOff, Search } from 'lucide-vue-next'
 import { useClipboard } from '@vueuse/core'
 
 import { useChannelOverlayParseHtml } from '@/api/overlays/custom'
@@ -300,7 +299,7 @@ onUnmounted(() => {
 		>
 			<DialogHeader class="px-6 pt-6 pb-4 border-b">
 				<DialogTitle class="flex items-center gap-2">
-					<Code2 class="h-5 w-5" />
+					<Icon name="lucide:code2" class="h-5 w-5" />
 					<span>Edit HTML Layer</span>
 					<span v-if="layerName" class="text-muted-foreground font-normal">
 						- {{ layerName }}
@@ -336,8 +335,8 @@ onUnmounted(() => {
 								class="h-7 text-xs gap-1.5"
 								@click="showVariablesPanel = !showVariablesPanel"
 							>
-								<ChevronLeft v-if="showVariablesPanel" class="h-3 w-3" />
-								<ChevronRight v-else class="h-3 w-3" />
+								<Icon name="lucide:chevron-left" v-if="showVariablesPanel" class="h-3 w-3" />
+								<Icon name="lucide:chevron-right" v-else class="h-3 w-3" />
 								Variables
 							</Button>
 
@@ -347,8 +346,8 @@ onUnmounted(() => {
 								@update:checked="showPreview = $event"
 							/>
 							<Label for="preview-toggle" class="text-xs cursor-pointer flex items-center gap-1">
-								<Eye v-if="showPreview" class="h-3 w-3" />
-								<EyeOff v-else class="h-3 w-3" />
+								<Icon name="lucide:eye" v-if="showPreview" class="h-3 w-3" />
+								<Icon name="lucide:eye-off" v-else class="h-3 w-3" />
 								Preview
 							</Label>
 						</div>
@@ -504,8 +503,8 @@ onUnmounted(() => {
 										:title="copiedVariableId === variable.name ? 'Copied!' : 'Copy to clipboard'"
 										@click="copyVariable(variable)"
 									>
-										<Check v-if="copiedVariableId === variable.name" class="h-3 w-3 text-green-500" />
-										<Copy v-else class="h-3 w-3" />
+										<Icon name="lucide:check" v-if="copiedVariableId === variable.name" class="h-3 w-3 text-green-500" />
+										<Icon name="lucide:copy" v-else class="h-3 w-3" />
 									</Button>
 								</div>
 
@@ -518,7 +517,7 @@ onUnmounted(() => {
 										rel="noopener noreferrer"
 										class="inline-flex items-center gap-1 text-[10px] text-blue-500 hover:text-blue-600 hover:underline"
 									>
-										<ExternalLink class="h-2.5 w-2.5" />
+										<Icon name="lucide:external-link" class="h-2.5 w-2.5" />
 										{{ link.name }}
 									</a>
 								</div>
@@ -528,7 +527,7 @@ onUnmounted(() => {
 							v-if="filteredVariables.length === 0"
 							class="text-center py-8 text-sm text-muted-foreground"
 						>
-							<Search class="h-8 w-8 mx-auto mb-2 opacity-50" />
+							<Icon name="lucide:search" class="h-8 w-8 mx-auto mb-2 opacity-50" />
 							<p>No variables found</p>
 						</div>
 					</div>

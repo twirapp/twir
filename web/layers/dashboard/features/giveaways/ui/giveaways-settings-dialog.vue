@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod';
-import { InfoIcon } from 'lucide-vue-next';
 import { useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -125,7 +124,7 @@ const handleSubmit = form.handleSubmit(async (values) => {
 			</DialogHeader>
 
 			<Alert v-if="!fetching">
-				<InfoIcon class="h-4 w-4"/>
+				<Icon name="lucide:info" class="h-4 w-4" />
 				<AlertDescription>
 					{{ t('giveaways.settings.hint') }}
 					<code class="bg-muted px-1 py-0.5 rounded text-sm">{winner}</code>

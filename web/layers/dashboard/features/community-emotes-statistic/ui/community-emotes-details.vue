@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { BarChart } from "lucide-vue-next";
-
 import DialogOrSheet from "@/components/dialog-or-sheet.vue";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -21,7 +19,7 @@ defineEmits<{
 				@click="$emit('select')"
 			>
 				<span>Usage Stats</span>
-				<BarChart class="size-4 ml-1" />
+				<Icon name="lucide:bar-chart" class="size-4 ml-1" />
 			</Button>
 		</DialogTrigger>
 		<DialogOrSheet class="p-0">

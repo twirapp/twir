@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
-import { BadgePlus, GripVertical, TrashIcon } from "lucide-vue-next";
 import { FieldArray, useForm } from "vee-validate";
 import { computed, onMounted, ref, toRaw } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
@@ -284,7 +283,7 @@ const responsesHasError = computed(() => {
 									<div
 										class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle z-10 border cursor-move"
 									>
-										<GripVertical class="my-auto size-6" />
+										<Icon name="lucide:grip-vertical" class="my-auto size-6" />
 									</div>
 									<CardContent class="pt-2 w-full">
 										<FormField v-slot="{ componentField }" :name="`responses[${index}].text`">
@@ -362,7 +361,7 @@ const responsesHasError = computed(() => {
 												class="flex gap-2 place-self-end"
 												@click="remove(index)"
 											>
-												<TrashIcon class="size-4" />
+												<Icon name="lucide:trash" class="size-4" />
 												Remove
 											</Button>
 										</CardAction>
@@ -378,7 +377,7 @@ const responsesHasError = computed(() => {
 							:disabled="(controlledValues.responses?.length ?? 0) >= 10"
 							@click="push({ text: '', isAnnounce: false, count: 1 })"
 						>
-							<BadgePlus class="size-4" />
+							<Icon name="lucide:badge-plus" class="size-4" />
 							Add response {{ controlledValues.responses?.length ?? 0 }} / 10
 						</Button>
 					</FieldArray>

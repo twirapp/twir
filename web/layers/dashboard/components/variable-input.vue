@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Variable } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -69,7 +68,7 @@ function handleSelect(value: string) {
 			<div class="flex gap-0.5 absolute right-1 top-1" :class="{ 'opacity-100!': open }">
 				<PopoverTrigger as-child>
 					<button class="hover:bg-secondary/80 p-1 rounded-md">
-						<Variable class="size-4 opacity-50" />
+						<Icon name="lucide:variable" class="size-4 opacity-50" />
 					</button>
 				</PopoverTrigger>
 				<slot name="additional-buttons" />

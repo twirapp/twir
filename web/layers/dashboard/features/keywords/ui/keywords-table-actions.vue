@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 import KeywordDialog from './keywords-dialog.vue'
@@ -37,13 +36,13 @@ function deleteGreetings() {
 		<KeywordDialog :keyword="keyword">
 			<template #dialog-trigger>
 				<Button variant="secondary" size="icon">
-					<PencilIcon class="h-4 w-4" />
+					<Icon name="lucide:pencil" class="h-4 w-4" />
 				</Button>
 			</template>
 		</KeywordDialog>
 
 		<Button variant="destructive" size="icon" @click="showDelete = true">
-			<TrashIcon class="h-4 w-4" />
+			<Icon name="lucide:trash" class="h-4 w-4" />
 		</Button>
 	</div>
 

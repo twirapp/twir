@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -38,7 +37,7 @@ function createEvent() {
 <template>
 	<div class="flex gap-2">
 		<Button type="button" :disabled="isCreateDisabled" @click="createEvent">
-			<PlusIcon class="size-4 mr-2" />
+			<Icon name="lucide:plus" class="size-4 mr-2" />
 			{{ eventsLength >= maxEvents ? t('events.limitExceeded') : t('sharedTexts.create') }} ({{
 				eventsLength }}/{{ maxEvents }})
 		</Button>

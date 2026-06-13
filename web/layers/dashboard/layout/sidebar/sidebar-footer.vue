@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ExternalLink } from "lucide-vue-next";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -101,7 +100,7 @@ const regularItems = computed(() =>
 						>
 							{{ notificationsCounter.counter }}
 						</Badge>
-						<ExternalLink v-else-if="item.isExternal" class="ml-auto" />
+						<Icon name="lucide:external-link" v-else-if="item.isExternal" class="ml-auto" />
 					</component>
 				</SidebarMenuButton>
 			</SidebarMenuItem>

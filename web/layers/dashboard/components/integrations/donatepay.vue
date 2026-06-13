@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ExternalLink, Eye, EyeOff } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
 import { useDonatepayIntegration } from '@/api/integrations/donatepay'
@@ -60,7 +59,7 @@ async function save() {
 					<div class="flex gap-2">
 						<Button variant="outline" class="shrink-0" @click="redirectToGetApiKey">
 							Get api key
-							<ExternalLink class="ml-2 h-4 w-4" />
+							<Icon name="lucide:external-link" class="ml-2 h-4 w-4" />
 						</Button>
 						<div class="relative flex-1">
 							<Input
@@ -76,8 +75,8 @@ async function save() {
 								class="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
 								@click="showPassword = !showPassword"
 							>
-								<Eye v-if="showPassword" class="h-4 w-4" />
-								<EyeOff v-else class="h-4 w-4" />
+								<Icon name="lucide:eye" v-if="showPassword" class="h-4 w-4" />
+								<Icon name="lucide:eye-off" v-else class="h-4 w-4" />
 								<span class="sr-only">
 									{{ showPassword ? 'Hide password' : 'Show password' }}
 								</span>

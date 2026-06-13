@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { HomeIcon } from 'lucide-vue-next'
-
 import { Button } from '@/components/ui/button'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
@@ -22,7 +20,7 @@ function goToDashboard() {
 				{{ t('pageNotFound.description') }}
 			</p>
 			<Button @click="goToDashboard" class="mt-4">
-				<HomeIcon class="h-4 w-4 mr-2" />
+				<Icon name="lucide:home" class="h-4 w-4 mr-2" />
 				{{ t('sharedButtons.goToDashboard') }}
 			</Button>
 		</div>

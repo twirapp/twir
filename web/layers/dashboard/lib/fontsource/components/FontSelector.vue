@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Check, ChevronsUpDown, LoaderCircle } from 'lucide-vue-next'
 import { type Font, generateFontKey, useFontSource } from '@twir/fontsource'
 import { useVirtualizer } from '@tanstack/vue-virtual'
 
@@ -163,11 +162,11 @@ onMounted(async () => {
 					class="w-full justify-between"
 				>
 					<span v-if="fontSource.loading.value" class="flex items-center gap-2">
-						<LoaderCircle class="h-4 w-4 animate-spin" />
+						<Icon name="lucide:loader-circle" class="h-4 w-4 animate-spin" />
 						{{ t('sharedTexts.loading') }}
 					</span>
 					<span v-else class="truncate">{{ selectedFontLabel }}</span>
-					<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+					<Icon name="lucide:chevrons-up-down" class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent class="w-100 p-0">
@@ -220,14 +219,13 @@ onMounted(async () => {
 									@mouseenter="loadFontPreview(fontOptions[virtualRow.index])"
 									@click="selectFont(fontOptions[virtualRow.index].value)"
 								>
-									<Check
+									<Icon name="lucide:check"
 										:class="
 											cn(
 												'h-4 w-4 shrink-0',
 												selectedFont === fontOptions[virtualRow.index].value ? 'opacity-100' : 'opacity-0'
 											)
-										"
-									/>
+										" />
 									<span
 										class="truncate text-sm"
 										:style="{

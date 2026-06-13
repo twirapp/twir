@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
-import { InfoIcon } from "lucide-vue-next";
 import { useForm } from "vee-validate";
 import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -125,7 +124,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
 			<form @submit="onSubmit" class="space-y-4">
 				<Alert>
-					<InfoIcon class="h-4 w-4" />
+					<Icon name="lucide:info" class="h-4 w-4" />
 					<AlertDescription>
 						{{ t("expiringVips.form.info") }}
 					</AlertDescription>

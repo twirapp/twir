@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { NowPlaying, Preset } from '@twir/frontend-now-playing'
 import { useSubscription } from '@urql/vue'
-import { AlertTriangleIcon, PlusIcon } from 'lucide-vue-next'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
 
@@ -132,7 +131,7 @@ const nowPlayingTrack = computed(() => {
 		</div>
 		<Separator />
 		<Alert v-if="!isSomeSongIntegrationEnabled" variant="destructive">
-			<AlertTriangleIcon class="h-4 w-4" />
+			<Icon name="lucide:alert-triangle" class="h-4 w-4" />
 			<AlertTitle>No enabled song integrations!</AlertTitle>
 			<AlertDescription>
 				Connect Spotify, Last.fm or VK in
@@ -160,7 +159,7 @@ const nowPlayingTrack = computed(() => {
 					:disabled="!addable"
 					@click="handleAdd"
 				>
-					<PlusIcon />
+					<Icon name="lucide:plus"  />
 				</Button>
 				<TabsTrigger
 					v-for="(overlay, index) of entities?.nowPlayingOverlays"

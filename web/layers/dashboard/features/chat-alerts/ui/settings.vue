@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { AlertCircleIcon, Plus, TrashIcon } from 'lucide-vue-next'
 import { type VNode, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -131,7 +130,7 @@ const { t } = useI18n()
 					<p class="leading-7" v-html="alertMessage" />
 
 					<Alert v-if="!formValue[formKey]!.messages?.length" variant="destructive">
-						<AlertCircleIcon />
+						<Icon name="lucide:alert-circle"  />
 						<AlertTitle>No messages</AlertTitle>
 					</Alert>
 
@@ -162,7 +161,7 @@ const { t } = useI18n()
 									size="icon"
 									@click="removeMessage(index)"
 								>
-									<TrashIcon class="h-4 w-4" />
+									<Icon name="lucide:trash" class="h-4 w-4" />
 								</Button>
 							</div>
 						</li>
@@ -175,7 +174,7 @@ const { t } = useI18n()
 						class="flex w-full"
 						@click="createMessage"
 					>
-						<Plus class="mr-1" />
+						<Icon name="lucide:plus" class="mr-1" />
 						<span v-if="formValue[formKey]!.messages?.length"
 							>{{ t('sharedButtons.create') }} ({{ formValue[formKey]!.messages.length }} /
 							{{ maxMessages }})</span

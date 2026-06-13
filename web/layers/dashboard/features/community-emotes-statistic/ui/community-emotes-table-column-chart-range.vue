@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, GanttChartIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from '../composables/use-community-emotes-statistic-filters.js'
@@ -34,7 +33,7 @@ const emotesStatisticFilter = useCommunityEmotesStatisticFilters()
 					class="-ml-3 h-8 data-[state=open]:bg-accent"
 				>
 					<span>{{ t('community.emotesStatistic.table.chart') }}</span>
-					<GanttChartIcon class="ml-2 h-4 w-4" />
+					<Icon name="lucide:gantt-chart" class="ml-2 h-4 w-4" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start">
@@ -43,10 +42,9 @@ const emotesStatisticFilter = useCommunityEmotesStatisticFilters()
 					:key="type"
 					@click="emotesStatisticFilter.changeTableRange(type as EmoteStatisticRange)"
 				>
-					<CheckIcon
+					<Icon name="lucide:check"
 						v-if="emotesStatisticFilter.tableRange.value === type"
-						class="mr-2 h-3.5 w-3.5"
-					/>
+						class="mr-2 h-3.5 w-3.5" />
 					{{ text }}
 				</DropdownMenuItem>
 			</DropdownMenuContent>

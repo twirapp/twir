@@ -2,8 +2,6 @@
 import { until } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { type Component, computed, ref, watch } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
-
 import { useChatOverlayForm } from '~/layers/dashboard/pages/overlays/chat/components/form.js'
 import Form from '~/layers/dashboard/pages/overlays/chat/components/Form.vue'
 
@@ -163,7 +161,7 @@ const hasOverlays = computed(() => {
 					variant="default"
 					@click="handleAdd"
 				>
-					<Plus class="h-4 w-4 mr-2" />
+					<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
 					{{ t('sharedButtons.add') || 'Add Preset' }}
 				</Button>
 				<Button
@@ -172,7 +170,7 @@ const hasOverlays = computed(() => {
 					variant="destructive"
 					@click="handleDeleteClick(currentTab)"
 				>
-					<Trash2 class="h-4 w-4 mr-2" />
+					<Icon name="lucide:trash2" class="h-4 w-4 mr-2" />
 					{{ t('sharedButtons.delete') || 'Delete' }}
 				</Button>
 			</div>
@@ -200,7 +198,7 @@ const hasOverlays = computed(() => {
 						variant="default"
 						@click="handleAdd"
 					>
-						<Plus class="h-5 w-5 mr-2" />
+						<Icon name="lucide:plus" class="h-5 w-5 mr-2" />
 						{{ t('sharedButtons.create') || 'Create Preset' }}
 					</Button>
 				</div>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { BadgePlus, SaveIcon, TrashIcon } from 'lucide-vue-next'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -77,10 +76,10 @@ const swatches = [
 
 			<div class="flex gap-2 items-end justify-end">
 				<Button size="icon" @click="update(index)">
-					<SaveIcon />
+					<Icon name="lucide:save"  />
 				</Button>
 				<Button size="icon" variant="destructive" @click="deleteGroup(index)">
-					<TrashIcon />
+					<Icon name="lucide:trash"  />
 				</Button>
 			</div>
 		</div>
@@ -92,7 +91,7 @@ const swatches = [
 		:disabled="groups.length >= 10"
 		@click="() => create(`New Group #${groups.length + 1}`, swatches[0])"
 	>
-		<BadgePlus class="size-4" />
+		<Icon name="lucide:badge-plus" class="size-4" />
 		<span>{{ t('sharedButtons.create') }} ({{ groups.length }}/10)</span>
 	</Button>
 </template>

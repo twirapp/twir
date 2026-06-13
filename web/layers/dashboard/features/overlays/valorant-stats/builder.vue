@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ValorantStatsWidget } from '@twir/frontend-valorant-stats'
-import { BanIcon } from 'lucide-vue-next'
 import { Label } from 'reka-ui'
 
 import { useValorantStats } from './composables/use-valorant-stats'
@@ -37,7 +36,7 @@ const { isConfigured: isConnected, isDataFetching } = useValorantIntegration()
 					v-if="!isConnected"
 					class="flex flex-col gap-4 items-center justify-center p-4 text bg-black/70 rounded-xl absolute inset-0 z-50"
 				>
-					<BanIcon class="size-10" />
+					<Icon name="lucide:ban" class="size-10" />
 					<span class="text-2xl"> {{ t('overlays.valorant.valorantIntegration.connect') }} </span>
 				</div>
 

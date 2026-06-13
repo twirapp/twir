@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { PlusIcon } from 'lucide-vue-next'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -83,7 +82,7 @@ function createNewRule(ruleType: ModerationSettingsType) {
 			<DropdownMenu v-if="activeTab === 'rules'">
 				<DropdownMenuTrigger as-child>
 					<Button :disabled="isCreateDisabled">
-						<PlusIcon class="size-4 mr-2" />
+						<Icon name="lucide:plus" class="size-4 mr-2" />
 						{{ items.length >= maxModerationRules ? t('moderation.limitExceeded') : t('sharedButtons.create') }}
 						({{ items.length }}/{{ maxModerationRules }})
 					</Button>

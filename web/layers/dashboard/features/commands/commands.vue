@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
@@ -94,7 +93,7 @@ const title = computed(() => {
 				</Dialog>
 				<RouterLink v-slot="{ href, navigate }" custom to="/dashboard/commands/custom/create">
 					<Button as="a" :href="href" :disabled="isCreateDisabled" @click="navigate">
-						<PlusIcon class="size-4 mr-2" />
+						<Icon name="lucide:plus" class="size-4 mr-2" />
 						{{ t('sharedButtons.create') }} ({{ commands.length }}/{{ maxCommands }})
 					</Button>
 				</RouterLink>

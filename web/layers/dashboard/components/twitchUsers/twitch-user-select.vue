@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { refDebounced } from '@vueuse/core'
-import { XIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
 import { useTwitchGetUsers, useTwitchSearchChannels } from '@/api/twitch'
@@ -93,10 +92,9 @@ const isPopoverOpen = computed(() => {
 						class="size-4 rounded-full"
 					/>
 					<span>{{ selectedUser.label }}</span>
-					<XIcon
+					<Icon name="lucide:x"
 						class="size-4 cursor-pointer"
-						@click="userId = null"
-					/>
+						@click="userId = null" />
 				</div>
 				<input
 					v-if="!selectedUser"

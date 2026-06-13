@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CopyIcon, PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -69,7 +68,7 @@ function goToCopyCommand() {
 			<Tooltip v-if="row.module === 'CUSTOM'">
 				<TooltipTrigger>
 					<Button :disabled="!userCanManageCommands" size="icon" @click="goToCopyCommand">
-						<CopyIcon class="h-4 w-4" />
+						<Icon name="lucide:copy" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -86,7 +85,7 @@ function goToCopyCommand() {
 					size="icon"
 					@click="navigate"
 				>
-					<PencilIcon class="h-4 w-4" />
+					<Icon name="lucide:pencil" class="h-4 w-4" />
 				</Button>
 			</RouterLink>
 			<Button
@@ -96,7 +95,7 @@ function goToCopyCommand() {
 				size="icon"
 				@click="showDelete = true"
 			>
-				<TrashIcon class="h-4 w-4" />
+				<Icon name="lucide:trash" class="h-4 w-4" />
 			</Button>
 		</div>
 	</div>

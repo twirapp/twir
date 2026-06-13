@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, ChevronsUpDownIcon } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -87,7 +86,7 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 											: 'Select...'
 									}}
 								</div>
-								<ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+								<Icon name="lucide:chevrons-up-down" class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 							</Button>
 						</FormControl>
 					</PopoverTrigger>
@@ -119,14 +118,13 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 												:class="[getOperationColor(operation.value)]"
 											></div>
 											{{ operation.name }}
-											<CheckIcon
+											<Icon name="lucide:check"
 												:class="
 													cn(
 														'ml-auto h-4 w-4',
 														currentOperation?.type === operation.value ? 'opacity-100' : 'opacity-0'
 													)
-												"
-											/>
+												" />
 										</CommandItem>
 									</CommandGroup>
 
@@ -147,7 +145,7 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 												:class="[getOperationColor(selectOption.value)]"
 											></div>
 											{{ selectOption.name }}
-											<CheckIcon
+											<Icon name="lucide:check"
 												:class="
 													cn(
 														'ml-auto h-4 w-4',
@@ -155,8 +153,7 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 															? 'opacity-100'
 															: 'opacity-0'
 													)
-												"
-											/>
+												" />
 										</CommandItem>
 									</CommandGroup>
 								</template>

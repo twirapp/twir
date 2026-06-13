@@ -1,14 +1,5 @@
 <script lang="ts" setup>
 import { useLocalStorage } from '@vueuse/core'
-import {
-	ChevronsUpDown,
-	Languages,
-	LogOut,
-	MoonIcon,
-	Settings,
-	Shield,
-	SunIcon,
-} from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -80,7 +71,7 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 						/>
 					</template>
 				</div>
-				<ChevronsUpDown class="ml-auto size-4" />
+				<Icon name="lucide:chevrons-up-down" class="ml-auto size-4" />
 			</Button>
 		</DropdownMenuTrigger>
 
@@ -88,14 +79,14 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 			<DropdownMenuGroup>
 				<DropdownMenuItem as-child>
 					<RouterLink to="/dashboard/settings" class="flex items-center">
-						<Settings class="mr-2 size-4" />
+						<Icon name="lucide:settings" class="mr-2 size-4" />
 						{{ t('sharedButtons.settings') }}
 					</RouterLink>
 				</DropdownMenuItem>
 
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger>
-						<Languages class="mr-2 h-4 w-4" />
+						<Icon name="lucide:languages" class="mr-2 h-4 w-4" />
 						{{ t('sidebar.lang') }}
 					</DropdownMenuSubTrigger>
 					<DropdownMenuPortal>
@@ -120,11 +111,11 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 				<DropdownMenuItem as-child @select.prevent="theme.toggleTheme">
 					<div>
 						<template v-if="theme.isDark.value">
-							<SunIcon class="mr-2 size-4" />
+							<Icon name="lucide:sun" class="mr-2 size-4" />
 							{{ t('sidebar.lightTheme') }}
 						</template>
 						<template v-else>
-							<MoonIcon class="mr-2 size-4" />
+							<Icon name="lucide:moon" class="mr-2 size-4" />
 							{{ t('sidebar.darkTheme') }}
 						</template>
 					</div>
@@ -132,7 +123,7 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 
 				<DropdownMenuItem v-if="profileData.isBotAdmin" as-child>
 					<RouterLink to="/dashboard/admin" class="flex items-center">
-						<Shield class="mr-2 size-4" />
+						<Icon name="lucide:shield" class="mr-2 size-4" />
 						{{ t('adminPanel.title') }}
 					</RouterLink>
 				</DropdownMenuItem>
@@ -141,7 +132,7 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 			<DropdownMenuSeparator />
 
 			<DropdownMenuItem @click="logout" class="text-red-500">
-				<LogOut class="mr-2 size-4" />
+				<Icon name="lucide:log-out" class="mr-2 size-4" />
 				{{ t('sidebar.logout') }}
 			</DropdownMenuItem>
 		</DropdownMenuContent>

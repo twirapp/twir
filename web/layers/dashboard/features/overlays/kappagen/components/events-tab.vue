@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { SettingsIcon } from 'lucide-vue-next'
 import { useFieldArray } from 'vee-validate'
 
 import type {
@@ -64,7 +63,7 @@ function handleEventEnabledChange(index: number, value: boolean) {
 								class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
 								type="button"
 							>
-								<SettingsIcon class="size-4" />
+								<Icon name="lucide:settings" class="size-4" />
 							</button>
 						</PopoverTrigger>
 						<PopoverContent class="w-96 bg-zinc-800/60 backdrop-blur-md">

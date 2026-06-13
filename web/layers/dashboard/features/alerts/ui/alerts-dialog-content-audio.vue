@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PauseIcon, PlayIcon, TrashIcon } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -132,8 +131,8 @@ function setVolume(audioId: string, v: number) {
 				:disabled="!audioId"
 				@click="getAudio"
 			>
-				<PlayIcon v-if="!isAudioPlaying" class="size-4" />
-				<PauseIcon v-else class="size-4" />
+				<Icon name="lucide:play" v-if="!isAudioPlaying" class="size-4" />
+				<Icon name="lucide:pause" v-else class="size-4" />
 			</Button>
 
 			<Button
@@ -143,7 +142,7 @@ function setVolume(audioId: string, v: number) {
 				:disabled="!audioId"
 				@click="audioId = undefined"
 			>
-				<TrashIcon class="size-4" />
+				<Icon name="lucide:trash" class="size-4" />
 			</Button>
 		</div>
 	</div>

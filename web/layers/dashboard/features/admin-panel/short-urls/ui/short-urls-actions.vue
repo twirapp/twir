@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 import type { AdminShortUrl } from '@/api/admin/short-urls.ts'
@@ -25,7 +24,7 @@ const showDelete = ref(false)
 			size="icon"
 			@click="showDelete = true"
 		>
-			<TrashIcon class="size-4" />
+			<Icon name="lucide:trash" class="size-4" />
 		</Button>
 	</div>
 

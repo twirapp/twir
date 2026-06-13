@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ArrowDown, ArrowDownUp, ArrowUp, EyeOff } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import type { CommunityUsersResetType } from '@/gql/graphql.js'
@@ -38,9 +37,9 @@ const { t } = useI18n()
 					class="-ml-3 h-8 data-[state=open]:bg-accent"
 				>
 					<span>{{ title }}</span>
-					<ArrowDown v-if="column.getIsSorted() === 'desc'" class="ml-2 h-4 w-4" />
-					<ArrowUp v-else-if=" column.getIsSorted() === 'asc'" class="ml-2 h-4 w-4" />
-					<ArrowDownUp v-else class="ml-2 h-4 w-4" />
+					<Icon name="lucide:arrow-down" v-if="column.getIsSorted() === 'desc'" class="ml-2 h-4 w-4" />
+					<Icon name="lucide:arrow-up" v-else-if=" column.getIsSorted() === 'asc'" class="ml-2 h-4 w-4" />
+					<Icon name="lucide:arrow-down-up" v-else class="ml-2 h-4 w-4" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start">

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { LoaderCircleIcon } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useVKIntegration } from '@/features/integrations/composables/vk/use-vk-integration.ts'
 
@@ -34,7 +33,7 @@ onMounted(async () => {
 
 <template>
 	<div class="flex justify-center items-center h-full">
-		<LoaderCircleIcon v-if="!errorResult" class="animate-spin size-12" />
+		<Icon name="lucide:loader-circle" v-if="!errorResult" class="animate-spin size-12" />
 		<div v-else class="p-4 bg-red-950/50 text-2xl">
 			{{ errorResult }}
 		</div>

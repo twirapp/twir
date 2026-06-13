@@ -1,12 +1,4 @@
 <script setup lang="ts">
-import {
-	BadgePlus,
-	Ellipsis,
-	GripVertical,
-	MessageCircleReplyIcon,
-	Settings,
-	Trash,
-} from 'lucide-vue-next'
 import { FieldArray, useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
@@ -75,7 +67,7 @@ const editable = computed(() => !command.value?.default)
 				:class="{ 'text-destructive': responsesErrors.length }"
 				class="flex items-center gap-2"
 			>
-				<MessageCircleReplyIcon />
+				<Icon name="lucide:message-circle-reply"  />
 				{{ t('sharedTexts.responses') }}
 			</CardTitle>
 		</CardHeader>
@@ -92,7 +84,7 @@ const editable = computed(() => !command.value?.default)
 												<div
 													class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 drag-handle z-10 border cursor-move"
 												>
-													<GripVertical class="my-auto size-6 cursor-move" />
+													<Icon name="lucide:grip-vertical" class="my-auto size-6 cursor-move" />
 												</div>
 												<VariableInput
 													input-type="textarea"
@@ -108,7 +100,7 @@ const editable = computed(() => !command.value?.default)
 														<DropdownMenu>
 															<DropdownMenuTrigger as-child>
 																<button class="hover:bg-accent p-1 rounded-md">
-																	<Ellipsis class="size-4 opacity-50" />
+																	<Icon name="lucide:ellipsis" class="size-4 opacity-50" />
 																</button>
 															</DropdownMenuTrigger>
 
@@ -116,7 +108,7 @@ const editable = computed(() => !command.value?.default)
 																<DialogTrigger as-child>
 																	<DropdownMenuItem @click="responseDialogOpened = true">
 																		<div class="flex items-center gap-2">
-																			<Settings class="size-4" />
+																			<Icon name="lucide:settings" class="size-4" />
 																			Settings
 																		</div>
 																	</DropdownMenuItem>
@@ -124,7 +116,7 @@ const editable = computed(() => !command.value?.default)
 
 																<DropdownMenuItem @click="remove(index)">
 																	<div class="flex items-center gap-2">
-																		<Trash class="size-4" />
+																		<Icon name="lucide:trash" class="size-4" />
 																		Remove
 																	</div>
 																</DropdownMenuItem>
@@ -216,7 +208,7 @@ const editable = computed(() => !command.value?.default)
 					:disabled="(fields.length ?? 0) >= maxCommandResponses"
 					@click="handlePush"
 				>
-					<BadgePlus class="size-4" />
+					<Icon name="lucide:badge-plus" class="size-4" />
 					Add response {{ fields.length ?? 0 }} / {{ maxCommandResponses }}
 				</Button>
 			</FieldArray>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 import type { TimerResponse } from '@/api/timers'
@@ -40,12 +39,12 @@ function deleteTimer() {
 				size="icon"
 				@click="navigate"
 			>
-				<PencilIcon class="h-4 w-4" />
+				<Icon name="lucide:pencil" class="h-4 w-4" />
 			</Button>
 		</RouterLink>
 
 		<Button variant="destructive" size="icon" @click="showDelete = true">
-			<TrashIcon class="h-4 w-4" />
+			<Icon name="lucide:trash" class="h-4 w-4" />
 		</Button>
 	</div>
 

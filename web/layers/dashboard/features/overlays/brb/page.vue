@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { type Font, FontSelector } from '@/lib/fontsource'
-import { InfoIcon } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { computed, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -234,7 +233,7 @@ watch(
 									:title="t('overlays.brb.settings.main.startCommand.description')"
 								/>
 								<Alert>
-									<InfoIcon class="h-4 w-4" />
+									<Icon name="lucide:info" class="h-4 w-4" />
 									<AlertDescription>
 										<span v-html="t('overlays.brb.settings.main.startCommand.example')" />
 									</AlertDescription>

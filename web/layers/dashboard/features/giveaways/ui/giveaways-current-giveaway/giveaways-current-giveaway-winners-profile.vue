@@ -1,12 +1,4 @@
 <script setup lang="ts">
-import {
-	BubblesIcon,
-	EyeIcon,
-	HeartIcon,
-	MessageSquareIcon,
-	ShieldUserIcon,
-	SmileIcon,
-} from 'lucide-vue-next'
 import { computed, nextTick, toRef, watch } from 'vue'
 
 import { useChannelUserInfo } from '@/api/users.ts'
@@ -47,7 +39,7 @@ const userHaveSomeRole = computed(() => {
 			<tbody>
 				<tr>
 					<td class="table-td">
-						<MessageSquareIcon class="size-4" />
+						<Icon name="lucide:message-square" class="size-4" />
 						Total messages
 					</td>
 					<td>
@@ -56,7 +48,7 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<EyeIcon class="size-4" />
+						<Icon name="lucide:eye" class="size-4" />
 						Watched time
 					</td>
 					<td>
@@ -67,7 +59,7 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<SmileIcon class="size-4" />
+						<Icon name="lucide:smile" class="size-4" />
 						Used emotes
 					</td>
 					<td>
@@ -76,7 +68,7 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<BubblesIcon class="size-4" />
+						<Icon name="lucide:bubbles" class="size-4" />
 						Used channel points
 					</td>
 					<td>
@@ -85,7 +77,7 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<ShieldUserIcon class="size-4" />
+						<Icon name="lucide:shield-user" class="size-4" />
 						Roles
 					</td>
 					<td>
@@ -116,7 +108,7 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<HeartIcon class="size-4" />
+						<Icon name="lucide:heart" class="size-4" />
 						Follower since
 					</td>
 					<td>

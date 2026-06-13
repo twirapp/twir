@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Copy, Pencil, Plus, Trash2 } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 import {
@@ -165,7 +164,7 @@ function editCustomOverlay(id?: string) {
 						:disabled="!userCanManageOverlays"
 						@click="editCustomOverlay(overlay.id)"
 					>
-						<Pencil class="h-4 w-4 mr-2" />
+						<Icon name="lucide:pencil" class="h-4 w-4 mr-2" />
 						<span>{{ t('sharedButtons.settings') }}</span>
 					</Button>
 
@@ -175,7 +174,7 @@ function editCustomOverlay(id?: string) {
 						:disabled="!userCanManageOverlays"
 						@click="copyUrl(overlay.id)"
 					>
-						<Copy class="h-4 w-4 mr-2" />
+						<Icon name="lucide:copy" class="h-4 w-4 mr-2" />
 						<span>{{ t('overlays.copyOverlayLink') }}</span>
 					</Button>
 
@@ -187,7 +186,7 @@ function editCustomOverlay(id?: string) {
 								:disabled="!userCanManageOverlays"
 								class="text-destructive hover:text-destructive"
 							>
-								<Trash2 class="h-4 w-4 mr-2" />
+								<Icon name="lucide:trash2" class="h-4 w-4 mr-2" />
 								<span>{{ t('sharedButtons.delete') }}</span>
 							</Button>
 						</AlertDialogTrigger>
@@ -216,7 +215,7 @@ function editCustomOverlay(id?: string) {
 			>
 				<CardContent class="flex-1 flex items-center justify-center p-6">
 					<div class="flex flex-col items-center justify-center text-muted-foreground">
-						<Plus class="size-16 mb-4" />
+						<Icon name="lucide:plus" class="size-16 mb-4" />
 						<p class="text-sm font-medium">
 							{{ customOverlays.length >= maxCustomOverlays ? t('overlaysRegistry.limitExceeded') : t('overlaysRegistry.createNew') }}
 							({{ customOverlays.length }}/{{ maxCustomOverlays }})

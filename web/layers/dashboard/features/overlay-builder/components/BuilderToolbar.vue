@@ -1,27 +1,4 @@
 <script setup lang="ts">
-import {
-	AlignCenter,
-	AlignCenterVertical,
-	AlignEndVertical,
-	AlignHorizontalDistributeCenter,
-	AlignLeft,
-	AlignRight,
-	AlignStartVertical,
-	AlignVerticalDistributeCenter,
-	ArrowLeft,
-	Copy,
-	CopyPlus,
-	ExternalLink,
-	Grid3x3,
-	Layers,
-	Minus,
-	Plus,
-	Redo,
-	Save,
-	Scissors,
-	Trash2,
-	Undo,
-} from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -118,7 +95,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" @click="goBack">
-						<ArrowLeft class="h-4 w-4" />
+						<Icon name="lucide:arrow-left" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -134,7 +111,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!canUndo" @click="emit('undo')">
-						<Undo class="h-4 w-4" />
+						<Icon name="lucide:undo" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -147,7 +124,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!canRedo" @click="emit('redo')">
-						<Redo class="h-4 w-4" />
+						<Icon name="lucide:redo" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -163,7 +140,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('copy')">
-						<Copy class="h-4 w-4" />
+						<Icon name="lucide:copy" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -176,7 +153,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('cut')">
-						<Scissors class="h-4 w-4" />
+						<Icon name="lucide:scissors" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -189,7 +166,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('duplicate')">
-						<CopyPlus class="h-4 w-4" />
+						<Icon name="lucide:copy-plus" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -202,7 +179,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('delete')">
-						<Trash2 class="h-4 w-4" />
+						<Icon name="lucide:trash2" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -218,7 +195,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignLeft')">
-						<AlignLeft class="h-4 w-4" />
+						<Icon name="lucide:align-left" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -231,7 +208,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignCenter')">
-						<AlignCenter class="h-4 w-4" />
+						<Icon name="lucide:align-center" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -244,7 +221,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignRight')">
-						<AlignRight class="h-4 w-4" />
+						<Icon name="lucide:align-right" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -260,7 +237,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignTop')">
-						<AlignStartVertical class="h-4 w-4" />
+						<Icon name="lucide:align-start-vertical" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -273,7 +250,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignMiddle')">
-						<AlignCenterVertical class="h-4 w-4" />
+						<Icon name="lucide:align-center-vertical" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -286,7 +263,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignBottom')">
-						<AlignEndVertical class="h-4 w-4" />
+						<Icon name="lucide:align-end-vertical" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -307,7 +284,7 @@ function copyOverlayLink() {
 						:disabled="!canDistribute"
 						@click="emit('distributeHorizontal')"
 					>
-						<AlignHorizontalDistributeCenter class="h-4 w-4" />
+						<Icon name="lucide:align-horizontal-distribute-center" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -325,7 +302,7 @@ function copyOverlayLink() {
 						:disabled="!canDistribute"
 						@click="emit('distributeVertical')"
 					>
-						<AlignVerticalDistributeCenter class="h-4 w-4" />
+						<Icon name="lucide:align-vertical-distribute-center" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -341,7 +318,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" @click="emit('zoomOut')">
-						<Minus class="h-4 w-4" />
+						<Icon name="lucide:minus" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -358,7 +335,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" @click="emit('zoomIn')">
-						<Plus class="h-4 w-4" />
+						<Icon name="lucide:plus" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -379,7 +356,7 @@ function copyOverlayLink() {
 						:class="{ 'bg-accent': showGrid }"
 						@click="emit('toggleGrid')"
 					>
-						<Grid3x3 class="h-4 w-4" />
+						<Icon name="lucide:grid3x3" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -397,7 +374,7 @@ function copyOverlayLink() {
 						:class="{ 'bg-accent': snapToGrid }"
 						@click="emit('toggleSnap')"
 					>
-						<Layers class="h-4 w-4" />
+						<Icon name="lucide:layers" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -413,7 +390,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="ghost" size="icon" @click="copyOverlayLink">
-						<ExternalLink class="h-4 w-4" />
+						<Icon name="lucide:external-link" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -426,7 +403,7 @@ function copyOverlayLink() {
 			<Tooltip>
 				<TooltipTrigger as-child>
 					<Button variant="default" size="icon" @click="emit('save')">
-						<Save class="h-4 w-4" />
+						<Icon name="lucide:save" class="h-4 w-4" />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>

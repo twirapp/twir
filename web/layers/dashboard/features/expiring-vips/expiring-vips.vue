@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { InfoIcon, PlusIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -45,7 +44,7 @@ const showCreateDialog = ref(false)
 
 		<template #action>
 			<Button @click="showCreateDialog = true">
-				<PlusIcon class="size-4 mr-2" />
+				<Icon name="lucide:plus" class="size-4 mr-2" />
 				{{ t('sharedButtons.create') }}
 			</Button>
 		</template>
@@ -66,7 +65,7 @@ const showCreateDialog = ref(false)
 				</Card>
 
 				<Alert>
-					<InfoIcon class="h-4 w-4" />
+					<Icon name="lucide:info" class="h-4 w-4" />
 					<AlertTitle>{{ t('expiringVips.alert.title') }}</AlertTitle>
 					<AlertDescription>
 						{{ t('expiringVips.alert.description') }}

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { HomeIcon, ShieldAlertIcon } from 'lucide-vue-next'
-
 import { Button } from '@/components/ui/button'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
@@ -16,13 +14,13 @@ function goToDashboard() {
 <template>
 	<div class="flex items-center justify-center h-full">
 		<div class="flex flex-col items-center gap-4 text-center">
-			<ShieldAlertIcon class="h-24 w-24 text-destructive" />
+			<Icon name="lucide:shield-alert" class="h-24 w-24 text-destructive" />
 			<h1 class="text-2xl font-semibold">{{ t('haveNoAccess.title') }}</h1>
 			<p class="text-muted-foreground max-w-md">
 				{{ t('haveNoAccess.description') }}
 			</p>
 			<Button @click="goToDashboard" class="mt-4">
-				<HomeIcon class="h-4 w-4 mr-2" />
+				<Icon name="lucide:home" class="h-4 w-4 mr-2" />
 				{{ t('sharedButtons.goToDashboard') }}
 			</Button>
 		</div>

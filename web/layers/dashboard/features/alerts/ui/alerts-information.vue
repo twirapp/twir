@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, ClipboardIcon, EyeIcon, EyeOffIcon, InfoIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useAlertsInformation } from '../composables/use-alerts-information'
@@ -15,7 +14,7 @@ const { isCopied, copyOverlayLink, overlayLink, isShowOverlayLink, toggleShowOve
 
 <template>
 	<Alert>
-		<InfoIcon class="size-5" />
+		<Icon name="lucide:info" class="size-5" />
 		<AlertTitle>
 			{{ t('alerts.info') }}
 		</AlertTitle>
@@ -35,13 +34,13 @@ const { isCopied, copyOverlayLink, overlayLink, isShowOverlayLink, toggleShowOve
 						class="absolute right-0 top-1/2 -translate-y-1/2"
 						@click="toggleShowOverlayLink"
 					>
-						<EyeIcon v-if="isShowOverlayLink" class="size-4" />
-						<EyeOffIcon v-else class="size-4" />
+						<Icon name="lucide:eye" v-if="isShowOverlayLink" class="size-4" />
+						<Icon name="lucide:eye-off" v-else class="size-4" />
 					</Button>
 				</div>
 				<Button size="icon" @click="copyOverlayLink">
-					<ClipboardIcon v-if="!isCopied" class="size-4 min-w-10" />
-					<CheckIcon v-else class="size-4 min-w-10" />
+					<Icon name="lucide:clipboard" v-if="!isCopied" class="size-4 min-w-10" />
+					<Icon name="lucide:check" v-else class="size-4 min-w-10" />
 				</Button>
 			</div>
 		</AlertDescription>

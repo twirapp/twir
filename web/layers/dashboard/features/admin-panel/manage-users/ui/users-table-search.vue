@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, ListFilterIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useUsersTableFilters } from '../composables/use-users-table-filters.js'
@@ -40,7 +39,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 		<Popover>
 			<PopoverTrigger as-child>
 				<Button variant="outline" size="sm" class="h-9">
-					<ListFilterIcon class="mr-2 h-4 w-4" />
+					<Icon name="lucide:list-filter" class="mr-2 h-4 w-4" />
 					{{ t('adminPanel.manageUsers.filters') }}
 
 					<template v-if="usersTableFilters.selectedFiltersCount.value">
@@ -75,7 +74,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 										: 'opacity-50 [&_svg]:invisible',
 									]"
 								>
-									<CheckIcon class="h-4 w-4" />
+									<Icon name="lucide:check" class="h-4 w-4" />
 								</div>
 								<img v-if="filter.image" :src="filter.image" class="h-5 w-5 mr-2">
 								<span>{{ filter.label }}</span>

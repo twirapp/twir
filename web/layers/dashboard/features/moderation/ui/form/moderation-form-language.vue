@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Search, Trash } from 'lucide-vue-next'
 import { useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -64,7 +63,7 @@ const maxExcludedWords = 1000
 					{{ t('moderation.types.language.allowedLanguages') }} ({{ allowedLanguages.length }})
 				</h3>
 				<div class="relative">
-					<Search class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+					<Icon name="lucide:search" class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
 					<Input
 						v-model="sourceSearch"
 						class="pl-8"
@@ -93,7 +92,7 @@ const maxExcludedWords = 1000
 					{{ t('moderation.types.language.disallowedLanguages') }} ({{ deniedLanguages.length }})
 				</h3>
 				<div class="relative">
-					<Search class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+					<Icon name="lucide:search" class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
 					<Input
 						v-model="targetSearch"
 						class="pl-8"
@@ -146,7 +145,7 @@ const maxExcludedWords = 1000
 						excludedWords = excludedWords.filter((_, i) => i !== index)
 					}"
 				>
-					<Trash class="h-4 w-4" />
+					<Icon name="lucide:trash" class="h-4 w-4" />
 				</Button>
 			</div>
 

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useVirtualizer } from '@tanstack/vue-virtual'
 import { watchThrottled } from '@vueuse/core'
-import { ArrowDownToLine } from 'lucide-vue-next'
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import ChatMessage from './message.vue'
@@ -122,7 +121,7 @@ const measureElement = (el: any) => {
 					@click="scrollToBottom"
 				>
 					Scroll to bottom
-					<ArrowDownToLine />
+					<Icon name="lucide:arrow-down-to-line"  />
 				</Button>
 			</div>
 			<div

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Loader2Icon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 
 import { useFaceitIntegration } from '~/layers/dashboard/api/integrations/faceit.ts'
@@ -134,6 +133,6 @@ onMounted(async () => {
 
 <template>
 	<div class="flex items-center justify-center w-full h-full bg-[#0f0f14]">
-		<Loader2Icon class="h-12 w-12 animate-spin text-primary" />
+		<Icon name="lucide:loader2" class="h-12 w-12 animate-spin text-primary" />
 	</div>
 </template>

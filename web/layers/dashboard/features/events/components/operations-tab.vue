@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { GripVerticalIcon, PlusIcon, TrashIcon } from 'lucide-vue-next'
 import { useFieldArray } from 'vee-validate'
 import { ref, useTemplateRef } from 'vue'
 import { useDraggable } from 'vue-draggable-plus'
@@ -82,7 +81,7 @@ useDraggable(draggableRef, operations.fields, {
 						@click="addOperation"
 					>
 						<template v-if="operations.fields.value.length < 10">
-							<PlusIcon class="size-4" />
+							<Icon name="lucide:plus" class="size-4" />
 							Create new
 						</template>
 						<template v-else> Maximum limit reached </template>
@@ -96,7 +95,7 @@ useDraggable(draggableRef, operations.fields, {
 								@click="selectOperation(operationIndex)"
 							>
 								<div class="flex gap-2 items-center">
-									<GripVerticalIcon class="min-size-4 cursor-grab drag-handle" />
+									<Icon name="lucide:grip-vertical" class="min-size-4 cursor-grab drag-handle" />
 									<div
 										class="rounded-full size-3"
 										:class="[getOperationColor(operation.value?.type)]"
@@ -116,7 +115,7 @@ useDraggable(draggableRef, operations.fields, {
 										variant="ghost"
 										@click.stop="() => removeOperation(operationIndex)"
 									>
-										<TrashIcon class="size-4" />
+										<Icon name="lucide:trash" class="size-4" />
 									</Button>
 								</div>
 							</div>

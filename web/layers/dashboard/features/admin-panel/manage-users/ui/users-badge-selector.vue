@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { AwardIcon, CheckIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 import { useBadges } from '../../manage-badges/composables/use-badges'
@@ -41,7 +40,7 @@ async function toggleBadge(badgeId: string) {
 	<Popover v-if="badges.length">
 		<PopoverTrigger as-child>
 			<Button variant="secondary" size="sm" class="h-10">
-				<AwardIcon class="h-4 w-4" />
+				<Icon name="lucide:award" class="h-4 w-4" />
 			</Button>
 		</PopoverTrigger>
 		<PopoverContent class="w-[200px] p-0" align="end">
@@ -62,7 +61,7 @@ async function toggleBadge(badgeId: string) {
 										: 'opacity-50 [&_svg]:invisible',
 								)"
 							>
-								<CheckIcon :class="cn('h-4 w-4')" />
+								<Icon name="lucide:check" :class="cn('h-4 w-4')" />
 							</div>
 							<img :src="badge.fileUrl" class="h-5 w-5 mr-2">
 							<span>{{ badge.name }}</span>

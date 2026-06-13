@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { toTypedSchema } from '@vee-validate/zod'
-import { InfoIcon, TerminalIcon } from 'lucide-vue-next'
 import { Label } from 'reka-ui'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
@@ -208,7 +207,7 @@ async function executeScript() {
 								{{ executionResult || 'Run a script for test your code' }}
 							</div>
 							<Button type="button" class="place-self-start" @click="executeScript">
-								<TerminalIcon class="size-4 mr-2" />
+								<Icon name="lucide:terminal" class="size-4 mr-2" />
 								Run
 							</Button>
 						</div>
@@ -222,7 +221,7 @@ async function executeScript() {
 						</div>
 
 						<Alert>
-							<InfoIcon class="size-4" />
+							<Icon name="lucide:info" class="size-4" />
 							<AlertTitle>Heads up!</AlertTitle>
 							<AlertDescription class="flex flex-col justify-start items-start gap-2">
 								<span>

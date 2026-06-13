@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 import ActionConfirm from '@/components/ui/action-confirm.vue'
@@ -16,10 +15,10 @@ const showDelete = ref(false)
 <template>
 	<div class="flex items-center gap-2">
 		<Button variant="secondary" size="icon" @click="emits('edit')">
-			<PencilIcon class="h-4 w-4" />
+			<Icon name="lucide:pencil" class="h-4 w-4" />
 		</Button>
 		<Button variant="destructive" size="icon" @click="showDelete = true">
-			<TrashIcon class="h-4 w-4" />
+			<Icon name="lucide:trash" class="h-4 w-4" />
 		</Button>
 	</div>
 

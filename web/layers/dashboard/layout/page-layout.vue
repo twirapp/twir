@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useWindowScroll } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
-import { ChevronLeft } from 'lucide-vue-next'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { type Component, onBeforeMount, ref, watch } from 'vue'
 
@@ -123,7 +122,7 @@ watch(y, (value) => {
 					<div class="flex flex-col gap-2">
 						<div class="flex flex-row flex-wrap gap-2 items-center">
 							<Button v-if="showBack" type="button" variant="outline" size="icon" @click="back">
-								<ChevronLeft />
+								<Icon name="lucide:chevron-left"  />
 							</Button>
 							<h1 class="text-4xl">
 								<slot name="title" :activeTab="activeTab" />

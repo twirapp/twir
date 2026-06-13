@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { MessageSquareIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -94,7 +93,7 @@ function handleSelectWinner(winnerId: string) {
 
 				<div class="shrink-0 p-2 border-b border-border">
 					<h3 class="text-sm font-medium flex items-center gap-2">
-						<MessageSquareIcon class="size-4" />
+						<Icon name="lucide:message-square" class="size-4" />
 						Logs
 					</h3>
 				</div>

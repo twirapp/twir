@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next'
 import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui'
 import { useFieldArray } from 'vee-validate'
 
@@ -256,7 +255,7 @@ function getEmojiPreview(style: KappagenEmojiStyle) {
 						</FormItem>
 					</FormField>
 					<Button type="button" variant="outline" size="sm" @click="removeExcludedEmote(index)">
-						<X class="h-4 w-4" />
+						<Icon name="lucide:x" class="h-4 w-4" />
 					</Button>
 				</div>
 			</div>

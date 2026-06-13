@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -40,7 +39,7 @@ async function deleteVariable() {
 				size="icon"
 				@click="navigate"
 			>
-				<PencilIcon class="h-4 w-4" />
+				<Icon name="lucide:pencil" class="h-4 w-4" />
 			</Button>
 		</RouterLink>
 		<Button
@@ -49,7 +48,7 @@ async function deleteVariable() {
 			size="icon"
 			@click="showDelete = true"
 		>
-			<TrashIcon class="h-4 w-4" />
+			<Icon name="lucide:trash" class="h-4 w-4" />
 		</Button>
 	</div>
 

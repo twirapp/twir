@@ -1,12 +1,4 @@
 <script setup lang="ts">
-import {
-	AlertTriangle,
-	CaseSensitiveIcon,
-	Plus,
-	RegexIcon,
-	WholeWordIcon,
-	X,
-} from 'lucide-vue-next'
 import { FieldArray, useField } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 
@@ -42,7 +34,7 @@ function addItem() {
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
 					<FormLabel class="flex gap-2 items-center text-base">
-						<RegexIcon />
+						<Icon name="lucide:regex"  />
 						Regexp
 					</FormLabel>
 					<FormDescription>
@@ -71,7 +63,7 @@ function addItem() {
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
 					<FormLabel class="flex gap-2 items-center text-base">
-						<WholeWordIcon />
+						<Icon name="lucide:whole-word"  />
 						{{ t('moderation.types.deny_list.wordBoundary.label') }}
 					</FormLabel>
 					<FormDescription class="flex flex-col">
@@ -98,7 +90,7 @@ function addItem() {
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
 					<FormLabel class="flex gap-2 items-center text-base">
-						<CaseSensitiveIcon />
+						<Icon name="lucide:case-sensitive"  />
 						{{ t('moderation.types.deny_list.caseSensitive.label') }}
 					</FormLabel>
 					<FormDescription>
@@ -120,7 +112,7 @@ function addItem() {
 			<Separator />
 
 			<Alert v-if="!denyList?.length" class="flex items-center gap-2">
-				<AlertTriangle class="h-4 w-4" />
+				<Icon name="lucide:alert-triangle" class="h-4 w-4" />
 				<AlertDescription>
 					{{ t('moderation.types.deny_list.empty') }}
 				</AlertDescription>
@@ -145,7 +137,7 @@ function addItem() {
 								type="button"
 								@click="remove(index)"
 							>
-								<X class="h-4 w-4" />
+								<Icon name="lucide:x" class="h-4 w-4" />
 							</Button>
 						</FormControl>
 						<FormMessage />
@@ -160,7 +152,7 @@ function addItem() {
 				type="button"
 				@click="addItem"
 			>
-				<Plus class="h-4 w-4 mr-2" />
+				<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
 				{{ t('sharedButtons.create') }}
 			</Button>
 		</FieldArray>

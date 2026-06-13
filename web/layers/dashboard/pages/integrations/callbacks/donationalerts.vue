@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { LoaderCircleIcon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import { useIntegrations } from '~/layers/dashboard/api/integrations/integrations.ts'
 
@@ -23,6 +22,6 @@ onMounted(async () => {
 
 <template>
 	<div class="flex justify-center items-center h-full">
-		<LoaderCircleIcon class="animate-spin size-12" />
+		<Icon name="lucide:loader-circle" class="animate-spin size-12" />
 	</div>
 </template>

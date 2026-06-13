@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { InfoIcon } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -164,7 +163,7 @@ const save = keywordsForm.handleSubmit(async (values) => {
 					</FormItem>
 				</FormField>
 				<Alert>
-					<InfoIcon class="h-4 w-4" />
+					<Icon name="lucide:info" class="h-4 w-4" />
 
 					<AlertDescription>
 						<i18n-t keypath="keywords.regularDescription">

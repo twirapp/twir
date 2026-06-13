@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ImageIcon, MusicIcon } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -91,11 +90,11 @@ const uploadedFilesSizeSlider = computed(() => {
 		<div class="flex flex-col p-2 justify-between bg-card h-full border-r-2 border-border border-b-2 md:border-b-0 w-full md:min-w-max-w-52 md:max-w-52 gap-y-8">
 			<div class="flex flex-col gap-1 w-full">
 				<Button class="w-full flex items-center gap-2 justify-center" size="sm" variant="secondary">
-					<MusicIcon class="size-4" />
+					<Icon name="lucide:music" class="size-4" />
 					Audios
 				</Button>
 				<Button class="w-full flex items-center gap-2 justify-center" size="sm" variant="secondary" disabled>
-					<ImageIcon class="size-4" />
+					<Icon name="lucide:image" class="size-4" />
 					Images (soon)
 				</Button>
 			</div>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckCircle2, InfoIcon, XCircle } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useObsForm } from '@/features/overlays/obs/composables/use-obs-form'
@@ -40,11 +39,11 @@ async function handleSave() {
 						{{ t('overlays.obs.title') }}
 					</h2>
 					<Badge v-if="isConnected" variant="default" class="bg-green-600 hover:bg-green-600">
-						<CheckCircle2 class="h-3 w-3 mr-1" />
+						<Icon name="lucide:check-circle2" class="h-3 w-3 mr-1" />
 						{{ t('overlays.obs.connected') }}
 					</Badge>
 					<Badge v-else variant="destructive">
-						<XCircle class="h-3 w-3 mr-1" />
+						<Icon name="lucide:xcircle" class="h-3 w-3 mr-1" />
 						{{ t('overlays.obs.notConnected') }}
 					</Badge>
 				</div>
@@ -60,7 +59,7 @@ async function handleSave() {
 
 			<CardContent class="space-y-6">
 				<Alert>
-					<InfoIcon class="h-4 w-4" />
+					<Icon name="lucide:info" class="h-4 w-4" />
 					<AlertDescription>
 						{{ t('overlays.obs.description') }}
 					</AlertDescription>

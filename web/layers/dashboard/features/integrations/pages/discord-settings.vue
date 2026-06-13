@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Plus, Trash2 } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
@@ -117,7 +116,7 @@ if (typeof window !== 'undefined') {
 					size="sm"
 					@click="handleConnectGuild"
 				>
-					<Plus class="h-4 w-4 mr-2" />
+					<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
 					{{ t('integrations.discord.connectGuild') }}
 				</Button>
 			</div>
@@ -127,7 +126,7 @@ if (typeof window !== 'undefined') {
 			<div v-if="guilds.length === 0" class="flex flex-col items-center justify-center py-12 gap-4">
 				<p class="text-muted-foreground">{{ t('integrations.discord.noGuilds') }}</p>
 				<Button variant="default" @click="handleConnectGuild">
-					<Plus class="h-4 w-4 mr-2" />
+					<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
 					{{ t('integrations.discord.connectGuild') }}
 				</Button>
 			</div>
@@ -159,7 +158,7 @@ if (typeof window !== 'undefined') {
 								<AlertDialog>
 									<AlertDialogTrigger as-child>
 										<Button variant="destructive">
-											<Trash2 class="h-4 w-4 mr-2" />
+											<Icon name="lucide:trash2" class="h-4 w-4 mr-2" />
 											{{ t('integrations.discord.disconnectGuild') }}
 										</Button>
 									</AlertDialogTrigger>

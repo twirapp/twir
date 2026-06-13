@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PlusIcon, TrashIcon } from "lucide-vue-next";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useFieldArray, useFormContext } from "vee-validate";
@@ -71,7 +70,7 @@ function removeRoleCooldown(index: number) {
 				:disabled="availableRoles.length === 0"
 				@click="addRoleCooldown"
 			>
-				<PlusIcon class="size-4 mr-1" />
+				<Icon name="lucide:plus" class="size-4 mr-1" />
 				{{ t("commands.modal.cooldown.roleCooldowns.add") }}
 			</Button>
 		</div>
@@ -131,7 +130,7 @@ function removeRoleCooldown(index: number) {
 				:class="{ 'mb-0': index === 0 }"
 				@click="removeRoleCooldown(index)"
 			>
-				<TrashIcon class="size-4" />
+				<Icon name="lucide:trash" class="size-4" />
 			</Button>
 		</div>
 

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { EyeOff, GripVertical } from "lucide-vue-next";
 import { useAttrs } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -37,7 +36,7 @@ const { t } = useI18n();
 		<CardContent class="px-2 h-10 border-b mt-0">
 			<div class="flex flex-row justify-between items-center h-10">
 				<div class="widgets-draggable-handle flex items-center">
-					<GripVertical class="w-5 h-5" />
+					<Icon name="lucide:grip-vertical" class="w-5 h-5" />
 					<template v-if="attrs?.item.displayName">
 						{{ attrs.item.displayName }}
 					</template>
@@ -49,7 +48,7 @@ const { t } = useI18n();
 				<div v-if="!popup" class="flex gap-2">
 					<slot name="header-extra" />
 					<Button size="sm" variant="ghost" @click="hideItem" class="cursor-pointer">
-						<EyeOff />
+						<Icon name="lucide:eye-off"  />
 					</Button>
 				</div>
 			</div>

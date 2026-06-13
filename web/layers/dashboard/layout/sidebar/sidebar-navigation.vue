@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useLocalStorage } from "@vueuse/core";
-import { ChevronRight } from "lucide-vue-next";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 

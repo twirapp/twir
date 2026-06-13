@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { dragAndDrop } from '@formkit/drag-and-drop/vue'
-import { Ban, GripVertical, Trash2 } from 'lucide-vue-next'
 import { formatDistanceToNow } from 'date-fns'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -73,7 +72,7 @@ function formatRelativeTime(dateStr: string) {
 					:disabled="!videos.length"
 					@click="showConfirmClear = true"
 				>
-					<Trash2 class="size-4" />
+					<Icon name="lucide:trash2" class="size-4" />
 				</Button>
 			</div>
 			<Table class="w-full">
@@ -91,7 +90,7 @@ function formatRelativeTime(dateStr: string) {
 				<TableBody ref="parentRef">
 					<TableRow v-for="(video, index) of videos" :key="video.id">
 						<TableCell>
-							<GripVertical class="w-4 drag-handle cursor-move" />
+							<Icon name="lucide:grip-vertical" class="w-4 drag-handle cursor-move" />
 						</TableCell>
 						<TableCell>
 							{{ index + 1 }}
@@ -103,7 +102,7 @@ function formatRelativeTime(dateStr: string) {
 								<AlertDialog>
 									<AlertDialogTrigger as-child>
 										<Button class="min-w-5" size="icon" variant="ghost">
-											<Ban class="size-5" />
+											<Icon name="lucide:ban" class="size-5" />
 										</Button>
 									</AlertDialogTrigger>
 									<AlertDialogContent>
@@ -126,7 +125,7 @@ function formatRelativeTime(dateStr: string) {
 								<AlertDialog>
 									<AlertDialogTrigger as-child>
 										<Button class="min-w-5" size="icon" variant="ghost">
-											<Ban class="size-5" />
+											<Icon name="lucide:ban" class="size-5" />
 										</Button>
 									</AlertDialogTrigger>
 									<AlertDialogContent>
@@ -156,7 +155,7 @@ function formatRelativeTime(dateStr: string) {
 								variant="destructive"
 								@click="deleteVideo(video.id)"
 							>
-								<Trash2 class="size-5" />
+								<Icon name="lucide:trash2" class="size-5" />
 							</Button>
 						</TableCell>
 					</TableRow>

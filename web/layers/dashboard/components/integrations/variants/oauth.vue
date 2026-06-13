@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { LogIn, LogOut, Settings } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -84,7 +83,7 @@ const { t } = useI18n()
 						size="sm"
 						@click="showSettings = true"
 					>
-						<Settings class="mr-2 h-4 w-4" />
+						<Icon name="lucide:settings" class="mr-2 h-4 w-4" />
 						{{ t('sharedButtons.settings') }}
 					</Button>
 
@@ -94,8 +93,8 @@ const { t } = useI18n()
 						size="sm"
 						@click="data?.userName ? logout() : login()"
 					>
-						<LogOut v-if="data?.userName" class="mr-2 h-4 w-4" />
-						<LogIn v-else class="mr-2 h-4 w-4" />
+						<Icon name="lucide:log-out" v-if="data?.userName" class="mr-2 h-4 w-4" />
+						<Icon name="lucide:log-in" v-else class="mr-2 h-4 w-4" />
 						{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
 					</Button>
 				</div>

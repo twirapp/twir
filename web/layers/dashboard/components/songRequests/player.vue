@@ -1,19 +1,4 @@
 <script lang="ts" setup>
-import {
-	Ban,
-	Eye,
-	EyeOff,
-	Link,
-	ListMusic,
-	Loader2,
-	Pause,
-	Play,
-	Settings,
-	SkipForward,
-	User,
-	Volume2,
-	VolumeX,
-} from 'lucide-vue-next'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -176,11 +161,11 @@ const canUsePlayer = computed(() => {
 						:disabled="!canUsePlayer"
 						@click="playerVisible = !playerVisible"
 					>
-						<EyeOff v-if="playerVisible" class="size-4" />
-						<Eye v-else class="size-4" />
+						<Icon name="lucide:eye-off" v-if="playerVisible" class="size-4" />
+						<Icon name="lucide:eye" v-else class="size-4" />
 					</Button>
 					<Button variant="outline" size="icon" class="size-8" :disabled="!canUsePlayer" @click="openSettingsModal">
-						<Settings class="size-4" />
+						<Icon name="lucide:settings" class="size-4" />
 					</Button>
 				</div>
 			</div>
@@ -206,8 +191,8 @@ const canUsePlayer = computed(() => {
 							:disabled="currentVideo == null"
 							@click="togglePlay"
 						>
-							<Play v-if="!isPlaying" class="size-4" />
-							<Pause v-else class="size-4" />
+							<Icon name="lucide:play" v-if="!isPlaying" class="size-4" />
+							<Icon name="lucide:pause" v-else class="size-4" />
 						</Button>
 
 						<Button
@@ -217,7 +202,7 @@ const canUsePlayer = computed(() => {
 							:disabled="currentVideo == null"
 							@click="playNext"
 						>
-							<SkipForward class="size-4" />
+							<Icon name="lucide:skip-forward" class="size-4" />
 						</Button>
 
 						<Slider
@@ -237,8 +222,8 @@ const canUsePlayer = computed(() => {
 							class="size-8 min-w-8"
 							@click="toggleMute"
 						>
-							<Volume2 v-if="!isMuted" class="size-4" />
-							<VolumeX v-else class="size-4" />
+							<Icon name="lucide:volume2" v-if="!isMuted" class="size-4" />
+							<Icon name="lucide:volume-x" v-else class="size-4" />
 						</Button>
 						<Slider
 							:model-value="[sliderVolume]"
@@ -255,17 +240,17 @@ const canUsePlayer = computed(() => {
 			<template v-if="currentVideo">
 				<div class="flex flex-col gap-2 w-full">
 					<div class="flex items-center gap-2">
-						<ListMusic class="size-4 shrink-0" />
+						<Icon name="lucide:list-music" class="size-4 shrink-0" />
 						<span class="truncate">{{ currentVideo?.title }}</span>
 					</div>
 
 					<div class="flex items-center gap-2">
-						<User class="size-4 shrink-0" />
+						<Icon name="lucide:user" class="size-4 shrink-0" />
 						<span>{{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}</span>
 					</div>
 
 					<div class="flex items-center gap-2">
-						<Link class="size-4 shrink-0" />
+						<Icon name="lucide:link" class="size-4 shrink-0" />
 						<a
 							class="underline text-sm truncate"
 							:href="currentVideo.songLink ?? `https://youtu.be/${currentVideo?.videoId}`"
@@ -280,7 +265,7 @@ const canUsePlayer = computed(() => {
 					<AlertDialog>
 						<AlertDialogTrigger as-child>
 							<Button size="sm" variant="destructive">
-								<Ban class="size-4 mr-1" />
+								<Icon name="lucide:ban" class="size-4 mr-1" />
 								{{ t('songRequests.ban.song') }}
 							</Button>
 						</AlertDialogTrigger>
@@ -300,7 +285,7 @@ const canUsePlayer = computed(() => {
 					<AlertDialog>
 						<AlertDialogTrigger as-child>
 							<Button size="sm" variant="destructive">
-								<Ban class="size-4 mr-1" />
+								<Icon name="lucide:ban" class="size-4 mr-1" />
 								{{ t('songRequests.ban.user') }}
 							</Button>
 						</AlertDialogTrigger>
@@ -320,7 +305,7 @@ const canUsePlayer = computed(() => {
 			</template>
 
 			<div v-else class="flex flex-col items-center justify-center w-full py-4 gap-2">
-				<Loader2 class="size-6 animate-spin text-muted-foreground" />
+				<Icon name="lucide:loader2" class="size-6 animate-spin text-muted-foreground" />
 				<p class="text-muted-foreground text-sm">{{ t('songRequests.waiting') }}</p>
 			</div>
 		</CardFooter>

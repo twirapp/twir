@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, ListFilterIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -59,7 +58,7 @@ const usersSearchPlaceholder = computed(() => {
 		<Popover>
 			<PopoverTrigger as-child>
 				<Button variant="outline" size="sm" class="h-10">
-					<ListFilterIcon class="mr-2 h-4 w-4" />
+					<Icon name="lucide:list-filter" class="mr-2 h-4 w-4" />
 					{{ t('adminPanel.manageUsers.filters') }}
 
 					<Separator orientation="vertical" class="mx-2 h-4" />
@@ -90,7 +89,7 @@ const usersSearchPlaceholder = computed(() => {
 										: 'opacity-50 [&_svg]:invisible',
 									]"
 								>
-									<CheckIcon class="h-3 w-3" />
+									<Icon name="lucide:check" class="h-3 w-3" />
 								</div>
 								<span>{{ option.label }}</span>
 							</CommandItem>
@@ -114,7 +113,7 @@ const usersSearchPlaceholder = computed(() => {
 										: 'opacity-50 [&_svg]:invisible',
 									]"
 								>
-									<CheckIcon class="h-4 w-4" />
+									<Icon name="lucide:check" class="h-4 w-4" />
 								</div>
 								<span>{{ filter.label }}</span>
 							</CommandItem>

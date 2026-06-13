@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Code2, Eye, Lock, RefreshCw } from 'lucide-vue-next'
-
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -209,7 +207,7 @@ const localPollInterval = computed({
 						<p class="text-xs text-muted-foreground">Show layer</p>
 					</div>
 					<Switch id="visible" v-model="localVisible">
-						<Eye class="h-3 w-3" />
+						<Icon name="lucide:eye" class="h-3 w-3" />
 					</Switch>
 				</div>
 
@@ -219,7 +217,7 @@ const localPollInterval = computed({
 						<p class="text-xs text-muted-foreground">Prevent editing</p>
 					</div>
 					<Switch id="locked" v-model="localLocked">
-						<Lock class="h-3 w-3" />
+						<Icon name="lucide:lock" class="h-3 w-3" />
 					</Switch>
 				</div>
 			</TabsContent>
@@ -232,7 +230,7 @@ const localPollInterval = computed({
 			<div class="flex items-center justify-between">
 				<h4 class="text-xs font-medium">HTML Settings</h4>
 				<Button variant="outline" size="sm" class="h-7 text-xs" @click="emit('openCodeEditor')">
-					<Code2 class="h-3 w-3 mr-1.5" />
+					<Icon name="lucide:code2" class="h-3 w-3 mr-1.5" />
 					Code
 				</Button>
 			</div>
@@ -243,7 +241,7 @@ const localPollInterval = computed({
 					<p class="text-xs text-muted-foreground">Periodically update</p>
 				</div>
 				<Switch id="auto-refresh" v-model="localPeriodicallyRefetch">
-					<RefreshCw class="h-3 w-3" />
+					<Icon name="lucide:refresh-cw" class="h-3 w-3" />
 				</Switch>
 			</div>
 

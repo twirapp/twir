@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useVirtualList } from '@vueuse/core'
-import { ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFilter } from 'reka-ui'
@@ -142,7 +141,7 @@ const {
 							<TwitchIcon v-else-if="currentDashboard.platform === 'twitch'" class="text-[#9146FF]" />
 						</span>
 					</div>
-						<ChevronsUpDown class="ml-auto" />
+						<Icon name="lucide:chevrons-up-down" class="ml-auto" />
 					</SidebarMenuButton>
 				</PopoverTrigger>
 				<PopoverContent class="p-0 min-h-20!" v-bind="popoverProps">

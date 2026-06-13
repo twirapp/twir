@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { BanIcon, PlayIcon, ShuffleIcon, TrophyIcon, UsersIcon } from 'lucide-vue-next';
 import { computed, ref, watch, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -137,7 +136,7 @@ async function handleChooseWinners() {
 							class="flex gap-2 items-center"
 							@click="handleStartGiveaway"
 						>
-							<PlayIcon class="size-4" />
+							<Icon name="lucide:play" class="size-4" />
 							{{ t("giveaways.start") }}
 						</Button>
 
@@ -147,7 +146,7 @@ async function handleChooseWinners() {
 							class="flex gap-2 items-center"
 							@click="handleStopGiveaway"
 						>
-							<BanIcon class="size-4" />
+							<Icon name="lucide:ban" class="size-4" />
 							{{ t("giveaways.stop") }}
 						</Button>
 
@@ -159,7 +158,7 @@ async function handleChooseWinners() {
 							class="flex gap-2 items-center"
 							@click="handleChooseWinners"
 						>
-							<ShuffleIcon class="size-4" />
+							<Icon name="lucide:shuffle" class="size-4" />
 							{{ t("giveaways.chooseWinner") }}
 						</Button>
 					</div>
@@ -169,14 +168,14 @@ async function handleChooseWinners() {
 								class="flex flex-row gap-2"
 								:disabled="isOnlineChatterGiveaway"
 							>
-								<UsersIcon class="size-4 inline" />
+								<Icon name="lucide:users" class="size-4 inline" />
 								{{ t("giveaways.currentGiveaway.tabs.participants") }}
 								<span class="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-2">
 									{{ participants.length }}
 								</span>
 							</TabsTrigger>
 							<TabsTrigger value="winners" class="flex flex-row gap-2">
-								<TrophyIcon class="size-4 inline" />
+								<Icon name="lucide:trophy" class="size-4 inline" />
 								<span>
 									{{ t("giveaways.currentGiveaway.tabs.winners") }}
 								</span>
@@ -208,7 +207,7 @@ async function handleChooseWinners() {
 									"
 									@click="handleChooseWinners"
 								>
-									<ShuffleIcon class="size-4" />
+									<Icon name="lucide:shuffle" class="size-4" />
 									{{ t("giveaways.chooseWinner") }}
 								</Button>
 							</div>

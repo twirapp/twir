@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { SettingsIcon } from 'lucide-vue-next'
-
 import FaceitIcon from '@/assets/integrations/faceit.svg?use'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -31,7 +29,7 @@ const { t } = useI18n()
 					class="flex gap-2 items-center"
 					@click="navigate"
 				>
-					<SettingsIcon class="size-4" />
+					<Icon name="lucide:settings" class="size-4" />
 					{{ t('overlays.buildWidget') }}
 				</Button>
 			</RouterLink>

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { SettingsIcon, Webhook } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -58,7 +57,7 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 				@click="showSettings = !showSettings"
 			>
 				{{ t('sharedTexts.settings') }}
-				<SettingsIcon class="size-4" />
+				<Icon name="lucide:settings" class="size-4" />
 			</Button>
 		</template>
 	</Card>

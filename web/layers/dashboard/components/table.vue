@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T extends RowData">
 import { FlexRender, type RowData, type Table } from "@tanstack/vue-table";
-import { ListX } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 
 import { Card } from "@/components/ui/card";
@@ -79,7 +78,7 @@ const { t } = useI18n();
 						<TableCell :colSpan="table.getAllColumns().length" class="h-24 text-center">
 							<slot name="empty-message">
 								<div class="flex items-center flex-col justify-center">
-									<ListX class="size-12" />
+									<Icon name="lucide:list-x" class="size-12" />
 									<span class="font-medium text-2xl">{{ t("sharedTexts.noData") }}</span>
 								</div>
 							</slot>

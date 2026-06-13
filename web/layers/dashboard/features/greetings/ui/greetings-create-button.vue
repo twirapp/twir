@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -36,7 +35,7 @@ const isCreateDisabled = computed(() => {
 		<GreetingsDialog>
 			<template #dialog-trigger>
 				<Button :disabled="isCreateDisabled">
-					<PlusIcon class="size-4 mr-2" />
+					<Icon name="lucide:plus" class="size-4 mr-2" />
 					{{ greetingsLength >= maxGreetings ? t('greetings.limitExceeded') : t('greetings.create') }} ({{
 						greetingsLength }}/{{ maxGreetings }})
 				</Button>

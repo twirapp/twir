@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Image } from 'lucide-vue-next'
-
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -44,7 +42,7 @@ function setPlaceholder() {
 <template>
 	<div class="space-y-4">
 		<div class="flex items-center gap-2 text-sm font-medium">
-			<Image class="h-4 w-4" />
+			<Icon name="lucide:image" class="h-4 w-4" />
 			<span>Image Settings</span>
 		</div>
 

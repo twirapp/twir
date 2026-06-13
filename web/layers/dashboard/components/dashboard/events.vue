@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ExternalLinkIcon, SettingsIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
@@ -60,7 +59,7 @@ function openPopup() {
 				<Tooltip>
 					<TooltipTrigger as-child>
 						<Button size="sm" variant="ghost" @click="openPopup">
-							<ExternalLinkIcon class="h-4 w-4" />
+							<Icon name="lucide:external-link" class="h-4 w-4" />
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
@@ -72,7 +71,7 @@ function openPopup() {
 			<Popover>
 				<PopoverTrigger as-child>
 					<Button variant="ghost" size="sm">
-						<SettingsIcon class="h-4 w-4" />
+						<Icon name="lucide:settings" class="h-4 w-4" />
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent class="w-64">

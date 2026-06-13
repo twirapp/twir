@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { TrashIcon } from "lucide-vue-next";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
@@ -56,7 +55,7 @@ const handleDelete = async () => {
 			@click="showDeleteDialog = true"
 			:disabled="isDeleting"
 		>
-			<TrashIcon class="h-4 w-4" />
+			<Icon name="lucide:trash" class="h-4 w-4" />
 		</Button>
 
 		<AlertDialog v-model:open="showDeleteDialog">

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PlayIcon, PlusIcon, SettingsIcon, XIcon } from 'lucide-vue-next'
 import { FieldArray, useFieldArray } from 'vee-validate'
 
 import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql'
@@ -44,7 +43,7 @@ const kappagen = useKappagenInstance()
 					@click="kappagen.playAnimation(animation.value)"
 					type="button"
 				>
-					<PlayIcon class="size-4" />
+					<Icon name="lucide:play" class="size-4" />
 				</button>
 				{{ animation.value.style }}
 			</div>
@@ -56,7 +55,7 @@ const kappagen = useKappagenInstance()
 							class="p-1 border-border border rounded-md bg-zinc-600/50 hover:bg-zinc-600/30 transition-colors"
 							type="button"
 						>
-							<SettingsIcon class="size-4" />
+							<Icon name="lucide:settings" class="size-4" />
 						</button>
 					</PopoverTrigger>
 					<PopoverContent class="w-80 bg-zinc-800/60 backdrop-blur-md">
@@ -176,7 +175,7 @@ const kappagen = useKappagenInstance()
 											@click="push('Twir')"
 											type="button"
 										>
-											<PlusIcon class="size-4" />
+											<Icon name="lucide:plus" class="size-4" />
 										</button>
 									</div>
 									<ScrollArea class="h-[300px] max-h-[300px] pr-4">
@@ -197,7 +196,7 @@ const kappagen = useKappagenInstance()
 														@click="remove(messageIndex)"
 														type="button"
 													>
-														<XIcon />
+														<Icon name="lucide:x"  />
 													</button>
 												</FormItem>
 											</FormField>

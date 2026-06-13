@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Trash2 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
@@ -40,7 +39,7 @@ const { t } = useI18n()
 				size="sm"
 				@click="onRemove(operationIndex, filterIndex)"
 			>
-				<Trash2 class="h-4 w-4" />
+				<Icon name="lucide:trash2" class="h-4 w-4" />
 			</Button>
 		</div>
 

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ExternalLink } from 'lucide-vue-next'
-
 import DonatelloSVG from '@/assets/integrations/donatello.svg?use'
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
 import WithSettings from '@/components/integrations/variants/withSettings.vue'
@@ -39,7 +37,7 @@ const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatell
 								class="inline-flex items-center gap-1 font-medium underline underline-offset-4"
 							>
 								https://donatello.to/panel/settings
-								<ExternalLink class="h-4 w-4" />
+								<Icon name="lucide:external-link" class="h-4 w-4" />
 							</a>
 							and scroll to "Вихідний API" section
 						</AlertDescription>

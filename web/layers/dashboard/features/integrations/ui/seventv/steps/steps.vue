@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, CircleIcon } from 'lucide-vue-next'
-
 import { Button } from '@/components/ui/button'
 import {
 	Stepper,
@@ -43,8 +41,8 @@ const {
 					class="z-10 rounded-full shrink-0"
 					:class="[step.completed && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
 				>
-					<CheckIcon v-if="step.completed" class="size-5" />
-					<CircleIcon v-else />
+					<Icon name="lucide:check" v-if="step.completed" class="size-5" />
+					<Icon name="lucide:circle" v-else />
 				</Button>
 			</StepperTrigger>
 

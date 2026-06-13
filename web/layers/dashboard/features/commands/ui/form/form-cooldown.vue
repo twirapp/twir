@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { EditIcon, RefreshCcwIcon } from 'lucide-vue-next'
 import { useFormContext } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -59,7 +58,7 @@ function getRoleCooldown(roleId: string): number {
 	<Card>
 		<CardHeader class="flex flex-row flex-wrap place-content-center">
 			<CardTitle class="flex items-center gap-2">
-				<RefreshCcwIcon />
+				<Icon name="lucide:refresh-ccw"  />
 				{{ t('commands.modal.cooldown.label') }}
 			</CardTitle>
 		</CardHeader>
@@ -103,7 +102,7 @@ function getRoleCooldown(roleId: string): number {
 							<template #trigger>
 								<span class="flex cursor-pointer flex-row items-center gap-1 underline">
 									{{ t('sidebar.roles') }}
-									<EditIcon class="size-4" />
+									<Icon name="lucide:edit" class="size-4" />
 								</span>
 							</template>
 						</CommunityRolesModal>

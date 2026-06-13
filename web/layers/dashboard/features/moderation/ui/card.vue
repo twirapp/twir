@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Settings, Trash2 } from 'lucide-vue-next'
 import { ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -95,7 +94,7 @@ async function removeItem() {
 					@click="$emit('showSettings')"
 				>
 					{{ t('sharedButtons.settings') }}
-					<Settings class="ml-2 h-4 w-4" />
+					<Icon name="lucide:settings" class="ml-2 h-4 w-4" />
 				</Button>
 
 				<Button
@@ -104,7 +103,7 @@ async function removeItem() {
 					@click="showDeleteDialog = true"
 				>
 					{{ t('sharedButtons.delete') }}
-					<Trash2 class="ml-2 h-4 w-4" />
+					<Icon name="lucide:trash2" class="ml-2 h-4 w-4" />
 				</Button>
 			</div>
 		</template>

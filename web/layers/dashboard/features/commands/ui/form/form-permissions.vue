@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { EditIcon, ShieldUser } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
@@ -24,7 +23,7 @@ const { t } = useI18n()
 	<Card>
 		<CardHeader class="flex flex-row place-content-center">
 			<CardTitle class="flex items-center gap-2">
-				<ShieldUser />
+				<Icon name="lucide:shield-user"  />
 				{{ t('commands.modal.permissions.divider') }}
 			</CardTitle>
 		</CardHeader>
@@ -36,7 +35,7 @@ const { t } = useI18n()
 						<template #trigger>
 							<span class="flex flex-row gap-1 items-center cursor-pointer underline">
 								{{ t('sidebar.roles') }}
-								<EditIcon class="size-4" />
+								<Icon name="lucide:edit" class="size-4" />
 							</span>
 						</template>
 					</CommunityRolesModal>

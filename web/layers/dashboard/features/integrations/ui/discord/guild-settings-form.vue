@@ -12,7 +12,6 @@ import {
 	// @ts-expect-error
 } from '@discord-message-components/vue'
 import { toTypedSchema } from '@vee-validate/zod'
-import { Info } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -304,7 +303,7 @@ const messageWithMentions = computed(() => {
 						</FormField>
 
 						<Alert>
-							<Info class="h-4 w-4" />
+							<Icon name="lucide:info" class="h-4 w-4" />
 							<AlertTitle>Info</AlertTitle>
 							<AlertDescription>
 								{{ t('integrations.discord.alerts.updateAlert') }}

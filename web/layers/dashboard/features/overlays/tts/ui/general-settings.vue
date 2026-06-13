@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { InfoIcon, Volume2 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -138,7 +137,7 @@ async function playPreview() {
 
 			<CardContent class="space-y-6">
 				<Alert>
-					<InfoIcon class="h-4 w-4" />
+					<Icon name="lucide:info" class="h-4 w-4" />
 					<AlertDescription>
 						{{ t('overlays.tts.eventsHint') }}
 					</AlertDescription>
@@ -196,7 +195,7 @@ async function playPreview() {
 								:disabled="!previewText || isPlaying"
 								@click="playPreview"
 							>
-								<Volume2 class="h-4 w-4" />
+								<Icon name="lucide:volume2" class="h-4 w-4" />
 							</Button>
 						</div>
 					</div>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, ListFilterIcon } from 'lucide-vue-next'
-
 import SearchBar from '@/components/search-bar.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -28,7 +26,7 @@ const query = useCommunityRewardsHistoryQuery()
 		<Popover>
 			<PopoverTrigger as-child>
 				<Button variant="outline" size="sm" class="h-9">
-					<ListFilterIcon class="mr-2 h-4 w-4" />
+					<Icon name="lucide:list-filter" class="mr-2 h-4 w-4" />
 					Rewards filters
 
 					<template v-if="query.query.value.rewardsIds?.length">
@@ -58,7 +56,7 @@ const query = useCommunityRewardsHistoryQuery()
 									: 'opacity-50 [&_svg]:invisible',
 								]"
 							>
-								<CheckIcon class="h-4 w-4" />
+								<Icon name="lucide:check" class="h-4 w-4" />
 							</div>
 							<img v-if="reward.image" :src="reward.image" class="h-5 w-5 mr-2">
 							<span>{{ reward.title }}</span>

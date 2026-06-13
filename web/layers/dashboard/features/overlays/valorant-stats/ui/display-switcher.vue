@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, ChevronDownIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 import { Button } from '@/components/ui/button'
@@ -37,7 +36,7 @@ function handleSelect(
 		<PopoverTrigger as-child>
 			<Button :id="id" variant="outline" class="flex justify-between" @click="show = true">
 				{{ model ? 'Show' : 'Hide' }}
-				<ChevronDownIcon class="size-4" />
+				<Icon name="lucide:chevron-down" class="size-4" />
 			</Button>
 		</PopoverTrigger>
 
@@ -45,10 +44,10 @@ function handleSelect(
 			<Command>
 				<CommandList>
 					<CommandItem value="false" @select="handleSelect">
-						<CheckIcon v-if="!model" class="size-4 mr-2" /> Hide
+						<Icon name="lucide:check" v-if="!model" class="size-4 mr-2" /> Hide
 					</CommandItem>
 					<CommandItem value="true" @select="handleSelect">
-						<CheckIcon v-if="model" class="size-4 mr-2" /> Show
+						<Icon name="lucide:check" v-if="model" class="size-4 mr-2" /> Show
 					</CommandItem>
 				</CommandList>
 			</Command>

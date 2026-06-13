@@ -1,5 +1,4 @@
 <script setup lang="ts" generic="T extends RowData">
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -85,7 +84,7 @@ function handlePageSizeChange(pageSize: AcceptableValue) {
 					:disabled="!table.getCanPreviousPage()"
 					@click="table.previousPage()"
 				>
-					<ChevronLeft class="h-4 w-4" />
+					<Icon name="lucide:chevron-left" class="h-4 w-4" />
 				</Button>
 				<Input
 					class="w-20 h-9 max-sm:w-full"
@@ -103,7 +102,7 @@ function handlePageSizeChange(pageSize: AcceptableValue) {
 					:disabled="!table.getCanNextPage()"
 					@click="table.nextPage()"
 				>
-					<ChevronRight class="h-4 w-4" />
+					<Icon name="lucide:chevron-right" class="h-4 w-4" />
 				</Button>
 			</div>
 		</div>

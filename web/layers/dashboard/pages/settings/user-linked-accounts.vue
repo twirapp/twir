@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { LinkIcon, UnlinkIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 
 import { useAuthLink, useProfile, useUnlinkPlatformAccount } from '~/layers/dashboard/api/auth'
@@ -89,7 +88,7 @@ function handleConnectTwitch() {
 						size="sm"
 						@click="handleUnlink(account.platform)"
 					>
-						<UnlinkIcon class="mr-2 h-4 w-4" />
+						<Icon name="lucide:unlink" class="mr-2 h-4 w-4" />
 						Disconnect
 					</Button>
 				</CardContent>
@@ -112,7 +111,7 @@ function handleConnectTwitch() {
 						:disabled="twitchAuthLinkFetching || !twitchAuthLink"
 						@click="handleConnectTwitch"
 					>
-						<LinkIcon class="mr-2 h-4 w-4" />
+						<Icon name="lucide:link" class="mr-2 h-4 w-4" />
 						Connect Twitch
 					</Button>
 				</CardContent>
@@ -135,7 +134,7 @@ function handleConnectTwitch() {
 						:disabled="!kickAuthLink"
 						@click="handleConnectKick"
 					>
-						<LinkIcon class="mr-2 h-4 w-4" />
+						<Icon name="lucide:link" class="mr-2 h-4 w-4" />
 						Connect Kick
 					</Button>
 				</CardContent>

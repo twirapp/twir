@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { VariableIcon } from "lucide-vue-next";
 import { computed, h } from "vue";
 
 import { useVariablesApi } from "@/api/variables";

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { GridItem, GridLayout } from "grid-layout-plus";
-import { Layers, Plus, SquarePen } from "lucide-vue-next";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 import AuditLogs from "~/layers/dashboard/components/dashboard/audit-logs.vue";
@@ -300,7 +299,7 @@ onBeforeUnmount(() => {
 					class="absolute inset-0 z-40 border-2 border-dashed border-primary bg-primary/10 rounded-lg flex items-center justify-center pointer-events-none"
 				>
 					<div class="flex items-center gap-2 text-primary font-medium">
-						<Layers class="size-5" />
+						<Icon name="lucide:layers" class="size-5" />
 						<span>Stack widgets</span>
 					</div>
 				</div>
@@ -371,12 +370,12 @@ onBeforeUnmount(() => {
 			<DropdownMenu>
 				<DropdownMenuTrigger as-child>
 					<Button variant="secondary" class="h-14 w-14" size="icon">
-						<SquarePen class="size-8" />
+						<Icon name="lucide:square-pen" class="size-8" />
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
 					<DropdownMenuItem @click="isCreateWidgetDialogOpen = true">
-						<Plus class="h-4 w-4 mr-2" />
+						<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
 						Create Custom Widget
 					</DropdownMenuItem>
 					<DropdownMenuSeparator v-if="invisibleWidgets.length" />

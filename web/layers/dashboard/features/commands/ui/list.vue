@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { getCoreRowModel, getExpandedRowModel, useVueTable } from "@tanstack/vue-table";
 import { type Rgb, colorBrightness, hexToRgb, rgbToHex } from "@zero-dependency/utils";
-import { ChevronDownIcon, ChevronRightIcon } from "lucide-vue-next";
 import { computed, h } from "vue";
 
 import ColumnActions from "./list-actions.vue";

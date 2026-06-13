@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { MessageCircle, Trash } from 'lucide-vue-next'
 import { computed, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -106,7 +105,7 @@ async function save() {
 								}
 							"
 						>
-							<Trash class="h-4 w-4" />
+							<Icon name="lucide:trash" class="h-4 w-4" />
 						</Button>
 					</div>
 

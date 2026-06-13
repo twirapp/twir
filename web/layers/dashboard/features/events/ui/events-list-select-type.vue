@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, ListFilterPlusIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 import type { EventType } from '@/gql/graphql.ts'
@@ -62,7 +61,7 @@ const open = ref(false)
 				size="sm"
 				class="min-w-[200px] flex gap-2 items-center justify-start"
 			>
-				<ListFilterPlusIcon class="size-4" />
+				<Icon name="lucide:list-filter-plus" class="size-4" />
 				<span v-if="table.selectedTypes.value.length">
 					{{ table.selectedTypes.value.length }} type(s) selected
 				</span>
@@ -86,10 +85,9 @@ const open = ref(false)
 								@select="handleSelect(child.value)"
 							>
 								{{ child.name }}
-								<CheckIcon
+								<Icon name="lucide:check"
 									v-if="table.selectedTypes.value.includes(child.value)"
-									class="ml-auto text-xs text-muted-foreground size-4"
-								/>
+									class="ml-auto text-xs text-muted-foreground size-4" />
 							</CommandItem>
 						</CommandGroup>
 						<CommandGroup v-else>
@@ -99,10 +97,9 @@ const open = ref(false)
 								@select="handleSelect(selectOption.value!)"
 							>
 								{{ selectOption.name }}
-								<CheckIcon
+								<Icon name="lucide:check"
 									v-if="table.selectedTypes.value.includes(selectOption.value!)"
-									class="ml-auto text-xs text-muted-foreground size-4"
-								/>
+									class="ml-auto text-xs text-muted-foreground size-4" />
 							</CommandItem>
 						</CommandGroup>
 					</template>
