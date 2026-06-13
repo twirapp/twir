@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { IconMoodWink } from '@tabler/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
@@ -12,7 +11,7 @@ const router = useRouter();
 
 <template>
 	<card
-		:icon="IconMoodWink"
+		:icon="'tabler:icon-mood-wink'"
 		:icon-stroke="1"
 		title="Kappagen"
 		:description="t('overlays.kappagen.description')"

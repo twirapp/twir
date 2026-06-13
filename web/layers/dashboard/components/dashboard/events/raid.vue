@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconPick } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 import UserLink from './user-link.vue'
@@ -15,7 +14,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && viewers"
-		:icon="IconPick"
+		:icon="'tabler:icon-pick'"
 		:icon-color="['#949400', '#ebeb00']"
 		:created-at="createdAt"
 	>

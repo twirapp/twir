@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { IconBell } from '@tabler/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 import Card from '~~/layers/dashboard/components/overlays/card.vue';
@@ -9,7 +8,7 @@ const { t } = useI18n();
 
 <template>
 	<card
-		:icon="IconBell"
+		:icon="'tabler:icon-bell'"
 		title="Alerts"
 		:description="t('overlays.alerts.description')"
 		overlay-path="alerts"

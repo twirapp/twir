@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { IconBroadcast } from '@tabler/icons-vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -14,7 +13,7 @@ const isModalOpened = ref(false)
 
 <template>
 	<Card
-		:icon="IconBroadcast"
+		:icon="'tabler:icon-broadcast'"
 		title="Now Playing"
 		:description="t('overlays.nowPlaying.description')"
 		:show-copy="false"

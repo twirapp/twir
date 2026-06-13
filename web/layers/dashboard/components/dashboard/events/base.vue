@@ -2,13 +2,10 @@
 import { UseTimeAgo } from '@vueuse/components'
 import { computed } from 'vue'
 
-import type { SVGProps } from '@tabler/icons-vue'
-import type { FunctionalComponent } from 'vue'
-
 import { useTheme } from '~~/layers/dashboard/composables/use-theme.js'
 
 const props = defineProps<{
-	icon: FunctionalComponent<SVGProps, Record<string, any>, any>
+	icon: string
 	iconColor?: [light: string, dark: string]
 	createdAt: string
 }>()
@@ -33,7 +30,7 @@ const date = computed(() => new Date(Number(props.createdAt)))
 	>
 		<div class="flex justify-between items-center w-full">
 			<div class="flex gap-2.5 items-center">
-				<component :is="icon" class="flex items-center min-h-9 min-w-9" :style="{ color }" />
+				<Icon :name="icon" class="flex items-center min-h-9 min-w-9" :style="{ color }" />
 				<div class="flex flex-col">
 					<slot name="leftContent" />
 				</div>

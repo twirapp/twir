@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconHeartFilled } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 import UserLink from './user-link.vue'
@@ -14,7 +13,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName"
-		:icon="IconHeartFilled"
+		:icon="'tabler:icon-heart-filled'"
 		:icon-color="['#c516a5', '#ff38db']"
 		:created-at="createdAt"
 	>

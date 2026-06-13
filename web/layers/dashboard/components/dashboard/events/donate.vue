@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconCurrencyDollar } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 
@@ -14,7 +13,7 @@ defineProps<{
 
 <template>
 	<Base
-		:icon="IconCurrencyDollar"
+		:icon="'tabler:icon-currency-dollar'"
 		:icon-color="['#00a865', '#5cffbe']"
 		:created-at="createdAt"
 	>

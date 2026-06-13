@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { IconMessage } from '@tabler/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -12,7 +11,7 @@ const router = useRouter()
 
 <template>
 	<Card
-		:icon="IconMessage"
+		:icon="'tabler:icon-message'"
 		:icon-stroke="1"
 		title="Chat"
 		:description="t('overlays.chat.description')"

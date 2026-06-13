@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconAward } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 import UserLink from './user-link.vue'
@@ -17,7 +16,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && title && cost"
-		:icon="IconAward"
+		:icon="'tabler:icon-award'"
 		:icon-color="['#c28100', '#ffd37a']"
 		:created-at="createdAt"
 	>

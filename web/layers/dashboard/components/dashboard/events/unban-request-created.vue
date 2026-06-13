@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconUserQuestion } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 import UserLink from './user-link.vue'
@@ -15,7 +14,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userLogin && userName && message"
-		:icon="IconUserQuestion"
+		:icon="'tabler:icon-user-question'"
 		:icon-color="['#ff4f4d', '#ffaaa8']"
 		:created-at="createdAt"
 	>

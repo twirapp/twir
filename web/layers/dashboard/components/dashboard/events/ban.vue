@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconBan, IconClockCancel } from '@tabler/icons-vue'
 import { computed } from 'vue'
 
 import Base from './base.vue'
@@ -16,8 +15,8 @@ const props = defineProps<{
 }>()
 
 const iconBan = computed(() => {
-	if (props.endsIn === 'permanent') return IconBan
-	return IconClockCancel
+	if (props.endsIn === 'permanent') return 'tabler:icon-ban'
+	return 'tabler:icon-clock-cancel'
 })
 </script>
 

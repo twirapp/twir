@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconCalendarStar } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 import UserLink from './user-link.vue'
@@ -17,7 +16,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName"
-		:icon="IconCalendarStar"
+		:icon="'tabler:icon-calendar-star'"
 		:icon-color="['#1756d3', '#1f69ff']"
 		:created-at="createdAt"
 	>

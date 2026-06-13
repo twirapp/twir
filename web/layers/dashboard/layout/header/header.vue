@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { IconEdit } from "@tabler/icons-vue";
 import { useIntervalFn, useLocalStorage, useMediaQuery } from "@vueuse/core";
 import { intervalToDuration } from "date-fns";
 import { computed, onBeforeUnmount, ref } from "vue";
@@ -211,7 +210,7 @@ function onDragEnd() {
 								{{ stats?.categoryName ?? "No category" }}
 							</p>
 						</div>
-						<IconEdit class="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+						<Icon name="tabler:icon-edit" class="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
 					</div>
 				</div>
 			</div>

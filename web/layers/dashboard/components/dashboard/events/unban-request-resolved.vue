@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconUserCancel } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 import UserLink from './user-link.vue'
@@ -17,7 +16,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userLogin && userName && message && moderatorUserLogin && moderatorUserName"
-		:icon="IconUserCancel"
+		:icon="'tabler:icon-user-cancel'"
 		:icon-color="['#ff4f4d', '#ffaaa8']"
 		:created-at="createdAt"
 	>

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconEraser } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 
@@ -10,7 +9,7 @@ defineProps<{
 
 <template>
 	<Base
-		:icon="IconEraser"
+		:icon="'tabler:icon-eraser'"
 		:icon-color="['#ff4f4d', '#ffaaa8']"
 		:created-at="createdAt"
 	>

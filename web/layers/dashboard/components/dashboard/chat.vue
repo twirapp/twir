@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconDog, IconMoon, IconSun } from '@tabler/icons-vue'
 import { computed, ref } from 'vue'
 
 import Card from './card.vue'
@@ -44,7 +43,7 @@ const chatUrl = computed(() => {
 				<Tooltip>
 					<TooltipTrigger as-child>
 						<Button size="sm" variant="ghost" @click="openFrankerFaceZ = !openFrankerFaceZ">
-							<IconDog />
+							<Icon name="tabler:icon-dog" />
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
@@ -54,8 +53,8 @@ const chatUrl = computed(() => {
 			</TooltipProvider>
 
 			<Button size="sm" variant="ghost" @click="toggleTheme">
-				<IconSun v-if="chatTheme === 'dark'" color="orange" />
-				<IconMoon v-else />
+				<Icon name="tabler:icon-sun" v-if="chatTheme === 'dark'" color="orange" />
+				<Icon name="tabler:icon-moon" v-else />
 			</Button>
 		</template>
 

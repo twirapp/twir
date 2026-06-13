@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconStarFilled } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 import UserLink from './user-link.vue'
@@ -15,7 +14,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && level"
-		:icon="IconStarFilled"
+		:icon="'tabler:icon-star-filled'"
 		:icon-color="['#1756d3', '#1f69ff']"
 		:created-at="createdAt"
 	>

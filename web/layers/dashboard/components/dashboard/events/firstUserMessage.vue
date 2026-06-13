@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { IconMoodPlus } from '@tabler/icons-vue'
 
 import Base from './base.vue'
 import UserLink from './user-link.vue'
@@ -15,7 +14,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && message"
-		:icon="IconMoodPlus"
+		:icon="'tabler:icon-mood-plus'"
 		:icon-color="['#772ce8', '#9147ff']"
 		:created-at="createdAt"
 	>
