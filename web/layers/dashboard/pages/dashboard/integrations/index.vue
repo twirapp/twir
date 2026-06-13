@@ -13,7 +13,7 @@ import SevenTv from '~~/layers/dashboard/features/integrations/ui/seventv/seven-
 import Valorant from '~~/layers/dashboard/features/integrations/ui/valorant/valorant.vue'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 </script>
 
 <template>

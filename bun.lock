@@ -316,6 +316,7 @@
         "vaul-vue": "0.4.1",
         "vee-validate": "4.15.1",
         "vue": "catalog:",
+        "vue-draggable-plus": "0.6.1",
         "vue-router": "4.6.4",
         "vue-sonner": "2.0.9",
         "vue3-moveable": "0.28.0",
@@ -4102,6 +4103,8 @@
     "@twir/web/@zero-dependency/utils": ["@zero-dependency/utils@1.7.8", "", {}, "sha512-pu23oYUH82vR06QuMln57vZOhHYg/AO9kmcHCmqQogOCRgdUY+aTxYvkCUD4ATO0fYD6KjbbM0/SZXjXXSQquA=="],
 
     "@twir/web/reka-ui": ["reka-ui@2.9.10", "", { "dependencies": { "@floating-ui/dom": "^1.6.13", "@floating-ui/vue": "^1.1.6", "@internationalized/date": "^3.5.0", "@internationalized/number": "^3.5.0", "@tanstack/vue-virtual": "^3.12.0", "@vueuse/core": "^14.1.0", "@vueuse/shared": "^14.1.0", "aria-hidden": "^1.2.4", "defu": "^6.1.5", "ohash": "^2.0.11" }, "peerDependencies": { "vue": ">= 3.4.0" } }, "sha512-yuvZVTp4fWH2G3qk+ze/x6YYlyc2Xl1d+eMUlIYrKqzTowBKteoDoN17fitURmqSUck3mc7JbcYgp49DnGu2EQ=="],
+
+    "@twir/web/vue-draggable-plus": ["vue-draggable-plus@0.6.1", "", { "dependencies": { "@types/sortablejs": "^1.15.8" } }, "sha512-FbtQ/fuoixiOfTZzG3yoPl4JAo9HJXRHmBQZFB9x2NYCh6pq0TomHf7g5MUmpaDYv+LU2n6BPq2YN9sBO+FbIg=="],
 
     "@twir/web/vue-router": ["vue-router@4.6.4", "", { "dependencies": { "@vue/devtools-api": "^6.6.4" }, "peerDependencies": { "vue": "^3.5.0" } }, "sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg=="],
 

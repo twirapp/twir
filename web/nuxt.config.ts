@@ -105,6 +105,7 @@ export default defineNuxtConfig({
 				'@tanstack/vue-table',
 				'@zero-dependency/utils',
 				'@unovis/vue',
+				'vue-draggable-plus',
 			],
 		},
 		server: {
