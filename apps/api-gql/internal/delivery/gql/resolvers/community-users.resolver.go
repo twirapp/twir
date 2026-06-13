@@ -233,7 +233,19 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	// Data query
 	queryBuilder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
 		Select(
-			`users_stats.*`,
+			`users_stats.id`,
+			`users_stats.messages`,
+			`users_stats.watched`,
+			`users_stats.channel_id`,
+			`users_stats.user_id`,
+			`users_stats."usedChannelPoints"`,
+			`users_stats.is_mod`,
+			`users_stats.is_vip`,
+			`users_stats.is_subscriber`,
+			`users_stats.reputation`,
+			`users_stats.emotes`,
+			`users_stats.created_at`,
+			`users_stats.updated_at`,
 			`users.platform`,
 			`users.platform_id`,
 			`users.login`,
@@ -282,11 +294,17 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			OrderBy(`users_stats.watched DESC`)
 	} else if sortBy != "" && opts.Order.IsSet() {
 		order := *opts.Order.Value()
+
+		colName := sortBy
+		if sortBy == "usedChannelPoints" {
+			colName = `"usedChannelPoints"`
+		}
+
 		queryBuilder = queryBuilder.
 			OrderBy(
 				fmt.Sprintf(
 					`users_stats.%s %s`,
-					sortBy,
+					colName,
 					strings.ToLower(order.String()),
 				),
 			)
