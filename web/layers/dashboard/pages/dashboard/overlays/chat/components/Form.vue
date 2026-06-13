@@ -4,7 +4,6 @@ import { type Font, FontSelector } from '@/lib/fontsource'
 import { useIntervalFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Link2, RotateCcw, Save } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
@@ -27,7 +26,7 @@ import { Separator } from '@/components/ui/separator'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { toast } from 'vue-sonner'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import InputWithIcon from '@/components/ui/InputWithIcon.vue'
+import InputWithIcon from '@/components/ui/InputWithIcon/InputWithIcon.vue'
 import { Card } from '@/components/ui/card'
 
 const { t } = useI18n()
@@ -295,7 +294,7 @@ function handleReset() {
 				class="w-full transition-all hover:scale-[1.02] shadow-sm"
 				:disabled="!userCanEditOverlays"
 			>
-				<Save class="h-4 w-4 mr-2" />
+				<Icon name="lucide:save" class="h-4 w-4 mr-2" />
 				{{ t('sharedButtons.save') }}
 			</Button>
 			<div class="grid grid-cols-2 gap-2">
@@ -307,7 +306,7 @@ function handleReset() {
 					:disabled="!userCanEditOverlays"
 					@click="handleReset"
 				>
-					<RotateCcw class="h-4 w-4 mr-2" />
+					<Icon name="lucide:rotate-ccw" class="h-4 w-4 mr-2" />
 					{{ t('sharedButtons.reset') || 'Reset' }}
 				</Button>
 				<Button
@@ -318,7 +317,7 @@ function handleReset() {
 					:disabled="!formValue.id || !userCanEditOverlays"
 					@click="handleCopyLink"
 				>
-					<Link2 class="h-4 w-4 mr-2" />
+					<Icon name="lucide:link-2" class="h-4 w-4 mr-2" />
 					{{ t('overlays.copyLink') || 'Copy Link' }}
 				</Button>
 			</div>
@@ -540,7 +539,7 @@ function handleReset() {
 							class="transition-all hover:scale-105"
 							@click="formValue.chatBackgroundColor = defaultChatSettings.chatBackgroundColor"
 						>
-							<RotateCcw class="h-3 w-3 mr-1" />
+							<Icon name="lucide:rotate-ccw" class="h-3 w-3 mr-1" />
 							{{ t('overlays.chat.resetToDefault') }}
 						</Button>
 					</div>

@@ -22,6 +22,7 @@ export default defineUrqlClient((ssrExchange) => {
 
 	return {
 		exchanges,
+		preferGetMethod: false,
 		fetchOptions: {
 			credentials: 'include',
 			headers: {

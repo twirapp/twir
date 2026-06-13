@@ -451,7 +451,7 @@ onUnmounted(() => {
 					<div class="px-4 py-3 border-b shrink-0">
 						<h3 class="text-sm font-semibold mb-2">Available Variables</h3>
 						<div class="relative">
-							<Search class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+							<Icon name="lucide:search" class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 							<Input
 								v-model="variablesSearchQuery"
 								placeholder="Search variables..."

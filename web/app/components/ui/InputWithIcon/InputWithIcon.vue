@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useVModel } from '@vueuse/core'
-import { Eye, EyeClosed } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 import type { HTMLAttributes, InputHTMLAttributes } from 'vue'
@@ -71,8 +70,8 @@ function toggleInputType() {
 				variant="ghost"
 				@click="toggleInputType"
 			>
-				<Eye v-if="inputType === 'password'" class="size-4" />
-				<EyeClosed v-else class="size-4" />
+				<Icon v-if="inputType === 'password'" name="lucide:eye" class="size-4" />
+				<Icon v-else name="lucide:eye-closed" class="size-4" />
 			</Button>
 		</div>
 	</div>

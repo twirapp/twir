@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { XIcon } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 
 import { Badge } from '@/components/ui/badge'
@@ -114,7 +113,7 @@ watch(open, (isOpen) => {
 							class="ml-1 ring-offset-background rounded-full outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2"
 							@click.stop="removeOption(value)"
 						>
-							<XIcon class="h-3 w-3 text-background hover:text-background" />
+							<Icon name="lucide:x" class="h-3 w-3 text-background hover:text-background" />
 						</button>
 					</Badge>
 					<span v-if="!props.modelValue.length" class="text-muted-foreground">
@@ -144,20 +143,11 @@ watch(open, (isOpen) => {
 										: 'opacity-50',
 								)"
 							>
-								<svg
+								<Icon
 									v-if="selectedValues.has(option.value)"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									width="16"
-									height="16"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<polyline points="20 6 9 17 4 12" />
-								</svg>
+									name="lucide:check"
+									class="size-4"
+								/>
 							</span>
 							{{ option.label }}
 						</CommandItem>

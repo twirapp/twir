@@ -93,7 +93,6 @@ export default defineNuxtConfig({
 			include: [
 				'@urql/vue',
 				'graphql-ws',
-				'lucide-vue-next',
 				'vue-sonner',
 				'clsx',
 				'tailwind-merge',
@@ -101,6 +100,11 @@ export default defineNuxtConfig({
 				'zod',
 				'vee-validate',
 				'vue3-moveable',
+				'grid-layout-plus',
+				'@vee-validate/zod',
+				'@tanstack/vue-table',
+				'@zero-dependency/utils',
+				'@unovis/vue',
 			],
 		},
 		server: {

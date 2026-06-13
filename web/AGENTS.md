@@ -79,6 +79,9 @@ Use Nuxt Icon component with Lucide:
 </template>
 ```
 
+Do not import icon components from `@lucide/vue` or `lucide-vue-next` in `web`. Use the Nuxt
+`<Icon />` component everywhere, including shared UI components and layers.
+
 ### Styling
 
 Same as dashboard: Tailwind CSS with theme colors.

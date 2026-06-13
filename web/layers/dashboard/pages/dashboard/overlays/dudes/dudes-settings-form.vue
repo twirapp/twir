@@ -3,16 +3,6 @@ import { type Font, FontSelector } from '@/lib/fontsource'
 import { DudesSprite } from '@twir/types'
 import { addZero, capitalize, colorBrightness, hexToRgb } from '@zero-dependency/utils'
 import { intervalToDuration } from 'date-fns'
-import {
-	MessageSquareIcon,
-	MusicIcon,
-	PaletteIcon,
-	SmileIcon,
-	TrendingUpIcon,
-	UserIcon,
-	UsersIcon,
-	XIcon,
-} from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
@@ -242,7 +232,7 @@ function removeGradientStop(index: number) {
 				<AccordionItem value="dude">
 					<AccordionTrigger>
 						<div class="flex items-center gap-2">
-							<UserIcon class="h-4 w-4" />
+							<Icon name="lucide:user" class="h-4 w-4" />
 							<span>{{ t('overlays.dudes.dudeDivider') }}</span>
 						</div>
 					</AccordionTrigger>
@@ -329,7 +319,7 @@ function removeGradientStop(index: number) {
 				<AccordionItem value="ignoring">
 					<AccordionTrigger>
 						<div class="flex items-center gap-2">
-							<UsersIcon class="h-4 w-4" />
+							<Icon name="lucide:users" class="h-4 w-4" />
 							<span>{{ t('overlays.dudes.ignoreDivider') }}</span>
 						</div>
 					</AccordionTrigger>
@@ -361,7 +351,7 @@ function removeGradientStop(index: number) {
 				<AccordionItem value="sounds">
 					<AccordionTrigger>
 						<div class="flex items-center gap-2">
-							<MusicIcon class="h-4 w-4" />
+							<Icon name="lucide:music" class="h-4 w-4" />
 							<span>{{ t('overlays.dudes.dudeSoundsDivider') }}</span>
 						</div>
 					</AccordionTrigger>
@@ -395,7 +385,7 @@ function removeGradientStop(index: number) {
 				<AccordionItem value="grow">
 					<AccordionTrigger>
 						<div class="flex items-center gap-2">
-							<TrendingUpIcon class="h-4 w-4" />
+							<Icon name="lucide:trending-up" class="h-4 w-4" />
 							<span>{{ t('overlays.dudes.growDivider') }}</span>
 						</div>
 					</AccordionTrigger>
@@ -434,7 +424,7 @@ function removeGradientStop(index: number) {
 				<AccordionItem value="name-box">
 					<AccordionTrigger>
 						<div class="flex items-center gap-2">
-							<PaletteIcon class="h-4 w-4" />
+							<Icon name="lucide:palette" class="h-4 w-4" />
 							<span>{{ t('overlays.dudes.nameBoxDivider') }}</span>
 						</div>
 					</AccordionTrigger>
@@ -466,7 +456,7 @@ function removeGradientStop(index: number) {
 										:disabled="isNameBoxDisabled"
 										@click="removeFillColor(index)"
 									>
-										<XIcon class="h-3 w-3" />
+										<Icon name="lucide:x" class="h-3 w-3" />
 									</Button>
 								</Badge>
 								<Button
@@ -504,7 +494,7 @@ function removeGradientStop(index: number) {
 										:disabled="isNameBoxDisabled"
 										@click="removeGradientStop(index)"
 									>
-										<XIcon class="h-3 w-3" />
+										<Icon name="lucide:x" class="h-3 w-3" />
 									</Button>
 								</Badge>
 								<Button
@@ -732,7 +722,7 @@ function removeGradientStop(index: number) {
 				<AccordionItem value="message-box">
 					<AccordionTrigger>
 						<div class="flex items-center gap-2">
-							<MessageSquareIcon class="h-4 w-4" />
+							<Icon name="lucide:message-square" class="h-4 w-4" />
 							<span>{{ t('overlays.dudes.messageBoxDivider') }}</span>
 						</div>
 					</AccordionTrigger>
@@ -821,7 +811,7 @@ function removeGradientStop(index: number) {
 				<AccordionItem value="emote">
 					<AccordionTrigger>
 						<div class="flex items-center gap-2">
-							<SmileIcon class="h-4 w-4" />
+							<Icon name="lucide:smile" class="h-4 w-4" />
 							<span>{{ t('overlays.dudes.emoteDivider') }}</span>
 						</div>
 					</AccordionTrigger>

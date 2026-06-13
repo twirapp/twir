@@ -2,7 +2,7 @@
 import { FaceitStatsWidget } from '@twir/frontend-faceit-stats'
 import { Label } from 'reka-ui'
 import { ColorPicker } from '@/components/ui/color-picker'
-import InputWithIcon from '@/components/ui/InputWithIcon.vue'
+import InputWithIcon from '@/components/ui/InputWithIcon/InputWithIcon.vue'
 import { SwitchToggle } from '@/components/ui/switch'
 
 import { useI18n } from 'vue-i18n'

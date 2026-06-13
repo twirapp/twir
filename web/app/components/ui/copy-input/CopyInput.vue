@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useTimeout } from '@vueuse/core'
-import { Check, Copy } from 'lucide-vue-next'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,12 +34,14 @@ async function copyToClipboard() {
 			class="absolute right-[4px] top-[3px] h-[32px] w-[32px]"
 			@click="copyToClipboard"
 		>
-			<Check
+			<Icon
 				v-if="isPending"
+				name="lucide:check"
 				class="h-4 w-4"
 			/>
-			<Copy
+			<Icon
 				v-else
+				name="lucide:copy"
 				class="h-4 w-4"
 			/>
 			<span class="sr-only">Copy</span>

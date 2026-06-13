@@ -1,24 +1,3 @@
-import {
-	BanIcon,
-	BanknoteArrowDownIcon,
-	BubblesIcon,
-	CommandIcon,
-	DollarSignIcon,
-	GiftIcon,
-	HeartHandshakeIcon,
-	HeartIcon,
-	MessageCircleWarningIcon,
-	PaintbrushIcon,
-	PickaxeIcon,
-	ReplaceAllIcon,
-	StarIcon,
-	TrendingUpDown,
-	VideoIcon,
-	VideoOffIcon,
-	VoteIcon,
-	WholeWordIcon,
-
-
 import { EventType } from '~~/layers/dashboard/api/events.js'
 
 export interface TwirEvent {

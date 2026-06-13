@@ -20,7 +20,7 @@ import { toast } from 'vue-sonner'
 import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink.js'
 import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
-import InputWithIcon from '@/components/ui/InputWithIcon.vue'
+import InputWithIcon from '@/components/ui/InputWithIcon/InputWithIcon.vue'
 import { BeRightBackUpdateInputSchema } from '~/gql/validation-schemas.js'
 
 const { t } = useI18n()
