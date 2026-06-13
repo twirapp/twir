@@ -3,8 +3,7 @@ import type { ColumnDef } from '@tanstack/vue-table'
 
 import { getCoreRowModel, getExpandedRowModel, useVueTable } from '@tanstack/vue-table'
 import { type Rgb, colorBrightness, hexToRgb, rgbToHex } from '@zero-dependency/utils'
-import { ChevronDown, ChevronRight } from 'lucide-vue-next'
-import { computed, h } from 'vue'
+import { computed, h, resolveComponent } from 'vue'
 
 import type { Command } from '~/gql/graphql.js'
 
@@ -33,7 +32,7 @@ const columns: ColumnDef<Command | Group>[] = [
 		header: () => h('div', {}, 'Name'),
 		cell: ({ row }) => {
 			const chevron = row.getCanExpand()
-				? h(row.getIsExpanded() ? ChevronDown : ChevronRight)
+				? h(resolveComponent('Icon'), { name: row.getIsExpanded() ? 'lucide:chevron-down' : 'lucide:chevron-right' })
 				: null
 
 			if (isCommand(row.original)) {

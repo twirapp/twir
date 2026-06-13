@@ -41,11 +41,11 @@ const { t } = useI18n()
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start">
 				<DropdownMenuItem @click="column.toggleSorting(false)">
-					<ArrowUp class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+					<Icon name="lucide:arrow-up" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					{{ t('sharedTexts.asc') }}
 				</DropdownMenuItem>
 				<DropdownMenuItem @click="column.toggleSorting(true)">
-					<ArrowDown class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+					<Icon name="lucide:arrow-down" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					{{ t('sharedTexts.desc') }}
 				</DropdownMenuItem>
 			</DropdownMenuContent>

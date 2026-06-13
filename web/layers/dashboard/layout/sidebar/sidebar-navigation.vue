@@ -104,7 +104,7 @@ function goToRoute() {
 					@click="goToRoute"
 				>
 					<RouterLink :to="item.path!">
-						<component :is="item.icon" />
+						<Icon :name="item.icon" />
 						<span>{{ item.name }}</span>
 						<Badge v-if="item.isNew" class="uppercase text-[10px] px-1 py-0.5 rounded-md">
 							New
@@ -125,12 +125,12 @@ function goToRoute() {
 									item.path && currentRoute.path.startsWith(item.path) ? 'active' : 'default'
 								"
 							>
-								<component :is="item.icon" />
+								<Icon :name="item.icon" />
 								<span>{{ item.name }}</span>
 								<Badge v-if="item.isNew" class="uppercase text-[10px] px-1 py-0.5 rounded-md">
 									New
 								</Badge>
-								<ChevronRight
+								<Icon name="lucide:chevron-right"
 									class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
 								/>
 							</SidebarMenuButton>
@@ -148,7 +148,7 @@ function goToRoute() {
 										@click="goToRoute"
 									>
 										<RouterLink :to="child.path!">
-											<component :is="child.icon" />
+											<Icon :name="child.icon" />
 											<span>{{ child.name }}</span>
 											<Badge
 												v-if="'isNew' in child && child.isNew"

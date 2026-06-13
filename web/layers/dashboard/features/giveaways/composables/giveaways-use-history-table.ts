@@ -1,8 +1,7 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { createGlobalState } from '@vueuse/core';
-import { EyeIcon } from 'lucide-vue-next';
-import { computed, h } from 'vue';
+import { computed, h, resolveComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js';
@@ -88,7 +87,7 @@ export const useGiveawaysHistoryTable = createGlobalState(() => {
 								onClick: () => viewGiveaway(row.original.id),
 							},
 							{
-								default: () => [h(EyeIcon, { class: 'size-4' }), t('giveaways.view')],
+								default: () => [h(resolveComponent('Icon'), { name: 'lucide:eye', class: 'size-4' }), t('giveaways.view')],
 							},
 						),
 					]),

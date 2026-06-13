@@ -1,16 +1,4 @@
-import type { FunctionalComponent } from 'vue'
-
 import { toTypedSchema } from '@vee-validate/zod'
-import {
-	AsteriskIcon,
-	CaseUpperIcon,
-	LanguagesIcon,
-	LetterTextIcon,
-	Link2OffIcon,
-	Repeat1Icon,
-	RulerDimensionLineIcon,
-	SmileIcon,
-} from 'lucide-vue-next'
 import { z } from 'zod'
 
 import type { ModerationItem } from '~~/layers/dashboard/api/moderation'
@@ -24,15 +12,15 @@ export type EditableItem = Omit<
 	'createdAt' | 'channelId' | 'updatedAt'
 >
 
-export const Icons: Readonly<Record<ModerationSettingsType, FunctionalComponent>> = Object.freeze({
-	[ModerationSettingsType.Links]: Link2OffIcon,
-	[ModerationSettingsType.Language]: LanguagesIcon,
-	[ModerationSettingsType.DenyList]: LetterTextIcon,
-	[ModerationSettingsType.LongMessage]: RulerDimensionLineIcon,
-	[ModerationSettingsType.Caps]: CaseUpperIcon,
-	[ModerationSettingsType.Emotes]: SmileIcon,
-	[ModerationSettingsType.Symbols]: AsteriskIcon,
-	[ModerationSettingsType.OneManSpam]: Repeat1Icon,
+export const Icons: Readonly<Record<ModerationSettingsType, string>> = Object.freeze({
+	[ModerationSettingsType.Links]: 'lucide:link-2-off',
+	[ModerationSettingsType.Language]: 'lucide:languages',
+	[ModerationSettingsType.DenyList]: 'lucide:letter-text',
+	[ModerationSettingsType.LongMessage]: 'lucide:ruler-dimension-line',
+	[ModerationSettingsType.Caps]: 'lucide:case-upper',
+	[ModerationSettingsType.Emotes]: 'lucide:smile',
+	[ModerationSettingsType.Symbols]: 'lucide:asterisk',
+	[ModerationSettingsType.OneManSpam]: 'lucide:repeat-1',
 })
 
 export const moderationValidationRules = toTypedSchema(

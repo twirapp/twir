@@ -17,15 +17,13 @@ import {
 	VideoOffIcon,
 	VoteIcon,
 	WholeWordIcon,
-} from 'lucide-vue-next'
 
-import type { FunctionalComponent } from 'vue'
 
 import { EventType } from '~~/layers/dashboard/api/events.js'
 
 export interface TwirEvent {
 	name: string
-	icon?: FunctionalComponent
+	icon?: string
 	variables?: string[]
 	type?: 'group'
 	childrens?: Record<string, TwirEvent>
@@ -35,7 +33,7 @@ export interface TwirEvent {
 export const EventsOptions: Record<string, TwirEvent> = {
 	[EventType.Follow]: {
 		name: 'Follow',
-		icon: HeartIcon,
+		icon: 'lucide:heart',
 		variables: ['userName', 'userDisplayName', 'channelFollowers', 'channelStreamFollowers'],
 		enumValue: EventType.Follow,
 	},
@@ -46,13 +44,13 @@ export const EventsOptions: Record<string, TwirEvent> = {
 		childrens: {
 			SUBSCRIBE: {
 				name: 'Subscribe',
-				icon: DollarSignIcon,
+				icon: 'lucide:dollar-sign',
 				variables: ['userName', 'userDisplayName', 'subLevel'],
 				enumValue: EventType.Subscribe,
 			},
 			RESUBSCRIBE: {
 				name: 'Resubscribe',
-				icon: StarIcon,
+				icon: 'lucide:star',
 				variables: [
 					'userName',
 					'userDisplayName',
@@ -65,7 +63,7 @@ export const EventsOptions: Record<string, TwirEvent> = {
 			},
 			SUB_GIFT: {
 				name: 'Subscribe Gift',
-				icon: GiftIcon,
+				icon: 'lucide:gift',
 				variables: [
 					'userName',
 					'userDisplayName',
@@ -79,19 +77,19 @@ export const EventsOptions: Record<string, TwirEvent> = {
 	},
 	[EventType.RedemptionCreated]: {
 		name: 'Reward Activated',
-		icon: BubblesIcon,
+		icon: 'lucide:bubbles',
 		variables: ['userName', 'userDisplayName', 'rewardName', 'rewardCost', 'rewardInput'],
 		enumValue: EventType.RedemptionCreated,
 	},
 	[EventType.CommandUsed]: {
 		name: 'Command used',
-		icon: CommandIcon,
+		icon: 'lucide:command',
 		variables: ['userName', 'userDisplayName', 'commandName', 'commandInput'],
 		enumValue: EventType.CommandUsed,
 	},
 	[EventType.FirstUserMessage]: {
 		name: 'First User Message',
-		icon: MessageCircleWarningIcon,
+		icon: 'lucide:message-circle-warning',
 		variables: ['userName', 'userDisplayName'],
 		enumValue: EventType.FirstUserMessage,
 	},
@@ -108,25 +106,25 @@ export const EventsOptions: Record<string, TwirEvent> = {
 			// },
 			[EventType.Raided]: {
 				name: 'Raided',
-				icon: PickaxeIcon,
+				icon: 'lucide:pickaxe',
 				variables: ['userName', 'userDisplayName', 'raidViewers'],
 				enumValue: EventType.Raided,
 			},
 			[EventType.TitleOrCategoryChanged]: {
 				name: 'Title or Category Changed',
-				icon: ReplaceAllIcon,
+				icon: 'lucide:replace-all',
 				variables: ['oldStreamTitle', 'newStreamTitle', 'oldStreamCategory', 'newStreamCategory'],
 				enumValue: EventType.TitleOrCategoryChanged,
 			},
 			[EventType.StreamOnline]: {
 				name: 'Stream Online',
-				icon: VideoIcon,
+				icon: 'lucide:video',
 				variables: ['streamTitle', 'streamCategory'],
 				enumValue: EventType.StreamOnline,
 			},
 			[EventType.StreamOffline]: {
 				name: 'Stream Offline',
-				icon: VideoOffIcon,
+				icon: 'lucide:video-off',
 				variables: [],
 				enumValue: EventType.StreamOffline,
 			},
@@ -135,25 +133,25 @@ export const EventsOptions: Record<string, TwirEvent> = {
 
 	[EventType.OnChatClear]: {
 		name: 'On Chat Clear',
-		icon: PaintbrushIcon,
+		icon: 'lucide:paintbrush',
 		variables: [],
 		enumValue: EventType.OnChatClear,
 	},
 	[EventType.Donate]: {
 		name: 'Donate',
-		icon: BanknoteArrowDownIcon,
+		icon: 'lucide:banknote-arrow-down',
 		variables: ['userName', 'donateAmount', 'donateCurrency', 'donateMessage'],
 		enumValue: EventType.Donate,
 	},
 	[EventType.KeywordMatched]: {
 		name: 'Keyword Matched',
-		icon: WholeWordIcon,
+		icon: 'lucide:whole-word',
 		variables: ['userName', 'userDisplayName', 'keywordName', 'keywordResponse'],
 		enumValue: EventType.KeywordMatched,
 	},
 	[EventType.GreetingSended]: {
 		name: 'Greeting Sended',
-		icon: HeartHandshakeIcon,
+		icon: 'lucide:heart-handshake',
 		variables: ['userName', 'userDisplayName', 'greetingText'],
 		enumValue: EventType.GreetingSended,
 	},
@@ -164,19 +162,19 @@ export const EventsOptions: Record<string, TwirEvent> = {
 		childrens: {
 			[EventType.PollBegin]: {
 				name: 'Poll Begin',
-				icon: VoteIcon,
+				icon: 'lucide:vote',
 				variables: ['pollTitle', 'pollOptionsNames'],
 				enumValue: EventType.PollBegin,
 			},
 			[EventType.PollProgress]: {
 				name: 'Poll Progress',
-				icon: VoteIcon,
+				icon: 'lucide:vote',
 				variables: ['pollTitle', 'pollOptionsNames', 'pollTotalVotes'],
 				enumValue: EventType.PollProgress,
 			},
 			[EventType.PollEnd]: {
 				name: 'Poll End',
-				icon: VoteIcon,
+				icon: 'lucide:vote',
 				variables: [
 					'pollTitle',
 					'pollOptionsNames',
@@ -197,25 +195,25 @@ export const EventsOptions: Record<string, TwirEvent> = {
 		childrens: {
 			[EventType.PredictionBegin]: {
 				name: 'Prediction Begin',
-				icon: TrendingUpDown,
+				icon: 'lucide:trending-up-down',
 				variables: ['predictionTitle', 'predictionOptionsNames'],
 				enumValue: EventType.PredictionBegin,
 			},
 			[EventType.PredictionProgress]: {
 				name: 'Prediction Progress',
-				icon: TrendingUpDown,
+				icon: 'lucide:trending-up-down',
 				variables: ['predictionTitle', 'predictionOptionsNames', 'predictionTotalChannelPoints'],
 				enumValue: EventType.PredictionProgress,
 			},
 			[EventType.PredictionLock]: {
 				name: 'Prediction Lock',
-				icon: TrendingUpDown,
+				icon: 'lucide:trending-up-down',
 				variables: ['predictionTitle', 'predictionOptionsNames', 'predictionTotalChannelPoints'],
 				enumValue: EventType.PredictionLock,
 			},
 			[EventType.PredictionEnd]: {
 				name: 'Prediction End',
-				icon: TrendingUpDown,
+				icon: 'lucide:trending-up-down',
 				variables: [
 					'predictionTitle',
 					'predictionOptionsNames',
@@ -236,7 +234,7 @@ export const EventsOptions: Record<string, TwirEvent> = {
 		childrens: {
 			[EventType.ChannelBan]: {
 				name: 'User banned/timeouted',
-				icon: BanIcon,
+				icon: 'lucide:ban',
 				variables: [
 					'userName',
 					'userDisplayName',
@@ -249,13 +247,13 @@ export const EventsOptions: Record<string, TwirEvent> = {
 			},
 			[EventType.ChannelUnbanRequestCreate]: {
 				name: 'User Unban Request Created',
-				icon: BanIcon,
+				icon: 'lucide:ban',
 				variables: ['userName', 'userDisplayName', 'message'],
 				enumValue: EventType.ChannelUnbanRequestCreate,
 			},
 			[EventType.ChannelUnbanRequestResolve]: {
 				name: 'User Unban Request Accepted/Declined',
-				icon: BanIcon,
+				icon: 'lucide:ban',
 				variables: [
 					'userName',
 					'userDisplayName',

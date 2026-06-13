@@ -1,41 +1,8 @@
-import type { Component } from 'vue'
-
-import { IconCalendarCog } from '@tabler/icons-vue'
 import { DISCORD_INVITE_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
-import {
-	AudioLines,
-	Bell,
-	Blend,
-	Box,
-	ClipboardPenLine,
-	ComponentIcon,
-	Dices,
-	GemIcon,
-	GiftIcon,
-	Globe,
-	Import,
-	LayoutDashboard,
-	LinkIcon,
-	MessageCircleHeart,
-	MessageCircleWarning,
-	Package,
-	PackageCheck,
-	PackagePlus,
-	ScrollTextIcon,
-	SettingsIcon,
-	Shield,
-	ShieldUser,
-	Smile,
-	SparklesIcon,
-	Timer,
-	Users,
-	Variable,
-	WholeWord,
-} from 'lucide-vue-next'
 
 export interface NavigationItem {
 	name?: string
-	icon: Component
+	icon: string
 	path: string
 	disabled?: boolean
 	isNew?: boolean
@@ -53,147 +20,147 @@ export interface NavigationConfig {
 export const baseNavigationItems: Array<Partial<NavigationItem>> = [
 	{
 		translationKey: 'sidebar.dashboard',
-		icon: LayoutDashboard,
+		icon: 'lucide:layout-dashboard',
 		path: '/dashboard',
 	},
 	{
 		name: 'Bot Settings',
-		icon: SettingsIcon,
+		icon: 'lucide:settings',
 		path: '/dashboard/bot-settings',
 	},
 	{
 		name: 'Modules',
-		icon: ComponentIcon,
+		icon: 'lucide:component',
 		path: '/dashboard/modules',
 		isNew: true,
 	},
 	{
 		translationKey: 'sidebar.integrations',
-		icon: Box,
+		icon: 'lucide:box',
 		path: '/dashboard/integrations',
 	},
 	{
 		translationKey: 'sidebar.alerts',
-		icon: Bell,
+		icon: 'lucide:bell',
 		path: '/dashboard/alerts',
 	},
 	{
 		translationKey: 'sidebar.chatAlerts',
-		icon: MessageCircleWarning,
+		icon: 'lucide:message-circle-warning',
 		path: '/dashboard/events/chat-alerts',
 	},
 	{
 		translationKey: 'sidebar.events',
-		icon: IconCalendarCog,
+		icon: 'tabler:calendar-cog',
 		path: '/dashboard/events',
 	},
 	{
 		translationKey: 'sidebar.overlays',
-		icon: Blend,
+		icon: 'lucide:blend',
 		path: '/dashboard/overlays',
 		isNew: true,
 	},
 	{
 		translationKey: 'sidebar.songRequests',
-		icon: AudioLines,
+		icon: 'lucide:audio-lines',
 		path: '/dashboard/song-requests',
 	},
 	{
 		translationKey: 'sidebar.games',
-		icon: Dices,
+		icon: 'lucide:dices',
 		path: '/dashboard/games',
 	},
 	{
 		translationKey: 'sidebar.commands.label',
-		icon: Package,
+		icon: 'lucide:package',
 		path: '/dashboard/commands',
 		openStateKey: 'commands',
 		child: [
 			{
 				translationKey: 'sidebar.commands.custom',
-				icon: PackagePlus,
+				icon: 'lucide:package-plus',
 				path: '/dashboard/commands/custom',
 			},
 			{
 				translationKey: 'sidebar.commands.builtin',
-				icon: PackageCheck,
+				icon: 'lucide:package-check',
 				path: '/dashboard/commands/builtin',
 			},
 		],
 	},
 	{
 		translationKey: 'sidebar.community',
-		icon: Users,
+		icon: 'lucide:users',
 		path: '/dashboard/community',
 		openStateKey: 'community',
 		child: [
 			{
 				name: 'Chat Logs',
-				icon: ScrollTextIcon,
+				icon: 'lucide:scroll-text',
 				path: '/dashboard/community?tab=chat-logs',
 			},
 			{
 				translationKey: 'community.users.title',
-				icon: Users,
+				icon: 'lucide:users',
 				path: '/dashboard/community?tab=users',
 			},
 			{
 				translationKey: 'sidebar.roles',
-				icon: ShieldUser,
+				icon: 'lucide:shield-user',
 				path: '/dashboard/community?tab=permissions',
 			},
 			{
 				translationKey: 'community.emotesStatistic.title',
-				icon: Smile,
+				icon: 'lucide:smile',
 				path: '/dashboard/community?tab=emotes-stats',
 			},
 			{
 				name: 'Rewards history',
-				icon: SparklesIcon,
+				icon: 'lucide:sparkles',
 				path: '/dashboard/community?tab=rewards-history',
 			},
 		],
 	},
 	{
 		translationKey: 'sidebar.moderation',
-		icon: Shield,
+		icon: 'lucide:shield',
 		path: '/dashboard/moderation',
 	},
 	{
 		translationKey: 'sidebar.timers',
-		icon: Timer,
+		icon: 'lucide:timer',
 		path: '/dashboard/timers',
 	},
 	{
 		translationKey: 'sidebar.giveaways',
-		icon: GiftIcon,
+		icon: 'lucide:gift',
 		path: '/dashboard/giveaways',
 		isNew: true,
 	},
 	{
 		translationKey: 'sidebar.keywords',
-		icon: WholeWord,
+		icon: 'lucide:whole-word',
 		path: '/dashboard/keywords',
 	},
 	{
 		translationKey: 'sidebar.variables',
-		icon: Variable,
+		icon: 'lucide:variable',
 		path: '/dashboard/variables',
 	},
 	{
 		translationKey: 'sidebar.greetings',
-		icon: MessageCircleHeart,
+		icon: 'lucide:message-circle-heart',
 		path: '/dashboard/greetings',
 	},
 	{
 		name: 'Expiring Vips',
-		icon: GemIcon,
+		icon: 'lucide:gem',
 		path: '/dashboard/expiring-vips',
 		isNew: true,
 	},
 	{
 		translationKey: 'sidebar.import',
-		icon: Import,
+		icon: 'lucide:import',
 		path: '/dashboard/import',
 	},
 ]
@@ -224,27 +191,27 @@ export const footerNavigationItems: FooterNavigationItem[] = [
 	},
 	{
 		translationKey: 'sidebar.notifications',
-		icon: Bell,
+		icon: 'lucide:bell',
 		href: '/dashboard/notifications',
 		showNotificationsBadge: true,
 	},
 	{
 		translationKey: 'sidebar.publicPage',
-		icon: Globe,
+		icon: 'lucide:globe',
 		href: '', // Will be computed dynamically
 		isExternal: true,
 		isPublicPageDependent: true,
 	},
 	{
 		name: 'URL Shortener',
-		icon: LinkIcon,
+		icon: 'lucide:link',
 		href: '/url-shortener',
 		isExternal: true,
 		isPublicPageDependent: true,
 	},
 	{
 		name: 'Hastebin',
-		icon: ClipboardPenLine,
+		icon: 'lucide:clipboard-pen-line',
 		href: '/h',
 		isExternal: true,
 		isPublicPageDependent: true,

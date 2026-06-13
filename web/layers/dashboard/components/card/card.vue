@@ -1,15 +1,12 @@
 <script setup lang="ts">
 
-
-import type { FunctionalComponent } from 'vue'
-
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card'
 
 withDefaults(
 	defineProps<{
 		title: string
 		description?: string
-		icon?: FunctionalComponent
+		icon?: string
 		iconStroke?: number
 		withStroke?: boolean
 		iconFill?: string
@@ -29,9 +26,9 @@ defineEmits<{
 }>()
 
 defineSlots<{
-	content?: FunctionalComponent
-	footer?: FunctionalComponent
-	headerExtra?: FunctionalComponent
+	content?: any
+	footer?: any
+	headerExtra?: any
 }>()
 
 
@@ -41,8 +38,8 @@ defineSlots<{
 	<Card class="flex flex-col h-full">
 		<CardHeader class="space-y-4">
 			<div class="flex gap-2 items-center">
-				<component
-					:is="icon"
+				<Icon
+					:name="icon"
 					v-if="icon"
 					:style="{
 						color: iconFill,
