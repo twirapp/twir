@@ -5,7 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { computed, ref, watch } from 'vue'
 import { z } from 'zod'
 
-import type { UserPublicSettingsQuery } from '~/app/gql/graphql'
+import type { UserPublicSettingsQuery } from '~/gql/graphql.js'
 
 import { useUserSettings } from '~/layers/dashboard/api/auth'
 import { Button } from '@/components/ui/button'

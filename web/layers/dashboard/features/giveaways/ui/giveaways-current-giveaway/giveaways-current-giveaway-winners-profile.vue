@@ -136,7 +136,7 @@ const userHaveSomeRole = computed(() => {
 </template>
 
 <style scoped>
-@reference '@/assets/index.css';
+@reference '~/assets/css/tailwind.css';
 
 .table-td {
 	@apply text-sm font-medium inline-flex items-center gap-2;

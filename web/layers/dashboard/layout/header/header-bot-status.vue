@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { ChevronsUpDown, Loader2, LogIn, LogOut } from 'lucide-vue-next'
 
 import { useBotJoinPart, useBotStatuses } from '~/layers/dashboard/api/dashboard'
-import { BotJoinLeaveAction } from '~/app/gql/graphql'
+import { BotJoinLeaveAction } from '~/gql/graphql.js'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,

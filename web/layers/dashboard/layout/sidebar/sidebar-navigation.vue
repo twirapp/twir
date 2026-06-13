@@ -17,7 +17,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { baseNavigationItems } from "~/layers/dashboard/config/navigation";
-import { ChannelRolePermissionEnum } from "~/app/gql/graphql";
+import { ChannelRolePermissionEnum } from "~/gql/graphql.js";
 
 const { t } = useI18n();
 const currentRoute = useRoute();

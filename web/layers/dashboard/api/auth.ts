@@ -2,8 +2,8 @@ import { useMutation, useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, watch } from 'vue'
 
-import { graphql } from '~/app/gql/graphql'
-import { ChannelRolePermissionEnum } from '~/app/gql/graphql'
+import { graphql } from '~/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 export const profileQuery = graphql(`
 	query DashboardAuthenticatedUser {

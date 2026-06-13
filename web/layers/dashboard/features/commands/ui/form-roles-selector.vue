@@ -59,7 +59,7 @@ const roles = computed(() => {
 </template>
 
 <style scoped>
-@reference '@/assets/index.css';
+@reference '~/assets/css/tailwind.css';
 
 .role {
 	@apply flex flex-row items-center gap-2 space-y-0 bg-accent px-3 py-2 rounded-md leading-5;

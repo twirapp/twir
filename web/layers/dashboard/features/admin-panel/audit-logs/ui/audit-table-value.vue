@@ -51,7 +51,7 @@ function computeDisplayedText(text?: string | null) {
 </template>
 
 <style scoped>
-@reference '@/assets/index.css';
+@reference '~/assets/css/tailwind.css';
 
 .code {
 	@apply p-2 bg-[#1e1e1e] select-text max-h-[200px];

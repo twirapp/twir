@@ -9,7 +9,7 @@ import Form from '~/layers/dashboard/pages/overlays/chat/components/Form.vue'
 
 import { useUserAccessFlagChecker } from '~/layers/dashboard/api/auth'
 import { useChatOverlayApi } from '~/layers/dashboard/api/overlays/chat.js'
-import { ChannelRolePermissionEnum } from '~/app/gql/graphql'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 import { Button } from '@/components/ui/button'
 import {
 	AlertDialog,

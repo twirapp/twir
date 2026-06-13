@@ -436,7 +436,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-@reference '@/assets/index.css';
+@reference '~/assets/css/tailwind.css';
 
 .vgl-layout {
 	@apply w-full;

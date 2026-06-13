@@ -23,7 +23,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import CommandButton from '~/layers/dashboard/features/commands/ui/command-button.vue'
-import { ChannelRolePermissionEnum } from '~/app/gql/graphql'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

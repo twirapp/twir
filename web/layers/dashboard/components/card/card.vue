@@ -77,7 +77,7 @@ defineSlots<{
 </template>
 
 <style scoped>
-@reference '@/assets/index.css';
+@reference '~/assets/css/tailwind.css';
 
 :deep(button span) {
 	@apply text-sm;

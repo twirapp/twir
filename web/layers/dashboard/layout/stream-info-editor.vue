@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ChannelRolePermissionEnum } from "~/app/gql/graphql";
+import { ChannelRolePermissionEnum } from "~/gql/graphql.js";
 
 const props = defineProps<{
 	title?: string;

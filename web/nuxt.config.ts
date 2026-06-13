@@ -2,6 +2,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import tailwindcss from '@tailwindcss/vite'
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 
 import gqlcodegen from './modules/gql-codegen'
 
@@ -75,7 +76,13 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
-		plugins: [tailwindcss()],
+		plugins: [
+			tailwindcss(),
+			VueI18nPlugin({
+				strictMessage: false,
+				escapeHtml: false,
+			}),
+		],
 		optimizeDeps: {
 			include: [
 				'@urql/vue',

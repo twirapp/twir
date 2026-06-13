@@ -12,8 +12,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useTheme } from '~/layers/dashboard/composables/use-theme.ts'
-import { graphql } from '~/app/gql'
-import { ChannelRolePermissionEnum } from '~/app/gql/graphql'
+import { graphql } from '~/gql'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 import NowPlayingForm from '~/layers/dashboard/pages/overlays/now-playing/now-playing-form.vue'
 import {
 	defaultSettings,
@@ -193,7 +193,7 @@ const nowPlayingTrack = computed(() => {
 </template>
 
 <style scoped>
-@reference '@/assets/index.css';
+@reference '~/assets/css/tailwind.css';
 
 .iframe {
 	border: 1px solid hsl(var(--border));

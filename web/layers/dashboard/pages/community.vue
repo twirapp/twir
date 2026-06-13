@@ -10,7 +10,7 @@ import CommunityEmotesStatistic
 import CommunityRewardsHistory from '~/layers/dashboard/features/community-rewards-history/community-rewards-history.vue'
 import CommunityRoles from '~/layers/dashboard/features/community-roles/community-roles.vue'
 import CommunityUsers from '~/layers/dashboard/features/community-users/community-users.vue'
-import { ChannelRolePermissionEnum } from '~/app/gql/graphql'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 import PageLayout from '~/layers/dashboard/layout/page-layout.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
