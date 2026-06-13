@@ -6,7 +6,7 @@ import { graphql } from '~/app/gql/graphql'
 import { ChannelRolePermissionEnum } from '~/app/gql/graphql'
 
 export const profileQuery = graphql(`
-	query AuthenticatedUser {
+	query DashboardAuthenticatedUser {
 		authenticatedUser {
 			id
 			isBotAdmin

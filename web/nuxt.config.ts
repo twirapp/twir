@@ -52,7 +52,8 @@ export default defineNuxtConfig({
 		],
 		defaultLocale: 'en',
 		lazy: true,
-		langDir: './layers/dashboard/locales/',
+		langDir: 'locales',
+		restructureDir: false,
 	},
 
 	icon: {
