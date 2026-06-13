@@ -165,9 +165,6 @@ jobs:
           - name: websockets
             path: apps/websockets
             runtime: go
-          - name: dashboard
-            path: frontend/dashboard
-            runtime: js
           - name: overlays
             path: frontend/overlays
             runtime: js
