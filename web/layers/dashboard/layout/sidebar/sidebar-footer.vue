@@ -91,7 +91,7 @@ const regularItems = computed(() =>
 						:to="!item.isExternal ? item.href : undefined"
 						:target="item.isExternal ? '_blank' : undefined"
 					>
-						<component :is="item.icon" />
+						<Icon :name="item.icon" />
 						<span>{{ item.translationKey ? t(item.translationKey) : item.name }}</span>
 						<Badge
 							v-if="item.showNotificationsBadge && notificationsCounter.counter > 0"

@@ -94,7 +94,7 @@ function createNewRule(ruleType: ModerationSettingsType) {
 						@click="createNewRule(itemType)"
 					>
 						<div class="flex items-center gap-1">
-							<component :is="Icons[itemType]" :size="20" />
+							<Icon :name="Icons[itemType]" :size="20" />
 							<span>{{ t(`moderation.types.${itemType}.name`) }}</span>
 						</div>
 					</DropdownMenuItem>
