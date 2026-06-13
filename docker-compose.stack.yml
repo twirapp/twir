@@ -22,6 +22,7 @@ services:
         mode: host
     networks:
       - traefik-public
+      - cloudflared
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     deploy:
@@ -391,7 +392,7 @@ services:
         - "traefik.http.routers.cf-shortener.priority=20"
 
         # Catch-all: any unmatched host → /v1/short-links{path} (lowest priority)
-        - "traefik.http.routers.twir-custom-domain.rule=HostRegexp(`{host:.+}`)"
+        - "traefik.http.routers.twir-custom-domain.rule=HostRegexp(`.+`)"
         - "traefik.http.routers.twir-custom-domain.entrypoints=web"
         - "traefik.http.routers.twir-custom-domain.service=twir-api-gql"
         - "traefik.http.routers.twir-custom-domain.middlewares=custom-domain-rewrite,gzip,rate-limit"
