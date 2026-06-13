@@ -15,6 +15,7 @@
   "dependencies": {
     "@emotion/cache": "11.14.0",
     "@emotion/css": "11.13.5",
+    "@lucide/vue": "1.18.0",
     "@nuxt/fonts": "0.12.1",
     "@nuxt/image": "2.0.0",
     "@nuxt/kit": "4.4.4",
