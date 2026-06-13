@@ -59,11 +59,12 @@ adhere to these guidelines strictly to maintain code consistency and quality.
   - **Web (Public Site):** Nuxt 3, TypeScript, Tailwind CSS, shadcn-nuxt, Pinia, Urql.
   - **Backend:** Go (Golang), pgx (PostgreSQL driver), gqlgen (GraphQL).
   - **Tooling:** Bun, Docker.
-- **MCP**
-  - If you unsure about some library, please use context7 mcp for lbirary documentation. For example if you know how to use version 3 of some library, but the project uses version 4, you can ask mcp about version 4 documentation.
-  - Please avoid searching the internet for library documentation, always use mcp if NEEDED.
-  - If you need to search the internet for some library documentation, please inform the reviewer.
-  - Let me know when you using mcp, always type about that.
+- **MCP Tools Usage**
+  - **CodeGraph MCP** — use for exploring project structure, understanding architecture, finding symbol definitions/callers/callees, and analyzing impact of changes. Always prefer codegraph over manual file searching when codegraph is configured.
+  - **Context7 MCP** — use for reading up-to-date library/framework documentation. If you are unsure about some library (e.g., you know version 3 but the project uses version 4), ask context7 for the correct version docs. Avoid searching the internet for library documentation — always use context7 if available.
+  - **Postgres MCP** — use for inspecting the database schema, running read-only queries to understand data structure, and verifying assumptions about tables/columns before writing code.
+  - **grepApp MCP** — use for searching real-world code examples from public GitHub repositories when you need to see how an API or pattern is used in practice.
+  - Always inform the user when you are using MCP tools. Let me know which MCP you are using and why.
 - **Skills**
   - When working with postgres read releated skill in skills directory
 
