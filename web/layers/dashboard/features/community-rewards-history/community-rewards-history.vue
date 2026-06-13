@@ -2,10 +2,10 @@
 import { useCommunityRewardsTable } from './composables/community-rewards-history-table'
 import CommunityRewardsPage from './ui/community-rewards-history-page.vue'
 
-import Pagination from '@/components/pagination.vue'
+import Pagination from '~~/layers/dashboard/components/pagination.vue'
 import {
 	useCommunityRewardsHistoryQuery,
-} from '@/features/community-rewards-history/composables/community-rewards-history-query.js'
+} from '~~/layers/dashboard/features/community-rewards-history/composables/community-rewards-history-query.js'
 
 const rewardsTable = useCommunityRewardsTable()
 const query = useCommunityRewardsHistoryQuery()

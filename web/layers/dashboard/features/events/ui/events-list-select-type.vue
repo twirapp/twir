@@ -12,8 +12,8 @@ import {
 	CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useEventsTable } from '@/features/events/composables/use-events-table.js'
-import { EventsOptions } from '@/features/events/constants/events.js'
+import { useEventsTable } from '~~/layers/dashboard/features/events/composables/use-events-table.js'
+import { EventsOptions } from '~~/layers/dashboard/features/events/constants/events.js'
 
 const table = useEventsTable()
 

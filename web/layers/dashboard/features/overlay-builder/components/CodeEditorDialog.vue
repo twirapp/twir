@@ -3,8 +3,8 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { VueMonacoEditor, useMonaco } from '@guolao/vue-monaco-editor'
 import { useClipboard } from '@vueuse/core'
 
-import { useChannelOverlayParseHtml } from '@/api/overlays/custom'
-import { useVariablesApi } from '@/api/variables'
+import { useChannelOverlayParseHtml } from '~~/layers/dashboard/api/overlays/custom'
+import { useVariablesApi } from '~~/layers/dashboard/api/variables'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,

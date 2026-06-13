@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TwirLogo from '@/components/twir-logo.vue'
+import TwirLogo from '~~/layers/dashboard/components/twir-logo.vue'
 import {
 	SidebarHeader,
 	SidebarSeparator,

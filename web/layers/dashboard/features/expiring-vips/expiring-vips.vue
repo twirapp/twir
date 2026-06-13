@@ -2,15 +2,15 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useCommandsApi } from '@/api/commands/commands.js'
-import Table from '@/components/table.vue'
+import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
+import Table from '~~/layers/dashboard/components/table.vue'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import CommandsList from '@/features/commands/ui/list.vue'
-import { useExpiringVipsTable } from '@/features/expiring-vips/composables/use-expiring-vips-table.js'
-import ExpiringVipsCreateDialog from '@/features/expiring-vips/ui/expiring-vips-create-dialog.vue'
-import PageLayout from '@/layout/page-layout.vue'
+import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'
+import { useExpiringVipsTable } from '~~/layers/dashboard/features/expiring-vips/composables/use-expiring-vips-table.js'
+import ExpiringVipsCreateDialog from '~~/layers/dashboard/features/expiring-vips/ui/expiring-vips-create-dialog.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const expiringVipsTable = useExpiringVipsTable()
 const { t } = useI18n()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SearchBar from '@/components/search-bar.vue'
+import SearchBar from '~~/layers/dashboard/components/search-bar.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator'
 import {
 	useCommunityRewardsHistoryQuery,
-} from '@/features/community-rewards-history/composables/community-rewards-history-query.js'
+} from '~~/layers/dashboard/features/community-rewards-history/composables/community-rewards-history-query.js'
 
 const query = useCommunityRewardsHistoryQuery()
 </script>

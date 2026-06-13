@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { TimerResponse } from '@/api/timers'
+import type { TimerResponse } from '~~/layers/dashboard/api/timers'
 
-import { useTimersApi } from '@/api/timers'
+import { useTimersApi } from '~~/layers/dashboard/api/timers'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'

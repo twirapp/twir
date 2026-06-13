@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Table from '@/components/table.vue'
-import { useTimersTable } from '@/features/timers/composables/use-timers-table'
+import Table from '~~/layers/dashboard/components/table.vue'
+import { useTimersTable } from '~~/layers/dashboard/features/timers/composables/use-timers-table'
 
 const table = useTimersTable()
 </script>

@@ -8,10 +8,10 @@ import type {
 	GiveawayParticipant,
 	GiveawaySubscriptionParticipant,
 	GiveawayWinner,
-} from '@/api/giveaways.js';
+} from '~~/layers/dashboard/api/giveaways.js';
 import type { GiveawaysCreateInput } from '~/gql/graphql.js';
 
-import { useGiveawaysApi } from '@/api/giveaways.js';
+import { useGiveawaysApi } from '~~/layers/dashboard/api/giveaways.js';
 import { toast } from 'vue-sonner';
 
 export const useGiveaways = createGlobalState(() => {

@@ -1,7 +1,7 @@
 import { useQuery, useSubscription } from '@urql/vue';
 import { computed } from 'vue';
 
-import { useMutation } from '@/composables/use-mutation.js';
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js';
 import { graphql } from '@/gql';
 
 export const dashboardWidgetsLayoutCacheKey = 'dashboardWidgetsLayout';

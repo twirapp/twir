@@ -5,8 +5,8 @@ import { useI18n } from 'vue-i18n'
 
 import { formSchema, useDuelForm } from './composables/use-duel-form'
 
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
-import Card from '@/components/games/card.vue'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+import Card from '~~/layers/dashboard/components/games/card.vue'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -23,7 +23,7 @@ import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/u
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import CommandButton from '@/features/commands/ui/command-button.vue'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 
 const isDialogOpen = ref(false)
 const { t } = useI18n()

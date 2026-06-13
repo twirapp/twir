@@ -9,16 +9,16 @@ import { useNotificationsForm } from '../composables/use-notifications-form.js'
 import CreatedAtTooltip from '../ui/created-at-tooltip.vue'
 import NotificationsTableActions from '../ui/notifications-table-actions.vue'
 
-import { useAdminNotifications } from '@/api/admin/notifications.js'
+import { useAdminNotifications } from '~~/layers/dashboard/api/admin/notifications.js'
 import BlocksRenderer from '@/components/ui/editorjs/blocks-render.vue'
-import { useLayout } from '@/composables/use-layout.js'
-import { usePagination } from '@/composables/use-pagination.js'
+import { useLayout } from '~~/layers/dashboard/composables/use-layout.js'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
 import {
 	type AdminNotificationsParams,
 	NotificationType,
 	type NotificationsByAdminQuery,
 } from '~/gql/graphql.js'
-import { valueUpdater } from '@/helpers/value-updater.js'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
 
 type Notifications = NotificationsByAdminQuery['notificationsByAdmin']['notifications']
 

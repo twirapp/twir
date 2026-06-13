@@ -3,9 +3,9 @@ import { computed, ref } from 'vue'
 
 import type { TwitchRedemptionsOpts } from '~/gql/graphql.js'
 
-import { useProfile } from '@/api/auth'
-import { useTwitchRewardsNew } from '@/api/twitch'
-import { usePagination } from '@/composables/use-pagination.js'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import { useTwitchRewardsNew } from '~~/layers/dashboard/api/twitch'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
 
 export const useCommunityRewardsHistoryQuery = createGlobalState(() => {
 	const { data: profile } = useProfile()

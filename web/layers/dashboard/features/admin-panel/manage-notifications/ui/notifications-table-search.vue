@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 import { useNotificationsFilters } from '../composables/use-notifications-filters.js'
 
-import SearchBar from '@/components/search-bar.vue'
+import SearchBar from '~~/layers/dashboard/components/search-bar.vue'
 import {
 	Select,
 	SelectContent,

@@ -3,12 +3,12 @@ import { useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useCommandsApi } from '@/api/commands/commands'
+import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands'
 
 // oxlint-disable-next-line consistent-type-imports
-import { EventType } from '@/api/events.js'
-import { useKeywordsApi } from '@/api/keywords'
-import TwitchRewardsSelector from '@/components/rewardsSelector.vue'
+import { EventType } from '~~/layers/dashboard/api/events.js'
+import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
+import TwitchRewardsSelector from '~~/layers/dashboard/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -23,10 +23,10 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Switch } from '@/components/ui/switch'
-import { EventsOptions } from '@/features/events/constants/events.js'
-import { getEventName } from '@/features/events/constants/helpers.js'
-import PlatformSelector from '@/components/platform-selector.vue'
-import { cn } from '@/lib/utils'
+import { EventsOptions } from '~~/layers/dashboard/features/events/constants/events.js'
+import { getEventName } from '~~/layers/dashboard/features/events/constants/helpers.js'
+import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
+import { cn } from '~~/layers/dashboard/lib/utils'
 
 const { t } = useI18n()
 // Fetch commands and keywords for selectors

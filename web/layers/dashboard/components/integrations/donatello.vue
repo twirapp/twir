@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import DonatelloSVG from '@/assets/integrations/donatello.svg?use'
-import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
-import WithSettings from '@/components/integrations/variants/withSettings.vue'
+import DonatelloSVG from '~~/layers/dashboard/assets/integrations/donatello.svg?use'
+import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
+import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import CopyInput from '@/components/ui/copy-input/CopyInput.vue'
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 
 const integrationsPage = useIntegrationsPageData()
 

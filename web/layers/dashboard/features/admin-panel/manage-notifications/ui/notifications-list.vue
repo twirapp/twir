@@ -2,7 +2,7 @@
 import NotificationsTable from './notifications-table.vue'
 import { useNotificationsTable } from '../composables/use-notifications-table'
 
-import Pagination from '@/components/pagination.vue'
+import Pagination from '~~/layers/dashboard/components/pagination.vue'
 
 const notifications = useNotificationsTable()
 </script>

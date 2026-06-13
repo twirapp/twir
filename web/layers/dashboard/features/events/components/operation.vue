@@ -4,8 +4,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import OperationFilter from './filter.vue'
-import { useCommandsApi } from '@/api/commands/commands.js'
-import { useVariablesApi } from '@/api/variables.js'
+import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
+import { useVariablesApi } from '~~/layers/dashboard/api/variables.js'
 import { Button } from '@/components/ui/button'
 import {
 	FormControl,
@@ -26,14 +26,14 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import VariableInput from '@/components/variable-input.vue'
-import OperationActionSelector from '@/features/events/components/operation-action-selector.vue'
-import OperationInputAlert from '@/features/events/components/operation-input-alert.vue'
-import OperationInputObsSelector from '@/features/events/components/operation-input-obs-selector.vue'
-import { flatOperations } from '@/features/events/constants/helpers'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
+import OperationActionSelector from '~~/layers/dashboard/features/events/components/operation-action-selector.vue'
+import OperationInputAlert from '~~/layers/dashboard/features/events/components/operation-input-alert.vue'
+import OperationInputObsSelector from '~~/layers/dashboard/features/events/components/operation-input-obs-selector.vue'
+import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers'
 import { EventOperationType } from '~/gql/graphql.js'
 
-import type { EventFilter, EventOperation } from '@/api/events'
+import type { EventFilter, EventOperation } from '~~/layers/dashboard/api/events'
 
 const props = withDefaults(
 	defineProps<{

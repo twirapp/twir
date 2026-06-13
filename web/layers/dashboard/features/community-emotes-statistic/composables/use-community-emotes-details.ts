@@ -3,8 +3,8 @@ import { computed, ref } from 'vue'
 
 import type { EmotesStatisticEmoteDetailedOpts } from '~/gql/graphql.js'
 
-import { useEmotesStatisticDetailsQuery } from '@/api/emotes-statistic'
-import { usePagination } from '@/composables/use-pagination'
+import { useEmotesStatisticDetailsQuery } from '~~/layers/dashboard/api/emotes-statistic'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination'
 import { EmoteStatisticRange } from '~/gql/graphql.js'
 
 export const useCommunityEmotesDetailsName = createGlobalState(() => {

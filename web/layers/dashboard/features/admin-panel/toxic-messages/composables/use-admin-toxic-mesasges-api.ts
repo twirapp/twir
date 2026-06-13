@@ -3,8 +3,8 @@ import { computed, readonly } from 'vue'
 
 import type { AdminToxicMessagesInput, AdminToxicMessagesQuery } from '~/gql/graphql.js'
 
-import { useToxicMessagesAdminApi } from '@/api/admin/toxic-messages.js'
-import { usePagination } from '@/composables/use-pagination.js'
+import { useToxicMessagesAdminApi } from '~~/layers/dashboard/api/admin/toxic-messages.js'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
 
 export const useAdminToxicMessagesApi = createGlobalState(() => {
 	const api = useToxicMessagesAdminApi()

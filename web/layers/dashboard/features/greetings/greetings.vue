@@ -2,7 +2,7 @@
 import { useGreetingsTable } from './composables/use-greetings-table'
 import GreetingsInformation from './ui/greetings-information.vue'
 
-import Table from '@/components/table.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
 
 const greetingsTable = useGreetingsTable()
 </script>

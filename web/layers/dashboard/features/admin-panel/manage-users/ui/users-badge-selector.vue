@@ -15,7 +15,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
+import { cn } from '~~/layers/dashboard/lib/utils'
 
 const props = defineProps<{ userId: string }>()
 

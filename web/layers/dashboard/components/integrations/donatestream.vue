@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
-import { useIntegrations } from '@/api/integrations/integrations.js'
-import DonateStreamSVG from '@/assets/integrations/donatestream.svg?use'
-import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
-import WithSettings from '@/components/integrations/variants/withSettings.vue'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
+import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
+import DonateStreamSVG from '~~/layers/dashboard/assets/integrations/donatestream.svg?use'
+import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
+import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import CopyInput from '@/components/ui/copy-input/CopyInput.vue'

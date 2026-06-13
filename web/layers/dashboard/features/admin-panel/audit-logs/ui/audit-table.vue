@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Table from '@/components/table.vue'
-import { useAuditTable } from '@/features/admin-panel/audit-logs/composables/use-audit-table'
+import Table from '~~/layers/dashboard/components/table.vue'
+import { useAuditTable } from '~~/layers/dashboard/features/admin-panel/audit-logs/composables/use-audit-table'
 
 const auditTable = useAuditTable()
 </script>

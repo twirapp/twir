@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import * as z from 'zod'
 
-import { useWebhookNotificationsApi } from '@/api/webhook-notifications'
+import { useWebhookNotificationsApi } from '~~/layers/dashboard/api/webhook-notifications'
 
 export const formSchema = z.object({
 	id: z.string().optional(),

@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile } from '@/api/auth.js'
+import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { toast } from 'vue-sonner'
 
 	export function useCopyOverlayLink(overlayPath: string) {

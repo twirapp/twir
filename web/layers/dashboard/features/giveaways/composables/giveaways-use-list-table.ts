@@ -6,12 +6,12 @@ import { BanIcon, EyeIcon, PlayIcon } from 'lucide-vue-next';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import type { Giveaway } from '@/api/giveaways.js';
+import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js';
 
-import { useUserAccessFlagChecker } from '@/api/auth';
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth';
 import { Button } from '@/components/ui/button';
-import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.js';
-import GiveawaysCreateDialog from '@/features/giveaways/ui/giveaways-create-dialog.vue';
+import { useGiveaways } from '~~/layers/dashboard/features/giveaways/composables/giveaways-use-giveaways.js';
+import GiveawaysCreateDialog from '~~/layers/dashboard/features/giveaways/ui/giveaways-create-dialog.vue';
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js';
 
 export const useGiveawaysListTable = createGlobalState(() => {

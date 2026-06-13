@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useAlertsTable } from './composables/use-alerts-table.js'
 import AlertsInformation from './ui/alerts-information.vue'
 
-import Table from '@/components/table.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
 
 const { t } = useI18n()
 const { table, isLoading } = useAlertsTable()

@@ -3,8 +3,8 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import * as z from 'zod'
 
-import { useAdminNotifications } from '@/api/admin/notifications'
-import { useFormField } from '@/composables/use-form-field'
+import { useAdminNotifications } from '~~/layers/dashboard/api/admin/notifications'
+import { useFormField } from '~~/layers/dashboard/composables/use-form-field'
 
 const formSchema = toTypedSchema(z.object({
 	userId: z.string().nullable(),

@@ -14,12 +14,12 @@ import UsersActionSelector from '../ui/users-action-selector.vue'
 import UsersBadgeSelector from '../ui/users-badge-selector.vue'
 import UsersTableCellUser from '../ui/users-table-cell-user.vue'
 
-import type { User } from '@/api/admin/users.js'
+import type { User } from '~~/layers/dashboard/api/admin/users.js'
 import type { TwirUsersSearchParams } from '~/gql/graphql.js'
 
-import { usePagination } from '@/composables/use-pagination.js'
-import { resolveProfile } from '@/helpers/resolveProfile.js'
-import { valueUpdater } from '@/helpers/value-updater.js'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
+import { resolveProfile } from '~~/layers/dashboard/helpers/resolveProfile.js'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
 
 export const useUsersTable = createGlobalState(() => {
 	const { t } = useI18n()

@@ -2,7 +2,7 @@
 import { useUsersTable } from './composables/use-users-table.js'
 import UsersPage from './ui/users-page.vue'
 
-import Pagination from '@/components/pagination.vue'
+import Pagination from '~~/layers/dashboard/components/pagination.vue'
 
 const usersTable = useUsersTable()
 </script>

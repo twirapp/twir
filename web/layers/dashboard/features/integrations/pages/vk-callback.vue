@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useVKIntegration } from '@/features/integrations/composables/vk/use-vk-integration.js'
+import { useVKIntegration } from '~~/layers/dashboard/features/integrations/composables/vk/use-vk-integration.js'
 
 const router = useRouter()
 const { broadcastRefresh, postCode } = useVKIntegration()

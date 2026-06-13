@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import { useProfile } from '@/api/auth.js'
+import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {

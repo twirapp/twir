@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-import { useUserAccessFlagChecker } from '@/api/auth.js'
-import IconNightbot from '@/assets/integrations/nightbot.svg?use'
-import OauthComponent from '@/components/integrations/variants/oauth.vue'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth.js'
+import IconNightbot from '~~/layers/dashboard/assets/integrations/nightbot.svg?use'
+import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert/index.js'
 import { Button } from '@/components/ui/button/index.js'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card/index.js'

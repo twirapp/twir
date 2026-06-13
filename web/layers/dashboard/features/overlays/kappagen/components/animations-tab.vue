@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
-import { useKappagenInstance } from '@/features/overlays/kappagen/composables/use-kappagen-instance.js'
+import { useKappagenInstance } from '~~/layers/dashboard/features/overlays/kappagen/composables/use-kappagen-instance.js'
 
 const { fields: animations, update: updateAnimations } =
 	useFieldArray<KappagenOverlayAnimationsSettings>('animations')

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSeventvData } from '@/features/integrations/composables/seventv/use-seventv-data.js'
+import { useSeventvData } from '~~/layers/dashboard/features/integrations/composables/seventv/use-seventv-data.js'
 
 const { botProfile, userProfile } = useSeventvData()
 </script>

@@ -6,7 +6,7 @@ import EventsubSubscribe from './ui/eventsub-subscribe.vue'
 import RescheduleTimers from './ui/reschedule-timers.vue'
 import SetupKickBot from './ui/setup-kick-bot.vue'
 
-import ReinitEventsubChannels from '@/features/admin-panel/actions/ui/reinit-eventsub-channels.vue'
+import ReinitEventsubChannels from '~~/layers/dashboard/features/admin-panel/actions/ui/reinit-eventsub-channels.vue'
 
 const { t } = useI18n()
 </script>

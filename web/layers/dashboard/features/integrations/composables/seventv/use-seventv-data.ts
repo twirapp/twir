@@ -1,8 +1,8 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
-import { useCommandsApi } from '@/api/commands/commands.js'
-import { useSevenTvIntegration } from '@/api/integrations/seventv.js'
+import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
+import { useSevenTvIntegration } from '~~/layers/dashboard/api/integrations/seventv.js'
 
 export const useSeventvData = createGlobalState(() => {
 	const { subscription } = useSevenTvIntegration()

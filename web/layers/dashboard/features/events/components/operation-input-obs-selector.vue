@@ -3,9 +3,9 @@ import { useField } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EventOperation } from '@/api/events.js'
+import type { EventOperation } from '~~/layers/dashboard/api/events.js'
 
-import { useObsWebsocketApi } from '@/api/overlays-obs'
+import { useObsWebsocketApi } from '~~/layers/dashboard/api/overlays-obs'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
 	Select,

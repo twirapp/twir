@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { FunctionalComponent } from 'vue'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import {

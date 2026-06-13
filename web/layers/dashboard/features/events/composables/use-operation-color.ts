@@ -1,5 +1,5 @@
 import { EventOperationType } from '~/gql/graphql.js'
-import { flatOperations } from '@/features/events/constants/helpers.js'
+import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers.js'
 
 export function getOperationColor(operationType?: EventOperationType): string {
 	if (!operationType) {

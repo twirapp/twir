@@ -4,11 +4,11 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { nativeEnum, object, string } from 'zod';
 
-import type { CustomVariable } from '@/api/variables.js';
+import type { CustomVariable } from '~~/layers/dashboard/api/variables.js';
 import type { MaybeRef } from 'vue';
 import type { TypeOf } from 'zod';
 
-import { useVariablesApi } from '@/api/variables.js';
+import { useVariablesApi } from '~~/layers/dashboard/api/variables.js';
 import { toast } from 'vue-sonner';
 import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js';
 

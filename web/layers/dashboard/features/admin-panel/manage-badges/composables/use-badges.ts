@@ -1,7 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
-import { useAdminBadges, useQueryBadges } from '@/api/admin/badges'
+import { useAdminBadges, useQueryBadges } from '~~/layers/dashboard/api/admin/badges'
 
 export const useBadges = createGlobalState(() => {
 	const badgesApi = useAdminBadges()

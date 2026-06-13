@@ -2,14 +2,14 @@
 import { computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import OverlayBuilder from '@/features/overlay-builder/OverlayBuilder.vue'
+import OverlayBuilder from '~~/layers/dashboard/features/overlay-builder/OverlayBuilder.vue'
 import {
 	useChannelOverlayByIdQuery,
 	useChannelOverlaysQuery,
-} from '@/api/overlays/custom'
-import type { OverlayProject } from '@/features/overlay-builder/types'
-import { useOverlaySave } from '@/features/overlay-builder/composables/useOverlaySave'
-import { useOverlayInstantSave } from '@/features/overlay-builder/composables/useOverlayInstantSave'
+} from '~~/layers/dashboard/api/overlays/custom'
+import type { OverlayProject } from '~~/layers/dashboard/features/overlay-builder/types'
+import { useOverlaySave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlaySave'
+import { useOverlayInstantSave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlayInstantSave'
 
 const route = useRoute()
 const router = useRouter()

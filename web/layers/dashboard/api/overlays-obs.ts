@@ -4,8 +4,8 @@ import { computed } from 'vue'
 
 import type { ObsWebsocketModule } from '~/gql/graphql.js'
 
-import { useProfile } from '@/api/auth.js'
-import { useMutation } from '@/composables/use-mutation.js'
+import { useProfile } from '~~/layers/dashboard/api/auth.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/gql.js'
 
 export type ObsWebsocketData = Omit<ObsWebsocketModule, '__typename'>

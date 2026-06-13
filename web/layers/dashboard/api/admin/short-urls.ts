@@ -5,7 +5,7 @@ import { unref } from 'vue'
 import type { AdminShortUrlsInput, AdminShortUrlsPayload } from '~/gql/graphql.js'
 import type { MaybeRef } from 'vue'
 
-import { useMutation } from '@/composables/use-mutation'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
 import { graphql } from '@/gql'
 
 export type AdminShortUrl = AdminShortUrlsPayload['items'][0]

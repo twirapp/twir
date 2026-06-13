@@ -1,7 +1,7 @@
 import { createGlobalState, useLocalStorage, useScriptTag } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
-import { useYoutubeSocket } from '@/components/songRequests/hook.js'
+import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
 
 interface YTPlayer {
 	playVideo: () => void

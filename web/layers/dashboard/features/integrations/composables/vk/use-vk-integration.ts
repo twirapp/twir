@@ -1,8 +1,8 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
-import { useVKIntegrationApi } from '@/api/integrations/vk.js'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
+import { useVKIntegrationApi } from '~~/layers/dashboard/api/integrations/vk.js'
 
 export const vkBroadcaster = new BroadcastChannel('vk_channel')
 

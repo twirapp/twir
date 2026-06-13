@@ -21,7 +21,7 @@ import {
 
 import type { FunctionalComponent } from 'vue'
 
-import { EventType } from '@/api/events.js'
+import { EventType } from '~~/layers/dashboard/api/events.js'
 
 export interface TwirEvent {
 	name: string

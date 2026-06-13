@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { CommandGroup } from '~/gql/graphql.js'
 
-import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
+import { useCommandsGroupsApi } from '~~/layers/dashboard/api/commands/commands-groups'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { ColorPicker } from '@/components/ui/color-picker'

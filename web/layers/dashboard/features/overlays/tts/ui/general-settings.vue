@@ -2,8 +2,8 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useTTSForm } from '@/features/overlays/tts/composables/use-tts-form'
-import { useTTSVoices } from '@/features/overlays/tts/composables/use-tts-voices'
+import { useTTSForm } from '~~/layers/dashboard/features/overlays/tts/composables/use-tts-form'
+import { useTTSVoices } from '~~/layers/dashboard/features/overlays/tts/composables/use-tts-voices'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,8 +28,8 @@ import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
-import { useUserAccessFlagChecker } from '@/api/auth'
+import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()

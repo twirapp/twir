@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
-import { useVariablesApi } from '@/api/variables'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useVariablesApi } from '~~/layers/dashboard/api/variables'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 

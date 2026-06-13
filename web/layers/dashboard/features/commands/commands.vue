@@ -5,15 +5,15 @@ import { useRoute } from 'vue-router'
 
 import List from './ui/list.vue'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
-import { useCommandsApi } from '@/api/commands/commands.js'
-import ManageGroups from '@/components/commands/manageGroups.vue'
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
+import ManageGroups from '~~/layers/dashboard/components/commands/manageGroups.vue'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
-import PageLayout from '@/layout/page-layout.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const route = useRoute()
 const { t } = useI18n()

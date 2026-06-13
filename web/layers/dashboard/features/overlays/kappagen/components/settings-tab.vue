@@ -15,7 +15,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import CommandButton from '@/features/commands/ui/command-button.vue'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 import { KappagenEmojiStyle } from '~/gql/graphql.js'
 
 const { fields: excludedEmotes, remove: removeExcludedEmote } = useFieldArray('excludedEmotes')

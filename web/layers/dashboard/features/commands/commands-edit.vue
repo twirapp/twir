@@ -8,13 +8,13 @@ import { useRoute } from 'vue-router'
 import { formSchema, useCommandEditV2 } from './composables/use-command-edit-v2'
 
 import { Button } from '@/components/ui/button'
-import FormConditions from '@/features/commands/ui/form/form-conditions.vue'
-import FormCooldown from '@/features/commands/ui/form/form-cooldown.vue'
-import FormExpiration from '@/features/commands/ui/form/form-expiration.vue'
-import FormGeneral from '@/features/commands/ui/form/form-general.vue'
-import FormPermissions from '@/features/commands/ui/form/form-permissions.vue'
-import FormResponses from '@/features/commands/ui/form/form-responses.vue'
-import PageLayout from '@/layout/page-layout.vue'
+import FormConditions from '~~/layers/dashboard/features/commands/ui/form/form-conditions.vue'
+import FormCooldown from '~~/layers/dashboard/features/commands/ui/form/form-cooldown.vue'
+import FormExpiration from '~~/layers/dashboard/features/commands/ui/form/form-expiration.vue'
+import FormGeneral from '~~/layers/dashboard/features/commands/ui/form/form-general.vue'
+import FormPermissions from '~~/layers/dashboard/features/commands/ui/form/form-permissions.vue'
+import FormResponses from '~~/layers/dashboard/features/commands/ui/form/form-responses.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const route = useRoute()
 const { t } = useI18n()

@@ -2,7 +2,7 @@
 import { useKeywordsTable } from './composables/use-keywords-table'
 import KeywordsInformation from './ui/keywords-information.vue'
 
-import Table from '@/components/table.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
 
 const table = useKeywordsTable()
 </script>

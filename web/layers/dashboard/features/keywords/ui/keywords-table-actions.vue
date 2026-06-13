@@ -3,9 +3,9 @@ import { ref } from 'vue'
 
 import KeywordDialog from './keywords-dialog.vue'
 
-import type { KeywordResponse } from '@/api/keywords'
+import type { KeywordResponse } from '~~/layers/dashboard/api/keywords'
 
-import { useKeywordsApi } from '@/api/keywords'
+import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'

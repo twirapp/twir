@@ -15,15 +15,15 @@ import { computed, h, ref, watch } from 'vue'
 
 import CommunityRewardsTableRewardCell from '../ui/cells/community-rewards-history-table-reward-cell.vue'
 
-import type { Redemption } from '@/api/community-rewards'
+import type { Redemption } from '~~/layers/dashboard/api/community-rewards'
 
-import { useCommunityRewardsApi } from '@/api/community-rewards'
-import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
+import { useCommunityRewardsApi } from '~~/layers/dashboard/api/community-rewards'
+import UsersTableCellUser from '~~/layers/dashboard/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 import {
 	useCommunityRewardsHistoryQuery,
-} from '@/features/community-rewards-history/composables/community-rewards-history-query.js'
+} from '~~/layers/dashboard/features/community-rewards-history/composables/community-rewards-history-query.js'
 import { graphql } from '~/gql/gql.js'
-import { valueUpdater } from '@/helpers/value-updater'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater'
 
 export const useCommunityRewardsTable = createGlobalState(() => {
 	const communityRewardsApi = useCommunityRewardsApi()

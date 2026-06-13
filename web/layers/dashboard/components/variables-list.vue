@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
-import { useVariablesApi } from '@/api/variables'
+import { useVariablesApi } from '~~/layers/dashboard/api/variables'
 import {
 	Command,
 	CommandEmpty,

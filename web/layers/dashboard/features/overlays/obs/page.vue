@@ -2,10 +2,10 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { PageLayoutTab } from '@/layout/page-layout.vue'
+import type { PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
-import PageLayout from '@/layout/page-layout.vue'
-import ObsSettings from '@/features/overlays/obs/settings.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+import ObsSettings from '~~/layers/dashboard/features/overlays/obs/settings.vue'
 
 const { t } = useI18n()
 

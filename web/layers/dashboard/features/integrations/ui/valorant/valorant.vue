@@ -2,12 +2,12 @@
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import ValorantIcon from '@/assets/integrations/valorant.svg?use'
-import Oauth from '@/components/integrations/variants/oauth.vue'
+import ValorantIcon from '~~/layers/dashboard/assets/integrations/valorant.svg?use'
+import Oauth from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import {
 	useValorantIntegration,
 	valorantBroadcaster,
-} from '@/features/integrations/composables/valorant/use-valorant-integration.js'
+} from '~~/layers/dashboard/features/integrations/composables/valorant/use-valorant-integration.js'
 
 const { t } = useI18n()
 

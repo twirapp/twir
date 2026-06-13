@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { FunctionalComponent } from 'vue'
 
-import { useVariablesApi } from '@/api/variables'
+import { useVariablesApi } from '~~/layers/dashboard/api/variables'
 import {
 	Command,
 	CommandEmpty,

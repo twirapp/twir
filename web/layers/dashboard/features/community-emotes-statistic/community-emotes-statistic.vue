@@ -2,7 +2,7 @@
 import { useCommunityEmotesStatisticTable } from './composables/use-community-emotes-statistic-table'
 import Table from './ui/community-emotes-table.vue'
 
-import Pagination from '@/components/pagination.vue'
+import Pagination from '~~/layers/dashboard/components/pagination.vue'
 
 const emotesTable = useCommunityEmotesStatisticTable()
 </script>

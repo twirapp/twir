@@ -9,7 +9,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import {
 	useAdminShortUrlsApi,
-} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-api.js'
+} from '~~/layers/dashboard/features/admin-panel/short-urls/composables/use-admin-short-urls-api.js'
 
 const api = useAdminShortUrlsApi()
 

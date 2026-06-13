@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import AlertsDialog from './alerts-dialog.vue'
 
-import { type Alert,useAlertsApi } from '@/api/alerts.js'
+import { type Alert,useAlertsApi } from '~~/layers/dashboard/api/alerts.js'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 

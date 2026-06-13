@@ -13,7 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { formatNumber } from '@/helpers/format-number.js'
+import { formatNumber } from '~~/layers/dashboard/helpers/format-number.js'
 import type { AcceptableValue } from 'reka-ui'
 
 const props = defineProps<{

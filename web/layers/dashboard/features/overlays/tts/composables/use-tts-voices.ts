@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { useTTSOverlayApi } from '@/api/overlays-tts'
+import { useTTSOverlayApi } from '~~/layers/dashboard/api/overlays-tts'
 
 interface VoiceInfo {
 	country: string

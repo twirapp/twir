@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 import CommunityRoles from './community-roles.vue'
 
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 const { t } = useI18n()

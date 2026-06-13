@@ -7,13 +7,13 @@ import { useRoute, useRouter } from 'vue-router'
 import EventBasicInfo from './components/event-basic-info.vue'
 import OperationsTab from './components/operations-tab.vue'
 
-import { EventType, useEventsApi } from '@/api/events'
+import { EventType, useEventsApi } from '~~/layers/dashboard/api/events'
 import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'
-import EventVariables from '@/features/events/components/event-variables.vue'
-import { eventFormSchema } from '@/features/events/event-form-schema.js'
+import EventVariables from '~~/layers/dashboard/features/events/components/event-variables.vue'
+import { eventFormSchema } from '~~/layers/dashboard/features/events/event-form-schema.js'
 import { EventOperationType } from '~/gql/graphql.js'
-import PageLayout from '@/layout/page-layout.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const { t } = useI18n()
 const router = useRouter()

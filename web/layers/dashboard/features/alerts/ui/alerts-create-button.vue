@@ -4,8 +4,8 @@ import { useI18n } from 'vue-i18n'
 
 import AlertsDialog from './alerts-dialog.vue'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
-import { useAlertsApi } from '@/api/alerts'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useAlertsApi } from '~~/layers/dashboard/api/alerts'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 

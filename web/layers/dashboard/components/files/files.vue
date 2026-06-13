@@ -3,11 +3,11 @@ import { toast } from 'vue-sonner'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useFilesApi } from '@/api/files'
+import { useFilesApi } from '~~/layers/dashboard/api/files'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, FileButton } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { convertBytesToSize } from '@/helpers/convertBytesToSize.js'
+import { convertBytesToSize } from '~~/layers/dashboard/helpers/convertBytesToSize.js'
 
 const props = withDefaults(defineProps<{
 	tab?: string

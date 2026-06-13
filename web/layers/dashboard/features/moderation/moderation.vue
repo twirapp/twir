@@ -3,9 +3,9 @@ import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import type { PageLayoutTab } from '@/layout/page-layout.vue'
+import type { PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -13,13 +13,13 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.js'
-import { Icons } from '@/features/moderation/composables/use-moderation-form.js'
-import ModerationTabChatWall from '@/features/moderation/tabs/moderation-tab-chat-wall.vue'
-import ModerationTabRules from '@/features/moderation/tabs/moderation-tab-rules.vue'
+import { useModerationApi } from '~~/layers/dashboard/features/moderation/composables/use-moderation-api.js'
+import { Icons } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
+import ModerationTabChatWall from '~~/layers/dashboard/features/moderation/tabs/moderation-tab-chat-wall.vue'
+import ModerationTabRules from '~~/layers/dashboard/features/moderation/tabs/moderation-tab-rules.vue'
 // oxlint-disable-next-line consistent-type-imports
 import { ChannelRolePermissionEnum, ModerationSettingsType } from '~/gql/graphql.js'
-import PageLayout from '@/layout/page-layout.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const { t } = useI18n()
 const router = useRouter()

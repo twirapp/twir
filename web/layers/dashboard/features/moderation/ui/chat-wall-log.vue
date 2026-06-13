@@ -2,10 +2,10 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ChatWall } from '@/api/moderation-chat-wall.js'
+import type { ChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
 
-import { useModerationChatWall } from '@/api/moderation-chat-wall.js'
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import { useModerationChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,

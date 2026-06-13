@@ -7,7 +7,7 @@ import {
 	useChannelOverlayCreate,
 	useChannelOverlayUpdate,
 	useChannelOverlaysQuery,
-} from '@/api/overlays/custom'
+} from '~~/layers/dashboard/api/overlays/custom'
 
 import type { OverlayProject } from '../types'
 

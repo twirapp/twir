@@ -2,16 +2,16 @@
 import { computed, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile } from '@/api/auth'
-import { useGamesApi } from '@/api/games/games.js'
-import Card from '@/components/games/card.vue'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import { useGamesApi } from '~~/layers/dashboard/api/games/games.js'
+import Card from '~~/layers/dashboard/components/games/card.vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
-import CommandButton from '@/features/commands/ui/command-button.vue'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
 const { data: profile } = useProfile()

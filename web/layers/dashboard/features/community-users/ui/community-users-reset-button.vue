@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useCommunityUsersApi } from '@/api/community-users.js'
+import { useCommunityUsersApi } from '~~/layers/dashboard/api/community-users.js'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import {

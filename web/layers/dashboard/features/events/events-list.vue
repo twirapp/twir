@@ -3,11 +3,11 @@ import { useI18n } from 'vue-i18n'
 
 import { useEventsTable } from './composables/use-events-table'
 
-import Table from '@/components/table.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
 import { Input } from '@/components/ui/input'
-import EventsCreateButton from '@/features/events/ui/events-create-button.vue'
-import PageLayout from '@/layout/page-layout.vue'
-import EventsListSelectType from '@/features/events/ui/events-list-select-type.vue'
+import EventsCreateButton from '~~/layers/dashboard/features/events/ui/events-create-button.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+import EventsListSelectType from '~~/layers/dashboard/features/events/ui/events-list-select-type.vue'
 
 const eventsTable = useEventsTable()
 const { t } = useI18n()

@@ -10,7 +10,7 @@ import {
 	type ChatMessage as ChatMessageType,
 	useChatMessages,
 	useChatMessagesSubscription,
-} from '@/api/chat-messages'
+} from '~~/layers/dashboard/api/chat-messages'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 

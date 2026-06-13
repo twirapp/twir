@@ -17,12 +17,12 @@ import CommunityEmotesTableColumnChartRange
 import CommunityEmotesTableColumnChart from '../ui/community-emotes-table-column-chart.vue'
 import CommunityEmotesTableColumn from '../ui/community-emotes-table-column.vue'
 
-import { type EmotesStatistics, useEmotesStatisticQuery } from '@/api/emotes-statistic.js'
-import { usePagination } from '@/composables/use-pagination.js'
+import { type EmotesStatistics, useEmotesStatisticQuery } from '~~/layers/dashboard/api/emotes-statistic.js'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
 import CommunityEmotesTableColumnEmote
-	from '@/features/community-emotes-statistic/ui/community-emotes-table-column-emote.vue'
+	from '~~/layers/dashboard/features/community-emotes-statistic/ui/community-emotes-table-column-emote.vue'
 import { EmoteStatisticRange, type EmotesStatisticsOpts } from '~/gql/graphql.js'
-import { valueUpdater } from '@/helpers/value-updater.js'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
 
 export const useCommunityEmotesStatisticTable = createGlobalState(() => {
 	const { t } = useI18n()

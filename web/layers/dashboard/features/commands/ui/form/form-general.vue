@@ -3,14 +3,14 @@ import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 
-import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
-import ManageGroups from '@/components/commands/manageGroups.vue'
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import { useCommandsGroupsApi } from '~~/layers/dashboard/api/commands/commands-groups'
+import ManageGroups from '~~/layers/dashboard/components/commands/manageGroups.vue'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import PlatformSelector from '@/components/platform-selector.vue'
+import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
 import {
 	FormControl,
 	FormDescription,

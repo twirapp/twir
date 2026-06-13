@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useTwitchRewardsNew } from '@/api/twitch.js'
-import RewardFallbackImg from '@/assets/images/reward-fallback.png?url'
+import { useTwitchRewardsNew } from '~~/layers/dashboard/api/twitch.js'
+import RewardFallbackImg from '~~/layers/dashboard/assets/images/reward-fallback.png?url'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
 	Select,
@@ -13,7 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+import { cn } from '~~/layers/dashboard/lib/utils'
 
 const props = defineProps<{
 	multiple?: boolean

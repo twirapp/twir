@@ -3,11 +3,11 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ChatWall } from '@/api/moderation-chat-wall.js'
+import type { ChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
 
-import { useModerationChatWall } from '@/api/moderation-chat-wall.js'
-import ChatWallAction from '@/features/moderation/ui/chat-wall-action.vue'
-import ChatWallLog from '@/features/moderation/ui/chat-wall-log.vue'
+import { useModerationChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
+import ChatWallAction from '~~/layers/dashboard/features/moderation/ui/chat-wall-action.vue'
+import ChatWallLog from '~~/layers/dashboard/features/moderation/ui/chat-wall-log.vue'
 
 export const useModerationWallTable = createGlobalState(() => {
 	const { t } = useI18n()

@@ -7,7 +7,7 @@ import { useAuditTable } from '../composables/use-audit-table'
 
 import type { AuditFilterType } from '../composables/use-audit-filters'
 
-import TwitchUserSearch from '@/components/twitchUsers/twitch-user-select.vue'
+import TwitchUserSearch from '~~/layers/dashboard/components/twitchUsers/twitch-user-select.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {

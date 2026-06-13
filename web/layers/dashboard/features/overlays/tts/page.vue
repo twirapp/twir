@@ -2,12 +2,12 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { PageLayoutTab } from '@/layout/page-layout.vue'
+import type { PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
-import PageLayout from '@/layout/page-layout.vue'
-import TtsGeneralSettings from '@/features/overlays/tts/ui/general-settings.vue'
-import TtsUsersSettings from '@/features/overlays/tts/ui/users-settings.vue'
-import TtsCommands from '@/features/overlays/tts/ui/commands.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+import TtsGeneralSettings from '~~/layers/dashboard/features/overlays/tts/ui/general-settings.vue'
+import TtsUsersSettings from '~~/layers/dashboard/features/overlays/tts/ui/users-settings.vue'
+import TtsCommands from '~~/layers/dashboard/features/overlays/tts/ui/commands.vue'
 
 const { t } = useI18n()
 

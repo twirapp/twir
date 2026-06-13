@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 
 import type { GetChannelRewardsQuery } from '~/gql/graphql.js'
 
-import { useTwitchRewardsNew } from '@/api/twitch.js'
+import { useTwitchRewardsNew } from '~~/layers/dashboard/api/twitch.js'
 import { Button } from '@/components/ui/button'
 import {
 	Command,

@@ -1,12 +1,12 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
-import type { AdminShortUrl } from '@/api/admin/short-urls.js'
+import type { AdminShortUrl } from '~~/layers/dashboard/api/admin/short-urls.js'
 import type { AdminShortUrlsInput } from '~/gql/graphql.js'
 
-import { useAdminShortUrlsApi as useApiManager } from '@/api/admin/short-urls.js'
+import { useAdminShortUrlsApi as useApiManager } from '~~/layers/dashboard/api/admin/short-urls.js'
 import { toast } from 'vue-sonner'
-import { usePagination } from '@/composables/use-pagination.js'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
 
 export const useAdminShortUrlsApi = createGlobalState(() => {
 	const api = useApiManager()

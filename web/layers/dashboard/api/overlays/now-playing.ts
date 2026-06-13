@@ -1,6 +1,6 @@
 import { useQuery } from '@urql/vue'
 
-import { useMutation } from '@/composables/use-mutation'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
 import { graphql } from '@/gql'
 
 export function useNowPlayingOverlayApi() {

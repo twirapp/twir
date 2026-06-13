@@ -16,7 +16,7 @@ import { useForm } from 'vee-validate'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import TwitchMultipleUsersSelector from '@/components/twitchUsers/twitch-users-select.vue'
+import TwitchMultipleUsersSelector from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -35,11 +35,11 @@ import { toast } from 'vue-sonner'
 import {
 	useDiscordGuildInfo,
 	useDiscordIntegration,
-} from '@/features/integrations/composables/discord/use-discord-integration.js'
+} from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
 import { Card, CardContent } from '@/components/ui/card'
 
-import StreamStarting from '@/assets/images/streamStarting.jpeg?url'
-import { useProfile } from '@/api/auth'
+import StreamStarting from '~~/layers/dashboard/assets/images/streamStarting.jpeg?url'
+import { useProfile } from '~~/layers/dashboard/api/auth'
 import {
 	type DiscordGuildUpdateInputInput,
 	DiscordGuildUpdateInputSchema,

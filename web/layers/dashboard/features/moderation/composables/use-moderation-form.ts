@@ -13,7 +13,7 @@ import {
 } from 'lucide-vue-next'
 import { z } from 'zod'
 
-import type { ModerationItem } from '@/api/moderation'
+import type { ModerationItem } from '~~/layers/dashboard/api/moderation'
 
 import { ModerationSettingsType } from '~/gql/graphql.js'
 

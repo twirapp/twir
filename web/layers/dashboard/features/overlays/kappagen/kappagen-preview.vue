@@ -5,13 +5,13 @@ import '@twirapp/kappagen/styles'
 import { useFormValues } from 'vee-validate'
 import { computed } from 'vue'
 
-import type { KappagenFormSchema } from '@/features/overlays/kappagen/kappagen-form-schema.js'
+import type { KappagenFormSchema } from '~~/layers/dashboard/features/overlays/kappagen/kappagen-form-schema.js'
 import type { KappagenConfig, KappagenMethods } from '@twirapp/kappagen/types'
 
 import {
 	twirEmote,
 	useKappagenInstance,
-} from '@/features/overlays/kappagen/composables/use-kappagen-instance.js'
+} from '~~/layers/dashboard/features/overlays/kappagen/composables/use-kappagen-instance.js'
 
 const kappagen = useKappagenInstance()
 

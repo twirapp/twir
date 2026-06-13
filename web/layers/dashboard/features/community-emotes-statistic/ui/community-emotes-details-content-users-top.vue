@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import Pagination from '@/components/pagination.vue'
+import Pagination from '~~/layers/dashboard/components/pagination.vue'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import Table from '@/components/table.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
 import {
 	useCommunityEmotesDetails,
-} from '@/features/community-emotes-statistic/composables/use-community-emotes-details'
+} from '~~/layers/dashboard/features/community-emotes-statistic/composables/use-community-emotes-details'
 import {
 	useCommunityEmotesDetailsUsersTop,
-} from '@/features/community-emotes-statistic/composables/use-community-emotes-details-users-top'
+} from '~~/layers/dashboard/features/community-emotes-statistic/composables/use-community-emotes-details-users-top'
 
 const { isLoading, topPagination } = useCommunityEmotesDetails()
 const { total, table } = useCommunityEmotesDetailsUsersTop()

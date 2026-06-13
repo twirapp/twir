@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import { useChannelOverlayParseHtml } from '@/api/overlays/custom'
+import { useChannelOverlayParseHtml } from '~~/layers/dashboard/api/overlays/custom'
 
 interface Props {
 	html?: string

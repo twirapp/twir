@@ -1,4 +1,4 @@
-import { useChannelOverlayParseHtml } from '@/api/overlays/custom.js'
+import { useChannelOverlayParseHtml } from '~~/layers/dashboard/api/overlays/custom.js'
 
 export const useOverlaysParseHtml = () => {
 	const parseHtml = useChannelOverlayParseHtml()

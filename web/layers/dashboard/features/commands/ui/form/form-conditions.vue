@@ -3,7 +3,7 @@ import { useField } from 'vee-validate'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import TwitchCategorySearchShadcnMultiple from '@/components/twitch-category-search-shadcn-multiple.vue'
+import TwitchCategorySearchShadcnMultiple from '~~/layers/dashboard/components/twitch-category-search-shadcn-multiple.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {

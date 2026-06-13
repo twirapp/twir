@@ -3,7 +3,7 @@ import { useForm } from 'vee-validate'
 import { computed, watchEffect } from 'vue'
 import { z } from 'zod'
 
-import { useTTSOverlayApi } from '@/api/overlays-tts'
+import { useTTSOverlayApi } from '~~/layers/dashboard/api/overlays-tts'
 
 const ttsSettingsSchema = z.object({
 	// General settings

@@ -2,9 +2,9 @@
 import { useAdminToxicMessagesApi } from './composables/use-admin-toxic-mesasges-api.js'
 import { useAdminToxicMessagesTable } from './composables/use-admin-toxic-messages-table.js'
 
-import Pagination from '@/components/pagination.vue'
-import Table from '@/components/table.vue'
-import ToxicMessagesPage from '@/features/admin-panel/toxic-messages/ui/toxic-messages-page.vue'
+import Pagination from '~~/layers/dashboard/components/pagination.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
+import ToxicMessagesPage from '~~/layers/dashboard/features/admin-panel/toxic-messages/ui/toxic-messages-page.vue'
 
 const api = useAdminToxicMessagesApi()
 const table = useAdminToxicMessagesTable()

@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import { formSchema, useVotebanForm } from './composables/use-voteban-form'
 
-import Card from '@/components/games/card.vue'
+import Card from '~~/layers/dashboard/components/games/card.vue'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -44,7 +44,7 @@ import {
 	TagsInputItemText,
 } from '@/components/ui/tags-input'
 import { Textarea } from '@/components/ui/textarea'
-import CommandButton from '@/features/commands/ui/command-button.vue'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 import { VoteBanGameVotingMode } from '~/gql/graphql.js'
 
 const isDialogOpen = ref(false)

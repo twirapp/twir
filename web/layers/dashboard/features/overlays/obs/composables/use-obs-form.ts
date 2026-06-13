@@ -3,7 +3,7 @@ import { useForm } from 'vee-validate'
 import { computed, watchEffect } from 'vue'
 import { z } from 'zod'
 
-import { useObsWebsocketApi } from '@/api/overlays-obs'
+import { useObsWebsocketApi } from '~~/layers/dashboard/api/overlays-obs'
 
 const obsSettingsSchema = z.object({
 	serverAddress: z.string().min(1, 'Server address is required').trim().default('localhost'),

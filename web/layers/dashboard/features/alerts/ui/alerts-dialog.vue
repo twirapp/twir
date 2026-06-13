@@ -5,9 +5,9 @@ import { useI18n } from 'vue-i18n'
 
 import AlertsModalContent from './alerts-dialog-content.vue'
 
-import type { Alert } from '@/api/alerts.js'
+import type { Alert } from '~~/layers/dashboard/api/alerts.js'
 
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import {
 	Dialog,
 	DialogHeader,

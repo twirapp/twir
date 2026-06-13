@@ -4,7 +4,7 @@ import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
-import { useMutationEventSubSubscribe } from '@/api/admin/actions'
+import { useMutationEventSubSubscribe } from '~~/layers/dashboard/api/admin/actions'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import {

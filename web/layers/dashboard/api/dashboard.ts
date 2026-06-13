@@ -4,7 +4,7 @@ import { computed } from 'vue'
 
 import type { DashboardEventsSubscription } from '~/gql/graphql.js'
 
-import { useMutation } from '@/composables/use-mutation.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '@/gql'
 
 export type DashboardWidgetEvent = DashboardEventsSubscription['dashboardWidgetsEvents']['events'][number]

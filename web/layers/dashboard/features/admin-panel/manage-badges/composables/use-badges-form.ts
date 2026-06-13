@@ -5,7 +5,7 @@ import * as z from 'zod'
 
 import { useBadges } from './use-badges.js'
 
-import { useFormField } from '@/composables/use-form-field.js'
+import { useFormField } from '~~/layers/dashboard/composables/use-form-field.js'
 
 const formSchema = toTypedSchema(z.object({
 	name: z.string(),

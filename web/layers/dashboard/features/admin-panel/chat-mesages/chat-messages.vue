@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import type { ChatMessage as ChatMessageType } from '@/api/chat-messages.js'
+import type { ChatMessage as ChatMessageType } from '~~/layers/dashboard/api/chat-messages.js'
 
-import { useAllChatMessagesSubscription } from '@/api/admin/chat-messages.js'
+import { useAllChatMessagesSubscription } from '~~/layers/dashboard/api/admin/chat-messages.js'
 import { Card, CardContent } from '@/components/ui/card'
-import ChatMessage from '@/features/community-chat-messages/ui/message.vue'
+import ChatMessage from '~~/layers/dashboard/features/community-chat-messages/ui/message.vue'
 
 const subscription = useAllChatMessagesSubscription()
 

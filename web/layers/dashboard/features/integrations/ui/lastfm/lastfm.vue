@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 
-import IconLastFM from '@/assets/integrations/lastfm.svg?use'
-import SongDescription from '@/components/integrations/helpers/songDescription.vue'
-import OauthComponent from '@/components/integrations/variants/oauth.vue'
+import IconLastFM from '~~/layers/dashboard/assets/integrations/lastfm.svg?use'
+import SongDescription from '~~/layers/dashboard/components/integrations/helpers/songDescription.vue'
+import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import {
 	lastfmBroadcaster,
 	useLastfmIntegration,
-} from '@/features/integrations/composables/lastfm/use-lastfm-integration.js'
+} from '~~/layers/dashboard/features/integrations/composables/lastfm/use-lastfm-integration.js'
 
 const { userName, avatar, logout, authLink, isDataFetching, refetchData } = useLastfmIntegration()
 

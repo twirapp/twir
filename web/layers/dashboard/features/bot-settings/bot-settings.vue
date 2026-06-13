@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CommandsPrefix from './ui/commands-prefix.vue'
 
-import PageLayout from '@/layout/page-layout.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 </script>
 
 <template>

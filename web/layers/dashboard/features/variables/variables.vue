@@ -4,9 +4,9 @@ import { useI18n } from 'vue-i18n'
 import { useVariablesTable } from './composables/use-variables-table'
 import VariablesCreateButton from './ui/variables-create-button.vue'
 
-import Table from '@/components/table.vue'
-import VariablesInformation from '@/features/variables/ui/variables-information.vue'
-import PageLayout from '@/layout/page-layout.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
+import VariablesInformation from '~~/layers/dashboard/features/variables/ui/variables-information.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const variablesTable = useVariablesTable()
 const { t } = useI18n()

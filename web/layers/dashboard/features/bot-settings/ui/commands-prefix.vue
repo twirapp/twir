@@ -5,7 +5,7 @@ import { onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
-import { useCommandsPrefixApi } from '@/api/commands-prefix'
+import { useCommandsPrefixApi } from '~~/layers/dashboard/api/commands-prefix'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'

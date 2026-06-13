@@ -5,15 +5,15 @@ import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
-import { useCommandsApi } from '@/api/commands/commands.js'
-import { useModerationChatWall } from '@/api/moderation-chat-wall.js'
+import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
+import { useModerationChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import CommandsList from '@/features/commands/ui/list.vue'
-import { cn } from '@/lib/utils'
+import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'
+import { cn } from '~~/layers/dashboard/lib/utils'
 
 const { t } = useI18n()
 const api = useModerationChatWall()

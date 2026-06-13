@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Table from '@/components/table.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
 import {
 	useAdminShortUrlsApi,
-} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-api.js'
+} from '~~/layers/dashboard/features/admin-panel/short-urls/composables/use-admin-short-urls-api.js'
 import {
 	useAdminShortUrlsTable,
-} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-table.js'
-import ShortUrlsForm from '@/features/admin-panel/short-urls/ui/short-urls-form.vue'
+} from '~~/layers/dashboard/features/admin-panel/short-urls/composables/use-admin-short-urls-table.js'
+import ShortUrlsForm from '~~/layers/dashboard/features/admin-panel/short-urls/ui/short-urls-form.vue'
 
 const table = useAdminShortUrlsTable()
 const api = useAdminShortUrlsApi()

@@ -5,8 +5,8 @@ import { useCopyOverlayLink } from './copyOverlayLink.js'
 
 import type { FunctionalComponent } from 'vue'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import Card from '@/components/card/card.vue'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import Card from '~~/layers/dashboard/components/card/card.vue'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'

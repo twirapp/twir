@@ -6,7 +6,7 @@ import {
 	useDashboardWidgetsLayout,
 	useDashboardWidgetsLayoutSubscription,
 	useDashboardWidgetsLayoutUpdate,
-} from '@/api/dashboard-widgets-layout.js';
+} from '~~/layers/dashboard/api/dashboard-widgets-layout.js';
 
 export type WidgetItem = LayoutItem & {
 	visible: boolean;

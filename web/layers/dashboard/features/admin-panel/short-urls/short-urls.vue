@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Pagination from '@/components/pagination.vue'
+import Pagination from '~~/layers/dashboard/components/pagination.vue'
 import {
 	useAdminShortUrlsApi,
-} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-api.js'
+} from '~~/layers/dashboard/features/admin-panel/short-urls/composables/use-admin-short-urls-api.js'
 import {
 	useAdminShortUrlsTable,
-} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-table.js'
-import ShortUrlsPage from '@/features/admin-panel/short-urls/ui/short-urls-page.vue'
+} from '~~/layers/dashboard/features/admin-panel/short-urls/composables/use-admin-short-urls-table.js'
+import ShortUrlsPage from '~~/layers/dashboard/features/admin-panel/short-urls/ui/short-urls-page.vue'
 
 const table = useAdminShortUrlsTable()
 const api = useAdminShortUrlsApi()

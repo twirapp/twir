@@ -21,10 +21,10 @@ import ReSubscribe from './events/resubscribe.vue'
 import SubGift from './events/subgift.vue'
 import Subscribe from './events/subscribe.vue'
 
-import { useProfile } from '@/api/auth'
-import UnbanRequestCreated from '@/components/dashboard/events/unban-request-created.vue'
-import UnbanRequestResolved from '@/components/dashboard/events/unban-request-resolved.vue'
-import { useEvents } from '@/features/dashboard/widgets/composables/events'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import UnbanRequestCreated from '~~/layers/dashboard/components/dashboard/events/unban-request-created.vue'
+import UnbanRequestResolved from '~~/layers/dashboard/components/dashboard/events/unban-request-resolved.vue'
+import { useEvents } from '~~/layers/dashboard/features/dashboard/widgets/composables/events'
 import { DashboardEventType } from '~/gql/graphql.js'
 
 const props = defineProps<{

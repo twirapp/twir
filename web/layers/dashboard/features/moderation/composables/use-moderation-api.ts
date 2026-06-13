@@ -2,9 +2,9 @@ import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ModerationCreateOrUpdateInput, ModerationItem } from '@/api/moderation.js'
+import type { ModerationCreateOrUpdateInput, ModerationItem } from '~~/layers/dashboard/api/moderation.js'
 
-import { useChannelModerationSettingsApi } from '@/api/moderation.js'
+import { useChannelModerationSettingsApi } from '~~/layers/dashboard/api/moderation.js'
 import { toast } from 'vue-sonner'
 
 export const useModerationApi = createGlobalState(() => {

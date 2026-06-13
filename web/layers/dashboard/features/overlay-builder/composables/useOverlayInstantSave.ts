@@ -1,7 +1,7 @@
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { type MaybeRefOrGetter, computed, ref, toValue, watch } from 'vue'
 
-import { useProfile } from '@/api/auth'
+import { useProfile } from '~~/layers/dashboard/api/auth'
 
 import type { OverlayProject } from '../types'
 

@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import { useMutation } from '@/composables/use-mutation'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
 import { graphql } from '@/gql'
 
 const rolesInvalidateKey = 'rolesInvalidateKey'

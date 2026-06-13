@@ -2,10 +2,10 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import { useLanguagesApi } from '@/api/languages'
-import Card from '@/components/card/card.vue'
-import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useLanguagesApi } from '~~/layers/dashboard/api/languages'
+import Card from '~~/layers/dashboard/components/card/card.vue'
+import TwitchUsersSelect from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
 import { Button } from '@/components/ui/button'
 import { CardContent, CardHeader, CardTitle, Card as UICard } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -26,7 +26,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { useChatTranslations } from '@/features/modules/composables/use-chat-translations'
+import { useChatTranslations } from '~~/layers/dashboard/features/modules/composables/use-chat-translations'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()

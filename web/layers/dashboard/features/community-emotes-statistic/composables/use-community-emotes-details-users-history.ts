@@ -11,10 +11,10 @@ import { UseTimeAgo } from '@vueuse/components'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 
-import type { EmotesStatisticsDetail } from '@/api/emotes-statistic'
+import type { EmotesStatisticsDetail } from '~~/layers/dashboard/api/emotes-statistic'
 
-import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
-import { valueUpdater } from '@/helpers/value-updater'
+import UsersTableCellUser from '~~/layers/dashboard/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater'
 
 import { useCommunityEmotesDetails } from './use-community-emotes-details'
 

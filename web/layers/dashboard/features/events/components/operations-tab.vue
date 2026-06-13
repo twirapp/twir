@@ -6,13 +6,13 @@ import { useI18n } from 'vue-i18n'
 
 import OperationDetails from './operation.vue'
 
-import type { EventOperation } from '@/api/events'
+import type { EventOperation } from '~~/layers/dashboard/api/events'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { flatOperations } from '@/features/events/constants/helpers'
+import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers'
 import { EventOperationType } from '~/gql/graphql.js'
-import { getOperationColor } from '@/features/events/composables/use-operation-color.js'
+import { getOperationColor } from '~~/layers/dashboard/features/events/composables/use-operation-color.js'
 
 const { t } = useI18n()
 

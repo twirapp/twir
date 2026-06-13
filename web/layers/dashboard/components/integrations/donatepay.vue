@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { useDonatepayIntegration } from '@/api/integrations/donatepay'
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
-import DonatePaySVG from '@/assets/integrations/donatepay.svg?use'
-import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
-import WithSettings from '@/components/integrations/variants/withSettings.vue'
+import { useDonatepayIntegration } from '~~/layers/dashboard/api/integrations/donatepay'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
+import DonatePaySVG from '~~/layers/dashboard/assets/integrations/donatepay.svg?use'
+import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
+import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Button } from '@/components/ui/button'
 import { FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'

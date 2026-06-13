@@ -4,8 +4,8 @@ import { useI18n } from 'vue-i18n'
 
 import GreetingsDialog from './greetings-dialog.vue'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
-import { useGreetingsApi } from '@/api/greetings'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useGreetingsApi } from '~~/layers/dashboard/api/greetings'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 

@@ -4,13 +4,13 @@ import { Label } from 'reka-ui'
 
 import { useValorantStats } from './composables/use-valorant-stats'
 
-import { useValorantIntegration } from '@/features/integrations/composables/valorant/use-valorant-integration.js'
+import { useValorantIntegration } from '~~/layers/dashboard/features/integrations/composables/valorant/use-valorant-integration.js'
 import { Button } from '@/components/ui/button'
 import { ColorPicker } from '@/components/ui/color-picker'
 import InputWithIcon from '@/components/ui/InputWithIcon.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { SwitchToggle } from '@/components/ui/switch'
-import PageLayout from '@/layout/page-layout.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()

@@ -2,8 +2,8 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import Card from '@/components/card/card.vue'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import Card from '~~/layers/dashboard/components/card/card.vue'
 import { Button } from '@/components/ui/button'
 import { CardContent, CardHeader, CardTitle, Card as UICard } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -16,7 +16,7 @@ import {
 	FormMessage,
 } from '@/components/ui/form'
 import { Switch } from '@/components/ui/switch'
-import { useWebhookNotifications } from '@/features/modules/composables/use-webhook-notifications'
+import { useWebhookNotifications } from '~~/layers/dashboard/features/modules/composables/use-webhook-notifications'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()

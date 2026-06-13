@@ -2,7 +2,7 @@
 import { refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import { useTwitchGetCategories, useTwitchSearchCategories } from '@/api/twitch'
+import { useTwitchGetCategories, useTwitchSearchCategories } from '~~/layers/dashboard/api/twitch'
 import { Button } from '@/components/ui/button'
 import {
 	Command,
@@ -12,7 +12,7 @@ import {
 	CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
+import { cn } from '~~/layers/dashboard/lib/utils'
 
 withDefaults(
 	defineProps<{

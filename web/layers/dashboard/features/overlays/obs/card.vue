@@ -2,8 +2,8 @@
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import BroadcastIcon from '@/assets/overlays/broadcast.svg?use'
-import Card from '@/components/overlays/card.vue'
+import BroadcastIcon from '~~/layers/dashboard/assets/overlays/broadcast.svg?use'
+import Card from '~~/layers/dashboard/components/overlays/card.vue'
 
 const { t } = useI18n()
 const router = useRouter()

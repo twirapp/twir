@@ -3,7 +3,7 @@ import { createGlobalState } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
-import { useGamesApi } from '@/api/games/games';
+import { useGamesApi } from '~~/layers/dashboard/api/games/games';
 import { toast } from 'vue-sonner';
 import { VoteBanGameVotingMode } from '~/gql/graphql.js';
 

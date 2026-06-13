@@ -1,8 +1,8 @@
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import { useProfile } from '@/api/auth'
-import { useSongRequestsApi } from '@/api/song-requests'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
 
 export interface Video {
 	id: string

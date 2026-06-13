@@ -3,7 +3,7 @@ import { useField } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EventOperation } from '@/api/events.js'
+import type { EventOperation } from '~~/layers/dashboard/api/events.js'
 import { getOperationColor } from '../composables/use-operation-color.js'
 
 import { Button } from '@/components/ui/button'
@@ -17,10 +17,10 @@ import {
 } from '@/components/ui/command'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { flatOperations } from '@/features/events/constants/helpers.js'
-import { EventOperations } from '@/features/events/constants/operations.js'
+import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers.js'
+import { EventOperations } from '~~/layers/dashboard/features/events/constants/operations.js'
 import { EventOperationType } from '~/gql/graphql.js'
-import { cn } from '@/lib/utils.js'
+import { cn } from '~~/layers/dashboard/lib/utils.js'
 
 const props = defineProps<{
 	currentOperationIndex: number

@@ -6,9 +6,9 @@ import { useI18n } from 'vue-i18n'
 
 import ActionConfirm from '../ui/action-confirm.vue'
 
-import type { Video } from '@/components/songRequests/hook.js'
+import type { Video } from '~~/layers/dashboard/components/songRequests/hook.js'
 
-import { useYoutubeSocket } from '@/components/songRequests/hook.js'
+import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import {
@@ -29,7 +29,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { convertMillisToTime } from '@/helpers/convertMillisToTime.js'
+import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
 
 const { videos, moveVideo, banSong, banUser, deleteVideo, deleteAllVideos } = useYoutubeSocket()
 

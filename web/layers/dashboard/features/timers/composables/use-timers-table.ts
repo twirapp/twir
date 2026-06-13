@@ -3,10 +3,10 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { TimerResponse } from '@/api/timers'
+import type { TimerResponse } from '~~/layers/dashboard/api/timers'
 
-import { useTimersApi } from '@/api/timers'
-import TimersTableActions from '@/features/timers/ui/timers-table-actions.vue'
+import { useTimersApi } from '~~/layers/dashboard/api/timers'
+import TimersTableActions from '~~/layers/dashboard/features/timers/ui/timers-table-actions.vue'
 
 export const useTimersTable = createGlobalState(() => {
 	const { t } = useI18n()

@@ -7,8 +7,8 @@ import { useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { array, boolean, nativeEnum, number, object, string } from 'zod';
 
-import { type Command, useCommandsApi } from '@/api/commands/commands';
-import { useRoles } from '@/api/roles';
+import { type Command, useCommandsApi } from '~~/layers/dashboard/api/commands/commands';
+import { useRoles } from '~~/layers/dashboard/api/roles';
 import { CommandExpiresType } from '~/gql/graphql.js';
 
 export const formSchema = object({

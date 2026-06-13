@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { resolveUserName } from '@/helpers/resolveUserName.js'
+import { resolveUserName } from '~~/layers/dashboard/helpers/resolveUserName.js'
 
 const props = defineProps<{
 	name: string

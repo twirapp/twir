@@ -4,7 +4,7 @@ import { computed } from 'vue'
 
 import type { KappagenOverlaySettingsFragment } from '~/gql/graphql.js'
 
-import { useProfile } from '@/api/auth'
+import { useProfile } from '~~/layers/dashboard/api/auth'
 import { graphql } from '@/gql'
 
 graphql(`

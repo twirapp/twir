@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 import { useNotificationsForm } from '../composables/use-notifications-form.js'
 
-import TwitchUserSelect from '@/components/twitchUsers/twitch-user-select.vue'
+import TwitchUserSelect from '~~/layers/dashboard/components/twitchUsers/twitch-user-select.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import BlocksRender from '@/components/ui/editorjs/blocks-render.vue'

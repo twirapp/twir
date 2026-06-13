@@ -8,13 +8,13 @@ import KappagenForm from './kappagen-form.vue'
 
 import type { KappagenOverlaySettingsFragment } from '~/gql/graphql.js'
 
-import { useKappagenApi } from '@/api/overlays/kappagen'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
+import { useKappagenApi } from '~~/layers/dashboard/api/overlays/kappagen'
+import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink.js'
 import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'
-import KappagenPreview from '@/features/overlays/kappagen/kappagen-preview.vue'
+import KappagenPreview from '~~/layers/dashboard/features/overlays/kappagen/kappagen-preview.vue'
 import { KappagenEmojiStyle } from '~/gql/graphql.js'
-import PageLayout from '@/layout/page-layout.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const { t } = useI18n()
 const { kappagen, isLoading, isUpdating, updateKappagen, refetch } = useKappagenApi()

@@ -2,9 +2,9 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile } from '@/api/auth'
-import { useYoutubeSocket } from '@/components/songRequests/hook.js'
-import { useGlobalYoutubePlayer } from '@/composables/useGlobalYoutubePlayer.js'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
+import { useGlobalYoutubePlayer } from '~~/layers/dashboard/composables/useGlobalYoutubePlayer.js'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
@@ -18,7 +18,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { convertMillisToTime } from '@/helpers/convertMillisToTime.js'
+import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
 
 const props = defineProps<{
 	noCookie: boolean

@@ -1,6 +1,6 @@
 import { createGlobalState } from '@vueuse/core'
 
-import { useAdminUsers } from '@/api/admin/users.js'
+import { useAdminUsers } from '~~/layers/dashboard/api/admin/users.js'
 
 export const useUsers = createGlobalState(() => {
 	const usersApi = useAdminUsers()

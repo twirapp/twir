@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import AlertsTableActions from '../ui/alerts-table-actions.vue'
 
-import { type Alert, useAlertsApi } from '@/api/alerts.js'
+import { type Alert, useAlertsApi } from '~~/layers/dashboard/api/alerts.js'
 import { Badge } from '@/components/ui/badge'
 
 interface Props {

@@ -3,7 +3,7 @@ import { createGlobalState } from '@vueuse/core'
 
 import type { OverlaysBeRightBackQuery } from '~/gql/graphql.js'
 
-import { useMutation } from '@/composables/use-mutation.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/gql.js'
 
 export type BeRightBackOverlay = Omit<

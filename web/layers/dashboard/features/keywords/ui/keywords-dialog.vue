@@ -5,10 +5,10 @@ import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
-import type { KeywordResponse } from '@/api/keywords'
+import type { KeywordResponse } from '~~/layers/dashboard/api/keywords'
 
-import { useKeywordsApi } from '@/api/keywords'
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -18,9 +18,9 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'vue-sonner'
-import VariableInput from '@/components/variable-input.vue'
-import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
-import PlatformSelector from '@/components/platform-selector.vue'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
+import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
+import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
 
 const props = defineProps<{
 	keyword?: Omit<KeywordResponse, 'id'> & { id?: string }

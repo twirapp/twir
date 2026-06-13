@@ -17,10 +17,10 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { useCommandEditV2 } from '@/features/commands/composables/use-command-edit-v2.js'
-import CommunityRolesModal from '@/features/community-roles/community-roles-modal.vue'
+import { useCommandEditV2 } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2.js'
+import CommunityRolesModal from '~~/layers/dashboard/features/community-roles/community-roles-modal.vue'
 
-import type { FormSchema } from '@/features/commands/composables/use-command-edit-v2.js'
+import type { FormSchema } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2.js'
 
 const { t } = useI18n()
 const { channelRoles } = useCommandEditV2()

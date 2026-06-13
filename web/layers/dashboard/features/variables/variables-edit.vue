@@ -21,9 +21,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import VariablesList from '@/components/variables-list.vue'
+import VariablesList from '~~/layers/dashboard/components/variables-list.vue'
 import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
-import PageLayout from '@/layout/page-layout.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const route = useRoute()
 const { t } = useI18n()

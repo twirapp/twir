@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import IconDonationAlerts from '@/assets/integrations/donationalerts.svg?use'
-import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
-import OauthComponent from '@/components/integrations/variants/oauth.vue'
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
-import { useIntegrations } from '@/api/integrations/integrations.js'
+import IconDonationAlerts from '~~/layers/dashboard/assets/integrations/donationalerts.svg?use'
+import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
+import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
+import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
 
 const integrationsPage = useIntegrationsPageData()
 const integrationsManager = useIntegrations()

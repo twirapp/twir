@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {
 	useTranslatedRanges,
-} from '@/features/community-emotes-statistic/composables/use-translated-ranges'
+} from '~~/layers/dashboard/features/community-emotes-statistic/composables/use-translated-ranges'
 
 const { t } = useI18n()
 

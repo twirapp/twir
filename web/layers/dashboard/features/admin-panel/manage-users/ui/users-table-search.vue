@@ -6,7 +6,7 @@ import { useUsersTable } from '../composables/use-users-table.js'
 
 import type { FilterType } from '../composables/use-users-table-filters.js'
 
-import SearchBar from '@/components/search-bar.vue'
+import SearchBar from '~~/layers/dashboard/components/search-bar.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {

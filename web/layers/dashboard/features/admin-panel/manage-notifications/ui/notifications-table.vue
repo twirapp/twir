@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import NotificationsTableSearch from './notifications-table-search.vue'
 import { useNotificationsTable } from '../composables/use-notifications-table'
 
-import Table from '@/components/table.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 const { t } = useI18n()

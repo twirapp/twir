@@ -7,7 +7,7 @@ import { useVirtualizer } from '@tanstack/vue-virtual'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
+import { cn } from '~~/layers/dashboard/lib/utils'
 
 const props = defineProps<{
 	fontFamily: string

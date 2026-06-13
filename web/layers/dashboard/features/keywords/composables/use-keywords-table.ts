@@ -3,7 +3,7 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { type KeywordResponse, useKeywordsApi } from '@/api/keywords.js'
+import { type KeywordResponse, useKeywordsApi } from '~~/layers/dashboard/api/keywords.js'
 
 import KeywordsTableActions from '../ui/keywords-table-actions.vue'
 

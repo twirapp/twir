@@ -4,7 +4,7 @@ import { computed, watch } from 'vue'
 import type { AdminNotificationsParams } from '~/gql/graphql.js'
 import type { Ref } from 'vue'
 
-import { useMutation } from '@/composables/use-mutation.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/gql.js'
 
 const invalidationKey = 'AdminNofiticationsInvalidateKey'

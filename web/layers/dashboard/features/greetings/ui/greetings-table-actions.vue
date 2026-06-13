@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 import GreetingsDialog from './greetings-dialog.vue'
 
-import { type Greetings, useGreetingsApi } from '@/api/greetings.js'
+import { type Greetings, useGreetingsApi } from '~~/layers/dashboard/api/greetings.js'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'

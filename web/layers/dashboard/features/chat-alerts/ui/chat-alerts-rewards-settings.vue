@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import RewardsSelector from '@/components/rewardsSelector.vue'
+import RewardsSelector from '~~/layers/dashboard/components/rewardsSelector.vue'
 import { Label } from '@/components/ui/label'
-import { useForm } from '@/features/chat-alerts/composables/use-form'
+import { useForm } from '~~/layers/dashboard/features/chat-alerts/composables/use-form'
 
 const { formValue } = useForm()
 </script>

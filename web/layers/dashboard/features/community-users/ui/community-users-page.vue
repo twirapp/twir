@@ -3,7 +3,7 @@ import CommunityUsersTableSearch from './community-users-table-search.vue'
 import CommunityUsersTable from './community-users-table.vue'
 
 import CommunityUsersResetButton
-	from '@/features/community-users/ui/community-users-reset-button.vue'
+	from '~~/layers/dashboard/features/community-users/ui/community-users-reset-button.vue'
 </script>
 
 <template>

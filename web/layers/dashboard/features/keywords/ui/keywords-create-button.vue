@@ -4,8 +4,8 @@ import { useI18n } from 'vue-i18n'
 
 import KeywordsDialog from './keywords-dialog.vue'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
-import { useKeywordsApi } from '@/api/keywords'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 

@@ -9,7 +9,7 @@ import Card from './card.vue'
 
 import type { SeppukuGame } from '~/gql/graphql.js'
 
-import { useGamesApi } from '@/api/games/games'
+import { useGamesApi } from '~~/layers/dashboard/api/games/games'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -34,7 +34,7 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
-import CommandButton from '@/features/commands/ui/command-button.vue'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 
 const formSchema = toTypedSchema(
 	z.object({

@@ -2,10 +2,10 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useProfile } from '@/api/auth.js'
-import { useFilesApi } from '@/api/files.js'
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
-import FilesPicker from '@/components/files/files.vue'
+import { useProfile } from '~~/layers/dashboard/api/auth.js'
+import { useFilesApi } from '~~/layers/dashboard/api/files.js'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+import FilesPicker from '~~/layers/dashboard/components/files/files.vue'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,

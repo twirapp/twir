@@ -3,7 +3,7 @@ import { useQuery } from '@urql/vue'
 import type { TwirUsersSearchParams, UsersGetAllQuery } from '~/gql/graphql.js'
 import type { Ref } from 'vue'
 
-import { useMutation } from '@/composables/use-mutation.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '@/gql'
 
 export type User = UsersGetAllQuery['twirUsers']['users'][0]

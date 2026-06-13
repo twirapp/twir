@@ -2,13 +2,13 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import DiscordIcon from '@/assets/integrations/discord.svg?use'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import DiscordIcon from '~~/layers/dashboard/assets/integrations/discord.svg?use'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
+import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()

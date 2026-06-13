@@ -7,7 +7,7 @@ import type { RoleTypeEnum } from '~/gql/graphql.js'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
-import { useCommandEditV2 } from '@/features/commands/composables/use-command-edit-v2'
+import { useCommandEditV2 } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2'
 
 const props = defineProps<{
 	fieldName: string

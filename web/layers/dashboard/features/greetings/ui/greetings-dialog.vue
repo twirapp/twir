@@ -10,9 +10,9 @@ import {
 	type GreetingsUpdateInputInput,
 	GreetingsUpdateInputSchema,
 } from '~/gql/validation-schemas.js';
-import { type Greetings, useGreetingsApi } from '@/api/greetings';
-import DialogOrSheet from '@/components/dialog-or-sheet.vue';
-import TwitchUserSelect from '@/components/twitchUsers/twitch-user-select.vue';
+import { type Greetings, useGreetingsApi } from '~~/layers/dashboard/api/greetings';
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue';
+import TwitchUserSelect from '~~/layers/dashboard/components/twitchUsers/twitch-user-select.vue';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -21,7 +21,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import VariableInput from '@/components/variable-input.vue';
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'vue-sonner';

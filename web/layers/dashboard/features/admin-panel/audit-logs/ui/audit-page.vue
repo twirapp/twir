@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuditFilters from './audit-filters.vue'
 
-import AuditTable from '@/features/admin-panel/audit-logs/ui/audit-table.vue'
+import AuditTable from '~~/layers/dashboard/features/admin-panel/audit-logs/ui/audit-table.vue'
 </script>
 
 <template>

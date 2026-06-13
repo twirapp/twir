@@ -5,7 +5,7 @@ import { computed } from 'vue'
 import type { SVGProps } from '@tabler/icons-vue'
 import type { FunctionalComponent } from 'vue'
 
-import { useTheme } from '@/composables/use-theme.js'
+import { useTheme } from '~~/layers/dashboard/composables/use-theme.js'
 
 const props = defineProps<{
 	icon: FunctionalComponent<SVGProps, Record<string, any>, any>

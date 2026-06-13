@@ -12,7 +12,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils.js'
+import { cn } from '~~/layers/dashboard/lib/utils.js'
 
 defineOptions({
 	inheritAttrs: false,

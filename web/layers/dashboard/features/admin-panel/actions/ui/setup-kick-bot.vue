@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { useMutationKickBotSetupLink } from '@/api/admin/actions'
+import { useMutationKickBotSetupLink } from '~~/layers/dashboard/api/admin/actions'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'

@@ -8,10 +8,10 @@ import RewardsSelector from '../rewardsSelector.vue'
 
 import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
 
-import { useCommandsApi } from '@/api/commands/commands'
-import { useSongRequestsApi } from '@/api/song-requests'
-import TwitchSearchUsers from '@/components/twitchUsers/twitch-users-select.vue'
-import CommandsList from '@/features/commands/ui/list.vue'
+import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands'
+import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
+import TwitchSearchUsers from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
+import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'
 import { SongRequestsSearchChannelOrVideoOptsType } from '~/gql/graphql.js'
 
 import { Button } from '@/components/ui/button'

@@ -1,9 +1,9 @@
 import { createGlobalState } from '@vueuse/core'
 import { useQuery } from '@urql/vue'
 
-import { useMutation } from '@/composables/use-mutation.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '@/gql'
-import { integrationsPageCacheKey } from '@/api/integrations/integrations-page.js'
+import { integrationsPageCacheKey } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 
 export const nightbotCacheKey = 'nightbot'
 

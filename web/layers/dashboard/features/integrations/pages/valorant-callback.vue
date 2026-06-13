@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useValorantIntegration } from '@/features/integrations/composables/valorant/use-valorant-integration.js'
+import { useValorantIntegration } from '~~/layers/dashboard/features/integrations/composables/valorant/use-valorant-integration.js'
 
 const router = useRouter()
 const { broadcastRefresh, postCode } = useValorantIntegration()

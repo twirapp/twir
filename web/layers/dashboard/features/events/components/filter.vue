@@ -16,7 +16,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import VariableInput from '@/components/variable-input.vue'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 
 defineProps<{
 	operationIndex: number

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useChatMessagesFilters } from '../composables/use-filters'
 
-import PlatformSelector from '@/components/platform-selector.vue'
+import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 

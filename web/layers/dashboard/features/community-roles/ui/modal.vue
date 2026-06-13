@@ -7,9 +7,9 @@ import { z } from 'zod'
 
 import type { ChannelRolesQuery, RolesCreateOrUpdateOpts } from '~/gql/graphql.js'
 
-import { PERMISSIONS_FLAGS } from '@/api/auth'
-import { useRoles } from '@/api/roles'
-import UsersMultiSearch from '@/components/twitchUsers/twitch-users-select.vue'
+import { PERMISSIONS_FLAGS } from '~~/layers/dashboard/api/auth'
+import { useRoles } from '~~/layers/dashboard/api/roles'
+import UsersMultiSearch from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'

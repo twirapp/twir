@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 import { useUsers } from '../composables/use-users.js'
 
-import { useProfile } from '@/api/auth.js'
+import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,

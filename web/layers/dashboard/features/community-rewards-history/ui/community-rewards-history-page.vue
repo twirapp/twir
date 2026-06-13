@@ -2,7 +2,7 @@
 import CommunityRewardsTable from './community-rewards-history-table.vue'
 
 import CommunityRewardsHistorySearch
-	from '@/features/community-rewards-history/ui/community-rewards-history-search.vue'
+	from '~~/layers/dashboard/features/community-rewards-history/ui/community-rewards-history-search.vue'
 </script>
 
 <template>

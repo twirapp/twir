@@ -4,8 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useCommunityEmotesStatisticFilters } from '../composables/use-community-emotes-statistic-filters'
 import { useCommunityEmotesStatisticTable } from '../composables/use-community-emotes-statistic-table'
 
-import SearchBar from '@/components/search-bar.vue'
-import Table from '@/components/table.vue'
+import SearchBar from '~~/layers/dashboard/components/search-bar.vue'
+import Table from '~~/layers/dashboard/components/table.vue'
 
 const { t } = useI18n()
 const emotesStatisticTable = useCommunityEmotesStatisticTable()

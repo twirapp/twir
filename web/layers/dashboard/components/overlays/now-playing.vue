@@ -3,8 +3,8 @@ import { IconBroadcast } from '@tabler/icons-vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
-import Card from '@/components/overlays/card.vue'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+import Card from '~~/layers/dashboard/components/overlays/card.vue'
 import { Dialog } from '@/components/ui/dialog'
 import NowPlaying from '@/pages/overlays/now-playing/now-playing.vue'
 

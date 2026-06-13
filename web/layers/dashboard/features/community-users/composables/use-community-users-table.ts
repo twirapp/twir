@@ -15,14 +15,14 @@ import { useI18n } from 'vue-i18n'
 import { useCommunityTableActions } from './use-community-table-actions.js'
 import CommunityUsersTableColumn from '../ui/community-users-table-column.vue'
 
-import { useProfile } from '@/api/auth.js'
-import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.js'
-import { usePagination } from '@/composables/use-pagination.js'
+import { useProfile } from '~~/layers/dashboard/api/auth.js'
+import { type CommunityUser, useCommunityUsersApi } from '~~/layers/dashboard/api/community-users.js'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
 import UsersTableCellUser
-	from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
+	from '~~/layers/dashboard/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 import { type CommunityUsersOpts, CommunityUsersResetType } from '~/gql/graphql.js'
-import { resolveProfile } from '@/helpers/resolveProfile.js'
-import { valueUpdater } from '@/helpers/value-updater.js'
+import { resolveProfile } from '~~/layers/dashboard/helpers/resolveProfile.js'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
 
 const ONE_HOUR = 60 * 60 * 1000
 export const TABLE_ACCESSOR_KEYS = {

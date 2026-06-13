@@ -5,7 +5,7 @@ import { useIntervalFn } from '@vueuse/core'
 import { transform as transformNested } from 'nested-css-to-flat'
 import { computed, nextTick, ref, watch } from 'vue'
 
-import { useOverlaysParseHtml } from '@/api/registry'
+import { useOverlaysParseHtml } from '~~/layers/dashboard/api/registry'
 
 const props = defineProps<{
 	index: number | string

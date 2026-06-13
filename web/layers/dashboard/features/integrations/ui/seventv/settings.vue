@@ -5,8 +5,8 @@ import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
-import { useSevenTvIntegration } from '@/api/integrations/seventv.js'
-import RewardsSelectorSingle from '@/components/rewards-selector-single.vue'
+import { useSevenTvIntegration } from '~~/layers/dashboard/api/integrations/seventv.js'
+import RewardsSelectorSingle from '~~/layers/dashboard/components/rewards-selector-single.vue'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {

@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useCommandsApi } from '@/api/commands/commands.js'
+import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
 import { Button } from '@/components/ui/button'
 
 const props = defineProps<{

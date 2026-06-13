@@ -8,7 +8,7 @@ import { useUsersTableFilters } from '../../manage-users/composables/use-users-t
 
 import type { Badge } from '~/gql/graphql.js'
 
-import { useLayout } from '@/composables/use-layout.js'
+import { useLayout } from '~~/layers/dashboard/composables/use-layout.js'
 
 export const useBadgesActions = createGlobalState(() => {
 	const layout = useLayout()

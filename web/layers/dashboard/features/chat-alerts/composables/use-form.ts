@@ -7,7 +7,7 @@ import { toast } from 'vue-sonner'
 
 import type { ChatAlerts } from '~/gql/graphql.js'
 
-import { useChatAlertsApi } from '@/api/chat-alerts.js'
+import { useChatAlertsApi } from '~~/layers/dashboard/api/chat-alerts.js'
 
 export type FormKey = Exclude<KeysOfUnion<RequiredDeep<SetNonNullable<ChatAlerts>>>, '__typename'>
 

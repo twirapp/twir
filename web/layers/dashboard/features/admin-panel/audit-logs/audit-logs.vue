@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Pagination from '@/components/pagination.vue'
-import { useAuditTable } from '@/features/admin-panel/audit-logs/composables/use-audit-table'
-import AuditPage from '@/features/admin-panel/audit-logs/ui/audit-page.vue'
+import Pagination from '~~/layers/dashboard/components/pagination.vue'
+import { useAuditTable } from '~~/layers/dashboard/features/admin-panel/audit-logs/composables/use-audit-table'
+import AuditPage from '~~/layers/dashboard/features/admin-panel/audit-logs/ui/audit-page.vue'
 
 const auditTable = useAuditTable()
 </script>

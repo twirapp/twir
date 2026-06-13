@@ -5,9 +5,9 @@ import { useI18n } from 'vue-i18n'
 
 import VariablesActions from '../ui/variables-actions.vue'
 
-import type { CustomVariable } from '@/api/variables.js'
+import type { CustomVariable } from '~~/layers/dashboard/api/variables.js'
 
-import { useVariablesApi } from '@/api/variables.js'
+import { useVariablesApi } from '~~/layers/dashboard/api/variables.js'
 import { Badge } from '@/components/ui/badge/index.js'
 import { VariableType } from '~/gql/graphql.js'
 

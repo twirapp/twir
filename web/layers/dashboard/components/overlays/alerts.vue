@@ -2,7 +2,7 @@
 import { IconBell } from '@tabler/icons-vue';
 import { useI18n } from 'vue-i18n';
 
-import Card from '@/components/overlays/card.vue';
+import Card from '~~/layers/dashboard/components/overlays/card.vue';
 
 const { t } = useI18n();
 </script>

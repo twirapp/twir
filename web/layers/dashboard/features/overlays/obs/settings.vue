@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import { useObsForm } from '@/features/overlays/obs/composables/use-obs-form'
+import { useObsForm } from '~~/layers/dashboard/features/overlays/obs/composables/use-obs-form'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toast } from 'vue-sonner'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
+import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink'
 
 const { t } = useI18n()
 const { onSubmit, isLoading, isSaving, settings, isConnected } = useObsForm()

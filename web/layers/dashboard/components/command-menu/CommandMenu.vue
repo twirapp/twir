@@ -5,8 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 
 import CommandMenuItem from './CommandMenuItem.vue'
 import CommandMenuKbd from './CommandMenuKbd.vue'
-import { useDashboard, useProfile } from '@/api/auth'
-import { useCommandMenuData } from '@/api/command-menu'
+import { useDashboard, useProfile } from '~~/layers/dashboard/api/auth'
+import { useCommandMenuData } from '~~/layers/dashboard/api/command-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,9 +26,9 @@ import {
 } from '@/components/ui/dialog'
 import { Kbd } from '@/components/ui/kbd'
 import { Separator } from '@/components/ui/separator'
-import { useIsMac } from '@/composables/useIsMac'
-import { footerNavigationItems, getFlatNavigationItems } from '@/config/navigation'
-import { usePublicPageHref } from '@/layout/use-public-page-href'
+import { useIsMac } from '~~/layers/dashboard/composables/useIsMac'
+import { footerNavigationItems, getFlatNavigationItems } from '~~/layers/dashboard/config/navigation'
+import { usePublicPageHref } from '~~/layers/dashboard/layout/use-public-page-href'
 
 interface Props {
 	iconOnly?: boolean

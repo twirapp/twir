@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 
-import { useProfile } from '@/api/auth'
+import { useProfile } from '~~/layers/dashboard/api/auth'
 
 export function useAlertsInformation() {
 	const { data: profile } = useProfile()

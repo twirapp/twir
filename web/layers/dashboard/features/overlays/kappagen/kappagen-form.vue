@@ -7,9 +7,9 @@ import {
 	AccordionTrigger,
 } from 'reka-ui'
 
-import AnimationsTab from '@/features/overlays/kappagen/components/animations-tab.vue'
-import EventsTab from '@/features/overlays/kappagen/components/events-tab.vue'
-import SettingsTab from '@/features/overlays/kappagen/components/settings-tab.vue'
+import AnimationsTab from '~~/layers/dashboard/features/overlays/kappagen/components/animations-tab.vue'
+import EventsTab from '~~/layers/dashboard/features/overlays/kappagen/components/events-tab.vue'
+import SettingsTab from '~~/layers/dashboard/features/overlays/kappagen/components/settings-tab.vue'
 
 const content = [
 	{

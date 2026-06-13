@@ -1,7 +1,7 @@
 import { createGlobalState, useLocalStorage } from '@vueuse/core'
 import { computed } from 'vue'
 
-import { useQueryNotifications } from '@/api/admin/notifications.js'
+import { useQueryNotifications } from '~~/layers/dashboard/api/admin/notifications.js'
 
 const NOTIFICATIONS_STORAGE_KEY = 'twirNotificationsCounter'
 

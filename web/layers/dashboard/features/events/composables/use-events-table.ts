@@ -5,12 +5,12 @@ import { useI18n } from 'vue-i18n'
 
 import EventsTableActions from '../ui/events-table-actions.vue'
 
-import type { Event , EventType } from '@/api/events'
+import type { Event , EventType } from '~~/layers/dashboard/api/events'
 
-import { useEventsApi } from '@/api/events'
+import { useEventsApi } from '~~/layers/dashboard/api/events'
 import { Badge } from '@/components/ui/badge'
-import { flatEvents, getEventName } from '@/features/events/constants/helpers'
-import EventsTableOperations from '@/features/events/ui/events-table-operations.vue'
+import { flatEvents, getEventName } from '~~/layers/dashboard/features/events/constants/helpers'
+import EventsTableOperations from '~~/layers/dashboard/features/events/ui/events-table-operations.vue'
 
 function getPlatformBadges(platforms: string[]) {
 	if (platforms.length === 0) {

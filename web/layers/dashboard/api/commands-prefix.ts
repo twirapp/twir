@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import { useMutation } from '@/composables/use-mutation.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/index.js'
 
 export const useCommandsPrefixApi = createGlobalState(() => {

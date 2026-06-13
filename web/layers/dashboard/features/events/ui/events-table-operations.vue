@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { flatOperations } from '@/features/events/constants/helpers.js'
+import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers.js'
 
-import type { EventOperation } from '@/api/events.js'
-import { getOperationColor } from '@/features/events/composables/use-operation-color.js'
+import type { EventOperation } from '~~/layers/dashboard/api/events.js'
+import { getOperationColor } from '~~/layers/dashboard/features/events/composables/use-operation-color.js'
 import type { EventOperationType } from '~/gql/graphql.js'
 
 defineProps<{

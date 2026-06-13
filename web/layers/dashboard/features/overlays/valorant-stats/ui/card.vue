@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ValorantIcon from '@/assets/integrations/valorant.svg?use'
+import ValorantIcon from '~~/layers/dashboard/assets/integrations/valorant.svg?use'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useI18n } from 'vue-i18n'

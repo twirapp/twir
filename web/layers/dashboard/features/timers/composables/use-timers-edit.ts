@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { type TypeOf, array, boolean, nativeEnum, number, object, string } from 'zod';
 
-import { useTimersApi } from '@/api/timers';
+import { useTimersApi } from '~~/layers/dashboard/api/timers';
 import { toast } from 'vue-sonner';
 import { TwitchAnnounceColor } from '~/gql/graphql.js';
 

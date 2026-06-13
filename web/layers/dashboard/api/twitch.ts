@@ -1,7 +1,7 @@
 import { useQuery as useGqlQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, unref } from 'vue'
-import { useMutation } from '@/composables/use-mutation.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 
 import type { MaybeRef, Ref } from 'vue'
 

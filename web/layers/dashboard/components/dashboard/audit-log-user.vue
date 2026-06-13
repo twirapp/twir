@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { resolveProfile } from '@/helpers/resolveProfile.js'
+import { resolveProfile } from '~~/layers/dashboard/helpers/resolveProfile.js'
 
 interface User {
 	profileImageUrl?: string | null

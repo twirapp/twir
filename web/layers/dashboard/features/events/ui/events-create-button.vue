@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
-import { useEventsApi } from '@/api/events.js'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useEventsApi } from '~~/layers/dashboard/api/events.js'
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 

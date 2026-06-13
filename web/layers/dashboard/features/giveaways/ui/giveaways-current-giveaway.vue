@@ -2,15 +2,15 @@
 import { computed, ref, watch, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useProfile } from '@/api/auth';
+import { useProfile } from '~~/layers/dashboard/api/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.js';
+import { useGiveaways } from '~~/layers/dashboard/features/giveaways/composables/giveaways-use-giveaways.js';
 import GiveawaysCurrentGiveawayParticipants
-	from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue';
+	from '~~/layers/dashboard/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue';
 import GiveawaysCurrentGiveawayWinners
-	from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners.vue';
+	from '~~/layers/dashboard/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners.vue';
 import { Badge } from '@/components/ui/badge';
 
 const { t } = useI18n();

@@ -10,12 +10,12 @@ import { computed, h } from 'vue'
 
 import { useCommunityEmotesDetails } from './use-community-emotes-details'
 
-import type { EmotesStatisticsDetail } from '@/api/emotes-statistic'
+import type { EmotesStatisticsDetail } from '~~/layers/dashboard/api/emotes-statistic'
 import type { ColumnDef } from '@tanstack/vue-table'
 
 import UsersTableCellUser
-	from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
-import { valueUpdater } from '@/helpers/value-updater'
+	from '~~/layers/dashboard/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater'
 
 type User = NonNullable<EmotesStatisticsDetail['emotesStatisticEmoteDetailedInformation']>['topUsers'][number]
 

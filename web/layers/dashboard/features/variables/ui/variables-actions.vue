@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import { type CustomVariable, useVariablesApi } from '@/api/variables'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { type CustomVariable, useVariablesApi } from '~~/layers/dashboard/api/variables'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'

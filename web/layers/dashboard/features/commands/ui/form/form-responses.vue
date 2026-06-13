@@ -8,9 +8,9 @@ import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 
 import type { FormSchema } from '../../composables/use-command-edit-v2'
 
-import { useProfile } from '@/api/auth'
+import { useProfile } from '~~/layers/dashboard/api/auth'
 
-import TwitchCategorySearchShadcnMultiple from '@/components/twitch-category-search-shadcn-multiple.vue'
+import TwitchCategorySearchShadcnMultiple from '~~/layers/dashboard/components/twitch-category-search-shadcn-multiple.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import FormLabel from '@/components/ui/form/FormLabel.vue'
-import VariableInput from '@/components/variable-input.vue'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 
 const { t } = useI18n()
 const { data: profile } = useProfile()

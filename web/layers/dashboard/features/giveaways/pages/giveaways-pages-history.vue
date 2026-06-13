@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Table from '@/components/table.vue'
-import { useGiveawaysHistoryTable } from '@/features/giveaways/composables/giveaways-use-history-table.js'
+import Table from '~~/layers/dashboard/components/table.vue'
+import { useGiveawaysHistoryTable } from '~~/layers/dashboard/features/giveaways/composables/giveaways-use-history-table.js'
 
 const { table, isLoading } = useGiveawaysHistoryTable()
 </script>
