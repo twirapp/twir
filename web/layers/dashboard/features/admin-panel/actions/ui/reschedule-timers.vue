@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 
 import { useMutationRescheduleTimers } from '~~/layers/dashboard/api/admin/actions'
-import ActionConfirm from '@/components/ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 

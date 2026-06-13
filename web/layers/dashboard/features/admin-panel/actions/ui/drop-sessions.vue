@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useMutationDropAllAuthSessions } from '~~/layers/dashboard/api/admin/actions'
-import ActionConfirm from '@/components/ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 

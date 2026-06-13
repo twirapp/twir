@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import ActionConfirm from '@/components/ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 
 const emits = defineEmits<{

@@ -6,7 +6,7 @@ import KeywordDialog from './keywords-dialog.vue'
 import type { KeywordResponse } from '~~/layers/dashboard/api/keywords'
 
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
-import ActionConfirm from '@/components/ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 

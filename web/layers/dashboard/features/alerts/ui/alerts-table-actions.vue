@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import AlertsDialog from './alerts-dialog.vue'
 
 import { type Alert,useAlertsApi } from '~~/layers/dashboard/api/alerts.js'
-import ActionConfirm from '@/components/ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 
 const props = defineProps<{ alert: Alert, withSelect: boolean }>()

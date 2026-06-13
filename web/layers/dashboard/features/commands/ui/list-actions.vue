@@ -7,7 +7,7 @@ import type { Command } from '~/gql/graphql.js'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
-import ActionConfirmation from '@/components/ui/action-confirm.vue'
+import ActionConfirmation from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'

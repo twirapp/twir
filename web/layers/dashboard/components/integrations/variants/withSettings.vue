@@ -5,7 +5,7 @@ import type { FunctionalComponent } from 'vue'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { Card, CardFooter, CardHeader } from '@/components/ui/card'
-import SettingsModal from '@/components/ui/settings-modal.vue'
+import SettingsModal from '@/components/ui/settings-modal'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = withDefaults(defineProps<{

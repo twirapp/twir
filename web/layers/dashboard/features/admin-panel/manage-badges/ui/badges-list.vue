@@ -5,7 +5,7 @@ import BadgesPreview from './badges-preview.vue'
 import { useBadgesActions } from '../composables/use-badges-actions.js'
 import { useBadges } from '../composables/use-badges.js'
 
-import ActionConfirm from '@/components/ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

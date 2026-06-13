@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import GreetingsDialog from './greetings-dialog.vue'
 
 import { type Greetings, useGreetingsApi } from '~~/layers/dashboard/api/greetings.js'
-import ActionConfirm from '@/components/ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 

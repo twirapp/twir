@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { type Event, useEventsApi } from '~~/layers/dashboard/api/events'
-import ActionConfirmation from '@/components/ui/action-confirm.vue'
+import ActionConfirmation from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'

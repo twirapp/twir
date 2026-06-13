@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 import type { AdminShortUrl } from '~~/layers/dashboard/api/admin/short-urls.js'
 
-import ActionConfirm from '@/components/ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import {
 	useAdminShortUrlsApi,
