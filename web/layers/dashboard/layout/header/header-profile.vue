@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import { useTheme } from '~~/layers/dashboard/composables/use-theme.ts'
-import { AVAILABLE_LOCALES } from '~~/layers/dashboard/plugins/i18n.ts'
+import { AVAILABLE_LOCALES } from '~~/layers/dashboard/config/i18n-locales.ts'
 import { Button } from '@/components/ui/button'
 import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
 import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'
