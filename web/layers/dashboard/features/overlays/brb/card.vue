@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { useBeRightBackOverlayApi } from '~~/layers/dashboard/api/overlays-be-right-back'
-import KeyboardAndMouseIcon from '~~/layers/dashboard/assets/overlays/keyboard-and-mouse.svg?use'
+import KeyboardAndMouseIcon from '~~/layers/dashboard/assets/overlays/keyboard-and-mouse.svg'
 import Card from '~~/layers/dashboard/components/overlays/card.vue'
 
 const { t } = useI18n()

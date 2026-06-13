@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 
 import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
-import DonateStreamSVG from '~~/layers/dashboard/assets/integrations/donatestream.svg?use'
+import DonateStreamSVG from '~~/layers/dashboard/assets/integrations/donatestream.svg'
 import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
 import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'

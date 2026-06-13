@@ -2,12 +2,12 @@
 import { until } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { type Component, computed, ref, watch } from 'vue'
-import { useChatOverlayForm } from '~~/layers/dashboard/pages/overlays/chat/components/form.js'
-import Form from '~~/layers/dashboard/pages/overlays/chat/components/Form.vue'
+import { useChatOverlayForm } from '~~/layers/dashboard/pages/dashboard/overlays/chat/components/form.ts'
+import Form from '~~/layers/dashboard/pages/dashboard/overlays/chat/components/Form.vue'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
-import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.js'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
+import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.ts'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
 import { Button } from '@/components/ui/button'
 import {
 	AlertDialog,

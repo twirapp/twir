@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 
 import { useFaceitIntegration } from '~~/layers/dashboard/api/integrations/faceit.js'
 import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
-import IconFaceit from '~~/layers/dashboard/assets/integrations/faceit.svg?use'
+import IconFaceit from '~~/layers/dashboard/assets/integrations/faceit.svg'
 import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import { Label } from '@/components/ui/label'
 import {

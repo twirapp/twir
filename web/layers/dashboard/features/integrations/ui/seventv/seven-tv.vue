@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 import Settings from './settings.vue'
 
-import SevenTVSvg from '~~/layers/dashboard/assets/integrations/seventv.svg?use'
+import SevenTVSvg from '~~/layers/dashboard/assets/integrations/seventv.svg'
 import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 
-import IconLastFM from '~~/layers/dashboard/assets/integrations/lastfm.svg?use'
+import IconLastFM from '~~/layers/dashboard/assets/integrations/lastfm.svg'
 import SongDescription from '~~/layers/dashboard/components/integrations/helpers/songDescription.vue'
 import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import {

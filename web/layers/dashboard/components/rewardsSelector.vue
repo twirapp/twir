@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useTwitchRewardsNew } from '~~/layers/dashboard/api/twitch.js'
-import RewardFallbackImg from '~~/layers/dashboard/assets/images/reward-fallback.png?url'
+import RewardFallbackImg from '~~/layers/dashboard/assets/images/reward-fallback.png'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
 	Select,

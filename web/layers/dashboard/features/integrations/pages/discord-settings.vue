@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import DiscordSvg from '~~/layers/dashboard/assets/integrations/discord.svg?use'
+import DiscordSvg from '~~/layers/dashboard/assets/integrations/discord.svg'
 
 import DiscordGuildSettingsForm from '../ui/discord/guild-settings-form.vue'
 

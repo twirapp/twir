@@ -4,8 +4,8 @@ import { useI18n } from "vue-i18n";
 
 import { usePublicPageHref } from "../use-public-page-href";
 
-import DiscordLogo from "@/assets/icons/social/discord.svg?use";
-import GithubLogo from "@/assets/icons/social/github.svg?use";
+import DiscordLogo from "@/assets/icons/social/discord.svg";
+import GithubLogo from "@/assets/icons/social/github.svg";
 import Badge from "@/components/ui/badge/Badge.vue";
 import {
 	SidebarFooter,

@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
-import DiscordIcon from '~~/layers/dashboard/assets/integrations/discord.svg?use'
+import DiscordIcon from '~~/layers/dashboard/assets/integrations/discord.svg'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

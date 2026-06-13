@@ -38,7 +38,7 @@ import {
 } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
 import { Card, CardContent } from '@/components/ui/card'
 
-import StreamStarting from '~~/layers/dashboard/assets/images/streamStarting.jpeg?url'
+import StreamStarting from '~~/layers/dashboard/assets/images/streamStarting.jpeg'
 import { useProfile } from '~~/layers/dashboard/api/auth'
 import {
 	type DiscordGuildUpdateInputInput,

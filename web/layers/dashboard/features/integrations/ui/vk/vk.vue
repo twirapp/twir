@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 
-import IconVk from '~~/layers/dashboard/assets/integrations/vk.svg?use'
+import IconVk from '~~/layers/dashboard/assets/integrations/vk.svg'
 import SongDescription from '~~/layers/dashboard/components/integrations/helpers/songDescription.vue'
 import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import {

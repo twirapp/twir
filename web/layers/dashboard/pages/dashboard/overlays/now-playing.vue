@@ -6,18 +6,18 @@ import { computed, ref, watch } from 'vue'
 
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useNowPlayingOverlayApi } from '~~/layers/dashboard/api/overlays/now-playing'
-import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.ts'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useTheme } from '~~/layers/dashboard/composables/use-theme.js'
-import { graphql } from '~/gql/gql.js'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
-import NowPlayingForm from '~~/layers/dashboard/pages/overlays/now-playing/now-playing-form.vue'
+import { useTheme } from '~~/layers/dashboard/composables/use-theme.ts'
+import { graphql } from '~/gql/gql.ts'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
+import NowPlayingForm from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/now-playing-form.vue'
 import {
 	defaultSettings,
 	useNowPlayingForm,
-} from '~~/layers/dashboard/pages/overlays/now-playing/use-now-playing-form'
+} from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/use-now-playing-form'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

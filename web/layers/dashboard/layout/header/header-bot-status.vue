@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
 import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'
-import CircleSvg from '~~/layers/dashboard/assets/images/circle.svg?use'
+import CircleSvg from '~~/layers/dashboard/assets/images/circle.svg'
 
 const { botStatuses, executeSubscription } = useBotStatuses()
 const stateMutation = useBotJoinPart()

@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 
 import { useDonatepayIntegration } from '~~/layers/dashboard/api/integrations/donatepay'
 import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
-import DonatePaySVG from '~~/layers/dashboard/assets/integrations/donatepay.svg?use'
+import DonatePaySVG from '~~/layers/dashboard/assets/integrations/donatepay.svg'
 import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
 import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Button } from '@/components/ui/button'

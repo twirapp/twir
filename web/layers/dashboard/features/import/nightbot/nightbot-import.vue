@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth.js'
-import IconNightbot from '~~/layers/dashboard/assets/integrations/nightbot.svg?use'
+import IconNightbot from '~~/layers/dashboard/assets/integrations/nightbot.svg'
 import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert/index.js'
 import { Button } from '@/components/ui/button/index.js'

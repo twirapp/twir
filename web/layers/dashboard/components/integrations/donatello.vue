@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DonatelloSVG from '~~/layers/dashboard/assets/integrations/donatello.svg?use'
+import DonatelloSVG from '~~/layers/dashboard/assets/integrations/donatello.svg'
 import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
 import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'

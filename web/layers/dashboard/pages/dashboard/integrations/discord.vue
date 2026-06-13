@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DiscordIntegration from '~~/layers/dashboard/features/integrations/ui/discord/settings.vue'
+import DiscordIntegration from '~~/layers/dashboard/features/integrations/pages/discord-settings.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 </script>

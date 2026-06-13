@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
-import DudesIcon from '~~/layers/dashboard/assets/overlays/dudes.svg?use';
+import DudesIcon from '~~/layers/dashboard/assets/overlays/dudes.svg';
 import Card from '~~/layers/dashboard/components/overlays/card.vue';
 
 const { t } = useI18n();
