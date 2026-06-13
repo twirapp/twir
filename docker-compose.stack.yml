@@ -529,6 +529,14 @@ services:
       placement:
         constraints:
           - node.labels.databases != true
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=traefik-public"
+        - "traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)"
+        - "traefik.http.routers.twir-eventsub.entrypoints=web"
+        - "traefik.http.routers.twir-eventsub.service=twir-eventsub"
+        - "traefik.http.routers.twir-eventsub.middlewares=gzip,rate-limit"
+        - "traefik.http.services.twir-eventsub.loadbalancer.server.port=3030"
 
   integrations:
     image: registry.twir.app/twirapp/integrations:${TWIR_IMAGE_TAG:-latest}
