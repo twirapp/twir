@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import { useSongRequestsApi } from '~/layers/dashboard/api/song-requests.js'
-import { useYoutubeSocket } from '~/layers/dashboard/components/songRequests/hook.js'
-import Player from '~/layers/dashboard/components/songRequests/player.vue'
-import VideosQueue from '~/layers/dashboard/components/songRequests/queue.vue'
-import SettingsModal from '~/layers/dashboard/components/songRequests/settings.vue'
+import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests.js'
+import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
+import Player from '~~/layers/dashboard/components/songRequests/player.vue'
+import VideosQueue from '~~/layers/dashboard/components/songRequests/queue.vue'
+import SettingsModal from '~~/layers/dashboard/components/songRequests/settings.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

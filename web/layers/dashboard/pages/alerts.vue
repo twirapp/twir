@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Alerts from '~/layers/dashboard/features/alerts/alerts.vue'
-import AlertsCreateButton from '~/layers/dashboard/features/alerts/ui/alerts-create-button.vue'
-import PageLayout from '~/layers/dashboard/layout/page-layout.vue'
+import Alerts from '~~/layers/dashboard/features/alerts/alerts.vue'
+import AlertsCreateButton from '~~/layers/dashboard/features/alerts/ui/alerts-create-button.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

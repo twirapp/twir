@@ -3,7 +3,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useLogout, useProfile } from '~/layers/dashboard/api/auth'
+import { useLogout, useProfile } from '~~/layers/dashboard/api/auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
 	DropdownMenu,
@@ -19,11 +19,11 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { useTheme } from '~/layers/dashboard/composables/use-theme.ts'
-import { AVAILABLE_LOCALES } from '~/layers/dashboard/plugins/i18n.ts'
+import { useTheme } from '~~/layers/dashboard/composables/use-theme.ts'
+import { AVAILABLE_LOCALES } from '~~/layers/dashboard/plugins/i18n.ts'
 import { Button } from '@/components/ui/button'
-import KickIcon from '~/layers/dashboard/components/kick-icon.vue'
-import TwitchIcon from '~/layers/dashboard/components/twitch-icon.vue'
+import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
+import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'
 import type { DropdownMenuContentProps } from 'reka-ui'
 
 const { t, locale } = useI18n()

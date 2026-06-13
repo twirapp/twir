@@ -2,11 +2,11 @@
 import { until } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { type Component, computed, ref, watch } from 'vue'
-import { useChatOverlayForm } from '~/layers/dashboard/pages/overlays/chat/components/form.js'
-import Form from '~/layers/dashboard/pages/overlays/chat/components/Form.vue'
+import { useChatOverlayForm } from '~~/layers/dashboard/pages/overlays/chat/components/form.js'
+import Form from '~~/layers/dashboard/pages/overlays/chat/components/Form.vue'
 
-import { useUserAccessFlagChecker } from '~/layers/dashboard/api/auth'
-import { useChatOverlayApi } from '~/layers/dashboard/api/overlays/chat.js'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.js'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,7 +19,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import PageLayout, { type PageLayoutTab } from '~/layers/dashboard/layout/page-layout.vue'
+import PageLayout, { type PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import DudesSettingsForm from '~/layers/dashboard/pages/overlays/dudes/dudes-settings-form.vue'
-import { useDudesForm } from '~/layers/dashboard/pages/overlays/dudes/use-dudes-form.js'
-import { useDudesIframe } from '~/layers/dashboard/pages/overlays/dudes/use-dudes-frame.js'
+import DudesSettingsForm from '~~/layers/dashboard/pages/overlays/dudes/dudes-settings-form.vue'
+import { useDudesForm } from '~~/layers/dashboard/pages/overlays/dudes/use-dudes-form.js'
+import { useDudesIframe } from '~~/layers/dashboard/pages/overlays/dudes/use-dudes-frame.js'
 
-import type { DudesSettingsWithOptionalId } from '~/layers/dashboard/pages/overlays/dudes/dudes-settings.js'
+import type { DudesSettingsWithOptionalId } from '~~/layers/dashboard/pages/overlays/dudes/dudes-settings.js'
 
-import { useProfile, useUserAccessFlagChecker } from '~/layers/dashboard/api/auth'
-import { useDudesOverlayManager } from '~/layers/dashboard/api/overlays/dudes'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useDudesOverlayManager } from '~~/layers/dashboard/api/overlays/dudes'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -22,7 +22,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import CommandButton from '~/layers/dashboard/features/commands/ui/command-button.vue'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })

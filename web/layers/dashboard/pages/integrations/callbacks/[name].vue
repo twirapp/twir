@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
-import { useFaceitIntegration } from '~/layers/dashboard/api/integrations/faceit.ts'
-import { useIntegrations } from '~/layers/dashboard/api/integrations/integrations.ts'
-import { useDiscordIntegration } from '~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
+import { useFaceitIntegration } from '~~/layers/dashboard/api/integrations/faceit.ts'
+import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.ts'
+import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
 import {
 	lastfmBroadcaster,
 	useLastfmIntegration,
-} from '~/layers/dashboard/features/integrations/composables/lastfm/use-lastfm-integration.ts'
+} from '~~/layers/dashboard/features/integrations/composables/lastfm/use-lastfm-integration.ts'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useIntegrations } from '~/layers/dashboard/api/integrations/integrations.ts'
+import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.ts'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

@@ -1,17 +1,17 @@
 <script setup lang='ts'>
 import { computed } from 'vue'
 
-import type { PageLayoutTab } from '~/layers/dashboard/layout/page-layout.vue'
+import type { PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
-import { useUserAccessFlagChecker } from '~/layers/dashboard/api/auth'
-import CommunityChatMessages from '~/layers/dashboard/features/community-chat-messages/community-chat-messages.vue'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import CommunityChatMessages from '~~/layers/dashboard/features/community-chat-messages/community-chat-messages.vue'
 import CommunityEmotesStatistic
-	from '~/layers/dashboard/features/community-emotes-statistic/community-emotes-statistic.vue'
-import CommunityRewardsHistory from '~/layers/dashboard/features/community-rewards-history/community-rewards-history.vue'
-import CommunityRoles from '~/layers/dashboard/features/community-roles/community-roles.vue'
-import CommunityUsers from '~/layers/dashboard/features/community-users/community-users.vue'
+	from '~~/layers/dashboard/features/community-emotes-statistic/community-emotes-statistic.vue'
+import CommunityRewardsHistory from '~~/layers/dashboard/features/community-rewards-history/community-rewards-history.vue'
+import CommunityRoles from '~~/layers/dashboard/features/community-roles/community-roles.vue'
+import CommunityUsers from '~~/layers/dashboard/features/community-users/community-users.vue'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
-import PageLayout from '~/layers/dashboard/layout/page-layout.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

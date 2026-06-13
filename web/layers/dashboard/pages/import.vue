@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Nightbot from '~/layers/dashboard/features/import/nightbot/nightbot-import.vue'
-import StreamElements from '~/layers/dashboard/pages/import/streamelements.vue'
-import Streamlabs from '~/layers/dashboard/pages/import/streamlabs.vue'
+import Nightbot from '~~/layers/dashboard/features/import/nightbot/nightbot-import.vue'
+import StreamElements from '~~/layers/dashboard/pages/import/streamelements.vue'
+import Streamlabs from '~~/layers/dashboard/pages/import/streamlabs.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 </script>

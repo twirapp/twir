@@ -2,14 +2,14 @@
 import { GridItem, GridLayout } from "grid-layout-plus";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import AuditLogs from "~/layers/dashboard/components/dashboard/audit-logs.vue";
-import Chat from "~/layers/dashboard/components/dashboard/chat.vue";
-import CustomWidget from "~/layers/dashboard/components/dashboard/custom-widget.vue";
-import Events from "~/layers/dashboard/components/dashboard/events.vue";
-import Stream from "~/layers/dashboard/components/dashboard/stream.vue";
-import WidgetStackTabs from "~/layers/dashboard/components/dashboard/widget-stack-tabs.vue";
-import { useWidgetStacks } from "~/layers/dashboard/components/dashboard/widget-stacks.ts";
-import { type WidgetItem, useWidgets } from "~/layers/dashboard/components/dashboard/widgets.ts";
+import AuditLogs from "~~/layers/dashboard/components/dashboard/audit-logs.vue";
+import Chat from "~~/layers/dashboard/components/dashboard/chat.vue";
+import CustomWidget from "~~/layers/dashboard/components/dashboard/custom-widget.vue";
+import Events from "~~/layers/dashboard/components/dashboard/events.vue";
+import Stream from "~~/layers/dashboard/components/dashboard/stream.vue";
+import WidgetStackTabs from "~~/layers/dashboard/components/dashboard/widget-stack-tabs.vue";
+import { useWidgetStacks } from "~~/layers/dashboard/components/dashboard/widget-stacks.ts";
+import { type WidgetItem, useWidgets } from "~~/layers/dashboard/components/dashboard/widgets.ts";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useIsMobile } from "~/layers/dashboard/composables/use-is-mobile";
-import { useDashboardWidgetsCreateCustom } from "~/layers/dashboard/api/dashboard-widgets-layout.ts";
+import { useIsMobile } from "~~/layers/dashboard/composables/use-is-mobile";
+import { useDashboardWidgetsCreateCustom } from "~~/layers/dashboard/api/dashboard-widgets-layout.ts";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";

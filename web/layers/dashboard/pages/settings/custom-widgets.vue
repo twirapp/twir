@@ -5,7 +5,7 @@ import {
 	useDashboardWidgetsCreateCustom,
 	useDashboardWidgetsDelete,
 	useDashboardWidgetsLayout,
-} from "~/layers/dashboard/api/dashboard-widgets-layout.ts";
+} from "~~/layers/dashboard/api/dashboard-widgets-layout.ts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";

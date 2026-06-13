@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useBotJoinPart, useBotStatuses } from '~/layers/dashboard/api/dashboard'
+import { useBotJoinPart, useBotStatuses } from '~~/layers/dashboard/api/dashboard'
 import type { BotJoinLeaveAction } from '~/gql/graphql.js'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,9 +11,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import KickIcon from '~/layers/dashboard/components/kick-icon.vue'
-import TwitchIcon from '~/layers/dashboard/components/twitch-icon.vue'
-import CircleSvg from '~/layers/dashboard/assets/images/circle.svg?use'
+import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
+import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'
+import CircleSvg from '~~/layers/dashboard/assets/images/circle.svg?use'
 
 const { botStatuses, executeSubscription } = useBotStatuses()
 const stateMutation = useBotJoinPart()

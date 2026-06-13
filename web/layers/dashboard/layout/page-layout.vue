@@ -9,7 +9,7 @@ import { type Component, onBeforeMount, ref, watch } from 'vue'
 import type { StringOrNumber } from 'radix-vue/dist/shared/types'
 
 import { Button } from '@/components/ui/button'
-import { useTheme } from '~/layers/dashboard/composables/use-theme.js'
+import { useTheme } from '~~/layers/dashboard/composables/use-theme.js'
 
 const props = withDefaults(defineProps<PageLayoutProps>(), {
 	activeTab: '',

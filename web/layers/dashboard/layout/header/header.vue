@@ -7,12 +7,12 @@ import { useI18n } from "vue-i18n";
 
 import StreamInfoEditor from "../stream-info-editor.vue";
 
-import { useRealtimeDashboardStats } from "~/layers/dashboard/api/dashboard";
-import CommandMenu from "~/layers/dashboard/components/command-menu/CommandMenu.vue";
+import { useRealtimeDashboardStats } from "~~/layers/dashboard/api/dashboard";
+import CommandMenu from "~~/layers/dashboard/components/command-menu/CommandMenu.vue";
 import Popover from "@/components/ui/popover/Popover.vue";
 import PopoverContent from "@/components/ui/popover/PopoverContent.vue";
 import PopoverTrigger from "@/components/ui/popover/PopoverTrigger.vue";
-import { padTo2Digits } from "~/layers/dashboard/helpers/convertMillisToTime";
+import { padTo2Digits } from "~~/layers/dashboard/helpers/convertMillisToTime";
 import HeaderProfile from "./header-profile.vue";
 import HeaderBotStatus from "./header-bot-status.vue";
 

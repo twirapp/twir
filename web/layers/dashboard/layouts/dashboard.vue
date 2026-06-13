@@ -5,8 +5,8 @@ import { type RouteLocationNormalized, useRoute } from "vue-router";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Sidebar from "~/layers/dashboard/layout/sidebar/sidebar.vue";
-import Stats from "~/layers/dashboard/layout/header/header.vue";
+import Sidebar from "~~/layers/dashboard/layout/sidebar/sidebar.vue";
+import Stats from "~~/layers/dashboard/layout/header/header.vue";
 
 const isRouterReady = ref(false);
 const route = useRoute();

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { useProfile, useUserSettings } from '~/layers/dashboard/api/auth'
+import { useProfile, useUserSettings } from '~~/layers/dashboard/api/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'

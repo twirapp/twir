@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { useYoutubeSocket } from '~/layers/dashboard/components/songRequests/hook.js'
-import { useGlobalYoutubePlayer } from '~/layers/dashboard/composables/useGlobalYoutubePlayer.js'
+import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
+import { useGlobalYoutubePlayer } from '~~/layers/dashboard/composables/useGlobalYoutubePlayer.js'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
-import { convertMillisToTime } from '~/layers/dashboard/helpers/convertMillisToTime.js'
+import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
 const { currentVideo } = useYoutubeSocket()
 const {
 	isPlaying,

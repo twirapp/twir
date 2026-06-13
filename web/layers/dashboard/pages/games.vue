@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import EightBall from '~/layers/dashboard/components/games/8ball.vue'
-import RussianRoulette from '~/layers/dashboard/components/games/russianRoulette.vue'
-import Seppuku from '~/layers/dashboard/components/games/seppuku.vue'
-import Duel from '~/layers/dashboard/features/games/duel.vue'
-import Voteban from '~/layers/dashboard/features/games/voteban.vue'
-import PageLayout from '~/layers/dashboard/layout/page-layout.vue'
+import EightBall from '~~/layers/dashboard/components/games/8ball.vue'
+import RussianRoulette from '~~/layers/dashboard/components/games/russianRoulette.vue'
+import Seppuku from '~~/layers/dashboard/components/games/seppuku.vue'
+import Duel from '~~/layers/dashboard/features/games/duel.vue'
+import Voteban from '~~/layers/dashboard/features/games/voteban.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 </script>

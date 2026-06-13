@@ -6,9 +6,9 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 
-import { useProfile, useUserAccessFlagChecker } from "~/layers/dashboard/api/auth";
-import { twitchSetChannelInformationMutation } from "~/layers/dashboard/api/twitch";
-import TwitchCategorySelector from "~/layers/dashboard/components/twitch-category-selector.vue";
+import { useProfile, useUserAccessFlagChecker } from "~~/layers/dashboard/api/auth";
+import { twitchSetChannelInformationMutation } from "~~/layers/dashboard/api/twitch";
+import TwitchCategorySelector from "~~/layers/dashboard/components/twitch-category-selector.vue";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,

@@ -14,8 +14,8 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { footerNavigationItems } from "~/layers/dashboard/config/navigation";
-import { useNotifications } from "~/layers/dashboard/composables/use-notifications";
+import { footerNavigationItems } from "~~/layers/dashboard/config/navigation";
+import { useNotifications } from "~~/layers/dashboard/composables/use-notifications";
 
 const { t } = useI18n();
 const { setOpenMobile } = useSidebar();

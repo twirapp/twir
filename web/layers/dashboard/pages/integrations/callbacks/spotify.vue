@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
-import { useSpotifyIntegration } from '~/layers/dashboard/api/integrations/spotify.js'
+import { useSpotifyIntegration } from '~~/layers/dashboard/api/integrations/spotify.js'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

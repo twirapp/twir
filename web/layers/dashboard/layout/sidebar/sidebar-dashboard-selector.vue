@@ -6,7 +6,7 @@ import { useFilter } from 'reka-ui'
 
 import type { PopoverContentProps } from 'reka-ui'
 
-import { useDashboard, useProfile } from '~/layers/dashboard/api/auth'
+import { useDashboard, useProfile } from '~~/layers/dashboard/api/auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
@@ -17,8 +17,8 @@ import {
 } from '@/components/ui/sidebar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import KickIcon from '~/layers/dashboard/components/kick-icon.vue'
-import TwitchIcon from '~/layers/dashboard/components/twitch-icon.vue'
+import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
+import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'
 
 const { t } = useI18n()
 const { open: sidebarOpen } = useSidebar()

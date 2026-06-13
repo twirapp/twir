@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 import type { UserPublicSettingsQuery } from '~/gql/graphql.js'
 
-import { useUserSettings } from '~/layers/dashboard/api/auth'
+import { useUserSettings } from '~~/layers/dashboard/api/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'

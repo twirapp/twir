@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-import { useAuthLink, useProfile, useUnlinkPlatformAccount } from '~/layers/dashboard/api/auth'
-import { openApi } from '~/layers/dashboard/api/openapi'
+import { useAuthLink, useProfile, useUnlinkPlatformAccount } from '~~/layers/dashboard/api/auth'
+import { openApi } from '~~/layers/dashboard/api/openapi'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

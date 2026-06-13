@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import UserAccountSettings from '~/layers/dashboard/pages/settings/user-account-settings.vue'
-import UserPublicSettings from '~/layers/dashboard/pages/settings/user-public-settings.vue'
-import UserLinkedAccounts from '~/layers/dashboard/pages/settings/user-linked-accounts.vue'
+import UserAccountSettings from '~~/layers/dashboard/pages/settings/user-account-settings.vue'
+import UserPublicSettings from '~~/layers/dashboard/pages/settings/user-public-settings.vue'
+import UserLinkedAccounts from '~~/layers/dashboard/pages/settings/user-linked-accounts.vue'
 
-import PageLayout, { type PageLayoutTab } from '~/layers/dashboard/layout/page-layout.vue'
+import PageLayout, { type PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

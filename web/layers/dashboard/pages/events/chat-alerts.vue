@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
 
-import { useProfile } from '~/layers/dashboard/api/auth'
-import BanSettings from '~/layers/dashboard/features/chat-alerts/ui/ban-settings.vue'
-import ChatAlertsRewardsSettings from '~/layers/dashboard/features/chat-alerts/ui/chat-alerts-rewards-settings.vue'
-import Settings from '~/layers/dashboard/features/chat-alerts/ui/settings.vue'
-import PageLayout, { type PageLayoutTab } from '~/layers/dashboard/layout/page-layout.vue'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import BanSettings from '~~/layers/dashboard/features/chat-alerts/ui/ban-settings.vue'
+import ChatAlertsRewardsSettings from '~~/layers/dashboard/features/chat-alerts/ui/chat-alerts-rewards-settings.vue'
+import Settings from '~~/layers/dashboard/features/chat-alerts/ui/settings.vue'
+import PageLayout, { type PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

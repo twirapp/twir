@@ -4,8 +4,8 @@ import { onMounted } from 'vue'
 
 import { Card, CardContent } from '@/components/ui/card'
 import BlocksRender from '@/components/ui/editorjs/blocks-render.vue'
-import { useNotifications } from '~/layers/dashboard/composables/use-notifications'
-import PageLayout from '~/layers/dashboard/layout/page-layout.vue'
+import { useNotifications } from '~~/layers/dashboard/composables/use-notifications'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

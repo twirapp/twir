@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 
-import { useProfile } from '~/layers/dashboard/api/auth'
+import { useProfile } from '~~/layers/dashboard/api/auth'
 
 export function usePublicPageHref() {
 	const { data: profileData } = useProfile()
