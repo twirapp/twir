@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Platform } from '@/gql/graphql.js'
+import { Platform } from '~/gql/graphql.js'
 import { resolveUserName } from '@/helpers/resolveUserName.js'
 
 const props = defineProps<{

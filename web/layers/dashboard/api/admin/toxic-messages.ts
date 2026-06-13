@@ -2,7 +2,7 @@ import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { unref } from 'vue'
 
-import type { AdminToxicMessagesInput } from '@/gql/graphql.js'
+import type { AdminToxicMessagesInput } from '~/gql/graphql.js'
 import type { MaybeRef } from 'vue'
 
 import { graphql } from '@/gql'

@@ -4,7 +4,7 @@ import { createGlobalState } from '@vueuse/core'
 import { invalidationKey as commandsInvalidationKey } from './commands.js'
 
 import { useMutation } from '@/composables/use-mutation.js'
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 const invalidationKey = 'CommandsGroupsInvalidateKey'
 

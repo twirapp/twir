@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { useGamesApi } from '@/api/games/games';
 import { toast } from 'vue-sonner';
-import { VoteBanGameVotingMode } from '@/gql/graphql.js';
+import { VoteBanGameVotingMode } from '~/gql/graphql.js';
 
 const rules = z
 	.object({

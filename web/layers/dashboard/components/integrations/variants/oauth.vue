@@ -14,7 +14,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = withDefaults(
 	defineProps<{

@@ -1,4 +1,4 @@
-import type { ChannelOverlayLayerType } from '@/gql/graphql.js'
+import type { ChannelOverlayLayerType } from '~/gql/graphql.js'
 
 export interface Layer {
 	id: string

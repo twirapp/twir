@@ -33,7 +33,7 @@ import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
 import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.js'
 import { moderationValidationRules } from '@/features/moderation/composables/use-moderation-form.js'
 // oxlint-disable-next-line consistent-type-imports
-import { ModerationSettingsType, RoleTypeEnum } from '@/gql/graphql.js'
+import { ModerationSettingsType, RoleTypeEnum } from '~/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()

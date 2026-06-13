@@ -5,8 +5,8 @@ import { useMutation } from '@/composables/use-mutation.js'
 
 import type { MaybeRef, Ref } from 'vue'
 
-import { graphql } from '@/gql/gql.js'
-import { TwitchGetUsersQuery, TwitchSearchChannelsQuery } from '@/gql/graphql.js'
+import { graphql } from '~/gql/gql.js'
+import { TwitchGetUsersQuery, TwitchSearchChannelsQuery } from '~/gql/graphql.js'
 
 type TwitchIn = MaybeRef<string | string[] | null>
 export function useTwitchGetUsers(opts: { ids?: TwitchIn; names?: TwitchIn }) {

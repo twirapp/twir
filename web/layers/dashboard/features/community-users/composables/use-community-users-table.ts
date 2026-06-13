@@ -20,7 +20,7 @@ import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.
 import { usePagination } from '@/composables/use-pagination.js'
 import UsersTableCellUser
 	from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
-import { type CommunityUsersOpts, CommunityUsersResetType } from '@/gql/graphql.js'
+import { type CommunityUsersOpts, CommunityUsersResetType } from '~/gql/graphql.js'
 import { resolveProfile } from '@/helpers/resolveProfile.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 

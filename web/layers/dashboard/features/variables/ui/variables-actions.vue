@@ -7,7 +7,7 @@ import { type CustomVariable, useVariablesApi } from '@/api/variables'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = defineProps<{ row: CustomVariable }>()
 

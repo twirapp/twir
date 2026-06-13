@@ -2,7 +2,7 @@ import { useMutation, useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
-import type { KappagenOverlaySettingsFragment } from '@/gql/graphql.js'
+import type { KappagenOverlaySettingsFragment } from '~/gql/graphql.js'
 
 import { useProfile } from '@/api/auth'
 import { graphql } from '@/gql'

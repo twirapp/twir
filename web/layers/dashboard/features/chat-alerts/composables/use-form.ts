@@ -5,7 +5,7 @@ import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
-import type { ChatAlerts } from '@/gql/graphql.js'
+import type { ChatAlerts } from '~/gql/graphql.js'
 
 import { useChatAlertsApi } from '@/api/chat-alerts.js'
 

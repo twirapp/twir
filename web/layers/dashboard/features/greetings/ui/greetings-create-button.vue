@@ -7,7 +7,7 @@ import GreetingsDialog from './greetings-dialog.vue'
 import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { useGreetingsApi } from '@/api/greetings'
 import { Button } from '@/components/ui/button'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
 const { data: profile } = useProfile()

@@ -19,7 +19,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { flatOperations } from '@/features/events/constants/helpers.js'
 import { EventOperations } from '@/features/events/constants/operations.js'
-import { EventOperationType } from '@/gql/graphql.js'
+import { EventOperationType } from '~/gql/graphql.js'
 import { cn } from '@/lib/utils.js'
 
 const props = defineProps<{

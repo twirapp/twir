@@ -9,7 +9,7 @@ import type {
 	GiveawaySubscriptionParticipant,
 	GiveawayWinner,
 } from '@/api/giveaways.js';
-import type { GiveawaysCreateInput } from '@/gql/graphql.js';
+import type { GiveawaysCreateInput } from '~/gql/graphql.js';
 
 import { useGiveawaysApi } from '@/api/giveaways.js';
 import { toast } from 'vue-sonner';

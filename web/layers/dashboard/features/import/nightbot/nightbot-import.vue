@@ -7,11 +7,11 @@ import OauthComponent from '@/components/integrations/variants/oauth.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert/index.js'
 import { Button } from '@/components/ui/button/index.js'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card/index.js'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 import { useNightbotIntegration } from './composables/use-nightbot-integration.js'
 
-import type { NightbotImportCommandsOutput, NightbotImportTimersOutput } from '@/gql/graphql.js'
+import type { NightbotImportCommandsOutput, NightbotImportTimersOutput } from '~/gql/graphql.js'
 
 const nightbotIntegration = useNightbotIntegration()
 const { data: authLinkData } = nightbotIntegration.useAuthLink()

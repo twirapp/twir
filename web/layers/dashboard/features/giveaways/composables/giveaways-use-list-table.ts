@@ -12,7 +12,7 @@ import { useUserAccessFlagChecker } from '@/api/auth';
 import { Button } from '@/components/ui/button';
 import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.js';
 import GiveawaysCreateDialog from '@/features/giveaways/ui/giveaways-create-dialog.vue';
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js';
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js';
 
 export const useGiveawaysListTable = createGlobalState(() => {
 	const { t } = useI18n();

@@ -2,7 +2,7 @@ import { useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
-import type { DashboardEventsSubscription } from '@/gql/graphql.js'
+import type { DashboardEventsSubscription } from '~/gql/graphql.js'
 
 import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql'

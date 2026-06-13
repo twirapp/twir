@@ -17,7 +17,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { useCommandEditV2 } from '@/features/commands/composables/use-command-edit-v2'
-import { CommandExpiresType } from '@/gql/graphql.js'
+import { CommandExpiresType } from '~/gql/graphql.js'
 
 const { t } = useI18n()
 const { isCustom } = useCommandEditV2()

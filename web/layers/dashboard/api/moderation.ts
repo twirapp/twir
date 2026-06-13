@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { ModerationSettingsCreateOrUpdateInput, ModerationSettingsItem } from '@/gql/graphql.js'
+import type { ModerationSettingsCreateOrUpdateInput, ModerationSettingsItem } from '~/gql/graphql.js'
 
 import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql'

@@ -2,10 +2,10 @@ import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { unref } from 'vue'
 
-import type { RewardsRedemptionsHistoryQuery, TwitchRedemptionsOpts } from '@/gql/graphql.js'
+import type { RewardsRedemptionsHistoryQuery, TwitchRedemptionsOpts } from '~/gql/graphql.js'
 import type { MaybeRef } from 'vue'
 
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 export type Redemption = RewardsRedemptionsHistoryQuery['rewardsRedemptionsHistory']['redemptions'][0]
 

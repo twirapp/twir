@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FieldArray, useFieldArray } from 'vee-validate'
 
-import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql.js'
+import type { KappagenOverlayAnimationsSettings } from '~/gql/graphql.js'
 
 import {
 	FormControl,

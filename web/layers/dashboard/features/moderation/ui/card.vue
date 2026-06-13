@@ -17,7 +17,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.js'
 import { Icons } from '@/features/moderation/composables/use-moderation-form.js'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = defineProps<{
 	item: EditableItem

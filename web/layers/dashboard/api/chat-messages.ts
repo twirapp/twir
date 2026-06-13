@@ -2,10 +2,10 @@ import { useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { unref } from 'vue'
 
-import type { ChatMessageInput, ChatMessageQuery } from '@/gql/graphql.js'
+import type { ChatMessageInput, ChatMessageQuery } from '~/gql/graphql.js'
 import type { MaybeRef } from 'vue'
 
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 export type ChatMessage = ChatMessageQuery['chatMessages'][number]
 

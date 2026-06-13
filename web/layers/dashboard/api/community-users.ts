@@ -1,11 +1,11 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { CommunityUsersOpts, GetAllCommunityUsersQuery } from '@/gql/graphql.js'
+import type { CommunityUsersOpts, GetAllCommunityUsersQuery } from '~/gql/graphql.js'
 import type { Ref } from 'vue'
 
 import { useMutation } from '@/composables/use-mutation.js'
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 export type CommunityUser = GetAllCommunityUsersQuery['communityUsers']['users'][0]
 

@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 
 import type { SortingState } from '@tanstack/vue-table'
 
-import { EmoteStatisticRange, EmotesStatisticsOptsOrder } from '@/gql/graphql.js'
+import { EmoteStatisticRange, EmotesStatisticsOptsOrder } from '~/gql/graphql.js'
 
 export const useCommunityEmotesStatisticFilters = createGlobalState(() => {
 	const searchInput = ref('')

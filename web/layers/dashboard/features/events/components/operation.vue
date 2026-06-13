@@ -31,7 +31,7 @@ import OperationActionSelector from '@/features/events/components/operation-acti
 import OperationInputAlert from '@/features/events/components/operation-input-alert.vue'
 import OperationInputObsSelector from '@/features/events/components/operation-input-obs-selector.vue'
 import { flatOperations } from '@/features/events/constants/helpers'
-import { EventOperationType } from '@/gql/graphql.js'
+import { EventOperationType } from '~/gql/graphql.js'
 
 import type { EventFilter, EventOperation } from '@/api/events'
 

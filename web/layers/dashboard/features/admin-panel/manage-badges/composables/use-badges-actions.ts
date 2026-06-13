@@ -6,7 +6,7 @@ import { useBadgesForm } from './use-badges-form.js'
 import { useBadges } from './use-badges.js'
 import { useUsersTableFilters } from '../../manage-users/composables/use-users-table-filters.js'
 
-import type { Badge } from '@/gql/graphql.js'
+import type { Badge } from '~/gql/graphql.js'
 
 import { useLayout } from '@/composables/use-layout.js'
 

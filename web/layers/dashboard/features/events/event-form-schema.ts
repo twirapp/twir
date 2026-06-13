@@ -1,7 +1,7 @@
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 
-import { EventOperationType, EventType } from '@/gql/graphql.js';
+import { EventOperationType, EventType } from '~/gql/graphql.js';
 
 export const eventFormSchema = toTypedSchema(
 	z

@@ -1,7 +1,7 @@
 import { createGlobalState, debouncedRef } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import type { TwitchRedemptionsOpts } from '@/gql/graphql.js'
+import type { TwitchRedemptionsOpts } from '~/gql/graphql.js'
 
 import { useProfile } from '@/api/auth'
 import { useTwitchRewardsNew } from '@/api/twitch'

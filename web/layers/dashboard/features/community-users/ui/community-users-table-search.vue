@@ -8,7 +8,7 @@ import {
 	useCommunityUsersTable,
 } from '../composables/use-community-users-table.js'
 
-import { Platform } from '@/gql/graphql.js'
+import { Platform } from '~/gql/graphql.js'
 import SearchBar from '@/components/search-bar.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

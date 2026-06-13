@@ -1,7 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
-import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql.js'
+import type { KappagenOverlayAnimationsSettings } from '~/gql/graphql.js'
 import type { Emote, KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
 export const twirEmote: Emote = {

@@ -5,7 +5,7 @@ import { TABLE_ACCESSOR_KEYS } from './use-community-users-table.js'
 
 import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/vue-table'
 
-import { CommunityUsersOrder, CommunityUsersSortBy, Platform } from '@/gql/graphql.js'
+import { CommunityUsersOrder, CommunityUsersSortBy, Platform } from '~/gql/graphql.js'
 
 const COLUMN_VISIBLE_STORAGE_KEY = 'twirCommunityUsersColumnVisibility'
 

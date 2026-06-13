@@ -1,7 +1,7 @@
 import { createGlobalState, refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import type { ChatMessageInput } from '@/gql/graphql.js'
+import type { ChatMessageInput } from '~/gql/graphql.js'
 
 export const useChatMessagesFilters = createGlobalState(() => {
 	const userSearchInput = ref('')

@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { NotificationType } from '@/gql/graphql.js'
+import { NotificationType } from '~/gql/graphql.js'
 
 const { t } = useI18n()
 

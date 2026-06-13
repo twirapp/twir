@@ -5,7 +5,7 @@ import type {
 	KappagenOverlayAnimationStyle,
 	KappagenOverlayAnimationsSettings,
 	KappagenOverlayEvent,
-} from '@/gql/graphql.js'
+} from '~/gql/graphql.js'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'

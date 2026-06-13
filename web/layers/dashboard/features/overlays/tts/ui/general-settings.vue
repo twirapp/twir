@@ -30,7 +30,7 @@ import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import { useUserAccessFlagChecker } from '@/api/auth'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
 const { form, onSubmit, isLoading, isSaving } = useTTSForm()

@@ -4,7 +4,7 @@ import { computed, h } from 'vue'
 
 import { useAdminToxicMessagesApi } from './use-admin-toxic-mesasges-api.js'
 
-import type { AdminToxicMessagesQuery } from '@/gql/graphql.js'
+import type { AdminToxicMessagesQuery } from '~/gql/graphql.js'
 
 import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 

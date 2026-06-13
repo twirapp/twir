@@ -1,10 +1,10 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { GetAllTimersQuery, TimerCreateInput } from '@/gql/graphql.js'
+import type { GetAllTimersQuery, TimerCreateInput } from '~/gql/graphql.js'
 
 import { useMutation } from '@/composables/use-mutation.js'
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 export type TimerResponse = GetAllTimersQuery['timers'][0]
 export type EditableTimer = TimerCreateInput & { id?: string }

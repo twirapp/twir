@@ -2,7 +2,7 @@
 import { intlFormat } from 'date-fns'
 import { computed } from 'vue'
 
-import type { ChatMessage } from '@/gql/graphql.js'
+import type { ChatMessage } from '~/gql/graphql.js'
 
 const props = defineProps<{
 	message: ChatMessage

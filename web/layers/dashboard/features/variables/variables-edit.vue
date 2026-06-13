@@ -22,7 +22,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import VariablesList from '@/components/variables-list.vue'
-import { VariableScriptLanguage, VariableType } from '@/gql/graphql.js'
+import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()

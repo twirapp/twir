@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import { useBadges } from '../../manage-badges/composables/use-badges.js'
 
-import { Platform } from '@/gql/graphql.js'
+import { Platform } from '~/gql/graphql.js'
 
 export type FilterType = 'status' | 'badge' | 'platform'
 

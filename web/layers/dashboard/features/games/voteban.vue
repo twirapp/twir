@@ -45,7 +45,7 @@ import {
 } from '@/components/ui/tags-input'
 import { Textarea } from '@/components/ui/textarea'
 import CommandButton from '@/features/commands/ui/command-button.vue'
-import { VoteBanGameVotingMode } from '@/gql/graphql.js'
+import { VoteBanGameVotingMode } from '~/gql/graphql.js'
 
 const isDialogOpen = ref(false)
 const { t } = useI18n()

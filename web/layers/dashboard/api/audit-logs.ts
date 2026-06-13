@@ -2,10 +2,10 @@ import { useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
-import type { UserLogFragmentFragment } from '@/gql/graphql.js'
+import type { UserLogFragmentFragment } from '~/gql/graphql.js'
 
 import { graphql } from '@/gql'
-import { AuditLogSystem, AuditOperationType } from '@/gql/graphql.js'
+import { AuditLogSystem, AuditOperationType } from '~/gql/graphql.js'
 
 graphql(`
 	fragment UserLogFragment on AuditLog {

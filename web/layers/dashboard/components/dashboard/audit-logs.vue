@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { AuditOperationType } from '@/gql/graphql.js'
+import { AuditOperationType } from '~/gql/graphql.js'
 
 const props = defineProps<{
 	popup?: boolean

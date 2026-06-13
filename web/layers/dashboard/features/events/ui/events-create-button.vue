@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { useEventsApi } from '@/api/events.js'
 import { Button } from '@/components/ui/button'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
 const router = useRouter()

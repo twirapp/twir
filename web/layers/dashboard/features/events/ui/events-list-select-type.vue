@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { EventType } from '@/gql/graphql.js'
+import type { EventType } from '~/gql/graphql.js'
 
 import { Button } from '@/components/ui/button'
 import {

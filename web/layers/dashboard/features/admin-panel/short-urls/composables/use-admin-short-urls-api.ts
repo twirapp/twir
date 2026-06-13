@@ -2,7 +2,7 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
 import type { AdminShortUrl } from '@/api/admin/short-urls.js'
-import type { AdminShortUrlsInput } from '@/gql/graphql.js'
+import type { AdminShortUrlsInput } from '~/gql/graphql.js'
 
 import { useAdminShortUrlsApi as useApiManager } from '@/api/admin/short-urls.js'
 import { toast } from 'vue-sonner'

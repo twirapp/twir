@@ -9,7 +9,7 @@ import {
 	GreetingsCreateInputSchema,
 	type GreetingsUpdateInputInput,
 	GreetingsUpdateInputSchema,
-} from '@/gql/validation-schemas.js';
+} from '~/gql/validation-schemas.js';
 import { type Greetings, useGreetingsApi } from '@/api/greetings';
 import DialogOrSheet from '@/components/dialog-or-sheet.vue';
 import TwitchUserSelect from '@/components/twitchUsers/twitch-user-select.vue';

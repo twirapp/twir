@@ -19,9 +19,9 @@ import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
 import CommandButton from '@/features/commands/ui/command-button.vue'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 import InputWithIcon from '@/components/ui/InputWithIcon.vue'
-import { BeRightBackUpdateInputSchema } from '@/gql/validation-schemas.js'
+import { BeRightBackUpdateInputSchema } from '~/gql/validation-schemas.js'
 
 const { t } = useI18n()
 

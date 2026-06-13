@@ -10,14 +10,14 @@ import { computed, h } from 'vue'
 import { useAuditFilters } from './use-audit-filters.js'
 
 import type { BadgeVariants } from '@/components/ui/badge'
-import type { AdminAuditLogsInput, AdminAuditLogsQuery } from '@/gql/graphql.js'
+import type { AdminAuditLogsInput, AdminAuditLogsQuery } from '~/gql/graphql.js'
 
 import { useAdminAuditLogs } from '@/api/admin/audit-logs'
 import { Badge } from '@/components/ui/badge'
 import { usePagination } from '@/composables/use-pagination.js'
 import AuditTableValue from '@/features/admin-panel/audit-logs/ui/audit-table-value.vue'
 import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
-import { AuditOperationType } from '@/gql/graphql.js'
+import { AuditOperationType } from '~/gql/graphql.js'
 import { resolveProfile } from '@/helpers/resolveProfile.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 

@@ -5,7 +5,7 @@ import { type TypeOf, array, boolean, nativeEnum, number, object, string } from 
 
 import { useTimersApi } from '@/api/timers';
 import { toast } from 'vue-sonner';
-import { TwitchAnnounceColor } from '@/gql/graphql.js';
+import { TwitchAnnounceColor } from '~/gql/graphql.js';
 
 export const formSchema = object({
 	id: string().optional(),

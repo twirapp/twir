@@ -2,7 +2,7 @@
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
 
-import type { RoleTypeEnum } from '@/gql/graphql.js'
+import type { RoleTypeEnum } from '~/gql/graphql.js'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'

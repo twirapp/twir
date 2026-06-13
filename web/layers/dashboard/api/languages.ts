@@ -1,7 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
 import { useQuery } from '@urql/vue'
 
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 export const useLanguagesApi = createGlobalState(() => {
   const useAvailableLanguages = () => useQuery({

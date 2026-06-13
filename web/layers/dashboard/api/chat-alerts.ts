@@ -1,10 +1,10 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { GetAllChatAlertsQuery } from '@/gql/graphql.js'
+import type { GetAllChatAlertsQuery } from '~/gql/graphql.js'
 
 import { useMutation } from '@/composables/use-mutation.js'
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 export type ChatAlerts = GetAllChatAlertsQuery['chatAlerts']
 

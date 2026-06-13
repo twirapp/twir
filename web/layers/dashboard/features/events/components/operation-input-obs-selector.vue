@@ -15,7 +15,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { EventOperationType } from '@/gql/graphql.js'
+import { EventOperationType } from '~/gql/graphql.js'
 
 const props = defineProps<{
 	operationIndex: number

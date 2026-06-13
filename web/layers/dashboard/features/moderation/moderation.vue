@@ -18,7 +18,7 @@ import { Icons } from '@/features/moderation/composables/use-moderation-form.js'
 import ModerationTabChatWall from '@/features/moderation/tabs/moderation-tab-chat-wall.vue'
 import ModerationTabRules from '@/features/moderation/tabs/moderation-tab-rules.vue'
 // oxlint-disable-next-line consistent-type-imports
-import { ChannelRolePermissionEnum, ModerationSettingsType } from '@/gql/graphql.js'
+import { ChannelRolePermissionEnum, ModerationSettingsType } from '~/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()

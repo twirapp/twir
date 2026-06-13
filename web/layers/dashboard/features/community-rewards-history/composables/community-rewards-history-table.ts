@@ -22,7 +22,7 @@ import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-tab
 import {
 	useCommunityRewardsHistoryQuery,
 } from '@/features/community-rewards-history/composables/community-rewards-history-query.js'
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 import { valueUpdater } from '@/helpers/value-updater'
 
 export const useCommunityRewardsTable = createGlobalState(() => {

@@ -1,4 +1,4 @@
-import { ChannelOverlayLayerType } from '@/gql/graphql.js'
+import { ChannelOverlayLayerType } from '~/gql/graphql.js'
 
 export function convertOverlayLayerTypeToText(type: ChannelOverlayLayerType): string {
 	switch (type) {

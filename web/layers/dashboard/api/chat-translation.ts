@@ -2,7 +2,7 @@ import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
 import { useMutation } from '@/composables/use-mutation'
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 const invalidationKey = 'ChatTranslation'
 

@@ -10,7 +10,7 @@ import type { TypeOf } from 'zod';
 
 import { useVariablesApi } from '@/api/variables.js';
 import { toast } from 'vue-sonner';
-import { VariableScriptLanguage, VariableType } from '@/gql/graphql.js';
+import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js';
 
 export const formSchema = object({
 	id: string().optional(),

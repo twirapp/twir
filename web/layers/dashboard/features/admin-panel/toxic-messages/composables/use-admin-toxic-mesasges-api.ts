@@ -1,7 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
-import type { AdminToxicMessagesInput, AdminToxicMessagesQuery } from '@/gql/graphql.js'
+import type { AdminToxicMessagesInput, AdminToxicMessagesQuery } from '~/gql/graphql.js'
 
 import { useToxicMessagesAdminApi } from '@/api/admin/toxic-messages.js'
 import { usePagination } from '@/composables/use-pagination.js'

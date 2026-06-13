@@ -13,7 +13,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { CommunityUsersResetType } from '@/gql/graphql.js'
+import { CommunityUsersResetType } from '~/gql/graphql.js'
 
 const communityUsersApi = useCommunityUsersApi()
 const communityResetMutation = communityUsersApi.useMutationCommunityReset()

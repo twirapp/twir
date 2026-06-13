@@ -17,7 +17,7 @@ import {
 	type AdminNotificationsParams,
 	NotificationType,
 	type NotificationsByAdminQuery,
-} from '@/gql/graphql.js'
+} from '~/gql/graphql.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
 type Notifications = NotificationsByAdminQuery['notificationsByAdmin']['notifications']

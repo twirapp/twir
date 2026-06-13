@@ -1,10 +1,10 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { GetAllGreetingsQuery } from '@/gql/graphql.js'
+import type { GetAllGreetingsQuery } from '~/gql/graphql.js'
 
 import { useMutation } from '@/composables/use-mutation.js'
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 export type Greetings = Omit<GetAllGreetingsQuery['greetings'][0], '__typename'>
 

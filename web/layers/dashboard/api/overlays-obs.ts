@@ -2,11 +2,11 @@ import { useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
-import type { ObsWebsocketModule } from '@/gql/graphql.js'
+import type { ObsWebsocketModule } from '~/gql/graphql.js'
 
 import { useProfile } from '@/api/auth.js'
 import { useMutation } from '@/composables/use-mutation.js'
-import { graphql } from '@/gql/gql.js'
+import { graphql } from '~/gql/gql.js'
 
 export type ObsWebsocketData = Omit<ObsWebsocketModule, '__typename'>
 
