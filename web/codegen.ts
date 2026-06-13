@@ -34,6 +34,9 @@ const config: CodegenConfig = {
 				useTypeImports: true,
 			},
 		},
+		'./app/gql/validation-schemas.ts': {
+			plugins: ['./codegen-plugins/zod.ts'],
+		},
 	},
 }
 
