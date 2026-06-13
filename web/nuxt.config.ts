@@ -3,6 +3,7 @@ import process from 'node:process'
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import tailwindcss from '@tailwindcss/vite'
+import viteCommonjs from 'vite-plugin-commonjs'
 
 import gqlcodegen from './modules/gql-codegen'
 
@@ -86,6 +87,7 @@ export default defineNuxtConfig({
 				strictMessage: false,
 				escapeHtml: false,
 			}),
+			viteCommonjs(),
 		],
 		optimizeDeps: {
 			include: [
@@ -98,7 +100,6 @@ export default defineNuxtConfig({
 				'class-variance-authority',
 				'zod',
 				'vee-validate',
-				'interactjs',
 				'vue3-moveable',
 			],
 		},
