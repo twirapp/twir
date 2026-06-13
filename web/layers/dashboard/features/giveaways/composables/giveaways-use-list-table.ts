@@ -2,7 +2,8 @@ import type { ColumnDef } from '@tanstack/vue-table';
 
 import { getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { createGlobalState } from '@vueuse/core';
-import { computed, h, ref, resolveComponent } from 'vue';
+import { computed, h, ref } from 'vue';
+import { NuxtIcon as Icon } from '#components';
 import { useI18n } from 'vue-i18n';
 
 import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js';
@@ -79,7 +80,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 								onClick: () => viewGiveaway(row.original.id),
 							},
 							{
-								default: () => [h(resolveComponent('Icon'), { name: 'lucide:eye', class: 'size-4' }), t('giveaways.view')],
+								default: () => [h(Icon, { name: 'lucide:eye', class: 'size-4' }), t('giveaways.view')],
 							},
 						),
 
@@ -95,7 +96,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 										onClick: () => startGiveaway(row.original.id),
 									},
 									{
-										default: () => [h(resolveComponent('Icon'), { name: 'lucide:play', class: 'size-4' }), t('giveaways.start')],
+										default: () => [h(Icon, { name: 'lucide:play', class: 'size-4' }), t('giveaways.start')],
 									},
 								)
 							: null,
@@ -112,7 +113,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 										onClick: () => stopGiveaway(row.original.id),
 									},
 									{
-										default: () => [h(resolveComponent('Icon'), { name: 'lucide:ban', class: 'size-4' }), t('giveaways.stop')],
+										default: () => [h(Icon, { name: 'lucide:ban', class: 'size-4' }), t('giveaways.stop')],
 									},
 								)
 							: null,

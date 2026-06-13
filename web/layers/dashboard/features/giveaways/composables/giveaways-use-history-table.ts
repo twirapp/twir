@@ -1,7 +1,8 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { createGlobalState } from '@vueuse/core';
-import { computed, h, resolveComponent } from 'vue';
+import { computed, h } from 'vue';
+import { NuxtIcon as Icon } from '#components';
 import { useI18n } from 'vue-i18n';
 
 import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js';
@@ -87,7 +88,7 @@ export const useGiveawaysHistoryTable = createGlobalState(() => {
 								onClick: () => viewGiveaway(row.original.id),
 							},
 							{
-								default: () => [h(resolveComponent('Icon'), { name: 'lucide:eye', class: 'size-4' }), t('giveaways.view')],
+								default: () => [h(Icon, { name: 'lucide:eye', class: 'size-4' }), t('giveaways.view')],
 							},
 						),
 					]),
