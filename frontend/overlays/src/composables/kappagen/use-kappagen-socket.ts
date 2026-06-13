@@ -4,7 +4,9 @@ import { type MaybeRef, computed, ref, unref, watch } from 'vue'
 import type { Buidler } from './use-kappagen-builder.js'
 import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
+import { type ChatMessage, type ChatSettings, useChatTmi } from '@/composables/tmi/use-chat-tmi.js'
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js'
+import { useSevenTv } from '@/composables/tmi/use-seven-tv.js'
 import { graphql } from '@/gql'
 
 export function useKappagenOverlaySocket(
@@ -95,6 +97,10 @@ export function useKappagenOverlaySocket(
 						id
 						login
 					}
+					channelIdentities {
+						platform
+						id
+					}
 				}
 			}
 		`),
@@ -112,6 +118,7 @@ export function useKappagenOverlaySocket(
 					text
 					emotes {
 						id
+						url
 						positions
 					}
 				}
@@ -124,8 +131,84 @@ export function useKappagenOverlaySocket(
 		},
 		pause: paused,
 	})
+	const {
+		data: chatMessagesData,
+		executeSubscription: connectChatMessages,
+		pause: pauseChatMessages,
+	} = useSubscription({
+		query: graphql(`
+			subscription KappagenChatMessages($apiKey: String!) {
+				overlaysKappagenChatMessages(apiKey: $apiKey) {
+					id
+					platform
+					text
+					channelId
+					channelLogin
+					channelName
+					userID
+					userName
+					userDisplayName
+					userColor
+					createdAt
+				}
+			}
+		`),
+		get variables() {
+			return {
+				apiKey: apiKey.value,
+			}
+		},
+		pause: paused,
+	})
 
 	const { makeMessageChunks } = useMessageHelpers()
+	const { fetchSevenTvEmotes } = useSevenTv()
+
+	function handleSpawnChunks(chunks: ReturnType<typeof makeMessageChunks>) {
+		if (!settings.value?.overlaysKappagen.enableSpawn) return
+
+		const firstChunk = chunks.at(0)
+		if (firstChunk?.type === 'text' && firstChunk.value.startsWith('!')) {
+			return
+		}
+
+		const generatedEmotes = emotesBuilder.buildSpawnEmotes(chunks)
+		if (!generatedEmotes.length) return
+
+		unref(instance).showEmotes(generatedEmotes)
+	}
+
+	function onTwitchMessage(msg: ChatMessage) {
+		if (msg.type === 'system') return
+		handleSpawnChunks(msg.chunks)
+	}
+
+	const twitchChannelIdentity = computed(() => {
+		return settings.value?.overlaysKappagen.channelIdentities.find((identity) => identity.platform === 'TWITCH')
+	})
+	const kickChannelIdentity = computed(() => {
+		return settings.value?.overlaysKappagen.channelIdentities.find((identity) => identity.platform === 'KICK')
+	})
+
+	const twitchChatSettings = computed<ChatSettings>(() => {
+		return {
+			channelId: twitchChannelIdentity.value?.id ?? '',
+			channelName: settings.value?.overlaysKappagen?.channel?.login ?? '',
+			emotes: {
+				ffz: settings.value?.overlaysKappagen?.emotes.ffzEnabled,
+				bttv: settings.value?.overlaysKappagen?.emotes.bttvEnabled,
+				sevenTv: settings.value?.overlaysKappagen?.emotes.sevenTvEnabled,
+			},
+			onMessage: onTwitchMessage,
+		}
+	})
+
+	const { destroy: destroyTwitchChat } = useChatTmi(twitchChatSettings)
+
+	watch([kickChannelIdentity, () => settings.value?.overlaysKappagen.emotes.sevenTvEnabled], ([identity, sevenTvEnabled]) => {
+		if (!identity?.id || !sevenTvEnabled) return
+		fetchSevenTvEmotes(identity.id, 'kick')
+	})
 
 	function randomAnimation(): KappagenAnimations | undefined {
 		if (!settings.value?.overlaysKappagen) return
@@ -176,8 +259,6 @@ export function useKappagenOverlaySocket(
 		const animation = randomAnimation()
 		if (!animation) return
 
-		console.log(animation)
-
 		unref(instance).playAnimation(generatedEmotes, animation)
 	})
 
@@ -187,15 +268,21 @@ export function useKappagenOverlaySocket(
 		const data = v.overlaysKappagenTrigger
 
 		const emotesList: Record<string, string[]> = {}
+		const emoteUrls: Record<string, string> = {}
 		if (data.emotes) {
 			for (const emote of data.emotes) {
-				emotesList[emote.id] = emote.positions
+				const emoteKey = emote.url ? `${emote.id}\u0000${emote.url}` : emote.id
+				emotesList[emoteKey] = [...(emotesList[emoteKey] ?? []), ...emote.positions]
+				if (emote.url) {
+					emoteUrls[emoteKey] = emote.url
+				}
 			}
 		}
 
 		const chunks = makeMessageChunks(data.text, {
 			isSmaller: false,
 			emotesList,
+			emoteUrls,
 		})
 
 		const emotesForKappagen = emotesBuilder.buildKappagenEmotes(chunks)
@@ -204,15 +291,30 @@ export function useKappagenOverlaySocket(
 		unref(instance).playAnimation(emotesForKappagen, animation)
 	})
 
+	watch(chatMessagesData, (v) => {
+		const chatMessage = v?.overlaysKappagenChatMessages
+		if (!chatMessage || chatMessage.platform === 'twitch') return
+
+		const chunks = makeMessageChunks(chatMessage.text, {
+			isSmaller: false,
+			emotesList: {},
+		})
+
+		handleSpawnChunks(chunks)
+	})
+
 	function destroy() {
 		pauseEvents()
 		pauseSettings()
+		pauseChatMessages()
+		destroyTwitchChat()
 	}
 
 	async function connect(key: string) {
 		apiKey.value = key
 		connectEvents()
 		connectSettings()
+		connectChatMessages()
 	}
 
 	return {

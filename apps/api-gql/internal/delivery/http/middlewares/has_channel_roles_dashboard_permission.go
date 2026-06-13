@@ -42,7 +42,19 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 			return
 		}
 
-		if user.ID == dashboardId || user.IsBotAdmin {
+		var channel model.Channels
+		if err := c.gorm.WithContext(ctx).Where("id = ?::uuid", dashboardId).First(&channel).Error; err != nil {
+			huma.WriteErr(
+				c.huma,
+				hc,
+				http.StatusInternalServerError,
+				"Cannot get channel",
+				err,
+			)
+			return
+		}
+
+		if channel.IsOwner(user.ID) || user.IsBotAdmin {
 			next(hc)
 			return
 		}
@@ -50,8 +62,8 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 		var channelRoles []model.ChannelRole
 		if err := c.gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ?`, dashboardId).
-			Preload("Users", `"userId" = ?`, user.ID).
+			Where(`"channelId" = ?::uuid`, dashboardId).
+			Preload("Users", `user_id = ?`, user.ID).
 			Find(&channelRoles).
 			Error; err != nil {
 			huma.WriteErr(
@@ -68,7 +80,7 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 		var userStat model.UsersStats
 		if err := c.gorm.
 			WithContext(ctx).
-			Where(`"userId" = ? AND "channelId" = ?`, user.ID, dashboardId).
+			Where(`user_id = ? AND channel_id = ?::uuid`, user.ID, dashboardId).
 			First(&userStat).
 			Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			huma.WriteErr(

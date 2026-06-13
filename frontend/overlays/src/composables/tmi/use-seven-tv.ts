@@ -155,8 +155,8 @@ export const useSevenTv = createGlobalState(() => {
 		}
 	})
 
-	async function fetchSevenTvEmotes(channelId: string) {
-		if (status.value === 'OPEN' || countRefetch.value > 3) return
+	async function fetchSevenTvEmotes(channelId: string, platform: 'twitch' | 'kick' = 'twitch') {
+		if (countRefetch.value > 3) return
 
 		try {
 			const [globalEmotes, channelEmotes] = await Promise.all([
@@ -164,20 +164,22 @@ export const useSevenTv = createGlobalState(() => {
 					'https://7tv.io/v3/emote-sets/global',
 				),
 				requestWithOutCache<SevenTvChannelResponse>(
-					`https://7tv.io/v3/users/twitch/${channelId}`,
+					`https://7tv.io/v3/users/${platform}/${channelId}`,
 				),
 			])
 
 			setSevenTvEmotes(globalEmotes)
 			setSevenTvEmotes(channelEmotes)
 
-			currentEmoteSetId.value = channelEmotes.emote_set.id
-			sevenTvUserId.value = channelEmotes.user.id
+			if (status.value !== 'OPEN') {
+				currentEmoteSetId.value = channelEmotes.emote_set.id
+				sevenTvUserId.value = channelEmotes.user.id
 
-			open()
+				open()
+			}
 		} catch (err) {
 			countRefetch.value++
-			fetchSevenTvEmotes(channelId)
+			fetchSevenTvEmotes(channelId, platform)
 			console.error(err)
 		}
 	}

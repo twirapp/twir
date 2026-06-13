@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -92,12 +92,12 @@ func (c *onlineUsers) updateOnlineUsers(ctx context.Context) {
 			continue
 		}
 
-		userId := stream.UserId
+		s := stream
 		wg.Add(1)
 
 		go func() {
 			defer wg.Done()
-			if updateErr := c.updateStreamUsers(ctx, userId); updateErr != nil {
+			if updateErr := c.updateStreamUsers(ctx, s); updateErr != nil {
 				c.logger.Error("cannot update stream users", slog.Any("err", updateErr))
 			}
 		}()
@@ -110,21 +110,86 @@ func (c *onlineUsers) getStreams(
 	ctx context.Context,
 ) ([]*model.ChannelsStreams, error) {
 	var streams []*model.ChannelsStreams
-	err := c.db.WithContext(ctx).Preload("Channel").Preload("Channel.User").Find(&streams).Error
-	return streams, err
+	err := c.db.WithContext(ctx).Find(&streams).Error
+	if err != nil {
+		return nil, err
+	}
+
+	platformIDs := lo.Map(streams, func(s *model.ChannelsStreams, _ int) string {
+		return s.UserId
+	})
+	platformIDs = lo.Uniq(platformIDs)
+
+	if len(platformIDs) == 0 {
+		return streams, nil
+	}
+
+	type channelRow struct {
+		ChannelID    string `gorm:"column:channel_id"`
+		PlatformID   string `gorm:"column:platform_id"`
+		UserID       string `gorm:"column:user_id"`
+		IsEnabled    bool   `gorm:"column:is_enabled"`
+		IsBanned     bool   `gorm:"column:is_banned"`
+	}
+	var rows []channelRow
+	err = c.db.WithContext(ctx).Raw(`
+		SELECT c.id AS channel_id, u.platform_id, u.id AS user_id, c."isEnabled" AS is_enabled, u.is_banned
+		FROM channels c
+		JOIN users u ON u.id = c.twitch_user_id AND u.platform = 'twitch'
+		WHERE u.platform_id IN ?
+	`, platformIDs).Scan(&rows).Error
+	if err != nil {
+		return nil, fmt.Errorf("lookup channels by platform id: %w", err)
+	}
+
+	channelByPlatform := make(map[string]*model.Channels, len(rows))
+	userByID := make(map[string]*model.Users, len(rows))
+	for _, r := range rows {
+		ch := &model.Channels{
+			ID:        r.ChannelID,
+			IsEnabled: r.IsEnabled,
+		}
+		channelByPlatform[r.PlatformID] = ch
+		userByID[r.UserID] = &model.Users{
+			ID:       r.UserID,
+			IsBanned: r.IsBanned,
+		}
+	}
+
+	for _, s := range streams {
+		if ch, ok := channelByPlatform[s.UserId]; ok {
+			s.Channel = ch
+			for uid, u := range userByID {
+				if ch.TwitchUserID != nil && *ch.TwitchUserID == uid {
+					ch.User = u
+					break
+				}
+			}
+		}
+	}
+
+	return streams, nil
 }
 
 func (c *onlineUsers) shouldSkipStream(stream *model.ChannelsStreams) bool {
-	return stream.Channel == nil || (!stream.Channel.IsEnabled || stream.Channel.User.IsBanned)
+	return stream == nil || stream.Channel == nil || stream.Channel.User == nil || (!stream.Channel.IsEnabled || stream.Channel.User.IsBanned)
 }
 
 func (c *onlineUsers) updateStreamUsers(
 	ctx context.Context,
-	broadcasterID string,
+	stream *model.ChannelsStreams,
 ) error {
+	broadcasterID := stream.UserId
+	channelUUID := stream.Channel.ID
+
+	twitchUserID, err := uuid.Parse(stream.Channel.User.ID)
+	if err != nil {
+		return fmt.Errorf("parse twitch user id: %w", err)
+	}
+
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		broadcasterID,
+		twitchUserID,
 		c.config,
 		c.twirBus,
 	)
@@ -153,7 +218,7 @@ func (c *onlineUsers) updateStreamUsers(
 			return nil
 		}
 
-		usersIdsForRequest := lo.Map(
+		chatterPlatformIDs := lo.Map(
 			chatters,
 			func(chatter helix.ChatChatter, _ int) string {
 				return chatter.UserID
@@ -162,72 +227,98 @@ func (c *onlineUsers) updateStreamUsers(
 
 		err = c.db.WithContext(ctx).Transaction(
 			func(tx *gorm.DB) error {
-				var existedUsers []model.Users
-				if err := tx.
-					Select("id").
-					Where("id IN ?", usersIdsForRequest).
-					Find(&existedUsers).Error; err != nil {
-					return fmt.Errorf("cannot get existed users: %w", err)
-				}
-				var usersForCreate []model.Users
-				for _, chatter := range chatters {
-					_, chatterExists := lo.Find(
-						existedUsers, func(user model.Users) bool {
-							return user.ID == chatter.UserID
-						},
+				insertParts := make([]string, 0, len(chatters))
+				insertArgs := make([]interface{}, 0, len(chatters)*2)
+				for i, chatter := range chatters {
+					base := i * 2
+					insertParts = append(
+						insertParts,
+						fmt.Sprintf("(uuidv7(), 'twitch', $%d, $%d)", base+1, base+2),
 					)
-					if !chatterExists {
-						usersForCreate = append(
-							usersForCreate,
-							model.Users{
-								ID:     chatter.UserID,
-								ApiKey: uuid.New().String(),
-								Stats: &model.UsersStats{
-									ID:        uuid.New().String(),
-									UserID:    chatter.UserID,
-									ChannelID: broadcasterID,
-								},
-							},
+					insertArgs = append(insertArgs, chatter.UserID, uuid.New().String())
+				}
+				upsertUsersSQL := `INSERT INTO users (id, platform, platform_id, "apiKey") VALUES ` +
+					strings.Join(insertParts, ", ") +
+					` ON CONFLICT (platform, platform_id) DO NOTHING`
+				if err := tx.Exec(upsertUsersSQL, insertArgs...).Error; err != nil {
+					return fmt.Errorf("cannot upsert users: %w", err)
+				}
+
+				type userRow struct {
+					ID         string `gorm:"column:id"`
+					PlatformID string `gorm:"column:platform_id"`
+				}
+				var userRows []userRow
+				if err := tx.Raw(
+					`SELECT id, platform_id FROM users WHERE platform_id IN ? AND platform = 'twitch'`,
+					chatterPlatformIDs,
+				).Scan(&userRows).Error; err != nil {
+					return fmt.Errorf("cannot fetch user UUIDs: %w", err)
+				}
+
+				platformIDToUUID := make(map[string]string, len(userRows))
+				for _, row := range userRows {
+					platformIDToUUID[row.PlatformID] = row.ID
+				}
+
+				if len(userRows) > 0 {
+					statsParts := make([]string, 0, len(userRows))
+					statsArgs := make([]interface{}, 0, len(userRows)*3)
+					for i, row := range userRows {
+						base := i * 3
+						statsParts = append(
+							statsParts,
+							fmt.Sprintf("($%d, $%d::uuid, $%d::uuid)", base+1, base+2, base+3),
 						)
+						statsArgs = append(statsArgs, uuid.New().String(), row.ID, channelUUID)
+					}
+					statsSQL := `INSERT INTO users_stats (id, user_id, channel_id) VALUES ` +
+						strings.Join(statsParts, ", ") +
+						` ON CONFLICT (channel_id, user_id) DO NOTHING`
+					if err := tx.Exec(statsSQL, statsArgs...).Error; err != nil {
+						return fmt.Errorf("cannot upsert users stats: %w", err)
 					}
 				}
 
-				if err := tx.Where(
-					`"channelId" = ?`,
-					broadcasterID,
-				).Delete(&model.UsersOnline{}).Error; err != nil {
+				if err := tx.Exec(
+					`DELETE FROM users_online WHERE "channelId" = $1::uuid`,
+					channelUUID,
+				).Error; err != nil {
 					return fmt.Errorf("cannot delete online users: %w", err)
 				}
 
-				onlineChattersForCreate := make([]model.UsersOnline, 0, len(chatters))
+				onlineParts := make([]string, 0, len(chatters))
+				onlineArgs := make([]interface{}, 0, len(chatters)*4)
+				argIdx := 0
 				for _, chatter := range chatters {
-					onlineChattersForCreate = append(
-						onlineChattersForCreate,
-						model.UsersOnline{
-							ID:        uuid.New().String(),
-							ChannelId: broadcasterID,
-							UserId:    null.StringFrom(chatter.UserID),
-							UserName:  null.StringFrom(chatter.UserLogin),
-						},
-					)
-				}
-
-				if len(usersForCreate) > 0 {
-					if err := tx.Create(&usersForCreate).Error; err != nil {
-						return fmt.Errorf("cannot create users: %w", err)
+					userUUID, ok := platformIDToUUID[chatter.UserID]
+					if !ok {
+						continue
 					}
+					onlineParts = append(
+						onlineParts,
+						fmt.Sprintf(
+							"($%d, $%d::uuid, $%d::uuid, $%d)",
+							argIdx+1, argIdx+2, argIdx+3, argIdx+4,
+						),
+					)
+					onlineArgs = append(
+						onlineArgs,
+						uuid.New().String(), channelUUID, userUUID, chatter.UserLogin,
+					)
+					argIdx += 4
 				}
-
-				if len(onlineChattersForCreate) > 0 {
-					if err := tx.Create(&onlineChattersForCreate).Error; err != nil {
-						return fmt.Errorf("cannot create online users: %w", err)
+				if len(onlineParts) > 0 {
+					onlineSQL := `INSERT INTO users_online (id, "channelId", "userId", "userName") VALUES ` +
+						strings.Join(onlineParts, ", ")
+					if err := tx.Exec(onlineSQL, onlineArgs...).Error; err != nil {
+						return fmt.Errorf("cannot insert online users: %w", err)
 					}
 				}
 
 				return nil
 			},
 		)
-
 		if err != nil {
 			return fmt.Errorf("cannot update stream users: %w", err)
 		}

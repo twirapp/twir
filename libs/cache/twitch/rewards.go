@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.opentelemetry.io/otel/attribute"
@@ -18,18 +19,19 @@ const (
 	rewardsCacheDuration = 6 * time.Hour
 )
 
-func BuildRewardsCacheKeyForId(channelId string) string {
-	return rewardsCacheKey + channelId
+func BuildRewardsCacheKeyForId(twitchPlatformID string) string {
+	return rewardsCacheKey + twitchPlatformID
 }
 
 func (c *CachedTwitchClient) GetChannelRewards(
 	ctx context.Context,
-	channelID string,
+	twitchUserID uuid.UUID,
+	twitchPlatformID string,
 ) (
 	[]helix.ChannelCustomReward,
 	error,
 ) {
-	if channelID == "" {
+	if twitchUserID == uuid.Nil || twitchPlatformID == "" {
 		return nil, nil
 	}
 
@@ -37,10 +39,11 @@ func (c *CachedTwitchClient) GetChannelRewards(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("channelID", channelID),
+		attribute.String("twitchUserID", twitchUserID.String()),
+		attribute.String("twitchPlatformID", twitchPlatformID),
 	)
 
-	if bytes, _ := c.redis.Get(ctx, BuildRewardsCacheKeyForId(channelID)).Bytes(); len(bytes) > 0 {
+	if bytes, _ := c.redis.Get(ctx, BuildRewardsCacheKeyForId(twitchPlatformID)).Bytes(); len(bytes) > 0 {
 		var rewards []helix.ChannelCustomReward
 		if err := json.Unmarshal(bytes, &rewards); err != nil {
 			return nil, err
@@ -49,21 +52,21 @@ func (c *CachedTwitchClient) GetChannelRewards(
 		return rewards, nil
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelID, c.config, c.twirBus)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, twitchUserID, c.config, c.twirBus)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"failed to create twitch client for broadcaster #%s: %w", channelID, err,
+			"failed to create twitch client for broadcaster #%s: %w", twitchPlatformID, err,
 		)
 	}
 
 	rewards, err := twitchClient.GetCustomRewards(
 		&helix.GetCustomRewardsParams{
-			BroadcasterID: channelID,
+			BroadcasterID: twitchPlatformID,
 		},
 	)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"failed to get rewards for broadcaster #%s: %w", channelID, err,
+			"failed to get rewards for broadcaster #%s: %w", twitchPlatformID, err,
 		)
 	}
 	if rewards.ErrorMessage != "" {
@@ -72,7 +75,7 @@ func (c *CachedTwitchClient) GetChannelRewards(
 		}
 
 		return nil, fmt.Errorf(
-			"failed to get rewards for broadcaster #%s: %s", channelID, rewards.ErrorMessage,
+			"failed to get rewards for broadcaster #%s: %s", twitchPlatformID, rewards.ErrorMessage,
 		)
 	}
 
@@ -93,7 +96,7 @@ func (c *CachedTwitchClient) GetChannelRewards(
 
 	if err := c.redis.Set(
 		ctx,
-		BuildRewardsCacheKeyForId(channelID),
+		BuildRewardsCacheKeyForId(twitchPlatformID),
 		rewardsBytes,
 		rewardsCacheDuration,
 	).Err(); err != nil {

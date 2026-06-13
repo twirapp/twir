@@ -42,8 +42,8 @@ var selectFields = []string{
 	`id`,
 	`messages`,
 	`watched`,
-	`"channelId"`,
-	`"userId"`,
+	`channel_id`,
+	`user_id`,
 	`"usedChannelPoints"`,
 	`is_mod`,
 	`is_vip`,
@@ -62,7 +62,7 @@ func init() {
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (*model.UserStat, error) {
 	query := `
-SELECT id, messages, watched, "channelId", "userId", "usedChannelPoints", is_mod, is_vip, is_subscriber, reputation, emotes, created_at, updated_at
+SELECT id, messages, watched, channel_id, user_id, "usedChannelPoints", is_mod, is_vip, is_subscriber, reputation, emotes, created_at, updated_at
 FROM users_stats
 WHERE id = $1
 LIMIT 1
@@ -89,8 +89,8 @@ func (c *Pgx) Create(ctx context.Context, input usersstats.CreateInput) (*model.
 	insertBuilder := sq.Insert("users_stats").
 		SetMap(
 			map[string]any{
-				`"userId"`:            input.UserID,
-				`"channelId"`:         input.ChannelID,
+				`user_id`:             input.UserID,
+				`channel_id`:          input.ChannelID,
 				`messages`:            input.Messages,
 				`watched`:             input.Watched,
 				`"usedChannelPoints"`: input.UsedChannelPoints,
@@ -127,13 +127,13 @@ func (c *Pgx) Create(ctx context.Context, input usersstats.CreateInput) (*model.
 
 func (c *Pgx) CreateOrUpdate(
 	ctx context.Context,
-	userID, channelID string,
+	userID, channelID uuid.UUID,
 	input usersstats.UpdateInput,
 ) (*model.UserStat, error) {
 	queryInsert := `
 INSERT INTO users_stats (
-    "userId",
-    "channelId",
+    user_id,
+    channel_id,
     messages,
     watched,
     "usedChannelPoints",
@@ -157,14 +157,19 @@ INSERT INTO users_stats (
     COALESCE(@emotes, 0),
     NOW(),
     NOW()
-) ON CONFLICT ("userId", "channelId") DO UPDATE SET `
+) ON CONFLICT (user_id, channel_id) DO UPDATE SET `
 
 	setClauses := []string{
 		"updated_at = NOW()",
 	}
 	setMap := pgx.NamedArgs{
-		`user_id`:    userID,
-		`channel_id`: channelID,
+		`user_id`:           userID,
+		`channel_id`:        channelID,
+		`messages`:          0,
+		`watched`:           0,
+		`usedChannelPoints`: 0,
+		`reputation`:        0,
+		`emotes`:            0,
 	}
 
 	for field, update := range input.NumberFields {
@@ -177,6 +182,7 @@ INSERT INTO users_stats (
 				fmt.Sprintf(`"%s" = users_stats."%s" + @%s`, fieldName, fieldName, paramName),
 			)
 			setMap[paramName] = update.Count
+			setMap[fieldName] = update.Count
 		} else {
 			setClauses = append(setClauses, fmt.Sprintf(`"%s" = @%s`, fieldName, paramName))
 			setMap[paramName] = update.Count
@@ -218,16 +224,9 @@ INSERT INTO users_stats (
 
 func (c *Pgx) GetByUserAndChannelID(
 	ctx context.Context,
-	userID, channelID string,
+	userID, channelID uuid.UUID,
 ) (*model.UserStat, error) {
-	query := fmt.Sprintf(
-		`
-SELECT %s
-FROM users_stats
-WHERE "userId" = $1 AND "channelId" = $2
-LIMIT 1
-`, selectFieldsJoined,
-	)
+	query := buildGetByUserAndChannelIDQuery()
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	rows, err := conn.Query(ctx, query, userID, channelID)
@@ -245,4 +244,15 @@ LIMIT 1
 	}
 
 	return &stat, nil
+}
+
+func buildGetByUserAndChannelIDQuery() string {
+	return fmt.Sprintf(
+		`
+SELECT %s
+FROM users_stats
+WHERE user_id = $1 AND channel_id = $2
+LIMIT 1
+`, selectFieldsJoined,
+	)
 }

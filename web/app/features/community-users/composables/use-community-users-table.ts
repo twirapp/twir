@@ -5,10 +5,21 @@ import CommunityUsersTableColumn from '../ui/community-users-table-column.vue'
 
 import UserCell from '~/components/table/cells/user-cell.vue'
 import { graphql } from '~/gql/gql.js'
-import { type CommunityUser, type CommunityUsersOpts, CommunityUsersResetType } from '~/gql/graphql.js'
+import { type CommunityUser, type CommunityUsersOpts, CommunityUsersResetType, Platform } from '~/gql/graphql.js'
 import { valueUpdater } from '~/lib/utils.js'
 
 const ONE_HOUR = 60 * 60 * 1000
+
+function resolveProfileUrl(platform: Platform, login: string): string {
+	if (!login) return ''
+
+	if (platform === Platform.Kick) {
+		return `https://kick.com/${login}`
+	}
+
+	return `https://twitch.tv/${login}`
+}
+
 export const TABLE_ACCESSOR_KEYS = {
 	user: 'user',
 	messages: 'messages',
@@ -53,14 +64,11 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 					total
 					users {
 						id
-						twitchProfile {
-							description
-							id
-							notFound
-							login
-							displayName
-							profileImageUrl
-						}
+						platform
+						platformId
+						login
+						displayName
+						avatar
 						watchedMs
 						messages
 						usedEmotes
@@ -88,15 +96,13 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 			size: 20,
 			header: () => h('div', {}, 'User'),
 			cell: ({ row }) => {
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank',
-				}, h(UserCell, {
-					avatar: row.original.twitchProfile.profileImageUrl,
-					name: row.original.twitchProfile.login,
-					displayName: row.original.twitchProfile.displayName,
-				}))
+				return h(UserCell, {
+					avatar: row.original.avatar ?? '',
+					name: row.original.login,
+					displayName: row.original.displayName,
+					url: resolveProfileUrl(row.original.platform, row.original.login),
+					platform: row.original.platform,
+				})
 			},
 		},
 		{

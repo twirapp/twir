@@ -1,0 +1,24 @@
+Pre-migration counts
+====================
+users_count	3
+users_with_token_id	1
+tokens_count	2
+users_joined_tokens	1
+
+Post-migration counts
+=====================
+users_count	3
+user_platform_accounts_count	1
+legacy_numeric_twitch_ids	3
+non_uuid_user_ids	0
+
+Checks
+======
+- users row count unchanged: PASS (3 -> 3)
+- user_platform_accounts rows match pre-migration users joined with tokens: PASS (1)
+- users.id is UUID after migration: PASS (non_uuid_user_ids = 0)
+- users.twitch_id retained for backward compatibility: PASS
+
+Deploy note
+===========
+- Redis session data still stores old Twitch IDs; run FLUSHDB during deploy maintenance window.

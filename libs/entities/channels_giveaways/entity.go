@@ -15,7 +15,7 @@ const (
 
 type Giveaway struct {
 	ID                   uuid.UUID
-	ChannelID            string
+	ChannelID            uuid.UUID
 	Type                 GiveawayType
 	Keyword              *string
 	MinWatchedTime       *int64
@@ -27,7 +27,7 @@ type Giveaway struct {
 	UpdatedAt            time.Time
 	StartedAt            *time.Time
 	StoppedAt            *time.Time
-	CreatedByUserID      string
+	CreatedByUserID      uuid.UUID
 
 	isNil bool
 }
@@ -41,7 +41,7 @@ var GiveawayNil = Giveaway{
 }
 
 type GiveawayWinner struct {
-	UserID      string
+	UserID      uuid.UUID
 	UserLogin   string
 	DisplayName string
 
@@ -58,7 +58,7 @@ var ChannelGiveawayWinnerNil = GiveawayWinner{
 
 type GiveawayParticipant struct {
 	ID          uuid.UUID
-	UserID      string
+	UserID      uuid.UUID
 	UserLogin   string
 	DisplayName string
 	IsWinner    bool

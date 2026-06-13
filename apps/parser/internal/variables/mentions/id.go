@@ -26,7 +26,7 @@ var ID = &types.Variable{
 			if *variableData.Params == "all" {
 				var ids []string
 				for _, mention := range parseCtx.Mentions {
-					ids = append(ids, mention.UserId)
+					ids = append(ids, mention.UserID)
 				}
 				return &types.VariableHandlerResult{
 					Result: strings.Join(ids, ","),
@@ -46,7 +46,7 @@ var ID = &types.Variable{
 		}
 
 		return &types.VariableHandlerResult{
-			Result: parseCtx.Mentions[index].UserId,
+			Result: parseCtx.Mentions[index].UserID,
 		}, nil
 	},
 }

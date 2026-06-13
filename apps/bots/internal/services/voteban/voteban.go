@@ -10,7 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/logger"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -47,7 +47,7 @@ func New(opts Opts) *Service {
 				}
 
 				if err := s.twirBus.ChatMessages.Subscribe(
-					func(ctx context.Context, msg twitch.TwitchChatMessage) (struct{}, error) {
+					func(ctx context.Context, msg generic.ChatMessage) (struct{}, error) {
 						_ = s.tryRegisterVote(msg)
 						return struct{}{}, nil
 					},
@@ -78,7 +78,7 @@ type Service struct {
 	channelService     *channel.Service
 }
 
-func (s *Service) tryRegisterVote(msg twitch.TwitchChatMessage) bool {
+func (s *Service) tryRegisterVote(msg generic.ChatMessage) bool {
 	if msg.Message == nil {
 		return false
 	}
@@ -97,7 +97,7 @@ func (s *Service) tryRegisterVote(msg twitch.TwitchChatMessage) bool {
 
 func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.VotebanRegisterResponse, bool) {
 	s.mu.RLock()
-	if _, ok := s.inProgressVotebans[req.Data.ChannelID]; ok {
+	if _, ok := s.inProgressVotebans[req.PlatformChannelID]; ok {
 		s.mu.RUnlock()
 		return bots.VotebanRegisterResponse{
 			AlreadyInProgress: true,
@@ -107,20 +107,21 @@ func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.Vote
 
 	sess := newSession(
 		req.Data,
-		req.TargerUser.UserId,
+		req.TargerUser.UserID,
 		req.TargerUser.UserLogin,
 		req.InitiatorIsModerator,
+		req.PlatformChannelID,
 	)
 
 	s.mu.Lock()
-	if _, ok := s.inProgressVotebans[req.Data.ChannelID]; ok {
+	if _, ok := s.inProgressVotebans[req.PlatformChannelID]; ok {
 		s.mu.Unlock()
 		return bots.VotebanRegisterResponse{
 			AlreadyInProgress: true,
 		}, false
 	}
 
-	s.inProgressVotebans[req.Data.ChannelID] = sess
+	s.inProgressVotebans[req.PlatformChannelID] = sess
 	s.mu.Unlock()
 
 	s.logger.Info(
@@ -128,7 +129,7 @@ func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.Vote
 		slog.String("channel_id", req.Data.ChannelID),
 		slog.Group(
 			"user",
-			slog.String("id", req.TargerUser.UserId),
+			slog.String("id", req.TargerUser.UserID),
 			slog.String("name", req.TargerUser.UserLogin),
 		),
 	)
@@ -136,7 +137,7 @@ func (s *Service) tryRegisterVoteban(req bots.VotebanRegisterRequest) (bots.Vote
 	go func() {
 		defer func() {
 			s.mu.Lock()
-			delete(s.inProgressVotebans, req.Data.ChannelID)
+			delete(s.inProgressVotebans, req.PlatformChannelID)
 			s.mu.Unlock()
 		}()
 
@@ -180,7 +181,8 @@ func (s *Service) processSessionResult(result sessionResult) error {
 		func() error {
 			if err := s.channelService.SendMessage(
 				ctx, bots.SendMessageRequest{
-					ChannelId:         result.channelId,
+					ChannelId:         result.platformChannelId,
+					PlatformChannelID: result.platformChannelId,
 					Message:           result.message,
 					IsAnnounce:        true,
 					SkipRateLimits:    true,
@@ -200,7 +202,7 @@ func (s *Service) processSessionResult(result sessionResult) error {
 			func() error {
 				if err := s.channelService.Ban(
 					ctx, bots.BanRequest{
-						ChannelID:      result.channelId,
+						ChannelID:      result.platformChannelId,
 						UserID:         result.targetUserId,
 						Reason:         result.message,
 						BanTime:        result.banDuration,

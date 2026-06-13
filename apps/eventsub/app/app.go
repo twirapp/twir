@@ -1,12 +1,16 @@
 package app
 
 import (
+	"context"
 	"log/slog"
 
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
+	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
+	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
+	"github.com/twirapp/twir/apps/eventsub/internal/webhook"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
@@ -35,6 +39,8 @@ import (
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
@@ -109,6 +115,10 @@ var App = fx.Options(
 			usersrepositorypgx.NewFx,
 			fx.As(new(usersrepository.Repository)),
 		),
+		fx.Annotate(
+			kickbotsrepositorypgx.NewFx,
+			fx.As(new(kickbotsrepository.Repository)),
+		),
 		channelcache.New,
 		func(
 			repo channelscommandsprefixrepository.Repository,
@@ -123,11 +133,22 @@ var App = fx.Options(
 		channelsintegrationssettingsseventvcache.New,
 		manager.NewManager,
 		handler.New,
+		httpserver.New,
+		kick.New,
+		kick.NewHandlers,
+		kick.NewResubscribeJob,
+		webhook.NewManager,
 	),
 	fx.Invoke(
 		otel.NewFx("eventsub"),
-		handler.New,
 		bus_listener.New,
+		func(s *httpserver.Server, lc fx.Lifecycle) {
+			lc.Append(fx.Hook{
+				OnStart: func(_ context.Context) error { return s.Start() },
+				OnStop:  func(ctx context.Context) error { return s.Stop(ctx) },
+			})
+		},
+		func(_ *webhook.Manager) {},
 		func(l *slog.Logger) {
 			l.Info("🚀 EventSub App started")
 		},

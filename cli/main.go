@@ -4,8 +4,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/twirapp/twir/cli/internal/cmds/affected"
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
+	"github.com/twirapp/twir/cli/internal/cmds/deploy"
 	"github.com/twirapp/twir/cli/internal/cmds/dev"
 	"github.com/twirapp/twir/cli/internal/cmds/execbin"
 	"github.com/twirapp/twir/cli/internal/cmds/generate"
@@ -20,8 +22,11 @@ func main() {
 		Name:        "go run cmd/main.go",
 		Description: "TwirApp cli for helping in manage project",
 		Commands: []*cli.Command{
+			affected.Cmd,
 			dependencies.Cmd,
 			migrations.Cmd,
+			deploy.WebhookCmd,
+			deploy.ApplyCmd,
 			proxy.Cmd,
 			generate.Cmd,
 			build.Cmd,

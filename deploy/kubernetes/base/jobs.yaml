@@ -1,0 +1,92 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: migrations
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: migrations
+    spec:
+      serviceAccountName: twir-workloads
+      restartPolicy: OnFailure
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: twir.app/database
+                    operator: DoesNotExist
+      containers:
+        - name: migrations
+          image: registry.twir.app/twirapp/migrations:latest
+          env:
+            - name: DOPPLER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twir-secrets
+                  key: TWIR_DOPPLER_TOKEN
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: twir
+  labels:
+    app.kubernetes.io/name: postgres-backup
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: postgres-backup
+        spec:
+          serviceAccountName: twir-workloads
+          restartPolicy: OnFailure
+          nodeSelector:
+            twir.app/backup: "true"
+          containers:
+            - name: postgres-backup
+              image: registry.twir.app/twirapp/postgres-backup:latest
+              env:
+                - name: DOPPLER_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: twir-secrets
+                      key: TWIR_DOPPLER_TOKEN
+                - name: POSTGRES_BACKUP_S3_ENDPOINT
+                  valueFrom:
+                    secretKeyRef:
+                      name: twir-secrets
+                      key: POSTGRES_BACKUP_S3_ENDPOINT
+                - name: POSTGRES_BACKUP_S3_REGION
+                  valueFrom:
+                    secretKeyRef:
+                      name: twir-secrets
+                      key: POSTGRES_BACKUP_S3_REGION
+                - name: POSTGRES_BACKUP_S3_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: twir-secrets
+                      key: POSTGRES_BACKUP_S3_BUCKET
+                - name: POSTGRES_BACKUP_S3_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: twir-secrets
+                      key: POSTGRES_BACKUP_S3_ACCESS_KEY_ID
+                - name: POSTGRES_BACKUP_S3_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: twir-secrets
+                      key: POSTGRES_BACKUP_S3_SECRET_ACCESS_KEY

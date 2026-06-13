@@ -10,11 +10,10 @@ import (
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	toxicity_check "github.com/twirapp/twir/apps/bots/internal/services/toxicity-check"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
 	"go.uber.org/fx"
@@ -32,7 +31,7 @@ type Opts struct {
 	Redis                   *goredis.Client
 	ToxicityCheck           *toxicity_check.Service
 	Config                  cfg.Config
-	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsByTwitchIDCache *channelcache.TwitchUserIDCacher
 	TwirBus                 *buscore.Bus
 	KV                      kv.KV
 	ModTaskDistributor      mod_task_queue.TaskDistributor
@@ -50,7 +49,7 @@ func New(opts Opts) *TwitchActions {
 		channelsRepository:      opts.ChannelsRepository,
 		toxicityCheck:           opts.ToxicityCheck,
 		toxicMessagesRepository: opts.ToxicMessagesRepository,
-		channelsCache:           opts.ChannelsCache,
+		channelsByTwitchIDCache: opts.ChannelsByTwitchIDCache,
 		kv:                      opts.KV,
 		modTaskDistributor:      opts.ModTaskDistributor,
 		cachedTwitchClient:      opts.CachedTwitchClient,
@@ -69,7 +68,7 @@ type TwitchActions struct {
 	gorm                    *gorm.DB
 	toxicityCheck           *toxicity_check.Service
 	config                  cfg.Config
-	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsByTwitchIDCache *channelcache.TwitchUserIDCacher
 	kv                      kv.KV
 	modTaskDistributor      mod_task_queue.TaskDistributor
 	cachedTwitchClient      *twitch.CachedTwitchClient

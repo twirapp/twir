@@ -9,11 +9,13 @@ import (
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	channelsservice "github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
@@ -76,11 +78,13 @@ import (
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channels_giveaways_settings "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
@@ -103,6 +107,8 @@ type Deps struct {
 	VKIntegrationRepository     vkintegrationrepo.Repository
 	PlansRepository             plansrepository.Repository
 	GiveawaysSettingsRepository channels_giveaways_settings.Repository
+	ChannelsRepository          channelsrepository.Repository
+	UsersRepository             usersrepository.Repository
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB
@@ -113,6 +119,7 @@ type Deps struct {
 	TwirBus                          *bus_core.Bus
 	KV                               kv.KV
 	TwirStats                        *twir_stats.TwirStats
+	KickProvider                     *kickplatform.Provider
 
 	DashboardWidgetEventsService          *dashboard_widget_events.Service
 	DashboardWidgetsService               *dashboard_widgets.Service
@@ -135,6 +142,7 @@ type Deps struct {
 	RolesWithUsersService                 *roles_with_roles_users.Service
 	TwitchService                         *twitchservice.Service
 	ChatMessagesService                   *chat_messages.Service
+	ChannelsService                       *channelsservice.Service
 	ChannelsCommandsPrefix                *channels_commands_prefix.Service
 	ChannelsEmotesUsagesService           *channels_emotes_usages.Service
 	TTSService                            *tts.Service

@@ -59,7 +59,7 @@ var SetPrefix = &types.DefaultCommand{
 
 		currentPrefix, err := parseCtx.Services.CommandsPrefixRepository.GetByChannelID(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
 			return nil, &types.CommandHandlerError{
@@ -75,7 +75,7 @@ var SetPrefix = &types.DefaultCommand{
 			_, err = parseCtx.Services.CommandsPrefixRepository.Create(
 				ctx,
 				channelscommandsprefixrepository.CreateInput{
-					ChannelID: parseCtx.Channel.ID,
+					ChannelID: parseCtx.Channel.DBChannelID,
 					Prefix:    prefixArg.String(),
 				},
 			)
@@ -107,7 +107,7 @@ var SetPrefix = &types.DefaultCommand{
 			}
 		}
 
-		parseCtx.Services.CommandsPrefixCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.CommandsPrefixCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		return &types.CommandsHandlerResult{
 			Result: []string{

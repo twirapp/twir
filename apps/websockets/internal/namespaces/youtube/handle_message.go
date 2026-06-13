@@ -7,10 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/olahol/melody"
 	"github.com/twirapp/twir/apps/websockets/types"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 type playEvent struct {
@@ -74,9 +75,20 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 }
 
 func (c *YouTube) handleSkip(channelId string, ids []string) {
+	parsedIDs := make([]uuid.UUID, 0, len(ids))
+	for _, id := range ids {
+		parsedID, err := uuid.Parse(id)
+		if err != nil {
+			c.logger.Error(err.Error())
+			return
+		}
+
+		parsedIDs = append(parsedIDs, parsedID)
+	}
+
 	err := c.gorm.
 		Model(&model.RequestedSong{}).
-		Where(`id IN (?) AND "channelId" = ?`, ids, channelId).
+		Where(`id IN ? AND "channelId" = ?::uuid`, parsedIDs, channelId).
 		Update(`"deletedAt"`, time.Now()).
 		Error
 	if err != nil {
@@ -90,7 +102,7 @@ func (c *YouTube) handleNewOrder(channelId string, songs []model.RequestedSong) 
 	var count int64
 	err := c.gorm.
 		Model(&model.RequestedSong{}).
-		Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelId).
+		Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, channelId).
 		Count(&count).Error
 	if err != nil {
 		c.logger.Error(err.Error())
@@ -100,7 +112,7 @@ func (c *YouTube) handleNewOrder(channelId string, songs []model.RequestedSong) 
 	for i, video := range songs {
 		err = c.gorm.
 			Model(&model.RequestedSong{}).
-			Where(`id = ?`, video.ID).
+			Where(`id = ?::uuid`, video.ID).
 			Update(`"queuePosition"`, i).
 			Error
 		if err != nil {
@@ -115,7 +127,7 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 	redisKey := fmt.Sprintf("songrequests:youtube:%s:currentPlaying", userId)
 	current := c.redis.Get(ctx, redisKey).Val()
 	song := &model.RequestedSong{}
-	err := c.gorm.Where("id = ?", data.ID).Find(song).Error
+	err := c.gorm.Where("id = ?::uuid", data.ID).Find(song).Error
 	if err != nil {
 		c.logger.Error(err.Error())
 		return
@@ -125,7 +137,7 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 	}
 
 	channelSettings := &model.ChannelSongRequestsSettings{}
-	err = c.gorm.Where(`"channel_id" = ?`, song.ChannelID).Find(channelSettings).Error
+	err = c.gorm.Where(`"channel_id" = ?::uuid`, song.ChannelID).Find(channelSettings).Error
 	if err != nil {
 		c.logger.Error(err.Error())
 		return
@@ -155,7 +167,15 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 		c.bus.Bots.SendMessage.Publish(
 			ctx,
 			bots.SendMessageRequest{
-				ChannelId:  song.ChannelID,
+				ChannelId: song.ChannelID,
+				InternalChannelID: func() *uuid.UUID {
+					parsedChannelID, err := uuid.Parse(song.ChannelID)
+					if err != nil {
+						return nil
+					}
+
+					return &parsedChannelID
+				}(),
 				Message:    message,
 				IsAnnounce: true,
 			},

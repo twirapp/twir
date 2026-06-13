@@ -10,6 +10,7 @@ export const eventFormSchema = toTypedSchema(
 			description: z.string().min(1).max(20),
 			enabled: z.boolean().default(true),
 			onlineOnly: z.boolean().default(false),
+			platforms: z.array(z.string()).default([]),
 			rewardId: z.string().max(50).optional(),
 			commandId: z.string().max(50).optional(),
 			keywordId: z.string().max(50).optional(),

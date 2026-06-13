@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 )
 
@@ -16,6 +17,7 @@ type Repository interface {
 type CreateInput struct {
 	ChannelID string
 	UserID    *string
+	Platform  platform.Platform
 	Type      model.ChannelEventListItemType
 	Data      *model.ChannelsEventsListItemData
 }
@@ -23,6 +25,7 @@ type CreateInput struct {
 type CountByInput struct {
 	ChannelID    *string
 	UserID       *string
+	Platform     *platform.Platform
 	Type         *model.ChannelEventListItemType
 	CreatedAtGTE *time.Time
 	CreatedAtLTE *time.Time

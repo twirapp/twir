@@ -53,3 +53,6 @@ DROP TABLE example;
 - Supports SQL and Go migrations
 - Postgres and ClickHouse
 - Version tracked in schema_migrations table
+- **Postgres version**: 18+ — `uuidv7()` is available natively
+- **UUID generation**: ALWAYS use `uuidv7()` for new UUID primary keys and columns. NEVER use `gen_random_uuid()` in new migrations. UUIDv7 is time-sortable which gives better B-tree index locality. Example: `id UUID PRIMARY KEY DEFAULT uuidv7()`
+- **Goose syntax**: SQL migrations use `-- +goose Up` / `-- +goose Down` with `-- +goose StatementBegin` / `-- +goose StatementEnd` around DDL statements

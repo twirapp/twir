@@ -11,7 +11,6 @@ import (
 func (c *TwitchActions) timeoutFromMessage(ctx context.Context, channel model.Channel, opts SendMessageOpts) error {
 	splittedMsg := strings.Fields(opts.Message)
 
-	// /timeout [username] [duration in seconds] [reason]
 	var (
 		userName = splittedMsg[1]
 		reason   string
@@ -45,7 +44,7 @@ func (c *TwitchActions) timeoutFromMessage(ctx context.Context, channel model.Ch
 	return c.Ban(
 		ctx,
 		BanOpts{
-			BroadcasterID:  channel.ID,
+			BroadcasterID:  opts.BroadcasterID,
 			UserID:         twitchUser.ID,
 			ModeratorID:    channel.BotID,
 			Duration:       duration,

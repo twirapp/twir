@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 )
@@ -28,6 +29,7 @@ type UpdateInput struct {
 	IsRegular        *bool
 	Usages           *int
 	RolesIDs         []uuid.UUID
+	Platforms        []platform.Platform
 }
 
 func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword, error) {
@@ -36,8 +38,18 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword
 		return entity.KeywordNil, err
 	}
 
-	if keyword.ChannelID != input.ChannelID {
+	if keyword.ChannelID.String() != input.ChannelID {
 		return entity.KeywordNil, ErrKeywordNotFound
+	}
+
+	var rolesIDs *[]uuid.UUID
+	if input.RolesIDs != nil {
+		rolesIDs = &input.RolesIDs
+	}
+
+	platforms := keyword.Platforms
+	if input.Platforms != nil {
+		platforms = input.Platforms
 	}
 
 	newKeyword, err := c.keywordsRepository.Update(
@@ -52,7 +64,8 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword
 			IsReply:          input.IsReply,
 			IsRegular:        input.IsRegular,
 			Usages:           input.Usages,
-			RolesIDs:         &input.RolesIDs,
+			RolesIDs:         rolesIDs,
+			Platforms:        platforms,
 		},
 	)
 	if err != nil {

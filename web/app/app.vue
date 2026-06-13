@@ -13,7 +13,7 @@ const metaImg = '/meta.webp'
 useColorMode()
 useHead({
 	title: siteName,
-	titleTemplate: (title) => (title === siteName ? title : `${title} - ${siteName}`),
+	titleTemplate: (title) => (!title || title === siteName ? siteName : `${title} - ${siteName}`),
 	meta: [
 		{ name: 'darkreader-lock', content: '' },
 		{ name: 'author', content: 'Satont, me@satont.dev' },

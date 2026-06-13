@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	kvotter "github.com/twirapp/kv/stores/otter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
@@ -21,7 +22,12 @@ func New(
 			KV:        kvotter.New(),
 			KeyPrefix: "cache:twir:keywords:channel:",
 			LoadFn: func(ctx context.Context, key string) ([]model.Keyword, error) {
-				return repo.GetAllByChannelID(ctx, key)
+				parsedKey, err := uuid.Parse(key)
+				if err != nil {
+					return nil, err
+				}
+
+				return repo.GetAllByChannelID(ctx, parsedKey)
 			},
 			Ttl:                24 * time.Hour,
 			InvalidateSignaler: generic_cacher.NewBusCoreInvalidator(bus),

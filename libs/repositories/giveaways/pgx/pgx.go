@@ -44,7 +44,7 @@ type Pgx struct {
 // scanModel is internal struct for scanning from database
 type scanModel struct {
 	ID                   uuid.UUID                       `db:"id"`
-	ChannelID            string                          `db:"channel_id"`
+	ChannelID            uuid.UUID                       `db:"channel_id"`
 	Type                 channels_giveaways.GiveawayType `db:"type"`
 	CreatedAt            time.Time                       `db:"created_at"`
 	Keyword              *string                         `db:"keyword"`
@@ -56,7 +56,7 @@ type scanModel struct {
 	UpdatedAt            time.Time                       `db:"updated_at"`
 	StartedAt            *time.Time                      `db:"started_at"`
 	StoppedAt            *time.Time                      `db:"stopped_at"`
-	CreatedByUserID      string                          `db:"created_by_user_id"`
+	CreatedByUserID      uuid.UUID                       `db:"created_by_user_id"`
 }
 
 // scanModelToEntity converts scanModel to entity
@@ -159,7 +159,7 @@ DELETE FROM channels_giveaways WHERE id = $1
 
 func (p *Pgx) GetByChannelIDAndKeyword(
 	ctx context.Context,
-	channelID, keyword string,
+	channelID uuid.UUID, keyword string,
 ) (channels_giveaways.Giveaway, error) {
 	query := `
 SELECT
@@ -242,7 +242,7 @@ LIMIT 1;
 
 func (p *Pgx) GetManyByChannelID(
 	ctx context.Context,
-	channelID string,
+	channelID uuid.UUID,
 ) ([]channels_giveaways.Giveaway, error) {
 	selectBuilder := sq.Select(
 		"id",
@@ -290,7 +290,7 @@ func (p *Pgx) GetManyByChannelID(
 
 func (p *Pgx) GetManyActiveByChannelID(
 	ctx context.Context,
-	channelID string,
+	channelID uuid.UUID,
 ) ([]channels_giveaways.Giveaway, error) {
 	selectBuilder := sq.Select(
 		"id",
@@ -364,7 +364,7 @@ func (p *Pgx) UpdateStatuses(
 
 	if input.StartedAt.Valid {
 		updateBuilder = updateBuilder.Set("started_at", input.StartedAt)
-	} else {
+	} else if !input.StoppedAt.Valid {
 		updateBuilder = updateBuilder.Set("started_at", nil)
 	}
 

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -35,7 +34,6 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 }
 
 var _ userswithstats.Repository = (*Pgx)(nil)
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
 	pool   *pgxpool.Pool
@@ -44,12 +42,12 @@ type Pgx struct {
 
 type userStatScanJsonRow struct {
 	ID             uuid.UUID `json:"id"`
-	UserID         string    `json:"user_id"`
-	ChannelID      string    `json:"channel_id"`
+	UserID         uuid.UUID `json:"user_id"`
+	ChannelID      uuid.UUID `json:"channel_id"`
 	Messages       int       `json:"messages"`
 	Emotes         int       `json:"emotes"`
 	Watched        int       `json:"watched"`
-	UsedChannelPts int       `json:"used_channel_emotes"`
+	UsedChannelPts int       `json:"used_channel_points"`
 	IsMod          bool      `json:"is_mod"`
 	IsVip          bool      `json:"is_vip"`
 	IsSubscriber   bool      `json:"is_subscriber"`
@@ -62,32 +60,7 @@ func (c *Pgx) GetByUserAndChannelID(
 	ctx context.Context,
 	input userswithstats.GetByUserAndChannelIDInput,
 ) (model.UserWithStats, error) {
-	query := `
-SELECT
-	u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned, u.created_at,
-	CASE
-    WHEN us.id IS NULL THEN NULL
-    ELSE JSON_BUILD_OBJECT(
-      'id', us.id,
-      'user_id', us."userId",
-      'channel_id', us."channelId",
-      'messages', us."messages",
-      'emotes', us."emotes",
-      'watched', us."watched",
-      'used_channel_emotes', us."usedChannelPoints",
-      'is_mod', us."is_mod",
-      'isVip', us."is_vip",
-      'is_subscriber', us."is_subscriber",
-      'reputation', us."reputation",
-      'created_at', us."created_at",
-      'updated_at', us."updated_at"
-    )
-  END AS stats
-FROM users as u
-LEFT JOIN users_stats us ON us."userId" = u.id AND us."channelId" = $2
-WHERE u.id = $1
-LIMIT 1;
-`
+	query := getByUserAndChannelIDQuery
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	row := conn.QueryRow(ctx, query, input.UserID, input.ChannelID)
@@ -140,3 +113,30 @@ LIMIT 1;
 		Stats: userStats,
 	}, nil
 }
+
+const getByUserAndChannelIDQuery = `
+SELECT
+	u.id, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned, u.created_at,
+	CASE
+    WHEN us.id IS NULL THEN NULL
+    ELSE JSON_BUILD_OBJECT(
+      'id', us.id,
+      'user_id', us.user_id,
+      'channel_id', us.channel_id,
+      'messages', us."messages",
+      'emotes', us."emotes",
+      'watched', us."watched",
+			'used_channel_points', us."usedChannelPoints",
+      'is_mod', us."is_mod",
+			'is_vip', us."is_vip",
+      'is_subscriber', us."is_subscriber",
+      'reputation', us."reputation",
+      'created_at', us."created_at",
+      'updated_at', us."updated_at"
+    )
+  END AS stats
+FROM users as u
+LEFT JOIN users_stats us ON us.user_id = $1 AND us.channel_id = $2
+WHERE u.id = $1
+LIMIT 1;
+`

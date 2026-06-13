@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 type Timer struct {
@@ -16,6 +17,7 @@ type Timer struct {
 	TimeInterval             int
 	MessageInterval          int
 	LastTriggerMessageNumber int
+	Platforms                []platform.Platform
 	Responses                []Response
 
 	isNil bool

@@ -2,6 +2,7 @@ package workflows
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -13,8 +14,11 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
@@ -33,6 +37,8 @@ type EventsWorkflowOpts struct {
 	Logger                            *slog.Logger
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
 	ChannelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsRepo                      channelsrepository.Repository
+	UsersRepo                         usersrepository.Repository
 }
 
 func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
@@ -55,6 +61,8 @@ func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 		hydrator:                          opts.Hydrator,
 		channelsEventsWithOperationsCache: opts.ChannelsEventsWithOperationsCache,
 		channelsCache:                     opts.ChannelsCache,
+		channelsRepo:                      opts.ChannelsRepo,
+		usersRepo:                         opts.UsersRepo,
 	}, nil
 }
 
@@ -67,6 +75,8 @@ type EventWorkflow struct {
 	hydrator                          *hydrator.Hydrator
 	channelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
 	channelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsRepo                      channelsrepository.Repository
+	usersRepo                         usersrepository.Repository
 }
 
 func (c *EventWorkflow) Execute(
@@ -74,7 +84,41 @@ func (c *EventWorkflow) Execute(
 	eventType model.EventType,
 	data shared.EventData,
 ) error {
-	channelEvents, err := c.channelsEventsWithOperationsCache.Get(ctx, data.ChannelID)
+	if data.ChannelDBID == "" {
+		plat := data.Platform
+		if plat == "" {
+			plat = platform.PlatformTwitch
+		}
+
+		user, err := c.usersRepo.GetByPlatformID(ctx, plat, data.ChannelID)
+		if err != nil {
+			return fmt.Errorf("resolve user by platform id: %w", err)
+		}
+
+		var channel channelmodel.Channel
+		var channelErr error
+		switch plat {
+		case platform.PlatformKick:
+			channel, channelErr = c.channelsRepo.GetByKickUserID(ctx, user.ID)
+		default:
+			channel, channelErr = c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+		}
+		if channelErr != nil {
+			return fmt.Errorf("resolve channel: %w", channelErr)
+		}
+
+		data.ChannelDBID = channel.ID.String()
+	}
+
+	channel, err := c.channelsCache.Get(ctx, data.ChannelDBID)
+	if err != nil {
+		return err
+	}
+	if channel == channelmodel.Nil {
+		return errors.New("channel not found")
+	}
+
+	channelEvents, err := c.channelsEventsWithOperationsCache.Get(ctx, data.ChannelDBID)
 	if err != nil {
 		return err
 	}

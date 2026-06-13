@@ -9,6 +9,8 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/otel"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	"go.uber.org/fx"
 )
 
@@ -19,6 +21,10 @@ var App = fx.Module(
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
 	fx.Provide(
 		emotes_store.New,
+		fx.Annotate(
+			usersrepositorypgx.NewFx,
+			fx.As(new(usersrepository.Repository)),
+		),
 	),
 	fx.Invoke(
 		otel.NewFx("emotes-cacher"),

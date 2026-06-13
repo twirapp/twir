@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
+	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/logger"
@@ -27,6 +28,7 @@ type CreateInput struct {
 	TimeInterval    int
 	MessageInterval int
 	Responses       []CreateResponse
+	Platforms       []platform.Platform
 }
 
 type CreateResponse struct {
@@ -85,6 +87,7 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (timersentity.Ti
 			TimeInterval:    data.TimeInterval,
 			MessageInterval: data.MessageInterval,
 			Responses:       responses,
+			Platforms:       data.Platforms,
 		},
 	)
 	if err != nil {

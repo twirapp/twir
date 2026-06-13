@@ -8,7 +8,7 @@ import (
 	"github.com/twirapp/twir/cli/internal/shell"
 )
 
-var Apps = []TwirGoApp{
+var Apps = []*TwirGoApp{
 	{Name: "tokens", DebugPort: 2346},
 	{Name: "events", DebugPort: 2347},
 	{Name: "emotes-cacher", DebugPort: 2348},

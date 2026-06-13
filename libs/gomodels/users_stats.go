@@ -6,8 +6,8 @@ import (
 
 type UsersStats struct {
 	ID                string    `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id" db:"id"`
-	UserID            string    `gorm:"column:userId;type:TEXT;"                        json:"userId" db:"userId"`
-	ChannelID         string    `gorm:"column:channelId;type:TEXT;"                     json:"channelId" db:"channelId"`
+	UserID            string    `gorm:"column:user_id;type:UUID;"                      json:"userId" db:"user_id"`
+	ChannelID         string    `gorm:"column:channel_id;type:UUID;"                   json:"channelId" db:"channel_id"`
 	Messages          int32     `gorm:"column:messages;type:INT4;default:0;"            json:"messages" db:"messages"`
 	Watched           int64     `gorm:"column:watched;type:INT8;default:0;"             json:"watched" db:"watched"`
 	UsedChannelPoints int64     `gorm:"column:usedChannelPoints;type:INT8;default:0;"   json:"usedChannelPoints" db:"usedChannelPoints"`

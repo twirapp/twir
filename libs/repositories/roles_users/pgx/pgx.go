@@ -38,9 +38,9 @@ type Pgx struct {
 
 func (c *Pgx) GetManyByRoleID(ctx context.Context, roleID uuid.UUID) ([]model.RoleUser, error) {
 	query := `
-SELECT id, "userId", "roleId"
+SELECT id, user_id, "roleId"
 FROM channels_roles_users
-WHERE "roleId" = $1
+WHERE "roleId"::text = $1::text
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -59,9 +59,9 @@ WHERE "roleId" = $1
 
 func (c *Pgx) Create(ctx context.Context, input roles_users.CreateInput) (model.RoleUser, error) {
 	query := `
-INSERT INTO channels_roles_users("userId", "roleId")
+INSERT INTO channels_roles_users(user_id, "roleId")
 VALUES ($1, $2)
-RETURNING id, "userId", "roleId"
+RETURNING id, user_id, "roleId"
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -100,7 +100,7 @@ WHERE id = $1
 func (c *Pgx) DeleteManyByRoleID(ctx context.Context, roleID uuid.UUID) error {
 	query := `
 DELETE FROM channels_roles_users
-WHERE "roleId" = $1
+WHERE "roleId"::text = $1::text
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -117,8 +117,8 @@ func (c *Pgx) CreateMany(ctx context.Context, inputs []roles_users.CreateInput) 
 	error,
 ) {
 	insertBuilder := sq.Insert("channels_roles_users").
-		Columns(`"userId"`, `"roleId"`).
-		Suffix(`RETURNING id, "userId", "roleId"`)
+		Columns(`user_id`, `"roleId"`).
+		Suffix(`RETURNING id, user_id, "roleId"`)
 	for _, input := range inputs {
 		insertBuilder = insertBuilder.Values(input.UserID, input.RoleID)
 	}

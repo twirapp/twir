@@ -33,6 +33,7 @@ const eventForm = useForm({
 		description: '',
 		enabled: true,
 		onlineOnly: false,
+		platforms: [],
 		operations: [
 			{
 				type: EventOperationType.SendMessage,
@@ -66,6 +67,7 @@ onMounted(async () => {
 		description: event.description,
 		enabled: event.enabled,
 		onlineOnly: event.onlineOnly,
+		platforms: event.platforms,
 		rewardId: event.rewardId || undefined,
 		commandId: event.commandId || undefined,
 		keywordId: event.keywordId || undefined,

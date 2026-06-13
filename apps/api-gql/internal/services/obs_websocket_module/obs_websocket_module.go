@@ -215,7 +215,7 @@ func (s *Service) SettingsSubscriptionSignalerByApiKey(
 		return nil, fmt.Errorf("user not found for provided api key")
 	}
 
-	wsRouterSub, err := s.wsRouter.Subscribe([]string{createSettingsSubscriptionKey(user.ID)})
+	wsRouterSub, err := s.wsRouter.Subscribe([]string{createSettingsSubscriptionKey(user.ID.String())})
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (s *Service) SettingsSubscriptionSignalerByApiKey(
 	chann := make(chan obsentity.ObsWebsocketData, 1)
 
 	// get initial settings
-	initialSettings, err := s.GetObsWebsocketData(ctx, user.ID)
+	initialSettings, err := s.GetObsWebsocketData(ctx, user.ID.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to get obs websocket data: %w", err)
 	}
@@ -277,7 +277,7 @@ func (s *Service) UpdateFromOverlay(
 		return fmt.Errorf("user not found for provided api key")
 	}
 
-	channelID := user.ID
+	channelID := user.ID.String()
 
 	// Store data in database
 	newValue, err := s.obsWebsocketRepository.Upsert(
@@ -309,7 +309,7 @@ func (s *Service) SetConnectedState(ctx context.Context, apiKey string, connecte
 		return fmt.Errorf("user not found for provided api key")
 	}
 
-	key := redis_keys.ObsOverlayConnection(user.ID)
+	key := redis_keys.ObsOverlayConnection(user.ID.String())
 
 	return s.kv.Set(ctx, key, connected, kvoptions.WithExpire(5*time.Second))
 }
@@ -332,7 +332,7 @@ func (s *Service) CommandsSubscriptionByApiKey(
 		return nil, fmt.Errorf("user not found for provided api key")
 	}
 
-	wsRouterSub, err := s.wsRouter.Subscribe([]string{createCommandsSubscriptionKey(user.ID)})
+	wsRouterSub, err := s.wsRouter.Subscribe([]string{createCommandsSubscriptionKey(user.ID.String())})
 	if err != nil {
 		return nil, err
 	}

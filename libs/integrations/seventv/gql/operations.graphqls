@@ -208,6 +208,14 @@ query GetProfileByTwitchId($id: String!) {
 	}
 }
 
+query GetProfileByKickId($id: String!) {
+	users {
+		userByConnection(platform: KICK, platformId: $id) {
+			...TwirSeventvUser
+		}
+	}
+}
+
 query GetProfileById($id: Id!) {
 	users {
 		user(id: $id) {

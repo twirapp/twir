@@ -46,3 +46,7 @@ apps/*/main
 .sisyphus/evidence/*
 .sisyphus/drafts/*
 worktrees
+.local.md
+.playwright-mcp
+.omo/drafts
+.omo/run-continuation

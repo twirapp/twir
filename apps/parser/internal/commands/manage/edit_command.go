@@ -53,7 +53,7 @@ var EditCommand = &types.DefaultCommand{
 		cmd := model.ChannelsCommands{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, name).
+			Where(`"channelId" = ?::uuid AND name = ?`, parseCtx.Channel.DBChannelID, name).
 			Preload(`Responses`).
 			First(&cmd).Error
 
@@ -85,7 +85,7 @@ var EditCommand = &types.DefaultCommand{
 		err = parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Model(&model.ChannelsCommandsResponses{}).
-			Where(`"commandId" = ?`, cmd.ID).
+			Where(`"commandId" = ?::uuid`, cmd.ID).
 			Update(`text`, text).Error
 
 		if err != nil {
@@ -95,7 +95,7 @@ var EditCommand = &types.DefaultCommand{
 			}
 		}
 
-		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		result.Result = append(result.Result, i18n.GetCtx(ctx, locales.Translations.Commands.Manage.Edit.CommandEdited))
 		return result, nil

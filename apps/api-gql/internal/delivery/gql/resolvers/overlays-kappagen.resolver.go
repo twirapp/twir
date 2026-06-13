@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -18,17 +19,52 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/libs/bus-core/api"
-	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 // Channel is the resolver for the channel field.
 func (r *kappagenOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.KappagenOverlay) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return dataloader.GetHelixUserById(ctx, obj.ChannelID)
+	channelID, err := uuid.Parse(obj.ChannelID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || channel.TwitchPlatformID == nil {
+		return nil, nil
+	}
+
+	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+}
+
+// ChannelIdentities is the resolver for the channelIdentities field.
+func (r *kappagenOverlayResolver) ChannelIdentities(ctx context.Context, obj *gqlmodel.KappagenOverlay) ([]gqlmodel.KappagenChannelIdentity, error) {
+	return mapKappagenChannelIdentitiesForResolver(ctx, r.Resolver, obj.ChannelID)
 }
 
 // Channel is the resolver for the channel field.
 func (r *kappagenTriggerPayloadResolver) Channel(ctx context.Context, obj *gqlmodel.KappagenTriggerPayload) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return dataloader.GetHelixUserById(ctx, obj.ChannelID)
+	channelID, err := uuid.Parse(obj.ChannelID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || channel.TwitchPlatformID == nil {
+		return nil, nil
+	}
+
+	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+}
+
+// ChannelIdentities is the resolver for the channelIdentities field.
+func (r *kappagenTriggerPayloadResolver) ChannelIdentities(ctx context.Context, obj *gqlmodel.KappagenTriggerPayload) ([]gqlmodel.KappagenChannelIdentity, error) {
+	return mapKappagenChannelIdentitiesForResolver(ctx, r.Resolver, obj.ChannelID)
 }
 
 // OverlaysKappagenUpdate is the resolver for the overlaysKappagenUpdate field.
@@ -163,19 +199,20 @@ func (r *queryResolver) OverlaysKappagenAvailableAnimations(ctx context.Context)
 
 // OverlaysKappagen is the resolver for the overlaysKappagen field.
 func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context, apiKey string) (<-chan *gqlmodel.KappagenOverlay, error) {
-	user := model.Users{}
-	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
+	if err != nil {
+		return nil, err
 	}
+	channelID := identity.InternalChannelID
 
-	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateSettingsSubscriptionKey(user.ID)})
+	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateSettingsSubscriptionKey(channelID)})
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
 
 	chann := make(chan *gqlmodel.KappagenOverlay, 1)
 
-	settings, err := r.deps.KappagenService.GetOrCreate(ctx, user.ID)
+	settings, err := r.deps.KappagenService.GetOrCreate(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get kappagen overlay: %w", err)
 	}
@@ -211,11 +248,12 @@ func (r *subscriptionResolver) OverlaysKappagen(ctx context.Context, apiKey stri
 
 // OverlaysKappagenTrigger is the resolver for the overlaysKappagenTrigger field.
 func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiKey string) (<-chan *gqlmodel.KappagenTriggerPayload, error) {
-	user := model.Users{}
-	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
+	if err != nil {
+		return nil, err
 	}
-	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateTriggerSubscriptionKey(user.ID)})
+	channelID := identity.InternalChannelID
+	wsRouterSub, err := r.deps.WsRouter.Subscribe([]string{kappagen.CreateTriggerSubscriptionKey(channelID)})
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
@@ -243,6 +281,7 @@ func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiK
 					emotes = append(
 						emotes, gqlmodel.KappagenTriggerRequestEmote{
 							ID:        e.Id,
+							URL:       e.Url,
 							Positions: e.Positions,
 						},
 					)
@@ -258,6 +297,27 @@ func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiK
 	}()
 
 	return chann, nil
+}
+
+// OverlaysKappagenChatMessages is the resolver for the overlaysKappagenChatMessages field.
+func (r *subscriptionResolver) OverlaysKappagenChatMessages(ctx context.Context, apiKey string) (<-chan *gqlmodel.ChatMessage, error) {
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
+	if err != nil {
+		return nil, err
+	}
+
+	ch := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelIDs(ctx, identity.ChatTargets)
+	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
+
+	go func() {
+		for msg := range ch {
+			converted := mappers.ChatMessageToGQL(msg)
+			gqlCh <- &converted
+		}
+		close(gqlCh)
+	}()
+
+	return gqlCh, nil
 }
 
 // KappagenOverlay returns graph.KappagenOverlayResolver implementation.

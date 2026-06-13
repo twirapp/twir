@@ -19,6 +19,7 @@ export const useMessageHelpers = createGlobalState(() => {
 		emotes: {
 			isSmaller: boolean
 			emotesList: Record<string, string[]>
+			emoteUrls?: Record<string, string>
 		},
 	): MessageChunk[] {
 		const chunks: MessageChunk[] = []
@@ -45,7 +46,9 @@ export const useMessageHelpers = createGlobalState(() => {
 			} else if (emote) {
 				chunks.push({
 					type: 'emote',
-					value: `https://static-cdn.jtvnw.net/emoticons/v2/${emote}/default/dark/${emotes.isSmaller ? 1 : 3}.0`,
+					value:
+						emotes.emoteUrls?.[emote] ??
+						`https://static-cdn.jtvnw.net/emoticons/v2/${emote}/default/dark/${emotes.isSmaller ? 1 : 3}.0`,
 				})
 			} else if (thirdPartyEmote) {
 				const isZeroWidthModifier = thirdPartyEmote.isZeroWidth

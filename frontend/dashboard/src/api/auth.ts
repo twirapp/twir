@@ -26,14 +26,36 @@ export const profileQuery = createRequest(
 					login
 					profileImageUrl
 				}
+				kickProfile {
+					id
+					slug
+					displayName
+					profilePicture
+					isLive
+					followersCount
+				}
+				linkedAccounts {
+					platform
+					platformUserId
+					platformLogin
+					platformAvatar
+				}
+				currentPlatform
 				selectedDashboardId
 				availableDashboards {
 					id
+					platform
 					flags
 					twitchProfile {
 						login
 						displayName
 						profileImageUrl
+					}
+					kickProfile {
+						id
+						slug
+						displayName
+						profilePicture
 					}
 					apiKey
 					plan {
@@ -79,11 +101,20 @@ export const useProfile = createGlobalState(() => {
 		const user = response.value?.authenticatedUser
 		if (!user) return null
 
+		const isKick = user.currentPlatform === 'kick'
+
 		return {
 			id: user.id,
-			avatar: user.twitchProfile.profileImageUrl,
-			login: user.twitchProfile.login,
-			displayName: user.twitchProfile.displayName,
+			avatar: isKick
+				? (user.kickProfile?.profilePicture ?? '')
+				: (user.twitchProfile?.profileImageUrl ?? ''),
+			login: isKick ? (user.kickProfile?.slug ?? '') : (user.twitchProfile?.login ?? ''),
+			displayName: isKick
+				? (user.kickProfile?.displayName ?? '')
+				: (user.twitchProfile?.displayName ?? ''),
+			kickProfile: user.kickProfile,
+			linkedAccounts: user.linkedAccounts,
+			currentPlatform: user.currentPlatform,
 			apiKey: user.apiKey,
 			isBotAdmin: user.isBotAdmin,
 			isEnabled: user.isEnabled,
@@ -124,12 +155,36 @@ export function useLogout() {
 		const result = await executeMutation({})
 		if (result.error) throw new Error(result.error.toString())
 
-		window.rybbit.clearUserId()
-		window.location.replace('/')
+		if (window.rybbit) {
+			window.rybbit.clearUserId()
+			window.location.replace('/')
+		}
 	}
 
 	return execute
 }
+
+export const useUnlinkPlatformAccount = () =>
+	useMutation(
+		graphql(`
+			mutation UnlinkPlatformAccount($platform: String!) {
+				unlinkPlatformAccount(platform: $platform)
+			}
+		`),
+		[userInvalidateQueryKey]
+	)
+
+export const useAuthLink = (redirectTo: string) =>
+	useQuery({
+		query: graphql(`
+			query AuthLink($redirectTo: String!) {
+				authLink(redirectTo: $redirectTo)
+			}
+		`),
+		variables: {
+			redirectTo,
+		},
+	})
 
 export const useUserSettings = createGlobalState(() => {
 	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey'
@@ -288,10 +343,6 @@ export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {
 	return computed(() => {
 		if (!profile.value?.availableDashboards || !profile.value?.selectedDashboardId) return false
 
-		if (profile.value.id === profile.value.selectedDashboardId) {
-			return true
-		}
-
 		if (profile.value.isBotAdmin) return true
 
 		const dashboard = profile.value?.availableDashboards.find((dashboard) => {
@@ -309,7 +360,6 @@ export async function userAccessFlagChecker(flag: ChannelRolePermissionEnum) {
 
 	if (profile?.authenticatedUser.isBotAdmin) return true
 	if (!profile || !profile?.authenticatedUser.selectedDashboardId) return false
-	if (profile.authenticatedUser.selectedDashboardId === profile.authenticatedUser.id) return true
 
 	const dashboard = profile.authenticatedUser.availableDashboards.find((dashboard) => {
 		return dashboard.id === profile.authenticatedUser.selectedDashboardId

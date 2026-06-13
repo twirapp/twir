@@ -31,6 +31,8 @@ import {
 import { useTheme } from '@/composables/use-theme.ts'
 import { AVAILABLE_LOCALES } from '@/plugins/i18n.ts'
 import { Button } from '@/components/ui/button'
+import KickIcon from '@/components/kick-icon.vue'
+import TwitchIcon from '@/components/twitch-icon.vue'
 import type { DropdownMenuContentProps } from 'reka-ui'
 
 const { t, locale } = useI18n()
@@ -48,6 +50,8 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 		sideOffset: 4,
 	}
 })
+
+const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 </script>
 
 <template>
@@ -64,6 +68,18 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 					</AvatarFallback>
 				</Avatar>
 				<span class="truncate font-semibold">{{ profileData.displayName }}</span>
+				<div class="flex items-center gap-1">
+					<template v-for="account in linkedAccounts" :key="account.platform">
+						<KickIcon
+							v-if="account.platform === 'kick'"
+							class="size-4 text-[#53FC18]"
+						/>
+						<TwitchIcon
+							v-else-if="account.platform === 'twitch'"
+							class="size-4 text-[#9146FF]"
+						/>
+					</template>
+				</div>
 				<ChevronsUpDown class="ml-auto size-4" />
 			</Button>
 		</DropdownMenuTrigger>

@@ -4,20 +4,21 @@ import (
 	"unicode/utf8"
 
 	"github.com/kvizyx/twitchy/eventsub"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/bus-core/generic"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
-func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) twitch.TwitchChatMessage {
-	fragments := make([]twitch.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
+func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) generic.ChatMessage {
+	fragments := make([]generic.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
 
 	startFragmentPosition := 0
 	for _, fragment := range event.Message.Fragments {
-		var cheerMote *twitch.ChatMessageMessageFragmentCheermote
-		var emote *twitch.ChatMessageMessageFragmentEmote
-		var mention *twitch.ChatMessageMessageFragmentMention
+		var cheerMote *generic.ChatMessageMessageFragmentCheermote
+		var emote *generic.ChatMessageMessageFragmentEmote
+		var mention *generic.ChatMessageMessageFragmentMention
 
 		if fragment.Cheermote != nil {
-			cheerMote = &twitch.ChatMessageMessageFragmentCheermote{
+			cheerMote = &generic.ChatMessageMessageFragmentCheermote{
 				Prefix: fragment.Cheermote.Prefix,
 				Bits:   int64(fragment.Cheermote.Bits),
 				Tier:   int64(fragment.Cheermote.Tier),
@@ -30,30 +31,30 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) twitch.Twi
 				formats = append(formats, string(f))
 			}
 
-			emote = &twitch.ChatMessageMessageFragmentEmote{
-				Id:         fragment.Emote.Id,
-				EmoteSetId: fragment.Emote.EmoteSetId,
-				OwnerId:    fragment.Emote.OwnerId,
+			emote = &generic.ChatMessageMessageFragmentEmote{
+				ID:         fragment.Emote.Id,
+				EmoteSetID: fragment.Emote.EmoteSetId,
+				OwnerID:    fragment.Emote.OwnerId,
 				Format:     formats,
 			}
 		}
 
 		if fragment.Mention != nil {
-			mention = &twitch.ChatMessageMessageFragmentMention{
-				UserId:    fragment.Mention.UserId,
+			mention = &generic.ChatMessageMessageFragmentMention{
+				UserID:    fragment.Mention.UserId,
 				UserName:  fragment.Mention.UserName,
 				UserLogin: fragment.Mention.UserLogin,
 			}
 		}
 
-		position := twitch.ChatMessageMessageFragmentPosition{
+		position := generic.ChatMessageMessageFragmentPosition{
 			Start: startFragmentPosition,
 			End:   startFragmentPosition + utf8.RuneCountInString(fragment.Text),
 		}
 
 		fragments = append(
 			fragments,
-			twitch.ChatMessageMessageFragment{
+			generic.ChatMessageMessageFragment{
 				Type:      convertFragmentTypeToEnumValue(string(fragment.Type)),
 				Text:      fragment.Text,
 				Cheermote: cheerMote,
@@ -66,26 +67,27 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) twitch.Twi
 		startFragmentPosition += utf8.RuneCountInString(fragment.Text)
 	}
 
-	badges := make([]twitch.ChatMessageBadge, 0, len(event.Badges))
+	badges := make([]generic.ChatMessageBadge, 0, len(event.Badges))
 	for _, badge := range event.Badges {
 		badges = append(
 			badges,
-			twitch.ChatMessageBadge{
-				Id:    badge.Id,
-				SetId: badge.SetId,
+			generic.ChatMessageBadge{
+				ID:    badge.Id,
+				SetID: badge.SetId,
 				Info:  badge.Info,
+				Text:  badge.Info,
 			},
 		)
 	}
 
-	var cheer *twitch.ChatMessageCheer
+	var cheer *generic.ChatMessageCheer
 	if event.Cheer != nil {
-		cheer = &twitch.ChatMessageCheer{Bits: int64(event.Cheer.Bits)}
+		cheer = &generic.ChatMessageCheer{Bits: int64(event.Cheer.Bits)}
 	}
 
-	var reply *twitch.ChatMessageReply
+	var reply *generic.ChatMessageReply
 	if event.Reply != nil {
-		reply = &twitch.ChatMessageReply{
+		reply = &generic.ChatMessageReply{
 			ParentMessageId:   event.Reply.ParentMessageId,
 			ParentMessageBody: event.Reply.ParentMessageBody,
 			ParentUserId:      event.Reply.ParentUserId,
@@ -98,19 +100,27 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) twitch.Twi
 		}
 	}
 
-	return twitch.TwitchChatMessage{
-		ID:                   event.MessageId,
-		BroadcasterUserId:    event.BroadcasterUserId,
-		BroadcasterUserName:  event.BroadcasterUserName,
-		BroadcasterUserLogin: event.BroadcasterUserLogin,
-		ChatterUserId:        event.ChatterUserId,
-		ChatterUserName:      event.ChatterUserLogin,
-		ChatterUserLogin:     event.ChatterUserName,
-		MessageId:            event.MessageId,
-		Message: &twitch.ChatMessageMessage{
+	return generic.ChatMessage{
+		ID:                          event.MessageId,
+		BroadcasterUserId:           event.BroadcasterUserId,
+		BroadcasterUserName:         event.BroadcasterUserName,
+		BroadcasterUserLogin:        event.BroadcasterUserLogin,
+		ChatterUserId:               event.ChatterUserId,
+		ChatterUserName:             event.ChatterUserName,
+		ChatterUserLogin:            event.ChatterUserLogin,
+		MessageID:                   event.MessageId,
+		Message: &generic.ChatMessageMessage{
 			Text:      event.Message.Text,
 			Fragments: fragments,
 		},
+		Text:                        event.Message.Text,
+		Platform:                    string(platform.PlatformTwitch),
+		PlatformChannelID:           event.BroadcasterUserId,
+		ChannelID:                   event.BroadcasterUserId,
+		UserID:                      event.ChatterUserId,
+		SenderID:                    event.ChatterUserId,
+		SenderLogin:                 event.ChatterUserLogin,
+		SenderDisplayName:           event.ChatterUserName,
 		Color:                       event.Color,
 		Badges:                      badges,
 		MessageType:                 string(event.Type),
@@ -120,17 +130,17 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) twitch.Twi
 	}
 }
 
-func convertFragmentTypeToEnumValue(t string) twitch.FragmentType {
+func convertFragmentTypeToEnumValue(t string) generic.FragmentType {
 	switch t {
 	case "text":
-		return twitch.FragmentType_TEXT
+		return generic.FragmentType_TEXT
 	case "cheermote":
-		return twitch.FragmentType_CHEERMOTE
+		return generic.FragmentType_CHEERMOTE
 	case "emote":
-		return twitch.FragmentType_EMOTE
+		return generic.FragmentType_EMOTE
 	case "mention":
-		return twitch.FragmentType_MENTION
+		return generic.FragmentType_MENTION
 	default:
-		return twitch.FragmentType_TEXT
+		return generic.FragmentType_TEXT
 	}
 }

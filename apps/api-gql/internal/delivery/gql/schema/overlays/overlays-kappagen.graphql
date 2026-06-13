@@ -10,6 +10,7 @@ extend type Mutation {
 extend type Subscription {
 	overlaysKappagen(apiKey: String!): KappagenOverlay!
 	overlaysKappagenTrigger(apiKey: String!): KappagenTriggerPayload!
+	overlaysKappagenChatMessages(apiKey: String!): ChatMessage!
 }
 
 enum KappagenEmojiStyle {
@@ -47,7 +48,8 @@ type KappagenOverlay {
 	createdAt: Time!
 	updatedAt: Time!
 	channelID: String!
-	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
+	channel: TwirUserTwitchInfo @goField(forceResolver: true)
+	channelIdentities: [KappagenChannelIdentity!]! @goField(forceResolver: true)
 }
 
 type KappagenEmoteSettings {
@@ -157,10 +159,17 @@ type KappagenTriggerPayload {
 	text: String!
 	emotes: [KappagenTriggerRequestEmote!]!
 	channelID: String!
-	channel: TwirUserTwitchInfo! @goField(forceResolver: true)
+	channel: TwirUserTwitchInfo @goField(forceResolver: true)
+	channelIdentities: [KappagenChannelIdentity!]! @goField(forceResolver: true)
+}
+
+type KappagenChannelIdentity {
+	platform: Platform!
+	id: String!
 }
 
 type KappagenTriggerRequestEmote {
 	id: String!
+	url: String!
 	positions: [String!]!
 }

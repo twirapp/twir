@@ -36,7 +36,7 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Model(&model.ChannelCommandGroup{}).
-		Where(`"channelId" = ?`, dashboardId).
+		Where(`"channelId" = ?::uuid`, dashboardId).
 		Count(&createdCount).
 		Error; err != nil {
 		return false, gqlerrors.HandleError(err)
@@ -88,7 +88,7 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 	entity := model.ChannelCommandGroup{}
 	if err := r.deps.Gorm.
 		WithContext(ctx).
-		Where(`id = ? AND "channelId" = ?`, id, dashboardId).
+		Where(`id = ?::uuid AND "channelId" = ?::uuid`, id, dashboardId).
 		First(&entity).
 		Error; err != nil {
 		return false, fmt.Errorf("group not found: %w", err)
@@ -147,7 +147,7 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 	entity := model.ChannelCommandGroup{}
 	if err := r.deps.Gorm.
 		WithContext(ctx).
-		Where(`id = ? AND "channelId" = ?`, id, dashboardId).
+		Where(`id = ?::uuid AND "channelId" = ?::uuid`, id, dashboardId).
 		First(&entity).
 		Error; err != nil {
 		return false, fmt.Errorf("group not found: %w", err)
@@ -190,7 +190,7 @@ func (r *queryResolver) CommandsGroups(ctx context.Context) ([]gqlmodel.CommandG
 	var entities []model.ChannelCommandGroup
 	if err := r.deps.Gorm.
 		WithContext(ctx).
-		Where(`"channelId" = ?`, dashboardId).
+		Where(`"channelId" = ?::uuid`, dashboardId).
 		Find(&entities).
 		Error; err != nil {
 		return nil, gqlerrors.HandleError(err)

@@ -1,0 +1,141 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: api-strip
+  namespace: twir
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-strip
+  namespace: twir
+spec:
+  stripPrefix:
+    prefixes:
+      - /dashboard
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: overlays-strip
+  namespace: twir
+spec:
+  stripPrefix:
+    prefixes:
+      - /overlays
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: socket-strip
+  namespace: twir
+spec:
+  stripPrefix:
+    prefixes:
+      - /socket
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: short-links-rewrite
+  namespace: twir
+spec:
+  replacePathRegex:
+    regex: ^/s/(.*)
+    replacement: /v1/short-links/$1
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: socket-buffering
+  namespace: twir
+spec:
+  buffering:
+    maxRequestBodyBytes: 0
+    memRequestBodyBytes: 0
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: socket-transport
+  namespace: twir
+spec:
+  forwardingTimeouts:
+    dialTimeout: 30s
+    responseHeaderTimeout: 3600s
+    idleConnTimeout: 3600s
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: twir-traefik-routes
+  namespace: twir
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`twir.app`) && PathPrefix(`/api`)
+      kind: Rule
+      middlewares:
+        - name: api-strip
+      services:
+        - name: api-gql
+          port: 3009
+    - match: Host(`cf.twir.app`) && PathPrefix(`/api`)
+      kind: Rule
+      middlewares:
+        - name: api-strip
+      services:
+        - name: api-gql
+          port: 3009
+    - match: (Host(`twir.app`) || Host(`cf.twir.app`)) && PathPrefix(`/s/`)
+      kind: Rule
+      middlewares:
+        - name: short-links-rewrite
+      services:
+        - name: api-gql
+          port: 3009
+    - match: (Host(`twir.app`) || Host(`cf.twir.app`)) && PathPrefix(`/dashboard`)
+      kind: Rule
+      middlewares:
+        - name: dashboard-strip
+      services:
+        - name: dashboard
+          port: 8080
+    - match: (Host(`twir.app`) || Host(`cf.twir.app`)) && PathPrefix(`/overlays`)
+      kind: Rule
+      middlewares:
+        - name: overlays-strip
+      services:
+        - name: overlays
+          port: 8080
+    - match: (Host(`twir.app`) || Host(`cf.twir.app`)) && PathPrefix(`/socket`)
+      kind: Rule
+      middlewares:
+        - name: socket-strip
+        - name: socket-buffering
+      services:
+        - name: websockets
+          port: 3004
+          serversTransport: socket-transport
+    - match: Host(`services-bots.twir.app`)
+      kind: Rule
+      services:
+        - name: bots
+          port: 3000
+    - match: Host(`music-recognizer.twir.app`)
+      kind: Rule
+      services:
+        - name: music-recognizer
+          port: 3000
+    - match: Host(`twir.app`) || Host(`cf.twir.app`)
+      kind: Rule
+      services:
+        - name: web
+          port: 3000
+  tls: {}

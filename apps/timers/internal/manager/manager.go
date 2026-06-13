@@ -123,12 +123,12 @@ func (c *Manager) initialize(ctx context.Context) error {
 		for _, t := range timersBatch {
 			var foundChannel channelmodel.Channel
 			for _, ch := range channels {
-				if ch.ID == t.ChannelID {
+				if ch.ID.String() == t.ChannelID {
 					foundChannel = ch
 					break
 				}
 			}
-			if foundChannel == channelmodel.Nil || foundChannel.ID == "" || !foundChannel.IsBotMod ||
+			if foundChannel.IsNil() || !foundChannel.IsBotMod ||
 				foundChannel.IsTwitchBanned ||
 				!foundChannel.IsEnabled {
 				continue

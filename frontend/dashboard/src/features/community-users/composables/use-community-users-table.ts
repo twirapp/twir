@@ -21,6 +21,7 @@ import { usePagination } from '@/composables/use-pagination.js'
 import UsersTableCellUser
 	from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 import { type CommunityUsersOpts, CommunityUsersResetType } from '@/gql/graphql.js'
+import { resolveProfile } from '@/helpers/resolveProfile.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
 const ONE_HOUR = 60 * 60 * 1000
@@ -46,11 +47,17 @@ export const useCommunityUsersTable = createGlobalState(() => {
 		tableOrder,
 		tableSortBy,
 		debouncedSearchInput,
+		selectedPlatforms,
 	} = useCommunityTableActions()
 
 	const { pagination, setPagination } = usePagination()
 	const params = computed<CommunityUsersOpts>((prevParams) => {
-		if (prevParams?.search !== debouncedSearchInput.value) {
+		const currentPlatforms = selectedPlatforms.value
+
+		if (
+			prevParams?.search !== debouncedSearchInput.value
+			|| JSON.stringify(prevParams?.platforms ?? []) !== JSON.stringify(currentPlatforms)
+		) {
 			pagination.value.pageIndex = 0
 		}
 
@@ -61,6 +68,7 @@ export const useCommunityUsersTable = createGlobalState(() => {
 			perPage: pagination.value.pageSize,
 			order: tableOrder.value,
 			sortBy: tableSortBy.value,
+			platforms: [...currentPlatforms],
 		}
 	})
 
@@ -82,15 +90,20 @@ export const useCommunityUsersTable = createGlobalState(() => {
 			size: 20,
 			header: () => h('div', {}, t('community.users.table.user')),
 			cell: ({ row }) => {
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank',
-				}, h(UsersTableCellUser, {
-					avatar: row.original.twitchProfile.profileImageUrl,
-					name: row.original.twitchProfile.login,
-					displayName: row.original.twitchProfile.displayName,
-				}))
+				const profile = resolveProfile({
+					profileImageUrl: row.original.avatar,
+					login: row.original.login,
+					displayName: row.original.displayName,
+					platform: row.original.platform,
+				})
+
+				return h(UsersTableCellUser, {
+					avatar: profile.avatar,
+					name: profile.login,
+					displayName: profile.displayName,
+					url: profile.url,
+					platform: row.original.platform,
+				})
 			},
 		},
 		{

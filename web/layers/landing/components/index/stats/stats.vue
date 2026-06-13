@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { LandingStatsStoreKey } from '~/stores/landing-stats'
+import KickIcon from '~~/layers/landing/components/kick-icon.vue'
 
 const formatter = Intl.NumberFormat('en-US', {
 	notation: 'compact',
@@ -17,6 +18,7 @@ const stats = [
 	{
 		key: 'Active Channels',
 		value: formatNumber(statsStore.stats?.channels),
+		isChannels: true,
 	},
 	{
 		key: 'Created Commands',
@@ -56,6 +58,16 @@ const stats = [
 			<span class="text-[#ADB0B8] lg:text-lg lg:mt-2 leading-normal whitespace-nowrap">
 				{{ stat.key }}
 			</span>
+			<div v-if="stat.isChannels" class="flex gap-4 mt-2 text-[#ADB0B8] text-sm md:text-base font-medium">
+				<div class="flex items-center gap-1.5" title="Twitch Channels">
+					<SvgoSocialTwitch class="w-4 h-4 text-[#9146FF]" />
+					<span>{{ formatNumber(statsStore.stats?.twitchChannels) }}</span>
+				</div>
+				<div class="flex items-center gap-1.5" title="Kick Channels">
+					<KickIcon class="w-4 h-4 text-[#53FC18]" />
+					<span>{{ formatNumber(statsStore.stats?.kickChannels) }}</span>
+				</div>
+			</div>
 		</div>
 	</section>
 </template>

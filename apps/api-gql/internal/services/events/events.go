@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/entities/platform"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/events"
@@ -74,6 +75,7 @@ func (s *Service) mapToEntity(m model.Event) entity.Event {
 	return entity.Event{
 		ID:          m.ID,
 		ChannelID:   m.ChannelID,
+		Platforms:   m.Platforms,
 		Type:        entity.EventType(m.Type),
 		RewardID:    m.RewardID,
 		CommandID:   m.CommandID,
@@ -131,6 +133,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, 
 
 	repoInput := events.CreateInput{
 		ChannelID:   input.ChannelID,
+		Platforms:   input.Platforms,
 		Type:        model.EventType(input.Type),
 		RewardID:    input.RewardID,
 		CommandID:   input.CommandID,
@@ -188,6 +191,7 @@ func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 	}
 
 	repoInput := events.UpdateInput{
+		Platforms:   input.Platforms,
 		Type:        convertedType,
 		RewardID:    input.RewardID,
 		CommandID:   input.CommandID,
@@ -259,6 +263,7 @@ func (s *Service) Delete(ctx context.Context, id, channelID string) error {
 
 type CreateInput struct {
 	ChannelID   string
+	Platforms   []platform.Platform
 	Type        entity.EventType
 	RewardID    *string
 	CommandID   *string
@@ -271,6 +276,7 @@ type CreateInput struct {
 
 type UpdateInput struct {
 	ChannelID   string
+	Platforms   *[]platform.Platform
 	Type        *entity.EventType
 	RewardID    *string
 	CommandID   *string

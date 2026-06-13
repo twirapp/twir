@@ -91,13 +91,16 @@ export const useChatOverlaySocket = createGlobalState(() => {
 	const chatLibSettings = computed<Settings | null>(() => {
 		if (!overlaySettings.value || !neededData.value) return null
 
+		const twitchProfile = neededData.value.authenticatedUser.twitchProfile
+		if (!twitchProfile) return null
+
 		return {
 			...overlaySettings.value,
 			channelBadges: neededData.value.twitchGetChannelBadges.badges,
 			globalBadges: neededData.value.twitchGetGlobalBadges.badges,
 			channelId: neededData.value.authenticatedUser.id ?? '',
-			channelName: neededData.value.authenticatedUser.twitchProfile.login ?? '',
-			channelDisplayName: neededData.value.authenticatedUser.twitchProfile.displayName ?? '',
+			channelName: twitchProfile.login ?? '',
+			channelDisplayName: twitchProfile.displayName ?? '',
 		}
 	})
 

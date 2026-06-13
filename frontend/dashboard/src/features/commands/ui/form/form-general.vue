@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { EditIcon, WrenchIcon, XIcon } from 'lucide-vue-next'
+
 import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
@@ -11,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import PlatformSelector from '@/components/platform-selector.vue'
 import {
 	FormControl,
 	FormDescription,
@@ -42,6 +44,8 @@ const { t } = useI18n()
 const groupsApi = useCommandsGroupsApi()
 const { data: groups } = groupsApi.useQueryGroups()
 const { isCustom } = useCommandEditV2()
+
+
 
 function computeSelectedGroupColor(id: string) {
 	if (!groups?.value?.commandsGroups) {
@@ -185,6 +189,22 @@ function computeSelectedGroupColor(id: string) {
 						Groups used to create "folder" of commands in dashboard and public page, so you can
 						stick related commands together.
 					</FormDescription>
+				</FormItem>
+			</FormField>
+
+			<FormField v-slot="{ field }" name="platforms">
+				<FormItem>
+					<FormLabel>Platforms</FormLabel>
+					<FormDescription class="mb-2">
+						Select which platforms this command runs on. If none selected, it runs on all platforms.
+					</FormDescription>
+					<FormControl>
+						<PlatformSelector
+							:model-value="field.value"
+							@update:model-value="field['onUpdate:modelValue']"
+						/>
+					</FormControl>
+					<FormMessage />
 				</FormItem>
 			</FormField>
 		</CardContent>

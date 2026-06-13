@@ -2,6 +2,7 @@ package keywords
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
@@ -10,7 +11,12 @@ func (c *Service) GetAllByChannelID(ctx context.Context, channelID string) (
 	[]entity.Keyword,
 	error,
 ) {
-	keywords, err := c.keywordsRepository.GetAllByChannelID(ctx, channelID)
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	keywords, err := c.keywordsRepository.GetAllByChannelID(ctx, parsedChannelID)
 	if err != nil {
 		return nil, err
 	}

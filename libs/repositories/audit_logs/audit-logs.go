@@ -26,7 +26,11 @@ type GetManyInput struct {
 }
 
 type GetCountInput struct {
-	ChannelID *string
+	ChannelID      *string
+	ActorID        *string
+	ObjectID       *string
+	Systems        []string
+	OperationTypes []model.AuditOperationType
 }
 
 type CreateInput struct {

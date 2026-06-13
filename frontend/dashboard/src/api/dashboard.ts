@@ -108,6 +108,9 @@ export function useBotStatus() {
 		query: graphql(`
 			subscription botStatus {
 				botStatus {
+					dashboardId
+					platform
+					channelName
 					isMod
 					botId
 					botName
@@ -127,10 +130,37 @@ export function useBotStatus() {
 	return { botStatus, isPaused, fetching, executeSubscription }
 }
 
+export function useBotStatuses() {
+	const { data, isPaused, fetching, executeSubscription } = useSubscription({
+		query: graphql(`
+			subscription botStatuses {
+				botStatuses {
+					dashboardId
+					platform
+					channelName
+					isMod
+					botId
+					botName
+					enabled
+				}
+			}
+		`),
+		context: {
+			additionalTypenames: ['BotStatus'],
+		},
+	})
+
+	const botStatuses = computed(() => {
+		return data.value?.botStatuses ?? []
+	})
+
+	return { botStatuses, isPaused, fetching, executeSubscription }
+}
+
 export function useBotJoinPart() {
 	return useMutation(graphql(`
-		mutation BotJoinPart($action: BotJoinLeaveAction!) {
-			botJoinLeave(action: $action)
+		mutation BotJoinPart($action: BotJoinLeaveAction!, $dashboardId: String, $platform: String) {
+			botJoinLeave(action: $action, dashboardId: $dashboardId, platform: $platform)
 		}
 	`), ['BotStatus'])
 }

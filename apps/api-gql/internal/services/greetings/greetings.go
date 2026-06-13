@@ -11,11 +11,13 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/entities/platform"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/greetings/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
 
@@ -23,6 +25,7 @@ type Opts struct {
 	fx.In
 
 	GreetingsRepository greetings.Repository
+	UsersRepository     usersrepository.Repository
 	PlansRepository     plans.Repository
 	AuditRecorder       audit.Recorder
 	GreetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
@@ -31,6 +34,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		greetingsRepository: opts.GreetingsRepository,
+		usersRepository:     opts.UsersRepository,
 		plansRepository:     opts.PlansRepository,
 		auditRecorder:       opts.AuditRecorder,
 		greetingsCache:      opts.GreetingsCache,
@@ -39,6 +43,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	greetingsRepository greetings.Repository
+	usersRepository     usersrepository.Repository
 	plansRepository     plans.Repository
 	auditRecorder       audit.Recorder
 	greetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
@@ -61,9 +66,14 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 	[]entity.Greeting,
 	error,
 ) {
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, err
+	}
+
 	dbGreetings, err := c.greetingsRepository.GetManyByChannelID(
 		ctx,
-		channelID,
+		parsedChannelID,
 		greetings.GetManyInput{},
 	)
 	if err != nil {
@@ -100,6 +110,11 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greeting, error) {
+	parsedChannelID, err := uuid.Parse(input.ChannelID)
+	if err != nil {
+		return entity.GreetingNil, errors.NewInternalError("Failed to parse channel id", err)
+	}
+
 	plan, err := c.plansRepository.GetByChannelID(ctx, input.ChannelID)
 	if err != nil {
 		return entity.GreetingNil, errors.NewInternalError("Failed to get plan", err)
@@ -110,7 +125,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 
 	existingGreetings, err := c.greetingsRepository.GetManyByChannelID(
 		ctx,
-		input.ChannelID,
+		parsedChannelID,
 		greetings.GetManyInput{},
 	)
 	if err != nil {
@@ -123,11 +138,20 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 		)
 	}
 
+	parsedUserID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		dbUser, lookupErr := c.usersRepository.GetByPlatformID(ctx, platform.PlatformTwitch, input.UserID)
+		if lookupErr != nil {
+			return entity.GreetingNil, errors.NewInternalError("Failed to parse user id", err)
+		}
+		parsedUserID = dbUser.ID
+	}
+
 	greeting, err := c.greetingsRepository.GetOneByChannelAndUserID(
 		ctx,
 		greetings.GetOneInput{
-			ChannelID: input.ChannelID,
-			UserID:    input.UserID,
+			ChannelID: parsedChannelID,
+			UserID:    parsedUserID,
 		},
 	)
 	if err != nil && !goerrors.Is(err, greetings.ErrNotFound) {
@@ -142,8 +166,8 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 
 	newGreeting, err := c.greetingsRepository.Create(
 		ctx, greetings.CreateInput{
-			ChannelID:    input.ChannelID,
-			UserID:       input.UserID,
+			ChannelID:    parsedChannelID,
+			UserID:       parsedUserID,
 			Enabled:      input.Enabled,
 			Text:         input.Text,
 			IsReply:      input.IsReply,
@@ -195,13 +219,26 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		return entity.GreetingNil, errors.NewInternalError("Failed to get greeting", err)
 	}
 
-	if dbGreeting.ChannelID != input.ChannelID {
+	var parsedUpdateUserID *uuid.UUID
+	if input.UserID != nil {
+		parsedUserID, err := uuid.Parse(*input.UserID)
+		if err != nil {
+			dbUser, lookupErr := c.usersRepository.GetByPlatformID(ctx, platform.PlatformTwitch, *input.UserID)
+			if lookupErr != nil {
+				return entity.GreetingNil, errors.NewInternalError("Failed to parse user id", err)
+			}
+			parsedUserID = dbUser.ID
+		}
+		parsedUpdateUserID = &parsedUserID
+	}
+
+	if dbGreeting.ChannelID.String() != input.ChannelID {
 		return entity.GreetingNil, errors.NewNotFoundError("Greeting with this ID was not found for your channel")
 	}
 
 	newGreeting, err := c.greetingsRepository.Update(
 		ctx, id, greetings.UpdateInput{
-			UserID:       input.UserID,
+			UserID:       parsedUpdateUserID,
 			Enabled:      input.Enabled,
 			Text:         input.Text,
 			IsReply:      input.IsReply,
@@ -251,7 +288,7 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 		return errors.NewInternalError("Failed to get greeting", err)
 	}
 
-	if dbGreeting.ChannelID != input.ChannelID {
+	if dbGreeting.ChannelID.String() != input.ChannelID {
 		return errors.NewNotFoundError("Greeting with this ID was not found for your channel")
 	}
 

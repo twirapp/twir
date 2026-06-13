@@ -22,7 +22,7 @@ func New(
 				entity := &model.ChannelSongRequestsSettings{}
 				err := db.
 					WithContext(ctx).
-					Where(`"channel_id" = ?`, key).
+					Where(`"channel_id"::text = ?::text`, key).
 					Find(entity).
 					Error
 				if err != nil {

@@ -32,6 +32,7 @@ export const VipRemovedSubject = 'events.vip_removed'
 
 export interface BaseInfo {
 	channel_id: string
+	channel_db_id?: string
 	channel_name: string
 }
 

@@ -36,9 +36,10 @@ var EmotesTop = &types.Variable{
 
 		emotes, err := parseCtx.Services.ChannelEmotesUsagesRepo.GetUserMostUsedEmotes(
 			ctx, channelsemotesusagesrepository.UserMostUsedEmotesInput{
-				ChannelID: parseCtx.Channel.ID,
-				UserID:    parseCtx.Sender.ID,
-				Limit:     limit,
+				Platform:          string(parseCtx.Platform),
+				PlatformChannelID: parseCtx.Channel.ID,
+				UserID:            parseCtx.Sender.ID,
+				Limit:             limit,
 			},
 		)
 		if err != nil {

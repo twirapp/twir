@@ -26,7 +26,7 @@ func New(
 				settings := &model.ChannelsIntegrationsSettingsSeventv{}
 				err := db.
 					WithContext(ctx).
-					Where(`"channel_id" = ?`, key).
+					Where(`"channel_id"::text = ?::text`, key).
 					First(settings).
 					Error
 				if err != nil {

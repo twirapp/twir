@@ -7,8 +7,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/bus-core/twitch"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
@@ -19,7 +19,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchChatMessage) error {
+func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -28,14 +28,14 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		return nil
 	}
 
-	allGreetings, err := c.greetingsCache.Get(ctx, msg.BroadcasterUserId)
+	allGreetings, err := c.greetingsCache.Get(ctx, msg.EnrichedData.DbChannel.ID.String())
 	if err != nil {
 		return err
 	}
 
 	var greeting *greetingsmodel.Greeting
 	for _, g := range allGreetings {
-		if g.UserID == msg.ChatterUserId && g.Enabled && !g.Processed {
+		if g.UserID.String() == msg.EnrichedData.DbUser.ID && g.Enabled && !g.Processed {
 			greeting = &g
 			break
 		}
@@ -55,18 +55,18 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		return err
 	}
 
-	if err = c.greetingsCache.Invalidate(ctx, msg.BroadcasterUserId); err != nil {
+	if err = c.greetingsCache.Invalidate(ctx, msg.EnrichedData.DbChannel.ID.String()); err != nil {
 		return err
 	}
 
 	mentions := make(
-		[]twitch.ChatMessageMessageFragmentMention,
+		[]generic.ChatMessageMessageFragmentMention,
 		0,
 		len(msg.Message.Fragments),
 	)
 	if msg.Message != nil {
 		for _, f := range msg.Message.Fragments {
-			if f.Type != twitch.FragmentType_MENTION {
+			if f.Type != generic.FragmentType_MENTION {
 				continue
 			}
 			if f.Mention != nil {
@@ -75,15 +75,22 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		}
 	}
 
+	var twitchUserID string
+	if msg.EnrichedData.DbChannel.TwitchUserID != nil {
+		twitchUserID = msg.EnrichedData.DbChannel.TwitchUserID.String()
+	}
+
 	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID:   msg.BroadcasterUserId,
-			ChannelName: msg.BroadcasterUserLogin,
-			Text:        greeting.Text,
-			UserID:      msg.ChatterUserId,
-			UserLogin:   msg.ChatterUserLogin,
-			UserName:    msg.ChatterUserName,
-			Mentions:    mentions,
+			ChannelID:           msg.BroadcasterUserId,
+			ChannelName:         msg.BroadcasterUserLogin,
+			ChannelTwitchUserID: twitchUserID,
+			ChannelDBID:         msg.EnrichedData.DbChannel.ID.String(),
+			Text:                greeting.Text,
+			UserID:              msg.ChatterUserId,
+			UserLogin:           msg.ChatterUserLogin,
+			UserName:            msg.ChatterUserName,
+			Mentions:            mentions,
 		},
 	)
 	if err != nil {
@@ -96,7 +103,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 				BroadcasterID:        msg.BroadcasterUserId,
 				SenderID:             msg.EnrichedData.DbChannel.BotID,
 				Message:              res.Data.Text,
-				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageId).Else(""),
+				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageID).Else(""),
 			},
 		)
 	}
@@ -106,7 +113,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 			ctx,
 			twitchactions.ShoutOutInput{
 				BroadcasterID: msg.BroadcasterUserId,
-				TargetID:      greeting.UserID,
+				TargetID:      msg.ChatterUserId,
 			},
 		)
 	}
@@ -133,7 +140,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		WithContext(ctx).
 		Where(
 			"channel_id = ? AND greetings_ids && ?",
-			msg.BroadcasterUserId,
+			msg.EnrichedData.DbChannel.ID.String(),
 			pq.StringArray{greeting.ID.String()},
 		).Find(&alert).Error; err != nil {
 		c.logger.Error("cannot find channel alert", logger.Error(err))
@@ -144,7 +151,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg twitch.TwitchC
 		c.websocketsGrpc.TriggerAlert(
 			ctx,
 			&websockets.TriggerAlertRequest{
-				ChannelId: msg.BroadcasterUserId,
+				ChannelId: msg.EnrichedData.DbChannel.ID.String(),
 				AlertId:   alert.ID,
 			},
 		)

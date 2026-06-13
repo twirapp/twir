@@ -49,7 +49,7 @@ var SetCommand = &types.DefaultCommand{
 
 		twitchClient, err := twitch.NewUserClientWithContext(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)
@@ -101,7 +101,7 @@ var SetCommand = &types.DefaultCommand{
 
 		categoryAliases, err := parseCtx.Services.CategoriesAliasesRepo.GetManyByChannelID(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{

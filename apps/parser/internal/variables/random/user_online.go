@@ -20,10 +20,15 @@ var OnlineUser = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		channelID := parseCtx.Channel.DBChannelID
+		if channelID == "" {
+			channelID = parseCtx.Channel.ID
+		}
+
 		randomUser, err := parseCtx.Services.UsersRepo.GetRandomOnlineUser(
 			ctx,
 			usersrepository.GetRandomOnlineUserInput{
-				ChannelID: parseCtx.Channel.ID,
+				ChannelID: channelID,
 			},
 		)
 		if err != nil {

@@ -47,7 +47,7 @@ var Resolve = &types.DefaultCommand{
 
 		twitchClient, err := twitch.NewUserClientWithContext(
 			ctx,
-			parseCtx.Channel.ID,
+			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)

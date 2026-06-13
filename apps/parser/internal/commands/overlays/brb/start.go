@@ -54,7 +54,7 @@ var Start = &types.DefaultCommand{
 
 		err := parseCtx.Services.Bus.Api.TriggerBrbStart.Publish(
 			ctx, api.TriggerBrbStart{
-				ChannelId: parseCtx.Channel.ID,
+				ChannelId: parseCtx.Channel.DBChannelID,
 				Minutes:   int32(parseCtx.ArgsParser.Get(startTimeArgName).Int()),
 				Text:      text,
 			},

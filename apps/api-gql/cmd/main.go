@@ -25,6 +25,9 @@ import (
 	ttsroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
+	"github.com/twirapp/twir/apps/api-gql/internal/platform"
+	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
+	twitchplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
@@ -193,6 +196,9 @@ import (
 
 	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
 	integrationspostgres "github.com/twirapp/twir/libs/repositories/integrations/datasource/postgres"
+
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
 
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallpostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
@@ -371,12 +377,16 @@ func main() {
 				fx.As(new(integrationsrepository.Repository)),
 			),
 			fx.Annotate(
-				scheduledvipsrepositorypostgres.NewFx,
-				fx.As(new(scheduledvipsrepository.Repository)),
+				kickbotsrepositorypgx.NewFx,
+				fx.As(new(kickbotsrepository.Repository)),
 			),
 			fx.Annotate(
 				chatwallpostgres.NewFx,
 				fx.As(new(chatwallrepository.Repository)),
+			),
+			fx.Annotate(
+				scheduledvipsrepositorypostgres.NewFx,
+				fx.As(new(scheduledvipsrepository.Repository)),
 			),
 			fx.Annotate(
 				chattranslationpostgres.NewFx,
@@ -533,6 +543,11 @@ func main() {
 		),
 		// services
 		fx.Provide(
+			kickplatform.New,
+			fx.Annotate(
+				twitchplatform.New,
+				fx.As(new(platform.PlatformProvider)),
+			),
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
 				return valorantintegration.NewHenrikApiClient(c.Valorant.HenrikApiKey)
 			},

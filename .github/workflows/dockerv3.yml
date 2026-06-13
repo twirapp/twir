@@ -2,8 +2,8 @@ name: Docker v3
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       skip-change-detect:
@@ -11,36 +11,165 @@ on:
         description: Skip detection of change (force build)
 
 jobs:
+  release-meta:
+    runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.meta.outputs.is_release }}
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - name: Resolve release metadata
+        id: meta
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            raw_tag="${GITHUB_REF_NAME#v}"
+            image_tag="${raw_tag//./-}"
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
+            echo "image_tag=${image_tag}" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+            echo "image_tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+  changelog:
+    runs-on: ubuntu-latest
+    outputs:
+      release_notes: ${{ steps.changelog.outputs.content }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=v0.0.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate Changelog
+        id: changelog
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  detect-affected:
+    needs: release-meta
+    runs-on: ubuntu-latest
+    outputs:
+      affected: ${{ steps.affected.outputs.apps }}
+      affected_services: ${{ steps.affected.outputs.services }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine base ref
+        id: base
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            prev_tag=$(git tag --sort=-creatordate | sed -n '2p')
+            if [ -n "$prev_tag" ]; then
+              echo "base_sha=$prev_tag" >> "$GITHUB_OUTPUT"
+            else
+              echo "base_sha=$(git rev-list --max-parents=0 HEAD | head -1)" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "base_sha=HEAD~1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get changed files
+        id: changed
+        run: |
+          files=$(git diff --name-only ${{ steps.base.outputs.base_sha }}...HEAD | tr '\n' ',')
+          echo "files=${files}" >> "$GITHUB_OUTPUT"
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.work
+          cache: false
+
+      - name: Compute affected apps
+        id: affected
+        run: |
+          if [ "${{ github.event.inputs.skip-change-detect }}" = "true" ]; then
+            apps=$(go run ./cli/main.go affected --files "ALL" --output json 2>/dev/null)
+          else
+            apps=$(go run ./cli/main.go affected --files "${{ steps.changed.outputs.files }}" --output json 2>/dev/null)
+          fi
+
+          echo "apps<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$apps" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          # Services for deploy webhook: affected apps + migrations
+          if [ "$apps" = "null" ] || [ "$apps" = "[]" ]; then
+            echo 'services<<EOF' >> "$GITHUB_OUTPUT"
+            echo '["migrations"]' >> "$GITHUB_OUTPUT"
+            echo 'EOF' >> "$GITHUB_OUTPUT"
+          else
+            services=$(echo "$apps" | sed 's/^\[/["migrations",/')
+            echo "services<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$services" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          fi
+
   build-matrix:
+    needs:
+      - release-meta
+      - detect-affected
     runs-on: ubuntu-latest
     strategy:
       matrix:
         folders:
-          - path: apps/api-gql
+          - name: api-gql
+            path: apps/api-gql
             runtime: go
-          - path: apps/bots
+          - name: bots
+            path: apps/bots
             runtime: go
-          - path: apps/emotes-cacher
+          - name: emotes-cacher
+            path: apps/emotes-cacher
             runtime: go
-          - path: apps/events
+          - name: events
+            path: apps/events
             runtime: go
-          - path: apps/eventsub
+          - name: eventsub
+            path: apps/eventsub
             runtime: go
-          - path: apps/integrations
+          - name: integrations
+            path: apps/integrations
             runtime: js
-          - path: apps/parser
+          - name: parser
+            path: apps/parser
             runtime: go
-          - path: apps/scheduler
+          - name: scheduler
+            path: apps/scheduler
             runtime: go
-          - path: apps/timers
+          - name: timers
+            path: apps/timers
             runtime: go
-          - path: apps/tokens
+          - name: tokens
+            path: apps/tokens
             runtime: go
-          - path: apps/websockets
+          - name: websockets
+            path: apps/websockets
             runtime: go
-          - path: frontend/dashboard
+          - name: dashboard
+            path: frontend/dashboard
             runtime: js
-          - path: frontend/overlays
+          - name: overlays
+            path: frontend/overlays
             runtime: js
     steps:
       - uses: actions/checkout@v4
@@ -51,23 +180,20 @@ jobs:
           echo "folder=$(dirname ${{ matrix.folders.path }})" >> $GITHUB_ENV
           echo "app=$(basename ${{ matrix.folders.path }})" >> $GITHUB_ENV
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v45
-        with:
-          files: |
-            ${{ env.folder }}/${{ env.app }}/**
-            libs/**
-            cli/**
-            .bun-version
-            package.json
-            .github/workflows/dockerv3.yml
-            bunfig.toml
-            bun.lock
-
       - name: Determine if build should run
         id: should-build
-        run: echo "run-build=${{ steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true' }}" >> $GITHUB_ENV
+        run: |
+          if [ "${{ github.event.inputs.skip-change-detect }}" = "true" ]; then
+            echo "run-build=true" >> "$GITHUB_ENV"
+          else
+            affected='${{ needs.detect-affected.outputs.affected }}'
+            app_name="${{ matrix.folders.name }}"
+            if echo "$affected" | grep -q "\"$app_name\""; then
+              echo "run-build=true" >> "$GITHUB_ENV"
+            else
+              echo "run-build=false" >> "$GITHUB_ENV"
+            fi
+          fi
 
       - uses: oven-sh/setup-bun@v2
         if: ${{ env.run-build == 'true' }}
@@ -144,44 +270,51 @@ jobs:
           file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
           push: true
           tags: |
+            registry.twir.app/twirapp/${{ env.app }}:${{ needs.release-meta.outputs.image_tag }}
             registry.twir.app/twirapp/${{ env.app }}:latest
 
   migrations:
+    needs: release-meta
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Get changed files
+        if: needs.release-meta.outputs.is_release != 'true'
         id: changed-files
         uses: tj-actions/changed-files@v47
         with:
           files: |
             libs/migrations/**
             cli/**
+            cli/Dockerfile
             .github/workflows/dockerv3.yml
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Twir registry
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
         with:
           registry: registry.twir.app
           username: ${{ secrets.DOCKER_TWIR_LOGIN }}
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
       - name: Build docker image
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./libs/migrations/Dockerfile
           push: true
           tags: |
+            registry.twir.app/twirapp/migrations:${{ needs.release-meta.outputs.image_tag }}
             registry.twir.app/twirapp/migrations:latest
 
   web:
+    needs: release-meta
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Get changed files
+        if: needs.release-meta.outputs.is_release != 'true'
         id: changed-files
         uses: tj-actions/changed-files@v47
         with:
@@ -189,6 +322,7 @@ jobs:
             web/**
             libs/**
             cli/**
+            cli/Dockerfile
             .bun-version
             bun.lock
             package.json
@@ -196,18 +330,107 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Twir registry
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
         with:
           registry: registry.twir.app
           username: ${{ secrets.DOCKER_TWIR_LOGIN }}
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
       - name: Build docker image
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./web/Dockerfile
           push: true
           tags: |
+            registry.twir.app/twirapp/web:${{ needs.release-meta.outputs.image_tag }}
             registry.twir.app/twirapp/web:latest
+
+  deploy-receiver:
+    needs: release-meta
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Get changed files
+        if: needs.release-meta.outputs.is_release != 'true'
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            cli/**
+            cli/Dockerfile
+            .github/workflows/dockerv3.yml
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Twir registry
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: registry.twir.app
+          username: ${{ secrets.DOCKER_TWIR_LOGIN }}
+          password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
+      - name: Build deploy receiver image
+        if: needs.release-meta.outputs.is_release == 'true' || steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./cli/Dockerfile
+          push: true
+          tags: |
+            registry.twir.app/twirapp/deploy-receiver:${{ needs.release-meta.outputs.image_tag }}
+            registry.twir.app/twirapp/deploy-receiver:latest
+
+  deploy-release:
+    needs:
+      - release-meta
+      - build-matrix
+      - detect-affected
+      - migrations
+      - web
+      - deploy-receiver
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy webhook
+        env:
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+          DEPLOY_WEBHOOK_TOKEN: ${{ secrets.DEPLOY_WEBHOOK_TOKEN }}
+          IMAGE_TAG: ${{ needs.release-meta.outputs.image_tag }}
+          REF_NAME: ${{ github.ref_name }}
+          AFFECTED_SERVICES: ${{ needs.detect-affected.outputs.affected_services }}
+        run: |
+          if [ -z "${DEPLOY_WEBHOOK_URL}" ] || [ -z "${DEPLOY_WEBHOOK_TOKEN}" ]; then
+            echo "Deploy webhook secrets are not configured, skipping release trigger"
+            exit 0
+          fi
+
+          deploy_url="${DEPLOY_WEBHOOK_URL%/}"
+          if [ "${deploy_url##*/}" != "deploy" ]; then
+            deploy_url="${deploy_url}/deploy"
+          fi
+
+          curl --fail-with-body --show-error --silent \
+            -X POST \
+            -H "Authorization: Bearer ${DEPLOY_WEBHOOK_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{\"imageTag\":\"${IMAGE_TAG}\",\"refName\":\"${REF_NAME}\",\"trigger\":\"github-actions\",\"services\":${AFFECTED_SERVICES}}" \
+            "${deploy_url}"
+
+  release:
+    needs:
+      - release-meta
+      - changelog
+      - deploy-release
+    if: needs.release-meta.outputs.is_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.changelog.outputs.version }}
+          name: Release ${{ needs.changelog.outputs.version }}
+          body: ${{ needs.changelog.outputs.release_notes }}
+          draft: false
+          prerelease: false

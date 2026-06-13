@@ -12,7 +12,12 @@ extend type Mutation {
 
 type TwirAdminUser implements TwirUser {
 	id: ID!
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	platform: Platform!
+	platformId: String!
+	login: String!
+	displayName: String!
+	avatar: String
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
 	isBotAdmin: Boolean!
 	isBanned: Boolean!
 	isBotModerator: Boolean!
@@ -28,6 +33,7 @@ input TwirUsersSearchParams {
 	isBanned: Boolean
 	isBotEnabled: Boolean
 	badges: [String!]
+	platforms: [Platform!]
 }
 
 type TwirUsersResponse {

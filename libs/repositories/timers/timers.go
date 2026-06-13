@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 	timecrsentity "github.com/twirapp/twir/libs/entities/timers"
 )
 
@@ -26,6 +27,7 @@ type CreateInput struct {
 	OnlineEnabled   bool
 	TimeInterval    int
 	MessageInterval int
+	Platforms       []platform.Platform
 	Responses       []CreateResponse
 }
 
@@ -43,6 +45,7 @@ type UpdateInput struct {
 	OnlineEnabled   *bool
 	TimeInterval    *int
 	MessageInterval *int
+	Platforms       []platform.Platform
 	Responses       []CreateResponse
 }
 

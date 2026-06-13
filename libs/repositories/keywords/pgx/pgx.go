@@ -33,9 +33,9 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
-func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Keyword, error) {
+func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.Keyword, error) {
 	query := `
-SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids
+SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids, platforms
 FROM channels_keywords
 WHERE "channelId" = $1
 `
@@ -54,7 +54,7 @@ WHERE "channelId" = $1
 	return result, nil
 }
 
-func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, error) {
+func (c *Pgx) CountByChannelID(ctx context.Context, channelID uuid.UUID) (int, error) {
 	query := `
 SELECT COUNT(*)
 FROM channels_keywords
@@ -72,7 +72,7 @@ WHERE "channelId" = $1
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Keyword, error) {
 	query := `
-SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids
+SELECT id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids, platforms
 FROM channels_keywords
 WHERE id = $1
 LIMIT 1;
@@ -94,9 +94,9 @@ LIMIT 1;
 
 func (c *Pgx) Create(ctx context.Context, input keywords.CreateInput) (model.Keyword, error) {
 	query := `
-INSERT INTO channels_keywords ("channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids
+INSERT INTO channels_keywords ("channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids, platforms)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages, roles_ids, platforms
 `
 
 	rolesIds := make([]string, len(input.RolesIDs))
@@ -117,6 +117,7 @@ RETURNING id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt"
 		input.IsRegular,
 		input.Usages,
 		rolesIds,
+		input.Platforms,
 	)
 	if err != nil {
 		return model.Nil, err
@@ -158,6 +159,8 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input keywords.UpdateInp
 
 		updateBuilder = updateBuilder.Set("roles_ids", rolesIds)
 	}
+
+	updateBuilder = updateBuilder.Set("platforms", input.Platforms)
 
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})
 

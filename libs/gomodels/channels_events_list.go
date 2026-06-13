@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"time"
+
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 type ChannelEventListItemType string
@@ -114,6 +116,7 @@ type ChannelsEventsListItem struct {
 	ID        string                      `gorm:"primary_key;column:id;type:TEXT;"`
 	ChannelID string                      `gorm:"column:channel_id;type:TEXT;"`
 	UserID    string                      `gorm:"column:user_id;type:TEXT"`
+	Platform  platform.Platform           `gorm:"column:platform;type:platform"`
 	Type      ChannelEventListItemType    `gorm:"column:type;type:TEXT;"`
 	Data      *ChannelsEventsListItemData `gorm:"column:data;type:JSONB;"`
 	CreatedAt time.Time                   `gorm:"column:created_at;data:timestamp;"`

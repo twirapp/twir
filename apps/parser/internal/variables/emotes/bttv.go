@@ -28,6 +28,11 @@ var BetterTTV = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		if parseCtx.Platform != "twitch" {
+			result.Result = "not supported on this platform"
+			return result, nil
+		}
+
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.betterttv.net/3/cached/users/twitch/"+parseCtx.Channel.ID, nil)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)

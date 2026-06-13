@@ -184,7 +184,10 @@ function handleCopyPreview() {
 					<p class="text-sm text-[hsl(240,11%,70%)]">
 						Custom domains are available only for authorized users.
 					</p>
-					<UiButton class="mt-3" @click="userStore.login">Login</UiButton>
+					<div class="flex flex-row items-center gap-2 mt-3">
+						<UiButton @click="userStore.login">Login with Twitch</UiButton>
+						<UiButton variant="outline" @click="userStore.loginWithKick()">Login with Kick</UiButton>
+					</div>
 				</div>
 
 				<div v-else class="space-y-4">

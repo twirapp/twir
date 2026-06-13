@@ -7,8 +7,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/repositories/users"
-	"github.com/twirapp/twir/libs/repositories/users/model"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 func (c *Service) SearchByName(ctx context.Context, query string) ([]helix.Channel, error) {
@@ -62,30 +61,17 @@ func (c *Service) SearchChannels(ctx context.Context, input SearchChannelsInput)
 	)
 
 	if input.TwirOnly {
-		channelIds := lo.Map(
-			channels, func(channel helix.Channel, _ int) string {
-				return channel.ID
-			},
-		)
-
-		existingUsers, err := c.usersRepository.GetManyByIDS(
-			ctx, users.GetManyInput{
-				IDs: channelIds,
-			},
-		)
-		if err != nil {
-			return nil, err
+		existingPlatformIds := make([]string, 0, len(channels))
+		for _, channel := range channels {
+			user, err := c.usersRepository.GetByPlatformID(ctx, platformentity.PlatformTwitch, channel.ID)
+			if err == nil {
+				existingPlatformIds = append(existingPlatformIds, user.PlatformID)
+			}
 		}
-
-		existingUserIds := lo.Map(
-			existingUsers, func(user model.User, _ int) string {
-				return user.ID
-			},
-		)
 
 		channels = lo.Filter(
 			channels, func(channel helix.Channel, _ int) bool {
-				return lo.Contains(existingUserIds, channel.ID)
+				return lo.Contains(existingPlatformIds, channel.ID)
 			},
 		)
 	}

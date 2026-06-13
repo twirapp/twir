@@ -79,11 +79,11 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		return nil
 	}
 
-	channel, err := c.channelsCache.Get(ctx, opts.BroadcasterID)
+	channel, err := c.channelsByTwitchIDCache.Get(ctx, opts.BroadcasterID)
 	if err != nil {
 		return err
 	}
-	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
+	if !channel.TwitchBotEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
 		return nil
 	}
 

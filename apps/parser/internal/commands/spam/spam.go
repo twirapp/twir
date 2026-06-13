@@ -63,7 +63,7 @@ var Command = &types.DefaultCommand{
 			return result, nil
 		}
 
-		cmds, err := parseCtx.Services.CommandsCache.Get(ctx, parseCtx.Channel.ID)
+		cmds, err := parseCtx.Services.CommandsCache.Get(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil {
 			return nil, err
 		}

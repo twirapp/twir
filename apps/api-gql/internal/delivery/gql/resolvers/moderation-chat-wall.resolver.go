@@ -8,18 +8,34 @@ package resolvers
 import (
 	"context"
 	"errors"
+	"fmt"
 
+	"github.com/google/uuid"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *chatWallLogResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.ChatWallLog) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return data_loader.GetHelixUserById(ctx, obj.UserID)
+	parsedUserID, err := uuid.Parse(obj.UserID)
+	if err != nil {
+		return nil, nil
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+	if err != nil {
+		if err == usersmodel.ErrNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	return data_loader.GetHelixUserById(ctx, user.PlatformID)
 }
 
 // ChatWallSettingsUpdate is the resolver for the chatWallSettingsUpdate field.

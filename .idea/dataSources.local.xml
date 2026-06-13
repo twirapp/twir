@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="dataSourceStorageLocal" created-in="GO-261.22158.291">
+  <component name="dataSourceStorageLocal" created-in="GO-261.25134.147">
     <data-source name="twir@localhost" uuid="81464bbc-5a37-4af4-b4bd-dd9c11018862">
       <database-info product="PostgreSQL" version="18.1 (Debian 18.1-1.pgdg13+2)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="18.1" exact-driver-version="42.7">
         <identifier-quote-string>&quot;</identifier-quote-string>
@@ -28,6 +28,21 @@
       <schema-mapping>
         <introspection-scope>
           <node kind="schema" qname="@" />
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="PRODUCTION" uuid="e80d28ec-72a9-4a66-9433-614060cc394e">
+      <database-info product="PostgreSQL" version="18.1 (Debian 18.1-1.pgdg13+2)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="18.1" exact-driver-version="42.7">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>twir</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+          </node>
         </introspection-scope>
       </schema-mapping>
     </data-source>

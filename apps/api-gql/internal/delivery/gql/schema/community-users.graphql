@@ -32,6 +32,7 @@ input CommunityUsersOpts {
 	sortBy: CommunityUsersSortBy
 	order: CommunityUsersOrder
 	search: String @validate(constraint: "max=50")
+	platforms: [Platform!]
 }
 
 type CommunityUsersResponse {
@@ -41,7 +42,12 @@ type CommunityUsersResponse {
 
 type CommunityUser implements TwirUser {
 	id: ID!
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	platform: Platform!
+	platformId: String!
+	login: String!
+	displayName: String!
+	avatar: String
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
 	watchedMs: Int!
 	messages: Int!
 	usedEmotes: Int!

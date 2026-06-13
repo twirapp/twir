@@ -5,16 +5,22 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 type User struct {
-	ID                string
+	ID                uuid.UUID
+	Platform          platform.Platform
+	PlatformID        string
 	TokenID           null.String
 	IsBotAdmin        bool
 	ApiKey            string
 	IsBanned          bool
 	HideOnLandingPage bool
 	CreatedAt         time.Time
+	Login             string
+	DisplayName       string
+	Avatar            string
 
 	isNil bool
 }
@@ -29,8 +35,8 @@ var Nil = User{
 
 type OnlineUser struct {
 	ID        uuid.UUID
-	ChannelID string
-	UserID    string
+	ChannelID uuid.UUID
+	UserID    uuid.UUID
 	UserName  string
 
 	isNil bool

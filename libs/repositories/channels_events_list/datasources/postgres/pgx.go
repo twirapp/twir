@@ -42,6 +42,9 @@ func (c *Pgx) CountBy(ctx context.Context, input channelseventslist.CountByInput
 	if input.UserID != nil {
 		query = query.Where(squirrel.Eq{"user_id": *input.UserID})
 	}
+	if input.Platform != nil {
+		query = query.Where(squirrel.Eq{"platform": *input.Platform})
+	}
 	if input.Type != nil {
 		query = query.Where(squirrel.Eq{"type": *input.Type})
 	}
@@ -78,12 +81,12 @@ func (c *Pgx) CountBy(ctx context.Context, input channelseventslist.CountByInput
 
 func (c *Pgx) Create(ctx context.Context, input channelseventslist.CreateInput) error {
 	query := `
-INSERT INTO channels_events_list (channel_id, user_id, type, data)
-VALUES ($1, $2, $3, $4)
+INSERT INTO channels_events_list (channel_id, user_id, platform, type, data)
+VALUES ($1, $2, $3, $4, $5)
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err := conn.Exec(ctx, query, input.ChannelID, input.UserID, input.Type, input.Data)
+	_, err := conn.Exec(ctx, query, input.ChannelID, input.UserID, input.Platform, input.Type, input.Data)
 	return err
 }
 
@@ -92,13 +95,14 @@ func (c *Pgx) CreateMany(ctx context.Context, inputs []channelseventslist.Create
 	_, err := conn.CopyFrom(
 		ctx,
 		pgx.Identifier{"channels_events_list"},
-		[]string{"channel_id", "user_id", "type", "data"},
+		[]string{"channel_id", "user_id", "platform", "type", "data"},
 		pgx.CopyFromSlice(
 			len(inputs),
 			func(i int) ([]any, error) {
 				return []any{
 					inputs[i].ChannelID,
 					inputs[i].UserID,
+					inputs[i].Platform,
 					inputs[i].Type,
 					inputs[i].Data,
 				}, nil

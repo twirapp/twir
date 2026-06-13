@@ -23,7 +23,7 @@ type ChannelsStreams struct {
 	TagIds       *pq.StringArray `gorm:"column:tagIds;type:text[];default:[];"       json:"tagIds"`
 	Tags         *pq.StringArray `gorm:"column:tags;type:text[];default:[];"         json:"tags"`
 	IsMature     bool            `gorm:"column:isMature;type:BOOL;"                  json:"isMature"`
-	Channel      *Channels       `gorm:"foreignKey:UserId"                           json:"channel"`
+	Channel      *Channels       `gorm:"foreignKey:UserId;references:TwitchUserID"   json:"channel"`
 }
 
 func (ChannelsStreams) TableName() string {

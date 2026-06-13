@@ -16,6 +16,6 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	UserID string
+	UserID uuid.UUID
 	RoleID uuid.UUID
 }

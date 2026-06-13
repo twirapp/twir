@@ -7,7 +7,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/goccy/go-json"
@@ -15,20 +14,21 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 )
 
 // TwirEvents is the resolver for the twirEvents field.
 func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<-chan gqlmodel.EventMessage, error) {
-	user := model.Users{}
-	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
+	if err != nil {
+		return nil, err
 	}
 
 	chann := make(chan gqlmodel.EventMessage, 1)
 
-	wsSubscription, err := r.deps.WsRouter.Subscribe([]string{twir_events.CreateSubscribeKey(user.ID)})
+	subscriptionKeys := buildTwirEventSubscriptionKeys(identity)
+
+	wsSubscription, err := r.deps.WsRouter.Subscribe(subscriptionKeys)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}

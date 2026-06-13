@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/go-redsync/redsync/v4"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/services/chat_wall"
@@ -16,6 +17,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/i18n"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
@@ -49,6 +51,7 @@ type Services struct {
 	Config                     *cfg.Config
 	Logger                     *zap.Logger
 	Gorm                       *gorm.DB
+	PgxPool                    *pgxpool.Pool
 	Sqlx                       *sqlx.DB
 	Redis                      *redis.Client
 	GrpcClients                *Grpc
@@ -61,6 +64,7 @@ type Services struct {
 	ChatWallService            *chat_wall.Service
 	RedSync                    *redsync.Redsync
 	CommandsLock               *redsync.Mutex
+	ChannelsRepo               channelsrepository.Repository
 	CommandsPrefixRepository   channelscommandsprefixrepository.Repository
 	TTSCache                   *generic_cacher.GenericCacher[modules.TTSSettings]
 	TTSRepository              overlays_tts.Repository

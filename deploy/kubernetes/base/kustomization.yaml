@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: twir
+resources:
+  - namespace.yaml
+  - service-accounts.yaml
+  - storage.yaml
+  - configmaps.yaml
+  - stateful.yaml
+  - poolers.yaml
+  - apps.yaml
+  - jobs.yaml
+  - ingress.yaml
+  - observability.yaml
+commonLabels:
+  app.kubernetes.io/part-of: twir

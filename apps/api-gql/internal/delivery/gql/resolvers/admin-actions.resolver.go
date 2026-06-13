@@ -7,9 +7,14 @@ package resolvers
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"time"
 
+	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 )
 
@@ -54,4 +59,47 @@ func (r *mutationResolver) EventsubInitChannels(ctx context.Context) (bool, erro
 	}
 
 	return true, nil
+}
+
+// KickBotSetupLink is the resolver for the kickBotSetupLink field.
+func (r *mutationResolver) KickBotSetupLink(ctx context.Context) (string, error) {
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return "", gqlerrors.HandleError(err)
+	}
+
+	if !user.IsBotAdmin {
+		return "", fmt.Errorf("not a bot admin")
+	}
+
+	if r.deps.KickProvider == nil {
+		return "", fmt.Errorf("kick provider is not configured")
+	}
+
+	state, err := generateSecureState()
+	if err != nil {
+		return "", fmt.Errorf("cannot generate state: %w", err)
+	}
+
+	codeVerifier, err := kickplatform.GenerateCodeVerifier()
+	if err != nil {
+		return "", fmt.Errorf("cannot generate code verifier: %w", err)
+	}
+
+	setupState := kickBotSetupState{
+		CodeVerifier: codeVerifier,
+		AdminUserID:  user.ID,
+	}
+
+	stateBytes, err := json.Marshal(setupState)
+	if err != nil {
+		return "", fmt.Errorf("cannot marshal setup state: %w", err)
+	}
+
+	if err := r.deps.KV.Set(ctx, kickBotSetupKvPrefix+":"+state, stateBytes, kvoptions.WithExpire(10*time.Minute)); err != nil {
+		return "", fmt.Errorf("cannot store setup state: %w", err)
+	}
+
+	codeChallenge := kickplatform.GenerateCodeChallenge(codeVerifier)
+	return r.deps.KickProvider.GetBotSetupAuthURL(state, codeChallenge), nil
 }

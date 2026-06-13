@@ -65,6 +65,7 @@ func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) g
 		ExpiresAt:                 nil, // will be set later
 		ExpiresType:               nil, // will be set later
 		RoleCooldowns:             nil, // will be set later
+		Platforms:                 PlatformsToStrings(e.Command.Platforms),
 	}
 
 	if e.Command.Cooldown != nil {
@@ -194,6 +195,7 @@ func CommandGqlInputToService(
 		ExpiresType:               expiresType,
 		Responses:                 responses,
 		RoleCooldowns:             roleCooldowns,
+		Platforms:                 StringsToPlatforms(input.Platforms.Value()),
 	}
 }
 

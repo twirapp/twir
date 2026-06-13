@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 
 import UserAccountSettings from './user-account-settings.vue'
+import UserLinkedAccounts from './user-linked-accounts.vue'
 import UserPublicSettings from './user-public-settings.vue'
 
 import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue'
@@ -18,6 +19,11 @@ const pageTabs: PageLayoutTab[] = [
 		name: 'public',
 		title: t('userSettings.public.title'),
 		component: UserPublicSettings
+	},
+	{
+		name: 'linked-accounts',
+		title: 'Linked Accounts',
+		component: UserLinkedAccounts
 	}
 ]
 </script>

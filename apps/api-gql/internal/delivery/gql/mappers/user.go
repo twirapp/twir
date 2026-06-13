@@ -6,11 +6,25 @@ import (
 )
 
 func UserWithChannelToAdminUser(e entity.UserWithChannel) gqlmodel.TwirAdminUser {
+	platform, err := EntityPlatformToGraphQL(e.User.Platform)
+	if err != nil {
+		platform = gqlmodel.PlatformTwitch
+	}
+
 	user := gqlmodel.TwirAdminUser{
-		ID:         e.User.ID,
-		IsBotAdmin: e.User.IsBotAdmin,
-		IsBanned:   e.User.IsBanned,
-		APIKey:     e.User.ApiKey,
+		ID:          e.User.ID,
+		Platform:    platform,
+		PlatformID:  e.User.PlatformID,
+		Login:       e.User.Login,
+		DisplayName: e.User.DisplayName,
+		Avatar:      &e.User.Avatar,
+		IsBotAdmin:  e.User.IsBotAdmin,
+		IsBanned:    e.User.IsBanned,
+		APIKey:      e.User.ApiKey,
+	}
+
+	if e.User.Avatar == "" {
+		user.Avatar = nil
 	}
 
 	if e.Channel != nil {

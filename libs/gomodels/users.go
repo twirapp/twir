@@ -17,10 +17,11 @@ var (
 
 type Users struct {
 	ID         string         `gorm:"primary_key;column:id;type:TEXT;"           json:"id"`
+	PlatformID string         `gorm:"column:platform_id;type:TEXT;"             json:"platformId"`
 	TokenID    sql.NullString `gorm:"column:tokenId;type:TEXT;"                  json:"tokenId"`
 	IsBotAdmin bool           `gorm:"column:isBotAdmin;type:BOOL;default:false;" json:"isBotAdmin"`
 	ApiKey     string         `gorm:"column:apiKey;type:TEXT;"                   json:"apiKey"`
-	Channel    *Channels      `gorm:"foreignKey:ID"                              json:"channel"`
+	Channel    *Channels      `gorm:"foreignKey:TwitchUserID"                    json:"channel"`
 	Token      *Tokens        `gorm:"foreignKey:TokenID"                         json:"token"`
 	Stats      *UsersStats    `gorm:"foreignKey:UserID"                          json:"stats"`
 	IsBanned   bool           `gorm:"column:is_banned;type:BOOL;"       json:"isBanned"`

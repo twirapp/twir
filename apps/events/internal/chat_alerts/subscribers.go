@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/samber/lo"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 type SubscribeMessage struct {
-	UserName  string `json:"user_name"`
-	Months    int    `json:"months"`
-	ChannelId string `json:"channel_id"`
+	UserName    string            `json:"user_name"`
+	Months      int               `json:"months"`
+	ChannelId   string            `json:"channel_id"`
+	ChannelName string            `json:"channel_name"`
+	Platform    platform.Platform `json:"platform"`
 }
 
 func (c *ChatAlerts) subscribe(
@@ -40,9 +44,12 @@ func (c *ChatAlerts) subscribe(
 	return c.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:      req.ChannelId,
-			Message:        sample,
-			SkipRateLimits: true,
+			ChannelName:       lo.If(req.ChannelName != "", &req.ChannelName).Else(nil),
+			ChannelId:         req.ChannelId,
+			PlatformChannelID: req.ChannelId,
+			Platform:          req.Platform.String(),
+			Message:           sample,
+			SkipRateLimits:    true,
 		},
 	)
 }

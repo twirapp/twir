@@ -15,6 +15,7 @@ import (
 	"github.com/avast/retry-go/v4"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type ErrRateLimit struct {
@@ -35,10 +36,10 @@ func (c *Manager) SubscribeWithLimits(
 	eventType eventsub.EventType,
 	eventTransport eventsub.Transport,
 	eventVersion string,
-	channelId,
+	broadcasterId string,
 	botId string,
 ) error {
-	condition, err := c.getConditionForTopic(eventType, channelId, botId)
+	condition, err := c.getConditionForTopic(eventType, broadcasterId, botId)
 	if err != nil {
 		return err
 	}
@@ -80,7 +81,7 @@ func (c *Manager) SubscribeWithLimits(
 	case eventsub.ConduitTransport:
 		appToken, err := c.twirBus.Tokens.RequestAppToken.Request(
 			ctx,
-			struct{}{},
+			tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch},
 		)
 		if err != nil {
 			return err
@@ -100,7 +101,7 @@ func (c *Manager) SubscribeWithLimits(
 	case eventsub.WebhookTransport:
 		appToken, err := c.twirBus.Tokens.RequestAppToken.Request(
 			ctx,
-			struct{}{},
+			tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch},
 		)
 		if err != nil {
 			return err
@@ -200,12 +201,13 @@ func (c *Manager) SubscribeWithLimits(
 
 func (c *Manager) getConditionForTopic(
 	eventType eventsub.EventType,
-	channelId, botId string,
+	broadcasterId string,
+	botId string,
 ) (eventsub.Condition, error) {
 	switch eventType {
 	case eventsub.EventTypeAutomodMessageHold:
 		return eventsub.AutomodMessageHoldCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			ModeratorUserId:   botId,
 		}, nil
 	case eventsub.EventTypeUserAuthorizationRevoke:
@@ -214,159 +216,159 @@ func (c *Manager) getConditionForTopic(
 		}, nil
 	case eventsub.EventTypeChannelFollow:
 		return eventsub.ChannelFollowCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			ModeratorUserId:   botId,
 		}, nil
 	case eventsub.EventTypeChannelBan:
 		return eventsub.ChannelBanCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelUnban:
 		return eventsub.ChannelUnbanCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelChatClear:
 		return eventsub.ChannelChatClearCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelChatClearUserMessages:
 		return eventsub.ChannelChatClearUserMessagesCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelChatMessage:
 		return eventsub.ChannelChatMessageCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelChatNotification:
 		return eventsub.ChannelChatNotificationCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelModeratorAdd:
 		return eventsub.ChannelModeratorAddCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelModeratorRemove:
 		return eventsub.ChannelModeratorRemoveCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPollBegin:
 		return eventsub.ChannelPollBeginCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPollProgress:
 		return eventsub.ChannelPollProgressCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPollEnd:
 		return eventsub.ChannelPollEndCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPredictionBegin:
 		return eventsub.ChannelPredictionBeginCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPredictionProgress:
 		return eventsub.ChannelPredictionProgressCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPredictionLock:
 		return eventsub.ChannelPredictionLockCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPredictionEnd:
 		return eventsub.ChannelPredictionEndCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelRaid:
 		return eventsub.ChannelRaidCondition{
-			ToBroadcasterUserId: channelId,
+			ToBroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPointsCustomRewardRedemptionAdd:
 		return eventsub.ChannelPointsCustomRewardRedemptionAddCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPointsCustomRewardRedemptionUpdate:
 		return eventsub.ChannelPointsCustomRewardRedemptionUpdateCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPointsAutomaticRewardRedemptionAdd:
 		return eventsub.ChannelPointsAutomaticRewardRedemptionAddCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPointsRewardAdd:
 		return eventsub.ChannelPointsCustomRewardAddCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPointsRewardUpdate:
 		return eventsub.ChannelPointsCustomRewardUpdateCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelPointsRewardRemove:
 		return eventsub.ChannelPointsCustomRewardRemoveCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeStreamOffline:
 		return eventsub.StreamOfflineCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeStreamOnline:
 		return eventsub.StreamOnlineCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelSubscribe:
 		return eventsub.ChannelSubscribeCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelSubscriptionEnd:
 		return eventsub.ChannelSubscriptionEndCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelSubscriptionMessage:
 		return eventsub.ChannelSubscriptionMessageCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelSubscriptionGift:
 		return eventsub.ChannelSubscriptionGiftCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelUnbanRequestCreate:
 		return eventsub.ChannelUnbanRequestCreateCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			ModeratorUserId:   botId,
 		}, nil
 	case eventsub.EventTypeChannelUnbanRequestResolve:
 		return eventsub.ChannelUnbanRequestResolveCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			ModeratorUserId:   botId,
 		}, nil
 	case eventsub.EventTypeUserUpdate:
 		return eventsub.UserUpdateCondition{
-			UserId: channelId,
+			UserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelVipAdd:
 		return eventsub.ChannelVIPAddCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelVipRemove:
 		return eventsub.ChannelVIPRemoveCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelMessageDelete:
 		return eventsub.ChannelChatMessageDeleteCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			UserId:            botId,
 		}, nil
 	case eventsub.EventTypeChannelUpdate:
 		return eventsub.ChannelUpdateCondition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 		}, nil
 	case eventsub.EventTypeChannelModerate:
 		return eventsub.ChannelModerateV2Condition{
-			BroadcasterUserId: channelId,
+			BroadcasterUserId: broadcasterId,
 			ModeratorUserId:   botId,
 		}, nil
 	default:

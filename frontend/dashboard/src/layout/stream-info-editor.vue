@@ -6,7 +6,7 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 
-import { useUserAccessFlagChecker } from "@/api/auth";
+import { useProfile, useUserAccessFlagChecker } from "@/api/auth";
 import { twitchSetChannelInformationMutation } from "@/api/twitch";
 import TwitchCategorySelector from "@/components/twitch-category-selector.vue";
 import { Button } from "@/components/ui/button";
@@ -70,14 +70,39 @@ watch(
 
 const titleLength = computed(() => values.title?.length ?? 0);
 
+const { data: profile } = useProfile();
+
+const selectedDashboard = computed(() => {
+	return profile.value?.availableDashboards.find(
+		(dashboard) => dashboard.id === profile.value?.selectedDashboardId,
+	);
+});
+
+const isTwitchDashboard = computed(() => selectedDashboard.value?.platform === "twitch");
+
 const informationUpdater = twitchSetChannelInformationMutation();
 
 const onSubmit = handleSubmit(async (formValues) => {
+	if (!isTwitchDashboard.value) {
+		return;
+	}
+
+	const mutationInput: { title?: string; categoryId?: string } = {};
+
+	if (userCanEditTitle.value) {
+		mutationInput.title = formValues.title;
+	}
+
+	if (userCanEditCategory.value) {
+		mutationInput.categoryId = formValues.categoryId;
+	}
+
+	if (!Object.keys(mutationInput).length) {
+		return;
+	}
+
 	try {
-		await informationUpdater.executeMutation({
-			categoryId: formValues.categoryId,
-			title: formValues.title,
-		});
+		await informationUpdater.executeMutation(mutationInput);
 		toast.success(t("sharedTexts.saved"));
 		open.value = false;
 	} catch (error) {
@@ -89,6 +114,9 @@ const userCanEditTitle = useUserAccessFlagChecker(ChannelRolePermissionEnum.Upda
 const userCanEditCategory = useUserAccessFlagChecker(
 	ChannelRolePermissionEnum.UpdateChannelCategory,
 );
+const canSubmit = computed(() => {
+	return isTwitchDashboard.value && (userCanEditTitle.value || userCanEditCategory.value);
+});
 </script>
 
 <template>
@@ -113,7 +141,7 @@ const userCanEditCategory = useUserAccessFlagChecker(
 									<Input
 										id="title"
 										v-bind="componentField"
-										:disabled="!userCanEditTitle"
+										:disabled="!isTwitchDashboard || !userCanEditTitle"
 										:placeholder="t('dashboard.statsWidgets.streamInfo.title')"
 									/>
 									<div class="flex justify-end">
@@ -139,7 +167,7 @@ const userCanEditCategory = useUserAccessFlagChecker(
 								<TwitchCategorySelector
 									id="category"
 									v-bind="componentField"
-									:disabled="!userCanEditCategory"
+									:disabled="!isTwitchDashboard || !userCanEditCategory"
 								/>
 							</FormControl>
 							<FormMessage />
@@ -151,7 +179,7 @@ const userCanEditCategory = useUserAccessFlagChecker(
 					<Button type="button" variant="outline" @click="open = false">
 						{{ t("sharedButtons.cancel") }}
 					</Button>
-					<Button type="submit" :disabled="informationUpdater.fetching.value">
+					<Button type="submit" :disabled="informationUpdater.fetching.value || !canSubmit">
 						{{
 							informationUpdater.fetching.value
 								? t("sharedButtons.saving")
