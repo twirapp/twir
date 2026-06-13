@@ -51,9 +51,7 @@ export default defineNuxtConfig({
 			{ code: 'uk', file: 'uk.json' },
 		],
 		defaultLocale: 'en',
-		lazy: true,
 		langDir: 'locales',
-		restructureDir: false,
 	},
 
 	icon: {

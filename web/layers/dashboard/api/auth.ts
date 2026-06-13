@@ -82,7 +82,7 @@ export const useProfile = createGlobalState(() => {
 		query: profileQuery,
 		variables: {},
 		context: {
-			key: 'AuthenticatedUser',
+			key: 'DashboardAuthenticatedUser',
 			additionalTypenames: [userInvalidateQueryKey],
 		},
 	})
