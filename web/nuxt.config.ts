@@ -96,6 +96,10 @@ export default defineNuxtConfig({
 				'clsx',
 				'tailwind-merge',
 				'class-variance-authority',
+				'zod',
+				'vee-validate',
+				'interactjs',
+				'vue3-moveable',
 			],
 		},
 		server: {
