@@ -8,6 +8,8 @@
 
 **Tech Stack:** Nuxt 4, Vue 3, urql v2, vee-validate v5, zod 4, shadcn-vue (Ui prefix), @nuxtjs/i18n, Tailwind CSS 4
 
+**Branch:** All work must be done on branch `refactor/dashboard-move-to-nuxt`. Create it from `main` before starting Task 1.
+
 ---
 
 ## File Map
