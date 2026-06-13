@@ -2,7 +2,7 @@ import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 const cacheKey = ['chatOverlays']
 

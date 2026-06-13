@@ -4,7 +4,7 @@ import { createGlobalState } from '@vueuse/core'
 import type { Event as GqlEvent, EventOperation as GqlEventOperation, EventOperationFilter as GqlEventOperationFilter } from '~/gql/graphql.js'
 
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export type Event = GqlEvent
 export type EventOperation = GqlEventOperation

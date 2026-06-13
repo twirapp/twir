@@ -2,7 +2,7 @@ import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export const integrationsPageCacheKey = 'integrationsPage'
 

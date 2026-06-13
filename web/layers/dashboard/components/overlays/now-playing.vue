@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import Card from '~~/layers/dashboard/components/overlays/card.vue'
 import { Dialog } from '@/components/ui/dialog'
-import NowPlaying from '@/pages/overlays/now-playing/now-playing.vue'
+import NowPlaying from '~~/layers/dashboard/pages/overlays/now-playing.vue'
 
 const { t } = useI18n()
 const isModalOpened = ref(false)

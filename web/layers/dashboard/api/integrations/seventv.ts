@@ -1,7 +1,7 @@
 import { useMutation, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export const useSevenTvIntegration = createGlobalState(() => {
 	const subscription = useSubscription({

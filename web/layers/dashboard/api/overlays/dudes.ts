@@ -1,6 +1,6 @@
 import { createGlobalState } from '@vueuse/core'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 import { useQuery } from '@urql/vue'
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
 import type { DudesOverlaySettings, DudesOverlaySettingsInput } from '~/gql/graphql.js'

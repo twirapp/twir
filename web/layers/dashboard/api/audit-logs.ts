@@ -4,7 +4,7 @@ import { ref, watch } from 'vue'
 
 import type { UserLogFragmentFragment } from '~/gql/graphql.js'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 import { AuditLogSystem, AuditOperationType } from '~/gql/graphql.js'
 
 graphql(`

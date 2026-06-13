@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@urql/vue'
 import { type MaybeRef, computed, unref } from 'vue'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 const channelOverlaysQuery = graphql(`
 	query ChannelOverlays {

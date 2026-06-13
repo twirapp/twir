@@ -3,7 +3,7 @@ import { unref } from 'vue'
 
 import type { MaybeRef } from 'vue'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export function useChannelUserInfo(userId: MaybeRef<string | null | undefined>, opts?: { manual?: boolean }) {
 	return useQuery({

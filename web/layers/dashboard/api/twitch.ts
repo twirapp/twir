@@ -1,12 +1,13 @@
+import type { MaybeRef, Ref } from 'vue'
+
 import { useQuery as useGqlQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, unref } from 'vue'
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 
-import type { MaybeRef, Ref } from 'vue'
+import type { TwitchGetUsersQuery, TwitchSearchChannelsQuery } from '~/gql/graphql.js'
 
 import { graphql } from '~/gql/gql.js'
-import { TwitchGetUsersQuery, TwitchSearchChannelsQuery } from '~/gql/graphql.js'
 
 type TwitchIn = MaybeRef<string | string[] | null>
 export function useTwitchGetUsers(opts: { ids?: TwitchIn; names?: TwitchIn }) {
@@ -185,12 +186,9 @@ export function useTwitchGetCategories(ids: MaybeRef<string[]>) {
 export function twitchSetChannelInformationMutation() {
 	return useMutation(
 		graphql(`
-			mutation TwitchSetChannelInformation(
-				$title: String
-				$categoryId: String
-			) {
-					twitchSetChannelInformation(title: $title, categoryId: $categoryId)
+			mutation TwitchSetChannelInformation($title: String, $categoryId: String) {
+				twitchSetChannelInformation(title: $title, categoryId: $categoryId)
 			}
-		`),
+		`)
 	)
 }

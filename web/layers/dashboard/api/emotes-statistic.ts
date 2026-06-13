@@ -8,7 +8,7 @@ import type {
 } from '~/gql/graphql.js'
 import type { Ref } from 'vue'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export type EmotesStatistics = EmotesStatisticQuery['emotesStatistics']['emotes']
 

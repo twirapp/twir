@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import { Input } from './ui/input'
+import { Input } from '@/components/ui/input'
 
 defineProps<{ placeholder?: string }>()
 

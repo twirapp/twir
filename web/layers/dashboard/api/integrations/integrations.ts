@@ -5,7 +5,7 @@ import {
 	useIntegrationsPageData,
 } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export const useIntegrations = createGlobalState(() => {
 	const refreshBroadcaster = new BroadcastChannel('integrations_broadcast_channel')

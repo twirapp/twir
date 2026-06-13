@@ -3,7 +3,7 @@ import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
 import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 const DiscordGuildInfoQuery = graphql(`
 	query DiscordIntegrationGuildInfo($guildId: String!) {

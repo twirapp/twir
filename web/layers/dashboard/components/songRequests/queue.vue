@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import ActionConfirm from '../ui/action-confirm.vue'
+import ActionConfirm from '@/components/ui/action-confirm'
 
 import type { Video } from '~~/layers/dashboard/components/songRequests/hook.js'
 

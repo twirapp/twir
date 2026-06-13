@@ -6,7 +6,7 @@ import { useTwitchGetUsers, useTwitchSearchChannels } from '~~/layers/dashboard/
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TagsInput, TagsInputItem, TagsInputItemDelete } from '@/components/ui/tags-input'
-import { resolveUserName } from '@/helpers'
+import { resolveUserName } from '~~/layers/dashboard/helpers'
 import type { AcceptableValue } from 'reka-ui'
 
 interface Props {

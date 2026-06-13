@@ -5,7 +5,7 @@ import { unref } from 'vue'
 import type { AdminToxicMessagesInput } from '~/gql/graphql.js'
 import type { MaybeRef } from 'vue'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export const useToxicMessagesAdminApi = createGlobalState(() => {
 	const invalidationKey = 'AdminToxicMessagesInvalidateKey'

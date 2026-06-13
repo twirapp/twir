@@ -4,7 +4,7 @@ import { createGlobalState } from '@vueuse/core'
 import type { GetAllScheduledVipsQuery } from '~/gql/graphql.js'
 
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 const invalidateKey = 'ScheduledVipsInvalidateKey'
 

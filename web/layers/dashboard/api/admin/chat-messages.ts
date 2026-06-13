@@ -1,6 +1,6 @@
 import { useSubscription } from '@urql/vue'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export function useAllChatMessagesSubscription() {
 	return useSubscription({
