@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useBotJoinPart, useBotStatuses } from '~/layers/dashboard/api/dashboard'
-import { BotJoinLeaveAction } from '~/gql/graphql.js'
+import type { BotJoinLeaveAction } from '~/gql/graphql.js'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,

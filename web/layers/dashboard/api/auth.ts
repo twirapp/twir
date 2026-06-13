@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, watch } from 'vue'
 
-import { graphql } from '~/gql/graphql.js'
+import { graphql } from '~/gql/gql.js'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 export const profileQuery = graphql(`

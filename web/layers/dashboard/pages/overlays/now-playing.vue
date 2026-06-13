@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useTheme } from '~/layers/dashboard/composables/use-theme.ts'
-import { graphql } from '~/gql'
+import { graphql } from '~/gql/gql.js'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 import NowPlayingForm from '~/layers/dashboard/pages/overlays/now-playing/now-playing-form.vue'
 import {
