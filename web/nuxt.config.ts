@@ -53,6 +53,10 @@ export default defineNuxtConfig({
 		],
 		defaultLocale: 'en',
 		langDir: 'locales',
+		compilation: {
+			strictMessage: false,
+			escapeHtml: false,
+		},
 	},
 
 	icon: {

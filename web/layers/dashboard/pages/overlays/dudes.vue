@@ -190,7 +190,7 @@ const addable = computed(() => {
 </template>
 
 <style scoped>
-@import '../styles.css';
+@import './styles.css';
 
 .iframe {
 	height: 100%;
