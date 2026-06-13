@@ -17,7 +17,7 @@ const router = useRouter()
 		:description="t('overlays.chat.description')"
 		overlay-path="chat"
 		:show-copy="false"
-		@open-settings="router.push({ name: 'ChatOverlay' })"
+		@open-settings="router.push('/dashboard/overlays/chat')"
 	>
 	</Card>
 </template>

@@ -9,7 +9,7 @@ const { items } = useModerationApi()
 const router = useRouter()
 
 function showForm(itemId: string) {
-	router.push({ name: 'ModerationForm', params: { id: itemId } })
+	router.push(`/dashboard/moderation/${itemId}`)
 }
 </script>
 

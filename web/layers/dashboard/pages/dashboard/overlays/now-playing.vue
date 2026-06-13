@@ -135,7 +135,7 @@ const nowPlayingTrack = computed(() => {
 			<AlertTitle>No enabled song integrations!</AlertTitle>
 			<AlertDescription>
 				Connect Spotify, Last.fm or VK in
-				<NuxtLink :to="{ name: 'integrations' }" class="text-primary hover:underline">
+				<NuxtLink to="/dashboard/integrations" class="text-primary hover:underline">
 					{{ t('sidebar.integrations') }}
 				</NuxtLink>
 				to use this overlay

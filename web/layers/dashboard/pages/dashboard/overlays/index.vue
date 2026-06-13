@@ -83,10 +83,7 @@ function editCustomOverlay(id?: string) {
 	}
 
 	return router.push({
-		name: 'registry-overlays-id',
-		params: {
-			id: id ?? 'new',
-		},
+		path: `/dashboard/registry/overlays/${id ?? 'new'}`,
 	})
 }
 </script>

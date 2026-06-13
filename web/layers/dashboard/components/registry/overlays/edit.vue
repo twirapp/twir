@@ -108,8 +108,7 @@ async function handleSave(project: OverlayProject) {
 	// If created new overlay, redirect to edit page
 	if (!project.id && newId) {
 		await router.replace({
-			name: 'RegistryOverlayEdit',
-			params: { id: newId },
+			path: `/dashboard/registry/overlays/${newId}`,
 		})
 	}
 }

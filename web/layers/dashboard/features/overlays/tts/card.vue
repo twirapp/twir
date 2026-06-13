@@ -20,7 +20,7 @@ const router = useRouter()
 		:description="t('overlays.tts.description')"
 		overlay-path="tts"
 		:copy-disabled="!settings || !!error || !!fetching"
-		@open-settings="router.push({ name: 'TTSOverlay' })"
+		@open-settings="router.push('/dashboard/overlays/tts')"
 	>
 	</card>
 </template>

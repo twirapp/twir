@@ -17,7 +17,7 @@ const router = useRouter();
 		:description="t('overlays.kappagen.description')"
 		overlay-path="kappagen"
 		:show-copy="false"
-		@open-settings="router.push({ name: 'KappagenOverlay' })"
+		@open-settings="router.push('/dashboard/overlays/kappagen')"
 	>
 	</card>
 </template>

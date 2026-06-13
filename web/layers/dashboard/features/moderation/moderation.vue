@@ -53,7 +53,7 @@ const tabs: PageLayoutTab[] = [
 ]
 
 function createNewRule(ruleType: ModerationSettingsType) {
-	router.push({ name: 'ModerationForm', query: { ruleType }, params: { id: 'new' } })
+	router.push({ path: `/dashboard/moderation/new`, query: { ruleType } })
 }
 </script>
 

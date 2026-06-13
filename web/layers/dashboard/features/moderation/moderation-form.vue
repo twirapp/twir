@@ -78,7 +78,7 @@ onMounted(async () => {
 		setFieldValue('type', type)
 		setFieldValue('name', t(`moderation.types.${type}.name`))
 	} else {
-		router.push({ name: 'Moderation' })
+		router.push('/dashboard/moderation')
 	}
 })
 

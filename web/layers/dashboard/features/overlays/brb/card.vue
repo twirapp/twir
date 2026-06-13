@@ -20,7 +20,7 @@ const router = useRouter()
 		:description="t('overlays.brb.description')"
 		overlay-path="brb"
 		:copy-disabled="!settings || !!error || !!fetching"
-		@open-settings="router.push({ name: 'BrbOverlay' })"
+		@open-settings="router.push('/dashboard/overlays/brb')"
 	>
 	</card>
 </template>

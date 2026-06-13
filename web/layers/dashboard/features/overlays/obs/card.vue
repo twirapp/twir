@@ -17,7 +17,7 @@ const router = useRouter()
 		:description="t('overlays.obs.description')"
 		overlay-path="obs"
 		:showCopy="false"
-		@open-settings="router.push({ name: 'ObsOverlay' })"
+		@open-settings="router.push('/dashboard/overlays/obs')"
 	>
 	</Card>
 </template>

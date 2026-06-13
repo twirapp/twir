@@ -75,7 +75,7 @@ const integrationsHooks: {
 onMounted(async () => {
 	const integrationName = route.params.integrationName
 	if (!integrationName || typeof integrationName !== 'string') {
-		router.push({ name: 'integrations' })
+		router.push('/dashboard/integrations')
 		return
 	}
 
@@ -88,7 +88,7 @@ onMounted(async () => {
 		if (integration?.closeWindow) {
 			window.close()
 		} else {
-			router.push({ name: 'integrations' })
+			router.push('/dashboard/integrations')
 		}
 		return
 	}
@@ -100,7 +100,7 @@ onMounted(async () => {
 			if (integration.closeWindow) {
 				window.close()
 			} else {
-				router.push({ name: 'integrations' })
+				router.push('/dashboard/integrations')
 			}
 		}
 		return
@@ -117,7 +117,7 @@ onMounted(async () => {
 				}
 				window.close()
 			} else {
-				router.push({ name: 'integrations' })
+				router.push('/dashboard/integrations')
 			}
 		})
 		return
@@ -126,7 +126,7 @@ onMounted(async () => {
 	if (integration?.closeWindow) {
 		window.close()
 	} else {
-		router.push({ name: 'integrations' })
+		router.push('/dashboard/integrations')
 	}
 })
 </script>

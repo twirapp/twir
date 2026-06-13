@@ -21,7 +21,7 @@ const { t } = useI18n()
 		</CardContent>
 
 		<CardFooter class="mt-auto">
-			<RouterLink v-slot="{ href, navigate }" custom :to="{ name: 'ValorantStatsOverlay' }">
+			<RouterLink v-slot="{ href, navigate }" custom to="/dashboard/overlays/valorant-stats">
 				<Button
 					as="a"
 					:href="href"

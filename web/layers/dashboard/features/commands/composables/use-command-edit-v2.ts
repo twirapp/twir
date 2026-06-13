@@ -1,6 +1,5 @@
 import type { TypeOf } from 'zod';
 
-import { createGlobalState } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -84,7 +83,7 @@ export const formSchema = object({
 
 export type FormSchema = TypeOf<typeof formSchema>;
 
-export const useCommandEditV2 = createGlobalState(() => {
+export function useCommandEditV2() {
 	const { t } = useI18n();
 	const router = useRouter();
 
@@ -158,4 +157,4 @@ export const useCommandEditV2 = createGlobalState(() => {
 		command,
 		isCustom,
 	};
-});
+}

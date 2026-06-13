@@ -16,7 +16,7 @@ const router = useRouter();
 		title="Dudes"
 		:description="t('overlays.dudes.description')"
 		:show-copy="false"
-		@open-settings="router.push({ name: 'DudesOverlay' })"
+		@open-settings="router.push('/dashboard/overlays/dudes')"
 	>
 	</card>
 </template>

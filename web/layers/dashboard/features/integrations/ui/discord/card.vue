@@ -44,7 +44,7 @@ function getGuildIconUrl(guildId: string, icon: string | null | undefined) {
 
 		<CardFooter class="mt-auto">
 			<div class="flex justify-between flex-wrap items-center gap-4 w-full">
-				<RouterLink custom v-slot="{ href, navigate }" :to="{ name: 'DiscordIntegration' }">
+				<RouterLink custom v-slot="{ href, navigate }" to="/dashboard/integrations/discord">
 					<Button
 						:disabled="!userCanManageIntegrations"
 						variant="secondary"
