@@ -1,8 +1,8 @@
 import path from 'node:path'
 import process from 'node:process'
 
-import tailwindcss from '@tailwindcss/vite'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import tailwindcss from '@tailwindcss/vite'
 
 import gqlcodegen from './modules/gql-codegen'
 
@@ -95,10 +95,17 @@ export default defineNuxtConfig({
 				'vue-sonner',
 				'clsx',
 				'tailwind-merge',
+				'class-variance-authority',
 			],
 		},
 		server: {
 			allowedHosts: ['dev.twir.app', 'localhost'],
+			fs: {
+				allow: [
+					'/home/satont/Documents/Projects/twir',
+					'/home/satont/Documents/Projects/twir/node_modules/.bun',
+				],
+			},
 		},
 	},
 	css: ['~/assets/css/tailwind.css', '~/assets/css/global.css'],
