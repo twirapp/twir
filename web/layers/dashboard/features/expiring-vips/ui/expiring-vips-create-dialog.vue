@@ -6,7 +6,7 @@ import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
 import { z } from "zod";
 
-import { useScheduledVipsApi } from "@/api/scheduled-vips.ts";
+import { useScheduledVipsApi } from "@/api/scheduled-vips.js";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";

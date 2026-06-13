@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { useFaceitIntegration } from '@/api/integrations/faceit.ts'
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
+import { useFaceitIntegration } from '@/api/integrations/faceit.js'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
 import IconFaceit from '@/assets/integrations/faceit.svg?use'
 import OauthComponent from '@/components/integrations/variants/oauth.vue'
 import { Label } from '@/components/ui/label'

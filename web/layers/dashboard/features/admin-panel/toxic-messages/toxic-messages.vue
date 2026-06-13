@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useAdminToxicMessagesApi } from './composables/use-admin-toxic-mesasges-api.ts'
-import { useAdminToxicMessagesTable } from './composables/use-admin-toxic-messages-table.ts'
+import { useAdminToxicMessagesApi } from './composables/use-admin-toxic-mesasges-api.js'
+import { useAdminToxicMessagesTable } from './composables/use-admin-toxic-messages-table.js'
 
 import Pagination from '@/components/pagination.vue'
 import Table from '@/components/table.vue'

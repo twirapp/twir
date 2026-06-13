@@ -4,7 +4,7 @@ import DonateDescription from '@/components/integrations/helpers/donateDescripti
 import WithSettings from '@/components/integrations/variants/withSettings.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import CopyInput from '@/components/ui/copy-input/CopyInput.vue'
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
 
 const integrationsPage = useIntegrationsPageData()
 

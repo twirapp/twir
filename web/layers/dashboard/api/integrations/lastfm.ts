@@ -1,8 +1,8 @@
 import { createGlobalState } from '@vueuse/core'
-import { useMutation } from '@/composables/use-mutation.ts'
+import { useMutation } from '@/composables/use-mutation.js'
 
 import { graphql } from '@/gql'
-import { integrationsPageCacheKey } from '@/api/integrations/integrations-page.ts'
+import { integrationsPageCacheKey } from '@/api/integrations/integrations-page.js'
 
 export const useLastfmIntegrationApi = createGlobalState(() => {
 	const usePostCodeMutation = () =>

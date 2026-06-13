@@ -7,7 +7,7 @@ import Oauth from '@/components/integrations/variants/oauth.vue'
 import {
 	useValorantIntegration,
 	valorantBroadcaster,
-} from '@/features/integrations/composables/valorant/use-valorant-integration.ts'
+} from '@/features/integrations/composables/valorant/use-valorant-integration.js'
 
 const { t } = useI18n()
 

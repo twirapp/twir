@@ -15,7 +15,7 @@ import { z } from 'zod'
 
 import type { ModerationItem } from '@/api/moderation'
 
-import { ModerationSettingsType } from '@/gql/graphql.ts'
+import { ModerationSettingsType } from '@/gql/graphql.js'
 
 export type EditableItem = Omit<
 	Omit<ModerationItem, 'id'> & {

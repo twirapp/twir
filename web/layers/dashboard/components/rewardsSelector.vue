@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useTwitchRewardsNew } from '@/api/twitch.ts'
+import { useTwitchRewardsNew } from '@/api/twitch.js'
 import RewardFallbackImg from '@/assets/images/reward-fallback.png?url'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {

@@ -1,9 +1,9 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { ModerationSettingsCreateOrUpdateInput, ModerationSettingsItem } from '@/gql/graphql.ts'
+import type { ModerationSettingsCreateOrUpdateInput, ModerationSettingsItem } from '@/gql/graphql.js'
 
-import { useMutation } from '@/composables/use-mutation.ts'
+import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql'
 
 export const useModerationAvailableLanguages = createGlobalState(() => {

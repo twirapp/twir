@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const { t } = useI18n()
 

@@ -1,11 +1,11 @@
 import { createGlobalState } from '@vueuse/core'
 
-import { useMutation } from '@/composables/use-mutation.ts'
+import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql'
 import {
 	integrationsPageCacheKey,
 	useIntegrationsPageData,
-} from '@/api/integrations/integrations-page.ts'
+} from '@/api/integrations/integrations-page.js'
 
 export const useFaceitIntegration = createGlobalState(() => {
 	const faceitBroadcaster = new BroadcastChannel('faceit_channel')

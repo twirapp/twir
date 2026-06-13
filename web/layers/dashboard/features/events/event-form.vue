@@ -11,8 +11,8 @@ import { EventType, useEventsApi } from '@/api/events'
 import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'
 import EventVariables from '@/features/events/components/event-variables.vue'
-import { eventFormSchema } from '@/features/events/event-form-schema.ts'
-import { EventOperationType } from '@/gql/graphql'
+import { eventFormSchema } from '@/features/events/event-form-schema.js'
+import { EventOperationType } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()

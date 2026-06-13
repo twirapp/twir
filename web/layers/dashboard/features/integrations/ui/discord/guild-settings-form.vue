@@ -43,8 +43,8 @@ import { useProfile } from '@/api/auth'
 import {
 	type DiscordGuildUpdateInputInput,
 	DiscordGuildUpdateInputSchema,
-} from '@/gql/validation-schemas.ts'
-import { DiscordChannelType } from '@/gql/graphql.ts'
+} from '@/gql/validation-schemas.js'
+import { DiscordChannelType } from '@/gql/graphql.js'
 
 const props = defineProps<{
 	guildId: string

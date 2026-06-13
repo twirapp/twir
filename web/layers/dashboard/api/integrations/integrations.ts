@@ -3,8 +3,8 @@ import { createGlobalState } from '@vueuse/core'
 import {
 	integrationsPageCacheKey,
 	useIntegrationsPageData,
-} from '@/api/integrations/integrations-page.ts'
-import { useMutation } from '@/composables/use-mutation.ts'
+} from '@/api/integrations/integrations-page.js'
+import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql'
 
 export const useIntegrations = createGlobalState(() => {

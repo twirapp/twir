@@ -1,11 +1,11 @@
 import { createGlobalState, debouncedRef } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import type { TwitchRedemptionsOpts } from '@/gql/graphql.ts'
+import type { TwitchRedemptionsOpts } from '@/gql/graphql.js'
 
 import { useProfile } from '@/api/auth'
 import { useTwitchRewardsNew } from '@/api/twitch'
-import { usePagination } from '@/composables/use-pagination.ts'
+import { usePagination } from '@/composables/use-pagination.js'
 
 export const useCommunityRewardsHistoryQuery = createGlobalState(() => {
 	const { data: profile } = useProfile()

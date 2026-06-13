@@ -21,7 +21,7 @@ import { useCommunityRewardsApi } from '@/api/community-rewards'
 import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 import {
 	useCommunityRewardsHistoryQuery,
-} from '@/features/community-rewards-history/composables/community-rewards-history-query.ts'
+} from '@/features/community-rewards-history/composables/community-rewards-history-query.js'
 import { graphql } from '@/gql/gql.js'
 import { valueUpdater } from '@/helpers/value-updater'
 

@@ -3,9 +3,9 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
 
-import type { ScheduledVip } from "@/api/scheduled-vips.ts";
+import type { ScheduledVip } from "@/api/scheduled-vips.js";
 
-import { useScheduledVipsApi } from "@/api/scheduled-vips.ts";
+import { useScheduledVipsApi } from "@/api/scheduled-vips.js";
 import {
 	AlertDialog,
 	AlertDialogAction,

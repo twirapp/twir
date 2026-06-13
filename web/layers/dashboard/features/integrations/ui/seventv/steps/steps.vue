@@ -8,7 +8,7 @@ import {
 	StepperTitle,
 	StepperTrigger,
 } from '@/components/ui/stepper'
-import { useSeventvSteps } from '@/features/integrations/composables/seventv/use-seventv-steps.ts'
+import { useSeventvSteps } from '@/features/integrations/composables/seventv/use-seventv-steps.js'
 
 const {
 	currentStep,

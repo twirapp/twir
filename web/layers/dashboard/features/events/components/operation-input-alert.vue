@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import { useAlertsApi } from '@/api/alerts.ts'
+import { useAlertsApi } from '@/api/alerts.js'
 import {
 	FormControl,
 	FormField,

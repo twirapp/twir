@@ -7,7 +7,7 @@ import { useI18n } from "vue-i18n";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { useGiveaways } from "@/features/giveaways/composables/giveaways-use-giveaways.ts";
+import { useGiveaways } from "@/features/giveaways/composables/giveaways-use-giveaways.js";
 
 const { t } = useI18n();
 

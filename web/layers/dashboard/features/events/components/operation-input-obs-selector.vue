@@ -3,7 +3,7 @@ import { useField } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EventOperation } from '@/api/events.ts'
+import type { EventOperation } from '@/api/events.js'
 
 import { useObsWebsocketApi } from '@/api/overlays-obs'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -15,7 +15,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { EventOperationType } from '@/gql/graphql.ts'
+import { EventOperationType } from '@/gql/graphql.js'
 
 const props = defineProps<{
 	operationIndex: number

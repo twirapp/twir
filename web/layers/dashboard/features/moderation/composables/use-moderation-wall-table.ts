@@ -3,9 +3,9 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ChatWall } from '@/api/moderation-chat-wall.ts'
+import type { ChatWall } from '@/api/moderation-chat-wall.js'
 
-import { useModerationChatWall } from '@/api/moderation-chat-wall.ts'
+import { useModerationChatWall } from '@/api/moderation-chat-wall.js'
 import ChatWallAction from '@/features/moderation/ui/chat-wall-action.vue'
 import ChatWallLog from '@/features/moderation/ui/chat-wall-log.vue'
 

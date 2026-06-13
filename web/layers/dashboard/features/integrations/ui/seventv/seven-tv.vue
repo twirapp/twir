@@ -7,8 +7,8 @@ import SevenTVSvg from '@/assets/integrations/seventv.svg?use'
 import WithSettings from '@/components/integrations/variants/withSettings.vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import CommandsList from '@/features/commands/ui/list.vue'
-import { useSeventvData } from '@/features/integrations/composables/seventv/use-seventv-data.ts'
-import { useSeventvSteps } from '@/features/integrations/composables/seventv/use-seventv-steps.ts'
+import { useSeventvData } from '@/features/integrations/composables/seventv/use-seventv-data.js'
+import { useSeventvSteps } from '@/features/integrations/composables/seventv/use-seventv-steps.js'
 import Steps from '@/features/integrations/ui/seventv/steps/steps.vue'
 
 const { t } = useI18n()

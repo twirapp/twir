@@ -5,10 +5,10 @@ import { EyeIcon } from 'lucide-vue-next';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import type { Giveaway } from '@/api/giveaways.ts';
+import type { Giveaway } from '@/api/giveaways.js';
 
 import { Button } from '@/components/ui/button';
-import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts';
+import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.js';
 
 export const useGiveawaysHistoryTable = createGlobalState(() => {
 	const { t } = useI18n();

@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import RoleModal from './ui/modal.vue'
 
-import type { ChannelRolesQuery } from '@/gql/graphql'
+import type { ChannelRolesQuery } from '@/gql/graphql.js'
 
 import { useUserAccessFlagChecker } from '@/api/auth'
 import { useRoles } from '@/api/roles'
@@ -13,7 +13,7 @@ import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ChannelRolePermissionEnum, RoleTypeEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum, RoleTypeEnum } from '@/gql/graphql.js'
 
 const rolesManager = useRoles()
 const { data: roles } = rolesManager.useRolesQuery()

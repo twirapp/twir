@@ -1,7 +1,7 @@
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 
-import { KappagenEmojiStyle, KappagenOverlayAnimationStyle } from '@/gql/graphql'
+import { KappagenEmojiStyle, KappagenOverlayAnimationStyle } from '@/gql/graphql.js'
 
 const schema = z.object({
 	enableSpawn: z.boolean().default(true),

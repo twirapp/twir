@@ -15,7 +15,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { useOverlayBuilder } from './composables/useOverlayBuilder'
-import { type ChannelOverlayLayer, ChannelOverlayLayerType } from '@/gql/graphql'
+import { type ChannelOverlayLayer, ChannelOverlayLayerType } from '@/gql/graphql.js'
 import type { Layer, OverlayProject } from './types'
 
 interface InitialProjectLayer {

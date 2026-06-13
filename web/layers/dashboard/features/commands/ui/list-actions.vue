@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import type { Command } from '@/gql/graphql'
+import type { Command } from '@/gql/graphql.js'
 
 import { useUserAccessFlagChecker } from '@/api/auth'
 import { useCommandsApi } from '@/api/commands/commands.js'
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const props = defineProps<{ row: Command }>()
 const router = useRouter()

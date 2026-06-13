@@ -2,10 +2,10 @@
 import Pagination from '@/components/pagination.vue'
 import {
 	useAdminShortUrlsApi,
-} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-api.ts'
+} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-api.js'
 import {
 	useAdminShortUrlsTable,
-} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-table.ts'
+} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-table.js'
 import ShortUrlsPage from '@/features/admin-panel/short-urls/ui/short-urls-page.vue'
 
 const table = useAdminShortUrlsTable()

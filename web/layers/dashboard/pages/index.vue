@@ -8,8 +8,8 @@ import CustomWidget from "~~/layers/dashboard/components/dashboard/custom-widget
 import Events from "~~/layers/dashboard/components/dashboard/events.vue";
 import Stream from "~~/layers/dashboard/components/dashboard/stream.vue";
 import WidgetStackTabs from "~~/layers/dashboard/components/dashboard/widget-stack-tabs.vue";
-import { useWidgetStacks } from "~~/layers/dashboard/components/dashboard/widget-stacks.ts";
-import { type WidgetItem, useWidgets } from "~~/layers/dashboard/components/dashboard/widgets.ts";
+import { useWidgetStacks } from "~~/layers/dashboard/components/dashboard/widget-stacks.js";
+import { type WidgetItem, useWidgets } from "~~/layers/dashboard/components/dashboard/widgets.js";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -28,7 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useIsMobile } from "~~/layers/dashboard/composables/use-is-mobile";
-import { useDashboardWidgetsCreateCustom } from "~~/layers/dashboard/api/dashboard-widgets-layout.ts";
+import { useDashboardWidgetsCreateCustom } from "~~/layers/dashboard/api/dashboard-widgets-layout.js";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";

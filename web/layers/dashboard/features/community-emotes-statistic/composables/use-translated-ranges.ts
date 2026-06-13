@@ -2,7 +2,7 @@ import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { EmoteStatisticRange } from '@/gql/graphql'
+import { EmoteStatisticRange } from '@/gql/graphql.js'
 
 export const useTranslatedRanges = createGlobalState(() => {
 	const { t } = useI18n()

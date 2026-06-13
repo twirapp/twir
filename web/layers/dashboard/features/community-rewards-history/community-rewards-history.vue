@@ -5,7 +5,7 @@ import CommunityRewardsPage from './ui/community-rewards-history-page.vue'
 import Pagination from '@/components/pagination.vue'
 import {
 	useCommunityRewardsHistoryQuery,
-} from '@/features/community-rewards-history/composables/community-rewards-history-query.ts'
+} from '@/features/community-rewards-history/composables/community-rewards-history-query.js'
 
 const rewardsTable = useCommunityRewardsTable()
 const query = useCommunityRewardsHistoryQuery()

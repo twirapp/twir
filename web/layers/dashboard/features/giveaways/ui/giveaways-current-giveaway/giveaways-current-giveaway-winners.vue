@@ -2,10 +2,10 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ChatMessage } from '@/api/chat-messages.ts'
+import type { ChatMessage } from '@/api/chat-messages.js'
 
-import { useChatMessagesApi } from '@/api/chat-messages.ts'
-import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts'
+import { useChatMessagesApi } from '@/api/chat-messages.js'
+import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.js'
 import GiveawaysCurrentGiveawayWinnersProfile from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners-profile.vue'
 
 const { t } = useI18n()

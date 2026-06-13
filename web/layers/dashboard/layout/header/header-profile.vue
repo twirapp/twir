@@ -19,8 +19,8 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { useTheme } from '~~/layers/dashboard/composables/use-theme.ts'
-import { AVAILABLE_LOCALES } from '~~/layers/dashboard/config/i18n-locales.ts'
+import { useTheme } from '~~/layers/dashboard/composables/use-theme.js'
+import { AVAILABLE_LOCALES } from '~~/layers/dashboard/config/i18n-locales.js'
 import { Button } from '@/components/ui/button'
 import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
 import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'

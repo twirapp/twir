@@ -5,10 +5,10 @@ import { useI18n } from 'vue-i18n'
 
 import ExpiringVipsTableActions from '../ui/expiring-vips-table-actions.vue'
 
-import type { ScheduledVip } from '@/api/scheduled-vips.ts'
+import type { ScheduledVip } from '@/api/scheduled-vips.js'
 import type { ColumnDef } from '@tanstack/vue-table'
 
-import { useScheduledVipsApi } from '@/api/scheduled-vips.ts'
+import { useScheduledVipsApi } from '@/api/scheduled-vips.js'
 import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 
 export const useExpiringVipsTable = createGlobalState(() => {

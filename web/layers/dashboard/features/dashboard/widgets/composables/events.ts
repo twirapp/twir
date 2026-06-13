@@ -2,7 +2,7 @@ import { createGlobalState, useLocalStorage } from '@vueuse/core'
 import { computed } from 'vue'
 
 import { useDashboardEvents } from '@/api/dashboard'
-import { DashboardEventType } from '@/gql/graphql'
+import { DashboardEventType } from '@/gql/graphql.js'
 
 export const useEvents = createGlobalState(() => {
 	const enabledEventsOptions = [

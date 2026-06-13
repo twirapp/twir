@@ -3,11 +3,11 @@ import { ref } from "vue";
 import { toast } from "vue-sonner";
 
 import Card from "./card.vue";
-import type { WidgetItem } from "@/components/dashboard/widgets.ts";
+import type { WidgetItem } from "@/components/dashboard/widgets.js";
 import {
 	useDashboardWidgetsDelete,
 	useDashboardWidgetsUpdateCustom,
-} from "@/api/dashboard-widgets-layout.ts";
+} from "@/api/dashboard-widgets-layout.js";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import {

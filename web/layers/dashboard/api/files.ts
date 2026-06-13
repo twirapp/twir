@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import { useMutation } from '@/composables/use-mutation.ts'
+import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql'
 
 export const useFilesApi = createGlobalState(() => {

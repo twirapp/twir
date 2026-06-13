@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WidgetItem } from "./widgets.ts";
+import type { WidgetItem } from "./widgets.js";
 
 interface Props {
 	stack: WidgetItem[];

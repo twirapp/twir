@@ -25,7 +25,7 @@ import { useProfile } from '@/api/auth'
 import UnbanRequestCreated from '@/components/dashboard/events/unban-request-created.vue'
 import UnbanRequestResolved from '@/components/dashboard/events/unban-request-resolved.vue'
 import { useEvents } from '@/features/dashboard/widgets/composables/events'
-import { DashboardEventType } from '@/gql/graphql'
+import { DashboardEventType } from '@/gql/graphql.js'
 
 const props = defineProps<{
 	popup?: boolean

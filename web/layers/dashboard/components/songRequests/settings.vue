@@ -6,13 +6,13 @@ import { toast } from 'vue-sonner'
 
 import RewardsSelector from '../rewardsSelector.vue'
 
-import type { SongRequestsSettingsOpts } from '@/gql/graphql'
+import type { SongRequestsSettingsOpts } from '@/gql/graphql.js'
 
 import { useCommandsApi } from '@/api/commands/commands'
 import { useSongRequestsApi } from '@/api/song-requests'
 import TwitchSearchUsers from '@/components/twitchUsers/twitch-users-select.vue'
 import CommandsList from '@/features/commands/ui/list.vue'
-import { SongRequestsSearchChannelOrVideoOptsType } from '@/gql/graphql'
+import { SongRequestsSearchChannelOrVideoOptsType } from '@/gql/graphql.js'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

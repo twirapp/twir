@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import formatJson from '@crashmax/json-format-highlight'
 
-import type { AdminAuditLogsQuery } from '@/gql/graphql'
+import type { AdminAuditLogsQuery } from '@/gql/graphql.js'
 
 import {
 	Accordion,

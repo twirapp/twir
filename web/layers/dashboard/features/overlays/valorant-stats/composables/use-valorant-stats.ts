@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 import type { Settings } from '@twir/frontend-valorant-stats'
 
-import { useProfile } from '@/api/auth.ts'
+import { useProfile } from '@/api/auth.js'
 import { toast } from 'vue-sonner'
 
 export const useValorantStats = createGlobalState(() => {

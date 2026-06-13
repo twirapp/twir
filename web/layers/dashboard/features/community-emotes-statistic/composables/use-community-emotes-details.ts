@@ -1,11 +1,11 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import type { EmotesStatisticEmoteDetailedOpts } from '@/gql/graphql'
+import type { EmotesStatisticEmoteDetailedOpts } from '@/gql/graphql.js'
 
 import { useEmotesStatisticDetailsQuery } from '@/api/emotes-statistic'
 import { usePagination } from '@/composables/use-pagination'
-import { EmoteStatisticRange } from '@/gql/graphql'
+import { EmoteStatisticRange } from '@/gql/graphql.js'
 
 export const useCommunityEmotesDetailsName = createGlobalState(() => {
 	const emoteName = ref<string>()

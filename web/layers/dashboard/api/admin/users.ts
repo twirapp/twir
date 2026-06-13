@@ -1,6 +1,6 @@
 import { useQuery } from '@urql/vue'
 
-import type { TwirUsersSearchParams, UsersGetAllQuery } from '@/gql/graphql'
+import type { TwirUsersSearchParams, UsersGetAllQuery } from '@/gql/graphql.js'
 import type { Ref } from 'vue'
 
 import { useMutation } from '@/composables/use-mutation.js'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { EventType } from '@/gql/graphql.ts'
+import type { EventType } from '@/gql/graphql.js'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -12,8 +12,8 @@ import {
 	CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useEventsTable } from '@/features/events/composables/use-events-table.ts'
-import { EventsOptions } from '@/features/events/constants/events.ts'
+import { useEventsTable } from '@/features/events/composables/use-events-table.js'
+import { EventsOptions } from '@/features/events/constants/events.js'
 
 const table = useEventsTable()
 

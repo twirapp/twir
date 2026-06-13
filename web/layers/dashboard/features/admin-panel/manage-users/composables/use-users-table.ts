@@ -15,7 +15,7 @@ import UsersBadgeSelector from '../ui/users-badge-selector.vue'
 import UsersTableCellUser from '../ui/users-table-cell-user.vue'
 
 import type { User } from '@/api/admin/users.js'
-import type { TwirUsersSearchParams } from '@/gql/graphql'
+import type { TwirUsersSearchParams } from '@/gql/graphql.js'
 
 import { usePagination } from '@/composables/use-pagination.js'
 import { resolveProfile } from '@/helpers/resolveProfile.js'

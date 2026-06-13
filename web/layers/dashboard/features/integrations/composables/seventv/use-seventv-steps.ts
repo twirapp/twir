@@ -3,7 +3,7 @@ import { computed, h } from 'vue'
 
 import type { VNode } from 'vue'
 
-import { useSeventvData } from '@/features/integrations/composables/seventv/use-seventv-data.ts'
+import { useSeventvData } from '@/features/integrations/composables/seventv/use-seventv-data.js'
 import EditorStep from '@/features/integrations/ui/seventv/steps/editor-step.vue'
 
 interface Step {

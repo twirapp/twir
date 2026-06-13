@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
 import { graphql } from '@/gql'
 
 const DiscordGuildInfoQuery = graphql(`

@@ -1,5 +1,5 @@
 import { type ComputedRef, type Ref, type WritableComputedRef, computed, ref } from 'vue';
-import type { WidgetItem } from './widgets.ts';
+import type { WidgetItem } from './widgets.js';
 
 export function useWidgetStacks(
 	widgets: Ref<WidgetItem[]> | ComputedRef<WidgetItem[]> | WritableComputedRef<WidgetItem[]>,

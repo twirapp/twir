@@ -7,7 +7,7 @@ import AlertsDialog from './alerts-dialog.vue'
 import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { useAlertsApi } from '@/api/alerts'
 import { Button } from '@/components/ui/button'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const { t } = useI18n()
 const { data: profile } = useProfile()

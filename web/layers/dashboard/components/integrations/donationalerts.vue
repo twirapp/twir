@@ -2,8 +2,8 @@
 import IconDonationAlerts from '@/assets/integrations/donationalerts.svg?use'
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
 import OauthComponent from '@/components/integrations/variants/oauth.vue'
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
-import { useIntegrations } from '@/api/integrations/integrations.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
+import { useIntegrations } from '@/api/integrations/integrations.js'
 
 const integrationsPage = useIntegrationsPageData()
 const integrationsManager = useIntegrations()

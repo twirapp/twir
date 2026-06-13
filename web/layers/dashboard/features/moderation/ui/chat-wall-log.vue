@@ -2,9 +2,9 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ChatWall } from '@/api/moderation-chat-wall.ts'
+import type { ChatWall } from '@/api/moderation-chat-wall.js'
 
-import { useModerationChatWall } from '@/api/moderation-chat-wall.ts'
+import { useModerationChatWall } from '@/api/moderation-chat-wall.js'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,7 +13,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table/index.ts'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table/index.js'
 
 const { t } = useI18n()
 

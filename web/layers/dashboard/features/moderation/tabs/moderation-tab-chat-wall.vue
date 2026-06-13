@@ -2,7 +2,7 @@
 import Table from '@/components/table.vue'
 import {
 	useModerationWallTable,
-} from '@/features/moderation/composables/use-moderation-wall-table.ts'
+} from '@/features/moderation/composables/use-moderation-wall-table.js'
 import ChatWallSettings from '@/features/moderation/ui/chat-wall-settings.vue'
 
 const table = useModerationWallTable()

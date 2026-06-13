@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import type { GetChannelRewardsQuery } from '@/gql/graphql.ts'
+import type { GetChannelRewardsQuery } from '@/gql/graphql.js'
 
-import { useTwitchRewardsNew } from '@/api/twitch.ts'
+import { useTwitchRewardsNew } from '@/api/twitch.js'
 import { Button } from '@/components/ui/button'
 import {
 	Command,

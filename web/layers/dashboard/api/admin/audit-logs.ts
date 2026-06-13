@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { unref } from 'vue'
 
-import type { AdminAuditLogsInput } from '@/gql/graphql'
+import type { AdminAuditLogsInput } from '@/gql/graphql.js'
 import type { MaybeRef } from 'vue'
 
 import { graphql } from '@/gql'

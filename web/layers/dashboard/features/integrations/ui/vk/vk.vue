@@ -7,7 +7,7 @@ import OauthComponent from '@/components/integrations/variants/oauth.vue'
 import {
 	useVKIntegration,
 	vkBroadcaster,
-} from '@/features/integrations/composables/vk/use-vk-integration.ts'
+} from '@/features/integrations/composables/vk/use-vk-integration.js'
 
 const { userName, avatar, logout, authLink, isDataFetching, refetchData } = useVKIntegration()
 

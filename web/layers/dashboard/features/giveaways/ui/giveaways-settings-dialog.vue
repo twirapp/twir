@@ -8,7 +8,7 @@ import { z } from 'zod';
 import {Alert, AlertDescription} from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Textarea} from '@/components/ui/textarea';
-import { useGiveawaysApi } from '@/api/giveaways.ts';
+import { useGiveawaysApi } from '@/api/giveaways.js';
 import { toast } from 'vue-sonner';
 import {
 	FormControl,

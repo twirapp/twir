@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ChatWall } from '@/api/moderation-chat-wall.ts'
+import type { ChatWall } from '@/api/moderation-chat-wall.js'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()

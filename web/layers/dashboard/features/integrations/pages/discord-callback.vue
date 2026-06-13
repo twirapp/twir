@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useDiscordIntegration } from '../composables/discord/use-discord-integration.ts'
+import { useDiscordIntegration } from '../composables/discord/use-discord-integration.js'
 
 const route = useRoute()
 const { connectGuild } = useDiscordIntegration()

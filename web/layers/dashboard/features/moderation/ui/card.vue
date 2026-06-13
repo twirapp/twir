@@ -2,7 +2,7 @@
 import { ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EditableItem } from '@/features/moderation/composables/use-moderation-form.ts'
+import type { EditableItem } from '@/features/moderation/composables/use-moderation-form.js'
 
 import { useUserAccessFlagChecker } from '@/api/auth'
 import Card from '@/components/card/card.vue'
@@ -15,9 +15,9 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Switch } from '@/components/ui/switch'
-import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.ts'
-import { Icons } from '@/features/moderation/composables/use-moderation-form.ts'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.ts'
+import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.js'
+import { Icons } from '@/features/moderation/composables/use-moderation-form.js'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const props = defineProps<{
 	item: EditableItem

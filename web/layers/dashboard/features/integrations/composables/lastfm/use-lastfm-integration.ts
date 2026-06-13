@@ -1,8 +1,8 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
-import { useLastfmIntegrationApi } from '@/api/integrations/lastfm.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
+import { useLastfmIntegrationApi } from '@/api/integrations/lastfm.js'
 
 export const lastfmBroadcaster = new BroadcastChannel('lastfm_channel')
 

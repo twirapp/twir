@@ -1,7 +1,7 @@
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
 import { toast } from 'vue-sonner'
 
-import type { ChannelOverlayLayerInput } from '@/gql/graphql'
+import type { ChannelOverlayLayerInput } from '@/gql/graphql.js'
 
 import {
 	useChannelOverlayCreate,

@@ -13,12 +13,12 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.ts'
-import { Icons } from '@/features/moderation/composables/use-moderation-form.ts'
+import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.js'
+import { Icons } from '@/features/moderation/composables/use-moderation-form.js'
 import ModerationTabChatWall from '@/features/moderation/tabs/moderation-tab-chat-wall.vue'
 import ModerationTabRules from '@/features/moderation/tabs/moderation-tab-rules.vue'
 // oxlint-disable-next-line consistent-type-imports
-import { ChannelRolePermissionEnum, ModerationSettingsType } from '@/gql/graphql'
+import { ChannelRolePermissionEnum, ModerationSettingsType } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()

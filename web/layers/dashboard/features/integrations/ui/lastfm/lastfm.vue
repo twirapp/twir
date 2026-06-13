@@ -7,7 +7,7 @@ import OauthComponent from '@/components/integrations/variants/oauth.vue'
 import {
 	lastfmBroadcaster,
 	useLastfmIntegration,
-} from '@/features/integrations/composables/lastfm/use-lastfm-integration.ts'
+} from '@/features/integrations/composables/lastfm/use-lastfm-integration.js'
 
 const { userName, avatar, logout, authLink, isDataFetching, refetchData } = useLastfmIntegration()
 

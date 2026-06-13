@@ -13,7 +13,7 @@ import ModalLongMessage from './ui/form/moderation-form-longmessage.vue'
 import ModalOneManSpam from './ui/form/moderation-form-one-man-spam.vue'
 import ModalSymbols from './ui/form/moderation-form-symbols.vue'
 
-import type { EditableItem } from '@/features/moderation/composables/use-moderation-form.ts'
+import type { EditableItem } from '@/features/moderation/composables/use-moderation-form.js'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -30,10 +30,10 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
-import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.ts'
-import { moderationValidationRules } from '@/features/moderation/composables/use-moderation-form.ts'
+import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.js'
+import { moderationValidationRules } from '@/features/moderation/composables/use-moderation-form.js'
 // oxlint-disable-next-line consistent-type-imports
-import { ModerationSettingsType, RoleTypeEnum } from '@/gql/graphql.ts'
+import { ModerationSettingsType, RoleTypeEnum } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()

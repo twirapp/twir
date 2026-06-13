@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { GetAllCommandsQuery } from '@/gql/graphql'
+import type { GetAllCommandsQuery } from '@/gql/graphql.js'
 
 import { commandMenuCacheKey } from '@/api/command-menu.js'
 import { useMutation } from '@/composables/use-mutation.js'

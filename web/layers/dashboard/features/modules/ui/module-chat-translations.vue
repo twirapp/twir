@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { useChatTranslations } from '@/features/modules/composables/use-chat-translations'
-import { ChannelRolePermissionEnum } from '@/gql/graphql.ts'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const { t } = useI18n()
 

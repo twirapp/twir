@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
-import { useIntegrations } from '@/api/integrations/integrations.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
+import { useIntegrations } from '@/api/integrations/integrations.js'
 import DonateStreamSVG from '@/assets/integrations/donatestream.svg?use'
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue'
 import WithSettings from '@/components/integrations/variants/withSettings.vue'

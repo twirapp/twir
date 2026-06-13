@@ -5,7 +5,7 @@ import type {
 	EmotesStatisticQuery,
 	EmotesStatisticsDetailsQuery,
 	EmotesStatisticsOpts,
-} from '@/gql/graphql'
+} from '@/gql/graphql.js'
 import type { Ref } from 'vue'
 
 import { graphql } from '@/gql'

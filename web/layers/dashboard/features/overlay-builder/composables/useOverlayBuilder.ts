@@ -1,6 +1,6 @@
 import { computed, reactive, ref, toRaw } from 'vue'
 
-import { ChannelOverlayLayerType } from '@/gql/graphql'
+import { ChannelOverlayLayerType } from '@/gql/graphql.js'
 
 import type { AlignmentGuide, CanvasState, HistoryState, Layer, OverlayProject } from '../types'
 

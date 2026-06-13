@@ -4,8 +4,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import OperationFilter from './filter.vue'
-import { useCommandsApi } from '@/api/commands/commands.ts'
-import { useVariablesApi } from '@/api/variables.ts'
+import { useCommandsApi } from '@/api/commands/commands.js'
+import { useVariablesApi } from '@/api/variables.js'
 import { Button } from '@/components/ui/button'
 import {
 	FormControl,
@@ -31,7 +31,7 @@ import OperationActionSelector from '@/features/events/components/operation-acti
 import OperationInputAlert from '@/features/events/components/operation-input-alert.vue'
 import OperationInputObsSelector from '@/features/events/components/operation-input-obs-selector.vue'
 import { flatOperations } from '@/features/events/constants/helpers'
-import { EventOperationType } from '@/gql/graphql'
+import { EventOperationType } from '@/gql/graphql.js'
 
 import type { EventFilter, EventOperation } from '@/api/events'
 

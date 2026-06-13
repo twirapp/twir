@@ -2,7 +2,7 @@ import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { unref } from 'vue'
 
-import type { AdminShortUrlsInput, AdminShortUrlsPayload } from '@/gql/graphql'
+import type { AdminShortUrlsInput, AdminShortUrlsPayload } from '@/gql/graphql.js'
 import type { MaybeRef } from 'vue'
 
 import { useMutation } from '@/composables/use-mutation'

@@ -6,7 +6,7 @@ import { useProfile } from '@/api/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.ts';
+import { useGiveaways } from '@/features/giveaways/composables/giveaways-use-giveaways.js';
 import GiveawaysCurrentGiveawayParticipants
 	from '@/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-participants.vue';
 import GiveawaysCurrentGiveawayWinners

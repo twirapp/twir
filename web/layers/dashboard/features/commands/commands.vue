@@ -12,7 +12,7 @@ import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()

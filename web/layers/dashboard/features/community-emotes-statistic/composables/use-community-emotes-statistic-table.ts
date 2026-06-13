@@ -21,7 +21,7 @@ import { type EmotesStatistics, useEmotesStatisticQuery } from '@/api/emotes-sta
 import { usePagination } from '@/composables/use-pagination.js'
 import CommunityEmotesTableColumnEmote
 	from '@/features/community-emotes-statistic/ui/community-emotes-table-column-emote.vue'
-import { EmoteStatisticRange, type EmotesStatisticsOpts } from '@/gql/graphql'
+import { EmoteStatisticRange, type EmotesStatisticsOpts } from '@/gql/graphql.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
 export const useCommunityEmotesStatisticTable = createGlobalState(() => {

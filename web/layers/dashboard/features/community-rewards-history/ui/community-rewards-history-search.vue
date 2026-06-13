@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator'
 import {
 	useCommunityRewardsHistoryQuery,
-} from '@/features/community-rewards-history/composables/community-rewards-history-query.ts'
+} from '@/features/community-rewards-history/composables/community-rewards-history-query.js'
 
 const query = useCommunityRewardsHistoryQuery()
 </script>

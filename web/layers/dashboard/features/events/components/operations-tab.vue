@@ -11,8 +11,8 @@ import type { EventOperation } from '@/api/events'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { flatOperations } from '@/features/events/constants/helpers'
-import { EventOperationType } from '@/gql/graphql'
-import { getOperationColor } from '@/features/events/composables/use-operation-color.ts'
+import { EventOperationType } from '@/gql/graphql.js'
+import { getOperationColor } from '@/features/events/composables/use-operation-color.js'
 
 const { t } = useI18n()
 

@@ -4,16 +4,16 @@ import { computed, h } from 'vue'
 
 import {
 	useAdminShortUrlsApi,
-} from './use-admin-short-urls-api.ts'
+} from './use-admin-short-urls-api.js'
 
-import type { AdminShortUrl } from '@/api/admin/short-urls.ts'
+import type { AdminShortUrl } from '@/api/admin/short-urls.js'
 import type { ColumnDef } from '@tanstack/vue-table'
 
 import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 import ShortUrlsActions from '@/features/admin-panel/short-urls/ui/short-urls-actions.vue'
 import {
 	TABLE_ACCESSOR_KEYS,
-} from '@/features/community-users/composables/use-community-users-table.ts'
+} from '@/features/community-users/composables/use-community-users-table.js'
 
 export const useAdminShortUrlsTable = createGlobalState(() => {
 	const { list, pagination, totalItems } = useAdminShortUrlsApi()

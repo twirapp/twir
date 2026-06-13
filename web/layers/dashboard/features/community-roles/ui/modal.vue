@@ -5,7 +5,7 @@ import { onMounted, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
-import type { ChannelRolesQuery, RolesCreateOrUpdateOpts } from '@/gql/graphql'
+import type { ChannelRolesQuery, RolesCreateOrUpdateOpts } from '@/gql/graphql.js'
 
 import { PERMISSIONS_FLAGS } from '@/api/auth'
 import { useRoles } from '@/api/roles'
@@ -16,7 +16,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'vue-sonner'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const props = defineProps<{
 	role?: ChannelRolesQuery['roles'][number] | null

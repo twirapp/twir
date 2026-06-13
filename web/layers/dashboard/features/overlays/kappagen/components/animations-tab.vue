@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FieldArray, useFieldArray } from 'vee-validate'
 
-import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql'
+import type { KappagenOverlayAnimationsSettings } from '@/gql/graphql.js'
 
 import {
 	FormControl,
@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
-import { useKappagenInstance } from '@/features/overlays/kappagen/composables/use-kappagen-instance.ts'
+import { useKappagenInstance } from '@/features/overlays/kappagen/composables/use-kappagen-instance.js'
 
 const { fields: animations, update: updateAnimations } =
 	useFieldArray<KappagenOverlayAnimationsSettings>('animations')

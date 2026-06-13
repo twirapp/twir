@@ -1,12 +1,12 @@
 import { useQuery as useGqlQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, unref } from 'vue'
-import { useMutation } from '@/composables/use-mutation.ts'
+import { useMutation } from '@/composables/use-mutation.js'
 
 import type { MaybeRef, Ref } from 'vue'
 
 import { graphql } from '@/gql/gql.js'
-import { TwitchGetUsersQuery, TwitchSearchChannelsQuery } from '@/gql/graphql.ts'
+import { TwitchGetUsersQuery, TwitchSearchChannelsQuery } from '@/gql/graphql.js'
 
 type TwitchIn = MaybeRef<string | string[] | null>
 export function useTwitchGetUsers(opts: { ids?: TwitchIn; names?: TwitchIn }) {

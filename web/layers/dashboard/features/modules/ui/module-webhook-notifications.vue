@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/form'
 import { Switch } from '@/components/ui/switch'
 import { useWebhookNotifications } from '@/features/modules/composables/use-webhook-notifications'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const { t } = useI18n()
 

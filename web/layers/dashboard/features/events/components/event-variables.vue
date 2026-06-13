@@ -3,9 +3,9 @@ import { useField } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { flatEvents } from '../constants/helpers.ts'
+import { flatEvents } from '../constants/helpers.js'
 
-import type { EventType } from '@/gql/graphql.ts'
+import type { EventType } from '@/gql/graphql.js'
 
 import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

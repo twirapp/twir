@@ -1,7 +1,7 @@
 import { createGlobalState, refDebounced } from '@vueuse/core'
 import { ref } from 'vue'
 
-import { NotificationType } from '@/gql/graphql'
+import { NotificationType } from '@/gql/graphql.js'
 
 export const useNotificationsFilters = createGlobalState(() => {
 	const searchInput = ref('')

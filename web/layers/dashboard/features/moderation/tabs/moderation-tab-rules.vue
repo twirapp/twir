@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 
 import Card from '../ui/card.vue'
 
-import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.ts'
+import { useModerationApi } from '@/features/moderation/composables/use-moderation-api.js'
 
 const { items } = useModerationApi()
 const router = useRouter()

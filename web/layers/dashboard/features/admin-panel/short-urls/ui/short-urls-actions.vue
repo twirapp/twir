@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { AdminShortUrl } from '@/api/admin/short-urls.ts'
+import type { AdminShortUrl } from '@/api/admin/short-urls.js'
 
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import {
 	useAdminShortUrlsApi,
-} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-api.ts'
+} from '@/features/admin-panel/short-urls/composables/use-admin-short-urls-api.js'
 
 defineProps<{
 	item: AdminShortUrl

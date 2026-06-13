@@ -21,7 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'vue-sonner'
-import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.ts'
+import { useDiscordIntegration } from '@/features/integrations/composables/discord/use-discord-integration.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()

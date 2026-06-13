@@ -4,7 +4,7 @@ import { Label } from 'reka-ui'
 
 import { useValorantStats } from './composables/use-valorant-stats'
 
-import { useValorantIntegration } from '@/features/integrations/composables/valorant/use-valorant-integration.ts'
+import { useValorantIntegration } from '@/features/integrations/composables/valorant/use-valorant-integration.js'
 import { Button } from '@/components/ui/button'
 import { ColorPicker } from '@/components/ui/color-picker'
 import InputWithIcon from '@/components/ui/InputWithIcon.vue'

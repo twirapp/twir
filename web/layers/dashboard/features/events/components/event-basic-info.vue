@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useCommandsApi } from '@/api/commands/commands'
 
 // oxlint-disable-next-line consistent-type-imports
-import { EventType } from '@/api/events.ts'
+import { EventType } from '@/api/events.js'
 import { useKeywordsApi } from '@/api/keywords'
 import TwitchRewardsSelector from '@/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
@@ -23,8 +23,8 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Switch } from '@/components/ui/switch'
-import { EventsOptions } from '@/features/events/constants/events.ts'
-import { getEventName } from '@/features/events/constants/helpers.ts'
+import { EventsOptions } from '@/features/events/constants/events.js'
+import { getEventName } from '@/features/events/constants/helpers.js'
 import PlatformSelector from '@/components/platform-selector.vue'
 import { cn } from '@/lib/utils'
 

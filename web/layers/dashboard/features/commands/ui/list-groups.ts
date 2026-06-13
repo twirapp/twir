@@ -1,4 +1,4 @@
-import type { Command } from '@/gql/graphql'
+import type { Command } from '@/gql/graphql.js'
 
 export interface Group {
 	name: string

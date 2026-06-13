@@ -7,7 +7,7 @@ import KeywordsDialog from './keywords-dialog.vue'
 import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { useKeywordsApi } from '@/api/keywords'
 import { Button } from '@/components/ui/button'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const { t } = useI18n()
 const { data: profile } = useProfile()

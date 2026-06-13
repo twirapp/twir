@@ -2,7 +2,7 @@
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { CommandGroup } from '@/gql/graphql'
+import type { CommandGroup } from '@/gql/graphql.js'
 
 import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
 import { Alert, AlertDescription } from '@/components/ui/alert'

@@ -2,9 +2,9 @@ import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-tabl
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 
-import { useAdminToxicMessagesApi } from './use-admin-toxic-mesasges-api.ts'
+import { useAdminToxicMessagesApi } from './use-admin-toxic-mesasges-api.js'
 
-import type { AdminToxicMessagesQuery } from '@/gql/graphql.ts'
+import type { AdminToxicMessagesQuery } from '@/gql/graphql.js'
 
 import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 

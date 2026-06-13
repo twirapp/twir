@@ -1,8 +1,8 @@
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
-import { useIntegrationsPageData } from '@/api/integrations/integrations-page.ts'
-import { useValorantIntegrationApi } from '@/api/integrations/valorant.ts'
+import { useIntegrationsPageData } from '@/api/integrations/integrations-page.js'
+import { useValorantIntegrationApi } from '@/api/integrations/valorant.js'
 
 export const valorantBroadcaster = new BroadcastChannel('valorant_channel')
 

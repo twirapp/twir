@@ -6,14 +6,14 @@ import { useI18n } from 'vue-i18n'
 import { kappagenFormSchema } from './kappagen-form-schema'
 import KappagenForm from './kappagen-form.vue'
 
-import type { KappagenOverlaySettingsFragment } from '@/gql/graphql'
+import type { KappagenOverlaySettingsFragment } from '@/gql/graphql.js'
 
 import { useKappagenApi } from '@/api/overlays/kappagen'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
 import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'
 import KappagenPreview from '@/features/overlays/kappagen/kappagen-preview.vue'
-import { KappagenEmojiStyle } from '@/gql/graphql'
+import { KappagenEmojiStyle } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
 const { t } = useI18n()

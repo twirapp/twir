@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import Card from './card.vue'
 
-import type { GamesQuery } from '@/gql/graphql'
+import type { GamesQuery } from '@/gql/graphql.js'
 
 import { useGamesApi } from '@/api/games/games'
 import {

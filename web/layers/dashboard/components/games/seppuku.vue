@@ -7,7 +7,7 @@ import * as z from 'zod'
 
 import Card from './card.vue'
 
-import type { SeppukuGame } from '@/gql/graphql'
+import type { SeppukuGame } from '@/gql/graphql.js'
 
 import { useGamesApi } from '@/api/games/games'
 import {

@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useProfile, useUserAccessFlagChecker } from '@/api/auth'
 import { useVariablesApi } from '@/api/variables'
 import { Button } from '@/components/ui/button'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const variables = useVariablesApi()
 const { t } = useI18n()

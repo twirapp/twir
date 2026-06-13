@@ -9,7 +9,7 @@ import { useUserAccessFlagChecker } from '@/api/auth'
 import Card from '@/components/card/card.vue'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const props = withDefaults(
 	defineProps<{

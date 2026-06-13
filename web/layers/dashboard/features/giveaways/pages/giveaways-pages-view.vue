@@ -2,7 +2,7 @@
 import { watch } from "vue";
 import { useRoute } from "vue-router";
 
-import { useGiveaways } from "@/features/giveaways/composables/giveaways-use-giveaways.ts";
+import { useGiveaways } from "@/features/giveaways/composables/giveaways-use-giveaways.js";
 import GiveawaysCurrentGiveaway from "@/features/giveaways/ui/giveaways-current-giveaway.vue";
 
 const route = useRoute();

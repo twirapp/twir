@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, toRef, watch } from 'vue'
 
-import { useChannelUserInfo } from '@/api/users.ts'
+import { useChannelUserInfo } from '@/api/users.js'
 
 const props = defineProps<{
 	userId?: string

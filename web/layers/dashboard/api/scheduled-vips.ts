@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { GetAllScheduledVipsQuery } from '@/gql/graphql.ts'
+import type { GetAllScheduledVipsQuery } from '@/gql/graphql.js'
 
 import { useMutation } from '@/composables/use-mutation'
 import { graphql } from '@/gql'

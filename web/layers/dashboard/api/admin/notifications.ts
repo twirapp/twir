@@ -1,7 +1,7 @@
 import { useQuery, useSubscription } from '@urql/vue'
 import { computed, watch } from 'vue'
 
-import type { AdminNotificationsParams } from '@/gql/graphql'
+import type { AdminNotificationsParams } from '@/gql/graphql.js'
 import type { Ref } from 'vue'
 
 import { useMutation } from '@/composables/use-mutation.js'

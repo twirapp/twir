@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { flatOperations } from '@/features/events/constants/helpers.ts'
+import { flatOperations } from '@/features/events/constants/helpers.js'
 
-import type { EventOperation } from '@/api/events.ts'
-import { getOperationColor } from '@/features/events/composables/use-operation-color.ts'
-import type { EventOperationType } from '@/gql/graphql.ts'
+import type { EventOperation } from '@/api/events.js'
+import { getOperationColor } from '@/features/events/composables/use-operation-color.js'
+import type { EventOperationType } from '@/gql/graphql.js'
 
 defineProps<{
 	operations: EventOperation[]

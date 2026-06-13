@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
-import type { Event as GqlEvent, EventOperation as GqlEventOperation, EventOperationFilter as GqlEventOperationFilter } from '@/gql/graphql'
+import type { Event as GqlEvent, EventOperation as GqlEventOperation, EventOperationFilter as GqlEventOperationFilter } from '@/gql/graphql.js'
 
 import { useMutation } from '@/composables/use-mutation'
 import { graphql } from '@/gql'
@@ -10,7 +10,7 @@ export type Event = GqlEvent
 export type EventOperation = GqlEventOperation
 export type EventFilter = GqlEventOperationFilter
 
-export { EventType } from '@/gql/graphql'
+export { EventType } from '@/gql/graphql.js'
 
 const invalidationKey = 'Events'
 

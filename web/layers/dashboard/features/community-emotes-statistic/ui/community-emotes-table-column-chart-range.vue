@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from '../composables/use-community-emotes-statistic-filters.js'
 
-import type { EmoteStatisticRange } from '@/gql/graphql'
+import type { EmoteStatisticRange } from '@/gql/graphql.js'
 
 import { Button } from '@/components/ui/button'
 import {
