@@ -4,7 +4,7 @@ import { type MaybeRef, computed, unref } from 'vue'
 import { graphql } from '~~/app/gql/graphql'
 
 const channelOverlayByIdQuery = graphql(`
-	query ChannelOverlayById($id: UUID!) {
+	query OverlayPreviewById($id: UUID!) {
 		channelOverlayById(id: $id) {
 			id
 			channelId
