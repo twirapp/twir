@@ -2,10 +2,10 @@
 import { computed, ref, watch } from 'vue'
 
 import DudesSettingsForm from '~~/layers/dashboard/pages/dashboard/overlays/dudes/dudes-settings-form.vue'
-import { useDudesForm } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/use-dudes-form.ts'
-import { useDudesIframe } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/use-dudes-frame.ts'
+import { useDudesForm } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/use-dudes-form'
+import { useDudesIframe } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/use-dudes-frame'
 
-import type { DudesSettingsWithOptionalId } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/dudes-settings.ts'
+import type { DudesSettingsWithOptionalId } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/dudes-settings'
 
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useDudesOverlayManager } from '~~/layers/dashboard/api/overlays/dudes'
@@ -23,7 +23,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
+import { ChannelRolePermissionEnum } from '~/gql/graphql'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 

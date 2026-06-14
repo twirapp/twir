@@ -6,13 +6,13 @@ import { computed, ref, watch } from 'vue'
 
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useNowPlayingOverlayApi } from '~~/layers/dashboard/api/overlays/now-playing'
-import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.ts'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useTheme } from '~~/layers/dashboard/composables/use-theme.ts'
-import { graphql } from '~/gql/gql.ts'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
+import { useTheme } from '~~/layers/dashboard/composables/use-theme'
+import { graphql } from '~/gql/gql'
+import { ChannelRolePermissionEnum } from '~/gql/graphql'
 import NowPlayingForm from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/now-playing-form.vue'
 import {
 	defaultSettings,

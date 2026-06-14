@@ -6,12 +6,12 @@ import { intervalToDuration } from 'date-fns'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 
-import { useDudesForm } from './use-dudes-form.ts'
-import { useDudesIframe } from './use-dudes-frame.ts'
+import { useDudesForm } from './use-dudes-form'
+import { useDudesIframe } from './use-dudes-frame'
 
 import { useUserAccessFlagChecker } from '@/api/auth'
 import { useDudesOverlayManager } from '@/api/overlays/dudes'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import SelectTwitchUsers from '@/components/twitchUsers/twitch-users-select.vue'
 import {
 	Accordion,
