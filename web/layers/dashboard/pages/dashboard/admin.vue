@@ -3,14 +3,13 @@ import AdminActions from '~~/layers/dashboard/features/admin-panel/actions/admin
 import AdminAuditLogs from '~~/layers/dashboard/features/admin-panel/audit-logs/audit-logs.vue'
 import ChatMessages from '~~/layers/dashboard/features/admin-panel/chat-mesages/chat-messages.vue'
 import AdminManageBadges from '~~/layers/dashboard/features/admin-panel/manage-badges/manage-badges.vue'
-import AdminManageNotifications
-	from '~~/layers/dashboard/features/admin-panel/manage-notifications/manage-notifications.vue'
+import AdminManageNotifications from '~~/layers/dashboard/features/admin-panel/manage-notifications/manage-notifications.vue'
 import AdminManageUsers from '~~/layers/dashboard/features/admin-panel/manage-users/manage-users.vue'
 import ShortUrls from '~~/layers/dashboard/features/admin-panel/short-urls/short-urls.vue'
 import ToxicMessages from '~~/layers/dashboard/features/admin-panel/toxic-messages/toxic-messages.vue'
 import PageLayout, { type PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth', adminOnly: true })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', adminOnly: true, noPadding: true })
 
 const { t } = useI18n()
 
@@ -59,7 +58,10 @@ const pageTabs: PageLayoutTab[] = [
 </script>
 
 <template>
-	<PageLayout active-tab="users" :tabs="pageTabs">
+	<PageLayout
+		active-tab="users"
+		:tabs="pageTabs"
+	>
 		<template #title>
 			{{ t('adminPanel.title') }}
 		</template>
