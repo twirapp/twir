@@ -2,8 +2,8 @@
 import { useWebSocket } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
-import { openApi } from '~~/layers/overlays/api.ts'
-import { generateSocketUrlWithParams } from '~~/layers/overlays/helpers.ts'
+import { openApi } from '~~/layers/overlays/api
+import { generateSocketUrlWithParams } from '~~/layers/overlays/helpers
 
 definePageMeta({ layout: false })
 

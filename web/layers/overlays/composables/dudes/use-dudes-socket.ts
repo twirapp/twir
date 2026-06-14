@@ -11,7 +11,7 @@ import type { DudesSprite, DudesUserSettings } from '@twir/types'
 import { generateSocketUrlWithParams } from '~~/layers/overlays/helpers'
 import { useSubscription } from '@urql/vue'
 import { graphql } from '~~/app/gql/gql'
-import type { DudesSettingsSubscriptionData } from '~~/app/gql/graphql.ts'
+import type { DudesSettingsSubscriptionData } from '~~/app/gql/graphql'
 
 declare global {
 	interface GlobalEventHandlersEventMap {

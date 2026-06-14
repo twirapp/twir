@@ -7,7 +7,6 @@ import (
 
 var appsForStart = []twirApp{
 	{name: "web"},
-	{name: "overlays"},
 }
 
 type FrontendApps struct {

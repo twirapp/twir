@@ -4,13 +4,13 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import type { Message } from '~~/lib/frontend-chat'
 
-import { useChatOverlaySocket } from '~~/layers/overlays/composables/chat/use-chat-overlay-socket.ts'
+import { useChatOverlaySocket } from '~~/layers/overlays/composables/chat/use-chat-overlay-socket
 import {
 	type ChatMessage,
 	type ChatSettings,
 	knownBots,
 	useChatTmi,
-} from '~~/layers/overlays/composables/tmi/use-chat-tmi.ts'
+} from '~~/layers/overlays/composables/tmi/use-chat-tmi
 
 definePageMeta({ layout: false })
 

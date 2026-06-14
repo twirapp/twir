@@ -3,7 +3,7 @@ import { type MaybeRef, onMounted, ref, toRaw, toValue, watch } from 'vue'
 
 import htmlLayer from '~~/layers/overlays/components/html-layer.vue'
 import imageLayer from '~~/layers/overlays/components/image-layer.vue'
-import { type Layer, useOverlays } from '~~/layers/overlays/composables/overlays/use-overlays.ts'
+import { type Layer, useOverlays } from '~~/layers/overlays/composables/overlays/use-overlays
 
 definePageMeta({ layout: false })
 
