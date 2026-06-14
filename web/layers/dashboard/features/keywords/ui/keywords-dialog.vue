@@ -1,26 +1,32 @@
 <script setup lang="ts">
+import type { KeywordResponse } from '~~/layers/dashboard/api/keywords'
 
 import { useForm } from 'vee-validate'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 import * as z from 'zod'
-
-import type { KeywordResponse } from '~~/layers/dashboard/api/keywords'
-
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
+import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form'
+import {
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { toast } from 'vue-sonner'
-import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
-import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
-import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
 
 const props = defineProps<{
 	keyword?: Omit<KeywordResponse, 'id'> & { id?: string }
@@ -35,19 +41,18 @@ const { t } = useI18n()
 const open = ref(false)
 
 const keywordsForm = useForm({
-	validationSchema:
-		z.object({
-			id: z.string().optional(),
-			text: z.string().min(1),
-			response: z.string().optional().nullable(),
-			isRegularExpression: z.boolean(),
-			isReply: z.boolean(),
-			cooldown: z.number().min(0).optional(),
-			usageCount: z.number().min(0).optional(),
-			rolesIds: z.array(z.string()).optional(),
-			enabled: z.boolean().optional().default(true),
-			platforms: z.array(z.string()).default([]),
-		})
+	validationSchema: z.object({
+		id: z.string().optional(),
+		text: z.string().min(1),
+		response: z.string().optional().nullable(),
+		isRegularExpression: z.boolean(),
+		isReply: z.boolean(),
+		cooldown: z.number().min(0).optional(),
+		usageCount: z.number().min(0).optional(),
+		rolesIds: z.array(z.string()).optional(),
+		enabled: z.boolean().optional().default(true),
+		platforms: z.array(z.string()).default([]),
+	}),
 	initialValues: {
 		text: '',
 		usageCount: 0,
@@ -134,8 +139,14 @@ const save = keywordsForm.handleSubmit(async (values) => {
 				</DialogTitle>
 			</DialogHeader>
 
-			<form class="flex flex-col gap-4" @submit="save">
-				<FormField v-slot="{ componentField }" name="text">
+			<form
+				class="flex flex-col gap-4"
+				@submit="save"
+			>
+				<FormField
+					v-slot="{ componentField }"
+					name="text"
+				>
 					<FormItem>
 						<FormLabel class="flex gap-2">
 							{{ t('keywords.triggerText') }}
@@ -147,7 +158,10 @@ const save = keywordsForm.handleSubmit(async (values) => {
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ field }" name="isRegularExpression">
+				<FormField
+					v-slot="{ field }"
+					name="isRegularExpression"
+				>
 					<FormItem>
 						<FormLabel class="flex gap-2">
 							{{ t('keywords.isRegular') }}
@@ -162,7 +176,10 @@ const save = keywordsForm.handleSubmit(async (values) => {
 					</FormItem>
 				</FormField>
 				<Alert>
-					<Icon name="lucide:info" class="h-4 w-4" />
+					<Icon
+						name="lucide:info"
+						class="h-4 w-4"
+					/>
 
 					<AlertDescription>
 						<i18n-t keypath="keywords.regularDescription">
@@ -177,7 +194,10 @@ const save = keywordsForm.handleSubmit(async (values) => {
 					</AlertDescription>
 				</Alert>
 
-				<FormField v-slot="{ componentField }" name="response">
+				<FormField
+					v-slot="{ componentField }"
+					name="response"
+				>
 					<FormItem>
 						<FormLabel class="flex gap-2">
 							{{ t('sharedTexts.response') }}
@@ -195,7 +215,10 @@ const save = keywordsForm.handleSubmit(async (values) => {
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ field }" name="isReply">
+				<FormField
+					v-slot="{ field }"
+					name="isReply"
+				>
 					<FormItem>
 						<FormLabel class="flex gap-2">
 							{{ t('sharedTexts.reply.label') }}
@@ -212,44 +235,63 @@ const save = keywordsForm.handleSubmit(async (values) => {
 
 				<div class="flex flex-col gap-2">
 					<Label class="flex gap-2"> Roles </Label>
-					<FormRolesSelector class="xl:w-full xl:max-w-full" field-name="rolesIds" />
+					<FormRolesSelector
+						class="xl:w-full xl:max-w-full"
+						field-name="rolesIds"
+					/>
 				</div>
 
-				<FormField v-slot="{ field }" name="platforms">
-					<FormItem class="flex flex-col gap-2 mt-2">
+				<FormField
+					v-slot="{ field }"
+					name="platforms"
+				>
+					<FormItem class="mt-2 flex flex-col gap-2">
 						<FormLabel>Platforms</FormLabel>
 						<FormDescription class="mb-2">
-							Select which platforms this keyword runs on. If none selected, it runs on all platforms.
+							Select which platforms this keyword runs on. If none selected, it runs on all
+							platforms.
 						</FormDescription>
 						<FormControl>
 							<PlatformSelector
-							:model-value="field.value"
-							@update:model-value="field['onUpdate:modelValue']"
-						/>
+								:model-value="field.value"
+								@update:model-value="field['onUpdate:modelValue']"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="cooldown">
+				<FormField
+					v-slot="{ componentField }"
+					name="cooldown"
+				>
 					<FormItem>
 						<FormLabel class="flex gap-2">
 							{{ t('keywords.cooldown') }}
 						</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" type="number" />
+							<Input
+								v-bind="componentField"
+								type="number"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="usageCount">
+				<FormField
+					v-slot="{ componentField }"
+					name="usageCount"
+				>
 					<FormItem>
 						<FormLabel class="flex gap-2">
 							{{ t('keywords.usages') }}
 						</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" type="number" />
+							<Input
+								v-bind="componentField"
+								type="number"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
