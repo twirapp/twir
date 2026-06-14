@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { type Settings, ValorantStatsWidget } from '@twir/frontend-valorant-stats'
+import { useRoute } from 'vue-router'
 
-const route = useRoute()
+const route = useRoute<'o-apiKey-valorant-stats'>()
 
 definePageMeta({
 	layout: 'clean',
@@ -24,7 +25,7 @@ const settings = computed<Settings>(() => {
 	}
 })
 
-const apiKey = route.params.apiKey as string
+const apiKey = route.params.apiKey
 </script>
 
 <template>

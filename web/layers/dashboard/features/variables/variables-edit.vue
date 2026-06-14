@@ -25,7 +25,7 @@ import VariablesList from '~~/layers/dashboard/components/variables-list.vue'
 import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-const route = useRoute()
+const route = useRoute<"dashboard-variables-id">()
 const { t } = useI18n()
 const { findVariable, submit, runScript, testFromUserName } = useVariablesEdit()
 

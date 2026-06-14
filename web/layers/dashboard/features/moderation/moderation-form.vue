@@ -36,7 +36,7 @@ import { moderationValidationRules } from '~~/layers/dashboard/features/moderati
 import { ModerationSettingsType, RoleTypeEnum } from '~/gql/graphql.js'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-const route = useRoute()
+const route = useRoute<'dashboard-moderation-id'>()
 const router = useRouter()
 
 const { t } = useI18n()

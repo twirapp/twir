@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useFaceitIntegration } from '~~/layers/dashboard/api/integrations/faceit.js'
 import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
@@ -11,7 +12,7 @@ import {
 
 definePageMeta({ layout: 'popup', middleware: 'auth' })
 
-const route = useRoute()
+const route = useRoute<'dashboard-integrations-callbacks-name'>()
 const router = useRouter()
 
 const discordIntegration = useDiscordIntegration()

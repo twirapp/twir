@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
+import { useRoute } from 'vue-router'
 
 definePageMeta({ layout: 'popup', middleware: 'auth' })
 
 const integration = useIntegrations()
 const executor = integration.donationAlertsPostCode()
-const route = useRoute()
+const route = useRoute<'dashboard-integrations-callbacks-donationalerts'>()
 
 onMounted(async () => {
 	const { code } = route.query

@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-const currentRoute = useRoute()
+import { useRoute } from 'vue-router';
+
+const currentRoute = useRoute<'p-channelName'>()
 
 const routes = computed(() => {
 	return [

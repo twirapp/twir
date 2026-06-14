@@ -5,7 +5,7 @@ import { useRoute } from "vue-router";
 import { useGiveaways } from "@/features/giveaways/composables/giveaways-use-giveaways.js";
 import GiveawaysCurrentGiveaway from "@/features/giveaways/ui/giveaways-current-giveaway.vue";
 
-const route = useRoute();
+const route = useRoute<'dashboard-giveaways-view-id'>();
 const { loadParticipants } = useGiveaways();
 
 // Следим за изменением ID гива в роуте и перезагружаем данные

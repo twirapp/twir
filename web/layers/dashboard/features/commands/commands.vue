@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-const route = useRoute()
+const route = useRoute<'dashboard-commands-system'>()
 const { t } = useI18n()
 const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands)
 
