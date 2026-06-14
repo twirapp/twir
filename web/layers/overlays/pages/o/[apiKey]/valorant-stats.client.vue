@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Settings, ValorantStatsWidget } from '~~/lib/frontend-valorant-stats'
+import { type Settings, ValorantStatsWidget } from '@twir/frontend-valorant-stats'
 
 const route = useRoute()
 
