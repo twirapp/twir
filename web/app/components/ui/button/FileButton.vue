@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { LoaderCircleIcon, UploadIcon } from 'lucide-vue-next'
 import { useId } from 'reka-ui'
 import { computed, ref } from 'vue'
 
@@ -77,16 +76,25 @@ const computedAccept = computed(() => {
 		<Button
 			v-bind="$attrs"
 			variant="outline"
-			class="w-full justify-center border-dashed border-2"
+			class="w-full justify-center border-2 border-dashed"
 			as-child
 		>
-			<label :for="id" class="cursor-pointer flex items-center gap-2">
+			<label
+				:for="id"
+				class="flex cursor-pointer items-center gap-2"
+			>
 				<template v-if="!loading">
-					<UploadIcon class="size-4" />
+					<Icon
+						name="lucide:upload-icon"
+						class="size-4"
+					/>
 					Upload File
 				</template>
 				<template v-else>
-					<LoaderCircleIcon class="size-10 animate-spin" />
+					<Icon
+						name="lucide:loader-circle"
+						class="size-10 animate-spin"
+					/>
 				</template>
 			</label>
 		</Button>
@@ -94,7 +102,7 @@ const computedAccept = computed(() => {
 			:id
 			ref="fileInput"
 			type="file"
-			class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+			class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
 			:accept="computedAccept"
 			:disabled="loading"
 			@change="handleFileChange"

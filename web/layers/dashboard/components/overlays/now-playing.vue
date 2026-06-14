@@ -13,7 +13,7 @@ const isModalOpened = ref(false)
 
 <template>
 	<Card
-		:icon="'tabler:icon-broadcast'"
+		icon="lucide:broadcast"
 		title="Now Playing"
 		:description="t('overlays.nowPlaying.description')"
 		:show-copy="false"

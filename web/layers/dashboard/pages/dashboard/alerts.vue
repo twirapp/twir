@@ -3,7 +3,7 @@ import Alerts from '~~/layers/dashboard/features/alerts/alerts.vue'
 import AlertsCreateButton from '~~/layers/dashboard/features/alerts/ui/alerts-create-button.vue'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 
 const { t } = useI18n()
 </script>

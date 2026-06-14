@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
-
 import { useProfile } from '~~/layers/dashboard/api/auth'
 import BanSettings from '~~/layers/dashboard/features/chat-alerts/ui/ban-settings.vue'
 import ChatAlertsRewardsSettings from '~~/layers/dashboard/features/chat-alerts/ui/chat-alerts-rewards-settings.vue'
 import Settings from '~~/layers/dashboard/features/chat-alerts/ui/settings.vue'
 import PageLayout, { type PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 
 const { t } = useI18n()
 const { data: profile } = useProfile()
@@ -259,7 +258,10 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 </script>
 
 <template>
-	<PageLayout active-tab="followers" :tabs="pageTabs">
+	<PageLayout
+		active-tab="followers"
+		:tabs="pageTabs"
+	>
 		<template #title>
 			{{ t('sidebar.chatAlerts') }}
 		</template>

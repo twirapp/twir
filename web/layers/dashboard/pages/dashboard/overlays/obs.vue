@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ObsOverlay from '~~/layers/dashboard/features/overlays/obs/card.vue'
+import ObsOverlay from '~~/layers/dashboard/features/overlays/obs/page.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 </script>

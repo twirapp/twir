@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ValorantStatsOverlay from '~~/layers/dashboard/features/overlays/valorant-stats/ui/card.vue'
+import ValorantStatsOverlay from '~~/layers/dashboard/features/overlays/valorant-stats/builder.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 </script>
