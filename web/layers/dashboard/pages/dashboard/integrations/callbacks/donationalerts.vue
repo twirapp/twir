@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'popup', middleware: 'auth' })
 
 const integration = useIntegrations()
 const executor = integration.donationAlertsPostCode()

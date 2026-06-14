@@ -2,20 +2,19 @@ package dependencies
 
 import (
 	"github.com/pterm/pterm"
-	"github.com/twirapp/twir/cli/internal/cmds/dependencies/binaries"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 )
 
 var Cmd = &cli.Command{
 	Name:    "dependencies",
-	Usage:   "install golang and nodejs dependencies",
+	Usage:   "install golang and js dependencies",
 	Aliases: []string{"deps"},
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
-			Name:  "skip-node",
+			Name:  "skip-js",
 			Value: false,
-			Usage: "skip nodejs dependencies installation",
+			Usage: "skip js dependencies installation",
 		},
 		&cli.BoolFlag{
 			Name:  "skip-go",
@@ -50,33 +49,34 @@ var Cmd = &cli.Command{
 						pterm.Fatal.Println(err)
 						return err
 					}
-					pterm.Success.Println("Nodejs deps installed")
+					pterm.Success.Println("JS deps installed")
 					return nil
 				},
 			)
 		} else {
-			go pterm.Warning.Println("Nodejs deps skipped")
+			go pterm.Warning.Println("JS deps skipped")
 		}
 
-		wg.Go(
-			func() error {
-				var binariesWg errgroup.Group
+		// deprecated, but i'd like to keep it for future in case i wanna back to some protoc
+		// wg.Go(
+		// 	func() error {
+		// 		var binariesWg errgroup.Group
 
-				if err := binaries.CreateDir(); err != nil {
-					return err
-				}
+		// 		if err := binaries.CreateDir(); err != nil {
+		// 			return err
+		// 		}
 
-				binariesWg.Go(binaries.InstallProtoc)
+		// 		binariesWg.Go(binaries.InstallProtoc)
 
-				if err := binariesWg.Wait(); err != nil {
-					pterm.Fatal.Println(err)
-					return err
-				}
+		// 		if err := binariesWg.Wait(); err != nil {
+		// 			pterm.Fatal.Println(err)
+		// 			return err
+		// 		}
 
-				pterm.Success.Println("Binaries installed")
-				return nil
-			},
-		)
+		// 		pterm.Success.Println("Binaries installed")
+		// 		return nil
+		// 	},
+		// )
 
 		if err := wg.Wait(); err != nil {
 			return err

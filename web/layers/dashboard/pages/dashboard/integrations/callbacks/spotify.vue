@@ -3,7 +3,7 @@ import { onMounted } from 'vue'
 
 import { useSpotifyIntegration } from '~~/layers/dashboard/api/integrations/spotify.js'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'popup', middleware: 'auth' })
 
 const spotifyIntegration = useSpotifyIntegration()
 const route = useRoute()

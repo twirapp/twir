@@ -9,7 +9,7 @@ import {
 	useLastfmIntegration,
 } from '~~/layers/dashboard/features/integrations/composables/lastfm/use-lastfm-integration.js'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'popup', middleware: 'auth' })
 
 const route = useRoute()
 const router = useRouter()
