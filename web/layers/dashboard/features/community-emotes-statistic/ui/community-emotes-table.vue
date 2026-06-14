@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from '../composables/use-community-emotes-statistic-filters'
 import { useCommunityEmotesStatisticTable } from '../composables/use-community-emotes-statistic-table'

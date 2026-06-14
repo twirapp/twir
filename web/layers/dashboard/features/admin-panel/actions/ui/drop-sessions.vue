@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useMutationDropAllAuthSessions } from '~~/layers/dashboard/api/admin/actions'
 import ActionConfirm from '@/components/ui/action-confirm'

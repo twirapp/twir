@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import DiscordIcon from '~~/layers/dashboard/assets/integrations/discord.svg'

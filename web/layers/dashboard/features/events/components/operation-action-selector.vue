@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import type { EventOperation } from '~~/layers/dashboard/api/events.js'
 import { getOperationColor } from '../composables/use-operation-color.js'

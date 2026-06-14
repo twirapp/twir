@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { useFilesApi } from '~~/layers/dashboard/api/files.js'

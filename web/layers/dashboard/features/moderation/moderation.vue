@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import type { PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'

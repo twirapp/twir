@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 
 import { useAlertsTable } from './composables/use-alerts-table.js'
 import AlertsInformation from './ui/alerts-information.vue'

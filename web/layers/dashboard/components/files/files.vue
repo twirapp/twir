@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { useFilesApi } from '~~/layers/dashboard/api/files'
 import { convertBytesToSize } from '~~/layers/dashboard/helpers/convertBytesToSize.js'

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { useFieldArray, useFormContext } from "vee-validate";
 
 import { Button } from "@/components/ui/button";

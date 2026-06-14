@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useField } from 'vee-validate'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useModerationAvailableLanguages } from '~~/layers/dashboard/api/moderation'
 import { Alert, AlertDescription } from '@/components/ui/alert'

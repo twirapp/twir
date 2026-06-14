@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import Card from '~~/layers/dashboard/components/overlays/card.vue'

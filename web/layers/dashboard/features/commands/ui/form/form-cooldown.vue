@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useFormContext } from 'vee-validate'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'

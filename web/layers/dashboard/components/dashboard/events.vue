@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
 import { CardContent } from '@/components/ui/card'

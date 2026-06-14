@@ -3,7 +3,6 @@
 import { FieldArray, useForm } from "vee-validate";
 import { computed, onMounted, ref, toRaw } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
-import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
 import { Button } from "@/components/ui/button";

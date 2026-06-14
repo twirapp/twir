@@ -2,7 +2,6 @@
 import { useVirtualizer } from "@tanstack/vue-virtual";
 import { debouncedRef } from "@vueuse/core";
 import { computed, ref, useTemplateRef } from "vue";
-import { useI18n } from "vue-i18n";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";

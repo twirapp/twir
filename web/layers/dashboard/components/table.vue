@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T extends RowData">
 import { FlexRender, type RowData, type Table } from "@tanstack/vue-table";
-import { useI18n } from "vue-i18n";
 
 import { Card } from "@/components/ui/card";
 import {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 
 import { useVariablesTable } from './composables/use-variables-table'
 import VariablesCreateButton from './ui/variables-create-button.vue'

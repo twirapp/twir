@@ -1,7 +1,6 @@
 
 import { useForm } from 'vee-validate'
 import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import * as z from 'zod'
 

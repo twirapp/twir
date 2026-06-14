@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useDebounce } from '@vueuse/core'
 import { computed, ref, toRaw, unref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
 import RewardsSelector from '../rewardsSelector.vue'

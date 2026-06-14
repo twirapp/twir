@@ -2,7 +2,6 @@
 import { dragAndDrop } from '@formkit/drag-and-drop/vue'
 import { formatDistanceToNow } from 'date-fns'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import ActionConfirm from '@/components/ui/action-confirm'
 

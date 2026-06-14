@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { FieldArray, useField } from 'vee-validate'
-import { useI18n } from 'vue-i18n'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'

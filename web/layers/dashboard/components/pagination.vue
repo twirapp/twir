@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T extends RowData">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import type { PaginationState, RowData, Table } from '@tanstack/vue-table'
 

@@ -2,7 +2,6 @@
 
 import { useForm } from "vee-validate";
 import { computed, ref } from "vue";
-import { useI18n } from "vue-i18n";
 import { z } from "zod";
 
 import type { Giveaway } from "@/api/giveaways.js";

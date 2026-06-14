@@ -9,7 +9,6 @@ import {
 } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from './use-community-emotes-statistic-filters.js'
 import CommunityEmotesTableColumnChartRange

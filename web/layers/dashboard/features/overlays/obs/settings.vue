@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 
 import { useObsForm } from '~~/layers/dashboard/features/overlays/obs/composables/use-obs-form'
 import { Alert, AlertDescription } from '@/components/ui/alert'

@@ -2,7 +2,6 @@
 
 import { useForm } from 'vee-validate'
 import { onMounted, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
 import { useCommandsPrefixApi } from '~~/layers/dashboard/api/commands-prefix'

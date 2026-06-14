@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { UseTimeAgo } from '@vueuse/components'
-import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '~~/layers/dashboard/api/auth'
 import { mapOperationTypeToTranslate, mapSystemToTranslate, useAuditLogs } from '~~/layers/dashboard/api/audit-logs'

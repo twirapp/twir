@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useLocalStorage } from "@vueuse/core";
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 
 import { useUserAccessFlagChecker } from "~~/layers/dashboard/api/auth";
 import Badge from "@/components/ui/badge/Badge.vue";

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 
 import NotificationsTableSearch from './notifications-table-search.vue'
 import { useNotificationsTable } from '../composables/use-notifications-table'

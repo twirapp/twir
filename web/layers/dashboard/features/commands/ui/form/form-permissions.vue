@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 
 import TwitchUsersSelect from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

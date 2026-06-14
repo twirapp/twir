@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import { useForm } from 'vee-validate'
-import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
 import { useMutationEventSubSubscribe } from '~~/layers/dashboard/api/admin/actions'

@@ -3,7 +3,6 @@
 import { type Font, FontSelector } from '~~/layers/dashboard/lib/fontsource'
 import { useForm } from 'vee-validate'
 import { computed, ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useBeRightBackOverlayApi } from '~~/layers/dashboard/api/overlays-be-right-back'

@@ -2,7 +2,6 @@
 import FaceitIcon from '~~/layers/dashboard/assets/integrations/faceit.svg'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 </script>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 

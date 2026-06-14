@@ -2,7 +2,6 @@ import type { ChatAlerts } from '~/gql/graphql.js'
 
 import { createGlobalState } from '@vueuse/core'
 import { ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
 import { useChatAlertsApi } from '~~/layers/dashboard/api/chat-alerts.js'

@@ -2,7 +2,6 @@
 import { useIntervalFn, useLocalStorage, useMediaQuery } from "@vueuse/core";
 import { intervalToDuration } from "date-fns";
 import { computed, onBeforeUnmount, ref } from "vue";
-import { useI18n } from "vue-i18n";
 
 import StreamInfoEditor from "../stream-info-editor.vue";
 

@@ -1,5 +1,4 @@
 import { createGlobalState } from '@vueuse/core';
-import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { type TypeOf, array, boolean, nativeEnum, number, object, string } from 'zod';
 

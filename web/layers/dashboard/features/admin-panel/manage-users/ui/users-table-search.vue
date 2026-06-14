@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 
 import { useUsersTableFilters } from '../composables/use-users-table-filters.js'
 import { useUsersTable } from '../composables/use-users-table.js'

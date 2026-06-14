@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
 
 import Card from '~~/layers/dashboard/components/overlays/card.vue';
 

@@ -1,6 +1,5 @@
 
 import { createGlobalState } from '@vueuse/core';
-import { useI18n } from 'vue-i18n';
 import { z } from 'zod';
 
 import { useGamesApi } from '~~/layers/dashboard/api/games/games';

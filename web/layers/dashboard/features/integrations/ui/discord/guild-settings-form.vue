@@ -14,7 +14,6 @@ import {
 
 import { useForm } from 'vee-validate'
 import { computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import TwitchMultipleUsersSelector from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'

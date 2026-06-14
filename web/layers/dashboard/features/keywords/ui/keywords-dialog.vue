@@ -3,7 +3,6 @@ import type { KeywordResponse } from '~~/layers/dashboard/api/keywords'
 
 import { useForm } from 'vee-validate'
 import { ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import * as z from 'zod'
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'

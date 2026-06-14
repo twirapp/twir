@@ -6,7 +6,6 @@ import {
 } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useUsersTableFilters } from './use-users-table-filters.js'
 import { useUsers } from './use-users.js'

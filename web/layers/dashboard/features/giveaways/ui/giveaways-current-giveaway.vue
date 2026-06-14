@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch, watchEffect } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import { useProfile } from '~~/layers/dashboard/api/auth';
 import { Button } from '@/components/ui/button';

@@ -1,6 +1,5 @@
 import { createGlobalState } from '@vueuse/core';
 import { ref, unref } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { nativeEnum, object, string } from 'zod';
 

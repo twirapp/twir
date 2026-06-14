@@ -1,6 +1,5 @@
 import { createGlobalState, refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useBadges } from '../../manage-badges/composables/use-badges.js'
 

@@ -11,7 +11,6 @@ import InputWithIcon from '@/components/ui/InputWithIcon/InputWithIcon.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { SwitchToggle } from '@/components/ui/switch'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
-import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 

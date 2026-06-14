@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
 import type { PageLayoutTab } from "@/layout/page-layout.vue";

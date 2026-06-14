@@ -1,7 +1,6 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useNotificationsFilters } from './use-notifications-filters.js'
 import UsersTableCellUser from '../../manage-users/ui/users-table-cell-user.vue'

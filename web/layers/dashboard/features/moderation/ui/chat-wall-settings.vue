@@ -2,7 +2,6 @@
 
 import { useForm } from 'vee-validate'
 import { computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
 
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'

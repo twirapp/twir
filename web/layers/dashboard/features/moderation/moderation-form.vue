@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useField, useForm, useSetFormValues, useSubmitForm } from 'vee-validate'
 import { nextTick, onMounted, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import ModalCaps from './ui/form/moderation-form-caps.vue'

@@ -1,6 +1,5 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import AlertsTableActions from '../ui/alerts-table-actions.vue'
 

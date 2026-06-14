@@ -2,7 +2,6 @@
 import { FieldArray, useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
-import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 

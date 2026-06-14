@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { flatEvents } from '../constants/helpers.js'
 

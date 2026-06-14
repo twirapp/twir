@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useField, useFieldArray } from 'vee-validate'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import OperationFilter from './filter.vue'
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'

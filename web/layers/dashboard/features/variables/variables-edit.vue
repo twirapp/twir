@@ -4,7 +4,6 @@ import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { Label } from 'reka-ui'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import { formSchema, useVariablesEdit } from './composables/use-variables-edit'

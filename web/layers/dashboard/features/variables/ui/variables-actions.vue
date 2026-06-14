@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { type CustomVariable, useVariablesApi } from '~~/layers/dashboard/api/variables'

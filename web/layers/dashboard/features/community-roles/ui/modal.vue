@@ -2,7 +2,6 @@
 
 import { useForm } from 'vee-validate'
 import { onMounted, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
 import type { ChannelRolesQuery, RolesCreateOrUpdateOpts } from '~/gql/graphql.js'

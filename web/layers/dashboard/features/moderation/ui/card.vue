@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import type { EditableItem } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
 

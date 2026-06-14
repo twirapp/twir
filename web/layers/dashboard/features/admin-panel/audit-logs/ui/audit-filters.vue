@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useAuditFilters } from '../composables/use-audit-filters'
 import { useAuditTable } from '../composables/use-audit-table'

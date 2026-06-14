@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { RadioGroupItem, RadioGroupRoot } from "reka-ui";
 import { computed, ref } from "vue";
-import { useI18n } from "vue-i18n";
 import { VisArea, VisAxis, VisLine, VisXYContainer } from "@unovis/vue";
 
 import type { ChartConfig } from "@/components/ui/chart";

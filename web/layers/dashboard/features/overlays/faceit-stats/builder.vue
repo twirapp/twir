@@ -5,7 +5,6 @@ import { ColorPicker } from '@/components/ui/color-picker'
 import InputWithIcon from '@/components/ui/InputWithIcon/InputWithIcon.vue'
 import { SwitchToggle } from '@/components/ui/switch'
 
-import { useI18n } from 'vue-i18n'
 import { useFaceitStats } from './composables/use-faceit-stats'
 
 import { Button } from '@/components/ui/button'
