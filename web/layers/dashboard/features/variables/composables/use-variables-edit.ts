@@ -70,13 +70,11 @@ export const useVariablesEdit = createGlobalState(() => {
 	async function submit(data: FormSchema) {
 		console.log(data);
 		if (data.id) {
+			const { id: _id, ...opts } = data;
 			await update.executeMutation({
 				id: data.id,
 				opts: {
-					...data,
-					//
-					// @ts-expect-error
-					id: undefined,
+					...opts,
 					description: '',
 				},
 			});

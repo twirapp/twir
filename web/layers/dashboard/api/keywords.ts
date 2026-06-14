@@ -3,8 +3,8 @@ import { createGlobalState } from "@vueuse/core";
 
 import type { GetAllKeywordsQuery } from "@/gql/graphql.js";
 
-import { commandMenuCacheKey } from "@/api/command-menu.js";
-import { useMutation } from "@/composables/use-mutation.js";
+import { commandMenuCacheKey } from '~~/layers/dashboard/api/command-menu.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from "@/gql/gql.js";
 
 export type KeywordResponse = Omit<GetAllKeywordsQuery["keywords"][0], "__typename">;

@@ -1,5 +1,5 @@
 
-import * as z from 'zod';
+import { z } from 'zod';
 
 import { EventOperationType, EventType } from '~/gql/graphql.js';
 
@@ -42,16 +42,12 @@ export const eventFormSchema =
 				.default([]),
 		})
 		.superRefine((data, ctx) => {
-			let success = true;
-
 			if (data.type === EventType.CommandUsed && !data.commandId) {
 				ctx.addIssue({
 					code: 'custom',
 					message: 'Command ID is required',
 					path: ['commandId'],
 				});
-
-				success = false;
 			}
 			if (data.type === EventType.KeywordMatched && !data.keywordId) {
 				ctx.addIssue({
@@ -59,8 +55,6 @@ export const eventFormSchema =
 					message: 'Keyword ID is required',
 					path: ['keywordId'],
 				});
-
-				success = false;
 			}
 
 			if (data.type === EventType.KeywordMatched && data.keywordId) {
@@ -69,8 +63,6 @@ export const eventFormSchema =
 					message: 'Keyword ID is required',
 					path: ['keywordId'],
 				});
-
-				success = false;
 			}
 
 			for (const operation of data.operations) {
@@ -89,7 +81,6 @@ export const eventFormSchema =
 							message: 'Target is required for variable operations',
 							path: [`operations[${index}].target`],
 						});
-						success = false;
 					}
 
 					if (!operation.input) {
@@ -98,7 +89,6 @@ export const eventFormSchema =
 							message: 'Input is required for variable operations',
 							path: [`operations[${index}].input`],
 						});
-						success = false;
 					}
 				}
 
@@ -116,7 +106,6 @@ export const eventFormSchema =
 							message: 'Target is required for command operations',
 							path: [`operations[${index}].target`],
 						});
-						success = false;
 					}
 
 					if (!operation.input) {
@@ -125,7 +114,6 @@ export const eventFormSchema =
 							message: 'Input is required for command operations',
 							path: [`operations[${index}].input`],
 						});
-						success = false;
 					}
 				}
 
@@ -136,8 +124,6 @@ export const eventFormSchema =
 							message: 'Target is required for alert operations',
 							path: [`operations[${index}].target`],
 						});
-
-						success = false;
 					}
 				}
 
@@ -148,7 +134,6 @@ export const eventFormSchema =
 							message: 'Webhook URL is required',
 							path: [`operations[${index}].input`],
 						});
-						success = false;
 					} else {
 						try {
 							const url = new URL(operation.input);
@@ -161,11 +146,8 @@ export const eventFormSchema =
 								message: 'Input must be a valid HTTP or HTTPS URL',
 								path: [`operations[${index}].input`],
 							});
-							success = false;
 						}
 					}
 				}
 			}
-
-			return success;
 		})

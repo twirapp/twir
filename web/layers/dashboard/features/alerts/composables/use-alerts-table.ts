@@ -96,7 +96,7 @@ export function useAlertsTable(props?: Props) {
 			cell: ({ row }) => h(AlertsTableActions, {
 				'alert': row.original,
 				'withSelect': Boolean(props?.onSelect),
-				'onUpdate:select-alert': (alert) => {
+				'onUpdate:select-alert': (alert: Alert) => {
 					if (!props?.onSelect) return
 					props.onSelect(alert)
 				},

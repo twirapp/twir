@@ -210,8 +210,8 @@ export function useOverlayBuilder() {
 		if (index === project.layers.length - 1) return
 
 		saveToHistory()
-		const temp = project.layers[index + 1]
-		project.layers[index + 1] = project.layers[index]
+		const temp = project.layers[index + 1]!
+		project.layers[index + 1] = project.layers[index]!
 		project.layers[index] = temp
 		reorderLayers()
 	}
@@ -221,8 +221,8 @@ export function useOverlayBuilder() {
 		if (index === 0) return
 
 		saveToHistory()
-		const temp = project.layers[index - 1]
-		project.layers[index - 1] = project.layers[index]
+		const temp = project.layers[index - 1]!
+		project.layers[index - 1] = project.layers[index]!
 		project.layers[index] = temp
 		reorderLayers()
 	}
@@ -325,7 +325,7 @@ export function useOverlayBuilder() {
 
 		// If only one layer selected, align to canvas
 		if (selectedLayers.value.length === 1) {
-			const layer = selectedLayers.value[0]
+			const layer = selectedLayers.value[0]!
 			switch (alignment) {
 				case 'left':
 					layer.posX = 0
@@ -381,16 +381,16 @@ export function useOverlayBuilder() {
 
 		saveToHistory()
 		const sorted = [...selectedLayers.value].sort((a, b) => a.posX - b.posX)
-		const first = sorted[0]
-		const last = sorted[sorted.length - 1]
+		const first = sorted[0]!
+		const last = sorted[sorted.length - 1]!
 		const totalWidth = last.posX + last.width - first.posX
 		const totalLayerWidth = sorted.reduce((sum, layer) => sum + layer.width, 0)
 		const spacing = (totalWidth - totalLayerWidth) / (sorted.length - 1)
 
 		let currentX = first.posX + first.width
 		for (let i = 1; i < sorted.length - 1; i++) {
-			sorted[i].posX = currentX + spacing
-			currentX = sorted[i].posX + sorted[i].width
+			sorted[i]!.posX = currentX + spacing
+			currentX = sorted[i]!.posX + sorted[i]!.width
 		}
 	}
 
@@ -399,16 +399,16 @@ export function useOverlayBuilder() {
 
 		saveToHistory()
 		const sorted = [...selectedLayers.value].sort((a, b) => a.posY - b.posY)
-		const first = sorted[0]
-		const last = sorted[sorted.length - 1]
+		const first = sorted[0]!
+		const last = sorted[sorted.length - 1]!
 		const totalHeight = last.posY + last.height - first.posY
 		const totalLayerHeight = sorted.reduce((sum, layer) => sum + layer.height, 0)
 		const spacing = (totalHeight - totalLayerHeight) / (sorted.length - 1)
 
 		let currentY = first.posY + first.height
 		for (let i = 1; i < sorted.length - 1; i++) {
-			sorted[i].posY = currentY + spacing
-			currentY = sorted[i].posY + sorted[i].height
+			sorted[i]!.posY = currentY + spacing
+			currentY = sorted[i]!.posY + sorted[i]!.height
 		}
 	}
 

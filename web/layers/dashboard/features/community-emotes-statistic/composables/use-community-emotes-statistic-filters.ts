@@ -17,7 +17,7 @@ export const useCommunityEmotesStatisticFilters = createGlobalState(() => {
 	])
 
 	const tableOrder = computed(() => {
-		return sortingState.value[0].desc
+		return sortingState.value[0]?.desc
 			? EmotesStatisticsOptsOrder.Desc
 			: EmotesStatisticsOptsOrder.Asc
 	})

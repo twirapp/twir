@@ -24,11 +24,11 @@ import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
 function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVariants['variant'] {
 	switch (operation) {
 		case AuditOperationType.Create:
-			return 'success'
+			return 'default'
 		case AuditOperationType.Delete:
 			return 'destructive'
 		case AuditOperationType.Update:
-			return 'default'
+			return 'secondary'
 	}
 }
 

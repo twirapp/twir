@@ -223,7 +223,7 @@ export function getFlatNavigationItems() {
 	const result: Array<{
 		name?: string
 		translationKey?: string | string[]
-		icon: Component
+		icon: string
 		path: string
 		disabled?: boolean
 		isNew?: boolean

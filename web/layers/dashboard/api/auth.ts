@@ -3,7 +3,7 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, watch } from 'vue'
 
 import { graphql } from '~/gql/gql.js'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
+import { ChannelRolePermissionEnum, type UserUpdatePublicSettingsInput, type UserUpdateSettingsInput } from '~/gql/graphql.js'
 
 export const profileQuery = graphql(`
 	query DashboardAuthenticatedUser {
@@ -122,7 +122,7 @@ export const useProfile = createGlobalState(() => {
 		(newUser) => {
 			if (!newUser) return
 			if (typeof window !== 'undefined') {
-				window.rybbit?.identify(newUser.id)
+				;(window as any).rybbit?.identify(newUser.id)
 			}
 		},
 		{ immediate: true }
@@ -145,8 +145,8 @@ export function useLogout() {
 		if (result.error) throw new Error(result.error.toString())
 
 		if (typeof window !== 'undefined') {
-			if (window.rybbit) {
-				window.rybbit.clearUserId()
+			if ((window as any).rybbit) {
+				;(window as any).rybbit.clearUserId()
 			}
 			window.location.replace('/')
 		}
@@ -210,7 +210,7 @@ export const useUserSettings = createGlobalState(() => {
 			`)
 		)
 		return {
-			executeMutation: (variables: { opts: unknown }) =>
+			executeMutation: (variables: { opts: UserUpdatePublicSettingsInput }) =>
 				executeMutation(variables, { additionalTypenames: [userPublicSettingsInvalidateKey] }),
 		}
 	}
@@ -238,7 +238,7 @@ export const useUserSettings = createGlobalState(() => {
 			`)
 		)
 		return {
-			executeMutation: (variables: { opts: unknown }) =>
+			executeMutation: (variables: { opts: UserUpdateSettingsInput }) =>
 				executeMutation(variables, {
 					additionalTypenames: [userInvalidateQueryKey, userPublicSettingsInvalidateKey],
 				}),

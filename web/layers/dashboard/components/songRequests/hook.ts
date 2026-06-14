@@ -122,7 +122,7 @@ export const useYoutubeSocket = createGlobalState(() => {
 	})
 
 	function nextVideo() {
-		callWsSkip(currentVideo.value.id)
+		callWsSkip(currentVideo.value!.id)
 		videos.value = videos.value.slice(1)
 	}
 
@@ -138,7 +138,7 @@ export const useYoutubeSocket = createGlobalState(() => {
 
 	function moveVideo(id: string, newPosition: number) {
 		const currentIndex = videos.value.findIndex((video) => video.id === id)
-		const itemToMove = videos.value.splice(currentIndex, 1)[0]
+		const itemToMove = videos.value.splice(currentIndex, 1)[0]!
 		videos.value.splice(newPosition, 0, itemToMove)
 
 		videos.value.forEach((video, index) => {

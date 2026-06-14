@@ -72,7 +72,7 @@ export function useTTSVoices() {
 			if (!grouped[voice.lang]) {
 				grouped[voice.lang] = []
 			}
-			grouped[voice.lang].push(voice)
+			grouped[voice.lang]!.push(voice)
 		}
 
 		return grouped

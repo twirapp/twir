@@ -69,7 +69,7 @@ export const useBadgesForm = createGlobalState(() => {
 				await badgesCreate.executeMutation({
 					opts: {
 						name: value.name,
-						file: value.image,
+						file: value.image as File,
 						ffzSlot: value.slot,
 					},
 				})
@@ -90,7 +90,7 @@ export const useBadgesForm = createGlobalState(() => {
 
 	function setImageField(event: Event): void {
 		const files = (event.target as HTMLInputElement).files
-		if (!files)
+		if (!files?.[0])
 			return
 		fileField.fieldModel.value = files[0]
 	}

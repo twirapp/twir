@@ -1,15 +1,13 @@
-import type { KeysOfUnion, RequiredDeep, SetNonNullable } from 'type-fest'
+import type { ChatAlerts } from '~/gql/graphql.js'
 
 import { createGlobalState } from '@vueuse/core'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
-import type { ChatAlerts } from '~/gql/graphql.js'
-
 import { useChatAlertsApi } from '~~/layers/dashboard/api/chat-alerts.js'
 
-export type FormKey = Exclude<KeysOfUnion<RequiredDeep<SetNonNullable<ChatAlerts>>>, '__typename'>
+export type FormKey = Exclude<keyof ChatAlerts, '__typename'>
 
 type OmitDeep<T, K extends string> = T extends object
 	? T extends Array<infer U>

@@ -3,17 +3,16 @@ import { createGlobalState } from "@vueuse/core";
 import { computed } from "vue";
 
 import type { GetCustomAndBuiltInVariablesQuery } from "@/gql/graphql.js";
-import type { SetOptional } from "type-fest";
 
-import { commandMenuCacheKey } from "@/api/command-menu.js";
-import { useMutation } from "@/composables/use-mutation.js";
+import { commandMenuCacheKey } from '~~/layers/dashboard/api/command-menu.js'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from "@/gql/gql.js";
 import { VariableType } from "@/gql/graphql.js";
 
 const invalidationKey = "VariablesInvalidateKey";
 
 export type CustomVariable = GetCustomAndBuiltInVariablesQuery["variables"][number];
-export type EditableCustomVariable = Omit<SetOptional<CustomVariable, "id">, "__typename">;
+export type EditableCustomVariable = Omit<CustomVariable, 'id' | '__typename'> & { id?: string };
 
 export const useVariablesApi = createGlobalState(() => {
 	const variablesQuery = useQuery({
