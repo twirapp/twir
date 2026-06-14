@@ -1,3 +1,7 @@
+> **DEPRECATED:** This app has been migrated to `web/layers/overlays/`. 
+> Do not add new features here. This directory will be removed after 
+> all production traffic is routed through the Nuxt layer.
+
 # AGENTS.md — frontend/overlays
 
 Browser overlay renderer for Twitch streams.

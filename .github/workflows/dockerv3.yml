@@ -165,9 +165,9 @@ jobs:
           - name: websockets
             path: apps/websockets
             runtime: go
-          - name: overlays
-            path: frontend/overlays
-            runtime: js
+          # - name: overlays
+          #   path: frontend/overlays
+          #   runtime: js
     steps:
       - uses: actions/checkout@v4
 
