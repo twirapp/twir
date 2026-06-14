@@ -2,8 +2,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { createResolver } from 'nuxt/kit'
 import tailwindcss from '@tailwindcss/vite'
+import { createResolver } from 'nuxt/kit'
 
 import gqlcodegen from './modules/gql-codegen'
 
@@ -131,7 +131,6 @@ export default defineNuxtConfig({
 				'vee-validate',
 				'vue3-moveable',
 				'grid-layout-plus',
-				'@vee-validate/zod',
 				'@tanstack/vue-table',
 				'@zero-dependency/utils',
 				'@unovis/vue',
