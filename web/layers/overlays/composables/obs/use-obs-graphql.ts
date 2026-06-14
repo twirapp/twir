@@ -1,7 +1,7 @@
 import { useMutation, useSubscription } from '@urql/vue'
 import { computed, onUnmounted, ref, watch } from 'vue'
 
-import type { ObsWebsocketCommandAction } from '~~/app/gql/gql'
+import type { ObsWebsocketCommandAction } from '~~/app/gql/graphql'
 
 import { graphql } from '~~/app/gql/gql'
 

@@ -4,7 +4,7 @@ import { dudeMock, getSprite } from './dudes-config'
 import { useDudesSettings } from './use-dudes-settings'
 import { useDudesSocket } from './use-dudes-socket'
 import { useDudes } from './use-dudes'
-import type { DudesOverlaySettings } from '~~/app/gql/gql'
+import type { DudesOverlaySettings } from '~~/app/gql/graphql'
 import { randomEmoji } from '~~/layers/overlays/helpers'
 
 interface DudesPostMessage {

@@ -2,7 +2,7 @@ import { useSubscription } from '@urql/vue'
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import type { ChannelOverlayLayerType } from '~~/app/gql/gql'
+import type { ChannelOverlayLayerType } from '~~/app/gql/graphql'
 
 import { graphql } from '~~/app/gql/gql'
 import { base64DecodeUnicode, generateSocketUrlWithParams } from '~~/layers/overlays/helpers'

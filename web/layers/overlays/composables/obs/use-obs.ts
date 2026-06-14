@@ -114,6 +114,7 @@ export const useObs = createGlobalState(() => {
 		await Promise.all(itemsPromises.map(async (item, index) => {
 			if (!item) return
 			const sceneName = mappedScenesNames[index]
+			if (!sceneName) return
 			result[sceneName] = item.sceneItems.filter(i => !i.isGroup).map((i) => ({
 				name: i.sourceName as string,
 				type: i.inputKind?.toString() || null,
@@ -127,8 +128,9 @@ export const useObs = createGlobalState(() => {
 				const group = await obs.value.call('GetGroupSceneItemList', { sceneName: g as string })
 				if (!group) return
 
+				const existingItems = result[sceneName] ?? []
 				result[sceneName] = [
-					...result[sceneName],
+					...existingItems,
 					...group.sceneItems.filter(i => !i.isGroup).map((i) => ({
 						name: i.sourceName as string,
 						type: i.inputKind?.toString() || null,

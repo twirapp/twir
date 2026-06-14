@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import type { ChannelData } from '~~/layers/overlays/types'
 import type { DudesSprite, DudesUserSettings } from '@twir/types'
 import type { DudesTypes } from '@twirapp/dudes-vue/types'
-import type { DudesIgnoreSettings } from '~~/app/gql/gql'
+import type { DudesIgnoreSettings } from '~~/app/gql/graphql'
 
 export interface DudesOverlaySettings {
 	maxOnScreen: number

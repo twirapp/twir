@@ -64,7 +64,11 @@ const CHAR_RANGE = {
 type NamedCharRange = keyof typeof CHAR_RANGE
 
 export function randomEmoji(range: NamedCharRange): string {
-	const [max, min] = CHAR_RANGE[range]
+	const charRange = CHAR_RANGE[range]
+	if (!charRange) return ''
+	const max = charRange[0]
+	const min = charRange[1]
+	if (max === undefined || min === undefined) return ''
 	const codePoint = Math.floor(Math.random() * (max - min) + min)
 	return String.fromCodePoint(codePoint)
 }
@@ -86,9 +90,10 @@ export function loadEruda() {
 	script.src = 'https://cdn.jsdelivr.net/npm/eruda@3.4.3/eruda.min.js'
 
 	script.onload = () => {
-		if (!window.eruda) return
-		window.eruda.init()
-		window.eruda.show()
+		const w = window as any
+		if (!w.eruda) return
+		w.eruda.init()
+		w.eruda.show()
 	}
 
 	script.onerror = () => {

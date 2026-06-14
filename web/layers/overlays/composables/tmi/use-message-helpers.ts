@@ -27,7 +27,9 @@ export const useMessageHelpers = createGlobalState(() => {
 
 		for (const [emoteId, positions] of Object.entries(emotes.emotesList)) {
 			for (const position of positions) {
-				const [from] = position.split('-').map(Number)
+				const parts = position.split('-').map(Number)
+				const from = parts[0]
+				if (from === undefined) continue
 				parsedTwitchEmotes[from] = emoteId
 			}
 		}

@@ -26,6 +26,7 @@ export function useBrbTextParser(text: ComputedRef<string | null>) {
 				const isZeroWidthModifier = emote.isZeroWidth;
 				// Use the highest quality emote (last URL in the array)
 				const emoteUrl = emote.urls[emote.urls.length - 1];
+				if (!emoteUrl) continue;
 
 				if (isZeroWidthModifier) {
 					// Add as zero-width modifier to the previous emote

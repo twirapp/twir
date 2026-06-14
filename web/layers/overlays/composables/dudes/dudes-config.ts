@@ -14,10 +14,12 @@ export function getSprite(sprite?: DudeSprite): DudesTypes.SpriteData {
 	if (!sprite || sprite === DudesSprite.random) {
 		const sprites = Object.values(dudesSprites)
 		const spriteData = sprites[Math.floor(Math.random() * sprites.length)]
+		if (!spriteData) return dudesSprites.dude
 		return { ...spriteData }
 	}
 
 	const spriteData = dudesSprites[sprite]
+	if (!spriteData) return dudesSprites.dude
 	return { ...spriteData }
 }
 

@@ -6,7 +6,7 @@ import type { Emote } from '@twirapp/kappagen/types'
 
 import { useKappagenSettings } from '~~/layers/overlays/composables/kappagen/use-kappagen-settings'
 import { useEmotes } from '~~/layers/overlays/composables/tmi/use-emotes'
-import { KappagenEmojiStyle } from '~~/app/gql/graphql.ts'
+import { KappagenEmojiStyle } from '~~/app/gql/graphql'
 
 function getEmojiStyleName(style: KappagenEmojiStyle) {
 	switch (style) {

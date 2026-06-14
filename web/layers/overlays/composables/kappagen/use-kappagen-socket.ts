@@ -219,6 +219,7 @@ export function useKappagenOverlaySocket(
 
 		const index = Math.floor(Math.random() * enabledAnimations.length)
 		const randomed = enabledAnimations[index]
+		if (!randomed) return { style: 'Confetti', prefs: undefined, count: 150 } as KappagenAnimations
 
 		const splittedAnimationStyle = randomed.style.toLowerCase().split('_')
 
