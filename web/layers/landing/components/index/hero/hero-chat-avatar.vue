@@ -3,15 +3,9 @@ import { computed } from 'vue'
 
 import TwirLogo from '../../../../../../libs/brand/src/logo.svg?url'
 
-export type ColorVariant =
-  | 'blue'
-  | 'purple'
-  | 'red'
-  | 'turquoise'
-  | 'orange'
-  | 'lime'
-  | 'gray'
-  | 'pink'
+import type { ColorVariant } from './types.js'
+
+export type { ColorVariant }
 
 interface Props {
 	variant?: ColorVariant

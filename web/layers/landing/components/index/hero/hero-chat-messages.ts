@@ -1,6 +1,6 @@
 import { DISCORD_INVITE_URL } from '@twir/brand'
 
-import type { ColorVariant } from './hero-chat-avatar.vue'
+import type { ColorVariant } from './types.js'
 
 interface ChatMessage {
 	type: 'message'
