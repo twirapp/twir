@@ -7,9 +7,9 @@ import {
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
-	AlertDialogTitle
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+	AlertDialogTitle,
+} from '../alert-dialog'
+import { Button } from '../button'
 
 defineProps<{
 	confirmText?: string
@@ -45,10 +45,18 @@ function handleConfirm() {
 				</AlertDialogDescription>
 			</AlertDialogHeader>
 			<AlertDialogFooter>
-				<Button type="button" variant="outline" class="mt-2 sm:mt-0" @click="handleCancel">
+				<Button
+					type="button"
+					variant="outline"
+					class="mt-2 sm:mt-0"
+					@click="handleCancel"
+				>
 					{{ t('deleteConfirmation.cancel') }}
 				</Button>
-				<Button type="button" @click="handleConfirm">
+				<Button
+					type="button"
+					@click="handleConfirm"
+				>
 					{{ t('deleteConfirmation.confirm') }}
 				</Button>
 			</AlertDialogFooter>

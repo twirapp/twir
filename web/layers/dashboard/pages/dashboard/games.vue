@@ -6,17 +6,15 @@ import Duel from '~~/layers/dashboard/features/games/duel.vue'
 import Voteban from '~~/layers/dashboard/features/games/voteban.vue'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 </script>
 
 <template>
 	<PageLayout>
-		<template #title>
-			Games
-		</template>
+		<template #title> Games </template>
 
 		<template #content>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<EightBall />
 				<RussianRoulette />
 				<Duel />

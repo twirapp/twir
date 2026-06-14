@@ -17,25 +17,25 @@ const props = defineProps<ToasterProps>()
     }"
     v-bind="props"
   >
-	<template #success-icon>
-	  <Icon name="lucide:circle-check" class="size-4" />
-	</template>
-	<template #info-icon>
-	  <Icon name="lucide:info" class="size-4" />
-	</template>
-	<template #warning-icon>
-	  <Icon name="lucide:triangle-alert" class="size-4" />
-	</template>
-	<template #error-icon>
-	  <Icon name="lucide:octagon-x" class="size-4" />
-	</template>
-	<template #loading-icon>
-	  <div>
-		<Icon name="lucide:loader-2" class="size-4 animate-spin" />
-	  </div>
-	</template>
-	<template #close-icon>
-	  <Icon name="lucide:x" class="size-4" />
-	</template>
+    <template #success-icon>
+      <Icon name="lucide:circle-check" class="size-4" />
+    </template>
+    <template #info-icon>
+      <Icon name="lucide:info" class="size-4" />
+    </template>
+    <template #warning-icon>
+      <Icon name="lucide:triangle-alert" class="size-4" />
+    </template>
+    <template #error-icon>
+      <Icon name="lucide:octagon-x" class="size-4" />
+    </template>
+    <template #loading-icon>
+      <div>
+        <Icon name="lucide:loader-2" class="size-4 animate-spin" />
+      </div>
+    </template>
+    <template #close-icon>
+      <Icon name="lucide:x" class="size-4" />
+    </template>
   </Sonner>
 </template>
