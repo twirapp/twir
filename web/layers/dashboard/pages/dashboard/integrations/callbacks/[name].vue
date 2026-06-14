@@ -73,7 +73,7 @@ const integrationsHooks: {
 }
 
 onMounted(async () => {
-	const integrationName = route.params.integrationName
+	const integrationName = route.params.name
 	if (!integrationName || typeof integrationName !== 'string') {
 		router.push('/dashboard/integrations')
 		return

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ValorantStatsOverlay from '~~/layers/dashboard/features/overlays/valorant-stats/builder.vue'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 </script>
 
 <template>
