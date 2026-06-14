@@ -41,13 +41,17 @@ const roles = computed(() => {
 			:unchecked-value="false"
 			:name="fieldName"
 		>
-			<div v-if="index === 0 && !hideEveryone" class="role" @click="uncheckAll">
+			<div
+				v-if="index === 0 && !hideEveryone"
+				class="flex flex-row items-center gap-2 space-y-0 rounded-md bg-accent px-3 py-2 leading-5"
+				@click="uncheckAll"
+			>
 				<Checkbox id="allRoles" :model-value="!value?.length" />
 				<Label for="allRoles" class="capitalize">Everyone</Label>
 			</div>
 
 			<FormItem class="space-y-0">
-				<FormLabel class="role">
+				<FormLabel class="flex flex-row items-center gap-2 space-y-0 rounded-md bg-accent px-3 py-2 leading-5">
 					<FormControl>
 						<Checkbox :model-value="value?.includes(role.id)" @update:model-value="handleChange" />
 					</FormControl>
@@ -57,11 +61,3 @@ const roles = computed(() => {
 		</FormField>
 	</div>
 </template>
-
-<style scoped>
-@reference '~/assets/css/tailwind.css';
-
-.role {
-	@apply flex flex-row items-center gap-2 space-y-0 bg-accent px-3 py-2 rounded-md leading-5;
-}
-</style>

@@ -128,9 +128,12 @@ const userHaveSomeRole = computed(() => {
 </template>
 
 <style scoped>
-@reference '~/assets/css/tailwind.css';
-
 .table-td {
-	@apply text-sm font-medium inline-flex items-center gap-2;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.25rem;
 }
 </style>

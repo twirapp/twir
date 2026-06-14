@@ -74,15 +74,14 @@ defineSlots<{
 </template>
 
 <style scoped>
-@reference '~/assets/css/tailwind.css';
-
 :deep(button span) {
-	@apply text-sm;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
 }
 
 @media (max-width: 568px) {
 	:deep(button) {
-		@apply w-full;
+		width: 100%;
 	}
 }
 </style>

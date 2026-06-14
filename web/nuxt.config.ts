@@ -1,12 +1,37 @@
+import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
 import tailwindcss from '@tailwindcss/vite'
-import viteCommonjs from 'vite-plugin-commonjs'
 
 import gqlcodegen from './modules/gql-codegen'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
+function buildDiagnosticsPlugin(): any {
+	if (process.env.TWIR_BUILD_DIAGNOSTICS !== '1') return null
+	const logPath = process.env.TWIR_BUILD_DIAG_LOG || '/tmp/nuxt-build-diag.log'
+	fs.writeFileSync(logPath, '')
+	let count = 0
+	return {
+		name: 'twir-build-diagnostics',
+		enforce: 'pre' as const,
+		transform(_code: string, id: string) {
+			count++
+			const env = (this as any).environment?.name ?? 'unknown'
+			if (env === 'ssr') {
+				const mem = process.memoryUsage()
+				fs.appendFileSync(
+					logPath,
+					`${new Date().toISOString()} [${env}] #${count} START ${id} rss=${(mem.rss / 1024 / 1024).toFixed(1)} heap=${(mem.heapTotal / 1024 / 1024).toFixed(1)}\n`
+				)
+			}
+			return null
+		},
+	}
+}
+
+const diagnosticsPlugin = buildDiagnosticsPlugin()
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -80,10 +105,7 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
-		plugins: [
-			tailwindcss(),
-			viteCommonjs(),
-		],
+		plugins: [diagnosticsPlugin, tailwindcss()],
 		optimizeDeps: {
 			include: [
 				'@urql/vue',

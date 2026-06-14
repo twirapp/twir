@@ -107,8 +107,8 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 				:disabled="!hasReceivedStatus"
 				class="flex items-center gap-2"
 			>
-				<CircleSvg
-					class="circle"
+						<CircleSvg
+							class="size-4"
 					:class="allStatusesEnabled ? 'text-green-400' : 'text-red-400'"
 				/>
 				<div class="flex items-center gap-1">
@@ -163,11 +163,3 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 			</DropdownMenuContent>
 		</DropdownMenu>
 </template>
-
-<style>
-@reference '@/assets/css/tailwind.css';
-
-.circle {
-	@apply size-4;
-}
-</style>

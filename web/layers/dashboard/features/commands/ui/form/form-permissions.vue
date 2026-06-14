@@ -78,7 +78,7 @@ const { t } = useI18n()
 
 			<div class="flex flex-col gap-2">
 				<FormField v-slot="{ componentField }" name="requiredWatchTime">
-					<FormItem class="required-block">
+					<FormItem class="flex flex-row flex-wrap items-center justify-between">
 						<FormLabel>{{ t('commands.modal.restrictions.watchTime') }}</FormLabel>
 						<FormControl>
 							<Input class="w-fit" type="number" v-bind="componentField" />
@@ -88,7 +88,7 @@ const { t } = useI18n()
 				</FormField>
 
 				<FormField v-slot="{ componentField }" name="requiredMessages">
-					<FormItem class="required-block">
+					<FormItem class="flex flex-row flex-wrap items-center justify-between">
 						<FormLabel>{{ t('commands.modal.restrictions.messages') }}</FormLabel>
 						<FormControl>
 							<Input class="w-fit" type="number" v-bind="componentField" />
@@ -98,7 +98,7 @@ const { t } = useI18n()
 				</FormField>
 
 				<FormField v-slot="{ componentField }" name="requiredUsedChannelPoints">
-					<FormItem class="required-block">
+					<FormItem class="flex flex-row flex-wrap items-center justify-between">
 						<FormLabel>{{ t('commands.modal.restrictions.channelsPoints') }}</FormLabel>
 						<FormControl>
 							<Input class="w-fit" type="number" v-bind="componentField" />
@@ -110,11 +110,3 @@ const { t } = useI18n()
 		</CardContent>
 	</Card>
 </template>
-
-<style scoped>
-@reference '~/assets/css/tailwind.css';
-
-.required-block {
-	@apply flex flex-row flex-wrap justify-between items-center;
-}
-</style>

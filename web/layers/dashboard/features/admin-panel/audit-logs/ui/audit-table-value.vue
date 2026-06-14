@@ -35,7 +35,7 @@ function computeDisplayedText(text?: string | null) {
 			<AccordionTrigger>Old value</AccordionTrigger>
 			<AccordionContent>
 				<ScrollArea class="max-h-[200px] rounded-md border bg-[#1e1e1e]">
-					<pre class="code" v-html="computeDisplayedText(log.oldValue)" />
+					<pre class="max-h-[200px] select-text bg-[#1e1e1e] p-2" v-html="computeDisplayedText(log.oldValue)" />
 				</ScrollArea>
 			</AccordionContent>
 		</AccordionItem>
@@ -43,17 +43,9 @@ function computeDisplayedText(text?: string | null) {
 			<AccordionTrigger>New value</AccordionTrigger>
 			<AccordionContent>
 				<ScrollArea class="max-h-[200px] rounded-md border bg-[#1e1e1e]">
-					<pre class="code" v-html="computeDisplayedText(log.newValue)" />
+					<pre class="max-h-[200px] select-text bg-[#1e1e1e] p-2" v-html="computeDisplayedText(log.newValue)" />
 				</ScrollArea>
 			</AccordionContent>
 		</AccordionItem>
 	</Accordion>
 </template>
-
-<style scoped>
-@reference '~/assets/css/tailwind.css';
-
-.code {
-	@apply p-2 bg-[#1e1e1e] select-text max-h-[200px];
-}
-</style>

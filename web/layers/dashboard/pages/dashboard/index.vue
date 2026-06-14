@@ -435,10 +435,8 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-@reference '~/assets/css/tailwind.css';
-
 .vgl-layout {
-	@apply w-full;
+	width: 100%;
 }
 
 :deep(.vgl-item__resizer) {
