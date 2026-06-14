@@ -20,7 +20,7 @@ export const useFaceitStats = createGlobalState(() => {
 	}
 
 	function copyOverlayLink() {
-		const url = new URL(`${window.location.origin}/overlays/faceit-stats`)
+		const url = new URL(`${window.location.origin}/o/faceit-stats`)
 
 		for (const [key, value] of Object.entries(settings.value)) {
 			url.searchParams.set(key, value as string)

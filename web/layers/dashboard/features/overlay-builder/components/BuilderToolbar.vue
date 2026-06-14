@@ -72,7 +72,7 @@ function copyOverlayLink() {
 	if (!props.overlayId || !selectedDashboardUser.value?.apiKey) return
 
 	const baseUrl = window.location.origin
-	const overlayUrl = `${baseUrl}/overlays/${selectedDashboardUser.value.apiKey}/registry/overlays/${props.overlayId}`
+	const overlayUrl = `${baseUrl}/o/${selectedDashboardUser.value.apiKey}/registry/overlays/${props.overlayId}`
 
 	navigator.clipboard.writeText(overlayUrl).then(() => {
 		// Use vue-sonner toast if available, fallback to message

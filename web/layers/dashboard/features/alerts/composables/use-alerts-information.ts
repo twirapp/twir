@@ -11,7 +11,7 @@ export function useAlertsInformation() {
 	})
 
 	const overlayLink = computed(() => {
-		return `${window.location.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/alerts`
+		return `${window.location.origin}/o/${selectedDashboardTwitchUser.value?.apiKey}/alerts`
 	})
 
 	const isShowOverlayLink = ref(false)

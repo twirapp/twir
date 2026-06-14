@@ -23,7 +23,7 @@ import { toast } from 'vue-sonner'
 			return ''
 		}
 
-		return `${window.location.origin}/overlays/${overlayApiKey.value}/${overlayPath}`
+		return `${window.location.origin}/o/${overlayApiKey.value}/${overlayPath}`
 	})
 
 		const canCopyOverlayLink = computed(() => Boolean(overlayLink.value))

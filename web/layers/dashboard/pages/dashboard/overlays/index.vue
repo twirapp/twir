@@ -49,7 +49,7 @@ const selectedDashboardTwitchUser = computed(() => {
 
 async function copyUrl(id: string) {
 	await copyToClipBoard(
-		`${window.location.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/registry/overlays/${id}`
+		`${window.location.origin}/o/${selectedDashboardTwitchUser.value?.apiKey}/registry/overlays/${id}`
 	)
 	toast.success(t('overlays.copied'))
 }
