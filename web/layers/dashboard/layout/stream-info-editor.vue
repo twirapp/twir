@@ -1,0 +1,193 @@
+<script setup lang="ts">
+import { computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { toast } from "vue-sonner";
+import { useForm } from "vee-validate";
+
+import { z } from "zod";
+
+import { useProfile, useUserAccessFlagChecker } from "~~/layers/dashboard/api/auth";
+import { twitchSetChannelInformationMutation } from "~~/layers/dashboard/api/twitch";
+import TwitchCategorySelector from "~~/layers/dashboard/components/twitch-category-selector.vue";
+import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { ChannelRolePermissionEnum } from "~/gql/graphql.js";
+
+const props = defineProps<{
+	title?: string;
+	categoryId?: string;
+	categoryName?: string;
+}>();
+
+const open = defineModel<boolean>("open", { default: false });
+
+const { t } = useI18n();
+
+const formSchema = computed(() =>
+	z.object({
+		title: z.string().max(140, t("dashboard.statsWidgets.streamInfo.titleMaxLength")),
+		categoryId: z.string().optional(),
+	}),
+);
+
+const { handleSubmit, values, setValues, resetForm } = useForm({
+	validationSchema: computed(() => formSchema.value),
+});
+
+watch(
+	() => props,
+	(v) => {
+		setValues({
+			title: v.title ?? "",
+			categoryId: v.categoryId ?? undefined,
+		});
+	},
+	{ immediate: true, deep: true },
+);
+
+watch(
+	() => open.value,
+	(isOpen) => {
+		if (isOpen) {
+			resetForm({
+				values: {
+					title: props.title ?? "",
+					categoryId: props.categoryId ?? undefined,
+				},
+			});
+		}
+	},
+);
+
+const titleLength = computed(() => values.title?.length ?? 0);
+
+const { data: profile } = useProfile();
+
+const selectedDashboard = computed(() => {
+	return profile.value?.availableDashboards.find(
+		(dashboard) => dashboard.id === profile.value?.selectedDashboardId,
+	);
+});
+
+const isTwitchDashboard = computed(() => selectedDashboard.value?.platform === "twitch");
+
+const informationUpdater = twitchSetChannelInformationMutation();
+
+const onSubmit = handleSubmit(async (formValues) => {
+	if (!isTwitchDashboard.value) {
+		return;
+	}
+
+	const mutationInput: { title?: string; categoryId?: string } = {};
+
+	if (userCanEditTitle.value) {
+		mutationInput.title = formValues.title;
+	}
+
+	if (userCanEditCategory.value) {
+		mutationInput.categoryId = formValues.categoryId;
+	}
+
+	if (!Object.keys(mutationInput).length) {
+		return;
+	}
+
+	try {
+		await informationUpdater.executeMutation(mutationInput);
+		toast.success(t("sharedTexts.saved"));
+		open.value = false;
+	} catch (error) {
+		toast.error(error instanceof Error ? error.message : "Failed to save");
+	}
+});
+
+const userCanEditTitle = useUserAccessFlagChecker(ChannelRolePermissionEnum.UpdateChannelTitle);
+const userCanEditCategory = useUserAccessFlagChecker(
+	ChannelRolePermissionEnum.UpdateChannelCategory,
+);
+const canSubmit = computed(() => {
+	return isTwitchDashboard.value && (userCanEditTitle.value || userCanEditCategory.value);
+});
+</script>
+
+<template>
+	<Dialog v-model:open="open">
+		<DialogContent class="sm:max-w-[500px]">
+			<DialogHeader>
+				<DialogTitle>{{ t("dashboard.statsWidgets.streamInfo.editStreamInfo") }}</DialogTitle>
+				<DialogDescription>
+					{{ t("dashboard.statsWidgets.streamInfo.editStreamInfoDescription") }}
+				</DialogDescription>
+			</DialogHeader>
+
+			<form @submit="onSubmit">
+				<div class="grid gap-4 py-4">
+					<FormField v-slot="{ componentField }" name="title">
+						<FormItem>
+							<FormLabel>
+								{{ t("dashboard.statsWidgets.streamInfo.title") }}
+							</FormLabel>
+							<FormControl>
+								<div class="space-y-1">
+									<Input
+										id="title"
+										v-bind="componentField"
+										:disabled="!isTwitchDashboard || !userCanEditTitle"
+										:placeholder="t('dashboard.statsWidgets.streamInfo.title')"
+									/>
+									<div class="flex justify-end">
+										<span
+											class="text-xs"
+											:class="titleLength > 140 ? 'text-destructive' : 'text-muted-foreground'"
+										>
+											{{ titleLength }} / 140
+										</span>
+									</div>
+								</div>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+
+					<FormField v-slot="{ componentField }" name="categoryId">
+						<FormItem>
+							<FormLabel for="category">
+								{{ t("dashboard.statsWidgets.streamInfo.category") }}
+							</FormLabel>
+							<FormControl>
+								<TwitchCategorySelector
+									id="category"
+									v-bind="componentField"
+									:disabled="!isTwitchDashboard || !userCanEditCategory"
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+				</div>
+
+				<DialogFooter>
+					<Button type="button" variant="outline" @click="open = false">
+						{{ t("sharedButtons.cancel") }}
+					</Button>
+					<Button type="submit" :disabled="informationUpdater.fetching.value || !canSubmit">
+						{{
+							informationUpdater.fetching.value
+								? t("sharedButtons.saving")
+								: t("sharedButtons.save")
+						}}
+					</Button>
+				</DialogFooter>
+			</form>
+		</DialogContent>
+	</Dialog>
+</template>

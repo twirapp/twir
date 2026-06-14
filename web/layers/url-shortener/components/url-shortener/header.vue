@@ -1,11 +1,7 @@
-<script setup lang="ts">
-import { WandSparklesIcon } from "lucide-vue-next";
-</script>
-
 <template>
 	<div class="flex flex-col gap-6 items-center mb-3">
 		<div class="flex rounded-xl border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,10%)] p-5">
-			<WandSparklesIcon fill="rgba(255,255,255,0.3)" class="w-8 h-8" />
+			<Icon name="lucide:wand-sparkles" fill="rgba(255,255,255,0.3)" class="w-8 h-8" />
 		</div>
 		<div class="flex flex-col gap-4 items-center justify-center">
 			<div class="flex flex-col gap-0.5 items-center justify-center">

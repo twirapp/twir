@@ -94,24 +94,11 @@ const buttons = computed(() => {
 			class="flex flex-col items-center justify-center"
 			@click="button.onClick"
 		>
-			<Icon class="icon" :name="button.icon" />
+			<Icon
+				class="h-6 w-6 cursor-pointer text-gray-300 hover:text-gray-100 disabled:opacity-50"
+				:name="button.icon"
+			/>
 			<span class="text-xs">{{ button.name }}</span>
 		</UiButton>
 	</div>
 </template>
-
-<style scoped>
-@reference '~/assets/css/tailwind.css';
-
-.icon {
-	@apply w-6 h-6 cursor-pointer text-gray-300;
-}
-
-.icon:disabled {
-	@apply opacity-50;
-}
-
-.icon:hover {
-	@apply text-gray-100;
-}
-</style>

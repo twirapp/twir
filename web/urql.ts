@@ -22,12 +22,23 @@ export default defineUrqlClient((ssrExchange) => {
 
 	return {
 		exchanges,
+		preferGetMethod: false,
 		fetchOptions: {
 			credentials: 'include',
-			headers,
+			headers: {
+				...headers,
+				...getApiKeyHeader(),
+			},
 		},
 	}
 })
+
+function getApiKeyHeader(): Record<string, string> {
+	if (typeof window === 'undefined') return {}
+	const params = new URLSearchParams(window.location.search)
+	const apiKey = params.get('apiKey')
+	return apiKey ? { 'Api-Key': apiKey } : {}
+}
 
 function setupServer(ssrExchange: SSRExchange) {
 	return [cacheExchange, ssrExchange, fetchExchange]

@@ -17,8 +17,6 @@ const code = computed(() => {
 </template>
 
 <style scoped>
-@reference "~/assets/css/tailwind.css";
-
 :deep(code) {
 	font-family: 'JetBrains Mono', serif;
 }

@@ -1,0 +1,138 @@
+<script setup lang="ts">
+import { onMounted } from 'vue'
+
+import { useFaceitIntegration } from '~~/layers/dashboard/api/integrations/faceit.js'
+import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
+import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
+import {
+	lastfmBroadcaster,
+	useLastfmIntegration,
+} from '~~/layers/dashboard/features/integrations/composables/lastfm/use-lastfm-integration.js'
+
+definePageMeta({ layout: 'popup', middleware: 'auth' })
+
+const route = useRoute()
+const router = useRouter()
+
+const discordIntegration = useDiscordIntegration()
+const lastfmIntegration = useLastfmIntegration()
+const faceitIntegration = useFaceitIntegration()
+const integrationsManager = useIntegrations()
+
+const integrationsHooks: {
+	[x: string]:
+		| {
+				manager: {
+					usePostCode: (...args: any) => any | Promise<any>
+					useData?: () => {
+						refetch: (...args: any) => any | Promise<any>
+					}
+				}
+				closeWindow?: boolean
+		  }
+		| {
+				custom: true
+				handler: (code: string) => Promise<void>
+				closeWindow?: boolean
+		  }
+} = {
+	lastfm: {
+		custom: true,
+		closeWindow: true,
+		handler: async (code: string) => {
+			const error = await lastfmIntegration.postCode(code)
+			if (!error) {
+				lastfmBroadcaster.postMessage('refresh')
+			}
+		},
+	},
+	streamlabs: {
+		custom: true,
+		closeWindow: true,
+		handler: async (code: string) => {
+			await integrationsManager.streamlabsPostCode().executeMutation({ code })
+			integrationsManager.broadcastRefresh()
+		},
+	},
+	faceit: {
+		custom: true,
+		closeWindow: true,
+		handler: async (code: string) => {
+			await faceitIntegration.postCode.executeMutation({ code })
+			faceitIntegration.broadcastRefresh()
+		},
+	},
+	discord: {
+		custom: true,
+		closeWindow: true,
+		handler: async (code: string) => {
+			await discordIntegration.connectGuild(code)
+			window.opener?.postMessage('discord-connected', '*')
+		},
+	},
+}
+
+onMounted(async () => {
+	const integrationName = route.params.name
+	if (!integrationName || typeof integrationName !== 'string') {
+		router.push('/dashboard/integrations')
+		return
+	}
+
+	const integration = integrationsHooks[integrationName]
+
+	const { code, token } = route.query
+	const incomingCode = code ?? token
+
+	if (typeof incomingCode !== 'string') {
+		if (integration?.closeWindow) {
+			window.close()
+		} else {
+			router.push('/dashboard/integrations')
+		}
+		return
+	}
+
+	if (integration && 'custom' in integration && integration.custom) {
+		try {
+			await integration.handler(incomingCode)
+		} finally {
+			if (integration.closeWindow) {
+				window.close()
+			} else {
+				router.push('/dashboard/integrations')
+			}
+		}
+		return
+	}
+
+	if (integration && 'manager' in integration) {
+		const postCodeHook = integration.manager.usePostCode()
+		const getDataHook = integration.manager.useData?.()
+
+		postCodeHook.mutateAsync({ code: incomingCode }).finally(async () => {
+			if (integration.closeWindow) {
+				if (getDataHook) {
+					await getDataHook.refetch({})
+				}
+				window.close()
+			} else {
+				router.push('/dashboard/integrations')
+			}
+		})
+		return
+	}
+
+	if (integration?.closeWindow) {
+		window.close()
+	} else {
+		router.push('/dashboard/integrations')
+	}
+})
+</script>
+
+<template>
+	<div class="flex items-center justify-center w-full h-full bg-[#0f0f14]">
+		<Icon name="lucide:loader2" class="h-12 w-12 animate-spin text-primary" />
+	</div>
+</template>

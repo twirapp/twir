@@ -67,6 +67,13 @@ adhere to these guidelines strictly to maintain code consistency and quality.
   - Always inform the user when you are using MCP tools. Let me know which MCP you are using and why.
 - **Skills**
   - When working with postgres read releated skill in skills directory
+  - When working on the **Nuxt public website (`web/`)**, load the **`nuxt`** skill for Nuxt 3
+    framework guidance (routing, data fetching, server routes, SSR/hydration, etc.).
+  - When building UI with **Reka UI** primitives, load the **`reka-ui`** skill for component APIs,
+    accessibility patterns, composition (`asChild`), controlled state, and SSR guidance.
+  - When working with **shadcn-vue** components, load the **`shadcn-vue`** skill for component
+    usage, styling conventions, CLI commands, and theming.
+  - Skill files are located under `.agents/skills/` and can be loaded with the `skill` tool.
 
 ---
 

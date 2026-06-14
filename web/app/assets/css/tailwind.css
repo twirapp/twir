@@ -1,9 +1,13 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 @import "tw-animate-css";
 
 @source "../../components/";
 @source "../../../layers/";
 @source "@twir/frontend-valorant-stats/";
+@source not "../../../i18n/locales/";
+@source not "../../../locales/";
+@source not "../../../layers/dashboard/locales/";
+@source not "../../../layers/dashboard/assets/";
 
 @custom-variant dark (&:is(.dark *));
 

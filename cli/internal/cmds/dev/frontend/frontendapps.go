@@ -6,7 +6,6 @@ import (
 )
 
 var appsForStart = []twirApp{
-	{name: "dashboard"},
 	{name: "web"},
 	{name: "overlays"},
 }

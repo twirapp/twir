@@ -79,6 +79,9 @@ Use Nuxt Icon component with Lucide:
 </template>
 ```
 
+Do not import icon components from `@lucide/vue` or `lucide-vue-next` in `web`. Use the Nuxt
+`<Icon />` component everywhere, including shared UI components and layers.
+
 ### Styling
 
 Same as dashboard: Tailwind CSS with theme colors.
@@ -116,6 +119,13 @@ const { data } = await useAsyncQuery(gql`
 | ---------- | ---------------------------- |
 | Dev Server | 3000                         |
 | API Proxy  | 3000/api/\* → localhost:3009 |
+
+## Playwright MCP
+
+- For browser QA, open the dev site through Caddy using the current root `.env` `SITE_BASE_URL`.
+- If `SITE_BASE_URL` is not set, use `http://localhost:3005`.
+- Do not use `localhost:3000` or `localhost:3010` directly for authenticated dashboard QA; cookies,
+  redirects, API proxying, and sockets must match the Caddy-served dev URL.
 
 ## NOTES
 

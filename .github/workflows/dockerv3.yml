@@ -3,7 +3,7 @@ name: Docker v3
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       skip-change-detect:
@@ -165,9 +165,6 @@ jobs:
           - name: websockets
             path: apps/websockets
             runtime: go
-          - name: dashboard
-            path: frontend/dashboard
-            runtime: js
           - name: overlays
             path: frontend/overlays
             runtime: js
@@ -235,10 +232,6 @@ jobs:
           key: ${{ runner.os }}-go-build-${{ matrix.folders.path }}-${{ hashFiles(format('{0}/**/*.go', matrix.folders.path), 'go.work', format('{0}/go.mod', matrix.folders.path), format('{0}/go.sum', matrix.folders.path)) }}
           restore-keys: |
             ${{ runner.os }}-go-build-${{ matrix.folders.path }}-${{ hashFiles('go.work', format('{0}/go.mod', matrix.folders.path), format('{0}/go.sum', matrix.folders.path)) }}
-
-      - name: Install binaries dependencies
-        if: env.run-build == 'true'
-        run: bun cli deps -skip-node -skip-go
 
       - name: Build gql
         if: env.run-build == 'true'
