@@ -8,7 +8,7 @@ definePageMeta({ layout: false })
 
 const query = useUrlSearchParams()
 const shouldDisplayKD = query.displayAvarageKdr === 'true'
-const shouldDisplayRanking = query.displayAvarageKdr === 'true'
+const shouldDisplayRanking = query.displayWorldRanking === 'true'
 const shouldDisplayLastTwentyMatches = query.displayLastTwentyMatches === 'true'
 
 const settings: Settings = {

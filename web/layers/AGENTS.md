@@ -35,7 +35,7 @@ web/layers/
 | `url-shortener` | `/s/*`        | Short link redirect page |
 | `pastebin`      | `/paste/*`    | Code sharing UI          |
 | `public`        | `/public/*`   | Public utilities         |
-| `overlays`      | `/overlays/*` | Overlay previews         |
+| `overlays`      | `/o/*`        | Browser source overlays  |
 
 ## CONVENTIONS
 
