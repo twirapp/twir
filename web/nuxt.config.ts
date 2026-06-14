@@ -1,7 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
 
-import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import tailwindcss from '@tailwindcss/vite'
 import viteCommonjs from 'vite-plugin-commonjs'
 
@@ -83,10 +82,6 @@ export default defineNuxtConfig({
 	vite: {
 		plugins: [
 			tailwindcss(),
-			VueI18nPlugin({
-				strictMessage: false,
-				escapeHtml: false,
-			}),
 			viteCommonjs(),
 		],
 		optimizeDeps: {

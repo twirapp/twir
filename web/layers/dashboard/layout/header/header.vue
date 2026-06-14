@@ -319,7 +319,7 @@ function onDragEnd() {
 </template>
 
 <style scoped>
-@import "@/assets/css/tailwind.css";
+@reference "@/assets/css/tailwind.css";
 
 .header-widget {
 	position: relative;

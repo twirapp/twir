@@ -6,6 +6,7 @@ import {
 	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
+	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle
@@ -22,7 +23,7 @@ defineEmits<{
 
 const { t } = useI18n()
 
-const open = defineModel<boolean>({ default: false })
+const open = defineModel<boolean>('open', { default: false })
 </script>
 
 <template>
@@ -30,6 +31,9 @@ const open = defineModel<boolean>({ default: false })
 		<AlertDialogContent>
 			<AlertDialogHeader>
 				<AlertDialogTitle>{{ confirmText ?? t('deleteConfirmation.text') }}</AlertDialogTitle>
+				<AlertDialogDescription class="sr-only">
+					{{ confirmText ?? t('deleteConfirmation.text') }}
+				</AlertDialogDescription>
 			</AlertDialogHeader>
 			<AlertDialogFooter>
 				<AlertDialogCancel @click="$emit('cancel')">
