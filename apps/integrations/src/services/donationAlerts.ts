@@ -25,8 +25,8 @@ export const globalRequestLimiter = new RateLimiter({
 export const rateLimiterKey = 'donationalerts'
 
 export class DonationAlerts {
-	#socket: Centrifuge | null
-	#channel: Subscription | null
+	#socket: Centrifuge | null = null
+	#channel: Subscription | null = null
 
 	constructor(
 		private readonly accessToken: string,

@@ -6,7 +6,7 @@ import {
 	getDonationPayIntegrations,
 	getStreamlabsIntegrations,
 } from './libs/db';
-import { twirBus } from './libs/twirbus.ts';
+import { twirBus } from './libs/twirbus';
 import {
 	addIntegration as addDonatePayIntegration,
 	removeIntegration as removeDonatePayIntegration,

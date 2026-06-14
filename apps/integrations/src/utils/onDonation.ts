@@ -1,5 +1,5 @@
-import { insertDonation } from '../libs/db.ts'
-import { twirBus } from '../libs/twirbus.ts'
+import { insertDonation } from '../libs/db'
+import { twirBus } from '../libs/twirbus'
 
 export interface Donate {
 	twitchUserId: string

@@ -6,8 +6,8 @@ import ws from 'ws'
 // @ts-expect-error
 import { XMLHttpRequest } from 'xmlhttprequest'
 
-import { client } from '../libs/redis.ts'
-import { onDonation } from '../utils/onDonation.js'
+import { client } from '../libs/redis'
+import { onDonation } from '../utils/onDonation'
 
 import type { Subscription } from 'centrifuge'
 
@@ -29,9 +29,9 @@ const requestLimiter = new RateLimiter({
 })
 
 export class DonatePay {
-	#centrifuge: Centrifuge
-	#subscription: Subscription
-	#timeout: Timer
+	#centrifuge!: Centrifuge
+	#subscription!: Subscription
+	#timeout!: Timer
 
 	constructor(
 		private readonly twitchUserId: string,

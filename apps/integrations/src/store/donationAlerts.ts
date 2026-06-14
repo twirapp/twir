@@ -1,11 +1,12 @@
 import { sleep } from 'bun';
 
-import { DonationAlertsIntegration, updateDonationAlertsIntegration } from '../libs/db.ts';
+import type { DonationAlertsIntegration } from '../libs/db'
+import { updateDonationAlertsIntegration } from '../libs/db';
 import {
 	DonationAlerts,
 	globalRequestLimiter,
 	rateLimiterKey,
-} from '../services/donationAlerts.ts';
+} from '../services/donationAlerts';
 import { config } from '@twir/config';
 
 export const donationAlertsStore = new Map<string, DonationAlerts>();
