@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import type { FunctionalComponent } from 'vue'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import Card from '~~/layers/dashboard/components/card/card.vue'
 import { Button } from '@/components/ui/button'
@@ -11,7 +9,7 @@ import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 withDefaults(defineProps<{
 	description: string
 	title: string
-	icon: FunctionalComponent
+	icon: string
 	iconStroke?: number
 	showSettings?: boolean
 	iconFill?: string

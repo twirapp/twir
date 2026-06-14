@@ -3,7 +3,7 @@ import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
 import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
+
 import { z } from "zod";
 
 import { useProfile, useUserAccessFlagChecker } from "~~/layers/dashboard/api/auth";
@@ -40,7 +40,7 @@ const formSchema = computed(() =>
 );
 
 const { handleSubmit, values, setValues, resetForm } = useForm({
-	validationSchema: computed(() => toTypedSchema(formSchema.value)),
+	validationSchema: computed(() => formSchema.value),
 });
 
 watch(

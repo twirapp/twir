@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -35,7 +35,7 @@ const { t } = useI18n()
 const open = ref(false)
 
 const keywordsForm = useForm({
-	validationSchema: toTypedSchema(
+	validationSchema:
 		z.object({
 			id: z.string().optional(),
 			text: z.string().min(1),
@@ -48,7 +48,6 @@ const keywordsForm = useForm({
 			enabled: z.boolean().optional().default(true),
 			platforms: z.array(z.string()).default([]),
 		})
-	),
 	initialValues: {
 		text: '',
 		usageCount: 0,

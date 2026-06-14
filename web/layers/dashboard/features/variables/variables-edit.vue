@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { Label } from 'reka-ui'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
@@ -53,7 +53,7 @@ except urllib.error.URLError as e:
 `
 
 const { handleSubmit, setValues, values } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		description: null,
 		type: VariableType.Text,

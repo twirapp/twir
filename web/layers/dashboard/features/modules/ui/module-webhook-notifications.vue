@@ -33,7 +33,7 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 <template>
 	<Card
 		:description="t('modules.webhookNotifications.description')"
-		:icon="Webhook"
+		icon="lucide:webhook"
 		:is-loading="fetching"
 		:title="t('modules.webhookNotifications.title')"
 		icon-height="30px"

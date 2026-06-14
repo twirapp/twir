@@ -53,7 +53,7 @@ const canManageModules = useUserAccessFlagChecker(ChannelRolePermissionEnum.Mana
 	<Card
 		:title="t('modules.chatTranslations.title')"
 		:is-loading="fetching"
-		:icon="LanguagesIcon"
+		icon="lucide:languages"
 		icon-height="30px"
 		icon-width="30px"
 		:description="t('modules.chatTranslations.description')"

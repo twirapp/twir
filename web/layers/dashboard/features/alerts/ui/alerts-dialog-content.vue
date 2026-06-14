@@ -2,7 +2,7 @@
 import { computed, onMounted, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { z } from 'zod'
 
 import AlertsDialogContentAudio from './alerts-dialog-content-audio.vue'
@@ -35,7 +35,7 @@ const formSchema = z.object({
 })
 
 const { handleSubmit, setValues, useFieldModel } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		name: '',
 		audioId: undefined,

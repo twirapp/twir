@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 
@@ -19,7 +19,7 @@ const formSchema = z.object({
 })
 
 const urlForm = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		shortId: undefined,
 		link: '',

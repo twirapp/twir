@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { type Font, FontSelector } from '~~/layers/dashboard/lib/fontsource'
 import { useForm } from 'vee-validate'
 import { computed, ref, toRaw, watch } from 'vue'
@@ -41,7 +41,7 @@ const defaultSettings = {
 }
 
 const brbForm = useForm({
-	validationSchema: toTypedSchema(BeRightBackUpdateInputSchema),
+	validationSchema: BeRightBackUpdateInputSchema,
 	initialValues: defaultSettings,
 	keepValuesOnUnmount: true,
 })

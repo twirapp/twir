@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { computed, ref, watch } from 'vue'
 import { z } from 'zod'
 
@@ -42,7 +42,7 @@ const newLinkTitle = ref('')
 const newLinkHref = ref('')
 
 const form = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		description: '',
 		socialLinks: [],

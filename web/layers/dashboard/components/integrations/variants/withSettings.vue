@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { FunctionalComponent } from 'vue'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { Card, CardFooter, CardHeader } from '@/components/ui/card'
 import SettingsModal from '@/components/ui/settings-modal'
@@ -10,7 +8,7 @@ import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = withDefaults(defineProps<{
 	title: string
-	icon?: FunctionalComponent
+	icon?: string
 	iconFill?: string
 	save?: () => void | Promise<void>
 	isLoading?: boolean
@@ -19,10 +17,10 @@ const props = withDefaults(defineProps<{
 }>(), {})
 
 defineSlots<{
-	settings: FunctionalComponent
-	customDescriptionSlot?: FunctionalComponent
-	additionalFooter?: FunctionalComponent
-	description: FunctionalComponent
+	settings: any
+	customDescriptionSlot?: any
+	additionalFooter?: any
+	description: any
 }>()
 
 const showSettings = ref(false)
@@ -40,11 +38,11 @@ async function callSave() {
 	<Card class="flex flex-col h-full">
 		<CardHeader>
 			<div class="flex items-center gap-2">
-				<component
-					:is="icon"
-					:style="{ fill: iconFill }"
-					class="w-8 h-8"
-				/>
+			<Icon
+				:name="icon"
+				:style="{ fill: iconFill }"
+				class="w-8 h-8"
+			/>
 				<h3 class="text-lg font-medium">
 					{{ title }}
 				</h3>

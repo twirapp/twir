@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { computed, onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -24,7 +24,7 @@ const { findCommand, submit } = useCommandEditV2()
 const loading = ref(true)
 
 const { handleSubmit, setValues, values } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		enabled: true,
 		aliases: [],

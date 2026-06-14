@@ -1,9 +1,9 @@
-import { toTypedSchema } from '@vee-validate/zod';
+
 import * as z from 'zod';
 
 import { EventOperationType, EventType } from '~/gql/graphql.js';
 
-export const eventFormSchema = toTypedSchema(
+export const eventFormSchema =
 	z
 		.object({
 			type: z.nativeEnum(EventType),
@@ -168,5 +168,4 @@ export const eventFormSchema = toTypedSchema(
 			}
 
 			return success;
-		}),
-);
+		})

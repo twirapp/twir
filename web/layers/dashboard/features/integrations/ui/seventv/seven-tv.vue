@@ -3,7 +3,6 @@ import { useI18n } from 'vue-i18n'
 
 import Settings from './settings.vue'
 
-import SevenTVSvg from '~~/layers/dashboard/assets/integrations/seventv.svg'
 import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'
@@ -19,7 +18,7 @@ const { steps, currentStep } = useSeventvSteps()
 </script>
 
 <template>
-	<WithSettings title="7TV" :icon="SevenTVSvg" icon-width="48px" dialog-content-class="w-[600px]">
+	<WithSettings title="7TV" icon="twir-integrations:seventv" icon-width="48px" dialog-content-class="w-[600px]">
 		<template #description>
 			{{ t('integrations.sevenTv.description') }}
 		</template>

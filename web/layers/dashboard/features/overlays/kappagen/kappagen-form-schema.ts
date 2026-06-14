@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import * as z from 'zod'
 
 import { KappagenEmojiStyle, KappagenOverlayAnimationStyle } from '~/gql/graphql.js'
@@ -59,6 +59,6 @@ const schema = z.object({
 		.default([]),
 })
 
-export const kappagenFormSchema = toTypedSchema(schema)
+export const kappagenFormSchema = schema
 
 export type KappagenFormSchema = z.infer<typeof schema>

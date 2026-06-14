@@ -30,7 +30,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { useIsMobile } from "~~/layers/dashboard/composables/use-is-mobile";
 import { useDashboardWidgetsCreateCustom } from "~~/layers/dashboard/api/dashboard-widgets-layout.js";
 import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
+
 import { z } from "zod";
 import { toast } from "vue-sonner";
 
@@ -112,7 +112,7 @@ const formSchema = z.object({
 });
 
 const { handleSubmit, resetForm } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 });
 
 const onSubmitWidget = handleSubmit(async (values) => {

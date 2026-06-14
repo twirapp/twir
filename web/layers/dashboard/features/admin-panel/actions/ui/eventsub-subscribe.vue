@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
@@ -22,12 +22,11 @@ const { t } = useI18n()
 
 const mutationEventSubSubscribe = useMutationEventSubSubscribe()
 
-const formSchema = toTypedSchema(
+const formSchema =
 	z.object({
 		type: z.string(),
 		version: z.string(),
 	})
-)
 
 const { handleSubmit } = useForm({
 	validationSchema: formSchema,

@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import * as z from 'zod'
@@ -7,11 +7,11 @@ import { useBadges } from './use-badges.js'
 
 import { useFormField } from '~~/layers/dashboard/composables/use-form-field.js'
 
-const formSchema = toTypedSchema(z.object({
+const formSchema = z.object({
 	name: z.string(),
 	slot: z.number(),
 	image: z.any(),
-}))
+})
 
 export const useBadgesForm = createGlobalState(() => {
 	const { badges, badgesUpdate, badgesCreate } = useBadges()
@@ -52,7 +52,7 @@ export const useBadgesForm = createGlobalState(() => {
 		event.preventDefault()
 
 		try {
-			const { value } = await formSchema.parse(formValues.value)
+			const value = await formSchema.parse(formValues.value)
 			if (!value)
 				return
 

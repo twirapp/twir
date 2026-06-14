@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -26,7 +26,7 @@ const schema = z.object({
 })
 
 const settingsForm = useForm({
-	validationSchema: toTypedSchema(schema),
+	validationSchema: schema,
 	keepValuesOnUnmount: true,
 	validateOnMount: false,
 })

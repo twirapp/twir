@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { computed, watchEffect } from 'vue'
 import { z } from 'zod'
@@ -19,7 +19,7 @@ export function useObsForm() {
 	const updateMutation = api.useMutationUpdateObsWebsocket()
 
 	const form = useForm({
-		validationSchema: toTypedSchema(obsSettingsSchema),
+		validationSchema: obsSettingsSchema,
 		initialValues: {
 			serverAddress: 'localhost',
 			serverPort: 4455,

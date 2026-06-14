@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod';
+
 import { useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -44,14 +44,13 @@ const settings = computed(() => {
 	};
 });
 
-const formSchema = toTypedSchema(
+const formSchema =
 	z.object({
 		winnerMessage: z
 			.string()
 			.min(1, t('giveaways.settings.validation.required'))
 			.max(500, t('giveaways.settings.validation.maxLength')),
-	}),
-);
+	});
 
 const form = useForm({
 	validationSchema: formSchema,

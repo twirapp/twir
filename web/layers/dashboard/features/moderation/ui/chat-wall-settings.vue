@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -24,7 +24,7 @@ const schema = z.object({
 	muteVips: z.boolean(),
 })
 const chatSettingsForm = useForm({
-	validationSchema: toTypedSchema(schema),
+	validationSchema: schema,
 })
 
 const { data, fetching } = api.useSettings()

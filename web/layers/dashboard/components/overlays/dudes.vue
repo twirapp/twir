@@ -2,7 +2,6 @@
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
-import DudesIcon from '~~/layers/dashboard/assets/overlays/dudes.svg';
 import Card from '~~/layers/dashboard/components/overlays/card.vue';
 
 const { t } = useI18n();
@@ -12,7 +11,7 @@ const router = useRouter();
 
 <template>
 	<card
-		:icon="DudesIcon"
+		icon="twir-overlays:dudes"
 		title="Dudes"
 		:description="t('overlays.dudes.description')"
 		:show-copy="false"

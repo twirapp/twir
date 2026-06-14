@@ -2,9 +2,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
+import { createResolver } from 'nuxt/kit'
 import tailwindcss from '@tailwindcss/vite'
 
 import gqlcodegen from './modules/gql-codegen'
+
+const { resolve } = createResolver(import.meta.url)
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -90,6 +93,16 @@ export default defineNuxtConfig({
 		clientBundle: {
 			includeCustomCollections: true,
 		},
+		customCollections: [
+			{
+				prefix: 'twir-overlays',
+				dir: resolve('./layers/dashboard/assets/overlays'),
+			},
+			{
+				prefix: 'twir-integrations',
+				dir: resolve('./layers/dashboard/assets/integrations'),
+			},
+		],
 	},
 
 	devServer: {

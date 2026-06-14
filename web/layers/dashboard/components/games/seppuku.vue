@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -36,7 +36,7 @@ import { Switch } from '@/components/ui/switch'
 import { toast } from 'vue-sonner'
 import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 
-const formSchema = toTypedSchema(
+const formSchema =
 	z.object({
 		enabled: z.boolean(),
 		message: z.string().max(500),
@@ -44,7 +44,6 @@ const formSchema = toTypedSchema(
 		timeoutModerators: z.boolean(),
 		timeoutSeconds: z.number().min(1).max(86400),
 	})
-)
 
 const isModalOpened = ref(false)
 const { t } = useI18n()
@@ -108,7 +107,7 @@ function resetSettings() {
 		<DialogTrigger asChild>
 			<Card
 				title="Seppuku"
-				:icon="SkullIcon"
+				icon="lucide:skull"
 				:icon-stroke="1"
 				:description="t('games.seppuku.description')"
 			/>

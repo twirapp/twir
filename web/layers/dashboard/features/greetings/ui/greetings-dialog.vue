@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
+
 
 import {
 	type GreetingsCreateInputInput,
@@ -35,9 +35,8 @@ const emits = defineEmits<{
 }>()
 
 const greetingForm = useForm({
-	validationSchema: toTypedSchema(
-		props.greeting ? GreetingsUpdateInputSchema : GreetingsCreateInputSchema
-	),
+	validationSchema:
+		props.greeting ? GreetingsUpdateInputSchema : GreetingsCreateInputSchema,
 	keepValuesOnUnmount: true,
 	validateOnMount: false,
 	initialValues: {

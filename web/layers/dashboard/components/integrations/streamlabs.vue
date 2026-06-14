@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import IconStreamLabs from '~~/layers/dashboard/assets/integrations/streamlabs.svg'
 import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
 import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
@@ -16,7 +15,7 @@ const logout = integrationsManager.streamlabsLogout()
 		:data="integrationsPage.streamlabsData.value"
 		:logout="() => logout.executeMutation({})"
 		:authLink="integrationsPage.streamlabsAuthLink.value"
-		:icon="IconStreamLabs"
+		icon="twir-integrations:streamlabs"
 	>
 		<template #description>
 			<donate-description />

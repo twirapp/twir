@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import * as z from 'zod'
@@ -6,10 +6,10 @@ import * as z from 'zod'
 import { useAdminNotifications } from '~~/layers/dashboard/api/admin/notifications'
 import { useFormField } from '~~/layers/dashboard/composables/use-form-field'
 
-const formSchema = toTypedSchema(z.object({
+const formSchema = z.object({
 	userId: z.string().nullable(),
 	editorJsJson: z.string(),
-}))
+})
 
 export const useNotificationsForm = createGlobalState(() => {
 	const userIdField = useFormField<string | null>('userId', null)
@@ -33,7 +33,7 @@ export const useNotificationsForm = createGlobalState(() => {
 		event.preventDefault()
 
 		try {
-			const { value } = await formSchema.parse(formValues.value)
+			const value = await formSchema.parse(formValues.value)
 			if (!value)
 				return
 

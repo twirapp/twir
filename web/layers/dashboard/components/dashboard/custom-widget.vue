@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
+
 import { z } from "zod";
 
 defineOptions({
@@ -47,7 +47,7 @@ const formSchema = z.object({
 });
 
 const { handleSubmit, setValues } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		name: props.item.displayName || "",
 		url: props.url,

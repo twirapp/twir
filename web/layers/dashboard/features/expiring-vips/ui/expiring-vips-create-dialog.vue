@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from "@vee-validate/zod";
+
 import { useForm } from "vee-validate";
 import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -61,7 +61,7 @@ const formSchema = z
 	});
 
 const { handleSubmit, resetForm, values, setFieldValue } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		userID: null as string | null,
 		removeType: ScheduledVipRemoveType.Time,

@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { computed, watchEffect } from 'vue'
 import { z } from 'zod'
@@ -31,7 +31,7 @@ export function useTTSForm() {
 	const updateMutation = api.useMutationUpdateTTS()
 
 	const form = useForm({
-		validationSchema: toTypedSchema(ttsSettingsSchema),
+		validationSchema: ttsSettingsSchema,
 		initialValues: {
 			// General settings
 			enabled: false,

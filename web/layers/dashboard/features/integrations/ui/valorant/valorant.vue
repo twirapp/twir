@@ -2,7 +2,6 @@
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import ValorantIcon from '~~/layers/dashboard/assets/integrations/valorant.svg'
 import Oauth from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import {
 	useValorantIntegration,
@@ -36,7 +35,7 @@ onMounted(async () => {
 <template>
 	<Oauth
 		title="Valorant"
-		:icon="ValorantIcon"
+		icon="twir-integrations:valorant"
 		icon-width="48px"
 		dialog-content-class="w-[600px]"
 		:auth-link="authLink"

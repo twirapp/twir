@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import IconDonationAlerts from '~~/layers/dashboard/assets/integrations/donationalerts.svg'
 import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
 import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
 import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
@@ -16,7 +15,7 @@ const logout = integrationsManager.donationAlertsLogout()
 		:data="integrationsPage.donationAlertsData.value"
 		:logout="() => logout.executeMutation({})"
 		:authLink="integrationsPage.donationAlertsAuthLink.value"
-		:icon="IconDonationAlerts"
+		icon="twir-integrations:donationalerts"
 	>
 		<template #description>
 			<donate-description />

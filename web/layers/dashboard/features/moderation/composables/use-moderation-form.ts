@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { z } from 'zod'
 
 import type { ModerationItem } from '~~/layers/dashboard/api/moderation'
@@ -23,7 +23,7 @@ export const Icons: Readonly<Record<ModerationSettingsType, string>> = Object.fr
 	[ModerationSettingsType.OneManSpam]: 'lucide:repeat-1',
 })
 
-export const moderationValidationRules = toTypedSchema(
+export const moderationValidationRules =
 	z.object({
 		id: z.string().optional(),
 		name: z.string().optional().nullable(),
@@ -46,4 +46,3 @@ export const moderationValidationRules = toTypedSchema(
 		oneManSpamMessageMemorySeconds: z.number().min(0).max(600).default(30),
 		languageExcludedWords: z.array(z.string()).default([]),
 	})
-)

@@ -2,8 +2,6 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { FunctionalComponent } from 'vue'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,7 +21,7 @@ const props = withDefaults(
 		data: { userName?: string | null; avatar?: string | null } | undefined | null
 		logout: () => any
 		authLink?: string | null
-		icon: FunctionalComponent<any>
+		icon: string
 		iconWidth?: string
 		iconColor?: string
 		withSettings?: boolean
@@ -36,8 +34,8 @@ const props = withDefaults(
 )
 
 defineSlots<{
-	settings?: FunctionalComponent
-	description?: FunctionalComponent | string
+	settings?: any
+	description?: any
 }>()
 
 const showSettings = ref(false)
@@ -64,7 +62,7 @@ const { t } = useI18n()
 	<Card class="flex flex-col h-full">
 		<CardHeader>
 			<CardTitle class="flex items-center gap-2">
-				<component :is="icon" :style="{ width: iconWidth }" class="w-8 h-8" />
+				<Icon :name="icon" :style="{ width: iconWidth }" class="w-8 h-8" />
 				{{ title }}
 			</CardTitle>
 		</CardHeader>

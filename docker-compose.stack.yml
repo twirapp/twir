@@ -595,44 +595,6 @@ services:
         constraints:
           - node.labels.databases != true
 
-  dashboard:
-    image: registry.twir.app/twirapp/dashboard:${TWIR_IMAGE_TAG:-latest}
-    command: --gzip --brotli --threshold 500 --ignore-cache-control-paths "/sw.js,/index.html,/manifest.webmanifest,/pluginWebUpdateNotice/web_version_by_plugin.json"
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-      - traefik-public
-      - cloudflared
-    deploy:
-      labels:
-        - "traefik.enable=true"
-        - "traefik.swarm.network=traefik-public"
-        # twir.app/dashboard
-        - "traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)"
-        - "traefik.http.routers.twir-dashboard.entrypoints=web"
-        - "traefik.http.routers.twir-dashboard.service=twir-dashboard"
-        - "traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix,gzip,rate-limit"
-        - "traefik.http.routers.twir-dashboard.priority=20"
-        - "traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard"
-        # cf.twir.app/dashboard
-        - "traefik.http.routers.cf-dashboard.rule=Host(`cf.twir.app`) && PathPrefix(`/dashboard`)"
-        - "traefik.http.routers.cf-dashboard.entrypoints=web"
-        - "traefik.http.routers.cf-dashboard.service=twir-dashboard"
-        - "traefik.http.routers.cf-dashboard.middlewares=dashboard-stripprefix,gzip,rate-limit"
-        - "traefik.http.routers.cf-dashboard.priority=20"
-        - "traefik.http.services.twir-dashboard.loadbalancer.server.port=8080"
-      update_config:
-        order: start-first
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.labels.databases != true
-
   overlays:
     image: registry.twir.app/twirapp/overlays:${TWIR_IMAGE_TAG:-latest}
     command: --gzip --brotli --threshold 500

@@ -92,7 +92,7 @@ function resetSettings() {
 		<DialogTrigger asChild>
 			<Card
 				title="Voteban"
-				:icon="GavelIcon"
+				icon="lucide:gavel"
 				:icon-stroke="1"
 				:description="t('games.voteban.description')"
 			/>

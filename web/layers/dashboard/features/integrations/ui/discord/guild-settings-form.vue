@@ -11,7 +11,7 @@ import {
 	// eslint-disable-next-line ts/ban-ts-comment
 	// @ts-expect-error
 } from '@discord-message-components/vue'
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -58,7 +58,7 @@ const { updateGuild, guilds } = useDiscordIntegration()
 const { channels, roles, isLoading: isGuildInfoLoading } = useDiscordGuildInfo(() => props.guildId)
 
 const form = useForm<DiscordGuildUpdateInputInput>({
-	validationSchema: toTypedSchema(DiscordGuildUpdateInputSchema),
+	validationSchema: DiscordGuildUpdateInputSchema,
 })
 
 // Update form when initialValues change

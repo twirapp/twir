@@ -93,7 +93,7 @@ async function resetSettings() {
 		<DialogTrigger asChild>
 			<Card
 				title="Russian Roulette"
-				:icon="Bomb"
+				icon="lucide:bomb"
 				:icon-stroke="1"
 				:description="t('games.russianRoulette.description')"
 			/>

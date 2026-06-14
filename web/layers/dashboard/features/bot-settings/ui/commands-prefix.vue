@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -19,11 +19,10 @@ const { data: currentPrefix } = api.usePrefix()
 const update = api.usePrefixUpdate()
 const reset = api.usePrefixReset()
 
-const formSchema = toTypedSchema(
+const formSchema =
 	z.object({
 		prefix: z.string().min(1).max(10),
 	})
-)
 
 const form = useForm({
 	validationSchema: formSchema,

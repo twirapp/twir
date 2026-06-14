@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { createGlobalState } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
@@ -20,7 +20,7 @@ const rules = z.object({
 	bothDiePercent: z.number().min(0).max(100),
 })
 
-export const formSchema = toTypedSchema(rules)
+export const formSchema = rules
 
 export type FormSchema = z.infer<typeof rules>
 

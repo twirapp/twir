@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from "@vee-validate/zod";
+
 import { useForm } from "vee-validate";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -39,7 +39,7 @@ const { createGiveaway, viewGiveaway } = useGiveaways();
 const canManageGiveaways = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGiveaways);
 
 // Form validation schema
-const formSchema = toTypedSchema(
+const formSchema =
 	z
 		.object({
 			type: z.enum(["KEYWORD", "ONLINE_CHATTERS"]),
@@ -65,8 +65,7 @@ const formSchema = toTypedSchema(
 				message: "Keyword is required for KEYWORD type giveaways",
 				path: ["keyword"],
 			},
-		),
-);
+		);
 
 // Form setup
 const giveawayCreateForm = useForm({

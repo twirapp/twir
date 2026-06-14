@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -36,7 +36,7 @@ export function useWebhookNotifications() {
 	const exists = computed(() => !!settings.value?.id)
 
 	const form = useForm<FormSchema>({
-		validationSchema: toTypedSchema(formSchema),
+		validationSchema: formSchema,
 		initialValues: {
 			enabled: false,
 			githubIssues: true,

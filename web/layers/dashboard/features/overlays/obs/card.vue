@@ -2,7 +2,6 @@
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import BroadcastIcon from '~~/layers/dashboard/assets/overlays/broadcast.svg'
 import Card from '~~/layers/dashboard/components/overlays/card.vue'
 
 const { t } = useI18n()
@@ -11,7 +10,7 @@ const router = useRouter()
 
 <template>
 	<Card
-		:icon="BroadcastIcon"
+		icon="twir-overlays:broadcast"
 		:icon-stroke="2"
 		title="OBS"
 		:description="t('overlays.obs.description')"

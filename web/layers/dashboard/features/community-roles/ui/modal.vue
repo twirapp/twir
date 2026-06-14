@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { onMounted, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -28,7 +28,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const formSchema = toTypedSchema(
+const formSchema =
 	z.object({
 		name: z.string().min(1, t('roles.validations.nameRequired')).max(50),
 		permissions: z.array(z.nativeEnum(ChannelRolePermissionEnum)),
@@ -39,7 +39,6 @@ const formSchema = toTypedSchema(
 			requiredWatchTime: z.number().min(0).max(99999999),
 		}),
 	})
-)
 
 const initialValues = {
 	name: '',

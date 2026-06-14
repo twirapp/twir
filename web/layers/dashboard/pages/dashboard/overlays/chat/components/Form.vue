@@ -5,7 +5,7 @@ import { useIntervalFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { z } from 'zod'
 
 import { defaultChatSettings } from './default-settings'
@@ -140,7 +140,7 @@ const chatBoxSettings = computed<ChatBoxSettings>(() => {
 	}
 })
 
-const formSchema = toTypedSchema(
+const formSchema =
 	z.object({
 		preset: z.enum(['clean', 'boxed']),
 		direction: z.enum(['top', 'right', 'bottom', 'left']),
@@ -160,7 +160,6 @@ const formSchema = toTypedSchema(
 		messageHideTimeout: z.number().min(0).max(60),
 		messageShowDelay: z.number().min(0).max(60),
 	})
-)
 
 const { handleSubmit, setValues, values } = useForm({
 	validationSchema: formSchema,

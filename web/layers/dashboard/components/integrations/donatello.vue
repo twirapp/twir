@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import DonatelloSVG from '~~/layers/dashboard/assets/integrations/donatello.svg'
 import DonateDescription from '~~/layers/dashboard/components/integrations/helpers/donateDescription.vue'
 import WithSettings from '~~/layers/dashboard/components/integrations/variants/withSettings.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -12,7 +11,7 @@ const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatell
 </script>
 
 <template>
-	<WithSettings title="Donatello" :icon="DonatelloSVG" icon-width="48px">
+	<WithSettings title="Donatello" icon="twir-integrations:donatello" icon-width="48px">
 		<template #description>
 			<DonateDescription />
 		</template>

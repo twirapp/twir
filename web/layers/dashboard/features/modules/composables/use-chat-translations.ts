@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod'
+
 import { useForm } from 'vee-validate'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -31,7 +31,7 @@ export function useChatTranslations() {
 	const exists = computed(() => !!chatTranslation.value?.id)
 
 	const translationsForm = useForm<FormSchema>({
-		validationSchema: toTypedSchema(formSchema),
+		validationSchema: formSchema,
 		initialValues: {
 			enabled: false,
 			targetLanguage: 'en',

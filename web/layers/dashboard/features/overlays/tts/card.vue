@@ -3,7 +3,6 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { useTTSOverlayApi } from '~~/layers/dashboard/api/overlays-tts'
-import VoiceMessageIcon from '~~/layers/dashboard/assets/overlays/voice-message.svg'
 import Card from '~~/layers/dashboard/components/overlays/card.vue'
 
 const { t } = useI18n()
@@ -15,7 +14,7 @@ const router = useRouter()
 
 <template>
 	<card
-		:icon="VoiceMessageIcon"
+		icon="twir-overlays:voice-message"
 		title="TTS"
 		:description="t('overlays.tts.description')"
 		overlay-path="tts"

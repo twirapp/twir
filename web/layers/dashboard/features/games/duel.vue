@@ -63,7 +63,7 @@ function resetSettings() {
 <template>
 	<Dialog v-model:open="isDialogOpen">
 		<DialogTrigger asChild>
-			<Card title="Duel" :icon="Bomb" :icon-stroke="1" :description="t('games.duel.description')" />
+			<Card title="Duel" icon="lucide:bomb" :icon-stroke="1" :description="t('games.duel.description')" />
 		</DialogTrigger>
 
 		<DialogOrSheet class="sm:max-w-[625px]">

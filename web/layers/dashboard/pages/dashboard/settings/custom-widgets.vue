@@ -18,7 +18,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
+
 import { z } from "zod";
 import { toast } from "vue-sonner";
 
@@ -46,7 +46,7 @@ const formSchema = z.object({
 });
 
 const { handleSubmit, resetForm } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 });
 
 const onSubmit = handleSubmit(async (values) => {

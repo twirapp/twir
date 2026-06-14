@@ -60,7 +60,7 @@ async function save() {
 <template>
 	<Card
 		title="8ball"
-		:icon="MessageCircle"
+		icon="lucide:message-circle"
 		:icon-stroke="1"
 		:description="t('games.8ball.description')"
 		show-settings

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTypedSchema } from "@vee-validate/zod";
+
 import { FieldArray, useForm } from "vee-validate";
 import { computed, onMounted, ref, toRaw } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
@@ -42,7 +42,7 @@ const { findTimer, submit } = useTimersEdit();
 const loading = ref(true);
 
 const { resetForm, handleSubmit, controlledValues, errors, setValues } = useForm({
-	validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 	initialValues: {
 		timeInterval: 1,
 		messageInterval: 0,

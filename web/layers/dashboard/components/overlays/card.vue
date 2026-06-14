@@ -3,8 +3,6 @@ import { useI18n } from 'vue-i18n'
 
 import { useCopyOverlayLink } from './copyOverlayLink.js'
 
-import type { FunctionalComponent } from 'vue'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import Card from '~~/layers/dashboard/components/card/card.vue'
 import { Button } from '@/components/ui/button'
@@ -16,7 +14,7 @@ const props = withDefaults(
 		description: string
 		title: string
 		overlayPath?: string
-		icon: FunctionalComponent
+		icon: string
 		iconStroke?: number
 		showSettings?: boolean
 		copyDisabled?: boolean
