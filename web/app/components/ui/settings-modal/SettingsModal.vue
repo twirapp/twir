@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { IconSettings } from '@tabler/icons-vue'
 import { clsx } from 'clsx'
 import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 
 defineProps<{
 	open: boolean
@@ -17,14 +23,17 @@ defineProps<{
 
 defineEmits<{
 	'update:open': [value: boolean]
-	'save': []
+	save: []
 }>()
 
 const { t } = useI18n()
 </script>
 
 <template>
-	<Dialog :open="open" @update:open="$emit('update:open', $event)">
+	<Dialog
+		:open="open"
+		@update:open="$emit('update:open', $event)"
+	>
 		<DialogTrigger asChild>
 			<Button
 				variant="secondary"
@@ -32,11 +41,14 @@ const { t } = useI18n()
 			>
 				<div class="flex items-center gap-1">
 					<span>{{ t('sharedButtons.settings') }}</span>
-					<IconSettings class="h-4 w-4" />
+					<Icon
+						name="tabler:settings"
+						class="h-4 w-4"
+					/>
 				</div>
 			</Button>
 		</DialogTrigger>
-		<DialogContent :class="clsx('sm:max-w-[80vw] sm:max-h-[80vh] overflow-y-auto', contentClass)">
+		<DialogContent :class="clsx('overflow-y-auto sm:max-h-[80vh] sm:max-w-[80vw]', contentClass)">
 			<DialogHeader>
 				<DialogTitle>{{ title }}</DialogTitle>
 			</DialogHeader>
@@ -46,7 +58,10 @@ const { t } = useI18n()
 			</div>
 
 			<DialogFooter>
-				<Button variant="outline" @click="$emit('update:open', false)">
+				<Button
+					variant="outline"
+					@click="$emit('update:open', false)"
+				>
 					{{ t('sharedButtons.close') }}
 				</Button>
 				<Button

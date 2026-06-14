@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useForm } from 'vee-validate'
+import { toast } from 'vue-sonner'
+import { z } from 'zod'
+
+import Button from '@/components/ui/button/Button.vue'
 import {
 	Dialog,
 	DialogContent,
@@ -7,15 +13,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
-import Button from '@/components/ui/button/Button.vue'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import Input from '@/components/ui/input/Input.vue'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
 import { useOapi } from '~/composables/use-oapi'
-import { toast } from 'vue-sonner'
-import { storeToRefs } from 'pinia'
+
 import { useUrlShortener } from '../../composables/use-url-shortener'
 
 const props = defineProps<{
@@ -259,7 +260,7 @@ function closeDialog() {
 						<Icon
 							v-if="isSubmitting"
 							name="lucide:loader-2"
-							class="h-4 w-4 mr-2 animate-spin"
+							class="mr-2 h-4 w-4 animate-spin"
 						/>
 						Save Changes
 					</Button>
