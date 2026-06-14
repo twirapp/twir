@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFontSource } from '~/lib/fontsource'
+import { useFontSource } from '~~/lib/fontsource'
 import { useIntervalFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
