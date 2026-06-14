@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-import { useObs } from '~/layers/overlays/composables/obs/use-obs.ts'
+import { useObs } from '~~/layers/overlays/composables/obs/use-obs.ts'
 import {
 	type ObsCommand,
 	type ObsSettings,
 	useObsOverlayGraphQL,
-} from '~/layers/overlays/composables/obs/use-obs-graphql.ts'
+} from '~~/layers/overlays/composables/obs/use-obs-graphql.ts'
 import { ObsWebsocketCommandAction } from '~~/app/gql/graphql.ts'
 
 definePageMeta({ layout: false })

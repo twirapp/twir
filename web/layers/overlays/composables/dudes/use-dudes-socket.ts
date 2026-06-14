@@ -5,10 +5,10 @@ import { getSprite } from './dudes-config'
 import { useDudesSettings } from './use-dudes-settings'
 import { useDudes } from './use-dudes'
 
-import type { TwirWebSocketEvent } from '~/layers/overlays/api'
+import type { TwirWebSocketEvent } from '~~/layers/overlays/api'
 import type { DudesSprite, DudesUserSettings } from '@twir/types'
 
-import { generateSocketUrlWithParams } from '~/layers/overlays/helpers'
+import { generateSocketUrlWithParams } from '~~/layers/overlays/helpers'
 import { useSubscription } from '@urql/vue'
 import { graphql } from '~~/app/gql/gql'
 import type { DudesSettingsSubscriptionData } from '~~/app/gql/graphql.ts'

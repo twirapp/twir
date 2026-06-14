@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
-import type { Layer } from '~/layers/overlays/composables/overlays/use-overlays'
+import type { Layer } from '~~/layers/overlays/composables/overlays/use-overlays'
 
 const props = defineProps<{
 	layer: Layer

@@ -4,8 +4,8 @@ import { computed } from 'vue'
 import type { MessageChunk } from '~~/lib/frontend-chat'
 import type { Emote } from '@twirapp/kappagen/types'
 
-import { useKappagenSettings } from '~/layers/overlays/composables/kappagen/use-kappagen-settings.ts'
-import { useEmotes } from '~/layers/overlays/composables/tmi/use-emotes'
+import { useKappagenSettings } from '~~/layers/overlays/composables/kappagen/use-kappagen-settings'
+import { useEmotes } from '~~/layers/overlays/composables/tmi/use-emotes'
 import { KappagenEmojiStyle } from '~~/app/gql/graphql.ts'
 
 function getEmojiStyleName(style: KappagenEmojiStyle) {

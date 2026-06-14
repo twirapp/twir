@@ -1,8 +1,8 @@
 import { watch } from 'vue'
 
-import { useBetterTv } from '~/layers/overlays/composables/tmi/use-bettertv'
-import { useFrankerFaceZ } from '~/layers/overlays/composables/tmi/use-ffz'
-import { useSevenTv } from '~/layers/overlays/composables/tmi/use-seven-tv'
+import { useBetterTv } from '~~/layers/overlays/composables/tmi/use-bettertv'
+import { useFrankerFaceZ } from '~~/layers/overlays/composables/tmi/use-ffz'
+import { useSevenTv } from '~~/layers/overlays/composables/tmi/use-seven-tv'
 
 import { useBrbSettings } from './use-brb-settings'
 

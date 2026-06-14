@@ -2,13 +2,13 @@
 import DudesOverlay from '@twirapp/dudes-vue'
 import { computed, onMounted, onUnmounted, watch } from 'vue'
 
-import { assetsLoaderOptions, dudesSounds } from '~/layers/overlays/composables/dudes/dudes-config.ts'
-import { useDudesIframe } from '~/layers/overlays/composables/dudes/use-dudes-iframe.ts'
-import { useDudesSettings } from '~/layers/overlays/composables/dudes/use-dudes-settings.ts'
-import { useDudesSocket } from '~/layers/overlays/composables/dudes/use-dudes-socket.ts'
-import { useDudes } from '~/layers/overlays/composables/dudes/use-dudes.ts'
-import { type ChatMessage, type ChatSettings, useChatTmi } from '~/layers/overlays/composables/tmi/use-chat-tmi.ts'
-import { normalizeDisplayName } from '~/layers/overlays/helpers.ts'
+import { assetsLoaderOptions, dudesSounds } from '~~/layers/overlays/composables/dudes/dudes-config.ts'
+import { useDudesIframe } from '~~/layers/overlays/composables/dudes/use-dudes-iframe.ts'
+import { useDudesSettings } from '~~/layers/overlays/composables/dudes/use-dudes-settings.ts'
+import { useDudesSocket } from '~~/layers/overlays/composables/dudes/use-dudes-socket.ts'
+import { useDudes } from '~~/layers/overlays/composables/dudes/use-dudes.ts'
+import { type ChatMessage, type ChatSettings, useChatTmi } from '~~/layers/overlays/composables/tmi/use-chat-tmi.ts'
+import { normalizeDisplayName } from '~~/layers/overlays/helpers.ts'
 
 definePageMeta({ layout: false })
 

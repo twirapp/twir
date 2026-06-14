@@ -1,7 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
-import type { BrbSetSettingsFn } from '~/layers/overlays/types'
+import type { BrbSetSettingsFn } from '~~/layers/overlays/types'
 
 export interface BrbSettings {
 	text: string

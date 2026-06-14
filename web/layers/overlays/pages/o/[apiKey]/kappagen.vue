@@ -6,9 +6,9 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import type { Emote, KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
-import { useKappagenEmotesBuilder } from '~/layers/overlays/composables/kappagen/use-kappagen-builder.ts'
-import { useKappagenSettings } from '~/layers/overlays/composables/kappagen/use-kappagen-settings.ts'
-import { useKappagenOverlaySocket } from '~/layers/overlays/composables/kappagen/use-kappagen-socket.ts'
+import { useKappagenEmotesBuilder } from '~~/layers/overlays/composables/kappagen/use-kappagen-builder.ts'
+import { useKappagenSettings } from '~~/layers/overlays/composables/kappagen/use-kappagen-settings'
+import { useKappagenOverlaySocket } from '~~/layers/overlays/composables/kappagen/use-kappagen-socket.ts'
 
 definePageMeta({ layout: false })
 

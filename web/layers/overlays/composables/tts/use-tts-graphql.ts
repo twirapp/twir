@@ -1,7 +1,7 @@
 import { useSubscription } from '@urql/vue'
 import { computed, ref, watch } from 'vue'
 
-import type { TTSOnSayFn, TTSOnSkipFn } from '~/layers/overlays/types'
+import type { TTSOnSayFn, TTSOnSkipFn } from '~~/layers/overlays/types'
 
 import { useTTSSettings } from './use-tts-settings'
 

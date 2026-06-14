@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TextChunk } from '~/layers/overlays/composables/brb/use-brb-text-parser'
+import type { TextChunk } from '~~/layers/overlays/composables/brb/use-brb-text-parser'
 
 interface Props {
 	chunks: TextChunk[]

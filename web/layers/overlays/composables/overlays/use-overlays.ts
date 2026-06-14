@@ -5,7 +5,7 @@ import { computed, ref, watch } from 'vue'
 import type { ChannelOverlayLayerType } from '~~/app/gql/gql'
 
 import { graphql } from '~~/app/gql/gql'
-import { base64DecodeUnicode, generateSocketUrlWithParams } from '~/layers/overlays/helpers'
+import { base64DecodeUnicode, generateSocketUrlWithParams } from '~~/layers/overlays/helpers'
 
 export interface Layer {
 	id: string

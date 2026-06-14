@@ -2,7 +2,7 @@ import { useFontSource } from '~~/lib/fontsource'
 import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
-import type { ChannelData } from '~/layers/overlays/types'
+import type { ChannelData } from '~~/layers/overlays/types'
 import type { DudesSprite, DudesUserSettings } from '@twir/types'
 import type { DudesTypes } from '@twirapp/dudes-vue/types'
 import type { DudesIgnoreSettings } from '~~/app/gql/gql'

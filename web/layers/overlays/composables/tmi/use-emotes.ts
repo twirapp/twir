@@ -11,7 +11,7 @@ import type {
 	SevenTvChannelResponse,
 	SevenTvEmote,
 	SevenTvGlobalResponse,
-} from '~/layers/overlays/types'
+} from '~~/layers/overlays/types'
 
 interface Emote {
 	urls: string[]

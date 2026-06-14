@@ -3,9 +3,9 @@ import { ref, watch } from 'vue'
 
 import { useEmotes } from './use-emotes'
 
-import type { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '~/layers/overlays/types'
+import type { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '~~/layers/overlays/types'
 
-import { requestWithOutCache } from '~/layers/overlays/helpers'
+import { requestWithOutCache } from '~~/layers/overlays/helpers'
 
 // opcodes https://github.com/SevenTV/EventAPI#opcodes
 const OPCODES = {

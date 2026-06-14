@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 
-import type { BrbOnStartFn, BrbOnStopFn } from '~/layers/overlays/types.ts'
+import type { BrbOnStartFn, BrbOnStopFn } from '~~/layers/overlays/types.ts'
 
-import BrbTimer, { type BrbTimerMethods } from '~/layers/overlays/components/brb-timer.vue'
-import { useBrbEmotes } from '~/layers/overlays/composables/brb/use-brb-emotes.ts'
-import { useBeRightBackOverlayGraphQL } from '~/layers/overlays/composables/brb/use-brb-graphql.ts'
-import { useBrbIframe } from '~/layers/overlays/composables/brb/use-brb-iframe.ts'
+import BrbTimer, { type BrbTimerMethods } from '~~/layers/overlays/components/brb-timer.vue'
+import { useBrbEmotes } from '~~/layers/overlays/composables/brb/use-brb-emotes.ts'
+import { useBeRightBackOverlayGraphQL } from '~~/layers/overlays/composables/brb/use-brb-graphql.ts'
+import { useBrbIframe } from '~~/layers/overlays/composables/brb/use-brb-iframe.ts'
 
 definePageMeta({ layout: false })
 

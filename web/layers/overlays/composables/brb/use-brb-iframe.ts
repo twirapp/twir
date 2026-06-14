@@ -1,6 +1,6 @@
 import { useBrbSettings } from './use-brb-settings';
 
-import type { BrbOnStartFn, BrbOnStopFn } from '~/layers/overlays/types';
+import type { BrbOnStartFn, BrbOnStopFn } from '~~/layers/overlays/types';
 
 type Options = {
 	onStart: BrbOnStartFn,

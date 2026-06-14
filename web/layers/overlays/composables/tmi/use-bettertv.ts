@@ -2,9 +2,9 @@ import { createGlobalState } from '@vueuse/core'
 
 import { useEmotes } from './use-emotes'
 
-import type { BttvChannelResponse, BttvGlobalResponse } from '~/layers/overlays/types'
+import type { BttvChannelResponse, BttvGlobalResponse } from '~~/layers/overlays/types'
 
-import { requestWithOutCache } from '~/layers/overlays/helpers'
+import { requestWithOutCache } from '~~/layers/overlays/helpers'
 
 export const useBetterTv = createGlobalState(() => {
 	const { setBttvEmotes } = useEmotes()

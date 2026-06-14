@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-import type { TTSSayMessage } from '~/layers/overlays/types.ts'
+import type { TTSSayMessage } from '~~/layers/overlays/types.ts'
 
-import { useTTSOverlayGraphQL } from '~/layers/overlays/composables/tts/use-tts-graphql.ts'
-import { openApi } from '~/layers/overlays/api.ts'
+import { useTTSOverlayGraphQL } from '~~/layers/overlays/composables/tts/use-tts-graphql.ts'
+import { openApi } from '~~/layers/overlays/api.ts'
 
 definePageMeta({ layout: false })
 

@@ -5,7 +5,7 @@ import { computed, ref, watch } from 'vue'
 
 import { getSprite } from './dudes-config'
 import { useDudesSettings } from './use-dudes-settings'
-import { randomRgbColor } from '~/layers/overlays/helpers'
+import { randomRgbColor } from '~~/layers/overlays/helpers'
 
 import type { MessageChunk } from '~~/lib/frontend-chat'
 import type DudesOverlay from '@twirapp/dudes-vue'

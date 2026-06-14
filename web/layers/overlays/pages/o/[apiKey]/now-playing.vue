@@ -2,7 +2,7 @@
 import { NowPlaying, type Track } from '~~/lib/frontend-now-playing'
 import { ref, watch } from 'vue'
 
-import { useNowPlayingSocket } from '~/layers/overlays/composables/now-playing/use-now-playing-socket.ts'
+import { useNowPlayingSocket } from '~~/layers/overlays/composables/now-playing/use-now-playing-socket.ts'
 
 definePageMeta({ layout: false })
 

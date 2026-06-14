@@ -4,9 +4,9 @@ import { type MaybeRef, computed, ref, unref, watch } from 'vue'
 import type { Buidler } from './use-kappagen-builder'
 import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
-import { type ChatMessage, type ChatSettings, useChatTmi } from '~/layers/overlays/composables/tmi/use-chat-tmi'
-import { useMessageHelpers } from '~/layers/overlays/composables/tmi/use-message-helpers'
-import { useSevenTv } from '~/layers/overlays/composables/tmi/use-seven-tv'
+import { type ChatMessage, type ChatSettings, useChatTmi } from '~~/layers/overlays/composables/tmi/use-chat-tmi'
+import { useMessageHelpers } from '~~/layers/overlays/composables/tmi/use-message-helpers'
+import { useSevenTv } from '~~/layers/overlays/composables/tmi/use-seven-tv'
 import { graphql } from '~~/app/gql/gql'
 
 export function useKappagenOverlaySocket(
