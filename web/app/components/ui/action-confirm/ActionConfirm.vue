@@ -3,20 +3,19 @@ import { useI18n } from 'vue-i18n'
 
 import {
 	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 
 defineProps<{
 	confirmText?: string
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
 	cancel: []
 	confirm: []
 }>()
@@ -24,6 +23,16 @@ defineEmits<{
 const { t } = useI18n()
 
 const open = defineModel<boolean>('open', { default: false })
+
+function handleCancel() {
+	emit('cancel')
+	open.value = false
+}
+
+function handleConfirm() {
+	emit('confirm')
+	open.value = false
+}
 </script>
 
 <template>
@@ -36,12 +45,12 @@ const open = defineModel<boolean>('open', { default: false })
 				</AlertDialogDescription>
 			</AlertDialogHeader>
 			<AlertDialogFooter>
-				<AlertDialogCancel @click="$emit('cancel')">
+				<Button type="button" variant="outline" class="mt-2 sm:mt-0" @click="handleCancel">
 					{{ t('deleteConfirmation.cancel') }}
-				</AlertDialogCancel>
-				<AlertDialogAction @click="$emit('confirm')">
+				</Button>
+				<Button type="button" @click="handleConfirm">
 					{{ t('deleteConfirmation.confirm') }}
-				</AlertDialogAction>
+				</Button>
 			</AlertDialogFooter>
 		</AlertDialogContent>
 	</AlertDialog>
