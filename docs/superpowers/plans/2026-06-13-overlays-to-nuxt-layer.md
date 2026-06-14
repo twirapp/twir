@@ -2,13 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Migrate `frontend/overlays` (Vue 3 SPA overlay renderer) into the existing `web/layers/overlays/` Nuxt layer, supporting both `/o/:apiKey/*` (canonical) and `/overlays/:apiKey/*` (redirect for backward compatibility) paths.
+**Goal:** Migrate `frontend/overlays` (Vue 3 SPA overlay renderer) into the existing `web/layers/overlays/` Nuxt layer, supporting both `/o/:apiKey/*` (canonical) and `/overlays/:apiKey/*` (redirect for backward compatibility) paths. Move frontend workspace packages to `web/lib/` as plain folders.
 
-**Architecture:** Expand the existing `web/layers/overlays/` layer. All overlay pages go under `pages/o/[apiKey]/`. Nuxt `routeRules` redirect `/overlays/:apiKey/**` → `/o/:apiKey/**`. Dashboard's `copyOverlayLink.ts` updated to use `/o/` path. Old `frontend/overlays/` marked deprecated.
+**Architecture:** Expand the existing `web/layers/overlays/` layer. All overlay pages go under `pages/o/[apiKey]/`. Nuxt `routeRules` disable SSR for overlay routes and redirect `/overlays/:apiKey/**` → `/o/:apiKey/**`. Dashboard's `copyOverlayLink.ts` updated to use `/o/` path. Old `frontend/overlays/` marked deprecated.
 
 **Tech Stack:** Nuxt 4, Vue 3, urql v2, graphql-ws, TMI.js, obs-websocket-js, @twirapp/dudes-vue, @twirapp/kappagen
 
-**Branch:** All work must be done on branch `refactor/overlays-move-to-nuxt`. Create it from `main` before starting Task 1.
+**Branch:** `refactor/overlays-to-nuxt`
 
 ---
 
@@ -74,8 +74,7 @@ Already contains:
 
 | Path | Change |
 |------|--------|
-| `web/layers/overlays/nuxt.config.ts` | Add routeRules for redirect |
-| `web/nuxt.config.ts` | Add dashboard deps if needed |
+| `web/layers/overlays/nuxt.config.ts` | Add routeRules: `/o/:apiKey/**` → `{ ssr: false }`, redirect `/overlays/:apiKey/**` → `/o/:apiKey/**` |
 | `web/layers/dashboard/components/overlays/copyOverlayLink.ts` | Change `/overlays/` → `/o/` |
 | `web/package.json` | Add overlay-specific deps |
 
@@ -86,7 +85,82 @@ Already contains:
 | `frontend/overlays/src/composables/` | `web/layers/overlays/composables/` |
 | `frontend/overlays/src/components/` | `web/layers/overlays/components/` |
 | `frontend/overlays/src/plugins/urql.ts` | Removed (use web's urql) |
-| `frontend/overlays/src/gql/` | `web/layers/overlays/gql/` |
+| `libs/frontend-chat/` | `web/lib/frontend-chat/` (plain folder, no package.json) |
+| `libs/frontend-faceit-stats/` | `web/lib/frontend-faceit-stats/` (plain folder, no package.json) |
+| `libs/frontend-now-playing/` | `web/lib/frontend-now-playing/` (plain folder, no package.json) |
+| `libs/fontsource/` | `web/lib/fontsource/` (plain folder, no package.json) |
+
+---
+
+## Phase 0: Move Workspace Packages to web/lib/
+
+### Task 0: Move frontend workspace packages to web/lib/
+
+**Goal:** Move `@twir/frontend-chat`, `@twir/frontend-faceit-stats`, `@twir/frontend-now-playing`, `@twir/fontsource` from `libs/` to `web/lib/` as plain folders (no `package.json`). Update all imports.
+
+**Files:**
+- Move: `libs/frontend-chat/src/*` → `web/lib/frontend-chat/`
+- Move: `libs/frontend-faceit-stats/src/*` → `web/lib/frontend-faceit-stats/`
+- Move: `libs/frontend-now-playing/src/*` → `web/lib/frontend-now-playing/`
+- Move: `libs/fontsource/src/*` → `web/lib/fontsource/`
+- Modify: all files importing from `@twir/frontend-chat`, `@twir/frontend-faceit-stats`, `@twir/frontend-now-playing`, `@twir/fontsource`
+- Modify: `web/package.json` (remove workspace deps)
+- Modify: root `package.json` (remove from workspaces if needed)
+
+- [ ] **Step 1: Create web/lib/ directories and copy source files**
+
+```bash
+mkdir -p web/lib/frontend-chat web/lib/frontend-faceit-stats web/lib/frontend-now-playing web/lib/fontsource
+cp -r libs/frontend-chat/src/* web/lib/frontend-chat/
+cp -r libs/frontend-faceit-stats/src/* web/lib/frontend-faceit-stats/
+cp -r libs/frontend-now-playing/src/* web/lib/frontend-now-playing/
+cp -r libs/fontsource/src/* web/lib/fontsource/
+```
+
+- [ ] **Step 2: Update imports in web (dashboard layer)**
+
+Replace in all files under `web/`:
+- `@twir/frontend-chat` → `~~/lib/frontend-chat`
+- `@twir/frontend-faceit-stats` → `~~/lib/frontend-faceit-stats`
+- `@twir/frontend-now-playing` → `~~/lib/frontend-now-playing`
+- `@twir/fontsource` → `~~/lib/fontsource`
+
+Files to update:
+- `web/layers/dashboard/pages/dashboard/overlays/chat/constants.ts`
+- `web/layers/dashboard/pages/dashboard/overlays/chat/components/Form.vue`
+- `web/layers/dashboard/features/overlays/faceit-stats/builder.vue`
+- `web/layers/dashboard/features/overlays/faceit-stats/composables/use-faceit-stats.ts`
+- `web/layers/dashboard/pages/dashboard/overlays/now-playing.vue`
+- `web/layers/dashboard/lib/fontsource/index.ts`
+- `web/layers/dashboard/lib/fontsource/components/FontSelector.vue`
+
+- [ ] **Step 3: Remove workspace deps from web/package.json**
+
+Remove from `web/package.json` dependencies:
+- `@twir/frontend-chat`
+- `@twir/frontend-faceit-stats`
+- `@twir/frontend-now-playing`
+- `@twir/fontsource`
+
+- [ ] **Step 4: Remove old libs/ directories**
+
+```bash
+rm -rf libs/frontend-chat libs/frontend-faceit-stats libs/frontend-now-playing libs/fontsource
+```
+
+- [ ] **Step 5: Verify dashboard still works**
+
+```bash
+cd web && bun dev
+# Navigate to dashboard overlays pages — chat, faceit-stats, now-playing, fontsource should work
+```
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add web/lib/ web/package.json libs/
+git commit -m "refactor: move frontend workspace packages to web/lib/ as plain folders"
+```
 
 ---
 
@@ -102,8 +176,8 @@ Already contains:
 ```ts
 // web/layers/overlays/nuxt.config.ts
 export default defineNuxtConfig({
-  ssr: false,
   routeRules: {
+    '/o/:apiKey/**': { ssr: false },
     '/overlays/:apiKey/**': {
       redirect: (to) => {
         return `/o/${to.params.apiKey}/${(to.params as any).pathMatch || ''}`
@@ -121,7 +195,7 @@ Start dev server, navigate to `/overlays/test123/chat` — should redirect to `/
 
 ```bash
 git add web/layers/overlays/nuxt.config.ts
-git commit -m "feat(overlays-layer): configure ssr:false and /overlays → /o redirect"
+git commit -m "feat(overlays-layer): configure routeRules for ssr:false and /overlays → /o redirect"
 ```
 
 ---
@@ -137,16 +211,14 @@ Compare `frontend/overlays/package.json` dependencies vs `web/package.json`. Mis
 - `tmi.js`
 - `obs-websocket-js`
 - `@twirapp/dudes-vue`
-- `@twirapp/kappagen` (may already be in web from dashboard migration)
+- `@twirapp/kappagen`
 - `emoji-regex`
-
-Workspace packages already shared: `@twir/api`, `@twir/fontsource`, `@twir/frontend-chat`, `@twir/frontend-faceit-stats`, `@twir/frontend-now-playing`, `@twir/grpc`
 
 - [ ] **Step 2: Add missing deps**
 
 ```bash
 cd web
-bun add tmi.js obs-websocket-js @twirapp/dudes-vue emoji-regex
+bun add tmi.js obs-websocket-js @twirapp/dudes-vue @twirapp/kappagen emoji-regex
 ```
 
 - [ ] **Step 3: Commit**
@@ -181,22 +253,33 @@ cp frontend/overlays/src/api.ts web/layers/overlays/api.ts
 
 Do NOT copy `frontend/overlays/src/plugins/urql.ts` — use web's `@bicou/nuxt-urql`.
 
-- [ ] **Step 3: Adapt composables to use web's urql**
+- [ ] **Step 3: Adapt composables to use web's urql and local libs**
 
-For each composable that imports from `@/plugins/urql`:
-- Replace with `useUrqlClient()` from nuxt-urql
-- Replace `import { graphql } from '@/gql/graphql'` with `import { graphql } from '~/app/gql/graphql'`
+For each composable:
+- Replace `import { graphql } from '@/gql/graphql'` → `import { graphql } from '~~/app/gql/graphql'`
+- Replace `@twir/frontend-chat` → `~~/lib/frontend-chat`
+- Replace `@twir/frontend-faceit-stats` → `~~/lib/frontend-faceit-stats`
+- Replace `@twir/frontend-now-playing` → `~~/lib/frontend-now-playing`
+- Replace `@twir/fontsource` → `~~/lib/fontsource`
+- Replace `@/plugins/urql` refs with `useUrqlClient()` from nuxt-urql
 
 Key files to adapt:
 - `composables/brb/use-brb-graphql.ts`
 - `composables/chat/use-chat-overlay-socket.ts`
 - `composables/dudes/use-dudes-socket.ts`
+- `composables/dudes/use-dudes.ts`
+- `composables/dudes/use-dudes-settings.ts`
 - `composables/kappagen/use-kappagen-socket.ts`
+- `composables/kappagen/use-kappagen-builder.ts`
 - `composables/now-playing/use-now-playing-socket.ts`
 - `composables/obs/use-obs-graphql.ts`
 - `composables/overlays/use-overlays.ts`
 - `composables/overlays/use-custom-overlay.ts`
+- `composables/tmi/use-chat-tmi.ts`
+- `composables/tmi/use-emotes.ts`
+- `composables/tmi/use-message-helpers.ts`
 - `composables/tts/use-tts-graphql.ts`
+- `components/brb-timer.vue`
 
 - [ ] **Step 4: Commit**
 
@@ -226,7 +309,7 @@ Components:
 
 - [ ] **Step 2: Adapt imports**
 
-No shadcn components used — minimal changes needed. Just fix relative import paths.
+No shadcn components used — minimal changes needed. Fix relative import paths and update `@twir/fontsource` → `~~/lib/fontsource`.
 
 - [ ] **Step 3: Commit**
 
@@ -239,45 +322,31 @@ git commit -m "feat(overlays-layer): migrate overlay components"
 
 ## Phase 3: GraphQL
 
-### Task 5: Migrate GraphQL types and queries
+### Task 5: Migrate GraphQL queries
+
+**Goal:** No separate gql/ directory needed. Web's codegen scans `./layers/**/*.{ts,vue}` and auto-discovers overlay queries.
 
 **Files:**
-- Move: `frontend/overlays/src/gql/` → `web/layers/overlays/gql/` (temporary)
-- Modify: `web/codegen.ts` (if needed)
+- No files to copy — composables already have `graphql()` calls that web's codegen will pick up
+- Composables need import path updates (done in Task 3)
 
-- [ ] **Step 1: Copy gql directory**
-
-```bash
-cp -r frontend/overlays/src/gql web/layers/overlays/gql
-```
-
-- [ ] **Step 2: Verify codegen picks up overlay queries**
-
-Web's `codegen.ts` already scans `./layers/**/*.{ts,vue}`. The overlay composable files with `graphql()` calls will be picked up. Run codegen:
+- [ ] **Step 1: Run codegen to generate types**
 
 ```bash
 cd web && bun run graphql-codegen
 ```
 
-- [ ] **Step 3: Update import paths in composables**
+Verify that `web/app/gql/` now contains types for overlay queries.
 
-For each composable using GraphQL:
-- Replace `import { graphql } from '@/gql/graphql'` → `import { graphql } from '~/app/gql/graphql'`
-- Replace `import { graphql } from '../gql/graphql'` → `import { graphql } from '~/app/gql/graphql'`
+- [ ] **Step 2: Verify composables import from correct path**
 
-- [ ] **Step 4: Remove copied gql/ directory**
+All composables should import from `~~/app/gql/graphql`, not from any local `gql/` directory.
 
-After codegen generates types in `web/app/gql/`, the local `gql/` directory is no longer needed:
+- [ ] **Step 3: Commit**
 
 ```bash
-rm -rf web/layers/overlays/gql/
-```
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add web/layers/overlays/ web/app/gql/
-git commit -m "feat(overlays-layer): migrate GraphQL queries, run codegen"
+git add web/app/gql/
+git commit -m "feat(overlays-layer): run codegen for overlay GraphQL queries"
 ```
 
 ---
@@ -305,20 +374,6 @@ mkdir -p web/layers/overlays/pages/o/\[apiKey\]
 ```
 
 - [ ] **Step 2: Create index.vue (custom overlays)**
-
-```vue
-<script setup lang="ts">
-import OverlaysPage from '~/layers/overlays/pages-src/overlays.vue'
-
-definePageMeta({ layout: false })
-</script>
-
-<template>
-  <OverlaysPage />
-</template>
-```
-
-Actually — each page should be the full component. Copy and adapt:
 
 ```bash
 cp frontend/overlays/src/pages/overlays.vue web/layers/overlays/pages/o/\[apiKey\]/index.vue
@@ -351,8 +406,12 @@ Replace:
 - `@/components/` → `~/layers/overlays/components/`
 - `@/helpers` → `~/layers/overlays/helpers`
 - `@/types` → `~/layers/overlays/types`
-- `@/gql/` → `~/app/gql/`
+- `@/gql/` → `~~/app/gql/`
 - `@/plugins/urql` → use `useUrqlClient()` from nuxt-urql
+- `@twir/frontend-chat` → `~~/lib/frontend-chat`
+- `@twir/frontend-faceit-stats` → `~~/lib/frontend-faceit-stats`
+- `@twir/frontend-now-playing` → `~~/lib/frontend-now-playing`
+- `@twir/fontsource` → `~~/lib/fontsource`
 
 - [ ] **Step 6: Commit**
 
@@ -363,12 +422,10 @@ git commit -m "feat(overlays-layer): create all overlay pages under /o/[apiKey]"
 
 ---
 
-### Task 7: Remove old overlays layer page (valorant-stats)
+### Task 7: Verify valorant-stats coexistence
 
 **Files:**
-- Delete: `web/layers/overlays/pages/o/[apiKey]/valorant-stats.client.vue` (moved into overlay pages)
-
-Wait — the existing valorant-stats page is already at `pages/o/[apiKey]/valorant-stats.client.vue`. This should remain as-is since it's a separate workspace package component. No changes needed.
+- `web/layers/overlays/pages/o/[apiKey]/valorant-stats.client.vue` — keep as-is
 
 - [ ] **Step 1: Verify valorant-stats page still works**
 
@@ -478,6 +535,7 @@ git commit -m "chore: deprecate frontend/overlays, remove from CI"
 ## Execution Order Summary
 
 ```
+Phase 0 (Workspace Pkg):   Task 0
 Phase 1 (Infrastructure):  Tasks 1-2
 Phase 2 (Shared Code):     Tasks 3-4
 Phase 3 (GraphQL):         Task 5
@@ -490,8 +548,9 @@ Phase 6 (Cleanup):         Task 9
 
 | Risk | Mitigation |
 |------|------------|
-| TMI.js SSR issues | All overlay pages use `definePageMeta({ layout: false })` + client-only rendering |
+| TMI.js SSR issues | `routeRules` with `{ ssr: false }` — same pattern as dashboard |
 | OBS WebSocket in browser | Already browser-compatible, no changes needed |
 | GraphQL subscription setup | Web's urql already has subscriptionExchange configured |
-| Workspace package compatibility | Packages are shared, no changes needed |
+| Local lib imports | Use `~~/lib/` prefix (Nuxt alias) — consistent with existing patterns |
 | Redirect performance | Nuxt routeRules redirect is server-side (301), fast |
+| API key in URL (security) | Same as current — API key is designed for browser-source URLs |
