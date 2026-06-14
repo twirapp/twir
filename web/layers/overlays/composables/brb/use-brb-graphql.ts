@@ -1,11 +1,11 @@
 import { useSubscription } from '@urql/vue'
 import { computed, ref, watch } from 'vue'
 
-import type { BrbOnStartFn, BrbOnStopFn } from '~/layers/overlays/types.js'
+import type { BrbOnStartFn, BrbOnStopFn } from '~/layers/overlays/types'
 
-import { graphql } from '~~/app/gql/graphql'
+import { graphql } from '~~/app/gql/gql'
 
-import { useBrbSettings } from './use-brb-settings.js'
+import { useBrbSettings } from './use-brb-settings'
 
 type Options = {
 	onStart: BrbOnStartFn

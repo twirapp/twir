@@ -2,10 +2,10 @@ import { useFontSource } from '~~/lib/fontsource'
 import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
-import type { ChannelData } from '~/layers/overlays/types.js'
-import type { DudesSprite, DudesUserSettings } from '~~/lib/types'
+import type { ChannelData } from '~/layers/overlays/types'
+import type { DudesSprite, DudesUserSettings } from '@twir/types'
 import type { DudesTypes } from '@twirapp/dudes-vue/types'
-import type { DudesIgnoreSettings } from '~~/app/gql/graphql'
+import type { DudesIgnoreSettings } from '~~/app/gql/gql'
 
 export interface DudesOverlaySettings {
 	maxOnScreen: number

@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 
 import type { Settings, Track } from '~~/lib/frontend-now-playing'
 
-import { graphql } from '~~/app/gql/graphql'
+import { graphql } from '~~/app/gql/gql'
 
 interface Options {
 	apiKey: string

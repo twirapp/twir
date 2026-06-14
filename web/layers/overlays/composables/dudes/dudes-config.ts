@@ -1,4 +1,4 @@
-import { DudesSprite } from '~~/lib/types'
+import { DudesSprite } from '@twir/types'
 import { DudesLayers } from '@twirapp/dudes-vue'
 import type { AssetsLoaderOptions, DudesTypes, SoundAsset } from '@twirapp/dudes-vue/types'
 

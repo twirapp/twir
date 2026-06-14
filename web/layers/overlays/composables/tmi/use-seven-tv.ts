@@ -1,11 +1,11 @@
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
-import { useEmotes } from './use-emotes.js'
+import { useEmotes } from './use-emotes'
 
-import type { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '~/layers/overlays/types.js'
+import type { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '~/layers/overlays/types'
 
-import { requestWithOutCache } from '~/layers/overlays/helpers.js'
+import { requestWithOutCache } from '~/layers/overlays/helpers'
 
 // opcodes https://github.com/SevenTV/EventAPI#opcodes
 const OPCODES = {

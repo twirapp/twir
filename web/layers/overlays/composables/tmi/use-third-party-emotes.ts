@@ -1,10 +1,10 @@
 import { useIntervalFn } from '@vueuse/core';
 import { type Ref, watch } from 'vue';
 
-import { useBetterTv } from './use-bettertv.js';
-import type { ChatSettings } from './use-chat-tmi.js';
-import { useFrankerFaceZ } from './use-ffz.js';
-import { useSevenTv } from './use-seven-tv.js';
+import { useBetterTv } from './use-bettertv';
+import type { ChatSettings } from './use-chat-tmi';
+import { useFrankerFaceZ } from './use-ffz';
+import { useSevenTv } from './use-seven-tv';
 
 const ONE_MINUTE = 60 * 1000;
 

@@ -3,12 +3,12 @@ import { useFontSource } from '~/lib/fontsource'
 import { useIntervalFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import type { BrbOnStartFn, BrbOnStopFn } from '~/layers/overlays/types.js'
+import type { BrbOnStartFn, BrbOnStopFn } from '~/layers/overlays/types'
 
 import BrbTextWithEmotes from '~/layers/overlays/components/brb-text-with-emotes.vue'
-import { useBrbSettings } from '~/layers/overlays/composables/brb/use-brb-settings.js'
-import { useBrbTextParser } from '~/layers/overlays/composables/brb/use-brb-text-parser.js'
-import { getTimeDiffInMilliseconds, millisecondsToTime } from '~/layers/overlays/helpers.js'
+import { useBrbSettings } from '~/layers/overlays/composables/brb/use-brb-settings'
+import { useBrbTextParser } from '~/layers/overlays/composables/brb/use-brb-text-parser'
+import { getTimeDiffInMilliseconds, millisecondsToTime } from '~/layers/overlays/helpers'
 
 const { settings } = useBrbSettings()
 

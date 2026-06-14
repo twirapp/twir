@@ -3,10 +3,10 @@ import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import type { ChatOverlaySettingsSubscription } from '~~/app/gql/graphql.js'
+import type { ChatOverlaySettingsSubscription } from '~~/app/gql/gql'
 import type { Settings } from '~~/lib/frontend-chat'
 
-import { graphql } from '~~/app/gql/graphql'
+import { graphql } from '~~/app/gql/gql'
 
 export const useChatOverlaySocket = createGlobalState(() => {
 	const route = useRoute()

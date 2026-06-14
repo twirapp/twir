@@ -1,11 +1,11 @@
 import { createGlobalState } from '@vueuse/core'
 
-import { dudeMock, getSprite } from './dudes-config.js'
-import { useDudesSettings } from './use-dudes-settings.js'
-import { useDudesSocket } from './use-dudes-socket.js'
-import { useDudes } from './use-dudes.js'
-import type { DudesOverlaySettings } from '~~/app/gql/graphql'
-import { randomEmoji } from '~/layers/overlays/helpers.js'
+import { dudeMock, getSprite } from './dudes-config'
+import { useDudesSettings } from './use-dudes-settings'
+import { useDudesSocket } from './use-dudes-socket'
+import { useDudes } from './use-dudes'
+import type { DudesOverlaySettings } from '~~/app/gql/gql'
+import { randomEmoji } from '~/layers/overlays/helpers'
 
 interface DudesPostMessage {
 	action: string

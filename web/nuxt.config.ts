@@ -51,6 +51,10 @@ export default defineNuxtConfig({
 
 	site: { indexable: true },
 
+	typescript: {
+		typeCheck: true,
+	},
+
 	modules: [
 		'@pinia/nuxt',
 		'@bicou/nuxt-urql',

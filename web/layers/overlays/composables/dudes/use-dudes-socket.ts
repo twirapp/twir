@@ -1,16 +1,16 @@
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import { getSprite } from './dudes-config.js'
+import { getSprite } from './dudes-config'
 import { useDudesSettings } from './use-dudes-settings'
-import { useDudes } from './use-dudes.js'
+import { useDudes } from './use-dudes'
 
-import type { TwirWebSocketEvent } from '~/layers/overlays/api.js'
-import type { DudesSprite, DudesUserSettings } from '~~/lib/types'
+import type { TwirWebSocketEvent } from '~/layers/overlays/api'
+import type { DudesSprite, DudesUserSettings } from '@twir/types'
 
-import { generateSocketUrlWithParams } from '~/layers/overlays/helpers.js'
+import { generateSocketUrlWithParams } from '~/layers/overlays/helpers'
 import { useSubscription } from '@urql/vue'
-import { graphql } from '~~/app/gql/graphql'
+import { graphql } from '~~/app/gql/gql'
 import type { DudesSettingsSubscriptionData } from '~~/app/gql/graphql.ts'
 
 declare global {

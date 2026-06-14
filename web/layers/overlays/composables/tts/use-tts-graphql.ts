@@ -1,11 +1,11 @@
 import { useSubscription } from '@urql/vue'
 import { computed, ref, watch } from 'vue'
 
-import type { TTSOnSayFn, TTSOnSkipFn } from '~/layers/overlays/types.js'
+import type { TTSOnSayFn, TTSOnSkipFn } from '~/layers/overlays/types'
 
-import { useTTSSettings } from './use-tts-settings.js'
+import { useTTSSettings } from './use-tts-settings'
 
-import { graphql } from '~~/app/gql/graphql'
+import { graphql } from '~~/app/gql/gql'
 
 type Options = {
 	onSay: TTSOnSayFn

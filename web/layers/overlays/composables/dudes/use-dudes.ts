@@ -1,11 +1,11 @@
-import { DudesSprite } from '~~/lib/types'
+import { DudesSprite } from '@twir/types'
 import { DudesLayers } from '@twirapp/dudes-vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import { getSprite } from './dudes-config.js'
-import { useDudesSettings } from './use-dudes-settings.js'
-import { randomRgbColor } from '~/layers/overlays/helpers.js'
+import { getSprite } from './dudes-config'
+import { useDudesSettings } from './use-dudes-settings'
+import { randomRgbColor } from '~/layers/overlays/helpers'
 
 import type { MessageChunk } from '~~/lib/frontend-chat'
 import type DudesOverlay from '@twirapp/dudes-vue'

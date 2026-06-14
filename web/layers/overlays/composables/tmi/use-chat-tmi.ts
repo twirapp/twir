@@ -1,8 +1,8 @@
 import { type ChatUserstate, Client } from 'tmi.js'
 import { type Ref, unref, watch } from 'vue'
 
-import { useMessageHelpers } from './use-message-helpers.js'
-import { useThirdPartyEmotes } from './use-third-party-emotes.js'
+import { useMessageHelpers } from './use-message-helpers'
+import { useThirdPartyEmotes } from './use-third-party-emotes'
 
 import type { Message } from '~~/lib/frontend-chat'
 

@@ -1,7 +1,7 @@
 import { useQuery } from '@urql/vue'
 import { type MaybeRef, computed, unref } from 'vue'
 
-import { graphql } from '~~/app/gql/graphql'
+import { graphql } from '~~/app/gql/gql'
 
 const channelOverlayByIdQuery = graphql(`
 	query OverlayPreviewById($id: UUID!) {

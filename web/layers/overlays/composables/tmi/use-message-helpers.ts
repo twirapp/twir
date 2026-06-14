@@ -1,7 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
 import emojiRegex from 'emoji-regex'
 
-import { useEmotes } from './use-emotes.js'
+import { useEmotes } from './use-emotes'
 
 import type { MessageChunk } from '~~/lib/frontend-chat'
 

@@ -1,4 +1,4 @@
-import { Api, HttpClient } from '~~/lib/api/openapi'
+import { Api, HttpClient } from '@twir/api/openapi'
 
 export interface TwirWebSocketEvent<T = Record<string, any>> {
 	eventName: string

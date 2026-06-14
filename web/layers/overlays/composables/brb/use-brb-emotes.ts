@@ -1,10 +1,10 @@
 import { watch } from 'vue'
 
-import { useBetterTv } from '~/layers/overlays/composables/tmi/use-bettertv.js'
-import { useFrankerFaceZ } from '~/layers/overlays/composables/tmi/use-ffz.js'
-import { useSevenTv } from '~/layers/overlays/composables/tmi/use-seven-tv.js'
+import { useBetterTv } from '~/layers/overlays/composables/tmi/use-bettertv'
+import { useFrankerFaceZ } from '~/layers/overlays/composables/tmi/use-ffz'
+import { useSevenTv } from '~/layers/overlays/composables/tmi/use-seven-tv'
 
-import { useBrbSettings } from './use-brb-settings.js'
+import { useBrbSettings } from './use-brb-settings'
 
 export function useBrbEmotes() {
 	const { settings } = useBrbSettings()

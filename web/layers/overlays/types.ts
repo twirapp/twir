@@ -1,4 +1,4 @@
-import type { BrbSettings as BrbOverlaySettings } from '~/layers/overlays/composables/brb/use-brb-settings.js'
+import type { BrbSettings as BrbOverlaySettings } from '~/layers/overlays/composables/brb/use-brb-settings'
 
 // emotes start
 export type SevenTvEmote = {

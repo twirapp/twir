@@ -1,6 +1,6 @@
 import { type ComputedRef, computed } from 'vue';
 
-import { useEmotes } from '~/layers/overlays/composables/tmi/use-emotes.js';
+import { useEmotes } from '~/layers/overlays/composables/tmi/use-emotes';
 
 export interface TextChunk {
 	type: 'text' | 'emote';

@@ -1,10 +1,10 @@
 import { createGlobalState } from '@vueuse/core'
 
-import { useEmotes } from './use-emotes.js'
+import { useEmotes } from './use-emotes'
 
-import type { FfzChannelResponse, FfzGlobalResponse } from '~/layers/overlays/types.js'
+import type { FfzChannelResponse, FfzGlobalResponse } from '~/layers/overlays/types'
 
-import { requestWithOutCache } from '~/layers/overlays/helpers.js'
+import { requestWithOutCache } from '~/layers/overlays/helpers'
 
 export const useFrankerFaceZ = createGlobalState(() => {
 	const { setFrankerFaceZEmotes } = useEmotes()
