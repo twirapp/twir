@@ -66,6 +66,7 @@ export default defineNuxtConfig({
 		gqlcodegen,
 		'@nuxtjs/fontaine',
 		'@nuxtjs/i18n',
+		'@xiaobailong/web-update-notice-plugin/nuxt',
 	],
 
 	i18n: {
@@ -228,5 +229,10 @@ export default defineNuxtConfig({
 	telemetry: {
 		enabled: true,
 		consent: 1,
+	},
+
+	webUpdateNotice: {
+		checkInterval: 5 * 60 * 1000,
+		base: '/',
 	},
 })

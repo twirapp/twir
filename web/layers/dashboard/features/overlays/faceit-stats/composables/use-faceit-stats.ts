@@ -1,7 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
-import type { Settings } from '@twir/frontend-faceit-stats'
+import type { Settings } from '~~/lib/frontend-faceit-stats'
 
 export const useFaceitStats = createGlobalState(() => {
 	const settings = ref<Settings>({

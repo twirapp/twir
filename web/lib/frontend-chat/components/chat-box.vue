@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFontSource } from '@twir/fontsource'
+import { useFontSource } from '~~/lib/fontsource'
 import { useWindowSize } from '@vueuse/core'
 import { computed, nextTick, ref, toValue, watch } from 'vue'
 

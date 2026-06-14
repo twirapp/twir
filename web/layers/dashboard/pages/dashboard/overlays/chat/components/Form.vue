@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChatBox, type Settings as ChatBoxSettings, type Message } from '@twir/frontend-chat'
+import { ChatBox, type Settings as ChatBoxSettings, type Message } from '~~/lib/frontend-chat'
 import { type Font, FontSelector } from '@/lib/fontsource'
 import { useIntervalFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'

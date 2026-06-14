@@ -1,4 +1,4 @@
-import type { ChatBadge } from '@twir/frontend-chat'
+import type { ChatBadge } from '~~/lib/frontend-chat'
 
 export const globalBadges: ChatBadge[] = [
 	{

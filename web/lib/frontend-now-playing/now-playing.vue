@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import './assets/style.css'
 
-import { useFontSource } from '@twir/fontsource'
+import { useFontSource } from '~~/lib/fontsource'
 import { computed, watch } from 'vue'
 
 import PresetAidenRedesign from './presets/aiden-redesign.vue'

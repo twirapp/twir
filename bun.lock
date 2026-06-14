@@ -219,6 +219,7 @@
         "@vuepic/vue-datepicker": "14.0.0",
         "@vueuse/components": "14.3.0",
         "@vueuse/router": "14.3.0",
+        "@xiaobailong/web-update-notice-plugin": "2.0.9",
         "@zero-dependency/utils": "1.7.8",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
@@ -1743,6 +1744,8 @@
     "@whatwg-node/node-fetch": ["@whatwg-node/node-fetch@0.8.6", "", { "dependencies": { "@fastify/busboy": "^3.1.1", "@whatwg-node/disposablestack": "^0.0.6", "@whatwg-node/promise-helpers": "^1.3.2", "tslib": "^2.6.3" } }, "sha512-BDMdYFcerLQkwA2RTldxOqRCs6ZQD1S7UgP3pUdGUkcbgTrP/V5ko77ZkCww9DHmC4lpoYuwigGfQYj285gMvA=="],
 
     "@whatwg-node/promise-helpers": ["@whatwg-node/promise-helpers@1.3.2", "", { "dependencies": { "tslib": "^2.6.3" } }, "sha512-Nst5JdK47VIl9UcGwtv2Rcgyn5lWtZ0/mhRQ4G8NN2isxpq2TO30iqHzmwoJycjWuyUfg3GFXqP/gFHXeV57IA=="],
+
+    "@xiaobailong/web-update-notice-plugin": ["@xiaobailong/web-update-notice-plugin@2.0.9", "", { "peerDependencies": { "html-webpack-plugin": ">=5.0.0", "nuxt": ">=3.0.0", "vite": ">=2.0.0", "webpack": ">=5.0.0" }, "optionalPeers": ["html-webpack-plugin", "nuxt", "vite", "webpack"] }, "sha512-pYAeYX3/TT1Jn87v12L3hZeUv/G9KKv0KNjiHHyeyACkkBb3h6+4CAngIcIideUmI4LA6UPQN267e7pokMrVIA=="],
 
     "@zero-dependency/utils": ["@zero-dependency/utils@1.7.7", "", {}, "sha512-yVHb1gljLa3rUlo9Fp2Cj5H6EfFrr/vngObdthDskzobyVoFhTknVDh6rnQMXiWhLqZz5V1lbROWit5Kc60s8g=="],
 

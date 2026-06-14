@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NowPlaying, Preset } from '@twir/frontend-now-playing'
+import { NowPlaying, Preset } from '~~/lib/frontend-now-playing'
 import { useSubscription } from '@urql/vue'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
