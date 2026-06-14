@@ -234,5 +234,11 @@ export default defineNuxtConfig({
 	webUpdateNotice: {
 		checkInterval: 5 * 60 * 1000,
 		base: '/',
+		text: {
+			title: '✨ Update available',
+			desc: 'New update available, you MUST update to keep site work correctly.',
+			cancel: 'Cancel',
+			confirm: 'Confirm',
+		},
 	},
 })
