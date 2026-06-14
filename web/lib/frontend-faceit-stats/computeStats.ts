@@ -78,17 +78,17 @@ export async function computeStats(nickname: string, game: string): Promise<Stat
 	// @ts-expect-error
 	const averages: Record<FaceitMatchStatsKeys, number> = new Map()
 	for (const key in totals) {
-		averages[key] = totals[key] / counts[key]
+		averages[key] = (totals[key] ?? 0) / (counts[key] ?? 1)
 	}
 
 	const winRate = ((counts['1'] || 0) / lastGames.items.length) * 100 // Multiply by 100 to get percentage
 
 	result.lastMatches = {
-		avgKills: averages.Kills.toFixed(),
-		headshots: averages['Headshots %'].toFixed(),
+		avgKills: (averages.Kills ?? 0).toFixed(),
+		headshots: (averages['Headshots %'] ?? 0).toFixed(),
 		winRate: winRate.toFixed(), // This will now be a proper percentage value
-		avgKd: averages['K/D Ratio'].toFixed(2),
-		avgKr: averages['K/R Ratio'].toFixed(2), // Remove % as this is not a percentage
+		avgKd: (averages['K/D Ratio'] ?? 0).toFixed(2),
+		avgKr: (averages['K/R Ratio'] ?? 0).toFixed(2), // Remove % as this is not a percentage
 	}
 
 	result.worldRanking = positionResponse ?? ''

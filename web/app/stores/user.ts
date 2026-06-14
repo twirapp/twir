@@ -56,11 +56,11 @@ export const useAuth = defineStore('auth-store', () => {
 	watch(
 		userWithoutDashboards,
 		(newUser) => {
-			if (!newUser || !window.rybbit || !import.meta.client) {
+			if (!newUser || !(window as any).rybbit || !import.meta.client) {
 				return
 			}
 
-			window.rybbit.identify(newUser.id)
+			;(window as any).rybbit.identify(newUser.id)
 		},
 		{ immediate: true }
 	)

@@ -21,7 +21,7 @@ export async function loadFont(
 	const font = (await response.json()) as Font
 
 	for (const subset of font.subsets) {
-		const fontSource = `url(${font.variants[fontWeight][fontStyle][subset].url.woff2})`
+		const fontSource = `url(${font.variants[fontWeight]?.[fontStyle]?.[subset]?.url.woff2})`
 		const fontKey = generateFontKey(fontId, fontWeight, fontStyle)
 		const fontFace = new FontFace(fontKey, fontSource)
 		await fontFace.load()
