@@ -1,7 +1,0 @@
-export { default as ColorPicker } from './ColorPicker.vue'
-export { default as ColorPickerAlpha } from './ColorPickerAlpha.vue'
-export { default as ColorPickerEyeDropper } from './ColorPickerEyeDropper.vue'
-export { default as ColorPickerHue } from './ColorPickerHue.vue'
-export { default as ColorPickerInputs } from './ColorPickerInputs.vue'
-export { default as ColorPickerPresets } from './ColorPickerPresets.vue'
-export { default as ColorPickerSaturation } from './ColorPickerSaturation.vue'
