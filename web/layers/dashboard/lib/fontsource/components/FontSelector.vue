@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { type Font, generateFontKey, useFontSource } from '~~/lib/fontsource/index'
+import { generateFontKey } from '~~/lib/fontsource/api'
+import { type Font, useFontSource } from '~~/lib/fontsource/composable/use-fontsource'
 import { useVirtualizer } from '@tanstack/vue-virtual'
 
 import { Button } from '@/components/ui/button'
