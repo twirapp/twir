@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { NowPlaying, type Track } from '~~/lib/frontend-now-playing'
 import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 
 import { useNowPlayingSocket } from '~/layers/overlays/composables/now-playing/use-now-playing-socket.ts'
 

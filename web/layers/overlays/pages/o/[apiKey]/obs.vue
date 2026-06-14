@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 import { useObs } from '~/layers/overlays/composables/obs/use-obs.ts'
 import {

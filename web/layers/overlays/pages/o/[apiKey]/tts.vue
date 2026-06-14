@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 import type { TTSSayMessage } from '~/layers/overlays/types.ts'
 

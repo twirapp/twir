@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useWebSocket } from '@vueuse/core'
 import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 
 import { openApi } from '~/layers/overlays/api.ts'
 import { generateSocketUrlWithParams } from '~/layers/overlays/helpers.ts'

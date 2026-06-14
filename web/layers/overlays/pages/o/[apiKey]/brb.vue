@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 import type { BrbOnStartFn, BrbOnStopFn } from '~/layers/overlays/types.ts'
 

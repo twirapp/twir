@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { type MaybeRef, onMounted, ref, toRaw, toValue, watch } from 'vue'
-import { useRoute } from 'vue-router'
 
 import htmlLayer from '~/layers/overlays/components/html-layer.vue'
 import imageLayer from '~/layers/overlays/components/image-layer.vue'

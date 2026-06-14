@@ -3,7 +3,6 @@ import KappagenOverlay from '@twirapp/kappagen'
 import '@twirapp/kappagen/styles'
 
 import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 
 import type { Emote, KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 

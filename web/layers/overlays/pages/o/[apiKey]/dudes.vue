@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import DudesOverlay from '@twirapp/dudes-vue'
 import { computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
 
 import { assetsLoaderOptions, dudesSounds } from '~/layers/overlays/composables/dudes/dudes-config.ts'
 import { useDudesIframe } from '~/layers/overlays/composables/dudes/use-dudes-iframe.ts'
