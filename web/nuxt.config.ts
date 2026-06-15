@@ -101,11 +101,11 @@ export default defineNuxtConfig({
 		customCollections: [
 			{
 				prefix: 'twir-overlays',
-				dir: resolve('./layers/dashboard/assets/overlays'),
+				dir: resolve('./layers/dashboard/app/assets/overlays'),
 			},
 			{
 				prefix: 'twir-integrations',
-				dir: resolve('./layers/dashboard/assets/integrations'),
+				dir: resolve('./layers/dashboard/app/assets/integrations'),
 			},
 		],
 	},

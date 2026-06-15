@@ -1,4 +1,4 @@
-import { useLandingStats } from '#layers/landing/api/stats'
+import { useLandingStats } from '#layers/landing/app/api/stats'
 
 export const LandingStatsStoreKey = 'landing-stats-key'
 export const useLandingStatsStore = defineStore('landing-stats', () => {

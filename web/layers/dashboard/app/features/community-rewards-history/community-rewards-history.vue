@@ -1,0 +1,26 @@
+<script setup lang="ts">
+import { useCommunityRewardsTable } from './composables/community-rewards-history-table'
+import CommunityRewardsPage from './ui/community-rewards-history-page.vue'
+
+import Pagination from '~~/layers/dashboard/app/components/pagination.vue'
+import {
+	useCommunityRewardsHistoryQuery,
+} from '~~/layers/dashboard/app/features/community-rewards-history/composables/community-rewards-history-query.js'
+
+const rewardsTable = useCommunityRewardsTable()
+const query = useCommunityRewardsHistoryQuery()
+</script>
+
+<template>
+	<CommunityRewardsPage>
+		<template #pagination>
+			<Pagination
+				:total="rewardsTable.total.value"
+				:table="rewardsTable.table"
+				:pagination="query.pagination.value"
+				@update:page="(page) => query.pagination.value.pageIndex = page"
+				@update:page-size="(pageSize) => query.pagination.value.pageSize = pageSize"
+			/>
+		</template>
+	</CommunityRewardsPage>
+</template>
