@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
-import TwirLogo from '../../../../../libs/brand/src/logo.svg?component'
+import TwirLogo from '../../../../../../libs/brand/src/logo.svg?component'
 
 import { anchorLinks } from '~~/layers/landing/app/layouts/default/anchor-links'
 </script>

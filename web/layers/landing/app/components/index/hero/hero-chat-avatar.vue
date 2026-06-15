@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import TwirLogo from '../../../../../../libs/brand/src/logo.svg?url'
+import TwirLogo from '../../../../../../../libs/brand/src/logo.svg?url'
 
 import type { ColorVariant } from './types.js'
 
