@@ -9,6 +9,7 @@ import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
 const router = useRouter()
+const localePath = useLocalePath()
 const { data: profile } = useProfile()
 const eventApi = useEventsApi()
 const userCanManageEvents = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageEvents)
@@ -29,7 +30,7 @@ const isCreateDisabled = computed(() => {
 })
 
 function createEvent() {
-	router.push('/dashboard/events/new')
+	router.push(localePath('/dashboard/events/new'))
 }
 </script>
 

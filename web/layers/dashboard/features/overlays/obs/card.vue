@@ -6,6 +6,7 @@ import Card from '~~/layers/dashboard/components/overlays/card.vue'
 
 const { t } = useI18n()
 const router = useRouter()
+const localePath = useLocalePath()
 </script>
 
 <template>
@@ -16,7 +17,7 @@ const router = useRouter()
 		:description="t('overlays.obs.description')"
 		overlay-path="obs"
 		:showCopy="false"
-		@open-settings="router.push('/dashboard/overlays/obs')"
+		@open-settings="router.push(localePath('/dashboard/overlays/obs'))"
 	>
 	</Card>
 </template>

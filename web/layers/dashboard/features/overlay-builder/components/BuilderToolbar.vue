@@ -54,6 +54,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const router = useRouter()
+const localePath = useLocalePath()
 const { data: profile } = useProfile()
 const requestUrl = useRequestURL()
 
@@ -66,7 +67,7 @@ const selectedDashboardUser = computed(() => {
 const formatZoom = computed(() => (zoom: number) => `${Math.round(zoom * 100)}%`)
 
 function goBack() {
-	router.push('/dashboard/overlays')
+	router.push(localePath('/dashboard/overlays'))
 }
 
 function copyOverlayLink() {

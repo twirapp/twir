@@ -13,6 +13,7 @@ definePageMeta({ layout: 'popup', middleware: 'auth' })
 
 const route = useRoute()
 const router = useRouter()
+const localePath = useLocalePath()
 
 const discordIntegration = useDiscordIntegration()
 const lastfmIntegration = useLastfmIntegration()
@@ -75,7 +76,7 @@ const integrationsHooks: {
 onMounted(async () => {
 	const integrationName = route.params.name
 	if (!integrationName || typeof integrationName !== 'string') {
-		router.push('/dashboard/integrations')
+		router.push(localePath('/dashboard/integrations'))
 		return
 	}
 
@@ -88,7 +89,7 @@ onMounted(async () => {
 		if (integration?.closeWindow) {
 			window.close()
 		} else {
-			router.push('/dashboard/integrations')
+			router.push(localePath('/dashboard/integrations'))
 		}
 		return
 	}
@@ -100,7 +101,7 @@ onMounted(async () => {
 			if (integration.closeWindow) {
 				window.close()
 			} else {
-				router.push('/dashboard/integrations')
+				router.push(localePath('/dashboard/integrations'))
 			}
 		}
 		return
@@ -117,7 +118,7 @@ onMounted(async () => {
 				}
 				window.close()
 			} else {
-				router.push('/dashboard/integrations')
+				router.push(localePath('/dashboard/integrations'))
 			}
 		})
 		return
@@ -126,7 +127,7 @@ onMounted(async () => {
 	if (integration?.closeWindow) {
 		window.close()
 	} else {
-		router.push('/dashboard/integrations')
+		router.push(localePath('/dashboard/integrations'))
 	}
 })
 </script>

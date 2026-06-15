@@ -37,6 +37,7 @@ import ModalSymbols from './ui/form/moderation-form-symbols.vue'
 
 const route = useRoute()
 const router = useRouter()
+const localePath = useLocalePath()
 
 const { t } = useI18n()
 
@@ -77,7 +78,7 @@ onMounted(async () => {
 		setFieldValue('type', type)
 		setFieldValue('name', t(`moderation.types.${type}.name`))
 	} else {
-		router.push('/dashboard/moderation')
+		router.push(localePath('/dashboard/moderation'))
 	}
 })
 

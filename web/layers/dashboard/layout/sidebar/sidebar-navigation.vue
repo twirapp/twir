@@ -18,6 +18,7 @@ import {
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const currentRoute = useRoute()
 const sidebar = useSidebar()
 
@@ -102,10 +103,10 @@ function goToRoute() {
 					v-if="!item.child"
 					as-child
 					:tooltip="item.name"
-					:variant="currentRoute.path === item.path ? 'active' : 'default'"
+					:variant="currentRoute.path === localePath(item.path) ? 'active' : 'default'"
 					@click="goToRoute"
 				>
-					<RouterLink :to="item.path!">
+					<RouterLink :to="localePath(item.path!)">
 						<Icon :name="item.icon" />
 						<span>{{ item.name }}</span>
 						<Badge
@@ -127,7 +128,7 @@ function goToRoute() {
 							<SidebarMenuButton
 								:tooltip="item.name"
 								:variant="
-									item.path && currentRoute.path.startsWith(item.path) ? 'active' : 'default'
+									item.path && currentRoute.path.startsWith(localePath(item.path)) ? 'active' : 'default'
 								"
 							>
 								<Icon :name="item.icon" />
@@ -152,14 +153,14 @@ function goToRoute() {
 								>
 									<SidebarMenuButton
 										as-child
-										:variant="
-											currentRoute.path === child.path || currentRoute.fullPath === child.path
-												? 'active'
-												: 'default'
-										"
+									:variant="
+										currentRoute.path === localePath(child.path) || currentRoute.fullPath === localePath(child.path)
+											? 'active'
+											: 'default'
+									"
 										@click="goToRoute"
 									>
-										<RouterLink :to="child.path!">
+										<RouterLink :to="localePath(child.path!)">
 											<Icon :name="child.icon" />
 											<span>{{ child.name }}</span>
 											<Badge

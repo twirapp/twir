@@ -17,6 +17,7 @@ import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const { t } = useI18n()
 const router = useRouter()
+const localePath = useLocalePath()
 const route = useRoute()
 const eventsApi = useEventsApi()
 const isNewEvent = computed(() => route.params.id === 'new')
@@ -56,7 +57,7 @@ onMounted(async () => {
 		toast.error(t('events.notFound'), {
 			description: t('events.notFoundDescription'),
 		})
-		router.push('/dashboard/events')
+		router.push(localePath('/dashboard/events'))
 		return
 	}
 
@@ -105,7 +106,7 @@ const onSubmit = eventForm.handleSubmit(async (input) => {
 			}
 
 			if (data?.eventCreate?.id) {
-				router.push(`/dashboard/events/${data.eventCreate.id}`)
+				router.push(localePath(`/dashboard/events/${data.eventCreate.id}`))
 			} else {
 				throw new Error('Create faied, no ID returned')
 			}

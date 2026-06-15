@@ -264,7 +264,8 @@ export const useDashboard = createGlobalState(() => {
 
 	async function setDashboard(dashboardId: string) {
 		await mutationSetDashboard({ dashboardId })
-		navigateTo('/dashboard', { replace: true })
+		const localePath = useLocalePath()
+		navigateTo(localePath('/dashboard'), { replace: true })
 		window.location.reload()
 	}
 

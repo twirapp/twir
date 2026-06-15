@@ -5,9 +5,10 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { t } = useI18n()
 const router = useRouter()
+const localePath = useLocalePath()
 
 function goToDashboard() {
-	router.push('/dashboard')
+	router.push(localePath('/dashboard'))
 }
 </script>
 

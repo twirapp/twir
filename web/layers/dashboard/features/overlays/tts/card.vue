@@ -10,6 +10,7 @@ const api = useTTSOverlayApi()
 const { data: settings, error, fetching } = api.useQueryTTS()
 
 const router = useRouter()
+const localePath = useLocalePath()
 </script>
 
 <template>
@@ -19,7 +20,7 @@ const router = useRouter()
 		:description="t('overlays.tts.description')"
 		overlay-path="tts"
 		:copy-disabled="!settings || !!error || !!fetching"
-		@open-settings="router.push('/dashboard/overlays/tts')"
+		@open-settings="router.push(localePath('/dashboard/overlays/tts'))"
 	>
 	</card>
 </template>

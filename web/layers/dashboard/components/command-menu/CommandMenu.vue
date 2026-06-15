@@ -49,6 +49,7 @@ const { t } = useI18n()
 const isMac = useIsMac()
 const publicPageHref = usePublicPageHref()
 const requestUrl = useRequestURL()
+const localePath = useLocalePath()
 
 const { commands, keywords, variables } = useCommandMenuData()
 const { data: profile } = useProfile()
@@ -76,6 +77,7 @@ const navRoutes = computed(() => {
 
 		return {
 			...route,
+			path: localePath(route.path),
 			displayName: displayName || route.name || '',
 		}
 	})
@@ -99,8 +101,10 @@ const footerRoutes = computed(() => {
 			let href = item.href
 			if (item.isPublicPageDependent && item.translationKey === 'sidebar.publicPage') {
 				href = publicPageHref.value || ''
-		} else if (item.href.startsWith('/') && item.isExternal) {
-			href = `${requestUrl.origin}${item.href}`
+			} else if (item.href.startsWith('/') && item.isExternal) {
+				href = `${requestUrl.origin}${item.href}`
+			} else if (!item.isExternal) {
+				href = localePath(item.href)
 			}
 
 			return {
@@ -291,7 +295,7 @@ onMounted(() => {
 							:key="command.id"
 							:value="`command ${command.name} ${command.description || ''}`"
 							@select="
-								() => runCommand(() => router.push(`/dashboard/commands/custom/${command.id}`))
+								() => runCommand(() => router.push(localePath(`/dashboard/commands/custom/${command.id}`)))
 							"
 							class="cursor-pointer"
 						>
@@ -318,7 +322,7 @@ onMounted(() => {
 							v-for="keyword in keywords.filter((k) => k.enabled)"
 							:key="keyword.id"
 							:value="`keyword ${keyword.text}`"
-							@select="() => runCommand(() => router.push(`/dashboard/keywords`))"
+							@select="() => runCommand(() => router.push(localePath(`/dashboard/keywords`)))"
 							class="cursor-pointer"
 						>
 							<Icon
@@ -338,7 +342,7 @@ onMounted(() => {
 							v-for="variable in variables"
 							:key="variable.id"
 							:value="`variable ${variable.name} ${variable.description || ''}`"
-							@select="() => runCommand(() => router.push(`/dashboard/variables/${variable.id}`))"
+							@select="() => runCommand(() => router.push(localePath(`/dashboard/variables/${variable.id}`)))"
 							class="cursor-pointer"
 						>
 							<Icon

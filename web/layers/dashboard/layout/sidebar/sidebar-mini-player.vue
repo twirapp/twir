@@ -22,6 +22,7 @@ const {
 } = useGlobalYoutubePlayer()
 
 const router = useRouter()
+const localePath = useLocalePath()
 
 // Show mini-player only if:
 // 1. User has ever played a song (to know they use the feature)
@@ -34,7 +35,7 @@ const shouldShowMiniPlayer = computed(() => {
 		currentVideo.value != null &&
 		currentVideo.value !== undefined &&
 		(isPlaying.value || sliderTime.value > 0) &&
-		router.currentRoute.value.path !== '/dashboard/song-requests'
+		router.currentRoute.value.path !== localePath('/dashboard/song-requests')
 	)
 })
 
@@ -43,7 +44,7 @@ const formattedTime = computed(() => {
 })
 
 function goToSongRequests() {
-	router.push('/dashboard/song-requests')
+	router.push(localePath('/dashboard/song-requests'))
 }
 
 function handleSeek(value: number[] | undefined) {
