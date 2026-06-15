@@ -1,198 +1,200 @@
 <script setup lang="ts">
-import { useIntervalFn, useLocalStorage, useMediaQuery } from "@vueuse/core";
-import { intervalToDuration } from "date-fns";
-import { computed, onBeforeUnmount, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { useIntervalFn, useLocalStorage, useMediaQuery } from '@vueuse/core'
+import { intervalToDuration } from 'date-fns'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { useRealtimeDashboardStats } from '~~/layers/dashboard/api/dashboard'
+import CommandMenu from '~~/layers/dashboard/components/command-menu/CommandMenu.vue'
+import { padTo2Digits } from '~~/layers/dashboard/helpers/convertMillisToTime'
 
-import StreamInfoEditor from "../stream-info-editor.vue";
+import Popover from '@/components/ui/popover/Popover.vue'
+import PopoverContent from '@/components/ui/popover/PopoverContent.vue'
+import PopoverTrigger from '@/components/ui/popover/PopoverTrigger.vue'
 
-import { useRealtimeDashboardStats } from "~~/layers/dashboard/api/dashboard";
-import CommandMenu from "~~/layers/dashboard/components/command-menu/CommandMenu.vue";
-import Popover from "@/components/ui/popover/Popover.vue";
-import PopoverContent from "@/components/ui/popover/PopoverContent.vue";
-import PopoverTrigger from "@/components/ui/popover/PopoverTrigger.vue";
-import { padTo2Digits } from "~~/layers/dashboard/helpers/convertMillisToTime";
-import HeaderProfile from "./header-profile.vue";
-import HeaderBotStatus from "./header-bot-status.vue";
+import StreamInfoEditor from '../stream-info-editor.vue'
+import HeaderBotStatus from './header-bot-status.vue'
+import HeaderProfile from './header-profile.vue'
 
-const { stats } = useRealtimeDashboardStats();
+const { stats } = useRealtimeDashboardStats()
 
 // Mobile detection
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isDesktop = useMediaQuery('(min-width: 768px)')
 
-const currentTime = ref(new Date());
+const currentTime = ref(new Date())
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {
-	currentTime.value = new Date();
-}, 1000);
+	currentTime.value = new Date()
+}, 1000)
 
 const uptime = computed(() => {
-	if (!stats.value?.startedAt) return "00:00:00";
+	if (!stats.value?.startedAt) return '00:00:00'
 
 	const duration = intervalToDuration({
 		start: new Date(stats.value.startedAt),
 		end: currentTime.value,
-	});
+	})
 
-	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0];
-	if (duration.days !== undefined && duration.days !== 0) mappedDuration.unshift(duration.days);
+	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0]
+	if (duration.days !== undefined && duration.days !== 0) mappedDuration.unshift(duration.days)
 
 	return mappedDuration
 		.map((v) => padTo2Digits(v!))
-		.filter((v) => typeof v !== "undefined")
-		.join(":");
-});
+		.filter((v) => typeof v !== 'undefined')
+		.join(':')
+})
 
 onBeforeUnmount(() => {
-	pauseUptimeInterval();
-});
+	pauseUptimeInterval()
+})
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const streamInfoEditorOpen = ref(false);
+const streamInfoEditorOpen = ref(false)
 
 function openInfoEditor() {
-	streamInfoEditorOpen.value = true;
+	streamInfoEditorOpen.value = true
 }
 
 // Widget management
 type WidgetType =
-	| "uptime"
-	| "viewers"
-	| "followers"
-	| "messages"
-	| "subs"
-	| "usedEmotes"
-	| "requestedSongs";
+	| 'uptime'
+	| 'viewers'
+	| 'followers'
+	| 'messages'
+	| 'subs'
+	| 'usedEmotes'
+	| 'requestedSongs'
 
 interface WidgetConfig {
-	id: WidgetType;
-	enabled: boolean;
-	order: number;
+	id: WidgetType
+	enabled: boolean
+	order: number
 }
 
 const defaultWidgets: WidgetConfig[] = [
-	{ id: "uptime", enabled: true, order: 0 },
-	{ id: "viewers", enabled: true, order: 1 },
-	{ id: "followers", enabled: true, order: 2 },
-	{ id: "messages", enabled: true, order: 3 },
-	{ id: "subs", enabled: true, order: 4 },
-	{ id: "usedEmotes", enabled: true, order: 5 },
-	{ id: "requestedSongs", enabled: true, order: 6 },
-];
+	{ id: 'uptime', enabled: true, order: 0 },
+	{ id: 'viewers', enabled: true, order: 1 },
+	{ id: 'followers', enabled: true, order: 2 },
+	{ id: 'messages', enabled: true, order: 3 },
+	{ id: 'subs', enabled: true, order: 4 },
+	{ id: 'usedEmotes', enabled: true, order: 5 },
+	{ id: 'requestedSongs', enabled: true, order: 6 },
+]
 
-const widgetsConfig = useLocalStorage<WidgetConfig[]>("twirHeaderStatsWidgetsv1", defaultWidgets);
-const isEditMode = ref(false);
+const widgetsConfig = useLocalStorage<WidgetConfig[]>('twirHeaderStatsWidgetsv1', defaultWidgets)
+const isEditMode = ref(false)
 
 const visibleWidgets = computed(() => {
-	return widgetsConfig.value.filter((w) => w.enabled).sort((a, b) => a.order - b.order);
-});
+	return widgetsConfig.value.filter((w) => w.enabled).sort((a, b) => a.order - b.order)
+})
 
 const hiddenWidgets = computed(() => {
-	return widgetsConfig.value.filter((w) => !w.enabled);
-});
+	return widgetsConfig.value.filter((w) => !w.enabled)
+})
 
 function toggleEditMode() {
-	isEditMode.value = !isEditMode.value;
+	isEditMode.value = !isEditMode.value
 }
 
 function removeWidget(widgetId: WidgetType) {
-	const widget = widgetsConfig.value.find((w) => w.id === widgetId);
+	const widget = widgetsConfig.value.find((w) => w.id === widgetId)
 	if (widget) {
-		widget.enabled = false;
+		widget.enabled = false
 	}
 }
 
 function addWidget(widgetId: WidgetType) {
-	const widget = widgetsConfig.value.find((w) => w.id === widgetId);
+	const widget = widgetsConfig.value.find((w) => w.id === widgetId)
 	if (widget) {
-		widget.enabled = true;
+		widget.enabled = true
 		// Set order to be last
-		const maxOrder = Math.max(...widgetsConfig.value.map((w) => w.order), -1);
-		widget.order = maxOrder + 1;
+		const maxOrder = Math.max(...widgetsConfig.value.map((w) => w.order), -1)
+		widget.order = maxOrder + 1
 	}
 }
 
 function getWidgetValue(widgetId: WidgetType): string | number {
 	switch (widgetId) {
-		case "uptime":
-			return uptime.value;
-		case "viewers":
-			return stats.value?.viewers ?? 0;
-		case "followers":
-			return stats.value?.followers ?? 0;
-		case "messages":
-			return stats.value?.chatMessages ?? 0;
-		case "subs":
-			return stats.value?.subs ?? 0;
-		case "usedEmotes":
-			return stats.value?.usedEmotes ?? 0;
-		case "requestedSongs":
-			return stats.value?.requestedSongs ?? 0;
+		case 'uptime':
+			return uptime.value
+		case 'viewers':
+			return stats.value?.viewers ?? 0
+		case 'followers':
+			return stats.value?.followers ?? 0
+		case 'messages':
+			return stats.value?.chatMessages ?? 0
+		case 'subs':
+			return stats.value?.subs ?? 0
+		case 'usedEmotes':
+			return stats.value?.usedEmotes ?? 0
+		case 'requestedSongs':
+			return stats.value?.requestedSongs ?? 0
 		default:
-			return 0;
+			return 0
 	}
 }
 
 // Drag & Drop functionality
-const draggedWidgetId = ref<WidgetType | null>(null);
-const dragOverWidgetId = ref<WidgetType | null>(null);
+const draggedWidgetId = ref<WidgetType | null>(null)
+const dragOverWidgetId = ref<WidgetType | null>(null)
 
 function onDragStart(widgetId: WidgetType, event: DragEvent) {
-	draggedWidgetId.value = widgetId;
+	draggedWidgetId.value = widgetId
 	if (event.dataTransfer) {
-		event.dataTransfer.effectAllowed = "move";
-		event.dataTransfer.setData("text/plain", widgetId);
+		event.dataTransfer.effectAllowed = 'move'
+		event.dataTransfer.setData('text/plain', widgetId)
 	}
 }
 
 function onDragOver(widgetId: WidgetType, event: DragEvent) {
-	event.preventDefault();
+	event.preventDefault()
 	if (event.dataTransfer) {
-		event.dataTransfer.dropEffect = "move";
+		event.dataTransfer.dropEffect = 'move'
 	}
-	dragOverWidgetId.value = widgetId;
+	dragOverWidgetId.value = widgetId
 }
 
 function onDragLeave() {
-	dragOverWidgetId.value = null;
+	dragOverWidgetId.value = null
 }
 
 function onDrop(targetWidgetId: WidgetType, event: DragEvent) {
-	event.preventDefault();
+	event.preventDefault()
 
 	if (!draggedWidgetId.value || draggedWidgetId.value === targetWidgetId) {
-		draggedWidgetId.value = null;
-		dragOverWidgetId.value = null;
-		return;
+		draggedWidgetId.value = null
+		dragOverWidgetId.value = null
+		return
 	}
 
-	const draggedWidget = widgetsConfig.value.find((w) => w.id === draggedWidgetId.value);
-	const targetWidget = widgetsConfig.value.find((w) => w.id === targetWidgetId);
+	const draggedWidget = widgetsConfig.value.find((w) => w.id === draggedWidgetId.value)
+	const targetWidget = widgetsConfig.value.find((w) => w.id === targetWidgetId)
 
 	if (draggedWidget && targetWidget) {
 		// Swap orders
-		const tempOrder = draggedWidget.order;
-		draggedWidget.order = targetWidget.order;
-		targetWidget.order = tempOrder;
+		const tempOrder = draggedWidget.order
+		draggedWidget.order = targetWidget.order
+		targetWidget.order = tempOrder
 	}
 
-	draggedWidgetId.value = null;
-	dragOverWidgetId.value = null;
+	draggedWidgetId.value = null
+	dragOverWidgetId.value = null
 }
 
 function onDragEnd() {
-	draggedWidgetId.value = null;
-	dragOverWidgetId.value = null;
+	draggedWidgetId.value = null
+	dragOverWidgetId.value = null
 }
 </script>
 
 <template>
 	<div
-		class="flex flex-wrap justify-between bg-card w-full px-2 py-1 gap-2 border-b border-b-border"
+		class="bg-card border-b-border flex w-full flex-wrap justify-between gap-2 border-b px-2 py-1"
 	>
-		<div class="flex flex-wrap md:flex-row flex-col gap-2 py-1">
+		<div class="flex flex-col flex-wrap gap-2 py-1 md:flex-row">
 			<!-- Mobile search icon -->
-			<CommandMenu v-if="!isDesktop" :icon-only="true" />
+			<CommandMenu
+				v-if="!isDesktop"
+				:icon-only="true"
+			/>
 
 			<!-- Stream info widget -->
 			<div
@@ -202,15 +204,18 @@ function onDragEnd() {
 			>
 				<div class="header-widget-content">
 					<div class="flex items-center gap-2">
-						<div class="flex flex-col flex-1 min-w-0">
+						<div class="flex min-w-0 flex-1 flex-col">
 							<p class="header-widget-value truncate">
-								{{ stats?.title ?? "No title" }}
+								{{ stats?.title ?? 'No title' }}
 							</p>
 							<p class="header-widget-label truncate">
-								{{ stats?.categoryName ?? "No category" }}
+								{{ stats?.categoryName ?? 'No category' }}
 							</p>
 						</div>
-						<Icon name="tabler:icon-edit" class="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+						<Icon
+							name="tabler:edit"
+							class="text-muted-foreground h-3.5 w-3.5 flex-shrink-0"
+						/>
 					</div>
 				</div>
 			</div>
@@ -224,7 +229,7 @@ function onDragEnd() {
 					:class="{
 						'pl-9': isEditMode,
 						'opacity-50': draggedWidgetId === widget.id,
-						'ring-2 ring-primary': dragOverWidgetId === widget.id && draggedWidgetId !== widget.id,
+						'ring-primary ring-2': dragOverWidgetId === widget.id && draggedWidgetId !== widget.id,
 					}"
 					:draggable="isEditMode"
 					@dragstart="onDragStart(widget.id, $event)"
@@ -236,19 +241,26 @@ function onDragEnd() {
 					<!-- Edit mode: Grip icon -->
 					<div
 						v-if="isEditMode"
-						class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
+						class="text-muted-foreground/70 absolute top-1/2 left-2 -translate-y-1/2 cursor-grab active:cursor-grabbing"
 						@mousedown.stop
 					>
-						<Icon name="lucide:grip-vertical" :size="16" :stroke-width="1.5" />
+						<Icon
+							name="lucide:grip-vertical"
+							:size="16"
+							:stroke-width="1.5"
+						/>
 					</div>
 
 					<!-- Edit mode: Remove button -->
 					<button
 						v-if="isEditMode"
-						class="hover-show absolute right-1.5 top-1.5 text-muted-foreground/50 hover:text-red-400 transition-colors opacity-0"
+						class="hover-show text-muted-foreground/50 absolute top-1.5 right-1.5 opacity-0 transition-colors hover:text-red-400"
 						@click.stop="removeWidget(widget.id)"
 					>
-						<Icon name="lucide:x" :size="14" />
+						<Icon
+							name="lucide:x"
+							:size="14"
+						/>
 					</button>
 
 					<!-- Widget content -->
@@ -266,36 +278,48 @@ function onDragEnd() {
 			<!-- Edit button -->
 			<button
 				v-if="isDesktop"
-				class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
-				:class="{ 'bg-white/5 border-white/10 text-foreground': isEditMode }"
+				class="text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-2 text-xs transition-all hover:border-white/10 hover:bg-white/5"
+				:class="{ 'text-foreground border-white/10 bg-white/5': isEditMode }"
 				@click="toggleEditMode"
 			>
-				<Icon name="lucide:edit3" :size="14" />
-				<span>{{ isEditMode ? t("sharedButtons.close") : t("sharedButtons.edit") }}</span>
+				<Icon
+					name="lucide:edit3"
+					:size="14"
+				/>
+				<span>{{ isEditMode ? t('sharedButtons.close') : t('sharedButtons.edit') }}</span>
 			</button>
 
 			<!-- Add widget button -->
 			<Popover v-if="isDesktop && isEditMode && hiddenWidgets.length > 0">
 				<PopoverTrigger as-child>
 					<button
-						class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
+						class="text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-2 text-xs transition-all hover:border-white/10 hover:bg-white/5"
 					>
-						<Icon name="lucide:plus" :size="14" />
-						<span>{{ t("sharedButtons.add") }}</span>
+						<Icon
+							name="lucide:plus"
+							:size="14"
+						/>
+						<span>{{ t('sharedButtons.add') }}</span>
 					</button>
 				</PopoverTrigger>
-				<PopoverContent class="w-56 p-2" align="start">
+				<PopoverContent
+					class="w-56 p-2"
+					align="start"
+				>
 					<div class="space-y-1">
-						<p class="text-xs font-semibold text-muted-foreground px-2 py-1">
-							{{ t("dashboard.statsWidgets.addWidget") }}
+						<p class="text-muted-foreground px-2 py-1 text-xs font-semibold">
+							{{ t('dashboard.statsWidgets.addWidget') }}
 						</p>
 						<button
 							v-for="widget in hiddenWidgets"
 							:key="widget.id"
-							class="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-foreground hover:bg-white/10 rounded transition-colors text-left"
+							class="text-foreground flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/10"
 							@click="addWidget(widget.id)"
 						>
-							<Icon name="lucide:plus" :size="12" />
+							<Icon
+								name="lucide:plus"
+								:size="12"
+							/>
 							<span>{{ t(`dashboard.statsWidgets.${widget.id}`) }}</span>
 						</button>
 					</div>
@@ -303,7 +327,7 @@ function onDragEnd() {
 			</Popover>
 		</div>
 
-		<div class="ml-auto flex flex-wrap justify-end gap-2 flex-end items-center">
+		<div class="flex-end ml-auto flex flex-wrap items-center justify-end gap-2">
 			<CommandMenu v-if="isDesktop" />
 			<HeaderBotStatus />
 			<HeaderProfile />
@@ -333,11 +357,11 @@ function onDragEnd() {
 	max-width: 300px;
 }
 
-.header-widget[draggable="true"] {
+.header-widget[draggable='true'] {
 	cursor: grab;
 }
 
-.header-widget[draggable="true"]:active {
+.header-widget[draggable='true']:active {
 	cursor: grabbing;
 }
 

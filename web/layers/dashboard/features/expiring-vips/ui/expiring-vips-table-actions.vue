@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { toast } from "vue-sonner";
+import { ref } from 'vue'
+import { toast } from 'vue-sonner'
 
-import type { ScheduledVip } from "@/api/scheduled-vips.js";
+import type { ScheduledVip } from '@/api/scheduled-vips.js'
 
-import { useScheduledVipsApi } from "@/api/scheduled-vips.js";
+import { useScheduledVipsApi } from '@/api/scheduled-vips.js'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -15,19 +14,19 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 
 const props = defineProps<{
-	scheduledVip: ScheduledVip;
-}>();
+	scheduledVip: ScheduledVip
+}>()
 
-const { t } = useI18n();
-const api = useScheduledVipsApi();
+const { t } = useI18n()
+const api = useScheduledVipsApi()
 const { executeMutation: deleteMutation, fetching: isDeleting } =
-	api.useMutationRemoveScheduledVip();
+	api.useMutationRemoveScheduledVip()
 
-const showDeleteDialog = ref(false);
+const showDeleteDialog = ref(false)
 
 const handleDelete = async () => {
 	const result = await deleteMutation({
@@ -35,16 +34,16 @@ const handleDelete = async () => {
 		input: {
 			keepVip: false,
 		},
-	});
+	})
 
 	if (result.error) {
-		toast.error(result.error.message);
-		return;
+		toast.error(result.error.message)
+		return
 	}
 
-	toast.success(t("expiringVips.successDelete"));
-	showDeleteDialog.value = false;
-};
+	toast.success(t('expiringVips.successDelete'))
+	showDeleteDialog.value = false
+}
 </script>
 
 <template>
@@ -55,25 +54,31 @@ const handleDelete = async () => {
 			@click="showDeleteDialog = true"
 			:disabled="isDeleting"
 		>
-			<Icon name="lucide:trash" class="h-4 w-4" />
+			<Icon
+				name="lucide:trash"
+				class="h-4 w-4"
+			/>
 		</Button>
 
 		<AlertDialog v-model:open="showDeleteDialog">
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>{{ t("expiringVips.deleteDialog.title") }}</AlertDialogTitle>
+					<AlertDialogTitle>{{ t('expiringVips.deleteDialog.title') }}</AlertDialogTitle>
 					<AlertDialogDescription>
 						{{
-							t("expiringVips.deleteDialog.description", {
+							t('expiringVips.deleteDialog.description', {
 								user: scheduledVip.twitchProfile.displayName,
 							})
 						}}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel>{{ t("sharedButtons.cancel") }}</AlertDialogCancel>
-					<AlertDialogAction @click="handleDelete" :disabled="isDeleting">
-						{{ t("sharedButtons.delete") }}
+					<AlertDialogCancel>{{ t('sharedButtons.cancel') }}</AlertDialogCancel>
+					<AlertDialogAction
+						@click="handleDelete"
+						:disabled="isDeleting"
+					>
+						{{ t('sharedButtons.delete') }}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

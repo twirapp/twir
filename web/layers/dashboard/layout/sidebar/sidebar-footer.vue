@@ -1,26 +1,25 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue'
+import { useNotifications } from '~~/layers/dashboard/composables/use-notifications'
+import { footerNavigationItems } from '~~/layers/dashboard/config/navigation'
 
-import { usePublicPageHref } from "../use-public-page-href";
-
-import DiscordLogo from "@/assets/icons/social/discord.svg";
-import GithubLogo from "@/assets/icons/social/github.svg";
-import Badge from "@/components/ui/badge/Badge.vue";
+import DiscordLogo from '@/assets/icons/social/discord.svg'
+import GithubLogo from '@/assets/icons/social/github.svg'
+import Badge from '@/components/ui/badge/Badge.vue'
 import {
 	SidebarFooter,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
 	useSidebar,
-} from "@/components/ui/sidebar";
-import { footerNavigationItems } from "~~/layers/dashboard/config/navigation";
-import { useNotifications } from "~~/layers/dashboard/composables/use-notifications";
+} from '@/components/ui/sidebar'
 
-const { t } = useI18n();
-const { setOpenMobile } = useSidebar();
-const publicPageHref = usePublicPageHref();
-const { notificationsCounter } = useNotifications();
+import { usePublicPageHref } from '../use-public-page-href'
+
+const { t } = useI18n()
+const { setOpenMobile } = useSidebar()
+const publicPageHref = usePublicPageHref()
+const { notificationsCounter } = useNotifications()
 
 // Filter and prepare footer items
 const visibleFooterItems = computed(() => {
@@ -28,34 +27,34 @@ const visibleFooterItems = computed(() => {
 		.filter((item) => {
 			// Filter out public page dependent items if no public page
 			if (item.isPublicPageDependent && !publicPageHref.value) {
-				return false;
+				return false
 			}
-			return true;
+			return true
 		})
 		.map((item) => {
 			// Compute dynamic hrefs
-			let href = item.href;
-			if (item.isPublicPageDependent && item.translationKey === "sidebar.publicPage") {
-				href = publicPageHref.value || "";
-			} else if (item.href.startsWith("/") && item.isExternal) {
-				href = `${window.location.origin}${item.href}`;
+			let href = item.href
+			if (item.isPublicPageDependent && item.translationKey === 'sidebar.publicPage') {
+				href = publicPageHref.value || ''
+			} else if (item.href.startsWith('/') && item.isExternal) {
+				href = `${window.location.origin}${item.href}`
 			}
 
 			return {
 				...item,
 				href,
-			};
-		});
-});
+			}
+		})
+})
 
 // Separate Discord and GitHub for special layout
 const socialItems = computed(() =>
-	visibleFooterItems.value.filter((item) => item.icon === "discord" || item.icon === "github"),
-);
+	visibleFooterItems.value.filter((item) => item.icon === 'discord' || item.icon === 'github')
+)
 
 const regularItems = computed(() =>
-	visibleFooterItems.value.filter((item) => item.icon !== "discord" && item.icon !== "github"),
-);
+	visibleFooterItems.value.filter((item) => item.icon !== 'discord' && item.icon !== 'github')
+)
 </script>
 
 <template>
@@ -63,14 +62,20 @@ const regularItems = computed(() =>
 		<SidebarMenu>
 			<!-- Discord and GitHub in special layout -->
 			<div class="flex gap-2 group-data-[collapsible=icon]:flex-col">
-				<template v-for="item in socialItems" :key="item.name">
+				<template
+					v-for="item in socialItems"
+					:key="item.name"
+				>
 					<SidebarMenuButton
 						class="flex justify-center"
 						variant="active"
 						as-child
 						:tooltip="item.name"
 					>
-						<a :href="item.href" target="_blank">
+						<a
+							:href="item.href"
+							target="_blank"
+						>
 							<DiscordLogo v-if="item.icon === 'discord'" />
 							<GithubLogo v-else-if="item.icon === 'github'" />
 						</a>
@@ -79,7 +84,10 @@ const regularItems = computed(() =>
 			</div>
 
 			<!-- Regular footer items -->
-			<SidebarMenuItem v-for="item in regularItems" :key="item.href">
+			<SidebarMenuItem
+				v-for="item in regularItems"
+				:key="item.href"
+			>
 				<SidebarMenuButton
 					as-child
 					:tooltip="item.translationKey ? t(item.translationKey) : item.name"
@@ -100,7 +108,11 @@ const regularItems = computed(() =>
 						>
 							{{ notificationsCounter.counter }}
 						</Badge>
-						<Icon name="lucide:external-link" v-else-if="item.isExternal" class="ml-auto" />
+						<Icon
+							name="lucide:external-link"
+							v-else-if="item.isExternal"
+							class="ml-auto"
+						/>
 					</component>
 				</SidebarMenuButton>
 			</SidebarMenuItem>
