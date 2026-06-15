@@ -151,6 +151,11 @@ export default defineNuxtConfig({
 				],
 			},
 		},
+		css: {
+			lightningcss: {
+				errorRecovery: true,
+			},
+		},
 	},
 	css: ['~/assets/css/tailwind.css', '~/assets/css/global.css'],
 
