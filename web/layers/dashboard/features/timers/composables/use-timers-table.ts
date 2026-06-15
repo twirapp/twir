@@ -1,10 +1,8 @@
+import type { TimerResponse } from '~~/layers/dashboard/api/timers'
+
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import type { TimerResponse } from '~~/layers/dashboard/api/timers'
-
 import { useTimersApi } from '~~/layers/dashboard/api/timers'
 import TimersTableActions from '~~/layers/dashboard/features/timers/ui/timers-table-actions.vue'
 
@@ -30,11 +28,14 @@ export const useTimersTable = createGlobalState(() => {
 				accessorKey: 'responses',
 				size: 65,
 				header: () => h('div', {}, t('sharedTexts.responses')),
-				cell: ({ row }) => h(
-					'div',
-					{ class: 'flex flex-col gap-0.5' },
-					row.original.responses.map(r => h('span', { class: 'truncate md:whitespace-normal' }, r.text)),
-				),
+				cell: ({ row }) =>
+					h(
+						'div',
+						{ class: 'flex flex-col gap-0.5' },
+						row.original.responses.map((r) =>
+							h('span', { class: 'truncate md:whitespace-normal' }, r.text)
+						)
+					),
 			},
 			{
 				accessorKey: 'timeInterval',

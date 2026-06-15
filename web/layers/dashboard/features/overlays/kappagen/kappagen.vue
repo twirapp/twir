@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import { kappagenFormSchema } from './kappagen-form-schema'
-import KappagenForm from './kappagen-form.vue'
+import { toast } from 'vue-sonner'
+import { useKappagenApi } from '~~/layers/dashboard/api/overlays/kappagen'
+import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink.js'
+import KappagenPreview from '~~/layers/dashboard/features/overlays/kappagen/kappagen-preview.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 import type { KappagenOverlaySettingsFragment } from '~/gql/graphql.js'
 
-import { useKappagenApi } from '~~/layers/dashboard/api/overlays/kappagen'
-import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink.js'
 import { Button } from '@/components/ui/button'
-import { toast } from 'vue-sonner'
-import KappagenPreview from '~~/layers/dashboard/features/overlays/kappagen/kappagen-preview.vue'
 import { KappagenEmojiStyle } from '~/gql/graphql.js'
-import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+
+import { kappagenFormSchema } from './kappagen-form-schema'
+import KappagenForm from './kappagen-form.vue'
 
 const { t } = useI18n()
 const { kappagen, isLoading, isUpdating, updateKappagen, refetch } = useKappagenApi()
@@ -180,28 +179,44 @@ const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 		<template #title> Kappagen overlay </template>
 
 		<template #title-footer>
-			<p class="text-sm text-muted-foreground">Flying emotes on your screen!</p>
+			<p class="text-muted-foreground text-sm">Flying emotes on your screen!</p>
 		</template>
 
 		<template #action>
 			<div class="flex flex-col gap-2">
-				<Button :loading="isUpdating" @click="onSubmit">
+				<Button
+					:loading="isUpdating"
+					@click="onSubmit"
+				>
 					{{ isUpdating ? 'Saving...' : 'Save Changes' }}
 				</Button>
-				<Button variant="outline" class="flex items-center gap-2" @click="copyOverlayLink()">
-					<Icon name="lucide:copy" class="size-4" />
+				<Button
+					variant="outline"
+					class="flex items-center gap-2"
+					@click="copyOverlayLink()"
+				>
+					<Icon
+						name="lucide:copy"
+						class="size-4"
+					/>
 					Copy overlay link
 				</Button>
 			</div>
 		</template>
 
 		<template #content>
-			<div v-if="isLoading" class="flex items-center justify-center h-64">
+			<div
+				v-if="isLoading"
+				class="flex h-64 items-center justify-center"
+			>
 				<div class="text-muted-foreground">Loading Kappagen settings...</div>
 			</div>
-			<div v-else class="p-8">
+			<div
+				v-else
+				class="p-8"
+			>
 				<form
-					class="relative w-full rounded-lg h-[80dvh] border-2 border-border bg-background/60 shadow-lg bg-card"
+					class="border-border bg-background/60 bg-card relative h-[80dvh] w-full rounded-lg border-2 shadow-lg"
 					@submit.prevent="onSubmit"
 				>
 					<KappagenForm class="absolute top-2 left-4 h-full" />

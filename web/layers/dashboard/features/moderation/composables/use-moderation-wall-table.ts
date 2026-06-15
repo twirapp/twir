@@ -1,10 +1,8 @@
+import type { ChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
+
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import type { ChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
-
 import { useModerationChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
 import ChatWallAction from '~~/layers/dashboard/features/moderation/ui/chat-wall-action.vue'
 import ChatWallLog from '~~/layers/dashboard/features/moderation/ui/chat-wall-log.vue'

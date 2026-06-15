@@ -85,6 +85,11 @@ export default defineNuxtConfig({
 			strictMessage: false,
 			escapeHtml: false,
 		},
+		detectBrowserLanguage: {
+			useCookie: true,
+			cookieKey: 'i18n_redirected',
+			redirectOn: 'root',
+		},
 	},
 
 	icon: {

@@ -1,11 +1,16 @@
 <script lang="ts" setup>
+import type { EventFilter, EventOperation } from '~~/layers/dashboard/api/events'
+
 import { useField, useFieldArray } from 'vee-validate'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import OperationFilter from './filter.vue'
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
 import { useVariablesApi } from '~~/layers/dashboard/api/variables.js'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
+import OperationActionSelector from '~~/layers/dashboard/features/events/components/operation-action-selector.vue'
+import OperationInputAlert from '~~/layers/dashboard/features/events/components/operation-input-alert.vue'
+import OperationInputObsSelector from '~~/layers/dashboard/features/events/components/operation-input-obs-selector.vue'
+import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers'
+
 import { Button } from '@/components/ui/button'
 import {
 	FormControl,
@@ -26,14 +31,9 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
-import OperationActionSelector from '~~/layers/dashboard/features/events/components/operation-action-selector.vue'
-import OperationInputAlert from '~~/layers/dashboard/features/events/components/operation-input-alert.vue'
-import OperationInputObsSelector from '~~/layers/dashboard/features/events/components/operation-input-obs-selector.vue'
-import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers'
 import { EventOperationType } from '~/gql/graphql.js'
 
-import type { EventFilter, EventOperation } from '~~/layers/dashboard/api/events'
+import OperationFilter from './filter.vue'
 
 const props = withDefaults(
 	defineProps<{
@@ -370,7 +370,10 @@ function onRemoveFilter(filterIndex: number) {
 						variant="outline"
 						@click="() => onAddFilter()"
 					>
-						<Icon name="lucide:plus" class="mr-2 h-4 w-4" />
+						<Icon
+							name="lucide:plus"
+							class="mr-2 h-4 w-4"
+						/>
 						{{ t('sharedTexts.create') }}
 					</Button>
 				</div>

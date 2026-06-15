@@ -1,27 +1,25 @@
-import type { ColumnDef } from '@tanstack/vue-table';
+import type { ColumnDef } from '@tanstack/vue-table'
+import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js'
 
-import { getCoreRowModel, useVueTable } from '@tanstack/vue-table';
-import { createGlobalState } from '@vueuse/core';
-import { computed, h, ref } from 'vue';
-import { NuxtIcon as Icon } from '#components';
-import { useI18n } from 'vue-i18n';
+import { NuxtIcon as Icon } from '#components'
+import { getCoreRowModel, useVueTable } from '@tanstack/vue-table'
+import { createGlobalState } from '@vueuse/core'
+import { computed, h, ref } from 'vue'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useGiveaways } from '~~/layers/dashboard/features/giveaways/composables/giveaways-use-giveaways.js'
+import GiveawaysCreateDialog from '~~/layers/dashboard/features/giveaways/ui/giveaways-create-dialog.vue'
 
-import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js';
-
-import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth';
-import { Button } from '@/components/ui/button';
-import { useGiveaways } from '~~/layers/dashboard/features/giveaways/composables/giveaways-use-giveaways.js';
-import GiveawaysCreateDialog from '~~/layers/dashboard/features/giveaways/ui/giveaways-create-dialog.vue';
-import { ChannelRolePermissionEnum } from '~/gql/graphql.js';
+import { Button } from '@/components/ui/button'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 export const useGiveawaysListTable = createGlobalState(() => {
-	const { t } = useI18n();
+	const { t } = useI18n()
 	const { activeGiveaways, giveawaysListFetching, viewGiveaway, startGiveaway, stopGiveaway } =
-		useGiveaways();
+		useGiveaways()
 
-	const canManageGiveaways = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGiveaways);
+	const canManageGiveaways = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGiveaways)
 
-	const showCreateDialog = ref(false);
+	const showCreateDialog = ref(false)
 
 	const tableColumns = computed<ColumnDef<Giveaway>[]>(() => {
 		return [
@@ -35,7 +33,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 						{},
 						row.original.type === 'KEYWORD'
 							? t('giveaways.typeKeyword')
-							: t('giveaways.typeOnlineChatters'),
+							: t('giveaways.typeOnlineChatters')
 					),
 			},
 			{
@@ -61,7 +59,7 @@ export const useGiveawaysListTable = createGlobalState(() => {
 					h(
 						'span',
 						{},
-						row.original.startedAt ? new Date(row.original.startedAt).toLocaleString() : '-',
+						row.original.startedAt ? new Date(row.original.startedAt).toLocaleString() : '-'
 					),
 			},
 			{
@@ -80,8 +78,11 @@ export const useGiveawaysListTable = createGlobalState(() => {
 								onClick: () => viewGiveaway(row.original.id),
 							},
 							{
-								default: () => [h(Icon, { name: 'lucide:eye', class: 'size-4' }), t('giveaways.view')],
-							},
+								default: () => [
+									h(Icon, { name: 'lucide:eye', class: 'size-4' }),
+									t('giveaways.view'),
+								],
+							}
 						),
 
 						// Start button (if not started)
@@ -96,8 +97,11 @@ export const useGiveawaysListTable = createGlobalState(() => {
 										onClick: () => startGiveaway(row.original.id),
 									},
 									{
-										default: () => [h(Icon, { name: 'lucide:play', class: 'size-4' }), t('giveaways.start')],
-									},
+										default: () => [
+											h(Icon, { name: 'lucide:play', class: 'size-4' }),
+											t('giveaways.start'),
+										],
+									}
 								)
 							: null,
 
@@ -113,28 +117,31 @@ export const useGiveawaysListTable = createGlobalState(() => {
 										onClick: () => stopGiveaway(row.original.id),
 									},
 									{
-										default: () => [h(Icon, { name: 'lucide:ban', class: 'size-4' }), t('giveaways.stop')],
-									},
+										default: () => [
+											h(Icon, { name: 'lucide:ban', class: 'size-4' }),
+											t('giveaways.stop'),
+										],
+									}
 								)
 							: null,
 					]),
 			},
-		];
-	});
+		]
+	})
 
 	const table = useVueTable({
 		get data() {
-			return activeGiveaways.value;
+			return activeGiveaways.value
 		},
 		get columns() {
-			return tableColumns.value;
+			return tableColumns.value
 		},
 		getCoreRowModel: getCoreRowModel(),
-	});
+	})
 
 	return {
 		isLoading: giveawaysListFetching,
 		table,
 		showCreateDialog,
-	};
-});
+	}
+})

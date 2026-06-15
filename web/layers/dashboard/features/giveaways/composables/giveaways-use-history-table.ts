@@ -3,7 +3,7 @@ import { getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { createGlobalState } from '@vueuse/core';
 import { computed, h } from 'vue';
 import { NuxtIcon as Icon } from '#components';
-import { useI18n } from 'vue-i18n';
+;
 
 import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js';
 

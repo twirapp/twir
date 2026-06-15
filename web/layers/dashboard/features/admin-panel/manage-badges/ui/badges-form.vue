@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+
 
 import BadgesPreview from './badges-preview.vue'
 import { useBadgesForm } from '../composables/use-badges-form.js'

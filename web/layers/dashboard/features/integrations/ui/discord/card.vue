@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import DiscordIcon from '~~/layers/dashboard/assets/integrations/discord.svg'
+import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
@@ -28,23 +27,30 @@ function getGuildIconUrl(guildId: string, icon: string | null | undefined) {
 </script>
 
 <template>
-	<Card class="flex flex-col h-full">
+	<Card class="flex h-full flex-col">
 		<CardHeader>
 			<CardTitle class="flex items-center gap-2">
-				<DiscordIcon class="w-8 h-8" style="fill: #5865f2" />
+				<DiscordIcon
+					class="h-8 w-8"
+					style="fill: #5865f2"
+				/>
 				Discord
 			</CardTitle>
 		</CardHeader>
 
 		<CardContent class="grow">
-			<p class="text-sm text-muted-foreground">
+			<p class="text-muted-foreground text-sm">
 				{{ t('integrations.discord.description') }}
 			</p>
 		</CardContent>
 
 		<CardFooter class="mt-auto">
-			<div class="flex justify-between flex-wrap items-center gap-4 w-full">
-				<RouterLink custom v-slot="{ href, navigate }" to="/dashboard/integrations/discord">
+			<div class="flex w-full flex-wrap items-center justify-between gap-4">
+				<RouterLink
+					custom
+					v-slot="{ href, navigate }"
+					to="/dashboard/integrations/discord"
+				>
 					<Button
 						:disabled="!userCanManageIntegrations"
 						variant="secondary"
@@ -53,28 +59,40 @@ function getGuildIconUrl(guildId: string, icon: string | null | undefined) {
 						as="a"
 						:href="href"
 					>
-						<Icon name="lucide:settings" class="mr-2 h-4 w-4" />
+						<Icon
+							name="lucide:settings"
+							class="mr-2 h-4 w-4"
+						/>
 						{{ t('sharedButtons.settings') }}
-						<Icon name="lucide:external-link" class="ml-2 h-3 w-3" />
+						<Icon
+							name="lucide:external-link"
+							class="ml-2 h-3 w-3"
+						/>
 					</Button>
 				</RouterLink>
 
 				<div class="flex items-center gap-2">
 					<template v-if="isLoading">
-						<span class="text-sm text-muted-foreground">{{ t('sharedTexts.loading') }}</span>
+						<span class="text-muted-foreground text-sm">{{ t('sharedTexts.loading') }}</span>
 					</template>
 					<template v-else-if="connectedGuildsCount > 0">
 						<div class="flex -space-x-2">
 							<Avatar
 								v-for="guild in guilds.slice(0, 3)"
 								:key="guild.id"
-								class="h-6 w-6 border-2 border-background"
+								class="border-background h-6 w-6 border-2"
 							>
-								<AvatarImage v-if="guild.icon" :src="getGuildIconUrl(guild.id, guild.icon)!" />
+								<AvatarImage
+									v-if="guild.icon"
+									:src="getGuildIconUrl(guild.id, guild.icon)!"
+								/>
 								<AvatarFallback class="text-xs">{{ guild.name.charAt(0) }}</AvatarFallback>
 							</Avatar>
 						</div>
-						<Badge variant="secondary" class="ml-2">
+						<Badge
+							variant="secondary"
+							class="ml-2"
+						>
 							{{
 								t('integrations.discord.connectedGuilds', {
 									guilds: t('integrations.discord.guildPluralization', connectedGuildsCount),
@@ -83,7 +101,10 @@ function getGuildIconUrl(guildId: string, icon: string | null | undefined) {
 						</Badge>
 					</template>
 					<template v-else>
-						<Badge variant="outline" class="text-muted-foreground">
+						<Badge
+							variant="outline"
+							class="text-muted-foreground"
+						>
 							{{ t('integrations.discord.noGuilds') }}
 						</Badge>
 					</template>

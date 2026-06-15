@@ -1,11 +1,9 @@
+import { createGlobalState } from '@vueuse/core'
+import { toast } from 'vue-sonner'
+import { z } from 'zod'
+import { useGamesApi } from '~~/layers/dashboard/api/games/games'
 
-import { createGlobalState } from '@vueuse/core';
-import { useI18n } from 'vue-i18n';
-import { z } from 'zod';
-
-import { useGamesApi } from '~~/layers/dashboard/api/games/games';
-import { toast } from 'vue-sonner';
-import { VoteBanGameVotingMode } from '~/gql/graphql.js';
+import { VoteBanGameVotingMode } from '~/gql/graphql.js'
 
 const rules = z
 	.object({
@@ -24,7 +22,7 @@ const rules = z
 		timeoutModerators: z.boolean(),
 	})
 	.superRefine((data, ctx) => {
-		const positives = new Set(data.chatVotesWordsPositive);
+		const positives = new Set(data.chatVotesWordsPositive)
 
 		for (const word of data.chatVotesWordsNegative) {
 			if (positives.has(word)) {
@@ -32,26 +30,26 @@ const rules = z
 					code: 'custom',
 					message: `Word "${word}" is already in use`,
 					path: ['chatVotesWordsPositive'],
-				});
+				})
 				ctx.addIssue({
 					code: 'custom',
 					message: `Word "${word}" is already in use`,
 					path: ['chatVotesWordsNegative'],
-				});
-				return;
+				})
+				return
 			}
 		}
-	});
+	})
 
-export const formSchema = rules;
+export const formSchema = rules
 
-export type FormSchema = z.infer<typeof rules>;
+export type FormSchema = z.infer<typeof rules>
 
 export const useVotebanForm = createGlobalState(() => {
-	const { t } = useI18n();
-	const gamesApi = useGamesApi();
-	const { data: settings } = gamesApi.useGamesQuery();
-	const updater = gamesApi.useVotebanMutation();
+	const { t } = useI18n()
+	const gamesApi = useGamesApi()
+	const { data: settings } = gamesApi.useGamesQuery()
+	const updater = gamesApi.useVotebanMutation()
 
 	const initialValues: FormSchema = {
 		enabled: false,
@@ -70,25 +68,25 @@ export const useVotebanForm = createGlobalState(() => {
 		neededVotes: 3,
 		timeoutSeconds: 60,
 		timeoutModerators: false,
-	};
+	}
 
 	async function save(values: FormSchema) {
 		const result = await updater.executeMutation({
 			opts: values,
-		});
+		})
 
 		if (result.error) {
-			return;
+			return
 		}
 
 		toast.success(t('sharedTexts.saved'), {
 			duration: 2500,
-		});
+		})
 	}
 
 	return {
 		initialValues,
 		save,
 		settings,
-	};
-});
+	}
+})

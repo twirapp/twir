@@ -1,11 +1,8 @@
-
 import { useForm } from 'vee-validate'
 import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import * as z from 'zod'
-
-import { useChatTranslationApi } from '~~/layers/dashboard/api/chat-translation'
 import { toast } from 'vue-sonner'
+import * as z from 'zod'
+import { useChatTranslationApi } from '~~/layers/dashboard/api/chat-translation'
 
 export const formSchema = z.object({
 	id: z.string().optional(),

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useVariablesApi } from '~~/layers/dashboard/api/variables'
+
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
@@ -21,15 +20,31 @@ const maxVariables = computed(() => {
 })
 
 const isCreateDisabled = computed(() => {
-	return variables.customVariables.value.length >= maxVariables.value || !userCanManageVariables.value
+	return (
+		variables.customVariables.value.length >= maxVariables.value || !userCanManageVariables.value
+	)
 })
 </script>
 
 <template>
-	<RouterLink v-slot="{ href, navigate }" custom to="/dashboard/variables/create">
-		<Button as="a" :href="href" :disabled="isCreateDisabled" @click="navigate">
-			<Icon name="lucide:plus" class="size-4 mr-2" />
-			{{ t('sharedButtons.create') }} ({{ variables.customVariables.value.length }}/{{ maxVariables }})
+	<RouterLink
+		v-slot="{ href, navigate }"
+		custom
+		to="/dashboard/variables/create"
+	>
+		<Button
+			as="a"
+			:href="href"
+			:disabled="isCreateDisabled"
+			@click="navigate"
+		>
+			<Icon
+				name="lucide:plus"
+				class="mr-2 size-4"
+			/>
+			{{ t('sharedButtons.create') }} ({{ variables.customVariables.value.length }}/{{
+				maxVariables
+			}})
 		</Button>
 	</RouterLink>
 </template>

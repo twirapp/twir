@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import type { ChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
 
+import { ref, watch } from 'vue'
 import { useModerationChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import {
-	Dialog,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table/index.js'
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table/index.js'
 
 const { t } = useI18n()
 
@@ -36,7 +37,10 @@ watch(dialogOpened, (v) => {
 <template>
 	<Dialog v-model:open="dialogOpened">
 		<DialogTrigger as-child>
-			<Button :disabled="!chatWall.affectedMessages" size="sm">
+			<Button
+				:disabled="!chatWall.affectedMessages"
+				size="sm"
+			>
 				{{ t('chatWall.table.affectedMessages') }} ({{ chatWall.affectedMessages }})
 			</Button>
 		</DialogTrigger>
@@ -57,10 +61,19 @@ watch(dialogOpened, (v) => {
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					<TableRow v-for="message of data?.chatWallLogs" :key="message.id">
+					<TableRow
+						v-for="message of data?.chatWallLogs"
+						:key="message.id"
+					>
 						<TableCell class="w-[10%]">
-							<a :href="`https://twitch.tv/${message.twitchProfile.login}`" class="flex items-center gap-2">
-								<img :src="message.twitchProfile.profileImageUrl" class="size-6 rounded-full" />
+							<a
+								:href="`https://twitch.tv/${message.twitchProfile.login}`"
+								class="flex items-center gap-2"
+							>
+								<img
+									:src="message.twitchProfile.profileImageUrl"
+									class="size-6 rounded-full"
+								/>
 								<span>
 									{{ message.twitchProfile.displayName }}
 								</span>

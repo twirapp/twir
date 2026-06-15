@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import type { EditableItem } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
 
+import { ref, toRaw } from 'vue'
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import Card from '~~/layers/dashboard/components/card/card.vue'
+import { useModerationApi } from '~~/layers/dashboard/features/moderation/composables/use-moderation-api.js'
+import { Icons } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
+
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -15,8 +16,6 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Switch } from '@/components/ui/switch'
-import { useModerationApi } from '~~/layers/dashboard/features/moderation/composables/use-moderation-api.js'
-import { Icons } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = defineProps<{
@@ -68,7 +67,11 @@ async function removeItem() {
 </script>
 
 <template>
-	<Card :title="t(`moderation.types.${item.type}.name`)" :icon="Icons[item.type]" class="h-full">
+	<Card
+		:title="t(`moderation.types.${item.type}.name`)"
+		:icon="Icons[item.type]"
+		class="h-full"
+	>
 		<template #headerExtra>
 			<Switch
 				v-if="item.id"
@@ -81,7 +84,11 @@ async function removeItem() {
 
 		<template #content>
 			<div class="flex flex-col gap-2">
-				<span v-if="item.name" class="text-xl text-white">{{ item.name }}</span>
+				<span
+					v-if="item.name"
+					class="text-xl text-white"
+					>{{ item.name }}</span
+				>
 				{{ t(`moderation.types.${item.type}.description`) }}
 			</div>
 		</template>
@@ -94,7 +101,10 @@ async function removeItem() {
 					@click="$emit('showSettings')"
 				>
 					{{ t('sharedButtons.settings') }}
-					<Icon name="lucide:settings" class="ml-2 h-4 w-4" />
+					<Icon
+						name="lucide:settings"
+						class="ml-2 h-4 w-4"
+					/>
 				</Button>
 
 				<Button
@@ -103,7 +113,10 @@ async function removeItem() {
 					@click="showDeleteDialog = true"
 				>
 					{{ t('sharedButtons.delete') }}
-					<Icon name="lucide:trash2" class="ml-2 h-4 w-4" />
+					<Icon
+						name="lucide:trash2"
+						class="ml-2 h-4 w-4"
+					/>
 				</Button>
 			</div>
 		</template>
@@ -115,10 +128,16 @@ async function removeItem() {
 				<DialogTitle>{{ t('deleteConfirmation.text') }}</DialogTitle>
 			</DialogHeader>
 			<DialogFooter>
-				<Button variant="outline" @click="showDeleteDialog = false">
+				<Button
+					variant="outline"
+					@click="showDeleteDialog = false"
+				>
 					{{ t('deleteConfirmation.cancel') }}
 				</Button>
-				<Button variant="destructive" @click="removeItem">
+				<Button
+					variant="destructive"
+					@click="removeItem"
+				>
 					{{ t('deleteConfirmation.confirm') }}
 				</Button>
 			</DialogFooter>

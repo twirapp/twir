@@ -16,6 +16,9 @@ export function usePublicPageHref() {
 			return null
 		}
 
-		return `${window.location.origin}/p/${selectedDashboardLogin}`
+		const origin = typeof window !== 'undefined'
+			? window.location.origin
+			: ''
+		return `${origin}/p/${selectedDashboardLogin}`
 	})
 }

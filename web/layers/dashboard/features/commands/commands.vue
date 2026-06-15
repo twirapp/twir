@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-
-import List from './ui/list.vue'
-
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
 import ManageGroups from '~~/layers/dashboard/components/commands/manageGroups.vue'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
-import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+
+import List from './ui/list.vue'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -78,11 +77,17 @@ const title = computed(() => {
 	<PageLayout>
 		<template #title> {{ title }} {{ t('sidebar.commands.label').toLocaleLowerCase() }} </template>
 
-		<template v-if="isCustom" #action>
-			<div class="flex gap-2 flex-wrap">
+		<template
+			v-if="isCustom"
+			#action
+		>
+			<div class="flex flex-wrap gap-2">
 				<Dialog>
 					<DialogTrigger as-child>
-						<Button variant="secondary" @click="showManageGroupsModal = true">
+						<Button
+							variant="secondary"
+							@click="showManageGroupsModal = true"
+						>
 							{{ t('commands.groups.manageButton') }}
 						</Button>
 					</DialogTrigger>
@@ -91,9 +96,21 @@ const title = computed(() => {
 						<ManageGroups />
 					</DialogOrSheet>
 				</Dialog>
-				<RouterLink v-slot="{ href, navigate }" custom to="/dashboard/commands/custom/create">
-					<Button as="a" :href="href" :disabled="isCreateDisabled" @click="navigate">
-						<Icon name="lucide:plus" class="size-4 mr-2" />
+				<RouterLink
+					v-slot="{ href, navigate }"
+					custom
+					to="/dashboard/commands/custom/create"
+				>
+					<Button
+						as="a"
+						:href="href"
+						:disabled="isCreateDisabled"
+						@click="navigate"
+					>
+						<Icon
+							name="lucide:plus"
+							class="mr-2 size-4"
+						/>
 						{{ t('sharedButtons.create') }} ({{ commands.length }}/{{ maxCommands }})
 					</Button>
 				</RouterLink>
@@ -102,8 +119,16 @@ const title = computed(() => {
 
 		<template #content>
 			<div class="flex flex-col gap-2">
-				<Input v-model="commandsFilter" placeholder="Search..." class="w-full lg:w-[40%]" />
-				<List :commands="commands" show-background enable-groups />
+				<Input
+					v-model="commandsFilter"
+					placeholder="Search..."
+					class="w-full lg:w-[40%]"
+				/>
+				<List
+					:commands="commands"
+					show-background
+					enable-groups
+				/>
 			</div>
 		</template>
 	</PageLayout>

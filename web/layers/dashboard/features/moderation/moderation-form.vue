@@ -1,19 +1,13 @@
 <script setup lang="ts">
+import type { EditableItem } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
+
 import { useField, useForm, useSetFormValues, useSubmitForm } from 'vee-validate'
 import { nextTick, onMounted, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-
-import ModalCaps from './ui/form/moderation-form-caps.vue'
-import ModalDenylist from './ui/form/moderation-form-denylist.vue'
-import ModalEmotes from './ui/form/moderation-form-emotes.vue'
-import ModalLanguage from './ui/form/moderation-form-language.vue'
-import ModalLinks from './ui/form/moderation-form-links.vue'
-import ModalLongMessage from './ui/form/moderation-form-longmessage.vue'
-import ModalOneManSpam from './ui/form/moderation-form-one-man-spam.vue'
-import ModalSymbols from './ui/form/moderation-form-symbols.vue'
-
-import type { EditableItem } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
+import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
+import { useModerationApi } from '~~/layers/dashboard/features/moderation/composables/use-moderation-api.js'
+import { moderationValidationRules } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,12 +23,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
-import { useModerationApi } from '~~/layers/dashboard/features/moderation/composables/use-moderation-api.js'
-import { moderationValidationRules } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
 // oxlint-disable-next-line consistent-type-imports
 import { ModerationSettingsType, RoleTypeEnum } from '~/gql/graphql.js'
-import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+
+import ModalCaps from './ui/form/moderation-form-caps.vue'
+import ModalDenylist from './ui/form/moderation-form-denylist.vue'
+import ModalEmotes from './ui/form/moderation-form-emotes.vue'
+import ModalLanguage from './ui/form/moderation-form-language.vue'
+import ModalLinks from './ui/form/moderation-form-links.vue'
+import ModalLongMessage from './ui/form/moderation-form-longmessage.vue'
+import ModalOneManSpam from './ui/form/moderation-form-one-man-spam.vue'
+import ModalSymbols from './ui/form/moderation-form-symbols.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -96,7 +95,11 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 
 <template>
 	<form @submit.prevent="handleSubmit">
-		<PageLayout back-redirect-to="/dashboard/moderation?tab=rules" show-back sticky-header>
+		<PageLayout
+			back-redirect-to="/dashboard/moderation?tab=rules"
+			show-back
+			sticky-header
+		>
 			<template #title>
 				<span v-if="route.params.id === 'new'">
 					{{ t('sharedTexts.create') }} {{ t(`moderation.types.${values.type}.name`) }}
@@ -117,7 +120,10 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 					<CardHeader>
 						<CardTitle class="flex flex-row justify-between">
 							{{ t(`moderation.types.${values.type}.name`) }}
-							<FormField v-slot="{ field }" name="enabled">
+							<FormField
+								v-slot="{ field }"
+								name="enabled"
+							>
 								<FormItem>
 									<FormControl>
 										<Switch
@@ -131,11 +137,18 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 						</CardTitle>
 					</CardHeader>
 					<CardContent class="flex flex-col gap-3">
-						<FormField v-slot="{ field }" name="name">
+						<FormField
+							v-slot="{ field }"
+							name="name"
+						>
 							<FormItem>
 								<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
 								<FormControl>
-									<Input type="text" v-bind="field" :placeholder="t('moderation.name')" />
+									<Input
+										type="text"
+										v-bind="field"
+										:placeholder="t('moderation.name')"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -157,21 +170,33 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 
 						<Separator label="Timeouts" />
 
-						<FormField v-slot="{ componentField }" name="banMessage">
+						<FormField
+							v-slot="{ componentField }"
+							name="banMessage"
+						>
 							<FormItem>
 								<FormLabel>Timeout message</FormLabel>
 								<FormControl>
-									<Input type="text" v-bind="componentField" />
+									<Input
+										type="text"
+										v-bind="componentField"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="banTime">
+						<FormField
+							v-slot="{ componentField }"
+							name="banTime"
+						>
 							<FormItem>
 								<FormLabel>{{ t('moderation.banTime') }}</FormLabel>
 								<FormControl>
-									<Input type="number" v-bind="componentField" />
+									<Input
+										type="number"
+										v-bind="componentField"
+									/>
 								</FormControl>
 								<FormMessage />
 								<FormDescription>
@@ -182,21 +207,33 @@ const handleSubmit = useSubmitForm<EditableItem>(async (values) => {
 
 						<Separator label="Warnings" />
 
-						<FormField v-slot="{ componentField }" name="warningMessage">
+						<FormField
+							v-slot="{ componentField }"
+							name="warningMessage"
+						>
 							<FormItem>
 								<FormLabel>{{ t('moderation.warningMessage') }}</FormLabel>
 								<FormControl>
-									<Input type="text" v-bind="componentField" />
+									<Input
+										type="text"
+										v-bind="componentField"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="maxWarnings">
+						<FormField
+							v-slot="{ componentField }"
+							name="maxWarnings"
+						>
 							<FormItem>
 								<FormLabel>{{ t('moderation.warningMaxCount') }}</FormLabel>
 								<FormControl>
-									<Input type="number" v-bind="componentField" />
+									<Input
+										type="number"
+										v-bind="componentField"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>

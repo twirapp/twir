@@ -1,10 +1,9 @@
 <script setup lang="ts">
-
 import { useForm } from 'vee-validate'
-import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 import * as z from 'zod'
-
 import { useMutationEventSubSubscribe } from '~~/layers/dashboard/api/admin/actions'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import {
@@ -16,17 +15,15 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { toast } from 'vue-sonner'
 
 const { t } = useI18n()
 
 const mutationEventSubSubscribe = useMutationEventSubSubscribe()
 
-const formSchema =
-	z.object({
-		type: z.string(),
-		version: z.string(),
-	})
+const formSchema = z.object({
+	type: z.string(),
+	version: z.string(),
+})
 
 const { handleSubmit } = useForm({
 	validationSchema: formSchema,
@@ -56,8 +53,11 @@ const onSubmit = handleSubmit(async (values) => {
 	<Card>
 		<form @submit.prevent="onSubmit">
 			<CardContent class="p-4">
-				<div class="grid items-center w-full gap-4">
-					<FormField v-slot="{ componentField }" name="version">
+				<div class="grid w-full items-center gap-4">
+					<FormField
+						v-slot="{ componentField }"
+						name="version"
+					>
 						<FormItem>
 							<Label for="version">
 								{{ t('adminPanel.adminActions.eventsub.version') }}
@@ -69,7 +69,10 @@ const onSubmit = handleSubmit(async (values) => {
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ componentField }" name="type">
+					<FormField
+						v-slot="{ componentField }"
+						name="type"
+					>
 						<FormItem>
 							<Label for="type">
 								{{ t('adminPanel.adminActions.eventsub.type') }}

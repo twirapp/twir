@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import { formSchema, useVotebanForm } from './composables/use-voteban-form'
-
 import Card from '~~/layers/dashboard/components/games/card.vue'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
+
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -44,8 +42,9 @@ import {
 	TagsInputItemText,
 } from '@/components/ui/tags-input'
 import { Textarea } from '@/components/ui/textarea'
-import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 import { VoteBanGameVotingMode } from '~/gql/graphql.js'
+
+import { formSchema, useVotebanForm } from './composables/use-voteban-form'
 
 const isDialogOpen = ref(false)
 const { t } = useI18n()
@@ -59,13 +58,10 @@ const votebanForm = useForm({
 })
 
 watch(
-	() => [
-    votebanForm.values.chatVotesWordsPositive,
-    votebanForm.values.chatVotesWordsNegative,
-  ],
-  () => {
-    votebanForm.validate()
-  }
+	() => [votebanForm.values.chatVotesWordsPositive, votebanForm.values.chatVotesWordsNegative],
+	() => {
+		votebanForm.validate()
+	}
 )
 
 watch(
@@ -98,7 +94,7 @@ function resetSettings() {
 			/>
 		</DialogTrigger>
 
-		<DialogContent class="sm:max-w-[625px] max-h-[80vh] overflow-y-auto">
+		<DialogContent class="max-h-[80vh] overflow-y-auto sm:max-w-[625px]">
 			<DialogHeader>
 				<DialogTitle>Voteban</DialogTitle>
 			</DialogHeader>
@@ -106,11 +102,17 @@ function resetSettings() {
 			<form @submit="onSubmit">
 				<div class="grid gap-4 py-4">
 					<div class="flex items-center gap-6">
-						<FormField v-slot="{ value, handleChange }" name="enabled">
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="enabled"
+						>
 							<FormItem class="flex flex-col items-center gap-1">
 								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 								<FormControl>
-									<Switch :model-value="value" @update:model-value="handleChange" />
+									<Switch
+										:model-value="value"
+										@update:model-value="handleChange"
+									/>
 								</FormControl>
 							</FormItem>
 						</FormField>
@@ -123,7 +125,10 @@ function resetSettings() {
 					<div class="space-y-4">
 						<h4 class="font-medium">Messages</h4>
 
-						<FormField v-slot="{ componentField }" name="initMessage">
+						<FormField
+							v-slot="{ componentField }"
+							name="initMessage"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.initialMessage') }}</FormLabel>
 								<FormControl>
@@ -133,7 +138,10 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="banMessage">
+						<FormField
+							v-slot="{ componentField }"
+							name="banMessage"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.banMessage') }}</FormLabel>
 								<FormControl>
@@ -143,7 +151,10 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="surviveMessage">
+						<FormField
+							v-slot="{ componentField }"
+							name="surviveMessage"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.surviveMessage') }}</FormLabel>
 								<FormControl>
@@ -161,7 +172,10 @@ function resetSettings() {
 							{{ t('sharedTexts.settings') }}
 						</h4>
 
-						<FormField v-slot="{ componentField }" name="votingMode">
+						<FormField
+							v-slot="{ componentField }"
+							name="votingMode"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.voteMode') }}</FormLabel>
 								<Select v-bind="componentField">
@@ -172,7 +186,10 @@ function resetSettings() {
 									</FormControl>
 									<SelectContent>
 										<SelectItem :value="VoteBanGameVotingMode.Chat"> Chat </SelectItem>
-										<SelectItem :value="VoteBanGameVotingMode.Polls" disabled>
+										<SelectItem
+											:value="VoteBanGameVotingMode.Polls"
+											disabled
+										>
 											Twitch polls (soon)
 										</SelectItem>
 									</SelectContent>
@@ -181,7 +198,10 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ field }" name="chatVotesWordsPositive">
+						<FormField
+							v-slot="{ field }"
+							name="chatVotesWordsPositive"
+						>
 							<FormItem>
 								<FormControl>
 									<FormLabel>{{ t('games.voteban.wordsPositive') }}</FormLabel>
@@ -190,7 +210,11 @@ function resetSettings() {
 										@update:model-value="field['onUpdate:modelValue']"
 										:max="10"
 									>
-										<TagsInputItem v-for="item in field.value" :key="item" :value="item">
+										<TagsInputItem
+											v-for="item in field.value"
+											:key="item"
+											:value="item"
+										>
 											<TagsInputItemText />
 											<TagsInputItemDelete />
 										</TagsInputItem>
@@ -202,7 +226,10 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ field }" name="chatVotesWordsNegative">
+						<FormField
+							v-slot="{ field }"
+							name="chatVotesWordsNegative"
+						>
 							<FormItem>
 								<FormControl>
 									<FormLabel>{{ t('games.voteban.wordsNegative') }}</FormLabel>
@@ -212,7 +239,11 @@ function resetSettings() {
 										:placeholder="t('games.voteban.wordsPositive')"
 										:max="10"
 									>
-										<TagsInputItem v-for="item in field.value" :key="item" :value="item">
+										<TagsInputItem
+											v-for="item in field.value"
+											:key="item"
+											:value="item"
+										>
 											<TagsInputItemText />
 											<TagsInputItemDelete />
 										</TagsInputItem>
@@ -224,31 +255,55 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="voteDuration">
+						<FormField
+							v-slot="{ componentField }"
+							name="voteDuration"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.voteDuration') }}</FormLabel>
 								<FormControl>
-									<Input type="number" v-bind="componentField" min="1" max="86400" />
+									<Input
+										type="number"
+										v-bind="componentField"
+										min="1"
+										max="86400"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="neededVotes">
+						<FormField
+							v-slot="{ componentField }"
+							name="neededVotes"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.neededVotes') }}</FormLabel>
 								<FormControl>
-									<Input type="number" v-bind="componentField" min="1" max="999999" />
+									<Input
+										type="number"
+										v-bind="componentField"
+										min="1"
+										max="999999"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="timeoutSeconds">
+						<FormField
+							v-slot="{ componentField }"
+							name="timeoutSeconds"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.banDuration') }}</FormLabel>
 								<FormControl>
-									<Input type="number" v-bind="componentField" min="1" max="86400" />
+									<Input
+										type="number"
+										v-bind="componentField"
+										min="1"
+										max="86400"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -260,16 +315,25 @@ function resetSettings() {
 					<div class="space-y-4">
 						<h4 class="font-medium">Moderators</h4>
 
-						<FormField v-slot="{ value, handleChange }" name="timeoutModerators">
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="timeoutModerators"
+						>
 							<FormItem class="flex items-center justify-between">
 								<FormLabel>{{ t('games.voteban.timeoutModerators') }}</FormLabel>
 								<FormControl>
-									<Switch :model-value="value" @update:model-value="handleChange" />
+									<Switch
+										:model-value="value"
+										@update:model-value="handleChange"
+									/>
 								</FormControl>
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="banMessageModerators">
+						<FormField
+							v-slot="{ componentField }"
+							name="banMessageModerators"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.banMessageModerators') }}</FormLabel>
 								<FormControl>
@@ -279,7 +343,10 @@ function resetSettings() {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="surviveMessageModerators">
+						<FormField
+							v-slot="{ componentField }"
+							name="surviveMessageModerators"
+						>
 							<FormItem>
 								<FormLabel>{{ t('games.voteban.surviveMessageModerators') }}</FormLabel>
 								<FormControl>

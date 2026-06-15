@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import ValorantIcon from '~~/layers/dashboard/assets/integrations/valorant.svg'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 </script>
 
 <template>
-	<Card class="w-full h-full flex flex-col">
+	<Card class="flex h-full w-full flex-col">
 		<CardHeader>
-			<CardTitle class="flex text-xl gap-4 items-center">
+			<CardTitle class="flex items-center gap-4 text-xl">
 				<ValorantIcon class="size-11" />
 				{{ t('overlays.valorant.secondTitle') }}
 			</CardTitle>
@@ -21,15 +21,22 @@ const { t } = useI18n()
 		</CardContent>
 
 		<CardFooter class="mt-auto">
-			<RouterLink v-slot="{ href, navigate }" custom to="/dashboard/overlays/valorant-stats">
+			<RouterLink
+				v-slot="{ href, navigate }"
+				custom
+				to="/dashboard/overlays/valorant-stats"
+			>
 				<Button
 					as="a"
 					:href="href"
 					variant="outline"
-					class="flex gap-2 items-center"
+					class="flex items-center gap-2"
 					@click="navigate"
 				>
-					<Icon name="lucide:settings" class="size-4" />
+					<Icon
+						name="lucide:settings"
+						class="size-4"
+					/>
 					{{ t('overlays.buildWidget') }}
 				</Button>
 			</RouterLink>

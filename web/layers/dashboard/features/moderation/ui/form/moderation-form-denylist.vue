@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { FieldArray, useField } from 'vee-validate'
-import { useI18n } from 'vue-i18n'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -30,11 +29,14 @@ function addItem() {
 	<div class="flex flex-col gap-4">
 		<Separator />
 
-		<FormField v-slot="{ field }" name="denyListRegexpEnabled">
+		<FormField
+			v-slot="{ field }"
+			name="denyListRegexpEnabled"
+		>
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
-					<FormLabel class="flex gap-2 items-center text-base">
-						<Icon name="lucide:regex"  />
+					<FormLabel class="flex items-center gap-2 text-base">
+						<Icon name="lucide:regex" />
 						Regexp
 					</FormLabel>
 					<FormDescription>
@@ -42,7 +44,7 @@ function addItem() {
 							<a
 								href="https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet"
 								target="_blank"
-								class="text-primary underline-offset-4 underline"
+								class="text-primary underline underline-offset-4"
 							>
 								{{ t('moderation.types.deny_list.regexpCheatSheet') }}
 							</a>
@@ -59,11 +61,14 @@ function addItem() {
 			</FormItem>
 		</FormField>
 
-		<FormField v-slot="{ field }" name="denyListWordBoundaryEnabled">
+		<FormField
+			v-slot="{ field }"
+			name="denyListWordBoundaryEnabled"
+		>
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
-					<FormLabel class="flex gap-2 items-center text-base">
-						<Icon name="lucide:whole-word"  />
+					<FormLabel class="flex items-center gap-2 text-base">
+						<Icon name="lucide:whole-word" />
 						{{ t('moderation.types.deny_list.wordBoundary.label') }}
 					</FormLabel>
 					<FormDescription class="flex flex-col">
@@ -86,11 +91,14 @@ function addItem() {
 			</FormItem>
 		</FormField>
 
-		<FormField v-slot="{ field }" name="denyListSensitivityEnabled">
+		<FormField
+			v-slot="{ field }"
+			name="denyListSensitivityEnabled"
+		>
 			<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 				<div class="space-y-0.5">
-					<FormLabel class="flex gap-2 items-center text-base">
-						<Icon name="lucide:case-sensitive"  />
+					<FormLabel class="flex items-center gap-2 text-base">
+						<Icon name="lucide:case-sensitive" />
 						{{ t('moderation.types.deny_list.caseSensitive.label') }}
 					</FormLabel>
 					<FormDescription>
@@ -108,18 +116,33 @@ function addItem() {
 			</FormItem>
 		</FormField>
 
-		<FieldArray v-slot="{ fields, remove }" name="denyList">
+		<FieldArray
+			v-slot="{ fields, remove }"
+			name="denyList"
+		>
 			<Separator />
 
-			<Alert v-if="!denyList?.length" class="flex items-center gap-2">
-				<Icon name="lucide:alert-triangle" class="h-4 w-4" />
+			<Alert
+				v-if="!denyList?.length"
+				class="flex items-center gap-2"
+			>
+				<Icon
+					name="lucide:alert-triangle"
+					class="h-4 w-4"
+				/>
 				<AlertDescription>
 					{{ t('moderation.types.deny_list.empty') }}
 				</AlertDescription>
 			</Alert>
 
-			<div v-for="(field, index) in fields" :key="`word-${field.key}`">
-				<FormField v-slot="{ componentField }" :name="`denyList[${index}]`">
+			<div
+				v-for="(field, index) in fields"
+				:key="`word-${field.key}`"
+			>
+				<FormField
+					v-slot="{ componentField }"
+					:name="`denyList[${index}]`"
+				>
 					<FormItem class="flex gap-2">
 						<FormControl>
 							<Textarea
@@ -137,7 +160,10 @@ function addItem() {
 								type="button"
 								@click="remove(index)"
 							>
-								<Icon name="lucide:x" class="h-4 w-4" />
+								<Icon
+									name="lucide:x"
+									class="h-4 w-4"
+								/>
 							</Button>
 						</FormControl>
 						<FormMessage />
@@ -152,7 +178,10 @@ function addItem() {
 				type="button"
 				@click="addItem"
 			>
-				<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
+				<Icon
+					name="lucide:plus"
+					class="mr-2 h-4 w-4"
+				/>
 				{{ t('sharedButtons.create') }}
 			</Button>
 		</FieldArray>

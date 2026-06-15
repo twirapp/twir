@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
+import { toast } from 'vue-sonner'
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { type CustomVariable, useVariablesApi } from '~~/layers/dashboard/api/variables'
+
 import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
-import { toast } from 'vue-sonner'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = defineProps<{ row: CustomVariable }>()
@@ -29,8 +28,12 @@ async function deleteVariable() {
 </script>
 
 <template>
-	<div class="flex gap-2 items-center justify-end">
-		<RouterLink v-slot="{ href, navigate }" custom :to="`/dashboard/variables/${row.id}`">
+	<div class="flex items-center justify-end gap-2">
+		<RouterLink
+			v-slot="{ href, navigate }"
+			custom
+			:to="`/dashboard/variables/${row.id}`"
+		>
 			<Button
 				as="a"
 				:href="href"
@@ -39,7 +42,10 @@ async function deleteVariable() {
 				size="icon"
 				@click="navigate"
 			>
-				<Icon name="lucide:pencil" class="h-4 w-4" />
+				<Icon
+					name="lucide:pencil"
+					class="h-4 w-4"
+				/>
 			</Button>
 		</RouterLink>
 		<Button
@@ -48,9 +54,15 @@ async function deleteVariable() {
 			size="icon"
 			@click="showDelete = true"
 		>
-			<Icon name="lucide:trash" class="h-4 w-4" />
+			<Icon
+				name="lucide:trash"
+				class="h-4 w-4"
+			/>
 		</Button>
 	</div>
 
-	<ActionConfirm v-model:open="showDelete" @confirm="deleteVariable" />
+	<ActionConfirm
+		v-model:open="showDelete"
+		@confirm="deleteVariable"
+	/>
 </template>

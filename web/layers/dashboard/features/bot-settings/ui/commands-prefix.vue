@@ -1,16 +1,14 @@
 <script setup lang="ts">
-
 import { useForm } from 'vee-validate'
 import { onMounted, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 import { z } from 'zod'
-
 import { useCommandsPrefixApi } from '~~/layers/dashboard/api/commands-prefix'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { toast } from 'vue-sonner'
 
 const { t } = useI18n()
 
@@ -19,10 +17,9 @@ const { data: currentPrefix } = api.usePrefix()
 const update = api.usePrefixUpdate()
 const reset = api.usePrefixReset()
 
-const formSchema =
-	z.object({
-		prefix: z.string().min(1).max(10),
-	})
+const formSchema = z.object({
+	prefix: z.string().min(1).max(10),
+})
 
 const form = useForm({
 	validationSchema: formSchema,
@@ -62,12 +59,15 @@ async function onReset() {
 </script>
 
 <template>
-	<div class="flex flex-col w-full gap-4">
+	<div class="flex w-full flex-col gap-4">
 		<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">Commands prefix</h4>
 		<Card>
 			<form @submit="onSubmit">
-				<CardContent class="pt-6 flex gap-2">
-					<FormField v-slot="{ componentField }" name="prefix">
+				<CardContent class="flex gap-2 pt-6">
+					<FormField
+						v-slot="{ componentField }"
+						name="prefix"
+					>
 						<FormItem class="w-full">
 							<FormLabel>Prefix used for all commands, "!" by default</FormLabel>
 							<FormControl>
@@ -82,8 +82,13 @@ async function onReset() {
 						</FormItem>
 					</FormField>
 				</CardContent>
-				<CardFooter class="flex flex-row gap-2 justify-end mt-4">
-					<Button type="button" variant="destructive" class="place-self-end" @click="onReset">
+				<CardFooter class="mt-4 flex flex-row justify-end gap-2">
+					<Button
+						type="button"
+						variant="destructive"
+						class="place-self-end"
+						@click="onReset"
+					>
 						Reset
 					</Button>
 					<Button type="submit">

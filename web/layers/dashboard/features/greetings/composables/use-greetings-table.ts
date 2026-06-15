@@ -1,12 +1,10 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import GreetingsTableActions from '../ui/greetings-table-actions.vue'
-
 import { type Greetings, useGreetingsApi } from '~~/layers/dashboard/api/greetings.js'
 import UsersTableCellUser from '~~/layers/dashboard/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
+
+import GreetingsTableActions from '../ui/greetings-table-actions.vue'
 
 export const useGreetingsTable = createGlobalState(() => {
 	const { t } = useI18n()
@@ -24,15 +22,19 @@ export const useGreetingsTable = createGlobalState(() => {
 			size: 60,
 			header: () => h('div', {}, t('sharedTexts.user')),
 			cell: ({ row }) => {
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank',
-				}, h(UsersTableCellUser, {
-					avatar: row.original.twitchProfile.profileImageUrl,
-					name: row.original.twitchProfile.login,
-					displayName: row.original.twitchProfile.displayName,
-				}))
+				return h(
+					'a',
+					{
+						class: 'flex flex-col',
+						href: `https://twitch.tv/${row.original.twitchProfile.login}`,
+						target: '_blank',
+					},
+					h(UsersTableCellUser, {
+						avatar: row.original.twitchProfile.profileImageUrl,
+						name: row.original.twitchProfile.login,
+						displayName: row.original.twitchProfile.displayName,
+					})
+				)
 			},
 		},
 		{

@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 const { t } = useI18n()
 </script>
 
@@ -16,7 +14,10 @@ const { t } = useI18n()
 
 			<CardContent class="space-y-4">
 				<Alert>
-					<Icon name="lucide:info" class="h-4 w-4" />
+					<Icon
+						name="lucide:info"
+						class="h-4 w-4"
+					/>
 					<AlertTitle>{{ t('overlays.tts.commands.info') }}</AlertTitle>
 					<AlertDescription>
 						{{ t('overlays.tts.commands.infoDescription') }}
@@ -28,7 +29,7 @@ const { t } = useI18n()
 					<h3 class="text-lg font-semibold">{{ t('overlays.tts.commands.main') }}</h3>
 					<div class="rounded-lg border p-4">
 						<code class="text-sm">!tts [text]</code>
-						<p class="mt-2 text-sm text-muted-foreground">
+						<p class="text-muted-foreground mt-2 text-sm">
 							{{ t('overlays.tts.commands.mainDescription') }}
 						</p>
 					</div>
@@ -37,28 +38,28 @@ const { t } = useI18n()
 				<!-- TTS Settings Command -->
 				<div class="space-y-2">
 					<h3 class="text-lg font-semibold">{{ t('overlays.tts.commands.settings') }}</h3>
-					<div class="rounded-lg border p-4 space-y-2">
+					<div class="space-y-2 rounded-lg border p-4">
 						<div>
 							<code class="text-sm">!tts voice [voice_name]</code>
-							<p class="mt-1 text-sm text-muted-foreground">
+							<p class="text-muted-foreground mt-1 text-sm">
 								{{ t('overlays.tts.commands.voiceDescription') }}
 							</p>
 						</div>
 						<div>
 							<code class="text-sm">!tts rate [0-100]</code>
-							<p class="mt-1 text-sm text-muted-foreground">
+							<p class="text-muted-foreground mt-1 text-sm">
 								{{ t('overlays.tts.commands.rateDescription') }}
 							</p>
 						</div>
 						<div>
 							<code class="text-sm">!tts pitch [0-100]</code>
-							<p class="mt-1 text-sm text-muted-foreground">
+							<p class="text-muted-foreground mt-1 text-sm">
 								{{ t('overlays.tts.commands.pitchDescription') }}
 							</p>
 						</div>
 						<div>
 							<code class="text-sm">!tts volume [0-100]</code>
-							<p class="mt-1 text-sm text-muted-foreground">
+							<p class="text-muted-foreground mt-1 text-sm">
 								{{ t('overlays.tts.commands.volumeDescription') }}
 							</p>
 						</div>
@@ -70,7 +71,7 @@ const { t } = useI18n()
 					<h3 class="text-lg font-semibold">{{ t('overlays.tts.commands.skip') }}</h3>
 					<div class="rounded-lg border p-4">
 						<code class="text-sm">!skip</code>
-						<p class="mt-2 text-sm text-muted-foreground">
+						<p class="text-muted-foreground mt-2 text-sm">
 							{{ t('overlays.tts.commands.skipDescription') }}
 						</p>
 					</div>
@@ -79,15 +80,15 @@ const { t } = useI18n()
 				<!-- Example Usage -->
 				<div class="space-y-2">
 					<h3 class="text-lg font-semibold">{{ t('overlays.tts.commands.examples') }}</h3>
-					<div class="rounded-lg border p-4 space-y-2">
+					<div class="space-y-2 rounded-lg border p-4">
 						<div>
-							<code class="text-sm bg-muted px-2 py-1 rounded">!tts Hello everyone!</code>
+							<code class="bg-muted rounded px-2 py-1 text-sm">!tts Hello everyone!</code>
 						</div>
 						<div>
-							<code class="text-sm bg-muted px-2 py-1 rounded">!tts voice elena</code>
+							<code class="bg-muted rounded px-2 py-1 text-sm">!tts voice elena</code>
 						</div>
 						<div>
-							<code class="text-sm bg-muted px-2 py-1 rounded">!tts rate 75</code>
+							<code class="bg-muted rounded px-2 py-1 text-sm">!tts rate 75</code>
 						</div>
 					</div>
 				</div>
@@ -95,4 +96,3 @@ const { t } = useI18n()
 		</Card>
 	</div>
 </template>
-

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import { useCommunityUsersApi } from '~~/layers/dashboard/api/community-users.js'
+
 import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,7 +27,7 @@ async function resetColumn() {
 	})
 }
 
-const selectOptions = Object.values(CommunityUsersResetType).map(v => {
+const selectOptions = Object.values(CommunityUsersResetType).map((v) => {
 	const label = v.toLowerCase().split('_').join(' ')
 
 	return {
@@ -41,10 +40,19 @@ const selectOptions = Object.values(CommunityUsersResetType).map(v => {
 <template>
 	<DropdownMenu>
 		<DropdownMenuTrigger as-child>
-			<Button variant="destructive" size="sm">
-				<Icon name="lucide:trash" class="mr-2 h-3.5 w-3.5 text-white" />
+			<Button
+				variant="destructive"
+				size="sm"
+			>
+				<Icon
+					name="lucide:trash"
+					class="mr-2 h-3.5 w-3.5 text-white"
+				/>
 				{{ t('community.users.reset.label') }}
-				<Icon name="lucide:chevron-down" class="ml-2 h-3.5 w-3.5 text-white" />
+				<Icon
+					name="lucide:chevron-down"
+					class="ml-2 h-3.5 w-3.5 text-white"
+				/>
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent>
@@ -55,10 +63,12 @@ const selectOptions = Object.values(CommunityUsersResetType).map(v => {
 			<DropdownMenuItem
 				v-for="option of selectOptions"
 				:key="option.value"
-				@click="() => {
-					selectedType = option.value
-					showConfirm = true
-				}"
+				@click="
+					() => {
+						selectedType = option.value
+						showConfirm = true
+					}
+				"
 			>
 				{{ option.label }}
 			</DropdownMenuItem>
@@ -67,7 +77,11 @@ const selectOptions = Object.values(CommunityUsersResetType).map(v => {
 
 	<ActionConfirm
 		v-model:open="showConfirm"
-		:confirm-text="t('community.users.reset.resetQuestion', { title: `${selectedType.toLowerCase().split('_').join(' ')}` })"
+		:confirm-text="
+			t('community.users.reset.resetQuestion', {
+				title: `${selectedType.toLowerCase().split('_').join(' ')}`,
+			})
+		"
 		@confirm="resetColumn"
 	/>
 </template>

@@ -1,24 +1,23 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import { useNotificationsFilters } from './use-notifications-filters.js'
-import UsersTableCellUser from '../../manage-users/ui/users-table-cell-user.vue'
-import { useNotificationsForm } from '../composables/use-notifications-form.js'
-import CreatedAtTooltip from '../ui/created-at-tooltip.vue'
-import NotificationsTableActions from '../ui/notifications-table-actions.vue'
-
 import { useAdminNotifications } from '~~/layers/dashboard/api/admin/notifications.js'
-import BlocksRenderer from '@/components/ui/editorjs/blocks-render.vue'
 import { useLayout } from '~~/layers/dashboard/composables/use-layout.js'
 import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
+
+import BlocksRenderer from '@/components/ui/editorjs/blocks-render.vue'
 import {
 	type AdminNotificationsParams,
 	NotificationType,
 	type NotificationsByAdminQuery,
 } from '~/gql/graphql.js'
-import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
+
+import UsersTableCellUser from '../../manage-users/ui/users-table-cell-user.vue'
+import { useNotificationsForm } from '../composables/use-notifications-form.js'
+import CreatedAtTooltip from '../ui/created-at-tooltip.vue'
+import NotificationsTableActions from '../ui/notifications-table-actions.vue'
+import { useNotificationsFilters } from './use-notifications-filters.js'
 
 type Notifications = NotificationsByAdminQuery['notificationsByAdmin']['notifications']
 
@@ -55,7 +54,10 @@ export const useNotificationsTable = createGlobalState(() => {
 				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 				cell: ({ row }) => {
 					if (row.original.text) {
-						return h('div', { class: 'wrap-break-word max-w-[450px]', innerHTML: row.original.text })
+						return h('div', {
+							class: 'wrap-break-word max-w-[450px]',
+							innerHTML: row.original.text,
+						})
 					} else if (row.original.editorJsJson) {
 						return h(BlocksRenderer, { data: row.original.editorJsJson })
 					}
@@ -88,16 +90,23 @@ export const useNotificationsTable = createGlobalState(() => {
 				size: 10,
 				header: () => h('div', {}, t('adminPanel.notifications.userLabel')),
 				cell: ({ row }) => {
-					if (row.original.twitchProfile?.profileImageUrl && row.original.twitchProfile?.displayName) {
-						return h('a', {
-							class: 'flex flex-col',
-							href: `https://twitch.tv/${row.original.twitchProfile.displayName.toLowerCase()}`,
-							target: '_blank',
-						}, h(UsersTableCellUser, {
-							avatar: row.original.twitchProfile.profileImageUrl,
-							name: row.original.twitchProfile.login,
-							displayName: row.original.twitchProfile.displayName,
-						}))
+					if (
+						row.original.twitchProfile?.profileImageUrl &&
+						row.original.twitchProfile?.displayName
+					) {
+						return h(
+							'a',
+							{
+								class: 'flex flex-col',
+								href: `https://twitch.tv/${row.original.twitchProfile.displayName.toLowerCase()}`,
+								target: '_blank',
+							},
+							h(UsersTableCellUser, {
+								avatar: row.original.twitchProfile.profileImageUrl,
+								name: row.original.twitchProfile.login,
+								displayName: row.original.twitchProfile.displayName,
+							})
+						)
 					}
 				},
 			})

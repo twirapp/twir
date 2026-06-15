@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useVirtualList } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 import { useFilter } from 'reka-ui'
 
 import type { PopoverContentProps } from 'reka-ui'

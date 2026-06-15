@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { Label } from '@/components/ui/label'
+import {
+	TagsInput,
+	TagsInputInput,
+	TagsInputItem,
+	TagsInputItemDelete,
+	TagsInputItemText,
+} from '@/components/ui/tags-input'
 
 import { useForm } from '../composables/use-form.js'
-
-import { Label } from '@/components/ui/label'
-import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
 
 const { formValue } = useForm()
 const { t } = useI18n()
@@ -18,7 +22,11 @@ const { t } = useI18n()
 			id="ignoreTimeoutFrom"
 			v-model="formValue.ban.ignoreTimeoutFrom"
 		>
-			<TagsInputItem v-for="item in formValue.ban.ignoreTimeoutFrom" :key="item" :value="item">
+			<TagsInputItem
+				v-for="item in formValue.ban.ignoreTimeoutFrom"
+				:key="item"
+				:value="item"
+			>
 				<TagsInputItemText />
 				<TagsInputItemDelete />
 			</TagsInputItem>

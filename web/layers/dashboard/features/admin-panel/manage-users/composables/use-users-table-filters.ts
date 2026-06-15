@@ -1,10 +1,9 @@
 import { createGlobalState, refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import { useBadges } from '../../manage-badges/composables/use-badges.js'
 
 import { Platform } from '~/gql/graphql.js'
+
+import { useBadges } from '../../manage-badges/composables/use-badges.js'
 
 export type FilterType = 'status' | 'badge' | 'platform'
 
@@ -31,7 +30,11 @@ export const useUsersTableFilters = createGlobalState(() => {
 	const selectedPlatforms = ref<Platform[]>([])
 
 	const selectedFiltersCount = computed(() => {
-		return Object.keys(selectedStatuses.value).length + selectedBadges.value.length + selectedPlatforms.value.length
+		return (
+			Object.keys(selectedStatuses.value).length +
+			selectedBadges.value.length +
+			selectedPlatforms.value.length
+		)
 	})
 
 	const filtersList = computed<Filter[]>(() => [

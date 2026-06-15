@@ -1,7 +1,10 @@
 <script lang="ts" setup>
+import type { FormSchema } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2.js'
+
 import { useFormContext } from 'vee-validate'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useCommandEditV2 } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2.js'
+import CommunityRolesModal from '~~/layers/dashboard/features/community-roles/community-roles-modal.vue'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -17,10 +20,6 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { useCommandEditV2 } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2.js'
-import CommunityRolesModal from '~~/layers/dashboard/features/community-roles/community-roles-modal.vue'
-
-import type { FormSchema } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2.js'
 
 const { t } = useI18n()
 const { channelRoles } = useCommandEditV2()
@@ -58,7 +57,7 @@ function getRoleCooldown(roleId: string): number {
 	<Card>
 		<CardHeader class="flex flex-row flex-wrap place-content-center">
 			<CardTitle class="flex items-center gap-2">
-				<Icon name="lucide:refresh-ccw"  />
+				<Icon name="lucide:refresh-ccw" />
 				{{ t('commands.modal.cooldown.label') }}
 			</CardTitle>
 		</CardHeader>
@@ -102,7 +101,10 @@ function getRoleCooldown(roleId: string): number {
 							<template #trigger>
 								<span class="flex cursor-pointer flex-row items-center gap-1 underline">
 									{{ t('sidebar.roles') }}
-									<Icon name="lucide:edit" class="size-4" />
+									<Icon
+										name="lucide:edit"
+										class="size-4"
+									/>
 								</span>
 							</template>
 						</CommunityRolesModal>

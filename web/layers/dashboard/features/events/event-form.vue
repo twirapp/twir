@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 import { useRoute, useRouter } from 'vue-router'
 
 import EventBasicInfo from './components/event-basic-info.vue'

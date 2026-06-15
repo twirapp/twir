@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 
 import { useProfile } from '~~/layers/dashboard/api/auth'
 import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'

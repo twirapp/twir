@@ -1,30 +1,28 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useForm } from 'vee-validate';
+import { useForm } from 'vee-validate'
+import { ref } from 'vue'
+import { toast } from 'vue-sonner'
+import { type Greetings, useGreetingsApi } from '~~/layers/dashboard/api/greetings'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+import TwitchUserSelect from '~~/layers/dashboard/components/twitchUsers/twitch-user-select.vue'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 
-
-import {
-	type GreetingsCreateInputInput,
-	GreetingsCreateInputSchema,
-	type GreetingsUpdateInputInput,
-	GreetingsUpdateInputSchema,
-} from '~/gql/validation-schemas.js';
-import { type Greetings, useGreetingsApi } from '~~/layers/dashboard/api/greetings';
-import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue';
-import TwitchUserSelect from '~~/layers/dashboard/components/twitchUsers/twitch-user-select.vue';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
 	Dialog,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from '@/components/ui/dialog';
-import VariableInput from '~~/layers/dashboard/components/variable-input.vue';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Switch } from '@/components/ui/switch';
-import { toast } from 'vue-sonner';
+} from '@/components/ui/dialog'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Switch } from '@/components/ui/switch'
+import {
+	type GreetingsCreateInputInput,
+	GreetingsCreateInputSchema,
+	type GreetingsUpdateInputInput,
+	GreetingsUpdateInputSchema,
+} from '~/gql/validation-schemas.js'
 
 const props = defineProps<{
 	greeting?: Greetings | null
@@ -35,8 +33,7 @@ const emits = defineEmits<{
 }>()
 
 const greetingForm = useForm({
-	validationSchema:
-		props.greeting ? GreetingsUpdateInputSchema : GreetingsCreateInputSchema,
+	validationSchema: props.greeting ? GreetingsUpdateInputSchema : GreetingsCreateInputSchema,
 	keepValuesOnUnmount: true,
 	validateOnMount: false,
 	initialValues: {
@@ -104,8 +101,14 @@ const { t } = useI18n()
 					{{ greeting ? t('greetings.edit') : t('greetings.create') }}
 				</DialogTitle>
 			</DialogHeader>
-			<form @submit="onSubmit" class="grid gap-4 py-4">
-				<FormField v-slot="{ componentField }" name="userId">
+			<form
+				@submit="onSubmit"
+				class="grid gap-4 py-4"
+			>
+				<FormField
+					v-slot="{ componentField }"
+					name="userId"
+				>
 					<FormItem>
 						<FormLabel>{{ t('sharedTexts.userName') }}</FormLabel>
 						<FormControl>
@@ -120,32 +123,50 @@ const { t } = useI18n()
 				</FormField>
 
 				<div class="relative">
-					<FormField v-slot="{ componentField }" name="text">
+					<FormField
+						v-slot="{ componentField }"
+						name="text"
+					>
 						<FormItem>
 							<FormLabel>{{ t('sharedTexts.response') }}</FormLabel>
 							<FormControl>
-								<VariableInput v-bind="componentField" input-type="textarea" />
+								<VariableInput
+									v-bind="componentField"
+									input-type="textarea"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 				</div>
 
-				<FormField v-slot="{ value, handleChange }" name="withShoutOut">
-					<FormItem class="flex justify-between items-center flex-wrap">
+				<FormField
+					v-slot="{ value, handleChange }"
+					name="withShoutOut"
+				>
+					<FormItem class="flex flex-wrap items-center justify-between">
 						<FormLabel>Send shoutout with greeting</FormLabel>
 						<FormControl>
-							<Switch :model-value="value" @update:model-value="handleChange" />
+							<Switch
+								:model-value="value"
+								@update:model-value="handleChange"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ value, handleChange }" name="isReply">
-					<FormItem class="flex justify-between items-center flex-wrap">
+				<FormField
+					v-slot="{ value, handleChange }"
+					name="isReply"
+				>
+					<FormItem class="flex flex-wrap items-center justify-between">
 						<FormLabel>{{ t('sharedTexts.reply.text') }}</FormLabel>
 						<FormControl>
-							<Switch :model-value="value" @update:model-value="handleChange" />
+							<Switch
+								:model-value="value"
+								@update:model-value="handleChange"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>

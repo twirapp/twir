@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import GreetingsDialog from './greetings-dialog.vue'
-
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useGreetingsApi } from '~~/layers/dashboard/api/greetings'
+
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
+
+import GreetingsDialog from './greetings-dialog.vue'
 
 const { t } = useI18n()
 const { data: profile } = useProfile()
@@ -35,9 +34,14 @@ const isCreateDisabled = computed(() => {
 		<GreetingsDialog>
 			<template #dialog-trigger>
 				<Button :disabled="isCreateDisabled">
-					<Icon name="lucide:plus" class="size-4 mr-2" />
-					{{ greetingsLength >= maxGreetings ? t('greetings.limitExceeded') : t('greetings.create') }} ({{
-						greetingsLength }}/{{ maxGreetings }})
+					<Icon
+						name="lucide:plus"
+						class="mr-2 size-4"
+					/>
+					{{
+						greetingsLength >= maxGreetings ? t('greetings.limitExceeded') : t('greetings.create')
+					}}
+					({{ greetingsLength }}/{{ maxGreetings }})
 				</Button>
 			</template>
 		</GreetingsDialog>

@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
-
 import { Label } from 'reka-ui'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-
-import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
+import VariablesList from '~~/layers/dashboard/components/variables-list.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
@@ -21,9 +19,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import VariablesList from '~~/layers/dashboard/components/variables-list.vue'
 import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
-import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+
+import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -114,22 +112,35 @@ async function executeScript() {
 </script>
 
 <template>
-	<form :class="{ 'blur-xs': loading }" @submit="onSubmit">
-		<PageLayout stickyHeader show-back back-redirect-to="/dashboard/variables">
+	<form
+		:class="{ 'blur-xs': loading }"
+		@submit="onSubmit"
+	>
+		<PageLayout
+			stickyHeader
+			show-back
+			back-redirect-to="/dashboard/variables"
+		>
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>
 				<span v-else>Edit "{{ title }}"</span>
 			</template>
 
 			<template #action>
-				<Button type="submit" :loading="loading">
+				<Button
+					type="submit"
+					:loading="loading"
+				>
 					{{ t('sharedButtons.save') }}
 				</Button>
 			</template>
 
 			<template #content>
-				<div class="flex flex-col gap-4 h-full">
-					<FormField v-slot="{ componentField }" name="name">
+				<div class="flex h-full flex-col gap-4">
+					<FormField
+						v-slot="{ componentField }"
+						name="name"
+					>
 						<FormItem>
 							<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
 							<FormControl>
@@ -139,7 +150,10 @@ async function executeScript() {
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ componentField }" name="type">
+					<FormField
+						v-slot="{ componentField }"
+						name="type"
+					>
 						<FormItem>
 							<FormLabel>{{ t('variables.type') }}</FormLabel>
 
@@ -151,7 +165,11 @@ async function executeScript() {
 								</FormControl>
 								<SelectContent>
 									<SelectGroup>
-										<SelectItem v-for="variable of VariableType" :key="variable" :value="variable">
+										<SelectItem
+											v-for="variable of VariableType"
+											:key="variable"
+											:value="variable"
+										>
 											{{ variable }}
 										</SelectItem>
 									</SelectGroup>
@@ -169,14 +187,23 @@ async function executeScript() {
 						<FormItem>
 							<FormLabel>{{ t('sharedTexts.response') }}</FormLabel>
 							<FormControl>
-								<Input type="text" v-bind="componentField" />
+								<Input
+									type="text"
+									v-bind="componentField"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 
-					<div v-show="values.type === VariableType.Script" class="flex flex-col gap-2">
-						<FormField v-slot="{ componentField }" name="scriptLanguage">
+					<div
+						v-show="values.type === VariableType.Script"
+						class="flex flex-col gap-2"
+					>
+						<FormField
+							v-slot="{ componentField }"
+							name="scriptLanguage"
+						>
 							<FormItem>
 								<FormLabel>Script Language</FormLabel>
 								<Select v-bind="componentField">
@@ -203,11 +230,18 @@ async function executeScript() {
 
 						<span>Execution result</span>
 						<div class="flex flex-row gap-2">
-							<div class="bg-secondary rounded-md h-auto p-2 w-full">
+							<div class="bg-secondary h-auto w-full rounded-md p-2">
 								{{ executionResult || 'Run a script for test your code' }}
 							</div>
-							<Button type="button" class="place-self-start" @click="executeScript">
-								<Icon name="lucide:terminal" class="size-4 mr-2" />
+							<Button
+								type="button"
+								class="place-self-start"
+								@click="executeScript"
+							>
+								<Icon
+									name="lucide:terminal"
+									class="mr-2 size-4"
+								/>
 								Run
 							</Button>
 						</div>
@@ -221,9 +255,12 @@ async function executeScript() {
 						</div>
 
 						<Alert>
-							<Icon name="lucide:info" class="size-4" />
+							<Icon
+								name="lucide:info"
+								class="size-4"
+							/>
 							<AlertTitle>Heads up!</AlertTitle>
-							<AlertDescription class="flex flex-col justify-start items-start gap-2">
+							<AlertDescription class="flex flex-col items-start justify-start gap-2">
 								<span>
 									You can use variables as you doing it in commands, like
 									<code class="text-teal-200">$(user.followage)</code>. They will be parsed and
@@ -232,7 +269,12 @@ async function executeScript() {
 
 								<VariablesList>
 									<template #trigger>
-										<Button type="button" size="sm"> Show variables list </Button>
+										<Button
+											type="button"
+											size="sm"
+										>
+											Show variables list
+										</Button>
 									</template>
 								</VariablesList>
 							</AlertDescription>
@@ -241,7 +283,7 @@ async function executeScript() {
 						<VueMonacoEditor
 							:value="values.evalValue"
 							:language="values.scriptLanguage!.toLowerCase()"
-							class="min-h-[500px] h-full"
+							class="h-full min-h-[500px]"
 							theme="vs-dark"
 							@change="setValues({ evalValue: $event })"
 						/>

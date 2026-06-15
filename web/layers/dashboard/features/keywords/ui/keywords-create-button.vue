@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import KeywordsDialog from './keywords-dialog.vue'
-
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
+
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
+
+import KeywordsDialog from './keywords-dialog.vue'
 
 const { t } = useI18n()
 const { data: profile } = useProfile()
@@ -34,9 +33,14 @@ const isCreateDisabled = computed(() => {
 		<KeywordsDialog>
 			<template #dialog-trigger>
 				<Button :disabled="isCreateDisabled">
-					<Icon name="lucide:plus" class="size-4 mr-2" />
-					{{ keywordsLength >= maxKeywords ? t('keywords.limitExceeded') : t('keywords.create') }} ({{
-						keywordsLength }}/{{ maxKeywords }})
+					<Icon
+						name="lucide:plus"
+						class="mr-2 size-4"
+					/>
+					{{
+						keywordsLength >= maxKeywords ? t('keywords.limitExceeded') : t('keywords.create')
+					}}
+					({{ keywordsLength }}/{{ maxKeywords }})
 				</Button>
 			</template>
 		</KeywordsDialog>

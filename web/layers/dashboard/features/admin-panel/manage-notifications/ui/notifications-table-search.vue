@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-import { useNotificationsFilters } from '../composables/use-notifications-filters.js'
-
 import SearchBar from '~~/layers/dashboard/components/search-bar.vue'
+
 import {
 	Select,
 	SelectContent,
@@ -13,6 +10,8 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { NotificationType } from '~/gql/graphql.js'
+
+import { useNotificationsFilters } from '../composables/use-notifications-filters.js'
 
 const { t } = useI18n()
 

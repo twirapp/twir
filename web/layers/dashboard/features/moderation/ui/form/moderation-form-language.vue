@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { useField } from 'vee-validate'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import { useModerationAvailableLanguages } from '~~/layers/dashboard/api/moderation'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
@@ -16,32 +15,31 @@ const { t } = useI18n()
 const sourceSearch = ref('')
 const targetSearch = ref('')
 
-const allLanguages = computed(() =>
-	availableLanguages?.value?.moderationLanguagesAvailableLanguages.languages.map(l => ({
-		label: l.name,
-		value: l.iso_639_1,
-	})) ?? [],
+const allLanguages = computed(
+	() =>
+		availableLanguages?.value?.moderationLanguagesAvailableLanguages.languages.map((l) => ({
+			label: l.name,
+			value: l.iso_639_1,
+		})) ?? []
 )
 
 const { value: deniedLanguages, setValue: setDenyList } = useField<string[]>('deniedChatLanguages')
 const { value: excludedWords } = useField<string[]>('languageExcludedWords')
 
 const allowedLanguages = computed(() =>
-	allLanguages.value.filter(lang => !deniedLanguages.value.includes(lang.value)),
+	allLanguages.value.filter((lang) => !deniedLanguages.value.includes(lang.value))
 )
 
 const filteredAllowedLanguages = computed(() =>
-	allowedLanguages.value.filter(lang =>
-		lang.label.toLowerCase().includes(sourceSearch.value.toLowerCase()),
-	),
+	allowedLanguages.value.filter((lang) =>
+		lang.label.toLowerCase().includes(sourceSearch.value.toLowerCase())
+	)
 )
 
 const filteredDeniedLanguages = computed(() =>
 	allLanguages.value
-		.filter(lang => deniedLanguages.value.includes(lang.value))
-		.filter(lang =>
-			lang.label.toLowerCase().includes(targetSearch.value.toLowerCase()),
-		),
+		.filter((lang) => deniedLanguages.value.includes(lang.value))
+		.filter((lang) => lang.label.toLowerCase().includes(targetSearch.value.toLowerCase()))
 )
 
 function moveToDisallowed(value: string) {
@@ -49,29 +47,35 @@ function moveToDisallowed(value: string) {
 }
 
 function moveToAllowed(value: string) {
-	setDenyList(deniedLanguages.value.filter(v => v !== value))
+	setDenyList(deniedLanguages.value.filter((v) => v !== value))
 }
 
 const maxExcludedWords = 1000
 </script>
 
 <template>
-	<div class="flex gap-2 w-full flex-col">
+	<div class="flex w-full flex-col gap-2">
 		<div class="grid grid-cols-2 gap-4">
 			<div class="flex flex-col gap-2 p-4">
 				<h3 class="font-medium">
 					{{ t('moderation.types.language.allowedLanguages') }} ({{ allowedLanguages.length }})
 				</h3>
 				<div class="relative">
-					<Icon name="lucide:search" class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+					<Icon
+						name="lucide:search"
+						class="text-muted-foreground absolute top-2.5 left-2 h-4 w-4"
+					/>
 					<Input
 						v-model="sourceSearch"
 						class="pl-8"
 						placeholder="Search language..."
 					/>
 				</div>
-				<ScrollArea class="h-[300px] w-full rounded-md border" type="auto">
-					<div class="p-2 space-y-2">
+				<ScrollArea
+					class="h-[300px] w-full rounded-md border"
+					type="auto"
+				>
+					<div class="space-y-2 p-2">
 						<Button
 							v-for="lang in filteredAllowedLanguages"
 							:key="lang.value"
@@ -92,15 +96,21 @@ const maxExcludedWords = 1000
 					{{ t('moderation.types.language.disallowedLanguages') }} ({{ deniedLanguages.length }})
 				</h3>
 				<div class="relative">
-					<Icon name="lucide:search" class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+					<Icon
+						name="lucide:search"
+						class="text-muted-foreground absolute top-2.5 left-2 h-4 w-4"
+					/>
 					<Input
 						v-model="targetSearch"
 						class="pl-8"
 						placeholder="Search language..."
 					/>
 				</div>
-				<ScrollArea class="h-[300px] w-full rounded-md border" type="auto">
-					<div class="p-2 space-y-2">
+				<ScrollArea
+					class="h-[300px] w-full rounded-md border"
+					type="auto"
+				>
+					<div class="space-y-2 p-2">
 						<Button
 							v-for="lang in filteredDeniedLanguages"
 							:key="lang.value"
@@ -115,21 +125,17 @@ const maxExcludedWords = 1000
 			</div>
 		</div>
 
-		<div class="flex flex-col gap-2 w-full">
-			<h3 class="font-medium">
-				Ignored words
-			</h3>
+		<div class="flex w-full flex-col gap-2">
+			<h3 class="font-medium">Ignored words</h3>
 
 			<Alert v-if="!excludedWords.length">
-				<AlertDescription>
-					Create ignored words for excluded them from detect.
-				</AlertDescription>
+				<AlertDescription> Create ignored words for excluded them from detect. </AlertDescription>
 			</Alert>
 
 			<div
 				v-for="(_, index) of excludedWords"
 				:key="index"
-				class="flex gap-2 w-full"
+				class="flex w-full gap-2"
 			>
 				<Input
 					v-model="excludedWords[index]"
@@ -141,11 +147,16 @@ const maxExcludedWords = 1000
 					type="button"
 					variant="destructive"
 					size="icon"
-					@click="() => {
-						excludedWords = excludedWords.filter((_, i) => i !== index)
-					}"
+					@click="
+						() => {
+							excludedWords = excludedWords.filter((_, i) => i !== index)
+						}
+					"
 				>
-					<Icon name="lucide:trash" class="h-4 w-4" />
+					<Icon
+						name="lucide:trash"
+						class="h-4 w-4"
+					/>
 				</Button>
 			</div>
 

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-import { useCommunityEmotesStatisticFilters } from '../composables/use-community-emotes-statistic-filters.js'
+import { useTranslatedRanges } from '~~/layers/dashboard/features/community-emotes-statistic/composables/use-translated-ranges'
 
 import type { EmoteStatisticRange } from '~/gql/graphql.js'
 
@@ -12,9 +10,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-	useTranslatedRanges,
-} from '~~/layers/dashboard/features/community-emotes-statistic/composables/use-translated-ranges'
+
+import { useCommunityEmotesStatisticFilters } from '../composables/use-community-emotes-statistic-filters.js'
 
 const { t } = useI18n()
 
@@ -30,10 +27,13 @@ const emotesStatisticFilter = useCommunityEmotesStatisticFilters()
 				<Button
 					variant="ghost"
 					size="sm"
-					class="-ml-3 h-8 data-[state=open]:bg-accent"
+					class="data-[state=open]:bg-accent -ml-3 h-8"
 				>
 					<span>{{ t('community.emotesStatistic.table.chart') }}</span>
-					<Icon name="lucide:gantt-chart" class="ml-2 h-4 w-4" />
+					<Icon
+						name="lucide:gantt-chart"
+						class="ml-2 h-4 w-4"
+					/>
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start">
@@ -42,9 +42,11 @@ const emotesStatisticFilter = useCommunityEmotesStatisticFilters()
 					:key="type"
 					@click="emotesStatisticFilter.changeTableRange(type as EmoteStatisticRange)"
 				>
-					<Icon name="lucide:check"
+					<Icon
+						name="lucide:check"
 						v-if="emotesStatisticFilter.tableRange.value === type"
-						class="mr-2 h-3.5 w-3.5" />
+						class="mr-2 h-3.5 w-3.5"
+					/>
 					{{ text }}
 				</DropdownMenuItem>
 			</DropdownMenuContent>

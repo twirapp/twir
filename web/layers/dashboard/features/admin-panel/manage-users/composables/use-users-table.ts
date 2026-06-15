@@ -1,3 +1,5 @@
+import type { User } from '~~/layers/dashboard/api/admin/users.js'
+
 import {
 	type ColumnDef,
 	getCoreRowModel,
@@ -6,20 +8,17 @@ import {
 } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import { useUsersTableFilters } from './use-users-table-filters.js'
-import { useUsers } from './use-users.js'
-import UsersActionSelector from '../ui/users-action-selector.vue'
-import UsersBadgeSelector from '../ui/users-badge-selector.vue'
-import UsersTableCellUser from '../ui/users-table-cell-user.vue'
-
-import type { User } from '~~/layers/dashboard/api/admin/users.js'
-import type { TwirUsersSearchParams } from '~/gql/graphql.js'
-
 import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
 import { resolveProfile } from '~~/layers/dashboard/helpers/resolveProfile.js'
 import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
+
+import type { TwirUsersSearchParams } from '~/gql/graphql.js'
+
+import UsersActionSelector from '../ui/users-action-selector.vue'
+import UsersBadgeSelector from '../ui/users-badge-selector.vue'
+import UsersTableCellUser from '../ui/users-table-cell-user.vue'
+import { useUsersTableFilters } from './use-users-table-filters.js'
+import { useUsers } from './use-users.js'
 
 export const useUsersTable = createGlobalState(() => {
 	const { t } = useI18n()
@@ -34,8 +33,8 @@ export const useUsersTable = createGlobalState(() => {
 
 		// reset pagination on search change
 		if (
-			prevParams?.search !== currentSearch
-			|| JSON.stringify(prevParams?.platforms ?? []) !== JSON.stringify(currentPlatforms)
+			prevParams?.search !== currentSearch ||
+			JSON.stringify(prevParams?.platforms ?? []) !== JSON.stringify(currentPlatforms)
 		) {
 			pagination.value.pageIndex = 0
 		}
@@ -99,20 +98,16 @@ export const useUsersTable = createGlobalState(() => {
 			size: 10,
 			header: () => '',
 			cell: ({ row }) => {
-				return h(
-					'div',
-					{ class: 'flex items-center justify-end gap-2' },
-					[
-						h(UsersBadgeSelector, {
-							userId: row.original.id,
-						}),
-						h(UsersActionSelector, {
-							userId: row.original.id,
-							isBanned: row.original.isBanned,
-							isBotAdmin: row.original.isBotAdmin,
-						}),
-					],
-				)
+				return h('div', { class: 'flex items-center justify-end gap-2' }, [
+					h(UsersBadgeSelector, {
+						userId: row.original.id,
+					}),
+					h(UsersActionSelector, {
+						userId: row.original.id,
+						isBanned: row.original.isBanned,
+						isBotAdmin: row.original.isBotAdmin,
+					}),
+				])
 			},
 		},
 	])

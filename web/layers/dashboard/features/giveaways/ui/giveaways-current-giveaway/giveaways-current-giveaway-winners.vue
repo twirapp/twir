@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import type { ChatMessage } from '~~/layers/dashboard/api/chat-messages.js'
 
+import { computed, onMounted, ref, watch } from 'vue'
 import { useChatMessagesApi } from '~~/layers/dashboard/api/chat-messages.js'
 import { useGiveaways } from '~~/layers/dashboard/features/giveaways/composables/giveaways-use-giveaways.js'
 import GiveawaysCurrentGiveawayWinnersProfile from '~~/layers/dashboard/features/giveaways/ui/giveaways-current-giveaway/giveaways-current-giveaway-winners-profile.vue'
@@ -48,11 +46,11 @@ function handleSelectWinner(winnerId: string) {
 </script>
 
 <template>
-	<div class="flex flex-col h-full min-h-0">
+	<div class="flex h-full min-h-0 flex-col">
 		<!-- No winners message -->
 		<div
 			v-if="winners.length === 0"
-			class="flex-1 flex items-center justify-center flex-col gap-4 p-4 text-muted-foreground"
+			class="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-4 p-4"
 		>
 			<div class="text-center">
 				<p>{{ t('sharedTexts.noData') }}</p>
@@ -65,12 +63,12 @@ function handleSelectWinner(winnerId: string) {
 		<!-- Winners content -->
 		<template v-else>
 			<!-- Winners list -->
-			<div class="border-b shrink-0 border-border p-2">
+			<div class="border-border shrink-0 border-b p-2">
 				<div class="flex flex-wrap gap-2">
 					<div
 						v-for="winner in winners"
 						:key="winner.userId"
-						class="flex items-center gap-2 p-1 px-2 rounded-md cursor-pointer transition-colors w-full lg:w-auto"
+						class="flex w-full cursor-pointer items-center gap-2 rounded-md p-1 px-2 transition-colors lg:w-auto"
 						:class="{
 							'bg-muted': winner.userId !== selectedWinnerUserId,
 							'bg-primary text-primary-foreground': winner.userId === selectedWinnerUserId,
@@ -88,35 +86,47 @@ function handleSelectWinner(winnerId: string) {
 			</div>
 
 			<!-- Winner's chat messages -->
-			<div v-if="selectedWinnerUserId" class="h-0 min-h-0 flex-1 flex flex-col">
+			<div
+				v-if="selectedWinnerUserId"
+				class="flex h-0 min-h-0 flex-1 flex-col"
+			>
 				<GiveawaysCurrentGiveawayWinnersProfile :user-id="selectedWinnerUserId" />
 
-				<div class="shrink-0 p-2 border-b border-border">
-					<h3 class="text-sm font-medium flex items-center gap-2">
-						<Icon name="lucide:message-square" class="size-4" />
+				<div class="border-border shrink-0 border-b p-2">
+					<h3 class="flex items-center gap-2 text-sm font-medium">
+						<Icon
+							name="lucide:message-square"
+							class="size-4"
+						/>
 						Logs
 					</h3>
 				</div>
 
-				<div class="flex-1 overflow-y-auto h-full">
-					<div v-if="isLoadingMessages" class="p-4 text-center text-muted-foreground">
+				<div class="h-full flex-1 overflow-y-auto">
+					<div
+						v-if="isLoadingMessages"
+						class="text-muted-foreground p-4 text-center"
+					>
 						{{ t('sharedTexts.loading') || 'Loading messages...' }}
 					</div>
 
 					<div
 						v-else-if="filteredMessages.length === 0"
-						class="p-4 text-center text-muted-foreground"
+						class="text-muted-foreground p-4 text-center"
 					>
 						{{ t('sharedTexts.noData') }}
 					</div>
 
-					<div v-else class="p-2 space-y-1">
+					<div
+						v-else
+						class="space-y-1 p-2"
+					>
 						<div
 							v-for="message in filteredMessages"
 							:key="message.id"
-							class="py-1 px-2 flex items-start gap-2 hover:bg-muted rounded-sm"
+							class="hover:bg-muted flex items-start gap-2 rounded-sm px-2 py-1"
 						>
-							<span class="text-xs text-muted-foreground whitespace-nowrap shrink-0">{{
+							<span class="text-muted-foreground shrink-0 text-xs whitespace-nowrap">{{
 								new Date(message.createdAt).toLocaleString()
 							}}</span>
 							<span class="text-sm wrap-break-word">{{ message.text }}</span>
@@ -125,7 +135,10 @@ function handleSelectWinner(winnerId: string) {
 				</div>
 			</div>
 
-			<div v-else class="flex-1 flex items-center justify-center text-muted-foreground">
+			<div
+				v-else
+				class="text-muted-foreground flex flex-1 items-center justify-center"
+			>
 				{{
 					t('giveaways.currentGiveaway.selectWinner') ||
 					'Select a winner to view their chat logs and profile'

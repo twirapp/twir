@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { computed, ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
+import { toast } from 'vue-sonner'
 import { useProfile } from '~~/layers/dashboard/api/auth'
 import { useGamesApi } from '~~/layers/dashboard/api/games/games.js'
 import Card from '~~/layers/dashboard/components/games/card.vue'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
+
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { toast } from 'vue-sonner'
-import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
 const { data: profile } = useProfile()
@@ -74,7 +73,7 @@ async function save() {
 			</DialogHeader>
 
 			<div class="flex flex-col gap-3">
-				<div class="flex flex-row gap-1 items-center">
+				<div class="flex flex-row items-center gap-1">
 					<span>{{ t('sharedTexts.enabled') }}</span>
 					<Switch
 						:model-value="formValue.enabled"
@@ -93,8 +92,16 @@ async function save() {
 				</h3>
 
 				<div class="space-y-2">
-					<div v-for="(_, index) of formValue.answers" :key="index" class="flex gap-2">
-						<Input v-model="formValue.answers[index]" placeholder="Yes" class="flex-1" />
+					<div
+						v-for="(_, index) of formValue.answers"
+						:key="index"
+						class="flex gap-2"
+					>
+						<Input
+							v-model="formValue.answers[index]"
+							placeholder="Yes"
+							class="flex-1"
+						/>
 
 						<Button
 							variant="destructive"
@@ -105,7 +112,10 @@ async function save() {
 								}
 							"
 						>
-							<Icon name="lucide:trash" class="h-4 w-4" />
+							<Icon
+								name="lucide:trash"
+								class="h-4 w-4"
+							/>
 						</Button>
 					</div>
 
@@ -122,7 +132,11 @@ async function save() {
 
 			<Separator />
 
-			<Button variant="default" class="w-full" @click="save">
+			<Button
+				variant="default"
+				class="w-full"
+				@click="save"
+			>
 				{{ t('sharedButtons.save') }}
 			</Button>
 		</DialogContent>

@@ -1,15 +1,13 @@
 <script setup lang="ts">
-
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 import * as z from 'zod'
-
-import Card from './card.vue'
+import { useGamesApi } from '~~/layers/dashboard/api/games/games'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 
 import type { SeppukuGame } from '~/gql/graphql.js'
 
-import { useGamesApi } from '~~/layers/dashboard/api/games/games'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -33,17 +31,16 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { toast } from 'vue-sonner'
-import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 
-const formSchema =
-	z.object({
-		enabled: z.boolean(),
-		message: z.string().max(500),
-		messageModerators: z.string().max(500),
-		timeoutModerators: z.boolean(),
-		timeoutSeconds: z.number().min(1).max(86400),
-	})
+import Card from './card.vue'
+
+const formSchema = z.object({
+	enabled: z.boolean(),
+	message: z.string().max(500),
+	messageModerators: z.string().max(500),
+	timeoutModerators: z.boolean(),
+	timeoutSeconds: z.number().min(1).max(86400),
+})
 
 const isModalOpened = ref(false)
 const { t } = useI18n()
@@ -120,14 +117,20 @@ function resetSettings() {
 
 			<form>
 				<div class="space-y-4">
-					<div class="flex gap-4 flex-col">
-						<FormField v-slot="{ value, handleChange }" name="enabled">
-							<FormItem class="flex gap-2 space-y-0 items-center">
+					<div class="flex flex-col gap-4">
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="enabled"
+						>
+							<FormItem class="flex items-center gap-2 space-y-0">
 								<FormLabel>
 									{{ t('sharedTexts.enabled') }}
 								</FormLabel>
 								<FormControl>
-									<Switch :checked="value" @update:checked="handleChange" />
+									<Switch
+										:checked="value"
+										@update:checked="handleChange"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -138,37 +141,60 @@ function resetSettings() {
 
 					<Separator />
 
-					<FormField v-slot="{ componentField }" name="message">
+					<FormField
+						v-slot="{ componentField }"
+						name="message"
+					>
 						<FormItem>
 							<FormLabel>{{ t('games.seppuku.message') }}</FormLabel>
 							<FormControl>
-								<Input v-bind="componentField" :maxlength="500" />
+								<Input
+									v-bind="componentField"
+									:maxlength="500"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ componentField }" name="timeoutSeconds">
+					<FormField
+						v-slot="{ componentField }"
+						name="timeoutSeconds"
+					>
 						<FormItem>
 							<FormLabel>{{ t('games.seppuku.timeoutSeconds') }}</FormLabel>
 							<FormControl>
-								<Input v-bind="componentField" type="number" :min="1" :max="86400" />
+								<Input
+									v-bind="componentField"
+									type="number"
+									:min="1"
+									:max="86400"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ value, handleChange }" name="timeoutModerators">
+					<FormField
+						v-slot="{ value, handleChange }"
+						name="timeoutModerators"
+					>
 						<FormItem>
 							<FormLabel>{{ t('games.seppuku.timeoutModerators') }}</FormLabel>
 							<FormControl>
-								<Switch :checked="value" @update:checked="handleChange" />
+								<Switch
+									:checked="value"
+									@update:checked="handleChange"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ componentField }" name="messageModerators">
+					<FormField
+						v-slot="{ componentField }"
+						name="messageModerators"
+					>
 						<FormItem>
 							<FormLabel>{{ t('games.seppuku.messageModerators') }}</FormLabel>
 							<FormControl>
@@ -208,7 +234,10 @@ function resetSettings() {
 						</AlertDialogContent>
 					</AlertDialog>
 
-					<Button type="submit" @click="save">
+					<Button
+						type="submit"
+						@click="save"
+					>
 						{{ t('sharedButtons.save') }}
 					</Button>
 				</div>

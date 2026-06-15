@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { UseTimeAgo } from '@vueuse/components'
-import { useI18n } from 'vue-i18n'
-
+import {
+	mapOperationTypeToTranslate,
+	mapSystemToTranslate,
+	useAuditLogs,
+} from '~~/layers/dashboard/api/audit-logs'
 import { useProfile } from '~~/layers/dashboard/api/auth'
-import { mapOperationTypeToTranslate, mapSystemToTranslate, useAuditLogs } from '~~/layers/dashboard/api/audit-logs'
 import AuditLogUser from '~~/layers/dashboard/components/dashboard/audit-log-user.vue'
 import Card from '~~/layers/dashboard/components/dashboard/card.vue'
+
 import { Badge, type BadgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CardContent } from '@/components/ui/card'
@@ -46,8 +49,6 @@ function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVaria
 	}
 }
 
-
-
 const { data: profile } = useProfile()
 
 function openPopup() {
@@ -69,7 +70,7 @@ function openPopup() {
 <template>
 	<Card
 		:popup="props.popup"
-		class="@container flex flex-col min-h-0"
+		class="@container flex min-h-0 flex-col"
 	>
 		<template #header-extra>
 			<TooltipProvider>
@@ -80,7 +81,10 @@ function openPopup() {
 							variant="ghost"
 							@click="openPopup"
 						>
-							<Icon name="lucide:external-link" class="h-4 w-4" />
+							<Icon
+								name="lucide:external-link"
+								class="h-4 w-4"
+							/>
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
@@ -90,18 +94,18 @@ function openPopup() {
 			</TooltipProvider>
 		</template>
 
-		<CardContent class="flex-1 min-h-0 overflow-hidden p-0">
+		<CardContent class="min-h-0 flex-1 overflow-hidden p-0">
 			<ScrollArea class="h-full w-full">
 				<TransitionGroup name="list">
 					<div
 						v-for="log of logs"
 						:key="`${log.system}-${log.objectId}-${log.objectId}-${log.createdAt}`"
-						class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-border border-b border-solid @lg:items-center"
+						class="border-b-border flex flex-col border-b border-solid p-1 pr-4 @lg:flex-row @lg:items-center @lg:justify-between"
 					>
-						<div class="flex h-full flex-row items-center min-h-10 gap-2.5 px-2.5 py-1 flex-wrap">
+						<div class="flex h-full min-h-10 flex-row flex-wrap items-center gap-2.5 px-2.5 py-1">
 							<Badge
 								variant="outline"
-								class="mt-2 @lg:mt-0 flex w-fit p-1 h-fit px-2 bg-zinc-800 shrink-0"
+								class="mt-2 flex h-fit w-fit shrink-0 bg-zinc-800 p-1 px-2 @lg:mt-0"
 							>
 								<UseTimeAgo
 									v-slot="{ timeAgo }"
@@ -134,7 +138,7 @@ function openPopup() {
 							<Badge
 								v-if="computeValueHint(log.oldValue, log.newValue)"
 								variant="secondary"
-								class="shrink-0 truncate max-w-[200px]"
+								class="max-w-[200px] shrink-0 truncate"
 							>
 								{{ computeValueHint(log.oldValue, log.newValue) }}
 							</Badge>

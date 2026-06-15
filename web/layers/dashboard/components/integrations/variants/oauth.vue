@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { Button } from '@/components/ui/button'

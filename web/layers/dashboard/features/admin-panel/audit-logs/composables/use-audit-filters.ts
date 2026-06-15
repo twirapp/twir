@@ -1,6 +1,5 @@
 import { createGlobalState, refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { AuditLogSystem, AuditOperationType } from '~/gql/graphql.js'
 
@@ -22,12 +21,12 @@ function convertFilterKey(key: string): string {
 
 interface SelectedFilters {
 	'operation-type': AuditOperationType[]
-	'system': AuditLogSystem[]
+	system: AuditLogSystem[]
 }
 
 const defaultFilters: SelectedFilters = {
 	'operation-type': [],
-	'system': [],
+	system: [],
 }
 
 export const useAuditFilters = createGlobalState(() => {
@@ -37,7 +36,7 @@ export const useAuditFilters = createGlobalState(() => {
 	const debounceSearchUserId = refDebounced(searchUserId, 500)
 
 	const searchType = ref<AuditSearchType>('channel')
-	const searchOptions = computed<{ label: string, value: AuditSearchType }[]>(() => [
+	const searchOptions = computed<{ label: string; value: AuditSearchType }[]>(() => [
 		{
 			label: t('dashboard.widgets.audit-logs.search.channel'),
 			value: 'channel',
@@ -56,17 +55,27 @@ export const useAuditFilters = createGlobalState(() => {
 	const filtersList = computed<Filter[]>(() => {
 		const systemList: Filter['list'] = Object.values(AuditLogSystem).map((system) => {
 			return {
-				label: t(`dashboard.widgets.audit-logs.systems.${convertFilterKey(system)}`, {}, { default: system }),
+				label: t(
+					`dashboard.widgets.audit-logs.systems.${convertFilterKey(system)}`,
+					{},
+					{ default: system }
+				),
 				key: system,
 			}
 		})
 
-		const operationTypeList: Filter['list'] = Object.values(AuditOperationType).map((operationType) => {
-			return {
-				label: t(`dashboard.widgets.audit-logs.operation-type.${convertFilterKey(operationType)}`, {}, { default: operationType }),
-				key: operationType,
+		const operationTypeList: Filter['list'] = Object.values(AuditOperationType).map(
+			(operationType) => {
+				return {
+					label: t(
+						`dashboard.widgets.audit-logs.operation-type.${convertFilterKey(operationType)}`,
+						{},
+						{ default: operationType }
+					),
+					key: operationType,
+				}
 			}
-		})
+		)
 
 		return [
 			{
