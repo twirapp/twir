@@ -3,7 +3,8 @@ import { Queue } from './queue.js'
 import * as Integrations from './integrations/integrations.js'
 
 import type { NatsConnection } from 'nats'
-import { YTSRSearchRequest, YTSRSearchResponse, YTSRSearchSubject } from './ytsr'
+import type { YTSRSearchRequest, YTSRSearchResponse } from './ytsr'
+import { YTSRSearchSubject } from './ytsr'
 
 export function newBus(nc: NatsConnection) {
 	return {

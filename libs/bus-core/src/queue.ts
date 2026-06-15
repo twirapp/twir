@@ -6,7 +6,7 @@ const codec = JSONCodec()
 
 export class Queue<Req, Res> {
 	#nc: NatsConnection
-	#subscription: Subscription
+	#subscription!: Subscription
 	private readonly subject: string
 
 	constructor(natsConn: NatsConnection, subject: string) {

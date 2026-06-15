@@ -1,6 +1,6 @@
-import { DonatePay } from '../services/donatepay.ts'
+import { DonatePay } from '../services/donatepay'
 
-import type { DonatePayIntegration } from '../libs/db.ts'
+import type { DonatePayIntegration } from '../libs/db'
 
 export const donatePayStore = new Map<string, DonatePay>()
 

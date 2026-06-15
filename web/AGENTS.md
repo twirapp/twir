@@ -111,7 +111,7 @@ const { data } = await useAsyncQuery(gql`
 | `url-shortener` | Link shortening  | `/s/*`        |
 | `pastebin`      | Code sharing     | `/paste/*`    |
 | `public`        | Public utilities | `/public/*`   |
-| `overlays`      | Overlay previews | `/overlays/*` |
+| `overlays`      | Browser source overlays  | `/o/*`        |
 
 ## PORTS
 

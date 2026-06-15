@@ -1,0 +1,26 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+
+import type { PageLayoutTab } from '~~/layers/dashboard/app/layout/page-layout.vue'
+
+import PageLayout from '~~/layers/dashboard/app/layout/page-layout.vue'
+import ObsSettings from '~~/layers/dashboard/app/features/overlays/obs/settings.vue'
+
+const { t } = useI18n()
+
+const tabs = computed<PageLayoutTab[]>(() => [
+	{
+		title: t('overlays.obs.tabs.settings'),
+		component: ObsSettings,
+		name: 'settings',
+	},
+])
+</script>
+
+<template>
+	<PageLayout :tabs="tabs" active-tab="settings">
+		<template #title>
+			{{ t('overlays.obs.title') }}
+		</template>
+	</PageLayout>
+</template>

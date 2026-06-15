@@ -1,0 +1,70 @@
+<script setup lang="ts">
+import { DISCORD_INVITE_URL } from '@twir/brand'
+
+import HeroChat from './hero-chat.vue'
+
+import { UserStoreKey } from '~/stores/user'
+import UiButton from '~~/layers/landing/app/components/landing-ui-button.vue'
+import KickIcon from '~~/layers/landing/app/components/kick-icon.vue'
+
+const userStore = useAuth()
+
+await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())])
+</script>
+
+<template>
+	<section class="px-5 md:px-9 overflow-hidden">
+		<div
+			class="container mx-auto py-20 lg:py-28 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-12 before:-rotate-30 before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,#181F4E_0%,rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8"
+		>
+			<div class="flex justify-between items-center md:flex-nowrap flex-wrap gap-[60px]">
+				<div class="flex flex-col items-start w-full">
+					<a
+						class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] hover:bg-[#272730] border border-[#72757d26] font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72757d]/80 transition-shadow"
+						:href="DISCORD_INVITE_URL"
+						target="_blank"
+					>
+						🚀 View latest updates
+						<SvgoArrowRight
+							:fontControlled="false"
+							class="h-4 w-4 stroke-white/50 stroke-[1.5] shrink-0"
+						/>
+					</a>
+					<h1
+						class="pt-4 lg:text-[64px] text-[min(48px,11vw)] font-bold text-white tracking-tight leading-[1.2] max-w-2xl"
+					>
+						Engage your audience like never before
+					</h1>
+
+					<p
+						class="pt-6 max-w-xl text-[#ADB0B8] lg:text-[20px] text-[min(18px,5vw)] leading-normal"
+					>
+						Our Twitch bot is the ultimate all-in-one solution for streamers looking to take their
+						channel to the next level.
+					</p>
+
+					<div class="pt-[48px] w-full inline-flex flex-col lg:flex-row gap-3">
+						<UiButton href="#" variant="secondary"> Learn more </UiButton>
+						<UiButton v-if="userStore.userWithoutDashboards" href="/dashboard" variant="primary">
+							Dashboard
+						</UiButton>
+						<template v-else>
+							<UiButton as="button" variant="primary" @click="userStore.login()">
+								Start with Twitch
+							</UiButton>
+							<button
+								class="inline-flex justify-center items-center py-3 px-7 xs:py-4 font-semibold text-white rounded-lg transition-[background,box-shadow] text-base sm:text-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 text-center whitespace-nowrap bg-[#27272a] hover:bg-[#27272a]/80 gap-2"
+								@click="userStore.loginWithKick()"
+							>
+								Start with Kick
+								<KickIcon class="text-[#53FC18]" />
+							</button>
+						</template>
+					</div>
+				</div>
+
+				<HeroChat />
+			</div>
+		</div>
+	</section>
+</template>

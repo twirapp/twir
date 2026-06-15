@@ -47,5 +47,10 @@ interface Rybbit {
 declare global {
     interface Window {
         rybbit: Rybbit;
+        eruda?: {
+            init: () => void;
+            show: () => void;
+            destroy: () => void;
+        };
     }
 }

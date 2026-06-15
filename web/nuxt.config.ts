@@ -51,6 +51,10 @@ export default defineNuxtConfig({
 
 	site: { indexable: true },
 
+	typescript: {
+		typeCheck: true,
+	},
+
 	modules: [
 		'@pinia/nuxt',
 		'@bicou/nuxt-urql',
@@ -66,6 +70,7 @@ export default defineNuxtConfig({
 		gqlcodegen,
 		'@nuxtjs/fontaine',
 		'@nuxtjs/i18n',
+		'@xiaobailong/web-update-notice-plugin/nuxt',
 	],
 
 	i18n: {
@@ -96,11 +101,11 @@ export default defineNuxtConfig({
 		customCollections: [
 			{
 				prefix: 'twir-overlays',
-				dir: resolve('./layers/dashboard/assets/overlays'),
+				dir: resolve('./layers/dashboard/app/assets/overlays'),
 			},
 			{
 				prefix: 'twir-integrations',
-				dir: resolve('./layers/dashboard/assets/integrations'),
+				dir: resolve('./layers/dashboard/app/assets/integrations'),
 			},
 		],
 	},
@@ -228,5 +233,17 @@ export default defineNuxtConfig({
 	telemetry: {
 		enabled: true,
 		consent: 1,
+	},
+
+	webUpdateNotice: {
+		checkInterval: 5 * 60 * 1000,
+		base: '/',
+		autoRefresh: false,
+		text: {
+			title: '✨ Update available',
+			desc: 'New update available, you MUST update to keep site work correctly.',
+			cancel: 'Cancel',
+			confirm: 'Confirm',
+		},
 	},
 })

@@ -1,7 +1,8 @@
 import { config } from '@twir/config'
 
-import { StreamlabsIntegration, updateStreamlabsIntegration } from '../libs/db.ts'
-import { StreamLabs } from '../services/streamLabs.ts'
+import type { StreamlabsIntegration } from '../libs/db'
+import { updateStreamlabsIntegration } from '../libs/db'
+import { StreamLabs } from '../services/streamLabs'
 
 export const streamLabsStore = new Map<string, StreamLabs>()
 
