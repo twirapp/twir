@@ -19,8 +19,9 @@ let rtf: Intl.RelativeTimeFormat
 
 function getRtf() {
 	if (!rtf) {
+		const locale = typeof navigator !== 'undefined' ? navigator.language : 'en'
 		rtf = new Intl.RelativeTimeFormat(
-			typeof window !== 'undefined' ? window.navigator.language : 'en',
+			locale,
 			{
 				localeMatcher: 'best fit',
 				numeric: 'always',

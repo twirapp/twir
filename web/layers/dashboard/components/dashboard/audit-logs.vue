@@ -50,6 +50,7 @@ function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVaria
 }
 
 const { data: profile } = useProfile()
+const requestUrl = useRequestURL()
 
 function openPopup() {
 	if (!profile.value) return
@@ -60,7 +61,7 @@ function openPopup() {
 	const left = Math.max(0, (screen.width - width) / 2)
 
 	window.open(
-		`${window.location.origin}/dashboard/popup/widgets/audit-log?apiKey=${profile.value.apiKey}`,
+		`${requestUrl.origin}/dashboard/popup/widgets/audit-log?apiKey=${profile.value.apiKey}`,
 		'_blank',
 		`height=${height},width=${width},top=${top},left=${left},status=0,location=0,menubar=0,toolbar=0`
 	)

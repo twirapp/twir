@@ -11,6 +11,11 @@ const { resolve } = createResolver(import.meta.url)
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
+const localeCodes = fs
+	.readdirSync(resolve('./locales'))
+	.filter((f) => f.endsWith('.json'))
+	.map((f) => f.replace('.json', ''))
+
 function buildDiagnosticsPlugin(): any {
 	if (process.env.TWIR_BUILD_DIAGNOSTICS !== '1') return null
 	const logPath = process.env.TWIR_BUILD_DIAG_LOG || '/tmp/nuxt-build-diag.log'
@@ -51,6 +56,17 @@ export default defineNuxtConfig({
 
 	site: { indexable: true },
 
+	routeRules: {
+		'/dashboard': { ssr: false },
+		'/dashboard/**': { ssr: false },
+		...Object.fromEntries(
+			localeCodes.flatMap((l) => [
+				[`/${l}/dashboard`, { ssr: false }],
+				[`/${l}/dashboard/**`, { ssr: false }],
+			])
+		),
+	},
+
 	modules: [
 		'@pinia/nuxt',
 		'@bicou/nuxt-urql',
@@ -69,16 +85,7 @@ export default defineNuxtConfig({
 	],
 
 	i18n: {
-		locales: [
-			{ code: 'en', file: 'en.json' },
-			{ code: 'ru', file: 'ru.json' },
-			{ code: 'de', file: 'de.json' },
-			{ code: 'es', file: 'es.json' },
-			{ code: 'ja', file: 'ja.json' },
-			{ code: 'pt', file: 'pt.json' },
-			{ code: 'sk', file: 'sk.json' },
-			{ code: 'uk', file: 'uk.json' },
-		],
+		locales: localeCodes.map((code) => ({ code, file: `${code}.json` })) as any, // TODO: remove any, no ai written xd
 		defaultLocale: 'en',
 		langDir: 'locales',
 		compilation: {

@@ -33,6 +33,7 @@ const { t } = useI18n()
 const { events, enabledEvents, enabledEventsOptions } = useEvents()
 
 const { data } = useProfile()
+const requestUrl = useRequestURL()
 
 function openPopup() {
 	if (!data.value) return
@@ -43,7 +44,7 @@ function openPopup() {
 	const left = Math.max(0, (screen.width - width) / 2)
 
 	window.open(
-		`${window.location.origin}/dashboard/popup/widgets/eventslist?apiKey=${data.value.apiKey}`,
+		`${requestUrl.origin}/dashboard/popup/widgets/eventslist?apiKey=${data.value.apiKey}`,
 		'_blank',
 		`height=${height},width=${width},top=${top},left=${left},status=0,location=0,menubar=0,toolbar=0`
 	)

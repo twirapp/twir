@@ -32,6 +32,7 @@ const dudesOverlayManager = useDudesOverlayManager()
 const creator = dudesOverlayManager.useCreate()
 const deleter = dudesOverlayManager.useDelete()
 const { data: profile } = useProfile()
+const requestUrl = useRequestURL()
 
 const { t } = useI18n()
 
@@ -45,7 +46,7 @@ const openedTab = ref<string>()
 const { sendIframeMessage, dudesIframe } = useDudesIframe()
 const dudesIframeUrl = computed(() => {
 	if (!profile.value || !openedTab.value) return null
-	return `${window.location.origin}/overlays/${profile.value.apiKey}/dudes?id=${openedTab.value}`
+	return `${requestUrl.origin}/overlays/${profile.value.apiKey}/dudes?id=${openedTab.value}`
 })
 
 const { setData, getDefaultSettings } = useDudesForm()

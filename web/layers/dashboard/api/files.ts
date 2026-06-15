@@ -44,7 +44,8 @@ export const useFilesApi = createGlobalState(() => {
 	)
 
 	function computeFileUrl(channelId: string, fileId: string) {
-		return `${window.location.origin}/api/v1/channels/${channelId}/files/content/${fileId}`
+		const requestUrl = useRequestURL()
+		return `${requestUrl.origin}/api/v1/channels/${channelId}/files/content/${fileId}`
 	}
 
 	return {

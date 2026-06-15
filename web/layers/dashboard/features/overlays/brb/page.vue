@@ -98,10 +98,11 @@ watch(
 )
 
 const brbIframeRef = ref<HTMLIFrameElement | null>(null)
+const requestUrl = useRequestURL()
 const brbIframeUrl = computed(() => {
 	if (!selectedDashboardApiKey.value) return null
 
-	return `${window.location.origin}/overlays/${selectedDashboardApiKey.value}/brb`
+	return `${requestUrl.origin}/overlays/${selectedDashboardApiKey.value}/brb`
 })
 
 function sendIframeMessage(key: string, data?: any) {

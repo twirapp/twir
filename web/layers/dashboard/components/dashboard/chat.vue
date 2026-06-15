@@ -10,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const { data: profile } = useProfile()
 const { theme: chatTheme, toggleTheme } = useTheme()
+const requestUrl = useRequestURL()
 
 const openFrankerFaceZ = ref(false)
 const selectedDashboardTwitchUser = computed(() => {
@@ -22,7 +23,7 @@ const chatUrl = computed(() => {
 
 	const user = selectedDashboardTwitchUser.value
 
-	let url = `https://www.twitch.tv/embed/${user.login}/chat?parent=${window.location.host}`
+	let url = `https://www.twitch.tv/embed/${user.login}/chat?parent=${requestUrl.host}`
 
 	if (chatTheme.value === 'dark') {
 		url += '&darkpopout'

@@ -20,6 +20,7 @@ const { t } = useI18n()
 const { setOpenMobile } = useSidebar()
 const publicPageHref = usePublicPageHref()
 const { notificationsCounter } = useNotifications()
+const requestUrl = useRequestURL()
 
 // Filter and prepare footer items
 const visibleFooterItems = computed(() => {
@@ -36,8 +37,8 @@ const visibleFooterItems = computed(() => {
 			let href = item.href
 			if (item.isPublicPageDependent && item.translationKey === 'sidebar.publicPage') {
 				href = publicPageHref.value || ''
-			} else if (item.href.startsWith('/') && item.isExternal) {
-				href = `${window.location.origin}${item.href}`
+		} else if (item.href.startsWith('/') && item.isExternal) {
+			href = `${requestUrl.origin}${item.href}`
 			}
 
 			return {

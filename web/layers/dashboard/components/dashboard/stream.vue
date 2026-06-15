@@ -6,6 +6,7 @@ import Card from './card.vue'
 import { useProfile } from '~~/layers/dashboard/api/auth'
 
 const { data: profile } = useProfile()
+const requestUrl = useRequestURL()
 
 const selectedDashboardTwitchUser = computed(() => {
 	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
@@ -16,7 +17,7 @@ const streamUrl = computed(() => {
 	if (!selectedDashboardTwitchUser.value) return
 
 	const user = selectedDashboardTwitchUser.value
-	const url = `https://player.twitch.tv/?channel=${user.login}&parent=${window.location.host}&autoplay=false`
+	const url = `https://player.twitch.tv/?channel=${user.login}&parent=${requestUrl.host}&autoplay=false`
 
 	return url
 })

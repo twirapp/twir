@@ -48,6 +48,7 @@ const { t } = useI18n()
 
 const isMac = useIsMac()
 const publicPageHref = usePublicPageHref()
+const requestUrl = useRequestURL()
 
 const { commands, keywords, variables } = useCommandMenuData()
 const { data: profile } = useProfile()
@@ -98,8 +99,8 @@ const footerRoutes = computed(() => {
 			let href = item.href
 			if (item.isPublicPageDependent && item.translationKey === 'sidebar.publicPage') {
 				href = publicPageHref.value || ''
-			} else if (item.href.startsWith('/') && item.isExternal) {
-				href = `${window.location.origin}${item.href}`
+		} else if (item.href.startsWith('/') && item.isExternal) {
+			href = `${requestUrl.origin}${item.href}`
 			}
 
 			return {

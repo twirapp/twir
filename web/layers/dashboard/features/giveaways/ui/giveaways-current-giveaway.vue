@@ -23,6 +23,7 @@ const {
 } = useGiveaways()
 
 const { data: profile } = useProfile()
+const requestUrl = useRequestURL()
 
 const selectedDashboardTwitchUser = computed(() => {
 	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
@@ -32,7 +33,7 @@ const selectedDashboardTwitchUser = computed(() => {
 const chatUrl = computed(() => {
 	if (!selectedDashboardTwitchUser.value) return
 
-	return `https://www.twitch.tv/embed/${selectedDashboardTwitchUser.value.login}/chat?parent=${window.location.host}&darkpopout`
+	return `https://www.twitch.tv/embed/${selectedDashboardTwitchUser.value.login}/chat?parent=${requestUrl.host}&darkpopout`
 })
 
 const isOnlineChatterGiveaway = computed(() => currentGiveaway.value?.type === 'ONLINE_CHATTERS')

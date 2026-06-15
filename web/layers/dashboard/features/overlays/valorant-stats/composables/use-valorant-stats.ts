@@ -35,8 +35,9 @@ export const useValorantStats = createGlobalState(() => {
 			(d) => d.id === profile.value?.selectedDashboardId
 		)
 
+		const requestUrl = useRequestURL()
 		const url = new URL(
-			`${window.location.origin}/o/${dashboard?.apiKey ?? profile.value?.apiKey}/valorant-stats`
+			`${requestUrl.origin}/o/${dashboard?.apiKey ?? profile.value?.apiKey}/valorant-stats`
 		)
 
 		for (const [key, value] of Object.entries(settings.value)) {

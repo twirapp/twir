@@ -55,6 +55,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const router = useRouter()
 const { data: profile } = useProfile()
+const requestUrl = useRequestURL()
 
 const selectedDashboardUser = computed(() => {
 	return profile.value?.availableDashboards.find(
@@ -71,7 +72,7 @@ function goBack() {
 function copyOverlayLink() {
 	if (!props.overlayId || !selectedDashboardUser.value?.apiKey) return
 
-	const baseUrl = window.location.origin
+	const baseUrl = requestUrl.origin
 	const overlayUrl = `${baseUrl}/overlays/${selectedDashboardUser.value.apiKey}/registry/overlays/${props.overlayId}`
 
 	navigator.clipboard.writeText(overlayUrl).then(() => {
