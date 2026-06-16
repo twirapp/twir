@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router'
 import HastebinLayout from '../../components/HastebinLayout.vue'
 import HastebinPage from '../../components/HastebinPage.vue'
 
-const route = useRoute<'h-id'>("h-id")
+const route = useRoute<'h-id'>()
 const api = useOapi()
 
 const { data, status, error } = await useAsyncData('hastebin', async () => {
