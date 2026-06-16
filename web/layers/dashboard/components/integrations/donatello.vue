@@ -6,8 +6,9 @@ import CopyInput from '@/components/ui/copy-input/CopyInput.vue'
 import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 
 const integrationsPage = useIntegrationsPageData()
+const requestUrl = useRequestURL()
 
-const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatello`
+const webhookUrl = `${requestUrl.origin}/api/webhooks/integrations/donatello`
 </script>
 
 <template>

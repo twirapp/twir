@@ -24,7 +24,8 @@ export const useAdminShortUrlsTable = createGlobalState(() => {
 			size: 5,
 			header: () => h('div', {}, 'Short ID'),
 			cell: ({ row }) => {
-				return h('a', { href: `${window.location.origin}/s/${row.original.id}`, target: '_blank', class: 'underline' }, row.original.id)
+				const requestUrl = useRequestURL()
+				return h('a', { href: `${requestUrl.origin}/s/${row.original.id}`, target: '_blank', class: 'underline' }, row.original.id)
 			},
 		},
 		{

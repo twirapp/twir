@@ -2,7 +2,7 @@
 
 import { useForm } from 'vee-validate'
 import { computed, onMounted, ref, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 import { useRoute } from 'vue-router'
 
 import { formSchema, useCommandEditV2 } from './composables/use-command-edit-v2'

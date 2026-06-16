@@ -1,16 +1,15 @@
+import type { Event, EventType } from '~~/layers/dashboard/api/events'
+
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import EventsTableActions from '../ui/events-table-actions.vue'
-
-import type { Event , EventType } from '~~/layers/dashboard/api/events'
-
 import { useEventsApi } from '~~/layers/dashboard/api/events'
-import { Badge } from '@/components/ui/badge'
 import { flatEvents, getEventName } from '~~/layers/dashboard/features/events/constants/helpers'
 import EventsTableOperations from '~~/layers/dashboard/features/events/ui/events-table-operations.vue'
+
+import { Badge } from '@/components/ui/badge'
+
+import EventsTableActions from '../ui/events-table-actions.vue'
 
 function getPlatformBadges(platforms: string[]) {
 	if (platforms.length === 0) {
@@ -18,7 +17,7 @@ function getPlatformBadges(platforms: string[]) {
 	}
 
 	return platforms.map((platform) =>
-		h(Badge, { variant: 'outline' }, () => platform.charAt(0).toUpperCase() + platform.slice(1)),
+		h(Badge, { variant: 'outline' }, () => platform.charAt(0).toUpperCase() + platform.slice(1))
 	)
 }
 
@@ -65,7 +64,11 @@ export const useEventsTable = createGlobalState(() => {
 			size: 15,
 			header: () => h('div', {}, t('sharedTexts.platforms')),
 			cell: ({ row }) =>
-				h('div', { class: 'flex flex-wrap gap-1' }, getPlatformBadges(row.original.platforms ?? [])),
+				h(
+					'div',
+					{ class: 'flex flex-wrap gap-1' },
+					getPlatformBadges(row.original.platforms ?? [])
+				),
 		},
 		{
 			accessorKey: 'operations',

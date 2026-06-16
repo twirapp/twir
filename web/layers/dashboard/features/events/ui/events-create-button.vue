@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useEventsApi } from '~~/layers/dashboard/api/events.js'
+
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
 const router = useRouter()
+const localePath = useLocalePath()
 const { data: profile } = useProfile()
 const eventApi = useEventsApi()
 const userCanManageEvents = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageEvents)
@@ -30,16 +30,24 @@ const isCreateDisabled = computed(() => {
 })
 
 function createEvent() {
-	router.push('/dashboard/events/new')
+	router.push(localePath('/dashboard/events/new'))
 }
 </script>
 
 <template>
 	<div class="flex gap-2">
-		<Button type="button" :disabled="isCreateDisabled" @click="createEvent">
-			<Icon name="lucide:plus" class="size-4 mr-2" />
+		<Button
+			type="button"
+			:disabled="isCreateDisabled"
+			@click="createEvent"
+		>
+			<Icon
+				name="lucide:plus"
+				class="mr-2 size-4"
+			/>
 			{{ eventsLength >= maxEvents ? t('events.limitExceeded') : t('sharedTexts.create') }} ({{
-				eventsLength }}/{{ maxEvents }})
+				eventsLength
+			}}/{{ maxEvents }})
 		</Button>
 	</div>
 </template>

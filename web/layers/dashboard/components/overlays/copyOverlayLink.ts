@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { toast } from 'vue-sonner'
@@ -7,6 +7,7 @@ import { toast } from 'vue-sonner'
 	export function useCopyOverlayLink(overlayPath: string) {
 		const { data: profile } = useProfile()
 		const { t } = useI18n()
+		const requestUrl = useRequestURL()
 
 	const selectedDashboardUser = computed(() => {
 		return profile.value?.availableDashboards.find(
@@ -23,7 +24,7 @@ import { toast } from 'vue-sonner'
 			return ''
 		}
 
-		return `${window.location.origin}/overlays/${overlayApiKey.value}/${overlayPath}`
+		return `${requestUrl.origin}/overlays/${overlayApiKey.value}/${overlayPath}`
 	})
 
 		const canCopyOverlayLink = computed(() => Boolean(overlayLink.value))

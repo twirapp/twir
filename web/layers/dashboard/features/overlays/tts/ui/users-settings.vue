@@ -1,15 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
+import { toast } from 'vue-sonner'
 import { useTTSOverlayApi } from '~~/layers/dashboard/api/overlays-tts'
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -20,7 +14,12 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { toast } from 'vue-sonner'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 
 const { t } = useI18n()
 
@@ -91,7 +90,11 @@ function testUserVoice(user: (typeof users.value)[0]) {
 						<CardDescription>{{ t('overlays.tts.usersDescription') }}</CardDescription>
 					</div>
 					<div class="flex gap-2">
-						<Button variant="outline" :disabled="users.length === 0" @click="toggleAll">
+						<Button
+							variant="outline"
+							:disabled="users.length === 0"
+							@click="toggleAll"
+						>
 							{{
 								allSelected
 									? t('overlays.tts.users.undoSelection')
@@ -103,7 +106,10 @@ function testUserVoice(user: (typeof users.value)[0]) {
 							:disabled="selectedCount === 0"
 							@click="showDeleteDialog = true"
 						>
-							<Icon name="lucide:trash2" class="h-4 w-4 mr-2" />
+							<Icon
+								name="lucide:trash2"
+								class="mr-2 h-4 w-4"
+							/>
 							{{ t('sharedButtons.delete') }} ({{ selectedCount }})
 						</Button>
 					</div>
@@ -129,17 +135,20 @@ function testUserVoice(user: (typeof users.value)[0]) {
 				</Alert>
 
 				<!-- Users Grid -->
-				<div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div
+					v-else
+					class="grid grid-cols-1 gap-4 md:grid-cols-2"
+				>
 					<Card
 						v-for="user in users"
 						:key="user.userId"
-						class="cursor-pointer transition-colors hover:bg-accent"
+						class="hover:bg-accent cursor-pointer transition-colors"
 						:class="{ 'bg-accent': selectedUsers.has(user.userId) }"
 						@click="toggleUser(user.userId)"
 					>
 						<CardContent class="p-4">
 							<div class="flex items-center justify-between">
-								<div class="flex items-center gap-3 flex-1">
+								<div class="flex flex-1 items-center gap-3">
 									<Avatar>
 										<AvatarImage
 											:src="user.twitchProfile.profileImageUrl ?? ''"
@@ -150,14 +159,19 @@ function testUserVoice(user: (typeof users.value)[0]) {
 										</AvatarFallback>
 									</Avatar>
 
-									<div class="flex-1 min-w-0">
+									<div class="min-w-0 flex-1">
 										<div class="flex items-center gap-2">
-											<p class="font-semibold truncate">
+											<p class="truncate font-semibold">
 												{{ user.twitchProfile.displayName }}
 											</p>
-											<Badge v-if="user.isChannelOwner" variant="secondary"> Owner </Badge>
+											<Badge
+												v-if="user.isChannelOwner"
+												variant="secondary"
+											>
+												Owner
+											</Badge>
 										</div>
-										<p class="text-sm text-muted-foreground">
+										<p class="text-muted-foreground text-sm">
 											{{ t('overlays.tts.voice') }}: {{ user.voice }} |
 											{{ t('overlays.tts.pitch') }}: {{ user.pitch }} |
 											{{ t('overlays.tts.rate') }}: {{ user.rate }}
@@ -165,9 +179,19 @@ function testUserVoice(user: (typeof users.value)[0]) {
 									</div>
 								</div>
 
-								<div class="flex items-center gap-2" @click.stop>
-									<Button variant="ghost" size="icon" @click="testUserVoice(user)">
-										<Icon name="lucide:volume2" class="h-4 w-4" />
+								<div
+									class="flex items-center gap-2"
+									@click.stop
+								>
+									<Button
+										variant="ghost"
+										size="icon"
+										@click="testUserVoice(user)"
+									>
+										<Icon
+											name="lucide:volume2"
+											class="h-4 w-4"
+										/>
 									</Button>
 									<Checkbox
 										:model-value="selectedUsers.has(user.userId)"

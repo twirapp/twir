@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-import { useUsersTableFilters } from '../composables/use-users-table-filters.js'
-import { useUsersTable } from '../composables/use-users-table.js'
-
-import type { FilterType } from '../composables/use-users-table-filters.js'
-
 import SearchBar from '~~/layers/dashboard/components/search-bar.vue'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,12 +10,13 @@ import {
 	CommandList,
 	CommandSeparator,
 } from '@/components/ui/command'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+
+import type { FilterType } from '../composables/use-users-table-filters.js'
+
+import { useUsersTableFilters } from '../composables/use-users-table-filters.js'
+import { useUsersTable } from '../composables/use-users-table.js'
 
 const { t } = useI18n()
 const usersTable = useUsersTable()
@@ -38,22 +33,39 @@ function applyFilter(filterKey: string, type: FilterType): void {
 		<SearchBar v-model="usersTableFilters.searchInput.value" />
 		<Popover>
 			<PopoverTrigger as-child>
-				<Button variant="outline" size="sm" class="h-9">
-					<Icon name="lucide:list-filter" class="mr-2 h-4 w-4" />
+				<Button
+					variant="outline"
+					size="sm"
+					class="h-9"
+				>
+					<Icon
+						name="lucide:list-filter"
+						class="mr-2 h-4 w-4"
+					/>
 					{{ t('adminPanel.manageUsers.filters') }}
 
 					<template v-if="usersTableFilters.selectedFiltersCount.value">
-						<Separator orientation="vertical" class="mx-2 h-4" />
+						<Separator
+							orientation="vertical"
+							class="mx-2 h-4"
+						/>
 						<Badge
 							variant="secondary"
 							class="rounded-sm px-1 font-normal"
 						>
-							{{ t('adminPanel.manageUsers.countSelected', { count: usersTableFilters.selectedFiltersCount.value }) }}
+							{{
+								t('adminPanel.manageUsers.countSelected', {
+									count: usersTableFilters.selectedFiltersCount.value,
+								})
+							}}
 						</Badge>
 					</template>
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent class="w-[200px] p-0" align="end">
+			<PopoverContent
+				class="w-[200px] p-0"
+				align="end"
+			>
 				<Command>
 					<CommandList>
 						<CommandGroup
@@ -68,15 +80,23 @@ function applyFilter(filterKey: string, type: FilterType): void {
 								@select="applyFilter(filter.key, filters.type)"
 							>
 								<div
-									class="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
-									:class="[usersTableFilters.isFilterApplied(filter.key, filters.type)
-										? 'bg-primary text-primary-foreground'
-										: 'opacity-50 [&_svg]:invisible',
+									class="border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border"
+									:class="[
+										usersTableFilters.isFilterApplied(filter.key, filters.type)
+											? 'bg-primary text-primary-foreground'
+											: 'opacity-50 [&_svg]:invisible',
 									]"
 								>
-									<Icon name="lucide:check" class="h-4 w-4" />
+									<Icon
+										name="lucide:check"
+										class="h-4 w-4"
+									/>
 								</div>
-								<img v-if="filter.image" :src="filter.image" class="h-5 w-5 mr-2">
+								<img
+									v-if="filter.image"
+									:src="filter.image"
+									class="mr-2 h-5 w-5"
+								/>
 								<span>{{ filter.label }}</span>
 							</CommandItem>
 						</CommandGroup>
@@ -86,7 +106,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 							<CommandGroup>
 								<CommandItem
 									:value="{ label: 'Clear filters' }"
-									class="justify-center text-center cursor-pointer"
+									class="cursor-pointer justify-center text-center"
 									@select="usersTableFilters.clearFilters"
 								>
 									{{ t('adminPanel.manageUsers.clearFilters') }}

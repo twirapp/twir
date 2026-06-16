@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import type { PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
-import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+import { computed } from 'vue'
+import TtsCommands from '~~/layers/dashboard/features/overlays/tts/ui/commands.vue'
 import TtsGeneralSettings from '~~/layers/dashboard/features/overlays/tts/ui/general-settings.vue'
 import TtsUsersSettings from '~~/layers/dashboard/features/overlays/tts/ui/users-settings.vue'
-import TtsCommands from '~~/layers/dashboard/features/overlays/tts/ui/commands.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const { t } = useI18n()
 
@@ -31,10 +29,12 @@ const tabs = computed<PageLayoutTab[]>(() => [
 </script>
 
 <template>
-	<PageLayout :tabs="tabs" active-tab="settings">
+	<PageLayout
+		:tabs="tabs"
+		active-tab="settings"
+	>
 		<template #title>
 			{{ t('overlays.tts.title') }}
 		</template>
 	</PageLayout>
 </template>
-

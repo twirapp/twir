@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 import { useRoute, useRouter } from 'vue-router'
 
 import EventBasicInfo from './components/event-basic-info.vue'
@@ -17,6 +17,7 @@ import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const { t } = useI18n()
 const router = useRouter()
+const localePath = useLocalePath()
 const route = useRoute<'dashboard-events-id'>()
 const eventsApi = useEventsApi()
 const isNewEvent = computed(() => route.params.id === 'new')
@@ -56,7 +57,7 @@ onMounted(async () => {
 		toast.error(t('events.notFound'), {
 			description: t('events.notFoundDescription'),
 		})
-		router.push('/dashboard/events')
+		router.push(localePath('/dashboard/events'))
 		return
 	}
 
@@ -105,7 +106,7 @@ const onSubmit = eventForm.handleSubmit(async (input) => {
 			}
 
 			if (data?.eventCreate?.id) {
-				router.push(`/dashboard/events/${data.eventCreate.id}`)
+				router.push(localePath(`/dashboard/events/${data.eventCreate.id}`))
 			} else {
 				throw new Error('Create faied, no ID returned')
 			}

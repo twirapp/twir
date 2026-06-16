@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { RadioGroupItem, RadioGroupRoot } from "reka-ui";
-import { computed, ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { VisArea, VisAxis, VisLine, VisXYContainer } from "@unovis/vue";
+import { VisArea, VisAxis, VisLine, VisXYContainer } from '@unovis/vue'
+import { RadioGroupItem, RadioGroupRoot } from 'reka-ui'
+import { computed, ref } from 'vue'
 
-import type { ChartConfig } from "@/components/ui/chart";
+import type { ChartConfig } from '@/components/ui/chart'
 
 import {
 	ChartContainer,
@@ -12,29 +11,29 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 	componentToString,
-} from "@/components/ui/chart";
+} from '@/components/ui/chart'
 import {
 	useCommunityEmotesDetails,
 	useCommunityEmotesDetailsName,
-} from "@/features/community-emotes-statistic/composables/use-community-emotes-details.js";
-import { useTranslatedRanges } from "@/features/community-emotes-statistic/composables/use-translated-ranges.js";
-import CommunityEmotesDetailsContentUsersHistory from "@/features/community-emotes-statistic/ui/community-emotes-details-content-users-history.vue";
-import CommunityEmotesDetailsContentUsersTop from "@/features/community-emotes-statistic/ui/community-emotes-details-content-users-top.vue";
+} from '@/features/community-emotes-statistic/composables/use-community-emotes-details.js'
+import { useTranslatedRanges } from '@/features/community-emotes-statistic/composables/use-translated-ranges.js'
+import CommunityEmotesDetailsContentUsersHistory from '@/features/community-emotes-statistic/ui/community-emotes-details-content-users-history.vue'
+import CommunityEmotesDetailsContentUsersTop from '@/features/community-emotes-statistic/ui/community-emotes-details-content-users-top.vue'
 
-const { t } = useI18n();
-const { ranges } = useTranslatedRanges();
-const { details, range } = useCommunityEmotesDetails();
-const { emoteName } = useCommunityEmotesDetailsName();
+const { t } = useI18n()
+const { ranges } = useTranslatedRanges()
+const { details, range } = useCommunityEmotesDetails()
+const { emoteName } = useCommunityEmotesDetailsName()
 
 interface Data {
-	timestamp: number;
-	date: Date;
-	count: number;
-};
+	timestamp: number
+	date: Date
+	count: number
+}
 
 const chartData = computed<Data[]>(() => {
 	if (!details.value?.emotesStatisticEmoteDetailedInformation?.graphicUsages) {
-		return [];
+		return []
 	}
 
 	return details.value.emotesStatisticEmoteDetailedInformation.graphicUsages.map(
@@ -42,19 +41,19 @@ const chartData = computed<Data[]>(() => {
 			timestamp,
 			date: new Date(timestamp),
 			count,
-		}),
-	);
-});
+		})
+	)
+})
 
 const chartConfig = {
 	count: {
-		label: "Usage",
+		label: 'Usage',
 		theme: {
-			light: "#10b981",
-			dark: "#10b981",
+			light: '#10b981',
+			dark: '#10b981',
 		},
 	},
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 const svgDefs = `
   <linearGradient id="fillCount" x1="0" y1="0" x2="0" y2="1">
@@ -69,25 +68,25 @@ const svgDefs = `
       stop-opacity="0.1"
     />
   </linearGradient>
-`;
+`
 
 const tableTabs = [
-	{ key: "top", text: t("community.emotesStatistic.details.usersTabs.top") },
-	{ key: "history", text: t("community.emotesStatistic.details.usersTabs.history") },
-];
+	{ key: 'top', text: t('community.emotesStatistic.details.usersTabs.top') },
+	{ key: 'history', text: t('community.emotesStatistic.details.usersTabs.history') },
+]
 
-const tableTab = ref<"top" | "history">("top");
+const tableTab = ref<'top' | 'history'>('top')
 </script>
 
 <template>
 	<div class="flex flex-col divide-y divide-white/10">
-		<h1 class="text-4xl font-medium px-6 py-6">
+		<h1 class="px-6 py-6 text-4xl font-medium">
 			{{ emoteName }}
 		</h1>
 		<div class="flex flex-col gap-6 px-6 py-7">
-			<div class="flex justify-between flex-wrap">
+			<div class="flex flex-wrap justify-between">
 				<h1 class="text-2xl font-medium">
-					{{ t("community.emotesStatistic.details.stats") }}
+					{{ t('community.emotesStatistic.details.stats') }}
 				</h1>
 				<RadioGroupRoot
 					v-model="range"
@@ -97,7 +96,7 @@ const tableTab = ref<"top" | "history">("top");
 						v-for="[key, text] of Object.entries(ranges)"
 						:key="key"
 						:value="key"
-						class="h-8 flex-1 rounded-md px-3 text-[13px] text-white/75 transition-colors hover:bg-white/5 data-[active=true]:bg-white/20 data-[active=true]:text-white data-[active=true]:shadow-md md:flex-auto whitespace-nowrap"
+						class="h-8 flex-1 rounded-md px-3 text-[13px] whitespace-nowrap text-white/75 transition-colors hover:bg-white/5 data-[active=true]:bg-white/20 data-[active=true]:text-white data-[active=true]:shadow-md md:flex-auto"
 					>
 						{{ text }}
 					</RadioGroupItem>
@@ -108,7 +107,7 @@ const tableTab = ref<"top" | "history">("top");
 				<ChartContainer
 					v-if="chartData.length > 0"
 					:config="chartConfig"
-					class="w-full h-full"
+					class="h-full w-full"
 					cursor
 				>
 					<VisXYContainer
@@ -138,15 +137,20 @@ const tableTab = ref<"top" | "history">("top");
 							:num-ticks="6"
 							:tick-format="
 								(d: number) => {
-									const date = new Date(d);
+									const date = new Date(d)
 									return date.toLocaleDateString('en-US', {
 										month: 'short',
 										day: 'numeric',
-									});
+									})
 								}
 							"
 						/>
-						<VisAxis type="y" :num-ticks="4" :tick-line="false" :domain-line="false" />
+						<VisAxis
+							type="y"
+							:num-ticks="4"
+							:tick-line="false"
+							:domain-line="false"
+						/>
 						<ChartTooltip />
 						<ChartCrosshair
 							:template="
@@ -156,7 +160,7 @@ const tableTab = ref<"top" | "history">("top");
 											month: 'short',
 											day: 'numeric',
 											year: 'numeric',
-										});
+										})
 									},
 								})
 							"
@@ -167,9 +171,9 @@ const tableTab = ref<"top" | "history">("top");
 			</div>
 		</div>
 		<div class="flex flex-col gap-6 px-6 py-7">
-			<div class="flex justify-between flex-wrap">
+			<div class="flex flex-wrap justify-between">
 				<h1 class="text-2xl font-medium">
-					{{ t("community.emotesStatistic.details.users") }}
+					{{ t('community.emotesStatistic.details.users') }}
 				</h1>
 				<RadioGroupRoot
 					v-model="tableTab"
@@ -179,7 +183,7 @@ const tableTab = ref<"top" | "history">("top");
 						v-for="tab of tableTabs"
 						:key="tab.key"
 						:value="tab.key"
-						class="h-8 flex-1 rounded-md px-3 text-[13px] text-white/75 transition-colors hover:bg-white/5 data-[active=true]:bg-white/20 data-[active=true]:text-white data-[active=true]:shadow-md md:flex-auto whitespace-nowrap"
+						class="h-8 flex-1 rounded-md px-3 text-[13px] whitespace-nowrap text-white/75 transition-colors hover:bg-white/5 data-[active=true]:bg-white/20 data-[active=true]:text-white data-[active=true]:shadow-md md:flex-auto"
 					>
 						{{ tab.text }}
 					</RadioGroupItem>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
 import TwitchUsersSelect from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
+import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
+import CommunityRolesModal from '~~/layers/dashboard/features/community-roles/community-roles-modal.vue'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
 	FormControl,
@@ -13,8 +14,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
-import CommunityRolesModal from '~~/layers/dashboard/features/community-roles/community-roles-modal.vue'
 
 const { t } = useI18n()
 </script>
@@ -23,7 +22,7 @@ const { t } = useI18n()
 	<Card>
 		<CardHeader class="flex flex-row place-content-center">
 			<CardTitle class="flex items-center gap-2">
-				<Icon name="lucide:shield-user"  />
+				<Icon name="lucide:shield-user" />
 				{{ t('commands.modal.permissions.divider') }}
 			</CardTitle>
 		</CardHeader>
@@ -33,9 +32,12 @@ const { t } = useI18n()
 					<span>Role restriction</span>
 					<CommunityRolesModal>
 						<template #trigger>
-							<span class="flex flex-row gap-1 items-center cursor-pointer underline">
+							<span class="flex cursor-pointer flex-row items-center gap-1 underline">
 								{{ t('sidebar.roles') }}
-								<Icon name="lucide:edit" class="size-4" />
+								<Icon
+									name="lucide:edit"
+									class="size-4"
+								/>
 							</span>
 						</template>
 					</CommunityRolesModal>
@@ -44,7 +46,10 @@ const { t } = useI18n()
 				<FormRolesSelector field-name="rolesIds" />
 			</div>
 
-			<FormField v-slot="{ componentField }" name="allowedUsersIds">
+			<FormField
+				v-slot="{ componentField }"
+				name="allowedUsersIds"
+			>
 				<FormItem>
 					<FormLabel>{{ t('commands.modal.permissions.exceptions') }}</FormLabel>
 					<FormControl>
@@ -61,7 +66,10 @@ const { t } = useI18n()
 				</FormItem>
 			</FormField>
 
-			<FormField v-slot="{ componentField }" name="deniedUsersIds">
+			<FormField
+				v-slot="{ componentField }"
+				name="deniedUsersIds"
+			>
 				<FormItem>
 					<FormLabel>{{ t('commands.modal.permissions.blocked') }}</FormLabel>
 					<FormControl>
@@ -77,31 +85,52 @@ const { t } = useI18n()
 			</FormField>
 
 			<div class="flex flex-col gap-2">
-				<FormField v-slot="{ componentField }" name="requiredWatchTime">
+				<FormField
+					v-slot="{ componentField }"
+					name="requiredWatchTime"
+				>
 					<FormItem class="flex flex-row flex-wrap items-center justify-between">
 						<FormLabel>{{ t('commands.modal.restrictions.watchTime') }}</FormLabel>
 						<FormControl>
-							<Input class="w-fit" type="number" v-bind="componentField" />
+							<Input
+								class="w-fit"
+								type="number"
+								v-bind="componentField"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="requiredMessages">
+				<FormField
+					v-slot="{ componentField }"
+					name="requiredMessages"
+				>
 					<FormItem class="flex flex-row flex-wrap items-center justify-between">
 						<FormLabel>{{ t('commands.modal.restrictions.messages') }}</FormLabel>
 						<FormControl>
-							<Input class="w-fit" type="number" v-bind="componentField" />
+							<Input
+								class="w-fit"
+								type="number"
+								v-bind="componentField"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="requiredUsedChannelPoints">
+				<FormField
+					v-slot="{ componentField }"
+					name="requiredUsedChannelPoints"
+				>
 					<FormItem class="flex flex-row flex-wrap items-center justify-between">
 						<FormLabel>{{ t('commands.modal.restrictions.channelsPoints') }}</FormLabel>
 						<FormControl>
-							<Input class="w-fit" type="number" v-bind="componentField" />
+							<Input
+								class="w-fit"
+								type="number"
+								v-bind="componentField"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>

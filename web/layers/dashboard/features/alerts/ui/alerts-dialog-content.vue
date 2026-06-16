@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { computed, onMounted, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
-
+import { computed, onMounted, toRaw } from 'vue'
 import { z } from 'zod'
-
-import AlertsDialogContentAudio from './alerts-dialog-content-audio.vue'
-
-import { useTwitchGetUsers } from '~~/layers/dashboard/api/twitch'
 import { type Alert, useAlertsApi } from '~~/layers/dashboard/api/alerts.js'
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
 import { useGreetingsApi } from '~~/layers/dashboard/api/greetings.js'
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords.js'
+import { useTwitchGetUsers } from '~~/layers/dashboard/api/twitch'
 import RewardsSelector from '~~/layers/dashboard/components/rewardsSelector.vue'
+
 import { Button } from '@/components/ui/button'
+import { FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form'
+
+import AlertsDialogContentAudio from './alerts-dialog-content-audio.vue'
 
 const props = defineProps<{ alert?: Alert | null }>()
 const emits = defineEmits<{ close: [] }>()
@@ -111,23 +115,38 @@ const keywordsSelectOptions = computed(() =>
 </script>
 
 <template>
-	<form @submit="save" class="p-6 pt-0">
+	<form
+		@submit="save"
+		class="p-6 pt-0"
+	>
 		<div class="flex flex-col gap-6">
 			<div class="flex flex-col gap-2">
-				<FormField name="name" v-slot="{componentField}">
-		      <FormItem>
+				<FormField
+					name="name"
+					v-slot="{ componentField }"
+				>
+					<FormItem>
 						<FormLabel>Name <span class="text-destructive">*</span></FormLabel>
-						<Input v-bind="componentField" :maxlength="30" />
+						<Input
+							v-bind="componentField"
+							:maxlength="30"
+						/>
 						<FormMessage />
-		      </FormItem>
+					</FormItem>
 				</FormField>
 			</div>
 
 			<div class="flex flex-col gap-2">
-				<FormField name="commandIds" v-slot="{componentField}">
-		      <FormItem>
+				<FormField
+					name="commandIds"
+					v-slot="{ componentField }"
+				>
+					<FormItem>
 						<FormLabel>Commands</FormLabel>
-						<Select v-bind="componentField" multiple>
+						<Select
+							v-bind="componentField"
+							multiple
+						>
 							<SelectTrigger>
 								<SelectValue placeholder="Select commands" />
 							</SelectTrigger>
@@ -142,25 +161,37 @@ const keywordsSelectOptions = computed(() =>
 							</SelectContent>
 						</Select>
 						<FormMessage />
-		      </FormItem>
+					</FormItem>
 				</FormField>
 			</div>
 
 			<div class="flex flex-col gap-2">
-				<FormField name="rewardIds" v-slot="{componentField}">
-		      <FormItem>
+				<FormField
+					name="rewardIds"
+					v-slot="{ componentField }"
+				>
+					<FormItem>
 						<FormLabel>{{ t('alerts.trigger.rewards') }}</FormLabel>
-						<RewardsSelector v-bind="componentField" multiple />
+						<RewardsSelector
+							v-bind="componentField"
+							multiple
+						/>
 						<FormMessage />
-		      </FormItem>
+					</FormItem>
 				</FormField>
 			</div>
 
 			<div class="flex flex-col gap-2">
-				<FormField name="keywordsIds" v-slot="{componentField}">
-		      <FormItem>
+				<FormField
+					name="keywordsIds"
+					v-slot="{ componentField }"
+				>
+					<FormItem>
 						<FormLabel>{{ t('alerts.trigger.keywords') }}</FormLabel>
-						<Select v-bind="componentField" multiple>
+						<Select
+							v-bind="componentField"
+							multiple
+						>
 							<SelectTrigger>
 								<SelectValue placeholder="Select keywords" />
 							</SelectTrigger>
@@ -175,15 +206,21 @@ const keywordsSelectOptions = computed(() =>
 							</SelectContent>
 						</Select>
 						<FormMessage />
-		      </FormItem>
+					</FormItem>
 				</FormField>
 			</div>
 
 			<div class="flex flex-col gap-2">
-				<FormField name="greetingsIds" v-slot="{componentField}">
-		      <FormItem>
+				<FormField
+					name="greetingsIds"
+					v-slot="{ componentField }"
+				>
+					<FormItem>
 						<FormLabel>{{ t('alerts.trigger.greetings') }}</FormLabel>
-						<Select v-bind="componentField" multiple>
+						<Select
+							v-bind="componentField"
+							multiple
+						>
 							<SelectTrigger>
 								<SelectValue placeholder="Select greetings" />
 							</SelectTrigger>
@@ -198,7 +235,7 @@ const keywordsSelectOptions = computed(() =>
 							</SelectContent>
 						</Select>
 						<FormMessage />
-		      </FormItem>
+					</FormItem>
 				</FormField>
 			</div>
 		</div>

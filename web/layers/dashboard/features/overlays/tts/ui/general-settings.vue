@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
+import { toast } from 'vue-sonner'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink'
 import { useTTSForm } from '~~/layers/dashboard/features/overlays/tts/composables/use-tts-form'
 import { useTTSVoices } from '~~/layers/dashboard/features/overlays/tts/composables/use-tts-voices'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,9 +29,6 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
-import { toast } from 'vue-sonner'
-import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink'
-import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
@@ -129,7 +128,10 @@ async function playPreview() {
 					>
 						{{ t('overlays.copyOverlayLink') }}
 					</Button>
-					<Button :disabled="isLoading || isSaving" @click="handleSave">
+					<Button
+						:disabled="isLoading || isSaving"
+						@click="handleSave"
+					>
 						{{ t('sharedButtons.save') }}
 					</Button>
 				</div>
@@ -137,20 +139,32 @@ async function playPreview() {
 
 			<CardContent class="space-y-6">
 				<Alert>
-					<Icon name="lucide:info" class="h-4 w-4" />
+					<Icon
+						name="lucide:info"
+						class="h-4 w-4"
+					/>
 					<AlertDescription>
 						{{ t('overlays.tts.eventsHint') }}
 					</AlertDescription>
 				</Alert>
 
-				<form @submit.prevent="handleSave" class="space-y-6">
+				<form
+					@submit.prevent="handleSave"
+					class="space-y-6"
+				>
 					<!-- Enabled Switch -->
-					<FormField v-slot="{ field }" name="enabled">
+					<FormField
+						v-slot="{ field }"
+						name="enabled"
+					>
 						<FormItem>
 							<div class="flex items-center justify-between">
 								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 								<FormControl>
-									<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
+									<Switch
+										:model-value="field.value"
+										@update:model-value="field['onUpdate:modelValue']"
+									/>
 								</FormControl>
 							</div>
 							<FormMessage />
@@ -160,7 +174,10 @@ async function playPreview() {
 					<Separator />
 
 					<!-- Voice Selection -->
-					<FormField v-slot="{ componentField }" name="voice">
+					<FormField
+						v-slot="{ componentField }"
+						name="voice"
+					>
 						<FormItem>
 							<FormLabel>{{ t('overlays.tts.voice') }}</FormLabel>
 							<Select v-bind="componentField">
@@ -170,7 +187,11 @@ async function playPreview() {
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									<SelectItem v-for="voice in voices" :key="voice.value" :value="voice.value">
+									<SelectItem
+										v-for="voice in voices"
+										:key="voice.value"
+										:value="voice.value"
+									>
 										{{ voice.label }}
 									</SelectItem>
 								</SelectContent>
@@ -195,7 +216,10 @@ async function playPreview() {
 								:disabled="!previewText || isPlaying"
 								@click="playPreview"
 							>
-								<Icon name="lucide:volume2" class="h-4 w-4" />
+								<Icon
+									name="lucide:volume2"
+									class="h-4 w-4"
+								/>
 							</Button>
 						</div>
 					</div>
@@ -203,7 +227,10 @@ async function playPreview() {
 					<Separator />
 
 					<!-- Volume Slider -->
-					<FormField v-slot="{ componentField }" name="volume">
+					<FormField
+						v-slot="{ componentField }"
+						name="volume"
+					>
 						<FormItem>
 							<div class="space-y-2">
 								<FormLabel>{{ t('overlays.tts.volume') }}</FormLabel>
@@ -237,7 +264,10 @@ async function playPreview() {
 					</FormField>
 
 					<!-- Pitch Slider -->
-					<FormField v-slot="{ componentField }" name="pitch">
+					<FormField
+						v-slot="{ componentField }"
+						name="pitch"
+					>
 						<FormItem>
 							<div class="space-y-2">
 								<FormLabel>{{ t('overlays.tts.pitch') }}</FormLabel>
@@ -271,7 +301,10 @@ async function playPreview() {
 					</FormField>
 
 					<!-- Rate Slider -->
-					<FormField v-slot="{ componentField }" name="rate">
+					<FormField
+						v-slot="{ componentField }"
+						name="rate"
+					>
 						<FormItem>
 							<div class="space-y-2">
 								<FormLabel>{{ t('overlays.tts.rate') }}</FormLabel>
@@ -314,20 +347,29 @@ async function playPreview() {
 					<CardTitle>{{ t('overlays.tts.advancedSettings') }}</CardTitle>
 					<CardDescription>{{ t('overlays.tts.advancedDescription') }}</CardDescription>
 				</div>
-				<Button :disabled="isLoading || isSaving" @click="handleSave">
+				<Button
+					:disabled="isLoading || isSaving"
+					@click="handleSave"
+				>
 					{{ t('sharedButtons.save') }}
 				</Button>
 			</CardHeader>
 
 			<CardContent class="space-y-6">
-				<form @submit.prevent="handleSave" class="space-y-6">
+				<form
+					@submit.prevent="handleSave"
+					class="space-y-6"
+				>
 					<!-- Reading Options Section -->
 					<div class="space-y-4">
 						<h3 class="text-lg font-semibold">
 							{{ t('overlays.tts.readingOptions') }}
 						</h3>
 
-						<FormField v-slot="{ field }" name="doNotReadTwitchEmotes">
+						<FormField
+							v-slot="{ field }"
+							name="doNotReadTwitchEmotes"
+						>
 							<FormItem>
 								<div class="flex items-center justify-between">
 									<div class="space-y-1">
@@ -337,14 +379,20 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
+										<Switch
+											:model-value="field.value"
+											@update:model-value="field['onUpdate:modelValue']"
+										/>
 									</FormControl>
 								</div>
 								<FormMessage />
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ field }" name="doNotReadEmoji">
+						<FormField
+							v-slot="{ field }"
+							name="doNotReadEmoji"
+						>
 							<FormItem>
 								<div class="flex items-center justify-between">
 									<div class="space-y-1">
@@ -354,14 +402,20 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
+										<Switch
+											:model-value="field.value"
+											@update:model-value="field['onUpdate:modelValue']"
+										/>
 									</FormControl>
 								</div>
 								<FormMessage />
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ field }" name="doNotReadLinks">
+						<FormField
+							v-slot="{ field }"
+							name="doNotReadLinks"
+						>
 							<FormItem>
 								<div class="flex items-center justify-between">
 									<div class="space-y-1">
@@ -371,7 +425,10 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
+										<Switch
+											:model-value="field.value"
+											@update:model-value="field['onUpdate:modelValue']"
+										/>
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -387,7 +444,10 @@ async function playPreview() {
 							{{ t('overlays.tts.chatMessages') }}
 						</h3>
 
-						<FormField v-slot="{ field }" name="readChatMessages">
+						<FormField
+							v-slot="{ field }"
+							name="readChatMessages"
+						>
 							<FormItem>
 								<div class="flex items-center justify-between">
 									<div class="space-y-1">
@@ -397,14 +457,20 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
+										<Switch
+											:model-value="field.value"
+											@update:model-value="field['onUpdate:modelValue']"
+										/>
 									</FormControl>
 								</div>
 								<FormMessage />
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ field }" name="readChatMessagesNicknames">
+						<FormField
+							v-slot="{ field }"
+							name="readChatMessagesNicknames"
+						>
 							<FormItem>
 								<div class="flex items-center justify-between">
 									<div class="space-y-1">
@@ -414,7 +480,10 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
+										<Switch
+											:model-value="field.value"
+											@update:model-value="field['onUpdate:modelValue']"
+										/>
 									</FormControl>
 								</div>
 								<FormMessage />
@@ -430,7 +499,10 @@ async function playPreview() {
 							{{ t('overlays.tts.userSettings') }}
 						</h3>
 
-						<FormField v-slot="{ field }" name="allowUsersChooseVoiceInMainCommand">
+						<FormField
+							v-slot="{ field }"
+							name="allowUsersChooseVoiceInMainCommand"
+						>
 							<FormItem>
 								<div class="flex items-center justify-between">
 									<div class="space-y-1">
@@ -440,21 +512,32 @@ async function playPreview() {
 										</FormDescription>
 									</div>
 									<FormControl>
-										<Switch :model-value="field.value" @update:model-value="field['onUpdate:modelValue']" />
+										<Switch
+											:model-value="field.value"
+											@update:model-value="field['onUpdate:modelValue']"
+										/>
 									</FormControl>
 								</div>
 								<FormMessage />
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ componentField }" name="maxSymbols">
+						<FormField
+							v-slot="{ componentField }"
+							name="maxSymbols"
+						>
 							<FormItem>
 								<FormLabel>{{ t('overlays.tts.maxSymbols') }}</FormLabel>
 								<FormDescription>
 									{{ t('overlays.tts.maxSymbolsDesc') }}
 								</FormDescription>
 								<FormControl>
-									<Input v-bind="componentField" type="number" :min="0" :max="5000" />
+									<Input
+										v-bind="componentField"
+										type="number"
+										:min="0"
+										:max="5000"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>

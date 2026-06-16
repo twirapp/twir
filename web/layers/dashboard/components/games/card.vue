@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import Card from '~~/layers/dashboard/components/card/card.vue'
+
 import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
-withDefaults(defineProps<{
-	description: string
-	title: string
-	icon: string
-	iconStroke?: number
-	showSettings?: boolean
-	iconFill?: string
-}>(), { showSettings: true })
+withDefaults(
+	defineProps<{
+		description: string
+		title: string
+		icon: string
+		iconStroke?: number
+		showSettings?: boolean
+		iconFill?: string
+	}>(),
+	{ showSettings: true }
+)
 
 defineEmits<{
 	openSettings: []
@@ -25,7 +27,15 @@ const userCanManageGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.Ma
 </script>
 
 <template>
-	<Card :title="title" :icon="icon" :icon-stroke="iconStroke" :icon-fill="iconFill" class="h-full" icon-width="28px" icon-height="28px">
+	<Card
+		:title="title"
+		:icon="icon"
+		:icon-stroke="iconStroke"
+		:icon-fill="iconFill"
+		class="h-full"
+		icon-width="28px"
+		icon-height="28px"
+	>
 		<template #content>
 			<p>{{ description }}</p>
 		</template>
@@ -37,7 +47,10 @@ const userCanManageGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.Ma
 				@click="$emit('openSettings')"
 			>
 				{{ t('sharedButtons.settings') }}
-				<Icon name="lucide:settings" class="ml-2 h-4 w-4" />
+				<Icon
+					name="lucide:settings"
+					class="ml-2 h-4 w-4"
+				/>
 			</Button>
 		</template>
 	</Card>

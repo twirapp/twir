@@ -2,7 +2,7 @@
 import { useFieldArray } from 'vee-validate'
 import { ref, useTemplateRef } from 'vue'
 import { useDraggable } from 'vue-draggable-plus'
-import { useI18n } from 'vue-i18n'
+
 
 import OperationDetails from './operation.vue'
 

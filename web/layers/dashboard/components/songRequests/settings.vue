@@ -1,27 +1,16 @@
 <script setup lang="ts">
 import { useDebounce } from '@vueuse/core'
 import { computed, ref, toRaw, unref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-
-import RewardsSelector from '../rewardsSelector.vue'
-
-import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
-
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands'
 import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
 import TwitchSearchUsers from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
 import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'
-import { SongRequestsSearchChannelOrVideoOptsType } from '~/gql/graphql.js'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Button } from '@/components/ui/button'
 import {
 	Command,
 	CommandEmpty,
@@ -31,20 +20,29 @@ import {
 	CommandList,
 } from '@/components/ui/command'
 import {
-	TagsInput,
-	TagsInputInput,
-	TagsInputItem,
-	TagsInputItemDelete,
-	TagsInputItemText,
-} from '@/components/ui/tags-input'
-import {
 	Dialog,
 	DialogContent,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+	TagsInput,
+	TagsInputInput,
+	TagsInputItem,
+	TagsInputItemDelete,
+	TagsInputItemText,
+} from '@/components/ui/tags-input'
+import { Textarea } from '@/components/ui/textarea'
+import { SongRequestsSearchChannelOrVideoOptsType } from '~/gql/graphql.js'
+
+import RewardsSelector from '../rewardsSelector.vue'
 
 const props = defineProps<{
 	open?: boolean
@@ -229,15 +227,18 @@ function findSongImage(id: string): string {
 
 <template>
 	<Dialog v-model:open="isOpen">
-		<DialogContent class="sm:max-w-[700px] max-h-[85vh] p-0">
+		<DialogContent class="max-h-[85vh] p-0 sm:max-w-[700px]">
 			<DialogHeader class="p-6 pb-0">
 				<DialogTitle>{{ t('sharedTexts.settings') }}</DialogTitle>
 			</DialogHeader>
 
 			<ScrollArea class="max-h-[calc(85vh-140px)]">
 				<div class="p-6 pt-4">
-					<Tabs default-value="general" class="w-full">
-						<TabsList class="w-full grid grid-cols-5">
+					<Tabs
+						default-value="general"
+						class="w-full"
+					>
+						<TabsList class="grid w-full grid-cols-5">
 							<TabsTrigger value="general">{{ t('songRequests.tabs.general') }}</TabsTrigger>
 							<TabsTrigger value="commands">{{ t('commands.name') }}</TabsTrigger>
 							<TabsTrigger value="users">{{ t('songRequests.tabs.users') }}</TabsTrigger>
@@ -247,22 +248,25 @@ function findSongImage(id: string): string {
 							}}</TabsTrigger>
 						</TabsList>
 
-						<TabsContent value="general" class="mt-4 space-y-4">
+						<TabsContent
+							value="general"
+							class="mt-4 space-y-4"
+						>
 							<div class="space-y-3">
 								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
 									<Switch v-model="formValue.enabled" />
-									<div class="space-y-0.5 flex-1">
+									<div class="flex-1 space-y-0.5">
 										<Label class="text-base font-medium">{{ t('sharedTexts.enabled') }}</Label>
 									</div>
 								</div>
 
 								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
 									<Switch v-model="formValue.takeSongFromDonationMessages" />
-									<div class="space-y-0.5 flex-1">
+									<div class="flex-1 space-y-0.5">
 										<Label class="text-base font-medium">{{
 											t('songRequests.settings.takeSongFromDonationMessage')
 										}}</Label>
-										<p class="text-sm text-muted-foreground">
+										<p class="text-muted-foreground text-sm">
 											{{ t('songRequests.settings.takeSongFromDonationMessageDescription') }}
 										</p>
 									</div>
@@ -270,11 +274,11 @@ function findSongImage(id: string): string {
 
 								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
 									<Switch v-model="formValue.acceptOnlyWhenOnline" />
-									<div class="space-y-0.5 flex-1">
+									<div class="flex-1 space-y-0.5">
 										<Label class="text-base font-medium">{{
 											t('songRequests.settings.onlineOnly')
 										}}</Label>
-										<p class="text-sm text-muted-foreground">
+										<p class="text-muted-foreground text-sm">
 											{{ t('songRequests.settings.onlineOnlyDescription') }}
 										</p>
 									</div>
@@ -282,7 +286,7 @@ function findSongImage(id: string): string {
 
 								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
 									<Switch v-model="formValue.announcePlay" />
-									<div class="space-y-0.5 flex-1">
+									<div class="flex-1 space-y-0.5">
 										<Label class="text-base font-medium">{{
 											t('songRequests.settings.announcePlay')
 										}}</Label>
@@ -291,11 +295,11 @@ function findSongImage(id: string): string {
 
 								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
 									<Switch v-model="formValue.playerNoCookieMode" />
-									<div class="space-y-0.5 flex-1">
+									<div class="flex-1 space-y-0.5">
 										<Label class="text-base font-medium">{{
 											t('songRequests.settings.playerNoCookieMode')
 										}}</Label>
-										<p class="text-sm text-muted-foreground">
+										<p class="text-muted-foreground text-sm">
 											{{ t('songRequests.settings.playerNoCookieModeDescription') }}
 										</p>
 									</div>
@@ -304,7 +308,12 @@ function findSongImage(id: string): string {
 
 							<div class="space-y-2">
 								<Label>{{ t('songRequests.settings.neededPercentageForskip') }}</Label>
-								<Input v-model="formValue.neededVotesForSkip" type="number" :min="0" :max="100" />
+								<Input
+									v-model="formValue.neededVotesForSkip"
+									type="number"
+									:min="0"
+									:max="100"
+								/>
 							</div>
 
 							<div class="space-y-2">
@@ -318,11 +327,14 @@ function findSongImage(id: string): string {
 
 							<div class="space-y-2">
 								<Label>{{ t('songRequests.settings.deniedChannels') }}</Label>
-								<div v-if="formValue.denyList!.channels.length" class="flex flex-wrap gap-2 mb-2">
+								<div
+									v-if="formValue.denyList!.channels.length"
+									class="mb-2 flex flex-wrap gap-2"
+								>
 									<div
 										v-for="channelId of formValue.denyList!.channels"
 										:key="channelId"
-										class="flex items-center gap-2 bg-muted rounded-md px-2 py-1"
+										class="bg-muted flex items-center gap-2 rounded-md px-2 py-1"
 									>
 										<Avatar class="size-5">
 											<AvatarImage :src="findChannelImage(channelId)" />
@@ -344,11 +356,17 @@ function findSongImage(id: string): string {
 								</div>
 								<Popover>
 									<PopoverTrigger as-child>
-										<Button variant="outline" class="w-full justify-start">
+										<Button
+											variant="outline"
+											class="w-full justify-start"
+										>
 											{{ 'Search channels...' }}
 										</Button>
 									</PopoverTrigger>
-									<PopoverContent class="w-full p-0" align="start">
+									<PopoverContent
+										class="w-full p-0"
+										align="start"
+									>
 										<Command>
 											<CommandInput
 												v-model="channelsSearchValue"
@@ -372,7 +390,7 @@ function findSongImage(id: string): string {
 														"
 														class="cursor-pointer"
 													>
-														<Avatar class="size-5 mr-2">
+														<Avatar class="mr-2 size-5">
 															<AvatarImage :src="option.image" />
 															<AvatarFallback>{{ option.label.charAt(0) }}</AvatarFallback>
 														</Avatar>
@@ -401,15 +419,29 @@ function findSongImage(id: string): string {
 							</div>
 						</TabsContent>
 
-						<TabsContent value="commands" class="mt-4">
-							<CommandsList class="mb-2" :commands="srCommands" />
+						<TabsContent
+							value="commands"
+							class="mt-4"
+						>
+							<CommandsList
+								class="mb-2"
+								:commands="srCommands"
+							/>
 						</TabsContent>
 
-						<TabsContent value="users" class="mt-4 space-y-4">
+						<TabsContent
+							value="users"
+							class="mt-4 space-y-4"
+						>
 							<div class="grid grid-cols-2 gap-4">
 								<div class="space-y-2">
 									<Label>{{ t('songRequests.settings.users.maxRequests') }}</Label>
-									<Input v-model="formValue.user!.maxRequests" type="number" :min="0" :max="1000" />
+									<Input
+										v-model="formValue.user!.maxRequests"
+										type="number"
+										:min="0"
+										:max="1000"
+									/>
 								</div>
 								<div class="space-y-2">
 									<Label>{{ t('songRequests.settings.users.minimalWatchTime') }}</Label>
@@ -446,7 +478,10 @@ function findSongImage(id: string): string {
 							</div>
 						</TabsContent>
 
-						<TabsContent value="songs" class="mt-4 space-y-4">
+						<TabsContent
+							value="songs"
+							class="mt-4 space-y-4"
+						>
 							<div class="grid grid-cols-2 gap-4">
 								<div class="space-y-2">
 									<Label>{{ t('songRequests.settings.songs.maxRequests') }}</Label>
@@ -459,11 +494,21 @@ function findSongImage(id: string): string {
 								</div>
 								<div class="space-y-2">
 									<Label>{{ t('songRequests.settings.songs.minLength') }}</Label>
-									<Input v-model="formValue.song!.minLength" type="number" :min="0" :max="999999" />
+									<Input
+										v-model="formValue.song!.minLength"
+										type="number"
+										:min="0"
+										:max="999999"
+									/>
 								</div>
 								<div class="space-y-2">
 									<Label>{{ t('songRequests.settings.songs.maxLength') }}</Label>
-									<Input v-model="formValue.song!.maxLength" type="number" :min="0" :max="999999" />
+									<Input
+										v-model="formValue.song!.maxLength"
+										type="number"
+										:min="0"
+										:max="999999"
+									/>
 								</div>
 								<div class="space-y-2">
 									<Label>{{ t('songRequests.settings.songs.minViews') }}</Label>
@@ -478,11 +523,14 @@ function findSongImage(id: string): string {
 
 							<div class="space-y-2">
 								<Label>{{ t('songRequests.settings.deniedSongs') }}</Label>
-								<div v-if="formValue.denyList!.songs.length" class="flex flex-wrap gap-2 mb-2">
+								<div
+									v-if="formValue.denyList!.songs.length"
+									class="mb-2 flex flex-wrap gap-2"
+								>
 									<div
 										v-for="songId of formValue.denyList!.songs"
 										:key="songId"
-										class="flex items-center gap-2 bg-muted rounded-md px-2 py-1"
+										class="bg-muted flex items-center gap-2 rounded-md px-2 py-1"
 									>
 										<Avatar class="size-5 rounded">
 											<AvatarImage :src="findSongImage(songId)" />
@@ -504,13 +552,22 @@ function findSongImage(id: string): string {
 								</div>
 								<Popover>
 									<PopoverTrigger as-child>
-										<Button variant="outline" class="w-full justify-start">
+										<Button
+											variant="outline"
+											class="w-full justify-start"
+										>
 											{{ 'Search songs...' }}
 										</Button>
 									</PopoverTrigger>
-									<PopoverContent class="w-full p-0" align="start">
+									<PopoverContent
+										class="w-full p-0"
+										align="start"
+									>
 										<Command>
-											<CommandInput v-model="songsSearchValue" placeholder="Search songs..." />
+											<CommandInput
+												v-model="songsSearchValue"
+												placeholder="Search songs..."
+											/>
 											<CommandList>
 												<CommandEmpty>No songs found.</CommandEmpty>
 												<CommandGroup>
@@ -528,7 +585,7 @@ function findSongImage(id: string): string {
 															}
 														"
 													>
-														<Avatar class="size-5 rounded mr-2">
+														<Avatar class="mr-2 size-5 rounded">
 															<AvatarImage :src="option.image" />
 															<AvatarFallback>{{ option.label.charAt(0) }}</AvatarFallback>
 														</Avatar>
@@ -542,25 +599,37 @@ function findSongImage(id: string): string {
 							</div>
 						</TabsContent>
 
-						<TabsContent value="translations" class="mt-4">
-							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<TabsContent
+							value="translations"
+							class="mt-4"
+						>
+							<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">notEnabled</Label>
-									<Textarea v-model="formValue.translations.notEnabled" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">notEnabled</Label>
+									<Textarea
+										v-model="formValue.translations.notEnabled"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">nowPlaying</Label>
-									<Textarea v-model="formValue.translations.nowPlaying" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">nowPlaying</Label>
+									<Textarea
+										v-model="formValue.translations.nowPlaying"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">noText</Label>
-									<Textarea v-model="formValue.translations.noText" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">noText</Label>
+									<Textarea
+										v-model="formValue.translations.noText"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">acceptOnlyWhenOnline</Label>
+									<Label class="text-muted-foreground text-xs">acceptOnlyWhenOnline</Label>
 									<Textarea
 										v-model="formValue.translations.acceptOnlyWhenOnline"
 										class="min-h-20"
@@ -568,17 +637,23 @@ function findSongImage(id: string): string {
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.notFound</Label>
-									<Textarea v-model="formValue.translations.song.notFound" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">song.notFound</Label>
+									<Textarea
+										v-model="formValue.translations.song.notFound"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.alreadyInQueue</Label>
-									<Textarea v-model="formValue.translations.song.alreadyInQueue" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">song.alreadyInQueue</Label>
+									<Textarea
+										v-model="formValue.translations.song.alreadyInQueue"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.ageRestrictions</Label>
+									<Label class="text-muted-foreground text-xs">song.ageRestrictions</Label>
 									<Textarea
 										v-model="formValue.translations.song.ageRestrictions"
 										class="min-h-20"
@@ -586,7 +661,7 @@ function findSongImage(id: string): string {
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.cannotGetInformation</Label>
+									<Label class="text-muted-foreground text-xs">song.cannotGetInformation</Label>
 									<Textarea
 										v-model="formValue.translations.song.cannotGetInformation"
 										class="min-h-20"
@@ -594,17 +669,23 @@ function findSongImage(id: string): string {
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.live</Label>
-									<Textarea v-model="formValue.translations.song.live" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">song.live</Label>
+									<Textarea
+										v-model="formValue.translations.song.live"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.denied</Label>
-									<Textarea v-model="formValue.translations.song.denied" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">song.denied</Label>
+									<Textarea
+										v-model="formValue.translations.song.denied"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.requestedMessage</Label>
+									<Label class="text-muted-foreground text-xs">song.requestedMessage</Label>
 									<Textarea
 										v-model="formValue.translations.song.requestedMessage"
 										class="min-h-20"
@@ -612,53 +693,83 @@ function findSongImage(id: string): string {
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.maximumOrdered</Label>
-									<Textarea v-model="formValue.translations.song.maximumOrdered" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">song.maximumOrdered</Label>
+									<Textarea
+										v-model="formValue.translations.song.maximumOrdered"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.minViews</Label>
-									<Textarea v-model="formValue.translations.song.minViews" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">song.minViews</Label>
+									<Textarea
+										v-model="formValue.translations.song.minViews"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.maxLength</Label>
-									<Textarea v-model="formValue.translations.song.maxLength" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">song.maxLength</Label>
+									<Textarea
+										v-model="formValue.translations.song.maxLength"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">song.minLength</Label>
-									<Textarea v-model="formValue.translations.song.minLength" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">song.minLength</Label>
+									<Textarea
+										v-model="formValue.translations.song.minLength"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">user.denied</Label>
-									<Textarea v-model="formValue.translations.user.denied" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">user.denied</Label>
+									<Textarea
+										v-model="formValue.translations.user.denied"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">user.maxRequests</Label>
-									<Textarea v-model="formValue.translations.user.maxRequests" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">user.maxRequests</Label>
+									<Textarea
+										v-model="formValue.translations.user.maxRequests"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">user.minMessages</Label>
-									<Textarea v-model="formValue.translations.user.minMessages" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">user.minMessages</Label>
+									<Textarea
+										v-model="formValue.translations.user.minMessages"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">user.minWatched</Label>
-									<Textarea v-model="formValue.translations.user.minWatched" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">user.minWatched</Label>
+									<Textarea
+										v-model="formValue.translations.user.minWatched"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">user.minFollow</Label>
-									<Textarea v-model="formValue.translations.user.minFollow" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">user.minFollow</Label>
+									<Textarea
+										v-model="formValue.translations.user.minFollow"
+										class="min-h-20"
+									/>
 								</div>
 
 								<div class="space-y-1">
-									<Label class="text-xs text-muted-foreground">channel.denied</Label>
-									<Textarea v-model="formValue.translations.channel.denied" class="min-h-20" />
+									<Label class="text-muted-foreground text-xs">channel.denied</Label>
+									<Textarea
+										v-model="formValue.translations.channel.denied"
+										class="min-h-20"
+									/>
 								</div>
 							</div>
 						</TabsContent>
@@ -667,7 +778,10 @@ function findSongImage(id: string): string {
 			</ScrollArea>
 
 			<DialogFooter class="p-6 pt-0">
-				<Button variant="outline" @click="isOpen = false">
+				<Button
+					variant="outline"
+					@click="isOpen = false"
+				>
 					{{ t('sharedButtons.close') }}
 				</Button>
 				<Button @click="save">

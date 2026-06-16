@@ -1,10 +1,7 @@
-
 import { useForm } from 'vee-validate'
 import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import * as z from 'zod'
-
 import { useWebhookNotificationsApi } from '~~/layers/dashboard/api/webhook-notifications'
 
 export const formSchema = z.object({

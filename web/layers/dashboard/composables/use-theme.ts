@@ -6,7 +6,6 @@ export type Theme = 'light' | 'dark'
 function _useTheme(key?: string) {
 	return createGlobalState(() => {
 		const theme = useColorMode({
-			storage: localStorage,
 			storageKey: key,
 			initialValue: 'dark',
 		})

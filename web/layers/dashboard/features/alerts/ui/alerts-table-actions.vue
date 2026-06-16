@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { type Alert, useAlertsApi } from '~~/layers/dashboard/api/alerts.js'
 
-import AlertsDialog from './alerts-dialog.vue'
-
-import { type Alert,useAlertsApi } from '~~/layers/dashboard/api/alerts.js'
 import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 
-const props = defineProps<{ alert: Alert, withSelect: boolean }>()
+import AlertsDialog from './alerts-dialog.vue'
+
+const props = defineProps<{ alert: Alert; withSelect: boolean }>()
 const emits = defineEmits<{ 'update:select-alert': [alert: Alert] }>()
 
 const { t } = useI18n()
@@ -29,20 +28,36 @@ function deleteAlert() {
 		</Button>
 	</template>
 	<template v-else>
-		<div class="flex justify-end items-center gap-2">
+		<div class="flex items-center justify-end gap-2">
 			<AlertsDialog :alert="alert">
 				<template #dialog-trigger>
-					<Button variant="secondary" size="icon">
-						<Icon name="lucide:pencil" class="h-4 w-4" />
+					<Button
+						variant="secondary"
+						size="icon"
+					>
+						<Icon
+							name="lucide:pencil"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</template>
 			</AlertsDialog>
 
-			<Button variant="destructive" size="icon" @click="showDelete = true">
-				<Icon name="lucide:trash" class="h-4 w-4" />
+			<Button
+				variant="destructive"
+				size="icon"
+				@click="showDelete = true"
+			>
+				<Icon
+					name="lucide:trash"
+					class="h-4 w-4"
+				/>
 			</Button>
 		</div>
 
-		<ActionConfirm v-model:open="showDelete" @confirm="deleteAlert" />
+		<ActionConfirm
+			v-model:open="showDelete"
+			@confirm="deleteAlert"
+		/>
 	</template>
 </template>

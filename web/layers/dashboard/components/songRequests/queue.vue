@@ -1,24 +1,13 @@
 <script setup lang="ts">
+import type { Video } from '~~/layers/dashboard/components/songRequests/hook.js'
+
 import { dragAndDrop } from '@formkit/drag-and-drop/vue'
 import { formatDistanceToNow } from 'date-fns'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
+import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
 
 import ActionConfirm from '@/components/ui/action-confirm'
-
-import type { Video } from '~~/layers/dashboard/components/songRequests/hook.js'
-
-import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -29,7 +18,16 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table'
 
 const { videos, moveVideo, banSong, banUser, deleteVideo, deleteAllVideos } = useYoutubeSocket()
 
@@ -63,7 +61,7 @@ function formatRelativeTime(dateStr: string) {
 <template>
 	<Card class="p-0">
 		<CardContent class="p-0">
-			<div class="flex flex-row justify-between items-center px-2 py-2 border-b">
+			<div class="flex flex-row items-center justify-between border-b px-2 py-2">
 				<CardTitle class="text-base">{{ t('songRequests.table.title') }}</CardTitle>
 				<Button
 					size="icon"
@@ -72,7 +70,10 @@ function formatRelativeTime(dateStr: string) {
 					:disabled="!videos.length"
 					@click="showConfirmClear = true"
 				>
-					<Icon name="lucide:trash2" class="size-4" />
+					<Icon
+						name="lucide:trash2"
+						class="size-4"
+					/>
 				</Button>
 			</div>
 			<Table class="w-full">
@@ -88,9 +89,15 @@ function formatRelativeTime(dateStr: string) {
 					</TableRow>
 				</TableHeader>
 				<TableBody ref="parentRef">
-					<TableRow v-for="(video, index) of videos" :key="video.id">
+					<TableRow
+						v-for="(video, index) of videos"
+						:key="video.id"
+					>
 						<TableCell>
-							<Icon name="lucide:grip-vertical" class="w-4 drag-handle cursor-move" />
+							<Icon
+								name="lucide:grip-vertical"
+								class="drag-handle w-4 cursor-move"
+							/>
 						</TableCell>
 						<TableCell>
 							{{ index + 1 }}
@@ -101,8 +108,15 @@ function formatRelativeTime(dateStr: string) {
 
 								<AlertDialog>
 									<AlertDialogTrigger as-child>
-										<Button class="min-w-5" size="icon" variant="ghost">
-											<Icon name="lucide:ban" class="size-5" />
+										<Button
+											class="min-w-5"
+											size="icon"
+											variant="ghost"
+										>
+											<Icon
+												name="lucide:ban"
+												class="size-5"
+											/>
 										</Button>
 									</AlertDialogTrigger>
 									<AlertDialogContent>
@@ -124,8 +138,15 @@ function formatRelativeTime(dateStr: string) {
 								<span>{{ video.orderedByDisplayName || video.orderedByName }}</span>
 								<AlertDialog>
 									<AlertDialogTrigger as-child>
-										<Button class="min-w-5" size="icon" variant="ghost">
-											<Icon name="lucide:ban" class="size-5" />
+										<Button
+											class="min-w-5"
+											size="icon"
+											variant="ghost"
+										>
+											<Icon
+												name="lucide:ban"
+												class="size-5"
+											/>
 										</Button>
 									</AlertDialogTrigger>
 									<AlertDialogContent>
@@ -155,7 +176,10 @@ function formatRelativeTime(dateStr: string) {
 								variant="destructive"
 								@click="deleteVideo(video.id)"
 							>
-								<Icon name="lucide:trash2" class="size-5" />
+								<Icon
+									name="lucide:trash2"
+									class="size-5"
+								/>
 							</Button>
 						</TableCell>
 					</TableRow>

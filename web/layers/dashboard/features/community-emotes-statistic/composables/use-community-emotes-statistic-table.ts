@@ -9,30 +9,26 @@ import {
 } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
+import {
+	type EmotesStatistics,
+	useEmotesStatisticQuery,
+} from '~~/layers/dashboard/api/emotes-statistic.js'
+import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
+import CommunityEmotesTableColumnEmote from '~~/layers/dashboard/features/community-emotes-statistic/ui/community-emotes-table-column-emote.vue'
+import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
 
-import { useCommunityEmotesStatisticFilters } from './use-community-emotes-statistic-filters.js'
-import CommunityEmotesTableColumnChartRange
-	from '../ui/community-emotes-table-column-chart-range.vue'
+import { EmoteStatisticRange, type EmotesStatisticsOpts } from '~/gql/graphql.js'
+
+import CommunityEmotesTableColumnChartRange from '../ui/community-emotes-table-column-chart-range.vue'
 import CommunityEmotesTableColumnChart from '../ui/community-emotes-table-column-chart.vue'
 import CommunityEmotesTableColumn from '../ui/community-emotes-table-column.vue'
-
-import { type EmotesStatistics, useEmotesStatisticQuery } from '~~/layers/dashboard/api/emotes-statistic.js'
-import { usePagination } from '~~/layers/dashboard/composables/use-pagination.js'
-import CommunityEmotesTableColumnEmote
-	from '~~/layers/dashboard/features/community-emotes-statistic/ui/community-emotes-table-column-emote.vue'
-import { EmoteStatisticRange, type EmotesStatisticsOpts } from '~/gql/graphql.js'
-import { valueUpdater } from '~~/layers/dashboard/helpers/value-updater.js'
+import { useCommunityEmotesStatisticFilters } from './use-community-emotes-statistic-filters.js'
 
 export const useCommunityEmotesStatisticTable = createGlobalState(() => {
 	const { t } = useI18n()
 	const { pagination } = usePagination()
-	const {
-		debouncedSearchInput,
-		tableRange,
-		sortingState,
-		tableOrder,
-	} = useCommunityEmotesStatisticFilters()
+	const { debouncedSearchInput, tableRange, sortingState, tableOrder } =
+		useCommunityEmotesStatisticFilters()
 
 	const emotesQueryOptions = computed<EmotesStatisticsOpts>((prevParams) => {
 		if (prevParams?.search !== debouncedSearchInput.value) {
@@ -115,7 +111,7 @@ export const useCommunityEmotesStatisticTable = createGlobalState(() => {
 		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
-		onSortingChange: updaterOrValue => valueUpdater(updaterOrValue, sortingState),
+		onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sortingState),
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),

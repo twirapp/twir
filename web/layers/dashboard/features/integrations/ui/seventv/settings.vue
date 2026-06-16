@@ -1,12 +1,11 @@
 <script setup lang="ts">
-
 import { useForm } from 'vee-validate'
 import { watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 import * as z from 'zod'
-
 import { useSevenTvIntegration } from '~~/layers/dashboard/api/integrations/seventv.js'
 import RewardsSelectorSingle from '~~/layers/dashboard/components/rewards-selector-single.vue'
+
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -17,7 +16,6 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
-import { toast } from 'vue-sonner'
 
 const schema = z.object({
 	rewardIdForAddEmote: z.string().nullable().default(null),
@@ -59,8 +57,14 @@ watch(
 </script>
 
 <template>
-	<form class="flex flex-col gap-4" @submit="handleSubmit">
-		<FormField v-slot="{ componentField }" name="deleteEmotesOnlyAddedByApp">
+	<form
+		class="flex flex-col gap-4"
+		@submit="handleSubmit"
+	>
+		<FormField
+			v-slot="{ componentField }"
+			name="deleteEmotesOnlyAddedByApp"
+		>
 			<FormItem class="flex flex-row items-center gap-2">
 				<FormLabel> Delete emotes only added by app </FormLabel>
 				<FormControl>
@@ -74,7 +78,10 @@ watch(
 			</FormItem>
 		</FormField>
 
-		<FormField v-slot="{ componentField }" name="rewardIdForAddEmote">
+		<FormField
+			v-slot="{ componentField }"
+			name="rewardIdForAddEmote"
+		>
 			<FormItem>
 				<FormLabel>Select reward to listen for adding emote</FormLabel>
 				<FormControl>
@@ -90,7 +97,10 @@ watch(
 			</FormItem>
 		</FormField>
 
-		<FormField v-slot="{ componentField }" name="rewardIdForRemoveEmote">
+		<FormField
+			v-slot="{ componentField }"
+			name="rewardIdForRemoveEmote"
+		>
 			<FormItem>
 				<FormLabel>Select reward to listen for removing emote</FormLabel>
 				<FormControl>

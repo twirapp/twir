@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { useField } from 'vee-validate'
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands'
-
 // oxlint-disable-next-line consistent-type-imports
 import { EventType } from '~~/layers/dashboard/api/events.js'
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
+import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
 import TwitchRewardsSelector from '~~/layers/dashboard/components/rewardsSelector.vue'
+import { EventsOptions } from '~~/layers/dashboard/features/events/constants/events.js'
+import { getEventName } from '~~/layers/dashboard/features/events/constants/helpers.js'
+import { cn } from '~~/layers/dashboard/lib/utils'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -23,10 +25,6 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Switch } from '@/components/ui/switch'
-import { EventsOptions } from '~~/layers/dashboard/features/events/constants/events.js'
-import { getEventName } from '~~/layers/dashboard/features/events/constants/helpers.js'
-import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
-import { cn } from '~~/layers/dashboard/lib/utils'
 
 const { t } = useI18n()
 // Fetch commands and keywords for selectors
@@ -92,7 +90,10 @@ const opened = ref(false)
 										"
 									>
 										{{ currentEventType ? getEventName(currentEventType) : 'Select...' }}
-										<Icon name="lucide:chevrons-up-down" class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+										<Icon
+											name="lucide:chevrons-up-down"
+											class="ml-2 h-4 w-4 shrink-0 opacity-50"
+										/>
 									</Button>
 								</FormControl>
 							</PopoverTrigger>
@@ -119,13 +120,15 @@ const opened = ref(false)
 													"
 												>
 													{{ event.name }}
-													<Icon name="lucide:check"
+													<Icon
+														name="lucide:check"
 														:class="
 															cn(
 																'ml-auto h-4 w-4',
 																currentEventType === event.value ? 'opacity-100' : 'opacity-0'
 															)
-														" />
+														"
+													/>
 												</CommandItem>
 											</CommandGroup>
 
@@ -141,7 +144,8 @@ const opened = ref(false)
 													"
 												>
 													{{ selectOption.name }}
-													<Icon name="lucide:check"
+													<Icon
+														name="lucide:check"
 														:class="
 															cn(
 																'ml-auto h-4 w-4',
@@ -149,7 +153,8 @@ const opened = ref(false)
 																	? 'opacity-100'
 																	: 'opacity-0'
 															)
-														" />
+														"
+													/>
 												</CommandItem>
 											</CommandGroup>
 										</template>
@@ -162,7 +167,10 @@ const opened = ref(false)
 				</FormItem>
 			</FormField>
 
-			<FormField v-slot="{ componentField }" name="description">
+			<FormField
+				v-slot="{ componentField }"
+				name="description"
+			>
 				<FormItem>
 					<FormLabel>{{ t('events.description') }}</FormLabel>
 					<FormControl>
@@ -172,18 +180,27 @@ const opened = ref(false)
 				</FormItem>
 			</FormField>
 
-			<FormField v-slot="{ value, handleChange }" name="platforms">
+			<FormField
+				v-slot="{ value, handleChange }"
+				name="platforms"
+			>
 				<FormItem>
 					<FormLabel>{{ t('sharedTexts.platforms') }}</FormLabel>
 					<FormControl>
-						<PlatformSelector :model-value="value" @update:model-value="handleChange" />
+						<PlatformSelector
+							:model-value="value"
+							@update:model-value="handleChange"
+						/>
 					</FormControl>
 					<FormMessage />
 				</FormItem>
 			</FormField>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<FormField v-slot="{ value, handleChange }" name="enabled">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<FormField
+					v-slot="{ value, handleChange }"
+					name="enabled"
+				>
 					<FormItem
 						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs"
 					>
@@ -191,12 +208,18 @@ const opened = ref(false)
 							<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 						</div>
 						<FormControl>
-							<Switch :model-value="value" @update:model-value="handleChange" />
+							<Switch
+								:model-value="value"
+								@update:model-value="handleChange"
+							/>
 						</FormControl>
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ value, handleChange }" name="onlineOnly">
+				<FormField
+					v-slot="{ value, handleChange }"
+					name="onlineOnly"
+				>
 					<FormItem
 						class="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs"
 					>
@@ -204,14 +227,20 @@ const opened = ref(false)
 							<FormLabel>{{ t('events.onlineOnly') }}</FormLabel>
 						</div>
 						<FormControl>
-							<Switch :model-value="value" @update:model-value="handleChange" />
+							<Switch
+								:model-value="value"
+								@update:model-value="handleChange"
+							/>
 						</FormControl>
 					</FormItem>
 				</FormField>
 			</div>
 
 			<div v-if="currentEventType === EventType.RedemptionCreated">
-				<FormField v-slot="{ componentField }" name="rewardId">
+				<FormField
+					v-slot="{ componentField }"
+					name="rewardId"
+				>
 					<FormItem>
 						<FormLabel>{{ t('events.reward') }}</FormLabel>
 						<FormControl>
@@ -246,7 +275,10 @@ const opened = ref(false)
 													? commands.find((c) => c.id === currentCommandId)?.name
 													: 'Select command'
 											}}
-											<Icon name="lucide:chevrons-up-down" class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+											<Icon
+												name="lucide:chevrons-up-down"
+												class="ml-2 h-4 w-4 shrink-0 opacity-50"
+											/>
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
@@ -267,13 +299,15 @@ const opened = ref(false)
 													"
 												>
 													{{ command.name }}
-													<Icon name="lucide:check"
+													<Icon
+														name="lucide:check"
 														:class="
 															cn(
 																'ml-auto h-4 w-4',
 																currentCommandId === command.id ? 'opacity-100' : 'opacity-0'
 															)
-														" />
+														"
+													/>
 												</CommandItem>
 											</CommandGroup>
 										</CommandList>
@@ -310,7 +344,10 @@ const opened = ref(false)
 													? keywords.find((c) => c.id === currentKeywordId)?.text
 													: 'Select keyword'
 											}}
-											<Icon name="lucide:chevrons-up-down" class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+											<Icon
+												name="lucide:chevrons-up-down"
+												class="ml-2 h-4 w-4 shrink-0 opacity-50"
+											/>
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
@@ -331,13 +368,15 @@ const opened = ref(false)
 													"
 												>
 													{{ keyword.text }}
-													<Icon name="lucide:check"
+													<Icon
+														name="lucide:check"
 														:class="
 															cn(
 																'ml-auto h-4 w-4',
 																currentKeywordId === keyword.id ? 'opacity-100' : 'opacity-0'
 															)
-														" />
+														"
+													/>
 												</CommandItem>
 											</CommandGroup>
 										</CommandList>

@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import { useCommunityTableActions } from '../composables/use-community-table-actions.js'
-import {
-	TABLE_ACCESSOR_KEYS,
-	useCommunityUsersTable,
-} from '../composables/use-community-users-table.js'
-
-import { Platform } from '~/gql/graphql.js'
 import SearchBar from '~~/layers/dashboard/components/search-bar.vue'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,12 +19,15 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+import { Platform } from '~/gql/graphql.js'
+
+import { useCommunityTableActions } from '../composables/use-community-table-actions.js'
+import {
+	TABLE_ACCESSOR_KEYS,
+	useCommunityUsersTable,
+} from '../composables/use-community-users-table.js'
 
 const { t } = useI18n()
 const communityTableActions = useCommunityTableActions()
@@ -45,12 +40,16 @@ const platformOptions = [
 
 function togglePlatform(platform: Platform) {
 	if (communityTableActions.selectedPlatforms.value.includes(platform)) {
-		communityTableActions.selectedPlatforms.value = communityTableActions.selectedPlatforms.value.filter((item) => item !== platform)
+		communityTableActions.selectedPlatforms.value =
+			communityTableActions.selectedPlatforms.value.filter((item) => item !== platform)
 		communityUsersTable.table.setPageIndex(0)
 		return
 	}
 
-	communityTableActions.selectedPlatforms.value = [...communityTableActions.selectedPlatforms.value, platform]
+	communityTableActions.selectedPlatforms.value = [
+		...communityTableActions.selectedPlatforms.value,
+		platform,
+	]
 	communityUsersTable.table.setPageIndex(0)
 }
 
@@ -79,19 +78,35 @@ const columns = computed(() => {
 		/>
 		<Popover>
 			<PopoverTrigger as-child>
-				<Button variant="outline" size="sm" class="h-9">
-					<Icon name="lucide:list-filter" class="mr-2 h-4 w-4" />
+				<Button
+					variant="outline"
+					size="sm"
+					class="h-9"
+				>
+					<Icon
+						name="lucide:list-filter"
+						class="mr-2 h-4 w-4"
+					/>
 					Filters
 
 					<template v-if="communityTableActions.selectedFiltersCount.value">
-						<Separator orientation="vertical" class="mx-2 h-4" />
-						<Badge variant="secondary" class="rounded-sm px-1 font-normal">
+						<Separator
+							orientation="vertical"
+							class="mx-2 h-4"
+						/>
+						<Badge
+							variant="secondary"
+							class="rounded-sm px-1 font-normal"
+						>
 							{{ communityTableActions.selectedFiltersCount.value }}
 						</Badge>
 					</template>
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent class="w-[200px] p-0" align="end">
+			<PopoverContent
+				class="w-[200px] p-0"
+				align="end"
+			>
 				<Command>
 					<CommandList>
 						<CommandGroup heading="Platforms">
@@ -102,12 +117,17 @@ const columns = computed(() => {
 								@select="togglePlatform(option.value)"
 							>
 								<div
-									class="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
-									:class="communityTableActions.selectedPlatforms.value.includes(option.value)
-										? 'bg-primary text-primary-foreground'
-										: 'opacity-50 [&_svg]:invisible'"
+									class="border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border"
+									:class="
+										communityTableActions.selectedPlatforms.value.includes(option.value)
+											? 'bg-primary text-primary-foreground'
+											: 'opacity-50 [&_svg]:invisible'
+									"
 								>
-									<Icon name="lucide:check" class="h-4 w-4" />
+									<Icon
+										name="lucide:check"
+										class="h-4 w-4"
+									/>
 								</div>
 								<span>{{ option.label }}</span>
 							</CommandItem>
@@ -118,7 +138,7 @@ const columns = computed(() => {
 							<CommandGroup>
 								<CommandItem
 									value="clear-filters"
-									class="justify-center text-center cursor-pointer"
+									class="cursor-pointer justify-center text-center"
 									@select="clearFilters"
 								>
 									Clear filters
@@ -131,12 +151,22 @@ const columns = computed(() => {
 		</Popover>
 		<DropdownMenu>
 			<DropdownMenuTrigger as-child>
-				<Button variant="outline" size="sm" class="flex ml-auto h-9">
-					<Icon name="lucide:settings2" class="mr-2 h-4 w-4" />
+				<Button
+					variant="outline"
+					size="sm"
+					class="ml-auto flex h-9"
+				>
+					<Icon
+						name="lucide:settings2"
+						class="mr-2 h-4 w-4"
+					/>
 					{{ t('sharedTexts.view') }}
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" class="w-[200px]">
+			<DropdownMenuContent
+				align="end"
+				class="w-[200px]"
+			>
 				<DropdownMenuLabel>
 					{{ t('sharedTexts.toggleColumns') }}
 				</DropdownMenuLabel>

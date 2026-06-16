@@ -4,6 +4,7 @@ import { useProfile } from '~~/layers/dashboard/api/auth'
 
 export function usePublicPageHref() {
 	const { data: profileData } = useProfile()
+	const requestUrl = useRequestURL()
 	const selectedDashboardTwitchUser = computed(() => {
 		return profileData.value?.availableDashboards.find(
 			(d) => d.id === profileData.value?.selectedDashboardId
@@ -16,6 +17,6 @@ export function usePublicPageHref() {
 			return null
 		}
 
-		return `${window.location.origin}/p/${selectedDashboardLogin}`
+		return `${requestUrl.origin}/p/${selectedDashboardLogin}`
 	})
 }

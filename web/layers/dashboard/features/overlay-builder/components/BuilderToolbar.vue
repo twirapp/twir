@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 import { useRouter } from 'vue-router'
 
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
@@ -54,7 +54,9 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const router = useRouter()
+const localePath = useLocalePath()
 const { data: profile } = useProfile()
+const requestUrl = useRequestURL()
 
 const selectedDashboardUser = computed(() => {
 	return profile.value?.availableDashboards.find(
@@ -65,13 +67,13 @@ const selectedDashboardUser = computed(() => {
 const formatZoom = computed(() => (zoom: number) => `${Math.round(zoom * 100)}%`)
 
 function goBack() {
-	router.push('/dashboard/overlays')
+	router.push(localePath('/dashboard/overlays'))
 }
 
 function copyOverlayLink() {
 	if (!props.overlayId || !selectedDashboardUser.value?.apiKey) return
 
-	const baseUrl = window.location.origin
+	const baseUrl = requestUrl.origin
 	const overlayUrl = `${baseUrl}/overlays/${selectedDashboardUser.value.apiKey}/registry/overlays/${props.overlayId}`
 
 	navigator.clipboard.writeText(overlayUrl).then(() => {

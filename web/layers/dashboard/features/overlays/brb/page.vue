@@ -1,26 +1,24 @@
 <script setup lang="ts">
-
-import { type Font, FontSelector } from '~~/layers/dashboard/lib/fontsource'
 import { useForm } from 'vee-validate'
 import { computed, ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
+import { toast } from 'vue-sonner'
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useBeRightBackOverlayApi } from '~~/layers/dashboard/api/overlays-be-right-back'
+import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink.js'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
+import { type Font, FontSelector } from '~~/layers/dashboard/lib/fontsource'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import InputWithIcon from '@/components/ui/InputWithIcon/InputWithIcon.vue'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { toast } from 'vue-sonner'
-import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink.js'
-import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
-import InputWithIcon from '@/components/ui/InputWithIcon/InputWithIcon.vue'
 import { BeRightBackUpdateInputSchema } from '~/gql/validation-schemas.js'
 
 const { t } = useI18n()
@@ -100,10 +98,11 @@ watch(
 )
 
 const brbIframeRef = ref<HTMLIFrameElement | null>(null)
+const requestUrl = useRequestURL()
 const brbIframeUrl = computed(() => {
 	if (!selectedDashboardApiKey.value) return null
 
-	return `${window.location.origin}/overlays/${selectedDashboardApiKey.value}/brb`
+	return `${requestUrl.origin}/overlays/${selectedDashboardApiKey.value}/brb`
 })
 
 function sendIframeMessage(key: string, data?: any) {
@@ -195,14 +194,17 @@ watch(
 </script>
 
 <template>
-	<div class="flex flex-col lg:flex-row gap-4 p-4">
+	<div class="flex flex-col gap-4 p-4 lg:flex-row">
 		<Card class="flex-1">
 			<CardHeader class="flex flex-row items-center justify-between space-y-0 pb-4">
 				<h2 class="text-2xl font-bold">
 					{{ t('overlays.brb.title', 'Be Right Back Overlay') }}
 				</h2>
 				<div class="flex gap-2">
-					<Button variant="outline" @click="setDefaultSettings">
+					<Button
+						variant="outline"
+						@click="setDefaultSettings"
+					>
 						{{ t('sharedButtons.setDefaultSettings') }}
 					</Button>
 					<Button
@@ -219,7 +221,10 @@ watch(
 			</CardHeader>
 
 			<CardContent class="space-y-6">
-				<form @submit="save" class="space-y-6">
+				<form
+					@submit="save"
+					class="space-y-6"
+				>
 					<div class="space-y-4">
 						<Separator />
 						<h3 class="text-lg font-semibold">
@@ -233,7 +238,10 @@ watch(
 									:title="t('overlays.brb.settings.main.startCommand.description')"
 								/>
 								<Alert>
-									<Icon name="lucide:info" class="h-4 w-4" />
+									<Icon
+										name="lucide:info"
+										class="h-4 w-4"
+									/>
 									<AlertDescription>
 										<span v-html="t('overlays.brb.settings.main.startCommand.example')" />
 									</AlertDescription>
@@ -244,17 +252,26 @@ watch(
 								/>
 							</div>
 
-							<FormField v-slot="{ componentField }" name="text">
+							<FormField
+								v-slot="{ componentField }"
+								name="text"
+							>
 								<FormItem>
 									<FormLabel>{{ t('overlays.brb.settings.main.text') }}</FormLabel>
 									<FormControl>
-										<Input v-bind="componentField" :maxlength="500" />
+										<Input
+											v-bind="componentField"
+											:maxlength="500"
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ componentField }" name="backgroundColor">
+							<FormField
+								v-slot="{ componentField }"
+								name="backgroundColor"
+							>
 								<FormItem>
 									<FormLabel>{{ t('overlays.brb.settings.main.background') }}</FormLabel>
 									<FormControl>
@@ -274,7 +291,10 @@ watch(
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ componentField }" name="fontColor">
+							<FormField
+								v-slot="{ componentField }"
+								name="fontColor"
+							>
 								<FormItem>
 									<FormLabel>{{ t('overlays.brb.settings.main.font.color') }}</FormLabel>
 									<FormControl>
@@ -303,11 +323,19 @@ watch(
 								/>
 							</div>
 
-							<FormField v-slot="{ componentField }" name="fontSize">
+							<FormField
+								v-slot="{ componentField }"
+								name="fontSize"
+							>
 								<FormItem>
 									<FormLabel>{{ t('overlays.brb.settings.main.font.size') }}</FormLabel>
 									<FormControl>
-										<Input v-bind="componentField" type="number" :min="1" :max="500" />
+										<Input
+											v-bind="componentField"
+											type="number"
+											:min="1"
+											:max="500"
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -320,17 +348,26 @@ watch(
 						</h3>
 
 						<div class="space-y-4">
-							<FormField v-slot="{ componentField }" name="late.text">
+							<FormField
+								v-slot="{ componentField }"
+								name="late.text"
+							>
 								<FormItem>
 									<FormLabel>{{ t('overlays.brb.settings.late.text') }}</FormLabel>
 									<FormControl>
-										<Input v-bind="componentField" :maxlength="500" />
+										<Input
+											v-bind="componentField"
+											:maxlength="500"
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ field }" name="late.enabled">
+							<FormField
+								v-slot="{ field }"
+								name="late.enabled"
+							>
 								<FormItem>
 									<div class="flex items-center gap-2">
 										<FormControl>
@@ -345,7 +382,10 @@ watch(
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ field }" name="late.displayBrbTime">
+							<FormField
+								v-slot="{ field }"
+								name="late.displayBrbTime"
+							>
 								<FormItem>
 									<div class="flex items-center gap-2">
 										<FormControl>
@@ -367,15 +407,19 @@ watch(
 			</CardContent>
 		</Card>
 
-		<div class="flex-1 relative">
+		<div class="relative flex-1">
 			<iframe
 				v-if="brbIframeUrl"
 				ref="brbIframeRef"
 				:src="brbIframeUrl"
-				class="w-full h-[600px] border rounded-lg"
+				class="h-[600px] w-full rounded-lg border"
 			/>
 			<div class="absolute top-4 right-4 flex gap-2">
-				<Button variant="outline" size="sm" @click="sendIframeMessage('stop')">
+				<Button
+					variant="outline"
+					size="sm"
+					@click="sendIframeMessage('stop')"
+				>
 					{{ t('overlays.brb.preview.stop') }}
 				</Button>
 				<Button

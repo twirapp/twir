@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import Card from '~~/layers/dashboard/components/card/card.vue'
+import { useWebhookNotifications } from '~~/layers/dashboard/features/modules/composables/use-webhook-notifications'
+
 import { Button } from '@/components/ui/button'
 import { CardContent, CardHeader, CardTitle, Card as UICard } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -16,7 +16,6 @@ import {
 	FormMessage,
 } from '@/components/ui/form'
 import { Switch } from '@/components/ui/switch'
-import { useWebhookNotifications } from '~~/layers/dashboard/features/modules/composables/use-webhook-notifications'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
@@ -57,7 +56,10 @@ const isEnabled = computed(() => settings.value?.enabled ?? false)
 				@click="showSettings = !showSettings"
 			>
 				{{ t('sharedTexts.settings') }}
-				<Icon name="lucide:settings" class="size-4" />
+				<Icon
+					name="lucide:settings"
+					class="size-4"
+				/>
 			</Button>
 		</template>
 	</Card>

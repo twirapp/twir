@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import '@discord-message-components/vue/dist/style.css'
-
 import {
 	DiscordEmbed,
 	DiscordEmbedField,
@@ -11,14 +10,20 @@ import {
 	// eslint-disable-next-line ts/ban-ts-comment
 	// @ts-expect-error
 } from '@discord-message-components/vue'
-
 import { useForm } from 'vee-validate'
 import { computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
+import { toast } from 'vue-sonner'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import StreamStarting from '~~/layers/dashboard/assets/images/streamStarting.jpeg'
 import TwitchMultipleUsersSelector from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
+import {
+	useDiscordGuildInfo,
+	useDiscordIntegration,
+} from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
 	FormControl,
@@ -31,20 +36,11 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { toast } from 'vue-sonner'
-import {
-	useDiscordGuildInfo,
-	useDiscordIntegration,
-} from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
-import { Card, CardContent } from '@/components/ui/card'
-
-import StreamStarting from '~~/layers/dashboard/assets/images/streamStarting.jpeg'
-import { useProfile } from '~~/layers/dashboard/api/auth'
+import { DiscordChannelType } from '~/gql/graphql.js'
 import {
 	type DiscordGuildUpdateInputInput,
 	DiscordGuildUpdateInputSchema,
 } from '~/gql/validation-schemas.js'
-import { DiscordChannelType } from '~/gql/graphql.js'
 
 const props = defineProps<{
 	guildId: string
@@ -131,28 +127,43 @@ const messageWithMentions = computed(() => {
 </script>
 
 <template>
-	<form class="flex flex-col gap-6" @submit="onSubmit">
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+	<form
+		class="flex flex-col gap-6"
+		@submit="onSubmit"
+	>
+		<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 			<!-- Settings Column -->
 			<Card>
 				<CardContent class="pt-6">
 					<div class="flex flex-col gap-4">
 						<!-- Toggle Switches -->
 						<div class="flex flex-col gap-3">
-							<FormField v-slot="{ value, handleChange }" name="liveNotificationEnabled">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="liveNotificationEnabled"
+							>
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :model-value="value" @update:model-value="handleChange" />
+										<Checkbox
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
 									</FormControl>
 									<FormLabel class="mt-0!">{{ t('sharedTexts.enabled') }}</FormLabel>
 									<FormMessage />
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowTitle">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="liveNotificationShowTitle"
+							>
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :model-value="value" @update:model-value="handleChange" />
+										<Checkbox
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showTitle')
@@ -161,10 +172,16 @@ const messageWithMentions = computed(() => {
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowCategory">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="liveNotificationShowCategory"
+							>
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :model-value="value" @update:model-value="handleChange" />
+										<Checkbox
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showCategory')
@@ -173,10 +190,16 @@ const messageWithMentions = computed(() => {
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowPreview">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="liveNotificationShowPreview"
+							>
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :model-value="value" @update:model-value="handleChange" />
+										<Checkbox
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showPreview')
@@ -185,10 +208,16 @@ const messageWithMentions = computed(() => {
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowProfileImage">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="liveNotificationShowProfileImage"
+							>
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :model-value="value" @update:model-value="handleChange" />
+										<Checkbox
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showProfileImage')
@@ -197,10 +226,16 @@ const messageWithMentions = computed(() => {
 								</FormItem>
 							</FormField>
 
-							<FormField v-slot="{ value, handleChange }" name="liveNotificationShowViewers">
+							<FormField
+								v-slot="{ value, handleChange }"
+								name="liveNotificationShowViewers"
+							>
 								<FormItem class="flex flex-row items-center gap-3">
 									<FormControl>
-										<Checkbox :model-value="value" @update:model-value="handleChange" />
+										<Checkbox
+											:model-value="value"
+											@update:model-value="handleChange"
+										/>
 									</FormControl>
 									<FormLabel class="mt-0!">{{
 										t('integrations.discord.alerts.showViewers')
@@ -213,7 +248,10 @@ const messageWithMentions = computed(() => {
 						<Separator />
 
 						<!-- Channel Selector -->
-						<FormField v-slot="{ value, handleChange }" name="liveNotificationChannelsIds">
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="liveNotificationChannelsIds"
+						>
 							<FormItem>
 								<FormLabel>{{ t('integrations.discord.alerts.channelsSelect') }}</FormLabel>
 								<FormControl>
@@ -233,7 +271,10 @@ const messageWithMentions = computed(() => {
 						<Separator />
 
 						<!-- Additional Users -->
-						<FormField v-slot="{ value, handleChange }" name="additionalUsersIdsForLiveCheck">
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="additionalUsersIdsForLiveCheck"
+						>
 							<FormItem>
 								<FormLabel>{{
 									t('integrations.discord.alerts.additionalUsersIdsForLiveCheck')
@@ -246,7 +287,10 @@ const messageWithMentions = computed(() => {
 									/>
 								</FormControl>
 								<FormDescription>
-									<span v-if="value.length >= 10" class="text-orange-500">
+									<span
+										v-if="value.length >= 10"
+										class="text-orange-500"
+									>
 										Maximum additional users selected
 									</span>
 								</FormDescription>
@@ -257,7 +301,10 @@ const messageWithMentions = computed(() => {
 						<Separator />
 
 						<!-- Online Message -->
-						<FormField v-slot="{ componentField }" name="liveNotificationMessage">
+						<FormField
+							v-slot="{ componentField }"
+							name="liveNotificationMessage"
+						>
 							<FormItem>
 								<FormLabel>{{ t('integrations.discord.alerts.streamOnlineLabel') }}</FormLabel>
 								<FormControl>
@@ -275,7 +322,10 @@ const messageWithMentions = computed(() => {
 						</FormField>
 
 						<!-- Offline Message -->
-						<FormField v-slot="{ componentField }" name="offlineNotificationMessage">
+						<FormField
+							v-slot="{ componentField }"
+							name="offlineNotificationMessage"
+						>
 							<FormItem>
 								<FormLabel>{{ t('integrations.discord.alerts.streamOfflineLabel') }}</FormLabel>
 								<FormControl>
@@ -290,10 +340,16 @@ const messageWithMentions = computed(() => {
 							</FormItem>
 						</FormField>
 
-						<FormField v-slot="{ value, handleChange }" name="shouldDeleteMessageOnOffline">
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="shouldDeleteMessageOnOffline"
+						>
 							<FormItem class="flex flex-row items-center gap-3">
 								<FormControl>
-									<Checkbox :model-value="value" @update:model-value="handleChange" />
+									<Checkbox
+										:model-value="value"
+										@update:model-value="handleChange"
+									/>
 								</FormControl>
 								<FormLabel class="mt-0!">{{
 									t('integrations.discord.alerts.shouldDeleteMessageOnOffline')
@@ -303,14 +359,20 @@ const messageWithMentions = computed(() => {
 						</FormField>
 
 						<Alert>
-							<Icon name="lucide:info" class="h-4 w-4" />
+							<Icon
+								name="lucide:info"
+								class="h-4 w-4"
+							/>
 							<AlertTitle>Info</AlertTitle>
 							<AlertDescription>
 								{{ t('integrations.discord.alerts.updateAlert') }}
 							</AlertDescription>
 						</Alert>
 
-						<Button type="submit" class="w-full sm:w-auto">
+						<Button
+							type="submit"
+							class="w-full sm:w-auto"
+						>
 							{{ t('sharedButtons.save') }}
 						</Button>
 					</div>
@@ -319,8 +381,15 @@ const messageWithMentions = computed(() => {
 
 			<div class="flex flex-col gap-4">
 				<DiscordMessages class="rounded-md">
-					<DiscordMessage :bot="true" author="TwirApp" avatar="/twir.svg">
-						<template v-for="(m, idx) of messageWithMentions" :key="idx">
+					<DiscordMessage
+						:bot="true"
+						author="TwirApp"
+						avatar="/twir.svg"
+					>
+						<template
+							v-for="(m, idx) of messageWithMentions"
+							:key="idx"
+						>
 							<DiscordMention
 								v-if="m.startsWith('@')"
 								type="role"

@@ -1,20 +1,13 @@
 <script setup lang="ts">
-
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import AlertsModalContent from './alerts-dialog-content.vue'
-
 import type { Alert } from '~~/layers/dashboard/api/alerts.js'
 
+import { ref } from 'vue'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
-import {
-	Dialog,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
+
+import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+
+import AlertsModalContent from './alerts-dialog-content.vue'
 
 defineProps<{ alert?: Alert | null }>()
 
@@ -29,7 +22,7 @@ const open = ref(false)
 		</DialogTrigger>
 
 		<DialogOrSheet class="p-0">
-			<DialogHeader class="p-6 border-b">
+			<DialogHeader class="border-b p-6">
 				<DialogTitle>
 					{{ alert ? t('alerts.editAlert') : t('alerts.createAlert') }}
 				</DialogTitle>
@@ -38,7 +31,7 @@ const open = ref(false)
 			<ScrollArea class="max-h-[85vh]">
 				<AlertsModalContent
 					:alert="alert"
-					@close="() => open = false"
+					@close="() => (open = false)"
 				/>
 			</ScrollArea>
 		</DialogOrSheet>

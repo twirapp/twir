@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-import { useNotificationsForm } from '../composables/use-notifications-form.js'
-
 import TwitchUserSelect from '~~/layers/dashboard/components/twitchUsers/twitch-user-select.vue'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import BlocksRender from '@/components/ui/editorjs/blocks-render.vue'
 import EditorJS from '@/components/ui/editorjs/editorjs.vue'
 import { Label } from '@/components/ui/label'
+
+import { useNotificationsForm } from '../composables/use-notifications-form.js'
 
 const { t } = useI18n()
 
@@ -21,7 +20,10 @@ const notificationsForm = useNotificationsForm()
 	</h4>
 
 	<Card>
-		<form class="flex flex-col gap-4" @submit="notificationsForm.onSubmit">
+		<form
+			class="flex flex-col gap-4"
+			@submit="notificationsForm.onSubmit"
+		>
 			<CardContent class="flex flex-col gap-4 p-4">
 				<div class="space-y-2">
 					<Label for="userId">
@@ -40,7 +42,9 @@ const notificationsForm = useNotificationsForm()
 
 					<EditorJS
 						v-model:model-value="notificationsForm.editorJsJsonField.fieldModel.value"
-						@update:model-value="(v: string) => notificationsForm.editorJsJsonField.fieldModel.value = v"
+						@update:model-value="
+							(v: string) => (notificationsForm.editorJsJsonField.fieldModel.value = v)
+						"
 					/>
 				</div>
 
@@ -52,7 +56,10 @@ const notificationsForm = useNotificationsForm()
 
 			<CardFooter class="flex justify-end gap-4">
 				<Button
-					:disabled="!notificationsForm.editorJsJsonField.fieldModel.value && !notificationsForm.editableMessageId"
+					:disabled="
+						!notificationsForm.editorJsJsonField.fieldModel.value &&
+						!notificationsForm.editableMessageId
+					"
 					type="button"
 					variant="secondary"
 					@click="notificationsForm.onReset"

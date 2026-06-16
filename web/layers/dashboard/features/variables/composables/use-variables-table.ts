@@ -1,15 +1,14 @@
+import type { CustomVariable } from '~~/layers/dashboard/api/variables.js'
+
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import VariablesActions from '../ui/variables-actions.vue'
-
-import type { CustomVariable } from '~~/layers/dashboard/api/variables.js'
-
 import { useVariablesApi } from '~~/layers/dashboard/api/variables.js'
+
 import { Badge } from '@/components/ui/badge/index.js'
 import { VariableType } from '~/gql/graphql.js'
+
+import VariablesActions from '../ui/variables-actions.vue'
 
 export const useVariablesTable = createGlobalState(() => {
 	const { t } = useI18n()

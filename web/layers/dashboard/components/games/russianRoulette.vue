@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import Card from './card.vue'
+import { toast } from 'vue-sonner'
+import { useGamesApi } from '~~/layers/dashboard/api/games/games'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 
 import type { GamesQuery } from '~/gql/graphql.js'
 
-import { useGamesApi } from '~~/layers/dashboard/api/games/games'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -31,8 +30,8 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { toast } from 'vue-sonner'
-import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
+
+import Card from './card.vue'
 
 const isModalOpened = ref(false)
 
@@ -107,11 +106,17 @@ async function resetSettings() {
 			<form class="flex flex-col gap-4">
 				<div class="space-y-4">
 					<div class="flex flex-col gap-4">
-						<FormField v-slot="{ value, handleChange }" name="enabled">
-							<FormItem class="flex gap-2 space-y-0 items-center">
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="enabled"
+						>
+							<FormItem class="flex items-center gap-2 space-y-0">
 								<FormLabel>{{ t('sharedTexts.enabled') }}</FormLabel>
 								<FormControl>
-									<Switch :model-value="value" @update:model-value="handleChange" />
+									<Switch
+										:model-value="value"
+										@update:model-value="handleChange"
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -122,11 +127,17 @@ async function resetSettings() {
 
 					<Separator />
 
-					<FormField v-slot="{ value, handleChange }" name="canBeUsedByModerator">
-						<FormItem class="flex gap-2 space-y-0 items-center">
+					<FormField
+						v-slot="{ value, handleChange }"
+						name="canBeUsedByModerator"
+					>
+						<FormItem class="flex items-center gap-2 space-y-0">
 							<FormLabel>{{ t('games.russianRoulette.canBeUsedByModerator') }}</FormLabel>
 							<FormControl>
-								<Switch :checked="value" @update:checked="handleChange" />
+								<Switch
+									:checked="value"
+									@update:checked="handleChange"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -135,21 +146,35 @@ async function resetSettings() {
 
 				<Separator />
 
-				<FormField v-slot="{ componentField }" name="timeoutSeconds">
+				<FormField
+					v-slot="{ componentField }"
+					name="timeoutSeconds"
+				>
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.timeoutSeconds') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" type="number" :max="86400" />
+							<Input
+								v-bind="componentField"
+								type="number"
+								:max="86400"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="decisionSeconds">
+				<FormField
+					v-slot="{ componentField }"
+					name="decisionSeconds"
+				>
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.decisionSeconds') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" type="number" :max="60" />
+							<Input
+								v-bind="componentField"
+								type="number"
+								:max="60"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -157,51 +182,85 @@ async function resetSettings() {
 
 				<Separator />
 
-				<FormField v-slot="{ componentField }" name="initMessage">
+				<FormField
+					v-slot="{ componentField }"
+					name="initMessage"
+				>
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.initMessage') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" :maxlength="450" />
+							<Input
+								v-bind="componentField"
+								:maxlength="450"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="surviveMessage">
+				<FormField
+					v-slot="{ componentField }"
+					name="surviveMessage"
+				>
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.surviveMessage') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" :maxlength="450" />
+							<Input
+								v-bind="componentField"
+								:maxlength="450"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="deathMessage">
+				<FormField
+					v-slot="{ componentField }"
+					name="deathMessage"
+				>
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.deathMessage') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" :maxlength="450" />
+							<Input
+								v-bind="componentField"
+								:maxlength="450"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="chargedBullets">
+				<FormField
+					v-slot="{ componentField }"
+					name="chargedBullets"
+				>
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.chargedBullets') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" type="number" :min="1" :max="6" />
+							<Input
+								v-bind="componentField"
+								type="number"
+								:min="1"
+								:max="6"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="tumberSize">
+				<FormField
+					v-slot="{ componentField }"
+					name="tumberSize"
+				>
 					<FormItem>
 						<FormLabel>{{ t('games.russianRoulette.tumberSize') }}</FormLabel>
 						<FormControl>
-							<Input v-bind="componentField" type="number" :min="6" :max="12" />
+							<Input
+								v-bind="componentField"
+								type="number"
+								:min="6"
+								:max="12"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -232,7 +291,10 @@ async function resetSettings() {
 						</AlertDialogContent>
 					</AlertDialog>
 
-					<Button type="submit" @click="save">
+					<Button
+						type="submit"
+						@click="save"
+					>
 						{{ t('sharedButtons.save') }}
 					</Button>
 				</div>

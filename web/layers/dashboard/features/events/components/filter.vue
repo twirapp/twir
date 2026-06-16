@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 
 import { Button } from '@/components/ui/button'
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
 	Select,
 	SelectContent,
@@ -16,7 +10,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 
 defineProps<{
 	operationIndex: number
@@ -28,18 +21,19 @@ const { t } = useI18n()
 </script>
 
 <template>
-	<div class="border rounded-md p-4 mb-4">
-		<div class="flex justify-between items-center mb-4">
-			<h4 class="font-medium">
-				{{ t('events.operations.filters.label') }} {{ filterIndex + 1 }}
-			</h4>
+	<div class="mb-4 rounded-md border p-4">
+		<div class="mb-4 flex items-center justify-between">
+			<h4 class="font-medium">{{ t('events.operations.filters.label') }} {{ filterIndex + 1 }}</h4>
 			<Button
 				type="button"
 				variant="destructive"
 				size="sm"
 				@click="onRemove(operationIndex, filterIndex)"
 			>
-				<Icon name="lucide:trash2" class="h-4 w-4" />
+				<Icon
+					name="lucide:trash2"
+					class="h-4 w-4"
+				/>
 			</Button>
 		</div>
 
@@ -71,33 +65,17 @@ const { t } = useI18n()
 								<SelectValue :placeholder="t('events.selectFilterType')" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="EQUALS">
-									=
-								</SelectItem>
-								<SelectItem value="NOT_EQUALS">
-									!=
-								</SelectItem>
-								<SelectItem value="CONTAINS">
-									contains
-								</SelectItem>
-								<SelectItem value="NOT_CONTAINS">
-									not contains
-								</SelectItem>
-								<SelectItem value="STARTS_WITH">
-									starts with
-								</SelectItem>
-								<SelectItem value="ENDS_WITH">
-									ends with
-								</SelectItem>
-								<SelectItem value="GREATER_THAN">
-									>
-								</SelectItem>
+								<SelectItem value="EQUALS"> = </SelectItem>
+								<SelectItem value="NOT_EQUALS"> != </SelectItem>
+								<SelectItem value="CONTAINS"> contains </SelectItem>
+								<SelectItem value="NOT_CONTAINS"> not contains </SelectItem>
+								<SelectItem value="STARTS_WITH"> starts with </SelectItem>
+								<SelectItem value="ENDS_WITH"> ends with </SelectItem>
+								<SelectItem value="GREATER_THAN"> > </SelectItem>
 								<SelectItem value="LESS_THAN">
 									{{ '<' }}
 								</SelectItem>
-								<SelectItem value="GREATER_THAN_OR_EQUALS">
-									>=
-								</SelectItem>
+								<SelectItem value="GREATER_THAN_OR_EQUALS"> >= </SelectItem>
 								<SelectItem value="LESS_THAN_OR_EQUALS">
 									{{ '<=' }}
 								</SelectItem>

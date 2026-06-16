@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+import Card from '~~/layers/dashboard/components/overlays/card.vue'
 
-import Card from '~~/layers/dashboard/components/overlays/card.vue';
-
-const { t } = useI18n();
+const { t } = useI18n()
 </script>
 
 <template>

@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { type Font, FontSelector } from '@/lib/fontsource'
 import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-
-import { useNowPlayingForm } from './use-now-playing-form'
 
 import { useUserAccessFlagChecker } from '@/api/auth'
 import { useNowPlayingOverlayApi } from '@/api/overlays/now-playing'
@@ -12,19 +8,10 @@ import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { ColorPicker } from '@/components/ui/color-picker'
-import {
-	Command,
-	CommandGroup,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command'
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
 	Select,
 	SelectContent,
@@ -35,6 +22,9 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { type Font, FontSelector } from '@/lib/fontsource'
+
+import { useNowPlayingForm } from './use-now-playing-form'
 
 const { t } = useI18n()
 const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('now-playing')
@@ -87,11 +77,18 @@ const fontWeightOptions = computed(() => {
 </script>
 
 <template>
-	<Card v-if="formValue" class="card">
-		<CardContent class="pt-4 flex flex-col gap-4">
+	<Card
+		v-if="formValue"
+		class="card"
+	>
+		<CardContent class="flex flex-col gap-4 pt-4">
 			<div class="flex flex-col gap-2">
 				<Label for="preset">Style</Label>
-				<Select id="preset" v-model:model-value="formValue.preset" default-value="AIDEN_REDESIGN">
+				<Select
+					id="preset"
+					v-model:model-value="formValue.preset"
+					default-value="AIDEN_REDESIGN"
+				>
 					<SelectTrigger class="w-45">
 						<SelectValue placeholder="Select a preset" />
 					</SelectTrigger>
@@ -135,14 +132,22 @@ const fontWeightOptions = computed(() => {
 
 				<Popover>
 					<PopoverTrigger as-child>
-						<Button variant="outline" size="sm" class="w-37.5 justify-start">
+						<Button
+							variant="outline"
+							size="sm"
+							class="w-37.5 justify-start"
+						>
 							<template v-if="formValue.fontWeight">
 								{{ formValue.fontWeight }}
 							</template>
 							<template v-else> + Set font weight </template>
 						</Button>
 					</PopoverTrigger>
-					<PopoverContent class="p-0" side="right" align="start">
+					<PopoverContent
+						class="p-0"
+						side="right"
+						align="start"
+					>
 						<Command>
 							<CommandList>
 								<CommandGroup>
@@ -178,7 +183,10 @@ const fontWeightOptions = computed(() => {
 		</CardContent>
 
 		<CardFooter class="flex justify-end gap-2">
-			<Button variant="destructive" @click="deleter.executeMutation({ id: formValue.id! })">
+			<Button
+				variant="destructive"
+				@click="deleter.executeMutation({ id: formValue.id! })"
+			>
 				{{ t('sharedButtons.delete') }}
 			</Button>
 			<Button

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+
 
 import type { Column } from '@tanstack/vue-table'
 

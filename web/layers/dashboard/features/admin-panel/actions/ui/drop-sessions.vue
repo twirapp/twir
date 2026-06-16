@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import { useMutationDropAllAuthSessions } from '~~/layers/dashboard/api/admin/actions'
+
 import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -18,17 +17,22 @@ const confirmOpened = ref(false)
 </script>
 
 <template>
-	<Card class="rounded-lg border bg-card text-card-foreground shadow-xs border-red-500 p-4 flex flex-col gap-4">
+	<Card
+		class="bg-card text-card-foreground flex flex-col gap-4 rounded-lg border border-red-500 p-4 shadow-xs"
+	>
 		<div class="flex items-center">
 			<div class="flex-auto">
-				<small class="text-sm font-medium leading-none">
+				<small class="text-sm leading-none font-medium">
 					{{ t('adminPanel.adminActions.dangerZone.revokeSessions') }}
 				</small>
-				<p class="text-sm text-muted-foreground">
+				<p class="text-muted-foreground text-sm">
 					{{ t('adminPanel.adminActions.dangerZone.revokeAllSessionsDescription') }}
 				</p>
 			</div>
-			<Button variant="destructive" @click="confirmOpened = true">
+			<Button
+				variant="destructive"
+				@click="confirmOpened = true"
+			>
 				{{ t('adminPanel.adminActions.dangerZone.revoke') }}
 			</Button>
 		</div>

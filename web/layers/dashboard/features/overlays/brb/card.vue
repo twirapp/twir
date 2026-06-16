@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-
 import { useBeRightBackOverlayApi } from '~~/layers/dashboard/api/overlays-be-right-back'
 import Card from '~~/layers/dashboard/components/overlays/card.vue'
 
@@ -10,6 +8,7 @@ const api = useBeRightBackOverlayApi()
 const { data: settings, error, fetching } = api.useQueryBeRightBack()
 
 const router = useRouter()
+const localePath = useLocalePath()
 </script>
 
 <template>
@@ -19,7 +18,7 @@ const router = useRouter()
 		:description="t('overlays.brb.description')"
 		overlay-path="brb"
 		:copy-disabled="!settings || !!error || !!fetching"
-		@open-settings="router.push('/dashboard/overlays/brb')"
+		@open-settings="router.push(localePath('/dashboard/overlays/brb'))"
 	>
 	</card>
 </template>

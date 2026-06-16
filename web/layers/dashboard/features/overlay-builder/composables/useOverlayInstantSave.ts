@@ -50,8 +50,9 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 	const wsUrl = computed(() => {
 		if (!currentOverlayId.value || !apiKey.value) return null
 
-		const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-		return `${wsProtocol}//${window.location.host}/socket/overlays/registry/overlays?apiKey=${apiKey.value}`
+		const requestUrl = useRequestURL()
+		const wsProtocol = requestUrl.protocol === 'https:' ? 'wss:' : 'ws:'
+		return `${wsProtocol}//${requestUrl.host}/socket/overlays/registry/overlays?apiKey=${apiKey.value}`
 	})
 
 	// Use VueUse WebSocket with auto-reconnect

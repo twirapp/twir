@@ -43,13 +43,14 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { t } = useI18n()
 const userCanManageOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 const { data: profile } = useProfile()
+const requestUrl = useRequestURL()
 const selectedDashboardTwitchUser = computed(() => {
 	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
 })
 
 async function copyUrl(id: string) {
 	await copyToClipBoard(
-		`${window.location.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/registry/overlays/${id}`
+		`${requestUrl.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/registry/overlays/${id}`
 	)
 	toast.success(t('overlays.copied'))
 }

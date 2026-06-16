@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
 import Table from '~~/layers/dashboard/components/table.vue'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'
 import { useExpiringVipsTable } from '~~/layers/dashboard/features/expiring-vips/composables/use-expiring-vips-table.js'
 import ExpiringVipsCreateDialog from '~~/layers/dashboard/features/expiring-vips/ui/expiring-vips-create-dialog.vue'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const expiringVipsTable = useExpiringVipsTable()
 const { t } = useI18n()
@@ -44,7 +43,10 @@ const showCreateDialog = ref(false)
 
 		<template #action>
 			<Button @click="showCreateDialog = true">
-				<Icon name="lucide:plus" class="size-4 mr-2" />
+				<Icon
+					name="lucide:plus"
+					class="mr-2 size-4"
+				/>
 				{{ t('sharedButtons.create') }}
 			</Button>
 		</template>
@@ -65,7 +67,10 @@ const showCreateDialog = ref(false)
 				</Card>
 
 				<Alert>
-					<Icon name="lucide:info" class="h-4 w-4" />
+					<Icon
+						name="lucide:info"
+						class="h-4 w-4"
+					/>
 					<AlertTitle>{{ t('expiringVips.alert.title') }}</AlertTitle>
 					<AlertDescription>
 						{{ t('expiringVips.alert.description') }}

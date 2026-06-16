@@ -1,8 +1,9 @@
 <script setup lang="ts" generic="T extends RowData">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import type { PaginationState, RowData, Table } from '@tanstack/vue-table'
+import type { AcceptableValue } from 'reka-ui'
+
+import { computed } from 'vue'
+import { formatNumber } from '~~/layers/dashboard/helpers/format-number.js'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,8 +14,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { formatNumber } from '~~/layers/dashboard/helpers/format-number.js'
-import type { AcceptableValue } from 'reka-ui'
 
 const props = defineProps<{
 	total: number
@@ -47,9 +46,9 @@ function handlePageSizeChange(pageSize: AcceptableValue) {
 </script>
 
 <template>
-	<div class="flex justify-between max-sm:flex-col gap-4">
-		<div class="flex gap-2 items-center">
-			<div class="text-sm text-muted-foreground text-nowrap">
+	<div class="flex justify-between gap-4 max-sm:flex-col">
+		<div class="flex items-center gap-2">
+			<div class="text-muted-foreground text-sm text-nowrap">
 				{{
 					t('sharedTexts.pagination', {
 						page: table.getPageCount(),
@@ -57,7 +56,10 @@ function handlePageSizeChange(pageSize: AcceptableValue) {
 					})
 				}}
 			</div>
-			<Select default-value="10" @update:model-value="handlePageSizeChange">
+			<Select
+				default-value="10"
+				@update:model-value="handlePageSizeChange"
+			>
 				<SelectTrigger class="h-9 justify-between gap-2">
 					<div>
 						{{ t('sharedTexts.paginationPerPage') }}
@@ -75,8 +77,8 @@ function handlePageSizeChange(pageSize: AcceptableValue) {
 				</SelectContent>
 			</Select>
 		</div>
-		<div class="flex gap-2 items-center">
-			<div class="flex gap-2 max-sm:justify-end max-sm:w-full">
+		<div class="flex items-center gap-2">
+			<div class="flex gap-2 max-sm:w-full max-sm:justify-end">
 				<Button
 					class="size-9 min-w-9 max-sm:w-full"
 					variant="outline"
@@ -84,10 +86,13 @@ function handlePageSizeChange(pageSize: AcceptableValue) {
 					:disabled="!table.getCanPreviousPage()"
 					@click="table.previousPage()"
 				>
-					<Icon name="lucide:chevron-left" class="h-4 w-4" />
+					<Icon
+						name="lucide:chevron-left"
+						class="h-4 w-4"
+					/>
 				</Button>
 				<Input
-					class="w-20 h-9 max-sm:w-full"
+					class="h-9 w-20 max-sm:w-full"
 					:min="1"
 					:max="table.getPageCount()"
 					:model-value="currentPage"
@@ -102,7 +107,10 @@ function handlePageSizeChange(pageSize: AcceptableValue) {
 					:disabled="!table.getCanNextPage()"
 					@click="table.nextPage()"
 				>
-					<Icon name="lucide:chevron-right" class="h-4 w-4" />
+					<Icon
+						name="lucide:chevron-right"
+						class="h-4 w-4"
+					/>
 				</Button>
 			</div>
 		</div>

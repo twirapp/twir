@@ -2,15 +2,10 @@
 import { FieldArray, useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
-import { useI18n } from 'vue-i18n'
-
-import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
-
-import type { FormSchema } from '../../composables/use-command-edit-v2'
-
 import { useProfile } from '~~/layers/dashboard/api/auth'
-
 import TwitchCategorySearchShadcnMultiple from '~~/layers/dashboard/components/twitch-category-search-shadcn-multiple.vue'
+import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,7 +27,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import FormLabel from '@/components/ui/form/FormLabel.vue'
-import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
+
+import type { FormSchema } from '../../composables/use-command-edit-v2'
+
+import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 
 const { t } = useI18n()
 const { data: profile } = useProfile()
@@ -62,33 +60,52 @@ const editable = computed(() => !command.value?.default)
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row place-content-center flex-wrap">
+		<CardHeader class="flex flex-row flex-wrap place-content-center">
 			<CardTitle
 				:class="{ 'text-destructive': responsesErrors.length }"
 				class="flex items-center gap-2"
 			>
-				<Icon name="lucide:message-circle-reply"  />
+				<Icon name="lucide:message-circle-reply" />
 				{{ t('sharedTexts.responses') }}
 			</CardTitle>
 		</CardHeader>
-		<CardContent v-if="editable" class="flex flex-col gap-2 pt-4">
-			<FieldArray v-slot="{ fields, remove }" name="responses">
-				<VueDraggable v-model="value" handle=".drag-handle" class="flex flex-col gap-2">
-					<div v-for="(field, index) in fields" :key="`responses-text-${field.key}`">
+		<CardContent
+			v-if="editable"
+			class="flex flex-col gap-2 pt-4"
+		>
+			<FieldArray
+				v-slot="{ fields, remove }"
+				name="responses"
+			>
+				<VueDraggable
+					v-model="value"
+					handle=".drag-handle"
+					class="flex flex-col gap-2"
+				>
+					<div
+						v-for="(field, index) in fields"
+						:key="`responses-text-${field.key}`"
+					>
 						<Dialog>
-							<FormField v-slot="{ componentField }" :name="`responses[${index}].text`">
+							<FormField
+								v-slot="{ componentField }"
+								:name="`responses[${index}].text`"
+							>
 								<FormItem>
 									<div class="relative flex items-center">
 										<FormControl>
 											<div class="w-full">
 												<div
-													class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 drag-handle z-10 border cursor-move"
+													class="bg-accent drag-handle absolute left-0 z-10 flex h-full w-4 cursor-move rounded-l-md border"
 												>
-													<Icon name="lucide:grip-vertical" class="my-auto size-6 cursor-move" />
+													<Icon
+														name="lucide:grip-vertical"
+														class="my-auto size-6 cursor-move"
+													/>
 												</div>
 												<VariableInput
 													input-type="textarea"
-													class="pl-6 pr-14!"
+													class="pr-14! pl-6"
 													:model-value="componentField.modelValue"
 													:min-rows="1"
 													:rows="1"
@@ -99,8 +116,11 @@ const editable = computed(() => !command.value?.default)
 													<template #additional-buttons>
 														<DropdownMenu>
 															<DropdownMenuTrigger as-child>
-																<button class="hover:bg-accent p-1 rounded-md">
-																	<Icon name="lucide:ellipsis" class="size-4 opacity-50" />
+																<button class="hover:bg-accent rounded-md p-1">
+																	<Icon
+																		name="lucide:ellipsis"
+																		class="size-4 opacity-50"
+																	/>
 																</button>
 															</DropdownMenuTrigger>
 
@@ -108,7 +128,10 @@ const editable = computed(() => !command.value?.default)
 																<DialogTrigger as-child>
 																	<DropdownMenuItem @click="responseDialogOpened = true">
 																		<div class="flex items-center gap-2">
-																			<Icon name="lucide:settings" class="size-4" />
+																			<Icon
+																				name="lucide:settings"
+																				class="size-4"
+																			/>
 																			Settings
 																		</div>
 																	</DropdownMenuItem>
@@ -116,7 +139,10 @@ const editable = computed(() => !command.value?.default)
 
 																<DropdownMenuItem @click="remove(index)">
 																	<div class="flex items-center gap-2">
-																		<Icon name="lucide:trash" class="size-4" />
+																		<Icon
+																			name="lucide:trash"
+																			class="size-4"
+																		/>
 																		Remove
 																	</div>
 																</DropdownMenuItem>
@@ -152,17 +178,20 @@ const editable = computed(() => !command.value?.default)
 									</FormItem>
 								</FormField>
 
-								<div class="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+								<div class="grid w-full grid-cols-1 gap-2 md:grid-cols-2">
 									<FormField
 										v-slot="{ value, handleChange }"
 										type="checkbox"
 										:name="`responses[${index}].onlineOnly`"
 									>
 										<FormItem
-											class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4"
+											class="flex flex-row items-start space-y-0 gap-x-3 rounded-md border p-4"
 										>
 											<FormControl>
-												<Checkbox :model-value="value" @update:model-value="handleChange" />
+												<Checkbox
+													:model-value="value"
+													@update:model-value="handleChange"
+												/>
 											</FormControl>
 											<div class="space-y-1 leading-none">
 												<FormLabel>{{ t('commands.modal.settings.onlineOnly.label') }}</FormLabel>
@@ -177,10 +206,13 @@ const editable = computed(() => !command.value?.default)
 										:name="`responses[${index}].offlineOnly`"
 									>
 										<FormItem
-											class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4"
+											class="flex flex-row items-start space-y-0 gap-x-3 rounded-md border p-4"
 										>
 											<FormControl>
-												<Checkbox :model-value="value" @update:model-value="handleChange" />
+												<Checkbox
+													:model-value="value"
+													@update:model-value="handleChange"
+												/>
 											</FormControl>
 											<div class="space-y-1 leading-none">
 												<FormLabel>{{ t('commands.modal.settings.offlineOnly.label') }}</FormLabel>
@@ -204,11 +236,14 @@ const editable = computed(() => !command.value?.default)
 					type="button"
 					variant="outline"
 					size="sm"
-					class="text-xs w-full flex gap-2 items-center mt-2"
+					class="mt-2 flex w-full items-center gap-2 text-xs"
 					:disabled="(fields.length ?? 0) >= maxCommandResponses"
 					@click="handlePush"
 				>
-					<Icon name="lucide:badge-plus" class="size-4" />
+					<Icon
+						name="lucide:badge-plus"
+						class="size-4"
+					/>
 					Add response {{ fields.length ?? 0 }} / {{ maxCommandResponses }}
 				</Button>
 			</FieldArray>

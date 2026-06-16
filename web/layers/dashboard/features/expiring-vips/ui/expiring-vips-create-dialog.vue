@@ -1,23 +1,23 @@
 <script setup lang="ts">
+import { useForm } from 'vee-validate'
+import { computed, watch } from 'vue'
+import { toast } from 'vue-sonner'
+import { z } from 'zod'
 
-import { useForm } from "vee-validate";
-import { computed, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { toast } from "vue-sonner";
-import { z } from "zod";
-
-import { useScheduledVipsApi } from "@/api/scheduled-vips.js";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
+import { useScheduledVipsApi } from '@/api/scheduled-vips.js'
+import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import TwitchUserSelect from '@/components/twitchUsers/twitch-user-select.vue'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import {
 	Dialog,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+} from '@/components/ui/dialog'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
 	Select,
 	SelectContent,
@@ -25,21 +25,19 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import TwitchUserSelect from "@/components/twitchUsers/twitch-user-select.vue";
-import { ScheduledVipRemoveType } from "@/gql/graphql";
-import DialogOrSheet from "@/components/dialog-or-sheet.vue";
+} from '@/components/ui/select'
+import { ScheduledVipRemoveType } from '@/gql/graphql'
 
-const open = defineModel<boolean>({ default: false });
+const open = defineModel<boolean>({ default: false })
 
-const { t } = useI18n();
-const api = useScheduledVipsApi();
+const { t } = useI18n()
+const api = useScheduledVipsApi()
 const { executeMutation: createMutation, fetching: isCreating } =
-	api.useMutationCreateScheduledVip();
+	api.useMutationCreateScheduledVip()
 
 const formSchema = z
 	.object({
-		userID: z.string().min(1, t("expiringVips.form.errors.userRequired")).nullable(),
+		userID: z.string().min(1, t('expiringVips.form.errors.userRequired')).nullable(),
 		removeType: z.nativeEnum(ScheduledVipRemoveType),
 		removeAt: z.number().optional().nullable(),
 	})
@@ -47,18 +45,18 @@ const formSchema = z
 		if (!data.userID) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				message: t("expiringVips.form.errors.userRequired"),
-				path: ["userID"],
-			});
+				message: t('expiringVips.form.errors.userRequired'),
+				path: ['userID'],
+			})
 		}
 		if (data.removeType === ScheduledVipRemoveType.Time && !data.removeAt) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				message: t("expiringVips.form.errors.dateRequired"),
-				path: ["removeAt"],
-			});
+				message: t('expiringVips.form.errors.dateRequired'),
+				path: ['removeAt'],
+			})
 		}
-	});
+	})
 
 const { handleSubmit, resetForm, values, setFieldValue } = useForm({
 	validationSchema: formSchema,
@@ -67,25 +65,25 @@ const { handleSubmit, resetForm, values, setFieldValue } = useForm({
 		removeType: ScheduledVipRemoveType.Time,
 		removeAt: null,
 	},
-});
+})
 
 const showDatePicker = computed(() => {
-	return values.removeType === ScheduledVipRemoveType.Time;
-});
+	return values.removeType === ScheduledVipRemoveType.Time
+})
 
 watch(
 	() => values.removeType,
 	(newType) => {
 		if (newType === ScheduledVipRemoveType.StreamEnd) {
-			setFieldValue("removeAt", null);
+			setFieldValue('removeAt', null)
 		}
-	},
-);
+	}
+)
 
 const onSubmit = handleSubmit(async (formValues) => {
 	if (!formValues.userID) {
-		toast.error(t("expiringVips.form.errors.userRequired"));
-		return;
+		toast.error(t('expiringVips.form.errors.userRequired'))
+		return
 	}
 
 	const result = await createMutation({
@@ -94,45 +92,54 @@ const onSubmit = handleSubmit(async (formValues) => {
 			removeType: formValues.removeType,
 			removeAt: formValues.removeAt,
 		},
-	});
+	})
 
 	if (result.error) {
-		toast.error(t("sharedTexts.error"), {
+		toast.error(t('sharedTexts.error'), {
 			description: result.error.message,
-		});
-		return;
+		})
+		return
 	}
 
-	toast.success(t("sharedTexts.success"), {
-		description: t("expiringVips.form.successCreate"),
-	});
+	toast.success(t('sharedTexts.success'), {
+		description: t('expiringVips.form.successCreate'),
+	})
 
-	resetForm();
-	open.value = false;
-});
+	resetForm()
+	open.value = false
+})
 </script>
 
 <template>
 	<Dialog v-model:open="open">
 		<DialogOrSheet>
 			<DialogHeader>
-				<DialogTitle>{{ t("expiringVips.form.createTitle") }}</DialogTitle>
+				<DialogTitle>{{ t('expiringVips.form.createTitle') }}</DialogTitle>
 				<DialogDescription>
-					{{ t("expiringVips.form.createDescription") }}
+					{{ t('expiringVips.form.createDescription') }}
 				</DialogDescription>
 			</DialogHeader>
 
-			<form @submit="onSubmit" class="space-y-4">
+			<form
+				@submit="onSubmit"
+				class="space-y-4"
+			>
 				<Alert>
-					<Icon name="lucide:info" class="h-4 w-4" />
+					<Icon
+						name="lucide:info"
+						class="h-4 w-4"
+					/>
 					<AlertDescription>
-						{{ t("expiringVips.form.info") }}
+						{{ t('expiringVips.form.info') }}
 					</AlertDescription>
 				</Alert>
 
-				<FormField v-slot="{ componentField }" name="userID">
+				<FormField
+					v-slot="{ componentField }"
+					name="userID"
+				>
 					<FormItem>
-						<FormLabel>{{ t("expiringVips.form.user") }}</FormLabel>
+						<FormLabel>{{ t('expiringVips.form.user') }}</FormLabel>
 						<FormControl>
 							<TwitchUserSelect
 								v-model="componentField.modelValue"
@@ -144,9 +151,12 @@ const onSubmit = handleSubmit(async (formValues) => {
 					</FormItem>
 				</FormField>
 
-				<FormField v-slot="{ componentField }" name="removeType">
+				<FormField
+					v-slot="{ componentField }"
+					name="removeType"
+				>
 					<FormItem>
-						<FormLabel>{{ t("expiringVips.form.removeType") }}</FormLabel>
+						<FormLabel>{{ t('expiringVips.form.removeType') }}</FormLabel>
 						<Select v-bind="componentField">
 							<FormControl>
 								<SelectTrigger>
@@ -156,10 +166,10 @@ const onSubmit = handleSubmit(async (formValues) => {
 							<SelectContent>
 								<SelectGroup>
 									<SelectItem :value="ScheduledVipRemoveType.Time">
-										{{ t("expiringVips.form.removeTypeTime") }}
+										{{ t('expiringVips.form.removeTypeTime') }}
 									</SelectItem>
 									<SelectItem :value="ScheduledVipRemoveType.StreamEnd">
-										{{ t("expiringVips.form.removeTypeStreamEnd") }}
+										{{ t('expiringVips.form.removeTypeStreamEnd') }}
 									</SelectItem>
 								</SelectGroup>
 							</SelectContent>
@@ -168,9 +178,13 @@ const onSubmit = handleSubmit(async (formValues) => {
 					</FormItem>
 				</FormField>
 
-				<FormField v-if="showDatePicker" v-slot="{ field }" name="removeAt">
+				<FormField
+					v-if="showDatePicker"
+					v-slot="{ field }"
+					name="removeAt"
+				>
 					<FormItem>
-						<FormLabel>{{ t("expiringVips.form.removeAt") }}</FormLabel>
+						<FormLabel>{{ t('expiringVips.form.removeAt') }}</FormLabel>
 						<FormControl>
 							<DatePicker
 								:uid="field.name"
@@ -189,8 +203,11 @@ const onSubmit = handleSubmit(async (formValues) => {
 				</FormField>
 
 				<DialogFooter>
-					<Button type="submit" :disabled="isCreating">
-						{{ t("sharedButtons.create") }}
+					<Button
+						type="submit"
+						:disabled="isCreating"
+					>
+						{{ t('sharedButtons.create') }}
 					</Button>
 				</DialogFooter>
 			</form>

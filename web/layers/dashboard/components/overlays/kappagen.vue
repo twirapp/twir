@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
+import Card from '~~/layers/dashboard/components/overlays/card.vue'
 
-import Card from '~~/layers/dashboard/components/overlays/card.vue';
+const { t } = useI18n()
 
-const { t } = useI18n();
-
-const router = useRouter();
+const router = useRouter()
+const localePath = useLocalePath()
 </script>
 
 <template>
@@ -17,7 +16,7 @@ const router = useRouter();
 		:description="t('overlays.kappagen.description')"
 		overlay-path="kappagen"
 		:show-copy="false"
-		@open-settings="router.push('/dashboard/overlays/kappagen')"
+		@open-settings="router.push(localePath('/dashboard/overlays/kappagen'))"
 	>
 	</card>
 </template>

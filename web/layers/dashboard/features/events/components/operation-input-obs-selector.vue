@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useField } from 'vee-validate'
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import type { EventOperation } from '~~/layers/dashboard/api/events.js'
 
+import { useField } from 'vee-validate'
+import { computed } from 'vue'
 import { useObsWebsocketApi } from '~~/layers/dashboard/api/overlays-obs'
+
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
 	Select,
@@ -86,17 +85,27 @@ const data = computed(() => {
 </script>
 
 <template>
-	<FormField v-slot="{ componentField }" :name="`operations.${operationIndex}.target`">
+	<FormField
+		v-slot="{ componentField }"
+		:name="`operations.${operationIndex}.target`"
+	>
 		<FormItem>
 			<FormLabel>Select source</FormLabel>
 			<FormControl>
-				<Select v-bind="componentField" :placeholder="t('events.targetAlertPlaceholder')">
+				<Select
+					v-bind="componentField"
+					:placeholder="t('events.targetAlertPlaceholder')"
+				>
 					<SelectTrigger>
 						<SelectValue placeholder="Select" />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>
-							<SelectItem v-for="item in data" :key="item.value" :value="item.value">
+							<SelectItem
+								v-for="item in data"
+								:key="item.value"
+								:value="item.value"
+							>
 								{{ item.label }}
 							</SelectItem>
 						</SelectGroup>

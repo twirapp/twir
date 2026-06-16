@@ -32,8 +32,9 @@ export const useYoutubeSocket = createGlobalState(() => {
 	const socketUrl = computed(() => {
 		if (!userProfile?.value) return
 
-		const host = window.location.host
-		const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+		const requestUrl = useRequestURL()
+		const host = requestUrl.host
+		const protocol = requestUrl.protocol === 'https:' ? 'wss' : 'ws'
 		return `${protocol}://${host}/socket/youtube?apiKey=${userProfile.value.apiKey}`
 	})
 

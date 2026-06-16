@@ -1,11 +1,15 @@
 <script lang="ts" setup>
-import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-
 import type { PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
+import { computed, h } from 'vue'
+import { useRouter } from 'vue-router'
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useModerationApi } from '~~/layers/dashboard/features/moderation/composables/use-moderation-api.js'
+import { Icons } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
+import ModerationTabChatWall from '~~/layers/dashboard/features/moderation/tabs/moderation-tab-chat-wall.vue'
+import ModerationTabRules from '~~/layers/dashboard/features/moderation/tabs/moderation-tab-rules.vue'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -13,13 +17,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useModerationApi } from '~~/layers/dashboard/features/moderation/composables/use-moderation-api.js'
-import { Icons } from '~~/layers/dashboard/features/moderation/composables/use-moderation-form.js'
-import ModerationTabChatWall from '~~/layers/dashboard/features/moderation/tabs/moderation-tab-chat-wall.vue'
-import ModerationTabRules from '~~/layers/dashboard/features/moderation/tabs/moderation-tab-rules.vue'
 // oxlint-disable-next-line consistent-type-imports
 import { ChannelRolePermissionEnum, ModerationSettingsType } from '~/gql/graphql.js'
-import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -58,17 +57,26 @@ function createNewRule(ruleType: ModerationSettingsType) {
 </script>
 
 <template>
-	<PageLayout active-tab="rules" :tabs="tabs">
+	<PageLayout
+		active-tab="rules"
+		:tabs="tabs"
+	>
 		<template #title>
 			{{ t('sidebar.moderation') }}
 		</template>
 
 		<template #title-footer="{ activeTab }">
-			<div v-if="activeTab === 'rules'" class="flex flex-col gap-0.5">
+			<div
+				v-if="activeTab === 'rules'"
+				class="flex flex-col gap-0.5"
+			>
 				<span>{{ t('moderationRules.description.line1') }}</span>
 				<span class="text-xs">{{ t('moderationRules.description.line2') }}</span>
 			</div>
-			<div v-if="activeTab === 'chat-wall'" class="flex flex-col gap-0.5">
+			<div
+				v-if="activeTab === 'chat-wall'"
+				class="flex flex-col gap-0.5"
+			>
 				<span>
 					{{ t('chatWall.description.line1') }}
 				</span>
@@ -82,8 +90,15 @@ function createNewRule(ruleType: ModerationSettingsType) {
 			<DropdownMenu v-if="activeTab === 'rules'">
 				<DropdownMenuTrigger as-child>
 					<Button :disabled="isCreateDisabled">
-						<Icon name="lucide:plus" class="size-4 mr-2" />
-						{{ items.length >= maxModerationRules ? t('moderation.limitExceeded') : t('sharedButtons.create') }}
+						<Icon
+							name="lucide:plus"
+							class="mr-2 size-4"
+						/>
+						{{
+							items.length >= maxModerationRules
+								? t('moderation.limitExceeded')
+								: t('sharedButtons.create')
+						}}
 						({{ items.length }}/{{ maxModerationRules }})
 					</Button>
 				</DropdownMenuTrigger>
@@ -94,7 +109,10 @@ function createNewRule(ruleType: ModerationSettingsType) {
 						@click="createNewRule(itemType)"
 					>
 						<div class="flex items-center gap-1">
-							<Icon :name="Icons[itemType]" :size="20" />
+							<Icon
+								:name="Icons[itemType]"
+								:size="20"
+							/>
 							<span>{{ t(`moderation.types.${itemType}.name`) }}</span>
 						</div>
 					</DropdownMenuItem>

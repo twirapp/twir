@@ -1,21 +1,19 @@
 <script setup lang="ts">
-
 import { useForm } from 'vee-validate'
 import { onMounted, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
 import { z } from 'zod'
-
-import type { ChannelRolesQuery, RolesCreateOrUpdateOpts } from '~/gql/graphql.js'
-
 import { PERMISSIONS_FLAGS } from '~~/layers/dashboard/api/auth'
 import { useRoles } from '~~/layers/dashboard/api/roles'
 import UsersMultiSearch from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
+
+import type { ChannelRolesQuery, RolesCreateOrUpdateOpts } from '~/gql/graphql.js'
+
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { toast } from 'vue-sonner'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = defineProps<{
@@ -28,17 +26,16 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const formSchema =
-	z.object({
-		name: z.string().min(1, t('roles.validations.nameRequired')).max(50),
-		permissions: z.array(z.nativeEnum(ChannelRolePermissionEnum)),
-		users: z.array(z.string()),
-		settings: z.object({
-			requiredMessages: z.number().min(0).max(99999999),
-			requiredUserChannelPoints: z.number().min(0).max(999999999999),
-			requiredWatchTime: z.number().min(0).max(99999999),
-		}),
-	})
+const formSchema = z.object({
+	name: z.string().min(1, t('roles.validations.nameRequired')).max(50),
+	permissions: z.array(z.nativeEnum(ChannelRolePermissionEnum)),
+	users: z.array(z.string()),
+	settings: z.object({
+		requiredMessages: z.number().min(0).max(99999999),
+		requiredUserChannelPoints: z.number().min(0).max(999999999999),
+		requiredWatchTime: z.number().min(0).max(99999999),
+	}),
+})
 
 const initialValues = {
 	name: '',
@@ -96,7 +93,10 @@ const onSubmit = handleSubmit(async (formData) => {
 <template>
 	<form>
 		<div class="grid gap-6">
-			<FormField v-slot="{ componentField }" name="name">
+			<FormField
+				v-slot="{ componentField }"
+				name="name"
+			>
 				<FormItem>
 					<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
 					<FormControl>
@@ -112,7 +112,10 @@ const onSubmit = handleSubmit(async (formData) => {
 				<h4 class="font-medium">
 					{{ t('roles.modal.accessToUsers') }}
 				</h4>
-				<FormField v-slot="{ componentField }" name="users">
+				<FormField
+					v-slot="{ componentField }"
+					name="users"
+				>
 					<FormItem>
 						<UsersMultiSearch
 							:model-value="componentField.modelValue"
@@ -129,32 +132,56 @@ const onSubmit = handleSubmit(async (formData) => {
 				<h4 class="font-medium">
 					{{ t('roles.modal.accessByStats') }}
 				</h4>
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<FormField v-slot="{ componentField }" name="settings.requiredWatchTime">
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+					<FormField
+						v-slot="{ componentField }"
+						name="settings.requiredWatchTime"
+					>
 						<FormItem>
 							<FormLabel>{{ t('roles.modal.requiredWatchTime') }}</FormLabel>
 							<FormControl>
-								<Input type="number" v-bind="componentField" min="0" max="99999999" />
+								<Input
+									type="number"
+									v-bind="componentField"
+									min="0"
+									max="99999999"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ componentField }" name="settings.requiredMessages">
+					<FormField
+						v-slot="{ componentField }"
+						name="settings.requiredMessages"
+					>
 						<FormItem>
 							<FormLabel>{{ t('roles.modal.requiredMessages') }}</FormLabel>
 							<FormControl>
-								<Input type="number" v-bind="componentField" min="0" max="99999999" />
+								<Input
+									type="number"
+									v-bind="componentField"
+									min="0"
+									max="99999999"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ componentField }" name="settings.requiredUserChannelPoints">
+					<FormField
+						v-slot="{ componentField }"
+						name="settings.requiredUserChannelPoints"
+					>
 						<FormItem>
 							<FormLabel>{{ t('roles.modal.requiredChannelPoints') }}</FormLabel>
 							<FormControl>
-								<Input type="number" v-bind="componentField" min="0" max="999999999999" />
+								<Input
+									type="number"
+									v-bind="componentField"
+									min="0"
+									max="999999999999"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -168,11 +195,23 @@ const onSubmit = handleSubmit(async (formData) => {
 				<h4 class="font-medium">
 					{{ t('roles.modal.permissions') }}
 				</h4>
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-					<FormField v-slot="{ value, handleChange }" name="permissions">
-						<template v-for="(permission, index) of PERMISSIONS_FLAGS" :key="index">
-							<div v-if="permission === 'delimiter'" class="col-span-2" />
-							<FormItem v-else class="flex flex-row items-start space-x-3 space-y-0">
+				<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+					<FormField
+						v-slot="{ value, handleChange }"
+						name="permissions"
+					>
+						<template
+							v-for="(permission, index) of PERMISSIONS_FLAGS"
+							:key="index"
+						>
+							<div
+								v-if="permission === 'delimiter'"
+								class="col-span-2"
+							/>
+							<FormItem
+								v-else
+								class="flex flex-row items-start space-y-0 space-x-3"
+							>
 								<FormControl>
 									<Checkbox
 										:model-value="value?.includes(permission.perm)"
@@ -206,7 +245,11 @@ const onSubmit = handleSubmit(async (formData) => {
 				</div>
 			</div>
 
-			<Button type="submit" class="w-full" @click="onSubmit">
+			<Button
+				type="submit"
+				class="w-full"
+				@click="onSubmit"
+			>
 				{{ t('sharedButtons.save') }}
 			</Button>
 		</div>

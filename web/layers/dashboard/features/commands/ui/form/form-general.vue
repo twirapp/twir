@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
-
 import { useCommandsGroupsApi } from '~~/layers/dashboard/api/commands/commands-groups'
 import ManageGroups from '~~/layers/dashboard/components/commands/manageGroups.vue'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
 import {
 	FormControl,
 	FormDescription,
@@ -37,13 +34,13 @@ import {
 	TagsInputItemText,
 } from '@/components/ui/tags-input'
 
+import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
+
 const { t } = useI18n()
 
 const groupsApi = useCommandsGroupsApi()
 const { data: groups } = groupsApi.useQueryGroups()
 const { isCustom } = useCommandEditV2()
-
-
 
 function computeSelectedGroupColor(id: string) {
 	if (!groups?.value?.commandsGroups) {
@@ -57,17 +54,20 @@ function computeSelectedGroupColor(id: string) {
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row justify-between flex-wrap">
+		<CardHeader class="flex flex-row flex-wrap justify-between">
 			<div></div>
 
 			<CardTitle class="flex items-center gap-2">
-				<Icon name="lucide:wrench"  />
+				<Icon name="lucide:wrench" />
 				General
 			</CardTitle>
 
 			<CardAction>
-				<FormField v-slot="{ field }" name="enabled">
-					<FormItem class="space-y-0 flex items-center gap-4">
+				<FormField
+					v-slot="{ field }"
+					name="enabled"
+				>
+					<FormItem class="flex items-center gap-4 space-y-0">
 						<FormControl>
 							<Switch
 								:model-value="field.value"
@@ -80,17 +80,26 @@ function computeSelectedGroupColor(id: string) {
 			</CardAction>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4 pt-4">
-			<FormField v-slot="{ componentField }" name="name">
+			<FormField
+				v-slot="{ componentField }"
+				name="name"
+			>
 				<FormItem>
 					<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
 					<FormControl>
-						<Input type="text" v-bind="componentField" />
+						<Input
+							type="text"
+							v-bind="componentField"
+						/>
 					</FormControl>
 					<FormMessage />
 				</FormItem>
 			</FormField>
 
-			<FormField v-slot="{ field, errorMessage }" name="aliases">
+			<FormField
+				v-slot="{ field, errorMessage }"
+				name="aliases"
+			>
 				<FormItem>
 					<FormLabel>{{ t('commands.modal.aliases.label') }}</FormLabel>
 					<FormControl>
@@ -99,12 +108,19 @@ function computeSelectedGroupColor(id: string) {
 							:model-value="field.value"
 							@update:model-value="field['onUpdate:modelValue']"
 						>
-							<TagsInputItem v-for="item in field.value" :key="item" :value="item">
+							<TagsInputItem
+								v-for="item in field.value"
+								:key="item"
+								:value="item"
+							>
 								<TagsInputItemText />
 								<TagsInputItemDelete />
 							</TagsInputItem>
 
-							<TagsInputInput :placeholder="t('commands.modal.aliases.label')" class="h-7" />
+							<TagsInputInput
+								:placeholder="t('commands.modal.aliases.label')"
+								class="h-7"
+							/>
 						</TagsInput>
 					</FormControl>
 					<FormDescription>
@@ -114,7 +130,10 @@ function computeSelectedGroupColor(id: string) {
 				</FormItem>
 			</FormField>
 
-			<FormField v-slot="{ componentField }" name="description">
+			<FormField
+				v-slot="{ componentField }"
+				name="description"
+			>
 				<FormItem>
 					<FormLabel>{{ t('commands.modal.description.label') }}</FormLabel>
 					<FormControl>
@@ -127,15 +146,21 @@ function computeSelectedGroupColor(id: string) {
 				</FormItem>
 			</FormField>
 
-			<FormField v-slot="{ componentField }" name="groupId">
+			<FormField
+				v-slot="{ componentField }"
+				name="groupId"
+			>
 				<FormItem>
 					<FormLabel class="flex gap-2">
 						<span>{{ t('commands.modal.settings.other.commandGroup') }}</span>
 						<Dialog>
 							<DialogTrigger as-child>
-								<span class="flex flex-row gap-1 items-center cursor-pointer underline">
+								<span class="flex cursor-pointer flex-row items-center gap-1 underline">
 									{{ t('commands.groups.manageButton') }}
-									<Icon name="lucide:edit" class="size-4" />
+									<Icon
+										name="lucide:edit"
+										class="size-4"
+									/>
 								</span>
 
 								<DialogOrSheet>
@@ -146,7 +171,10 @@ function computeSelectedGroupColor(id: string) {
 						</Dialog>
 					</FormLabel>
 
-					<div v-if="isCustom" class="flex flex-row gap-2">
+					<div
+						v-if="isCustom"
+						class="flex flex-row gap-2"
+					>
 						<FormControl>
 							<Select v-bind="componentField">
 								<SelectTrigger>
@@ -156,7 +184,12 @@ function computeSelectedGroupColor(id: string) {
 									/>
 								</SelectTrigger>
 								<SelectContent>
-									<div v-if="!groups?.commandsGroups.length" class="p-2">No groups created</div>
+									<div
+										v-if="!groups?.commandsGroups.length"
+										class="p-2"
+									>
+										No groups created
+									</div>
 									<SelectGroup v-else>
 										<SelectItem
 											v-for="group in groups?.commandsGroups"
@@ -176,10 +209,16 @@ function computeSelectedGroupColor(id: string) {
 							type="button"
 							@click="componentField['onUpdate:modelValue'](null)"
 						>
-							<Icon name="lucide:x" class="size-4" />
+							<Icon
+								name="lucide:x"
+								class="size-4"
+							/>
 						</Button>
 					</div>
-					<Alert v-else class="py-2">
+					<Alert
+						v-else
+						class="py-2"
+					>
 						<AlertDescription> Group cannot be set for default command </AlertDescription>
 					</Alert>
 					<FormMessage />
@@ -190,7 +229,10 @@ function computeSelectedGroupColor(id: string) {
 				</FormItem>
 			</FormField>
 
-			<FormField v-slot="{ field }" name="platforms">
+			<FormField
+				v-slot="{ field }"
+				name="platforms"
+			>
 				<FormItem>
 					<FormLabel>Platforms</FormLabel>
 					<FormDescription class="mb-2">

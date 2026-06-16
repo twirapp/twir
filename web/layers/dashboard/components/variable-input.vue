@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import type { FunctionalComponent } from 'vue'
 
+import { computed, ref } from 'vue'
 import { useVariablesApi } from '~~/layers/dashboard/api/variables'
+
 import {
 	Command,
 	CommandEmpty,
@@ -57,26 +56,39 @@ function handleSelect(value: string) {
 
 <template>
 	<Popover v-model:open="open">
-		<div class="flex flex-col w-full group relative">
+		<div class="group relative flex w-full flex-col">
 			<component
 				v-bind="$attrs"
 				:is="inputType === 'textarea' ? Textarea : Input"
 				v-model="text"
-				class="input pr-10 w-full"
+				class="input w-full pr-10"
 				:maxlength="500"
 			/>
-			<div class="flex gap-0.5 absolute right-1 top-1" :class="{ 'opacity-100!': open }">
+			<div
+				class="absolute top-1 right-1 flex gap-0.5"
+				:class="{ 'opacity-100!': open }"
+			>
 				<PopoverTrigger as-child>
-					<button class="hover:bg-secondary/80 p-1 rounded-md">
-						<Icon name="lucide:variable" class="size-4 opacity-50" />
+					<button class="hover:bg-secondary/80 rounded-md p-1">
+						<Icon
+							name="lucide:variable"
+							class="size-4 opacity-50"
+						/>
 					</button>
 				</PopoverTrigger>
 				<slot name="additional-buttons" />
 			</div>
 		</div>
-		<PopoverContent class="p-0 z-9999 max-w-[600px]" :align="popoverAlign" :side="popoverSide">
+		<PopoverContent
+			class="z-9999 max-w-[600px] p-0"
+			:align="popoverAlign"
+			:side="popoverSide"
+		>
 			<Command :reset-search-term-on-blur="false">
-				<CommandInput class="h-9" :placeholder="t('sharedTexts.searchPlaceholder')" />
+				<CommandInput
+					class="h-9"
+					:placeholder="t('sharedTexts.searchPlaceholder')"
+				/>
 				<CommandEmpty> Not found </CommandEmpty>
 				<CommandList>
 					<CommandGroup>
@@ -86,10 +98,17 @@ function handleSelect(value: string) {
 							:value="option.value"
 							@select="handleSelect(option.value)"
 						>
-							<div class="flex flex-wrap flex-col gap-0.5">
+							<div class="flex flex-col flex-wrap gap-0.5">
 								<span>{{ option.label }}</span>
-								<span v-if="option.description" class="text-xs">{{ option.description }}</span>
-								<div v-if="option.links" class="flex flex-wrap gap-4">
+								<span
+									v-if="option.description"
+									class="text-xs"
+									>{{ option.description }}</span
+								>
+								<div
+									v-if="option.links"
+									class="flex flex-wrap gap-4"
+								>
 									<a
 										v-for="link of option.links"
 										:key="link.href"

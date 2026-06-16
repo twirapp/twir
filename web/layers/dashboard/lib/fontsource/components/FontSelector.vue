@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { type Font, generateFontKey, useFontSource } from '@twir/fontsource'
 import { useVirtualizer } from '@tanstack/vue-virtual'
+import { type Font, generateFontKey, useFontSource } from '@twir/fontsource'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { cn } from '~~/layers/dashboard/lib/utils'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '~~/layers/dashboard/lib/utils'
 
 const props = defineProps<{
 	fontFamily: string
@@ -56,12 +55,11 @@ watch(
 			font.value = foundFont
 		} else {
 			// Font not in cache, load it
-			fontSource.loadFont(selectedFontId, props.fontWeight, props.fontStyle)
-				.then((loadedFont) => {
-					if (loadedFont) {
-						font.value = loadedFont
-					}
-				})
+			fontSource.loadFont(selectedFontId, props.fontWeight, props.fontStyle).then((loadedFont) => {
+				if (loadedFont) {
+					font.value = loadedFont
+				}
+			})
 		}
 	}
 )
@@ -98,8 +96,6 @@ const selectedFontLabel = computed(() => {
 	return selected?.label || t('overlays.chat.selectFont')
 })
 
-
-
 // Virtual scrolling setup
 const virtualizer = useVirtualizer({
 	get count() {
@@ -129,7 +125,7 @@ function selectFont(optionValue: string) {
 watch(open, async (isOpen) => {
 	if (isOpen && selectedFont.value) {
 		await nextTick()
-		const selectedIndex = fontOptions.value.findIndex(f => f.value === selectedFont.value)
+		const selectedIndex = fontOptions.value.findIndex((f) => f.value === selectedFont.value)
 		if (selectedIndex !== -1) {
 			virtualizer.value.scrollToIndex(selectedIndex, { align: 'center' })
 		}
@@ -142,7 +138,11 @@ onMounted(async () => {
 		selectedFont.value = props.fontFamily
 
 		// Load the font if not already loaded
-		const loadedFont = await fontSource.loadFont(props.fontFamily, props.fontWeight, props.fontStyle)
+		const loadedFont = await fontSource.loadFont(
+			props.fontFamily,
+			props.fontWeight,
+			props.fontStyle
+		)
 		if (loadedFont) {
 			font.value = loadedFont
 		}
@@ -161,18 +161,31 @@ onMounted(async () => {
 					:disabled="fontSource.loading.value"
 					class="w-full justify-between"
 				>
-					<span v-if="fontSource.loading.value" class="flex items-center gap-2">
-						<Icon name="lucide:loader-circle" class="h-4 w-4 animate-spin" />
+					<span
+						v-if="fontSource.loading.value"
+						class="flex items-center gap-2"
+					>
+						<Icon
+							name="lucide:loader-circle"
+							class="h-4 w-4 animate-spin"
+						/>
 						{{ t('sharedTexts.loading') }}
 					</span>
-					<span v-else class="truncate">{{ selectedFontLabel }}</span>
-					<Icon name="lucide:chevrons-up-down" class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+					<span
+						v-else
+						class="truncate"
+						>{{ selectedFontLabel }}</span
+					>
+					<Icon
+						name="lucide:chevrons-up-down"
+						class="ml-2 h-4 w-4 shrink-0 opacity-50"
+					/>
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent class="w-100 p-0">
 				<div class="flex flex-col">
 					<!-- Search Input -->
-					<div class="p-2 border-b">
+					<div class="border-b p-2">
 						<Input
 							v-model="searchQuery"
 							:placeholder="t('overlays.chat.searchFont')"
@@ -180,8 +193,11 @@ onMounted(async () => {
 						/>
 					</div>
 
-							<!-- Empty state -->
-					<div v-if="fontOptions.length === 0" class="p-4 text-center text-sm text-muted-foreground">
+					<!-- Empty state -->
+					<div
+						v-if="fontOptions.length === 0"
+						class="text-muted-foreground p-4 text-center text-sm"
+					>
 						{{ t('overlays.chat.noFontsFound') }}
 					</div>
 
@@ -212,20 +228,25 @@ onMounted(async () => {
 								}"
 							>
 								<div
-									class="flex items-center gap-2 px-2 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-sm transition-colors"
+									class="hover:bg-accent hover:text-accent-foreground flex cursor-pointer items-center gap-2 rounded-sm px-2 py-2 transition-colors"
 									:class="{
-										'bg-accent text-accent-foreground': selectedFont === fontOptions[virtualRow.index].value
+										'bg-accent text-accent-foreground':
+											selectedFont === fontOptions[virtualRow.index].value,
 									}"
 									@mouseenter="loadFontPreview(fontOptions[virtualRow.index])"
 									@click="selectFont(fontOptions[virtualRow.index].value)"
 								>
-									<Icon name="lucide:check"
+									<Icon
+										name="lucide:check"
 										:class="
 											cn(
 												'h-4 w-4 shrink-0',
-												selectedFont === fontOptions[virtualRow.index].value ? 'opacity-100' : 'opacity-0'
+												selectedFont === fontOptions[virtualRow.index].value
+													? 'opacity-100'
+													: 'opacity-0'
 											)
-										" />
+										"
+									/>
 									<span
 										class="truncate text-sm"
 										:style="{

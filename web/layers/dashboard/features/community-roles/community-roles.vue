@@ -1,19 +1,18 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import RoleModal from './ui/modal.vue'
-
-import type { ChannelRolesQuery } from '~/gql/graphql.js'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useRoles } from '~~/layers/dashboard/api/roles'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+
+import type { ChannelRolesQuery } from '~/gql/graphql.js'
+
 import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ChannelRolePermissionEnum, RoleTypeEnum } from '~/gql/graphql.js'
+
+import RoleModal from './ui/modal.vue'
 
 const rolesManager = useRoles()
 const { data: roles } = rolesManager.useRolesQuery()
@@ -50,14 +49,19 @@ const { t } = useI18n()
 		<Card
 			class="min-w-[400px]"
 			:class="{ 'cursor-pointer': userCanManageRoles, 'cursor-not-allowed': !userCanManageRoles }"
-			@click="() => {
-				if (userCanManageRoles) {
-					openModal(null)
+			@click="
+				() => {
+					if (userCanManageRoles) {
+						openModal(null)
+					}
 				}
-			}"
+			"
 		>
 			<CardContent class="flex items-center justify-center p-6">
-				<Icon name="lucide:plus" class="h-8 w-8" />
+				<Icon
+					name="lucide:plus"
+					class="h-8 w-8"
+				/>
 			</CardContent>
 		</Card>
 

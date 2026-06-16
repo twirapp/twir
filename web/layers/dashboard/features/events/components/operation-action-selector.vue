@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { EventOperation } from '~~/layers/dashboard/api/events.js'
+
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import type { EventOperation } from '~~/layers/dashboard/api/events.js'
-import { getOperationColor } from '../composables/use-operation-color.js'
+import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers.js'
+import { EventOperations } from '~~/layers/dashboard/features/events/constants/operations.js'
+import { cn } from '~~/layers/dashboard/lib/utils.js'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -17,10 +18,9 @@ import {
 } from '@/components/ui/command'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { flatOperations } from '~~/layers/dashboard/features/events/constants/helpers.js'
-import { EventOperations } from '~~/layers/dashboard/features/events/constants/operations.js'
 import { EventOperationType } from '~/gql/graphql.js'
-import { cn } from '~~/layers/dashboard/lib/utils.js'
+
+import { getOperationColor } from '../composables/use-operation-color.js'
 
 const props = defineProps<{
 	currentOperationIndex: number
@@ -77,7 +77,7 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 							>
 								<div class="flex items-center gap-2">
 									<div
-										class="rounded-full size-3"
+										class="size-3 rounded-full"
 										:class="[getOperationColor(currentOperation?.type)]"
 									></div>
 									{{
@@ -86,7 +86,10 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 											: 'Select...'
 									}}
 								</div>
-								<Icon name="lucide:chevrons-up-down" class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+								<Icon
+									name="lucide:chevrons-up-down"
+									class="ml-2 h-4 w-4 shrink-0 opacity-50"
+								/>
 							</Button>
 						</FormControl>
 					</PopoverTrigger>
@@ -114,17 +117,19 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 											class="flex items-center gap-2"
 										>
 											<div
-												class="rounded-full size-3"
+												class="size-3 rounded-full"
 												:class="[getOperationColor(operation.value)]"
 											></div>
 											{{ operation.name }}
-											<Icon name="lucide:check"
+											<Icon
+												name="lucide:check"
 												:class="
 													cn(
 														'ml-auto h-4 w-4',
 														currentOperation?.type === operation.value ? 'opacity-100' : 'opacity-0'
 													)
-												" />
+												"
+											/>
 										</CommandItem>
 									</CommandGroup>
 
@@ -141,11 +146,12 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 											class="flex items-center gap-2"
 										>
 											<div
-												class="rounded-full size-3"
+												class="size-3 rounded-full"
 												:class="[getOperationColor(selectOption.value)]"
 											></div>
 											{{ selectOption.name }}
-											<Icon name="lucide:check"
+											<Icon
+												name="lucide:check"
 												:class="
 													cn(
 														'ml-auto h-4 w-4',
@@ -153,7 +159,8 @@ const typeSelectOptions = Object.entries(EventOperations).map<{
 															? 'opacity-100'
 															: 'opacity-0'
 													)
-												" />
+												"
+											/>
 										</CommandItem>
 									</CommandGroup>
 								</template>

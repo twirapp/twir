@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-
-import CommandMenuItem from './CommandMenuItem.vue'
-import CommandMenuKbd from './CommandMenuKbd.vue'
 import { useDashboard, useProfile } from '~~/layers/dashboard/api/auth'
 import { useCommandMenuData } from '~~/layers/dashboard/api/command-menu'
+import { useIsMac } from '~~/layers/dashboard/composables/useIsMac'
+import {
+	footerNavigationItems,
+	getFlatNavigationItems,
+} from '~~/layers/dashboard/config/navigation'
+import { usePublicPageHref } from '~~/layers/dashboard/layout/use-public-page-href'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,9 +29,9 @@ import {
 } from '@/components/ui/dialog'
 import { Kbd } from '@/components/ui/kbd'
 import { Separator } from '@/components/ui/separator'
-import { useIsMac } from '~~/layers/dashboard/composables/useIsMac'
-import { footerNavigationItems, getFlatNavigationItems } from '~~/layers/dashboard/config/navigation'
-import { usePublicPageHref } from '~~/layers/dashboard/layout/use-public-page-href'
+
+import CommandMenuItem from './CommandMenuItem.vue'
+import CommandMenuKbd from './CommandMenuKbd.vue'
 
 interface Props {
 	iconOnly?: boolean
@@ -45,6 +48,8 @@ const { t } = useI18n()
 
 const isMac = useIsMac()
 const publicPageHref = usePublicPageHref()
+const requestUrl = useRequestURL()
+const localePath = useLocalePath()
 
 const { commands, keywords, variables } = useCommandMenuData()
 const { data: profile } = useProfile()
@@ -72,6 +77,7 @@ const navRoutes = computed(() => {
 
 		return {
 			...route,
+			path: localePath(route.path),
 			displayName: displayName || route.name || '',
 		}
 	})
@@ -96,7 +102,9 @@ const footerRoutes = computed(() => {
 			if (item.isPublicPageDependent && item.translationKey === 'sidebar.publicPage') {
 				href = publicPageHref.value || ''
 			} else if (item.href.startsWith('/') && item.isExternal) {
-				href = `${window.location.origin}${item.href}`
+				href = `${requestUrl.origin}${item.href}`
+			} else if (!item.isExternal) {
+				href = localePath(item.href)
 			}
 
 			return {
@@ -160,7 +168,10 @@ onMounted(() => {
 				class="text-muted-foreground relative h-9 w-full justify-start text-sm sm:pr-12 md:w-48 lg:w-64"
 				@click="open = true"
 			>
-				<Icon name="lucide:command" class="mr-2 h-4 w-4" />
+				<Icon
+					name="lucide:command"
+					class="mr-2 h-4 w-4"
+				/>
 				<span class="hidden lg:inline-flex">Search...</span>
 				<span class="inline-flex lg:hidden">Search...</span>
 				<div class="absolute top-1.5 right-1.5 hidden gap-1 sm:flex">
@@ -175,7 +186,10 @@ onMounted(() => {
 				class="h-9 w-9"
 				@click="open = true"
 			>
-				<Icon name="lucide:search" class="h-5 w-5" />
+				<Icon
+					name="lucide:search"
+					class="h-5 w-5"
+				/>
 			</Button>
 		</DialogTrigger>
 		<DialogContent
@@ -233,7 +247,10 @@ onMounted(() => {
 									:alt="dashboard.twitchProfile?.displayName ?? ''"
 								/>
 								<AvatarFallback>
-									<Icon name="lucide:user" class="h-3 w-3" />
+									<Icon
+										name="lucide:user"
+										class="h-3 w-3"
+									/>
 								</AvatarFallback>
 							</Avatar>
 							<span class="truncate">{{ dashboard.twitchProfile?.displayName ?? '' }}</span>
@@ -278,11 +295,14 @@ onMounted(() => {
 							:key="command.id"
 							:value="`command ${command.name} ${command.description || ''}`"
 							@select="
-								() => runCommand(() => router.push(`/dashboard/commands/custom/${command.id}`))
+								() => runCommand(() => router.push(localePath(`/dashboard/commands/custom/${command.id}`)))
 							"
 							class="cursor-pointer"
 						>
-							<Icon name="lucide:command" class="mr-2 h-4 w-4 flex-shrink-0" />
+							<Icon
+								name="lucide:command"
+								class="mr-2 h-4 w-4 flex-shrink-0"
+							/>
 							<span class="truncate">{{ command.name }}</span>
 							<span
 								v-if="command.description"
@@ -302,10 +322,13 @@ onMounted(() => {
 							v-for="keyword in keywords.filter((k) => k.enabled)"
 							:key="keyword.id"
 							:value="`keyword ${keyword.text}`"
-							@select="() => runCommand(() => router.push(`/dashboard/keywords`))"
+							@select="() => runCommand(() => router.push(localePath(`/dashboard/keywords`)))"
 							class="cursor-pointer"
 						>
-							<Icon name="lucide:hash" class="mr-2 h-4 w-4 flex-shrink-0" />
+							<Icon
+								name="lucide:hash"
+								class="mr-2 h-4 w-4 flex-shrink-0"
+							/>
 							<span class="truncate">{{ keyword.text }}</span>
 						</CommandMenuItem>
 					</CommandGroup>
@@ -319,10 +342,13 @@ onMounted(() => {
 							v-for="variable in variables"
 							:key="variable.id"
 							:value="`variable ${variable.name} ${variable.description || ''}`"
-							@select="() => runCommand(() => router.push(`/dashboard/variables/${variable.id}`))"
+							@select="() => runCommand(() => router.push(localePath(`/dashboard/variables/${variable.id}`)))"
 							class="cursor-pointer"
 						>
-							<Icon name="lucide:variable" class="mr-2 h-4 w-4 flex-shrink-0" />
+							<Icon
+								name="lucide:variable"
+								class="mr-2 h-4 w-4 flex-shrink-0"
+							/>
 							<span class="truncate">{{ variable.name }}</span>
 							<span
 								v-if="variable.description"
@@ -337,7 +363,10 @@ onMounted(() => {
 			<div class="text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-xs">
 				<div class="flex items-center gap-1">
 					<CommandMenuKbd>
-						<Icon name="lucide:chevron-right" class="h-3 w-3" />
+						<Icon
+							name="lucide:chevron-right"
+							class="h-3 w-3"
+						/>
 					</CommandMenuKbd>
 					<span>to navigate</span>
 				</div>

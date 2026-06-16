@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { Button } from '@/components/ui/button'

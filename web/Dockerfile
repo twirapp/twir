@@ -4,6 +4,7 @@ WORKDIR /app
 FROM base AS builder
 COPY . .
 ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN bun install --frozen-lockfile
 RUN bun --filter=@twir/web run build
 

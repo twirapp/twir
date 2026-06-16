@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useField } from 'vee-validate'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useCommandEditV2 } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
@@ -16,7 +16,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { useCommandEditV2 } from '~~/layers/dashboard/features/commands/composables/use-command-edit-v2'
 import { CommandExpiresType } from '~/gql/graphql.js'
 
 const { t } = useI18n()
@@ -40,15 +39,21 @@ function reset() {
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row place-content-center flex-wrap">
+		<CardHeader class="flex flex-row flex-wrap place-content-center">
 			<CardTitle class="flex items-center gap-2">
-				<Icon name="lucide:hourglass"  />
+				<Icon name="lucide:hourglass" />
 				{{ t('commands.modal.expiration.label') }}
 			</CardTitle>
 		</CardHeader>
 
-		<CardContent v-if="isCustom" class="flex flex-col gap-4 pt-4">
-			<FormField v-slot="{ componentField }" name="expiresType">
+		<CardContent
+			v-if="isCustom"
+			class="flex flex-col gap-4 pt-4"
+		>
+			<FormField
+				v-slot="{ componentField }"
+				name="expiresType"
+			>
 				<FormItem>
 					<FormLabel>{{ t('commands.modal.expiration.actionsLabel') }}</FormLabel>
 					<div class="flex flex-row gap-2">
@@ -68,15 +73,25 @@ function reset() {
 								</SelectContent>
 							</Select>
 						</FormControl>
-						<Button variant="outline" type="button" @click="reset">
-							<Icon name="lucide:x" class="size-4" />
+						<Button
+							variant="outline"
+							type="button"
+							@click="reset"
+						>
+							<Icon
+								name="lucide:x"
+								class="size-4"
+							/>
 						</Button>
 					</div>
 					<FormMessage />
 				</FormItem>
 			</FormField>
 
-			<FormField v-slot="{ field }" name="expiresAt">
+			<FormField
+				v-slot="{ field }"
+				name="expiresAt"
+			>
 				<FormItem>
 					<FormLabel>Expires at</FormLabel>
 					<FormControl>

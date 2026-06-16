@@ -1,19 +1,17 @@
 <script setup lang="ts">
-
 import { useForm } from 'vee-validate'
 import { computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import * as z from 'zod'
-
 import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands.js'
 import { useModerationChatWall } from '~~/layers/dashboard/api/moderation-chat-wall.js'
+import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'
+import { cn } from '~~/layers/dashboard/lib/utils'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import CommandsList from '~~/layers/dashboard/features/commands/ui/list.vue'
-import { cn } from '~~/layers/dashboard/lib/utils'
 
 const { t } = useI18n()
 const api = useModerationChatWall()
@@ -72,14 +70,17 @@ const chatWallCommands = computed(() => {
 			<CardContent :class="cn('relative', { 'pointer-events-none': fetching })">
 				<div
 					v-if="fetching"
-					class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-xs"
+					class="bg-background/80 absolute inset-0 z-50 flex items-center justify-center backdrop-blur-xs"
 				>
 					<div
-						class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"
+						class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"
 					/>
 				</div>
 				<div class="flex flex-col gap-4">
-					<FormField v-slot="{ field }" name="muteSubscribers">
+					<FormField
+						v-slot="{ field }"
+						name="muteSubscribers"
+					>
 						<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 							<div class="space-y-0.5">
 								<FormLabel class="text-base">
@@ -96,7 +97,10 @@ const chatWallCommands = computed(() => {
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ field }" name="muteVips">
+					<FormField
+						v-slot="{ field }"
+						name="muteVips"
+					>
 						<FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
 							<div class="space-y-0.5">
 								<FormLabel class="text-base">
@@ -115,7 +119,10 @@ const chatWallCommands = computed(() => {
 				</div>
 			</CardContent>
 			<CardFooter class="justify-end">
-				<Button type="submit" :disabled="fetching">
+				<Button
+					type="submit"
+					:disabled="fetching"
+				>
 					{{ t('sharedButtons.save') }}
 				</Button>
 			</CardFooter>
@@ -128,7 +135,11 @@ const chatWallCommands = computed(() => {
 		</CardHeader>
 		<CardContent>
 			<div class="flex flex-row flex-wrap gap-4">
-				<CommandsList v-if="chatWallCommands" :commands="chatWallCommands" show-background />
+				<CommandsList
+					v-if="chatWallCommands"
+					:commands="chatWallCommands"
+					show-background
+				/>
 			</div>
 		</CardContent>
 	</Card>

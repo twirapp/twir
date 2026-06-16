@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-import NotificationsTableSearch from './notifications-table-search.vue'
-import { useNotificationsTable } from '../composables/use-notifications-table'
-
 import Table from '~~/layers/dashboard/components/table.vue'
+
 import { TooltipProvider } from '@/components/ui/tooltip'
+
+import { useNotificationsTable } from '../composables/use-notifications-table'
+import NotificationsTableSearch from './notifications-table-search.vue'
 
 const { t } = useI18n()
 const notificationsTable = useNotificationsTable()
@@ -16,7 +15,10 @@ const notificationsTable = useNotificationsTable()
 	<slot name="pagination" />
 
 	<TooltipProvider :delay-duration="100">
-		<Table :table="notificationsTable.table" :is-loading="notificationsTable.isLoading.value">
+		<Table
+			:table="notificationsTable.table"
+			:is-loading="notificationsTable.isLoading.value"
+		>
 			<template #empty-message>
 				{{ t('adminPanel.notifications.emptyNotifications') }}
 			</template>

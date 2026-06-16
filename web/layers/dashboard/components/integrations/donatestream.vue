@@ -13,8 +13,9 @@ import { Input } from '@/components/ui/input'
 const integrationsPage = useIntegrationsPageData()
 const manager = useIntegrations()
 const { executeMutation } = manager.donateStreamPostCode()
+const requestUrl = useRequestURL()
 
-const currentPageUrl = `${window.location.origin}/api/webhooks/integrations/donatestream`
+const currentPageUrl = `${requestUrl.origin}/api/webhooks/integrations/donatestream`
 const webhookUrl = computed(() => {
 	return `${currentPageUrl}/${integrationsPage.donateStreamData.value?.integrationId}`
 })

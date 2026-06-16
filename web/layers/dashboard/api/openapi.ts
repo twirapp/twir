@@ -69,7 +69,7 @@ function createErrorHandlingHttpClient(config: ConstructorParameters<typeof Http
 
 export const openApi = new Api(
 	createErrorHandlingHttpClient({
-		baseUrl: `${window.location.origin}/api`,
+		baseUrl: typeof window !== 'undefined' ? `${window.location.origin}/api` : '/api',
 		baseApiParams: {
 			credentials: 'include',
 		},

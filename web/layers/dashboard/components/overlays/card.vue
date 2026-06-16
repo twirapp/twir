@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-import { useCopyOverlayLink } from './copyOverlayLink.js'
-
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import Card from '~~/layers/dashboard/components/card/card.vue'
+
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
+
+import { useCopyOverlayLink } from './copyOverlayLink.js'
 
 const props = withDefaults(
 	defineProps<{
@@ -40,7 +39,12 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 </script>
 
 <template>
-	<Card :title="title" :icon="icon" :icon-stroke="iconStroke" class="h-full">
+	<Card
+		:title="title"
+		:icon="icon"
+		:icon-stroke="iconStroke"
+		class="h-full"
+	>
 		<template #content>
 			{{ description }}
 		</template>
@@ -53,7 +57,10 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 				class="flex items-center gap-2"
 				@click="$emit('openSettings')"
 			>
-				<Icon name="lucide:settings" class="size-4" />
+				<Icon
+					name="lucide:settings"
+					class="size-4"
+				/>
 				<span>{{ t('sharedButtons.settings') }}</span>
 			</Button>
 			<TooltipProvider v-if="showCopy">
@@ -64,7 +71,10 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 							class="flex items-center gap-2"
 							@click="copyOverlayLink()"
 						>
-							<Icon name="lucide:copy" class="size-4" />
+							<Icon
+								name="lucide:copy"
+								class="size-4"
+							/>
 							<span>{{ t('overlays.copyOverlayLink') }}</span>
 						</Button>
 					</TooltipTrigger>

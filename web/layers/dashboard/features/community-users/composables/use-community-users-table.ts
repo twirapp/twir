@@ -10,7 +10,7 @@ import {
 } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
+
 
 import { useCommunityTableActions } from './use-community-table-actions.js'
 import CommunityUsersTableColumn from '../ui/community-users-table-column.vue'

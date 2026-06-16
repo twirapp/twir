@@ -1,15 +1,13 @@
+import type { ColumnDef } from '@tanstack/vue-table'
+import type { ScheduledVip } from '~~/layers/dashboard/api/scheduled-vips.js'
+
 import { getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import ExpiringVipsTableActions from '../ui/expiring-vips-table-actions.vue'
-
-import type { ScheduledVip } from '~~/layers/dashboard/api/scheduled-vips.js'
-import type { ColumnDef } from '@tanstack/vue-table'
-
 import { useScheduledVipsApi } from '~~/layers/dashboard/api/scheduled-vips.js'
 import UsersTableCellUser from '~~/layers/dashboard/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
+
+import ExpiringVipsTableActions from '../ui/expiring-vips-table-actions.vue'
 
 export const useExpiringVipsTable = createGlobalState(() => {
 	const { t } = useI18n()
@@ -26,15 +24,19 @@ export const useExpiringVipsTable = createGlobalState(() => {
 			size: 40,
 			header: () => h('div', {}, t('sharedTexts.user')),
 			cell: ({ row }) => {
-				return h('a', {
-					class: 'flex flex-col',
-					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank',
-				}, h(UsersTableCellUser, {
-					avatar: row.original.twitchProfile.profileImageUrl,
-					name: row.original.twitchProfile.login,
-					displayName: row.original.twitchProfile.displayName,
-				}))
+				return h(
+					'a',
+					{
+						class: 'flex flex-col',
+						href: `https://twitch.tv/${row.original.twitchProfile.login}`,
+						target: '_blank',
+					},
+					h(UsersTableCellUser, {
+						avatar: row.original.twitchProfile.profileImageUrl,
+						name: row.original.twitchProfile.login,
+						displayName: row.original.twitchProfile.displayName,
+					})
+				)
 			},
 		},
 		{
@@ -50,7 +52,10 @@ export const useExpiringVipsTable = createGlobalState(() => {
 			size: 10,
 			header: () => h('div', {}, 'Expire at'),
 			cell: ({ row }) => {
-				return h('span', row.original.removeAt ? new Date(row.original.removeAt).toLocaleString() : '-')
+				return h(
+					'span',
+					row.original.removeAt ? new Date(row.original.removeAt).toLocaleString() : '-'
+				)
 			},
 		},
 		{

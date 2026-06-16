@@ -15,34 +15,46 @@ export const convertMillisToTime = (millis: number) => {
 	)}`;
 };
 
-const rtf = new Intl.RelativeTimeFormat(window.navigator.language, {
-	localeMatcher: 'best fit',
-	numeric: 'always',
-	style: 'long',
-});
+let rtf: Intl.RelativeTimeFormat
+
+function getRtf() {
+	if (!rtf) {
+		const locale = typeof navigator !== 'undefined' ? navigator.language : 'en'
+		rtf = new Intl.RelativeTimeFormat(
+			locale,
+			{
+				localeMatcher: 'best fit',
+				numeric: 'always',
+				style: 'long',
+			},
+		)
+	}
+	return rtf
+}
 
 export const timeAgo = (value: string) => {
   const seconds = Math.floor((new Date().getTime() - new Date(value).getTime()) / 1000);
   let interval = seconds / 31536000;
+  const formatter = getRtf()
   if (interval > 1) {
-	return rtf.format(-Math.floor(interval), 'year');
+	return formatter.format(-Math.floor(interval), 'year');
   }
   interval = seconds / 2592000;
   if (interval > 1) {
-	return rtf.format(-Math.floor(interval), 'month');
+	return formatter.format(-Math.floor(interval), 'month');
   }
   interval = seconds / 86400;
   if (interval > 1) {
-	return rtf.format(-Math.floor(interval), 'day');
+	return formatter.format(-Math.floor(interval), 'day');
   }
   interval = seconds / 3600;
   if (interval > 1) {
-	return rtf.format(-Math.floor(interval), 'hour');
+	return formatter.format(-Math.floor(interval), 'hour');
   }
   interval = seconds / 60;
   if (interval > 1) {
-	return rtf.format(-Math.floor(interval), 'minute');
+	return formatter.format(-Math.floor(interval), 'minute');
   }
 
-  return rtf.format(-Math.floor(interval), 'second');
+  return formatter.format(-Math.floor(interval), 'second');
 };

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { useField } from 'vee-validate'
 import { computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-
 import TwitchCategorySearchShadcnMultiple from '~~/layers/dashboard/components/twitch-category-search-shadcn-multiple.vue'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -64,14 +63,14 @@ const checkboxes = computed(() => {
 
 <template>
 	<Card>
-		<CardHeader class="flex flex-row place-content-center flex-wrap">
+		<CardHeader class="flex flex-row flex-wrap place-content-center">
 			<CardTitle class="flex items-center gap-2">
-				<Icon name="lucide:sliders-horizontal"  />
+				<Icon name="lucide:sliders-horizontal" />
 				Conditions
 			</CardTitle>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-2 pt-4">
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+			<div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
 				<FormField
 					v-for="checkbox of checkboxes"
 					:key="checkbox.name"
@@ -79,9 +78,12 @@ const checkboxes = computed(() => {
 					type="checkbox"
 					:name="checkbox.name"
 				>
-					<FormItem class="flex flex-row items-start gap-x-3 space-y-0 rounded-md border p-4">
+					<FormItem class="flex flex-row items-start space-y-0 gap-x-3 rounded-md border p-4">
 						<FormControl>
-							<Checkbox :model-value="value" @update:model-value="handleChange" />
+							<Checkbox
+								:model-value="value"
+								@update:model-value="handleChange"
+							/>
 						</FormControl>
 						<div class="space-y-1 leading-none">
 							<FormLabel>{{ checkbox.label }}</FormLabel>
@@ -95,7 +97,10 @@ const checkboxes = computed(() => {
 			</div>
 
 			<div>
-				<FormField v-slot="{ field }" name="enabledCategories">
+				<FormField
+					v-slot="{ field }"
+					name="enabledCategories"
+				>
 					<FormItem>
 						<FormLabel>
 							{{ t('commands.modal.gameCategories.label') }}
