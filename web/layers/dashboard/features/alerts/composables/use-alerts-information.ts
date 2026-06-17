@@ -11,8 +11,13 @@ export function useAlertsInformation() {
 		)
 	})
 
+	const overlayApiKey = computed(() => {
+		return selectedDashboardTwitchUser.value?.apiKey || profile.value?.apiKey || ''
+	})
+
 	const overlayLink = computed(() => {
-		return `${requestUrl.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/alerts`
+		if (!overlayApiKey.value) return ''
+		return `${requestUrl.origin}/overlays/${overlayApiKey.value}/alerts`
 	})
 
 	const isShowOverlayLink = ref(false)

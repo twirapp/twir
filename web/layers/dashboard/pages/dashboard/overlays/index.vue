@@ -49,8 +49,13 @@ const selectedDashboardTwitchUser = computed(() => {
 })
 
 async function copyUrl(id: string) {
+	const apiKey = selectedDashboardTwitchUser.value?.apiKey || profile.value?.apiKey || ''
+	if (!apiKey) {
+		toast.error('No API key found')
+		return
+	}
 	await copyToClipBoard(
-		`${requestUrl.origin}/overlays/${selectedDashboardTwitchUser.value?.apiKey}/registry/overlays/${id}`
+		`${requestUrl.origin}/overlays/${apiKey}/registry/overlays/${id}`
 	)
 	toast.success(t('overlays.copied'))
 }
