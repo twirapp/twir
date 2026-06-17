@@ -10,7 +10,7 @@
       "title": "CPU Usage by Service",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
           "expr": "sum by (container_label_com_docker_service_name) (rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\"}[5m]))",
@@ -28,7 +28,7 @@
       "title": "Memory Usage by Service",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
           "expr": "sum by (container_label_com_docker_service_name) (container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\"})",
@@ -46,7 +46,7 @@
       "title": "Network RX by Service",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
           "expr": "sum by (container_label_com_docker_service_name) (rate(container_network_receive_bytes_total{container_label_com_docker_stack_namespace=\"twir\"}[5m]))",
@@ -64,7 +64,7 @@
       "title": "Network TX by Service",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
           "expr": "sum by (container_label_com_docker_service_name) (rate(container_network_transmit_bytes_total{container_label_com_docker_stack_namespace=\"twir\"}[5m]))",
@@ -82,7 +82,7 @@
       "title": "Memory Usage Breakdown",
       "type": "piechart",
       "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
           "expr": "sum by (container_label_com_docker_service_name) (container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\"})",
@@ -97,7 +97,7 @@
       "title": "Top 10 Containers by CPU",
       "type": "table",
       "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
           "expr": "topk(10, sum by (container_label_com_docker_service_name, container_label_com_docker_stack_namespace) (rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\"}[5m])))",
@@ -124,7 +124,7 @@
       "title": "CPU Usage Total",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 16, "y": 16 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
           "expr": "sum(rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\"}[5m]))",
@@ -148,7 +148,7 @@
       "title": "Memory Usage Total",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 16 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
           "expr": "sum(container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\"})",

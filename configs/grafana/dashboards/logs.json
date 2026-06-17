@@ -7,13 +7,13 @@
   "links": [],
   "panels": [
     {
-      "title": "Log Rate by Service",
+      "title": "Log Rate by Container",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "service:* | stats count(*) by service",
+          "expr": "{container_name=~\"$service\"} | stats count(*) by container_name",
           "queryType": "range"
         }
       ],
@@ -24,53 +24,13 @@
       }
     },
     {
-      "title": "Error Rate by Service",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
-      "targets": [
-        {
-          "expr": "level:error | stats count(*) by service",
-          "queryType": "range"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": { "drawStyle": "bars", "fillOpacity": 80, "stacking": { "mode": "normal" } },
-          "color": { "mode": "palette-classic" }
-        }
-      }
-    },
-    {
-      "title": "Total Log Lines (last 1h)",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 8 },
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
-      "targets": [
-        {
-          "expr": "* | stats count(*)",
-          "queryType": "instant"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": {
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          }
-        }
-      }
-    },
-    {
       "title": "Error Count (last 1h)",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 8 },
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 8 },
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "level:error | stats count(*)",
+          "expr": "{container_name=~\"$service\"} level:error | stats count(*)",
           "queryType": "instant"
         }
       ],
@@ -89,11 +49,11 @@
     {
       "title": "Warning Count (last 1h)",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 8 },
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 8 },
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "level:warn | stats count(*)",
+          "expr": "{container_name=~\"$service\"} level:warn | stats count(*)",
           "queryType": "instant"
         }
       ],
@@ -110,13 +70,34 @@
       }
     },
     {
-      "title": "Top Services by Log Volume",
-      "type": "piechart",
-      "gridPos": { "h": 8, "w": 8, "x": 12, "y": 8 },
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "title": "Total Log Lines (last 1h)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 8 },
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "* | stats count(*) by service",
+          "expr": "{container_name=~\"$service\"} | stats count(*)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Top Containers by Log Volume",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
+      "targets": [
+        {
+          "expr": "* | stats count(*) by container_name",
           "queryType": "instant"
         }
       ],
@@ -125,13 +106,13 @@
       }
     },
     {
-      "title": "Recent Errors",
+      "title": "Logs",
       "type": "logs",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victoria-logs" },
+      "gridPos": { "h": 16, "w": 24, "x": 0, "y": 16 },
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "level:error",
+          "expr": "{container_name=~\"$service\"} $filter",
           "queryType": "raw"
         }
       ],
@@ -147,12 +128,33 @@
       }
     }
   ],
-  "refresh": "30s",
+  "refresh": "10s",
   "schemaVersion": 39,
-  "tags": ["logs", "victoria-logs"],
-  "templating": { "list": [] },
+  "tags": ["logs", "victoria-logs", "docker"],
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
+        "query": "* | stats count(*) by container_name",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" },
+        "definition": "* | stats count(*) by container_name"
+      },
+      {
+        "name": "filter",
+        "type": "textbox",
+        "current": { "text": "", "value": "" },
+        "label": "Filter"
+      }
+    ]
+  },
   "time": { "from": "now-1h", "to": "now" },
-  "title": "Docker Containers - Logs",
-  "uid": "docker-logs",
+  "title": "Docker Logs",
+  "uid": "docker-logs-v2",
   "version": 1
 }

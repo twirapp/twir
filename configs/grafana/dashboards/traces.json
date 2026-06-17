@@ -7,56 +7,36 @@
   "links": [],
   "panels": [
     {
-      "title": "Trace Latency (p50 / p95 / p99)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "datasource": { "type": "jaeger", "uid": "jaeger" },
-      "targets": [
-        {
-          "queryType": "search",
-          "service": "",
-          "operation": ""
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ns",
-          "custom": { "drawStyle": "line", "fillOpacity": 10 }
-        }
-      },
-      "description": "Open Jaeger Explore to search traces by service/operation"
+      "title": "How to Use Traces",
+      "type": "text",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "mode": "markdown",
+        "content": "## VictoriaTraces\n\nTraces are collected via OpenTelemetry Collector from your application services.\n\n### How to explore traces:\n1. Go to **Explore** → Select **VictoriaTraces** datasource\n2. Select a **Service** from the dropdown\n3. Optionally filter by **Operation**, **Duration**, or **Tags**\n4. Click a trace to see the flame graph and span details\n\n### Useful queries:\n- Find slow traces: set Min Duration to `500ms`\n- Find error traces: check **Tags** for `error=true`\n- Find traces by trace ID: paste ID in the search field\n\n### Trace → Logs correlation\nWhen viewing a trace, click on a span and navigate directly to related logs in VictoriaLogs."
+      }
     },
     {
-      "title": "Services",
+      "title": "Recent Traces",
       "type": "table",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "datasource": { "type": "jaeger", "uid": "jaeger" },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 6 },
+      "datasource": { "type": "jaeger", "uid": "P14D5514F5CCC0D1C" },
       "targets": [
         {
           "queryType": "search",
           "service": "",
           "operation": "",
-          "limit": 50
+          "limit": 20
         }
       ],
-      "description": "Navigate to Explore → VictoriaTraces to search traces"
-    },
-    {
-      "title": "How to Use Traces",
-      "type": "text",
-      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 8 },
       "options": {
-        "mode": "markdown",
-        "content": "## VictoriaTraces\n\nTraces are collected via OpenTelemetry Collector from your application services.\n\n### How to explore traces:\n1. Go to **Explore** → Select **VictoriaTraces** datasource\n2. Select a **Service** from the dropdown\n3. Optionally filter by **Operation**, **Duration**, or **Tags**\n4. Click a trace to see the flame graph\n\n### Useful queries:\n- Find slow traces: set Min Duration to `500ms`\n- Find error traces: check **Tags** for `error=true`\n- Find traces by trace ID: paste ID in the search field"
-      }
-    },
-    {
-      "title": "Trace → Logs Correlation",
-      "type": "text",
-      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 14 },
-      "options": {
-        "mode": "markdown",
-        "content": "## Trace to Logs\n\nWhen viewing a trace in the Jaeger datasource, you can click on a span and navigate directly to related logs in VictoriaLogs.\n\nThis works automatically because the Grafana datasource provisioning includes `tracesToLogsV2` configuration linking VictoriaTraces → VictoriaLogs."
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
       }
     }
   ],
