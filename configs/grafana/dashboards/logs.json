@@ -135,21 +135,22 @@
     "list": [
       {
         "name": "service",
-        "type": "query",
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
-        "query": "* | stats count(*) by container_name",
-        "refresh": 2,
+        "type": "custom",
+        "query": ".*",
+        "current": { "text": "All", "value": "$__all" },
+        "options": [
+          { "text": "All", "value": "$__all", "selected": true }
+        ],
         "includeAll": true,
         "allValue": ".*",
         "multi": true,
-        "current": { "text": "All", "value": "$__all" },
-        "definition": "* | stats count(*) by container_name"
+        "label": "Service"
       },
       {
         "name": "filter",
         "type": "textbox",
         "current": { "text": "", "value": "" },
-        "label": "Filter"
+        "label": "Filter (LogsQL)"
       }
     ]
   },
