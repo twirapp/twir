@@ -135,15 +135,38 @@
     "list": [
       {
         "name": "service",
-        "type": "query",
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
-        "query": "{\"type\":\"fieldValue\",\"field\":\"label.com.docker.swarm.service.name\",\"query\":\"*\",\"limit\":100}",
+        "type": "custom",
+        "query": "twir_api-gql,twir_pgdog,twir_bots,twir_scheduler,twir_eventsub,twir_events,twir_traefik,twir_emotes-cacher,twir_tokens,twir_integrations,twir_parser,twir_pgbouncer,twir_timers,twir_websockets,twir_temporal,twir_postgres,twir_temporal-postgres,twir_music-recognizer,twir_overlays,monitoring_grafana,twir_migrations,twir_deploy-webhook",
         "current": { "text": "All", "value": "$__all" },
+        "options": [
+          { "text": "All", "value": "$__all", "selected": true },
+          { "text": "twir_api-gql", "value": "twir_api-gql" },
+          { "text": "twir_pgdog", "value": "twir_pgdog" },
+          { "text": "twir_bots", "value": "twir_bots" },
+          { "text": "twir_scheduler", "value": "twir_scheduler" },
+          { "text": "twir_eventsub", "value": "twir_eventsub" },
+          { "text": "twir_events", "value": "twir_events" },
+          { "text": "twir_traefik", "value": "twir_traefik" },
+          { "text": "twir_emotes-cacher", "value": "twir_emotes-cacher" },
+          { "text": "twir_tokens", "value": "twir_tokens" },
+          { "text": "twir_integrations", "value": "twir_integrations" },
+          { "text": "twir_parser", "value": "twir_parser" },
+          { "text": "twir_pgbouncer", "value": "twir_pgbouncer" },
+          { "text": "twir_timers", "value": "twir_timers" },
+          { "text": "twir_websockets", "value": "twir_websockets" },
+          { "text": "twir_temporal", "value": "twir_temporal" },
+          { "text": "twir_postgres", "value": "twir_postgres" },
+          { "text": "twir_temporal-postgres", "value": "twir_temporal-postgres" },
+          { "text": "twir_music-recognizer", "value": "twir_music-recognizer" },
+          { "text": "twir_overlays", "value": "twir_overlays" },
+          { "text": "monitoring_grafana", "value": "monitoring_grafana" },
+          { "text": "twir_migrations", "value": "twir_migrations" },
+          { "text": "twir_deploy-webhook", "value": "twir_deploy-webhook" }
+        ],
         "includeAll": true,
-        "allValue": "$__all",
+        "allValue": ".*",
         "multi": true,
-        "label": "Service",
-        "refresh": 2
+        "label": "Service"
       },
       {
         "name": "filter",
@@ -155,6 +178,6 @@
   },
   "time": { "from": "now-1h", "to": "now" },
   "title": "Docker Logs",
-  "uid": "docker-logs-v2",
-  "version": 2
+  "uid": "docker-logs-v3",
+  "version": 1
 }
