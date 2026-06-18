@@ -13,7 +13,7 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "label.com.docker.swarm.service.name:$service $filter",
+          "expr": "label.com.docker.swarm.service.name:$service | $word_filter",
           "queryType": "instant"
         }
       ],
@@ -169,10 +169,10 @@
         "label": "Service"
       },
       {
-        "name": "filter",
+        "name": "word_filter",
         "type": "textbox",
-        "current": { "text": "", "value": "" },
-        "label": "Filter (LogsQL)"
+        "current": { "text": "*", "value": "*" },
+        "label": "Search in logs"
       }
     ]
   },
