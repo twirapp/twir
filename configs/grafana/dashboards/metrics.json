@@ -13,8 +13,8 @@
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
-          "expr": "sum by (container_label_com_docker_service_name) (rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_service_name=~\"$service\"}[5m]))",
-          "legendFormat": "{{container_label_com_docker_service_name}}"
+          "expr": "sum by (container_label_com_docker_swarm_service_name) (rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name=~\"$service\"}[5m]))",
+          "legendFormat": "{{container_label_com_docker_swarm_service_name}}"
         }
       ],
       "fieldConfig": {
@@ -31,8 +31,8 @@
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
-          "expr": "sum by (container_label_com_docker_service_name) (container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_service_name=~\"$service\"})",
-          "legendFormat": "{{container_label_com_docker_service_name}}"
+          "expr": "sum by (container_label_com_docker_swarm_service_name) (container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name=~\"$service\"})",
+          "legendFormat": "{{container_label_com_docker_swarm_service_name}}"
         }
       ],
       "fieldConfig": {
@@ -49,8 +49,8 @@
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
-          "expr": "sum by (container_label_com_docker_service_name) (rate(container_network_receive_bytes_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_service_name=~\"$service\"}[5m]))",
-          "legendFormat": "{{container_label_com_docker_service_name}} RX"
+          "expr": "sum by (container_label_com_docker_swarm_service_name) (rate(container_network_receive_bytes_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name=~\"$service\"}[5m]))",
+          "legendFormat": "{{container_label_com_docker_swarm_service_name}} RX"
         }
       ],
       "fieldConfig": {
@@ -67,8 +67,8 @@
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
-          "expr": "sum by (container_label_com_docker_service_name) (rate(container_network_transmit_bytes_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_service_name=~\"$service\"}[5m]))",
-          "legendFormat": "{{container_label_com_docker_service_name}} TX"
+          "expr": "sum by (container_label_com_docker_swarm_service_name) (rate(container_network_transmit_bytes_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name=~\"$service\"}[5m]))",
+          "legendFormat": "{{container_label_com_docker_swarm_service_name}} TX"
         }
       ],
       "fieldConfig": {
@@ -85,8 +85,8 @@
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
-          "expr": "sum by (container_label_com_docker_service_name) (container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_service_name=~\"$service\"})",
-          "legendFormat": "{{container_label_com_docker_service_name}}"
+          "expr": "sum by (container_label_com_docker_swarm_service_name) (container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name=~\"$service\"})",
+          "legendFormat": "{{container_label_com_docker_swarm_service_name}}"
         }
       ],
       "options": {
@@ -100,8 +100,8 @@
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
-          "expr": "topk(10, sum by (container_label_com_docker_service_name, container_label_com_docker_stack_namespace) (rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_service_name=~\"$service\"}[5m])))",
-          "legendFormat": "{{container_label_com_docker_service_name}}",
+          "expr": "topk(10, sum by (container_label_com_docker_swarm_service_name) (rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name=~\"$service\"}[5m])))",
+          "legendFormat": "{{container_label_com_docker_swarm_service_name}}",
           "instant": true,
           "format": "table"
         }
@@ -112,8 +112,7 @@
           "options": {
             "excludeByName": { "Time": true },
             "renameByName": {
-              "container_label_com_docker_service_name": "Service",
-              "container_label_com_docker_stack_namespace": "Stack",
+              "container_label_com_docker_swarm_service_name": "Service",
               "Value": "CPU Usage"
             }
           }
@@ -127,7 +126,7 @@
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_service_name=~\"$service\"}[5m]))",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name=~\"$service\"}[5m]))",
           "legendFormat": "Total CPU"
         }
       ],
@@ -151,7 +150,7 @@
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "targets": [
         {
-          "expr": "sum(container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_service_name=~\"$service\"})",
+          "expr": "sum(container_memory_usage_bytes{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name=~\"$service\"})",
           "legendFormat": "Total Memory"
         }
       ],
@@ -178,7 +177,7 @@
         "name": "service",
         "type": "query",
         "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-        "query": "label_values(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\"}, container_label_com_docker_service_name)",
+        "query": "label_values(container_cpu_usage_seconds_total{container_label_com_docker_stack_namespace=\"twir\"}, container_label_com_docker_swarm_service_name)",
         "current": { "text": "All", "value": "$__all" },
         "includeAll": true,
         "allValue": ".*",
@@ -192,5 +191,5 @@
   "time": { "from": "now-1h", "to": "now" },
   "title": "Docker Containers - Metrics",
   "uid": "docker-metrics",
-  "version": 2
+  "version": 3
 }
