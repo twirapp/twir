@@ -7,9 +7,31 @@
   "links": [],
   "panels": [
     {
+      "title": "Logs",
+      "type": "logs",
+      "gridPos": { "h": 20, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
+      "targets": [
+        {
+          "expr": "label.com.docker.swarm.service.name:$service $filter",
+          "queryType": "instant"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "sortOrder": "Ascending",
+        "dedupStrategy": "none"
+      }
+    },
+    {
       "title": "Log Rate by Service",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 20 },
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
@@ -26,7 +48,7 @@
     {
       "title": "Error Count (last 1h)",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 8 },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 28 },
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
@@ -49,7 +71,7 @@
     {
       "title": "Warning Count (last 1h)",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 8 },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 28 },
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
@@ -72,7 +94,7 @@
     {
       "title": "Total Log Lines (last 1h)",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 8 },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 28 },
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
@@ -93,7 +115,7 @@
     {
       "title": "Top Services by Log Volume",
       "type": "piechart",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
@@ -103,28 +125,6 @@
       ],
       "options": {
         "reduceOptions": { "calcs": ["lastNotNull"] }
-      }
-    },
-    {
-      "title": "Logs",
-      "type": "logs",
-      "gridPos": { "h": 16, "w": 24, "x": 0, "y": 16 },
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
-      "targets": [
-        {
-          "expr": "label.com.docker.swarm.service.name:$service $filter",
-          "queryType": "instant"
-        }
-      ],
-      "options": {
-        "showTime": true,
-        "showLabels": true,
-        "showCommonLabels": false,
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "sortOrder": "Descending",
-        "dedupStrategy": "none"
       }
     }
   ],
@@ -179,5 +179,5 @@
   "time": { "from": "now-1h", "to": "now" },
   "title": "Docker Logs",
   "uid": "docker-logs-v3",
-  "version": 1
+  "version": 2
 }
