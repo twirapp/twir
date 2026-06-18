@@ -13,7 +13,7 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "label.com.docker.swarm.service.name:$service | stats count(*) by (label.com.docker.swarm.service.name)",
+          "expr": "label.com.docker.swarm.service.name:$service | stats by (label.com.docker.swarm.service.name) count()",
           "queryType": "statsRange"
         }
       ],
@@ -30,7 +30,7 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "label.com.docker.swarm.service.name:$service detected_level:error | stats count(*)",
+          "expr": "label.com.docker.swarm.service.name:$service (error OR ERR) | stats count()",
           "queryType": "stats"
         }
       ],
@@ -53,7 +53,7 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "label.com.docker.swarm.service.name:$service detected_level:warn | stats count(*)",
+          "expr": "label.com.docker.swarm.service.name:$service warn | stats count()",
           "queryType": "stats"
         }
       ],
@@ -76,7 +76,7 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "label.com.docker.swarm.service.name:$service | stats count(*)",
+          "expr": "label.com.docker.swarm.service.name:$service | stats count()",
           "queryType": "stats"
         }
       ],
@@ -97,7 +97,7 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "* | stats count(*) by (label.com.docker.swarm.service.name)",
+          "expr": "* | stats by (label.com.docker.swarm.service.name) count()",
           "queryType": "stats"
         }
       ],
