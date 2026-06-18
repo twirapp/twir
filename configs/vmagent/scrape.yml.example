@@ -3,9 +3,11 @@ global:
 
 scrape_configs:
   - job_name: cadvisor
-    static_configs:
-      - targets:
-          - cadvisor:8080
+    dns_sd_configs:
+      - names:
+          - tasks.cadvisor
+        type: A
+        port: 8080
     metric_relabel_configs:
       - source_labels: [__name__]
         regex: "container_(cpu|memory|network|fs|tasks)_.*"
