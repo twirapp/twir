@@ -1,0 +1,150 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Slow PostgreSQL Queries (>50ms)",
+      "description": "Click Trace ID to see full query text and span details in Explore",
+      "type": "table",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "jaeger", "uid": "P14D5514F5CCC0D1C" },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "search",
+          "service": "$service",
+          "limit": 50,
+          "minDuration": "50ms"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Duration", "desc": true }]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "auto", "filterable": true }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Trace ID" },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View Trace (see DB queries)",
+                    "url": "/explore?panes={\"trace\":{\"datasource\":\"P14D5514F5CCC0D1C\",\"queries\":[{\"refId\":\"A\",\"queryType\":\"traceID\",\"traceId\":\"${__value.text}\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}}&schemaVersion=1",
+                    "targetBlank": true
+                  }
+                ]
+              },
+              { "id": "custom.width", "value": 300 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Duration" },
+            "properties": [
+              { "id": "unit", "value": "ns" },
+              { "id": "custom.width", "value": 120 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Trace name" },
+            "properties": [{ "id": "custom.width", "value": 250 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Start time" },
+            "properties": [{ "id": "custom.width", "value": 150 }]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Very Slow Queries (>500ms)",
+      "description": "Potentially problematic queries that need optimization",
+      "type": "table",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 12 },
+      "datasource": { "type": "jaeger", "uid": "P14D5514F5CCC0D1C" },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "search",
+          "service": "$service",
+          "limit": 50,
+          "minDuration": "500ms"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Duration", "desc": true }]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "auto", "filterable": true }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Trace ID" },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View Trace",
+                    "url": "/explore?panes={\"trace\":{\"datasource\":\"P14D5514F5CCC0D1C\",\"queries\":[{\"refId\":\"A\",\"queryType\":\"traceID\",\"traceId\":\"${__value.text}\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}}&schemaVersion=1",
+                    "targetBlank": true
+                  }
+                ]
+              },
+              { "id": "custom.width", "value": 300 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Duration" },
+            "properties": [
+              { "id": "unit", "value": "ns" },
+              { "id": "custom.width", "value": 120 }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "How to See Query Text",
+      "type": "text",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 24 },
+      "options": {
+        "mode": "markdown",
+        "content": "## How to see actual DB/Redis query text\n\n1. Click any **Trace ID** in the tables above → opens in Explore\n2. In Explore, click on a span to expand it\n3. Look for these fields:\n   - `span_attr:db.statement` — PostgreSQL/ClickHouse SQL query\n   - `span_attr:db.statement` — Redis command (GET, SET, etc.)\n   - `span_attr:db.query.text` — alternative query field\n   - `span_attr:db.sql.table` — table name\n   - `span_attr:db.rows_affected` — rows affected\n\n### Useful filters in Explore\n- PostgreSQL only: `\"span_attr:db.system\":postgresql`\n- Redis only: `\"span_attr:db.system\":redis`\n- ClickHouse only: `\"span_attr:db.system\":clickhouse`\n- Sort by duration: `| sort by (duration) desc`"
+      }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["traces", "slow-queries", "database"],
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "jaeger", "uid": "P14D5514F5CCC0D1C" },
+        "query": "services",
+        "current": {},
+        "label": "Service",
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": true,
+        "allValue": ""
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Slow Queries",
+  "uid": "slow-queries",
+  "version": 1
+}
