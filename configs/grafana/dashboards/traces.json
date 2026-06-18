@@ -15,8 +15,7 @@
         {
           "refId": "A",
           "queryType": "search",
-          "service": "",
-          "operation": "",
+          "service": "$service",
           "limit": 100
         }
       ],
@@ -64,9 +63,23 @@
   "refresh": "30s",
   "schemaVersion": 39,
   "tags": ["traces", "jaeger", "victoria-traces"],
-  "templating": { "list": [] },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "jaeger", "uid": "P14D5514F5CCC0D1C" },
+        "query": "services",
+        "current": {},
+        "label": "Service",
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": false
+      }
+    ]
+  },
   "time": { "from": "now-1h", "to": "now" },
   "title": "Distributed Traces",
   "uid": "docker-traces",
-  "version": 3
+  "version": 4
 }
