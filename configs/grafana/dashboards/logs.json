@@ -7,14 +7,14 @@
   "links": [],
   "panels": [
     {
-      "title": "Log Rate by Container",
+      "title": "Log Rate by Service",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "{container_name=~\"$service\"} | stats count(*) by container_name",
-          "queryType": "range"
+          "expr": "label.com.docker.swarm.service.name:$service | stats count(*) by (label.com.docker.swarm.service.name)",
+          "queryType": "statsRange"
         }
       ],
       "fieldConfig": {
@@ -30,8 +30,8 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "{container_name=~\"$service\"} level:error | stats count(*)",
-          "queryType": "instant"
+          "expr": "label.com.docker.swarm.service.name:$service detected_level:error | stats count(*)",
+          "queryType": "stats"
         }
       ],
       "fieldConfig": {
@@ -53,8 +53,8 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "{container_name=~\"$service\"} level:warn | stats count(*)",
-          "queryType": "instant"
+          "expr": "label.com.docker.swarm.service.name:$service detected_level:warn | stats count(*)",
+          "queryType": "stats"
         }
       ],
       "fieldConfig": {
@@ -76,8 +76,8 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "{container_name=~\"$service\"} | stats count(*)",
-          "queryType": "instant"
+          "expr": "label.com.docker.swarm.service.name:$service | stats count(*)",
+          "queryType": "stats"
         }
       ],
       "fieldConfig": {
@@ -91,14 +91,14 @@
       }
     },
     {
-      "title": "Top Containers by Log Volume",
+      "title": "Top Services by Log Volume",
       "type": "piechart",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "* | stats count(*) by container_name",
-          "queryType": "instant"
+          "expr": "* | stats count(*) by (label.com.docker.swarm.service.name)",
+          "queryType": "stats"
         }
       ],
       "options": {
@@ -112,8 +112,8 @@
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
       "targets": [
         {
-          "expr": "{container_name=~\"$service\"} $filter",
-          "queryType": "raw"
+          "expr": "label.com.docker.swarm.service.name:$service $filter",
+          "queryType": "instant"
         }
       ],
       "options": {
@@ -135,16 +135,15 @@
     "list": [
       {
         "name": "service",
-        "type": "custom",
-        "query": ".*",
+        "type": "query",
+        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "PD775F2863313E6C7" },
+        "query": "{\"type\":\"fieldValue\",\"field\":\"label.com.docker.swarm.service.name\",\"query\":\"*\",\"limit\":100}",
         "current": { "text": "All", "value": "$__all" },
-        "options": [
-          { "text": "All", "value": "$__all", "selected": true }
-        ],
         "includeAll": true,
-        "allValue": ".*",
+        "allValue": "$__all",
         "multi": true,
-        "label": "Service"
+        "label": "Service",
+        "refresh": 2
       },
       {
         "name": "filter",
@@ -157,5 +156,5 @@
   "time": { "from": "now-1h", "to": "now" },
   "title": "Docker Logs",
   "uid": "docker-logs-v2",
-  "version": 1
+  "version": 2
 }
