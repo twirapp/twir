@@ -504,7 +504,7 @@ func (c *EventsGrpcImplementation) Subscribe(
 				chat_alerts.SubscribeMessage{
 					UserName:    msg.UserName,
 					Months:      0,
-					ChannelId:   channelDBID,
+					ChannelId:   msg.BaseInfo.ChannelID,
 					ChannelName: msg.BaseInfo.ChannelName,
 					Platform:    eventPlatform,
 				},
