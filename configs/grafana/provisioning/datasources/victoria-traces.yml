@@ -3,10 +3,10 @@ datasources:
   - name: VictoriaTraces
     type: jaeger
     access: proxy
-    url: http://victoria-traces:10428
+    url: http://victoria-traces:10428/select/jaeger
     isDefault: false
     jsonData:
       tracesToLogsV2:
-        datasourceUid: victoria-logs
+        datasourceUid: PD775F2863313E6C7
         filterByTraceID: true
         filterBySpanID: true
