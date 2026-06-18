@@ -19,7 +19,7 @@
       ],
       "options": {
         "showTime": true,
-        "showLabels": true,
+        "showLabels": false,
         "showCommonLabels": false,
         "wrapLogMessage": true,
         "prettifyLogMessage": false,
@@ -171,7 +171,7 @@
       {
         "name": "word_filter",
         "type": "textbox",
-        "current": { "text": "*", "value": "*" },
+        "current": { "text": "", "value": "" },
         "label": "Search in logs"
       }
     ]
