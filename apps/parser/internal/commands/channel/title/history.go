@@ -60,7 +60,7 @@ var History = &types.DefaultCommand{
 				                             WHERE "channelId" = ? AND platform = ?
 				                             ORDER BY "title", "createdAt"
 				                             DESC
-				) subquery ORDER BY "createdAt" DESC LIMIT ?`, parseCtx.Channel.ID, parseCtx.Platform, limit,
+				) subquery ORDER BY "createdAt" DESC LIMIT ?`, parseCtx.Channel.DBChannelID, parseCtx.Platform, limit,
 			).
 			Find(&histories).
 			Error

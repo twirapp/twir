@@ -34,7 +34,7 @@ var MakeClip = &types.DefaultCommand{
 		channel := &model.Channels{}
 		if err := parseCtx.Services.Gorm.Where(
 			"id = ?",
-			parseCtx.Channel.ID,
+			parseCtx.Channel.DBChannelID,
 		).First(channel).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
