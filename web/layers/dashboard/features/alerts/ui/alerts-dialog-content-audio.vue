@@ -146,13 +146,13 @@ function setVolume(audioId: string, v: number) {
 				/>
 			</Button>
 
-			<Button
-				class="min-w-10"
-				size="icon"
-				variant="destructive"
-				:disabled="!audioId"
-				@click="audioId = undefined"
-			>
+		<Button
+			class="min-w-10"
+			size="icon"
+			variant="destructive"
+			:disabled="!audioId"
+			@click.stop.prevent="audioId = undefined"
+		>
 				<Icon
 					name="lucide:trash"
 					class="size-4"
