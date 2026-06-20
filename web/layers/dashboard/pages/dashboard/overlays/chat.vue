@@ -2,13 +2,12 @@
 import { until } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { type Component, computed, ref, watch } from 'vue'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.ts'
+import PageLayout, { type PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 import { useChatOverlayForm } from '~~/layers/dashboard/pages/dashboard/overlays/chat/components/form.ts'
 import Form from '~~/layers/dashboard/pages/dashboard/overlays/chat/components/Form.vue'
 
-import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
-import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.ts'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
-import { Button } from '@/components/ui/button'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,9 +18,10 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import PageLayout, { type PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
+import { Button } from '@/components/ui/button'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
@@ -30,7 +30,8 @@ const { t } = useI18n()
 const chatOverlaysManager = useChatOverlayApi()
 const deleter = chatOverlaysManager.useOverlayDelete()
 const creator = chatOverlaysManager.useOverlayCreate()
-const { data: chatOverlaysData, fetching: fetchingOverlays } = chatOverlaysManager.useOverlaysQuery()
+const { data: chatOverlaysData, fetching: fetchingOverlays } =
+	chatOverlaysManager.useOverlaysQuery()
 
 const { setData, getDefaultSettings } = useChatOverlayForm()
 
@@ -39,7 +40,7 @@ const activeTab = computed<string | undefined>({
 	get: () => activeTabQuery.value || undefined,
 	set: (value) => {
 		activeTabQuery.value = value || null
-	}
+	},
 })
 
 const deleteDialogOpen = ref(false)
@@ -108,7 +109,7 @@ async function confirmDelete() {
 	if (!entity?.id) return
 
 	const overlays = chatOverlaysData.value?.chatOverlays ?? []
-	const currentIndex = overlays.findIndex(o => o.id === entity.id)
+	const currentIndex = overlays.findIndex((o) => o.id === entity.id)
 
 	await deleter.executeMutation({ id: entity.id })
 
@@ -148,7 +149,10 @@ const hasOverlays = computed(() => {
 </script>
 
 <template>
-	<PageLayout :active-tab="activeTab || ''" :tabs="tabs">
+	<PageLayout
+		:active-tab="activeTab || ''"
+		:tabs="tabs"
+	>
 		<template #title>
 			{{ t('overlays.chat.title') || 'Chat Overlay' }}
 		</template>
@@ -161,7 +165,10 @@ const hasOverlays = computed(() => {
 					variant="default"
 					@click="handleAdd"
 				>
-					<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
+					<Icon
+						name="lucide:plus"
+						class="mr-2 h-4 w-4"
+					/>
 					{{ t('sharedButtons.add') || 'Add Preset' }}
 				</Button>
 				<Button
@@ -170,27 +177,43 @@ const hasOverlays = computed(() => {
 					variant="destructive"
 					@click="handleDeleteClick(currentTab)"
 				>
-					<Icon name="lucide:trash2" class="h-4 w-4 mr-2" />
+					<Icon
+						name="lucide:trash2"
+						class="mr-2 h-4 w-4"
+					/>
 					{{ t('sharedButtons.delete') || 'Delete' }}
 				</Button>
 			</div>
 		</template>
 
-		<template v-if="fetchingOverlays" #content>
-			<div class="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-				<div class="text-center space-y-4">
-					<div class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+		<template
+			v-if="fetchingOverlays"
+			#content
+		>
+			<div class="flex min-h-[60vh] flex-col items-center justify-center gap-6">
+				<div class="space-y-4 text-center">
+					<div
+						class="border-primary mx-auto h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"
+					></div>
 					<p class="text-muted-foreground">Loading presets...</p>
 				</div>
 			</div>
 		</template>
 
-		<template v-else-if="!hasOverlays" #content>
-			<div class="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-				<div class="text-center space-y-4 max-w-md">
-					<h2 class="text-2xl font-semibold">{{ t('overlays.chat.noPresets') || 'No Presets Yet' }}</h2>
+		<template
+			v-else-if="!hasOverlays"
+			#content
+		>
+			<div class="flex min-h-[60vh] flex-col items-center justify-center gap-6">
+				<div class="max-w-md space-y-4 text-center">
+					<h2 class="text-2xl font-semibold">
+						{{ t('overlays.chat.noPresets') || 'No Presets Yet' }}
+					</h2>
 					<p class="text-muted-foreground">
-						{{ t('overlays.chat.noPresetsDescription') || 'Create your first chat overlay preset to get started.' }}
+						{{
+							t('overlays.chat.noPresetsDescription') ||
+							'Create your first chat overlay preset to get started.'
+						}}
 					</p>
 					<Button
 						v-if="userCanEditOverlays"
@@ -198,7 +221,10 @@ const hasOverlays = computed(() => {
 						variant="default"
 						@click="handleAdd"
 					>
-						<Icon name="lucide:plus" class="h-5 w-5 mr-2" />
+						<Icon
+							name="lucide:plus"
+							class="mr-2 h-5 w-5"
+						/>
 						{{ t('sharedButtons.create') || 'Create Preset' }}
 					</Button>
 				</div>
@@ -211,7 +237,10 @@ const hasOverlays = computed(() => {
 			<AlertDialogHeader>
 				<AlertDialogTitle>{{ t('overlays.chat.deleteTitle') || 'Delete Preset' }}</AlertDialogTitle>
 				<AlertDialogDescription>
-					{{ t('overlays.chat.deleteDescription') || 'Are you sure you want to delete this preset? This action cannot be undone.' }}
+					{{
+						t('overlays.chat.deleteDescription') ||
+						'Are you sure you want to delete this preset? This action cannot be undone.'
+					}}
 				</AlertDialogDescription>
 			</AlertDialogHeader>
 			<AlertDialogFooter>
