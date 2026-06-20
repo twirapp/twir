@@ -74,7 +74,7 @@ func New(opts Opts) *Public {
 		func(
 			ctx context.Context,
 			input *struct {
-				ChannelId string `path:"channelId" maxLength:"36" minLength:"1" pattern:"^[0-9]+$" required:"true"`
+				ChannelId string `path:"channelId" maxLength:"36" minLength:"1" required:"true"`
 			},
 		) (*publicCommandsOutput, error) {
 			return p.HandleChannelCommandsGet(ctx, input.ChannelId)
