@@ -20,7 +20,6 @@ import (
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/model"
 	"github.com/twirapp/twir/libs/repositories/integrations"
-	integrationmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 )
 
 type spotifyTokensResponse struct {
@@ -32,7 +31,6 @@ type spotifyTokensResponse struct {
 
 type Service struct {
 	spotifyRepository channelsintegrationsspotify.Repository
-	integrationsRepo  integrations.Repository
 	config            config.Config
 }
 
@@ -43,7 +41,6 @@ func New(
 ) *Service {
 	return &Service{
 		spotifyRepository: spotifyRepository,
-		integrationsRepo:  integrationsRepo,
 		config:            cfg,
 	}
 }
@@ -82,12 +79,7 @@ func (s *Service) PostCode(
 	channelID string,
 	code string,
 ) error {
-	integration, err := s.integrationsRepo.GetByService(ctx, integrationmodel.ServiceSpotify)
-	if err != nil {
-		return fmt.Errorf("failed to get integration: %w", err)
-	}
-
-	if integration.ClientID == nil || integration.ClientSecret == nil {
+	if s.config.SpotifyClientID == "" || s.config.SpotifySecret == "" {
 		return fmt.Errorf("spotify not enabled on our side, please be patient")
 	}
 
@@ -112,7 +104,7 @@ func (s *Service) PostCode(
 	}
 
 	auth := base64.StdEncoding.EncodeToString(
-		[]byte(*integration.ClientID + ":" + *integration.ClientSecret),
+		[]byte(s.config.SpotifyClientID + ":" + s.config.SpotifySecret),
 	)
 	req.Header.Set("Authorization", "Basic "+auth)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -157,11 +149,11 @@ func (s *Service) PostCode(
 				Valid:  true,
 			},
 			ClientID: sql.NullString{
-				String: *integration.ClientID,
+				String: s.config.SpotifyClientID,
 				Valid:  true,
 			},
 			ClientSecret: sql.NullString{
-				String: *integration.ClientSecret,
+				String: s.config.SpotifySecret,
 				Valid:  true,
 			},
 			APIKey:      sql.NullString{},
@@ -206,12 +198,7 @@ func (s *Service) Logout(
 func (s *Service) GetAuthLink(
 	ctx context.Context,
 ) (string, error) {
-	integration, err := s.integrationsRepo.GetByService(ctx, integrationmodel.ServiceSpotify)
-	if err != nil {
-		return "", err
-	}
-
-	if integration.ClientID == nil || integration.ClientSecret == nil {
+	if s.config.SpotifyClientID == "" || s.config.SpotifySecret == "" {
 		return "", fmt.Errorf("spotify not enabled on our side, please be patient")
 	}
 
@@ -224,7 +211,7 @@ func (s *Service) GetAuthLink(
 
 	q := link.Query()
 	q.Add("response_type", "code")
-	q.Add("client_id", *integration.ClientID)
+	q.Add("client_id", s.config.SpotifyClientID)
 	q.Add("scope", "user-read-currently-playing user-read-playback-state user-read-recently-played")
 	q.Add("redirect_uri", redirectUrl)
 	link.RawQuery = q.Encode()

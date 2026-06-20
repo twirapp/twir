@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-
 import { useFaceitIntegration } from '~~/layers/dashboard/api/integrations/faceit.js'
 import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
+import { useSpotifyIntegration } from '~~/layers/dashboard/api/integrations/spotify'
 import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
 import {
 	lastfmBroadcaster,
@@ -10,6 +10,8 @@ import {
 } from '~~/layers/dashboard/features/integrations/composables/lastfm/use-lastfm-integration.js'
 
 definePageMeta({ layout: 'popup', middleware: 'auth' })
+
+console.log('here')
 
 const route = useRoute()
 const router = useRouter()
@@ -19,6 +21,7 @@ const discordIntegration = useDiscordIntegration()
 const lastfmIntegration = useLastfmIntegration()
 const faceitIntegration = useFaceitIntegration()
 const integrationsManager = useIntegrations()
+const spotifyIntegration = useSpotifyIntegration()
 
 const integrationsHooks: {
 	[x: string]:
@@ -69,6 +72,14 @@ const integrationsHooks: {
 		handler: async (code: string) => {
 			await discordIntegration.connectGuild(code)
 			window.opener?.postMessage('discord-connected', '*')
+		},
+	},
+	spotify: {
+		custom: true,
+		closeWindow: true,
+		handler: async (code: string) => {
+			await spotifyIntegration.postCode.executeMutation({ input: { code } })
+			spotifyIntegration.broadcastRefresh()
 		},
 	},
 }
@@ -133,7 +144,10 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div class="flex items-center justify-center w-full h-full bg-[#0f0f14]">
-		<Icon name="lucide:loader2" class="h-12 w-12 animate-spin text-primary" />
+	<div class="flex h-full w-full items-center justify-center bg-[#0f0f14]">
+		<Icon
+			name="lucide:loader2"
+			class="text-primary h-12 w-12 animate-spin"
+		/>
 	</div>
 </template>
