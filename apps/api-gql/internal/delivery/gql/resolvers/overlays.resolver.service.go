@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	now_playing_fetcher "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/now-playing-fetcher"
 	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/types/types/api/overlays"
@@ -638,13 +639,25 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 	id string,
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlay, error) {
-	user := model.Users{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where(`"apiKey" = ?`, apiKey).
-		First(&user).
-		Error; err != nil {
+	user, err := r.deps.UsersRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	var channelID string
+	switch user.Platform {
+	case platform.PlatformKick:
+		ch, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get channel by kick user id: %w", err)
+		}
+		channelID = ch.ID.String()
+	default:
+		ch, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get channel by twitch user id: %w", err)
+		}
+		channelID = ch.ID.String()
 	}
 
 	channel := make(chan *gqlmodel.NowPlayingOverlay)
@@ -652,7 +665,7 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 	go func() {
 		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
-				nowPlayingOverlaySubscriptionKeyCreate(id, user.ID),
+				nowPlayingOverlaySubscriptionKeyCreate(id, channelID),
 			},
 		)
 		if err != nil {
@@ -663,7 +676,7 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 			close(channel)
 		}()
 
-		initialSettings, err := r.getNowPlayingOverlaySettings(ctx, id, user.ID)
+		initialSettings, err := r.getNowPlayingOverlaySettings(ctx, id, channelID)
 		if err == nil {
 			channel <- initialSettings
 		}
@@ -690,18 +703,30 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 	ctx context.Context,
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
-	user := model.Users{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where(`"apiKey" = ?`, apiKey).
-		First(&user).
-		Error; err != nil {
+	user, err := r.deps.UsersRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	var channelID string
+	switch user.Platform {
+	case platform.PlatformKick:
+		channel, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get channel by kick user id: %w", err)
+		}
+		channelID = channel.ID.String()
+	default:
+		channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get channel by twitch user id: %w", err)
+		}
+		channelID = channel.ID.String()
 	}
 
 	npService, err := now_playing_fetcher.New(
 		now_playing_fetcher.Opts{
-			ChannelID:         user.ID,
+			ChannelID:         channelID,
 			Kv:                r.deps.KV,
 			Logger:            r.deps.Logger,
 			SpotifyRepository: r.deps.SpotifyRepository,
