@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import type { DudesSettingsWithOptionalId } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/dudes-settings.ts'
 
+import { computed, ref, watch } from 'vue'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useDudesOverlayManager } from '~~/layers/dashboard/api/overlays/dudes'
+import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
 import DudesSettingsForm from '~~/layers/dashboard/pages/dashboard/overlays/dudes/dudes-settings-form.vue'
 import { useDudesForm } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/use-dudes-form.ts'
 import { useDudesIframe } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/use-dudes-frame.ts'
 
-import type { DudesSettingsWithOptionalId } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/dudes-settings.ts'
-
-import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
-import { useDudesOverlayManager } from '~~/layers/dashboard/api/overlays/dudes'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -22,10 +20,11 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import CommandButton from '~~/layers/dashboard/features/commands/ui/command-button.vue'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 const dudesOverlayManager = useDudesOverlayManager()
@@ -103,30 +102,83 @@ const addable = computed(() => {
 </script>
 
 <template>
-	<div class="flex gap-10" style="height: calc(100% - var(--layout-header-height))">
+	<div
+		class="flex gap-10"
+		style="height: calc(100% - var(--layout-header-height))"
+	>
 		<div class="relative w-[70%]">
 			<div v-if="dudesIframeUrl">
-				<iframe :ref="(el) => dudesIframe = el as HTMLIFrameElement" style="position: absolute" :src="dudesIframeUrl" class="iframe" />
+				<iframe
+					:ref="(el) => (dudesIframe = el as HTMLIFrameElement)"
+					style="position: absolute"
+					:src="dudesIframeUrl"
+					class="iframe"
+				/>
 				<div class="absolute top-4.5 left-2 flex gap-1.5">
-					<Button size="sm" @click="sendIframeMessage('spawn-emote')"> Emote </Button>
-					<Button size="sm" @click="sendIframeMessage('show-message')"> Message </Button>
-					<Button size="sm" @click="sendIframeMessage('jump')"> Jump </Button>
-					<Button size="sm" @click="sendIframeMessage('grow')"> Grow </Button>
-					<Button size="sm" @click="sendIframeMessage('leave')"> Leave </Button>
-					<Button size="sm" @click="sendIframeMessage('reset')"> Reset </Button>
+					<Button
+						size="sm"
+						@click="sendIframeMessage('spawn-emote')"
+					>
+						Emote
+					</Button>
+					<Button
+						size="sm"
+						@click="sendIframeMessage('show-message')"
+					>
+						Message
+					</Button>
+					<Button
+						size="sm"
+						@click="sendIframeMessage('jump')"
+					>
+						Jump
+					</Button>
+					<Button
+						size="sm"
+						@click="sendIframeMessage('grow')"
+					>
+						Grow
+					</Button>
+					<Button
+						size="sm"
+						@click="sendIframeMessage('leave')"
+					>
+						Leave
+					</Button>
+					<Button
+						size="sm"
+						@click="sendIframeMessage('reset')"
+					>
+						Reset
+					</Button>
 				</div>
 			</div>
 		</div>
 		<div class="w-[30%]">
-			<div class="flex gap-2 flex-wrap">
-				<CommandButton title="Jump command" name="jump" />
-				<CommandButton title="Color command" name="dudes color" />
-				<CommandButton title="Grow command" name="dudes grow" />
-				<CommandButton title="Sprite command" name="dudes sprite" />
-				<CommandButton title="Leave command" name="dudes leave" />
+			<div class="flex flex-wrap gap-2">
+				<CommandButton
+					title="Jump command"
+					name="jump"
+				/>
+				<CommandButton
+					title="Color command"
+					name="dudes color"
+				/>
+				<CommandButton
+					title="Grow command"
+					name="dudes grow"
+				/>
+				<CommandButton
+					title="Sprite command"
+					name="dudes sprite"
+				/>
+				<CommandButton
+					title="Leave command"
+					name="dudes leave"
+				/>
 			</div>
 			<div class="mt-4">
-				<div class="flex items-center justify-between mb-2">
+				<div class="mb-2 flex items-center justify-between">
 					<span class="text-sm font-medium">{{ t('overlays.chat.presets') }}</span>
 					<Button
 						v-if="addable"
@@ -137,20 +189,23 @@ const addable = computed(() => {
 						Add Preset
 					</Button>
 				</div>
-				<Tabs v-if="entities?.dudesGetAll?.length" v-model="openedTab">
+				<Tabs
+					v-if="entities?.dudesGetAll?.length"
+					v-model="openedTab"
+				>
 					<TabsList class="w-full">
 						<TabsTrigger
 							v-for="(entity, entityIndex) in entities?.dudesGetAll"
 							:key="entity.id"
 							:value="entity.id!"
-							class="relative group"
+							class="group relative"
 						>
 							#{{ entityIndex + 1 }}
 							<Button
 								v-if="userCanEditOverlays"
 								size="icon"
 								variant="ghost"
-								class="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100"
+								class="ml-1 h-4 w-4 opacity-0 group-hover:opacity-100"
 								@click.stop="handleClose(entity.id!)"
 							>
 								<span class="text-xs">×</span>
@@ -165,10 +220,11 @@ const addable = computed(() => {
 						<DudesSettingsForm />
 					</TabsContent>
 				</Tabs>
-				<Alert v-else class="mt-2">
-					<AlertDescription>
-						Create new overlay for edit settings
-					</AlertDescription>
+				<Alert
+					v-else
+					class="mt-2"
+				>
+					<AlertDescription> Create new overlay for edit settings </AlertDescription>
 				</Alert>
 			</div>
 		</div>

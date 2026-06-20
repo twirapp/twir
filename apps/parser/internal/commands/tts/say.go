@@ -68,7 +68,7 @@ var SayCommand = &types.DefaultCommand{
 		userSettings, _, err := parseCtx.Services.TTSService.GetUserSettings(
 			ctx,
 			parseCtx.Channel.DBChannelID,
-			parseCtx.Sender.ID,
+			parseCtx.Sender.DbUser.ID,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{

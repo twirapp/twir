@@ -44,10 +44,14 @@ import { toast } from 'vue-sonner'
 			}
 		}
 
-		navigator.clipboard.writeText(url.toString())
-
-		toast.success(t('overlays.copied'), {
-			duration: 5000,
+		navigator.clipboard.writeText(url.toString()).then(() => {
+			toast.success(t('overlays.copied'), {
+				duration: 5000,
+			})
+		}).catch(() => {
+			toast.error('Failed to copy link to clipboard', {
+				duration: 2500,
+			})
 		})
 	}
 

@@ -18,6 +18,7 @@ export const useChatOverlaySocket = createGlobalState(() => {
 				authenticatedUser {
 					id
 					twitchProfile {
+						id
 						login
 						displayName
 						profileImageUrl
@@ -98,7 +99,7 @@ export const useChatOverlaySocket = createGlobalState(() => {
 			...overlaySettings.value,
 			channelBadges: neededData.value.twitchGetChannelBadges.badges,
 			globalBadges: neededData.value.twitchGetGlobalBadges.badges,
-			channelId: neededData.value.authenticatedUser.id ?? '',
+			channelId: twitchProfile.id ?? '',
 			channelName: twitchProfile.login ?? '',
 			channelDisplayName: twitchProfile.displayName ?? '',
 		}

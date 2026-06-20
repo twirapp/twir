@@ -40,6 +40,9 @@ export function useBeRightBackOverlayGraphQL(options: Options) {
 					createdAt
 					updatedAt
 					channelId
+					channel {
+						id
+					}
 				}
 			}
 		`),
@@ -108,7 +111,7 @@ export function useBeRightBackOverlayGraphQL(options: Options) {
 			fontSize: overlay.fontSize,
 			fontColor: overlay.fontColor,
 			fontFamily: overlay.fontFamily,
-			channelId: overlay.channelId,
+			channelId: overlay.channel?.id ?? overlay.channelId,
 		})
 	})
 

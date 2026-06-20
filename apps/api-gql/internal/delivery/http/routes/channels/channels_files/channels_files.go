@@ -46,7 +46,7 @@ func New(opts Opts) {
 		},
 		func(
 			ctx context.Context, i *struct {
-				ChannelID string    `path:"channel_id" maxLength:"36" minLength:"1" pattern:"^[0-9]+$" required:"true"`
+				ChannelID string    `path:"channel_id" maxLength:"36" minLength:"1" required:"true"`
 				FileID    uuid.UUID `path:"file_id" maxLength:"36" minLength:"1" format:"uuid" required:"true"`
 			},
 		) (*huma.StreamResponse, error) {

@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -190,6 +191,33 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 
 	if userId == "" {
 		return nil, fmt.Errorf("channelID is required")
+	}
+
+	// Try to find a Twitch-connected channel
+	parsedID, err := uuid.Parse(userId)
+	if err == nil {
+		channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedID)
+		if err == nil && !channel.IsNil() && channel.TwitchConnected() {
+			// Selected channel has Twitch — use it directly
+		} else {
+			// Channel not found or doesn't have Twitch — find user's Twitch channel
+			dbUser, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+			if err != nil {
+				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
+			}
+
+			parsedUserID, err := uuid.Parse(dbUser.ID)
+			if err != nil {
+				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
+			}
+
+			twitchChannel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, parsedUserID)
+			if err != nil || twitchChannel.IsNil() || !twitchChannel.TwitchConnected() {
+				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
+			}
+
+			userId = twitchChannel.ID.String()
+		}
 	}
 
 	badges, err := r.deps.TwitchService.GetChannelChatBadges(ctx, userId)

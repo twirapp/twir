@@ -67,7 +67,7 @@ const chatSettings = computed<ChatSettings>(() => {
 	const twitchProfile = neededData.value?.authenticatedUser.twitchProfile
 
 	return {
-		channelId: neededData.value?.authenticatedUser.id ?? '',
+		channelId: twitchProfile?.id ?? '',
 		channelName: twitchProfile?.login ?? '',
 		emotes: {
 			ffz: true,

@@ -30,20 +30,20 @@ type Config struct {
 
 	TrustedProxies []string `envconfig:"TRUSTED_PROXIES"`
 
-	RedisUrl           string `required:"true"  default:"redis://localhost:6379/0"    envconfig:"REDIS_URL"`
-	TwitchClientId     string `required:"true"                                        envconfig:"TWITCH_CLIENTID"`
-	TwitchClientSecret string `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
-	KickClientId       string `required:"false"                                       envconfig:"KICK_CLIENT_ID"`
-	KickClientSecret   string `required:"false"                                       envconfig:"KICK_CLIENT_SECRET"`
-	DatabaseUrl        string `required:"true"                                        envconfig:"DATABASE_URL"`
+	RedisUrl             string `required:"true"  default:"redis://localhost:6379/0"    envconfig:"REDIS_URL"`
+	TwitchClientId       string `required:"true"                                        envconfig:"TWITCH_CLIENTID"`
+	TwitchClientSecret   string `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
+	KickClientId         string `required:"false"                                       envconfig:"KICK_CLIENT_ID"`
+	KickClientSecret     string `required:"false"                                       envconfig:"KICK_CLIENT_SECRET"`
+	DatabaseUrl          string `required:"true"                                        envconfig:"DATABASE_URL"`
 	MigrationDatabaseUrl string `required:"false"                                       envconfig:"MIGRATION_DATABASE_URL"`
-	ClickhouseUrl      string `required:"true"  default:"clickhouse://twir:twir@127.0.0.1:9000/twir" envconfig:"CLICKHOUSE_URL"`
-	AppEnv             string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
-	SentryDsn          string `required:"false"                                       envconfig:"SENTRY_DSN"`
-	SiteBaseUrl        string `required:"false" default:"http://localhost:3005" envconfig:"SITE_BASE_URL"`
-	TokensCipherKey    string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
-	TTSServiceUrl      string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
-	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
+	ClickhouseUrl        string `required:"true"  default:"clickhouse://twir:twir@127.0.0.1:9000/twir" envconfig:"CLICKHOUSE_URL"`
+	AppEnv               string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
+	SentryDsn            string `required:"false"                                       envconfig:"SENTRY_DSN"`
+	SiteBaseUrl          string `required:"false" default:"http://localhost:3005" envconfig:"SITE_BASE_URL"`
+	TokensCipherKey      string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
+	TTSServiceUrl        string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
+	OdesliApiKey         string `required:"false" envconfig:"ODESLI_API_KEY"`
 
 	S3PublicUrl   string `required:"false" envconfig:"CDN_PUBLIC_URL"`
 	S3Host        string `required:"false" envconfig:"CDN_HOST"`
@@ -82,12 +82,15 @@ type Config struct {
 	StreamElementsClientId     string `required:"false" envconfig:"STREAM_ELEMENTS_CLIENT_ID"`
 	StreamElementsClientSecret string `required:"false" envconfig:"STREAM_ELEMENTS_CLIENT_SECRET"`
 
+	SpotifyClientID string `required:"false" envconfig:"SPOTIFY_CLIENT_ID"`
+	SpotifySecret   string `required:"false" envconfig:"SPOTIFY_CLIENT_SECRET"`
+
 	ExecutronAddr           string `required:"false" default:"http://localhost:7003" envconfig:"EXECUTRON_ADDR"`
 	ExecutronCfClientId     string `required:"false" envconfig:"EXECUTRON_CF_CLIENT_ID"`
 	ExecutronCfClientSecret string `required:"false" envconfig:"EXECUTRON_CF_CLIENT_SECRET"`
 
-	EventSubDisableSignatureVerification bool `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
-	EventsubHttpPort                     int  `required:"false" default:"3030"  envconfig:"EVENTSUB_HTTP_PORT"`
+	EventSubDisableSignatureVerification bool   `required:"false" default:"false" envconfig:"EVENTSUB_DISABLE_SIGNATURE_VERIFICATION"`
+	EventsubHttpPort                     int    `required:"false" default:"3030"  envconfig:"EVENTSUB_HTTP_PORT"`
 	EventSubCallbackBaseUrl              string `required:"false" envconfig:"EVENTSUB_CALLBACK_BASE_URL"`
 
 	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`

@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import Card from '~~/layers/dashboard/components/overlays/card.vue'
-import NowPlaying from '~~/layers/dashboard/pages/overlays/now-playing.vue'
+import NowPlaying from '~~/layers/dashboard/pages/dashboard/overlays/now-playing.vue'
 
 import { Dialog } from '@/components/ui/dialog'
 

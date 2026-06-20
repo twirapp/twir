@@ -690,8 +690,10 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMess
 				withoutCancel,
 				events.CommandUsedMessage{
 					BaseInfo: events.BaseInfo{
-						ChannelID:   channelDBID,
+						ChannelID:   data.BroadcasterUserId,
+						ChannelDBID: channelDBID,
 						ChannelName: data.BroadcasterUserLogin,
+						Platform:    plat,
 					},
 					CommandID:          cmd.Cmd.ID.String(),
 					CommandName:        cmd.Cmd.Name,

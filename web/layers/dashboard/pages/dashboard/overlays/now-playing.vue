@@ -3,23 +3,23 @@ import { NowPlaying, Preset } from '@twir/frontend-now-playing'
 import { useSubscription } from '@urql/vue'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
-
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page'
 import { useNowPlayingOverlayApi } from '~~/layers/dashboard/api/overlays/now-playing'
-import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.ts'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { useTheme } from '~~/layers/dashboard/composables/use-theme.ts'
-import { graphql } from '~/gql/gql.ts'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
+import { useTheme } from '~~/layers/dashboard/composables/use-theme'
 import NowPlayingForm from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/now-playing-form.vue'
 import {
 	defaultSettings,
 	useNowPlayingForm,
 } from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/use-now-playing-form'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { graphql } from '~/gql/gql'
+import { ChannelRolePermissionEnum } from '~/gql/graphql'
+
+definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 
 const { theme } = useTheme()
 const { t } = useI18n()
@@ -127,15 +127,27 @@ const nowPlayingTrack = computed(() => {
 <template>
 	<div class="flex flex-col gap-3">
 		<div>
-			<NowPlaying :settings="settings ?? { preset: Preset.TRANSPARENT }" :track="nowPlayingTrack" />
+			<NowPlaying
+				:settings="settings ?? { preset: Preset.TRANSPARENT }"
+				:track="nowPlayingTrack"
+			/>
 		</div>
 		<Separator />
-		<Alert v-if="!isSomeSongIntegrationEnabled" variant="destructive">
-			<Icon name="lucide:alert-triangle" class="h-4 w-4" />
+		<Alert
+			v-if="!isSomeSongIntegrationEnabled"
+			variant="destructive"
+		>
+			<Icon
+				name="lucide:alert-triangle"
+				class="h-4 w-4"
+			/>
 			<AlertTitle>No enabled song integrations!</AlertTitle>
 			<AlertDescription>
 				Connect Spotify, Last.fm or VK in
-				<NuxtLink to="/dashboard/integrations" class="text-primary hover:underline">
+				<NuxtLink
+					to="/dashboard/integrations"
+					class="text-primary hover:underline"
+				>
 					{{ t('sidebar.integrations') }}
 				</NuxtLink>
 				to use this overlay
@@ -150,7 +162,7 @@ const nowPlayingTrack = computed(() => {
 		>
 			<TabsList
 				aria-label="tabs example"
-				class="flex flex-wrap items-center overflow-x-auto -mb-px"
+				class="-mb-px flex flex-wrap items-center overflow-x-auto"
 			>
 				<Button
 					size="sm"
@@ -159,12 +171,12 @@ const nowPlayingTrack = computed(() => {
 					:disabled="!addable"
 					@click="handleAdd"
 				>
-					<Icon name="lucide:plus"  />
+					<Icon name="lucide:plus" />
 				</Button>
 				<TabsTrigger
 					v-for="(overlay, index) of entities?.nowPlayingOverlays"
 					:key="overlay.id"
-					class="relative z-10 flex whitespace-nowrap px-3 py-4 text-sm font-medium transition-colors before:absolute before:left-0 before:top-2 before:-z-10 before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:rounded-t-sm data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''] data-disabled:cursor-not-allowed data-disabled:text-zinc-400"
+					class="relative z-10 flex px-3 py-4 text-sm font-medium whitespace-nowrap transition-colors before:absolute before:top-2 before:left-0 before:-z-10 before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-[state=active]:after:absolute data-[state=active]:after:right-2 data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:rounded-t-sm data-[state=active]:after:border-b-2 data-[state=active]:after:content-['']"
 					:class="[
 						theme === 'dark'
 							? 'data-[state=active]:after:border-white'
@@ -175,7 +187,10 @@ const nowPlayingTrack = computed(() => {
 					#{{ index + 1 }} {{ overlay.preset }}
 				</TabsTrigger>
 			</TabsList>
-			<Alert v-if="!entities?.nowPlayingOverlays.length" class="mt-2">
+			<Alert
+				v-if="!entities?.nowPlayingOverlays.length"
+				class="mt-2"
+			>
 				<AlertTitle>No overlays!</AlertTitle>
 				<AlertDescription> Create new overlay for edit settings </AlertDescription>
 			</Alert>

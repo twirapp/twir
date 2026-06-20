@@ -1,0 +1,75 @@
+services:
+  victoria-traces:
+    image: victoriametrics/victoria-traces:latest
+    container_name: victoria-traces
+    restart: unless-stopped
+    ports:
+      - "10428:10428"
+      - "4317:4317"
+    volumes:
+      - vt-data:/victoria-traces-data
+    command:
+      - -otlpGRPCListenAddr=:4317
+      - -otlpGRPC.tls=false
+      - -storageDataPath=/victoria-traces-data
+      - -retentionPeriod=100y
+      - -retention.maxDiskSpaceUsageBytes=50GiB
+
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics:latest
+    container_name: victoria-metrics
+    restart: unless-stopped
+    ports:
+      - "8428:8428"
+    volumes:
+      - vm-data:/victoria-metrics-data
+    command:
+      - -storageDataPath=/victoria-metrics-data
+      - -retentionPeriod=90d
+
+  victoria-logs:
+    image: victoriametrics/victoria-logs:latest
+    container_name: victoria-logs
+    restart: unless-stopped
+    ports:
+      - "9428:9428"
+    volumes:
+      - vl-data:/victoria-logs-data
+    command:
+      - -storageDataPath=/victoria-logs-data
+      - -retentionPeriod=100y
+      - -retention.maxDiskSpaceUsageBytes=25GiB
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning
+      - ./configs/grafana/dashboards:/etc/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource
+    networks:
+      - default
+      - caddy
+    labels:
+      caddy: grafana.twir.app
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+    depends_on:
+      - victoria-traces
+      - victoria-metrics
+      - victoria-logs
+
+volumes:
+  vt-data:
+  vm-data:
+  vl-data:
+  grafana-data:
+
+networks:
+  caddy:
+    external: true
