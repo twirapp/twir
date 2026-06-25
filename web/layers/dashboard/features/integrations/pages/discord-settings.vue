@@ -25,7 +25,7 @@ import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 const { t } = useI18n()
-const route = useRoute()
+const route = useRoute<'dashboard-integrations-discord'>()
 
 const { guilds, authLink, disconnectGuild } = useDiscordIntegration()
 

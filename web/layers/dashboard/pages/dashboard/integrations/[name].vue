@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 import { useFaceitIntegration } from '~~/layers/dashboard/api/integrations/faceit.js'
 import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
 import { useSpotifyIntegration } from '~~/layers/dashboard/api/integrations/spotify'
@@ -13,7 +15,7 @@ definePageMeta({ layout: 'popup', middleware: 'auth' })
 
 console.log('here')
 
-const route = useRoute()
+const route = useRoute<'dashboard-integrations-name'>()
 const router = useRouter()
 const localePath = useLocalePath()
 

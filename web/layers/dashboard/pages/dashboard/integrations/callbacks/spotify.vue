@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 import { useSpotifyIntegration } from '~~/layers/dashboard/api/integrations/spotify.js'
 
 definePageMeta({ layout: 'popup', middleware: 'auth' })
 
 const spotifyIntegration = useSpotifyIntegration()
-const route = useRoute()
+const route = useRoute<'dashboard-integrations-callbacks-spotify'>()
 
 onMounted(async () => {
 	const { code } = route.query

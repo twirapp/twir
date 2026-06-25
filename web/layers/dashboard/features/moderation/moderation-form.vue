@@ -35,7 +35,7 @@ import ModalLongMessage from './ui/form/moderation-form-longmessage.vue'
 import ModalOneManSpam from './ui/form/moderation-form-one-man-spam.vue'
 import ModalSymbols from './ui/form/moderation-form-symbols.vue'
 
-const route = useRoute()
+const route = useRoute<'dashboard-moderation-id'>()
 const router = useRouter()
 const localePath = useLocalePath()
 

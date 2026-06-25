@@ -14,7 +14,7 @@ import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 import List from './ui/list.vue'
 
-const route = useRoute()
+const route = useRoute<'dashboard-commands-system'>()
 const { t } = useI18n()
 const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands)
 

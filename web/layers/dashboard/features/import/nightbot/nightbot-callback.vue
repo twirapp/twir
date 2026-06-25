@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router'
 import { useNightbotIntegration } from './composables/use-nightbot-integration.js'
 
 const nightbotIntegration = useNightbotIntegration()
-const route = useRoute()
+const route = useRoute<'dashboard-integrations-callbacks-nightbot'>()
 
 onMounted(async () => {
 	const { code } = route.query

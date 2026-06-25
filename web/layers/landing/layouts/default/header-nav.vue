@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-
 import { anchorLinks } from '~~/layers/landing/layouts/default/anchor-links'
-
-const route = useRoute()
 </script>
 
 <template>

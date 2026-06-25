@@ -33,7 +33,7 @@ import { formSchema, useTimersEdit } from '@/features/timers/composables/use-tim
 import { TwitchAnnounceColor } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
 
-const route = useRoute()
+const route = useRoute<'dashboard-timers-id'>()
 const { t } = useI18n()
 const { findTimer, submit } = useTimersEdit()
 

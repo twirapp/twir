@@ -16,7 +16,7 @@ import FormPermissions from '~~/layers/dashboard/features/commands/ui/form/form-
 import FormResponses from '~~/layers/dashboard/features/commands/ui/form/form-responses.vue'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-const route = useRoute()
+const route = useRoute<'dashboard-commands-system-id'>()
 const { t } = useI18n()
 
 const { findCommand, submit } = useCommandEditV2()

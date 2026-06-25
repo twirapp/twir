@@ -23,7 +23,7 @@ import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
 
 import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
 
-const route = useRoute()
+const route = useRoute<'dashboard-variables-id'>()
 const { t } = useI18n()
 const { findVariable, submit, runScript, testFromUserName } = useVariablesEdit()
 

@@ -18,7 +18,7 @@ import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 const { t } = useI18n()
 const router = useRouter()
 const localePath = useLocalePath()
-const route = useRoute()
+const route = useRoute<'dashboard-events-id'>()
 const eventsApi = useEventsApi()
 const isNewEvent = computed(() => route.params.id === 'new')
 const eventId = computed(() => (isNewEvent.value ? '' : String(route.params.id)))

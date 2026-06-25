@@ -11,7 +11,7 @@ import type { OverlayProject } from '~~/layers/dashboard/features/overlay-builde
 import { useOverlaySave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlaySave'
 import { useOverlayInstantSave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlayInstantSave'
 
-const route = useRoute()
+const route = useRoute<'dashboard-registry-overlays-id'>()
 const router = useRouter()
 
 // Get overlay ID from route

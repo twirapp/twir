@@ -3,7 +3,7 @@ import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDiscordIntegration } from '../composables/discord/use-discord-integration.js'
 
-const route = useRoute()
+const route = useRoute<'dashboard-integrations-discord'>()
 const { connectGuild } = useDiscordIntegration()
 
 onMounted(async () => {
