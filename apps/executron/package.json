@@ -1,0 +1,19 @@
+{
+  "name": "@twir/executron",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --env-file=../../.env --watch src/index.ts",
+    "start": "bun run --env-file=../../.env src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun"
+  },
+  "dependencies": {
+    "@twir/config": "workspace:*",
+    "@isolated-vm/experimental": "0.0.8",
+    "@twir/bus-core": "workspace:*",
+    "nats": "2.22.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

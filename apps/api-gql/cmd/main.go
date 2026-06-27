@@ -42,6 +42,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_secret"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
@@ -92,7 +93,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/webhook_notifications"
-	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
@@ -135,6 +135,8 @@ import (
 	channelsmoduleswebhookspgx "github.com/twirapp/twir/libs/repositories/channels_modules_webhooks/pgx"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
+	channelssecretrepository "github.com/twirapp/twir/libs/repositories/channels_secret"
+	channelssecretpgx "github.com/twirapp/twir/libs/repositories/channels_secret/pgx"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
@@ -295,6 +297,10 @@ func main() {
 			fx.Annotate(
 				variablespgx.NewFx,
 				fx.As(new(variablesrepository.Repository)),
+			),
+			fx.Annotate(
+				channelssecretpgx.NewFx,
+				fx.As(new(channelssecretrepository.Repository)),
 			),
 			fx.Annotate(
 				keywordsrepositorypgx.NewFx,
@@ -551,7 +557,6 @@ func main() {
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
 				return valorantintegration.NewHenrikApiClient(c.Valorant.HenrikApiKey)
 			},
-			executron.New,
 			dashboard_widget_events.New,
 			dashboard_widgets.New,
 			clientinfo.New,
@@ -579,6 +584,7 @@ func main() {
 			chat_messages.New,
 			channels_commands_prefix.New,
 			channels_emotes_usages.New,
+			channels_secret.New,
 			song_requests.New,
 			community_redemptions.New,
 			streamelements.New,

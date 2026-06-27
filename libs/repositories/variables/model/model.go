@@ -18,7 +18,6 @@ type ScriptLanguage string
 
 const (
 	ScriptLanguageJavaScript = "javascript"
-	ScriptLanguagePython     = "python"
 )
 
 type CustomVariable struct {

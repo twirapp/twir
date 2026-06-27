@@ -1,4 +1,5 @@
 import * as Events from './events/events.js'
+import * as Executron from './executron/executron.js'
 import { Queue } from './queue.js'
 import * as Integrations from './integrations/integrations.js'
 
@@ -86,6 +87,12 @@ export function newBus(nc: NatsConnection) {
 		Integrations: {
 			Add: new Queue<Integrations.Request, any>(nc, Integrations.AddIntegrationTopic),
 			Remove: new Queue<Integrations.Request, any>(nc, Integrations.RemoveIntegrationTopic),
+		},
+		Executron: {
+			Execute: new Queue<Executron.ExecuteRequest, Executron.ExecuteResponse>(
+				nc,
+				Executron.ExecuteSubject
+			),
 		},
 	}
 }

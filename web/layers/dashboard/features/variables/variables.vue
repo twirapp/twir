@@ -11,23 +11,16 @@ const { t } = useI18n()
 </script>
 
 <template>
-	<PageLayout>
-		<template #title>
-			{{ t('sidebar.variables') }}
-		</template>
-
-		<template #action>
-			<VariablesCreateButton />
-		</template>
-
-		<template #content>
-			<div class="flex flex-col gap-4">
+	<div>
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-row gap-10">
 				<VariablesInformation />
-				<Table
-					:table="variablesTable.table"
-					:is-loading="variablesTable.isLoading.value"
-				/>
+				<VariablesCreateButton />
 			</div>
-		</template>
-	</PageLayout>
+			<Table
+				:table="variablesTable.table"
+				:is-loading="variablesTable.isLoading.value"
+			/>
+		</div>
+	</div>
 </template>

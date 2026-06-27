@@ -20,7 +20,6 @@ func (s CustomVarScriptLanguage) String() string {
 
 const (
 	ScriptLanguageJavaScript = "javascript"
-	ScriptLanguagePython     = "python"
 )
 
 type CustomVariable struct {

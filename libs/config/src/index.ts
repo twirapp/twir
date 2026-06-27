@@ -36,6 +36,7 @@ const envSchema = z.object({
 	DONATIONALERTS_CLIENT_SECRET: z.string().optional(),
 	STREAMLABS_CLIENT_ID: z.string().optional(),
 	STREAMLABS_CLIENT_SECRET: z.string().optional(),
+	SECRETS_ENCRYPTION_KEY: z.string().optional().default('0123456789abcdef0123456789abcdef'), // 32 bytes, must match Go config
 })
 
 export const config = envSchema.parse(process.env)

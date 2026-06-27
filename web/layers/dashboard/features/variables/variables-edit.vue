@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
+import { VueMonacoEditor, useMonaco } from '@guolao/vue-monaco-editor'
 import { Label } from 'reka-ui'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
@@ -23,6 +23,48 @@ import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
 
 import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
 
+const { monacoRef } = useMonaco()
+
+const TWIR_TYPE_DEFS = `
+interface TwirSecrets {
+	/** Get a secret value by name. Returns null if not found. */
+	get(name: string): string | null;
+}
+
+interface TwirChannel {
+	/** Current channel ID */
+	id: string;
+}
+
+interface Twir {
+	/** Access channel secrets stored in the dashboard */
+	secrets: TwirSecrets;
+	/** Information about the current channel */
+	channel: TwirChannel;
+}
+
+/** Twir API available in custom variable scripts */
+declare const twir: Twir;
+
+/** Fetch API available in custom variable scripts */
+declare function fetch(url: string, options?: RequestInit): Promise<Response>;
+`
+
+watch(monacoRef, (monaco) => {
+	if (!monaco) return
+
+	monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+		target: monaco.languages.typescript.ScriptTarget.ESNext,
+		module: monaco.languages.typescript.ModuleKind.ESNext,
+		allowNonTsExtensions: true,
+	})
+
+	monaco.languages.typescript.javascriptDefaults.addExtraLib(
+		TWIR_TYPE_DEFS,
+		'twir://globals.d.ts',
+	)
+}, { immediate: true })
+
 const route = useRoute<'dashboard-variables-id'>()
 const { t } = useI18n()
 const { findVariable, submit, runScript, testFromUserName } = useVariablesEdit()
@@ -38,16 +80,6 @@ const request = await fetch('https://jsonplaceholder.typicode.com/todos/1');
 const response = await request.json();
 // you should return value from your script
 return response.title;
-`
-
-const pythonExample = `import urllib.request
-
-url = "https://jsonplaceholder.typicode.com/todos/1"
-try:
-    with urllib.request.urlopen(url, timeout=2) as response:
-        return response.read().decode()
-except urllib.error.URLError as e:
-    return "Request failed: " + str(e)
 `
 
 const { handleSubmit, setValues, values } = useForm({
@@ -79,9 +111,7 @@ onMounted(async () => {
 watch(
 	() => values.scriptLanguage,
 	(newLanguage) => {
-		if (newLanguage === VariableScriptLanguage.Python) {
-			setValues({ evalValue: pythonExample })
-		} else if (newLanguage === VariableScriptLanguage.Javascript) {
+		if (newLanguage === VariableScriptLanguage.Javascript) {
 			setValues({ evalValue: jsExample })
 		}
 	}

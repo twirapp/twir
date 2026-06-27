@@ -41,6 +41,7 @@ var serviceImages = map[string]string{
 	"emotes-cacher":  "emotes-cacher",
 	"events":         "events",
 	"deploy-webhook": "deploy-receiver",
+	"executron":      "executron",
 }
 
 var releaseServices = []string{
@@ -58,6 +59,7 @@ var releaseServices = []string{
 	"tokens",
 	"emotes-cacher",
 	"events",
+	"executron",
 }
 
 type deployConfig struct {

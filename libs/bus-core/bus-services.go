@@ -8,6 +8,7 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/executron"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
@@ -94,6 +95,10 @@ type tokensBus struct {
 type integrationsBus struct {
 	Add    Queue[integrations.Request, struct{}]
 	Remove Queue[integrations.Request, struct{}]
+}
+
+type executronBus struct {
+	Execute Queue[executron.ExecuteRequest, executron.ExecuteResponse]
 }
 
 type eventsBus struct {

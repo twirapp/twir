@@ -2,6 +2,7 @@ package nodejs
 
 var appsForStart = []twirApp{
 	{name: "integrations"},
+	{name: "executron"},
 }
 
 type NodejsApps struct {

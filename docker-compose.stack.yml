@@ -607,6 +607,21 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
+  executron:
+    image: registry.twir.app/twirapp/executron:${TWIR_IMAGE_TAG:-latest}
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
   web:
     image: registry.twir.app/twirapp/web:${TWIR_IMAGE_TAG:-latest}
     secrets:

@@ -12,6 +12,7 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/executron"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/giveaways"
 	"github.com/twirapp/twir/libs/bus-core/integrations"
@@ -48,6 +49,7 @@ type Bus struct {
 	Discord             *discordBus
 	KickStreamOnline    Queue[kickbus.KickStreamOnline, struct{}]
 	KickStreamOffline   Queue[kickbus.KickStreamOffline, struct{}]
+	Executron           *executronBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -611,6 +613,14 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				discord.GetGuildRolesSubject,
 				10*time.Second,
 				GobEncoder,
+			),
+		},
+		Executron: &executronBus{
+			Execute: NewNatsQueue[executron.ExecuteRequest, executron.ExecuteResponse](
+				nc,
+				executron.ExecuteSubject,
+				30*time.Second,
+				JsonEncoder,
 			),
 		},
 	}

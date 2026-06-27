@@ -113,6 +113,8 @@ type Config struct {
 	TwitchMockAuthUrl      string `required:"false" default:"http://twitch-mock:7777" envconfig:"TWITCH_MOCK_AUTH_URL"`
 	TwitchMockWsUrl        string `required:"false" default:"ws://twitch-mock:8081/ws" envconfig:"TWITCH_MOCK_WS_URL"`
 	StreamlabsClientSecret string `required:"false" envconfig:"STREAMLABS_CLIENT_SECRET"`
+
+	SecretsEncryptionKey string `required:"false" default:"0123456789abcdef0123456789abcdef" envconfig:"SECRETS_ENCRYPTION_KEY"`
 }
 
 func (c *Config) IsProduction() bool {
