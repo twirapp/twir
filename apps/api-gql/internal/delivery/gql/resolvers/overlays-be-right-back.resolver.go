@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
@@ -22,7 +23,29 @@ import (
 
 // Channel is the resolver for the channel field.
 func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.BeRightBackOverlay) (*gqlmodel.TwirUserTwitchInfo, error) {
-	return dataloader.GetHelixUserById(ctx, obj.ChannelID)
+	parsedID, err := uuid.Parse(obj.ChannelID)
+	if err != nil {
+		return dataloader.GetHelixUserById(ctx, obj.ChannelID)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedID)
+	if err != nil || channel.IsNil() || !channel.TwitchConnected() {
+		dbUser, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+		if err != nil {
+			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
+		}
+		parsedUserID, err := uuid.Parse(dbUser.ID)
+		if err != nil {
+			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
+		}
+		twitchChannel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, parsedUserID)
+		if err != nil || twitchChannel.IsNil() || !twitchChannel.TwitchConnected() {
+			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
+		}
+		return dataloader.GetHelixUserById(ctx, *twitchChannel.TwitchPlatformID)
+	}
+
+	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
 }
 
 // OverlaysBeRightBackUpdate is the resolver for the overlaysBeRightBackUpdate field.
