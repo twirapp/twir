@@ -151,12 +151,12 @@ export default defineNuxtConfig({
 		},
 		server: {
 			allowedHosts: ['dev.twir.app', 'localhost'],
-			fs: {
-				allow: [
-					'/home/satont/Documents/Projects/twir',
-					'/home/satont/Documents/Projects/twir/node_modules/.bun',
-				],
-			},
+			// fs: {
+			// 	allow: [
+			// 		'/home/satont/Documents/Projects/twir',
+			// 		'/home/satont/Documents/Projects/twir/node_modules/.bun',
+			// 	],
+			// },
 		},
 		css: {
 			lightningcss: {
