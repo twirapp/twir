@@ -1,21 +1,7 @@
 import { ContentType } from '@twir/api/openapi'
-import type { ErrorModel, LinkOutputDto, ShortUrlProfileParamsSortByEnum } from '@twir/api/openapi'
+import type { CustomDomainOutputDto, ErrorModel, LinkBannedUserAgentDto, LinkOutputDto, ShortUrlProfileParamsSortByEnum } from '@twir/api/openapi'
 
 import { useOapi } from '~/composables/use-oapi'
-
-type CustomDomainOutputDto = {
-	id: string
-	domain: string
-	verified: boolean
-	verification_token: string
-	verification_target: string
-	created_at: string
-}
-
-type CustomDomainResponseDto = {
-	$schema?: string
-	data: CustomDomainOutputDto
-}
 
 export type BannedUserAgentDto = {
 	id: string
@@ -32,24 +18,6 @@ type BannedUserAgentsListResponseDto = {
 type BannedUserAgentResponseDto = {
 	$schema?: string
 	data: BannedUserAgentDto
-}
-
-export type LinkBannedUserAgentDto = {
-	id: string
-	link_id: string
-	pattern: string
-	description: string | null
-	created_at: string
-}
-
-type LinkBannedUserAgentsListResponseDto = {
-	$schema?: string
-	data: LinkBannedUserAgentDto[]
-}
-
-type LinkBannedUserAgentResponseDto = {
-	$schema?: string
-	data: LinkBannedUserAgentDto
 }
 
 export const useUrlShortener = defineStore('url-shortener', () => {
@@ -90,11 +58,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		isCustomDomainLoading.value = true
 
 		try {
-			const response = await api.http.request<CustomDomainResponseDto, ErrorModel>({
-				path: '/v1/short-links/custom-domain',
-				method: 'GET',
-				format: 'json',
-			})
+			const response = await api.v1.shortLinksGetCustomDomain()
 
 			customDomain.value = response.data.data
 
@@ -122,15 +86,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 
 	async function createCustomDomain(domain: string) {
 		try {
-			const response = await api.http.request<CustomDomainResponseDto, ErrorModel>({
-				path: '/v1/short-links/custom-domain',
-				method: 'POST',
-				type: ContentType.Json,
-				format: 'json',
-				body: {
-					domain,
-				},
-			})
+			const response = await api.v1.shortLinksCreateCustomDomain({ domain })
 
 			customDomain.value = response.data.data
 
@@ -148,11 +104,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 
 	async function verifyCustomDomain() {
 		try {
-			const response = await api.http.request<CustomDomainResponseDto, ErrorModel>({
-				path: '/v1/short-links/custom-domain/verify',
-				method: 'POST',
-				format: 'json',
-			})
+			const response = await api.v1.shortLinksVerifyCustomDomain()
 
 			customDomain.value = response.data.data
 
@@ -170,11 +122,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 
 	async function deleteCustomDomain() {
 		try {
-			const response = await api.http.request<Record<string, never>, ErrorModel>({
-				path: '/v1/short-links/custom-domain',
-				method: 'DELETE',
-				format: 'json',
-			})
+			const response = await api.v1.shortLinksDeleteCustomDomain()
 
 			customDomain.value = null
 
@@ -267,11 +215,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 	async function fetchPerLinkBannedUserAgents(linkId: string) {
 		isPerLinkBannedUserAgentsLoading.value.set(linkId, true)
 		try {
-			const response = await api.http.request<LinkBannedUserAgentsListResponseDto, ErrorModel>({
-				path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
-				method: 'GET',
-				format: 'json',
-			})
+			const response = await api.v1.shortLinksListLinkBannedUserAgents(linkId)
 			perLinkBannedUserAgents.value.set(linkId, response.data.data)
 			return { data: response.data, error: response.error }
 		} catch (e) {
@@ -283,15 +227,9 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 
 	async function createPerLinkBannedUserAgent(linkId: string, opts: { pattern: string; description?: string | null }) {
 		try {
-			const response = await api.http.request<LinkBannedUserAgentResponseDto, ErrorModel>({
-				path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
-				method: 'POST',
-				type: ContentType.Json,
-				format: 'json',
-				body: {
-					pattern: opts.pattern,
-					description: opts.description,
-				},
+			const response = await api.v1.shortLinksCreateLinkBannedUserAgent(linkId, {
+				pattern: opts.pattern,
+				description: opts.description ?? undefined,
 			})
 			const current = perLinkBannedUserAgents.value.get(linkId) || []
 			perLinkBannedUserAgents.value.set(linkId, [...current, response.data.data])
@@ -303,11 +241,7 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 
 	async function deletePerLinkBannedUserAgent(linkId: string, id: string) {
 		try {
-			const response = await api.http.request<Record<string, never>, ErrorModel>({
-				path: `/v1/short-links/by-id/${linkId}/banned-user-agents/${id}`,
-				method: 'DELETE',
-				format: 'json',
-			})
+			const response = await api.v1.shortLinksDeleteLinkBannedUserAgent(linkId, id)
 			const current = perLinkBannedUserAgents.value.get(linkId) || []
 			perLinkBannedUserAgents.value.set(linkId, current.filter((item) => item.id !== id))
 			return { data: response.data, error: response.error }
