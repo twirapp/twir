@@ -3,6 +3,7 @@ import type { PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 
 import { computed } from 'vue'
 import SecretsList from '~~/layers/dashboard/features/channels-secret/secrets.vue'
+import StorageList from '~~/layers/dashboard/features/storage/storage.vue'
 import VariablesList from '~~/layers/dashboard/features/variables/variables.vue'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
@@ -20,6 +21,11 @@ const tabs = computed<PageLayoutTab[]>(() => [
 		title: 'Secrets',
 		component: SecretsList,
 		name: 'secrets',
+	},
+	{
+		title: 'Storage',
+		component: StorageList,
+		name: 'storage',
 	},
 ])
 </script>

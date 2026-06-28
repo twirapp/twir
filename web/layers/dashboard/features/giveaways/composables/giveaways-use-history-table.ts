@@ -1,18 +1,17 @@
-import type { ColumnDef } from '@tanstack/vue-table';
-import { getCoreRowModel, useVueTable } from '@tanstack/vue-table';
-import { createGlobalState } from '@vueuse/core';
-import { computed, h } from 'vue';
-import { NuxtIcon as Icon } from '#components';
-;
+import type { ColumnDef } from '@tanstack/vue-table'
+import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js'
 
-import type { Giveaway } from '~~/layers/dashboard/api/giveaways.js';
+import { NuxtIcon as Icon } from '#components'
+import { getCoreRowModel, useVueTable } from '@tanstack/vue-table'
+import { createGlobalState } from '@vueuse/core'
+import { computed, h } from 'vue'
+import { useGiveaways } from '~~/layers/dashboard/features/giveaways/composables/giveaways-use-giveaways.js'
 
-import { Button } from '@/components/ui/button';
-import { useGiveaways } from '~~/layers/dashboard/features/giveaways/composables/giveaways-use-giveaways.js';
+import { Button } from '@/components/ui/button'
 
 export const useGiveawaysHistoryTable = createGlobalState(() => {
-	const { t } = useI18n();
-	const { archivedGiveaways, giveawaysListFetching, viewGiveaway } = useGiveaways();
+	const { t } = useI18n()
+	const { archivedGiveaways, giveawaysListFetching, viewGiveaway } = useGiveaways()
 
 	const tableColumns = computed<ColumnDef<Giveaway>[]>(() => {
 		return [
@@ -26,7 +25,7 @@ export const useGiveawaysHistoryTable = createGlobalState(() => {
 						{},
 						row.original.type === 'KEYWORD'
 							? t('giveaways.typeKeyword')
-							: t('giveaways.typeOnlineChatters'),
+							: t('giveaways.typeOnlineChatters')
 					),
 			},
 			{
@@ -52,7 +51,7 @@ export const useGiveawaysHistoryTable = createGlobalState(() => {
 					h(
 						'span',
 						{},
-						row.original.startedAt ? new Date(row.original.startedAt).toLocaleString() : '-',
+						row.original.startedAt ? new Date(row.original.startedAt).toLocaleString() : '-'
 					),
 			},
 			{
@@ -63,7 +62,7 @@ export const useGiveawaysHistoryTable = createGlobalState(() => {
 					h(
 						'span',
 						{},
-						row.original.stoppedAt ? new Date(row.original.stoppedAt).toLocaleString() : '-',
+						row.original.stoppedAt ? new Date(row.original.stoppedAt).toLocaleString() : '-'
 					),
 			},
 			{
@@ -88,26 +87,29 @@ export const useGiveawaysHistoryTable = createGlobalState(() => {
 								onClick: () => viewGiveaway(row.original.id),
 							},
 							{
-								default: () => [h(Icon, { name: 'lucide:eye', class: 'size-4' }), t('giveaways.view')],
-							},
+								default: () => [
+									h(Icon, { name: 'lucide:eye', class: 'size-4' }),
+									t('giveaways.view'),
+								],
+							}
 						),
 					]),
 			},
-		];
-	});
+		]
+	})
 
 	const table = useVueTable({
 		get data() {
-			return archivedGiveaways.value;
+			return archivedGiveaways.value
 		},
 		get columns() {
-			return tableColumns.value;
+			return tableColumns.value
 		},
 		getCoreRowModel: getCoreRowModel(),
-	});
+	})
 
 	return {
 		isLoading: giveawaysListFetching,
 		table,
-	};
-});
+	}
+})

@@ -21,8 +21,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	channels_overlays "github.com/twirapp/twir/apps/api-gql/internal/services/channels_overlays"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_secret"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_secret"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_storage"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
@@ -186,6 +187,7 @@ type Deps struct {
 	ChannelOverlaysService                *channels_overlays.Service
 	StreamlabsIntegrationService          *streamlabs_integration.Service
 	ChannelsSecretService                 *channels_secret.Service
+	ChannelsStorageService                *channels_storage.Service
 }
 
 type Resolver struct {

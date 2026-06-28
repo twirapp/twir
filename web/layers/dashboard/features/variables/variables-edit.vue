@@ -46,6 +46,7 @@ function onEditorBeforeMount(monaco: any) {
 		target: monaco.languages.typescript.ScriptTarget.ESNext,
 		module: monaco.languages.typescript.ModuleKind.ESNext,
 		allowNonTsExtensions: true,
+		lib: ['esnext'],
 	})
 
 	const defs = twirTypeDefinitions.value

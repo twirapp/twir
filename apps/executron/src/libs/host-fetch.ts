@@ -19,6 +19,8 @@ export async function hostFetch(url: string, options?: RequestInit): Promise<Fet
 	const controller = new AbortController()
 	const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
 
+	console.log(`[hostFetch] ${options?.method || 'GET'} ${url} (proxy: ${isProd})`)
+
 	try {
 		const response = await fetch(url, {
 			...options,
@@ -33,12 +35,17 @@ export async function hostFetch(url: string, options?: RequestInit): Promise<Fet
 
 		const body = await response.text()
 
+		console.log(`[hostFetch] Done: status=${response.status}, body length=${body.length}`)
+
 		return {
 			status: response.status,
 			statusText: response.statusText,
 			headers,
 			body,
 		}
+	} catch (err: any) {
+		console.error(`[hostFetch] Error:`, err.message)
+		throw err
 	} finally {
 		clearTimeout(timeout)
 	}
