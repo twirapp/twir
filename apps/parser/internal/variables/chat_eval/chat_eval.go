@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	executronBus "github.com/twirapp/twir/libs/bus-core/executron"
 	"github.com/twirapp/twir/libs/i18n"
 )
 
@@ -29,11 +30,13 @@ var ChatEval = &types.Variable{
 
 		script := fmt.Sprintf(`return %s`, *parseCtx.Text)
 
-		req, err := parseCtx.Services.Executron.ExecuteUserCode(
+		req, err := parseCtx.Services.Bus.Executron.Execute.Request(
 			ctx,
-			parseCtx.Channel.ID,
-			"javascript",
-			script,
+			executronBus.ExecuteRequest{
+				ChannelId: parseCtx.Channel.ID,
+				Language:  "javascript",
+				Code:      script,
+			},
 		)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
@@ -42,14 +45,14 @@ var ChatEval = &types.Variable{
 		}
 
 		var res string
-		if req.Result != "" {
-			if utf8.RuneCountInString(req.Result) > 474 {
-				res = req.Result[:474] + "..."
+		if req.Data.Result != "" {
+			if utf8.RuneCountInString(req.Data.Result) > 474 {
+				res = req.Data.Result[:474] + "..."
 			} else {
-				res = req.Result
+				res = req.Data.Result
 			}
-		} else if req.Error != "" {
-			res = req.Error
+		} else if req.Data.Error != "" {
+			res = req.Data.Error
 		}
 
 		result.Result = res

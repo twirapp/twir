@@ -13,6 +13,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	executronBus "github.com/twirapp/twir/libs/bus-core/executron"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
@@ -118,11 +119,13 @@ var CustomVar = &types.Variable{
 				return nil, err
 			}
 
-			res, err := parseCtx.Services.Executron.ExecuteUserCode(
-				ctx,
-				parseCtx.Channel.ID,
-				v.ScriptLanguage,
-				filledWithVariablesValue.Data.Text,
+			res, err := parseCtx.Services.Bus.Executron.Execute.Request(
+				requestCtx,
+				executronBus.ExecuteRequest{
+					ChannelId: parseCtx.Channel.ID,
+					Language:  v.ScriptLanguage,
+					Code:      filledWithVariablesValue.Data.Text,
+				},
 			)
 			if err != nil {
 				parseCtx.Services.Logger.Sugar().Error(err)
@@ -132,10 +135,10 @@ var CustomVar = &types.Variable{
 				)
 			}
 
-			if res.Result != "" {
-				result.Result = res.Result
-			} else if res.Error != "" {
-				result.Result = res.Error
+			if res.Data.Result != "" {
+				result.Result = res.Data.Result
+			} else if res.Data.Error != "" {
+				result.Result = res.Data.Error
 			}
 		}
 

@@ -28,7 +28,6 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/services/shortenedurls"
 	variables_bus "github.com/twirapp/twir/apps/parser/internal/variables-bus"
 	"github.com/twirapp/twir/apps/parser/locales"
-	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
@@ -329,7 +328,6 @@ func main() {
 		LastfmRepo:                 lastfmRepo,
 		VKRepo:                     vkRepo,
 		FaceitRepo:                 faceitRepo,
-		Executron:                  executron.New(*config, redisClient),
 		I18n:                       translationService,
 		UsersWithStatsRepository:   usersWithStatsRepository,
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	executronBus "github.com/twirapp/twir/libs/bus-core/executron"
 	"github.com/twirapp/twir/libs/i18n"
 )
 
@@ -51,11 +52,13 @@ var Request = &types.Variable{
 
 		script := fmt.Sprintf(requestTemplate, param, supportedContentType)
 
-		req, err := parseCtx.Services.Executron.ExecuteUserCode(
+		req, err := parseCtx.Services.Bus.Executron.Execute.Request(
 			ctx,
-			parseCtx.Channel.ID,
-			"javascript",
-			script,
+			executronBus.ExecuteRequest{
+				ChannelId: parseCtx.Channel.ID,
+				Language:  "javascript",
+				Code:      script,
+			},
 		)
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
@@ -63,10 +66,10 @@ var Request = &types.Variable{
 			return result, nil
 		}
 
-		if req.Result != "" {
-			result.Result = req.Result
-		} else if req.Error != "" {
-			result.Result = req.Error
+		if req.Data.Result != "" {
+			result.Result = req.Data.Result
+		} else if req.Data.Error != "" {
+			result.Result = req.Data.Error
 		}
 
 		return result, nil
