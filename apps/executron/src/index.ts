@@ -1,4 +1,3 @@
-import './preload-native'
 import { getSecretsForChannel } from './libs/db'
 import { executeCode } from './libs/executor'
 import { twirBus } from './libs/twirbus'
