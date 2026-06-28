@@ -4,9 +4,12 @@ import {
 	makeLinker,
 	makeStaticLoader,
 } from '@isolated-vm/experimental/utility/linker'
+import { config } from '@twir/config'
 
 const TIMEOUT_MS = 5000
 const FETCH_TIMEOUT_MS = 10000
+const isProd = config.NODE_ENV === 'production'
+const PROXY_URL = 'http://warp-proxy:9091'
 
 export interface ExecutionResult {
 	result: string
@@ -28,6 +31,7 @@ async function hostFetch(url: string, options?: RequestInit): Promise<FetchRespo
 		const response = await fetch(url, {
 			...options,
 			signal: controller.signal,
+			...(isProd ? { proxy: PROXY_URL } : {}),
 		})
 
 		const headers: Record<string, string> = {}

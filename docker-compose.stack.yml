@@ -613,7 +613,6 @@ services:
       - twir_doppler_token
     networks:
       - twir
-      - executron-warp
     deploy:
       mode: replicated
       replicas: 3
@@ -625,13 +624,27 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-  executron-warp:
-    image: ghcr.io/xxphantom/docker-warp-native:latest
-    restart: always
+  warp-proxy:
+    image: ghcr.io/mon-ius/docker-warp-socks
     cap_add:
       - ALL
     networks:
-      - executron-warp
+      - twir
+    healthcheck:
+      test: ["CMD", "curl", "-x", "socks5h://127.0.0.1:9091", "-fsSL", "https://www.cloudflare.com/cdn-cgi/trace"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    deploy:
+      mode: global
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
 
   web:
     image: registry.twir.app/twirapp/web:${TWIR_IMAGE_TAG:-latest}
@@ -972,7 +985,6 @@ networks:
     external: true
   cloudflared:
     external: true
-  executron-warp:
 
 secrets:
   twir_doppler_token:
