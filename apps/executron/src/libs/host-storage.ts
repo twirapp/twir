@@ -49,12 +49,18 @@ export async function handleStorageOperation(
 				`
 				if (rows.length === 0) return { success: true, data: null }
 				const raw = rows[0].value
-				const data = typeof raw === 'string' ? JSON.parse(raw) : raw
-				return { success: true, data }
+				if (typeof raw === 'string') {
+					try {
+						return { success: true, data: JSON.parse(raw) }
+					} catch {
+						return { success: true, data: raw }
+					}
+				}
+				return { success: true, data: raw }
 			}
 
 			case 'set': {
-				const valueJson = JSON.stringify(op.value)
+				const valueSize = JSON.stringify(op.value).length
 				const currentSize = await getTotalSize(channelId)
 
 				const existingRows = await sql`
@@ -63,16 +69,15 @@ export async function handleStorageOperation(
 				`
 				const existingSize = existingRows.length > 0 ? (existingRows[0].size as number) : 0
 
-				if (currentSize - existingSize + valueJson.length > MAX_STORAGE_SIZE) {
+				if (currentSize - existingSize + valueSize > MAX_STORAGE_SIZE) {
 					return { success: false, error: 'Storage limit exceeded (30MB per channel)' }
 				}
 
-				await sql.unsafe(
-					`INSERT INTO channels_storage (channel_id, key, value)
-					 VALUES ($1, $2, CAST($3 AS JSONB))
-					 ON CONFLICT (channel_id, key) DO UPDATE SET value = CAST($3 AS JSONB), updated_at = now()`,
-					[channelId, op.key, valueJson]
-				)
+				await sql`
+					INSERT INTO channels_storage (channel_id, key, value)
+					VALUES (${channelId}, ${op.key}, ${JSON.stringify(op.value)}::jsonb)
+					ON CONFLICT (channel_id, key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+				`
 				return { success: true }
 			}
 
