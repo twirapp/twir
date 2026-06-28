@@ -35,7 +35,9 @@ export async function handleStorageOperation(
 					WHERE channel_id = ${channelId} AND key = ${op.key}
 				`
 				if (rows.length === 0) return { success: true, data: null }
-				return { success: true, data: rows[0].value }
+				const raw = rows[0].value
+				const data = typeof raw === 'string' ? JSON.parse(raw) : raw
+				return { success: true, data }
 			}
 
 			case 'set': {

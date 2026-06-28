@@ -140,24 +140,28 @@ export async function executeCode(
 
 		const storageCapability = await realm.createCapability(
 			() => ({
-				async startStorageOp(id: unknown, opJson: unknown) {
-					try {
-						const op = JSON.parse(String(opJson))
-						console.log(`[executron] Storage op: ${op.action} key=${op.key ?? '-'}`)
-						const result = await handleStorageOperation(channelId, op)
-						console.log(`[executron] Storage op done: ${op.action} success=${result.success}`)
-						await globalRef.set('__storageResultId', id)
-						await globalRef.set('__storageResultData', result)
-						await triggerStorage.run(realm)
-					} catch (err: any) {
-						console.error(`[executron] Storage op error:`, err.message)
-						await globalRef.set('__storageResultId', id)
-						await globalRef.set('__storageResultData', {
-							success: false,
-							error: err.message || String(err),
-						})
-						await triggerStorage.run(realm)
-					}
+				startStorageOp(id: unknown, opJson: unknown) {
+					const numId = Number(id)
+					const op = JSON.parse(String(opJson))
+					console.log(`[executron] Storage op: ${op.action} key=${op.key ?? '-'}`)
+
+					void handleStorageOperation(channelId, op).then(
+						async (result) => {
+							console.log(`[executron] Storage op done: ${op.action} success=${result.success}`)
+							await globalRef.set('__storageResultId', numId)
+							await globalRef.set('__storageResultData', result)
+							await triggerStorage.run(realm)
+						},
+						async (err) => {
+							console.error(`[executron] Storage op error:`, err.message)
+							await globalRef.set('__storageResultId', numId)
+							await globalRef.set('__storageResultData', {
+								success: false,
+								error: err.message || String(err),
+							})
+							await triggerStorage.run(realm)
+						}
+					)
 				},
 			}),
 			{ origin: 'twir:storage' }
