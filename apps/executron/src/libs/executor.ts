@@ -53,30 +53,50 @@ export async function executeCode(
 
 		const globalRef = await realm.acquireGlobalObject()
 
+		const pendingFetchControllers = new Map<number, AbortController>()
+
 		const fetchCapability = await realm.createCapability(
 			() => ({
 				startFetch(id: unknown, url: unknown, method: unknown, body: unknown) {
+					const numId = Number(id)
+					const controller = new AbortController()
+					pendingFetchControllers.set(numId, controller)
+
 					const opts: RequestInit = {}
 					if (method) opts.method = String(method)
 					if (body) opts.body = String(body)
+					opts.signal = controller.signal
 
 					void hostFetch(String(url), opts).then(
 						async (result) => {
+							pendingFetchControllers.delete(numId)
 							await globalRef.set('__fetchResultId', id)
 							await globalRef.set('__fetchResultData', result)
+							await globalRef.set('__fetchResultAborted', false)
 							await triggerFetch.run(realm)
 						},
 						async (err) => {
+							pendingFetchControllers.delete(numId)
+							const isAbort = controller.signal.aborted
 							await globalRef.set('__fetchResultId', id)
 							await globalRef.set('__fetchResultData', {
 								status: 0,
-								statusText: 'Fetch failed',
+								statusText: isAbort ? 'Aborted' : 'Fetch failed',
 								headers: {},
 								body: String(err?.message ?? err),
 							})
+							await globalRef.set('__fetchResultAborted', isAbort)
 							await triggerFetch.run(realm)
 						}
 					)
+				},
+				abortFetch(id: unknown) {
+					const numId = Number(id)
+					const controller = pendingFetchControllers.get(numId)
+					if (controller) {
+						controller.abort()
+						pendingFetchControllers.delete(numId)
+					}
 				},
 			}),
 			{ origin: 'twir:fetch' }
@@ -86,23 +106,27 @@ export async function executeCode(
 			await agent.compileScript(`
 				if (globalThis.__fetchCallback) {
 					const raw = __fetchResultData;
-					const response = {
-						status: raw.status,
-						statusText: raw.statusText,
-						headers: raw.headers,
-						ok: raw.status >= 200 && raw.status < 300,
-						body: raw.body,
-						json() { return JSON.parse(raw.body); },
-						text() { return raw.body; },
-					};
-					globalThis.__fetchCallback(__fetchResultId, response);
+					if (__fetchResultAborted) {
+						globalThis.__fetchCallback(__fetchResultId, null, true);
+					} else {
+						const response = {
+							status: raw.status,
+							statusText: raw.statusText,
+							headers: raw.headers,
+							ok: raw.status >= 200 && raw.status < 300,
+							body: raw.body,
+							json() { return JSON.parse(raw.body); },
+							text() { return raw.body; },
+						};
+						globalThis.__fetchCallback(__fetchResultId, response, false);
+					}
 				}
 			`)
 		)
 
 		const wrappedCode = `
 			import { done, error } from "twir:done";
-			import { startFetch } from "twir:fetch";
+			import { startFetch, abortFetch } from "twir:fetch";
 
 			const __secrets = ${secretsJson};
 
@@ -113,21 +137,82 @@ export async function executeCode(
 				channel: { id: ${JSON.stringify(channelId)} }
 			};
 
+			class AbortSignal {
+				constructor() {
+					this.aborted = false;
+					this.onabort = null;
+					this._listeners = [];
+				}
+
+				addEventListener(type, listener) {
+					if (type === 'abort') this._listeners.push(listener);
+				}
+
+				removeEventListener(type, listener) {
+					if (type === 'abort') {
+						this._listeners = this._listeners.filter(l => l !== listener);
+					}
+				}
+
+				_dispatchAbort() {
+					this.aborted = true;
+					const event = { type: 'abort' };
+					if (this.onabort) this.onabort(event);
+					for (const listener of this._listeners) listener(event);
+				}
+
+				throwIfAborted() {
+					if (this.aborted) throw new DOMException('The operation was aborted.', 'AbortError');
+				}
+			}
+
+			class AbortController {
+				constructor() {
+					this.signal = new AbortSignal();
+				}
+
+				abort() {
+					this.signal._dispatchAbort();
+				}
+			}
+
+			globalThis.AbortController = AbortController;
+			globalThis.AbortSignal = AbortSignal;
+
 			let __nextFetchId = 0;
 			const __fetchResolvers = new Map();
 
-			globalThis.__fetchCallback = function(id, result) {
+			globalThis.__fetchCallback = function(id, result, aborted) {
 				const entry = __fetchResolvers.get(id);
 				if (entry) {
 					__fetchResolvers.delete(id);
-					entry.resolve(result);
+					if (aborted) {
+						entry.reject(new DOMException('The operation was aborted.', 'AbortError'));
+					} else {
+						entry.resolve(result);
+					}
 				}
 			};
 
 			function fetch(url, options) {
+				const signal = options?.signal;
+				if (signal?.aborted) {
+					return Promise.reject(new DOMException('The operation was aborted.', 'AbortError'));
+				}
+
 				return new Promise((resolve, reject) => {
 					const id = __nextFetchId++;
 					__fetchResolvers.set(id, { resolve, reject });
+
+					if (signal) {
+						const onAbort = () => {
+							__fetchResolvers.delete(id);
+							abortFetch(id);
+							reject(new DOMException('The operation was aborted.', 'AbortError'));
+						};
+						signal.addEventListener('abort', onAbort);
+					}
+
 					startFetch(id, url, options?.method || null, options?.body || null);
 				});
 			}
