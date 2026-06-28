@@ -78,7 +78,7 @@ func (r *queryResolver) Secrets(ctx context.Context) ([]gqlmodel.Secret, error) 
 		return nil, err
 	}
 
-	secrets, err := r.deps.ChannelsSecretService.GetAllByChannelID(ctx, dashboardId)
+	secrets, err := r.deps.ChannelsSecretService.GetAllDecryptedByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -89,14 +89,4 @@ func (r *queryResolver) Secrets(ctx context.Context) ([]gqlmodel.Secret, error) 
 	}
 
 	return result, nil
-}
-
-// SecretValue is the resolver for the secretValue field.
-func (r *queryResolver) SecretValue(ctx context.Context, id uuid.UUID) (string, error) {
-	value, err := r.deps.ChannelsSecretService.GetDecryptedValue(ctx, id)
-	if err != nil {
-		return "", gqlerrors.HandleError(err)
-	}
-
-	return value, nil
 }

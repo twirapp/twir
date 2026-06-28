@@ -60,6 +60,26 @@ func (s *Service) GetAllByChannelID(ctx context.Context, channelID string) (
 	return s.secretsRepository.GetAllByChannelID(ctx, channelID)
 }
 
+func (s *Service) GetAllDecryptedByChannelID(ctx context.Context, channelID string) (
+	[]model.ChannelSecret,
+	error,
+) {
+	secrets, err := s.secretsRepository.GetAllByChannelID(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, secret := range secrets {
+		decrypted, err := s.decrypt(secret.Value)
+		if err != nil {
+			return nil, fmt.Errorf("cannot decrypt secret %s: %w", secret.Name, err)
+		}
+		secrets[i].Value = decrypted
+	}
+
+	return secrets, nil
+}
+
 func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (
 	model.ChannelSecret,
 	error,

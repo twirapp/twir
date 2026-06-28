@@ -1,6 +1,7 @@
+`
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
-import { z } from 'zod'
+import { ref, watch } from 'vue'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -14,6 +15,7 @@ import {
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { SecretCreateInputSchema, SecretUpdateInputSchema } from '~/gql/validation-schemas.js'
 
 import type { Secret } from '../composables/use-secrets-api'
 
@@ -29,14 +31,8 @@ const secretsApi = useSecretsApi()
 const createMutation = secretsApi.useMutationCreateSecret()
 const updateMutation = secretsApi.useMutationUpdateSecret()
 
-const formSchema = z.object({
-	name: z.string().min(1, 'Name is required').max(100),
-	description: z.string().max(500).optional(),
-	value: z.string().min(1, 'Value is required').max(10000),
-})
-
 const { handleSubmit, resetForm, setValues } = useForm({
-	validationSchema: formSchema,
+	validationSchema: props.secret ? SecretUpdateInputSchema : SecretCreateInputSchema,
 	initialValues: {
 		name: '',
 		description: '',
@@ -44,13 +40,17 @@ const { handleSubmit, resetForm, setValues } = useForm({
 	},
 })
 
+const isRevealed = ref(false)
+
 watch(open, (isOpen) => {
 	if (isOpen) {
+		isRevealed.value = false
+
 		if (props.secret) {
 			setValues({
 				name: props.secret.name,
 				description: props.secret.description ?? '',
-				value: '',
+				value: props.secret.value ?? '',
 			})
 		} else {
 			resetForm()
@@ -139,11 +139,26 @@ const onSubmit = handleSubmit(async (values) => {
 					<FormItem>
 						<FormLabel>Value</FormLabel>
 						<FormControl>
-							<Input
-								v-bind="componentField"
-								type="password"
-								placeholder="Enter secret value"
-							/>
+							<div class="relative">
+								<Input
+									v-bind="componentField"
+									:type="isRevealed ? 'text' : 'password'"
+									placeholder="Enter secret value"
+									class="pr-10"
+								/>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									class="absolute top-0 right-0 h-full px-3"
+									@click="isRevealed = !isRevealed"
+								>
+									<Icon
+										:name="isRevealed ? 'lucide:eye-off' : 'lucide:eye'"
+										class="h-4 w-4"
+									/>
+								</Button>
+							</div>
 						</FormControl>
 						<FormMessage />
 					</FormItem>

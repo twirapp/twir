@@ -11,6 +11,7 @@ export type Secret = {
 	id: string;
 	name: string;
 	description?: string | null;
+	value: string;
 };
 
 export const useSecretsApi = createGlobalState(() => {
@@ -23,6 +24,7 @@ export const useSecretsApi = createGlobalState(() => {
 					id
 					name
 					description
+					value
 				}
 			}
 		`),
@@ -70,17 +72,6 @@ export const useSecretsApi = createGlobalState(() => {
 			[invalidationKey],
 		);
 
-	const useQuerySecretValue = (id: string) =>
-		useQuery({
-			variables: { id },
-			query: graphql(`
-				query GetSecretValue($id: UUID!) {
-					secretValue(id: $id)
-				}
-			`),
-			pause: true,
-		});
-
 	return {
 		secretsQuery,
 		secrets,
@@ -88,6 +79,5 @@ export const useSecretsApi = createGlobalState(() => {
 		useMutationCreateSecret,
 		useMutationUpdateSecret,
 		useMutationRemoveSecret,
-		useQuerySecretValue,
 	};
 });
