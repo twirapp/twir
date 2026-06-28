@@ -613,7 +613,10 @@ services:
       - twir_doppler_token
     networks:
       - twir
+      - executron-warp
     deploy:
+      mode: replicated
+      replicas: 3
       update_config:
         order: start-first
       restart_policy:
@@ -621,6 +624,14 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+
+  executron-warp:
+    image: ghcr.io/xxphantom/docker-warp-native:latest
+    restart: always
+    cap_add:
+      - ALL
+    networks:
+      - executron-warp
 
   web:
     image: registry.twir.app/twirapp/web:${TWIR_IMAGE_TAG:-latest}
@@ -961,6 +972,7 @@ networks:
     external: true
   cloudflared:
     external: true
+  executron-warp:
 
 secrets:
   twir_doppler_token:
