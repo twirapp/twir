@@ -3,18 +3,16 @@
   "private": true,
   "scripts": {
     "dev": "bun run --env-file=../../.env --watch src/index.ts",
-    "start": "bun run --env-file=../../.env src/index.ts",
-    "build": "tsc --noEmit"
+    "start": "bun run --env-file=../../.env src/index.ts"
   },
   "dependencies": {
     "@twir/config": "workspace:*",
-    "@isolated-vm/experimental": "0.0.8",
     "@twir/bus-core": "workspace:*",
+    "dockerode": "^4.0.4",
     "nats": "2.22.0"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/dockerode": "^3.3.31"
   }
 }
-
-

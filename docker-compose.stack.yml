@@ -611,6 +611,10 @@ services:
     image: registry.twir.app/twirapp/executron:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - APP_ENV=production
     networks:
       - twir
       - executron-warp

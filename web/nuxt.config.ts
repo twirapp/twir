@@ -147,6 +147,8 @@ export default defineNuxtConfig({
 				'@zero-dependency/utils',
 				'@unovis/vue',
 				'vue-draggable-plus',
+				'@guolao/vue-monaco-editor',
+				'date-fns',
 			],
 		},
 		server: {

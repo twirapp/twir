@@ -1,51 +1,66 @@
-import { Agent, expectComplete } from '@isolated-vm/experimental'
-import {
-	makeDirectResolver,
-	makeLinker,
-	makeStaticLoader,
-} from '@isolated-vm/experimental/utility/linker'
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+import { config } from '@twir/config'
+import Docker from 'dockerode'
 
 const TIMEOUT_MS = 5000
-const FETCH_TIMEOUT_MS = 10000
+const MEMORY_LIMIT = 128 * 1024 * 1024
+const CPU_LIMIT = 1_000_000_000
+const PID_LIMIT = 100
+const RUNNER_IMAGE = 'oven/bun:canary'
+
+const docker = new Docker({ socketPath: '/var/run/docker.sock' })
+
+function demuxDockerLogs(buf: Buffer): string {
+	const parts: string[] = []
+	let offset = 0
+
+	while (offset < buf.length) {
+		if (offset + 8 > buf.length) break
+
+		const streamType = buf[offset]
+		const size = buf.readUInt32BE(offset + 4)
+		offset += 8
+
+		if (offset + size > buf.length) break
+
+		if (streamType === 1 || streamType === 2) {
+			parts.push(buf.subarray(offset, offset + size).toString('utf-8'))
+		}
+		offset += size
+	}
+
+	return parts.join('').trim()
+}
 
 export interface ExecutionResult {
 	result: string
 	error: string
 }
 
-interface FetchResponse {
-	status: number
-	statusText: string
-	headers: Record<string, string>
-	body: string
-}
+let imagePulled = false
 
-async function hostFetch(url: string, options?: RequestInit): Promise<FetchResponse> {
-	const controller = new AbortController()
-	const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
-
+async function ensureImage() {
+	if (imagePulled) return
 	try {
-		const response = await fetch(url, {
-			...options,
-			signal: controller.signal,
+		await docker.getImage(RUNNER_IMAGE).inspect()
+		imagePulled = true
+		return
+	} catch {}
+
+	console.log(`[executron] Pulling ${RUNNER_IMAGE}...`)
+	const stream = await docker.pull(RUNNER_IMAGE)
+	await new Promise<void>((resolve, reject) => {
+		docker.modem.followProgress(stream, (err: any) => {
+			if (err) reject(err)
+			else {
+				imagePulled = true
+				resolve()
+			}
 		})
-
-		const headers: Record<string, string> = {}
-		response.headers.forEach((value, key) => {
-			headers[key] = value
-		})
-
-		const body = await response.text()
-
-		return {
-			status: response.status,
-			statusText: response.statusText,
-			headers,
-			body,
-		}
-	} finally {
-		clearTimeout(timeout)
-	}
+	})
 }
 
 export async function executeCode(
@@ -53,172 +68,123 @@ export async function executeCode(
 	channelId: string,
 	secrets: Map<string, string>
 ): Promise<ExecutionResult> {
-	let agent: Agent | null = null
+	await ensureImage()
+
+	const tmpDir = mkdtempSync(join(tmpdir(), 'executron-'))
+	let containerId: string | null = null
 
 	try {
-		agent = await Agent.create()
-		const realm = await agent.createRealm()
-
 		const secretsObj: Record<string, string> = {}
 		for (const [key, value] of secrets) {
 			secretsObj[key] = value
 		}
 
-		const secretsJson = JSON.stringify(secretsObj)
+		const wrapperContent = `
+const __secrets = ${JSON.stringify(secretsObj)};
+const twir = {
+	secrets: { get(name) { return __secrets[name] ?? null; } },
+	channel: { id: ${JSON.stringify(channelId)} }
+};
 
-		let resolveResult: (value: string) => void
-		let rejectResult: (error: string) => void
-		const resultPromise = new Promise<string>((resolve, reject) => {
-			resolveResult = resolve
-			rejectResult = reject
+async function __executron_execute() {
+${code}
+}
+
+try {
+	const result = await __executron_execute();
+	console.log(JSON.stringify({ result: String(result ?? ''), error: '' }));
+} catch (e) {
+	console.log(JSON.stringify({ result: '', error: e.message || String(e) }));
+}
+`
+
+		const wrapperPath = join(tmpDir, 'wrapper.mjs')
+		writeFileSync(wrapperPath, wrapperContent)
+		chmodSync(tmpDir, 0o755)
+		chmodSync(wrapperPath, 0o644)
+
+		const networkMode = config.NODE_ENV !== 'production' ? 'default' : 'container:executron-warp'
+
+		console.log(`[executron] tmpDir: ${tmpDir}, network: ${networkMode}`)
+
+		const container = await docker.createContainer({
+			Image: RUNNER_IMAGE,
+			Cmd: ['bun', '/code/wrapper.mjs'],
+			WorkingDir: '/code',
+			Tty: false,
+			HostConfig: {
+				Mounts: [
+					{
+						Type: 'bind',
+						Source: wrapperPath,
+						Target: '/code/wrapper.mjs',
+						ReadOnly: true,
+						BindOptions: { Propagation: 'rprivate' },
+					},
+				],
+				Memory: MEMORY_LIMIT,
+				NanoCpus: CPU_LIMIT,
+				PidsLimit: PID_LIMIT,
+				NetworkMode: networkMode,
+				ReadonlyRootfs: true,
+				SecurityOpt: ['no-new-privileges'],
+				CapDrop: ['ALL'],
+				Tmpfs: { '/tmp': 'size=64M' },
+			},
 		})
 
-		const doneCapability = await realm.createCapability(
-			() => ({
-				done(result: unknown) {
-					resolveResult(String(result ?? ''))
-				},
-				error(err: unknown) {
-					rejectResult(String(err ?? 'Unknown error'))
-				},
-			}),
-			{ origin: 'twir:done' }
-		)
+		await container.start()
+		containerId = container.id
+		console.log(`[executron] Container started: ${containerId}`)
 
-		// Fetch capability — starts a fetch, delivers result via global callback
-		const globalRef = await realm.acquireGlobalObject()
-
-		const fetchCapability = await realm.createCapability(
-			() => ({
-				startFetch(id: unknown, url: unknown, method: unknown, body: unknown) {
-					const opts: RequestInit = {}
-					if (method) opts.method = String(method)
-					if (body) opts.body = String(body)
-
-					void hostFetch(String(url), opts).then(
-						async (result) => {
-							await globalRef.set('__fetchResultId', id)
-							await globalRef.set('__fetchResultData', result)
-							await triggerFetch.run(realm)
-						},
-						async (err) => {
-							await globalRef.set('__fetchResultId', id)
-							await globalRef.set('__fetchResultData', {
-								status: 0,
-								statusText: 'Fetch failed',
-								headers: {},
-								body: String(err?.message ?? err),
-							})
-							await triggerFetch.run(realm)
-						}
-					)
-				},
-			}),
-			{ origin: 'twir:fetch' }
-		)
-
-		// Trigger script that calls the global callback with a Response-like object
-		const triggerFetch = expectComplete(
-			await agent.compileScript(`
-				if (globalThis.__fetchCallback) {
-					const raw = __fetchResultData;
-					const response = {
-						status: raw.status,
-						statusText: raw.statusText,
-						headers: raw.headers,
-						ok: raw.status >= 200 && raw.status < 300,
-						body: raw.body,
-						json() { return JSON.parse(raw.body); },
-						text() { return raw.body; },
-					};
-					globalThis.__fetchCallback(__fetchResultId, response);
-				}
-			`)
-		)
-
-		const wrappedCode = `
-			import { done, error } from "twir:done";
-			import { startFetch } from "twir:fetch";
-
-			const __secrets = ${secretsJson};
-
-			const twir = {
-				secrets: {
-					get(name) { return __secrets[name] ?? null; }
-				},
-				channel: { id: ${JSON.stringify(channelId)} }
-			};
-
-			let __nextFetchId = 0;
-			const __fetchResolvers = new Map();
-
-			globalThis.__fetchCallback = function(id, result) {
-				const entry = __fetchResolvers.get(id);
-				if (entry) {
-					__fetchResolvers.delete(id);
-					entry.resolve(result);
-				}
-			};
-
-			function fetch(url, options) {
-				return new Promise((resolve, reject) => {
-					const id = __nextFetchId++;
-					__fetchResolvers.set(id, { resolve, reject });
-					startFetch(id, url, options?.method || null, options?.body || null);
-				});
-			}
-
-			globalThis.fetch = fetch;
-
-			void (async () => {
-				try {
-					const result = await (async () => {
-						${code}
-					})();
-					done(result);
-				} catch (e) {
-					error(e?.message ?? String(e));
-				}
-			})();
-		`
-
-		const module = expectComplete(await agent.compileModule(wrappedCode))
-
-		const linker = makeLinker(
-			makeDirectResolver(),
-			makeStaticLoader({
-				'twir:done': doneCapability,
-				'twir:fetch': fetchCapability,
-			})
-		)
-
-		await module.link(realm, linker)
-
-		const completion = await module.evaluate(realm)
-
-		if (!completion?.complete) {
-			return {
-				result: '',
-				error: String(completion?.error ?? 'Unknown error'),
-			}
-		}
-
-		const result = await Promise.race([
-			resultPromise,
-			new Promise<string>((_, reject) =>
-				setTimeout(() => reject(new Error('Script execution timed out')), TIMEOUT_MS)
+		let timedOut = false
+		const waitResult = await Promise.race([
+			container.wait(),
+			new Promise<never>((_, reject) =>
+				setTimeout(() => {
+					timedOut = true
+					container.stop().catch(() => {})
+					reject(new Error('Script execution timed out'))
+				}, TIMEOUT_MS)
 			),
 		])
 
-		return { result, error: '' }
+		if (timedOut) {
+			return { result: '', error: 'Script execution timed out' }
+		}
+
+		console.log(`[executron] Container exited: ${waitResult.StatusCode}`)
+
+		const logs = await container.logs({ stdout: true, stderr: true })
+		const logStr = demuxDockerLogs(logs)
+		console.log(`[executron] Logs:`, logStr)
+
+		if (waitResult.StatusCode !== 0) {
+			return { result: '', error: logStr || `Container exited with code ${waitResult.StatusCode}` }
+		}
+
+		try {
+			return JSON.parse(logStr)
+		} catch {
+			return { result: logStr, error: '' }
+		}
 	} catch (error: any) {
-		return {
-			result: '',
-			error: error.message || String(error),
-		}
+		console.error(`[executron] Error:`, error.message)
+		return { result: '', error: error.message || String(error) }
 	} finally {
-		if (agent) {
-			await agent[Symbol.asyncDispose]()
+		if (containerId) {
+			try {
+				console.log(`[executron] Removing container: ${containerId}`)
+				await docker.getContainer(containerId).remove({ force: true })
+				console.log(`[executron] Container removed: ${containerId}`)
+			} catch (e: any) {
+				console.error(`[executron] Failed to remove container:`, e.message)
+			}
+		} else {
+			console.log(`[executron] No container to remove`)
 		}
+		try {
+			rmSync(tmpDir, { recursive: true, force: true })
+		} catch {}
 	}
 }
