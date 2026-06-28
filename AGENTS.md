@@ -96,8 +96,8 @@ import { computed } from "vue";
 
 // Use interface or type for props definition
 interface Props {
-  title: string;
-  items: string[];
+	title: string;
+	items: string[];
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -105,20 +105,20 @@ const props = withDefaults(defineProps<Props>(), {});
 const isActive = defineModel<boolean>({ default: false });
 
 const emit = defineEmits<{
-  (e: "itemSelected", item: string): void;
-  (e: "closed"): void;
+	(e: "itemSelected", item: string): void;
+	(e: "closed"): void;
 }>();
 
 const handleItemClick = (item: string) => {
-  emit("itemSelected", item);
-  isActive.value = false;
+	emit("itemSelected", item);
+	isActive.value = false;
 };
 
 const titleDisplay = computed(() => props.title.toUpperCase());
 </script>
 
 <template>
-  <!-- Component template here -->
+	<!-- Component template here -->
 </template>
 ```
 
@@ -173,61 +173,54 @@ We use `vee-validate` with `zod` for schema-based validation. Follow this patter
 ```vue
 <script setup lang="ts">
 import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
-import {
-  FormMessage,
-  FormItem,
-  FormField,
-  FormControl,
-  FormLabel,
-} from "@/components/ui/form";
+import { FormMessage, FormItem, FormField, FormControl, FormLabel } from "@/components/ui/form";
 import Input from "@/components/ui/input/Input.vue"; // Example custom input
 import Switch from "@/components/ui/switch/Switch.vue";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  enabled: z.boolean(),
+	name: z.string().min(2, "Name must be at least 2 characters."),
+	enabled: z.boolean(),
 });
 
 const { handleSubmit, defineField } = useForm({
-  validationSchema: toTypedSchema(formSchema),
+	validationSchema: formSchema,
 });
 
 const onSubmit = handleSubmit((values) => {
-  console.log("Form submitted:", values);
-  // API call logic here
+	console.log("Form submitted:", values);
+	// API call logic here
 });
 </script>
 
 <template>
-  <form @submit="onSubmit" class="space-y-4">
-    <div>
-      <FormField v-slot="{ value, handleChange }" name="enabled">
-        <FormItem class="flex gap-2 space-y-0 items-center">
-          <FormLabel>...</FormLabel>
-          <FormControl>
-            <Switch :model-value="value" @update:model-value="handleChange" />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      </FormField>
-    </div>
+	<form @submit="onSubmit" class="space-y-4">
+		<div>
+			<FormField v-slot="{ value, handleChange }" name="enabled">
+				<FormItem class="flex gap-2 space-y-0 items-center">
+					<FormLabel>...</FormLabel>
+					<FormControl>
+						<Switch :model-value="value" @update:model-value="handleChange" />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			</FormField>
+		</div>
 
-    <div>
-      <FormField v-slot="{ componentField }" name="name">
-        <FormItem>
-          <FormLabel>...</FormLabel>
-          <FormControl>
-            <Input v-bind="componentField" type="number" :max="86400" />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      </FormField>
-    </div>
+		<div>
+			<FormField v-slot="{ componentField }" name="name">
+				<FormItem>
+					<FormLabel>...</FormLabel>
+					<FormControl>
+						<Input v-bind="componentField" type="number" :max="86400" />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			</FormField>
+		</div>
 
-    <button type="submit">Submit</button>
-  </form>
+		<button type="submit">Submit</button>
+	</form>
 </template>
 ```
 
@@ -251,10 +244,10 @@ import { User, Mail, CheckCircle2 } from "lucide-vue-next";
 
 ```vue
 <template>
-  <button class="btn">
-    <User class="h-4 w-4 mr-2" />
-    Profile
-  </button>
+	<button class="btn">
+		<User class="h-4 w-4 mr-2" />
+		Profile
+	</button>
 </template>
 ```
 
@@ -262,7 +255,7 @@ import { User, Mail, CheckCircle2 } from "lucide-vue-next";
 
 ```vue
 <template>
-  <Icon name="lucide:user" class="h-4 w-4 mr-2" />
+	<Icon name="lucide:user" class="h-4 w-4 mr-2" />
 </template>
 ```
 
@@ -344,9 +337,7 @@ const integrationsPage = useIntegrationsPageData()
 - Use `integrationsPageCacheKey` to invalidate the unified query cache after mutations:
   ```typescript
   const myMutation = () =>
-    useMutation(graphql(`mutation MyMutation { ... }`), [
-      integrationsPageCacheKey,
-    ]);
+  	useMutation(graphql(`mutation MyMutation { ... }`), [integrationsPageCacheKey]);
   ```
 
 ---

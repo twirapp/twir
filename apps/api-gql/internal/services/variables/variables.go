@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/parser/pkg/executron"
 	"github.com/twirapp/twir/libs/audit"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/executron"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
@@ -32,7 +32,6 @@ type Opts struct {
 	Gorm                *gorm.DB
 	AuditRecorder       audit.Recorder
 	VariablesRepository variables.Repository
-	Executron           executron.Executron
 	PlansRepository     plans.Repository
 	ChannelsRepository  channels.Repository
 }
@@ -44,7 +43,6 @@ type Service struct {
 	gorm                *gorm.DB
 	auditRecorder       audit.Recorder
 	variablesRepository variables.Repository
-	executron           executron.Executron
 	plansRepository     plans.Repository
 	channelsRepository  channels.Repository
 }
@@ -57,7 +55,6 @@ func New(opts Opts) *Service {
 		gorm:                opts.Gorm,
 		auditRecorder:       opts.AuditRecorder,
 		variablesRepository: opts.VariablesRepository,
-		executron:           opts.Executron,
 		plansRepository:     opts.PlansRepository,
 		channelsRepository:  opts.ChannelsRepository,
 	}
@@ -154,36 +151,45 @@ func (c *Service) EvaluateScript(
 			return "", fmt.Errorf("cannot parse variables in text: %w", err)
 		}
 
-		result, err := c.executron.ExecuteUserCode(
+		result, err := c.twirbus.Executron.Execute.Request(
 			ctx,
-			channelID,
-			language.String(),
-			preparedEvalValue.Data.Text,
+			executron.ExecuteRequest{
+				ChannelId: channelID,
+				Language:  language.String(),
+				Code:      preparedEvalValue.Data.Text,
+			},
 		)
 		if err != nil {
 			return "", fmt.Errorf("cannot evaluate script: %w", err)
 		}
 
 		var res string
-		if result.Result != "" {
-			res = result.Result
-		} else if result.Error != "" {
-			res = result.Error
+		if result.Data.Result != "" {
+			res = result.Data.Result
+		} else if result.Data.Error != "" {
+			res = result.Data.Error
 		}
 
 		return res, nil
 	}
 
-	result, err := c.executron.ExecuteUserCode(ctx, channelID, language.String(), script)
+	result, err := c.twirbus.Executron.Execute.Request(
+		ctx,
+		executron.ExecuteRequest{
+			ChannelId: channelID,
+			Language:  language.String(),
+			Code:      script,
+		},
+	)
 	if err != nil {
 		return "", fmt.Errorf("cannot evaluate script: %w", err)
 	}
 
 	var res string
-	if result.Result != "" {
-		res = result.Result
-	} else if result.Error != "" {
-		res = result.Error
+	if result.Data.Result != "" {
+		res = result.Data.Result
+	} else if result.Data.Error != "" {
+		res = result.Data.Error
 	}
 
 	return res, nil

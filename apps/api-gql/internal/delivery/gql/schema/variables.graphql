@@ -18,7 +18,6 @@ enum VariableType {
 
 enum VariableScriptLanguage {
 	JAVASCRIPT
-	PYTHON
 }
 
 type Variable {

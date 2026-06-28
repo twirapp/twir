@@ -19,7 +19,6 @@ func VariableModelToGql(variable entity.CustomVariable) gqlmodel.Variable {
 
 var variableScriptLanguageToGql = map[entity.CustomVarScriptLanguage]gqlmodel.VariableScriptLanguage{
 	entity.ScriptLanguageJavaScript: gqlmodel.VariableScriptLanguageJavascript,
-	entity.ScriptLanguagePython:     gqlmodel.VariableScriptLanguagePython,
 }
 
 func VariableScriptLanguageToGql(language entity.CustomVarScriptLanguage) gqlmodel.VariableScriptLanguage {

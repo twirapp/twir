@@ -22,6 +22,42 @@ import {
 import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
 
 import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
+import { useTwirMonacoTypes } from './composables/use-twir-monaco-types'
+
+const { twirTypeDefinitions } = useTwirMonacoTypes()
+
+let monacoInstance: any = null
+let extraLib: { dispose: () => void } | null = null
+
+function registerExtraLib(monaco: any, defs: string) {
+	if (extraLib) {
+		extraLib.dispose()
+	}
+	extraLib = monaco.languages.typescript.javascriptDefaults.addExtraLib(
+		defs,
+		'file:///twir-globals.d.ts',
+	)
+}
+
+function onEditorBeforeMount(monaco: any) {
+	monacoInstance = monaco
+
+	monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+		target: monaco.languages.typescript.ScriptTarget.ESNext,
+		module: monaco.languages.typescript.ModuleKind.ESNext,
+		allowNonTsExtensions: true,
+	})
+
+	const defs = twirTypeDefinitions.value
+	console.log('[TwirMonaco] Registering types:', defs.substring(0, 200))
+	registerExtraLib(monaco, defs)
+}
+
+watch(twirTypeDefinitions, (defs) => {
+	if (monacoInstance) {
+		registerExtraLib(monacoInstance, defs)
+	}
+})
 
 const route = useRoute<'dashboard-variables-id'>()
 const { t } = useI18n()
@@ -38,16 +74,6 @@ const request = await fetch('https://jsonplaceholder.typicode.com/todos/1');
 const response = await request.json();
 // you should return value from your script
 return response.title;
-`
-
-const pythonExample = `import urllib.request
-
-url = "https://jsonplaceholder.typicode.com/todos/1"
-try:
-    with urllib.request.urlopen(url, timeout=2) as response:
-        return response.read().decode()
-except urllib.error.URLError as e:
-    return "Request failed: " + str(e)
 `
 
 const { handleSubmit, setValues, values } = useForm({
@@ -79,9 +105,7 @@ onMounted(async () => {
 watch(
 	() => values.scriptLanguage,
 	(newLanguage) => {
-		if (newLanguage === VariableScriptLanguage.Python) {
-			setValues({ evalValue: pythonExample })
-		} else if (newLanguage === VariableScriptLanguage.Javascript) {
+		if (newLanguage === VariableScriptLanguage.Javascript) {
 			setValues({ evalValue: jsExample })
 		}
 	}
@@ -285,6 +309,7 @@ async function executeScript() {
 							:language="values.scriptLanguage!.toLowerCase()"
 							class="h-full min-h-[500px]"
 							theme="vs-dark"
+							@before-mount="onEditorBeforeMount"
 							@change="setValues({ evalValue: $event })"
 						/>
 					</div>
