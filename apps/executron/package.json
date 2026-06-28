@@ -5,7 +5,7 @@
     "dev": "bun run --env-file=../../.env --watch src/index.ts",
     "start": "bun run --env-file=../../.env src/index.ts",
     "prebuild": "bun run scripts/copy-native.ts",
-    "build": "bun build --compile --minify --sourcemap --minify src/index.ts --outfile .out/twir-executron"
+    "build": "bun build --compile --minify --sourcemap src/index.ts --outfile .out/twir-executron"
   },
   "dependencies": {
     "@twir/config": "workspace:*",

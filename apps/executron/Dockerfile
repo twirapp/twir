@@ -1,4 +1,4 @@
-FROM oven/bun:1-alpine AS prod_base
+FROM frolvlad/alpine-glibc AS prod_base
 WORKDIR /app
 RUN apk add wget && \
 	wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
