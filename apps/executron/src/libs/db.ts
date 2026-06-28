@@ -7,7 +7,13 @@ const ALGORITHM = 'aes-256-gcm'
 const NONCE_LENGTH = 12
 const TAG_LENGTH = 16
 
-const sql = new SQL(config.DATABASE_URL!, { prepare: true })
+export const sql = new SQL(config.DATABASE_URL!, {
+	prepare: true,
+	max: 20, // Maximum 20 concurrent connections
+	idleTimeout: 30, // Close idle connections after 30s
+	maxLifetime: 3600, // Max connection lifetime 1 hour
+	connectionTimeout: 10, // Connection timeout 10s
+})
 
 try {
 	await sql`SELECT 1`

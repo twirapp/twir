@@ -1,11 +1,26 @@
-import { SQL } from 'bun'
+import { sql } from './db.ts'
 
 const MAX_STORAGE_SIZE = 30 * 1024 * 1024 // 30MB
 
 export interface StorageOperation {
-	action: 'get' | 'set' | 'delete' | 'has' | 'keys' | 'clear' | 'getTotalSize' |
-		'push' | 'pop' | 'find' | 'filter' | 'splice' |
-		'getProperty' | 'setProperty' | 'deleteProperty' | 'hasProperty' | 'merge'
+	action:
+		| 'get'
+		| 'set'
+		| 'delete'
+		| 'has'
+		| 'keys'
+		| 'clear'
+		| 'getTotalSize'
+		| 'push'
+		| 'pop'
+		| 'find'
+		| 'filter'
+		| 'splice'
+		| 'getProperty'
+		| 'setProperty'
+		| 'deleteProperty'
+		| 'hasProperty'
+		| 'merge'
 	key?: string
 	value?: unknown
 	path?: string
@@ -20,8 +35,6 @@ export interface StorageResult {
 	data?: unknown
 	error?: string
 }
-
-const sql = new SQL(process.env.DATABASE_URL!, { prepare: true })
 
 export async function handleStorageOperation(
 	channelId: string,
@@ -58,7 +71,7 @@ export async function handleStorageOperation(
 					`INSERT INTO channels_storage (channel_id, key, value)
 					 VALUES ($1, $2, CAST($3 AS JSONB))
 					 ON CONFLICT (channel_id, key) DO UPDATE SET value = CAST($3 AS JSONB), updated_at = now()`,
-					[channelId, op.key, valueJson],
+					[channelId, op.key, valueJson]
 				)
 				return { success: true }
 			}
