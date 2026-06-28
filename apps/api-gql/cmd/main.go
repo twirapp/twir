@@ -42,8 +42,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_secret"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_secret"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_storage"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_translation"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
@@ -137,6 +138,8 @@ import (
 	channelsredemptionshistoryclickhouse "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/datasources/clickhouse"
 	channelssecretrepository "github.com/twirapp/twir/libs/repositories/channels_secret"
 	channelssecretpgx "github.com/twirapp/twir/libs/repositories/channels_secret/pgx"
+	channelsstoragerepository "github.com/twirapp/twir/libs/repositories/channels_storage"
+	channelsstoragepgx "github.com/twirapp/twir/libs/repositories/channels_storage/pgx"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	"github.com/twirapp/twir/libs/repositories/command_role_cooldown"
@@ -301,6 +304,10 @@ func main() {
 			fx.Annotate(
 				channelssecretpgx.NewFx,
 				fx.As(new(channelssecretrepository.Repository)),
+			),
+			fx.Annotate(
+				channelsstoragepgx.NewFx,
+				fx.As(new(channelsstoragerepository.Repository)),
 			),
 			fx.Annotate(
 				keywordsrepositorypgx.NewFx,
@@ -585,6 +592,7 @@ func main() {
 			channels_commands_prefix.New,
 			channels_emotes_usages.New,
 			channels_secret.New,
+			channels_storage.New,
 			song_requests.New,
 			community_redemptions.New,
 			streamelements.New,

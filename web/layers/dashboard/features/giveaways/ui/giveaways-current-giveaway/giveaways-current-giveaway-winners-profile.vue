@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { computed, nextTick, toRef, watch } from 'vue'
-
 import { useChannelUserInfo } from '~~/layers/dashboard/api/users.js'
 
 const props = defineProps<{
@@ -34,12 +32,15 @@ const userHaveSomeRole = computed(() => {
 </script>
 
 <template>
-	<div class="p-2 border-b border-border">
-		<table class="table-auto w-full">
+	<div class="border-border border-b p-2">
+		<table class="w-full table-auto">
 			<tbody>
 				<tr>
 					<td class="table-td">
-						<Icon name="lucide:message-square" class="size-4" />
+						<Icon
+							name="lucide:message-square"
+							class="size-4"
+						/>
 						Total messages
 					</td>
 					<td>
@@ -48,7 +49,11 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<Icon name="lucide:eye" class="size-4" />
+						<Icon
+							name="lucide:eye"
+							class="size-4"
+						/>
+
 						Watched time
 					</td>
 					<td>
@@ -59,7 +64,10 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<Icon name="lucide:smile" class="size-4" />
+						<Icon
+							name="lucide:smile"
+							class="size-4"
+						/>
 						Used emotes
 					</td>
 					<td>
@@ -68,7 +76,10 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<Icon name="lucide:bubbles" class="size-4" />
+						<Icon
+							name="lucide:bubbles"
+							class="size-4"
+						/>
 						Used channel points
 					</td>
 					<td>
@@ -77,12 +88,18 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<Icon name="lucide:shield-user" class="size-4" />
+						<Icon
+							name="lucide:shield-user"
+							class="size-4"
+						/>
 						Roles
 					</td>
 					<td>
 						<div class="flex gap-0.5">
-							<span v-if="!userHaveSomeRole" class="font-light text-muted-foreground">
+							<span
+								v-if="!userHaveSomeRole"
+								class="text-muted-foreground font-light"
+							>
 								No roles
 							</span>
 
@@ -108,7 +125,10 @@ const userHaveSomeRole = computed(() => {
 				</tr>
 				<tr>
 					<td class="table-td">
-						<Icon name="lucide:heart" class="size-4" />
+						<Icon
+							name="lucide:heart"
+							class="size-4"
+						/>
 						Follower since
 					</td>
 					<td>
@@ -119,7 +139,11 @@ const userHaveSomeRole = computed(() => {
 								).toLocaleString()
 							}}
 						</span>
-						<span v-else class="font-light text-muted-foreground">Not a follower</span>
+						<span
+							v-else
+							class="text-muted-foreground font-light"
+							>Not a follower</span
+						>
 					</td>
 				</tr>
 			</tbody>

@@ -1,0 +1,33 @@
+extend type Query {
+	storage: StorageData!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_VARIABLES)
+}
+
+extend type Mutation {
+	storageSet(key: String! @validate(constraint: "min=1|max=255"), value: JSON!): StorageEntry!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
+	storageDelete(key: String!): Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
+	storageDeleteAll: Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
+}
+
+type StorageEntry {
+	key: String!
+	value: JSON!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+type StorageData {
+	entries: [StorageEntry!]!
+	totalSize: Int!
+}
