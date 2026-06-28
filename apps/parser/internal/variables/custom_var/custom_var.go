@@ -37,7 +37,11 @@ var CustomVar = &types.Variable{
 		v := &model.ChannelsCustomvars{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ?::uuid AND "name" = ?`, parseCtx.Channel.DBChannelID, variableData.Params).
+			Where(
+				`"channelId" = ?::uuid AND "name" = ?`,
+				parseCtx.Channel.DBChannelID,
+				variableData.Params,
+			).
 			Find(v).Error
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
@@ -122,9 +126,10 @@ var CustomVar = &types.Variable{
 			res, err := parseCtx.Services.Bus.Executron.Execute.Request(
 				requestCtx,
 				executronBus.ExecuteRequest{
-					ChannelId: parseCtx.Channel.ID,
+					ChannelId: parseCtx.Channel.DBChannelID,
 					Language:  v.ScriptLanguage,
 					Code:      filledWithVariablesValue.Data.Text,
+					UserId:    parseCtx.Sender.ID,
 				},
 			)
 			if err != nil {
