@@ -22,35 +22,42 @@ import {
 import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
 
 import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
+import { useTwirMonacoTypes } from './composables/use-twir-monaco-types'
 
-const TWIR_TYPE_DEFS = `
-interface TwirSecrets {
-  get(name: string): string | null;
+const { twirTypeDefinitions } = useTwirMonacoTypes()
+
+let monacoInstance: any = null
+let extraLib: { dispose: () => void } | null = null
+
+function registerExtraLib(monaco: any, defs: string) {
+	if (extraLib) {
+		extraLib.dispose()
+	}
+	extraLib = monaco.languages.typescript.javascriptDefaults.addExtraLib(
+		defs,
+		'file:///twir-globals.d.ts',
+	)
 }
 
-interface TwirChannel {
-  id: string;
-}
+function onEditorBeforeMount(monaco: any) {
+	monacoInstance = monaco
 
-interface Twir {
-  secrets: TwirSecrets;
-  channel: TwirChannel;
-}
-
-declare const twir: Twir;
-`
-
-async function onEditorWillMount(monaco: any) {
 	monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
 		target: monaco.languages.typescript.ScriptTarget.ESNext,
 		module: monaco.languages.typescript.ModuleKind.ESNext,
 		allowNonTsExtensions: true,
-		allowJs: true,
-		checkJs: true,
 	})
 
-	monaco.languages.typescript.javascriptDefaults.addExtraLib(TWIR_TYPE_DEFS, 'file:///globals.d.t')
+	const defs = twirTypeDefinitions.value
+	console.log('[TwirMonaco] Registering types:', defs.substring(0, 200))
+	registerExtraLib(monaco, defs)
 }
+
+watch(twirTypeDefinitions, (defs) => {
+	if (monacoInstance) {
+		registerExtraLib(monacoInstance, defs)
+	}
+})
 
 const route = useRoute<'dashboard-variables-id'>()
 const { t } = useI18n()
@@ -302,7 +309,7 @@ async function executeScript() {
 							:language="values.scriptLanguage!.toLowerCase()"
 							class="h-full min-h-[500px]"
 							theme="vs-dark"
-							@before-mount="onEditorWillMount"
+							@before-mount="onEditorBeforeMount"
 							@change="setValues({ evalValue: $event })"
 						/>
 					</div>
