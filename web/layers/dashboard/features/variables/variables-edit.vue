@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { VueMonacoEditor, useMonaco } from '@guolao/vue-monaco-editor'
+import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { Label } from 'reka-ui'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, toRaw, watch } from 'vue'
@@ -23,47 +23,34 @@ import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
 
 import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
 
-const { monacoRef } = useMonaco()
-
 const TWIR_TYPE_DEFS = `
 interface TwirSecrets {
-	/** Get a secret value by name. Returns null if not found. */
-	get(name: string): string | null;
+  get(name: string): string | null;
 }
 
 interface TwirChannel {
-	/** Current channel ID */
-	id: string;
+  id: string;
 }
 
 interface Twir {
-	/** Access channel secrets stored in the dashboard */
-	secrets: TwirSecrets;
-	/** Information about the current channel */
-	channel: TwirChannel;
+  secrets: TwirSecrets;
+  channel: TwirChannel;
 }
 
-/** Twir API available in custom variable scripts */
 declare const twir: Twir;
-
-/** Fetch API available in custom variable scripts */
-declare function fetch(url: string, options?: RequestInit): Promise<Response>;
 `
 
-watch(monacoRef, (monaco) => {
-	if (!monaco) return
-
+async function onEditorWillMount(monaco: any) {
 	monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
 		target: monaco.languages.typescript.ScriptTarget.ESNext,
 		module: monaco.languages.typescript.ModuleKind.ESNext,
 		allowNonTsExtensions: true,
+		allowJs: true,
+		checkJs: true,
 	})
 
-	monaco.languages.typescript.javascriptDefaults.addExtraLib(
-		TWIR_TYPE_DEFS,
-		'twir://globals.d.ts',
-	)
-}, { immediate: true })
+	monaco.languages.typescript.javascriptDefaults.addExtraLib(TWIR_TYPE_DEFS, 'file:///globals.d.t')
+}
 
 const route = useRoute<'dashboard-variables-id'>()
 const { t } = useI18n()
@@ -315,6 +302,7 @@ async function executeScript() {
 							:language="values.scriptLanguage!.toLowerCase()"
 							class="h-full min-h-[500px]"
 							theme="vs-dark"
+							@before-mount="onEditorWillMount"
 							@change="setValues({ evalValue: $event })"
 						/>
 					</div>

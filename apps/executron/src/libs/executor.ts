@@ -1,5 +1,9 @@
 import { Agent, expectComplete } from '@isolated-vm/experimental'
-import { makeDirectResolver, makeLinker, makeStaticLoader } from '@isolated-vm/experimental/utility/linker'
+import {
+	makeDirectResolver,
+	makeLinker,
+	makeStaticLoader,
+} from '@isolated-vm/experimental/utility/linker'
 
 const TIMEOUT_MS = 5000
 const FETCH_TIMEOUT_MS = 10000
@@ -99,14 +103,14 @@ export async function executeCode(
 						},
 						async (err) => {
 							await globalRef.set('__fetchResultId', id)
-							await globalRef.set('__fetchResultData', {\
+							await globalRef.set('__fetchResultData', {
 								status: 0,
 								statusText: 'Fetch failed',
 								headers: {},
 								body: String(err?.message ?? err),
 							})
 							await triggerFetch.run(realm)
-						},
+						}
 					)
 				},
 			}),
@@ -178,9 +182,7 @@ export async function executeCode(
 			})();
 		`
 
-		const module = expectComplete(
-			await agent.compileModule(wrappedCode)
-		)
+		const module = expectComplete(await agent.compileModule(wrappedCode))
 
 		const linker = makeLinker(
 			makeDirectResolver(),
@@ -204,7 +206,7 @@ export async function executeCode(
 		const result = await Promise.race([
 			resultPromise,
 			new Promise<string>((_, reject) =>
-				setTimeout(() => reject(new Error('Script execution timed out')), TIMEOUT_MS),
+				setTimeout(() => reject(new Error('Script execution timed out')), TIMEOUT_MS)
 			),
 		])
 
