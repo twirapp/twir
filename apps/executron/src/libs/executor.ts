@@ -6,6 +6,12 @@ import {
 } from '@isolated-vm/experimental/utility/linker'
 
 import { hostFetch } from './host-fetch'
+import { abortControllerPolyfill } from './sandbox/abort-controller'
+import { base64Polyfill } from './sandbox/base64'
+import { cryptoPolyfill } from './sandbox/crypto'
+import { textEncodingPolyfill } from './sandbox/text-encoding'
+import { timersPolyfill } from './sandbox/timers'
+import { urlPolyfill } from './sandbox/url'
 
 const TIMEOUT_MS = 5000
 
@@ -137,47 +143,12 @@ export async function executeCode(
 				channel: { id: ${JSON.stringify(channelId)} }
 			};
 
-			class AbortSignal {
-				constructor() {
-					this.aborted = false;
-					this.onabort = null;
-					this._listeners = [];
-				}
-
-				addEventListener(type, listener) {
-					if (type === 'abort') this._listeners.push(listener);
-				}
-
-				removeEventListener(type, listener) {
-					if (type === 'abort') {
-						this._listeners = this._listeners.filter(l => l !== listener);
-					}
-				}
-
-				_dispatchAbort() {
-					this.aborted = true;
-					const event = { type: 'abort' };
-					if (this.onabort) this.onabort(event);
-					for (const listener of this._listeners) listener(event);
-				}
-
-				throwIfAborted() {
-					if (this.aborted) throw new DOMException('The operation was aborted.', 'AbortError');
-				}
-			}
-
-			class AbortController {
-				constructor() {
-					this.signal = new AbortSignal();
-				}
-
-				abort() {
-					this.signal._dispatchAbort();
-				}
-			}
-
-			globalThis.AbortController = AbortController;
-			globalThis.AbortSignal = AbortSignal;
+			${timersPolyfill}
+			${urlPolyfill}
+			${textEncodingPolyfill}
+			${base64Polyfill}
+			${cryptoPolyfill}
+			${abortControllerPolyfill}
 
 			let __nextFetchId = 0;
 			const __fetchResolvers = new Map();
