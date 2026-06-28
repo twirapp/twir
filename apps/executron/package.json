@@ -1,11 +1,10 @@
 {
   "name": "@twir/executron",
-  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "bun run --env-file=../../.env --watch src/index.ts",
     "start": "bun run --env-file=../../.env src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun"
+    "build": "bun build --compile --minify --sourcemap src/index.ts --outfile=.out/twir-executron"
   },
   "dependencies": {
     "@twir/config": "workspace:*",

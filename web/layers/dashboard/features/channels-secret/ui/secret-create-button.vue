@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 import { Button } from '@/components/ui/button'
 
 import SecretDialog from './secret-dialog.vue'

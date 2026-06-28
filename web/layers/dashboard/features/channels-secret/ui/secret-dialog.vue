@@ -1,7 +1,5 @@
-`
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
-import { ref, watch } from 'vue'
 
 import { Button } from '@/components/ui/button'
 import {

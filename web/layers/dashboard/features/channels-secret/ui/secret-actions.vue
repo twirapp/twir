@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 import { Button } from '@/components/ui/button'
 
 import type { Secret } from '../composables/use-secrets-api'

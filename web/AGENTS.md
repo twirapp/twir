@@ -86,6 +86,27 @@ Do not import icon components from `@lucide/vue` or `lucide-vue-next` in `web`. 
 
 Same as dashboard: Tailwind CSS with theme colors.
 
+### Vue Auto-Imports
+
+Nuxt auto-imports Vue reactivity primitives. Do NOT import them manually:
+
+```vue
+<!-- WRONG -->
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
+</script>
+
+<!-- CORRECT — just use them directly -->
+<script setup>
+const count = ref(0)
+const doubled = computed(() => count.value * 2)
+watch(count, (val) => { /* ... */ })
+onMounted(() => { /* ... */ })
+</script>
+```
+
+Auto-imported: `ref`, `computed`, `watch`, `watchEffect`, `onMounted`, `onUnmounted`, `nextTick`, `toRaw`, `unref`, `shallowRef`, etc.
+
 ### GraphQL (urql)
 
 ```typescript
