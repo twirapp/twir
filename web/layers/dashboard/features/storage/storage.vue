@@ -12,7 +12,7 @@ import StorageDeleteDialog from './ui/storage-delete-dialog.vue'
 import StorageEditor from './ui/storage-editor.vue'
 
 const storageApi = useStorageApi()
-const { entries, isLoading, totalSize } = storageApi
+const { entries, isLoading, totalSize, refresh } = storageApi
 
 const searchQuery = ref('')
 const selectedKey = ref<string | null>(null)
@@ -67,8 +67,19 @@ function selectKey(key: string) {
 			</p>
 			<div class="flex gap-2">
 				<Button
+					variant="outline"
+					:disabled="isLoading"
+					@click="refresh"
+				>
+					<Icon
+						name="lucide:refresh-cw"
+						class="mr-2 h-4 w-4"
+						:class="{ 'animate-spin': isLoading }"
+					/>
+					Refresh
+				</Button>
+				<Button
 					variant="destructive"
-					size="sm"
 					:disabled="entries.length === 0"
 					@click="isDeleteAllOpen = true"
 				>

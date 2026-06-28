@@ -45,6 +45,10 @@ export const useStorageApi = createGlobalState(() => {
 		return storageQuery.data.value?.storage?.totalSize ?? 0
 	})
 
+	const refresh = () => {
+		storageQuery.executeQuery({ requestPolicy: 'network-only' })
+	}
+
 	const useMutationStorageSet = () =>
 		useMutation(
 			graphql(`
@@ -85,6 +89,7 @@ export const useStorageApi = createGlobalState(() => {
 		entries,
 		isLoading,
 		totalSize,
+		refresh,
 		useMutationStorageSet,
 		useMutationStorageDelete,
 		useMutationStorageDeleteAll,

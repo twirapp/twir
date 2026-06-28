@@ -54,11 +54,12 @@ export async function handleStorageOperation(
 					return { success: false, error: 'Storage limit exceeded (30MB per channel)' }
 				}
 
-				await sql`
-					INSERT INTO channels_storage (channel_id, key, value)
-					VALUES (${channelId}, ${op.key!}, ${valueJson}::jsonb)
-					ON CONFLICT (channel_id, key) DO UPDATE SET value = ${valueJson}::jsonb, updated_at = now()
-				`
+				await sql.unsafe(
+					`INSERT INTO channels_storage (channel_id, key, value)
+					 VALUES ($1, $2, CAST($3 AS JSONB))
+					 ON CONFLICT (channel_id, key) DO UPDATE SET value = CAST($3 AS JSONB), updated_at = now()`,
+					[channelId, op.key, valueJson],
+				)
 				return { success: true }
 			}
 
