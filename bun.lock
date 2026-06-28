@@ -289,12 +289,12 @@
     },
   },
   "trustedDependencies": [
-    "@twir/web",
-    "@parcel/watcher",
     "esbuild",
-    "vue-demi",
-    "protobufjs",
     "sharp",
+    "protobufjs",
+    "@twir/web",
+    "vue-demi",
+    "@parcel/watcher",
   ],
   "overrides": {
     "vite": "8.1.0",
