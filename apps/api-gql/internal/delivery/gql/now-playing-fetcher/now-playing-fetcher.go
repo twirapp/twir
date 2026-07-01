@@ -23,6 +23,8 @@ import (
 	vkintegration "github.com/twirapp/twir/libs/repositories/vk_integration"
 )
 
+const spotifyTokenRefreshCooldown = 5 * time.Minute
+
 type Opts struct {
 	Logger            *slog.Logger
 	SpotifyRepository channelsintegrationsspotify.Repository
@@ -37,12 +39,16 @@ type Opts struct {
 type NowPlayingFetcher struct {
 	spotifyRepository channelsintegrationsspotify.Repository
 	logger            *slog.Logger
-	kv   kv.KV
+	kv                kv.KV
+	twirBus           *buscore.Bus
+
+	channelId                 string
+	spotifyScopes             []string
+	lastSpotifyTokenRefreshAt time.Time
 
 	lastfmService  *lastfm.Lastfm
 	spotifyService *spotify.Spotify
 	vkService      *vk.VK
-	channelId      string
 }
 
 func New(opts Opts) (*NowPlayingFetcher, error) {
@@ -50,7 +56,6 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 	defer cancel()
 
 	var lfmService *lastfm.Lastfm
-	var spotifyService *spotify.Spotify
 	var vkService *vk.VK
 
 	// Get lastfm integration from the new repository
@@ -72,24 +77,7 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get spotify integration: %w", err)
 	}
-	if spotifyEntity.AccessToken != "" && spotifyEntity.RefreshToken != "" {
-		spotifyToken, err := opts.TwirBus.Tokens.RequestChannelIntegrationToken.Request(
-			ctx,
-			buscoretokens.GetChannelIntegrationTokenRequest{
-				ChannelID: opts.ChannelID,
-				Service:   integrationsmodel.ServiceSpotify,
-			},
-		)
-		if err != nil {
-			opts.Logger.Error(
-				"failed to get spotify token from tokens service",
-				logger.Error(err),
-				slog.String("channel_id", opts.ChannelID),
-			)
-		} else {
-			spotifyService = spotify.NewStatic(spotifyToken.Data.AccessToken, spotifyEntity.Scopes)
-		}
-	}
+	spotifyEnabled := spotifyEntity.AccessToken != "" && spotifyEntity.RefreshToken != ""
 
 	// Get VK integration from the new repository
 	vkEntity, err := opts.VKRepository.GetByChannelID(ctx, opts.ChannelID)
@@ -104,15 +92,50 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		}
 	}
 
-	return &NowPlayingFetcher{
+	f := &NowPlayingFetcher{
 		spotifyRepository: opts.SpotifyRepository,
 		channelId:         opts.ChannelID,
 		kv:                opts.Kv,
 		lastfmService:     lfmService,
-		spotifyService:    spotifyService,
 		vkService:         vkService,
 		logger:            opts.Logger,
-	}, nil
+		twirBus:           opts.TwirBus,
+		spotifyScopes:     spotifyEntity.Scopes,
+	}
+
+	if spotifyEnabled {
+		f.maybeRefreshSpotifyService(ctx)
+	}
+
+	return f, nil
+}
+
+func (c *NowPlayingFetcher) maybeRefreshSpotifyService(ctx context.Context) {
+	if c.twirBus == nil || c.channelId == "" || len(c.spotifyScopes) == 0 {
+		return
+	}
+	if !c.lastSpotifyTokenRefreshAt.IsZero() && time.Since(c.lastSpotifyTokenRefreshAt) < spotifyTokenRefreshCooldown {
+		return
+	}
+	c.lastSpotifyTokenRefreshAt = time.Now()
+
+	token, err := c.twirBus.Tokens.RequestChannelIntegrationToken.Request(
+		ctx,
+		buscoretokens.GetChannelIntegrationTokenRequest{
+			ChannelID: c.channelId,
+			Service:   integrationsmodel.ServiceSpotify,
+		},
+	)
+	if err != nil {
+		c.logger.Error(
+			"failed to get spotify token from tokens service",
+			logger.Error(err),
+			slog.String("channel_id", c.channelId),
+		)
+		return
+	}
+
+	c.spotifyService = spotify.NewStatic(token.Data.AccessToken, c.spotifyScopes)
 }
 
 func (c *NowPlayingFetcher) Fetch(ctx context.Context) (*Track, error) {
@@ -148,8 +171,18 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 		return nil, err
 	}
 
+	if c.spotifyService == nil {
+		c.maybeRefreshSpotifyService(ctx)
+	}
+
 	if c.spotifyService != nil {
 		spotifyTrack, err := c.spotifyService.GetTrack(ctx)
+		if err != nil {
+			c.maybeRefreshSpotifyService(ctx)
+			if c.spotifyService != nil {
+				spotifyTrack, err = c.spotifyService.GetTrack(ctx)
+			}
+		}
 		if err != nil {
 			c.logger.Error(
 				"cannot fetch spotify track",
