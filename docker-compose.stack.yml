@@ -623,6 +623,10 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
 
   warp-proxy:
     image: ghcr.io/mon-ius/docker-warp-socks
@@ -631,7 +635,15 @@ services:
     networks:
       - twir
     healthcheck:
-      test: ["CMD", "curl", "-x", "socks5h://127.0.0.1:9091", "-fsSL", "https://www.cloudflare.com/cdn-cgi/trace"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-x",
+          "socks5h://127.0.0.1:9091",
+          "-fsSL",
+          "https://www.cloudflare.com/cdn-cgi/trace",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
