@@ -1,10 +1,21 @@
-FROM frolvlad/alpine-glibc AS prod_base
+FROM mirror.gcr.io/debian:bookworm-slim AS prod_base
 WORKDIR /app
-RUN apk add wget libstdc++ && \
-	wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
-	echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
-	apk add doppler && apk del wget && \
-	rm -rf /var/cache/apk/*
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends \
+		apt-transport-https \
+		ca-certificates \
+		curl \
+		gnupg \
+		libstdc++6 && \
+	curl -fsSL --tlsv1.2 --proto "=https" --retry 3 \
+		'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | \
+		gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg && \
+	echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" \
+		> /etc/apt/sources.list.d/doppler-cli.list && \
+	apt-get update && \
+	apt-get install -y --no-install-recommends doppler && \
+	apt-get purge -y --auto-remove gnupg && \
+	rm -rf /var/lib/apt/lists/*
 COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
