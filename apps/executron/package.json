@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "bun run --env-file=../../.env --watch src/index.ts",
     "start": "bun run --env-file=../../.env src/index.ts",
-    "build": "tsc --noEmit"
+    "build": "tsc --noEmit && bun run build.ts"
   },
   "dependencies": {
     "@isolated-vm/experimental": "0.0.9",
