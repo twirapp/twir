@@ -2,6 +2,7 @@ package dependencies
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,7 +31,6 @@ func installNodeDeps() error {
 			Stdout:  os.Stdout,
 		},
 	)
-
 	if err != nil {
 		return err
 	}
@@ -61,6 +61,12 @@ func checkBunVersion() error {
 	bunVersionFileContent, err := os.ReadFile(filepath.Join(wd, ".bun-version"))
 	if err != nil {
 		return fmt.Errorf("failed to read .bun-version file: %w", err)
+	}
+
+	// skip canary check for now
+	if strings.HasPrefix(string(bunVersionFileContent), "canary") {
+		slog.Warn("CANARY NEED TO BE REMOVED AFTER BUN RELEASES RUST REWRITE")
+		return nil
 	}
 
 	constraint, err := semver.NewConstraint(fmt.Sprintf(">=%s", string(bunVersionFileContent)))
