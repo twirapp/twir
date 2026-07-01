@@ -613,6 +613,9 @@ services:
       - twir_doppler_token
     networks:
       - twir
+    pids_limit: 256
+    security_opt:
+      - no-new-privileges:true
     deploy:
       mode: replicated
       replicas: 3

@@ -143,9 +143,7 @@ services:
     image: twirapp/executron:latest
     ports:
       - "7003:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /tmp:/tmp
+    pids_limit: 256
     restart: unless-stopped
     networks:
       - twir-dev

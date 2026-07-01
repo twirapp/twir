@@ -8,7 +8,9 @@ import {
 import { hostFetch } from './host-fetch'
 import { handleStorageOperation } from './host-storage'
 import {
+	type TimerContext,
 	clearAllTimers,
+	createTimerContext,
 	handleClearTimer,
 	handleStartInterval,
 	handleStartTimer,
@@ -33,8 +35,7 @@ export async function executeCode(
 	secrets: Map<string, string>
 ): Promise<ExecutionResult> {
 	let agent: Agent | null = null
-
-	console.log(code)
+	const timerCtx: TimerContext = createTimerContext()
 
 	try {
 		console.log(
@@ -42,9 +43,11 @@ export async function executeCode(
 		)
 		const startTime = Date.now()
 
+		console.log(`[executron] Creating Agent...`)
 		agent = await Agent.create()
 		console.log(`[executron] Agent created in ${Date.now() - startTime}ms`)
 
+		console.log(`[executron] Creating Realm...`)
 		const realm = await agent.createRealm()
 		console.log(`[executron] Realm created in ${Date.now() - startTime}ms`)
 
@@ -62,6 +65,7 @@ export async function executeCode(
 			rejectResult = reject
 		})
 
+		console.log(`[executron] Creating doneCapability...`)
 		const doneCapability = await realm.createCapability(
 			() => ({
 				done(result: unknown) {
@@ -79,11 +83,15 @@ export async function executeCode(
 			}),
 			{ origin: 'twir:done' }
 		)
+		console.log(`[executron] doneCapability created in ${Date.now() - startTime}ms`)
 
+		console.log(`[executron] Acquiring global object...`)
 		const globalRef = await realm.acquireGlobalObject()
+		console.log(`[executron] Global object acquired in ${Date.now() - startTime}ms`)
 
 		const pendingFetchControllers = new Map<number, AbortController>()
 
+		console.log(`[executron] Creating fetchCapability...`)
 		const fetchCapability = await realm.createCapability(
 			() => ({
 				startFetch(id: unknown, url: unknown, method: unknown, body: unknown) {
@@ -138,6 +146,9 @@ export async function executeCode(
 			{ origin: 'twir:fetch' }
 		)
 
+		console.log(`[executron] fetchCapability created in ${Date.now() - startTime}ms`)
+
+		console.log(`[executron] Creating storageCapability...`)
 		const storageCapability = await realm.createCapability(
 			() => ({
 				startStorageOp(id: unknown, opJson: unknown) {
@@ -167,6 +178,9 @@ export async function executeCode(
 			{ origin: 'twir:storage' }
 		)
 
+		console.log(`[executron] storageCapability created in ${Date.now() - startTime}ms`)
+
+		console.log(`[executron] Compiling triggerFetch...`)
 		const triggerFetch = expectComplete(
 			await agent.compileScript(`
 				if (globalThis.__fetchCallback) {
@@ -189,6 +203,9 @@ export async function executeCode(
 			`)
 		)
 
+		console.log(`[executron] triggerFetch compiled in ${Date.now() - startTime}ms`)
+
+		console.log(`[executron] Compiling triggerStorage...`)
 		const triggerStorage = expectComplete(
 			await agent.compileScript(`
 				if (globalThis.__storageCallback) {
@@ -196,11 +213,13 @@ export async function executeCode(
 				}
 			`)
 		)
+		console.log(`[executron] triggerStorage compiled in ${Date.now() - startTime}ms`)
 
+		console.log(`[executron] Creating timerCapability...`)
 		const timerCapability = await realm.createCapability(
 			() => ({
 				startTimer(id: unknown, delay: unknown) {
-					handleStartTimer(Number(id), Number(delay), (timerId) => {
+					handleStartTimer(timerCtx, Number(id), Number(delay), (timerId) => {
 						void (async () => {
 							await globalRef.set('__timerFireId', timerId)
 							await triggerTimer.run(realm)
@@ -208,10 +227,10 @@ export async function executeCode(
 					})
 				},
 				clearTimer(id: unknown) {
-					handleClearTimer(Number(id))
+					handleClearTimer(timerCtx, Number(id))
 				},
 				startInterval(id: unknown, delay: unknown) {
-					handleStartInterval(Number(id), Number(delay), (timerId) => {
+					handleStartInterval(timerCtx, Number(id), Number(delay), (timerId) => {
 						void (async () => {
 							await globalRef.set('__timerFireId', timerId)
 							await triggerTimer.run(realm)
@@ -222,6 +241,9 @@ export async function executeCode(
 			{ origin: 'twir:timers' }
 		)
 
+		console.log(`[executron] timerCapability created in ${Date.now() - startTime}ms`)
+
+		console.log(`[executron] Compiling triggerTimer...`)
 		const triggerTimer = expectComplete(
 			await agent.compileScript(`
 				if (globalThis.__timerCallback) {
@@ -229,6 +251,7 @@ export async function executeCode(
 				}
 			`)
 		)
+		console.log(`[executron] triggerTimer compiled in ${Date.now() - startTime}ms`)
 
 		const wrappedCode = `
 			import { done, error } from "twir:done";
@@ -382,17 +405,15 @@ export async function executeCode(
 			`[executron] Waiting for result promise (remaining budget: ${remaining}ms of ${TIMEOUT_MS}ms)...`
 		)
 
-		const result = await Promise.race([
-			resultPromise,
-			new Promise<string>((_, reject) =>
-				setTimeout(() => {
-					console.error(
-						`[executron] TIMEOUT after ${Date.now() - startTime}ms total. done()/error() was never called.`
-					)
-					reject(new Error('Script execution timed out'))
-				}, TIMEOUT_MS)
-			),
-		])
+		const resultTimeout = setTimeout(() => {
+				console.error(
+					`[executron] TIMEOUT after ${Date.now() - startTime}ms total. done()/error() was never called.`
+				)
+				rejectResult('Script execution timed out')
+			}, TIMEOUT_MS)
+
+		const result = await resultPromise
+		clearTimeout(resultTimeout)
 
 		console.log(`[executron] Execution completed in ${Date.now() - startTime}ms`)
 		return { result, error: '' }
@@ -403,7 +424,7 @@ export async function executeCode(
 			error: error.message || String(error),
 		}
 	} finally {
-		clearAllTimers()
+		clearAllTimers(timerCtx)
 		if (agent) {
 			await agent[Symbol.asyncDispose]()
 			console.log(`[executron] Agent disposed`)

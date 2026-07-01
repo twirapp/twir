@@ -15,6 +15,20 @@ const BLOCKED_HOSTNAMES = [
 	'localhost',
 	'metadata.google.internal',
 	'metadata.goog',
+	'169.254.169.254',
+	'fd00:ec2::254',
+	'instance-data',
+]
+
+const BLOCKED_DOMAIN_SUFFIXES = [
+	'.internal',
+	'.local',
+	'.localhost',
+	'.cluster.local',
+	'.svc',
+	'.default',
+	'.kube',
+	'.docker',
 ]
 
 function ipToLong(ip: string): number {
@@ -26,7 +40,31 @@ function isPrivateIp(ip: string): boolean {
 	return PRIVATE_RANGES.some((range) => long >= range[0] && long <= range[1])
 }
 
-export async function validateUrl(rawUrl: string): Promise<void> {
+function isPrivateIpv6(ip: string): boolean {
+	const lower = ip.toLowerCase()
+	if (lower === '::1' || lower === '0:0:0:0:0:0:0:1') return true
+	if (lower.startsWith('fc') || lower.startsWith('fd')) return true
+	if (lower.startsWith('fe80')) return true
+	if (lower === '::' || lower === '0:0:0:0:0:0:0:0') return true
+	if (lower.startsWith('::ffff:')) {
+		const ipv4 = lower.slice(7)
+		if (isPrivateIp(ipv4)) return true
+	}
+	return false
+}
+
+function isBlockedHostname(hostname: string): boolean {
+	if (BLOCKED_HOSTNAMES.includes(hostname)) return true
+	if (hostname.startsWith('twir_') || hostname.startsWith('twir-')) return true
+	const lower = hostname.toLowerCase()
+	return BLOCKED_DOMAIN_SUFFIXES.some((suffix) => lower.endsWith(suffix))
+}
+
+export interface ValidationResult {
+	resolvedIp: string | null
+}
+
+export async function validateUrl(rawUrl: string): Promise<ValidationResult> {
 	const parsed = new URL(rawUrl)
 
 	if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
@@ -35,19 +73,24 @@ export async function validateUrl(rawUrl: string): Promise<void> {
 
 	const hostname = parsed.hostname
 
-	if (BLOCKED_HOSTNAMES.includes(hostname)) {
+	if (isBlockedHostname(hostname)) {
 		throw new Error(`Blocked hostname: ${hostname}`)
 	}
 
-	if (hostname.startsWith('twir_')) {
-		throw new Error('Requests to internal services are not allowed')
+	const isIpv6 = hostname.startsWith('[') && hostname.endsWith(']')
+	if (isIpv6) {
+		const bare = hostname.slice(1, -1)
+		if (isPrivateIpv6(bare)) {
+			throw new Error(`Blocked private IPv6: ${bare}`)
+		}
+		return { resolvedIp: null }
 	}
 
 	if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
 		if (isPrivateIp(hostname)) {
 			throw new Error(`Blocked private IP: ${hostname}`)
 		}
-		return
+		return { resolvedIp: hostname }
 	}
 
 	try {
@@ -55,7 +98,10 @@ export async function validateUrl(rawUrl: string): Promise<void> {
 		if (isPrivateIp(address)) {
 			throw new Error(`Blocked private IP: ${address}`)
 		}
+		return { resolvedIp: address }
 	} catch (err: any) {
 		if (err.message?.startsWith('Blocked')) throw err
 	}
+
+	return { resolvedIp: null }
 }
