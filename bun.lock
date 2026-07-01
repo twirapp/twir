@@ -17,9 +17,8 @@
     },
     "apps/executron": {
       "name": "@twir/executron",
-      "version": "1.0.0",
       "dependencies": {
-        "@isolated-vm/experimental": "0.0.8",
+        "@isolated-vm/experimental": "0.0.9",
         "@twir/bus-core": "workspace:*",
         "@twir/config": "workspace:*",
         "nats": "2.22.0",
@@ -786,21 +785,21 @@
 
     "@isaacs/fs-minipass": ["@isaacs/fs-minipass@4.0.1", "", { "dependencies": { "minipass": "^7.0.4" } }, "sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w=="],
 
-    "@isolated-vm/experimental": ["@isolated-vm/experimental@0.0.8", "", { "dependencies": { "tslib": "^2.7.0" }, "optionalDependencies": { "@isolated-vm/experimental-darwin-arm64": "0.0.8", "@isolated-vm/experimental-darwin-x64": "0.0.8", "@isolated-vm/experimental-linux-arm64-gnu": "0.0.8", "@isolated-vm/experimental-linux-arm64-musl": "0.0.8", "@isolated-vm/experimental-linux-x64-gnu": "0.0.8", "@isolated-vm/experimental-linux-x64-musl": "0.0.8", "@isolated-vm/experimental-win32-x64": "0.0.8" } }, "sha512-rG0zwa6uVnEjasGxQHLQjcgGz1HuApUZDnfWMvQMeu7MaoxZZEmABGkfh1MNxTj+dtvA3lM1DUDci8fYfYKJVg=="],
+    "@isolated-vm/experimental": ["@isolated-vm/experimental@0.0.9", "", { "dependencies": { "tslib": "^2.7.0" }, "optionalDependencies": { "@isolated-vm/experimental-darwin-arm64": "0.0.9", "@isolated-vm/experimental-darwin-x64": "0.0.9", "@isolated-vm/experimental-linux-arm64-gnu": "0.0.9", "@isolated-vm/experimental-linux-arm64-musl": "0.0.9", "@isolated-vm/experimental-linux-x64-gnu": "0.0.9", "@isolated-vm/experimental-linux-x64-musl": "0.0.9", "@isolated-vm/experimental-win32-x64": "0.0.9" } }, "sha512-0xukN8N4X0ZiXK5BFPwYzt+cfO/MgEY6cOIs/EOHhndcrSNN6kpsjeOfoRTTM5Sg5eBMsvJXTF5Pl02tea7uyA=="],
 
-    "@isolated-vm/experimental-darwin-arm64": ["@isolated-vm/experimental-darwin-arm64@0.0.8", "", { "os": "darwin", "cpu": "arm64" }, "sha512-6GxrAgCsxESuLWtgSI30e6DJyoXE/o1O17nGxxXseK8salV4w49UEGC0pNFDGagGgs8cxQDvFNcQ3QrwF1YSRg=="],
+    "@isolated-vm/experimental-darwin-arm64": ["@isolated-vm/experimental-darwin-arm64@0.0.9", "", { "os": "darwin", "cpu": "arm64" }, "sha512-oz1KdotBkQWvC5N1FXT9tN1sBFNCbSVLwOYl4HKwC17ANed0yyi6g0NdWed3nRPrRvnMCpNtKb4u8Yg4TT/lXg=="],
 
-    "@isolated-vm/experimental-darwin-x64": ["@isolated-vm/experimental-darwin-x64@0.0.8", "", { "os": "darwin", "cpu": "x64" }, "sha512-CIQxEeN+GzCFhKckkKyDI8fa3GYbyWwBR+vBxvwVylO9Xmkf1hyjw9JmN71BvcvzBbDJq8WCd5ENl4MIrLnvIA=="],
+    "@isolated-vm/experimental-darwin-x64": ["@isolated-vm/experimental-darwin-x64@0.0.9", "", { "os": "darwin", "cpu": "x64" }, "sha512-o4Mr9oSIfzAPF/75dXWxk7Wge5LUupiAIVKXeEngXB8o+FxG6KQRBy+gUDJKmwPtAXXYbLx28VeXx4/tLdUo4w=="],
 
-    "@isolated-vm/experimental-linux-arm64-gnu": ["@isolated-vm/experimental-linux-arm64-gnu@0.0.8", "", { "os": "linux", "cpu": "arm64" }, "sha512-4xaNDPLOPLLqIx7kYptiMbR0hXYvOJUAAEq9yTbdLaJsEwYAmMiyvRkXoqPUdkLID66rpF8ePgnC62D5F9WZFA=="],
+    "@isolated-vm/experimental-linux-arm64-gnu": ["@isolated-vm/experimental-linux-arm64-gnu@0.0.9", "", { "os": "linux", "cpu": "arm64" }, "sha512-8fsvsG69HI+v61/v+KAsBOsqYmUP4WgxV5tYm0tqAQraU8s1RiYeKUcMdQuglQzw8C42JUqRV6+GEsixkMNXWQ=="],
 
-    "@isolated-vm/experimental-linux-arm64-musl": ["@isolated-vm/experimental-linux-arm64-musl@0.0.8", "", { "os": "linux", "cpu": "arm64" }, "sha512-h1haKDl1X/ZqHteKIKq2qgUknfEkNgAPwbxeZHdl6jYdqb0n773uQfPzySr0sQpSw1nv7wmUs1+7XWX5wq0KiA=="],
+    "@isolated-vm/experimental-linux-arm64-musl": ["@isolated-vm/experimental-linux-arm64-musl@0.0.9", "", { "os": "linux", "cpu": "arm64" }, "sha512-qjyYEWX18hw169YAwzrTRHOO9vbatasIp7tm3vOzBiQWh8gqj67bN0xhycMfvTnIX4uQvDEcz0GZHHAjxwU2FA=="],
 
-    "@isolated-vm/experimental-linux-x64-gnu": ["@isolated-vm/experimental-linux-x64-gnu@0.0.8", "", { "os": "linux", "cpu": "x64" }, "sha512-8Er9ETZVKmbHIZLwHSmhdGBJzSEjoZDLZHtfkAbg1dVenZk2Zr76UqgHzUB+Yrk8kCR2c6BmSTHyi/b21rC24g=="],
+    "@isolated-vm/experimental-linux-x64-gnu": ["@isolated-vm/experimental-linux-x64-gnu@0.0.9", "", { "os": "linux", "cpu": "x64" }, "sha512-n16KbxEpE/T2a6q5FYUCHsfIolGQiYYviBEP49uIr0Ok9asjLtLfKoYXtQHys7VQIleXNQYWjD/aqwpiH1q7Gw=="],
 
-    "@isolated-vm/experimental-linux-x64-musl": ["@isolated-vm/experimental-linux-x64-musl@0.0.8", "", { "os": "linux", "cpu": "x64" }, "sha512-3jBEuqzkqtTxi7EiHPF0Ifa/CQlfQLhncf00PN91NVDzhNL3cCcoiFxu5n7up1GnT7m1iniXmHAa6YTagsIJZA=="],
+    "@isolated-vm/experimental-linux-x64-musl": ["@isolated-vm/experimental-linux-x64-musl@0.0.9", "", { "os": "linux", "cpu": "x64" }, "sha512-DGUCWThDUocBDh6c5fAY7YSEXX1T1PFizFclflt7u6W7WZZAByNxlyfJS1TBWuMbSpFZe51Y+KN6OreO9gOXGw=="],
 
-    "@isolated-vm/experimental-win32-x64": ["@isolated-vm/experimental-win32-x64@0.0.8", "", { "os": "win32", "cpu": "x64" }, "sha512-ZwGcQkQZXuNUzB81ls0lP++3Q9doqyCLIGP0wRnA1IBhRM1vaHOIuZd71Q25E8yLRG157cVSr23obaF1AixkjA=="],
+    "@isolated-vm/experimental-win32-x64": ["@isolated-vm/experimental-win32-x64@0.0.9", "", { "os": "win32", "cpu": "x64" }, "sha512-rkY8qUc81H6SGwfPxOxZB1vipAmWIp+3Ba9X3yP5UBcZZMsG4mxu7XHiL8b0lEsEEuS5LKQyC6tSit4/rphZPw=="],
 
     "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.13", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA=="],
 
