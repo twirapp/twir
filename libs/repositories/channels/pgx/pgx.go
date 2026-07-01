@@ -149,6 +149,26 @@ func (c *Pgx) GetByTwitchUserID(ctx context.Context, twitchUserID uuid.UUID) (mo
 	return result, nil
 }
 
+func (c *Pgx) GetByTwitchPlatformID(ctx context.Context, twitchPlatformID string) (model.Channel, error) {
+	query := selectQuery + ` WHERE tu.platform_id = $1`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, twitchPlatformID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (model.Channel, error) {
 	query := selectQuery + ` WHERE c.kick_user_id = $1`
 

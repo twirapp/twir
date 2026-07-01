@@ -142,6 +142,10 @@ func (f *fakeChannelsRepository) GetByTwitchUserID(context.Context, uuid.UUID) (
 	return f.channel, nil
 }
 
+func (f *fakeChannelsRepository) GetByTwitchPlatformID(context.Context, string) (channelsmodel.Channel, error) {
+	return f.channel, nil
+}
+
 func (f *fakeChannelsRepository) GetByKickUserID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
 	f.kickCalls++
 	return f.channel, nil
