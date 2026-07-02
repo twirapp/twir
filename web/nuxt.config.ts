@@ -147,6 +147,7 @@ export default defineNuxtConfig({
 				'@zero-dependency/utils',
 				'@unovis/vue',
 				'vue-draggable-plus',
+				'@vuepic/vue-datepicker',
 			],
 		},
 		server: {
