@@ -176,8 +176,8 @@ const columns = computed(() => {
 					v-for="column in columns"
 					:key="column.id"
 					class="capitalize"
-					:checked="column.getIsVisible()"
-					@update:checked="(value: boolean | 'indeterminate') => column.toggleVisibility(!!value)"
+					:model-value="column.getIsVisible()"
+					@update:model-value="(value: boolean | 'indeterminate') => column.toggleVisibility(!!value)"
 				>
 					{{ column.id }}
 				</DropdownMenuCheckboxItem>

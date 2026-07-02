@@ -69,8 +69,8 @@ watch(
 				<FormLabel> Delete emotes only added by app </FormLabel>
 				<FormControl>
 					<Checkbox
-						:checked="componentField.modelValue"
-						@update:checked="componentField['onUpdate:modelValue']"
+						:model-value="componentField.modelValue"
+						@update:model-value="componentField['onUpdate:modelValue']"
 					/>
 				</FormControl>
 				<FormDescription />

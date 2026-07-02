@@ -102,8 +102,8 @@ function openPopup() {
 							>
 								<Checkbox
 									:id="`event-${option.value}`"
-									:checked="enabledEvents.includes(option.value)"
-									@update:checked="
+									:model-value="enabledEvents.includes(option.value)"
+									@update:model-value="
 										(checked: boolean) => {
 											if (checked) {
 												enabledEvents.push(option.value)

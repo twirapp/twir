@@ -342,8 +342,8 @@ onUnmounted(() => {
 
 							<Switch
 								id="preview-toggle"
-								:checked="showPreview"
-								@update:checked="showPreview = $event"
+								:model-value="showPreview"
+								@update:model-value="showPreview = $event"
 							/>
 							<Label for="preview-toggle" class="text-xs cursor-pointer flex items-center gap-1">
 								<Icon name="lucide:eye" v-if="showPreview" class="h-3 w-3" />

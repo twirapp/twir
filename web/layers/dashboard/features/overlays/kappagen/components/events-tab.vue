@@ -75,8 +75,8 @@ function handleEventEnabledChange(index: number, value: boolean) {
 									>
 										<Checkbox
 											:id="`animation-${animation.value.style}`"
-											:checked="!event.value.disabledAnimations.includes(animation.value.style)"
-											@update:checked="
+											:model-value="!event.value.disabledAnimations.includes(animation.value.style)"
+											@update:model-value="
 												handleDisabledAnimationCheckboxChange(eventIndex, animation.value.style)
 											"
 										/>
