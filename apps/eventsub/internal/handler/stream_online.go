@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/lib/pq"
@@ -12,7 +13,6 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/zap"
 )
 
 func (c *Handler) HandleStreamOnline(
@@ -44,7 +44,6 @@ func (c *Handler) HandleStreamOnline(
 			UserIDs: []string{event.BroadcasterUserId},
 		},
 	)
-
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 		return
@@ -55,17 +54,28 @@ func (c *Handler) HandleStreamOnline(
 		return
 	}
 
-	if len(streamsReq.Data.Streams) == 0 {
-		return
-	}
+	i := 0
+	for {
+		if i > 5 {
+			break
+		}
 
-	stream := streamsReq.Data.Streams[0]
+		if len(streamsReq.Data.Streams) == 0 {
+			c.logger.Error(
+				"stream online event received but GetStreams returned no streams",
+				slog.String("channelId", event.BroadcasterUserId),
+				slog.String("channelName", event.BroadcasterUserLogin),
+			)
+			continue
+		}
 
-	err = c.gorm.WithContext(ctx).Where(
-		`"userId" = ?`,
-		event.BroadcasterUserId,
-	).Delete(&model.ChannelsStreams{}).Error
-	if err == nil {
+		stream := streamsReq.Data.Streams[0]
+
+		c.gorm.WithContext(ctx).Where(
+			`"userId" = ?`,
+			event.BroadcasterUserId,
+		).Delete(&model.ChannelsStreams{})
+
 		tags := pq.StringArray{}
 		for _, tag := range stream.Tags {
 			tags = append(tags, tag)
@@ -96,22 +106,29 @@ func (c *Handler) HandleStreamOnline(
 			},
 		).Error
 		if err != nil {
-			zap.S().Error(err)
+			c.logger.Error(
+				"cannot create stream record",
+				slog.String("channelId", event.BroadcasterUserId),
+				logger.Error(err),
+			)
 		}
-	}
 
-	c.twirBus.Channel.StreamOnline.Publish(
-		ctx,
-		bustwitch.StreamOnlineMessage{
-			ChannelID:    event.BroadcasterUserId,
-			StreamID:     event.Id,
-			CategoryName: stream.GameName,
-			CategoryID:   stream.GameID,
-			Title:        stream.Title,
-			Viewers:      stream.ViewerCount,
-			StartedAt:    stream.StartedAt,
-		},
-	)
+		c.twirBus.Channel.StreamOnline.Publish(
+			ctx,
+			bustwitch.StreamOnlineMessage{
+				ChannelID:    event.BroadcasterUserId,
+				StreamID:     event.Id,
+				CategoryName: stream.GameName,
+				CategoryID:   stream.GameID,
+				Title:        stream.Title,
+				Viewers:      stream.ViewerCount,
+				StartedAt:    stream.StartedAt,
+			},
+		)
+
+		time.Sleep(5 * time.Second)
+		i++
+	}
 
 	// c.channelsInfoHistoryRepo.Create(
 	// 	ctx,
