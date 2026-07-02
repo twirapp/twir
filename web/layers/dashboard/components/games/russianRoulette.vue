@@ -135,8 +135,8 @@ async function resetSettings() {
 							<FormLabel>{{ t('games.russianRoulette.canBeUsedByModerator') }}</FormLabel>
 							<FormControl>
 								<Switch
-									:checked="value"
-									@update:checked="handleChange"
+									:model-value="value"
+									@update:model-value="handleChange"
 								/>
 							</FormControl>
 							<FormMessage />

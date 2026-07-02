@@ -128,8 +128,8 @@ function resetSettings() {
 								</FormLabel>
 								<FormControl>
 									<Switch
-										:checked="value"
-										@update:checked="handleChange"
+										:model-value="value"
+										@update:model-value="handleChange"
 									/>
 								</FormControl>
 								<FormMessage />
@@ -183,8 +183,8 @@ function resetSettings() {
 							<FormLabel>{{ t('games.seppuku.timeoutModerators') }}</FormLabel>
 							<FormControl>
 								<Switch
-									:checked="value"
-									@update:checked="handleChange"
+									:model-value="value"
+									@update:model-value="handleChange"
 								/>
 							</FormControl>
 							<FormMessage />
