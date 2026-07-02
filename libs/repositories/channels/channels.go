@@ -13,6 +13,7 @@ type Repository interface {
 	GetByTwitchUserID(ctx context.Context, twitchUserID uuid.UUID) (model.Channel, error)
 	GetByTwitchPlatformID(ctx context.Context, twitchPlatformID string) (model.Channel, error)
 	GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (model.Channel, error)
+	GetByKickPlatformID(ctx context.Context, kickPlatformID string) (model.Channel, error)
 	GetCount(ctx context.Context, input GetCountInput) (int, error)
 	Update(ctx context.Context, channelID uuid.UUID, input UpdateInput) (model.Channel, error)
 	Create(ctx context.Context, input CreateInput) (model.Channel, error)
@@ -38,14 +39,14 @@ type UpdateInput struct {
 }
 
 type GetManyInput struct {
-	Enabled           *bool
-	TwitchBotEnabled  *bool
-	KickBotEnabled    *bool
-	AnyBotEnabled     *bool
-	HasKickUserID     *bool
-	HasTwitchUserID   *bool
-	PerPage           int
-	Page              int
+	Enabled          *bool
+	TwitchBotEnabled *bool
+	KickBotEnabled   *bool
+	AnyBotEnabled    *bool
+	HasKickUserID    *bool
+	HasTwitchUserID  *bool
+	PerPage          int
+	Page             int
 }
 
 type GetCountInput struct {

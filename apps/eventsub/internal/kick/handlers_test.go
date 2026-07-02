@@ -142,7 +142,15 @@ func (m *mockChannelsRepo) GetByTwitchUserID(_ context.Context, _ uuid.UUID) (ch
 	return m.channel, m.err
 }
 
+func (m *mockChannelsRepo) GetByTwitchPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
 func (m *mockChannelsRepo) GetByKickUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
+func (m *mockChannelsRepo) GetByKickPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
 	return m.channel, m.err
 }
 

@@ -332,6 +332,14 @@ export interface CommandRoleCooldownResponseDto {
   role_id: string;
 }
 
+export interface CommandV2Dto {
+  description: string | null;
+  group: string | null;
+  module: string;
+  name: string;
+  responses: KickCommandDtoResponse[];
+}
+
 export interface CountryStatsDto {
   /**
    * @format int64
@@ -538,6 +546,10 @@ export interface KickCodeBody {
   /** @minLength 1 */
   code: string;
   state: string;
+}
+
+export interface KickCommandDtoResponse {
+  text: string;
 }
 
 export interface LeaderboardPlacementStruct {
@@ -904,6 +916,16 @@ export enum ShortUrlProfileParamsSortByEnum {
 export enum ShortUrlGetStatisticsParamsIntervalEnum {
   Hour = "hour",
   Day = "day",
+}
+
+export enum PublicV2ChannelCommandsByPlatformIdParamsPlatformEnum {
+  Twitch = "twitch",
+  Kick = "kick",
+}
+
+export enum PublicV2ChannelCommandsByPlatformIdParamsEnum {
+  Twitch = "twitch",
+  Kick = "kick",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -2202,6 +2224,47 @@ export class Api<SecurityDataType extends unknown> {
     twirStats: (params: RequestParams = {}) =>
       this.http.request<TwirStatsResponseBody, any>({
         path: `/v1/twir/stats`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  v2 = {
+    /**
+     * @description Get channel commands filtered by enabled and visible, looked up by internal channel uuid
+     *
+     * @tags Public V2
+     * @name PublicV2ChannelCommandsByUuid
+     * @summary Get channel commands by internal channel uuid
+     * @request GET:/v2/channels/{channelUuid}/commands
+     * @response `200` `(CommandV2Dto)[]` OK
+     * @response `default` `ErrorModel` Error
+     */
+    publicV2ChannelCommandsByUuid: (channelUuid: string, params: RequestParams = {}) =>
+      this.http.request<CommandV2Dto[], any>({
+        path: `/v2/channels/${channelUuid}/commands`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Get channel commands filtered by enabled and visible, looked up by Twitch platform id
+     *
+     * @tags Public V2
+     * @name PublicV2ChannelCommandsByPlatformId
+     * @summary Get channel commands by platform platform id
+     * @request GET:/v2/public/channels/{platform}/{channelId}/commands
+     * @response `200` `(CommandV2Dto)[]` OK
+     * @response `default` `ErrorModel` Error
+     */
+    publicV2ChannelCommandsByPlatformId: (
+      channelId: string,
+      platform: PublicV2ChannelCommandsByPlatformIdParamsEnum,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<CommandV2Dto[], any>({
+        path: `/v2/public/channels/${platform}/${channelId}/commands`,
         method: "GET",
         format: "json",
         ...params,

@@ -151,6 +151,10 @@ func (f *fakeChannelsRepository) GetByKickUserID(context.Context, uuid.UUID) (ch
 	return f.channel, nil
 }
 
+func (f *fakeChannelsRepository) GetByKickPlatformID(context.Context, string) (channelsmodel.Channel, error) {
+	return f.channel, nil
+}
+
 func (f *fakeChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelsmodel.Channel, error) {
 	return nil, nil
 }

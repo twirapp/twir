@@ -71,6 +71,19 @@ func (c *Service) GetByTwitchPlatformID(ctx context.Context, twitchPlatformID st
 	return c.mapToEntity(channel), nil
 }
 
+func (c *Service) GetByKickPlatformID(ctx context.Context, kickPlatformID string) (entity.Channel, error) {
+	channel, err := c.channelsRepository.GetByKickPlatformID(ctx, kickPlatformID)
+	if err != nil {
+		if err == channels.ErrNotFound {
+			return entity.ChannelNil, ErrNotFound
+		}
+
+		return entity.ChannelNil, err
+	}
+
+	return c.mapToEntity(channel), nil
+}
+
 type ApiKeyChannelIdentity struct {
 	InternalChannelID string
 	ChatTargets       []chatmessagesrepo.PlatformChannelIdentity

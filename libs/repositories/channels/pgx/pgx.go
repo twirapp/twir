@@ -189,6 +189,26 @@ func (c *Pgx) GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (model.
 	return result, nil
 }
 
+func (c *Pgx) GetByKickPlatformID(ctx context.Context, kickPlatformID string) (model.Channel, error) {
+	query := selectQuery + ` WHERE ku.platform_id = $1`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, kickPlatformID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.UpdateInput) (model.Channel, error) {
 	updateBuilder := sq.Update("channels").Where(`"id" = ?`, channelID)
 

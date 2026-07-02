@@ -42,6 +42,14 @@ func (m *mockChannelsRepoWebhook) GetByTwitchUserID(_ context.Context, _ uuid.UU
 	return channelsmodel.Nil, nil
 }
 
+func (m *mockChannelsRepoWebhook) GetByTwitchPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
+	return channelsmodel.Nil, nil
+}
+
+func (m *mockChannelsRepoWebhook) GetByKickPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
+	return channelsmodel.Nil, nil
+}
+
 func (m *mockChannelsRepoWebhook) GetCount(_ context.Context, _ channels.GetCountInput) (int, error) {
 	return 0, nil
 }
@@ -99,7 +107,7 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 
 	usersRepo := &mockUsersRepoWebhook{
 		user: usersmodel.User{
-		ID:         channelID,
+			ID:         channelID,
 			PlatformID: kickUserID,
 		},
 	}
@@ -111,11 +119,11 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 	}
 
 	handlers := &Handlers{
-		logger:                slog.Default(),
-		redis:                 redisClient,
-		channelsRepo:          channelsRepo,
-		usersRepo:             usersRepo,
-		chatMessages:          &mockQueue[generic.ChatMessage, struct{}]{},
+		logger:                  slog.Default(),
+		redis:                   redisClient,
+		channelsRepo:            channelsRepo,
+		usersRepo:               usersRepo,
+		chatMessages:            &mockQueue[generic.ChatMessage, struct{}]{},
 		processMessageAsCommand: &mockQueue[generic.ChatMessage, struct{}]{},
 	}
 
@@ -168,7 +176,7 @@ func TestWebhookHandler_LivestreamStatus(t *testing.T) {
 
 	usersRepo := &mockUsersRepoWebhook{
 		user: usersmodel.User{
-		ID:         channelID,
+			ID:         channelID,
 			PlatformID: kickUserID,
 		},
 	}

@@ -31,7 +31,15 @@ func (f *fakeChannelsRepo) GetByTwitchUserID(context.Context, uuid.UUID) (channe
 	return channelsmodel.Nil, nil
 }
 
+func (f *fakeChannelsRepo) GetByTwitchPlatformID(context.Context, string) (channelsmodel.Channel, error) {
+	return channelsmodel.Nil, nil
+}
+
 func (f *fakeChannelsRepo) GetByKickUserID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+	return channelsmodel.Nil, nil
+}
+
+func (f *fakeChannelsRepo) GetByKickPlatformID(context.Context, string) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 

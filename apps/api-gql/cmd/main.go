@@ -12,6 +12,7 @@ import (
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
+	v2publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public/v2"
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
 	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
@@ -678,6 +679,7 @@ func main() {
 		fx.Invoke(
 			gql.New,
 			publicroutes.New,
+			v2publicroutes.New,
 			http_webhooks.New,
 			httpbase.RegisterRoutes,
 			authroutes.New,

@@ -3,6 +3,8 @@ package platform
 import (
 	"database/sql/driver"
 	"fmt"
+
+	"github.com/danielgtaylor/huma/v2"
 )
 
 type Platform string
@@ -11,6 +13,16 @@ const (
 	PlatformTwitch Platform = "twitch"
 	PlatformKick   Platform = "kick"
 )
+
+func (Platform) Schema(r huma.Registry) *huma.Schema {
+	return &huma.Schema{
+		Type: "string",
+		Enum: []any{
+			string(PlatformTwitch),
+			string(PlatformKick),
+		},
+	}
+}
 
 func (p Platform) IsValid() bool {
 	switch p {
