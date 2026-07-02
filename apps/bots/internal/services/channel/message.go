@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -43,12 +44,37 @@ func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) 
 			}
 
 			platformChannelID := req.PlatformChannelID
+			if platformChannelID == "" && req.InternalChannelID != nil {
+				platformChannelID = req.InternalChannelID.String()
+			}
 			if platformChannelID == "" {
 				platformChannelID = req.ChannelId
 			}
 
 			if platformChannelID == "" {
 				return ErrNoChannelId
+			}
+
+			if _, parseErr := uuid.Parse(platformChannelID); parseErr == nil {
+				ch, err := s.getChannelByIDOrTwitchID(ctx, platformChannelID)
+				if err != nil {
+					if errors.Is(err, channelsrepository.ErrNotFound) {
+						s.logger.Error(
+							"channel not found by internal id",
+							slog.String("channelId", platformChannelID),
+						)
+					} else {
+						s.logger.Error(
+							"cannot resolve channel by internal id",
+							logger.Error(err),
+							slog.String("channelId", platformChannelID),
+						)
+					}
+					return fmt.Errorf("resolve channel: %w", err)
+				}
+				if ch.TwitchPlatformID != nil {
+					platformChannelID = *ch.TwitchPlatformID
+				}
 			}
 
 			var err error
