@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useProfile } from '~~/layers/dashboard/api/auth'
 import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
 import { useGlobalYoutubePlayer } from '~~/layers/dashboard/composables/useGlobalYoutubePlayer.js'
@@ -39,6 +39,7 @@ const {
 	skip,
 	setVolume: setVolumeGql,
 	deleteFromQueue,
+	updatePosition,
 } = useSongRequestGql(channelId)
 
 const {
@@ -174,7 +175,12 @@ function handlePlayPause() {
 			(queue.value[0]?.songLink?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? '')
 		if (videoId) {
 			play(videoId)
-			playVideo()
+			// If same video is already loaded, just resume. Otherwise load new.
+			if (videoId === currentVideoId.value) {
+				playVideo()
+			} else {
+				loadVideoById(videoId)
+			}
 		}
 	}
 }
@@ -226,25 +232,31 @@ async function banSong(videoId: string) {
 	deleteFromQueue(videoId)
 }
 
+const currentVideoId = ref('')
+
 // Watch playback state changes from GQL subscription
 watch(
 	playbackState,
 	(state) => {
 		if (!playerReady.value) return
 
+		isUpdatingFromSubscription.value = true
+
 		if (!state) {
 			stopVideo()
+			currentVideoId.value = ''
 			sliderTime.value = 0
 			duration.value = 0
+			isUpdatingFromSubscription.value = false
 			return
 		}
 
-		// Handle video changes
-		if (state.videoId) {
+		// Only load new video if videoId changed
+		if (state.videoId && state.videoId !== currentVideoId.value) {
+			currentVideoId.value = state.videoId
 			loadVideoById(state.videoId)
-			if (state.position > 0) {
-				seekTo(state.position)
-			}
+		} else if (state.position > 0) {
+			seekTo(state.position)
 		}
 
 		// Handle play/pause
@@ -258,9 +270,61 @@ watch(
 		if (state.volume !== undefined) {
 			setPlayerVolume(state.volume)
 		}
+
+		lastSyncedPosition.value = state.position
+		lastKnownIsPlaying.value = state.isPlaying
+
+		// Reset flag after a tick to let watchers see the state change
+		nextTick(() => {
+			isUpdatingFromSubscription.value = false
+		})
 	},
 	{ deep: true }
 )
+
+// Detect user-initiated play/pause from YouTube player controls
+const isUpdatingFromSubscription = ref(false)
+const lastKnownIsPlaying = ref(false)
+
+watch(isPlaying, (nowPlaying, wasPlaying) => {
+	if (isUpdatingFromSubscription.value) return
+	if (!playbackState.value) return
+	if (nowPlaying === wasPlaying) return
+
+	if (nowPlaying) {
+		const videoId = playbackState.value.videoId
+			|| (queue.value[0]?.songLink?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? '')
+		if (videoId) play(videoId)
+	} else {
+		pause()
+	}
+	lastKnownIsPlaying.value = nowPlaying
+})
+
+// Detect user-initiated seek from YouTube player
+const lastSyncedPosition = ref(0)
+let seekDebounce: ReturnType<typeof setTimeout> | null = null
+
+watch(sliderTime, (newTime) => {
+	if (isUpdatingFromSubscription.value) return
+	if (!playbackState.value) return
+
+	const diff = Math.abs(newTime - lastSyncedPosition.value)
+	if (diff < 2) return // ignore small changes (normal playback ticking)
+
+	if (seekDebounce) clearTimeout(seekDebounce)
+	seekDebounce = setTimeout(() => {
+		updatePosition(newTime)
+		lastSyncedPosition.value = newTime
+	}, 300)
+})
+
+// Update lastSyncedPosition when subscription delivers new state
+watch(() => playbackState.value?.position, (pos) => {
+	if (pos !== undefined) {
+		lastSyncedPosition.value = pos
+	}
+})
 
 const { t } = useI18n()
 

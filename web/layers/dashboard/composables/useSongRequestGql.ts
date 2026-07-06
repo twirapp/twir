@@ -74,6 +74,12 @@ const SongRequestClearQueueMutation = graphql(`
 	}
 `)
 
+const SongRequestUpdatePositionMutation = graphql(`
+	mutation SongRequestUpdatePosition($channelId: UUID!, $position: Float!) {
+		songRequestUpdatePosition(channelId: $channelId, position: $position)
+	}
+`)
+
 export function useSongRequestGql(channelId: Ref<string>) {
 	const playbackStateSub = useSubscription({
 		query: SongRequestPlaybackStateSubscription,
@@ -99,6 +105,7 @@ export function useSongRequestGql(channelId: Ref<string>) {
 	const { executeMutation: reorder } = useMutation(SongRequestReorderMutation)
 	const { executeMutation: deleteFromQueue } = useMutation(SongRequestDeleteFromQueueMutation)
 	const { executeMutation: clearQueue } = useMutation(SongRequestClearQueueMutation)
+	const { executeMutation: updatePosition } = useMutation(SongRequestUpdatePositionMutation)
 
 	return {
 		playbackState,
@@ -110,5 +117,6 @@ export function useSongRequestGql(channelId: Ref<string>) {
 		reorder: (videoIds: string[]) => reorder({ channelId: channelId.value, videoIds }),
 		deleteFromQueue: (videoId: string) => deleteFromQueue({ channelId: channelId.value, videoId }),
 		clearQueue: () => clearQueue({ channelId: channelId.value }),
+		updatePosition: (position: number) => updatePosition({ channelId: channelId.value, position }),
 	}
 }

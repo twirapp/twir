@@ -19,19 +19,22 @@ const playbackKeyPrefix = "songrequests:playback:"
 type PlaybackStateOpts struct {
 	fx.In
 
-	Redis  *redis.Client
-	Logger *slog.Logger
+	Redis    *redis.Client
+	Logger   *slog.Logger
+	WsRouter wsrouter.WsRouter
 }
 
 type PlaybackStateService struct {
-	redis  *redis.Client
-	logger *slog.Logger
+	redis    *redis.Client
+	logger   *slog.Logger
+	wsRouter wsrouter.WsRouter
 }
 
 func NewPlaybackStateService(opts PlaybackStateOpts) *PlaybackStateService {
 	return &PlaybackStateService{
-		redis:  opts.Redis,
-		logger: opts.Logger,
+		redis:    opts.Redis,
+		logger:   opts.Logger,
+		wsRouter: opts.WsRouter,
 	}
 }
 
@@ -116,6 +119,26 @@ func (s *PlaybackStateService) SetVolume(
 	return s.save(ctx, channelID, *state)
 }
 
+func (s *PlaybackStateService) UpdatePosition(
+	ctx context.Context,
+	channelID string,
+	position float64,
+) error {
+	state, err := s.GetState(ctx, channelID)
+	if err != nil {
+		return err
+	}
+
+	if state == nil {
+		return nil
+	}
+
+	state.Position = position
+	state.StartedAt = time.Now().UnixMilli() - int64(position*1000)
+
+	return s.save(ctx, channelID, *state)
+}
+
 func (s *PlaybackStateService) computePosition(state *PlaybackState) float64 {
 	if !state.IsPlaying || state.StartedAt == 0 {
 		return state.Position
@@ -155,8 +178,48 @@ func (s *PlaybackStateService) ClearState(
 	return s.redis.Del(ctx, playbackKey(channelID)).Err()
 }
 
+func PlaybackStateWsKey(channelID string) string {
+	return "api.songRequestPlayback." + channelID
+}
+
+func (s *PlaybackStateService) PublishState(ctx context.Context, channelID string) {
+	state, err := s.GetState(ctx, channelID)
+	if err != nil || state == nil {
+		return
+	}
+
+	msg := api.SongRequestPlaybackState{
+		ChannelID: channelID,
+		VideoID:   state.VideoID,
+		Title:     state.Title,
+		Position:  state.Position,
+		IsPlaying: state.IsPlaying,
+		Volume:    state.Volume,
+		UpdatedAt: state.UpdatedAt,
+	}
+
+	if err := s.wsRouter.Publish(PlaybackStateWsKey(channelID), msg); err != nil {
+		s.logger.Error("failed to publish playback state", slog.String("channelID", channelID), slog.Any("error", err))
+	}
+}
+
+func (s *PlaybackStateService) PublishClearedState(channelID string) {
+	msg := api.SongRequestPlaybackState{
+		ChannelID: channelID,
+		VideoID:   "",
+		Title:     "",
+		Position:  0,
+		IsPlaying: false,
+		Volume:    0,
+		UpdatedAt: time.Now().UnixMilli(),
+	}
+
+	if err := s.wsRouter.Publish(PlaybackStateWsKey(channelID), msg); err != nil {
+		s.logger.Error("failed to publish cleared state", slog.String("channelID", channelID), slog.Any("error", err))
+	}
+}
+
 func (s *PlaybackStateService) publishState(
-	wsRouter wsrouter.WsRouter,
 	channelID string,
 	state *PlaybackState,
 ) {
@@ -170,13 +233,12 @@ func (s *PlaybackStateService) publishState(
 		UpdatedAt: state.UpdatedAt,
 	}
 
-	key := fmt.Sprintf("%s.%s", api.SongRequestPlaybackStateSubject, channelID)
-	if err := wsRouter.Publish(key, msg); err != nil {
+	if err := s.wsRouter.Publish(PlaybackStateWsKey(channelID), msg); err != nil {
 		s.logger.Error("failed to publish playback state", slog.String("channelID", channelID), slog.Any("error", err))
 	}
 }
 
-func (s *PlaybackStateService) StartTicker(ctx context.Context, wsRouter wsrouter.WsRouter) {
+func (s *PlaybackStateService) StartTicker(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(1 * time.Second)
 		defer ticker.Stop()
@@ -186,13 +248,13 @@ func (s *PlaybackStateService) StartTicker(ctx context.Context, wsRouter wsroute
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				s.tick(ctx, wsRouter)
+				s.tick(ctx)
 			}
 		}
 	}()
 }
 
-func (s *PlaybackStateService) tick(ctx context.Context, wsRouter wsrouter.WsRouter) {
+func (s *PlaybackStateService) tick(ctx context.Context) {
 	var cursor uint64
 	for {
 		keys, nextCursor, err := s.redis.Scan(ctx, cursor, playbackKeyPrefix+"*", 100).Result()
@@ -217,7 +279,7 @@ func (s *PlaybackStateService) tick(ctx context.Context, wsRouter wsrouter.WsRou
 				continue
 			}
 
-			s.publishState(wsRouter, channelID, state)
+			s.publishState(channelID, state)
 		}
 
 		cursor = nextCursor

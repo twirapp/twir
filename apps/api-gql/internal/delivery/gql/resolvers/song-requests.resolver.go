@@ -25,6 +25,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -150,22 +151,7 @@ func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.U
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to set playing: %w", err))
 	}
 
-	state, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
-	if err != nil {
-		return false, gqlerrors.HandleError(fmt.Errorf("failed to get state: %w", err))
-	}
-
-	if state != nil {
-		_ = r.deps.TwirBus.Api.SongRequestPlaybackState.Publish(ctx, api.SongRequestPlaybackState{
-			ChannelID: channelIDStr,
-			VideoID:   state.VideoID,
-			Title:     state.Title,
-			Position:  state.Position,
-			IsPlaying: state.IsPlaying,
-			Volume:    state.Volume,
-			UpdatedAt: state.UpdatedAt,
-		})
-	}
+	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
 
 	return true, nil
 }
@@ -178,22 +164,7 @@ func (r *mutationResolver) SongRequestPause(ctx context.Context, channelID uuid.
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to pause: %w", err))
 	}
 
-	state, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
-	if err != nil {
-		return false, gqlerrors.HandleError(fmt.Errorf("failed to get state: %w", err))
-	}
-
-	if state != nil {
-		_ = r.deps.TwirBus.Api.SongRequestPlaybackState.Publish(ctx, api.SongRequestPlaybackState{
-			ChannelID: channelIDStr,
-			VideoID:   state.VideoID,
-			Title:     state.Title,
-			Position:  state.Position,
-			IsPlaying: state.IsPlaying,
-			Volume:    state.Volume,
-			UpdatedAt: state.UpdatedAt,
-		})
-	}
+	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
 
 	return true, nil
 }
@@ -226,15 +197,7 @@ func (r *mutationResolver) SongRequestSkip(ctx context.Context, channelID uuid.U
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to clear state: %w", err))
 	}
 
-	_ = r.deps.TwirBus.Api.SongRequestPlaybackState.Publish(ctx, api.SongRequestPlaybackState{
-		ChannelID: channelIDStr,
-		VideoID:   "",
-		Title:     "",
-		Position:  0,
-		IsPlaying: false,
-		Volume:    0,
-		UpdatedAt: time.Now().UnixMilli(),
-	})
+	r.deps.SongRequestPlaybackStateService.PublishClearedState(channelIDStr)
 
 	return true, nil
 }
@@ -247,22 +210,20 @@ func (r *mutationResolver) SongRequestSetVolume(ctx context.Context, channelID u
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to set volume: %w", err))
 	}
 
-	state, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
-	if err != nil {
-		return false, gqlerrors.HandleError(fmt.Errorf("failed to get state: %w", err))
+	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
+
+	return true, nil
+}
+
+// SongRequestUpdatePosition is the resolver for the songRequestUpdatePosition field.
+func (r *mutationResolver) SongRequestUpdatePosition(ctx context.Context, channelID uuid.UUID, position float64) (bool, error) {
+	channelIDStr := channelID.String()
+
+	if err := r.deps.SongRequestPlaybackStateService.UpdatePosition(ctx, channelIDStr, position); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to update position: %w", err))
 	}
 
-	if state != nil {
-		_ = r.deps.TwirBus.Api.SongRequestPlaybackState.Publish(ctx, api.SongRequestPlaybackState{
-			ChannelID: channelIDStr,
-			VideoID:   state.VideoID,
-			Title:     state.Title,
-			Position:  state.Position,
-			IsPlaying: state.IsPlaying,
-			Volume:    state.Volume,
-			UpdatedAt: state.UpdatedAt,
-		})
-	}
+	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
 
 	return true, nil
 }
@@ -323,15 +284,7 @@ func (r *mutationResolver) SongRequestClearQueue(ctx context.Context, channelID 
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to clear playback state: %w", err))
 	}
 
-	_ = r.deps.TwirBus.Api.SongRequestPlaybackState.Publish(ctx, api.SongRequestPlaybackState{
-		ChannelID: channelIDStr,
-		VideoID:   "",
-		Title:     "",
-		Position:  0,
-		IsPlaying: false,
-		Volume:    0,
-		UpdatedAt: time.Now().UnixMilli(),
-	})
+	r.deps.SongRequestPlaybackStateService.PublishClearedState(channelIDStr)
 
 	return true, nil
 }
@@ -435,7 +388,7 @@ func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, op
 		Items: make([]gqlmodel.SongRequestsSearchChannelOrVideoItem, 0, len(opts.Query)),
 	}
 
-	var getThumbNailUrl = func(url string) string {
+	getThumbNailUrl := func(url string) string {
 		return strings.Replace(url, "http://", "https://", 1)
 	}
 
@@ -649,7 +602,7 @@ func (r *subscriptionResolver) SongRequestPlaybackState(ctx context.Context, cha
 	go func() {
 		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
-				fmt.Sprintf("api.songRequestPlayback.%s", channelIDStr),
+				song_requests.PlaybackStateWsKey(channelIDStr),
 			},
 		)
 		if err != nil {

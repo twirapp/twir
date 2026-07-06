@@ -54,16 +54,7 @@ func NewBridge(opts BridgeOpts) *Bridge {
 			)
 			b.logger.Info("Subscribed to SongRequestRemoveFromQueue events")
 
-			b.twirBus.Api.SongRequestPlaybackState.SubscribeGroup("api",
-				func(ctx context.Context, data api.SongRequestPlaybackState) (struct{}, error) {
-					return struct{}{}, b.wsRouter.Publish(
-						"api.songRequestPlayback."+data.ChannelID, data,
-					)
-				},
-			)
-			b.logger.Info("Subscribed to SongRequestPlaybackState events")
-
-			b.playbackStateService.StartTicker(ctx, b.wsRouter)
+			b.playbackStateService.StartTicker(ctx)
 			b.logger.Info("Started playback state ticker")
 
 			return nil
@@ -71,7 +62,6 @@ func NewBridge(opts BridgeOpts) *Bridge {
 		OnStop: func(ctx context.Context) error {
 			b.twirBus.Api.SongRequestAddToQueue.Unsubscribe()
 			b.twirBus.Api.SongRequestRemoveFromQueue.Unsubscribe()
-			b.twirBus.Api.SongRequestPlaybackState.Unsubscribe()
 			return nil
 		},
 	})

@@ -12,6 +12,7 @@ extend type Mutation {
 	songRequestPause(channelId: UUID!): Boolean! @isAuthenticated
 	songRequestSkip(channelId: UUID!): Boolean! @isAuthenticated
 	songRequestSetVolume(channelId: UUID!, volume: Int!): Boolean! @isAuthenticated
+	songRequestUpdatePosition(channelId: UUID!, position: Float!): Boolean! @isAuthenticated
 	songRequestReorder(channelId: UUID!, videoIds: [String!]!): Boolean! @isAuthenticated
 	songRequestDeleteFromQueue(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated
 	songRequestClearQueue(channelId: UUID!): Boolean! @isAuthenticated

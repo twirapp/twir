@@ -132,85 +132,44 @@ const { executeMutation: clearQueueMutation } = useMutation(graphql(`
 	}
 `))
 
-const playerReady = ref(false)
-const duration = ref(0)
-const currentPosition = ref(0)
-let player: any = null
-let tickInterval: ReturnType<typeof setInterval> | null = null
+const localVolume = ref(playbackState.value?.volume ?? 100)
 
-onMounted(() => {
-	const tag = document.createElement('script')
-	tag.src = 'https://www.youtube.com/iframe_api'
-	document.head.appendChild(tag)
+watch(() => playbackState.value?.volume, (v) => {
+	if (v !== undefined) localVolume.value = v
+})
 
-	;(window as any).onYouTubeIframeAPIReady = () => {
-		player = new (window as any).YT.Player('yt-player', {
-			height: '100%',
-			width: '100%',
-			playerVars: {
-				autoplay: 0,
-				controls: 0,
-				modestbranding: 1,
-				rel: 0,
-				disablekb: 1,
-				fs: 0,
-			},
-			events: {
-				onReady: () => {
-					playerReady.value = true
-				},
-				onStateChange: (event: any) => {
-					if (event.data === (window as any).YT.PlayerState.PLAYING) {
-						duration.value = player.getDuration() ?? 0
-					}
-				},
-			},
-		})
-	}
+const hasPlayableVideo = computed(() => !!playbackState.value || queue.value.length > 0)
 
-	tickInterval = setInterval(() => {
-		if (player && playerReady.value && playbackState.value?.isPlaying) {
-			const pos = player.getCurrentTime?.()
-			if (pos !== undefined) {
-				currentPosition.value = pos
-			}
+function handlePlayPause() {
+	if (playbackState.value?.isPlaying) {
+		pauseMutation({ channelId: channelId.value })
+	} else {
+		const videoId = playbackState.value?.videoId
+			|| (queue.value[0]?.songLink?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? '')
+		if (videoId) {
+			playMutation({ channelId: channelId.value, videoId })
 		}
-	}, 1000)
-})
-
-onUnmounted(() => {
-	if (tickInterval) {
-		clearInterval(tickInterval)
 	}
-})
+}
 
-const currentVideoId = ref('')
+function handleSkip() {
+	skipMutation({ channelId: channelId.value })
+}
 
-watch(playbackState, (state) => {
-	if (!state || !playerReady.value) return
+function handleVolumeChange(e: Event) {
+	const target = e.target as HTMLInputElement
+	const volume = Number(target.value)
+	localVolume.value = volume
+	setVolumeMutation({ channelId: channelId.value, volume })
+}
 
-	currentPosition.value = state.position
+function handleDelete(videoId: string) {
+	deleteFromQueueMutation({ channelId: channelId.value, videoId })
+}
 
-	if (state.videoId !== currentVideoId.value) {
-		currentVideoId.value = state.videoId
-		player.loadVideoById(state.videoId, state.position)
-	} else {
-		player.seekTo(state.position, true)
-	}
-
-	player.setVolume(state.volume)
-
-	if (state.isPlaying) {
-		player.playVideo()
-	} else {
-		player.pauseVideo()
-	}
-}, { deep: true })
-
-const progressPercent = computed(() => {
-	if (!duration.value || duration.value <= 0) return 0
-	return Math.min((currentPosition.value / duration.value) * 100, 100)
-})
+function handleClearQueue() {
+	clearQueueMutation({ channelId: channelId.value })
+}
 
 function formatTime(seconds: number): string {
 	const m = Math.floor(seconds / 60)
@@ -224,82 +183,55 @@ function formatDuration(seconds: number): string {
 	return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-function handlePlayPause() {
-	if (!playbackState.value) return
-	if (playbackState.value.isPlaying) {
-		pauseMutation({ channelId: channelId.value })
-	} else {
-		playMutation({ channelId: channelId.value, videoId: playbackState.value.videoId })
-	}
-}
-
-function handleSkip() {
-	skipMutation({ channelId: channelId.value })
-}
-
-function handleVolumeChange(e: Event) {
-	const target = e.target as HTMLInputElement
-	const volume = Number(target.value)
-	setVolumeMutation({ channelId: channelId.value, volume })
-}
-
-function handleDelete(videoId: string) {
-	deleteFromQueueMutation({ channelId: channelId.value, videoId })
-}
-
-function handleClearQueue() {
-	clearQueueMutation({ channelId: channelId.value })
-}
+const progressPercent = computed(() => {
+	if (!playbackState.value) return 0
+	const firstItem = queue.value.find((q) => q.id === playbackState.value?.videoId)
+	const dur = firstItem?.durationSeconds ?? 0
+	if (!dur || dur <= 0) return 0
+	return Math.min((playbackState.value.position / dur) * 100, 100)
+})
 </script>
 
 <template>
 	<div class="widget-root">
-		<div class="player-section">
-			<div class="player-container">
-				<div id="yt-player" class="yt-player" />
+		<div class="now-playing">
+			<div class="track-title">
+				{{ playbackState?.title ?? 'No track playing' }}
 			</div>
-			<div class="track-info">
-				<div class="track-title">
-					{{ playbackState?.title ?? 'No track' }}
-				</div>
-				<div class="progress-bar">
-					<div
-						class="progress-fill"
-						:style="{ width: `${progressPercent}%` }"
-					/>
-				</div>
-				<div class="progress-time">
-					{{ formatTime(currentPosition) }}
-					<template v-if="duration > 0">
-						/ {{ formatTime(duration) }}
-					</template>
-				</div>
-				<div class="controls">
-					<button
-						class="ctrl-btn"
-						:disabled="!playbackState"
-						@click="handlePlayPause"
+			<div class="progress-bar">
+				<div
+					class="progress-fill"
+					:style="{ width: `${progressPercent}%` }"
+				/>
+			</div>
+			<div class="progress-time">
+				{{ formatTime(playbackState?.position ?? 0) }}
+			</div>
+			<div class="controls">
+				<button
+					class="ctrl-btn"
+					:disabled="!hasPlayableVideo"
+					@click="handlePlayPause"
+				>
+					<Icon :name="playbackState?.isPlaying ? 'lucide:pause' : 'lucide:play'" class="icon" />
+				</button>
+				<button
+					class="ctrl-btn"
+					:disabled="!hasPlayableVideo"
+					@click="handleSkip"
+				>
+					<Icon name="lucide:skip-forward" class="icon" />
+				</button>
+				<div class="volume-control">
+					<Icon name="lucide:volume-2" class="icon-small" />
+					<input
+						type="range"
+						min="0"
+						max="100"
+						:value="localVolume"
+						class="volume-slider"
+						@input="handleVolumeChange"
 					>
-						<Icon :name="playbackState?.isPlaying ? 'lucide:pause' : 'lucide:play'" class="icon" />
-					</button>
-					<button
-						class="ctrl-btn"
-						:disabled="!playbackState"
-						@click="handleSkip"
-					>
-						<Icon name="lucide:skip-forward" class="icon" />
-					</button>
-					<div class="volume-control">
-						<Icon name="lucide:volume-2" class="icon-small" />
-						<input
-							type="range"
-							min="0"
-							max="100"
-							:value="playbackState?.volume ?? 100"
-							class="volume-slider"
-							@input="handleVolumeChange"
-						>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -346,8 +278,7 @@ function handleClearQueue() {
 <style scoped>
 .widget-root {
 	width: 100%;
-	max-width: 400px;
-	min-height: 600px;
+	height: 100%;
 	background: rgba(0, 0, 0, 0.9);
 	border-radius: 8px;
 	overflow: hidden;
@@ -357,26 +288,10 @@ function handleClearQueue() {
 	color: white;
 }
 
-.player-section {
+.now-playing {
 	flex-shrink: 0;
-}
-
-.player-container {
-	position: relative;
-	width: 100%;
-	padding-top: 56.25%;
-}
-
-.yt-player {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
-
-.track-info {
-	padding: 10px 12px;
+	padding: 12px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .track-title {
@@ -400,7 +315,7 @@ function handleClearQueue() {
 	height: 100%;
 	background: #8b5cf6;
 	border-radius: 2px;
-	transition: width 0.5s linear;
+	transition: width 1s linear;
 }
 
 .progress-time {
@@ -483,7 +398,6 @@ function handleClearQueue() {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	border-top: 1px solid rgba(255, 255, 255, 0.1);
 	min-height: 0;
 }
 
