@@ -20,10 +20,6 @@ const openSettingsModal = () => (isSettingsModalOpened.value = true)
 const youtubeModuleManager = useSongRequestsApi()
 const youtubeModuleData = youtubeModuleManager.useSongRequestQuery()
 
-const noCookie = computed(() => {
-	return youtubeModuleData.data.value?.songRequests?.playerNoCookieMode ?? false
-})
-
 const channelApiKey = computed(() => {
 	return youtubeModuleData.data.value?.songRequests?.channelApiKey ?? ''
 })
@@ -132,7 +128,6 @@ function copyLink(link: string, label: string) {
 		<div class="lg:col-span-1">
 			<Player
 				v-if="!youtubeModuleData.fetching.value"
-				:no-cookie="noCookie"
 				:open-settings-modal="openSettingsModal"
 			/>
 		</div>
@@ -143,9 +138,4 @@ function copyLink(link: string, label: string) {
 	</div>
 
 	<SettingsModal v-model:open="isSettingsModalOpened" />
-
-	<div
-		id="global-yt-player-container"
-		style="position: fixed; left: -9999px; top: -9999px; width: 640px; height: 360px; z-index: 9999;"
-	/>
 </template>

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strings"
 	"time"
 
 	gojson "github.com/goccy/go-json"
@@ -127,10 +126,10 @@ func (s *PlaybackStateService) SetPlaying(
 	state := PlaybackState{
 		VideoID:   videoID,
 		Title:     title,
-		Position:  position,        // base position
+		Position:  position, // base position
 		IsPlaying: true,
 		Volume:    volume,
-		StartedAt: now,             // playback started now
+		StartedAt: now, // playback started now
 		UpdatedAt: now,
 	}
 
@@ -227,67 +226,5 @@ func (s *PlaybackStateService) PublishClearedState(channelID string) {
 
 	if err := s.wsRouter.Publish(PlaybackStateWsKey(channelID), msg); err != nil {
 		s.logger.Error("failed to publish cleared state", slog.String("channelID", channelID), slog.Any("error", err))
-	}
-}
-
-// --- Ticker ---
-
-// StartTicker starts a goroutine that publishes playback position every second.
-func (s *PlaybackStateService) StartTicker(ctx context.Context) {
-	go func() {
-		ticker := time.NewTicker(1 * time.Second)
-		defer ticker.Stop()
-
-		s.logger.Info("Playback ticker started")
-		for {
-			select {
-			case <-ctx.Done():
-				s.logger.Info("Playback ticker stopped")
-				return
-			case <-ticker.C:
-				s.tick(ctx)
-			}
-		}
-	}()
-}
-
-func (s *PlaybackStateService) tick(ctx context.Context) {
-	var cursor uint64
-	for {
-		keys, nextCursor, err := s.redis.Scan(ctx, cursor, playbackKeyPrefix+"*", 100).Result()
-		if err != nil {
-			s.logger.Error("ticker: failed to scan keys", slog.Any("error", err))
-			return
-		}
-
-		if len(keys) > 0 {
-			s.logger.Info("ticker: found keys", slog.Int("count", len(keys)))
-		}
-
-		for _, key := range keys {
-			channelID := strings.TrimPrefix(key, playbackKeyPrefix)
-			if channelID == key {
-				continue
-			}
-
-			state, err := s.readState(ctx, channelID)
-			if err != nil {
-				s.logger.Error("ticker: failed to read state", slog.String("channelID", channelID), slog.Any("error", err))
-				continue
-			}
-			if state == nil || !state.IsPlaying {
-				continue
-			}
-
-			// Compute current position and publish
-			computed := *state
-			computed.Position = computePosition(state)
-			s.publishToWsRouter(channelID, &computed)
-		}
-
-		cursor = nextCursor
-		if cursor == 0 {
-			break
-		}
 	}
 }

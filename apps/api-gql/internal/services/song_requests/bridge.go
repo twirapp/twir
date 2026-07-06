@@ -54,9 +54,6 @@ func NewBridge(opts BridgeOpts) *Bridge {
 			)
 			b.logger.Info("Subscribed to SongRequestRemoveFromQueue events")
 
-			b.playbackStateService.StartTicker(ctx)
-			b.logger.Info("Started playback state ticker")
-
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {

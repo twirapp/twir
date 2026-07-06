@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMutation, useQuery, useSubscription } from '@urql/vue'
+import { useDebouncedSeek } from '~~/layers/dashboard/composables/useDebouncedSeek.js'
 import { useDebouncedVolume } from '~~/layers/dashboard/composables/useDebouncedVolume.js'
 import { graphql } from '~/gql/gql.js'
 
@@ -121,6 +122,12 @@ const { executeMutation: setVolumeMutation } = useMutation(graphql(`
 	}
 `))
 
+const { executeMutation: updatePositionMutation } = useMutation(graphql(`
+	mutation WidgetSongRequestUpdatePosition($channelId: UUID!, $position: Float!) {
+		songRequestUpdatePosition(channelId: $channelId, position: $position)
+	}
+`))
+
 const { executeMutation: deleteFromQueueMutation } = useMutation(graphql(`
 	mutation WidgetSongRequestDeleteFromQueue($channelId: UUID!, $videoId: String!) {
 		songRequestDeleteFromQueue(channelId: $channelId, videoId: $videoId)
@@ -135,9 +142,26 @@ const { executeMutation: clearQueueMutation } = useMutation(graphql(`
 
 const { localVolume, handleVolumeInput, syncFromServer } = useDebouncedVolume(() => channelId.value, setVolumeMutation)
 
+const {
+	localPosition,
+	handleSeekInput,
+	syncFromServer: syncSeekFromServer,
+} = useDebouncedSeek(() => channelId.value, updatePositionMutation)
+
+const currentQueueItem = computed(() => {
+	if (!playbackState.value?.videoId) return null
+	return queue.value.find((q) => q.id === playbackState.value?.videoId) ?? null
+})
+
+const duration = computed(() => currentQueueItem.value?.durationSeconds ?? 0)
+
 watch(() => playbackState.value?.volume, (v) => {
 	if (v !== undefined) syncFromServer(v)
 })
+
+watch(() => playbackState.value?.position, (position) => {
+	if (position !== undefined) syncSeekFromServer(position)
+}, { immediate: true })
 
 const hasPlayableVideo = computed(() => !!playbackState.value || queue.value.length > 0)
 
@@ -162,6 +186,13 @@ function handleVolumeChange(e: Event) {
 	handleVolumeInput(Number(target.value))
 }
 
+function handleSeekChange(e: Event) {
+	if (!playbackState.value) return
+
+	const target = e.target as HTMLInputElement
+	handleSeekInput(Number(target.value))
+}
+
 function handleDelete(videoId: string) {
 	deleteFromQueueMutation({ channelId: channelId.value, videoId })
 }
@@ -183,11 +214,8 @@ function formatDuration(seconds: number): string {
 }
 
 const progressPercent = computed(() => {
-	if (!playbackState.value) return 0
-	const firstItem = queue.value.find((q) => q.id === playbackState.value?.videoId)
-	const dur = firstItem?.durationSeconds ?? 0
-	if (!dur || dur <= 0) return 0
-	return Math.min((playbackState.value.position / dur) * 100, 100)
+	if (!playbackState.value || duration.value <= 0) return 0
+	return Math.min((localPosition.value / duration.value) * 100, 100)
 })
 </script>
 
@@ -204,8 +232,17 @@ const progressPercent = computed(() => {
 				/>
 			</div>
 			<div class="progress-time">
-				{{ formatTime(playbackState?.position ?? 0) }}
+				{{ formatTime(localPosition) }}
 			</div>
+			<input
+				type="range"
+				min="0"
+				:disabled="!playbackState"
+				:max="duration || 1"
+				:value="localPosition"
+				class="seek-slider"
+				@input="handleSeekChange"
+			>
 			<div class="controls">
 				<button
 					class="ctrl-btn"
@@ -320,7 +357,33 @@ const progressPercent = computed(() => {
 .progress-time {
 	font-size: 11px;
 	color: rgba(255, 255, 255, 0.5);
+	margin-bottom: 4px;
+}
+
+.seek-slider {
+	width: 100%;
+	height: 4px;
+	-webkit-appearance: none;
+	appearance: none;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 2px;
+	outline: none;
 	margin-bottom: 8px;
+}
+
+.seek-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 12px;
+	height: 12px;
+	background: #8b5cf6;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.seek-slider:disabled::-webkit-slider-thumb {
+	cursor: default;
+	opacity: 0.3;
 }
 
 .controls {
