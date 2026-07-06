@@ -25,6 +25,7 @@ const widgetDataQuery = useQuery({
 	query: graphql(`
 		query WidgetSongRequestData($channelId: UUID!) {
 			songRequestWidgetData(channelId: $channelId) {
+				volume
 				playbackState {
 					videoId
 					title
@@ -155,9 +156,9 @@ const currentQueueItem = computed(() => {
 
 const duration = computed(() => currentQueueItem.value?.durationSeconds ?? 0)
 
-watch(() => playbackState.value?.volume, (v) => {
+watch(() => playbackState.value?.volume ?? widgetDataQuery.data.value?.songRequestWidgetData?.volume, (v) => {
 	if (v !== undefined) syncFromServer(v)
-})
+}, { immediate: true })
 
 watch(() => playbackState.value?.position, (position) => {
 	if (position !== undefined) syncSeekFromServer(position)

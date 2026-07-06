@@ -35,6 +35,7 @@ type SongRequestQueueItem struct {
 type SongRequestWidgetData struct {
 	PlaybackState *SongRequestPlaybackState
 	Queue         []SongRequestQueueItem
+	Volume        int
 }
 
 type ChannelByApiKeyResult struct {

@@ -102,6 +102,7 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		TranslationsSongMaximumOrdered:       opts.Translations.Song.MaximumOrdered,
 		TranslationsSongMinViews:             opts.Translations.Song.MinViews,
 		TranslationsChannelDenied:            opts.Translations.Channel.Denied,
+		Volume:                               opts.Volume,
 	}
 
 	if opts.HideOnPause.IsSet() && opts.HideOnPause.Value() != nil {
@@ -159,7 +160,8 @@ func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.U
 		position = currentState.Position
 	}
 
-	if err := r.deps.SongRequestPlaybackStateService.SetPlaying(ctx, channelIDStr, videoID, song.Title, position); err != nil {
+	volume := getSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr)
+	if err := r.deps.SongRequestPlaybackStateService.SetPlaying(ctx, channelIDStr, videoID, song.Title, position, volume); err != nil {
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to set playing: %w", err))
 	}
 
@@ -217,6 +219,13 @@ func (r *mutationResolver) SongRequestSkip(ctx context.Context, channelID uuid.U
 // SongRequestSetVolume is the resolver for the songRequestSetVolume field.
 func (r *mutationResolver) SongRequestSetVolume(ctx context.Context, channelID uuid.UUID, volume int) (bool, error) {
 	channelIDStr := channelID.String()
+	if volume < 0 || volume > 100 {
+		return false, gqlerrors.HandleError(fmt.Errorf("volume must be between 0 and 100"))
+	}
+
+	if err := saveSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr, volume); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to save volume setting: %w", err))
+	}
 
 	if err := r.deps.SongRequestPlaybackStateService.SetVolume(ctx, channelIDStr, volume); err != nil {
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to set volume: %w", err))
@@ -391,6 +400,7 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 		PlayerNoCookieMode:           entity.PlayerNoCookieMode,
 		ChannelAPIKey:                channelApiKey,
 		HideOnPause:                  entity.HideOnPause,
+		Volume:                       entity.Volume,
 	}, nil
 }
 
@@ -497,6 +507,7 @@ func (r *queryResolver) SongRequestWidgetData(ctx context.Context, channelID uui
 	if err != nil {
 		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get playback state: %w", err))
 	}
+	settingsVolume := getSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr)
 
 	var gqlPlaybackState *gqlmodel.SongRequestPlaybackState
 	if playbackState != nil {
@@ -540,6 +551,7 @@ func (r *queryResolver) SongRequestWidgetData(ctx context.Context, channelID uui
 	return &gqlmodel.SongRequestWidgetData{
 		PlaybackState: gqlPlaybackState,
 		Queue:         gqlQueue,
+		Volume:        settingsVolume,
 	}, nil
 }
 

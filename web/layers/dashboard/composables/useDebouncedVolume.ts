@@ -5,7 +5,7 @@ export function useDebouncedVolume(
 	getChannelId: () => string,
 	setVolumeMutation: (vars: { channelId: string; volume: number }) => any,
 ) {
-	const localVolume = ref(100)
+	const localVolume = ref(30)
 
 	const debouncedSync = useDebounceFn((volume: number) => {
 		const id = getChannelId()

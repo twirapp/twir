@@ -136,6 +136,16 @@ const youtubeModuleManager = useSongRequestsApi()
 const { data: youtubeSettings } = youtubeModuleManager.useSongRequestQuery()
 const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
+watch(
+	() => youtubeSettings.value?.songRequests?.volume,
+	(volume) => {
+		if (volume !== undefined && !currentVideo.value) {
+			syncVolumeFromServer(volume)
+		}
+	},
+	{ immediate: true },
+)
+
 const { t } = useI18n()
 
 function toSettingsOpts(settings: Record<string, unknown>): SongRequestsSettingsOpts {

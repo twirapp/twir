@@ -13,7 +13,10 @@ import (
 	"go.uber.org/fx"
 )
 
-const playbackKeyPrefix = "songrequests:playback:"
+const (
+	playbackKeyPrefix = "songrequests:playback:"
+	DefaultVolume     = 30
+)
 
 type PlaybackStateOpts struct {
 	fx.In
@@ -114,9 +117,10 @@ func (s *PlaybackStateService) SetPlaying(
 	videoID string,
 	title string,
 	position float64,
+	defaultVolume int,
 ) error {
 	// Preserve volume from existing state
-	volume := 100
+	volume := defaultVolume
 	existing, _ := s.readState(ctx, channelID)
 	if existing != nil {
 		volume = existing.Volume

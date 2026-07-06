@@ -32,6 +32,7 @@ type SongRequestsSettings {
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
 	hideOnPause: Boolean!
+	volume: Int!
 	channelApiKey: String!
 }
 
@@ -107,6 +108,7 @@ input SongRequestsSettingsOpts {
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
 	hideOnPause: Boolean
+	volume: Int! @validate(constraint: "min=0,max=100")
 }
 
 input SongRequestsUserSettingsOpts {
@@ -219,6 +221,7 @@ type SongRequestQueueItem {
 type SongRequestWidgetData {
 	playbackState: SongRequestPlaybackState
 	queue: [SongRequestQueueItem!]!
+	volume: Int!
 }
 
 type ChannelByApiKeyResult {

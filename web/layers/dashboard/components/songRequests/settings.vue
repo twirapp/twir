@@ -80,6 +80,7 @@ const formValue = ref<SongRequestsSettingsOpts>({
 	takeSongFromDonationMessages: false,
 	playerNoCookieMode: false,
 	hideOnPause: true,
+	volume: 30,
 	channelPointsRewardId: '',
 	maxRequests: 500,
 	announcePlay: true,

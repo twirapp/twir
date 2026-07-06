@@ -73,6 +73,7 @@ export const useSongRequestsApi = createGlobalState(() => {
 					playerNoCookieMode
 					channelApiKey
 					hideOnPause
+					volume
 				}
 			}
 		`),

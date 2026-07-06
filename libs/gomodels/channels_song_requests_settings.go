@@ -52,6 +52,7 @@ type ChannelSongRequestsSettings struct {
 	TranslationsSongMinViews             string         `gorm:"column:translations_song_min_views;type:varchar;check:length(translations_song_min_views) <= 300"`
 	TranslationsChannelDenied            string         `gorm:"column:translations_channel_denied;type:varchar;check:length(translations_channel_denied) <= 300"`
 	HideOnPause                          bool           `gorm:"column:hide_on_pause;type:boolean;not null;default:true"`
+	Volume                               int            `gorm:"column:volume;type:int;not null;default:30;check:volume >= 0 AND volume <= 100"`
 }
 
 func (ChannelSongRequestsSettings) TableName() string {
