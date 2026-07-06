@@ -35,9 +35,21 @@ export default defineUrqlClient((ssrExchange) => {
 
 function getApiKeyHeader(): Record<string, string> {
 	if (typeof window === 'undefined') return {}
+
+	// Check query param first (legacy)
 	const params = new URLSearchParams(window.location.search)
-	const apiKey = params.get('apiKey')
-	return apiKey ? { 'Api-Key': apiKey } : {}
+	const queryKey = params.get('apiKey')
+	if (queryKey) return { 'Api-Key': queryKey }
+
+	// Check widget route: /w/{channelApiKey}/...
+	const widgetMatch = window.location.pathname.match(/^\/w\/([^/]+)\//)
+	if (widgetMatch?.[1]) return { 'Api-Key': widgetMatch[1] }
+
+	// Check overlay route: /o/{apiKey}/...
+	const overlayMatch = window.location.pathname.match(/^\/o\/([^/]+)\//)
+	if (overlayMatch?.[1]) return { 'Api-Key': overlayMatch[1] }
+
+	return {}
 }
 
 function setupServer(ssrExchange: SSRExchange) {
