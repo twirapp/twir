@@ -33,12 +33,7 @@ import {
 const { data: profile } = useProfile()
 const channelId = computed(() => profile.value?.selectedDashboardId ?? '')
 
-const {
-	queue,
-	deleteFromQueue,
-	clearQueue,
-	reorder,
-} = useSongRequestGql(channelId)
+const { queue, deleteFromQueue, clearQueue, reorder } = useSongRequestGql(channelId)
 
 const youtubeModuleManager = useSongRequestsApi()
 const { data: youtubeSettings } = youtubeModuleManager.useSongRequestQuery()
@@ -46,9 +41,7 @@ const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
 const { t } = useI18n()
 
-function toSettingsOpts(
-	settings: Record<string, unknown>,
-): SongRequestsSettingsOpts {
+function toSettingsOpts(settings: Record<string, unknown>): SongRequestsSettingsOpts {
 	const { channelApiKey, __typename, ...rest } = settings
 	return rest as unknown as SongRequestsSettingsOpts
 }
@@ -236,7 +229,7 @@ function formatRelativeTime(dateStr: string) {
 								@click="deleteFromQueue(video.id)"
 							>
 								<Icon
-									name="lucide:trash2"
+									name="lucide:trash"
 									class="size-5"
 								/>
 							</Button>

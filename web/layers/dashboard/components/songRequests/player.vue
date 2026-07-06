@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-
 import { useProfile } from '~~/layers/dashboard/api/auth'
 import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
 import { useGlobalYoutubePlayer } from '~~/layers/dashboard/composables/useGlobalYoutubePlayer.js'
 import { useSongRequestGql } from '~~/layers/dashboard/composables/useSongRequestGql.js'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
-import { Slider } from '@/components/ui/slider'
+import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
+
+import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
+
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -18,9 +18,9 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
-
-import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
 
 const props = defineProps<{
 	noCookie: boolean
@@ -63,9 +63,23 @@ const {
 
 const currentVideo = computed(() => playbackState.value)
 
+const hasPlayableVideo = computed(() => !!playbackState.value || queue.value.length > 0)
+
 const currentQueueItem = computed(() => {
 	if (!currentVideo.value) return null
 	return queue.value.find((item) => item.title === currentVideo.value?.title) ?? null
+})
+
+// Auto-cue first video from queue when nothing is loaded
+watch([queue, playerReady], ([items, ready]) => {
+	if (!ready || playbackState.value || !items.length) return
+	const first = items[0]
+	if (first?.songLink) {
+		const match = first.songLink.match(/(?:v=|youtu\.be\/)([^&?/]+)/)
+		if (match) {
+			cueVideoById(match[1])
+		}
+	}
 })
 
 const youtubeModuleManager = useSongRequestsApi()
@@ -75,9 +89,13 @@ const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 const playerContainerRef = ref<HTMLElement | null>(null)
 
 // Update noCookie setting
-watch(() => props.noCookie, (value) => {
-	noCookie.value = value
-}, { immediate: true })
+watch(
+	() => props.noCookie,
+	(value) => {
+		noCookie.value = value
+	},
+	{ immediate: true }
+)
 
 function updatePlayerPosition() {
 	if (!playerContainerRef.value) return
@@ -104,7 +122,7 @@ onMounted(async () => {
 	}
 
 	// Wait a bit for DOM to settle
-	await new Promise(resolve => setTimeout(resolve, 100))
+	await new Promise((resolve) => setTimeout(resolve, 100))
 
 	// Position the global player over our container
 	updatePlayerPosition()
@@ -150,8 +168,14 @@ function handlePlayPause() {
 		pause()
 		pauseVideo()
 	} else {
-		play()
-		playVideo()
+		// Get videoId from queue if no playback state
+		const videoId =
+			playbackState.value?.videoId ||
+			(queue.value[0]?.songLink?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? '')
+		if (videoId) {
+			play(videoId)
+			playVideo()
+		}
 	}
 }
 
@@ -159,9 +183,7 @@ function handleSkip() {
 	skip()
 }
 
-function toSettingsOpts(
-	settings: Record<string, unknown>,
-): SongRequestsSettingsOpts {
+function toSettingsOpts(settings: Record<string, unknown>): SongRequestsSettingsOpts {
 	const { channelApiKey, __typename, ...rest } = settings
 	return rest as unknown as SongRequestsSettingsOpts
 }
@@ -205,36 +227,40 @@ async function banSong(videoId: string) {
 }
 
 // Watch playback state changes from GQL subscription
-watch(playbackState, (state) => {
-	if (!playerReady.value) return
+watch(
+	playbackState,
+	(state) => {
+		if (!playerReady.value) return
 
-	if (!state) {
-		stopVideo()
-		sliderTime.value = 0
-		duration.value = 0
-		return
-	}
-
-	// Handle video changes
-	if (state.videoId) {
-		loadVideoById(state.videoId)
-		if (state.position > 0) {
-			seekTo(state.position)
+		if (!state) {
+			stopVideo()
+			sliderTime.value = 0
+			duration.value = 0
+			return
 		}
-	}
 
-	// Handle play/pause
-	if (state.isPlaying) {
-		playVideo()
-	} else {
-		pauseVideo()
-	}
+		// Handle video changes
+		if (state.videoId) {
+			loadVideoById(state.videoId)
+			if (state.position > 0) {
+				seekTo(state.position)
+			}
+		}
 
-	// Handle volume
-	if (state.volume !== undefined) {
-		setPlayerVolume(state.volume)
-	}
-}, { deep: true })
+		// Handle play/pause
+		if (state.isPlaying) {
+			playVideo()
+		} else {
+			pauseVideo()
+		}
+
+		// Handle volume
+		if (state.volume !== undefined) {
+			setPlayerVolume(state.volume)
+		}
+	},
+	{ deep: true }
+)
 
 const { t } = useI18n()
 
@@ -270,7 +296,7 @@ const canUsePlayer = computed(() => {
 <template>
 	<Card class="p-0">
 		<CardContent class="p-0">
-			<div class="flex flex-row justify-between items-center px-2 py-2 border-b">
+			<div class="flex flex-row items-center justify-between border-b px-2 py-2">
 				<CardTitle class="text-base">{{ t('songRequests.player.title') }}</CardTitle>
 				<div class="flex gap-1">
 					<Button
@@ -280,15 +306,35 @@ const canUsePlayer = computed(() => {
 						:disabled="!canUsePlayer"
 						@click="playerVisible = !playerVisible"
 					>
-						<Icon name="lucide:eye-off" v-if="playerVisible" class="size-4" />
-						<Icon name="lucide:eye" v-else class="size-4" />
+						<Icon
+							name="lucide:eye-off"
+							v-if="playerVisible"
+							class="size-4"
+						/>
+						<Icon
+							name="lucide:eye"
+							v-else
+							class="size-4"
+						/>
 					</Button>
-					<Button variant="outline" size="icon" class="size-8" :disabled="!canUsePlayer" @click="openSettingsModal">
-						<Icon name="lucide:settings" class="size-4" />
+					<Button
+						variant="outline"
+						size="icon"
+						class="size-8"
+						:disabled="!canUsePlayer"
+						@click="openSettingsModal"
+					>
+						<Icon
+							name="lucide:settings"
+							class="size-4"
+						/>
 					</Button>
 				</div>
 			</div>
-			<div v-if="!canUsePlayer" class="p-6 text-center">
+			<div
+				v-if="!canUsePlayer"
+				class="p-6 text-center"
+			>
 				<p class="text-muted-foreground">{{ t('songRequests.player.noAccess') }}</p>
 			</div>
 
@@ -296,32 +342,43 @@ const canUsePlayer = computed(() => {
 				<div
 					v-show="playerVisible"
 					ref="playerContainerRef"
-					class="h-[300px] overflow-hidden relative bg-black"
+					class="relative h-[300px] overflow-hidden bg-black"
 				>
 					<!-- Global YouTube iframe will be positioned over this container -->
 				</div>
 
-				<div class="flex flex-col gap-4 py-5 px-6">
-					<div class="flex gap-2 items-center">
+				<div class="flex flex-col gap-4 px-6 py-5">
+					<div class="flex items-center gap-2">
 						<Button
 							size="icon"
 							class="flex size-8 min-w-8"
 							variant="secondary"
-							:disabled="currentVideo == null"
+							:disabled="!hasPlayableVideo"
 							@click="handlePlayPause"
 						>
-							<Icon name="lucide:play" v-if="!isPlaying" class="size-4" />
-							<Icon name="lucide:pause" v-else class="size-4" />
+							<Icon
+								name="lucide:play"
+								v-if="!isPlaying"
+								class="size-4"
+							/>
+							<Icon
+								name="lucide:pause"
+								v-else
+								class="size-4"
+							/>
 						</Button>
 
 						<Button
 							size="icon"
 							class="flex size-8 min-w-8"
 							variant="secondary"
-							:disabled="currentVideo == null"
+							:disabled="!hasPlayableVideo"
 							@click="handleSkip"
 						>
-							<Icon name="lucide:skip-forward" class="size-4" />
+							<Icon
+								name="lucide:skip-forward"
+								class="size-4"
+							/>
 						</Button>
 
 						<Slider
@@ -331,7 +388,7 @@ const canUsePlayer = computed(() => {
 							:disabled="!currentVideo"
 							@update:model-value="handleSeek"
 						/>
-						<span class="text-xs text-muted-foreground whitespace-nowrap">{{ formattedTime }}</span>
+						<span class="text-muted-foreground text-xs whitespace-nowrap">{{ formattedTime }}</span>
 					</div>
 
 					<div class="flex items-center gap-2">
@@ -341,8 +398,16 @@ const canUsePlayer = computed(() => {
 							class="size-8 min-w-8"
 							@click="toggleMute"
 						>
-							<Icon name="lucide:volume2" v-if="!isMuted" class="size-4" />
-							<Icon name="lucide:volume-x" v-else class="size-4" />
+							<Icon
+								name="lucide:volume-2"
+								v-if="!isMuted"
+								class="size-4"
+							/>
+							<Icon
+								name="lucide:volume-x"
+								v-else
+								class="size-4"
+							/>
 						</Button>
 						<Slider
 							:model-value="[sliderVolume]"
@@ -357,21 +422,38 @@ const canUsePlayer = computed(() => {
 
 		<CardFooter class="flex-col items-start gap-4 border-t pt-2">
 			<template v-if="currentVideo">
-				<div class="flex flex-col gap-2 w-full">
+				<div class="flex w-full flex-col gap-2">
 					<div class="flex items-center gap-2">
-						<Icon name="lucide:list-music" class="size-4 shrink-0" />
+						<Icon
+							name="lucide:list-music"
+							class="size-4 shrink-0"
+						/>
 						<span class="truncate">{{ currentVideo?.title }}</span>
 					</div>
 
-					<div v-if="currentQueueItem" class="flex items-center gap-2">
-						<Icon name="lucide:user" class="size-4 shrink-0" />
-						<span>{{ currentQueueItem?.orderedByDisplayName || currentQueueItem?.orderedByName }}</span>
+					<div
+						v-if="currentQueueItem"
+						class="flex items-center gap-2"
+					>
+						<Icon
+							name="lucide:user"
+							class="size-4 shrink-0"
+						/>
+						<span>{{
+							currentQueueItem?.orderedByDisplayName || currentQueueItem?.orderedByName
+						}}</span>
 					</div>
 
-					<div v-if="currentQueueItem" class="flex items-center gap-2">
-						<Icon name="lucide:link" class="size-4 shrink-0" />
+					<div
+						v-if="currentQueueItem"
+						class="flex items-center gap-2"
+					>
+						<Icon
+							name="lucide:link"
+							class="size-4 shrink-0"
+						/>
 						<a
-							class="underline text-sm truncate"
+							class="truncate text-sm underline"
 							:href="currentQueueItem.songLink ?? `https://youtu.be/${currentVideo?.videoId}`"
 							target="_blank"
 						>
@@ -380,11 +462,20 @@ const canUsePlayer = computed(() => {
 					</div>
 				</div>
 
-				<div v-if="currentQueueItem" class="flex gap-2 mb-2 justify-end w-full">
+				<div
+					v-if="currentQueueItem"
+					class="mb-2 flex w-full justify-end gap-2"
+				>
 					<AlertDialog>
 						<AlertDialogTrigger as-child>
-							<Button size="sm" variant="destructive">
-								<Icon name="lucide:ban" class="size-4 mr-1" />
+							<Button
+								size="sm"
+								variant="destructive"
+							>
+								<Icon
+									name="lucide:ban"
+									class="mr-1 size-4"
+								/>
 								{{ t('songRequests.ban.song') }}
 							</Button>
 						</AlertDialogTrigger>
@@ -403,8 +494,14 @@ const canUsePlayer = computed(() => {
 
 					<AlertDialog>
 						<AlertDialogTrigger as-child>
-							<Button size="sm" variant="destructive">
-								<Icon name="lucide:ban" class="size-4 mr-1" />
+							<Button
+								size="sm"
+								variant="destructive"
+							>
+								<Icon
+									name="lucide:ban"
+									class="mr-1 size-4"
+								/>
 								{{ t('songRequests.ban.user') }}
 							</Button>
 						</AlertDialogTrigger>
@@ -423,8 +520,14 @@ const canUsePlayer = computed(() => {
 				</div>
 			</template>
 
-			<div v-else class="flex flex-col items-center justify-center w-full py-4 gap-2">
-				<Icon name="lucide:loader2" class="size-6 animate-spin text-muted-foreground" />
+			<div
+				v-else
+				class="flex w-full flex-col items-center justify-center gap-2 py-4"
+			>
+				<Icon
+					name="lucide:loader2"
+					class="text-muted-foreground size-6 animate-spin"
+				/>
 				<p class="text-muted-foreground text-sm">{{ t('songRequests.waiting') }}</p>
 			</div>
 		</CardFooter>

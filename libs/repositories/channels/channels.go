@@ -14,6 +14,7 @@ type Repository interface {
 	GetByTwitchPlatformID(ctx context.Context, twitchPlatformID string) (model.Channel, error)
 	GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (model.Channel, error)
 	GetByKickPlatformID(ctx context.Context, kickPlatformID string) (model.Channel, error)
+	GetByApiKey(ctx context.Context, apiKey string) (model.Channel, error)
 	GetCount(ctx context.Context, input GetCountInput) (int, error)
 	Update(ctx context.Context, channelID uuid.UUID, input UpdateInput) (model.Channel, error)
 	Create(ctx context.Context, input CreateInput) (model.Channel, error)

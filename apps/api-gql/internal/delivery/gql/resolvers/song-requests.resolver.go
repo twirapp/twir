@@ -280,6 +280,10 @@ func (r *mutationResolver) SongRequestReorder(ctx context.Context, channelID uui
 		}
 	}
 
+	_ = r.deps.TwirBus.Api.SongRequestAddToQueue.Publish(ctx, api.SongRequestAddToQueue{
+		ChannelID: channelIDStr,
+	})
+
 	return true, nil
 }
 
@@ -576,6 +580,17 @@ func (r *queryResolver) SongRequestWidgetData(ctx context.Context, channelID uui
 
 // ChannelByAPIKey is the resolver for the channelByApiKey field.
 func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gqlmodel.ChannelByAPIKeyResult, error) {
+	// Try channel API key first
+	channel, err := r.deps.ChannelsRepository.GetByApiKey(ctx, apiKey)
+	if err == nil && !channel.IsNil() {
+		return &gqlmodel.ChannelByAPIKeyResult{
+			ID:           channel.ID,
+			TwitchUserID: channel.TwitchUserID,
+			KickUserID:   channel.KickUserID,
+		}, nil
+	}
+
+	// Fallback to user API key
 	user, err := r.deps.UsersRepository.GetByApiKey(ctx, apiKey)
 	if err != nil {
 		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get user by api key: %w", err))
@@ -601,7 +616,7 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 		channelID = channel.ID
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	channel, err = r.deps.ChannelsRepository.GetByID(ctx, channelID)
 	if err != nil {
 		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel: %w", err))
 	}
