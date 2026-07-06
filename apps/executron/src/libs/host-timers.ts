@@ -7,6 +7,8 @@ export interface TimerContext {
 	totalFires: number
 	timerIds: Set<number>
 	intervalIds: Set<number>
+	timerRefs: Map<number, ReturnType<typeof setTimeout>>
+	intervalRefs: Map<number, ReturnType<typeof setInterval>>
 }
 
 export function createTimerContext(): TimerContext {
@@ -15,6 +17,8 @@ export function createTimerContext(): TimerContext {
 		totalFires: 0,
 		timerIds: new Set(),
 		intervalIds: new Set(),
+		timerRefs: new Map(),
+		intervalRefs: new Map(),
 	}
 }
 
@@ -36,6 +40,7 @@ export function handleStartTimer(
 
 	const timer = setTimeout(() => {
 		ctx.timerIds.delete(id)
+		ctx.timerRefs.delete(id)
 		ctx.activeTimers--
 		ctx.totalFires++
 		if (ctx.totalFires > MAX_FIRES) {
@@ -43,16 +48,27 @@ export function handleStartTimer(
 		}
 		onFire(id)
 	}, delay)
+	ctx.timerRefs.set(id, timer)
 }
 
 export function handleClearTimer(ctx: TimerContext, id: number): void {
 	if (ctx.timerIds.has(id)) {
 		ctx.timerIds.delete(id)
 		ctx.activeTimers--
+		const ref = ctx.timerRefs.get(id)
+		if (ref) {
+			clearTimeout(ref)
+			ctx.timerRefs.delete(id)
+		}
 	}
 	if (ctx.intervalIds.has(id)) {
 		ctx.intervalIds.delete(id)
 		ctx.activeTimers--
+		const ref = ctx.intervalRefs.get(id)
+		if (ref) {
+			clearInterval(ref)
+			ctx.intervalRefs.delete(id)
+		}
 	}
 }
 
@@ -77,16 +93,26 @@ export function handleStartInterval(
 		if (ctx.totalFires > MAX_FIRES) {
 			clearInterval(interval)
 			ctx.intervalIds.delete(id)
+			ctx.intervalRefs.delete(id)
 			ctx.activeTimers--
 			return
 		}
 		onFire(id)
 	}, delay)
+	ctx.intervalRefs.set(id, interval)
 }
 
 export function clearAllTimers(ctx: TimerContext): void {
+	for (const ref of ctx.timerRefs.values()) {
+		clearTimeout(ref)
+	}
+	for (const ref of ctx.intervalRefs.values()) {
+		clearInterval(ref)
+	}
 	ctx.activeTimers = 0
 	ctx.totalFires = 0
 	ctx.timerIds.clear()
 	ctx.intervalIds.clear()
+	ctx.timerRefs.clear()
+	ctx.intervalRefs.clear()
 }

@@ -223,7 +223,9 @@ export async function executeCode(
 						void (async () => {
 							await globalRef.set('__timerFireId', timerId)
 							await triggerTimer.run(realm)
-						})()
+						})().catch((err) => {
+							console.error(`[executron] Timer callback error:`, err.message)
+						})
 					})
 				},
 				clearTimer(id: unknown) {
@@ -234,7 +236,9 @@ export async function executeCode(
 						void (async () => {
 							await globalRef.set('__timerFireId', timerId)
 							await triggerTimer.run(realm)
-						})()
+						})().catch((err) => {
+							console.error(`[executron] Interval callback error:`, err.message)
+						})
 					})
 				},
 			}),
