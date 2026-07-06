@@ -26,7 +26,7 @@ func (r *rateLimitExtension) Validate(schema graphql.ExecutableSchema) error {
 func (r *rateLimitExtension) InterceptResponse(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
 	rc := graphql.GetOperationContext(ctx)
 
-	// Skip rate limit if operation has @noRateLimit directive
+	// Skip rate limit if operation or selected schema field has @noRateLimit directive.
 	if hasNoRateLimit(rc.Operation) {
 		return next(ctx)
 	}
@@ -64,20 +64,56 @@ func hasNoRateLimit(op *ast.OperationDefinition) bool {
 	if op == nil {
 		return false
 	}
-	for _, dir := range op.Directives {
+	if directivesHaveNoRateLimit(op.Directives) {
+		return true
+	}
+
+	for _, sel := range op.SelectionSet {
+		if selectionHasNoRateLimit(sel) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func selectionHasNoRateLimit(sel ast.Selection) bool {
+	switch selected := sel.(type) {
+	case *ast.Field:
+		if directivesHaveNoRateLimit(selected.Directives) {
+			return true
+		}
+
+		if selected.Definition != nil && directivesHaveNoRateLimit(selected.Definition.Directives) {
+			return true
+		}
+
+		for _, child := range selected.SelectionSet {
+			if selectionHasNoRateLimit(child) {
+				return true
+			}
+		}
+	case *ast.InlineFragment:
+		if directivesHaveNoRateLimit(selected.Directives) {
+			return true
+		}
+
+		for _, child := range selected.SelectionSet {
+			if selectionHasNoRateLimit(child) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func directivesHaveNoRateLimit(directives ast.DirectiveList) bool {
+	for _, dir := range directives {
 		if strings.EqualFold(dir.Name, "noRateLimit") {
 			return true
 		}
 	}
-	// Also check field-level directives
-	for _, sel := range op.SelectionSet {
-		if field, ok := sel.(*ast.Field); ok {
-			for _, dir := range field.Directives {
-				if strings.EqualFold(dir.Name, "noRateLimit") {
-					return true
-				}
-			}
-		}
-	}
+
 	return false
 }

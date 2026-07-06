@@ -2,15 +2,15 @@ extend type Query {
 	songRequests: SongRequestsSettings @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
 	songRequestsSearchChannelOrVideo(opts: SongRequestsSearchChannelOrVideoOpts!): SongRequestsSearchChannelOrVideoResponse! @isAuthenticated
 	songRequestsPublicQueue(channelId: String!): [SongRequestPublic!]!
-	songRequestWidgetData(channelId: UUID!): SongRequestWidgetData
-	channelByApiKey(apiKey: String!): ChannelByApiKeyResult
+	songRequestWidgetData(channelId: UUID!): SongRequestWidgetData @noRateLimit
+	channelByApiKey(apiKey: String!): ChannelByApiKeyResult @noRateLimit
 }
 
 extend type Mutation {
 	songRequestsUpdate(opts: SongRequestsSettingsOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
 	songRequestPlay(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated @noRateLimit
 	songRequestPause(channelId: UUID!): Boolean! @isAuthenticated @noRateLimit
-	songRequestSkip(channelId: UUID!): Boolean! @isAuthenticated
+	songRequestSkip(channelId: UUID!): Boolean! @isAuthenticated @noRateLimit
 	songRequestSetVolume(channelId: UUID!, volume: Int!): Boolean! @isAuthenticated @noRateLimit
 	songRequestUpdatePosition(channelId: UUID!, position: Float!): Boolean! @isAuthenticated @noRateLimit
 	songRequestReorder(channelId: UUID!, videoIds: [String!]!): Boolean! @isAuthenticated
@@ -228,6 +228,6 @@ type ChannelByApiKeyResult {
 }
 
 extend type Subscription {
-	songRequestPlaybackState(channelId: UUID!): SongRequestPlaybackState
-	songRequestQueueUpdated(channelId: UUID!): [SongRequestQueueItem!]!
+	songRequestPlaybackState(channelId: UUID!): SongRequestPlaybackState @noRateLimit
+	songRequestQueueUpdated(channelId: UUID!): [SongRequestQueueItem!]! @noRateLimit
 }

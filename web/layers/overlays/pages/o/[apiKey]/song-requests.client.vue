@@ -133,6 +133,16 @@ const queue = computed(() =>
 	?? [],
 )
 
+const currentQueueItem = computed(() => {
+	if (!playbackState.value?.videoId) return null
+
+	return queue.value.find((item) => item.id === playbackState.value?.videoId) ?? null
+})
+
+const requesterName = computed(() => {
+	return currentQueueItem.value?.orderedByDisplayName || currentQueueItem.value?.orderedByName || ''
+})
+
 const { executeMutation: playMutation } = useMutation(graphql(`
 	mutation OverlaySongRequestPlay($channelId: UUID!, $videoId: String!) {
 		songRequestPlay(channelId: $channelId, videoId: $videoId)
@@ -176,6 +186,7 @@ function createPlayer() {
 		playerVars: {
 			autoplay: 0,
 			controls: 0,
+			playsinline: 1,
 			modestbranding: 1,
 			rel: 0,
 			disablekb: 1,
@@ -294,8 +305,7 @@ watch(
 )
 
 const isVisible = computed(() => {
-	if (!playbackState.value?.videoId) return false
-	return playbackState.value.isPlaying
+	return !!playbackState.value?.videoId || queue.value.length > 0
 })
 
 const progressPercent = computed(() => {
@@ -311,13 +321,22 @@ function formatTime(seconds: number): string {
 </script>
 
 <template>
-	<div v-if="isVisible" class="song-request-overlay">
+	<div
+		v-show="isVisible"
+		class="song-request-overlay"
+	>
 		<div class="player-container">
 			<div id="yt-player" class="yt-player" />
 		</div>
 		<div class="track-info">
 			<div class="track-title">
 				{{ playbackState?.title }}
+			</div>
+			<div
+				v-if="requesterName"
+				class="track-requester"
+			>
+				Requested by {{ requesterName }}
 			</div>
 			<div class="progress-bar">
 				<div
@@ -335,23 +354,27 @@ function formatTime(seconds: number): string {
 	</div>
 </template>
 
-<style scoped>
+<style>
 .song-request-overlay {
-	position: relative;
-	width: 100%;
-	max-width: 640px;
+	position: fixed;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	width: 100vw;
+	height: 100vh;
 	background: rgba(0, 0, 0, 0.85);
-	border-radius: 8px;
 	overflow: hidden;
 }
 
-.player-container {
+.song-request-overlay .player-container {
 	position: relative;
+	flex: 1;
+	min-height: 0;
 	width: 100%;
-	padding-top: 56.25%;
+	background: #000;
 }
 
-.yt-player {
+.song-request-overlay .yt-player {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -359,36 +382,46 @@ function formatTime(seconds: number): string {
 	height: 100%;
 }
 
-.track-info {
-	padding: 12px 16px;
+.song-request-overlay .track-info {
+	flex-shrink: 0;
+	padding: 14px 16px 12px;
 }
 
-.track-title {
+.song-request-overlay .track-title {
 	color: white;
 	font-size: 16px;
 	font-weight: 600;
-	margin-bottom: 8px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-.progress-bar {
+.song-request-overlay .track-requester {
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 12px;
+	margin-top: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.song-request-overlay .progress-bar {
 	width: 100%;
 	height: 4px;
 	background: rgba(255, 255, 255, 0.2);
 	border-radius: 2px;
+	margin-top: 10px;
 	margin-bottom: 4px;
 }
 
-.progress-fill {
+.song-request-overlay .progress-fill {
 	height: 100%;
 	background: #8b5cf6;
 	border-radius: 2px;
 	transition: width 0.5s linear;
 }
 
-.progress-time {
+.song-request-overlay .progress-time {
 	color: rgba(255, 255, 255, 0.6);
 	font-size: 12px;
 }

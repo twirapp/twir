@@ -313,10 +313,12 @@ const progressPercent = computed(() => {
 
 <style scoped>
 .widget-root {
-	width: 100%;
-	height: 100%;
+	position: fixed;
+	inset: 0;
+	box-sizing: border-box;
+	width: 100vw;
+	height: 100vh;
 	background: rgba(0, 0, 0, 0.9);
-	border-radius: 8px;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
