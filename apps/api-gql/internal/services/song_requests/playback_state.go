@@ -68,15 +68,24 @@ func (s *PlaybackStateService) SetPlaying(
 	channelID string,
 	videoID string,
 	title string,
+	position float64,
 ) error {
 	now := time.Now().UnixMilli()
+
+	// Preserve volume from existing state if available
+	volume := 100
+	existing, _ := s.GetState(ctx, channelID)
+	if existing != nil {
+		volume = existing.Volume
+	}
+
 	state := PlaybackState{
 		VideoID:   videoID,
 		Title:     title,
-		Position:  0,
+		Position:  position,
 		IsPlaying: true,
-		Volume:    100,
-		StartedAt: now,
+		Volume:    volume,
+		StartedAt: now - int64(position*1000),
 		UpdatedAt: now,
 	}
 

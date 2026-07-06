@@ -147,7 +147,14 @@ func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.U
 		return false, gqlerrors.HandleError(fmt.Errorf("song not found: %w", err))
 	}
 
-	if err := r.deps.SongRequestPlaybackStateService.SetPlaying(ctx, channelIDStr, videoID, song.Title); err != nil {
+	// If resuming same video, keep current position
+	var position float64
+	currentState, _ := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
+	if currentState != nil && currentState.VideoID == videoID {
+		position = currentState.Position
+	}
+
+	if err := r.deps.SongRequestPlaybackStateService.SetPlaying(ctx, channelIDStr, videoID, song.Title, position); err != nil {
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to set playing: %w", err))
 	}
 

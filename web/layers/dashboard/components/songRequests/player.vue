@@ -301,16 +301,16 @@ watch(isPlaying, (nowPlaying, wasPlaying) => {
 	lastKnownIsPlaying.value = nowPlaying
 })
 
-// Detect user-initiated seek from YouTube player
+// Detect user-initiated seek from YouTube player (only when paused)
 const lastSyncedPosition = ref(0)
 let seekDebounce: ReturnType<typeof setTimeout> | null = null
 
 watch(sliderTime, (newTime) => {
 	if (isUpdatingFromSubscription.value) return
-	if (!playbackState.value) return
+	if (!playbackState.value || playbackState.value.isPlaying) return
 
 	const diff = Math.abs(newTime - lastSyncedPosition.value)
-	if (diff < 2) return // ignore small changes (normal playback ticking)
+	if (diff < 2) return
 
 	if (seekDebounce) clearTimeout(seekDebounce)
 	seekDebounce = setTimeout(() => {
