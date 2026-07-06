@@ -1,0 +1,183 @@
+# SigNoz self-hosted observability stack
+# Deploy on avoro: docker compose -f docker-compose.signoz.yml up -d
+# UI: https://signoz.twir.app (via Caddy) or http://AVORO_IP:8080
+# Default login: admin / signoz
+#
+# Replaces: VictoriaMetrics + VictoriaLogs + VictoriaTraces + Grafana
+# Receives OTLP data on ports 4317 (gRPC) and 4318 (HTTP)
+
+name: signoz
+
+networks:
+  signoz-network:
+    name: signoz-network
+  caddy:
+    external: true
+
+services:
+  # --- SigNoz UI + API ---
+  signoz:
+    container_name: signoz
+    image: signoz/signoz:v0.131.1
+    restart: unless-stopped
+    environment:
+      - SIGNOZ_SQLSTORE_POSTGRES_DSN=postgres://signoz:signoz@signoz-postgres:5432/signoz?sslmode=disable
+      - SIGNOZ_SQLSTORE_PROVIDER=postgres
+      - SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_DSN=tcp://signoz-clickhouse:9000
+      - SIGNOZ_TELEMETRYSTORE_PROVIDER=clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - signoz-network
+      - caddy
+    labels:
+      caddy: signoz.twir.app
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+    depends_on:
+      signoz-clickhouse:
+        condition: service_healthy
+      signoz-postgres:
+        condition: service_healthy
+
+  # --- OTel Collector (ingester) ---
+  # Receives OTLP from Hetzner cluster apps + OTel collector
+  signoz-ingester:
+    container_name: signoz-ingester
+    image: signoz/signoz-otel-collector:latest
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        /signoz-otel-collector migrate sync check &&
+        /signoz-otel-collector --config=/etc/otel-collector-config.yaml --manager-config=/etc/opamp-config.yaml --copy-path=/var/tmp/collector-config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://signoz-clickhouse:9000
+      - SIGNOZ_OTEL_COLLECTOR_TIMEOUT=10m
+    networks:
+      signoz-network:
+        aliases:
+          - signoz-ingester
+    volumes:
+      - ./ingester.yaml:/etc/otel-collector-config.yaml:ro
+      - ./opamp.yaml:/etc/opamp-config.yaml:ro
+    depends_on:
+      - signoz-clickhouse
+
+  # --- ClickHouse (telemetry store) ---
+  signoz-clickhouse:
+    container_name: signoz-clickhouse
+    image: clickhouse/clickhouse-server:25.12.5
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_SKIP_USER_SETUP=1
+      - CLICKHOUSE_CONFIG=/etc/clickhouse-server/config.yaml
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - signoz-clickhouse-data:/var/lib/clickhouse
+      - signoz-user-scripts:/var/lib/clickhouse/user_scripts:ro
+      - ./clickhouse-config.yaml:/etc/clickhouse-server/config.yaml:ro
+      - ./clickhouse-functions.yaml:/etc/clickhouse-server/functions.yaml:ro
+    networks:
+      - signoz-network
+    depends_on:
+      signoz-clickhouse-keeper:
+        condition: service_healthy
+      signoz-user-scripts:
+        condition: service_completed_successfully
+
+  # --- ClickHouse Keeper (coordination) ---
+  signoz-clickhouse-keeper:
+    container_name: signoz-clickhouse-keeper
+    image: clickhouse/clickhouse-keeper:25.12.5
+    restart: unless-stopped
+    entrypoint: ["/usr/bin/clickhouse-keeper", "--config-file=/etc/clickhouse-keeper/keeper.yaml"]
+    healthcheck:
+      test: ["CMD", "clickhouse-keeper-client", "-h", "localhost", "-p", "9181", "-q", "ls"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - signoz-keeper-data:/var/lib/clickhouse-keeper
+      - ./clickhouse-keeper.yaml:/etc/clickhouse-keeper/keeper.yaml:ro
+    networks:
+      - signoz-network
+
+  # --- PostgreSQL (SigNoz metastore) ---
+  signoz-postgres:
+    container_name: signoz-postgres
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=signoz
+      - POSTGRES_PASSWORD=signoz
+      - POSTGRES_USER=signoz
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signoz -d signoz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    volumes:
+      - signoz-postgres-data:/var/lib/postgresql/data
+    networks:
+      - signoz-network
+
+  # --- DB migrator (runs once, then exits) ---
+  signoz-migrator:
+    container_name: signoz-migrator
+    image: signoz/signoz-otel-collector:latest
+    restart: on-failure
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        /signoz-otel-collector migrate ready &&
+        /signoz-otel-collector migrate bootstrap &&
+        /signoz-otel-collector migrate sync up &&
+        /signoz-otel-collector migrate async up
+    environment:
+      - SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://signoz-clickhouse:9000
+      - SIGNOZ_OTEL_COLLECTOR_TIMEOUT=10m
+    networks:
+      - signoz-network
+    depends_on:
+      - signoz-clickhouse
+
+  # --- Histogram quantile user script downloader ---
+  signoz-user-scripts:
+    container_name: signoz-user-scripts
+    image: clickhouse/clickhouse-server:25.12.5
+    restart: on-failure
+    volumes:
+      - signoz-user-scripts:/var/lib/clickhouse/user_scripts
+    networks:
+      - signoz-network
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        version="v0.0.1"
+        node_os=$$(uname -s | tr '[:upper:]' '[:lower:]')
+        node_arch=$$(uname -m | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)
+        echo "Fetching histogram-binary for $${node_os}/$${node_arch}"
+        cd /tmp
+        wget -O histogram-quantile.tar.gz "https://github.com/SigNoz/signoz/releases/download/histogram-quantile%2F$${version}/histogram-quantile_$${node_os}_$${node_arch}.tar.gz"
+        tar -xvzf histogram-quantile.tar.gz
+        mv histogram-quantile /var/lib/clickhouse/user_scripts/histogramQuantile
+
+volumes:
+  signoz-clickhouse-data:
+  signoz-keeper-data:
+  signoz-postgres-data:
+  signoz-user-scripts:

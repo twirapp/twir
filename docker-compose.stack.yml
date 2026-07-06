@@ -95,75 +95,20 @@ services:
         - "traefik.http.services.twir-nats.loadbalancer.server.port=8222"
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.116.1
+    image: otel/opentelemetry-collector-contrib:0.121.0
     volumes:
       - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
     networks:
       - twir
     deploy:
+      mode: global
       restart_policy:
         condition: any
         delay: 3s
         max_attempts: 30
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    networks:
-      - twir
-    deploy:
-      mode: global
-      restart_policy:
-        condition: any
-        delay: 3s
-        max_attempts: 30
-
-  vector:
-    image: timberio/vector:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    configs:
-      - source: vector_config
-        target: /etc/vector/vector.yaml
-    networks:
-      - twir
-    deploy:
-      mode: global
-      restart_policy:
-        condition: any
-        delay: 3s
-        max_attempts: 30
-
-  vmagent:
-    image: victoriametrics/vmagent:latest
-    configs:
-      - source: vmagent_config
-        target: /etc/vmagent/scrape.yml
-    command:
-      - -promscrape.config=/etc/vmagent/scrape.yml
-      - -remoteWrite.url=http://OBSERVABILITY_SERVER_IP:8428/api/v1/write
-    networks:
-      - twir
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: any
-        delay: 3s
-        max_attempts: 30
-      placement:
-        constraints:
-          - node.role == manager
 
   postgres:
     image: postgres:18.1
@@ -978,12 +923,6 @@ configs:
     file: ./configs/pgdog/pgdog.prod.toml
   pgdog_start_script:
     file: ./configs/pgdog/start.sh
-
-  vector_config:
-    file: ./configs/vector/vector.yaml
-
-  vmagent_config:
-    file: ./configs/vmagent/scrape.yml
 
 volumes:
   pg18-data:

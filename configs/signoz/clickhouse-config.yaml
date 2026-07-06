@@ -1,0 +1,96 @@
+asynchronous_metric_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
+dictionaries_config: '*_dictionary.xml'
+display_name: cluster
+distributed_ddl:
+  path: /clickhouse/task_queue/ddl
+error_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
+format_schema_path: /var/lib/clickhouse/format_schemas/
+http_port: 8123
+interserver_http_port: 9009
+latency_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
+listen_host: 0.0.0.0
+logger:
+  console: 1
+  count: 10
+  formatting:
+    type: console
+  level: information
+  size: 1000M
+macros:
+  replica: "00"
+  shard: "00"
+metric_log:
+  flush_interval_milliseconds: 30000
+  ttl: event_date + INTERVAL 1 DAY DELETE
+part_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
+path: /var/lib/clickhouse/
+processors_profile_log:
+  flush_interval_milliseconds: 30000
+  ttl: event_date + INTERVAL 1 DAY DELETE
+profiles:
+  default:
+    allow_simdjson: 0
+    load_balancing: random
+    log_queries: 1
+query_log:
+  flush_interval_milliseconds: 30000
+  partition_by: toYYYYMM(event_date)
+  ttl: event_date + INTERVAL 1 DAY DELETE
+query_metric_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
+query_thread_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
+query_views_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
+quotas:
+  default:
+    interval:
+      duration: 3600
+      errors: 0
+      execution_time: 0
+      queries: 0
+      read_rows: 0
+      result_rows: 0
+remote_servers:
+  cluster:
+    shard:
+      - replica:
+          - host: signoz-clickhouse
+            port: 9000
+session_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
+tcp_port: 9000
+text_log:
+  flush_interval_milliseconds: 30000
+  ttl: event_date + INTERVAL 1 DAY DELETE
+tmp_path: /var/lib/clickhouse/tmp/
+trace_log:
+  flush_interval_milliseconds: 30000
+  ttl: event_date + INTERVAL 1 DAY DELETE
+user_defined_executable_functions_config: '*function.yaml'
+user_directories:
+  users_xml:
+    path: users.xml
+user_files_path: /var/lib/clickhouse/user_files/
+user_scripts_path: /var/lib/clickhouse/user_scripts/
+users:
+  default:
+    access_management: 1
+    named_collection_control: 1
+    networks:
+      ip: ::/0
+    password: ""
+    profile: default
+    quota: default
+    show_named_collection: 1
+    show_named_collection_secrets: 1
+zookeeper:
+  node:
+    - host: signoz-clickhouse-keeper
+      port: 9181
+zookeeper_log:
+  ttl: event_date + INTERVAL 1 DAY DELETE
