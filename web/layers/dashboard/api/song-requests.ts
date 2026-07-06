@@ -71,6 +71,7 @@ export const useSongRequestsApi = createGlobalState(() => {
 					}
 					takeSongFromDonationMessages
 					playerNoCookieMode
+					channelApiKey
 				}
 			}
 		`),

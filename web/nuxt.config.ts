@@ -56,9 +56,14 @@ export default defineNuxtConfig({
 
 	site: { indexable: true },
 
+	extends: [
+		'./layers/widgets',
+	],
+
 	routeRules: {
 		'/dashboard': { ssr: false },
 		'/dashboard/**': { ssr: false },
+		'/w/**': { ssr: false },
 		...Object.fromEntries(
 			localeCodes.flatMap((l) => [
 				[`/${l}/dashboard`, { ssr: false }],
@@ -240,6 +245,7 @@ export default defineNuxtConfig({
 			'/h/**',
 			'/overlays/**',
 			'/overlays',
+			'/w/**',
 		],
 	},
 

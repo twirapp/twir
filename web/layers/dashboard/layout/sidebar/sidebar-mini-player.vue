@@ -1,21 +1,30 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
-import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import { useSongRequestGql } from '~~/layers/dashboard/composables/useSongRequestGql.js'
 import { useGlobalYoutubePlayer } from '~~/layers/dashboard/composables/useGlobalYoutubePlayer.js'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
-const { currentVideo } = useYoutubeSocket()
+
+const { data: profile } = useProfile()
+const channelId = computed(() => profile.value?.selectedDashboardId ?? '')
+
+const {
+	playbackState,
+	play,
+	pause,
+	skip,
+	setVolume: setVolumeGql,
+} = useSongRequestGql(channelId)
+
 const {
 	isPlaying,
-	hasEverPlayedSong,
 	sliderTime,
 	duration,
 	sliderVolume,
 	isMuted,
-	togglePlay,
-	playNext,
+	playVideo,
+	pauseVideo,
 	seek,
 	setVolume,
 	toggleMute,
@@ -24,17 +33,9 @@ const {
 const router = useRouter()
 const localePath = useLocalePath()
 
-// Show mini-player only if:
-// 1. User has ever played a song (to know they use the feature)
-// 2. There's a current video
-// 3. The video is actually playing OR has been played (has progress)
-// 4. Not on the song-requests page
 const shouldShowMiniPlayer = computed(() => {
 	return (
-		hasEverPlayedSong.value &&
-		currentVideo.value != null &&
-		currentVideo.value !== undefined &&
-		(isPlaying.value || sliderTime.value > 0) &&
+		playbackState.value != null &&
 		router.currentRoute.value.path !== localePath('/dashboard/song-requests')
 	)
 })
@@ -47,6 +48,20 @@ function goToSongRequests() {
 	router.push(localePath('/dashboard/song-requests'))
 }
 
+function handlePlayPause() {
+	if (isPlaying.value) {
+		pause()
+		pauseVideo()
+	} else {
+		play(playbackState.value!.videoId)
+		playVideo()
+	}
+}
+
+function handleSkip() {
+	skip()
+}
+
 function handleSeek(value: number[] | undefined) {
 	if (!value) return
 	seek(value[0])
@@ -55,6 +70,7 @@ function handleSeek(value: number[] | undefined) {
 function handleVolumeChange(value: number[] | undefined) {
 	if (!value) return
 	setVolume(value[0])
+	setVolumeGql(value[0])
 }
 </script>
 
@@ -70,10 +86,7 @@ function handleVolumeChange(value: number[] | undefined) {
 		>
 			<Icon name="lucide:list-music" class="size-4 shrink-0 text-muted-foreground" />
 			<div class="flex flex-col min-w-0 flex-1">
-				<span class="text-xs font-medium truncate">{{ currentVideo?.title }}</span>
-				<span class="text-[10px] text-muted-foreground truncate">
-					{{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}
-				</span>
+				<span class="text-xs font-medium truncate">{{ playbackState?.title }}</span>
 			</div>
 		</button>
 
@@ -83,7 +96,7 @@ function handleVolumeChange(value: number[] | undefined) {
 				:model-value="[sliderTime]"
 				:step="1"
 				:max="duration || 1"
-				:disabled="!currentVideo"
+				:disabled="!playbackState"
 				class="w-full"
 				@update:model-value="handleSeek"
 			/>
@@ -96,8 +109,8 @@ function handleVolumeChange(value: number[] | undefined) {
 				size="icon"
 				variant="ghost"
 				class="size-7"
-				:disabled="!currentVideo"
-				@click="togglePlay"
+				:disabled="!playbackState"
+				@click="handlePlayPause"
 			>
 				<Icon name="lucide:play"
 					v-if="!isPlaying"
@@ -111,8 +124,8 @@ function handleVolumeChange(value: number[] | undefined) {
 				size="icon"
 				variant="ghost"
 				class="size-7"
-				:disabled="!currentVideo"
-				@click="playNext"
+				:disabled="!playbackState"
+				@click="handleSkip"
 			>
 				<Icon name="lucide:skip-forward" class="size-3.5" />
 			</Button>

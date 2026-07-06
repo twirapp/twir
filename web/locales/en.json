@@ -826,6 +826,15 @@
       "song": "Ban song",
       "userConfirm": "Are you sure you want to ban this user?",
       "songConfirm": "Are you sure you want to ban this song?"
+    },
+    "overlay": {
+      "hideOnPause": "Hide on pause"
+    },
+    "widget": {
+      "queue": "Queue",
+      "clearAll": "Clear All",
+      "empty": "Queue is empty",
+      "nowPlaying": "Now Playing"
     }
   },
   "timers": {

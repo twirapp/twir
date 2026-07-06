@@ -149,6 +149,7 @@ type Deps struct {
 	ChannelsEmotesUsagesService           *channels_emotes_usages.Service
 	TTSService                            *tts.Service
 	SongRequestsService                   *song_requests.Service
+	SongRequestPlaybackStateService       *song_requests.PlaybackStateService
 	CommunityRedemptionsService           *community_redemptions.Service
 	StreamElementsService                 *streamelements.Service
 	DashboardService                      *dashboard.Service

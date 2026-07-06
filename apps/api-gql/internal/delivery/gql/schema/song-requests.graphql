@@ -2,10 +2,19 @@ extend type Query {
 	songRequests: SongRequestsSettings @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
 	songRequestsSearchChannelOrVideo(opts: SongRequestsSearchChannelOrVideoOpts!): SongRequestsSearchChannelOrVideoResponse! @isAuthenticated
 	songRequestsPublicQueue(channelId: String!): [SongRequestPublic!]!
+	songRequestWidgetData(channelId: UUID!): SongRequestWidgetData
+	channelByApiKey(apiKey: String!): ChannelByApiKeyResult
 }
 
 extend type Mutation {
 	songRequestsUpdate(opts: SongRequestsSettingsOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
+	songRequestPlay(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated
+	songRequestPause(channelId: UUID!): Boolean! @isAuthenticated
+	songRequestSkip(channelId: UUID!): Boolean! @isAuthenticated
+	songRequestSetVolume(channelId: UUID!, volume: Int!): Boolean! @isAuthenticated
+	songRequestReorder(channelId: UUID!, videoIds: [String!]!): Boolean! @isAuthenticated
+	songRequestDeleteFromQueue(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated
+	songRequestClearQueue(channelId: UUID!): Boolean! @isAuthenticated
 }
 
 type SongRequestsSettings {
@@ -21,6 +30,8 @@ type SongRequestsSettings {
 	translations: SongRequestsTranslations!
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
+	hideOnPause: Boolean!
+	channelApiKey: String!
 }
 
 type SongRequestsUserSettings {
@@ -94,6 +105,7 @@ input SongRequestsSettingsOpts {
 	translations: SongRequestsTranslationsOpts!
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
+	hideOnPause: Boolean!
 }
 
 input SongRequestsUserSettingsOpts {
@@ -181,4 +193,40 @@ type SongRequestPublic {
 	createdAt: Time!
 	songLink: String!
 	durationSeconds: Int!
+}
+
+type SongRequestPlaybackState {
+	videoId: String!
+	title: String!
+	position: Float!
+	isPlaying: Boolean!
+	volume: Int!
+	updatedAt: Time!
+}
+
+type SongRequestQueueItem {
+	id: String!
+	title: String!
+	songLink: String!
+	durationSeconds: Int!
+	orderedByName: String!
+	orderedByDisplayName: String!
+	queuePosition: Int!
+	createdAt: Time!
+}
+
+type SongRequestWidgetData {
+	playbackState: SongRequestPlaybackState
+	queue: [SongRequestQueueItem!]!
+}
+
+type ChannelByApiKeyResult {
+	id: UUID!
+	twitchUserId: UUID
+	kickUserId: UUID
+}
+
+extend type Subscription {
+	songRequestPlaybackState(channelId: UUID!): SongRequestPlaybackState
+	songRequestQueueUpdated(channelId: UUID!): [SongRequestQueueItem!]!
 }

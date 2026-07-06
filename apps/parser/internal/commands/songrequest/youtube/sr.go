@@ -13,11 +13,11 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/guregu/null"
-	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/twitch"
 	"github.com/valyala/fasttemplate"
 
@@ -198,11 +198,26 @@ var SrCommand = &types.DefaultCommand{
 		}
 
 		for _, song := range requested {
-			parseCtx.Services.GrpcClients.WebSockets.YoutubeAddSongToQueue(
-				context.Background(),
-				&websockets.YoutubeAddSongToQueueRequest{
-					ChannelId: parseCtx.Channel.DBChannelID,
-					EntityId:  song.ID,
+			songLink := ""
+			if song.SongLink.Valid {
+				songLink = song.SongLink.String
+			}
+
+			parseCtx.Services.Bus.Api.SongRequestAddToQueue.Publish(
+				ctx,
+				api.SongRequestAddToQueue{
+					ChannelID: parseCtx.Channel.DBChannelID,
+					SongRequest: api.SongRequestData{
+						ID:                   song.ID,
+						Title:                song.Title,
+						VideoID:              song.VideoID,
+						SongLink:             songLink,
+						DurationSeconds:      int(song.Duration),
+						OrderedByName:        song.OrderedByName,
+						OrderedByDisplayName: song.OrderedByDisplayName.String,
+						QueuePosition:        song.QueuePosition,
+						CreatedAt:            song.CreatedAt.UTC().String(),
+					},
 				},
 			)
 		}

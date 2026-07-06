@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
-
 import { useProfile } from '~~/layers/dashboard/api/auth'
-import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
+import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
 import { useGlobalYoutubePlayer } from '~~/layers/dashboard/composables/useGlobalYoutubePlayer.js'
+import { useSongRequestGql } from '~~/layers/dashboard/composables/useSongRequestGql.js'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
@@ -25,7 +25,19 @@ const props = defineProps<{
 	openSettingsModal: () => void
 }>()
 
-const { currentVideo, banSong, banUser } = useYoutubeSocket()
+const { data: profile } = useProfile()
+
+const channelId = computed(() => profile.value?.selectedDashboardId ?? '')
+
+const {
+	playbackState,
+	queue,
+	play,
+	pause,
+	skip,
+	setVolume: setVolumeGql,
+	deleteFromQueue,
+} = useSongRequestGql(channelId)
 
 const {
 	playerReady,
@@ -37,12 +49,26 @@ const {
 	sliderVolume,
 	noCookie,
 	initPlayer,
-	togglePlay,
-	seek,
-	setVolume,
+	playVideo,
+	pauseVideo,
+	seekTo,
+	setVolume: setPlayerVolume,
+	loadVideoById,
+	cueVideoById,
+	stopVideo,
 	toggleMute,
-	playNext,
 } = useGlobalYoutubePlayer()
+
+const currentVideo = computed(() => playbackState.value)
+
+const currentQueueItem = computed(() => {
+	if (!currentVideo.value) return null
+	return queue.value.find((item) => item.title === currentVideo.value?.title) ?? null
+})
+
+const youtubeModuleManager = useSongRequestsApi()
+const { data: youtubeSettings } = youtubeModuleManager.useSongRequestQuery()
+const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
 const playerContainerRef = ref<HTMLElement | null>(null)
 
@@ -108,15 +134,99 @@ const formattedTime = computed(() => {
 
 function handleSeek(value: number[] | undefined) {
 	if (!value) return
-	seek(value[0])
+	seekTo(value[0])
 }
 
 function handleVolumeChange(value: number[] | undefined) {
 	if (!value) return
-	setVolume(value[0])
+	setPlayerVolume(value[0])
+	setVolumeGql(value[0])
 }
 
-const { data: profile } = useProfile()
+function handlePlayPause() {
+	if (isPlaying.value) {
+		pause()
+		pauseVideo()
+	} else {
+		play()
+		playVideo()
+	}
+}
+
+function handleSkip() {
+	skip()
+}
+
+async function banUser(userId: string) {
+	if (!youtubeSettings.value?.songRequests) return
+	const settings = youtubeSettings.value.songRequests
+
+	await youtubeModuleUpdater.executeMutation({
+		opts: {
+			...settings,
+			denyList: {
+				...settings.denyList,
+				users: [...settings.denyList.users, userId],
+			},
+		},
+	})
+
+	// Delete all videos from this user
+	const userVideos = queue.value.filter((video) => video.orderedByName === userId)
+	for (const video of userVideos) {
+		deleteFromQueue(video.id)
+	}
+}
+
+async function banSong(videoId: string) {
+	if (!youtubeSettings.value?.songRequests) return
+	const settings = youtubeSettings.value.songRequests
+
+	await youtubeModuleUpdater.executeMutation({
+		opts: {
+			...settings,
+			denyList: {
+				...settings.denyList,
+				songs: [...settings.denyList.songs, videoId],
+			},
+		},
+	})
+
+	deleteFromQueue(videoId)
+}
+
+// Watch playback state changes from GQL subscription
+watch(playbackState, (state) => {
+	if (!playerReady.value) return
+
+	if (!state) {
+		stopVideo()
+		sliderTime.value = 0
+		duration.value = 0
+		return
+	}
+
+	// Handle video changes
+	if (state.videoId) {
+		loadVideoById(state.videoId)
+		if (state.position > 0) {
+			seekTo(state.position)
+		}
+	}
+
+	// Handle play/pause
+	if (state.isPlaying) {
+		playVideo()
+	} else {
+		pauseVideo()
+	}
+
+	// Handle volume
+	if (state.volume !== undefined) {
+		setPlayerVolume(state.volume)
+	}
+}, { deep: true })
+
 const { t } = useI18n()
 
 const selectedDashboard = computed(() => {
@@ -189,7 +299,7 @@ const canUsePlayer = computed(() => {
 							class="flex size-8 min-w-8"
 							variant="secondary"
 							:disabled="currentVideo == null"
-							@click="togglePlay"
+							@click="handlePlayPause"
 						>
 							<Icon name="lucide:play" v-if="!isPlaying" class="size-4" />
 							<Icon name="lucide:pause" v-else class="size-4" />
@@ -200,7 +310,7 @@ const canUsePlayer = computed(() => {
 							class="flex size-8 min-w-8"
 							variant="secondary"
 							:disabled="currentVideo == null"
-							@click="playNext"
+							@click="handleSkip"
 						>
 							<Icon name="lucide:skip-forward" class="size-4" />
 						</Button>
@@ -244,24 +354,24 @@ const canUsePlayer = computed(() => {
 						<span class="truncate">{{ currentVideo?.title }}</span>
 					</div>
 
-					<div class="flex items-center gap-2">
+					<div v-if="currentQueueItem" class="flex items-center gap-2">
 						<Icon name="lucide:user" class="size-4 shrink-0" />
-						<span>{{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}</span>
+						<span>{{ currentQueueItem?.orderedByDisplayName || currentQueueItem?.orderedByName }}</span>
 					</div>
 
-					<div class="flex items-center gap-2">
+					<div v-if="currentQueueItem" class="flex items-center gap-2">
 						<Icon name="lucide:link" class="size-4 shrink-0" />
 						<a
 							class="underline text-sm truncate"
-							:href="currentVideo.songLink ?? `https://youtu.be/${currentVideo?.videoId}`"
+							:href="currentQueueItem.songLink ?? `https://youtu.be/${currentVideo?.videoId}`"
 							target="_blank"
 						>
-							{{ currentVideo.songLink || `youtu.be/${currentVideo?.videoId}` }}
+							{{ currentQueueItem.songLink || `youtu.be/${currentVideo?.videoId}` }}
 						</a>
 					</div>
 				</div>
 
-				<div class="flex gap-2 mb-2 justify-end w-full">
+				<div v-if="currentQueueItem" class="flex gap-2 mb-2 justify-end w-full">
 					<AlertDialog>
 						<AlertDialogTrigger as-child>
 							<Button size="sm" variant="destructive">
@@ -295,7 +405,7 @@ const canUsePlayer = computed(() => {
 							</AlertDialogHeader>
 							<AlertDialogFooter>
 								<AlertDialogCancel>{{ t('deleteConfirmation.cancel') }}</AlertDialogCancel>
-								<AlertDialogAction @click="banUser(currentVideo.orderedById)">
+								<AlertDialogAction @click="banUser(currentQueueItem.orderedByName)">
 									{{ t('deleteConfirmation.confirm') }}
 								</AlertDialogAction>
 							</AlertDialogFooter>

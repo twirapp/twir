@@ -1,8 +1,6 @@
 import { createGlobalState, useLocalStorage, useScriptTag } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
-import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
-
 interface YTPlayer {
 	playVideo: () => void
 	pauseVideo: () => void
@@ -65,8 +63,6 @@ declare global {
  * The iframe is always in the DOM and never destroyed.
  */
 export const useGlobalYoutubePlayer = createGlobalState(() => {
-	const { currentVideo, nextVideo, sendPlaying } = useYoutubeSocket()
-
 	// Player instance and state
 	const player = ref<YTPlayer>()
 	const playerReady = ref(false)
@@ -74,7 +70,6 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 	const sliderTime = ref(0)
 	const duration = ref(0)
 	const updateTimeInterval = ref<number>()
-	const shouldAutoplayNext = ref(false)
 
 	// Settings
 	const volume = useLocalStorage('twirPlayerVolume', 10)
@@ -112,10 +107,6 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 		}
 	}
 
-	function playNext() {
-		nextVideo()
-	}
-
 	function onPlayerReady(event: { target: YTPlayer }) {
 		player.value = event.target
 		playerReady.value = true
@@ -126,11 +117,6 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 		event.target.setVolume(vol)
 		if (isMuted.value) {
 			event.target.mute()
-		}
-
-		// Cue current video if it exists (without autoplay)
-		if (currentVideo.value) {
-			event.target.cueVideoById(currentVideo.value.videoId)
 		}
 	}
 
@@ -158,7 +144,6 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 				}
 			}
 			startTimeUpdate()
-			sendPlaying()
 		} else if (event.data === PlayerState.PAUSED) {
 			console.log('[YouTube Player] ⏸️ Paused')
 			isPlaying.value = false
@@ -167,8 +152,6 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 			console.log('[YouTube Player] ⏹️ Ended')
 			isPlaying.value = false
 			stopTimeUpdate()
-			shouldAutoplayNext.value = true
-			playNext()
 		} else if (event.data === PlayerState.BUFFERING) {
 			console.log('[YouTube Player] ⏳ Buffering')
 			if (player.value && playerReady.value) {
@@ -229,10 +212,6 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 				},
 			}
 
-			if (currentVideo.value) {
-				playerConfig.videoId = currentVideo.value.videoId
-			}
-
 			// oxlint-disable-next-line no-new
 			new window.YT.Player('global-yt-player-container', playerConfig)
 		}
@@ -250,7 +229,7 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 		}
 	}
 
-	function play() {
+	function playVideo() {
 		if (!player.value || !playerReady.value) {
 			console.warn('[YouTube Player] Cannot play: player not ready')
 			return
@@ -258,7 +237,7 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 		player.value.playVideo()
 	}
 
-	function pause() {
+	function pauseVideo() {
 		if (!player.value || !playerReady.value) {
 			console.warn('[YouTube Player] Cannot pause: player not ready')
 			return
@@ -266,21 +245,33 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 		player.value.pauseVideo()
 	}
 
-	function togglePlay() {
-		if (isPlaying.value) {
-			pause()
-		} else {
-			play()
-		}
-	}
-
-	function seek(seconds: number) {
+	function seekTo(seconds: number) {
 		if (!player.value || !playerReady.value) return
 		try {
 			player.value.seekTo(seconds, true)
 		} catch (e) {
 			console.error('Error seeking:', e)
 		}
+	}
+
+	function setPlayerVolume(value: number) {
+		if (!player.value || !playerReady.value) return
+		player.value.setVolume(value)
+	}
+
+	function loadVideoById(videoId: string) {
+		if (!player.value || !playerReady.value) return
+		player.value.loadVideoById(videoId)
+	}
+
+	function cueVideoById(videoId: string) {
+		if (!player.value || !playerReady.value) return
+		player.value.cueVideoById(videoId)
+	}
+
+	function stopVideo() {
+		if (!player.value || !playerReady.value) return
+		player.value.stopVideo()
 	}
 
 	function setVolume(value: number) {
@@ -290,35 +281,6 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 	function toggleMute() {
 		isMuted.value = !isMuted.value
 	}
-
-	// Watch current video changes
-	watch(currentVideo, (video) => {
-		console.log('[YouTube Player] Current video changed:', video?.videoId)
-
-		if (!player.value || !playerReady.value) {
-			console.log('[YouTube Player] Player not ready, will cue video when ready')
-			return
-		}
-
-		if (!video) {
-			player.value.stopVideo()
-			sliderTime.value = 0
-			duration.value = 0
-			shouldAutoplayNext.value = false
-			return
-		}
-
-		// If track ended and we're auto-playing next, use loadVideoById
-		// Otherwise use cueVideoById to prevent autoplay
-		if (shouldAutoplayNext.value) {
-			console.log('[YouTube Player] Auto-playing next video')
-			player.value.loadVideoById(video.videoId)
-			shouldAutoplayNext.value = false
-		} else {
-			console.log('[YouTube Player] Cueing video without autoplay')
-			player.value.cueVideoById(video.videoId)
-		}
-	})
 
 	// Watch volume changes
 	watch(volume, (value) => {
@@ -366,12 +328,14 @@ export const useGlobalYoutubePlayer = createGlobalState(() => {
 
 		// Player actions
 		initPlayer,
-		play,
-		pause,
-		togglePlay,
-		seek,
+		playVideo,
+		pauseVideo,
+		seekTo,
 		setVolume,
+		setPlayerVolume,
+		loadVideoById,
+		cueVideoById,
+		stopVideo,
 		toggleMute,
-		playNext,
 	}
 })
