@@ -20,6 +20,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
 
+import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
+
 const props = defineProps<{
 	noCookie: boolean
 	openSettingsModal: () => void
@@ -157,16 +159,23 @@ function handleSkip() {
 	skip()
 }
 
+function toSettingsOpts(
+	settings: Record<string, unknown>,
+): SongRequestsSettingsOpts {
+	const { channelApiKey, __typename, ...rest } = settings
+	return rest as unknown as SongRequestsSettingsOpts
+}
+
 async function banUser(userId: string) {
 	if (!youtubeSettings.value?.songRequests) return
-	const settings = youtubeSettings.value.songRequests
+	const settings = toSettingsOpts(youtubeSettings.value.songRequests as Record<string, unknown>)
 
 	await youtubeModuleUpdater.executeMutation({
 		opts: {
 			...settings,
 			denyList: {
 				...settings.denyList,
-				users: [...settings.denyList.users, userId],
+				users: [...settings.denyList!.users, userId],
 			},
 		},
 	})
@@ -180,14 +189,14 @@ async function banUser(userId: string) {
 
 async function banSong(videoId: string) {
 	if (!youtubeSettings.value?.songRequests) return
-	const settings = youtubeSettings.value.songRequests
+	const settings = toSettingsOpts(youtubeSettings.value.songRequests as Record<string, unknown>)
 
 	await youtubeModuleUpdater.executeMutation({
 		opts: {
 			...settings,
 			denyList: {
 				...settings.denyList,
-				songs: [...settings.denyList.songs, videoId],
+				songs: [...settings.denyList!.songs, videoId],
 			},
 		},
 	})

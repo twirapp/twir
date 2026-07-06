@@ -52,6 +52,7 @@
     "asc": "Asc",
     "desc": "Desc",
     "hide": "Hide",
+    "show": "Show",
     "view": "View",
     "toggleColumns": "Toggle columns",
     "copied": "Copied",
@@ -792,6 +793,8 @@
       "announcePlay": "Announce Current Song into Chat?",
       "playerNoCookieMode": "Incognito mode for player",
       "playerNoCookieModeDescription": "Enabling this option will allow you to listen to songs without cookies and viewing history. Need refresh page after enabling.",
+      "hideOnPause": "Hide overlay on pause",
+      "hideOnPauseDescription": "When enabled, the OBS overlay will be hidden when playback is paused. When disabled, the overlay stays visible with paused state.",
       "neededPercentageForskip": "User Skip Percentage",
       "channelReward": "Channel Points Reward Request Trigger",
       "deniedChannels": "Banned YouTube Channels List (from requesting songs)",
@@ -984,9 +987,18 @@
         "bothDie": {
           "title": "«No One Survived» Message",
           "description": "Sends this message when duel happened and both duelists are dead. Available variables: {'{target}, {initiator}'}"
-        }
-      },
-      "settings": {
+      }
+    },
+    "links": {
+      "title": "Widget & Overlay Links",
+      "apiKey": "API Key",
+      "widget": "Widget",
+      "overlay": "OBS Overlay",
+      "notConfigured": "Configure song requests to get your widget and overlay links.",
+      "copied": "{label} link copied!",
+      "copyError": "Failed to copy link to clipboard"
+    },
+    "settings": {
         "title": "Settings",
         "secondsToAccept": "Seconds to accept duel",
         "timeoutTime": "Timeout time for loser",

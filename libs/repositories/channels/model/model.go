@@ -18,6 +18,7 @@ type Channel struct {
 	IsBotMod         bool
 	BotID            string
 	KickBotID        *uuid.UUID
+	ApiKey           *string `db:"api_key"`
 
 	isNil bool
 }

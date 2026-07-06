@@ -144,6 +144,7 @@ var SrCommand = &types.DefaultCommand{
 				parseCtx.Services,
 				parseCtx.Channel.DBChannelID,
 				parseCtx.Channel.ID,
+				parseCtx.Sender.DbUser.ID,
 				parseCtx.Sender.ID,
 				*moduleSettings,
 				song,
@@ -160,7 +161,7 @@ var SrCommand = &types.DefaultCommand{
 				model := &model.RequestedSong{
 					ID:                   uuid.NewV4().String(),
 					ChannelID:            parseCtx.Channel.DBChannelID,
-					OrderedById:          parseCtx.Sender.ID,
+					OrderedById:          parseCtx.Sender.DbUser.ID,
 					OrderedByName:        parseCtx.Sender.Name,
 					OrderedByDisplayName: null.StringFrom(parseCtx.Sender.DisplayName),
 					VideoID:              song.Id,
@@ -229,7 +230,7 @@ var SrCommand = &types.DefaultCommand{
 func validate(
 	ctx context.Context,
 	services *services.Services,
-	dbChannelID, platformChannelID, userId string,
+	dbChannelID, platformChannelID, dbUserID, platformUserID string,
 	settings model.ChannelSongRequestsSettings,
 	song ytsr.Song,
 ) error {
@@ -287,7 +288,7 @@ func validate(
 		_, isUserDenied := lo.Find(
 			settings.DenyListUsers,
 			func(u string) bool {
-				return u == userId
+				return u == platformUserID
 			},
 		)
 
@@ -388,7 +389,7 @@ func validate(
 		var count int64
 		services.Gorm.WithContext(ctx).
 			Model(&model.RequestedSong{}).
-			Where(`"orderedById" = ? AND "channelId" = ?::uuid AND "deletedAt" IS NULL`, userId, dbChannelID).
+			Where(`"orderedById" = ? AND "channelId" = ?::uuid AND "deletedAt" IS NULL`, dbUserID, dbChannelID).
 			Count(&count)
 		if count >= int64(settings.UserMaxRequests) {
 			message := fasttemplate.ExecuteString(
@@ -405,7 +406,7 @@ func validate(
 
 	if settings.UserMinMessages != 0 || settings.UserMinWatchTime != 0 {
 		user := &model.Users{}
-		services.Gorm.WithContext(ctx).Where("id = ?::uuid", userId).Preload("Stats").First(&user)
+		services.Gorm.WithContext(ctx).Where("id = ?::uuid", dbUserID).Preload("Stats").First(&user)
 		if user.ID == "" {
 			return errors.New(
 				i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Validate.Errors.RestrictionsOnUser),
@@ -444,7 +445,7 @@ func validate(
 		neededDuration := time.Minute * time.Duration(settings.UserMinFollowTime)
 		followReq, err := twitchClient.GetUsersFollows(
 			&helix.UsersFollowsParams{
-				FromID: userId,
+				FromID: platformUserID,
 				ToID:   platformChannelID,
 			},
 		)

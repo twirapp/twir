@@ -79,6 +79,7 @@ const formValue = ref<SongRequestsSettingsOpts>({
 	acceptOnlyWhenOnline: true,
 	takeSongFromDonationMessages: false,
 	playerNoCookieMode: false,
+	hideOnPause: true,
 	channelPointsRewardId: '',
 	maxRequests: 500,
 	announcePlay: true,
@@ -148,8 +149,8 @@ watch(
 )
 
 async function save() {
-	const data = unref(formValue)
-	await youtubeModuleUpdater.executeMutation({ opts: data })
+	const { channelApiKey, __typename, ...data } = unref(formValue) as Record<string, unknown>
+	await youtubeModuleUpdater.executeMutation({ opts: data as SongRequestsSettingsOpts })
 	toast.success(t('sharedTexts.saved'))
 	isOpen.value = false
 }
@@ -301,6 +302,18 @@ function findSongImage(id: string): string {
 										}}</Label>
 										<p class="text-muted-foreground text-sm">
 											{{ t('songRequests.settings.playerNoCookieModeDescription') }}
+										</p>
+									</div>
+								</div>
+
+								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
+									<Switch v-model="formValue.hideOnPause" />
+									<div class="flex-1 space-y-0.5">
+										<Label class="text-base font-medium">{{
+											t('songRequests.settings.hideOnPause')
+										}}</Label>
+										<p class="text-muted-foreground text-sm">
+											{{ t('songRequests.settings.hideOnPauseDescription') }}
 										</p>
 									</div>
 								</div>

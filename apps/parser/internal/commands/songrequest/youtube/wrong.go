@@ -46,7 +46,7 @@ var WrongCommand = &types.DefaultCommand{
 			Where(
 				`"channelId" = ?::uuid AND "orderedById" = ? AND "deletedAt" IS NULL`,
 				parseCtx.Channel.DBChannelID,
-				parseCtx.Sender.ID,
+				parseCtx.Sender.DbUser.ID,
 			).
 			Limit(5).
 			Order(`"createdAt" desc`).

@@ -51,6 +51,7 @@ type ChannelSongRequestsSettings struct {
 	TranslationsSongMaximumOrdered       string         `gorm:"column:translations_song_maximum_ordered;type:varchar;check:length(translations_song_maximum_ordered) <= 300"`
 	TranslationsSongMinViews             string         `gorm:"column:translations_song_min_views;type:varchar;check:length(translations_song_min_views) <= 300"`
 	TranslationsChannelDenied            string         `gorm:"column:translations_channel_denied;type:varchar;check:length(translations_channel_denied) <= 300"`
+	HideOnPause                          bool           `gorm:"column:hide_on_pause;type:boolean;not null;default:true"`
 }
 
 func (ChannelSongRequestsSettings) TableName() string {

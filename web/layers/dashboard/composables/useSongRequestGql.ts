@@ -92,13 +92,13 @@ export function useSongRequestGql(channelId: Ref<string>) {
 	const playbackState = computed(() => playbackStateSub.data.value?.songRequestPlaybackState ?? null)
 	const queue = computed(() => queueSub.data.value?.songRequestQueueUpdated ?? [])
 
-	const { mutate: play } = useMutation(SongRequestPlayMutation)
-	const { mutate: pause } = useMutation(SongRequestPauseMutation)
-	const { mutate: skip } = useMutation(SongRequestSkipMutation)
-	const { mutate: setVolume } = useMutation(SongRequestSetVolumeMutation)
-	const { mutate: reorder } = useMutation(SongRequestReorderMutation)
-	const { mutate: deleteFromQueue } = useMutation(SongRequestDeleteFromQueueMutation)
-	const { mutate: clearQueue } = useMutation(SongRequestClearQueueMutation)
+	const { executeMutation: play } = useMutation(SongRequestPlayMutation)
+	const { executeMutation: pause } = useMutation(SongRequestPauseMutation)
+	const { executeMutation: skip } = useMutation(SongRequestSkipMutation)
+	const { executeMutation: setVolume } = useMutation(SongRequestSetVolumeMutation)
+	const { executeMutation: reorder } = useMutation(SongRequestReorderMutation)
+	const { executeMutation: deleteFromQueue } = useMutation(SongRequestDeleteFromQueueMutation)
+	const { executeMutation: clearQueue } = useMutation(SongRequestClearQueueMutation)
 
 	return {
 		playbackState,

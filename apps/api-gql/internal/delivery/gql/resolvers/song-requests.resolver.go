@@ -103,6 +103,12 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		TranslationsChannelDenied:            opts.Translations.Channel.Denied,
 	}
 
+	if opts.HideOnPause.IsSet() && opts.HideOnPause.Value() != nil {
+		entity.HideOnPause = *opts.HideOnPause.Value()
+	} else {
+		entity.HideOnPause = oldEntity.HideOnPause
+	}
+
 	err = r.deps.Gorm.WithContext(ctx).Save(&entity).Error
 	if err != nil {
 		return false, fmt.Errorf("failed to update song requests settings: %w", err)
@@ -353,17 +359,8 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 	}
 
 	var channelApiKey string
-	if channel.TwitchUserID != nil {
-		user, err := r.deps.UsersRepository.GetByID(ctx, *channel.TwitchUserID)
-		if err == nil && !user.IsNil() {
-			channelApiKey = user.ApiKey
-		}
-	}
-	if channelApiKey == "" && channel.KickUserID != nil {
-		user, err := r.deps.UsersRepository.GetByID(ctx, *channel.KickUserID)
-		if err == nil && !user.IsNil() {
-			channelApiKey = user.ApiKey
-		}
+	if channel.ApiKey != nil {
+		channelApiKey = *channel.ApiKey
 	}
 
 	return &gqlmodel.SongRequestsSettings{
@@ -424,6 +421,7 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 		TakeSongFromDonationMessages: entity.TakeSongFromDonationMessage,
 		PlayerNoCookieMode:           entity.PlayerNoCookieMode,
 		ChannelAPIKey:                channelApiKey,
+		HideOnPause:                  entity.HideOnPause,
 	}, nil
 }
 

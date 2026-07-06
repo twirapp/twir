@@ -105,7 +105,7 @@ input SongRequestsSettingsOpts {
 	translations: SongRequestsTranslationsOpts!
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
-	hideOnPause: Boolean!
+	hideOnPause: Boolean
 }
 
 input SongRequestsUserSettingsOpts {

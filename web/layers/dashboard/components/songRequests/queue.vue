@@ -6,6 +6,8 @@ import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
 import { useSongRequestGql } from '~~/layers/dashboard/composables/useSongRequestGql.js'
 import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
 
+import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
+
 import ActionConfirm from '@/components/ui/action-confirm'
 import {
 	AlertDialog,
@@ -44,6 +46,13 @@ const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
 const { t } = useI18n()
 
+function toSettingsOpts(
+	settings: Record<string, unknown>,
+): SongRequestsSettingsOpts {
+	const { channelApiKey, __typename, ...rest } = settings
+	return rest as unknown as SongRequestsSettingsOpts
+}
+
 const totalSongsLength = computed(() => {
 	return convertMillisToTime(queue.value.reduce((acc, cur) => acc + cur.durationSeconds * 1000, 0))
 })
@@ -63,14 +72,14 @@ dragAndDrop({
 
 async function banUser(userName: string) {
 	if (!youtubeSettings.value?.songRequests) return
-	const settings = youtubeSettings.value.songRequests
+	const settings = toSettingsOpts(youtubeSettings.value.songRequests as Record<string, unknown>)
 
 	await youtubeModuleUpdater.executeMutation({
 		opts: {
 			...settings,
 			denyList: {
 				...settings.denyList,
-				users: [...settings.denyList.users, userName],
+				users: [...settings.denyList!.users, userName],
 			},
 		},
 	})
@@ -83,7 +92,7 @@ async function banUser(userName: string) {
 
 async function banSong(queueItemId: string) {
 	if (!youtubeSettings.value?.songRequests) return
-	const settings = youtubeSettings.value.songRequests
+	const settings = toSettingsOpts(youtubeSettings.value.songRequests as Record<string, unknown>)
 
 	const video = queue.value.find((v) => v.id === queueItemId)
 	const videoId = video?.songLink?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? ''
@@ -93,7 +102,7 @@ async function banSong(queueItemId: string) {
 			...settings,
 			denyList: {
 				...settings.denyList,
-				songs: [...settings.denyList.songs, videoId],
+				songs: [...settings.denyList!.songs, videoId],
 			},
 		},
 	})

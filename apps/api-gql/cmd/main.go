@@ -595,6 +595,8 @@ func main() {
 			channels_secret.New,
 			channels_storage.New,
 			song_requests.New,
+			song_requests.NewPlaybackStateService,
+			song_requests.NewBridge,
 			community_redemptions.New,
 			streamelements.New,
 			dashboard.New,
