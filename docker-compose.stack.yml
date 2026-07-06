@@ -129,7 +129,7 @@ services:
         max_attempts: 30
 
   vector:
-    image: timberio/vector:latest
+    image: timberio/vector:0.56.0-debian
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     configs:
