@@ -8,11 +8,11 @@ extend type Query {
 
 extend type Mutation {
 	songRequestsUpdate(opts: SongRequestsSettingsOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
-	songRequestPlay(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated
-	songRequestPause(channelId: UUID!): Boolean! @isAuthenticated
+	songRequestPlay(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated @noRateLimit
+	songRequestPause(channelId: UUID!): Boolean! @isAuthenticated @noRateLimit
 	songRequestSkip(channelId: UUID!): Boolean! @isAuthenticated
-	songRequestSetVolume(channelId: UUID!, volume: Int!): Boolean! @isAuthenticated
-	songRequestUpdatePosition(channelId: UUID!, position: Float!): Boolean! @isAuthenticated
+	songRequestSetVolume(channelId: UUID!, volume: Int!): Boolean! @isAuthenticated @noRateLimit
+	songRequestUpdatePosition(channelId: UUID!, position: Float!): Boolean! @isAuthenticated @noRateLimit
 	songRequestReorder(channelId: UUID!, videoIds: [String!]!): Boolean! @isAuthenticated
 	songRequestDeleteFromQueue(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated
 	songRequestClearQueue(channelId: UUID!): Boolean! @isAuthenticated

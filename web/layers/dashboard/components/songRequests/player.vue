@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useProfile } from '~~/layers/dashboard/api/auth'
 import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
+import { useDebouncedVolume } from '~~/layers/dashboard/composables/useDebouncedVolume.js'
 import { useGlobalYoutubePlayer } from '~~/layers/dashboard/composables/useGlobalYoutubePlayer.js'
 import { useSongRequestGql } from '~~/layers/dashboard/composables/useSongRequestGql.js'
 import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
@@ -78,7 +79,7 @@ watch([queue, playerReady], ([items, ready]) => {
 	if (first?.songLink) {
 		const match = first.songLink.match(/(?:v=|youtu\.be\/)([^&?/]+)/)
 		if (match) {
-			cueVideoById(match[1])
+			cueVideoById(match[1]!)
 		}
 	}
 })
@@ -155,13 +156,18 @@ const formattedTime = computed(() => {
 
 function handleSeek(value: number[] | undefined) {
 	if (!value) return
-	seekTo(value[0])
+	seekTo(value[0]!)
 }
+
+const { localVolume, handleVolumeInput, syncFromServer } = useDebouncedVolume(
+	() => channelId.value,
+	setVolumeGql
+)
 
 function handleVolumeChange(value: number[] | undefined) {
 	if (!value) return
-	setPlayerVolume(value[0])
-	setVolumeGql(value[0])
+	setPlayerVolume(value[0]!)
+	handleVolumeInput(value[0]!)
 }
 
 function handlePlayPause() {
@@ -269,6 +275,7 @@ watch(
 		// Handle volume
 		if (state.volume !== undefined) {
 			setPlayerVolume(state.volume)
+			syncFromServer(state.volume)
 		}
 
 		lastSyncedPosition.value = state.position
@@ -292,8 +299,9 @@ watch(isPlaying, (nowPlaying, wasPlaying) => {
 	if (nowPlaying === wasPlaying) return
 
 	if (nowPlaying) {
-		const videoId = playbackState.value.videoId
-			|| (queue.value[0]?.songLink?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? '')
+		const videoId =
+			playbackState.value.videoId ||
+			(queue.value[0]?.songLink?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? '')
 		if (videoId) play(videoId)
 	} else {
 		pause()
@@ -320,11 +328,14 @@ watch(sliderTime, (newTime) => {
 })
 
 // Update lastSyncedPosition when subscription delivers new state
-watch(() => playbackState.value?.position, (pos) => {
-	if (pos !== undefined) {
-		lastSyncedPosition.value = pos
+watch(
+	() => playbackState.value?.position,
+	(pos) => {
+		if (pos !== undefined) {
+			lastSyncedPosition.value = pos
+		}
 	}
-})
+)
 
 const { t } = useI18n()
 
@@ -474,7 +485,7 @@ const canUsePlayer = computed(() => {
 							/>
 						</Button>
 						<Slider
-							:model-value="[sliderVolume]"
+							:model-value="[localVolume]"
 							:step="1"
 							:max="100"
 							@update:model-value="handleVolumeChange"

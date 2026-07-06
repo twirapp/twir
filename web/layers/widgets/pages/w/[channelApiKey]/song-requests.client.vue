@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMutation, useQuery, useSubscription } from '@urql/vue'
+import { useDebouncedVolume } from '~~/layers/dashboard/composables/useDebouncedVolume.js'
 import { graphql } from '~/gql/gql.js'
 
 const route = useRoute()
@@ -132,10 +133,10 @@ const { executeMutation: clearQueueMutation } = useMutation(graphql(`
 	}
 `))
 
-const localVolume = ref(playbackState.value?.volume ?? 100)
+const { localVolume, handleVolumeInput, syncFromServer } = useDebouncedVolume(() => channelId.value, setVolumeMutation)
 
 watch(() => playbackState.value?.volume, (v) => {
-	if (v !== undefined) localVolume.value = v
+	if (v !== undefined) syncFromServer(v)
 })
 
 const hasPlayableVideo = computed(() => !!playbackState.value || queue.value.length > 0)
@@ -158,9 +159,7 @@ function handleSkip() {
 
 function handleVolumeChange(e: Event) {
 	const target = e.target as HTMLInputElement
-	const volume = Number(target.value)
-	localVolume.value = volume
-	setVolumeMutation({ channelId: channelId.value, volume })
+	handleVolumeInput(Number(target.value))
 }
 
 function handleDelete(videoId: string) {
