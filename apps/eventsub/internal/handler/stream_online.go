@@ -66,6 +66,7 @@ func (c *Handler) HandleStreamOnline(
 				slog.String("channelId", event.BroadcasterUserId),
 				slog.String("channelName", event.BroadcasterUserLogin),
 			)
+			i++
 			continue
 		}
 
