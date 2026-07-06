@@ -596,7 +596,6 @@ func main() {
 			channels_storage.New,
 			song_requests.New,
 			song_requests.NewPlaybackStateService,
-			song_requests.NewBridge,
 			community_redemptions.New,
 			streamelements.New,
 			dashboard.New,
@@ -686,6 +685,7 @@ func main() {
 			httpbase.RegisterRoutes,
 			authroutes.New,
 			channelsfilesroute.New,
+			song_requests.NewBridge,
 			valorant.New,
 			stream.New,
 			func(l *slog.Logger) {

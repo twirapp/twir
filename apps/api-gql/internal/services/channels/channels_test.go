@@ -174,3 +174,7 @@ func (f *fakeChannelsRepository) Update(context.Context, uuid.UUID, channelsrepo
 func (f *fakeChannelsRepository) Create(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
+
+func (f *fakeChannelsRepository) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {
+	return channelsmodel.Nil, nil
+}

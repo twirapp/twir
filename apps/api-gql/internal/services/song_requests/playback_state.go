@@ -38,6 +38,10 @@ func NewPlaybackStateService(opts PlaybackStateOpts) *PlaybackStateService {
 	}
 }
 
+// PlaybackState stored in Redis.
+// Position = base position (frozen at pause, 0 at fresh play).
+// StartedAt = unix ms when playback started (0 when paused).
+// Current position = Position + (now - StartedAt)/1000 when playing.
 type PlaybackState struct {
 	VideoID   string  `json:"videoId"`
 	Title     string  `json:"title"`
@@ -52,17 +56,59 @@ func playbackKey(channelID string) string {
 	return playbackKeyPrefix + channelID
 }
 
+// computePosition returns the current playback position.
+// If playing: base position + elapsed time since StartedAt.
+// If paused: base position (frozen).
+func computePosition(state *PlaybackState) float64 {
+	if !state.IsPlaying || state.StartedAt == 0 {
+		return state.Position
+	}
+	elapsed := float64(time.Now().UnixMilli()-state.StartedAt) / 1000.0
+	return state.Position + elapsed
+}
+
+// readState reads raw state from Redis.
+func (s *PlaybackStateService) readState(ctx context.Context, channelID string) (*PlaybackState, error) {
+	data, err := s.redis.Get(ctx, playbackKey(channelID)).Bytes()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get playback state: %w", err)
+	}
+
+	var state PlaybackState
+	if err := gojson.Unmarshal(data, &state); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal playback state: %w", err)
+	}
+
+	return &state, nil
+}
+
+// GetState returns state with computed position for clients.
+func (s *PlaybackStateService) GetState(ctx context.Context, channelID string) (*PlaybackState, error) {
+	state, err := s.readState(ctx, channelID)
+	if err != nil || state == nil {
+		return state, err
+	}
+
+	computed := *state
+	computed.Position = computePosition(state)
+	return &computed, nil
+}
+
+// save writes state to Redis.
 func (s *PlaybackStateService) save(ctx context.Context, channelID string, state PlaybackState) error {
 	state.UpdatedAt = time.Now().UnixMilli()
-
 	data, err := gojson.Marshal(state)
 	if err != nil {
 		return fmt.Errorf("failed to marshal playback state: %w", err)
 	}
-
 	return s.redis.Set(ctx, playbackKey(channelID), data, 0).Err()
 }
 
+// SetPlaying starts or resumes playback.
+// position=0 for new play, or paused position for resume.
 func (s *PlaybackStateService) SetPlaying(
 	ctx context.Context,
 	channelID string,
@@ -70,153 +116,79 @@ func (s *PlaybackStateService) SetPlaying(
 	title string,
 	position float64,
 ) error {
-	now := time.Now().UnixMilli()
-
-	// Preserve volume from existing state if available
+	// Preserve volume from existing state
 	volume := 100
-	existing, _ := s.getStateRaw(ctx, channelID)
+	existing, _ := s.readState(ctx, channelID)
 	if existing != nil {
 		volume = existing.Volume
 	}
 
+	now := time.Now().UnixMilli()
 	state := PlaybackState{
 		VideoID:   videoID,
 		Title:     title,
-		Position:  position,
+		Position:  position,        // base position
 		IsPlaying: true,
 		Volume:    volume,
-		StartedAt: now - int64(position*1000),
+		StartedAt: now,             // playback started now
 		UpdatedAt: now,
 	}
 
 	return s.save(ctx, channelID, state)
 }
 
+// SetPaused freezes the current position.
 func (s *PlaybackStateService) SetPaused(ctx context.Context, channelID string) error {
-	state, err := s.GetState(ctx, channelID)
-	if err != nil {
+	state, err := s.readState(ctx, channelID)
+	if err != nil || state == nil {
 		return err
 	}
 
-	if state == nil {
-		return nil
-	}
-
-	state.Position = s.computePosition(state)
+	state.Position = computePosition(state) // freeze at current position
 	state.IsPlaying = false
 	state.StartedAt = 0
 
 	return s.save(ctx, channelID, *state)
 }
 
-func (s *PlaybackStateService) SetVolume(
-	ctx context.Context,
-	channelID string,
-	volume int,
-) error {
-	state, err := s.GetState(ctx, channelID)
-	if err != nil {
+// SetVolume updates volume without affecting position.
+func (s *PlaybackStateService) SetVolume(ctx context.Context, channelID string, volume int) error {
+	state, err := s.readState(ctx, channelID)
+	if err != nil || state == nil {
 		return err
-	}
-
-	if state == nil {
-		return nil
 	}
 
 	state.Volume = volume
-
 	return s.save(ctx, channelID, *state)
 }
 
-func (s *PlaybackStateService) UpdatePosition(
-	ctx context.Context,
-	channelID string,
-	position float64,
-) error {
-	state, err := s.GetState(ctx, channelID)
-	if err != nil {
+// UpdatePosition sets a new position (from seek).
+func (s *PlaybackStateService) UpdatePosition(ctx context.Context, channelID string, position float64) error {
+	state, err := s.readState(ctx, channelID)
+	if err != nil || state == nil {
 		return err
 	}
 
-	if state == nil {
-		return nil
-	}
-
 	state.Position = position
-	state.StartedAt = time.Now().UnixMilli() - int64(position*1000)
+	if state.IsPlaying {
+		state.StartedAt = time.Now().UnixMilli()
+	}
 
 	return s.save(ctx, channelID, *state)
 }
 
-func (s *PlaybackStateService) computePosition(state *PlaybackState) float64 {
-	if !state.IsPlaying || state.StartedAt == 0 {
-		return state.Position
-	}
-
-	now := time.Now().UnixMilli()
-	elapsed := float64(now-state.StartedAt) / 1000.0
-	return state.Position + elapsed
-}
-
-func (s *PlaybackStateService) getStateRaw(
-	ctx context.Context,
-	channelID string,
-) (*PlaybackState, error) {
-	data, err := s.redis.Get(ctx, playbackKey(channelID)).Bytes()
-	if err != nil {
-		if err == redis.Nil {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("failed to get playback state: %w", err)
-	}
-
-	var state PlaybackState
-	if err := gojson.Unmarshal(data, &state); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal playback state: %w", err)
-	}
-
-	return &state, nil
-}
-
-func (s *PlaybackStateService) GetState(
-	ctx context.Context,
-	channelID string,
-) (*PlaybackState, error) {
-	data, err := s.redis.Get(ctx, playbackKey(channelID)).Bytes()
-	if err != nil {
-		if err == redis.Nil {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("failed to get playback state: %w", err)
-	}
-
-	var state PlaybackState
-	if err := gojson.Unmarshal(data, &state); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal playback state: %w", err)
-	}
-
-	state.Position = s.computePosition(&state)
-
-	return &state, nil
-}
-
-func (s *PlaybackStateService) ClearState(
-	ctx context.Context,
-	channelID string,
-) error {
+// ClearState removes the playback state from Redis.
+func (s *PlaybackStateService) ClearState(ctx context.Context, channelID string) error {
 	return s.redis.Del(ctx, playbackKey(channelID)).Err()
 }
+
+// --- Publishing to wsRouter ---
 
 func PlaybackStateWsKey(channelID string) string {
 	return "api.songRequestPlayback." + channelID
 }
 
-func (s *PlaybackStateService) PublishState(ctx context.Context, channelID string) {
-	state, err := s.GetState(ctx, channelID)
-	if err != nil || state == nil {
-		return
-	}
-
+func (s *PlaybackStateService) publishToWsRouter(channelID string, state *PlaybackState) {
 	msg := api.SongRequestPlaybackState{
 		ChannelID: channelID,
 		VideoID:   state.VideoID,
@@ -232,6 +204,16 @@ func (s *PlaybackStateService) PublishState(ctx context.Context, channelID strin
 	}
 }
 
+// PublishState reads current state and publishes to wsRouter (used by mutations).
+func (s *PlaybackStateService) PublishState(ctx context.Context, channelID string) {
+	state, err := s.GetState(ctx, channelID)
+	if err != nil || state == nil {
+		return
+	}
+	s.publishToWsRouter(channelID, state)
+}
+
+// PublishClearedState publishes an empty state (used by skip/clear).
 func (s *PlaybackStateService) PublishClearedState(channelID string) {
 	msg := api.SongRequestPlaybackState{
 		ChannelID: channelID,
@@ -248,33 +230,19 @@ func (s *PlaybackStateService) PublishClearedState(channelID string) {
 	}
 }
 
-func (s *PlaybackStateService) publishState(
-	channelID string,
-	state *PlaybackState,
-) {
-	msg := api.SongRequestPlaybackState{
-		ChannelID: channelID,
-		VideoID:   state.VideoID,
-		Title:     state.Title,
-		Position:  state.Position,
-		IsPlaying: state.IsPlaying,
-		Volume:    state.Volume,
-		UpdatedAt: state.UpdatedAt,
-	}
+// --- Ticker ---
 
-	if err := s.wsRouter.Publish(PlaybackStateWsKey(channelID), msg); err != nil {
-		s.logger.Error("failed to publish playback state", slog.String("channelID", channelID), slog.Any("error", err))
-	}
-}
-
+// StartTicker starts a goroutine that publishes playback position every second.
 func (s *PlaybackStateService) StartTicker(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(1 * time.Second)
 		defer ticker.Stop()
 
+		s.logger.Info("Playback ticker started")
 		for {
 			select {
 			case <-ctx.Done():
+				s.logger.Info("Playback ticker stopped")
 				return
 			case <-ticker.C:
 				s.tick(ctx)
@@ -288,8 +256,12 @@ func (s *PlaybackStateService) tick(ctx context.Context) {
 	for {
 		keys, nextCursor, err := s.redis.Scan(ctx, cursor, playbackKeyPrefix+"*", 100).Result()
 		if err != nil {
-			s.logger.Error("failed to scan playback keys", slog.Any("error", err))
+			s.logger.Error("ticker: failed to scan keys", slog.Any("error", err))
 			return
+		}
+
+		if len(keys) > 0 {
+			s.logger.Info("ticker: found keys", slog.Int("count", len(keys)))
 		}
 
 		for _, key := range keys {
@@ -298,17 +270,19 @@ func (s *PlaybackStateService) tick(ctx context.Context) {
 				continue
 			}
 
-			state, err := s.GetState(ctx, channelID)
+			state, err := s.readState(ctx, channelID)
 			if err != nil {
-				s.logger.Error("failed to get playback state for tick", slog.String("channelID", channelID), slog.Any("error", err))
+				s.logger.Error("ticker: failed to read state", slog.String("channelID", channelID), slog.Any("error", err))
 				continue
 			}
-
 			if state == nil || !state.IsPlaying {
 				continue
 			}
 
-			s.publishState(channelID, state)
+			// Compute current position and publish
+			computed := *state
+			computed.Position = computePosition(state)
+			s.publishToWsRouter(channelID, &computed)
 		}
 
 		cursor = nextCursor

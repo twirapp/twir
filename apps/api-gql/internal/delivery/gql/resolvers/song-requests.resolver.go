@@ -612,16 +612,14 @@ func (r *subscriptionResolver) SongRequestPlaybackState(ctx context.Context, cha
 	outputChan := make(chan *gqlmodel.SongRequestPlaybackState, 1)
 
 	go func() {
-		sub, err := r.deps.WsRouter.Subscribe(
-			[]string{
-				song_requests.PlaybackStateWsKey(channelIDStr),
-			},
-		)
+		wsKey := song_requests.PlaybackStateWsKey(channelIDStr)
+		sub, err := r.deps.WsRouter.Subscribe([]string{wsKey})
 		if err != nil {
 			r.deps.Logger.Error("failed to subscribe to playback state", slog.Any("error", err))
 			close(outputChan)
 			return
 		}
+		r.deps.Logger.Info("Playback subscription active", slog.String("key", wsKey))
 		defer func() {
 			sub.Unsubscribe()
 			close(outputChan)
@@ -629,6 +627,10 @@ func (r *subscriptionResolver) SongRequestPlaybackState(ctx context.Context, cha
 
 		initialState, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
 		if err == nil && initialState != nil {
+			r.deps.Logger.Info("Playback subscription sending initial state",
+				slog.String("channelID", channelIDStr),
+				slog.Float64("position", initialState.Position),
+			)
 			outputChan <- &gqlmodel.SongRequestPlaybackState{
 				VideoID:   initialState.VideoID,
 				Title:     initialState.Title,
@@ -644,6 +646,10 @@ func (r *subscriptionResolver) SongRequestPlaybackState(ctx context.Context, cha
 			case <-ctx.Done():
 				return
 			case data := <-sub.GetChannel():
+				r.deps.Logger.Info("Playback subscription received wsRouter data",
+					slog.String("channelID", channelIDStr),
+					slog.Int("dataLen", len(data)),
+				)
 				var state api.SongRequestPlaybackState
 				if err := gojson.Unmarshal(data, &state); err != nil {
 					r.deps.Logger.Error("failed to unmarshal playback state", slog.Any("error", err))
