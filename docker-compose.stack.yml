@@ -96,6 +96,7 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.121.0
+    user: "0:0"
     volumes:
       - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
       - /var/run/docker.sock:/var/run/docker.sock:ro
