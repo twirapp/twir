@@ -147,9 +147,14 @@ func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.U
 		return false, gqlerrors.HandleError(fmt.Errorf("song not found: %w", err))
 	}
 
-	// If resuming same video, keep current position
-	var position float64
+	// If same video is already playing, do nothing
 	currentState, _ := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
+	if currentState != nil && currentState.VideoID == videoID && currentState.IsPlaying {
+		return true, nil
+	}
+
+	// If resuming from pause, keep paused position
+	var position float64
 	if currentState != nil && currentState.VideoID == videoID {
 		position = currentState.Position
 	}

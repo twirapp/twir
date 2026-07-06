@@ -74,7 +74,7 @@ func (s *PlaybackStateService) SetPlaying(
 
 	// Preserve volume from existing state if available
 	volume := 100
-	existing, _ := s.GetState(ctx, channelID)
+	existing, _ := s.getStateRaw(ctx, channelID)
 	if existing != nil {
 		volume = existing.Volume
 	}
@@ -156,6 +156,26 @@ func (s *PlaybackStateService) computePosition(state *PlaybackState) float64 {
 	now := time.Now().UnixMilli()
 	elapsed := float64(now-state.StartedAt) / 1000.0
 	return state.Position + elapsed
+}
+
+func (s *PlaybackStateService) getStateRaw(
+	ctx context.Context,
+	channelID string,
+) (*PlaybackState, error) {
+	data, err := s.redis.Get(ctx, playbackKey(channelID)).Bytes()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get playback state: %w", err)
+	}
+
+	var state PlaybackState
+	if err := gojson.Unmarshal(data, &state); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal playback state: %w", err)
+	}
+
+	return &state, nil
 }
 
 func (s *PlaybackStateService) GetState(
