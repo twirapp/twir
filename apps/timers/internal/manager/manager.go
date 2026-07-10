@@ -123,14 +123,12 @@ func (c *Manager) initialize(ctx context.Context) error {
 		for _, t := range timersBatch {
 			var foundChannel channelmodel.Channel
 			for _, ch := range channels {
-				if ch.ID.String() == t.ChannelID {
+				if ch.ID.String() == t.ChannelID.String() {
 					foundChannel = ch
 					break
 				}
 			}
-			if foundChannel.IsNil() || !foundChannel.IsBotMod ||
-				foundChannel.IsTwitchBanned ||
-				!foundChannel.IsEnabled {
+			if foundChannel.IsNil() || foundChannel.KickUserID == nil || foundChannel.TwitchUserID == nil {
 				continue
 			}
 
@@ -175,7 +173,7 @@ func (c *Manager) addTimer(dbRow timersentity.Timer) {
 	c.logger.Info(
 		"[manager] added timer",
 		slog.String("timerId", timerId.String()),
-		slog.String("channelId", dbRow.ChannelID),
+		slog.String("channelId", dbRow.ChannelID.String()),
 		slog.Int("timeInterval", dbRow.TimeInterval),
 		slog.Int("messageInterval", dbRow.MessageInterval),
 	)
@@ -205,13 +203,13 @@ func (c *Manager) RemoveTimerById(id TimerID) {
 	c.logger.Info(
 		"[manager] removed timer",
 		slog.String("timerId", id.String()),
-		slog.String("channelId", t.dbRow.ChannelID),
+		slog.String("channelId", t.dbRow.ChannelID.String()),
 	)
 
 	delete(c.timers, id)
 }
 
-func (c *Manager) OnChatMessage(channelId string) {
+func (c *Manager) OnChatMessage(channelId uuid.UUID) {
 	for _, t := range c.timers {
 		if t.dbRow.ChannelID != channelId {
 			continue

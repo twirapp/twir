@@ -23,12 +23,12 @@ func (c *Manager) tryTick(id TimerID) {
 
 	ctx := context.Background()
 
-	channel, err := c.channelCachedRepo.Get(ctx, t.dbRow.ChannelID)
+	channel, err := c.channelCachedRepo.Get(ctx, t.dbRow.ChannelID.String())
 	if err != nil {
 		c.logger.Error(
 			"[tick] cannot get channel",
 			logger.Error(err),
-			slog.String("channelId", t.dbRow.ChannelID),
+			slog.String("channelId", t.dbRow.ChannelID.String()),
 			slog.String("timerId", id.String()),
 		)
 		return
@@ -38,12 +38,12 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	stream, err := c.getChannelStream(ctx, t.dbRow.ChannelID)
+	stream, err := c.getChannelStream(ctx, channel.TwitchPlatformID)
 	if err != nil {
 		c.logger.Error(
 			"[tick] cannot get channel stream",
 			logger.Error(err),
-			slog.String("channelId", t.dbRow.ChannelID),
+			slog.String("channelId", t.dbRow.ChannelID.String()),
 			slog.String("timerId", id.String()),
 		)
 		return
@@ -78,7 +78,7 @@ func (c *Manager) tryTick(id TimerID) {
 			c.logger.Error(
 				"[tick] cannot get stream parsed messages",
 				logger.Error(err),
-				slog.String("channelId", t.dbRow.ChannelID),
+				slog.String("channelId", t.dbRow.ChannelID.String()),
 				slog.String("timerId", id.String()),
 			)
 			return
@@ -173,7 +173,7 @@ func (c *Manager) tryTick(id TimerID) {
 			c.logger.Error(
 				"[tick] cannot send timer message",
 				logger.Error(err),
-				slog.String("channelId", t.dbRow.ChannelID),
+				slog.String("channelId", t.dbRow.ChannelID.String()),
 				slog.String("timerId", id.String()),
 				slog.String("platform", target.platform.String()),
 			)
@@ -203,11 +203,15 @@ func (c *Manager) tryTick(id TimerID) {
 	t.currentResponseIndex = nextIndex
 }
 
-func (c *Manager) getChannelStream(ctx context.Context, channelID string) (
+func (c *Manager) getChannelStream(ctx context.Context, channelID *string) (
 	*streamsmodel.Stream,
 	error,
 ) {
-	cacheKey := redis_keys.StreamByChannelID(channelID)
+	if channelID == nil {
+		return nil, nil
+	}
+
+	cacheKey := redis_keys.StreamByChannelID(*channelID)
 	cachedBytes, err := c.redis.Get(ctx, cacheKey).Bytes()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, fmt.Errorf("failed to get stream cache: %w", err)

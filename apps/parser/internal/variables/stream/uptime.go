@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/variables/shared"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -15,7 +14,7 @@ import (
 
 var Uptime = &types.Variable{
 	Name:                "stream.uptime",
-	Description:         lo.ToPtr("Prints uptime of stream"),
+	Description:         new(`Prints uptime of stream`),
 	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
