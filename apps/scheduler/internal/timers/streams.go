@@ -91,8 +91,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 	var channels []model.Channels
 	err := c.gorm.
 		WithContext(ctx).
-		Where(`"channels".twitch_bot_enabled = ? and "User"."is_banned" = ?`, true, false).
-		Joins("User").
+		Where(`"channels".twitch_bot_enabled IS TRUE and "User"."is_banned" IS NOT TRUE`).
 		Find(&channels).Error
 	if err != nil {
 		return fmt.Errorf("cannot get channels: %w", err)
@@ -100,12 +99,8 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 	usersIds := make([]string, 0, len(channels))
 	for _, channel := range channels {
-		if !channel.TwitchBotEnabled && !channel.User.IsBanned {
-			continue
-		}
-
-		if channel.User != nil && channel.User.PlatformID != "" {
-			usersIds = append(usersIds, channel.User.PlatformID)
+		if channel.TwitchUserID != nil {
+			usersIds = append(usersIds, *channel.TwitchUserID)
 		}
 	}
 
@@ -115,35 +110,32 @@ func (c *streams) processStreams(ctx context.Context) error {
 		Where(`service = ?`, model.IntegrationServiceDiscord).
 		Select("id").
 		Find(discordIntegration).Error
-	if err != nil {
-		return fmt.Errorf("cannot get discord integration: %w", err)
-	}
+	if err == nil {
+		var discordIntegrations []model.ChannelsIntegrations
+		if discordIntegration.ID != "" {
+			err = c.gorm.
+				WithContext(ctx).
+				Where(`"integrationId" = ?`, discordIntegration.ID).
+				Select("id", `"integrationId"`, "data").
+				Find(&discordIntegrations).Error
 
-	var discordIntegrations []model.ChannelsIntegrations
-	if discordIntegration.ID != "" {
-		err = c.gorm.
-			WithContext(ctx).
-			Where(`"integrationId" = ?`, discordIntegration.ID).
-			Select("id", `"integrationId"`, "data").
-			Find(&discordIntegrations).Error
-		if err != nil {
-			return fmt.Errorf("cannot get discord integrations: %w", err)
-		}
-
-		for _, integration := range discordIntegrations {
-			if integration.Data == nil ||
-				integration.Data.Discord == nil ||
-				len(integration.Data.Discord.Guilds) == 0 {
-				continue
-			}
-
-			for _, guild := range integration.Data.Discord.Guilds {
-				if !guild.LiveNotificationEnabled {
+			for _, integration := range discordIntegrations {
+				if integration.Data == nil ||
+					integration.Data.Discord == nil ||
+					len(integration.Data.Discord.Guilds) == 0 {
 					continue
 				}
-				usersIds = append(usersIds, guild.AdditionalUsersIdsForLiveCheck...)
+
+				for _, guild := range integration.Data.Discord.Guilds {
+					if !guild.LiveNotificationEnabled {
+						continue
+					}
+					usersIds = append(usersIds, guild.AdditionalUsersIdsForLiveCheck...)
+				}
 			}
 		}
+	} else {
+		c.logger.InfoContext(ctx, "Cannot get discord integration", logger.Error(err))
 	}
 
 	usersIds = lo.Uniq(usersIds)
