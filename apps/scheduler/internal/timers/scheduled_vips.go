@@ -182,6 +182,10 @@ func (s *scheduledVips) process(ctx context.Context) {
 		if resp.ErrorMessage != "" {
 			if strings.Contains(strings.ToLower(resp.ErrorMessage), "not a vip") {
 				s.logger.Info("user is already not a VIP, skipping", slog.String("user_id", vip.UserID), slog.String("channel_id", vip.ChannelID))
+				if err := s.scheduledVipsRepo.Delete(ctx, vip.ID); err != nil {
+					s.logger.Info("Cannot delete scheduled vip", logger.Error(err))
+				}
+
 				continue
 			}
 			s.logger.Error("failed to remove vip", slog.String("error", resp.ErrorMessage))
