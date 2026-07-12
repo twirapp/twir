@@ -305,7 +305,7 @@ watch(
 )
 
 const isVisible = computed(() => {
-	return !!playbackState.value?.videoId || queue.value.length > 0
+	return !!playbackState.value?.videoId && playbackState.value.isPlaying
 })
 
 const progressPercent = computed(() => {
@@ -322,8 +322,8 @@ function formatTime(seconds: number): string {
 
 <template>
 	<div
-		v-show="isVisible"
 		class="song-request-overlay"
+		:class="{ 'song-request-overlay--hidden': !isVisible }"
 	>
 		<div class="player-container">
 			<div id="yt-player" class="yt-player" />
@@ -355,6 +355,12 @@ function formatTime(seconds: number): string {
 </template>
 
 <style>
+html,
+body,
+#__nuxt {
+	background: transparent !important;
+}
+
 .song-request-overlay {
 	position: fixed;
 	inset: 0;
@@ -362,8 +368,13 @@ function formatTime(seconds: number): string {
 	flex-direction: column;
 	width: 100vw;
 	height: 100vh;
-	background: rgba(0, 0, 0, 0.85);
+	background: transparent;
 	overflow: hidden;
+}
+
+.song-request-overlay--hidden {
+	opacity: 0;
+	pointer-events: none;
 }
 
 .song-request-overlay .player-container {
@@ -371,7 +382,7 @@ function formatTime(seconds: number): string {
 	flex: 1;
 	min-height: 0;
 	width: 100%;
-	background: #000;
+	background: transparent;
 }
 
 .song-request-overlay .yt-player {
@@ -385,6 +396,7 @@ function formatTime(seconds: number): string {
 .song-request-overlay .track-info {
 	flex-shrink: 0;
 	padding: 14px 16px 12px;
+	background: rgba(0, 0, 0, 0.85);
 }
 
 .song-request-overlay .track-title {

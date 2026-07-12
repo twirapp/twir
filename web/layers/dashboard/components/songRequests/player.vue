@@ -327,7 +327,7 @@ async function banSong(videoId: string) {
 					</div>
 				</div>
 
-				<div class="mb-2 flex w-full justify-end gap-2">
+				<div class="mb-2 flex w-full flex-wrap justify-end gap-2">
 					<Button
 						size="sm"
 						variant="secondary"

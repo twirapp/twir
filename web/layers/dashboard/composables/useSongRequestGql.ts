@@ -1,8 +1,33 @@
-import { useSubscription } from '@urql/vue'
+import { useQuery, useSubscription } from '@urql/vue'
 import { computed, type Ref } from 'vue'
 
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/gql.js'
+
+const SongRequestInitialDataQuery = graphql(`
+	query SongRequestInitialData($channelId: UUID!) {
+		songRequestWidgetData(channelId: $channelId) {
+			playbackState {
+				videoId
+				title
+				position
+				isPlaying
+				volume
+				updatedAt
+			}
+			queue {
+				id
+				title
+				songLink
+				durationSeconds
+				orderedByName
+				orderedByDisplayName
+				queuePosition
+				createdAt
+			}
+		}
+	}
+`)
 
 const SongRequestPlaybackStateSubscription = graphql(`
 	subscription SongRequestPlaybackState($channelId: UUID!) {
@@ -81,22 +106,41 @@ const SongRequestUpdatePositionMutation = graphql(`
 `)
 
 export function useSongRequestGql(channelId: Ref<string>) {
+	const paused = computed(() => !channelId.value)
+	const variables = computed(() => ({ channelId: channelId.value }))
+
+	const initialDataQuery = useQuery({
+		query: SongRequestInitialDataQuery,
+		variables,
+		pause: paused,
+	})
+
 	const playbackStateSub = useSubscription({
 		query: SongRequestPlaybackStateSubscription,
-		get variables() {
-			return { channelId: channelId.value }
-		},
+		variables,
+		pause: paused,
 	})
 
 	const queueSub = useSubscription({
 		query: SongRequestQueueUpdatedSubscription,
-		get variables() {
-			return { channelId: channelId.value }
-		},
+		variables,
+		pause: paused,
 	})
 
-	const playbackState = computed(() => playbackStateSub.data.value?.songRequestPlaybackState ?? null)
-	const queue = computed(() => queueSub.data.value?.songRequestQueueUpdated ?? [])
+	const playbackState = computed(() => {
+		if (playbackStateSub.data.value !== undefined) {
+			return playbackStateSub.data.value.songRequestPlaybackState ?? null
+		}
+
+		return initialDataQuery.data.value?.songRequestWidgetData?.playbackState ?? null
+	})
+	const queue = computed(() => {
+		if (queueSub.data.value !== undefined) {
+			return queueSub.data.value.songRequestQueueUpdated
+		}
+
+		return initialDataQuery.data.value?.songRequestWidgetData?.queue ?? []
+	})
 
 	const { executeMutation: play } = useMutation(SongRequestPlayMutation)
 	const { executeMutation: pause } = useMutation(SongRequestPauseMutation)
