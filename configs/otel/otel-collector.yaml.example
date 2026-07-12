@@ -8,8 +8,6 @@ receivers:
   docker_stats:
     endpoint: unix:///var/run/docker.sock
     collection_interval: 15s
-    container_labels_to_metric_labels:
-      com.docker.swarm.service.name: service_name
   filelog:
     include:
       - /var/lib/docker/containers/*/*.log
@@ -40,22 +38,24 @@ processors:
     timeout: 10s
 
 exporters:
-  otlp/signoz:
-    endpoint: OBSERVABILITY_SERVER_IP:4317
+  otlp/uptrace:
+    endpoint: UPTRACE_HOST:4317
     tls:
       insecure: true
+    headers:
+      uptrace-dsn: "UPTRACE_DSN"
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/signoz]
+      exporters: [otlp/uptrace]
     metrics:
       receivers: [otlp, docker_stats]
       processors: [batch]
-      exporters: [otlp/signoz]
+      exporters: [otlp/uptrace]
     logs:
       receivers: [otlp, filelog]
       processors: [batch]
-      exporters: [otlp/signoz]
+      exporters: [otlp/uptrace]
