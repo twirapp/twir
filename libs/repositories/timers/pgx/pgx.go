@@ -45,7 +45,7 @@ type Pgx struct {
 
 type scanModel struct {
 	ID                       uuid.UUID
-	ChannelID                string
+	ChannelID                uuid.UUID
 	Name                     string
 	Enabled                  bool
 	OfflineEnabled           bool
