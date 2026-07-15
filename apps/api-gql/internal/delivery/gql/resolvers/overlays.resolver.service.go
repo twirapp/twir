@@ -72,8 +72,13 @@ func (r *Resolver) getChatOverlaySettings(
 	id,
 	channelId string,
 ) (*gqlmodel.ChatOverlay, error) {
+	parsedUuid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse chat overlay ID: %w", err)
+	}
+
 	entity := model.ChatOverlaySettings{
-		ID:        uuid.MustParse(id),
+		ID:        parsedUuid,
 		ChannelID: channelId,
 	}
 	if err := r.deps.Gorm.
@@ -402,8 +407,13 @@ func (r *Resolver) getNowPlayingOverlaySettings(ctx context.Context, id, dashboa
 	*gqlmodel.NowPlayingOverlay,
 	error,
 ) {
+	parsedUuid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse now playing overlay ID: %w", err)
+	}
+
 	entity := model.ChannelOverlayNowPlaying{
-		ID:        uuid.MustParse(id),
+		ID:        parsedUuid,
 		ChannelID: dashboardID,
 	}
 	if err := r.deps.Gorm.
@@ -440,8 +450,13 @@ func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id strin
 		return false, err
 	}
 
+	parsedUuid, err := uuid.Parse(id)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelOverlayNowPlaying{
-		ID:        uuid.MustParse(id),
+		ID:        parsedUuid,
 		ChannelID: dashboardID,
 	}
 	if err := r.deps.Gorm.
@@ -550,8 +565,13 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 		return false, err
 	}
 
+	parsedUuid, err := uuid.Parse(id)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelOverlayNowPlaying{
-		ID:        uuid.MustParse(id),
+		ID:        parsedUuid,
 		ChannelID: dashboardID,
 	}
 	if err := r.deps.Gorm.
