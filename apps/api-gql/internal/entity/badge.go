@@ -19,7 +19,7 @@ type Badge struct {
 type BadgeUser struct {
 	ID        uuid.UUID
 	BadgeID   uuid.UUID
-	UserID    string
+	UserID    uuid.UUID
 	CreatedAt time.Time
 }
 

@@ -34,7 +34,7 @@ func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]strin
 
 	userIds := make([]string, 0, len(users))
 	for _, user := range users {
-		userIds = append(userIds, user.UserID)
+		userIds = append(userIds, user.UserID.String())
 	}
 
 	return userIds, nil

@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/libs/entities/platform"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
@@ -114,6 +115,20 @@ func getTop(
 	usersByID := lo.SliceToMap(users, func(user usersmodel.User) (string, usersmodel.User) {
 		return user.ID.String(), user
 	})
+	twitchLoginsByPlatformID := make(map[string]string)
+	if parseCtx.Platform == platform.PlatformTwitch && parseCtx.Services.CacheTwitchClient != nil {
+		platformIDs := lo.Map(users, func(user usersmodel.User, _ int) string {
+			return user.PlatformID
+		})
+		twitchUsers, err := parseCtx.Services.CacheTwitchClient.GetUsersByIds(ctx, platformIDs)
+		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+		} else {
+			for _, twitchUser := range twitchUsers {
+				twitchLoginsByPlatformID[twitchUser.ID] = twitchUser.Login
+			}
+		}
+	}
 
 	var stats []*userStats
 	for _, record := range records {
@@ -122,9 +137,20 @@ func getTop(
 			continue
 		}
 
+		userName := user.Login
+		if twitchLogin, ok := twitchLoginsByPlatformID[user.PlatformID]; ok {
+			userName = twitchLogin
+		}
+		if userName == "" {
+			userName = user.DisplayName
+		}
+		if userName == "" {
+			userName = user.PlatformID
+		}
+
 		res := &userStats{
 			DisplayName: user.DisplayName,
-			UserName:    user.Login,
+			UserName:    userName,
 		}
 
 		if topType == "messages" {

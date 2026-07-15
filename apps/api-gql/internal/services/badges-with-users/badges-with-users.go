@@ -69,7 +69,7 @@ func (s *Service) GetMany(ctx context.Context, input GetManyInput) (
 
 				userIds := make([]string, 0, len(users))
 				for _, user := range users {
-					userIds = append(userIds, user.UserID)
+					userIds = append(userIds, user.UserID.String())
 				}
 
 				badge.Users = userIds

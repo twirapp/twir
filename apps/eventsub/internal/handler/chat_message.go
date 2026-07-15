@@ -131,6 +131,8 @@ func (c *Handler) HandleChannelChatMessage(
 			UserID:                   data.ChatterUserId,
 			PlatformID:               data.ChatterUserId,
 			Platform:                 platform.PlatformTwitch,
+			Login:                    data.ChatterUserLogin,
+			DisplayName:              data.ChatterUserName,
 			ChannelID:                lo.ToPtr(data.EnrichedData.DbChannel.ID.String()),
 			Badges:                   data.Badges,
 			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,

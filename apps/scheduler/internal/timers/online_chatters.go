@@ -228,18 +228,26 @@ func (c *onlineUsers) updateStreamUsers(
 		err = c.db.WithContext(ctx).Transaction(
 			func(tx *gorm.DB) error {
 				insertParts := make([]string, 0, len(chatters))
-				insertArgs := make([]interface{}, 0, len(chatters)*2)
+				insertArgs := make([]interface{}, 0, len(chatters)*4)
 				for i, chatter := range chatters {
-					base := i * 2
+					base := i * 4
 					insertParts = append(
 						insertParts,
-						fmt.Sprintf("(uuidv7(), 'twitch', $%d, $%d)", base+1, base+2),
+						fmt.Sprintf("(uuidv7(), 'twitch', $%d, $%d, $%d, $%d)", base+1, base+2, base+3, base+4),
 					)
-					insertArgs = append(insertArgs, chatter.UserID, uuid.New().String())
+					insertArgs = append(
+						insertArgs,
+						chatter.UserID,
+						uuid.New().String(),
+						chatter.UserLogin,
+						chatter.UserLogin,
+					)
 				}
-				upsertUsersSQL := `INSERT INTO users (id, platform, platform_id, "apiKey") VALUES ` +
+				upsertUsersSQL := `INSERT INTO users (id, platform, platform_id, "apiKey", login, display_name) VALUES ` +
 					strings.Join(insertParts, ", ") +
-					` ON CONFLICT (platform, platform_id) DO NOTHING`
+					` ON CONFLICT (platform, platform_id) DO UPDATE
+					SET login = COALESCE(NULLIF(EXCLUDED.login, ''), users.login),
+						display_name = COALESCE(NULLIF(EXCLUDED.display_name, ''), users.display_name)`
 				if err := tx.Exec(upsertUsersSQL, insertArgs...).Error; err != nil {
 					return fmt.Errorf("cannot upsert users: %w", err)
 				}
