@@ -50,3 +50,4 @@ worktrees
 .playwright-mcp
 .omo/drafts
 .omo/run-continuation
+mise.toml
