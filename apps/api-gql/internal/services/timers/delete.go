@@ -19,7 +19,12 @@ func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID s
 		return errors.NewInternalError("Failed to get timer", err)
 	}
 
-	if timer.ChannelID != channelID {
+	parsedUuid, err := uuid.Parse(channelID)
+	if err != nil {
+		return errors.NewInternalError("Failed to parse channelID", err)
+	}
+
+	if timer.ChannelID != parsedUuid {
 		return errors.NewNotFoundError("Timer with this ID was not found for your channel")
 	}
 
