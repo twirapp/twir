@@ -21,22 +21,29 @@ import {
 } from '@/components/ui/select'
 import { VariableScriptLanguage, VariableType } from '~/gql/graphql.js'
 
-import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
 import { useTwirMonacoTypes } from './composables/use-twir-monaco-types'
+import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
+import { lodashMonacoTypeDefinitions } from './lodash-monaco-types'
 
 const { twirTypeDefinitions } = useTwirMonacoTypes()
 
 let monacoInstance: any = null
-let extraLib: { dispose: () => void } | null = null
+let extraLibs: Array<{ dispose: () => void }> = []
 
-function registerExtraLib(monaco: any, defs: string) {
-	if (extraLib) {
+function registerExtraLibs(monaco: any, twirDefinitions: string) {
+	for (const extraLib of extraLibs) {
 		extraLib.dispose()
 	}
-	extraLib = monaco.languages.typescript.javascriptDefaults.addExtraLib(
-		defs,
-		'file:///twir-globals.d.ts',
-	)
+
+	extraLibs = [
+		monaco.languages.typescript.javascriptDefaults.addExtraLib(
+			twirDefinitions,
+			'file:///twir-globals.d.ts'
+		),
+		...Object.entries(lodashMonacoTypeDefinitions).map(([filePath, definitions]) =>
+			monaco.languages.typescript.javascriptDefaults.addExtraLib(definitions, filePath)
+		),
+	]
 }
 
 function onEditorBeforeMount(monaco: any) {
@@ -51,12 +58,12 @@ function onEditorBeforeMount(monaco: any) {
 
 	const defs = twirTypeDefinitions.value
 	console.log('[TwirMonaco] Registering types:', defs.substring(0, 200))
-	registerExtraLib(monaco, defs)
+	registerExtraLibs(monaco, defs)
 }
 
 watch(twirTypeDefinitions, (defs) => {
 	if (monacoInstance) {
-		registerExtraLib(monacoInstance, defs)
+		registerExtraLibs(monacoInstance, defs)
 	}
 })
 

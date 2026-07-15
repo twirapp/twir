@@ -4,6 +4,7 @@ extend type Query {
 	songRequestsPublicQueue(channelId: String!): [SongRequestPublic!]!
 	songRequestWidgetData(channelId: UUID!): SongRequestWidgetData @noRateLimit
 	channelByApiKey(apiKey: String!): ChannelByApiKeyResult @noRateLimit
+	songRequestOverlaySettings: SongRequestOverlaySettings! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
 }
 
 extend type Mutation {
@@ -16,6 +17,7 @@ extend type Mutation {
 	songRequestReorder(channelId: UUID!, videoIds: [String!]!): Boolean! @isAuthenticated
 	songRequestDeleteFromQueue(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated
 	songRequestClearQueue(channelId: UUID!): Boolean! @isAuthenticated
+	songRequestOverlaySettingsUpdate(opts: SongRequestOverlaySettingsUpdateInput!): SongRequestOverlaySettings! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
 }
 
 type SongRequestsSettings {
@@ -31,7 +33,6 @@ type SongRequestsSettings {
 	translations: SongRequestsTranslations!
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
-	hideOnPause: Boolean!
 	volume: Int!
 	channelApiKey: String!
 }
@@ -107,8 +108,34 @@ input SongRequestsSettingsOpts {
 	translations: SongRequestsTranslationsOpts!
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
-	hideOnPause: Boolean
 	volume: Int! @validate(constraint: "min=0,max=100")
+}
+
+enum SongRequestOverlayStyle {
+	CINEMA
+	COMPACT
+	TICKER
+	STUDIO
+	PORTRAIT
+	PILL
+}
+
+type SongRequestOverlaySettings {
+	style: SongRequestOverlayStyle!
+	accentColor: String!
+	tickerBackgroundColor: String!
+	tickerTextColor: String!
+	tickerSpeed: Int!
+	hideOnPause: Boolean!
+}
+
+input SongRequestOverlaySettingsUpdateInput {
+	style: SongRequestOverlayStyle!
+	accentColor: String!
+	tickerBackgroundColor: String!
+	tickerTextColor: String!
+	tickerSpeed: Int!
+	hideOnPause: Boolean!
 }
 
 input SongRequestsUserSettingsOpts {
@@ -233,4 +260,5 @@ type ChannelByApiKeyResult {
 extend type Subscription {
 	songRequestPlaybackState(channelId: UUID!): SongRequestPlaybackState @noRateLimit
 	songRequestQueueUpdated(channelId: UUID!): [SongRequestQueueItem!]! @noRateLimit
+	songRequestOverlaySettings(apiKey: String!): SongRequestOverlaySettings! @noRateLimit
 }

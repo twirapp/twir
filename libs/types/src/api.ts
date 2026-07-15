@@ -5,6 +5,10 @@ export enum ChannelOverlayNowPlayingPreset {
     TRANSPARENT = "TRANSPARENT",
     AIDEN_REDESIGN = "AIDEN_REDESIGN",
     SIMPLE_LINE = "SIMPLE_LINE",
+    PULSE_STRIP = "PULSE_STRIP",
+    AURA_STACK = "AURA_STACK",
+    VINYL_HAZE = "VINYL_HAZE",
+    SIGNAL_DECK = "SIGNAL_DECK",
 }
 export interface BotInfo {
     isMod: boolean;

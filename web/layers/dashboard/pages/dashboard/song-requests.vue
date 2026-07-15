@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
-
 import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests.js'
+import OverlaySettingsModal from '~~/layers/dashboard/components/songRequests/overlay-settings.vue'
 import Player from '~~/layers/dashboard/components/songRequests/player.vue'
 import VideosQueue from '~~/layers/dashboard/components/songRequests/queue.vue'
 import SettingsModal from '~~/layers/dashboard/components/songRequests/settings.vue'
@@ -15,6 +14,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { t } = useI18n()
 const isSettingsModalOpened = ref(false)
+const isOverlaySettingsModalOpened = ref(false)
 const openSettingsModal = () => (isSettingsModalOpened.value = true)
 
 const youtubeModuleManager = useSongRequestsApi()
@@ -44,11 +44,14 @@ function copyLink(link: string, label: string) {
 		return
 	}
 
-	navigator.clipboard.writeText(link).then(() => {
-		toast.success(t('songRequests.links.copied', { label }), { duration: 3000 })
-	}).catch(() => {
-		toast.error(t('songRequests.links.copyError'), { duration: 2500 })
-	})
+	navigator.clipboard
+		.writeText(link)
+		.then(() => {
+			toast.success(t('songRequests.links.copied', { label }), { duration: 3000 })
+		})
+		.catch(() => {
+			toast.error(t('songRequests.links.copyError'), { duration: 2500 })
+		})
 }
 </script>
 
@@ -57,21 +60,24 @@ function copyLink(link: string, label: string) {
 		<CardHeader>
 			<CardTitle>{{ t('songRequests.links.title') }}</CardTitle>
 		</CardHeader>
-		<CardContent class="space-y-3">
-			<div v-if="!youtubeModuleData.fetching.value && !channelApiKey" class="text-sm text-muted-foreground">
+		<CardContent class="flex flex-col gap-3">
+			<div
+				v-if="!youtubeModuleData.fetching.value && !channelApiKey"
+				class="text-muted-foreground text-sm"
+			>
 				{{ t('songRequests.links.notConfigured') }}
 			</div>
 			<template v-else>
-				<div class="flex items-center gap-3">
-					<span class="text-sm font-medium min-w-24">{{ t('songRequests.links.widget') }}:</span>
-					<div class="flex-1 relative">
+				<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+					<span class="min-w-24 text-sm font-medium">{{ t('songRequests.links.widget') }}:</span>
+					<div class="relative flex-1">
 						<Input
 							:type="showLinks ? 'text' : 'password'"
 							:model-value="widgetLink"
 							readonly
 							class="pr-24 font-mono text-sm"
 						/>
-						<div class="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
+						<div class="absolute top-1/2 right-1 flex -translate-y-1/2 gap-1">
 							<Button
 								variant="ghost"
 								size="sm"
@@ -91,16 +97,16 @@ function copyLink(link: string, label: string) {
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center gap-3">
-					<span class="text-sm font-medium min-w-24">{{ t('songRequests.links.overlay') }}:</span>
-					<div class="flex-1 relative">
+				<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+					<span class="min-w-24 text-sm font-medium">{{ t('songRequests.links.overlay') }}:</span>
+					<div class="relative flex-1">
 						<Input
 							:type="showLinks ? 'text' : 'password'"
 							:model-value="overlayLink"
 							readonly
-							class="pr-24 font-mono text-sm"
+							class="pr-36 font-mono text-sm"
 						/>
-						<div class="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
+						<div class="absolute top-1/2 right-1 flex -translate-y-1/2 gap-1">
 							<Button
 								variant="ghost"
 								size="sm"
@@ -117,6 +123,17 @@ function copyLink(link: string, label: string) {
 							>
 								{{ t('sharedButtons.copy') }}
 							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								size="icon"
+								class="size-7"
+								:aria-label="t('songRequests.overlaySettings.button')"
+								:title="t('songRequests.overlaySettings.button')"
+								@click="isOverlaySettingsModalOpened = true"
+							>
+								<Icon name="lucide:settings" />
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -124,7 +141,7 @@ function copyLink(link: string, label: string) {
 		</CardContent>
 	</Card>
 
-	<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+	<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
 		<div class="lg:col-span-1">
 			<Player
 				v-if="!youtubeModuleData.fetching.value"
@@ -138,4 +155,5 @@ function copyLink(link: string, label: string) {
 	</div>
 
 	<SettingsModal v-model:open="isSettingsModalOpened" />
+	<OverlaySettingsModal v-model="isOverlaySettingsModalOpened" />
 </template>

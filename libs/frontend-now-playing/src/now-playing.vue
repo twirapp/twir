@@ -5,8 +5,12 @@ import { useFontSource } from '@twir/fontsource'
 import { computed, watch } from 'vue'
 
 import PresetAidenRedesign from './presets/aiden-redesign.vue'
+import PresetAuraStack from './presets/aura-stack.vue'
+import PresetPulseStrip from './presets/pulse-strip.vue'
+import PresetSignalDeck from './presets/signal-deck.vue'
 import PresetSimpleLine from './presets/simple-line.vue'
 import PresetTransparent from './presets/transparent.vue'
+import PresetVinylHaze from './presets/vinyl-haze.vue'
 import { Preset } from './types.js'
 
 import type { Settings, Track } from './types.js'
@@ -24,6 +28,14 @@ const presetComponent = computed(() => {
 			return PresetAidenRedesign
 		case Preset.SIMPLE_LINE:
 			return PresetSimpleLine
+		case Preset.PULSE_STRIP:
+			return PresetPulseStrip
+		case Preset.AURA_STACK:
+			return PresetAuraStack
+		case Preset.VINYL_HAZE:
+			return PresetVinylHaze
+		case Preset.SIGNAL_DECK:
+			return PresetSignalDeck
 		default:
 			return PresetTransparent
 	}

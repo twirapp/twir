@@ -1,9 +1,9 @@
-import type { SSRExchange } from '@urql/vue';
-import { cacheExchange, fetchExchange, subscriptionExchange } from '@urql/vue';
-import type { SubscribePayload } from 'graphql-ws';
-import { createClient as createWS } from 'graphql-ws';
+import type { SSRExchange } from '@urql/vue'
+import type { SubscribePayload } from 'graphql-ws'
 
-import { defineUrqlClient } from '#urql/client';
+import { defineUrqlClient } from '#urql/client'
+import { cacheExchange, fetchExchange, subscriptionExchange } from '@urql/vue'
+import { createClient as createWS } from 'graphql-ws'
 
 export default defineUrqlClient((ssrExchange) => {
 	const exchanges = import.meta.server ? setupServer(ssrExchange) : setupClient(ssrExchange)
@@ -58,10 +58,20 @@ function setupServer(ssrExchange: SSRExchange) {
 
 function setupClient(ssrExchange: SSRExchange) {
 	const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/query`
+	let acknowledgedConnections = 0
 	const gqlWs = createWS({
 		url: wsUrl!,
 		lazy: true,
+		retryAttempts: Infinity,
 		shouldRetry: () => true,
+		on: {
+			connected: () => {
+				acknowledgedConnections += 1
+				if (acknowledgedConnections > 1) {
+					window.dispatchEvent(new CustomEvent('twir:graphql-ws-reconnected'))
+				}
+			},
+		},
 	})
 
 	return [

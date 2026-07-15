@@ -5,6 +5,7 @@ import process from 'node:process'
 import tailwindcss from '@tailwindcss/vite'
 import { createResolver } from 'nuxt/kit'
 
+import { lodashMonacoTypesPlugin } from './lodash-monaco-types.vite'
 import gqlcodegen from './modules/gql-codegen'
 
 const { resolve } = createResolver(import.meta.url)
@@ -135,7 +136,7 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
-		plugins: [diagnosticsPlugin, tailwindcss()],
+		plugins: [diagnosticsPlugin, lodashMonacoTypesPlugin(), tailwindcss()],
 		optimizeDeps: {
 			include: [
 				'@urql/vue',

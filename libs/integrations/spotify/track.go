@@ -26,14 +26,16 @@ type spotifyCurrentPlayingAlbum struct {
 }
 
 type spotifyCurrentPlayingTrack struct {
-	Artists []spotifyCurrentPlayingArtist `json:"artists"`
-	Name    string                        `json:"name"`
-	Album   spotifyCurrentPlayingAlbum    `json:"album"`
+	Artists    []spotifyCurrentPlayingArtist `json:"artists"`
+	Name       string                        `json:"name"`
+	Album      spotifyCurrentPlayingAlbum    `json:"album"`
+	DurationMs int                           `json:"duration_ms"`
 }
 
 type spotifyCurrentPlayingResponse struct {
-	Track     *spotifyCurrentPlayingTrack `json:"item"`
-	IsPlaying bool                        `json:"is_playing"`
+	Track      *spotifyCurrentPlayingTrack `json:"item"`
+	IsPlaying  bool                        `json:"is_playing"`
+	ProgressMs int                         `json:"progress_ms"`
 }
 
 func (c *Spotify) GetTrack(ctx context.Context) (*GetTrackResponse, error) {
@@ -57,11 +59,13 @@ type GetTrackResponsePlaylist struct {
 }
 
 type GetTrackResponse struct {
-	Playlist  *GetTrackResponsePlaylist `json:"playlist"` // exists only if the track is from a playlist and integration has the required scopes
-	Title     string                    `json:"title"`
-	Artist    string                    `json:"artist"`
-	Image     string                    `json:"image"`
-	IsPlaying bool                      `json:"isPlaying"`
+	Playlist   *GetTrackResponsePlaylist `json:"playlist"` // exists only if the track is from a playlist and integration has the required scopes
+	Title      string                    `json:"title"`
+	Artist     string                    `json:"artist"`
+	Image      string                    `json:"image"`
+	IsPlaying  bool                      `json:"isPlaying"`
+	ProgressMs int                       `json:"progressMs"`
+	DurationMs int                       `json:"durationMs"`
 }
 
 func (c *Spotify) getTrackByCurrentPlayingTrack(ctx context.Context) (*GetTrackResponse, error) {
@@ -128,10 +132,12 @@ func (c *Spotify) getTrackByCurrentPlayingTrack(ctx context.Context) (*GetTrackR
 	}
 
 	return &GetTrackResponse{
-		Artist:    strings.Join(artistsMap, ", "),
-		Title:     data.Track.Name,
-		Image:     imageUrl,
-		IsPlaying: data.IsPlaying,
+		Artist:     strings.Join(artistsMap, ", "),
+		Title:      data.Track.Name,
+		Image:      imageUrl,
+		IsPlaying:  data.IsPlaying,
+		ProgressMs: data.ProgressMs,
+		DurationMs: data.Track.DurationMs,
 	}, nil
 }
 
@@ -164,7 +170,8 @@ type spotifyPlayerStateResponse struct {
 		Popularity  int `json:"popularity"`
 		DurationMs  int `json:"duration_ms"`
 	} `json:"item"`
-	IsPlaying bool `json:"is_playing"`
+	IsPlaying  bool `json:"is_playing"`
+	ProgressMs int  `json:"progress_ms"`
 }
 
 func (c *Spotify) getTrackByPlayerState(ctx context.Context) (*GetTrackResponse, error) {
@@ -235,11 +242,13 @@ func (c *Spotify) getTrackByPlayerState(ctx context.Context) (*GetTrackResponse,
 	}
 
 	return &GetTrackResponse{
-		Playlist:  playlistResponse,
-		Title:     data.Item.Name,
-		Artist:    strings.Join(artists, ", "),
-		Image:     imageUrl,
-		IsPlaying: data.IsPlaying,
+		Playlist:   playlistResponse,
+		Title:      data.Item.Name,
+		Artist:     strings.Join(artists, ", "),
+		Image:      imageUrl,
+		IsPlaying:  data.IsPlaying,
+		ProgressMs: data.ProgressMs,
+		DurationMs: data.Item.DurationMs,
 	}, nil
 }
 

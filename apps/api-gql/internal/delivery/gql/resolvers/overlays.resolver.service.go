@@ -742,40 +742,15 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 
 	channel := make(chan *gqlmodel.NowPlayingOverlayTrack)
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				track, err := npService.Fetch(ctx)
-				if err != nil {
-					r.deps.Logger.Error("failed to get now playing track", logger.Error(err))
-					time.Sleep(5 * time.Second)
-					continue
-				}
-
-				if track == nil {
-					channel <- nil
-					time.Sleep(5 * time.Second)
-					continue
-				}
-
-				var imageUrl *string
-				if track.ImageUrl != "" {
-					imageUrl = &track.ImageUrl
-				}
-
-				channel <- &gqlmodel.NowPlayingOverlayTrack{
-					Artist:   track.Artist,
-					Title:    track.Title,
-					ImageURL: imageUrl,
-				}
-
-				time.Sleep(5 * time.Second)
-			}
-		}
-	}()
+	go streamNowPlaying(
+		ctx,
+		channel,
+		npService.Fetch,
+		func(err error) {
+			r.deps.Logger.Error("failed to get now playing track", logger.Error(err))
+		},
+		5*time.Second,
+	)
 
 	return channel, nil
 }

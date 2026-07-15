@@ -2,7 +2,8 @@
   "name": "@twir/frontend-now-playing",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./progress": "./src/utils/progress.ts"
   },
   "types": "./src/index.ts",
   "dependencies": {

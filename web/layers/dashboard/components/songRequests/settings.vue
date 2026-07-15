@@ -79,7 +79,6 @@ const formValue = ref<SongRequestsSettingsOpts>({
 	acceptOnlyWhenOnline: true,
 	takeSongFromDonationMessages: false,
 	playerNoCookieMode: false,
-	hideOnPause: true,
 	volume: 30,
 	channelPointsRewardId: '',
 	maxRequests: 500,
@@ -303,18 +302,6 @@ function findSongImage(id: string): string {
 										}}</Label>
 										<p class="text-muted-foreground text-sm">
 											{{ t('songRequests.settings.playerNoCookieModeDescription') }}
-										</p>
-									</div>
-								</div>
-
-								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
-									<Switch v-model="formValue.hideOnPause" />
-									<div class="flex-1 space-y-0.5">
-										<Label class="text-base font-medium">{{
-											t('songRequests.settings.hideOnPause')
-										}}</Label>
-										<p class="text-muted-foreground text-sm">
-											{{ t('songRequests.settings.hideOnPauseDescription') }}
 										</p>
 									</div>
 								</div>

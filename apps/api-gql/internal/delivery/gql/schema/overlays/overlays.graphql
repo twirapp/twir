@@ -73,6 +73,10 @@ enum NowPlayingOverlayPreset {
 	TRANSPARENT
 	AIDEN_REDESIGN
 	SIMPLE_LINE
+	PULSE_STRIP
+	AURA_STACK
+	VINYL_HAZE
+	SIGNAL_DECK
 }
 
 type NowPlayingOverlay {
@@ -99,5 +103,6 @@ type NowPlayingOverlayTrack {
 	artist: String!
 	title: String!
 	imageUrl: String
+	progressMs: Int
+	durationMs: Int
 }
-

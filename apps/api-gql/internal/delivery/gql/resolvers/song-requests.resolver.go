@@ -25,10 +25,15 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	songrequestoverlaysettings "github.com/twirapp/twir/apps/api-gql/internal/services/song_request_overlay_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	songrequestoverlaysettingsentity "github.com/twirapp/twir/libs/entities/song_request_overlay_settings"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"gorm.io/gorm"
 )
 
@@ -103,12 +108,6 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		TranslationsSongMinViews:             opts.Translations.Song.MinViews,
 		TranslationsChannelDenied:            opts.Translations.Channel.Denied,
 		Volume:                               opts.Volume,
-	}
-
-	if opts.HideOnPause.IsSet() && opts.HideOnPause.Value() != nil {
-		entity.HideOnPause = *opts.HideOnPause.Value()
-	} else {
-		entity.HideOnPause = oldEntity.HideOnPause
 	}
 
 	err = r.deps.Gorm.WithContext(ctx).Save(&entity).Error
@@ -310,6 +309,33 @@ func (r *mutationResolver) SongRequestClearQueue(ctx context.Context, channelID 
 	return true, nil
 }
 
+// SongRequestOverlaySettingsUpdate is the resolver for the songRequestOverlaySettingsUpdate field.
+func (r *mutationResolver) SongRequestOverlaySettingsUpdate(ctx context.Context, opts gqlmodel.SongRequestOverlaySettingsUpdateInput) (*gqlmodel.SongRequestOverlaySettings, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	settings, err := r.deps.SongRequestOverlaySettingsService.Update(
+		ctx,
+		songrequestoverlaysettings.UpdateInput{
+			ChannelID:             dashboardID,
+			Style:                 songrequestoverlaysettingsentity.Style(opts.Style),
+			AccentColor:           opts.AccentColor,
+			TickerBackgroundColor: opts.TickerBackgroundColor,
+			TickerTextColor:       opts.TickerTextColor,
+			TickerSpeed:           opts.TickerSpeed,
+			HideOnPause:           opts.HideOnPause,
+		},
+	)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	mapped := mappers.SongRequestOverlaySettingsToGQL(settings)
+	return &mapped, nil
+}
+
 // SongRequests is the resolver for the songRequests field.
 func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequestsSettings, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
@@ -399,7 +425,6 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 		TakeSongFromDonationMessages: entity.TakeSongFromDonationMessage,
 		PlayerNoCookieMode:           entity.PlayerNoCookieMode,
 		ChannelAPIKey:                channelApiKey,
-		HideOnPause:                  entity.HideOnPause,
 		Volume:                       entity.Volume,
 	}, nil
 }
@@ -566,15 +591,21 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 			KickUserID:   channel.KickUserID,
 		}, nil
 	}
+	if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by api key: %w", err))
+	}
 
 	// Fallback to user API key
 	user, err := r.deps.UsersRepository.GetByApiKey(ctx, apiKey)
 	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get user by api key: %w", err))
 	}
 
 	if user.IsNil() {
-		return nil, fmt.Errorf("user not found for api key")
+		return nil, nil
 	}
 
 	var channelID uuid.UUID
@@ -582,20 +613,38 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 	case "kick":
 		channel, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
 		if err != nil {
+			if errors.Is(err, channelsrepository.ErrNotFound) {
+				return nil, nil
+			}
 			return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by kick user id: %w", err))
+		}
+		if channel.IsNil() {
+			return nil, nil
 		}
 		channelID = channel.ID
 	default:
 		channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
 		if err != nil {
+			if errors.Is(err, channelsrepository.ErrNotFound) {
+				return nil, nil
+			}
 			return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by twitch user id: %w", err))
+		}
+		if channel.IsNil() {
+			return nil, nil
 		}
 		channelID = channel.ID
 	}
 
 	channel, err = r.deps.ChannelsRepository.GetByID(ctx, channelID)
 	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel: %w", err))
+	}
+	if channel.IsNil() {
+		return nil, nil
 	}
 
 	result := &gqlmodel.ChannelByAPIKeyResult{
@@ -610,6 +659,22 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 	}
 
 	return result, nil
+}
+
+// SongRequestOverlaySettings is the resolver for the songRequestOverlaySettings field.
+func (r *queryResolver) SongRequestOverlaySettings(ctx context.Context) (*gqlmodel.SongRequestOverlaySettings, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	settings, err := r.deps.SongRequestOverlaySettingsService.Get(ctx, dashboardID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	mapped := mappers.SongRequestOverlaySettingsToGQL(settings)
+	return &mapped, nil
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
@@ -746,6 +811,72 @@ func (r *subscriptionResolver) SongRequestQueueUpdated(ctx context.Context, chan
 				return
 			case <-sub.GetChannel():
 				sendQueue()
+			}
+		}
+	}()
+
+	return outputChan, nil
+}
+
+// SongRequestOverlaySettings is the resolver for the songRequestOverlaySettings field.
+func (r *subscriptionResolver) SongRequestOverlaySettings(ctx context.Context, apiKey string) (<-chan *gqlmodel.SongRequestOverlaySettings, error) {
+	channel, err := r.deps.ChannelsRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by api key: %w", err))
+	}
+	if channel.IsNil() {
+		return nil, gqlerrors.HandleError(errors.New("channel not found for api key"))
+	}
+
+	channelID := channel.ID.String()
+	sub, err := r.deps.WsRouter.Subscribe(
+		[]string{songrequestoverlaysettings.SubscriptionKey(channelID)},
+	)
+	if err != nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to subscribe to song request overlay settings: %w", err))
+	}
+
+	initialSettings, err := r.deps.SongRequestOverlaySettingsService.Get(ctx, channelID)
+	if err != nil {
+		_ = sub.Unsubscribe()
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	outputChan := make(chan *gqlmodel.SongRequestOverlaySettings, 1)
+	mappedInitialSettings := mappers.SongRequestOverlaySettingsToGQL(initialSettings)
+	outputChan <- &mappedInitialSettings
+
+	go func() {
+		defer func() {
+			_ = sub.Unsubscribe()
+			close(outputChan)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data, ok := <-sub.GetChannel():
+				if !ok {
+					return
+				}
+
+				var settings songrequestoverlaysettingsentity.SongRequestOverlaySettings
+				if err := gojson.Unmarshal(data, &settings); err != nil {
+					r.deps.Logger.ErrorContext(
+						ctx,
+						"failed to unmarshal song request overlay settings",
+						logger.Error(err),
+					)
+					continue
+				}
+
+				mapped := mappers.SongRequestOverlaySettingsToGQL(settings)
+				select {
+				case outputChan <- &mapped:
+				case <-ctx.Done():
+					return
+				}
 			}
 		}
 	}()
