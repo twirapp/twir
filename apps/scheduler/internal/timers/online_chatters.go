@@ -38,6 +38,25 @@ type onlineUsers struct {
 	twirBus *buscore.Bus
 }
 
+type twitchChannelRow struct {
+	ChannelID  string `gorm:"column:channel_id"`
+	PlatformID string `gorm:"column:platform_id"`
+	UserID     string `gorm:"column:user_id"`
+	IsEnabled  bool   `gorm:"column:is_enabled"`
+	IsBanned   bool   `gorm:"column:is_banned"`
+}
+
+func (r twitchChannelRow) toChannel() *model.Channels {
+	return &model.Channels{
+		ID:        r.ChannelID,
+		IsEnabled: r.IsEnabled,
+		User: &model.Users{
+			ID:       r.UserID,
+			IsBanned: r.IsBanned,
+		},
+	}
+}
+
 func NewOnlineUsers(opts OnlineUsersOpts) {
 	timeTick := 15 * time.Second
 	if opts.Config.AppEnv == "production" {
@@ -124,14 +143,7 @@ func (c *onlineUsers) getStreams(
 		return streams, nil
 	}
 
-	type channelRow struct {
-		ChannelID    string `gorm:"column:channel_id"`
-		PlatformID   string `gorm:"column:platform_id"`
-		UserID       string `gorm:"column:user_id"`
-		IsEnabled    bool   `gorm:"column:is_enabled"`
-		IsBanned     bool   `gorm:"column:is_banned"`
-	}
-	var rows []channelRow
+	var rows []twitchChannelRow
 	err = c.db.WithContext(ctx).Raw(`
 		SELECT c.id AS channel_id, u.platform_id, u.id AS user_id, c."isEnabled" AS is_enabled, u.is_banned
 		FROM channels c
@@ -143,28 +155,13 @@ func (c *onlineUsers) getStreams(
 	}
 
 	channelByPlatform := make(map[string]*model.Channels, len(rows))
-	userByID := make(map[string]*model.Users, len(rows))
 	for _, r := range rows {
-		ch := &model.Channels{
-			ID:        r.ChannelID,
-			IsEnabled: r.IsEnabled,
-		}
-		channelByPlatform[r.PlatformID] = ch
-		userByID[r.UserID] = &model.Users{
-			ID:       r.UserID,
-			IsBanned: r.IsBanned,
-		}
+		channelByPlatform[r.PlatformID] = r.toChannel()
 	}
 
 	for _, s := range streams {
 		if ch, ok := channelByPlatform[s.UserId]; ok {
 			s.Channel = ch
-			for uid, u := range userByID {
-				if ch.TwitchUserID != nil && *ch.TwitchUserID == uid {
-					ch.User = u
-					break
-				}
-			}
 		}
 	}
 
