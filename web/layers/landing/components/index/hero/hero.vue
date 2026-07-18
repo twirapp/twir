@@ -45,19 +45,35 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 					</p>
 
 					<div class="inline-flex w-full flex-col gap-3 pt-[48px] lg:flex-row">
-						<UiButton
-							:href="localePath('/compare')"
-							variant="secondary"
+						<NuxtLink
+							v-slot="{ navigate, href }"
+							:to="localePath('/compare')"
+							custom
 						>
-							Learn more
-						</UiButton>
-						<UiButton
+							<UiButton
+								:href="href!"
+								variant="secondary"
+								@click="navigate"
+							>
+								Learn more
+							</UiButton>
+						</NuxtLink>
+
+						<NuxtLink
 							v-if="userStore.userWithoutDashboards"
-							href="/dashboard"
-							variant="primary"
+							v-slot="{ navigate, href }"
+							to="/dashboard"
+							custom
 						>
-							Dashboard
-						</UiButton>
+							<UiButton
+								:href="href!"
+								variant="primary"
+								@click="navigate"
+							>
+								Dashboard
+							</UiButton>
+						</NuxtLink>
+
 						<template v-else>
 							<UiButton
 								as="button"
