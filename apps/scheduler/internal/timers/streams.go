@@ -89,10 +89,7 @@ func NewStreams(opts StreamOpts) {
 
 func (c *streams) processStreams(ctx context.Context) error {
 	var channels []model.Channels
-	err := c.gorm.
-		WithContext(ctx).
-		Where(`"channels".twitch_bot_enabled IS TRUE and "User"."is_banned" IS NOT TRUE`).
-		Find(&channels).Error
+	err := buildTwitchChannelsQuery(c.gorm, ctx).Find(&channels).Error
 	if err != nil {
 		return fmt.Errorf("cannot get channels: %w", err)
 	}
@@ -274,6 +271,13 @@ func (c *streams) processStreams(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func buildTwitchChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
+	return db.
+		WithContext(ctx).
+		Joins("User").
+		Where(`"channels".twitch_bot_enabled IS TRUE and "User"."is_banned" IS NOT TRUE`)
 }
 
 type kickChannelRow struct {

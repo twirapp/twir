@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -55,6 +56,33 @@ func (r twitchChannelRow) toChannel() *model.Channels {
 			IsBanned: r.IsBanned,
 		},
 	}
+}
+
+func appendUniqueChatters(
+	chatters []helix.ChatChatter,
+	indices map[string]int,
+	page []helix.ChatChatter,
+) []helix.ChatChatter {
+	for _, chatter := range page {
+		if index, ok := indices[chatter.UserID]; ok {
+			chatters[index] = chatter
+			continue
+		}
+
+		indices[chatter.UserID] = len(chatters)
+		chatters = append(chatters, chatter)
+	}
+
+	return chatters
+}
+
+func orderChattersForUserInsert(chatters []helix.ChatChatter) []helix.ChatChatter {
+	ordered := append([]helix.ChatChatter(nil), chatters...)
+	sort.Slice(ordered, func(i, j int) bool {
+		return ordered[i].UserID < ordered[j].UserID
+	})
+
+	return ordered
 }
 
 func NewOnlineUsers(opts OnlineUsersOpts) {
@@ -176,9 +204,6 @@ func (c *onlineUsers) updateStreamUsers(
 	ctx context.Context,
 	stream *model.ChannelsStreams,
 ) error {
-	broadcasterID := stream.UserId
-	channelUUID := stream.Channel.ID
-
 	twitchUserID, err := uuid.Parse(stream.Channel.User.ID)
 	if err != nil {
 		return fmt.Errorf("parse twitch user id: %w", err)
@@ -194,144 +219,196 @@ func (c *onlineUsers) updateStreamUsers(
 		return err
 	}
 
+	chatters, err := c.getChannelChatters(ctx, twitchClient, stream.UserId)
+	if err != nil {
+		return err
+	}
+
+	return c.replaceOnlineUsers(ctx, stream.Channel.ID, chatters)
+}
+
+func (c *onlineUsers) getChannelChatters(
+	ctx context.Context,
+	twitchClient *helix.Client,
+	broadcasterID string,
+) ([]helix.ChatChatter, error) {
 	var cursor string
+	chatters := make([]helix.ChatChatter, 0)
+	chatterIndices := make(map[string]int)
+
 	for {
-		params := &helix.GetChatChattersParams{
-			BroadcasterID: broadcasterID,
-			ModeratorID:   broadcasterID,
-			After:         cursor,
-			First:         "1000",
-		}
-		req, err := twitchClient.GetChannelChatChatters(params)
+		req, err := twitchClient.GetChannelChatChatters(
+			&helix.GetChatChattersParams{
+				BroadcasterID: broadcasterID,
+				ModeratorID:   broadcasterID,
+				After:         cursor,
+				First:         "1000",
+			},
+		)
 		if err != nil {
-			return fmt.Errorf("cannot get channel chat chatters: %w", err)
+			return nil, fmt.Errorf("cannot get channel chat chatters: %w", err)
 		}
 		if req.ErrorMessage != "" {
-			return fmt.Errorf("cannot get channel chat chatters: %s", req.ErrorMessage)
+			return nil, fmt.Errorf("cannot get channel chat chatters: %s", req.ErrorMessage)
 		}
 
-		chatters := req.Data.Chatters
-		if len(chatters) == 0 {
-			return nil
-		}
-
-		chatterPlatformIDs := lo.Map(
-			chatters,
-			func(chatter helix.ChatChatter, _ int) string {
-				return chatter.UserID
-			},
-		)
-
-		err = c.db.WithContext(ctx).Transaction(
-			func(tx *gorm.DB) error {
-				insertParts := make([]string, 0, len(chatters))
-				insertArgs := make([]interface{}, 0, len(chatters)*4)
-				for i, chatter := range chatters {
-					base := i * 4
-					insertParts = append(
-						insertParts,
-						fmt.Sprintf("(uuidv7(), 'twitch', $%d, $%d, $%d, $%d)", base+1, base+2, base+3, base+4),
-					)
-					insertArgs = append(
-						insertArgs,
-						chatter.UserID,
-						uuid.New().String(),
-						chatter.UserLogin,
-						chatter.UserLogin,
-					)
-				}
-				upsertUsersSQL := `INSERT INTO users (id, platform, platform_id, "apiKey", login, display_name) VALUES ` +
-					strings.Join(insertParts, ", ") +
-					` ON CONFLICT (platform, platform_id) DO UPDATE
-					SET login = COALESCE(NULLIF(EXCLUDED.login, ''), users.login),
-						display_name = COALESCE(NULLIF(EXCLUDED.display_name, ''), users.display_name)`
-				if err := tx.Exec(upsertUsersSQL, insertArgs...).Error; err != nil {
-					return fmt.Errorf("cannot upsert users: %w", err)
-				}
-
-				type userRow struct {
-					ID         string `gorm:"column:id"`
-					PlatformID string `gorm:"column:platform_id"`
-				}
-				var userRows []userRow
-				if err := tx.Raw(
-					`SELECT id, platform_id FROM users WHERE platform_id IN ? AND platform = 'twitch'`,
-					chatterPlatformIDs,
-				).Scan(&userRows).Error; err != nil {
-					return fmt.Errorf("cannot fetch user UUIDs: %w", err)
-				}
-
-				platformIDToUUID := make(map[string]string, len(userRows))
-				for _, row := range userRows {
-					platformIDToUUID[row.PlatformID] = row.ID
-				}
-
-				if len(userRows) > 0 {
-					statsParts := make([]string, 0, len(userRows))
-					statsArgs := make([]interface{}, 0, len(userRows)*3)
-					for i, row := range userRows {
-						base := i * 3
-						statsParts = append(
-							statsParts,
-							fmt.Sprintf("($%d, $%d::uuid, $%d::uuid)", base+1, base+2, base+3),
-						)
-						statsArgs = append(statsArgs, uuid.New().String(), row.ID, channelUUID)
-					}
-					statsSQL := `INSERT INTO users_stats (id, user_id, channel_id) VALUES ` +
-						strings.Join(statsParts, ", ") +
-						` ON CONFLICT (channel_id, user_id) DO NOTHING`
-					if err := tx.Exec(statsSQL, statsArgs...).Error; err != nil {
-						return fmt.Errorf("cannot upsert users stats: %w", err)
-					}
-				}
-
-				if err := tx.Exec(
-					`DELETE FROM users_online WHERE "channelId" = $1::uuid`,
-					channelUUID,
-				).Error; err != nil {
-					return fmt.Errorf("cannot delete online users: %w", err)
-				}
-
-				onlineParts := make([]string, 0, len(chatters))
-				onlineArgs := make([]interface{}, 0, len(chatters)*4)
-				argIdx := 0
-				for _, chatter := range chatters {
-					userUUID, ok := platformIDToUUID[chatter.UserID]
-					if !ok {
-						continue
-					}
-					onlineParts = append(
-						onlineParts,
-						fmt.Sprintf(
-							"($%d, $%d::uuid, $%d::uuid, $%d)",
-							argIdx+1, argIdx+2, argIdx+3, argIdx+4,
-						),
-					)
-					onlineArgs = append(
-						onlineArgs,
-						uuid.New().String(), channelUUID, userUUID, chatter.UserLogin,
-					)
-					argIdx += 4
-				}
-				if len(onlineParts) > 0 {
-					onlineSQL := `INSERT INTO users_online (id, "channelId", "userId", "userName") VALUES ` +
-						strings.Join(onlineParts, ", ")
-					if err := tx.Exec(onlineSQL, onlineArgs...).Error; err != nil {
-						return fmt.Errorf("cannot insert online users: %w", err)
-					}
-				}
-
-				return nil
-			},
-		)
-		if err != nil {
-			return fmt.Errorf("cannot update stream users: %w", err)
-		}
-
+		chatters = appendUniqueChatters(chatters, chatterIndices, req.Data.Chatters)
 		if req.Data.Pagination.Cursor == "" {
-			return nil
+			return chatters, nil
 		}
 
 		cursor = req.Data.Pagination.Cursor
 	}
+}
+
+func (c *onlineUsers) replaceOnlineUsers(
+	ctx context.Context,
+	channelUUID string,
+	chatters []helix.ChatChatter,
+) error {
+	err := c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(
+			`DELETE FROM users_online WHERE "channelId" = $1::uuid`,
+			channelUUID,
+		).Error; err != nil {
+			return fmt.Errorf("cannot delete online users: %w", err)
+		}
+
+		for _, batch := range lo.Chunk(chatters, 1000) {
+			userIDsByPlatform, err := upsertTwitchUsers(tx, orderChattersForUserInsert(batch))
+			if err != nil {
+				return err
+			}
+
+			if err := upsertUserStats(tx, channelUUID, userIDsByPlatform); err != nil {
+				return err
+			}
+
+			if err := insertOnlineUsers(tx, channelUUID, batch, userIDsByPlatform); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("cannot replace online users: %w", err)
+	}
+
+	return nil
+}
+
+func upsertTwitchUsers(
+	tx *gorm.DB,
+	chatters []helix.ChatChatter,
+) (map[string]string, error) {
+	insertParts := make([]string, 0, len(chatters))
+	insertArgs := make([]interface{}, 0, len(chatters)*4)
+	chatterPlatformIDs := make([]string, 0, len(chatters))
+	for i, chatter := range chatters {
+		base := i * 4
+		insertParts = append(
+			insertParts,
+			fmt.Sprintf("(uuidv7(), 'twitch', $%d, $%d, $%d, $%d)", base+1, base+2, base+3, base+4),
+		)
+		insertArgs = append(
+			insertArgs,
+			chatter.UserID,
+			uuid.New().String(),
+			chatter.UserLogin,
+			chatter.UserLogin,
+		)
+		chatterPlatformIDs = append(chatterPlatformIDs, chatter.UserID)
+	}
+
+	upsertUsersSQL := `INSERT INTO users (id, platform, platform_id, "apiKey", login, display_name) VALUES ` +
+		strings.Join(insertParts, ", ") +
+		` ON CONFLICT (platform, platform_id) DO NOTHING`
+	if err := tx.Exec(upsertUsersSQL, insertArgs...).Error; err != nil {
+		return nil, fmt.Errorf("cannot upsert users: %w", err)
+	}
+
+	type userRow struct {
+		ID         string `gorm:"column:id"`
+		PlatformID string `gorm:"column:platform_id"`
+	}
+	var userRows []userRow
+	if err := tx.Raw(
+		`SELECT id, platform_id FROM users WHERE platform_id IN ? AND platform = 'twitch'`,
+		chatterPlatformIDs,
+	).Scan(&userRows).Error; err != nil {
+		return nil, fmt.Errorf("cannot fetch user UUIDs: %w", err)
+	}
+
+	userIDsByPlatform := make(map[string]string, len(userRows))
+	for _, row := range userRows {
+		userIDsByPlatform[row.PlatformID] = row.ID
+	}
+
+	return userIDsByPlatform, nil
+}
+
+func upsertUserStats(
+	tx *gorm.DB,
+	channelUUID string,
+	userIDsByPlatform map[string]string,
+) error {
+	statsParts := make([]string, 0, len(userIDsByPlatform))
+	statsArgs := make([]interface{}, 0, len(userIDsByPlatform)*3)
+	for _, userID := range userIDsByPlatform {
+		base := len(statsParts) * 3
+		statsParts = append(
+			statsParts,
+			fmt.Sprintf("($%d, $%d::uuid, $%d::uuid)", base+1, base+2, base+3),
+		)
+		statsArgs = append(statsArgs, uuid.New().String(), userID, channelUUID)
+	}
+
+	if len(statsParts) == 0 {
+		return nil
+	}
+
+	statsSQL := `INSERT INTO users_stats (id, user_id, channel_id) VALUES ` +
+		strings.Join(statsParts, ", ") +
+		` ON CONFLICT (channel_id, user_id) DO NOTHING`
+	if err := tx.Exec(statsSQL, statsArgs...).Error; err != nil {
+		return fmt.Errorf("cannot upsert users stats: %w", err)
+	}
+
+	return nil
+}
+
+func insertOnlineUsers(
+	tx *gorm.DB,
+	channelUUID string,
+	chatters []helix.ChatChatter,
+	userIDsByPlatform map[string]string,
+) error {
+	onlineParts := make([]string, 0, len(chatters))
+	onlineArgs := make([]interface{}, 0, len(chatters)*4)
+	for _, chatter := range chatters {
+		userID, ok := userIDsByPlatform[chatter.UserID]
+		if !ok {
+			continue
+		}
+
+		base := len(onlineParts) * 4
+		onlineParts = append(
+			onlineParts,
+			fmt.Sprintf("($%d, $%d::uuid, $%d::uuid, $%d)", base+1, base+2, base+3, base+4),
+		)
+		onlineArgs = append(onlineArgs, uuid.New().String(), channelUUID, userID, chatter.UserLogin)
+	}
+
+	if len(onlineParts) == 0 {
+		return nil
+	}
+
+	onlineSQL := `INSERT INTO users_online (id, "channelId", "userId", "userName") VALUES ` +
+		strings.Join(onlineParts, ", ")
+	if err := tx.Exec(onlineSQL, onlineArgs...).Error; err != nil {
+		return fmt.Errorf("cannot insert online users: %w", err)
+	}
+
+	return nil
 }
