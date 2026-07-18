@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { DISCORD_INVITE_URL, GITHUB_ORG_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
 import 'vue-sonner/style.css'
+
 import { Toaster } from '@/components/ui/sonner'
 
 const description =
@@ -11,6 +13,17 @@ const keywords =
 const metaImg = '/meta.webp'
 
 useColorMode()
+
+const i18nHead = useLocaleHead({ seo: true })
+useHead(() => ({
+	htmlAttrs: {
+		lang: i18nHead.value.htmlAttrs!.lang,
+		dir: i18nHead.value.htmlAttrs!.dir,
+	},
+	link: [...(i18nHead.value.link || [])],
+	meta: [...(i18nHead.value.meta || [])],
+}))
+
 useHead({
 	title: siteName,
 	titleTemplate: (title) => (!title || title === siteName ? siteName : `${title} - ${siteName}`),
@@ -43,6 +56,22 @@ useSeoMeta({
 	twitterImage: metaImg,
 	keywords,
 })
+
+const siteConfig = useSiteConfig()
+
+useSchemaOrg([
+	defineOrganization({
+		name: 'Twir',
+		url: siteConfig.url,
+		logo: '/twir.svg',
+		sameAs: [GITHUB_ORG_URL, GITHUB_REPOSITORY_URL, DISCORD_INVITE_URL],
+	}),
+	defineWebSite({
+		name: 'Twir',
+		url: siteConfig.url,
+		description,
+	}),
+])
 </script>
 
 <template>

@@ -41,6 +41,8 @@ function buildDiagnosticsPlugin(): any {
 
 const diagnosticsPlugin = buildDiagnosticsPlugin()
 
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://twir.app'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	compatibilityDate: '2025-12-14',
@@ -54,7 +56,14 @@ export default defineNuxtConfig({
 		},
 	},
 
-	site: { indexable: true },
+	site: {
+		indexable: true,
+		url: siteUrl,
+		name: 'Twir',
+		description:
+			'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.',
+		defaultLocale: 'en',
+	},
 
 	routeRules: {
 		'/dashboard': { ssr: false },
@@ -78,14 +87,19 @@ export default defineNuxtConfig({
 		'@nuxt/fonts',
 		'nuxt-svgo',
 		'@vueuse/nuxt',
+		'@nuxtjs/i18n',
 		'@nuxtjs/seo',
 		gqlcodegen,
 		'@nuxtjs/fontaine',
-		'@nuxtjs/i18n',
 	],
 
 	i18n: {
-		locales: localeCodes.map((code) => ({ code, file: `${code}.json` })) as any, // TODO: remove any, no ai written xd
+		baseUrl: siteUrl,
+		locales: localeCodes.map((code) => ({
+			code,
+			file: `${code}.json`,
+			language: code,
+		})) as any, // TODO: remove any, no ai written xd
 		defaultLocale: 'en',
 		langDir: 'locales',
 		compilation: {
@@ -113,6 +127,10 @@ export default defineNuxtConfig({
 			{
 				prefix: 'twir-integrations',
 				dir: resolve('./layers/dashboard/assets/integrations'),
+			},
+			{
+				prefix: 'twir-compare',
+				dir: resolve('./layers/landing/assets/compare'),
 			},
 		],
 	},
@@ -232,14 +250,58 @@ export default defineNuxtConfig({
 	robots: {
 		blockAiBots: true,
 		disallow: [
-			'/s',
+			'/s/',
+			'/s/**',
 			'/dashboard',
 			'/dashboard/**',
+			'/h/',
+			'/h/**',
+			'/overlays/',
+			'/overlays/**',
+		],
+	},
+
+	ogImage: {
+		fontSubsets: ['latin', 'latin-ext', 'cyrillic', 'cyrillic-ext'],
+	},
+
+	sitemap: {
+		exclude: [			'/dashboard',
+			'/dashboard/**',
+			'/s',
 			'/s/**',
 			'/h',
 			'/h/**',
-			'/overlays/**',
+			'/o',
+			'/o/**',
 			'/overlays',
+			'/overlays/**',
+			'/login',
+			'/login/**',
+			'/url-shortener/profile',
+			'/import',
+			'/import/**',
+			'/settings',
+			'/settings/**',
+			'/en/dashboard',
+			'/en/dashboard/**',
+			'/**/dashboard',
+			'/**/dashboard/**',
+			'/**/s',
+			'/**/s/**',
+			'/**/h',
+			'/**/h/**',
+			'/**/o',
+			'/**/o/**',
+			'/**/overlays',
+			'/**/overlays/**',
+			'/**/login',
+			'/**/login/**',
+			'/**/url-shortener/profile',
+			'/**/import',
+			'/**/import/**',
+			'/**/settings',
+			'/**/settings/**',
 		],
 	},
 

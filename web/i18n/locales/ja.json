@@ -1,3 +1,146 @@
 {
-    "languageName": "日本語"
+  "languageName": "日本語",
+  "landing": {
+    "meta": {
+      "title": "Twir — Twitch・Kick 対応チャットボット",
+      "description": "大規模チャンネルのチャット管理を助ける、パワフルで便利な Twitch ボット。コマンド、タイマー、モデレーション、ソングリクエスト、ギブアウェイ、オーバーレイなど — 無料でオープンソース。"
+    },
+    "compareLink": "Twir を他のボットと比較する",
+    "faq": {
+      "badge": "FAQ",
+      "title": "よくある質問",
+      "q1": {
+        "question": "Twir は無料ですか？",
+        "answer": "はい、Twir は完全に無料です。コマンド、タイマー、モデレーション、ソングリクエスト、ギブアウェイ、オーバーレイなどの主要機能は、すべての方に無料でご利用いただけます。"
+      },
+      "q2": {
+        "question": "チャンネルに Twir を追加するには？",
+        "answer": "Twitch または Kick アカウントでログインし、ダッシュボードで「ボットを追加」を押すだけ。1 分以内に Twir がチャットに参加します。ダウンロードやインストールは不要です。"
+      },
+      "q3": {
+        "question": "Nightbot や StreamElements から移行できますか？",
+        "answer": "はい。Twir には Nightbot、StreamElements、Streamlabs からコマンドや設定を数クリックで移行できるインポートツールがあります。"
+      },
+      "q4": {
+        "question": "Kick でも使えますか？",
+        "answer": "はい、Twir は Twitch と Kick の両方に対応しています。Kick チャンネルを接続し、同じダッシュボードから管理できます。"
+      },
+      "q5": {
+        "question": "Twir はオープンソースですか？",
+        "answer": "はい、Twir は完全なオープンソースです。コードの閲覧、貢献、独自インスタンスのセルフホストも可能です。"
+      }
+    }
+  },
+  "terms": {
+    "meta": {
+      "title": "利用規約",
+      "description": "Twir チャットボットおよび twir.app ウェブサイトの利用規約。"
+    }
+  },
+  "compare": {
+    "meta": {
+      "title": "Twir vs Nightbot・StreamElements・Moobot・Fossabot",
+      "description": "Twitch チャットボットの正直な機能比較：Twir vs Nightbot、StreamElements、Moobot、Fossabot。コマンド、モデレーション、ソングリクエスト、オーバーレイ、アラートなど。"
+    },
+    "breadcrumb": "比較",
+    "hero": {
+      "badge": "比較",
+      "title": "Twir vs 他の Twitch ボット",
+      "subtitle": "Twir が Nightbot、StreamElements、Moobot、Fossabot と比べてどうなのか — 機能ごとに正直に見てみましょう。"
+    },
+    "table": {
+      "caption": "Twir、Nightbot、StreamElements、Moobot、Fossabot の機能比較表",
+      "feature": "機能"
+    },
+    "support": {
+      "yes": "あり",
+      "partial": "一部",
+      "no": "なし"
+    },
+    "features": {
+      "commands": "カスタムコマンド",
+      "timers": "タイマー",
+      "moderation": "モデレーション",
+      "songRequests": "ソングリクエスト",
+      "giveaways": "ギブアウェイ",
+      "overlays": "ストリームオーバーレイ",
+      "alerts": "ストリームアラート",
+      "games": "内蔵チャットゲーム",
+      "musicIntegrations": "音楽連携",
+      "openSource": "オープンソース",
+      "platforms": "プラットフォーム",
+      "price": "価格",
+      "statsTracking": "ウォッチタイムとユーザー統計",
+      "greetings": "グリーティング",
+      "keywords": "キーワード応答",
+      "customScripting": "カスタムスクリプト (JS/Python)",
+      "roles": "ダッシュボードのロールと権限",
+      "vipManagement": "VIP 管理",
+      "emoteStats": "エモート統計",
+      "musicRecognition": "音楽認識（Shazam 風）",
+      "obsIntegration": "OBS 連携"
+    },
+    "notes": {
+      "overlaysTwir": "Now Playing、チャット、Faceit・Valorant スタッツ、Emote Wall、Pixel Dudes、AFK など",
+      "alertsMoobot": "チャットアラートは MoobotPlus（有料）が必要",
+      "gamesTwir": "ロシアンルーレット、デュエル、切腹、voteban、マジック 8 ボール",
+      "musicTwir": "Spotify・Last.fm の Now Playing に加え、内蔵ソングリクエスト",
+      "musicNightbot": "Spotify や Last.fm 連携のない AutoDJ",
+      "openSourceTwir": "完全オープンソース、セルフホスト可能",
+      "statsTwir": "ウォッチタイム、メッセージ、チャンネルポイント — 全員無料",
+      "statsMoobot": "ウォッチタイムとロイヤリティ機能は MoobotPlus（有料）が必要",
+      "songRequestsFossabot": "YouTube または SoundCloud 経由（メディアリクエスト）",
+      "gamesSe": "ビンゴ、ラッフル、コンテスト",
+      "gamesFossabot": "マジック8ボール、votekick、ジョーク（デフォルトコマンド）",
+      "musicSe": "リンク経由のソングリクエスト。Now Playing 連携なし",
+      "greetingsMoobot": "新規チャッター認識のみ、MoobotPlus（有料）",
+      "scriptingTwir": "JavaScript または Python でカスタム変数を作成",
+      "scriptingFossabot": "豊富なプリセット変数。カスタムコードなし",
+      "rolesSe": "基本ユーザーレベル",
+      "rolesMoobot": "無料プランでは権限グループ1つ",
+      "vipTwir": "VIP の管理と有効期限のスケジュール",
+      "vipMoobot": "First Wave VIP のみ、MoobotPlus（有料）",
+      "obsTwir": "WebSockets でシーン切替・ミュート・ソース表示切替"
+    },
+    "values": {
+      "platforms": {
+        "twir": "Twitch, Kick",
+        "nightbot": "Twitch, YouTube",
+        "streamelements": "Twitch, YouTube, Kick",
+        "moobot": "Twitch",
+        "fossabot": "Twitch, YouTube, Kick"
+      },
+      "price": {
+        "free": "無料",
+        "moobotPlus": "無料 + 有料プラン"
+      }
+    },
+    "cta": {
+      "title": "乗り換える準備はできましたか？",
+      "subtitle": "Nightbot、StreamElements、Streamlabs から数クリックでコマンドをインポートして、今日から Twir を始めましょう。",
+      "getStarted": "無料で始める",
+      "import": "データをインポート",
+      "questions": "ご質問はこちら："
+    },
+    "faq": {
+      "title": "よくある質問",
+      "q1": {
+        "question": "Nightbot ではなく Twir を選ぶ理由は？",
+        "answer": "Twir はストリームオーバーレイ、内蔵チャットゲーム、Spotify・Last.fm 連携を備え、完全なオープンソースです — Nightbot にはない機能ばかり。コマンド、タイマー、モデレーションは期待どおりに動作します。"
+      },
+      "q2": {
+        "question": "他のボットからコマンドを移行できますか？",
+        "answer": "はい。Twir には Nightbot、StreamElements、Streamlabs 用のインポートツールがあります。コマンドと設定は自動で移行され、手動のコピペは不要です。"
+      },
+      "q3": {
+        "question": "Twir は本当に無料ですか？",
+        "answer": "はい。比較表のすべての機能 — オーバーレイ、ギブアウェイ、ソングリクエストを含め — 無料です。Twir はストリーマーによるストリーマーのためのオープンソースプロジェクトです。"
+      },
+      "q4": {
+        "question": "Twir は Kick に対応していますか？",
+        "answer": "はい。Twir は Twitch と Kick の両方を 1 つのダッシュボードから管理できます。"
+      }
+    },
+    "disclaimer": "Nightbot、StreamElements、Moobot、Fossabot は各社の商標です。Twir はこれらと提携・承認されているわけではありません。機能データは公開情報に基づいており、変更される場合があります。"
+  }
 }

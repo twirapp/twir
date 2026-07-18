@@ -2,6 +2,11 @@
 definePageMeta({
 	layout: 'landing',
 })
+
+useAppSeo({
+	titleKey: 'terms.meta.title',
+	descriptionKey: 'terms.meta.description',
+})
 </script>
 
 <template>

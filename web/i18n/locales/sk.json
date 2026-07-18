@@ -1357,5 +1357,148 @@
         "winners": "Výhercovia"
       }
     }
+  },
+  "landing": {
+    "meta": {
+      "title": "Twir — chatbot pre Twitch a Kick",
+      "description": "Výkonný a užitočný Twitch bot, ktorý pomáha spravovať chat na veľkých kanáloch. Príkazy, časovače, moderácia, song requesty, giveawaye, overlaye a viac — zadarmo a open source."
+    },
+    "compareLink": "Porovnať Twir s inými botmi",
+    "faq": {
+      "badge": "FAQ",
+      "title": "Časté otázky",
+      "q1": {
+        "question": "Je Twir zadarmo?",
+        "answer": "Áno, Twir je úplne zadarmo. Všetky základné funkcie — príkazy, časovače, moderácia, song requesty, giveawaye a overlaye — sú dostupné pre každého bez platenia."
+      },
+      "q2": {
+        "question": "Ako pridám Twir na svoj kanál?",
+        "answer": "Prihláste sa cez Twitch alebo Kick účet, kliknite na „Pridať bota“ v dashboarde a Twir sa pripojí k vášmu chatu do minúty. Bez sťahovania a inštalácie."
+      },
+      "q3": {
+        "question": "Môžem prejsť z Nightbotu alebo StreamElements?",
+        "answer": "Áno. Twir má vstavaný importný nástroj, ktorý prenesie vaše príkazy a nastavenia z Nightbotu, StreamElements a Streamlabs na pár kliknutí."
+      },
+      "q4": {
+        "question": "Funguje Twir na Kicku?",
+        "answer": "Áno, Twir podporuje Twitch aj Kick. Svoj Kick kanál môžete pripojiť a spravovať ho z rovnakého dashboardu."
+      },
+      "q5": {
+        "question": "Je Twir open source?",
+        "answer": "Áno, Twir je úplne open source. Kód si môžete pozrieť, prispieť alebo dokonca hostiť vlastnú inštanciu."
+      }
+    }
+  },
+  "terms": {
+    "meta": {
+      "title": "Podmienky používania",
+      "description": "Podmienky používania chatbota Twir a webovej stránky twir.app."
+    }
+  },
+  "compare": {
+    "meta": {
+      "title": "Twir vs Nightbot, StreamElements, Moobot a Fossabot",
+      "description": "Úprimné porovnanie funkcií Twitch chatbotov: Twir vs Nightbot, StreamElements, Moobot a Fossabot. Príkazy, moderácia, song requesty, overlaye, alerty a viac."
+    },
+    "breadcrumb": "Porovnanie",
+    "hero": {
+      "badge": "Porovnanie",
+      "title": "Twir vs ostatní Twitch boti",
+      "subtitle": "Úprimný pohľad na to, ako sa Twir porovnáva s Nightbotom, StreamElements, Moobotom a Fossabotom — funkcia po funkcii."
+    },
+    "table": {
+      "caption": "Porovnávacia tabuľka funkcií Twir, Nightbot, StreamElements, Moobot a Fossabot",
+      "feature": "Funkcia"
+    },
+    "support": {
+      "yes": "Áno",
+      "partial": "Čiastočne",
+      "no": "Nie"
+    },
+    "features": {
+      "commands": "Vlastné príkazy",
+      "timers": "Časovače",
+      "moderation": "Moderácia",
+      "songRequests": "Song requesty",
+      "giveaways": "Giveawaye",
+      "overlays": "Stream overlaye",
+      "alerts": "Stream alerty",
+      "games": "Vstavané chat hry",
+      "musicIntegrations": "Hudobné integrácie",
+      "openSource": "Open source",
+      "platforms": "Platformy",
+      "price": "Cena",
+      "statsTracking": "Watch time a štatistiky",
+      "greetings": "Privítania",
+      "keywords": "Odpovede na kľúčové slová",
+      "customScripting": "Vlastné skripty (JS/Python)",
+      "roles": "Roly a oprávnenia v dashboarde",
+      "vipManagement": "Správa VIP",
+      "emoteStats": "Štatistiky emotov",
+      "musicRecognition": "Rozpoznávanie hudby (ako Shazam)",
+      "obsIntegration": "Integrácia s OBS"
+    },
+    "notes": {
+      "overlaysTwir": "Now Playing, Chat, Faceit a Valorant štatistiky, Emote Wall, Pixel Dudes, AFK a ďalšie",
+      "alertsMoobot": "Chat alerty vyžadujú MoobotPlus (platené)",
+      "gamesTwir": "Ruská ruleta, duely, seppuku, voteban, magická osmička",
+      "musicTwir": "Now playing cez Spotify a Last.fm plus vstavané song requesty",
+      "musicNightbot": "AutoDJ bez integrácie Spotify a Last.fm",
+      "openSourceTwir": "Úplne open source, možnosť self-host",
+      "statsTwir": "Watch time, správy a kanálové body — zadarmo pre všetkých",
+      "statsMoobot": "Watch time a vernosť vyžadujú MoobotPlus (platené)",
+      "songRequestsFossabot": "Cez YouTube alebo SoundCloud (Media request)",
+      "gamesSe": "Bingo, žrebovania a súťaže",
+      "gamesFossabot": "8-ball, votekick a vtipy cez predvolené príkazy",
+      "musicSe": "Song requesty cez odkazy; bez now-playing integrácií",
+      "greetingsMoobot": "Len rozpoznávanie nových chatterov, MoobotPlus (platené)",
+      "scriptingTwir": "Vlastné premenné v JavaScripte alebo Pythone",
+      "scriptingFossabot": "Množstvo prednastavených premenných, bez vlastného kódu",
+      "rolesSe": "Základné užívateľské úrovne",
+      "rolesMoobot": "1 skupina oprávnení v bezplatnom pláne",
+      "vipTwir": "Správa VIP a plánovanie expirácie",
+      "vipMoobot": "Len First Wave VIP, MoobotPlus (platené)",
+      "obsTwir": "Zmena scén, stlmenie zvuku, viditeľnosť zdrojov cez websockets"
+    },
+    "values": {
+      "platforms": {
+        "twir": "Twitch, Kick",
+        "nightbot": "Twitch, YouTube",
+        "streamelements": "Twitch, YouTube, Kick",
+        "moobot": "Twitch",
+        "fossabot": "Twitch, YouTube, Kick"
+      },
+      "price": {
+        "free": "Zadarmo",
+        "moobotPlus": "Zadarmo + platené plány"
+      }
+    },
+    "cta": {
+      "title": "Pripravení prejsť?",
+      "subtitle": "Importujte si príkazy z Nightbotu, StreamElements alebo Streamlabs na pár kliknutí a začnite používať Twir ešte dnes.",
+      "getStarted": "Začať zadarmo",
+      "import": "Importovať údaje",
+      "questions": "Otázky? Opýtajte sa nás na"
+    },
+    "faq": {
+      "title": "Časté otázky",
+      "q1": {
+        "question": "Prečo si vybrať Twir namiesto Nightbotu?",
+        "answer": "Twir ponúka stream overlaye, vstavané chat hry, hudobné integrácie so Spotify a Last.fm a je úplne open source — funkcie, ktoré Nightbot nemá. Príkazy, časovače a moderácia fungujú tak, ako by ste čakali."
+      },
+      "q2": {
+        "question": "Môžem si preniesť príkazy z iného bota?",
+        "answer": "Áno. Twir obsahuje importný nástroj pre Nightbot, StreamElements a Streamlabs. Vaše príkazy a nastavenia sa prenesú automaticky — bez manuálneho kopírovania."
+      },
+      "q3": {
+        "question": "Je Twir naozaj zadarmo?",
+        "answer": "Áno. Každá funkcia v porovnávacej tabuľke je zadarmo, vrátane overlayov, giveawayov a song requestov. Twir je open source a vyvíjajú ho streameri pre streamerov."
+      },
+      "q4": {
+        "question": "Podporuje Twir Kick?",
+        "answer": "Áno. Twir funguje s Twitchom aj Kickom z jedného dashboardu, takže môžete spravovať oba kanály na jednom mieste."
+      }
+    },
+    "disclaimer": "Nightbot, StreamElements, Moobot a Fossabot sú ochranné známky ich príslušných vlastníkov. Twir s nimi nie je spojený ani schválený. Údaje o funkciách vychádzajú z verejných informácií a môžu sa časom meniť."
   }
 }

@@ -7,6 +7,9 @@ import { LandingStatsStoreKey } from '~/stores/landing-stats'
 const statsStore = useLandingStatsStore()
 await callOnce(LandingStatsStoreKey, () => statsStore.fetchLandingStats())
 
+const { t } = useI18n()
+const localePath = useLocalePath()
+
 function prepareDescription(d: string): string {
 	return d
 		.replaceAll('{landingStatsCreatedHastebins}', (statsStore.stats?.hasteBins ?? 0).toString())
@@ -35,8 +38,9 @@ function prepareDescription(d: string): string {
 				<!-- Full width feature -->
 				<li
 					v-for="feature of featuresData"
+					:id="feature.id"
 					:key="feature.title"
-					class="flex flex-col items-center text-center"
+					class="flex flex-col items-center text-center scroll-mt-24"
 					:class="[feature.fullWidth ? 'col-span-full mb-8' : 'col-span-1']"
 				>
 					<div class="bg-[#B1AEFF]/12 p-2.5 rounded-full flex ring-8 ring-[#B1AEFF]/5 mb-5">
@@ -65,6 +69,13 @@ function prepareDescription(d: string): string {
 					<SvgoSocialDiscord :fontControlled="false" class="h-4 w-4" />
 					Join our Discord server to stay up to date
 				</a>
+				<NuxtLink
+					:to="localePath('/compare')"
+					class="mt-4 flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#5D58F5]/15 hover:bg-[#5D58F5]/25 border border-[#5D58F5]/40 font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5D58F5]/60 transition-shadow"
+				>
+					<Icon name="lucide:scale" class="h-4 w-4" />
+					{{ t('landing.compareLink') }}
+				</NuxtLink>
 			</div>
 		</div>
 	</section>

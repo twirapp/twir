@@ -8,6 +8,10 @@ export const anchorLinks = [
 		label: 'Integrations',
 	},
 	{
+		href: '/compare',
+		label: 'Compare',
+	},
+	{
 		href: '/url-shortener',
 		label: 'URL Shortener',
 	},

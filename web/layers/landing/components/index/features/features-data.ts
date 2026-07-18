@@ -15,6 +15,7 @@ import TimersSvg from 'assets/icons/features/timers.svg?component'
 import { Icon } from '#components'
 
 interface Feature {
+	id: string
 	title: string
 	description: string
 	icon: any
@@ -23,79 +24,93 @@ interface Feature {
 
 export const featuresData: Feature[] = [
 	{
+		id: 'music-recognition',
 		title: 'Music Recognition',
 		description:
 			'Shazam for your twitch stream! Free, without the need to connect any music services',
 		icon: MusicRecognizeSvg,
 	},
 	{
+		id: 'vips',
 		title: 'Vips',
 		description: 'Manage your vips through bot, schedule vips to be removed at a specific time',
 		icon: h(Icon, { name: 'lucide:gem' }),
 	},
 	{
+		id: 'giveaways',
 		title: 'Giveaways',
 		description:
 			'Create giveaways, manage participants, choose winners, and archive giveaways for future reference',
 		icon: h(Icon, { name: 'lucide:gift' }),
 	},
 	{
+		id: 'commands',
 		title: 'Commands',
 		description:
 			'A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling',
 		icon: CommandsSvg,
 	},
 	{
+		id: 'variables',
 		title: 'Custom variables',
 		description: 'Write custom variables with JavaScript or Python for expand bot functionality',
 		icon: h(Icon, { name: 'lucide:code' }),
 	},
 	{
+		id: 'timers',
 		title: 'Timers',
 		description:
 			'A simple system, but with verve, has become a popular announcement system from Twitch',
 		icon: TimersSvg,
 	},
 	{
+		id: 'greetings',
 		title: 'Greetings',
 		description: 'Do you want to somehow highlight your favorite viewers? Add a greeting!',
 		icon: GreetingsSvg,
 	},
 	{
+		id: 'song-requests',
 		title: 'Song requests',
 		description:
 			'Viewers request songs via chat commands. Bot manages queue, plays songs, and offers controls. Enhances stream with viewer engagement',
 		icon: SongRequestsSvg,
 	},
 	{
+		id: 'keywords',
 		title: 'Keywords',
 		description:
 			'Identifies specified keywords in chat, triggers automated messages for engagement or information. Enhances interaction and delivers targeted content during live stream',
 		icon: KeywordsSvg,
 	},
 	{
+		id: 'events',
 		title: 'Events',
 		description:
 			'With this powerful tool, you can easily set up customized listeners to keep track of specific events happening in the chat, or even trigger actions based on system events',
 		icon: EventsSvg,
 	},
 	{
+		id: 'moderation',
 		title: 'Moderation',
 		description: 'Create and manage chat filters to keep safe and kind communication',
 		icon: ModerationSvg,
 	},
 	{
+		id: 'obs',
 		title: 'OBS Websockets',
 		description:
 			'Highly integrate with obs studio via websockets. Change scenes, mute audio, toggle source visibility via bot',
 		icon: ConnectionSvg,
 	},
 	{
+		id: 'stats',
 		title: 'Stats tracking',
 		description: 'Track users watch time, messages, used channel points',
 		icon: StatsSvg,
 	},
 	{
+		id: 'overlays',
 		title: 'Overlays',
 		description:
 			'An assortment of pre-designed overlays, including Faceit Stats, Valorant Stats, Now Playing, Chat, Emote Wall, Pixel Dudes, and AFK displays',
@@ -107,24 +122,28 @@ export const featuresData: Feature[] = [
 	// 	icon: ChatAlertsSvg,
 	// },
 	{
+		id: 'alerts',
 		title: 'Alerts',
 		description:
 			'Want to sound alerts on rewards? We got you covered! Create custom alerts for your channel points, commands, keywords triggers',
 		icon: AlertsSvg,
 	},
 	{
+		id: 'games',
 		title: 'Games',
 		description:
 			'Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment',
 		icon: GamesSvg,
 	},
 	{
+		id: 'short-urls',
 		title: 'Short urls',
 		description:
 			"Shrink and share links instantly with Twir's sleek URL shortener – over {landingStatsCreatedShortUrls} created and counting",
 		icon: h(Icon, { name: 'lucide:link' }),
 	},
 	{
+		id: 'hastebins',
 		title: 'HasteBins',
 		description:
 			'Create and share quick, secure text snippets with HasteBins – {landingStatsCreatedHastebins} created and growing',
