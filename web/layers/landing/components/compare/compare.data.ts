@@ -128,8 +128,8 @@ export const compareFeatureRows: CompareFeatureRow[] = [
 		labelKey: 'compare.features.customScripting',
 		cells: {
 			twir: yes('compare.notes.scriptingTwir'),
-			nightbot: no(),
-			streamelements: no(),
+			nightbot: partial(),
+			streamelements: partial(),
 			moobot: no(),
 			fossabot: partial('compare.notes.scriptingFossabot'),
 		},
