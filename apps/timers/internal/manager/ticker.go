@@ -94,8 +94,8 @@ func (c *Manager) tryTick(id TimerID) {
 		timeInterval     = time.Duration(t.dbRow.TimeInterval) * time.Minute
 		messageInterval  = t.dbRow.MessageInterval
 		secondsSinceLast = now.Sub(t.lastTriggerTimestamp).
-					Seconds() +
-			1 // https://go.dev/pkg/time/?m=old#hdr-Timer_Resolution
+					Seconds() -
+			5 // https://go.dev/pkg/time/?m=old#hdr-Timer_Resolution
 	)
 
 	if currentMessageNumber < lastTriggerMessageCount {

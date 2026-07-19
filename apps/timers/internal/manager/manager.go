@@ -153,7 +153,7 @@ func (c *Manager) addTimer(dbRow timersentity.Timer) {
 	}
 
 	if dbRow.TimeInterval != 0 {
-		timer.ticker = time.NewTicker(time.Duration(dbRow.TimeInterval) * time.Second)
+		timer.ticker = time.NewTicker(5 * time.Second)
 
 		go func() {
 			for {
