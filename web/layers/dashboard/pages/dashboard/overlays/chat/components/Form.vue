@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import { useUserAccessFlagChecker } from '#layers/dashboard/api/auth'
+import { useChatOverlayApi } from '#layers/dashboard/api/overlays/chat'
+import { useCopyOverlayLink } from '#layers/dashboard/components/overlays/copyOverlayLink.ts'
+import { type Font, FontSelector } from '#layers/dashboard/lib/fontsource'
 import { ChatBox, type Settings as ChatBoxSettings, type Message } from '@twir/frontend-chat'
 import { useIntervalFn } from '@vueuse/core'
 import { useForm } from 'vee-validate'
-import { computed, nextTick, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { z } from 'zod'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import { useChatOverlayApi } from '@/api/overlays/chat'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ColorPicker } from '@/components/ui/color-picker'
@@ -26,7 +26,6 @@ import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { ChannelRolePermissionEnum, ChatOverlayAnimation } from '@/gql/graphql'
-import { type Font, FontSelector } from '@/lib/fontsource'
 
 import { globalBadges } from '../constants.ts'
 import * as faker from '../faker.ts'
@@ -93,17 +92,28 @@ useIntervalFn(() => {
 	]
 	const randomWord = words[Math.floor(Math.random() * words.length)]
 
+	const isKickMessage = messagesMock.value.length % 2 === 1
+
 	messagesMock.value.push({
 		sender: faker.firstName(),
-		chunks: [{ type: 'text', value: randomWord }],
+		chunks: [{ type: 'text', value: randomWord! }],
 		createdAt: new Date(),
 		internalId,
 		isAnnounce: faker.boolean(),
 		isItalic: false,
 		type: 'message',
+		platform: isKickMessage ? 'kick' : 'twitch',
 		senderColor: faker.rgb(),
 		announceColor: '',
-		badges: { [faker.randomArrayItem(globalBadges).set_id]: '1' },
+		badges: isKickMessage ? undefined : { [faker.randomArrayItem(globalBadges)!.set_id]: '1' },
+		kickBadges: isKickMessage
+			? [
+					{
+						type: faker.randomArrayItem(['subscriber', 'moderator', 'vip']) ?? 'subscriber',
+						text: '',
+					},
+				]
+			: undefined,
 		id: crypto.randomUUID(),
 		senderDisplayName: faker.firstName(),
 	})
@@ -170,6 +180,7 @@ const formSchema = z.object({
 	hideCommands: z.boolean(),
 	showBadges: z.boolean(),
 	showAnnounceBadge: z.boolean(),
+	showPlatformIcon: z.boolean(),
 	paddingContainer: z.number().min(0).max(256),
 	fontFamily: z.string(),
 	fontWeight: z.number(),
@@ -241,6 +252,7 @@ watch(
 			hideCommands: newValue.hideCommands,
 			showBadges: newValue.showBadges,
 			showAnnounceBadge: newValue.showAnnounceBadge,
+			showPlatformIcon: newValue.showPlatformIcon,
 			paddingContainer: newValue.paddingContainer,
 			fontFamily: newValue.fontFamily,
 			fontWeight: newValue.fontWeight,
@@ -501,6 +513,26 @@ function handleReset() {
 									class="hover:text-foreground cursor-pointer text-sm font-medium transition-colors"
 								>
 									{{ t('overlays.chat.showBadges') }}
+								</FormLabel>
+								<FormControl>
+									<Switch
+										:model-value="value"
+										class="transition-all"
+										@update:model-value="handleChange"
+									/>
+								</FormControl>
+							</FormItem>
+						</FormField>
+
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="showPlatformIcon"
+						>
+							<FormItem class="flex items-center justify-between">
+								<FormLabel
+									class="hover:text-foreground cursor-pointer text-sm font-medium transition-colors"
+								>
+									{{ t('overlays.chat.showPlatformIcon') }}
 								</FormLabel>
 								<FormControl>
 									<Switch

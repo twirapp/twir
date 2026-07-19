@@ -33,6 +33,7 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) generic.Ch
 
 			emote = &generic.ChatMessageMessageFragmentEmote{
 				ID:         fragment.Emote.Id,
+				URL:        twitchEmoteURL(fragment.Emote.Id),
 				EmoteSetID: fragment.Emote.EmoteSetId,
 				OwnerID:    fragment.Emote.OwnerId,
 				Format:     formats,
@@ -101,14 +102,14 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) generic.Ch
 	}
 
 	return generic.ChatMessage{
-		ID:                          event.MessageId,
-		BroadcasterUserId:           event.BroadcasterUserId,
-		BroadcasterUserName:         event.BroadcasterUserName,
-		BroadcasterUserLogin:        event.BroadcasterUserLogin,
-		ChatterUserId:               event.ChatterUserId,
-		ChatterUserName:             event.ChatterUserName,
-		ChatterUserLogin:            event.ChatterUserLogin,
-		MessageID:                   event.MessageId,
+		ID:                   event.MessageId,
+		BroadcasterUserId:    event.BroadcasterUserId,
+		BroadcasterUserName:  event.BroadcasterUserName,
+		BroadcasterUserLogin: event.BroadcasterUserLogin,
+		ChatterUserId:        event.ChatterUserId,
+		ChatterUserName:      event.ChatterUserName,
+		ChatterUserLogin:     event.ChatterUserLogin,
+		MessageID:            event.MessageId,
 		Message: &generic.ChatMessageMessage{
 			Text:      event.Message.Text,
 			Fragments: fragments,
@@ -130,6 +131,114 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) generic.Ch
 	}
 }
 
+func EventSubChatNotificationAnnouncementToBus(
+	event eventsub.ChannelChatNotificationEvent,
+) generic.ChatMessage {
+	fragments := make([]generic.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
+
+	startFragmentPosition := 0
+	for _, fragment := range event.Message.Fragments {
+		var cheerMote *generic.ChatMessageMessageFragmentCheermote
+		var emote *generic.ChatMessageMessageFragmentEmote
+		var mention *generic.ChatMessageMessageFragmentMention
+
+		if fragment.Cheermote != nil {
+			cheerMote = &generic.ChatMessageMessageFragmentCheermote{
+				Prefix: fragment.Cheermote.Prefix,
+				Bits:   int64(fragment.Cheermote.Bits),
+				Tier:   int64(fragment.Cheermote.Tier),
+			}
+		}
+
+		if fragment.Emote != nil {
+			formats := make([]string, 0, len(fragment.Emote.Format))
+			for _, f := range fragment.Emote.Format {
+				formats = append(formats, string(f))
+			}
+
+			emote = &generic.ChatMessageMessageFragmentEmote{
+				ID:         fragment.Emote.Id,
+				URL:        twitchEmoteURL(fragment.Emote.Id),
+				EmoteSetID: fragment.Emote.EmoteSetId,
+				OwnerID:    fragment.Emote.OwnerId,
+				Format:     formats,
+			}
+		}
+
+		if fragment.Mention != nil {
+			mention = &generic.ChatMessageMessageFragmentMention{
+				UserID:    fragment.Mention.UserId,
+				UserName:  fragment.Mention.UserName,
+				UserLogin: fragment.Mention.UserLogin,
+			}
+		}
+
+		position := generic.ChatMessageMessageFragmentPosition{
+			Start: startFragmentPosition,
+			End:   startFragmentPosition + utf8.RuneCountInString(fragment.Text),
+		}
+
+		fragments = append(
+			fragments,
+			generic.ChatMessageMessageFragment{
+				Type:      convertFragmentTypeToEnumValue(string(fragment.Type)),
+				Text:      fragment.Text,
+				Cheermote: cheerMote,
+				Emote:     emote,
+				Mention:   mention,
+				Position:  position,
+			},
+		)
+
+		startFragmentPosition += utf8.RuneCountInString(fragment.Text)
+	}
+
+	badges := make([]generic.ChatMessageBadge, 0, len(event.Badges))
+	for _, badge := range event.Badges {
+		badges = append(
+			badges,
+			generic.ChatMessageBadge{
+				ID:    badge.Id,
+				SetID: badge.SetId,
+				Info:  badge.Info,
+				Text:  badge.Info,
+			},
+		)
+	}
+
+	var announceColor string
+	if event.Announcement != nil {
+		announceColor = event.Announcement.Color
+	}
+
+	return generic.ChatMessage{
+		ID:                   event.MessageId,
+		BroadcasterUserId:    event.BroadcasterUserId,
+		BroadcasterUserName:  event.BroadcasterUserName,
+		BroadcasterUserLogin: event.BroadcasterUserLogin,
+		ChatterUserId:        event.ChatterUserId,
+		ChatterUserName:      event.ChatterUserName,
+		ChatterUserLogin:     event.ChatterUserLogin,
+		MessageID:            event.MessageId,
+		Message: &generic.ChatMessageMessage{
+			Text:      event.Message.Text,
+			Fragments: fragments,
+		},
+		Text:              event.Message.Text,
+		Platform:          string(platform.PlatformTwitch),
+		PlatformChannelID: event.BroadcasterUserId,
+		ChannelID:         event.BroadcasterUserId,
+		UserID:            event.ChatterUserId,
+		SenderID:          event.ChatterUserId,
+		SenderLogin:       event.ChatterUserLogin,
+		SenderDisplayName: event.ChatterUserName,
+		Color:             event.Color,
+		AnnounceColor:     announceColor,
+		Badges:            badges,
+		MessageType:       "announcement",
+	}
+}
+
 func convertFragmentTypeToEnumValue(t string) generic.FragmentType {
 	switch t {
 	case "text":
@@ -143,4 +252,12 @@ func convertFragmentTypeToEnumValue(t string) generic.FragmentType {
 	default:
 		return generic.FragmentType_TEXT
 	}
+}
+
+func twitchEmoteURL(emoteID string) string {
+	if emoteID == "" {
+		return ""
+	}
+
+	return "https://static-cdn.jtvnw.net/emoticons/v2/" + emoteID + "/default/dark/3.0"
 }

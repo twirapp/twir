@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL, GITHUB_ORG_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
 import 'vue-sonner/style.css'
-
 import { Toaster } from '@/components/ui/sonner'
 
 const description =
@@ -54,7 +53,6 @@ useSeoMeta({
 	twitterTitle: siteName,
 	twitterDescription: description,
 	twitterImage: metaImg,
-	keywords,
 })
 
 const siteConfig = useSiteConfig()

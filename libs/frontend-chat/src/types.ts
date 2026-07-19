@@ -45,15 +45,24 @@ export interface ChatBadge {
 	versions: Array<BadgeVersion>
 }
 
+export type MessagePlatform = 'twitch' | 'kick'
+
+export interface KickBadge {
+	type: string
+	text: string
+}
+
 export interface Message {
 	internalId: string
 	id?: string
 	type: 'message' | 'system'
+	platform?: MessagePlatform
 	chunks: MessageChunk[]
 	sender?: string
 	senderColor?: string
 	senderDisplayName?: string
 	badges?: Record<string, string>
+	kickBadges?: KickBadge[]
 	isItalic: boolean
 	createdAt: Date
 	announceColor?: string
@@ -79,6 +88,7 @@ export interface Settings {
 	preset: string
 	showAnnounceBadge: boolean
 	showBadges: boolean
+	showPlatformIcon: boolean
 	textShadowColor: string
 	textShadowSize: number
 	globalBadges: ChatBadge[]

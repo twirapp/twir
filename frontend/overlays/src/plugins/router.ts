@@ -42,6 +42,10 @@ export const router = createRouter({
 		{
 			path: '/faceit-stats',
 			component: () => import('@/pages/overlays/faceit-stats.vue'),
+		},
+		{
+			path: '/chat-debug',
+			component: () => import('@/pages/overlays/chat-debug.vue'),
 		}
 	],
 })

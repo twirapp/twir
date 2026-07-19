@@ -2,13 +2,18 @@ import { useIntervalFn } from '@vueuse/core';
 import { type Ref, watch } from 'vue';
 
 import { useBetterTv } from './use-bettertv.js';
-import type { ChatSettings } from './use-chat-tmi.js';
+import type { ThirdPartyEmotesOptions } from './use-chat-tmi.js';
 import { useFrankerFaceZ } from './use-ffz.js';
 import { useSevenTv } from './use-seven-tv.js';
 
 const ONE_MINUTE = 60 * 1000;
 
-export function useThirdPartyEmotes(options: Ref<ChatSettings>) {
+export interface ThirdPartyEmotesSettings {
+	channelId: string;
+	emotes: ThirdPartyEmotesOptions;
+}
+
+export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesSettings>) {
 	const { fetchSevenTvEmotes, destroy: destroySevenTv } = useSevenTv();
 	const { fetchBttvEmotes } = useBetterTv();
 	const { fetchFrankerFaceZEmotes } = useFrankerFaceZ();

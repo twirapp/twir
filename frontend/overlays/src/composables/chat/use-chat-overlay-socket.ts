@@ -64,6 +64,7 @@ export const useChatOverlaySocket = createGlobalState(() => {
 					fontFamily
 					showBadges
 					showAnnounceBadge
+					showPlatformIcon
 					textShadowColor
 					textShadowSize
 					chatBackgroundColor
@@ -77,6 +78,48 @@ export const useChatOverlaySocket = createGlobalState(() => {
 		`),
 		variables: {
 			id: route.query.id as string,
+			apiKey: route.params.apiKey as string,
+		},
+	})
+
+	const eventsSub = useSubscription({
+		query: graphql(`
+			subscription ChatOverlayEvents($apiKey: String!) {
+				overlaysChatEvents(apiKey: $apiKey) {
+					__typename
+					... on ChatOverlayMessage {
+						id
+						platform
+						messageId
+						messageType
+						senderId
+						senderLogin
+						senderDisplayName
+						senderColor
+						announceColor
+						createdAt
+						badges {
+							setId
+							versionId
+							text
+						}
+						fragments {
+							type
+							text
+							emoteId
+							emoteUrl
+						}
+					}
+					... on ChatOverlayModerationEvent {
+						type
+						platform
+						userLogin
+						deletedMessageId
+					}
+				}
+			}
+		`),
+		variables: {
 			apiKey: route.params.apiKey as string,
 		},
 	})
@@ -109,5 +152,6 @@ export const useChatOverlaySocket = createGlobalState(() => {
 		neededData,
 		overlaySettings,
 		chatLibSettings,
+		chatEvents: eventsSub.data,
 	}
 })

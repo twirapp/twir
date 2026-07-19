@@ -6,32 +6,13 @@ import { useRoute } from 'vue-router'
 
 import PlatformSelector from '@/components/platform-selector.vue'
 import { Button } from '@/components/ui/button'
-import { Card, CardAction, CardContent } from '@/components/ui/card'
-import {
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { Slider } from '@/components/ui/slider'
 import Switch from '@/components/ui/switch/Switch.vue'
 import VariableInput from '@/components/variable-input.vue'
-import { formSchema, useTimersEdit } from '@/features/timers/composables/use-timers-edit.js'
 import { TwitchAnnounceColor } from '@/gql/graphql.js'
 import PageLayout from '@/layout/page-layout.vue'
+
+import { formSchema, useTimersEdit } from './composables/use-timers-edit'
 
 const route = useRoute<'dashboard-timers-id'>()
 const { t } = useI18n()
@@ -93,24 +74,24 @@ const responsesHasError = computed(() => {
 					class="mx-auto flex max-w-4xl flex-col gap-4"
 					:class="{ 'blur-xs': loading }"
 				>
-					<FormField
+					<UiFormField
 						v-slot="{ componentField }"
 						name="name"
 					>
-						<FormItem>
-							<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
-							<FormControl>
-								<Input
+						<UiFormItem>
+							<UiFormLabel>{{ t('sharedTexts.name') }}</UiFormLabel>
+							<UiFormControl>
+								<UiInput
 									type="text"
 									v-bind="componentField"
 								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					</FormField>
+							</UiFormControl>
+							<UiFormMessage />
+						</UiFormItem>
+					</UiFormField>
 
-					<Card class="p-0">
-						<CardContent class="space-y-4 py-4">
+					<UiCard class="p-0">
+						<UiCardContent class="space-y-4 py-4">
 							<div class="space-y-2">
 								<h3 class="text-lg font-semibold">Timer Intervals</h3>
 								<p class="text-muted-foreground text-sm">
@@ -120,19 +101,19 @@ const responsesHasError = computed(() => {
 								</p>
 							</div>
 
-							<FormField
+							<UiFormField
 								v-slot="{ componentField }"
 								name="timeInterval"
 							>
-								<FormItem>
-									<FormLabel>{{ t('timers.table.columns.intervalInMinutes') }}</FormLabel>
-									<FormControl>
+								<UiFormItem>
+									<UiFormLabel>{{ t('timers.table.columns.intervalInMinutes') }}</UiFormLabel>
+									<UiFormControl>
 										<div class="flex flex-wrap gap-6">
-											<Input
+											<UiInput
 												type="number"
 												v-bind="componentField"
 											/>
-											<Slider
+											<UiSlider
 												:model-value="[componentField.modelValue]"
 												:max="1000"
 												:default-value="[0, 1000]"
@@ -146,32 +127,32 @@ const responsesHasError = computed(() => {
 												"
 											/>
 										</div>
-									</FormControl>
-									<FormMessage />
-									<FormDescription class="flex justify-end">
+									</UiFormControl>
+									<UiFormMessage />
+									<UiFormDescription class="flex justify-end">
 										<span>{{ componentField.modelValue }} minutes</span>
-									</FormDescription>
-								</FormItem>
-							</FormField>
+									</UiFormDescription>
+								</UiFormItem>
+							</UiFormField>
 
 							<Separator class="my-4" />
 
-							<FormField
+							<UiFormField
 								v-slot="{ componentField }"
 								name="messageInterval"
 							>
-								<FormItem>
-									<FormLabel>{{ t('timers.table.columns.intervalInMessages') }}</FormLabel>
-									<FormControl>
-										<Input
+								<UiFormItem>
+									<UiFormLabel>{{ t('timers.table.columns.intervalInMessages') }}</UiFormLabel>
+									<UiFormControl>
+										<UiInput
 											type="number"
 											placeholder="0"
 											v-bind="componentField"
 										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
+									</UiFormControl>
+									<UiFormMessage />
+								</UiFormItem>
+							</UiFormField>
 
 							<div class="bg-muted mt-4 space-y-3 rounded-lg p-4">
 								<h4 class="text-sm font-semibold">Examples:</h4>
@@ -215,11 +196,11 @@ const responsesHasError = computed(() => {
 									</div>
 								</div>
 							</div>
-						</CardContent>
-					</Card>
+						</UiCardContent>
+					</UiCard>
 
-					<Card class="p-0">
-						<CardContent class="space-y-4 py-4">
+					<UiCard class="p-0">
+						<UiCardContent class="space-y-4 py-4">
 							<div class="space-y-2">
 								<h3 class="text-lg font-semibold">Delivery</h3>
 								<p class="text-muted-foreground text-sm">
@@ -227,61 +208,61 @@ const responsesHasError = computed(() => {
 								</p>
 							</div>
 
-							<FormField
+							<UiFormField
 								v-slot="{ value, handleChange }"
 								name="onlineEnabled"
 							>
-								<FormItem class="space-y-2 rounded-lg border p-4">
+								<UiFormItem class="space-y-2 rounded-lg border p-4">
 									<div class="flex items-center justify-between gap-4">
 										<div class="space-y-1">
-											<FormLabel>Send while online</FormLabel>
-											<FormDescription>
+											<UiFormLabel>Send while online</UiFormLabel>
+											<UiFormDescription>
 												Allow this timer to trigger when the channel is live.
-											</FormDescription>
+											</UiFormDescription>
 										</div>
-										<FormControl>
-											<Switch
+										<UiFormControl>
+											<UiSwitch
 												:model-value="value"
 												@update:model-value="handleChange"
 											/>
-										</FormControl>
+										</UiFormControl>
 									</div>
-									<FormMessage />
-								</FormItem>
-							</FormField>
+									<UiFormMessage />
+								</UiFormItem>
+							</UiFormField>
 
-							<FormField
+							<UiFormField
 								v-slot="{ value, handleChange }"
 								name="offlineEnabled"
 							>
-								<FormItem class="space-y-2 rounded-lg border p-4">
+								<UiFormItem class="space-y-2 rounded-lg border p-4">
 									<div class="flex items-center justify-between gap-4">
 										<div class="space-y-1">
-											<FormLabel>Send while offline</FormLabel>
-											<FormDescription>
+											<UiFormLabel>Send while offline</UiFormLabel>
+											<UiFormDescription>
 												Allow this timer to trigger when the channel is offline.
-											</FormDescription>
+											</UiFormDescription>
 										</div>
-										<FormControl>
+										<UiFormControl>
 											<Switch
 												:model-value="value"
 												@update:model-value="handleChange"
 											/>
-										</FormControl>
+										</UiFormControl>
 									</div>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</CardContent>
-					</Card>
+									<UiFormMessage />
+								</UiFormItem>
+							</UiFormField>
+						</UiCardContent>
+					</UiCard>
 
-					<Card class="p-0">
-						<CardContent class="space-y-4 py-4">
-							<FormField
+					<UiCard class="p-0">
+						<UiCardContent class="space-y-4 py-4">
+							<UiFormField
 								v-slot="{ field }"
 								name="platforms"
 							>
-								<FormItem>
+								<UiFormItem>
 									<div class="space-y-2">
 										<h3 class="text-lg font-semibold">Platforms</h3>
 										<p class="text-muted-foreground text-sm">
@@ -289,21 +270,21 @@ const responsesHasError = computed(() => {
 											platforms.
 										</p>
 									</div>
-									<FormControl>
+									<UiFormControl>
 										<PlatformSelector
 											:model-value="field.value"
 											@update:model-value="field['onUpdate:modelValue']"
 										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</CardContent>
-					</Card>
+									</UiFormControl>
+									<UiFormMessage />
+								</UiFormItem>
+							</UiFormField>
+						</UiCardContent>
+					</UiCard>
 
-					<Label :class="{ 'text-destructive': responsesHasError }">{{
+					<UiLabel :class="{ 'text-destructive': responsesHasError }">{{
 						t('sharedTexts.responses')
-					}}</Label>
+					}}</UiLabel>
 					<span class="text-muted-foreground text-sm">
 						Responses are sent in sequence: the first on the initial trigger, the second after
 						<b>{{ controlledValues.timeInterval }}</b> minutes, etc., cycling back to the first
@@ -314,16 +295,16 @@ const responsesHasError = computed(() => {
 						v-slot="{ fields, push, remove }"
 						name="responses"
 					>
-						<VueDraggable
-							v-model="controlledValues.responses!"
-							handle=".drag-handle"
-							class="flex flex-col gap-2"
-						>
+<!--						<VueDraggable-->
+<!--							v-model="controlledValues.responses!"-->
+<!--							handle=".drag-handle"-->
+<!--							class="flex flex-col gap-2"-->
+<!--						>-->
 							<div
 								v-for="(field, index) in fields"
 								:key="`responses-text-${field.key}`"
 							>
-								<Card class="relative flex items-center p-0">
+								<UiCard class="relative flex items-center p-0">
 									<div
 										class="bg-accent drag-handle absolute left-0 z-10 flex h-full w-4 cursor-move cursor-move rounded-l-md border"
 									>
@@ -332,13 +313,13 @@ const responsesHasError = computed(() => {
 											class="my-auto size-6"
 										/>
 									</div>
-									<CardContent class="w-full pt-2">
-										<FormField
+									<UiCardContent class="w-full pt-2">
+										<UiFormField
 											v-slot="{ componentField }"
 											:name="`responses[${index}].text`"
 										>
-											<FormItem class="flex flex-col gap-4">
-												<FormControl>
+											<UiFormItem class="flex flex-col gap-4">
+												<UiFormControl>
 													<VariableInput
 														input-type="textarea"
 														class="relative p-2"
@@ -352,11 +333,11 @@ const responsesHasError = computed(() => {
 
 													<div class="flex flex-row flex-wrap gap-4">
 														<div class="flex flex-col gap-2">
-															<Label :for="`responses[${index}].count`">
+															<UiLabel :for="`responses[${index}].count`">
 																How many times send this message on trigger
-															</Label>
+															</UiLabel>
 
-															<Input
+															<UiInput
 																:id="`responses[${index}].count`"
 																v-model:modelValue="(field.value as any).count"
 																type="number"
@@ -364,30 +345,30 @@ const responsesHasError = computed(() => {
 														</div>
 
 														<div class="flex flex-col gap-2">
-															<Label :for="`responses[${index}].isAnnounce`">
+															<UiLabel :for="`responses[${index}].isAnnounce`">
 																Send as announcement
-															</Label>
-															<Checkbox
+															</UiLabel>
+															<UiCheckbox
 																:id="`responses[${index}].isAnnounce`"
 																v-model:model-value="(field.value as any).isAnnounce"
 															/>
 														</div>
 
 														<div class="flex flex-col gap-2">
-															<Label :for="`responses[${index}].announceColor`">
+															<UiLabel :for="`responses[${index}].announceColor`">
 																Announcement color
-															</Label>
-															<Select
+															</UiLabel>
+															<UiSelect
 																:id="`responses[${index}].announceColor`"
 																v-model:modelValue="(field.value as any).announceColor"
 																:default-value="TwitchAnnounceColor.Primary"
 															>
-																<SelectTrigger :disabled="!(field.value as any).isAnnounce">
-																	<SelectValue placeholder="Select a color" />
-																</SelectTrigger>
-																<SelectContent>
-																	<SelectGroup>
-																		<SelectItem
+																<UiSelectTrigger :disabled="!(field.value as any).isAnnounce">
+																	<UiSelectValue placeholder="Select a color" />
+																</UiSelectTrigger>
+																<UiSelectContent>
+																	<UiSelectGroup>
+																		<UiSelectItem
 																			v-for="color of TwitchAnnounceColor"
 																			:key="color"
 																			:value="color"
@@ -395,17 +376,17 @@ const responsesHasError = computed(() => {
 																			{{
 																				color.at(0)!.toUpperCase() + color.slice(1).toLowerCase()
 																			}}
-																		</SelectItem>
-																	</SelectGroup>
-																</SelectContent>
-															</Select>
+																		</UiSelectItem>
+																	</UiSelectGroup>
+																</UiSelectContent>
+															</UiSelect>
 														</div>
 													</div>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										</FormField>
-										<CardAction class="flex w-full justify-end py-2">
+												</UiFormControl>
+												<UiFormMessage />
+											</UiFormItem>
+										</UiFormField>
+										<UiCardAction class="flex w-full justify-end py-2">
 											<Button
 												variant="destructive"
 												class="flex gap-2 place-self-end"
@@ -417,12 +398,12 @@ const responsesHasError = computed(() => {
 												/>
 												Remove
 											</Button>
-										</CardAction>
-									</CardContent>
-								</Card>
+										</UiCardAction>
+									</UiCardContent>
+								</UiCard>
 							</div>
-						</VueDraggable>
-						<Button
+<!--						</VueDraggable>-->
+						<UiButton
 							type="button"
 							variant="outline"
 							size="sm"
@@ -435,7 +416,7 @@ const responsesHasError = computed(() => {
 								class="size-4"
 							/>
 							Add response {{ controlledValues.responses?.length ?? 0 }} / 10
-						</Button>
+						</UiButton>
 					</FieldArray>
 				</div>
 			</template>

@@ -5,8 +5,6 @@ import process from 'node:process'
 import tailwindcss from '@tailwindcss/vite'
 import { createResolver } from 'nuxt/kit'
 
-import gqlcodegen from './modules/gql-codegen'
-
 const { resolve } = createResolver(import.meta.url)
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -89,7 +87,6 @@ export default defineNuxtConfig({
 		'@vueuse/nuxt',
 		'@nuxtjs/i18n',
 		'@nuxtjs/seo',
-		gqlcodegen,
 		'@nuxtjs/fontaine',
 	],
 
@@ -271,7 +268,6 @@ export default defineNuxtConfig({
 			'/dashboard/**',
 			'/s',
 			'/s/**',
-			'/h',
 			'/h/**',
 			'/o',
 			'/o/**',
@@ -279,7 +275,6 @@ export default defineNuxtConfig({
 			'/overlays/**',
 			'/login',
 			'/login/**',
-			'/url-shortener/profile',
 			'/import',
 			'/import/**',
 			'/settings',
@@ -288,9 +283,7 @@ export default defineNuxtConfig({
 			'/en/dashboard/**',
 			'/**/dashboard',
 			'/**/dashboard/**',
-			'/**/s',
 			'/**/s/**',
-			'/**/h',
 			'/**/h/**',
 			'/**/o',
 			'/**/o/**',

@@ -1,5 +1,4 @@
 import { createGlobalState } from '@vueuse/core'
-import { ref, toRaw } from 'vue'
 
 import { type ChatSettingsWithOptionalId, defaultChatSettings } from './default-settings'
 

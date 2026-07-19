@@ -34,6 +34,7 @@ type ChatMessage struct {
 	Text                        string                  `json:"text"`
 	Badges                      []ChatMessageBadge      `json:"badges,omitempty"`
 	Color                       string                  `json:"color"`
+	AnnounceColor               string                  `json:"announce_color,omitempty"`
 	Emotes                      []ChatMessageEmote      `json:"emotes,omitempty"`
 	EnrichedData                ChatMessageEnrichedData `json:"enriched_data,omitempty"`
 }

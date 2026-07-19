@@ -12,6 +12,7 @@ import (
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
@@ -124,6 +125,48 @@ func (r *subscriptionResolver) ChatOverlaySettings(ctx context.Context, id strin
 	}()
 
 	return channel, nil
+}
+
+// OverlaysChatEvents is the resolver for the overlaysChatEvents field.
+func (r *subscriptionResolver) OverlaysChatEvents(ctx context.Context, apiKey string) (<-chan gqlmodel.ChatOverlayEvent, error) {
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
+	if err != nil {
+		return nil, err
+	}
+
+	messagesCh := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelIDs(ctx, identity.ChatTargets)
+	moderationCh := r.deps.ChatMessagesService.SubscribeToOverlayModerationEvents(ctx, identity.ChatTargets)
+
+	outCh := make(chan gqlmodel.ChatOverlayEvent, 1)
+
+	go func() {
+		defer close(outCh)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case msg, ok := <-messagesCh:
+				if !ok {
+					messagesCh = nil
+					continue
+				}
+
+				converted := mappers.ChatOverlayMessageEntityToGQL(msg)
+				outCh <- &converted
+			case event, ok := <-moderationCh:
+				if !ok {
+					moderationCh = nil
+					continue
+				}
+
+				converted := mappers.ChatOverlayModerationEventEntityToGQL(event)
+				outCh <- &converted
+			}
+		}
+	}()
+
+	return outCh, nil
 }
 
 // NowPlayingOverlaySettings is the resolver for the nowPlayingOverlaySettings field.
