@@ -53,7 +53,7 @@ SELECT
 FROM channels c
 LEFT JOIN users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'
 LEFT JOIN users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'
-WHERE c."api_key" = $1
+WHERE "api_key" = $1
 LIMIT 1
 `
 
@@ -65,6 +65,10 @@ func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.Channel, er
 
 	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+
 		return model.Nil, err
 	}
 
