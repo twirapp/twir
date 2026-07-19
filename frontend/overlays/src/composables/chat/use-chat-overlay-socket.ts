@@ -1,10 +1,11 @@
+import type { Settings } from '@twir/frontend-chat'
+
 import { useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { ChatOverlaySettingsSubscription } from '@/gql/graphql.js'
-import type { Settings } from '@twir/frontend-chat'
 
 import { graphql } from '@/gql'
 
@@ -22,6 +23,11 @@ export const useChatOverlaySocket = createGlobalState(() => {
 						login
 						displayName
 						profileImageUrl
+					}
+					kickProfile {
+						id
+						slug
+						displayName
 					}
 				}
 				twitchGetGlobalBadges {
@@ -82,40 +88,47 @@ export const useChatOverlaySocket = createGlobalState(() => {
 		},
 	})
 
-	const eventsSub = useSubscription({
+	const messagesSub = useSubscription({
 		query: graphql(`
-			subscription ChatOverlayEvents($apiKey: String!) {
-				overlaysChatEvents(apiKey: $apiKey) {
-					__typename
-					... on ChatOverlayMessage {
-						id
-						platform
-						messageId
-						messageType
-						senderId
-						senderLogin
-						senderDisplayName
-						senderColor
-						announceColor
-						createdAt
-						badges {
-							setId
-							versionId
-							text
-						}
-						fragments {
-							type
-							text
-							emoteId
-							emoteUrl
-						}
+			subscription ChatOverlayMessages($apiKey: String!) {
+				chatMessagesByApiKey(apiKey: $apiKey) {
+					id
+					platform
+					messageId
+					messageType
+					userID
+					userName
+					userDisplayName
+					userColor
+					announceColor
+					createdAt
+					badges {
+						setId
+						versionId
+						text
 					}
-					... on ChatOverlayModerationEvent {
+					fragments {
 						type
-						platform
-						userLogin
-						deletedMessageId
+						text
+						emoteId
+						emoteUrl
 					}
+				}
+			}
+		`),
+		variables: {
+			apiKey: route.params.apiKey as string,
+		},
+	})
+
+	const moderationSub = useSubscription({
+		query: graphql(`
+			subscription ChatOverlayModerationEvents($apiKey: String!) {
+				overlaysChatModerationEvents(apiKey: $apiKey) {
+					type
+					platform
+					userLogin
+					deletedMessageId
 				}
 			}
 		`),
@@ -136,15 +149,16 @@ export const useChatOverlaySocket = createGlobalState(() => {
 		if (!overlaySettings.value || !neededData.value) return null
 
 		const twitchProfile = neededData.value.authenticatedUser.twitchProfile
-		if (!twitchProfile) return null
+		const kickProfile = neededData.value.authenticatedUser.kickProfile
+		if (!twitchProfile && !kickProfile) return null
 
 		return {
 			...overlaySettings.value,
 			channelBadges: neededData.value.twitchGetChannelBadges.badges,
 			globalBadges: neededData.value.twitchGetGlobalBadges.badges,
-			channelId: twitchProfile.id ?? '',
-			channelName: twitchProfile.login ?? '',
-			channelDisplayName: twitchProfile.displayName ?? '',
+			channelId: twitchProfile?.id ?? kickProfile?.id ?? '',
+			channelName: twitchProfile?.login ?? kickProfile?.slug ?? '',
+			channelDisplayName: twitchProfile?.displayName ?? kickProfile?.displayName ?? '',
 		}
 	})
 
@@ -152,6 +166,7 @@ export const useChatOverlaySocket = createGlobalState(() => {
 		neededData,
 		overlaySettings,
 		chatLibSettings,
-		chatEvents: eventsSub.data,
+		chatMessages: messagesSub.data,
+		chatModerationEvents: moderationSub.data,
 	}
 })

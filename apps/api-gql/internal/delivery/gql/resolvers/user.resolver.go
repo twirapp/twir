@@ -59,19 +59,48 @@ func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj
 // KickProfile is the resolver for the kickProfile field.
 func (r *authenticatedUserResolver) KickProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.KickProfile, error) {
 	kickUser, err := r.deps.Sessions.GetSessionKickUser(ctx)
+	if err == nil {
+		var profilePicture *string
+		if kickUser.Avatar != "" {
+			profilePicture = &kickUser.Avatar
+		}
+
+		return &gqlmodel.KickProfile{
+			ID:             kickUser.ID,
+			Slug:           kickUser.Login,
+			DisplayName:    kickUser.Login,
+			ProfilePicture: profilePicture,
+			IsLive:         false,
+			FollowersCount: 0,
+		}, nil
+	}
+
+	parsedUserID, err := uuid.Parse(obj.ID)
 	if err != nil {
 		return nil, nil
 	}
 
+	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+	if err != nil {
+		if err == usersmodel.ErrNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	if user.Platform != platformentity.PlatformKick {
+		return nil, nil
+	}
+
 	var profilePicture *string
-	if kickUser.Avatar != "" {
-		profilePicture = &kickUser.Avatar
+	if user.Avatar != "" {
+		profilePicture = &user.Avatar
 	}
 
 	return &gqlmodel.KickProfile{
-		ID:             kickUser.ID,
-		Slug:           kickUser.Login,
-		DisplayName:    kickUser.Login,
+		ID:             user.PlatformID,
+		Slug:           user.Login,
+		DisplayName:    user.DisplayName,
 		ProfilePicture: profilePicture,
 		IsLive:         false,
 		FollowersCount: 0,

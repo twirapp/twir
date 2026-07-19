@@ -37,6 +37,7 @@
     "@tailwindcss/vite": "4.1.18",
     "@takumi-rs/core": "2.0.0-rc.16",
     "@tanstack/vue-table": "8.21.3",
+    "@tanstack/vue-virtual": "3.13.32",
     "@twir/api": "workspace:*",
     "@twir/brand": "workspace:*",
     "@twir/fontsource": "workspace:*",

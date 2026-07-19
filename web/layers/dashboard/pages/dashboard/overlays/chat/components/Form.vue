@@ -175,7 +175,7 @@ const chatBoxSettings = computed<ChatBoxSettings>(() => {
 const formSchema = z.object({
 	preset: z.enum(['clean', 'boxed']),
 	direction: z.enum(['top', 'right', 'bottom', 'left']),
-	animation: z.nativeEnum(ChatOverlayAnimation),
+	animation: z.enum(ChatOverlayAnimation),
 	hideBots: z.boolean(),
 	hideCommands: z.boolean(),
 	showBadges: z.boolean(),

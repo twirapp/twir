@@ -299,27 +299,6 @@ func (r *subscriptionResolver) OverlaysKappagenTrigger(ctx context.Context, apiK
 	return chann, nil
 }
 
-// OverlaysKappagenChatMessages is the resolver for the overlaysKappagenChatMessages field.
-func (r *subscriptionResolver) OverlaysKappagenChatMessages(ctx context.Context, apiKey string) (<-chan *gqlmodel.ChatMessage, error) {
-	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
-	if err != nil {
-		return nil, err
-	}
-
-	ch := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelIDs(ctx, identity.ChatTargets)
-	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
-
-	go func() {
-		for msg := range ch {
-			converted := mappers.ChatMessageToGQL(msg)
-			gqlCh <- &converted
-		}
-		close(gqlCh)
-	}()
-
-	return gqlCh, nil
-}
-
 // KappagenOverlay returns graph.KappagenOverlayResolver implementation.
 func (r *Resolver) KappagenOverlay() graph.KappagenOverlayResolver {
 	return &kappagenOverlayResolver{r}

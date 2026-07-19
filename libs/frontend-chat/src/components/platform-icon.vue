@@ -24,6 +24,8 @@ const color = computed(() => {
 		v-if="platform === 'twitch'"
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 24 24"
+		width="1em"
+		height="1em"
 		:fill="color"
 		class="platform-icon"
 	>
@@ -35,6 +37,8 @@ const color = computed(() => {
 		v-else-if="platform === 'kick'"
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 24 24"
+		width="1em"
+		height="1em"
 		:fill="color"
 		class="platform-icon"
 	>

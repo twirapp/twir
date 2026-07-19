@@ -163,6 +163,8 @@ export default defineNuxtConfig({
 				'@unovis/vue',
 				'vue-draggable-plus',
 				'@vuepic/vue-datepicker',
+				'@guolao/vue-monaco-editor',
+				'@unhead/schema-org/vue',
 			],
 		},
 		server: {
