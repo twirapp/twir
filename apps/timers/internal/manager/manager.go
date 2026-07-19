@@ -92,6 +92,21 @@ func (c *Manager) initialize(ctx context.Context) error {
 		return nil
 	}
 
+	channels, err := c.channelsRepo.GetMany(
+		ctx,
+		channelsrepository.GetManyInput{
+			Enabled: lo.ToPtr(true),
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("cannot get channels: %w", err)
+	}
+
+	channelsByID := make(map[string]channelmodel.Channel, len(channels))
+	for _, ch := range channels {
+		channelsByID[ch.ID.String()] = ch
+	}
+
 	for offset := int64(0); offset < totalTimers; {
 		batchSize := int64(100)
 		if offset+batchSize > totalTimers {
@@ -110,25 +125,9 @@ func (c *Manager) initialize(ctx context.Context) error {
 			return fmt.Errorf("cannot initialize timers manager: %w", err)
 		}
 
-		channels, err := c.channelsRepo.GetMany(
-			ctx,
-			channelsrepository.GetManyInput{
-				Enabled: lo.ToPtr(true),
-			},
-		)
-		if err != nil {
-			return fmt.Errorf("cannot get channels: %w", err)
-		}
-
 		for _, t := range timersBatch {
-			var foundChannel channelmodel.Channel
-			for _, ch := range channels {
-				if ch.ID.String() == t.ChannelID.String() {
-					foundChannel = ch
-					break
-				}
-			}
-			if foundChannel.IsNil() || foundChannel.KickUserID == nil || foundChannel.TwitchUserID == nil {
+			foundChannel, ok := channelsByID[t.ChannelID.String()]
+			if !ok || (!foundChannel.TwitchConnected() && !foundChannel.KickConnected()) {
 				continue
 			}
 
