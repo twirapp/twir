@@ -88,16 +88,16 @@ func NewStreams(opts StreamOpts) {
 }
 
 func (c *streams) processStreams(ctx context.Context) error {
-	var channels []model.Channels
-	err := buildTwitchChannelsQuery(c.gorm, ctx).Find(&channels).Error
+	var channels []twitchStreamChannelRow
+	err := buildTwitchChannelsQuery(c.gorm, ctx).Scan(&channels).Error
 	if err != nil {
 		return fmt.Errorf("cannot get channels: %w", err)
 	}
 
 	usersIds := make([]string, 0, len(channels))
 	for _, channel := range channels {
-		if channel.TwitchUserID != nil {
-			usersIds = append(usersIds, *channel.TwitchUserID)
+		if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
+			usersIds = append(usersIds, *channel.TwitchPlatformID)
 		}
 	}
 
@@ -273,11 +273,26 @@ func (c *streams) processStreams(ctx context.Context) error {
 	return nil
 }
 
+type twitchStreamChannelRow struct {
+	ID               string  `gorm:"column:id"`
+	TwitchPlatformID *string `gorm:"column:twitch_platform_id"`
+}
+
+const (
+	twitchChannelsSelectClause        = `channels.id, users.platform_id AS twitch_platform_id`
+	twitchChannelsJoinClause          = `LEFT JOIN users ON users.id = channels.twitch_user_id`
+	twitchChannelsPlatformIDIsNotNull = `users.platform_id IS NOT NULL`
+)
+
 func buildTwitchChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
 	return db.
 		WithContext(ctx).
-		Joins("User").
-		Where(`"channels".twitch_bot_enabled IS TRUE and "User"."is_banned" IS NOT TRUE`)
+		Table("channels").
+		Select(twitchChannelsSelectClause).
+		Joins(twitchChannelsJoinClause).
+		Where(`channels.twitch_bot_enabled IS TRUE`).
+		Where(twitchChannelsPlatformIDIsNotNull).
+		Where(`COALESCE(users.is_banned, false) = false`)
 }
 
 type kickChannelRow struct {
