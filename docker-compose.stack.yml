@@ -123,7 +123,7 @@ services:
       - twir_postgres_password
       - twir_postgres_db
     volumes:
-      - pg18-data:/var/lib/postgresql
+      - pg-data:/var/lib/postgresql
     networks:
       - twir
     deploy:
@@ -934,7 +934,7 @@ configs:
     file: ./configs/pgdog/start.sh
 
 volumes:
-  pg18-data:
+  pg-data:
   redis-data:
   minio-data:
   temporal-postgres-data:
