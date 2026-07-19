@@ -85,7 +85,10 @@ func (r *subscriptionResolver) ChatMessages(ctx context.Context) (<-chan *gqlmod
 func (r *subscriptionResolver) ChatMessagesByAPIKey(ctx context.Context, apiKey string) (<-chan *gqlmodel.ChatMessage, error) {
 	var targets []chatmessagesrepo.PlatformChannelIdentity
 
-	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
+		ctx,
+		apiKey,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve channel identity by api key: %w", err)
 	}

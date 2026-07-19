@@ -19,7 +19,10 @@ import (
 
 // TwirEvents is the resolver for the twirEvents field.
 func (r *subscriptionResolver) TwirEvents(ctx context.Context, apiKey string) (<-chan gqlmodel.EventMessage, error) {
-	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
+		ctx,
+		apiKey,
+	)
 	if err != nil {
 		return nil, err
 	}

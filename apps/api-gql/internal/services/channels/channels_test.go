@@ -50,48 +50,59 @@ func TestResolveApiKeyChannelIdentity(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			users := &fakeUsersRepository{user: tt.user}
-			channels := &fakeChannelsRepository{channel: channelsmodel.Channel{
-				ID:               channelID,
-				TwitchUserID:     &twitchUserID,
-				TwitchPlatformID: &twitchPlatformID,
-				KickUserID:       &kickUserID,
-				KickPlatformID:   &kickPlatformID,
-			}}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				users := &fakeUsersRepository{user: tt.user}
+				channels := &fakeChannelsRepository{channel: channelsmodel.Channel{
+					ID:               channelID,
+					TwitchUserID:     &twitchUserID,
+					TwitchPlatformID: &twitchPlatformID,
+					KickUserID:       &kickUserID,
+					KickPlatformID:   &kickPlatformID,
+				}}
 
-			service := New(Opts{
-				UsersRepository:    users,
-				ChannelsRepository: channels,
-			})
+				service := New(
+					Opts{
+						UsersRepository:    users,
+						ChannelsRepository: channels,
+					},
+				)
 
-			identity, err := service.ResolveApiKeyChannelIdentity(context.Background(), "api-key")
-			if err != nil {
-				t.Fatalf("ResolveApiKeyChannelIdentity() error = %v", err)
-			}
-
-			if identity.InternalChannelID != tt.wantChannelID {
-				t.Fatalf("InternalChannelID = %q, want %q", identity.InternalChannelID, tt.wantChannelID)
-			}
-
-			gotTargets := make(map[string]string, len(identity.ChatTargets))
-			for _, target := range identity.ChatTargets {
-				gotTargets[target.Platform] = target.PlatformChannelID
-			}
-
-			for platform, wantID := range tt.wantTargets {
-				if gotTargets[platform] != wantID {
-					t.Fatalf("target %q = %q, want %q", platform, gotTargets[platform], wantID)
+				identity, err := service.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
+					context.Background(),
+					"api-key",
+				)
+				if err != nil {
+					t.Fatalf("ResolveApiKeyChannelIdentity() error = %v", err)
 				}
-			}
 
-			if channels.twitchCalls != tt.wantTwitchCalls {
-				t.Fatalf("GetByTwitchUserID calls = %d, want %d", channels.twitchCalls, tt.wantTwitchCalls)
-			}
-			if channels.kickCalls != tt.wantKickCalls {
-				t.Fatalf("GetByKickUserID calls = %d, want %d", channels.kickCalls, tt.wantKickCalls)
-			}
-		})
+				if identity.InternalChannelID != tt.wantChannelID {
+					t.Fatalf("InternalChannelID = %q, want %q", identity.InternalChannelID, tt.wantChannelID)
+				}
+
+				gotTargets := make(map[string]string, len(identity.ChatTargets))
+				for _, target := range identity.ChatTargets {
+					gotTargets[target.Platform] = target.PlatformChannelID
+				}
+
+				for platform, wantID := range tt.wantTargets {
+					if gotTargets[platform] != wantID {
+						t.Fatalf("target %q = %q, want %q", platform, gotTargets[platform], wantID)
+					}
+				}
+
+				if channels.twitchCalls != tt.wantTwitchCalls {
+					t.Fatalf(
+						"GetByTwitchUserID calls = %d, want %d",
+						channels.twitchCalls,
+						tt.wantTwitchCalls,
+					)
+				}
+				if channels.kickCalls != tt.wantKickCalls {
+					t.Fatalf("GetByKickUserID calls = %d, want %d", channels.kickCalls, tt.wantKickCalls)
+				}
+			},
+		)
 	}
 }
 
