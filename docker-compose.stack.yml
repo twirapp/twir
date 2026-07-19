@@ -486,6 +486,9 @@ services:
       placement:
         constraints:
           - node.labels.databases != true
+      resources:
+        limits:
+          cpus: "1.0"
 
   scheduler:
     image: registry.twir.app/twirapp/scheduler:${TWIR_IMAGE_TAG:-latest}
@@ -504,6 +507,9 @@ services:
       placement:
         constraints:
           - node.labels.databases != true
+      resources:
+        limits:
+          cpus: "1.0"
 
   eventsub:
     image: registry.twir.app/twirapp/eventsub:${TWIR_IMAGE_TAG:-latest}
@@ -760,10 +766,13 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 1
+      replicas: 2
       placement:
         constraints:
           - node.labels.databases != true
+      resources:
+        limits:
+          cpus: "1.0"
 
   events:
     image: registry.twir.app/twirapp/events:${TWIR_IMAGE_TAG:-latest}
