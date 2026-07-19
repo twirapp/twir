@@ -40,6 +40,10 @@ func (c *Pgx) Create(ctx context.Context, input users.CreateInput) (model.User, 
 	query := `
 INSERT INTO users (platform, platform_id, "tokenId", "isBotAdmin", is_banned, hide_on_landing_page, login, display_name, avatar)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+ON CONFLICT (platform, platform_id) DO UPDATE SET
+	login = EXCLUDED.login,
+	display_name = EXCLUDED.display_name,
+	avatar = COALESCE(NULLIF(EXCLUDED.avatar, ''), users.avatar)
 RETURNING id, platform, platform_id, "tokenId", "isBotAdmin", "apiKey", is_banned, hide_on_landing_page, created_at, login, display_name, avatar;
 `
 

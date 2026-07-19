@@ -2,11 +2,14 @@ package channelseventslist
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 )
+
+var ErrEmptyPlatform = errors.New("channels_events_list: platform is required")
 
 type Repository interface {
 	Create(ctx context.Context, input CreateInput) error

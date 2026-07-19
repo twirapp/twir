@@ -80,6 +80,10 @@ func (c *Pgx) CountBy(ctx context.Context, input channelseventslist.CountByInput
 }
 
 func (c *Pgx) Create(ctx context.Context, input channelseventslist.CreateInput) error {
+	if input.Platform == "" {
+		return channelseventslist.ErrEmptyPlatform
+	}
+
 	query := `
 INSERT INTO channels_events_list (channel_id, user_id, platform, type, data)
 VALUES ($1, $2, $3, $4, $5)
@@ -91,6 +95,12 @@ VALUES ($1, $2, $3, $4, $5)
 }
 
 func (c *Pgx) CreateMany(ctx context.Context, inputs []channelseventslist.CreateInput) error {
+	for _, input := range inputs {
+		if input.Platform == "" {
+			return channelseventslist.ErrEmptyPlatform
+		}
+	}
+
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	_, err := conn.CopyFrom(
 		ctx,
