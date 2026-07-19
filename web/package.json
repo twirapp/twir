@@ -87,6 +87,7 @@
     "@bicou/nuxt-urql": "1.11.3",
     "@graphql-codegen/cli": "catalog:",
     "@graphql-codegen/client-preset": "catalog:",
+    "tailwind-variants": "3.2.2",
     "@graphql-typed-document-node/core": "catalog:",
     "@iconify-json/lucide": "1.2.80",
     "@intlify/unplugin-vue-i18n": "11.2.3",

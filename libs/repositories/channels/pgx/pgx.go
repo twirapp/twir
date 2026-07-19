@@ -36,6 +36,41 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+const getByApiKeyQuery = `
+SELECT
+	c."id",
+	c."twitch_user_id",
+	tu.platform_id AS twitch_platform_id,
+	c.twitch_bot_enabled,
+	c."kick_user_id",
+	ku.platform_id AS kick_platform_id,
+	c.kick_bot_enabled,
+	c."isEnabled",
+	c."isTwitchBanned",
+	c."isBotMod",
+	c."botId",
+	c.kick_bot_id
+FROM channels c
+LEFT JOIN users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'
+LEFT JOIN users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'
+WHERE c."api_key" = $1
+LIMIT 1
+`
+
+func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.Channel, error) {
+	rows, err := c.pool.Query(ctx, getByApiKeyQuery, apiKey)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
 const selectQuery = `
 SELECT
 	c."id",
@@ -79,7 +114,16 @@ LEFT JOIN users tu ON tu.id = i.twitch_user_id AND tu.platform = 'twitch'
 LEFT JOIN users ku ON ku.id = i.kick_user_id AND ku.platform = 'kick'`
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, input.TwitchUserID, input.KickUserID, input.TwitchBotEnabled, input.KickBotEnabled, input.BotID, input.KickBotID)
+	rows, err := conn.Query(
+		ctx,
+		query,
+		input.TwitchUserID,
+		input.KickUserID,
+		input.TwitchBotEnabled,
+		input.KickBotEnabled,
+		input.BotID,
+		input.KickBotID,
+	)
 	if err != nil {
 		return model.Nil, err
 	}
