@@ -78,6 +78,7 @@
     "vee-validate": "v5.0.0-beta.0",
     "vue-draggable-plus": "0.6.1",
     "vue-router": "4.6.4",
+    "vue": "catalog:",
     "vue-sonner": "2.0.9",
     "vue3-moveable": "0.28.0",
     "zod": "4.4.3"
