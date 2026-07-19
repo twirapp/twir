@@ -137,6 +137,11 @@ export default defineNuxtConfig({
 		port: 3010,
 	},
 
+	build: {
+		// frontend-chat ships Vue SFC source, including scoped message styles.
+		transpile: ['@twir/frontend-chat'],
+	},
+
 	experimental: {
 		inlineRouteRules: true,
 		typedPages: true,
@@ -165,6 +170,8 @@ export default defineNuxtConfig({
 				'@vuepic/vue-datepicker',
 				'@guolao/vue-monaco-editor',
 				'@unhead/schema-org/vue',
+				'@tanstack/vue-virtual',
+				'tinycolor2',
 			],
 		},
 		server: {
