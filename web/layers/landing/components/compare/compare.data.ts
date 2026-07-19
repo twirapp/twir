@@ -53,7 +53,7 @@ export const compareBots: CompareBot[] = [
 		siteUrl: 'https://streamelements.com',
 		logoType: 'icon',
 		logo: 'twir-compare:streamelements',
-		logoClass: 'h-8 w-auto max-w-[140px]',
+		logoClass: 'h-8 w-auto max-w-full sm:max-w-[140px]',
 	},
 	{
 		id: 'moobot',
@@ -61,7 +61,7 @@ export const compareBots: CompareBot[] = [
 		siteUrl: 'https://moobot.tv',
 		logoType: 'img',
 		logo: '/compare/moobot.png',
-		logoClass: 'h-9 w-auto',
+		logoClass: 'h-9 w-auto max-w-full',
 	},
 	{
 		id: 'fossabot',
@@ -69,7 +69,7 @@ export const compareBots: CompareBot[] = [
 		siteUrl: 'https://fossabot.com',
 		logoType: 'icon',
 		logo: 'twir-compare:fossabot',
-		logoClass: 'h-8 w-auto max-w-[130px]',
+		logoClass: 'h-8 w-auto max-w-full sm:max-w-[130px]',
 	},
 ]
 

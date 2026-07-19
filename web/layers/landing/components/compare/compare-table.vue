@@ -21,23 +21,49 @@ const supportMeta: Record<CompareCell['support'], { icon: string; class: string;
 function botCellClass(bot: CompareBot): string {
 	return bot.id === 'twir' ? 'bg-[#5D58F5]/10 border-x border-[#5D58F5]/25' : ''
 }
+
+function botHeaderCellClass(bot: CompareBot): string {
+	return bot.id === 'twir'
+		? 'bg-[#171629] border-x border-[#5D58F5]/25'
+		: 'bg-[#101014]'
+}
+
+const wrapperRef = ref<HTMLElement>()
+
+function updateHeaderHeightVar() {
+	const siteHeader = document.querySelector('header#top')
+	if (!siteHeader || !wrapperRef.value) return
+
+	const { height } = siteHeader.getBoundingClientRect()
+	wrapperRef.value.style.setProperty('--site-header-h', `${height - 1}px`)
+}
+
+onMounted(() => {
+	updateHeaderHeightVar()
+	window.addEventListener('resize', updateHeaderHeightVar)
+})
+
+onUnmounted(() => {
+	window.removeEventListener('resize', updateHeaderHeightVar)
+})
 </script>
 
 <template>
 	<div
-		class="overflow-x-auto rounded-2xl border border-[#72757d26] bg-[#101014]/80 shadow-[0_0_80px_rgba(93,88,245,0.08)]"
+		ref="wrapperRef"
+		class="overflow-clip rounded-2xl border border-[#72757d26] bg-[#101014]/80 shadow-[0_0_80px_rgba(93,88,245,0.08)]"
 	>
-		<table class="w-full min-w-[820px] border-collapse text-left">
+		<table class="compare-table w-full border-separate border-spacing-0 text-left">
 			<caption class="sr-only">
 				{{
 					t('compare.table.caption')
 				}}
 			</caption>
 			<thead>
-				<tr class="border-b border-[#72757d26]">
+				<tr>
 					<th
 						scope="col"
-						class="p-5 align-bottom text-sm font-medium tracking-wider text-[#ADB0B8] uppercase"
+						class="sticky top-[var(--site-header-h,67px)] z-10 border-b border-[#72757d26] bg-[#101014] p-2.5 align-bottom text-sm font-medium tracking-wider text-[#ADB0B8] uppercase sm:p-5"
 					>
 						{{ t('compare.table.feature') }}
 					</th>
@@ -45,8 +71,8 @@ function botCellClass(bot: CompareBot): string {
 						v-for="bot of compareBots"
 						:key="bot.id"
 						scope="col"
-						class="p-5 align-bottom"
-						:class="botCellClass(bot)"
+						class="sticky top-[var(--site-header-h,67px)] z-10 border-b border-[#72757d26] p-2.5 align-bottom sm:p-5"
+						:class="botHeaderCellClass(bot)"
 					>
 						<a
 							:href="bot.siteUrl"
@@ -73,7 +99,7 @@ function botCellClass(bot: CompareBot): string {
 									loading="lazy"
 								/>
 							</span>
-							<span class="text-sm font-semibold text-white">
+							<span class="text-center text-xs font-semibold text-white sm:text-sm">
 								{{ bot.name }}
 							</span>
 						</a>
@@ -84,18 +110,18 @@ function botCellClass(bot: CompareBot): string {
 				<tr
 					v-for="row of compareFeatureRows"
 					:key="row.labelKey"
-					class="border-b border-[#72757d26]/60 transition-colors last:border-b-0 hover:bg-white/[0.02]"
+					class="transition-colors hover:bg-white/[0.02]"
 				>
 					<th
 						scope="row"
-						class="p-5 text-base font-medium text-white"
+						class="border-b border-[#72757d26]/60 p-2.5 text-sm font-medium text-white sm:p-5 sm:text-base"
 					>
 						{{ t(row.labelKey) }}
 					</th>
 					<td
 						v-for="bot of compareBots"
 						:key="bot.id"
-						class="p-5"
+						class="border-b border-[#72757d26]/60 p-2.5 sm:p-5"
 						:class="botCellClass(bot)"
 					>
 						<div class="flex items-center justify-center gap-1.5">
@@ -123,18 +149,18 @@ function botCellClass(bot: CompareBot): string {
 				<tr
 					v-for="row of compareTextRows"
 					:key="row.labelKey"
-					class="border-b border-[#72757d26]/60 transition-colors last:border-b-0 hover:bg-white/[0.02]"
+					class="transition-colors hover:bg-white/[0.02]"
 				>
 					<th
 						scope="row"
-						class="p-5 text-base font-medium text-white"
+						class="border-b border-[#72757d26]/60 p-2.5 text-sm font-medium text-white sm:p-5 sm:text-base"
 					>
 						{{ t(row.labelKey) }}
 					</th>
 					<td
 						v-for="bot of compareBots"
 						:key="bot.id"
-						class="p-5 text-center text-sm text-[#ADB0B8]"
+						class="border-b border-[#72757d26]/60 p-2.5 text-center text-sm text-[#ADB0B8] sm:p-5"
 						:class="botCellClass(bot)"
 					>
 						{{ t(row.cells[bot.id]) }}
@@ -144,3 +170,10 @@ function botCellClass(bot: CompareBot): string {
 		</table>
 	</div>
 </template>
+
+<style scoped>
+.compare-table tbody tr:last-child > th,
+.compare-table tbody tr:last-child > td {
+	border-bottom: none;
+}
+</style>
