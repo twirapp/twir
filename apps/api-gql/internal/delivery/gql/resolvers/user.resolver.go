@@ -25,6 +25,7 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"gorm.io/gorm"
 )
@@ -38,14 +39,34 @@ func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlm
 
 	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
-		if err == usersmodel.ErrNotFound {
+		if errors.Is(err, usersmodel.ErrNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("get user: %w", err)
 	}
 
 	if user.Platform != platformentity.PlatformTwitch {
-		return nil, nil
+		channel, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByAnyPlatformUUID(
+			ctx,
+			parsedUserID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("resolve channel identity: %w", err)
+		}
+
+		var twitchIdentity *chatmessagesrepo.PlatformChannelIdentity
+		for _, i := range channel.ChatTargets {
+			if i.Platform == "twitch" {
+				twitchIdentity = &i
+				break
+			}
+		}
+
+		if twitchIdentity == nil {
+			return nil, nil
+		}
+
+		return data_loader.GetHelixUserById(ctx, twitchIdentity.PlatformChannelID)
 	}
 
 	return data_loader.GetHelixUserById(ctx, user.PlatformID)
@@ -58,38 +79,52 @@ func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj
 
 // KickProfile is the resolver for the kickProfile field.
 func (r *authenticatedUserResolver) KickProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.KickProfile, error) {
-	kickUser, err := r.deps.Sessions.GetSessionKickUser(ctx)
-	if err == nil {
-		var profilePicture *string
-		if kickUser.Avatar != "" {
-			profilePicture = &kickUser.Avatar
-		}
-
-		return &gqlmodel.KickProfile{
-			ID:             kickUser.ID,
-			Slug:           kickUser.Login,
-			DisplayName:    kickUser.Login,
-			ProfilePicture: profilePicture,
-			IsLive:         false,
-			FollowersCount: 0,
-		}, nil
-	}
-
 	parsedUserID, err := uuid.Parse(obj.ID)
 	if err != nil {
 		return nil, nil
 	}
 
-	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+	var user usersmodel.User
+	user, err = r.deps.UsersRepository.GetByID(ctx, parsedUserID)
 	if err != nil {
-		if err == usersmodel.ErrNotFound {
+		if errors.Is(err, usersmodel.ErrNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("get user: %w", err)
 	}
 
 	if user.Platform != platformentity.PlatformKick {
-		return nil, nil
+		channel, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByAnyPlatformUUID(
+			ctx,
+			parsedUserID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("resolve channel identity: %w", err)
+		}
+
+		var identity *chatmessagesrepo.PlatformChannelIdentity
+		for _, i := range channel.ChatTargets {
+			if i.Platform == "kick" {
+				identity = &i
+				break
+			}
+		}
+
+		if identity == nil {
+			return nil, nil
+		}
+
+		user, err = r.deps.UsersRepository.GetByPlatformID(
+			ctx,
+			platformentity.PlatformKick,
+			identity.PlatformChannelID,
+		)
+		if err != nil {
+			if errors.Is(err, usersmodel.ErrNotFound) {
+				return nil, nil
+			}
+			return nil, fmt.Errorf("get user: %w", err)
+		}
 	}
 
 	var profilePicture *string
@@ -239,10 +274,12 @@ func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashb
 // Plan is the resolver for the plan field.
 func (r *dashboardResolver) Plan(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.Plan, error) {
 	// Use dataloader to get plan by channel ID
-	return data_loader.GetPlanByChannelID(ctx, data_loader.GetPlayByChannelId{
-		ChannelID: obj.ID,
-		PlanID:    obj.PlanID,
-	})
+	return data_loader.GetPlanByChannelID(
+		ctx, data_loader.GetPlayByChannelId{
+			ChannelID: obj.ID,
+			PlanID:    obj.PlanID,
+		},
+	)
 }
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
@@ -409,7 +446,10 @@ func (r *mutationResolver) UnlinkPlatformAccount(ctx context.Context, platform s
 		return false, err
 	}
 
-	if err := r.deps.Gorm.WithContext(ctx).Model(&model.Channels{}).Where("id = ?", channel.ID).Updates(updates).Error; err != nil {
+	if err := r.deps.Gorm.WithContext(ctx).Model(&model.Channels{}).Where(
+		"id = ?",
+		channel.ID,
+	).Updates(updates).Error; err != nil {
 		return false, fmt.Errorf("unlink platform account: %w", err)
 	}
 
@@ -624,7 +664,6 @@ func (r *queryResolver) ChannelUserInfo(ctx context.Context, userID string) (*gq
 
 	return &gqlmodel.ChannelUserInfo{
 		UserID:            info.ID,
-		TwitchProfile:     nil,
 		IsMod:             info.IsMod,
 		IsVip:             info.IsVip,
 		IsSubscriber:      info.IsSubscriber,

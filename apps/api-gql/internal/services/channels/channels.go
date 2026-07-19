@@ -95,6 +95,47 @@ type ChannelPlatformIdentity struct {
 	ID       string
 }
 
+func (c *Service) ResolveApiKeyChannelIdentityByAnyPlatformUUID(ctx context.Context, userId uuid.UUID) (*ApiKeyChannelIdentity, error) {
+	user, err := c.usersRepository.GetByID(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var channel model.Channel
+
+	switch user.Platform {
+	case platformentity.PlatformKick:
+		channel, err = c.channelsRepository.GetByKickUserID(ctx, user.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get kick channel: %w", err)
+		}
+	default:
+		channel, err = c.channelsRepository.GetByTwitchUserID(ctx, user.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get twitch channel: %w", err)
+		}
+	}
+
+	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, 2)
+	for _, identity := range c.mapChannelPlatformIdentities(channel) {
+		targets = append(
+			targets, chatmessagesrepo.PlatformChannelIdentity{
+				Platform:          identity.Platform.String(),
+				PlatformChannelID: identity.ID,
+			},
+		)
+	}
+
+	if len(targets) == 0 {
+		return nil, fmt.Errorf("no chat message targets found for api key")
+	}
+
+	return &ApiKeyChannelIdentity{
+		InternalChannelID: channel.ID.String(),
+		ChatTargets:       targets,
+	}, nil
+}
+
 func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 	ctx context.Context,
 	apiKey string,

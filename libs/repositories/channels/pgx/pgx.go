@@ -36,45 +36,6 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
-const getByApiKeyQuery = `
-SELECT
-	c."id",
-	c."twitch_user_id",
-	tu.platform_id AS twitch_platform_id,
-	c.twitch_bot_enabled,
-	c."kick_user_id",
-	ku.platform_id AS kick_platform_id,
-	c.kick_bot_enabled,
-	c."isEnabled",
-	c."isTwitchBanned",
-	c."isBotMod",
-	c."botId",
-	c.kick_bot_id
-FROM channels c
-LEFT JOIN users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'
-LEFT JOIN users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'
-WHERE "api_key" = $1
-LIMIT 1
-`
-
-func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.Channel, error) {
-	rows, err := c.pool.Query(ctx, getByApiKeyQuery, apiKey)
-	if err != nil {
-		return model.Nil, err
-	}
-
-	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Nil, channels.ErrNotFound
-		}
-
-		return model.Nil, err
-	}
-
-	return result, nil
-}
-
 const selectQuery = `
 SELECT
 	c."id",
@@ -92,6 +53,24 @@ SELECT
 FROM channels c
 LEFT JOIN users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'
 LEFT JOIN users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'`
+
+func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.Channel, error) {
+	rows, err := c.pool.Query(ctx, selectQuery+`WHERE api_key = $1`, apiKey)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+
+		return model.Nil, err
+	}
+
+	return result, nil
+}
 
 func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
 	query := `
@@ -149,7 +128,7 @@ func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, 
 	}
 
 	var count int
-	err := c.pool.QueryRow(ctx, query).Scan(&count)
+	err := c.getter.DefaultTrOrDB(ctx, c.pool).QueryRow(ctx, query).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -160,8 +139,7 @@ func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, 
 func (c *Pgx) GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, error) {
 	query := selectQuery + ` WHERE c."id" = $1`
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, channelID)
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query, channelID)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -180,8 +158,7 @@ func (c *Pgx) GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, 
 func (c *Pgx) GetByTwitchUserID(ctx context.Context, twitchUserID uuid.UUID) (model.Channel, error) {
 	query := selectQuery + ` WHERE c.twitch_user_id = $1`
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, twitchUserID)
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query, twitchUserID)
 	if err != nil {
 		return model.Nil, err
 	}
