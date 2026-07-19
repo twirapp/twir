@@ -46,7 +46,14 @@ func (c *Handler) HandleChannelChatMessage(
 	defer span.End()
 
 	data := mappers.EventSubChatMessageToBus(event)
+	c.processChannelChatMessage(ctx, data, true)
+}
 
+func (c *Handler) processChannelChatMessage(
+	ctx context.Context,
+	data generic.ChatMessage,
+	allowCommands bool,
+) {
 	var errwg errgroup.Group
 
 	data.EnrichedData.IsChatterBroadcaster = data.IsChatterBroadcaster()
@@ -210,6 +217,10 @@ func (c *Handler) HandleChannelChatMessage(
 
 	wg.Go(
 		func() {
+			if !allowCommands {
+				return
+			}
+
 			isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
 			if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 				return

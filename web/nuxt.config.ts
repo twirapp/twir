@@ -5,8 +5,6 @@ import process from 'node:process'
 import tailwindcss from '@tailwindcss/vite'
 import { createResolver } from 'nuxt/kit'
 
-import gqlcodegen from './modules/gql-codegen'
-
 const { resolve } = createResolver(import.meta.url)
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -89,7 +87,6 @@ export default defineNuxtConfig({
 		'@vueuse/nuxt',
 		'@nuxtjs/i18n',
 		'@nuxtjs/seo',
-		gqlcodegen,
 		'@nuxtjs/fontaine',
 	],
 
@@ -140,6 +137,11 @@ export default defineNuxtConfig({
 		port: 3010,
 	},
 
+	build: {
+		// frontend-chat ships Vue SFC source, including scoped message styles.
+		transpile: ['@twir/frontend-chat'],
+	},
+
 	experimental: {
 		inlineRouteRules: true,
 		typedPages: true,
@@ -150,6 +152,7 @@ export default defineNuxtConfig({
 	vite: {
 		plugins: [diagnosticsPlugin, tailwindcss()],
 		optimizeDeps: {
+			exclude: ['@twir/frontend-chat'],
 			include: [
 				'@urql/vue',
 				'graphql-ws',
@@ -166,6 +169,10 @@ export default defineNuxtConfig({
 				'@unovis/vue',
 				'vue-draggable-plus',
 				'@vuepic/vue-datepicker',
+				'@guolao/vue-monaco-editor',
+				'@unhead/schema-org/vue',
+				'@tanstack/vue-virtual',
+				'tinycolor2',
 			],
 		},
 		server: {
@@ -271,7 +278,6 @@ export default defineNuxtConfig({
 			'/dashboard/**',
 			'/s',
 			'/s/**',
-			'/h',
 			'/h/**',
 			'/o',
 			'/o/**',
@@ -279,7 +285,6 @@ export default defineNuxtConfig({
 			'/overlays/**',
 			'/login',
 			'/login/**',
-			'/url-shortener/profile',
 			'/import',
 			'/import/**',
 			'/settings',
@@ -288,9 +293,7 @@ export default defineNuxtConfig({
 			'/en/dashboard/**',
 			'/**/dashboard',
 			'/**/dashboard/**',
-			'/**/s',
 			'/**/s/**',
-			'/**/h',
 			'/**/h/**',
 			'/**/o',
 			'/**/o/**',

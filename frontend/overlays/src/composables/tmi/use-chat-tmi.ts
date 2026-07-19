@@ -106,6 +106,7 @@ export function useChatTmi(options: Ref<ChatSettings>) {
 			options.value.onMessage(createMessage({
 				id: tags.id,
 				type: 'message',
+				platform: 'twitch',
 				rawMessage: message,
 				chunks: messageChunks(message, tags),
 				sender: tags.username,
@@ -123,6 +124,7 @@ export function useChatTmi(options: Ref<ChatSettings>) {
 			options.value.onMessage(createMessage({
 				id: msgId,
 				type: 'message',
+				platform: 'twitch',
 				rawMessage: message,
 				chunks: messageChunks(message, tags),
 				sender: tags.login,

@@ -194,6 +194,7 @@ type Handlers struct {
 	userCreatorService      *user_creator.UserCreatorService
 	prefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	channelEmotes           bus_core.Queue[emotes_cacher.GetChannelEmotesRequest, emotes_cacher.Response]
+	globalEmotes            bus_core.Queue[emotes_cacher.GetGlobalEmotesRequest, emotes_cacher.Response]
 }
 
 type HandlersOpts struct {
@@ -237,6 +238,7 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		userCreatorService:      opts.UserCreatorService,
 		prefixCache:             opts.PrefixCache,
 		channelEmotes:           opts.Bus.EmotesCacher.GetChannelEmotes,
+		globalEmotes:            opts.Bus.EmotesCacher.GetGlobalEmotes,
 	}
 }
 
@@ -381,6 +383,29 @@ func (h *Handlers) buildKickMessageContent(
 			}
 		} else {
 			h.logger.DebugContext(ctx, "kick: failed to get channel emotes for message normalization",
+				slog.String("channel_id", platformChannelID),
+				logger.Error(err),
+			)
+		}
+	}
+
+	if h.globalEmotes != nil {
+		lookupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
+		defer cancel()
+
+		resp, err := h.globalEmotes.Request(
+			lookupCtx,
+			emotes_cacher.GetGlobalEmotesRequest{},
+		)
+		if err == nil {
+			for _, emote := range resp.Data.Emotes {
+				if _, exists := channelEmoteNames[emote.Name]; exists {
+					continue
+				}
+				channelEmoteNames[emote.Name] = kickEmoteLookup{id: emote.ID, url: emoteCacherURL(emote)}
+			}
+		} else {
+			h.logger.DebugContext(ctx, "kick: failed to get global emotes for message normalization",
 				slog.String("channel_id", platformChannelID),
 				logger.Error(err),
 			)

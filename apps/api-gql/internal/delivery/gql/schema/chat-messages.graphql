@@ -4,6 +4,7 @@ extend type Query {
 
 extend type Subscription {
 	chatMessages: ChatMessage! @isAuthenticated @hasAccessToSelectedDashboard
+	chatMessagesByApiKey(apiKey: String!): ChatMessage!
 	adminChatMessages: ChatMessage! @isAuthenticated @hasAccessToSelectedDashboard @isAdmin
 }
 
@@ -28,4 +29,22 @@ type ChatMessage {
 	userColor: String!
 	text: String!
 	createdAt: Time!
+	messageId: String
+	messageType: String
+	announceColor: String
+	badges: [ChatMessageBadge!]!
+	fragments: [ChatMessageFragment!]!
+}
+
+type ChatMessageBadge {
+	setId: String!
+	versionId: String
+	text: String
+}
+
+type ChatMessageFragment {
+	type: String!
+	text: String!
+	emoteId: String
+	emoteUrl: String
 }

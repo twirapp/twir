@@ -19,6 +19,7 @@ type ChatOverlaySettings struct {
 	HideBots            bool                             `gorm:"column:hide_bots" json:"hide_bots"`
 	ShowBadges          bool                             `gorm:"column:show_badges" json:"show_badges"`
 	ShowAnnounceBadge   bool                             `gorm:"column:show_announce_badge" json:"show_announce_badge"`
+	ShowPlatformIcon    bool                             `gorm:"column:show_platform_icon" json:"show_platform_icon"`
 	TextShadowColor     string                           `gorm:"column:text_shadow_color" json:"text_shadow_color"`
 	TextShadowSize      uint32                           `gorm:"column:text_shadow_size" json:"text_shadow_size"`
 	ChatBackgroundColor string                           `gorm:"column:chat_background_color" json:"chat_background_color"`

@@ -494,6 +494,7 @@
       "hideTimeout": "Tiempo límite para ocultar mensajes",
       "showDelay": "Retraso en la presentación del mensaje",
       "showBadges": "Mostrar insignias",
+      "showPlatformIcon": "Mostrar icono de plataforma",
       "showAnnounceBadge": "Mostrar borde del anuncio",
       "paddingContainer": "Relleno de contenedor interior",
       "resetToDefault": "Restablecer al valor predeterminado",

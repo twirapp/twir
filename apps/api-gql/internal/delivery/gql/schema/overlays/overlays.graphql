@@ -18,9 +18,23 @@ extend type Mutation {
 
 extend type Subscription {
 	chatOverlaySettings(id: String!, apiKey: String!): ChatOverlay
+	overlaysChatModerationEvents(apiKey: String!): ChatOverlayModerationEvent
 
 	nowPlayingOverlaySettings(id: String!, apiKey: String!): NowPlayingOverlay
 	nowPlayingCurrentTrack(apiKey: String!): NowPlayingOverlayTrack
+}
+
+enum ChatOverlayModerationEventType {
+	USER_BANNED
+	MESSAGE_DELETED
+	CHAT_CLEARED
+}
+
+type ChatOverlayModerationEvent {
+	type: ChatOverlayModerationEventType!
+	platform: String!
+	userLogin: String
+	deletedMessageId: String
 }
 
 enum ChatOverlayAnimation {
@@ -39,6 +53,7 @@ type ChatOverlay {
 	fontFamily: String!
 	showBadges: Boolean!
 	showAnnounceBadge: Boolean!
+	showPlatformIcon: Boolean!
 	textShadowColor: String!
 	textShadowSize: Int!
 	chatBackgroundColor: String!
@@ -59,6 +74,7 @@ input ChatOverlayMutateOpts {
 	fontFamily: String @validate(constraint: "max=90,omitempty")
 	showBadges: Boolean
 	showAnnounceBadge: Boolean
+	showPlatformIcon: Boolean
 	textShadowColor: String @validate(constraint: "max=90,omitempty")
 	textShadowSize: Int @validate(constraint: "lte=1000,omitempty")
 	chatBackgroundColor: String @validate(constraint: "max=1000,omitempty")

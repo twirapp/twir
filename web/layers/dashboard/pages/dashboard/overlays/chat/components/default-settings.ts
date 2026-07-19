@@ -16,6 +16,7 @@ export const defaultChatSettings: ChatSettingsWithOptionalId = {
 	preset: 'clean',
 	showBadges: true,
 	showAnnounceBadge: true,
+	showPlatformIcon: false,
 	textShadowColor: 'rgba(0,0,0,1)',
 	textShadowSize: 0,
 	chatBackgroundColor: 'rgba(0, 0, 0, 0)',

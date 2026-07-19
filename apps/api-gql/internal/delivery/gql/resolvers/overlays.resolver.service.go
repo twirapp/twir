@@ -32,6 +32,7 @@ func chatOverlayDbToGql(entity *model.ChatOverlaySettings) *gqlmodel.ChatOverlay
 		FontFamily:          entity.FontFamily,
 		ShowBadges:          entity.ShowBadges,
 		ShowAnnounceBadge:   entity.ShowAnnounceBadge,
+		ShowPlatformIcon:    entity.ShowPlatformIcon,
 		TextShadowColor:     entity.TextShadowColor,
 		TextShadowSize:      int(entity.TextShadowSize),
 		ChatBackgroundColor: entity.ChatBackgroundColor,
@@ -154,6 +155,10 @@ func (r *mutationResolver) updateChatOverlay(
 		entity.ShowAnnounceBadge = *opts.ShowAnnounceBadge.Value()
 	}
 
+	if opts.ShowPlatformIcon.IsSet() {
+		entity.ShowPlatformIcon = *opts.ShowPlatformIcon.Value()
+	}
+
 	if opts.TextShadowColor.IsSet() {
 		entity.TextShadowColor = *opts.TextShadowColor.Value()
 	}
@@ -270,6 +275,10 @@ func (r *mutationResolver) chatOverlayCreate(
 
 	if opts.ShowAnnounceBadge.IsSet() {
 		entity.ShowAnnounceBadge = *opts.ShowAnnounceBadge.Value()
+	}
+
+	if opts.ShowPlatformIcon.IsSet() {
+		entity.ShowPlatformIcon = *opts.ShowPlatformIcon.Value()
 	}
 
 	if opts.TextShadowColor.IsSet() {

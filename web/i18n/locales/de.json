@@ -494,6 +494,7 @@
       "hideTimeout": "Zeitüberschreitung beim Ausblenden von Nachrichten",
       "showDelay": "Verzögerung der Nachrichtenanzeige",
       "showBadges": "Abzeichen anzeigen",
+      "showPlatformIcon": "Plattform-Symbol anzeigen",
       "showAnnounceBadge": "Ankündigungsrahmen anzeigen",
       "paddingContainer": "Container-Polster innen",
       "resetToDefault": "Auf Standard zurücksetzen",

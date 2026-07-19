@@ -494,6 +494,7 @@
       "hideTimeout": "Časový limit na skrytie správy",
       "showDelay": "Oneskorenie zobrazenia správy",
       "showBadges": "Zobraziť odznaky",
+      "showPlatformIcon": "Zobraziť ikonu platformy",
       "showAnnounceBadge": "Zobraziť okraj oznámenia",
       "paddingContainer": "Vnútorná výplň kontajnera",
       "resetToDefault": "Obnoviť predvolené",

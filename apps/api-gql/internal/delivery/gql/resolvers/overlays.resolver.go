@@ -12,6 +12,7 @@ import (
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
@@ -83,8 +84,14 @@ func (r *queryResolver) NowPlayingOverlaysByID(ctx context.Context, id string) (
 // ChatOverlaySettings is the resolver for the chatOverlaySettings field.
 func (r *subscriptionResolver) ChatOverlaySettings(ctx context.Context, id string, apiKey string) (<-chan *gqlmodel.ChatOverlay, error) {
 	user := model.Users{}
-	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+	if err := r.deps.Gorm.Where(
+		`"apiKey" = ?`,
+		apiKey,
+	).Preload("Channel").First(&user).Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	if user.Channel == nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("user does not have channel"))
 	}
 
 	channel := make(chan *gqlmodel.ChatOverlay)
@@ -92,7 +99,7 @@ func (r *subscriptionResolver) ChatOverlaySettings(ctx context.Context, id strin
 	go func() {
 		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
-				chatOverlaySubscriptionKeyCreate(id, user.ID),
+				chatOverlaySubscriptionKeyCreate(id, user.Channel.ID),
 			},
 		)
 		if err != nil {
@@ -124,6 +131,31 @@ func (r *subscriptionResolver) ChatOverlaySettings(ctx context.Context, id strin
 	}()
 
 	return channel, nil
+}
+
+// OverlaysChatModerationEvents is the resolver for the overlaysChatModerationEvents field.
+func (r *subscriptionResolver) OverlaysChatModerationEvents(ctx context.Context, apiKey string) (<-chan *gqlmodel.ChatOverlayModerationEvent, error) {
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentity(ctx, apiKey)
+	if err != nil {
+		return nil, err
+	}
+
+	moderationCh := r.deps.ChatMessagesService.SubscribeToOverlayModerationEvents(
+		ctx,
+		identity.ChatTargets,
+	)
+	outCh := make(chan *gqlmodel.ChatOverlayModerationEvent, 1)
+
+	go func() {
+		defer close(outCh)
+
+		for event := range moderationCh {
+			converted := mappers.ChatOverlayModerationEventEntityToGQL(event)
+			outCh <- &converted
+		}
+	}()
+
+	return outCh, nil
 }
 
 // NowPlayingOverlaySettings is the resolver for the nowPlayingOverlaySettings field.

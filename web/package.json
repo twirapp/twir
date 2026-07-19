@@ -37,6 +37,7 @@
     "@tailwindcss/vite": "4.1.18",
     "@takumi-rs/core": "2.0.0-rc.16",
     "@tanstack/vue-table": "8.21.3",
+    "@tanstack/vue-virtual": "3.13.32",
     "@twir/api": "workspace:*",
     "@twir/brand": "workspace:*",
     "@twir/fontsource": "workspace:*",
@@ -75,9 +76,9 @@
     "tinycolor2": "1.6.0",
     "vaul-vue": "0.4.1",
     "vee-validate": "v5.0.0-beta.0",
-    "vue": "catalog:",
     "vue-draggable-plus": "0.6.1",
     "vue-router": "4.6.4",
+    "vue": "catalog:",
     "vue-sonner": "2.0.9",
     "vue3-moveable": "0.28.0",
     "zod": "4.4.3"

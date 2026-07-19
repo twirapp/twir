@@ -52,5 +52,8 @@
     "protobufjs",
     "sharp",
     "vue-demi"
-  ]
+  ],
+  "overrides": {
+    "vite": "8.1.0"
+  }
 }

@@ -1,13 +1,14 @@
+import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
+
 import { useSubscription } from '@urql/vue'
 import { type MaybeRef, computed, ref, unref, watch } from 'vue'
-
-import type { Buidler } from './use-kappagen-builder.js'
-import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
 import { type ChatMessage, type ChatSettings, useChatTmi } from '@/composables/tmi/use-chat-tmi.js'
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js'
 import { useSevenTv } from '@/composables/tmi/use-seven-tv.js'
 import { graphql } from '@/gql'
+
+import type { Buidler } from './use-kappagen-builder.js'
 
 export function useKappagenOverlaySocket(
 	instance: MaybeRef<KappagenMethods>,
@@ -138,7 +139,7 @@ export function useKappagenOverlaySocket(
 	} = useSubscription({
 		query: graphql(`
 			subscription KappagenChatMessages($apiKey: String!) {
-				overlaysKappagenChatMessages(apiKey: $apiKey) {
+				chatMessagesByApiKey(apiKey: $apiKey) {
 					id
 					platform
 					text
@@ -184,10 +185,14 @@ export function useKappagenOverlaySocket(
 	}
 
 	const twitchChannelIdentity = computed(() => {
-		return settings.value?.overlaysKappagen.channelIdentities.find((identity) => identity.platform === 'TWITCH')
+		return settings.value?.overlaysKappagen.channelIdentities.find(
+			(identity) => identity.platform === 'TWITCH'
+		)
 	})
 	const kickChannelIdentity = computed(() => {
-		return settings.value?.overlaysKappagen.channelIdentities.find((identity) => identity.platform === 'KICK')
+		return settings.value?.overlaysKappagen.channelIdentities.find(
+			(identity) => identity.platform === 'KICK'
+		)
 	})
 
 	const twitchChatSettings = computed<ChatSettings>(() => {
@@ -205,10 +210,13 @@ export function useKappagenOverlaySocket(
 
 	const { destroy: destroyTwitchChat } = useChatTmi(twitchChatSettings)
 
-	watch([kickChannelIdentity, () => settings.value?.overlaysKappagen.emotes.sevenTvEnabled], ([identity, sevenTvEnabled]) => {
-		if (!identity?.id || !sevenTvEnabled) return
-		fetchSevenTvEmotes(identity.id, 'kick')
-	})
+	watch(
+		[kickChannelIdentity, () => settings.value?.overlaysKappagen.emotes.sevenTvEnabled],
+		([identity, sevenTvEnabled]) => {
+			if (!identity?.id || !sevenTvEnabled) return
+			fetchSevenTvEmotes(identity.id, 'kick')
+		}
+	)
 
 	function randomAnimation(): KappagenAnimations | undefined {
 		if (!settings.value?.overlaysKappagen) return
@@ -292,7 +300,7 @@ export function useKappagenOverlaySocket(
 	})
 
 	watch(chatMessagesData, (v) => {
-		const chatMessage = v?.overlaysKappagenChatMessages
+		const chatMessage = v?.chatMessagesByApiKey
 		if (!chatMessage || chatMessage.platform === 'twitch') return
 
 		const chunks = makeMessageChunks(chatMessage.text, {
