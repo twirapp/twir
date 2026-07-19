@@ -266,7 +266,8 @@ export default defineNuxtConfig({
 	},
 
 	sitemap: {
-		exclude: [			'/dashboard',
+		exclude: [
+			'/dashboard',
 			'/dashboard/**',
 			'/s',
 			'/s/**',
