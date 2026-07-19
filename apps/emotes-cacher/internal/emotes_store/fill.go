@@ -56,32 +56,38 @@ func (c *EmotesStore) fillChannels() {
 
 				c.logger.Debug("fetching emotes for channel", slog.String("channel_id", channelID))
 				if channelData.TwitchPlatformID != nil {
+					twitchKey := ChannelKey{Platform: platform.PlatformTwitch, ID: *channelData.TwitchPlatformID}
+
 					sevenTvEmotes, err := seventvfetcher.GetChannelSevenTvEmotes(ctx, platform.PlatformTwitch, *channelData.TwitchPlatformID)
 					if err == nil {
 						result := make([]emote.Emote, 0)
 						for _, e := range sevenTvEmotes {
 							result = append(result, e)
 						}
-						c.AddEmotes(ChannelID(channelID), emotes_cacher.ServiceNameSevenTV, result...)
+						c.AddEmotes(twitchKey, emotes_cacher.ServiceNameSevenTV, result...)
 					} else {
 						c.logger.Debug("failed to fetch 7tv emotes", slog.String("channel_id", channelID), logger.Error(err))
 					}
 				}
 
 				if channelData.KickPlatformID != nil {
+					kickKey := ChannelKey{Platform: platform.PlatformKick, ID: *channelData.KickPlatformID}
+
 					sevenTvEmotes, err := seventvfetcher.GetChannelSevenTvEmotes(ctx, platform.PlatformKick, *channelData.KickPlatformID)
 					if err == nil {
 						result := make([]emote.Emote, 0)
 						for _, e := range sevenTvEmotes {
 							result = append(result, e)
 						}
-						c.AddEmotes(ChannelID(channelID), emotes_cacher.ServiceNameSevenTV, result...)
+						c.AddEmotes(kickKey, emotes_cacher.ServiceNameSevenTV, result...)
 					} else {
 						c.logger.Debug("failed to fetch 7tv emotes", slog.String("channel_id", channelID), logger.Error(err))
 					}
 				}
 
 				if channelData.TwitchPlatformID != nil {
+					twitchKey := ChannelKey{Platform: platform.PlatformTwitch, ID: *channelData.TwitchPlatformID}
+
 					bttvEmotes, err := bttvfetcher.GetChannelBttvEmotes(ctx, *channelData.TwitchPlatformID)
 					if err == nil {
 						result := make([]emote.Emote, 0)
@@ -89,7 +95,7 @@ func (c *EmotesStore) fillChannels() {
 							result = append(result, e)
 						}
 						c.AddEmotes(
-							ChannelID(channelID),
+							twitchKey,
 							emotes_cacher.ServiceNameBTTV,
 							result...,
 						)
@@ -104,7 +110,7 @@ func (c *EmotesStore) fillChannels() {
 							result = append(result, e)
 						}
 						c.AddEmotes(
-							ChannelID(channelID),
+							twitchKey,
 							emotes_cacher.ServiceNameFFZ,
 							result...,
 						)
@@ -135,7 +141,7 @@ func (c *EmotesStore) fillGlobal() {
 			return
 		}
 
-		c.AddEmotes(GlobalChannelID, emotes_cacher.ServiceNameSevenTV, em...)
+		c.AddEmotes(GlobalChannelKey, emotes_cacher.ServiceNameSevenTV, em...)
 	}()
 
 	go func() {
@@ -145,7 +151,7 @@ func (c *EmotesStore) fillGlobal() {
 			return
 		}
 
-		c.AddEmotes(GlobalChannelID, emotes_cacher.ServiceNameBTTV, em...)
+		c.AddEmotes(GlobalChannelKey, emotes_cacher.ServiceNameBTTV, em...)
 	}()
 
 	go func() {
@@ -155,7 +161,7 @@ func (c *EmotesStore) fillGlobal() {
 			return
 		}
 
-		c.AddEmotes(GlobalChannelID, emotes_cacher.ServiceNameFFZ, em...)
+		c.AddEmotes(GlobalChannelKey, emotes_cacher.ServiceNameFFZ, em...)
 	}()
 
 	wg.Wait()

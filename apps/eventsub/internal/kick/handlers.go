@@ -359,7 +359,7 @@ func splitTextIntoKickFragments(
 
 func (h *Handlers) buildKickMessageContent(
 	ctx context.Context,
-	channelID string,
+	platformChannelID string,
 	content string,
 	emotes []kickEmote,
 ) (string, []generic.ChatMessageMessageFragment, []generic.ChatMessageEmote, error) {
@@ -368,14 +368,20 @@ func (h *Handlers) buildKickMessageContent(
 		lookupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
 		defer cancel()
 
-		resp, err := h.channelEmotes.Request(lookupCtx, emotes_cacher.GetChannelEmotesRequest{ChannelID: channelID})
+		resp, err := h.channelEmotes.Request(
+			lookupCtx,
+			emotes_cacher.GetChannelEmotesRequest{
+				Platform:  platform.PlatformKick,
+				ChannelID: platformChannelID,
+			},
+		)
 		if err == nil {
 			for _, emote := range resp.Data.Emotes {
 				channelEmoteNames[emote.Name] = kickEmoteLookup{id: emote.ID, url: emoteCacherURL(emote)}
 			}
 		} else {
 			h.logger.DebugContext(ctx, "kick: failed to get channel emotes for message normalization",
-				slog.String("channel_id", channelID),
+				slog.String("channel_id", platformChannelID),
 				logger.Error(err),
 			)
 		}
@@ -705,7 +711,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		isBroadcaster = true
 	}
 
-	normalizedText, fragments, parsedEmotes, err := h.buildKickMessageContent(ctx, channelID, payload.Content, payload.Emotes)
+	normalizedText, fragments, parsedEmotes, err := h.buildKickMessageContent(ctx, broadcasterUserID, payload.Content, payload.Emotes)
 	if err != nil {
 		return nil, fmt.Errorf("build kick message content: %w", err)
 	}

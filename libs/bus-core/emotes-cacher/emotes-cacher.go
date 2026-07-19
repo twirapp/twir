@@ -1,5 +1,7 @@
 package emotes_cacher
 
+import "github.com/twirapp/twir/libs/entities/platform"
+
 const (
 	EmotesCacherGetChannelEmotesSubject = "emotes-cacher.get-channel-emotes"
 	EmotesCacherGetGlobalEmotesSubject  = "emotes-cacher.get-global-emotes"
@@ -20,8 +22,9 @@ type Emote struct {
 }
 
 type GetChannelEmotesRequest struct {
-	ChannelID string        `json:"channel_id"`
-	ServiceIn []ServiceName `json:"service_in"`
+	Platform  platform.Platform `json:"platform"`
+	ChannelID string            `json:"channel_id"`
+	ServiceIn []ServiceName     `json:"service_in"`
 }
 
 type GetGlobalEmotesRequest struct {

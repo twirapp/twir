@@ -301,6 +301,7 @@ func (c *Handler) chatMessageCountEmotes(
 			e, err := c.twirBus.EmotesCacher.GetChannelEmotes.Request(
 				ctx,
 				emotes_cacher.GetChannelEmotesRequest{
+					Platform:  platform.PlatformTwitch,
 					ChannelID: msg.BroadcasterUserId,
 				},
 			)

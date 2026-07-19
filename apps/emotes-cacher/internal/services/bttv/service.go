@@ -11,8 +11,8 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/socket_client"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/repositories/channels/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -94,9 +94,10 @@ func (c *Service) start(ctx context.Context) error {
 	var channels []string
 	if err := c.gorm.
 		WithContext(ctx).
-		Model(&model.Channel{}).
-		Select("id").
-		Where(`twitch_bot_enabled = true`).
+		Table("channels c").
+		Select("tu.platform_id").
+		Joins("JOIN users tu ON tu.id = c.twitch_user_id").
+		Where("c.twitch_bot_enabled = true").
 		Find(&channels).Error; err != nil {
 		return err
 	}
@@ -203,7 +204,7 @@ func (c *Service) onMessage(ctx context.Context, client *socket_client.WsConnect
 		}
 
 		c.emotesStore.AddEmotes(
-			emotes_store.ChannelID(channel[1]),
+			emotes_store.ChannelKey{Platform: platform.PlatformTwitch, ID: channel[1]},
 			emotes_cacher.ServiceNameBTTV,
 			emote.Emote{
 				ID:   emote.ID(msg.Data.Emote.Id),
@@ -231,7 +232,7 @@ func (c *Service) onMessage(ctx context.Context, client *socket_client.WsConnect
 		}
 
 		c.emotesStore.Update(
-			emotes_store.ChannelID(channel[1]),
+			emotes_store.ChannelKey{Platform: platform.PlatformTwitch, ID: channel[1]},
 			emotes_cacher.ServiceNameBTTV,
 			emote.ID(msg.Data.Emote.Id),
 			emote.Emote{
@@ -260,7 +261,7 @@ func (c *Service) onMessage(ctx context.Context, client *socket_client.WsConnect
 		}
 
 		c.emotesStore.RemoveEmoteById(
-			emotes_store.ChannelID(channel[1]),
+			emotes_store.ChannelKey{Platform: platform.PlatformTwitch, ID: channel[1]},
 			emotes_cacher.ServiceNameBTTV,
 			emote.ID(msg.Data.EmoteId),
 		)
