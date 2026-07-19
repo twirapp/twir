@@ -957,6 +957,34 @@ function handleReset() {
 	-ms-overflow-style: none !important;
 }
 
+/* Keep the preview stable when workspace SFC styles are not yet hydrated by Nuxt. */
+.chatBox :deep(.profile) {
+	display: inline-flex !important;
+	align-items: center !important;
+	margin-right: 4px !important;
+}
+
+.chatBox :deep(.badges) {
+	display: inline-flex !important;
+	flex: none !important;
+	align-items: center !important;
+	gap: 4px !important;
+	margin-right: 4px !important;
+}
+
+.chatBox :deep(.badge),
+.chatBox :deep(.kick-badge),
+.chatBox :deep(.platform-icon) {
+	display: inline-block !important;
+	width: 1em !important;
+	height: 1em !important;
+	flex: none !important;
+}
+
+.chatBox :deep(.username) {
+	font-weight: 700 !important;
+}
+
 /* Vertical direction messages container */
 .chatBox:not(.is-horizontal) :deep(.messages) {
 	max-width: 100% !important;

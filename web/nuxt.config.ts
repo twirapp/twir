@@ -152,6 +152,7 @@ export default defineNuxtConfig({
 	vite: {
 		plugins: [diagnosticsPlugin, tailwindcss()],
 		optimizeDeps: {
+			exclude: ['@twir/frontend-chat'],
 			include: [
 				'@urql/vue',
 				'graphql-ws',
