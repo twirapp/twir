@@ -295,11 +295,11 @@ const responsesHasError = computed(() => {
 						v-slot="{ fields, push, remove }"
 						name="responses"
 					>
-<!--						<VueDraggable-->
-<!--							v-model="controlledValues.responses!"-->
-<!--							handle=".drag-handle"-->
-<!--							class="flex flex-col gap-2"-->
-<!--						>-->
+						<VueDraggable
+							v-model="controlledValues.responses!"
+							handle=".drag-handle"
+							class="flex flex-col gap-2"
+						>
 							<div
 								v-for="(field, index) in fields"
 								:key="`responses-text-${field.key}`"
@@ -402,7 +402,7 @@ const responsesHasError = computed(() => {
 									</UiCardContent>
 								</UiCard>
 							</div>
-<!--						</VueDraggable>-->
+						</VueDraggable>
 						<UiButton
 							type="button"
 							variant="outline"
