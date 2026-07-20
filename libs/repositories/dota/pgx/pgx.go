@@ -6,33 +6,43 @@ import (
 	"fmt"
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories/dota"
 	"github.com/twirapp/twir/libs/repositories/dota/model"
 )
 
 type Opts struct {
-	PgxPool *pgxpool.Pool
+	PgxPool   *pgxpool.Pool
+	TrManager trm.Manager
 }
 
 func New(opts Opts) *Pgx {
 	return &Pgx{
-		pool:   opts.PgxPool,
-		getter: trmpgx.DefaultCtxGetter,
+		pool:      opts.PgxPool,
+		getter:    trmpgx.DefaultCtxGetter,
+		trManager: opts.TrManager,
 	}
 }
 
-func NewFx(pool *pgxpool.Pool) *Pgx {
-	return New(Opts{PgxPool: pool})
+func NewFx(pool *pgxpool.Pool, trManager trm.Manager) *Pgx {
+	return New(Opts{PgxPool: pool, TrManager: trManager})
 }
 
 var _ dota.Repository = (*Pgx)(nil)
 
 type Pgx struct {
-	pool   *pgxpool.Pool
-	getter *trmpgx.CtxGetter
+	pool      *pgxpool.Pool
+	getter    *trmpgx.CtxGetter
+	trManager trm.Manager
+}
+
+type matchResultExecutor interface {
+	Exec(context.Context, string, ...any) (pgconn.CommandTag, error)
+	QueryRow(context.Context, string, ...any) pgx.Row
 }
 
 const selectColumns = `
@@ -213,6 +223,100 @@ RETURNING channel_id
 	}
 
 	return p.GetByChannelID(ctx, updatedChannelID)
+}
+
+func (p *Pgx) ApplyMatchResultOnce(
+	ctx context.Context,
+	input dota.ApplyMatchResultInput,
+) (model.ChannelDotaSettings, error) {
+	if err := dota.ValidateMatchResultInput(input); err != nil {
+		return model.Nil, fmt.Errorf("validate dota match result: %w", err)
+	}
+
+	var settings model.ChannelDotaSettings
+	err := p.trManager.Do(ctx, func(txCtx context.Context) error {
+		conn := p.getter.DefaultTrOrDB(txCtx, p.pool)
+
+		var err error
+		settings, err = p.applyMatchResultOnce(txCtx, conn, input)
+		return err
+	})
+	if err != nil {
+		return model.Nil, fmt.Errorf("dota settings apply match result once: %w", err)
+	}
+
+	return settings, nil
+}
+
+func (p *Pgx) applyMatchResultOnce(
+	ctx context.Context,
+	conn matchResultExecutor,
+	input dota.ApplyMatchResultInput,
+) (model.ChannelDotaSettings, error) {
+	insertSettlementQuery := `
+INSERT INTO dota_match_settlements (channel_id, match_id, won, mmr_delta)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (channel_id, match_id) DO NOTHING;
+`
+
+	insertResult, err := conn.Exec(
+		ctx,
+		insertSettlementQuery,
+		input.ChannelID,
+		input.MatchID,
+		input.Won,
+		input.MmrDelta,
+	)
+	if err != nil {
+		return model.Nil, fmt.Errorf("dota match settlement create: %w", err)
+	}
+
+	if insertResult.RowsAffected() == 1 {
+		wins, losses := 0, 0
+		if input.Won {
+			wins = 1
+		} else {
+			losses = 1
+		}
+
+		updateSettingsQuery := `
+UPDATE channels_dota_settings
+SET mmr = mmr + $2,
+	session_wins = session_wins + $3,
+	session_losses = session_losses + $4,
+	updated_at = now()
+WHERE channel_id = $1;
+`
+
+		updateResult, err := conn.Exec(
+			ctx,
+			updateSettingsQuery,
+			input.ChannelID,
+			input.MmrDelta,
+			wins,
+			losses,
+		)
+		if err != nil {
+			return model.Nil, fmt.Errorf("dota settings apply match result: %w", err)
+		}
+		if updateResult.RowsAffected() == 0 {
+			return model.Nil, dota.ErrNotFound
+		}
+	}
+
+	getSettingsQuery := `
+SELECT ` + selectColumns + `
+FROM channels_dota_settings
+WHERE channel_id = $1
+LIMIT 1;
+`
+
+	settings, err := p.scanOne(conn.QueryRow(ctx, getSettingsQuery, input.ChannelID))
+	if err != nil {
+		return model.Nil, fmt.Errorf("dota settings get after match settlement: %w", err)
+	}
+
+	return settings, nil
 }
 
 func (p *Pgx) ResetSession(

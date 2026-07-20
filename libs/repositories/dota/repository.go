@@ -2,6 +2,7 @@ package dota
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -23,6 +24,10 @@ type Repository interface {
 		won bool,
 		mmrDelta int,
 	) (model.ChannelDotaSettings, error)
+	ApplyMatchResultOnce(
+		ctx context.Context,
+		input ApplyMatchResultInput,
+	) (model.ChannelDotaSettings, error)
 	ResetSession(ctx context.Context, channelID uuid.UUID) (model.ChannelDotaSettings, error)
 	RegenerateGsiToken(
 		ctx context.Context,
@@ -39,6 +44,24 @@ type CreateInput struct {
 	PredictionSettings model.PredictionSettings
 	ChatEvents         model.ChatEvents
 	CommandsSettings   *model.CommandsSettings
+}
+
+type ApplyMatchResultInput struct {
+	ChannelID uuid.UUID
+	MatchID   int64
+	Won       bool
+	MmrDelta  int
+}
+
+func ValidateMatchResultInput(input ApplyMatchResultInput) error {
+	if input.ChannelID == uuid.Nil {
+		return errors.New("channel ID is required")
+	}
+	if input.MatchID <= 0 {
+		return errors.New("match ID must be positive")
+	}
+
+	return nil
 }
 
 func CommandSettingsOrDefault(settings *model.CommandsSettings) model.CommandsSettings {
