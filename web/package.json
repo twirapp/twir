@@ -9,7 +9,7 @@
     "generate": "bunx --bun nuxt generate",
     "preview": "bunx --bun nuxt preview",
     "nuxt-prepare": "bunx --bun nuxt prepare",
-    "prebuild": "bun prepare",
+    "prebuild": "bun nuxt-prepare",
     "graphql-codegen": "bunx --bun graphql-codegen",
     "shadcn-vue": "shadcn-vue"
   },
