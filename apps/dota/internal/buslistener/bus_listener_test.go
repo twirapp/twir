@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"sync"
 	"testing"
 
 	"github.com/google/uuid"
@@ -19,6 +20,38 @@ import (
 )
 
 var errNotImplemented = errors.New("not implemented")
+
+type testLogHandler struct {
+	mu       sync.Mutex
+	messages []string
+}
+
+func (h *testLogHandler) Enabled(context.Context, slog.Level) bool {
+	return true
+}
+
+func (h *testLogHandler) Handle(_ context.Context, record slog.Record) error {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.messages = append(h.messages, record.Message)
+	return nil
+}
+
+func (h *testLogHandler) WithAttrs([]slog.Attr) slog.Handler {
+	return h
+}
+
+func (h *testLogHandler) WithGroup(string) slog.Handler {
+	return h
+}
+
+func (h *testLogHandler) Messages() []string {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	return append([]string(nil), h.messages...)
+}
 
 type fakeRepository struct {
 	settings   model.ChannelDotaSettings
@@ -285,6 +318,7 @@ func TestGetDataUsesSettingsAccountForNotablePlayersWhenSnapshotAccountIsEmpty(t
 func TestGetDataKeepsActiveMatchResponseWhenStatsFail(t *testing.T) {
 	channelID := uuid.New()
 	accountID := "111"
+	logHandler := &testLogHandler{}
 	winProbabilityErr := errors.New("win probability unavailable")
 	notablePlayersErr := errors.New("notable players unavailable")
 	repo := &fakeRepository{settings: model.ChannelDotaSettings{
@@ -303,7 +337,7 @@ func TestGetDataKeepsActiveMatchResponseWhenStatsFail(t *testing.T) {
 		notablePlayersErr: notablePlayersErr,
 	}
 
-	response, err := newTestListener(repo, state, statsProvider).GetData(
+	response, err := newTestListenerWithLogger(repo, state, statsProvider, slog.New(logHandler)).GetData(
 		context.Background(),
 		busdota.GetDataRequest{ChannelID: channelID.String()},
 	)
@@ -315,6 +349,10 @@ func TestGetDataKeepsActiveMatchResponseWhenStatsFail(t *testing.T) {
 	require.Nil(t, response.NotablePlayers)
 	require.Equal(t, []int64{88}, statsProvider.winProbabilityCalls)
 	require.Equal(t, []notablePlayersCall{{matchID: 88, streamerAccountID: accountID}}, statsProvider.notablePlayersCalls)
+	require.Equal(t, []string{
+		"dota bus listener: failed to fetch win probability",
+		"dota bus listener: failed to fetch notable players",
+	}, logHandler.Messages())
 }
 
 func TestGetDataMapsLastGameForIdleSteamID64Account(t *testing.T) {
@@ -412,6 +450,7 @@ func TestGetDataSkipsStatsForDisabledOrUnlinkedSettings(t *testing.T) {
 func TestGetDataKeepsIdleResponseWhenLastGameFails(t *testing.T) {
 	channelID := uuid.New()
 	accountID := "12345"
+	logHandler := &testLogHandler{}
 	lastGameErr := errors.New("last game unavailable")
 	repo := &fakeRepository{settings: model.ChannelDotaSettings{
 		Enabled:        true,
@@ -421,7 +460,7 @@ func TestGetDataKeepsIdleResponseWhenLastGameFails(t *testing.T) {
 	state := &fakeStateProvider{snapshot: match.Snapshot{InGame: false, HeroName: "Lina"}}
 	statsProvider := &fakeStatsProvider{lastGameErr: lastGameErr}
 
-	response, err := newTestListener(repo, state, statsProvider).GetData(
+	response, err := newTestListenerWithLogger(repo, state, statsProvider, slog.New(logHandler)).GetData(
 		context.Background(),
 		busdota.GetDataRequest{ChannelID: channelID.String()},
 	)
@@ -436,6 +475,7 @@ func TestGetDataKeepsIdleResponseWhenLastGameFails(t *testing.T) {
 	require.Equal(t, []int64{12345}, statsProvider.lastGameCalls)
 	require.Empty(t, statsProvider.winProbabilityCalls)
 	require.Empty(t, statsProvider.notablePlayersCalls)
+	require.Equal(t, []string{"dota bus listener: failed to fetch last game"}, logHandler.Messages())
 }
 
 func TestGetDataKeepsPartialResponseForInvalidStoredSteamID(t *testing.T) {
@@ -534,11 +574,20 @@ func newTestListener(
 	state *fakeStateProvider,
 	statsProvider *fakeStatsProvider,
 ) *BusListener {
+	return newTestListenerWithLogger(repo, state, statsProvider, testLogger())
+}
+
+func newTestListenerWithLogger(
+	repo *fakeRepository,
+	state *fakeStateProvider,
+	statsProvider *fakeStatsProvider,
+	logger *slog.Logger,
+) *BusListener {
 	return &BusListener{
 		repository: repo,
 		state:      state,
 		stats:      statsProvider,
-		logger:     testLogger(),
+		logger:     logger,
 	}
 }
 

@@ -48,6 +48,7 @@ var App = fx.Module(
 	),
 	fx.Invoke(
 		otel.NewFx("dota"),
+		func(*buslistener.BusListener) {},
 		func(s *gsi.Server, lc fx.Lifecycle) {
 			lc.Append(fx.Hook{
 				OnStart: func(_ context.Context) error { return s.Start() },
