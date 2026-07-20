@@ -912,6 +912,21 @@ func TestBusListenerOnStopCompletesAfterActiveGetDataFinishes(t *testing.T) {
 		stopResult <- lifecycle.hooks[0].OnStop(context.Background())
 	}()
 	<-unsubscribeStarted
+	select {
+	case err := <-stopResult:
+		t.Fatalf("OnStop returned while the active GetData handler was blocked: %v", err)
+	default:
+	}
+
+	winProbabilityCalls, notablePlayersCalls, lastGameCalls := statsProvider.callCounts()
+	response, err := callback(context.Background(), busdota.GetDataRequest{ChannelID: channelID.String()})
+	require.ErrorIs(t, err, context.Canceled)
+	require.Zero(t, response)
+	assertWinProbabilityCalls, assertNotablePlayersCalls, assertLastGameCalls := statsProvider.callCounts()
+	require.Equal(t, winProbabilityCalls, assertWinProbabilityCalls)
+	require.Equal(t, notablePlayersCalls, assertNotablePlayersCalls)
+	require.Equal(t, lastGameCalls, assertLastGameCalls)
+
 	close(releaseRequest)
 
 	require.NoError(t, <-requestResult)
