@@ -10,6 +10,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
@@ -99,7 +100,7 @@ func formatWinProbability(probability float64) string {
 }
 
 func winProbabilityOutput(data *busdota.GetDataResponse) (string, bool) {
-	if !data.WinProbabilityAvailable {
+	if !data.InGame || !data.WinProbabilityAvailable {
 		return "", false
 	}
 
@@ -152,16 +153,25 @@ func getDotaData(
 	ctx context.Context,
 	parseCtx *types.ParseContext,
 ) (*busdota.GetDataResponse, error) {
-	requestCtx, cancel := context.WithTimeout(ctx, dotaDataRequestTimeout)
-	defer cancel()
-
-	response, err := parseCtx.Services.Bus.Dota.GetData.Request(
-		requestCtx,
+	return requestDotaData(
+		ctx,
+		parseCtx.Services.Bus.Dota.GetData.Request,
 		busdota.GetDataRequest{
 			ChannelID:    parseCtx.Channel.DBChannelID,
 			TwitchUserID: parseCtx.Channel.ID,
 		},
 	)
+}
+
+func requestDotaData(
+	ctx context.Context,
+	request func(context.Context, busdota.GetDataRequest) (*buscore.QueueResponse[busdota.GetDataResponse], error),
+	data busdota.GetDataRequest,
+) (*busdota.GetDataResponse, error) {
+	requestCtx, cancel := context.WithTimeout(ctx, dotaDataRequestTimeout)
+	defer cancel()
+
+	response, err := request(requestCtx, data)
 	if err != nil {
 		return nil, &types.CommandHandlerError{
 			Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Errors.GetData),

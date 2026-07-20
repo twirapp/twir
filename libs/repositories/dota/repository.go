@@ -41,6 +41,21 @@ type CreateInput struct {
 	CommandsSettings   *model.CommandsSettings
 }
 
+func CommandSettingsOrDefault(settings *model.CommandsSettings) model.CommandsSettings {
+	if settings != nil {
+		return *settings
+	}
+
+	return model.CommandsSettings{
+		Mmr: true,
+		Wl:  true,
+		Lg:  true,
+		Gm:  true,
+		Np:  true,
+		Wp:  true,
+	}
+}
+
 type UpdateInput struct {
 	Enabled            bool
 	SteamAccountID     *string

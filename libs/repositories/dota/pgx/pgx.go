@@ -104,10 +104,7 @@ func (p *Pgx) Create(
 	ctx context.Context,
 	input dota.CreateInput,
 ) (model.ChannelDotaSettings, error) {
-	var commandsSettings any
-	if input.CommandsSettings != nil {
-		commandsSettings = *input.CommandsSettings
-	}
+	commandsSettings := dota.CommandSettingsOrDefault(input.CommandsSettings)
 
 	query := `
 INSERT INTO channels_dota_settings (

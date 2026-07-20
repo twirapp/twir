@@ -11,9 +11,17 @@ import (
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
+	"gorm.io/gorm"
 )
 
 const mmrArgName = "mmr"
+
+func updateDotaMmr(ctx context.Context, db *gorm.DB, channelID string, mmr int) *gorm.DB {
+	return db.WithContext(ctx).
+		Model(&model.ChannelsDotaSettings{}).
+		Where("channel_id = ?", channelID).
+		Update("mmr", mmr)
+}
 
 var Mmr = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
@@ -92,10 +100,12 @@ var MmrSet = &types.DefaultCommand{
 			}
 		}
 
-		updateResult := parseCtx.Services.Gorm.WithContext(ctx).
-			Model(&model.ChannelsDotaSettings{}).
-			Where("channel_id = ?", parseCtx.Channel.DBChannelID).
-			Update("mmr", mmr)
+		updateResult := updateDotaMmr(
+			ctx,
+			parseCtx.Services.Gorm,
+			parseCtx.Channel.DBChannelID,
+			mmr,
+		)
 		if updateResult.Error != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Errors.UpdateMmr),

@@ -128,6 +128,7 @@ func TestWinProbabilityOutputDistinguishesUnavailableFromZero(t *testing.T) {
 	}
 
 	output, available = winProbabilityOutput(&busdota.GetDataResponse{
+		InGame:                  true,
 		WinProbabilityAvailable: true,
 		WinProbability:          0,
 	})
