@@ -6,7 +6,12 @@ import (
 
 	"github.com/twirapp/twir/apps/dota/internal/gsi"
 	"github.com/twirapp/twir/apps/dota/internal/match"
+	"github.com/twirapp/twir/apps/dota/internal/processor"
+	"github.com/twirapp/twir/apps/dota/internal/stats"
 	"github.com/twirapp/twir/libs/baseapp"
+	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/integrations/opendota"
+	"github.com/twirapp/twir/libs/integrations/stratz"
 	"github.com/twirapp/twir/libs/otel"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotarepositorypgx "github.com/twirapp/twir/libs/repositories/dota/pgx"
@@ -25,8 +30,17 @@ var App = fx.Module(
 			match.NewBusEmitter,
 			fx.As(new(match.EventEmitter)),
 		),
+		func(config cfg.Config) *stratz.Client {
+			return stratz.New(config.DotaStratzToken)
+		},
+		opendota.New,
 		fx.Annotate(
-			match.New,
+			stats.New,
+			fx.As(new(processor.WinProbabilityProvider)),
+		),
+		match.New,
+		fx.Annotate(
+			processor.New,
 			fx.As(new(gsi.MatchProcessor)),
 		),
 		gsi.New,

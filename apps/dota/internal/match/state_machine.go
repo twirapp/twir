@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -269,6 +270,35 @@ func (m *StateMachine) Process(ctx context.Context, channelID uuid.UUID, payload
 	return nil
 }
 
+func (m *StateMachine) UpdateWinProbability(
+	ctx context.Context,
+	channelID uuid.UUID,
+	probability float64,
+) error {
+	cs := m.channel(ctx, channelID)
+
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+
+	if !cs.snap.InGame || cs.snap.MatchID == 0 {
+		return nil
+	}
+
+	if math.IsNaN(probability) || probability < 0 || probability > 1 {
+		return fmt.Errorf("invalid win probability %v: expected a value between 0 and 1", probability)
+	}
+
+	if math.Abs(cs.snap.WinProbability-probability) < 0.05 {
+		return nil
+	}
+
+	cs.snap.WinProbability = probability
+	m.persist(ctx, cs)
+	m.emitStateUpdate(ctx, cs)
+
+	return nil
+}
+
 func (m *StateMachine) startMatch(cs *channelState, payload gsi.Payload) {
 	heroName := ""
 	if payload.Hero != nil {
@@ -276,6 +306,7 @@ func (m *StateMachine) startMatch(cs *channelState, payload gsi.Payload) {
 	}
 
 	cs.snap.MatchID = payload.Map.MatchID
+	cs.snap.WinProbability = 0
 	cs.snap.HeroName = heroName
 	cs.snap.IsRadiant = payload.Player.TeamName == "radiant"
 	cs.snap.SteamAccountID = strconv.FormatInt(payload.Player.AccountID, 10)
@@ -338,6 +369,7 @@ func (m *StateMachine) finishMatch(
 	cs.snap.RadiantScore = 0
 	cs.snap.DireScore = 0
 	cs.snap.GameTime = 0
+	cs.snap.WinProbability = 0
 	cs.seenEvents = make(map[string]struct{})
 
 	m.persist(ctx, cs)
@@ -359,6 +391,7 @@ func (m *StateMachine) goIdle(ctx context.Context, cs *channelState) error {
 	cs.snap.RadiantScore = 0
 	cs.snap.DireScore = 0
 	cs.snap.GameTime = 0
+	cs.snap.WinProbability = 0
 	cs.seenEvents = make(map[string]struct{})
 
 	m.persist(ctx, cs)
@@ -428,7 +461,7 @@ func (m *StateMachine) emitStateUpdate(ctx context.Context, cs *channelState) {
 		Mmr:            cs.snap.Mmr,
 		SessionWins:    cs.snap.SessionWins,
 		SessionLosses:  cs.snap.SessionLosses,
-		WinProbability: 0,
+		WinProbability: cs.snap.WinProbability,
 		HeroName:       cs.snap.HeroName,
 		MatchID:        cs.snap.MatchID,
 	}); err != nil {

@@ -555,3 +555,97 @@ func TestGetSnapshotReturnsCurrentState(t *testing.T) {
 	require.Equal(t, StateInGame, snap.State)
 	require.Equal(t, int64(999), snap.MatchID)
 }
+
+func TestUpdateWinProbabilityPersistsAndEmitsStateUpdate(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(1001, "npc_dota_hero_pudge")))
+	updatesBefore := len(f.emitter.stateUpdates)
+	persistsBefore := f.kv.sets
+
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 0.625))
+
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, 0.625, snap.WinProbability)
+	require.Equal(t, persistsBefore+1, f.kv.sets)
+	require.Len(t, f.emitter.stateUpdates, updatesBefore+1)
+	require.Equal(t, 0.625, f.emitter.stateUpdates[updatesBefore].WinProbability)
+
+	restored := New(f.repo, f.emitter, f.kv, slog.Default())
+	persisted, err := restored.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, 0.625, persisted.WinProbability)
+}
+
+func TestUpdateWinProbabilityThrottlesSmallChanges(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(1002, "npc_dota_hero_pudge")))
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 0.625))
+	updatesBefore := len(f.emitter.stateUpdates)
+	persistsBefore := f.kv.sets
+
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 0.65))
+
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, 0.625, snap.WinProbability)
+	require.Equal(t, persistsBefore, f.kv.sets)
+	require.Len(t, f.emitter.stateUpdates, updatesBefore)
+}
+
+func TestUpdateWinProbabilityRejectsInvalidValues(t *testing.T) {
+	for _, probability := range []float64{-0.01, 1.01} {
+		t.Run(fmt.Sprintf("probability_%v", probability), func(t *testing.T) {
+			f := newFixture(t)
+			ctx := context.Background()
+
+			require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(1003, "npc_dota_hero_pudge")))
+			before, err := f.sm.GetSnapshot(ctx, f.channel)
+			require.NoError(t, err)
+			updatesBefore := len(f.emitter.stateUpdates)
+			persistsBefore := f.kv.sets
+
+			err = f.sm.UpdateWinProbability(ctx, f.channel, probability)
+			require.Error(t, err)
+			require.ErrorContains(t, err, "win probability")
+
+			after, err := f.sm.GetSnapshot(ctx, f.channel)
+			require.NoError(t, err)
+			require.Equal(t, before, after)
+			require.Equal(t, persistsBefore, f.kv.sets)
+			require.Len(t, f.emitter.stateUpdates, updatesBefore)
+		})
+	}
+}
+
+func TestUpdateWinProbabilityDoesNothingWhileIdle(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 0.625))
+
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, StateIdle, snap.State)
+	require.Zero(t, snap.WinProbability)
+	require.Zero(t, f.kv.sets)
+	require.Empty(t, f.emitter.stateUpdates)
+}
+
+func TestLeavingGameClearsWinProbability(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(1004, "npc_dota_hero_pudge")))
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 0.625))
+	require.NoError(t, f.sm.Process(ctx, f.channel, gsi.Payload{}))
+
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Zero(t, snap.WinProbability)
+	require.Equal(t, 0.0, f.emitter.stateUpdates[len(f.emitter.stateUpdates)-1].WinProbability)
+}
