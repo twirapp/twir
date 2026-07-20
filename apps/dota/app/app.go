@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/dota/internal/gsi"
-	"github.com/twirapp/twir/apps/dota/internal/processorstub"
+	"github.com/twirapp/twir/apps/dota/internal/match"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/otel"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
@@ -21,9 +21,12 @@ var App = fx.Module(
 			dotarepositorypgx.NewFx,
 			fx.As(new(dotarepository.Repository)),
 		),
-		// TODO(task-6): replace processorstub with the real match processor.
 		fx.Annotate(
-			processorstub.New,
+			match.NewBusEmitter,
+			fx.As(new(match.EventEmitter)),
+		),
+		fx.Annotate(
+			match.New,
 			fx.As(new(gsi.MatchProcessor)),
 		),
 		gsi.New,
