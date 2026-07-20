@@ -2,6 +2,7 @@ package match
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -463,6 +464,46 @@ func TestAegisPickupEmittedOnce(t *testing.T) {
 	require.Equal(t, f.channel.String(), f.emitter.aegisPickup[0].ChannelID)
 	require.NotNil(t, f.emitter.aegisPickup[0].PlayerID)
 	require.Equal(t, playerID, *f.emitter.aegisPickup[0].PlayerID)
+}
+
+func TestAegisPickupUsesDecodedPlayerID(t *testing.T) {
+	tests := []struct {
+		name      string
+		eventJSON string
+		playerID  int
+	}{
+		{
+			name:      "player_id",
+			eventJSON: `{"event_type":"aegis_picked_up","player_id":2,"game_time":600}`,
+			playerID:  2,
+		},
+		{
+			name:      "legacy player",
+			eventJSON: `{"event_type":"aegis_picked_up","player":3,"game_time":600}`,
+			playerID:  3,
+		},
+		{
+			name:      "player_id takes precedence",
+			eventJSON: `{"event_type":"aegis_picked_up","player_id":4,"player":5,"game_time":600}`,
+			playerID:  4,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var event gsi.Event
+			require.NoError(t, json.Unmarshal([]byte(tt.eventJSON), &event))
+
+			f := newFixture(t)
+			payload := inGamePayload(777, "npc_dota_hero_pudge")
+			payload.Events = []gsi.Event{event}
+
+			require.NoError(t, f.sm.Process(context.Background(), f.channel, payload))
+			require.Len(t, f.emitter.aegisPickup, 1)
+			require.NotNil(t, f.emitter.aegisPickup[0].PlayerID)
+			require.Equal(t, tt.playerID, *f.emitter.aegisPickup[0].PlayerID)
+		})
+	}
 }
 
 func TestSnapshotPersistedAndRestored(t *testing.T) {

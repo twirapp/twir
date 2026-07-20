@@ -46,6 +46,10 @@ var App = fx.Module(
 		),
 		gsi.New,
 		buslistener.New,
+		fx.Annotate(
+			chatalerts.NewRedisCooldownStore,
+			fx.As(new(chatalerts.CooldownStore)),
+		),
 		chatalerts.New,
 	),
 	fx.Invoke(

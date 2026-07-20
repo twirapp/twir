@@ -10,8 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/kv"
-	kvoptions "github.com/twirapp/kv/options"
+	"github.com/redis/go-redis/v9"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
@@ -43,6 +42,31 @@ type messagePublisher interface {
 	Publish(context.Context, bots.SendMessageRequest) error
 }
 
+type CooldownStore interface {
+	Reserve(ctx context.Context, key string, ttl time.Duration) (bool, error)
+	Release(ctx context.Context, key string) error
+}
+
+type RedisCooldownStore struct {
+	client *redis.Client
+}
+
+func NewRedisCooldownStore(client *redis.Client) *RedisCooldownStore {
+	return &RedisCooldownStore{client: client}
+}
+
+func (s *RedisCooldownStore) Reserve(
+	ctx context.Context,
+	key string,
+	ttl time.Duration,
+) (bool, error) {
+	return s.client.SetNX(ctx, key, "1", ttl).Result()
+}
+
+func (s *RedisCooldownStore) Release(ctx context.Context, key string) error {
+	return s.client.Del(ctx, key).Err()
+}
+
 type subscription interface {
 	Subscribe(group string) error
 	Unsubscribe()
@@ -72,17 +96,17 @@ func (p busMessagePublisher) Publish(ctx context.Context, request bots.SendMessa
 type Opts struct {
 	fx.In
 
-	Lifecycle fx.Lifecycle
-	Bus       *buscore.Bus
-	KV        kv.KV
-	Logger    *slog.Logger
+	Lifecycle     fx.Lifecycle
+	Bus           *buscore.Bus
+	CooldownStore CooldownStore
+	Logger        *slog.Logger
 
 	SettingsRepository dotarepository.Repository
 }
 
 type ChatAlerts struct {
 	repository    settingsRepository
-	cache         kv.KV
+	cooldownStore CooldownStore
 	messages      messagePublisher
 	logger        *slog.Logger
 	subscriptions []subscription
@@ -91,7 +115,7 @@ type ChatAlerts struct {
 func New(opts Opts) *ChatAlerts {
 	alerts := newChatAlerts(
 		opts.SettingsRepository,
-		opts.KV,
+		opts.CooldownStore,
 		busMessagePublisher{bus: opts.Bus},
 		opts.Logger,
 		nil,
@@ -104,7 +128,7 @@ func New(opts Opts) *ChatAlerts {
 
 func newChatAlerts(
 	repository settingsRepository,
-	cache kv.KV,
+	cooldownStore CooldownStore,
 	messages messagePublisher,
 	logger *slog.Logger,
 	subscriptions []subscription,
@@ -112,7 +136,7 @@ func newChatAlerts(
 ) *ChatAlerts {
 	alerts := &ChatAlerts{
 		repository:    repository,
-		cache:         cache,
+		cooldownStore: cooldownStore,
 		messages:      messages,
 		logger:        logger,
 		subscriptions: subscriptions,
@@ -283,41 +307,51 @@ func (c *ChatAlerts) handle(ctx context.Context, event chatEvent) error {
 		return nil
 	}
 
-	cooldownKey := fmt.Sprintf("%s:%s:%s", cooldownKeyPrefix, channelID, event.kind)
-	if err := c.cache.Get(ctx, cooldownKey).Err(); err == nil {
-		return nil
-	} else if !errors.Is(err, kv.ErrKeyNil) {
-		c.logger.ErrorContext(ctx, "dota chat alert: check cooldown", logger.Error(err))
-		return fmt.Errorf("get dota chat alert cooldown: %w", err)
-	}
-
 	if event.kind != eventMatchEnded {
 		event.mmr = settings.Mmr
 		event.wins = settings.SessionWins
 		event.losses = settings.SessionLosses
 	}
 
-	if err := c.messages.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			InternalChannelID: &channelID,
-			Platform:          "twitch",
-			Message:           renderTemplate(eventSettings.Template, event),
-			SkipRateLimits:    true,
-		},
-	); err != nil {
-		return fmt.Errorf("publish dota chat alert: %w", err)
+	message := strings.TrimSpace(renderTemplate(eventSettings.Template, event))
+	if message == "" {
+		return nil
 	}
 
-	if eventSettings.Cooldown > 0 {
-		if err := c.cache.Set(
-			ctx,
-			cooldownKey,
-			"1",
-			kvoptions.WithExpire(time.Duration(eventSettings.Cooldown)*time.Second),
-		); err != nil {
-			return fmt.Errorf("set dota chat alert cooldown: %w", err)
+	request := bots.SendMessageRequest{
+		InternalChannelID: &channelID,
+		Platform:          "twitch",
+		Message:           message,
+		SkipRateLimits:    true,
+	}
+
+	if eventSettings.Cooldown <= 0 {
+		if err := c.messages.Publish(ctx, request); err != nil {
+			return fmt.Errorf("publish dota chat alert: %w", err)
 		}
+
+		return nil
+	}
+
+	cooldownKey := fmt.Sprintf("%s:%s:%s", cooldownKeyPrefix, channelID, event.kind)
+	reserved, err := c.cooldownStore.Reserve(
+		ctx,
+		cooldownKey,
+		time.Duration(eventSettings.Cooldown)*time.Second,
+	)
+	if err != nil {
+		c.logger.ErrorContext(ctx, "dota chat alert: reserve cooldown", logger.Error(err))
+		return fmt.Errorf("reserve dota chat alert cooldown: %w", err)
+	}
+	if !reserved {
+		return nil
+	}
+
+	if err := c.messages.Publish(ctx, request); err != nil {
+		if releaseErr := c.cooldownStore.Release(ctx, cooldownKey); releaseErr != nil {
+			c.logger.ErrorContext(ctx, "dota chat alert: release cooldown", logger.Error(releaseErr))
+		}
+		return fmt.Errorf("publish dota chat alert: %w", err)
 	}
 
 	return nil

@@ -68,7 +68,16 @@ type Event struct {
 	EventType  string `json:"event_type"`
 	KillerTeam string `json:"killer_team,omitempty"`
 	PlayerID   *int   `json:"player_id,omitempty"`
+	Player     *int   `json:"player,omitempty"`
 	GameTime   int    `json:"game_time"`
+}
+
+func (e Event) AegisPlayerID() *int {
+	if e.PlayerID != nil {
+		return e.PlayerID
+	}
+
+	return e.Player
 }
 
 type Payload struct {

@@ -5,12 +5,12 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"github.com/twirapp/kv"
-	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
@@ -18,77 +18,71 @@ import (
 	"go.uber.org/fx"
 )
 
-type fakeValuer struct {
-	err error
+type fakeCooldownStore struct {
+	mu sync.Mutex
+
+	values map[string]struct{}
+
+	reserveErr error
+	releaseErr error
+
+	reserveCalls []string
+	releaseCalls []string
+
+	reserveBarrier *sync.WaitGroup
 }
 
-func (v fakeValuer) Int() (int64, error)     { return 0, v.err }
-func (v fakeValuer) String() (string, error) { return "", v.err }
-func (v fakeValuer) Bytes() ([]byte, error)  { return nil, v.err }
-func (v fakeValuer) Bool() (bool, error)     { return false, v.err }
-func (v fakeValuer) Float() (float64, error) { return 0, v.err }
-func (v fakeValuer) Scan(any) error          { return v.err }
-func (v fakeValuer) Err() error              { return v.err }
-
-type fakeCache struct {
-	values   map[string]struct{}
-	getErr   error
-	setErr   error
-	getCalls []string
-	setCalls []string
+func newFakeCooldownStore() *fakeCooldownStore {
+	return &fakeCooldownStore{values: make(map[string]struct{})}
 }
 
-func newFakeCache() *fakeCache {
-	return &fakeCache{values: make(map[string]struct{})}
-}
-
-func (c *fakeCache) Get(_ context.Context, key string) kv.Valuer {
-	c.getCalls = append(c.getCalls, key)
-	if c.getErr != nil {
-		return fakeValuer{err: c.getErr}
-	}
-	if _, ok := c.values[key]; !ok {
-		return fakeValuer{err: kv.ErrKeyNil}
-	}
-	return fakeValuer{}
-}
-
-func (c *fakeCache) Set(
+func (c *fakeCooldownStore) Reserve(
 	_ context.Context,
 	key string,
-	_ any,
-	_ ...kvoptions.Option,
-) error {
-	c.setCalls = append(c.setCalls, key)
-	if c.setErr != nil {
-		return c.setErr
+	_ time.Duration,
+) (bool, error) {
+	c.mu.Lock()
+	c.reserveCalls = append(c.reserveCalls, key)
+	err := c.reserveErr
+	barrier := c.reserveBarrier
+	c.mu.Unlock()
+
+	if barrier != nil {
+		barrier.Done()
+		barrier.Wait()
+	}
+	if err != nil {
+		return false, err
+	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if _, exists := c.values[key]; exists {
+		return false, nil
 	}
 	c.values[key] = struct{}{}
-	return nil
+	return true, nil
 }
 
-func (c *fakeCache) SetMany(_ context.Context, _ []kv.SetMany) error { return nil }
-func (c *fakeCache) Delete(_ context.Context, key string) error {
+func (c *fakeCooldownStore) Release(_ context.Context, key string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.releaseCalls = append(c.releaseCalls, key)
+	if c.releaseErr != nil {
+		return c.releaseErr
+	}
 	delete(c.values, key)
 	return nil
 }
-func (c *fakeCache) DeleteMany(_ context.Context, _ []string) error { return nil }
-func (c *fakeCache) Exists(_ context.Context, key string) (bool, error) {
-	_, ok := c.values[key]
-	return ok, nil
-}
-func (c *fakeCache) ExistsMany(_ context.Context, keys []string) ([]bool, error) {
-	values := make([]bool, len(keys))
-	for i, key := range keys {
-		values[i], _ = c.Exists(context.Background(), key)
-	}
-	return values, nil
-}
-func (c *fakeCache) GetKeysByPattern(_ context.Context, _ string) ([]string, error) {
-	return nil, nil
+
+func (c *fakeCooldownStore) operationCalls() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return len(c.reserveCalls) + len(c.releaseCalls)
 }
 
 type fakeSettingsRepository struct {
+	mu       sync.Mutex
 	settings dotamodel.ChannelDotaSettings
 	err      error
 	channel  []uuid.UUID
@@ -98,6 +92,8 @@ func (r *fakeSettingsRepository) GetByChannelID(
 	_ context.Context,
 	channelID uuid.UUID,
 ) (dotamodel.ChannelDotaSettings, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	r.channel = append(r.channel, channelID)
 	if r.err != nil {
 		return dotamodel.Nil, r.err
@@ -106,6 +102,7 @@ func (r *fakeSettingsRepository) GetByChannelID(
 }
 
 type fakeMessagePublisher struct {
+	mu       sync.Mutex
 	err      error
 	requests []bots.SendMessageRequest
 }
@@ -114,6 +111,8 @@ func (p *fakeMessagePublisher) Publish(
 	_ context.Context,
 	request bots.SendMessageRequest,
 ) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	if p.err != nil {
 		return p.err
 	}
@@ -145,26 +144,26 @@ func (l *fakeLifecycle) Append(hook fx.Hook) {
 }
 
 type fixture struct {
-	alerts    *ChatAlerts
-	cache     *fakeCache
-	channelID uuid.UUID
-	publisher *fakeMessagePublisher
-	repo      *fakeSettingsRepository
+	alerts        *ChatAlerts
+	cooldownStore *fakeCooldownStore
+	channelID     uuid.UUID
+	publisher     *fakeMessagePublisher
+	repo          *fakeSettingsRepository
 }
 
 func newFixture(t *testing.T, settings dotamodel.ChannelDotaSettings) *fixture {
 	t.Helper()
 
-	cache := newFakeCache()
+	cooldownStore := newFakeCooldownStore()
 	publisher := &fakeMessagePublisher{}
 	repo := &fakeSettingsRepository{settings: settings}
 
 	return &fixture{
-		alerts:    newChatAlerts(repo, cache, publisher, testLogger(t), nil, nil),
-		cache:     cache,
-		channelID: uuid.New(),
-		publisher: publisher,
-		repo:      repo,
+		alerts:        newChatAlerts(repo, cooldownStore, publisher, testLogger(t), nil, nil),
+		cooldownStore: cooldownStore,
+		channelID:     uuid.New(),
+		publisher:     publisher,
+		repo:          repo,
 	}
 }
 
@@ -237,8 +236,7 @@ func TestMatchStartedSkipsDisabledSettings(t *testing.T) {
 
 			require.NoError(t, err)
 			require.Empty(t, f.publisher.requests)
-			require.Empty(t, f.cache.getCalls)
-			require.Empty(t, f.cache.setCalls)
+			require.Zero(t, f.cooldownStore.operationCalls())
 		})
 	}
 }
@@ -413,10 +411,78 @@ func TestCooldownSuppressesDuplicateEvent(t *testing.T) {
 
 	cooldownKey := "cache:twir:dota:chat-alert:" + f.channelID.String() + ":match_ended"
 	require.Len(t, f.publisher.requests, 1)
-	require.Equal(t, []string{cooldownKey}, f.cache.setCalls)
+	require.Equal(t, []string{cooldownKey, cooldownKey}, f.cooldownStore.reserveCalls)
 }
 
-func TestPublishFailureDoesNotSetCooldown(t *testing.T) {
+func TestCooldownZeroBypassesStore(t *testing.T) {
+	settings := enabledSettings()
+	settings.ChatEvents.MatchEnded = dotamodel.ChatEventSettings{
+		Enabled:  true,
+		Template: "match ended",
+	}
+	f := newFixture(t, settings)
+
+	_, err := f.alerts.handleMatchEnded(
+		context.Background(),
+		busdota.MatchEndedMessage{ChannelID: f.channelID.String()},
+	)
+
+	require.NoError(t, err)
+	require.Len(t, f.publisher.requests, 1)
+	require.Zero(t, f.cooldownStore.operationCalls())
+}
+
+func TestBlankRenderedMessageBypassesStoreAndPublish(t *testing.T) {
+	settings := enabledSettings()
+	settings.ChatEvents.AegisPickup = dotamodel.ChatEventSettings{
+		Enabled:  true,
+		Template: "{player}",
+		Cooldown: 30,
+	}
+	f := newFixture(t, settings)
+
+	_, err := f.alerts.handleAegisPickup(
+		context.Background(),
+		busdota.AegisPickupMessage{ChannelID: f.channelID.String()},
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, f.publisher.requests)
+	require.Zero(t, f.cooldownStore.operationCalls())
+}
+
+func TestConcurrentCooldownReservationsPublishOnce(t *testing.T) {
+	settings := enabledSettings()
+	settings.ChatEvents.MatchEnded = dotamodel.ChatEventSettings{
+		Enabled:  true,
+		Template: "match ended",
+		Cooldown: 30,
+	}
+	f := newFixture(t, settings)
+
+	var barrier sync.WaitGroup
+	barrier.Add(2)
+	f.cooldownStore.reserveBarrier = &barrier
+
+	event := busdota.MatchEndedMessage{ChannelID: f.channelID.String()}
+	start := make(chan struct{})
+	errs := make(chan error, 2)
+	for range 2 {
+		go func() {
+			<-start
+			_, err := f.alerts.handleMatchEnded(context.Background(), event)
+			errs <- err
+		}()
+	}
+	close(start)
+
+	require.NoError(t, <-errs)
+	require.NoError(t, <-errs)
+	require.Len(t, f.publisher.requests, 1)
+	require.Len(t, f.cooldownStore.reserveCalls, 2)
+}
+
+func TestPublishFailureReleasesReservation(t *testing.T) {
 	settings := enabledSettings()
 	settings.ChatEvents.MatchEnded = dotamodel.ChatEventSettings{
 		Enabled:  true,
@@ -433,7 +499,28 @@ func TestPublishFailureDoesNotSetCooldown(t *testing.T) {
 	)
 
 	require.ErrorIs(t, err, publishErr)
-	require.Empty(t, f.cache.setCalls)
+	require.Len(t, f.cooldownStore.releaseCalls, 1)
+}
+
+func TestPublishFailurePreservesErrorWhenReleaseFails(t *testing.T) {
+	settings := enabledSettings()
+	settings.ChatEvents.MatchEnded = dotamodel.ChatEventSettings{
+		Enabled:  true,
+		Template: "match ended",
+		Cooldown: 30,
+	}
+	f := newFixture(t, settings)
+	publishErr := errors.New("bots unavailable")
+	f.publisher.err = publishErr
+	f.cooldownStore.releaseErr = errors.New("cache unavailable")
+
+	_, err := f.alerts.handleMatchEnded(
+		context.Background(),
+		busdota.MatchEndedMessage{ChannelID: f.channelID.String()},
+	)
+
+	require.ErrorIs(t, err, publishErr)
+	require.Len(t, f.cooldownStore.releaseCalls, 1)
 }
 
 func TestHandlerIgnoresMissingSettings(t *testing.T) {
@@ -447,8 +534,7 @@ func TestHandlerIgnoresMissingSettings(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Empty(t, f.publisher.requests)
-	require.Empty(t, f.cache.getCalls)
-	require.Empty(t, f.cache.setCalls)
+	require.Zero(t, f.cooldownStore.operationCalls())
 }
 
 func TestHandlerReturnsInvalidChannelAndRepositoryErrors(t *testing.T) {
@@ -478,24 +564,25 @@ func TestHandlerReturnsInvalidChannelAndRepositoryErrors(t *testing.T) {
 	})
 }
 
-func TestHandlerReturnsCooldownLookupError(t *testing.T) {
+func TestHandlerReturnsCooldownReservationError(t *testing.T) {
 	settings := enabledSettings()
 	settings.ChatEvents.MatchEnded = dotamodel.ChatEventSettings{
 		Enabled:  true,
 		Template: "match ended",
+		Cooldown: 30,
 	}
 	f := newFixture(t, settings)
-	cacheErr := errors.New("cache unavailable")
-	f.cache.getErr = cacheErr
+	reserveErr := errors.New("cache unavailable")
+	f.cooldownStore.reserveErr = reserveErr
 
 	_, err := f.alerts.handleMatchEnded(
 		context.Background(),
 		busdota.MatchEndedMessage{ChannelID: f.channelID.String()},
 	)
 
-	require.ErrorIs(t, err, cacheErr)
+	require.ErrorIs(t, err, reserveErr)
 	require.Empty(t, f.publisher.requests)
-	require.Empty(t, f.cache.setCalls)
+	require.Empty(t, f.cooldownStore.releaseCalls)
 }
 
 func TestLifecycleSubscribesAndUnsubscribesAllQueues(t *testing.T) {
@@ -503,7 +590,7 @@ func TestLifecycleSubscribesAndUnsubscribesAllQueues(t *testing.T) {
 	subscriptions := []*fakeSubscription{{}, {}, {}, {}}
 	newChatAlerts(
 		&fakeSettingsRepository{},
-		newFakeCache(),
+		newFakeCooldownStore(),
 		&fakeMessagePublisher{},
 		testLogger(t),
 		[]subscription{subscriptions[0], subscriptions[1], subscriptions[2], subscriptions[3]},
@@ -531,7 +618,7 @@ func TestLifecycleCleansUpAfterPartialSubscriptionFailure(t *testing.T) {
 	subscriptions := []*fakeSubscription{{}, {}, {err: subscriptionErr}, {}}
 	newChatAlerts(
 		&fakeSettingsRepository{},
-		newFakeCache(),
+		newFakeCooldownStore(),
 		&fakeMessagePublisher{},
 		testLogger(t),
 		[]subscription{subscriptions[0], subscriptions[1], subscriptions[2], subscriptions[3]},

@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/google/uuid v1.6.0
+	github.com/redis/go-redis/v9 v9.17.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	go.uber.org/fx v1.24.0
 	golang.org/x/time v0.14.0
@@ -36,7 +37,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.17.1 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.17.1 // indirect
-	github.com/redis/go-redis/v9 v9.17.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twirapp/kv v0.5.1 // indirect

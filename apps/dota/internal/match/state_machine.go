@@ -430,7 +430,7 @@ func (m *StateMachine) processEvents(
 		case eventAegisPicked:
 			if err := m.emitter.AegisPickup(ctx, busdota.AegisPickupMessage{
 				ChannelID: cs.snap.ChannelID.String(),
-				PlayerID:  event.PlayerID,
+				PlayerID:  event.AegisPlayerID(),
 				GameTime:  event.GameTime,
 			}); err != nil {
 				return fmt.Errorf("emit aegis pickup: %w", err)
