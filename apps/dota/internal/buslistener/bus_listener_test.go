@@ -272,14 +272,16 @@ func (f *fakeLifecycle) Append(hook fx.Hook) {
 }
 
 type fakeGetDataQueue struct {
-	mu               sync.Mutex
-	group            string
-	callback         buscore.QueueSubscribeCallback[busdota.GetDataRequest, busdota.GetDataResponse]
-	subscribeErr     error
-	unsubscribes     int
-	unsubscribed     chan struct{}
-	allowUnsubscribe <-chan struct{}
-	unsubscribeOnce  sync.Once
+	mu                      sync.Mutex
+	group                   string
+	callback                buscore.QueueSubscribeCallback[busdota.GetDataRequest, busdota.GetDataResponse]
+	subscribeErr            error
+	unsubscribes            int
+	unsubscribed            chan struct{}
+	allowUnsubscribe        <-chan struct{}
+	unsubscribeReturned     chan struct{}
+	unsubscribeOnce         sync.Once
+	unsubscribeReturnedOnce sync.Once
 }
 
 func (f *fakeGetDataQueue) SubscribeGroup(
@@ -299,6 +301,7 @@ func (f *fakeGetDataQueue) Unsubscribe() {
 	f.unsubscribes++
 	unsubscribed := f.unsubscribed
 	allowUnsubscribe := f.allowUnsubscribe
+	unsubscribeReturned := f.unsubscribeReturned
 	f.mu.Unlock()
 
 	if unsubscribed != nil {
@@ -306,6 +309,9 @@ func (f *fakeGetDataQueue) Unsubscribe() {
 	}
 	if allowUnsubscribe != nil {
 		<-allowUnsubscribe
+	}
+	if unsubscribeReturned != nil {
+		f.unsubscribeReturnedOnce.Do(func() { close(unsubscribeReturned) })
 	}
 }
 
@@ -873,8 +879,14 @@ func TestBusListenerOnStopCompletesAfterActiveGetDataFinishes(t *testing.T) {
 	requestStarted := make(chan struct{})
 	releaseRequest := make(chan struct{})
 	unsubscribeStarted := make(chan struct{})
+	allowUnsubscribe := make(chan struct{})
+	unsubscribeReturned := make(chan struct{})
 	lifecycle := &fakeLifecycle{}
-	queue := &fakeGetDataQueue{unsubscribed: unsubscribeStarted}
+	queue := &fakeGetDataQueue{
+		unsubscribed:        unsubscribeStarted,
+		allowUnsubscribe:    allowUnsubscribe,
+		unsubscribeReturned: unsubscribeReturned,
+	}
 	statsProvider := &fakeStatsProvider{
 		winProbabilityStart: requestStarted,
 		winProbabilityDone:  releaseRequest,
@@ -912,6 +924,8 @@ func TestBusListenerOnStopCompletesAfterActiveGetDataFinishes(t *testing.T) {
 		stopResult <- lifecycle.hooks[0].OnStop(context.Background())
 	}()
 	<-unsubscribeStarted
+	close(allowUnsubscribe)
+	<-unsubscribeReturned
 	select {
 	case err := <-stopResult:
 		t.Fatalf("OnStop returned while the active GetData handler was blocked: %v", err)
