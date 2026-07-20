@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,7 +16,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
-	"github.com/twirapp/twir/libs/logger"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
 	"go.uber.org/fx"
@@ -23,6 +24,7 @@ import (
 const (
 	dotaSubscriptionGroup = "dota"
 	cooldownKeyPrefix     = "cache:twir:dota:chat-alert"
+	maxCooldownSeconds    = math.MaxInt64 / int64(time.Second)
 )
 
 type eventKind string
@@ -43,8 +45,8 @@ type messagePublisher interface {
 }
 
 type CooldownStore interface {
-	Reserve(ctx context.Context, key string, ttl time.Duration) (bool, error)
-	Release(ctx context.Context, key string) error
+	Reserve(ctx context.Context, key string, token string, ttl time.Duration) (bool, error)
+	Release(ctx context.Context, key string, token string) error
 }
 
 type RedisCooldownStore struct {
@@ -58,13 +60,19 @@ func NewRedisCooldownStore(client *redis.Client) *RedisCooldownStore {
 func (s *RedisCooldownStore) Reserve(
 	ctx context.Context,
 	key string,
+	token string,
 	ttl time.Duration,
 ) (bool, error) {
-	return s.client.SetNX(ctx, key, "1", ttl).Result()
+	return s.client.SetNX(ctx, key, token, ttl).Result()
 }
 
-func (s *RedisCooldownStore) Release(ctx context.Context, key string) error {
-	return s.client.Del(ctx, key).Err()
+func (s *RedisCooldownStore) Release(ctx context.Context, key string, token string) error {
+	return s.client.Eval(
+		ctx,
+		`if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("DEL", KEYS[1]) end return 0`,
+		[]string{key},
+		token,
+	).Err()
 }
 
 type subscription interface {
@@ -110,6 +118,10 @@ type ChatAlerts struct {
 	messages      messagePublisher
 	logger        *slog.Logger
 	subscriptions []subscription
+
+	handlersMu sync.Mutex
+	handlers   sync.WaitGroup
+	stopping   bool
 }
 
 func New(opts Opts) *ChatAlerts {
@@ -198,19 +210,34 @@ func (c *ChatAlerts) Start(_ context.Context) error {
 	return nil
 }
 
-func (c *ChatAlerts) Stop(_ context.Context) error {
+func (c *ChatAlerts) Stop(ctx context.Context) error {
+	c.handlersMu.Lock()
+	c.stopping = true
 	for _, subscription := range c.subscriptions {
 		subscription.Unsubscribe()
 	}
+	c.handlersMu.Unlock()
 
-	return nil
+	handlersDone := make(chan struct{})
+	go func() {
+		c.handlers.Wait()
+		close(handlersDone)
+	}()
+
+	select {
+	case <-handlersDone:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+
 }
 
 func (c *ChatAlerts) handleMatchStarted(
 	ctx context.Context,
 	message busdota.MatchStartedMessage,
 ) (struct{}, error) {
-	return struct{}{}, c.handle(
+	return struct{}{}, c.handleTracked(
 		ctx,
 		chatEvent{
 			kind:      eventMatchStarted,
@@ -224,7 +251,7 @@ func (c *ChatAlerts) handleMatchEnded(
 	ctx context.Context,
 	message busdota.MatchEndedMessage,
 ) (struct{}, error) {
-	return struct{}{}, c.handle(
+	return struct{}{}, c.handleTracked(
 		ctx,
 		chatEvent{
 			kind:      eventMatchEnded,
@@ -241,7 +268,7 @@ func (c *ChatAlerts) handleRoshanKilled(
 	ctx context.Context,
 	message busdota.RoshanKilledMessage,
 ) (struct{}, error) {
-	return struct{}{}, c.handle(
+	return struct{}{}, c.handleTracked(
 		ctx,
 		chatEvent{
 			kind:      eventRoshanKilled,
@@ -262,7 +289,7 @@ func (c *ChatAlerts) handleAegisPickup(
 		player = fmt.Sprintf("player #%d", *message.PlayerID)
 	}
 
-	return struct{}{}, c.handle(
+	return struct{}{}, c.handleTracked(
 		ctx,
 		chatEvent{
 			kind:      eventAegisPickup,
@@ -283,6 +310,27 @@ type chatEvent struct {
 	mmr       int
 	wins      int
 	losses    int
+}
+
+func (c *ChatAlerts) handleTracked(ctx context.Context, event chatEvent) error {
+	c.handlersMu.Lock()
+	if c.stopping {
+		c.handlersMu.Unlock()
+		return context.Canceled
+	}
+	c.handlers.Add(1)
+	c.handlersMu.Unlock()
+	defer c.handlers.Done()
+
+	err := c.handle(ctx, event)
+	if err != nil {
+		c.logger.ErrorContext(
+			ctx,
+			"dota chat alert handler failed",
+			slog.String("event_kind", string(event.kind)),
+		)
+	}
+	return err
 }
 
 func (c *ChatAlerts) handle(ctx context.Context, event chatEvent) error {
@@ -332,15 +380,19 @@ func (c *ChatAlerts) handle(ctx context.Context, event chatEvent) error {
 
 		return nil
 	}
+	if int64(eventSettings.Cooldown) > maxCooldownSeconds {
+		return fmt.Errorf("dota chat alert cooldown exceeds maximum duration")
+	}
 
 	cooldownKey := fmt.Sprintf("%s:%s:%s", cooldownKeyPrefix, channelID, event.kind)
+	cooldownToken := uuid.NewString()
 	reserved, err := c.cooldownStore.Reserve(
 		ctx,
 		cooldownKey,
+		cooldownToken,
 		time.Duration(eventSettings.Cooldown)*time.Second,
 	)
 	if err != nil {
-		c.logger.ErrorContext(ctx, "dota chat alert: reserve cooldown", logger.Error(err))
 		return fmt.Errorf("reserve dota chat alert cooldown: %w", err)
 	}
 	if !reserved {
@@ -348,8 +400,10 @@ func (c *ChatAlerts) handle(ctx context.Context, event chatEvent) error {
 	}
 
 	if err := c.messages.Publish(ctx, request); err != nil {
-		if releaseErr := c.cooldownStore.Release(ctx, cooldownKey); releaseErr != nil {
-			c.logger.ErrorContext(ctx, "dota chat alert: release cooldown", logger.Error(releaseErr))
+		cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
+		defer cancel()
+		if releaseErr := c.cooldownStore.Release(cleanupCtx, cooldownKey, cooldownToken); releaseErr != nil {
+			c.logger.ErrorContext(cleanupCtx, "dota chat alert: cooldown cleanup failed")
 		}
 		return fmt.Errorf("publish dota chat alert: %w", err)
 	}
