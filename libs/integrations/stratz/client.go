@@ -178,11 +178,14 @@ func (c *Client) WinProbability(ctx context.Context, matchID int64) (float64, er
 	}
 
 	values := data.Live.Match.LiveWinRateValues
-	winRate := values[len(values)-1].WinRate
 
-	if winRate < 0 || winRate > 100 {
-		return 0, fmt.Errorf("stratz: win rate %v is out of range for match %d", winRate, matchID)
+	for _, value := range values {
+		if value.WinRate < 0 || value.WinRate > 100 {
+			return 0, fmt.Errorf("stratz: win rate %v is out of range for match %d", value.WinRate, matchID)
+		}
 	}
+
+	winRate := values[len(values)-1].WinRate
 
 	for _, value := range values {
 		if value.WinRate > 1 {

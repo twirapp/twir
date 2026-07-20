@@ -87,6 +87,20 @@ func TestWinProbability_NormalizesWinRateScale(t *testing.T) {
 			]}}}}`,
 			wantErr: true,
 		},
+		{
+			name: "negative earlier value",
+			response: `{"data":{"live":{"match":{"liveWinRateValues":[
+				{"time":100,"winRate":-1},{"time":200,"winRate":0.625}
+			]}}}}`,
+			wantErr: true,
+		},
+		{
+			name: "over 100 earlier value",
+			response: `{"data":{"live":{"match":{"liveWinRateValues":[
+				{"time":100,"winRate":101},{"time":200,"winRate":0.625}
+			]}}}}`,
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
