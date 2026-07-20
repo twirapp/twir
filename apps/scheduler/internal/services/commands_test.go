@@ -14,14 +14,41 @@ func TestHasCommandConflict(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name        string
-		defaultName string
-		existing    []model.ChannelsCommands
-		want        bool
+		name           string
+		defaultName    string
+		defaultAliases []string
+		existing       []model.ChannelsCommands
+		want           bool
 	}{
 		{
 			name:        "no conflict",
 			defaultName: "mmr",
+			existing: []model.ChannelsCommands{
+				{Name: "uptime", Aliases: pq.StringArray{"up"}},
+			},
+		},
+		{
+			name:           "default alias collides with existing name",
+			defaultName:    "dota",
+			defaultAliases: []string{"MMR"},
+			existing: []model.ChannelsCommands{
+				{Name: "mmr"},
+			},
+			want: true,
+		},
+		{
+			name:           "default alias collides with existing alias",
+			defaultName:    "dota",
+			defaultAliases: []string{"winrate"},
+			existing: []model.ChannelsCommands{
+				{Name: "stats", Aliases: pq.StringArray{"WINRATE"}},
+			},
+			want: true,
+		},
+		{
+			name:           "unrelated default aliases do not collide",
+			defaultName:    "dota",
+			defaultAliases: []string{"mmr", "rank"},
 			existing: []model.ChannelsCommands{
 				{Name: "uptime", Aliases: pq.StringArray{"up"}},
 			},
@@ -71,8 +98,8 @@ func TestHasCommandConflict(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			if got := hasCommandConflict(tt.defaultName, tt.existing); got != tt.want {
-				t.Fatalf("hasCommandConflict(%q, %v) = %v, want %v", tt.defaultName, tt.existing, got, tt.want)
+			if got := hasCommandConflict(tt.defaultName, tt.defaultAliases, tt.existing); got != tt.want {
+				t.Fatalf("hasCommandConflict(%q, %v, %v) = %v, want %v", tt.defaultName, tt.defaultAliases, tt.existing, got, tt.want)
 			}
 		})
 	}

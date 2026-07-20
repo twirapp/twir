@@ -50,15 +50,19 @@ type channelWithCommandsToCreate struct {
 	CommandsToCreate pq.StringArray `gorm:"column:commandsToCreate" db:"commandsToCreate"`
 }
 
-func hasCommandConflict(defaultName string, existing []model.ChannelsCommands) bool {
-	for _, command := range existing {
-		if strings.EqualFold(defaultName, command.Name) {
-			return true
-		}
+func hasCommandConflict(defaultName string, defaultAliases []string, existing []model.ChannelsCommands) bool {
+	proposedTokens := append([]string{defaultName}, defaultAliases...)
 
-		for _, alias := range command.Aliases {
-			if strings.EqualFold(defaultName, alias) {
+	for _, token := range proposedTokens {
+		for _, command := range existing {
+			if strings.EqualFold(token, command.Name) {
 				return true
+			}
+
+			for _, alias := range command.Aliases {
+				if strings.EqualFold(token, alias) {
+					return true
+				}
 			}
 		}
 	}
@@ -67,6 +71,8 @@ func hasCommandConflict(defaultName string, existing []model.ChannelsCommands) b
 }
 
 func defaultCommandsOnConflict() clause.OnConflict {
+	// Alias uniqueness is not database-enforced; preflight handles known token collisions,
+	// while this keeps a concurrent command-name insert from failing the scheduler batch.
 	return clause.OnConflict{
 		Columns:   []clause.Column{{Name: "channelId"}, {Name: "name"}},
 		DoNothing: true,
@@ -164,7 +170,7 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
 				continue
 			}
 
-			if hasCommandConflict(defaultCommand.Name, existingCommands) {
+			if hasCommandConflict(defaultCommand.Name, defaultCommand.Aliases, existingCommands) {
 				c.logger.Warn(
 					"skipping default command due to existing command conflict",
 					slog.String("channelId", channel.ChannelID),
