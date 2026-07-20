@@ -201,6 +201,13 @@ func (f *fakeRepo) UpdateMatchResult(
 	return f.settings, nil
 }
 
+func (f *fakeRepo) ApplyMatchResultOnce(
+	_ context.Context,
+	_ dotarepository.ApplyMatchResultInput,
+) (model.ChannelDotaSettings, error) {
+	return f.settings, nil
+}
+
 func (f *fakeRepo) ResetSession(
 	_ context.Context,
 	_ uuid.UUID,

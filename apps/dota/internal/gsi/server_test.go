@@ -2,6 +2,7 @@ package gsi
 
 import (
 	"context"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -65,6 +66,13 @@ func (f *fakeRepo) UpdateMatchResult(
 	int,
 ) (model.ChannelDotaSettings, error) {
 	return model.Nil, nil
+}
+
+func (f *fakeRepo) ApplyMatchResultOnce(
+	context.Context,
+	dotarepository.ApplyMatchResultInput,
+) (model.ChannelDotaSettings, error) {
+	return model.Nil, errors.New("not implemented")
 }
 
 func (f *fakeRepo) ResetSession(

@@ -156,6 +156,13 @@ func (f *fakeRepository) UpdateMatchResult(
 	return model.Nil, errNotImplemented
 }
 
+func (f *fakeRepository) ApplyMatchResultOnce(
+	_ context.Context,
+	_ dotarepository.ApplyMatchResultInput,
+) (model.ChannelDotaSettings, error) {
+	return model.Nil, errNotImplemented
+}
+
 func (f *fakeRepository) ResetSession(
 	_ context.Context,
 	_ uuid.UUID,
