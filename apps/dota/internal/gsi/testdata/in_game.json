@@ -25,7 +25,7 @@
   "hero": {"id": 1, "name": "npc_dota_hero_antimage", "level": 12},
   "events": [
     {"event_type": "roshan_killed", "killer_team": "radiant", "game_time": 700},
-    {"event_type": "aegis_picked_up", "player": 2, "game_time": 740}
+    {"event_type": "aegis_picked_up", "player_id": 2, "game_time": 740}
   ],
   "added": {"map": {"radiant_score": true}},
   "previously": {"map": {"radiant_score": 11}}

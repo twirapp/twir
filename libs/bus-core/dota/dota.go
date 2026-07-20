@@ -70,5 +70,6 @@ type AegisPickupMessage struct {
 	ChannelID    string
 	TwitchUserID string
 	PlayerName   string
+	PlayerID     *int
 	GameTime     int
 }

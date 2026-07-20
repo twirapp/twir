@@ -185,6 +185,13 @@ func TestValidTokenAndPayload(t *testing.T) {
 	if len(call.payload.Events) != 2 {
 		t.Fatalf("expected 2 events, got %d", len(call.payload.Events))
 	}
+
+	if call.payload.Events[1].PlayerID == nil {
+		t.Fatal("expected aegis player_id to be present")
+	}
+	if *call.payload.Events[1].PlayerID != 2 {
+		t.Fatalf("expected aegis player_id 2, got %d", *call.payload.Events[1].PlayerID)
+	}
 }
 
 func TestMenuPayloadWithoutMap(t *testing.T) {

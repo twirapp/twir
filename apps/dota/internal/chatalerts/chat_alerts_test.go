@@ -358,6 +358,44 @@ func TestRoshanAndAegisRenderEventDetails(t *testing.T) {
 	}
 }
 
+func TestAegisPlayerTemplate(t *testing.T) {
+	playerID := 2
+	tests := []struct {
+		name     string
+		message  busdota.AegisPickupMessage
+		expected string
+	}{
+		{
+			name:     "uses player ID when name is unavailable",
+			message:  busdota.AegisPickupMessage{PlayerID: &playerID},
+			expected: "Aegis: player #2",
+		},
+		{
+			name:     "prefers player name",
+			message:  busdota.AegisPickupMessage{PlayerID: &playerID, PlayerName: "Puppey"},
+			expected: "Aegis: Puppey",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			settings := enabledSettings()
+			settings.ChatEvents.AegisPickup = dotamodel.ChatEventSettings{
+				Enabled:  true,
+				Template: "Aegis: {player}",
+			}
+			f := newFixture(t, settings)
+
+			message := tt.message
+			message.ChannelID = f.channelID.String()
+
+			_, err := f.alerts.handleAegisPickup(context.Background(), message)
+			require.NoError(t, err)
+			require.Equal(t, tt.expected, f.publisher.requests[0].Message)
+		})
+	}
+}
+
 func TestCooldownSuppressesDuplicateEvent(t *testing.T) {
 	settings := enabledSettings()
 	settings.ChatEvents.MatchEnded = dotamodel.ChatEventSettings{

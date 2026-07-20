@@ -232,12 +232,18 @@ func (c *ChatAlerts) handleAegisPickup(
 	ctx context.Context,
 	message busdota.AegisPickupMessage,
 ) (struct{}, error) {
+	player := message.PlayerName
+	if player == "" && message.PlayerID != nil {
+		// GSI has a slot ID only; roster lookup is deferred.
+		player = fmt.Sprintf("player #%d", *message.PlayerID)
+	}
+
 	return struct{}{}, c.handle(
 		ctx,
 		chatEvent{
 			kind:      eventAegisPickup,
 			channelID: message.ChannelID,
-			player:    message.PlayerName,
+			player:    player,
 			gameTime:  formatGameTime(message.GameTime),
 		},
 	)

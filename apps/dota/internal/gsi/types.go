@@ -67,7 +67,7 @@ type Hero struct {
 type Event struct {
 	EventType  string `json:"event_type"`
 	KillerTeam string `json:"killer_team,omitempty"`
-	Player     *int   `json:"player,omitempty"`
+	PlayerID   *int   `json:"player_id,omitempty"`
 	GameTime   int    `json:"game_time"`
 }
 

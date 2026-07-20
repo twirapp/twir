@@ -449,10 +449,10 @@ func TestAegisPickupEmittedOnce(t *testing.T) {
 	f := newFixture(t)
 	ctx := context.Background()
 
-	slot := 3
+	playerID := 3
 	payload := inGamePayload(777, "npc_dota_hero_pudge")
 	payload.Events = []gsi.Event{
-		{EventType: "aegis_picked_up", Player: &slot, GameTime: 600},
+		{EventType: "aegis_picked_up", PlayerID: &playerID, GameTime: 600},
 	}
 
 	require.NoError(t, f.sm.Process(ctx, f.channel, payload))
@@ -461,6 +461,8 @@ func TestAegisPickupEmittedOnce(t *testing.T) {
 	require.Len(t, f.emitter.aegisPickup, 1)
 	require.Equal(t, 600, f.emitter.aegisPickup[0].GameTime)
 	require.Equal(t, f.channel.String(), f.emitter.aegisPickup[0].ChannelID)
+	require.NotNil(t, f.emitter.aegisPickup[0].PlayerID)
+	require.Equal(t, playerID, *f.emitter.aegisPickup[0].PlayerID)
 }
 
 func TestSnapshotPersistedAndRestored(t *testing.T) {
