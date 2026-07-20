@@ -146,11 +146,12 @@ type apiBus struct {
 }
 
 type dotaBus struct {
-	GetData      Queue[dota.GetDataRequest, dota.GetDataResponse]
-	MatchStarted Queue[dota.MatchStartedMessage, struct{}]
-	MatchEnded   Queue[dota.MatchEndedMessage, struct{}]
-	RoshanKilled Queue[dota.RoshanKilledMessage, struct{}]
-	AegisPickup  Queue[dota.AegisPickupMessage, struct{}]
+	GetData        Queue[dota.GetDataRequest, dota.GetDataResponse]
+	MatchStarted   Queue[dota.MatchStartedMessage, struct{}]
+	MatchEnded     Queue[dota.MatchEndedMessage, struct{}]
+	MatchAbandoned Queue[dota.MatchAbandonedMessage, struct{}]
+	RoshanKilled   Queue[dota.RoshanKilledMessage, struct{}]
+	AegisPickup    Queue[dota.AegisPickupMessage, struct{}]
 }
 
 type discordBus struct {

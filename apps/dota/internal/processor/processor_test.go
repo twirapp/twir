@@ -229,6 +229,10 @@ func (f *fakeEmitter) MatchEnded(_ context.Context, _ busdota.MatchEndedMessage)
 	return nil
 }
 
+func (f *fakeEmitter) MatchAbandoned(_ context.Context, _ busdota.MatchAbandonedMessage) error {
+	return nil
+}
+
 func (f *fakeEmitter) RoshanKilled(_ context.Context, _ busdota.RoshanKilledMessage) error {
 	return f.roshanErr
 }

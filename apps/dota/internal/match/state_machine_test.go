@@ -97,14 +97,16 @@ func (f *fakeRepo) RegenerateGsiToken(
 }
 
 type fakeEmitter struct {
-	mu           sync.Mutex
-	roshanErr    error
-	aegisErr     error
-	matchStarted []busdota.MatchStartedMessage
-	matchEnded   []busdota.MatchEndedMessage
-	roshanKilled []busdota.RoshanKilledMessage
-	aegisPickup  []busdota.AegisPickupMessage
-	stateUpdates []busapi.DotaStateUpdateMessage
+	mu             sync.Mutex
+	roshanErr      error
+	aegisErr       error
+	abandonedErr   error
+	matchStarted   []busdota.MatchStartedMessage
+	matchEnded     []busdota.MatchEndedMessage
+	matchAbandoned []busdota.MatchAbandonedMessage
+	roshanKilled   []busdota.RoshanKilledMessage
+	aegisPickup    []busdota.AegisPickupMessage
+	stateUpdates   []busapi.DotaStateUpdateMessage
 }
 
 func (f *fakeEmitter) MatchStarted(_ context.Context, msg busdota.MatchStartedMessage) error {
@@ -118,6 +120,16 @@ func (f *fakeEmitter) MatchEnded(_ context.Context, msg busdota.MatchEndedMessag
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.matchEnded = append(f.matchEnded, msg)
+	return nil
+}
+
+func (f *fakeEmitter) MatchAbandoned(_ context.Context, msg busdota.MatchAbandonedMessage) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.abandonedErr != nil {
+		return f.abandonedErr
+	}
+	f.matchAbandoned = append(f.matchAbandoned, msg)
 	return nil
 }
 
@@ -302,6 +314,8 @@ func TestIdleToInGameEmitsMatchStartedOnce(t *testing.T) {
 	require.Len(t, f.emitter.matchStarted, 1)
 	require.Equal(t, "antimage", f.emitter.matchStarted[0].HeroName)
 	require.Equal(t, f.channel.String(), f.emitter.matchStarted[0].ChannelID)
+	require.Equal(t, int64(111), f.emitter.matchStarted[0].MatchID)
+	require.True(t, f.emitter.matchStarted[0].TeamKnown)
 
 	snap, err := f.sm.GetSnapshot(ctx, f.channel)
 	require.NoError(t, err)
@@ -396,6 +410,7 @@ func TestPostGameWinUpdatesResultAndEndsMatch(t *testing.T) {
 	require.Equal(t, 3025, ended.Mmr)
 	require.Equal(t, 1, ended.SessionWins)
 	require.Equal(t, 0, ended.SessionLosses)
+	require.Equal(t, int64(444), ended.MatchID)
 
 	snap, err := f.sm.GetSnapshot(ctx, f.channel)
 	require.NoError(t, err)
@@ -581,6 +596,78 @@ func TestFinishMatchBailsOnSettingsLoadFailure(t *testing.T) {
 	snap, err = f.sm.GetSnapshot(ctx, f.channel)
 	require.NoError(t, err)
 	require.Equal(t, StateIdle, snap.State)
+}
+
+func TestPostGameWithUnknownTeamDoesNotUpdateMatchResult(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	payload := inGamePayload(2_003, "npc_dota_hero_pudge")
+	payload.Player.TeamName = "spectator"
+	require.NoError(t, f.sm.Process(ctx, f.channel, payload))
+	require.False(t, f.emitter.matchStarted[0].TeamKnown)
+
+	postGame := postGamePayload(2_003, gsi.WinTeamDire)
+	postGame.Player.TeamName = "spectator"
+	require.NoError(t, f.sm.Process(ctx, f.channel, postGame))
+
+	require.Empty(t, f.repo.updateCalls)
+	require.Empty(t, f.emitter.matchEnded)
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, StatePostGame, snap.State)
+	require.Equal(t, int64(2_003), snap.MatchID)
+}
+
+func TestLeavingTrackedMatchEmitsAbandonedBeforeClearingSnapshot(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(2_004, "npc_dota_hero_pudge")))
+	require.NoError(t, f.sm.Process(ctx, f.channel, gsi.Payload{}))
+
+	require.Equal(t, []busdota.MatchAbandonedMessage{{
+		ChannelID: f.channel.String(),
+		MatchID:   2_004,
+	}}, f.emitter.matchAbandoned)
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, StateIdle, snap.State)
+	require.Zero(t, snap.MatchID)
+}
+
+func TestAbandonedPublishFailurePreservesSnapshotForRetry(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(2_005, "npc_dota_hero_pudge")))
+	f.emitter.abandonedErr = errors.New("publish failed")
+	require.Error(t, f.sm.Process(ctx, f.channel, gsi.Payload{}))
+
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, int64(2_005), snap.MatchID)
+	require.Equal(t, StateInGame, snap.State)
+
+	f.emitter.abandonedErr = nil
+	require.NoError(t, f.sm.Process(ctx, f.channel, gsi.Payload{}))
+	require.Len(t, f.emitter.matchAbandoned, 1)
+	require.Equal(t, int64(2_005), f.emitter.matchAbandoned[0].MatchID)
+}
+
+func TestReplacingTrackedMatchAbandonsOldMatchBeforeStartingNewOne(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(2_006, "npc_dota_hero_pudge")))
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(2_007, "npc_dota_hero_axe")))
+
+	require.Equal(t, []busdota.MatchAbandonedMessage{{
+		ChannelID: f.channel.String(),
+		MatchID:   2_006,
+	}}, f.emitter.matchAbandoned)
+	require.Len(t, f.emitter.matchStarted, 2)
+	require.Equal(t, int64(2_007), f.emitter.matchStarted[1].MatchID)
 }
 
 func TestGetSnapshotReturnsCurrentState(t *testing.T) {

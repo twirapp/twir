@@ -49,6 +49,7 @@ const (
 type EventEmitter interface {
 	MatchStarted(ctx context.Context, msg busdota.MatchStartedMessage) error
 	MatchEnded(ctx context.Context, msg busdota.MatchEndedMessage) error
+	MatchAbandoned(ctx context.Context, msg busdota.MatchAbandonedMessage) error
 	RoshanKilled(ctx context.Context, msg busdota.RoshanKilledMessage) error
 	AegisPickup(ctx context.Context, msg busdota.AegisPickupMessage) error
 	StateUpdate(ctx context.Context, msg busapi.DotaStateUpdateMessage) error
@@ -61,6 +62,7 @@ type Snapshot struct {
 	MatchID        int64     `json:"matchId"`
 	HeroName       string    `json:"heroName"`
 	IsRadiant      bool      `json:"isRadiant"`
+	TeamKnown      bool      `json:"teamKnown"`
 	SteamAccountID string    `json:"steamAccountId"`
 	RadiantScore   int       `json:"radiantScore"`
 	DireScore      int       `json:"direScore"`
@@ -229,6 +231,10 @@ func (m *StateMachine) Process(ctx context.Context, channelID uuid.UUID, payload
 	prevState := cs.snap.State
 	scoreChanged := cs.snap.RadiantScore != payload.Map.RadiantScore ||
 		cs.snap.DireScore != payload.Map.DireScore
+	teamChanged := false
+	if cs.snap.MatchID != 0 && cs.snap.MatchID == payload.Map.MatchID {
+		teamChanged = m.updateTeam(cs, payload.Player.TeamName)
+	}
 
 	cs.snap.RadiantScore = payload.Map.RadiantScore
 	cs.snap.DireScore = payload.Map.DireScore
@@ -243,12 +249,21 @@ func (m *StateMachine) Process(ctx context.Context, channelID uuid.UUID, payload
 		m.logger.WarnContext(ctx, "dota match: failed to load settings", logger.Error(err))
 	}
 
-	if newState == StateInGame && payload.Map.MatchID != cs.snap.MatchID {
+	matchChanged := false
+	if newState == StateInGame && payload.Map.MatchID > 0 && payload.Map.MatchID != cs.snap.MatchID {
+		if cs.snap.MatchID > 0 {
+			if err := m.abandonMatch(ctx, cs, false); err != nil {
+				return err
+			}
+		}
 		m.startMatch(cs, payload)
+		matchChanged = true
 		if err := m.emitter.MatchStarted(ctx, busdota.MatchStartedMessage{
 			ChannelID:      cs.snap.ChannelID.String(),
 			SteamAccountID: cs.snap.SteamAccountID,
 			HeroName:       cs.snap.HeroName,
+			MatchID:        cs.snap.MatchID,
+			TeamKnown:      cs.snap.TeamKnown,
 		}); err != nil {
 			m.logger.ErrorContext(ctx, "dota match: failed to emit match started", logger.Error(err))
 		}
@@ -265,8 +280,10 @@ func (m *StateMachine) Process(ctx context.Context, channelID uuid.UUID, payload
 		return err
 	}
 
-	if newState != prevState || scoreChanged {
+	if newState != prevState || scoreChanged || teamChanged || matchChanged {
 		m.persist(ctx, cs)
+	}
+	if newState != prevState || scoreChanged || teamChanged {
 		m.emitStateUpdate(ctx, cs)
 	}
 
@@ -315,6 +332,7 @@ func (m *StateMachine) startMatch(cs *channelState, payload gsi.Payload) {
 	cs.snap.MatchID = payload.Map.MatchID
 	cs.snap.WinProbability = 0
 	cs.snap.HeroName = heroName
+	cs.snap.TeamKnown = payload.Player.TeamName == "radiant" || payload.Player.TeamName == "dire"
 	cs.snap.IsRadiant = payload.Player.TeamName == "radiant"
 	cs.snap.SteamAccountID = strconv.FormatInt(payload.Player.AccountID, 10)
 	cs.snap.State = StateInGame
@@ -328,8 +346,12 @@ func (m *StateMachine) finishMatch(
 	payload gsi.Payload,
 ) error {
 	if cs.snap.MatchID == 0 ||
+		!cs.snap.TeamKnown ||
 		(payload.Map.WinTeam != gsi.WinTeamRadiant && payload.Map.WinTeam != gsi.WinTeamDire) {
 		cs.snap.State = StatePostGame
+		cs.snap.InGame = true
+		m.persist(ctx, cs)
+		m.emitStateUpdate(ctx, cs)
 		return nil
 	}
 
@@ -359,6 +381,7 @@ func (m *StateMachine) finishMatch(
 	if err := m.emitter.MatchEnded(ctx, busdota.MatchEndedMessage{
 		ChannelID:      cs.snap.ChannelID.String(),
 		SteamAccountID: cs.snap.SteamAccountID,
+		MatchID:        cs.snap.MatchID,
 		Win:            won,
 		HeroName:       cs.snap.HeroName,
 		Mmr:            updated.Mmr,
@@ -368,16 +391,7 @@ func (m *StateMachine) finishMatch(
 		m.logger.ErrorContext(ctx, "dota match: failed to emit match ended", logger.Error(err))
 	}
 
-	cs.snap.State = StateIdle
-	cs.snap.InGame = false
-	cs.snap.MatchID = 0
-	cs.snap.HeroName = ""
-	cs.snap.SteamAccountID = ""
-	cs.snap.RadiantScore = 0
-	cs.snap.DireScore = 0
-	cs.snap.GameTime = 0
-	cs.snap.WinProbability = 0
-	cs.seenEvents = make(map[string]struct{})
+	m.clearMatch(cs)
 
 	m.persist(ctx, cs)
 	m.emitStateUpdate(ctx, cs)
@@ -386,25 +400,75 @@ func (m *StateMachine) finishMatch(
 }
 
 func (m *StateMachine) goIdle(ctx context.Context, cs *channelState) error {
+	if cs.snap.MatchID > 0 {
+		return m.abandonMatch(ctx, cs, true)
+	}
+
 	if cs.snap.State == StateIdle {
 		return nil
 	}
 
+	m.clearMatch(cs)
+
+	m.persist(ctx, cs)
+	m.emitStateUpdate(ctx, cs)
+
+	return nil
+}
+
+func (m *StateMachine) abandonMatch(ctx context.Context, cs *channelState, emitStateUpdate bool) error {
+	if cs.snap.MatchID == 0 {
+		m.clearMatch(cs)
+		if emitStateUpdate {
+			m.persist(ctx, cs)
+			m.emitStateUpdate(ctx, cs)
+		}
+		return nil
+	}
+
+	if err := m.emitter.MatchAbandoned(ctx, busdota.MatchAbandonedMessage{
+		ChannelID: cs.snap.ChannelID.String(),
+		MatchID:   cs.snap.MatchID,
+	}); err != nil {
+		return fmt.Errorf("emit match abandoned: %w", err)
+	}
+
+	m.clearMatch(cs)
+	if emitStateUpdate {
+		m.persist(ctx, cs)
+		m.emitStateUpdate(ctx, cs)
+	}
+	return nil
+}
+
+func (m *StateMachine) clearMatch(cs *channelState) {
 	cs.snap.State = StateIdle
 	cs.snap.InGame = false
 	cs.snap.MatchID = 0
 	cs.snap.HeroName = ""
+	cs.snap.IsRadiant = false
+	cs.snap.TeamKnown = false
 	cs.snap.SteamAccountID = ""
 	cs.snap.RadiantScore = 0
 	cs.snap.DireScore = 0
 	cs.snap.GameTime = 0
 	cs.snap.WinProbability = 0
 	cs.seenEvents = make(map[string]struct{})
+}
 
-	m.persist(ctx, cs)
-	m.emitStateUpdate(ctx, cs)
+func (m *StateMachine) updateTeam(cs *channelState, teamName string) bool {
+	if teamName != "radiant" && teamName != "dire" {
+		return false
+	}
 
-	return nil
+	isRadiant := teamName == "radiant"
+	if cs.snap.TeamKnown && cs.snap.IsRadiant == isRadiant {
+		return false
+	}
+
+	cs.snap.TeamKnown = true
+	cs.snap.IsRadiant = isRadiant
+	return true
 }
 
 func (m *StateMachine) processEvents(

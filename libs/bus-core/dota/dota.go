@@ -1,11 +1,12 @@
 package dota
 
 const (
-	GetDataSubject      = "dota.get_data"
-	MatchStartedSubject = "dota.match_started"
-	MatchEndedSubject   = "dota.match_ended"
-	RoshanKilledSubject = "dota.roshan_killed"
-	AegisPickupSubject  = "dota.aegis_pickup"
+	GetDataSubject        = "dota.get_data"
+	MatchStartedSubject   = "dota.match_started"
+	MatchEndedSubject     = "dota.match_ended"
+	MatchAbandonedSubject = "dota.match_abandoned"
+	RoshanKilledSubject   = "dota.roshan_killed"
+	AegisPickupSubject    = "dota.aegis_pickup"
 )
 
 type GetDataRequest struct {
@@ -47,6 +48,8 @@ type MatchStartedMessage struct {
 	TwitchUserID   string
 	SteamAccountID string
 	HeroName       string
+	MatchID        int64
+	TeamKnown      bool
 }
 
 type MatchEndedMessage struct {
@@ -58,6 +61,12 @@ type MatchEndedMessage struct {
 	Mmr            int
 	SessionWins    int
 	SessionLosses  int
+	MatchID        int64
+}
+
+type MatchAbandonedMessage struct {
+	ChannelID string
+	MatchID   int64
 }
 
 type RoshanKilledMessage struct {

@@ -8,6 +8,7 @@ import (
 	"github.com/twirapp/twir/apps/dota/internal/chatalerts"
 	"github.com/twirapp/twir/apps/dota/internal/gsi"
 	"github.com/twirapp/twir/apps/dota/internal/match"
+	"github.com/twirapp/twir/apps/dota/internal/predictions"
 	"github.com/twirapp/twir/apps/dota/internal/processor"
 	"github.com/twirapp/twir/apps/dota/internal/stats"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -15,6 +16,8 @@ import (
 	"github.com/twirapp/twir/libs/integrations/opendota"
 	"github.com/twirapp/twir/libs/integrations/stratz"
 	"github.com/twirapp/twir/libs/otel"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotarepositorypgx "github.com/twirapp/twir/libs/repositories/dota/pgx"
 	"go.uber.org/fx"
@@ -27,6 +30,10 @@ var App = fx.Module(
 		fx.Annotate(
 			dotarepositorypgx.NewFx,
 			fx.As(new(dotarepository.Repository)),
+		),
+		fx.Annotate(
+			channelsrepositorypgx.NewFx,
+			fx.As(new(channelsrepository.Repository)),
 		),
 		fx.Annotate(
 			match.NewBusEmitter,
@@ -51,11 +58,17 @@ var App = fx.Module(
 			fx.As(new(chatalerts.CooldownStore)),
 		),
 		chatalerts.New,
+		fx.Annotate(
+			predictions.NewRedisPredictionStore,
+			fx.As(new(predictions.Store)),
+		),
+		predictions.New,
 	),
 	fx.Invoke(
 		otel.NewFx("dota"),
 		func(*buslistener.BusListener) {},
 		func(*chatalerts.ChatAlerts) {},
+		func(*predictions.Predictions) {},
 		func(s *gsi.Server, lc fx.Lifecycle) {
 			lc.Append(fx.Hook{
 				OnStart: func(_ context.Context) error { return s.Start() },

@@ -26,6 +26,10 @@ func (e *BusEmitter) MatchEnded(ctx context.Context, msg busdota.MatchEndedMessa
 	return e.bus.Dota.MatchEnded.Publish(ctx, msg)
 }
 
+func (e *BusEmitter) MatchAbandoned(ctx context.Context, msg busdota.MatchAbandonedMessage) error {
+	return e.bus.Dota.MatchAbandoned.Publish(ctx, msg)
+}
+
 func (e *BusEmitter) RoshanKilled(ctx context.Context, msg busdota.RoshanKilledMessage) error {
 	return e.bus.Dota.RoshanKilled.Publish(ctx, msg)
 }

@@ -29,29 +29,29 @@ import (
 )
 
 type Bus struct {
-	AuditLogs           *auditLogsBus
-	Parser              *parserBus
-	Websocket           *websocketBus
-	Channel             *channelBus
-	Bots                *botsBus
-	EmotesCacher        *emotesCacherBus
-	Timers              *timersBus
-	EventSub            *eventSubBus
-	Scheduler           *schedulerBus
-	Giveaways           *giveawaysBus
-	ChatMessages        Queue[generic.ChatMessage, struct{}]
-	RedemptionAdd       Queue[twitch.ActivatedRedemption, struct{}]
-	Events              *eventsBus
-	YTSRSearch          Queue[ytsr.SearchRequest, ytsr.SearchResponse]
-	Tokens              *tokensBus
-	Integrations        *integrationsBus
-	Api                 *apiBus
-	CacheInvalidator    Queue[cache_invalidator.InvalidateRequest, struct{}]
-	Discord             *discordBus
-	KickStreamOnline    Queue[kickbus.KickStreamOnline, struct{}]
-	KickStreamOffline   Queue[kickbus.KickStreamOffline, struct{}]
-	Executron           *executronBus
-	Dota                *dotaBus
+	AuditLogs         *auditLogsBus
+	Parser            *parserBus
+	Websocket         *websocketBus
+	Channel           *channelBus
+	Bots              *botsBus
+	EmotesCacher      *emotesCacherBus
+	Timers            *timersBus
+	EventSub          *eventSubBus
+	Scheduler         *schedulerBus
+	Giveaways         *giveawaysBus
+	ChatMessages      Queue[generic.ChatMessage, struct{}]
+	RedemptionAdd     Queue[twitch.ActivatedRedemption, struct{}]
+	Events            *eventsBus
+	YTSRSearch        Queue[ytsr.SearchRequest, ytsr.SearchResponse]
+	Tokens            *tokensBus
+	Integrations      *integrationsBus
+	Api               *apiBus
+	CacheInvalidator  Queue[cache_invalidator.InvalidateRequest, struct{}]
+	Discord           *discordBus
+	KickStreamOnline  Queue[kickbus.KickStreamOnline, struct{}]
+	KickStreamOffline Queue[kickbus.KickStreamOffline, struct{}]
+	Executron         *executronBus
+	Dota              *dotaBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -647,6 +647,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			MatchEnded: NewNatsQueue[dota.MatchEndedMessage, struct{}](
 				nc,
 				dota.MatchEndedSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			MatchAbandoned: NewNatsQueue[dota.MatchAbandonedMessage, struct{}](
+				nc,
+				dota.MatchAbandonedSubject,
 				1*time.Minute,
 				GobEncoder,
 			),
