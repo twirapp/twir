@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/twirapp/twir/apps/dota/internal/buslistener"
 	"github.com/twirapp/twir/apps/dota/internal/gsi"
 	"github.com/twirapp/twir/apps/dota/internal/match"
 	"github.com/twirapp/twir/apps/dota/internal/processor"
@@ -34,16 +35,16 @@ var App = fx.Module(
 			return stratz.New(config.DotaStratzToken)
 		},
 		opendota.New,
-		fx.Annotate(
-			stats.New,
-			fx.As(new(processor.WinProbabilityProvider)),
-		),
+		stats.New,
+		func(s *stats.Stats) processor.WinProbabilityProvider { return s },
+		func(s *stats.Stats) buslistener.StatsProvider { return s },
 		match.New,
 		fx.Annotate(
 			processor.New,
 			fx.As(new(gsi.MatchProcessor)),
 		),
 		gsi.New,
+		buslistener.New,
 	),
 	fx.Invoke(
 		otel.NewFx("dota"),
