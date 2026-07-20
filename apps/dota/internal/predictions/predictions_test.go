@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -114,6 +115,7 @@ func (s *fakePredictionStore) Reserve(
 func (s *fakePredictionStore) Commit(
 	_ context.Context,
 	key string,
+	token string,
 	record storedPrediction,
 	_ time.Duration,
 ) error {
@@ -122,6 +124,9 @@ func (s *fakePredictionStore) Commit(
 	s.commitCalls = append(s.commitCalls, key)
 	if s.commitErr != nil {
 		return s.commitErr
+	}
+	if s.reservations[key] != token {
+		return errPredictionReservationLost
 	}
 	delete(s.reservations, key)
 	s.records[key] = record
@@ -513,6 +518,62 @@ func TestMatchStartedSkipsIneligibleInputs(t *testing.T) {
 	}
 }
 
+func TestMatchStartedEnforcesTwitchPredictionWindowLimits(t *testing.T) {
+	for _, tt := range []struct {
+		name          string
+		windowSeconds int
+		creates       bool
+	}{
+		{name: "minimum accepted", windowSeconds: 30, creates: true},
+		{name: "below minimum rejected", windowSeconds: 29, creates: false},
+		{name: "maximum accepted", windowSeconds: 1_800, creates: true},
+		{name: "above maximum rejected", windowSeconds: 1_801, creates: false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			f.settings.settings.PredictionSettings.WindowSeconds = tt.windowSeconds
+
+			_, err := f.predictions.handleMatchStarted(context.Background(), startMessage(f, 921))
+
+			require.NoError(t, err)
+			if tt.creates {
+				require.Len(t, f.client.CreateCalls(), 1)
+			} else {
+				require.Empty(t, f.client.CreateCalls())
+				require.Empty(t, f.store.reserveCalls)
+			}
+		})
+	}
+}
+
+func TestMatchStartedEnforcesTwitchPredictionTitleRuneLimits(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		title   string
+		creates bool
+	}{
+		{name: "45 ASCII characters accepted", title: strings.Repeat("a", 45), creates: true},
+		{name: "46 ASCII characters rejected", title: strings.Repeat("a", 46), creates: false},
+		{name: "45 multibyte characters accepted", title: strings.Repeat("界", 45), creates: true},
+		{name: "46 multibyte characters rejected", title: strings.Repeat("界", 46), creates: false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			f.settings.settings.PredictionSettings.TitleTemplate = tt.title
+
+			_, err := f.predictions.handleMatchStarted(context.Background(), startMessage(f, 922))
+
+			require.NoError(t, err)
+			if tt.creates {
+				require.Len(t, f.client.CreateCalls(), 1)
+			} else {
+				require.Empty(t, f.client.CreateCalls())
+				require.Empty(t, f.store.reserveCalls)
+			}
+		})
+	}
+}
+
 func TestMatchStartedDeduplicatesConcurrentAndReplayedEvents(t *testing.T) {
 	f := newFixture(t)
 	message := startMessage(f, 93)
@@ -585,6 +646,78 @@ func TestMatchStartedReleasesReservationAfterTransientCreateFailure(t *testing.T
 	require.NoError(t, err)
 	_, exists := f.store.Record(key)
 	require.True(t, exists)
+}
+
+func TestMatchStartedRetainsKnownPredictionWhenCommitFailsAndRecoversOnReplay(t *testing.T) {
+	f := newFixture(t)
+	message := startMessage(f, 951)
+	key := predictionKey(f.channelID, message.MatchID)
+	f.store.commitErr = errors.New("redis temporarily unavailable")
+
+	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+
+	require.ErrorIs(t, err, f.store.commitErr)
+	require.True(t, f.store.HasReservation(key))
+	require.Len(t, f.client.CreateCalls(), 1)
+	require.Empty(t, f.store.releaseCalls)
+
+	f.store.commitErr = nil
+	_, err = f.predictions.handleMatchStarted(context.Background(), message)
+
+	require.NoError(t, err)
+	require.Len(t, f.client.CreateCalls(), 1)
+	record, exists := f.store.Record(key)
+	require.True(t, exists)
+	require.Equal(t, storedPrediction{
+		PredictionID: "prediction-1",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	}, record)
+}
+
+func TestTerminalEventsRecoverKnownPredictionAfterCommitFailure(t *testing.T) {
+	for _, tt := range []struct {
+		name   string
+		handle func(*fixture) error
+		status string
+	}{
+		{
+			name: "resolve",
+			handle: func(f *fixture) error {
+				_, err := f.predictions.handleMatchEnded(context.Background(), endMessage(f, 952, true))
+				return err
+			},
+			status: "RESOLVED",
+		},
+		{
+			name: "cancel",
+			handle: func(f *fixture) error {
+				_, err := f.predictions.handleMatchAbandoned(context.Background(), abandonedMessage(f, 952))
+				return err
+			},
+			status: "CANCELED",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			message := startMessage(f, 952)
+			f.store.commitErr = errors.New("redis temporarily unavailable")
+
+			_, err := f.predictions.handleMatchStarted(context.Background(), message)
+			require.ErrorIs(t, err, f.store.commitErr)
+			require.Len(t, f.client.CreateCalls(), 1)
+
+			f.store.commitErr = nil
+			f.client.getResponse = predictionResponse("prediction-1", "ACTIVE")
+			require.NoError(t, tt.handle(f))
+			require.Len(t, f.client.CreateCalls(), 1)
+			endCalls := f.client.EndCalls()
+			require.Len(t, endCalls, 1)
+			require.Equal(t, tt.status, endCalls[0].Status)
+			_, exists := f.store.Record(predictionKey(f.channelID, message.MatchID))
+			require.False(t, exists)
+		})
+	}
 }
 
 func TestMatchStartedReturnsReservationStoreFailureWithoutCallingTwitch(t *testing.T) {

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
@@ -28,11 +29,15 @@ const (
 	predictionKeyPrefix          = "cache:twir:dota:prediction:"
 	predictionTTL                = 12 * time.Hour
 	predictionsSubscriptionGroup = "dota-predictions"
+	minPredictionWindow          = 30
+	maxPredictionWindow          = 1_800
+	maxPredictionTitleRunes      = 45
 )
 
 var (
-	errPredictionNotFound = errors.New("dota prediction record not found")
-	errPredictionPending  = errors.New("dota prediction creation pending")
+	errPredictionNotFound        = errors.New("dota prediction record not found")
+	errPredictionPending         = errors.New("dota prediction creation pending")
+	errPredictionReservationLost = errors.New("dota prediction reservation ownership lost")
 )
 
 type storedPrediction struct {
@@ -41,10 +46,15 @@ type storedPrediction struct {
 	NoOutcomeID  string `json:"noOutcomeId"`
 }
 
+type pendingPrediction struct {
+	token  string
+	record storedPrediction
+}
+
 // Store keeps the Dota prediction that belongs to one channel and match.
 type Store interface {
 	Reserve(ctx context.Context, key string, token string, ttl time.Duration) (bool, error)
-	Commit(ctx context.Context, key string, record storedPrediction, ttl time.Duration) error
+	Commit(ctx context.Context, key string, token string, record storedPrediction, ttl time.Duration) error
 	Get(ctx context.Context, key string) (storedPrediction, error)
 	Release(ctx context.Context, key string, token string) error
 	Delete(ctx context.Context, key string) error
@@ -120,6 +130,9 @@ type Predictions struct {
 	handlersMu sync.Mutex
 	handlers   sync.WaitGroup
 	stopping   bool
+
+	pendingMu sync.Mutex
+	pending   map[string]pendingPrediction
 }
 
 func New(opts Opts) *Predictions {
@@ -153,6 +166,7 @@ func newPredictions(
 		store:         store,
 		logger:        logger,
 		subscriptions: subscriptions,
+		pending:       make(map[string]pendingPrediction),
 	}
 
 	if lifecycle != nil {
@@ -276,13 +290,21 @@ func (p *Predictions) handleTracked(ctx context.Context, eventKind string, handl
 }
 
 func (p *Predictions) createPrediction(ctx context.Context, message busdota.MatchStartedMessage) error {
-	if message.MatchID <= 0 || !message.TeamKnown {
+	if message.MatchID <= 0 {
 		return nil
 	}
 
 	channelID, err := uuid.Parse(message.ChannelID)
 	if err != nil {
 		p.logger.WarnContext(ctx, "dota prediction skipped: invalid channel ID", logger.Error(err))
+		return nil
+	}
+	key := predictionKey(channelID, message.MatchID)
+	if recovered, err := p.commitPending(ctx, key); recovered {
+		return err
+	}
+
+	if !message.TeamKnown {
 		return nil
 	}
 
@@ -299,7 +321,8 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 
 	title := strings.TrimSpace(settings.PredictionSettings.TitleTemplate)
 	window := settings.PredictionSettings.WindowSeconds
-	if title == "" || window < 1 || window > 1800 {
+	if title == "" || utf8.RuneCountInString(title) > maxPredictionTitleRunes ||
+		window < minPredictionWindow || window > maxPredictionWindow {
 		p.logger.WarnContext(
 			ctx,
 			"dota prediction skipped: invalid settings",
@@ -321,7 +344,6 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 		return nil
 	}
 
-	key := predictionKey(channelID, message.MatchID)
 	token := uuid.NewString()
 	reserved, err := p.store.Reserve(ctx, key, token, predictionTTL)
 	if err != nil {
@@ -368,8 +390,9 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 	if err != nil {
 		return p.creationFailed(ctx, key, token, err)
 	}
-	if err := p.store.Commit(ctx, key, record, predictionTTL); err != nil {
-		return p.creationFailed(ctx, key, token, fmt.Errorf("store created prediction: %w", err))
+	p.rememberPending(key, token, record)
+	if _, err := p.commitPending(ctx, key); err != nil {
+		return err
 	}
 
 	return nil
@@ -392,6 +415,27 @@ func (p *Predictions) releaseReservation(ctx context.Context, key string, token 
 	return nil
 }
 
+func (p *Predictions) rememberPending(key string, token string, record storedPrediction) {
+	p.pendingMu.Lock()
+	defer p.pendingMu.Unlock()
+	p.pending[key] = pendingPrediction{token: token, record: record}
+}
+
+func (p *Predictions) commitPending(ctx context.Context, key string) (bool, error) {
+	p.pendingMu.Lock()
+	defer p.pendingMu.Unlock()
+
+	pending, ok := p.pending[key]
+	if !ok {
+		return false, nil
+	}
+	if err := p.store.Commit(ctx, key, pending.token, pending.record, predictionTTL); err != nil {
+		return true, fmt.Errorf("commit known prediction: %w", err)
+	}
+	delete(p.pending, key)
+	return true, nil
+}
+
 func (p *Predictions) finishPrediction(
 	ctx context.Context,
 	channelIDValue string,
@@ -410,6 +454,9 @@ func (p *Predictions) finishPrediction(
 	}
 
 	key := predictionKey(channelID, matchID)
+	if recovered, err := p.commitPending(ctx, key); recovered && err != nil {
+		return err
+	}
 	record, err := p.store.Get(ctx, key)
 	if errors.Is(err, errPredictionNotFound) {
 		return nil
