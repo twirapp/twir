@@ -53,6 +53,7 @@ func New(opts Opts) error {
 							ctx,
 							emotes_cacher.GetChannelEmotesRequest{
 								ChannelID: emotes_store.GlobalChannelID,
+								ServiceIn: data.ServiceIn,
 							},
 						)
 					},
@@ -77,7 +78,12 @@ func (c *BusListener) GetChannelEmotes(
 ) (emotes_cacher.Response, error) {
 	var result []emotes_cacher.Emote
 
-	for serviceName, emotes := range c.store.GetChannelEmotesServices(emotes_store.ChannelID(request.ChannelID)) {
+	channelKey := emotes_store.ChannelKey{
+		Platform: request.Platform,
+		ID:       request.ChannelID,
+	}
+
+	for serviceName, emotes := range c.store.GetChannelEmotesServices(channelKey) {
 		if len(request.ServiceIn) > 0 && !slices.Contains(request.ServiceIn, serviceName) {
 			continue
 		}

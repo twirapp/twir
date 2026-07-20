@@ -3,6 +3,7 @@ package users_with_channel
 import (
 	"context"
 
+	"github.com/google/uuid"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 )
@@ -19,7 +20,7 @@ type GetManyInput struct {
 	IDs          []string
 	SearchQuery  string
 	Platforms    []platformentity.Platform
-	HasBadgesIDS []string
+	HasBadgesIDS []uuid.UUID
 
 	ChannelEnabled    *bool
 	ChannelIsBotAdmin *bool

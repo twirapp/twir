@@ -178,6 +178,7 @@ var SayCommand = &types.DefaultCommand{
 					e, err := parseCtx.Services.Bus.EmotesCacher.GetChannelEmotes.Request(
 						ctx,
 						emotes_cacher.GetChannelEmotesRequest{
+							Platform:  parseCtx.Platform,
 							ChannelID: parseCtx.Channel.ID,
 						},
 					)

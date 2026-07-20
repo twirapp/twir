@@ -71,7 +71,7 @@ onMounted(async () => {
 				custom
 			>
 				<UiButton
-					:href="href"
+					:href="href!"
 					variant="primary"
 					role="link"
 					@click="navigate"

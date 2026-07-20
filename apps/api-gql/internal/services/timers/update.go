@@ -36,7 +36,12 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (timersentity.Ti
 		return timersentity.Nil, errors.NewInternalError("Failed to get timer", err)
 	}
 
-	if timer.ChannelID != data.ChannelID {
+	parsedUuid, err := uuid.Parse(data.ChannelID)
+	if err != nil {
+		return timersentity.Nil, errors.NewInternalError("Failed to parse channelID", err)
+	}
+
+	if timer.ChannelID != parsedUuid {
 		return timersentity.Nil, errors.NewNotFoundError("Timer with this ID was not found for your channel")
 	}
 

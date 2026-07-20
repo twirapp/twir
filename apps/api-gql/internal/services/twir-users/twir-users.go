@@ -2,7 +2,9 @@ package twir_users
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
@@ -87,6 +89,16 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 		perPage = input.PerPage
 	}
 
+	badgeIDs := make([]uuid.UUID, 0, len(input.HasBadges))
+	for _, badgeID := range input.HasBadges {
+		parsedBadgeID, err := uuid.Parse(badgeID)
+		if err != nil {
+			return GetManyOutput{}, fmt.Errorf("parse badge ID: %w", err)
+		}
+
+		badgeIDs = append(badgeIDs, parsedBadgeID)
+	}
+
 	usersInput := users_with_channel.GetManyInput{
 		Page:              page,
 		PerPage:           perPage,
@@ -96,7 +108,7 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 		ChannelEnabled:    input.ChannelIsEnabled,
 		ChannelIsBotAdmin: input.ChannelIsBotAdmin,
 		IsBanned:          input.UserIsBanned,
-		HasBadgesIDS:      input.HasBadges,
+		HasBadgesIDS:      badgeIDs,
 	}
 
 	dbUsers, err := c.usersWithChannelsRepository.GetManyByIDS(ctx, usersInput)

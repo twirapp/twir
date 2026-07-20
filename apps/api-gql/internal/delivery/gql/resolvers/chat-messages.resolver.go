@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
+	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 )
 
 // ChatMessages is the resolver for the chatMessages field.
@@ -58,10 +59,41 @@ func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMes
 
 // ChatMessages is the resolver for the chatMessages field.
 func (r *subscriptionResolver) ChatMessages(ctx context.Context) (<-chan *gqlmodel.ChatMessage, error) {
-	targets, err := resolveSelectedDashboardChatMessageTargets(ctx, r.deps, nil)
+	var targets []chatmessagesrepo.PlatformChannelIdentity
+
+	var err error
+	targets, err = resolveSelectedDashboardChatMessageTargets(ctx, r.deps, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve selected dashboard chat message targets: %w", err)
 	}
+
+	ch := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelIDs(ctx, targets)
+	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
+
+	go func() {
+		for msg := range ch {
+			converted := mappers.ChatMessageToGQL(msg)
+			gqlCh <- &converted
+		}
+		close(gqlCh)
+	}()
+
+	return gqlCh, nil
+}
+
+// ChatMessagesByAPIKey is the resolver for the chatMessagesByApiKey field.
+func (r *subscriptionResolver) ChatMessagesByAPIKey(ctx context.Context, apiKey string) (<-chan *gqlmodel.ChatMessage, error) {
+	var targets []chatmessagesrepo.PlatformChannelIdentity
+
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
+		ctx,
+		apiKey,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve channel identity by api key: %w", err)
+	}
+
+	targets = identity.ChatTargets
 
 	ch := r.deps.ChatMessagesService.SubscribeToNewMessagesByChannelIDs(ctx, targets)
 	gqlCh := make(chan *gqlmodel.ChatMessage, 1)

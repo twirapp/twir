@@ -2,6 +2,7 @@ package badges_users
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -64,11 +65,16 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.BadgeUser, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return entity.BadgeUserNil, fmt.Errorf("parse user ID: %w", err)
+	}
+
 	badgeUser, err := c.badgesUsersRepository.Create(
 		ctx,
 		badges_users.CreateInput{
 			BadgeID: input.BadgeID,
-			UserID:  input.UserID,
+			UserID:  userID,
 		},
 	)
 	if err != nil {
@@ -84,11 +90,16 @@ type DeleteInput struct {
 }
 
 func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return fmt.Errorf("parse user ID: %w", err)
+	}
+
 	return c.badgesUsersRepository.Delete(
 		ctx,
 		badges_users.DeleteInput{
 			BadgeID: input.BadgeID,
-			UserID:  input.UserID,
+			UserID:  userID,
 		},
 	)
 }

@@ -509,6 +509,7 @@
       "hideTimeout": "Тайм-аут скрытия сообщения (в секундах)",
       "showDelay": "Задержка показа сообщения (в секундах)",
       "showBadges": "Отображать значки",
+      "showPlatformIcon": "Отображать иконку платформы",
       "showAnnounceBadge": "Отображать обводку объявления",
       "paddingContainer": "Отступы внутри контейнера",
       "resetToDefault": "Сбросить настройки",
@@ -1522,5 +1523,148 @@
         "maxLength": "Сообщение о победителе должно содержать менее 500 символов"
       }
     }
+  },
+  "landing": {
+    "meta": {
+      "title": "Twir — бот для чата Twitch и Kick",
+      "description": "Мощный и полезный бот для Twitch, который помогает управлять чатом на больших каналах. Команды, таймеры, модерация, заказ музыки, розыгрыши, оверлеи и многое другое — бесплатно и с открытым кодом."
+    },
+    "compareLink": "Сравнить Twir с другими ботами",
+    "faq": {
+      "badge": "FAQ",
+      "title": "Частые вопросы",
+      "q1": {
+        "question": "Twir бесплатный?",
+        "answer": "Да, Twir полностью бесплатен. Все основные функции — команды, таймеры, модерация, заказ музыки, розыгрыши и оверлеи — доступны всем без оплаты."
+      },
+      "q2": {
+        "question": "Как добавить Twir на канал?",
+        "answer": "Войдите через Twitch или Kick, нажмите «Добавить бота» в дашборде, и Twir подключится к вашему чату в течение минуты. Ничего скачивать не нужно."
+      },
+      "q3": {
+        "question": "Можно ли переехать с Nightbot или StreamElements?",
+        "answer": "Да. В Twir есть встроенный импорт, который переносит команды и настройки из Nightbot, StreamElements и Streamlabs в пару кликов."
+      },
+      "q4": {
+        "question": "Twir работает на Kick?",
+        "answer": "Да, Twir поддерживает и Twitch, и Kick. Вы можете подключить Kick-канал и управлять им из того же дашборда."
+      },
+      "q5": {
+        "question": "Twir — open source?",
+        "answer": "Да, Twir полностью открыт. Вы можете посмотреть код, внести вклад или даже поднять собственный инстанс."
+      }
+    }
+  },
+  "terms": {
+    "meta": {
+      "title": "Условия использования",
+      "description": "Условия использования чат-бота Twir и сайта twir.app."
+    }
+  },
+  "compare": {
+    "meta": {
+      "title": "Twir vs Nightbot, StreamElements, Moobot и Fossabot",
+      "description": "Честное сравнение функций Twitch чат-ботов: Twir vs Nightbot, StreamElements, Moobot и Fossabot. Команды, модерация, заказ музыки, оверлеи, алерты и многое другое."
+    },
+    "breadcrumb": "Сравнение",
+    "hero": {
+      "badge": "Сравнение",
+      "title": "Twir vs другие Twitch-боты",
+      "subtitle": "Честный взгляд на то, как Twir сравнивается с Nightbot, StreamElements, Moobot и Fossabot — функция за функцией."
+    },
+    "table": {
+      "caption": "Таблица сравнения функций Twir, Nightbot, StreamElements, Moobot и Fossabot",
+      "feature": "Функция"
+    },
+    "support": {
+      "yes": "Да",
+      "partial": "Частично",
+      "no": "Нет"
+    },
+    "features": {
+      "commands": "Свои команды",
+      "timers": "Таймеры",
+      "moderation": "Модерация",
+      "songRequests": "Заказ музыки",
+      "giveaways": "Розыгрыши",
+      "overlays": "Оверлеи для стрима",
+      "alerts": "Стрим-алерты",
+      "games": "Встроенные игры чата",
+      "musicIntegrations": "Музыкальные интеграции",
+      "openSource": "Открытый код",
+      "platforms": "Платформы",
+      "price": "Цена",
+      "statsTracking": "Вотчтайм и статистика",
+      "greetings": "Приветствия",
+      "keywords": "Ответы на ключевые слова",
+      "customScripting": "Свои скрипты (JS/Python)",
+      "roles": "Роли и права в дашборде",
+      "vipManagement": "Управление VIP",
+      "emoteStats": "Статистика смайлов",
+      "musicRecognition": "Распознавание музыки (как Shazam)",
+      "obsIntegration": "Интеграция с OBS"
+    },
+    "notes": {
+      "overlaysTwir": "Now Playing, Чат, статистика Faceit и Valorant, Emote Wall, Pixel Dudes, AFK и другие",
+      "alertsMoobot": "Чат-алерты — только в MoobotPlus (платно)",
+      "gamesTwir": "Русская рулетка, дуэли, сэппуку, voteban, магический шар",
+      "musicTwir": "Now playing через Spotify и Last.fm плюс встроенный заказ музыки",
+      "musicNightbot": "AutoDJ без интеграции Spotify и Last.fm",
+      "openSourceTwir": "Полностью открытый код, можно self-host",
+      "statsTwir": "Вотчтайм, сообщения и поинты канала — бесплатно для всех",
+      "statsMoobot": "Вотчтайм и лояльность — только в MoobotPlus (платно)",
+      "songRequestsFossabot": "Через YouTube или SoundCloud (Media request)",
+      "gamesSe": "Бинго, розыгрыши и конкурсы",
+      "gamesFossabot": "8-ball, votekick и шутки через стандартные команды",
+      "musicSe": "Заказ песен по ссылкам; без интеграций now-playing",
+      "greetingsMoobot": "Только распознавание новых чатеров, MoobotPlus (платно)",
+      "scriptingTwir": "Свои переменные на JavaScript или Python",
+      "scriptingFossabot": "Много готовых переменных, но без своего кода",
+      "rolesSe": "Базовые уровни пользователей",
+      "rolesMoobot": "1 группа прав на бесплатном плане",
+      "vipTwir": "Управление VIP и планирование снятия по времени",
+      "vipMoobot": "Только First Wave VIP, MoobotPlus (платно)",
+      "obsTwir": "Смена сцен, мьют звука, видимость источников через websockets"
+    },
+    "values": {
+      "platforms": {
+        "twir": "Twitch, Kick",
+        "nightbot": "Twitch, YouTube",
+        "streamelements": "Twitch, YouTube, Kick",
+        "moobot": "Twitch",
+        "fossabot": "Twitch, YouTube, Kick"
+      },
+      "price": {
+        "free": "Бесплатно",
+        "moobotPlus": "Бесплатно + платные планы"
+      }
+    },
+    "cta": {
+      "title": "Готовы перейти?",
+      "subtitle": "Импортируйте команды из Nightbot, StreamElements или Streamlabs в пару кликов и начните пользоваться Twir уже сегодня.",
+      "getStarted": "Начать бесплатно",
+      "import": "Импортировать данные",
+      "questions": "Остались вопросы? Спросите в"
+    },
+    "faq": {
+      "title": "Частые вопросы",
+      "q1": {
+        "question": "Почему стоит выбрать Twir вместо Nightbot?",
+        "answer": "В Twir есть оверлеи для стрима, встроенные игры чата, музыкальные интеграции со Spotify и Last.fm, и он полностью открыт — всего этого у Nightbot нет. Команды, таймеры и модерация работают так, как вы привыкли."
+      },
+      "q2": {
+        "question": "Можно ли перенести команды из другого бота?",
+        "answer": "Да. В Twir есть импорт из Nightbot, StreamElements и Streamlabs. Команды и настройки переносятся автоматически — без ручного копирования."
+      },
+      "q3": {
+        "question": "Twir действительно бесплатный?",
+        "answer": "Да. Все функции из таблицы сравнения бесплатны, включая оверлеи, розыгрыши и заказ музыки. Twir — open source проект, разработанный стримерами для стримеров."
+      },
+      "q4": {
+        "question": "Twir поддерживает Kick?",
+        "answer": "Да. Twir работает и с Twitch, и с Kick из одного дашборда — можно управлять обоими каналами в одном месте."
+      }
+    },
+    "disclaimer": "Nightbot, StreamElements, Moobot и Fossabot — товарные знаки их соответствующих владельцев. Twir не аффилирован с ними и не имеет их одобрения. Данные о функциях основаны на публичной информации и могут меняться со временем."
   }
 }

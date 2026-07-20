@@ -31,6 +31,12 @@ export function useAdminUsers() {
 						login
 						displayName
 						avatar
+						twitchProfile {
+							login
+							displayName
+							profileImageUrl
+							notFound
+						}
 						isBanned
 						isBotAdmin
 						isBotEnabled

@@ -10,6 +10,7 @@ import (
 type Repository interface {
 	GetMany(ctx context.Context, input GetManyInput) ([]model.Channel, error)
 	GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, error)
+	GetByApiKey(ctx context.Context, apiKey string) (model.Channel, error)
 	GetByTwitchUserID(ctx context.Context, twitchUserID uuid.UUID) (model.Channel, error)
 	GetByTwitchPlatformID(ctx context.Context, twitchPlatformID string) (model.Channel, error)
 	GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (model.Channel, error)

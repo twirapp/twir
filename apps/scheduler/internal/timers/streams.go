@@ -88,24 +88,16 @@ func NewStreams(opts StreamOpts) {
 }
 
 func (c *streams) processStreams(ctx context.Context) error {
-	var channels []model.Channels
-	err := c.gorm.
-		WithContext(ctx).
-		Where(`"channels".twitch_bot_enabled = ? and "User"."is_banned" = ?`, true, false).
-		Joins("User").
-		Find(&channels).Error
+	var channels []twitchStreamChannelRow
+	err := buildTwitchChannelsQuery(c.gorm, ctx).Scan(&channels).Error
 	if err != nil {
 		return fmt.Errorf("cannot get channels: %w", err)
 	}
 
 	usersIds := make([]string, 0, len(channels))
 	for _, channel := range channels {
-		if !channel.TwitchBotEnabled && !channel.User.IsBanned {
-			continue
-		}
-
-		if channel.User != nil && channel.User.PlatformID != "" {
-			usersIds = append(usersIds, channel.User.PlatformID)
+		if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
+			usersIds = append(usersIds, *channel.TwitchPlatformID)
 		}
 	}
 
@@ -115,35 +107,32 @@ func (c *streams) processStreams(ctx context.Context) error {
 		Where(`service = ?`, model.IntegrationServiceDiscord).
 		Select("id").
 		Find(discordIntegration).Error
-	if err != nil {
-		return fmt.Errorf("cannot get discord integration: %w", err)
-	}
+	if err == nil {
+		var discordIntegrations []model.ChannelsIntegrations
+		if discordIntegration.ID != "" {
+			err = c.gorm.
+				WithContext(ctx).
+				Where(`"integrationId" = ?`, discordIntegration.ID).
+				Select("id", `"integrationId"`, "data").
+				Find(&discordIntegrations).Error
 
-	var discordIntegrations []model.ChannelsIntegrations
-	if discordIntegration.ID != "" {
-		err = c.gorm.
-			WithContext(ctx).
-			Where(`"integrationId" = ?`, discordIntegration.ID).
-			Select("id", `"integrationId"`, "data").
-			Find(&discordIntegrations).Error
-		if err != nil {
-			return fmt.Errorf("cannot get discord integrations: %w", err)
-		}
-
-		for _, integration := range discordIntegrations {
-			if integration.Data == nil ||
-				integration.Data.Discord == nil ||
-				len(integration.Data.Discord.Guilds) == 0 {
-				continue
-			}
-
-			for _, guild := range integration.Data.Discord.Guilds {
-				if !guild.LiveNotificationEnabled {
+			for _, integration := range discordIntegrations {
+				if integration.Data == nil ||
+					integration.Data.Discord == nil ||
+					len(integration.Data.Discord.Guilds) == 0 {
 					continue
 				}
-				usersIds = append(usersIds, guild.AdditionalUsersIdsForLiveCheck...)
+
+				for _, guild := range integration.Data.Discord.Guilds {
+					if !guild.LiveNotificationEnabled {
+						continue
+					}
+					usersIds = append(usersIds, guild.AdditionalUsersIdsForLiveCheck...)
+				}
 			}
 		}
+	} else {
+		c.logger.InfoContext(ctx, "Cannot get discord integration", logger.Error(err))
 	}
 
 	usersIds = lo.Uniq(usersIds)
@@ -282,6 +271,28 @@ func (c *streams) processStreams(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+type twitchStreamChannelRow struct {
+	ID               string  `gorm:"column:id"`
+	TwitchPlatformID *string `gorm:"column:twitch_platform_id"`
+}
+
+const (
+	twitchChannelsSelectClause        = `channels.id, users.platform_id AS twitch_platform_id`
+	twitchChannelsJoinClause          = `LEFT JOIN users ON users.id = channels.twitch_user_id`
+	twitchChannelsPlatformIDIsNotNull = `users.platform_id IS NOT NULL`
+)
+
+func buildTwitchChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
+	return db.
+		WithContext(ctx).
+		Table("channels").
+		Select(twitchChannelsSelectClause).
+		Joins(twitchChannelsJoinClause).
+		Where(`channels.twitch_bot_enabled IS TRUE`).
+		Where(twitchChannelsPlatformIDIsNotNull).
+		Where(`COALESCE(users.is_banned, false) = false`)
 }
 
 type kickChannelRow struct {

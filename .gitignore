@@ -16,7 +16,6 @@ docker-compose*
 !docker-compose.build.yml
 !docker-compose.stack.yml
 !docker-compose.dockprom.yml
-!configs/signoz/docker-compose.yml
 .devbox
 devbox/go
 .pnpm-store
@@ -51,3 +50,4 @@ worktrees
 .playwright-mcp
 .omo/drafts
 .omo/run-continuation
+mise.toml

@@ -39,7 +39,7 @@ func New(opts Opts) error {
 		emotesStore:          opts.EmotesStore,
 		usersRepo:            opts.UsersRepo,
 		registeredChannelIDs: make(map[string]bool),
-		emoteSetToChannelID:  make(map[string]string),
+		emoteSetToChannelID:  make(map[string]emotes_store.ChannelKey),
 	}
 
 	opts.LC.Append(
@@ -70,7 +70,7 @@ type Service struct {
 	usersRepo            usersrepository.Repository
 	sevenTvApiClient     seventv.Client
 	registeredChannelIDs map[string]bool
-	emoteSetToChannelID  map[string]string
+	emoteSetToChannelID  map[string]emotes_store.ChannelKey
 	logger               *slog.Logger
 	emotesStore          *emotes_store.EmotesStore
 }
@@ -150,9 +150,9 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			continue
 		}
 
-		channelID := c.emoteSetToChannelID[data.Body.Id]
-		if channelID == "" {
-
+		channelKey, ok := c.emoteSetToChannelID[data.Body.Id]
+		if !ok {
+			continue
 		}
 
 		emoteData := emotes.Value.Data
@@ -161,12 +161,13 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			"Received new emote",
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
-			slog.String("channel_id", channelID),
+			slog.String("platform", channelKey.Platform.String()),
+			slog.String("channel_id", channelKey.ID),
 			slog.String("emote_set", data.Body.Id),
 		)
 
 		c.emotesStore.AddEmotes(
-			emotes_store.ChannelID(channelID),
+			channelKey,
 			emotes_cacher.ServiceNameSevenTV,
 			emote.Emote{
 				ID:   emote.ID(emoteData.Id),
@@ -180,8 +181,8 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			continue
 		}
 
-		channelID := c.emoteSetToChannelID[data.Body.Id]
-		if channelID == "" {
+		channelKey, ok := c.emoteSetToChannelID[data.Body.Id]
+		if !ok {
 			continue
 		}
 
@@ -191,12 +192,13 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			"Received updated emote",
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
-			slog.String("channel_id", channelID),
+			slog.String("platform", channelKey.Platform.String()),
+			slog.String("channel_id", channelKey.ID),
 			slog.String("emote_set", data.Body.Id),
 		)
 
 		c.emotesStore.Update(
-			emotes_store.ChannelID(channelID),
+			channelKey,
 			emotes_cacher.ServiceNameSevenTV,
 			emote.ID(emoteData.Id),
 			emote.Emote{
@@ -211,9 +213,8 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			continue
 		}
 
-		channelID := c.emoteSetToChannelID[data.Body.Id]
-
-		if channelID == "" {
+		channelKey, ok := c.emoteSetToChannelID[data.Body.Id]
+		if !ok {
 			continue
 		}
 
@@ -223,12 +224,13 @@ func (c *Service) handleEmoteSetUpdate(_ context.Context, data messages.Dispatch
 			"Received deleted emote",
 			slog.String("id", emoteData.Id),
 			slog.String("name", emoteData.Name),
-			slog.String("channel_id", channelID),
+			slog.String("platform", channelKey.Platform.String()),
+			slog.String("channel_id", channelKey.ID),
 			slog.String("emote_set", data.Body.Id),
 		)
 
 		c.emotesStore.RemoveEmoteById(
-			emotes_store.ChannelID(channelID),
+			channelKey,
 			emotes_cacher.ServiceNameSevenTV,
 			emote.ID(emoteData.Id),
 		)

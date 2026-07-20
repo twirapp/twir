@@ -46,6 +46,8 @@ type CreateUserInput struct {
 	UserID                   string
 	PlatformID               string
 	Platform                 platform.Platform
+	Login                    string
+	DisplayName              string
 	ChannelID                *string
 	Badges                   []generic.ChatMessageBadge
 	UsedEmotesWithThirdParty *int
@@ -171,7 +173,7 @@ func (c *UserCreatorService) ensureUserExists(ctx context.Context, input CreateU
 	if parsedUserID, parseErr := uuid.Parse(input.UserID); parseErr == nil {
 		user, err := c.usersRepo.GetByID(ctx, parsedUserID)
 		if err == nil {
-			return &user, nil
+			return c.ensureUserIdentity(ctx, user, input)
 		}
 		if !errors.Is(err, usermodel.ErrNotFound) {
 			return nil, err
@@ -191,7 +193,7 @@ func (c *UserCreatorService) ensureUserExists(ctx context.Context, input CreateU
 	if platformID != "" {
 		user, err := c.usersRepo.GetByPlatformID(ctx, plat, platformID)
 		if err == nil {
-			return &user, nil
+			return c.ensureUserIdentity(ctx, user, input)
 		}
 		if !errors.Is(err, usermodel.ErrNotFound) {
 			return nil, err
@@ -200,10 +202,37 @@ func (c *UserCreatorService) ensureUserExists(ctx context.Context, input CreateU
 
 	return c.createUser(
 		ctx, users.CreateInput{
-			Platform:   plat,
-			PlatformID: platformID,
+			Platform:    plat,
+			PlatformID:  platformID,
+			Login:       input.Login,
+			DisplayName: input.DisplayName,
 		},
 	)
+}
+
+func (c *UserCreatorService) ensureUserIdentity(
+	ctx context.Context,
+	user usermodel.User,
+	input CreateUserInput,
+) (*usermodel.User, error) {
+	updateInput := users.UpdateInput{}
+	if input.Login != "" && input.Login != user.Login {
+		updateInput.Login = &input.Login
+	}
+	if input.DisplayName != "" && input.DisplayName != user.DisplayName {
+		updateInput.DisplayName = &input.DisplayName
+	}
+
+	if updateInput.Login == nil && updateInput.DisplayName == nil {
+		return &user, nil
+	}
+
+	updatedUser, err := c.usersRepo.Update(ctx, user.ID, updateInput)
+	if err != nil {
+		return nil, fmt.Errorf("ensureUserIdentity: %w", err)
+	}
+
+	return &updatedUser, nil
 }
 
 func (c *UserCreatorService) createUserStats(

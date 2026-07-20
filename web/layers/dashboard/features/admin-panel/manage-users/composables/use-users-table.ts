@@ -69,11 +69,13 @@ export const useUsersTable = createGlobalState(() => {
 			size: 60,
 			header: () => h('div', {}, t('adminPanel.manageUsers.user')),
 			cell: ({ row }) => {
+				const twitchProfile = row.original.twitchProfile
 				const profile = resolveProfile({
-					profileImageUrl: row.original.avatar,
-					login: row.original.login,
-					displayName: row.original.displayName,
+					profileImageUrl: twitchProfile?.profileImageUrl || row.original.avatar,
+					login: twitchProfile?.login || row.original.login,
+					displayName: twitchProfile?.displayName || row.original.displayName,
 					platform: row.original.platform,
+					notFound: twitchProfile?.notFound,
 				})
 
 				return h(UsersTableCellUser, {

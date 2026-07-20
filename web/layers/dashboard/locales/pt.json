@@ -494,6 +494,7 @@
       "hideTimeout": "Tempo de Ocultação da Mensagem",
       "showDelay": "Atraso na Exibição da Mensagem",
       "showBadges": "Mostrar Distintivos",
+      "showPlatformIcon": "Mostrar ícone da plataforma",
       "showAnnounceBadge": "Mostrar Borda de Anúncio",
       "paddingContainer": "Preenchimento Interno do Contêiner",
       "resetToDefault": "Redefinir para o Padrão",

@@ -6,7 +6,6 @@ import tailwindcss from '@tailwindcss/vite'
 import { createResolver } from 'nuxt/kit'
 
 import { lodashMonacoTypesPlugin } from './lodash-monaco-types.vite'
-import gqlcodegen from './modules/gql-codegen'
 
 const { resolve } = createResolver(import.meta.url)
 
@@ -42,6 +41,8 @@ function buildDiagnosticsPlugin(): any {
 
 const diagnosticsPlugin = buildDiagnosticsPlugin()
 
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://twir.app'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	compatibilityDate: '2025-12-14',
@@ -55,7 +56,14 @@ export default defineNuxtConfig({
 		},
 	},
 
-	site: { indexable: true },
+	site: {
+		indexable: true,
+		url: siteUrl,
+		name: 'Twir',
+		description:
+			'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.',
+		defaultLocale: 'en',
+	},
 
 	extends: [
 		'./layers/widgets',
@@ -84,14 +92,18 @@ export default defineNuxtConfig({
 		'@nuxt/fonts',
 		'nuxt-svgo',
 		'@vueuse/nuxt',
-		'@nuxtjs/seo',
-		gqlcodegen,
-		'@nuxtjs/fontaine',
 		'@nuxtjs/i18n',
+		'@nuxtjs/seo',
+		'@nuxtjs/fontaine',
 	],
 
 	i18n: {
-		locales: localeCodes.map((code) => ({ code, file: `${code}.json` })) as any, // TODO: remove any, no ai written xd
+		baseUrl: siteUrl,
+		locales: localeCodes.map((code) => ({
+			code,
+			file: `${code}.json`,
+			language: code,
+		})) as any, // TODO: remove any, no ai written xd
 		defaultLocale: 'en',
 		langDir: 'locales',
 		compilation: {
@@ -120,12 +132,21 @@ export default defineNuxtConfig({
 				prefix: 'twir-integrations',
 				dir: resolve('./layers/dashboard/assets/integrations'),
 			},
+			{
+				prefix: 'twir-compare',
+				dir: resolve('./layers/landing/assets/compare'),
+			},
 		],
 	},
 
 	devServer: {
 		host: '0.0.0.0',
 		port: 3010,
+	},
+
+	build: {
+		// frontend-chat ships Vue SFC source, including scoped message styles.
+		transpile: ['@twir/frontend-chat'],
 	},
 
 	experimental: {
@@ -138,6 +159,7 @@ export default defineNuxtConfig({
 	vite: {
 		plugins: [diagnosticsPlugin, lodashMonacoTypesPlugin(), tailwindcss()],
 		optimizeDeps: {
+			exclude: ['@twir/frontend-chat'],
 			include: [
 				'@urql/vue',
 				'graphql-ws',
@@ -154,6 +176,10 @@ export default defineNuxtConfig({
 				'@unovis/vue',
 				'vue-draggable-plus',
 				'@vuepic/vue-datepicker',
+				'@guolao/vue-monaco-editor',
+				'@unhead/schema-org/vue',
+				'@tanstack/vue-virtual',
+				'tinycolor2',
 			],
 		},
 		server: {
@@ -238,14 +264,55 @@ export default defineNuxtConfig({
 	robots: {
 		blockAiBots: true,
 		disallow: [
-			'/s',
+			'/s/',
+			'/s/**',
 			'/dashboard',
 			'/dashboard/**',
-			'/s/**',
-			'/h',
+			'/h/',
 			'/h/**',
+			'/overlays/',
 			'/overlays/**',
+		],
+	},
+
+	ogImage: {
+		fontSubsets: ['latin', 'latin-ext', 'cyrillic', 'cyrillic-ext'],
+	},
+
+	sitemap: {
+		exclude: [
+			'/dashboard',
+			'/dashboard/**',
+			'/s',
+			'/s/**',
+			'/h/**',
+			'/o',
+			'/o/**',
 			'/overlays',
+			'/overlays/**',
+			'/login',
+			'/login/**',
+			'/import',
+			'/import/**',
+			'/settings',
+			'/settings/**',
+			'/en/dashboard',
+			'/en/dashboard/**',
+			'/**/dashboard',
+			'/**/dashboard/**',
+			'/**/s/**',
+			'/**/h/**',
+			'/**/o',
+			'/**/o/**',
+			'/**/overlays',
+			'/**/overlays/**',
+			'/**/login',
+			'/**/login/**',
+			'/**/url-shortener/profile',
+			'/**/import',
+			'/**/import/**',
+			'/**/settings',
+			'/**/settings/**',
 			'/w/**',
 		],
 	},

@@ -33,7 +33,7 @@ var ChatEval = &types.Variable{
 		req, err := parseCtx.Services.Bus.Executron.Execute.Request(
 			ctx,
 			executronBus.ExecuteRequest{
-				ChannelId: parseCtx.Channel.ID,
+				ChannelId: parseCtx.Channel.DBChannelID,
 				Language:  "javascript",
 				Code:      script,
 			},

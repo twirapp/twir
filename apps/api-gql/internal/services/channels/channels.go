@@ -2,6 +2,7 @@ package channels
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -94,35 +95,87 @@ type ChannelPlatformIdentity struct {
 	ID       string
 }
 
-func (c *Service) ResolveApiKeyChannelIdentity(
-	ctx context.Context,
-	apiKey string,
-) (ApiKeyChannelIdentity, error) {
-	user, err := c.usersRepository.GetByApiKey(ctx, apiKey)
+func (c *Service) ResolveApiKeyChannelIdentityByAnyPlatformUUID(ctx context.Context, userId uuid.UUID) (*ApiKeyChannelIdentity, error) {
+	user, err := c.usersRepository.GetByID(ctx, userId)
 	if err != nil {
-		return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get user: %w", err)
+		return nil, err
 	}
 
 	var channel model.Channel
+
 	switch user.Platform {
 	case platformentity.PlatformKick:
 		channel, err = c.channelsRepository.GetByKickUserID(ctx, user.ID)
 		if err != nil {
-			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get kick channel: %w", err)
+			return nil, fmt.Errorf("failed to get kick channel: %w", err)
 		}
 	default:
 		channel, err = c.channelsRepository.GetByTwitchUserID(ctx, user.ID)
 		if err != nil {
-			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get twitch channel: %w", err)
+			return nil, fmt.Errorf("failed to get twitch channel: %w", err)
 		}
 	}
 
 	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, 2)
 	for _, identity := range c.mapChannelPlatformIdentities(channel) {
-		targets = append(targets, chatmessagesrepo.PlatformChannelIdentity{
-			Platform:          identity.Platform.String(),
-			PlatformChannelID: identity.ID,
-		})
+		targets = append(
+			targets, chatmessagesrepo.PlatformChannelIdentity{
+				Platform:          identity.Platform.String(),
+				PlatformChannelID: identity.ID,
+			},
+		)
+	}
+
+	if len(targets) == 0 {
+		return nil, fmt.Errorf("no chat message targets found for api key")
+	}
+
+	return &ApiKeyChannelIdentity{
+		InternalChannelID: channel.ID.String(),
+		ChatTargets:       targets,
+	}, nil
+}
+
+func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
+	ctx context.Context,
+	apiKey string,
+) (ApiKeyChannelIdentity, error) {
+	var channel model.Channel
+	foundedChannel, err := c.channelsRepository.GetByApiKey(ctx, apiKey)
+	if err != nil && !errors.Is(err, channels.ErrNotFound) {
+		return ApiKeyChannelIdentity{}, err
+	}
+
+	if !foundedChannel.IsNil() {
+		channel = foundedChannel
+	} else {
+		user, err := c.usersRepository.GetByApiKey(ctx, apiKey)
+		if err != nil {
+			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get user: %w", err)
+		}
+
+		switch user.Platform {
+		case platformentity.PlatformKick:
+			channel, err = c.channelsRepository.GetByKickUserID(ctx, user.ID)
+			if err != nil {
+				return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get kick channel: %w", err)
+			}
+		default:
+			channel, err = c.channelsRepository.GetByTwitchUserID(ctx, user.ID)
+			if err != nil {
+				return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get twitch channel: %w", err)
+			}
+		}
+	}
+
+	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, 2)
+	for _, identity := range c.mapChannelPlatformIdentities(channel) {
+		targets = append(
+			targets, chatmessagesrepo.PlatformChannelIdentity{
+				Platform:          identity.Platform.String(),
+				PlatformChannelID: identity.ID,
+			},
+		)
 	}
 
 	if len(targets) == 0 {
@@ -147,17 +200,21 @@ func (c *Service) GetPlatformIdentities(ctx context.Context, channelID uuid.UUID
 func (c *Service) mapChannelPlatformIdentities(channel model.Channel) []ChannelPlatformIdentity {
 	identities := make([]ChannelPlatformIdentity, 0, 2)
 	if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
-		identities = append(identities, ChannelPlatformIdentity{
-			Platform: platformentity.PlatformTwitch,
-			ID:       *channel.TwitchPlatformID,
-		})
+		identities = append(
+			identities, ChannelPlatformIdentity{
+				Platform: platformentity.PlatformTwitch,
+				ID:       *channel.TwitchPlatformID,
+			},
+		)
 	}
 
 	if channel.KickPlatformID != nil && *channel.KickPlatformID != "" {
-		identities = append(identities, ChannelPlatformIdentity{
-			Platform: platformentity.PlatformKick,
-			ID:       *channel.KickPlatformID,
-		})
+		identities = append(
+			identities, ChannelPlatformIdentity{
+				Platform: platformentity.PlatformKick,
+				ID:       *channel.KickPlatformID,
+			},
+		)
 	}
 
 	return identities

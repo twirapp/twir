@@ -1,11 +1,11 @@
 {
 	"compilerOptions": {
-		"target": "ES2021",
+		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
 		"lib": ["ES2021", "DOM", "DOM.Iterable"],
 		"skipLibCheck": true,
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": false,
 		"allowSyntheticDefaultImports": true,
 		"resolveJsonModule": true,
@@ -15,7 +15,8 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"outDir": "dist",
-		"declaration": true
-	},
+		"declaration": true,
+    "rootDir": ".",
+  },
 	"include": ["src/**/*.ts", "src/**/*.d.ts"]
 }

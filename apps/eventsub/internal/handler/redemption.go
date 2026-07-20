@@ -70,11 +70,13 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 
 		c.userCreatorService.UnsureUser(
 			ctx, user_creator.CreateUserInput{
-				UserID:     event.UserId,
-				PlatformID: event.UserId,
-				Platform:   platform.PlatformTwitch,
-				ChannelID:  lo.ToPtr(channel.ID.String()),
-				Badges:     nil,
+				UserID:      event.UserId,
+				PlatformID:  event.UserId,
+				Platform:    platform.PlatformTwitch,
+				Login:       event.UserLogin,
+				DisplayName: event.UserName,
+				ChannelID:   lo.ToPtr(channel.ID.String()),
+				Badges:      nil,
 			},
 		)
 

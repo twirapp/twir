@@ -571,6 +571,7 @@
       "hideTimeout": "Message Hide Timeout",
       "showDelay": "Message Show Delay",
       "showBadges": "Show Badges",
+      "showPlatformIcon": "Show platform icon",
       "showAnnounceBadge": "Show Announcement Border",
       "paddingContainer": "Inside Container Padding",
       "resetToDefault": "Reset to Default",

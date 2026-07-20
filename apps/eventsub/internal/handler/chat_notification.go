@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twir/apps/eventsub/internal/mappers"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
@@ -22,7 +23,21 @@ func (c *Handler) HandleChannelChatNotification(
 		c._notificationSubGift(ctx, event)
 	case "community_sub_gift":
 		c._notificationCommunitySubGift(ctx, event)
+	case "announcement":
+		c._notificationAnnouncement(ctx, event)
 	}
+}
+
+func (c *Handler) _notificationAnnouncement(
+	ctx context.Context,
+	event eventsub.ChannelChatNotificationEvent,
+) {
+	if event.ChatterIsAnonymous {
+		return
+	}
+
+	data := mappers.EventSubChatNotificationAnnouncementToBus(event)
+	c.processChannelChatMessage(ctx, data, false)
 }
 
 func (c *Handler) _notificationSubGift(

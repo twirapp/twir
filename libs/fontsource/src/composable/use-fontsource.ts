@@ -1,4 +1,4 @@
-import { onMounted, ref } from 'vue'
+import { onMounted, readonly, ref } from 'vue'
 
 import type { Font, FontItem } from '../types'
 
@@ -23,7 +23,7 @@ export function useFontSource(preloadFonts = true) {
 	const fontList = ref<FontItem[]>([])
 	const fonts = ref<Font[]>([])
 
-	onMounted(async () => {
+	async function loadFonts() {
 		try {
 			if (!preloadFonts) return
 			fontList.value = await loadFontList()
@@ -32,6 +32,10 @@ export function useFontSource(preloadFonts = true) {
 		} finally {
 			loading.value = false
 		}
+	}
+
+	onMounted(async () => {
+		await loadFonts()
 	})
 
 	async function loadFont(
@@ -39,6 +43,8 @@ export function useFontSource(preloadFonts = true) {
 		fontWeight: number,
 		fontStyle: string
 	): Promise<Font | undefined> {
+		await loadFonts()
+
 		const fontKey = generateFontKey(fontId, fontWeight, fontStyle)
 
 		for (const fontFace of firefoxWorkaroundIterFonts(document.fonts)) {
@@ -60,7 +66,8 @@ export function useFontSource(preloadFonts = true) {
 	}
 
 	return {
-		loading,
+		loadFonts,
+		loading: readonly(loading),
 		fonts,
 		fontList,
 		loadFont,

@@ -46,7 +46,14 @@ func (c *Handler) HandleChannelChatMessage(
 	defer span.End()
 
 	data := mappers.EventSubChatMessageToBus(event)
+	c.processChannelChatMessage(ctx, data, true)
+}
 
+func (c *Handler) processChannelChatMessage(
+	ctx context.Context,
+	data generic.ChatMessage,
+	allowCommands bool,
+) {
 	var errwg errgroup.Group
 
 	data.EnrichedData.IsChatterBroadcaster = data.IsChatterBroadcaster()
@@ -131,6 +138,8 @@ func (c *Handler) HandleChannelChatMessage(
 			UserID:                   data.ChatterUserId,
 			PlatformID:               data.ChatterUserId,
 			Platform:                 platform.PlatformTwitch,
+			Login:                    data.ChatterUserLogin,
+			DisplayName:              data.ChatterUserName,
 			ChannelID:                lo.ToPtr(data.EnrichedData.DbChannel.ID.String()),
 			Badges:                   data.Badges,
 			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,
@@ -208,6 +217,10 @@ func (c *Handler) HandleChannelChatMessage(
 
 	wg.Go(
 		func() {
+			if !allowCommands {
+				return
+			}
+
 			isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
 			if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
 				return
@@ -299,6 +312,7 @@ func (c *Handler) chatMessageCountEmotes(
 			e, err := c.twirBus.EmotesCacher.GetChannelEmotes.Request(
 				ctx,
 				emotes_cacher.GetChannelEmotesRequest{
+					Platform:  platform.PlatformTwitch,
 					ChannelID: msg.BroadcasterUserId,
 				},
 			)

@@ -206,6 +206,11 @@ func (c *Spotify) getTrackByPlayerState(ctx context.Context) (*GetTrackResponse,
 		return nil, fmt.Errorf("cannot get player state: %s", string(body))
 	}
 
+	// Spotify returns 204 when the user has no active playback.
+	if stateResp.StatusCode == http.StatusNoContent {
+		return nil, nil
+	}
+
 	var data spotifyPlayerStateResponse
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, fmt.Errorf("failed to parse response: %w", err)

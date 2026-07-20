@@ -10,6 +10,7 @@ import (
 
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -24,10 +25,12 @@ type Opts struct {
 
 const GlobalChannelID = "global"
 
+var GlobalChannelKey = ChannelKey{ID: GlobalChannelID}
+
 func New(opts Opts) *EmotesStore {
 	s := &EmotesStore{
-		channels: map[ChannelID]map[emotes_cacher.ServiceName]Service{
-			GlobalChannelID: {
+		channels: map[ChannelKey]map[emotes_cacher.ServiceName]Service{
+			GlobalChannelKey: {
 				emotes_cacher.ServiceNameBTTV:    Service{},
 				emotes_cacher.ServiceNameSevenTV: Service{},
 				emotes_cacher.ServiceNameFFZ:     Service{},
@@ -58,19 +61,22 @@ func New(opts Opts) *EmotesStore {
 }
 
 type EmotesStore struct {
-	channels map[ChannelID]map[emotes_cacher.ServiceName]Service
+	channels map[ChannelKey]map[emotes_cacher.ServiceName]Service
 	mu       sync.RWMutex
 
 	logger *slog.Logger
 	gorm   *gorm.DB
 }
 
-type ChannelID string
+type ChannelKey struct {
+	Platform platform.Platform
+	ID       string
+}
 
 type Service map[emote.ID]emote.Emote
 
 func (c *EmotesStore) AddEmotes(
-	channelID ChannelID,
+	channelKey ChannelKey,
 	service emotes_cacher.ServiceName,
 	emotes ...emote.Emote,
 ) {
@@ -80,24 +86,24 @@ func (c *EmotesStore) AddEmotes(
 		c.logCount()
 	}()
 
-	if _, ok := c.channels[channelID]; !ok {
-		c.channels[channelID] = make(map[emotes_cacher.ServiceName]Service)
+	if _, ok := c.channels[channelKey]; !ok {
+		c.channels[channelKey] = make(map[emotes_cacher.ServiceName]Service)
 	}
 
-	if _, ok := c.channels[channelID][service]; !ok {
-		c.channels[channelID][service] = Service{}
+	if _, ok := c.channels[channelKey][service]; !ok {
+		c.channels[channelKey][service] = Service{}
 	}
 
 	for _, emote := range emotes {
-		c.channels[channelID][service][emote.ID] = emote
+		c.channels[channelKey][service][emote.ID] = emote
 	}
 }
 
-func (c *EmotesStore) GetChannelEmotesServices(channelID ChannelID) map[emotes_cacher.ServiceName]Service {
+func (c *EmotesStore) GetChannelEmotesServices(channelKey ChannelKey) map[emotes_cacher.ServiceName]Service {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	if emotes, ok := c.channels[channelID]; ok {
+	if emotes, ok := c.channels[channelKey]; ok {
 		return emotes
 	}
 
@@ -105,31 +111,31 @@ func (c *EmotesStore) GetChannelEmotesServices(channelID ChannelID) map[emotes_c
 }
 
 func (c *EmotesStore) GetEmotesByService(
-	channelID ChannelID,
+	channelKey ChannelKey,
 	service emotes_cacher.ServiceName,
 ) []emote.Emote {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	if _, ok := c.channels[channelID]; !ok {
+	if _, ok := c.channels[channelKey]; !ok {
 		return nil
 	}
 
-	if _, ok := c.channels[channelID][service]; !ok {
+	if _, ok := c.channels[channelKey][service]; !ok {
 		return nil
 	}
 
-	emotes := c.channels[channelID][service]
+	emotes := c.channels[channelKey][service]
 	result := make([]emote.Emote, 0, len(emotes))
 	for _, emote := range emotes {
 		result = append(result, emote)
 	}
 
-	return nil
+	return result
 }
 
 func (c *EmotesStore) RemoveEmoteById(
-	channelID ChannelID,
+	channelKey ChannelKey,
 	service emotes_cacher.ServiceName,
 	emoteId emote.ID,
 ) {
@@ -138,19 +144,19 @@ func (c *EmotesStore) RemoveEmoteById(
 		c.mu.Unlock()
 	}()
 
-	if _, ok := c.channels[channelID]; !ok {
+	if _, ok := c.channels[channelKey]; !ok {
 		return
 	}
 
-	if _, ok := c.channels[channelID][service]; !ok {
+	if _, ok := c.channels[channelKey][service]; !ok {
 		return
 	}
 
-	delete(c.channels[channelID][service], emoteId)
+	delete(c.channels[channelKey][service], emoteId)
 }
 
 func (c *EmotesStore) Update(
-	channelID ChannelID,
+	channelKey ChannelKey,
 	service emotes_cacher.ServiceName,
 	emoteId emote.ID,
 	newEmote emote.Emote,
@@ -161,19 +167,19 @@ func (c *EmotesStore) Update(
 		c.logCount()
 	}()
 
-	if _, ok := c.channels[channelID]; !ok {
+	if _, ok := c.channels[channelKey]; !ok {
 		return
 	}
 
-	if _, ok := c.channels[channelID][service]; !ok {
+	if _, ok := c.channels[channelKey][service]; !ok {
 		return
 	}
 
-	if _, ok := c.channels[channelID][service][emoteId]; !ok {
+	if _, ok := c.channels[channelKey][service][emoteId]; !ok {
 		return
 	}
 
-	c.channels[channelID][service][emoteId] = newEmote
+	c.channels[channelKey][service][emoteId] = newEmote
 }
 
 func (c *EmotesStore) logCount() {
@@ -216,9 +222,9 @@ func (c *EmotesStore) SizeInBytes() int {
 	var totalBytes int
 
 	// Level 1: Iterate over channels map
-	for channelID, servicesMap := range c.channels {
-		// Add size of the ChannelID string key
-		totalBytes += len(channelID)
+	for channelKey, servicesMap := range c.channels {
+		// Add size of the ChannelKey string fields
+		totalBytes += len(channelKey.Platform) + len(channelKey.ID)
 
 		// Level 2: Iterate over services map
 		for serviceName, service := range servicesMap {

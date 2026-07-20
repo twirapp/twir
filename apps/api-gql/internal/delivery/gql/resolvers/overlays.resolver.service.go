@@ -32,6 +32,7 @@ func chatOverlayDbToGql(entity *model.ChatOverlaySettings) *gqlmodel.ChatOverlay
 		FontFamily:          entity.FontFamily,
 		ShowBadges:          entity.ShowBadges,
 		ShowAnnounceBadge:   entity.ShowAnnounceBadge,
+		ShowPlatformIcon:    entity.ShowPlatformIcon,
 		TextShadowColor:     entity.TextShadowColor,
 		TextShadowSize:      int(entity.TextShadowSize),
 		ChatBackgroundColor: entity.ChatBackgroundColor,
@@ -72,8 +73,13 @@ func (r *Resolver) getChatOverlaySettings(
 	id,
 	channelId string,
 ) (*gqlmodel.ChatOverlay, error) {
+	parsedUuid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse chat overlay ID: %w", err)
+	}
+
 	entity := model.ChatOverlaySettings{
-		ID:        uuid.MustParse(id),
+		ID:        parsedUuid,
 		ChannelID: channelId,
 	}
 	if err := r.deps.Gorm.
@@ -147,6 +153,10 @@ func (r *mutationResolver) updateChatOverlay(
 
 	if opts.ShowAnnounceBadge.IsSet() {
 		entity.ShowAnnounceBadge = *opts.ShowAnnounceBadge.Value()
+	}
+
+	if opts.ShowPlatformIcon.IsSet() {
+		entity.ShowPlatformIcon = *opts.ShowPlatformIcon.Value()
 	}
 
 	if opts.TextShadowColor.IsSet() {
@@ -265,6 +275,10 @@ func (r *mutationResolver) chatOverlayCreate(
 
 	if opts.ShowAnnounceBadge.IsSet() {
 		entity.ShowAnnounceBadge = *opts.ShowAnnounceBadge.Value()
+	}
+
+	if opts.ShowPlatformIcon.IsSet() {
+		entity.ShowPlatformIcon = *opts.ShowPlatformIcon.Value()
 	}
 
 	if opts.TextShadowColor.IsSet() {
@@ -402,8 +416,13 @@ func (r *Resolver) getNowPlayingOverlaySettings(ctx context.Context, id, dashboa
 	*gqlmodel.NowPlayingOverlay,
 	error,
 ) {
+	parsedUuid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse now playing overlay ID: %w", err)
+	}
+
 	entity := model.ChannelOverlayNowPlaying{
-		ID:        uuid.MustParse(id),
+		ID:        parsedUuid,
 		ChannelID: dashboardID,
 	}
 	if err := r.deps.Gorm.
@@ -440,8 +459,13 @@ func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id strin
 		return false, err
 	}
 
+	parsedUuid, err := uuid.Parse(id)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelOverlayNowPlaying{
-		ID:        uuid.MustParse(id),
+		ID:        parsedUuid,
 		ChannelID: dashboardID,
 	}
 	if err := r.deps.Gorm.
@@ -550,8 +574,13 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 		return false, err
 	}
 
+	parsedUuid, err := uuid.Parse(id)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelOverlayNowPlaying{
-		ID:        uuid.MustParse(id),
+		ID:        parsedUuid,
 		ChannelID: dashboardID,
 	}
 	if err := r.deps.Gorm.

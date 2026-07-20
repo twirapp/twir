@@ -8,6 +8,7 @@ import (
 
 	"github.com/avast/retry-go/v4"
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	dispatchtypes "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	seventvapi "github.com/twirapp/twir/libs/integrations/seventv/api"
@@ -212,7 +213,10 @@ func (c *Service) getChannelsWithEmotesSets(
 							},
 						)
 						if activeEmoteSetID != "" {
-							c.emoteSetToChannelID[activeEmoteSetID] = channel
+							c.emoteSetToChannelID[activeEmoteSetID] = emotes_store.ChannelKey{
+								Platform: platform,
+								ID:       platformUser.PlatformID,
+							}
 						}
 						mu.Unlock()
 					}

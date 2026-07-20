@@ -19,10 +19,10 @@ type GetManyInput struct {
 
 type CreateInput struct {
 	BadgeID uuid.UUID
-	UserID  string
+	UserID  uuid.UUID
 }
 
 type DeleteInput struct {
 	BadgeID uuid.UUID
-	UserID  string
+	UserID  uuid.UUID
 }

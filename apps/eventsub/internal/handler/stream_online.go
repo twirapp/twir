@@ -67,6 +67,7 @@ func (c *Handler) HandleStreamOnline(
 				slog.String("channelName", event.BroadcasterUserLogin),
 			)
 			i++
+			time.Sleep(5 * time.Second)
 			continue
 		}
 
@@ -127,8 +128,7 @@ func (c *Handler) HandleStreamOnline(
 			},
 		)
 
-		time.Sleep(5 * time.Second)
-		i++
+		break
 	}
 
 	// c.channelsInfoHistoryRepo.Create(

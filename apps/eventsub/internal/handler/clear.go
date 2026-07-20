@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
@@ -36,6 +37,7 @@ func (c *Handler) HandleChannelChatClear(
 		channelseventslist.CreateInput{
 			ChannelID: channelID,
 			UserID:    nil,
+			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeChatClear,
 			Data:      &model.ChannelsEventsListItemData{},
 		},

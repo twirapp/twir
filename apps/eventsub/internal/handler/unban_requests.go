@@ -6,6 +6,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
@@ -40,6 +41,7 @@ func (c *Handler) HandleChannelUnbanRequestCreate(
 		channelseventslist.CreateInput{
 			ChannelID: channelID,
 			UserID:    &event.UserId,
+			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeChannelUnbanRequestCreate,
 			Data: &model.ChannelsEventsListItemData{
 				UserLogin:       event.UserLogin,
@@ -102,6 +104,7 @@ func (c *Handler) HandleChannelUnbanRequestResolve(
 		channelseventslist.CreateInput{
 			ChannelID: channelID,
 			UserID:    &event.UserId,
+			Platform:  platformentity.PlatformTwitch,
 			Type:      model.ChannelEventListItemTypeChannelUnbanRequestResolve,
 			Data: &model.ChannelsEventsListItemData{
 				UserLogin:            event.UserLogin,

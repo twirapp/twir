@@ -162,10 +162,7 @@ func applyFilters(selectQuery squirrel.SelectBuilder, input users_with_channel.G
 	return selectQuery
 }
 
-func (c *Pgx) GetManyByIDS(
-	ctx context.Context,
-	input users_with_channel.GetManyInput,
-) ([]model.UserWithChannel, error) {
+func buildGetManyQuery(input users_with_channel.GetManyInput) (string, []any, error) {
 	selectQuery := sq.
 		Select(
 			"u.id",
@@ -189,8 +186,11 @@ func (c *Pgx) GetManyByIDS(
 		).
 		From("users u").
 		LeftJoin("channels uc ON " + channelOwnershipJoinCondition).
-		LeftJoin("badges_users bu ON u.id = bu.user_id").
 		OrderBy("u.id asc")
+
+	if len(input.HasBadgesIDS) > 0 {
+		selectQuery = selectQuery.LeftJoin("badges_users bu ON u.id = bu.user_id")
+	}
 
 	selectQuery = applyFilters(selectQuery, input)
 
@@ -209,7 +209,14 @@ func (c *Pgx) GetManyByIDS(
 
 	selectQuery = selectQuery.Limit(uint64(perPage)).Offset(uint64(offset))
 
-	query, args, err := selectQuery.ToSql()
+	return selectQuery.ToSql()
+}
+
+func (c *Pgx) GetManyByIDS(
+	ctx context.Context,
+	input users_with_channel.GetManyInput,
+) ([]model.UserWithChannel, error) {
+	query, args, err := buildGetManyQuery(input)
 	if err != nil {
 		return nil, err
 	}
@@ -237,14 +244,17 @@ func (c *Pgx) GetManyByIDS(
 	return users, nil
 }
 
-func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetManyInput) (
-	int,
-	error,
-) {
-	selectQuery := sq.
-		Select("COUNT(DISTINCT u.id)").
-		From("users u").
-		LeftJoin("channels uc ON " + channelOwnershipJoinCondition)
+func buildGetManyCountQuery(input users_with_channel.GetManyInput) (string, []any, error) {
+	countColumn := "COUNT(*)"
+	if input.ChannelEnabled != nil || len(input.HasBadgesIDS) > 0 {
+		countColumn = "COUNT(DISTINCT u.id)"
+	}
+
+	selectQuery := sq.Select(countColumn).From("users u")
+
+	if input.ChannelEnabled != nil {
+		selectQuery = selectQuery.LeftJoin("channels uc ON " + channelOwnershipJoinCondition)
+	}
 
 	if len(input.HasBadgesIDS) > 0 {
 		selectQuery = selectQuery.
@@ -254,7 +264,14 @@ func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetMany
 
 	selectQuery = applyFilters(selectQuery, input)
 
-	query, args, err := selectQuery.ToSql()
+	return selectQuery.ToSql()
+}
+
+func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetManyInput) (
+	int,
+	error,
+) {
+	query, args, err := buildGetManyCountQuery(input)
 	if err != nil {
 		return 0, err
 	}

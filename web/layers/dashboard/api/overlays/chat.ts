@@ -20,9 +20,10 @@ export const useChatOverlayApi = createGlobalState(() => {
 					hideCommands
 					hideBots
 					fontFamily
-					showBadges
-					showAnnounceBadge
-					textShadowColor
+				showBadges
+				showAnnounceBadge
+				showPlatformIcon
+				textShadowColor
 					textShadowSize
 					chatBackgroundColor
 					direction

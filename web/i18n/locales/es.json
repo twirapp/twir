@@ -494,6 +494,7 @@
       "hideTimeout": "Tiempo límite para ocultar mensajes",
       "showDelay": "Retraso en la presentación del mensaje",
       "showBadges": "Mostrar insignias",
+      "showPlatformIcon": "Mostrar icono de plataforma",
       "showAnnounceBadge": "Mostrar borde del anuncio",
       "paddingContainer": "Relleno de contenedor interior",
       "resetToDefault": "Restablecer al valor predeterminado",
@@ -1357,5 +1358,148 @@
         "winners": "Ganadores"
       }
     }
+  },
+  "landing": {
+    "meta": {
+      "title": "Twir — bot de chat para Twitch y Kick",
+      "description": "Bot de Twitch potente y útil que ayuda a gestionar el chat en canales grandes. Comandos, temporizadores, moderación, peticiones de canciones, sorteos, overlays y más — gratis y de código abierto."
+    },
+    "compareLink": "Comparar Twir con otros bots",
+    "faq": {
+      "badge": "FAQ",
+      "title": "Preguntas frecuentes",
+      "q1": {
+        "question": "¿Twir es gratis?",
+        "answer": "Sí, Twir es completamente gratis. Todas las funciones principales — comandos, temporizadores, moderación, peticiones de canciones, sorteos y overlays — están disponibles para todos sin pago."
+      },
+      "q2": {
+        "question": "¿Cómo añado Twir a mi canal?",
+        "answer": "Inicia sesión con tu cuenta de Twitch o Kick, pulsa «Añadir bot» en el panel y Twir se unirá a tu chat en menos de un minuto. Sin descargas ni instalación."
+      },
+      "q3": {
+        "question": "¿Puedo migrar desde Nightbot o StreamElements?",
+        "answer": "Sí. Twir tiene una herramienta de importación que traslada tus comandos y ajustes desde Nightbot, StreamElements y Streamlabs en pocos clics."
+      },
+      "q4": {
+        "question": "¿Twir funciona en Kick?",
+        "answer": "Sí, Twir es compatible tanto con Twitch como con Kick. Puedes conectar tu canal de Kick y gestionarlo desde el mismo panel."
+      },
+      "q5": {
+        "question": "¿Twir es de código abierto?",
+        "answer": "Sí, Twir es completamente de código abierto. Puedes revisar el código, contribuir o incluso alojar tu propia instancia."
+      }
+    }
+  },
+  "terms": {
+    "meta": {
+      "title": "Términos de servicio",
+      "description": "Términos de servicio del bot de chat Twir y del sitio web twir.app."
+    }
+  },
+  "compare": {
+    "meta": {
+      "title": "Twir vs Nightbot, StreamElements, Moobot y Fossabot",
+      "description": "Comparación honesta de funciones de bots de chat de Twitch: Twir vs Nightbot, StreamElements, Moobot y Fossabot. Comandos, moderación, peticiones de canciones, overlays, alertas y más."
+    },
+    "breadcrumb": "Comparar",
+    "hero": {
+      "badge": "Comparación",
+      "title": "Twir vs otros bots de Twitch",
+      "subtitle": "Una mirada honesta a cómo se compara Twir con Nightbot, StreamElements, Moobot y Fossabot — función por función."
+    },
+    "table": {
+      "caption": "Tabla comparativa de funciones de Twir, Nightbot, StreamElements, Moobot y Fossabot",
+      "feature": "Función"
+    },
+    "support": {
+      "yes": "Sí",
+      "partial": "Parcial",
+      "no": "No"
+    },
+    "features": {
+      "commands": "Comandos personalizados",
+      "timers": "Temporizadores",
+      "moderation": "Moderación",
+      "songRequests": "Peticiones de canciones",
+      "giveaways": "Sorteos",
+      "overlays": "Overlays de stream",
+      "alerts": "Alertas de stream",
+      "games": "Juegos de chat integrados",
+      "musicIntegrations": "Integraciones de música",
+      "openSource": "Código abierto",
+      "platforms": "Plataformas",
+      "price": "Precio",
+      "statsTracking": "Tiempo de visualización y estadísticas",
+      "greetings": "Saludos",
+      "keywords": "Respuestas por palabras clave",
+      "customScripting": "Scripts personalizados (JS/Python)",
+      "roles": "Roles y permisos del panel",
+      "vipManagement": "Gestión de VIP",
+      "emoteStats": "Estadísticas de emotes",
+      "musicRecognition": "Reconocimiento de música (tipo Shazam)",
+      "obsIntegration": "Integración con OBS"
+    },
+    "notes": {
+      "overlaysTwir": "Now Playing, Chat, estadísticas de Faceit y Valorant, Emote Wall, Pixel Dudes, AFK y más",
+      "alertsMoobot": "Las alertas de chat requieren MoobotPlus (de pago)",
+      "gamesTwir": "Ruleta rusa, duelos, seppuku, voteban, bola 8 mágica",
+      "musicTwir": "Now playing con Spotify y Last.fm, además de peticiones de canciones integradas",
+      "musicNightbot": "AutoDJ sin integración con Spotify ni Last.fm",
+      "openSourceTwir": "Totalmente de código abierto, autoalojable",
+      "statsTwir": "Tiempo de visualización, mensajes y puntos del canal — gratis para todos",
+      "statsMoobot": "El tiempo de visualización y la fidelidad requieren MoobotPlus (de pago)",
+      "songRequestsFossabot": "A través de YouTube o SoundCloud (Media request)",
+      "gamesSe": "Bingo, rifas y concursos",
+      "gamesFossabot": "Bola 8, votekick y chistes mediante comandos predeterminados",
+      "musicSe": "Peticiones mediante enlaces; sin integraciones de now-playing",
+      "greetingsMoobot": "Solo reconocimiento de nuevos chatters, MoobotPlus (de pago)",
+      "scriptingTwir": "Variables personalizadas con JavaScript o Python",
+      "scriptingFossabot": "Muchas variables predefinidas, sin código propio",
+      "rolesSe": "Niveles de usuario básicos",
+      "rolesMoobot": "1 grupo de permisos en el plan gratuito",
+      "vipTwir": "Gestiona VIPs y programa su expiración",
+      "vipMoobot": "Solo First Wave VIP, MoobotPlus (de pago)",
+      "obsTwir": "Cambia escenas, silencia audio y alterna fuentes vía websockets"
+    },
+    "values": {
+      "platforms": {
+        "twir": "Twitch, Kick",
+        "nightbot": "Twitch, YouTube",
+        "streamelements": "Twitch, YouTube, Kick",
+        "moobot": "Twitch",
+        "fossabot": "Twitch, YouTube, Kick"
+      },
+      "price": {
+        "free": "Gratis",
+        "moobotPlus": "Gratis + planes de pago"
+      }
+    },
+    "cta": {
+      "title": "¿Listo para cambiar?",
+      "subtitle": "Importa tus comandos desde Nightbot, StreamElements o Streamlabs en pocos clics y empieza a usar Twir hoy.",
+      "getStarted": "Empezar gratis",
+      "import": "Importar tus datos",
+      "questions": "¿Preguntas? Pregúntanos en"
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "q1": {
+        "question": "¿Por qué elegir Twir en lugar de Nightbot?",
+        "answer": "Twir ofrece overlays de stream, juegos de chat integrados, integraciones de música con Spotify y Last.fm, y es totalmente de código abierto — funciones que Nightbot no ofrece. Los comandos, temporizadores y moderación funcionan como esperas."
+      },
+      "q2": {
+        "question": "¿Puedo transferir mis comandos desde otro bot?",
+        "answer": "Sí. Twir incluye una herramienta de importación para Nightbot, StreamElements y Streamlabs. Tus comandos y ajustes se transfieren automáticamente, sin copiar y pegar."
+      },
+      "q3": {
+        "question": "¿Twir es realmente gratis?",
+        "answer": "Sí. Todas las funciones de la tabla comparativa son gratis, incluidos overlays, sorteos y peticiones de canciones. Twir es de código abierto y está desarrollado por streamers para streamers."
+      },
+      "q4": {
+        "question": "¿Twir es compatible con Kick?",
+        "answer": "Sí. Twir funciona con Twitch y Kick desde un solo panel, para que gestiones ambos canales en un mismo lugar."
+      }
+    },
+    "disclaimer": "Nightbot, StreamElements, Moobot y Fossabot son marcas de sus respectivos propietarios. Twir no está afiliado a ellos ni cuenta con su respaldo. Los datos de funciones se basan en información pública y pueden cambiar con el tiempo."
   }
 }

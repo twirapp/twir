@@ -67,6 +67,6 @@ func (c *server) onRemoveTimerFromQueue(
 }
 
 func (c *server) onChatMessage(ctx context.Context, m generic.ChatMessage) (struct{}, error) {
-	c.manager.OnChatMessage(m.BroadcasterUserId)
+	c.manager.OnChatMessage(m.EnrichedData.DbChannel.ID)
 	return struct{}{}, nil
 }
