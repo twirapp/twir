@@ -147,6 +147,9 @@ jobs:
           - name: eventsub
             path: apps/eventsub
             runtime: go
+          - name: dota
+            path: apps/dota
+            runtime: go
           - name: integrations
             path: apps/integrations
             runtime: js
