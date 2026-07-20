@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"sync"
 	"testing"
 
@@ -598,8 +599,17 @@ func TestUpdateWinProbabilityThrottlesSmallChanges(t *testing.T) {
 }
 
 func TestUpdateWinProbabilityRejectsInvalidValues(t *testing.T) {
-	for _, probability := range []float64{-0.01, 1.01} {
-		t.Run(fmt.Sprintf("probability_%v", probability), func(t *testing.T) {
+	for _, test := range []struct {
+		name        string
+		probability float64
+	}{
+		{name: "negative", probability: -0.01},
+		{name: "greater_than_one", probability: 1.01},
+		{name: "nan", probability: math.NaN()},
+		{name: "positive_infinity", probability: math.Inf(1)},
+		{name: "negative_infinity", probability: math.Inf(-1)},
+	} {
+		t.Run(test.name, func(t *testing.T) {
 			f := newFixture(t)
 			ctx := context.Background()
 
@@ -609,7 +619,39 @@ func TestUpdateWinProbabilityRejectsInvalidValues(t *testing.T) {
 			updatesBefore := len(f.emitter.stateUpdates)
 			persistsBefore := f.kv.sets
 
-			err = f.sm.UpdateWinProbability(ctx, f.channel, probability)
+			err = f.sm.UpdateWinProbability(ctx, f.channel, test.probability)
+			require.Error(t, err)
+			require.ErrorContains(t, err, "win probability")
+
+			after, err := f.sm.GetSnapshot(ctx, f.channel)
+			require.NoError(t, err)
+			require.Equal(t, before, after)
+			require.Equal(t, persistsBefore, f.kv.sets)
+			require.Len(t, f.emitter.stateUpdates, updatesBefore)
+		})
+	}
+}
+
+func TestUpdateWinProbabilityRejectsInvalidValuesWhileIdle(t *testing.T) {
+	for _, test := range []struct {
+		name        string
+		probability float64
+	}{
+		{name: "negative", probability: -0.01},
+		{name: "greater_than_one", probability: 1.01},
+		{name: "nan", probability: math.NaN()},
+		{name: "positive_infinity", probability: math.Inf(1)},
+		{name: "negative_infinity", probability: math.Inf(-1)},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			f := newFixture(t)
+			ctx := context.Background()
+			before, err := f.sm.GetSnapshot(ctx, f.channel)
+			require.NoError(t, err)
+			updatesBefore := len(f.emitter.stateUpdates)
+			persistsBefore := f.kv.sets
+
+			err = f.sm.UpdateWinProbability(ctx, f.channel, test.probability)
 			require.Error(t, err)
 			require.ErrorContains(t, err, "win probability")
 
@@ -648,4 +690,28 @@ func TestLeavingGameClearsWinProbability(t *testing.T) {
 	require.NoError(t, err)
 	require.Zero(t, snap.WinProbability)
 	require.Equal(t, 0.0, f.emitter.stateUpdates[len(f.emitter.stateUpdates)-1].WinProbability)
+}
+
+func TestFinishingMatchClearsWinProbability(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(1005, "npc_dota_hero_pudge")))
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 0.625))
+	updatesBefore := len(f.emitter.stateUpdates)
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, postGamePayload(1005, gsi.WinTeamRadiant)))
+
+	final, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, StateIdle, final.State)
+	require.Zero(t, final.WinProbability)
+	require.Len(t, f.emitter.stateUpdates, updatesBefore+1)
+	require.Zero(t, f.emitter.stateUpdates[updatesBefore].WinProbability)
+
+	restored := New(f.repo, f.emitter, f.kv, slog.Default())
+	next, err := restored.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, StateIdle, next.State)
+	require.Zero(t, next.WinProbability)
 }

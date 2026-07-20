@@ -275,6 +275,10 @@ func (m *StateMachine) UpdateWinProbability(
 	channelID uuid.UUID,
 	probability float64,
 ) error {
+	if math.IsNaN(probability) || math.IsInf(probability, 0) || probability < 0 || probability > 1 {
+		return fmt.Errorf("invalid win probability %v: expected a value between 0 and 1", probability)
+	}
+
 	cs := m.channel(ctx, channelID)
 
 	cs.mu.Lock()
@@ -282,10 +286,6 @@ func (m *StateMachine) UpdateWinProbability(
 
 	if !cs.snap.InGame || cs.snap.MatchID == 0 {
 		return nil
-	}
-
-	if math.IsNaN(probability) || probability < 0 || probability > 1 {
-		return fmt.Errorf("invalid win probability %v: expected a value between 0 and 1", probability)
 	}
 
 	if math.Abs(cs.snap.WinProbability-probability) < 0.05 {
