@@ -104,12 +104,17 @@ func (p *Pgx) Create(
 	ctx context.Context,
 	input dota.CreateInput,
 ) (model.ChannelDotaSettings, error) {
+	var commandsSettings any
+	if input.CommandsSettings != nil {
+		commandsSettings = *input.CommandsSettings
+	}
+
 	query := `
 INSERT INTO channels_dota_settings (
 	channel_id, enabled, steam_account_id, mmr, mmr_delta,
 	prediction_settings, chat_events, commands_settings
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8::jsonb, '{"mmr":true,"wl":true,"lg":true,"gm":true,"np":true,"wp":true}'::jsonb));
 `
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -123,7 +128,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
 		input.MmrDelta,
 		input.PredictionSettings,
 		input.ChatEvents,
-		input.CommandsSettings,
+		commandsSettings,
 	)
 	if err != nil {
 		return model.Nil, fmt.Errorf("dota settings create: %w", err)

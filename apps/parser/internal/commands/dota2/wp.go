@@ -13,6 +13,7 @@ var Wp = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:    "wp",
 		Module:  "DOTA",
+		Visible: true,
 		IsReply: true,
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -37,13 +38,20 @@ var Wp = &types.DefaultCommand{
 			}
 		}
 
+		probability, available := winProbabilityOutput(data)
+		if !available {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Errors.WinProbabilityUnavailable),
+			}
+		}
+
 		return &types.CommandsHandlerResult{
 			Result: []string{
 				i18n.GetCtx(
 					ctx,
 					locales.Translations.Commands.Dota.Outputs.WinProbability.SetVars(
 						locales.KeysCommandsDotaOutputsWinProbabilityVars{
-							Probability: formatWinProbability(data.WinProbability),
+							Probability: probability,
 						},
 					),
 				),

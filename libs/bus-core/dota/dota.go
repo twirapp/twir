@@ -24,21 +24,22 @@ type LastGameInfo struct {
 }
 
 type GetDataResponse struct {
-	Enabled        bool
-	Linked         bool
-	InGame         bool
-	Mmr            int
-	SessionWins    int
-	SessionLosses  int
-	HeroName       string
-	MatchID        int64
-	TeamIsRadiant  bool
-	RadiantScore   int
-	DireScore      int
-	GameTime       int
-	WinProbability float64
-	NotablePlayers []string
-	LastGame       *LastGameInfo
+	Enabled                 bool
+	Linked                  bool
+	InGame                  bool
+	Mmr                     int
+	SessionWins             int
+	SessionLosses           int
+	HeroName                string
+	MatchID                 int64
+	TeamIsRadiant           bool
+	RadiantScore            int
+	DireScore               int
+	GameTime                int
+	WinProbability          float64
+	WinProbabilityAvailable bool
+	NotablePlayers          []string
+	LastGame                *LastGameInfo
 }
 
 type MatchStartedMessage struct {

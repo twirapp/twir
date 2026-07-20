@@ -13,6 +13,7 @@ var Np = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:    "np",
 		Module:  "DOTA",
+		Visible: true,
 		IsReply: true,
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (

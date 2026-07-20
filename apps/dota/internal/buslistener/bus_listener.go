@@ -21,6 +21,7 @@ import (
 const steamID64Base int64 = 76561197960265728
 
 type StatsProvider interface {
+	WinProbabilityAvailable() bool
 	WinProbability(context.Context, int64) (float64, error)
 	NotablePlayers(context.Context, int64, string) ([]string, error)
 	LastGame(context.Context, int64) (*stats.LastGame, error)
@@ -179,16 +180,19 @@ func (l *BusListener) GetData(
 			return response, nil
 		}
 
-		winProbability, err := l.stats.WinProbability(ctx, snapshot.MatchID)
-		if err != nil {
-			l.logger.WarnContext(
-				ctx,
-				"dota bus listener: failed to fetch win probability",
-				logger.Error(err),
-				slog.Int64("match_id", snapshot.MatchID),
-			)
-		} else {
-			response.WinProbability = winProbability
+		if l.stats.WinProbabilityAvailable() {
+			winProbability, err := l.stats.WinProbability(ctx, snapshot.MatchID)
+			if err != nil {
+				l.logger.WarnContext(
+					ctx,
+					"dota bus listener: failed to fetch win probability",
+					logger.Error(err),
+					slog.Int64("match_id", snapshot.MatchID),
+				)
+			} else {
+				response.WinProbability = winProbability
+				response.WinProbabilityAvailable = true
+			}
 		}
 
 		streamerAccountID := snapshot.SteamAccountID

@@ -19,6 +19,7 @@ var Mmr = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:    "mmr",
 		Module:  "DOTA",
+		Visible: true,
 		IsReply: true,
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
@@ -94,7 +95,7 @@ var MmrSet = &types.DefaultCommand{
 		updateResult := parseCtx.Services.Gorm.WithContext(ctx).
 			Model(&model.ChannelsDotaSettings{}).
 			Where("channel_id = ?", parseCtx.Channel.DBChannelID).
-			UpdateColumn("mmr", mmr)
+			Update("mmr", mmr)
 		if updateResult.Error != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Errors.UpdateMmr),

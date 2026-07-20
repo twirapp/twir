@@ -13,6 +13,7 @@ var Gm = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:    "gm",
 		Module:  "DOTA",
+		Visible: true,
 		IsReply: true,
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (

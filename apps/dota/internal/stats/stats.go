@@ -90,8 +90,12 @@ func setCached(ctx context.Context, kvStore kv.KV, key string, ttl time.Duration
 	return nil
 }
 
+func (s *Stats) WinProbabilityAvailable() bool {
+	return s.stratz != nil && s.stratz.Enabled()
+}
+
 func (s *Stats) WinProbability(ctx context.Context, matchID int64) (float64, error) {
-	if s.stratz == nil || !s.stratz.Enabled() {
+	if !s.WinProbabilityAvailable() {
 		return 0, nil
 	}
 

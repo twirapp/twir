@@ -194,21 +194,29 @@ type notablePlayersCall struct {
 }
 
 type fakeStatsProvider struct {
-	mu                  sync.Mutex
-	winProbability      float64
-	winProbabilityErr   error
-	winProbabilityStart chan struct{}
-	winProbabilityDone  <-chan struct{}
-	notablePlayers      []string
-	notablePlayersErr   error
-	lastGame            *stats.LastGame
-	lastGameErr         error
-	winProbabilityCalls []int64
-	notablePlayersCalls []notablePlayersCall
-	lastGameCalls       []int64
+	mu                     sync.Mutex
+	winProbability         float64
+	winProbabilityErr      error
+	winProbabilityDisabled bool
+	winProbabilityStart    chan struct{}
+	winProbabilityDone     <-chan struct{}
+	notablePlayers         []string
+	notablePlayersErr      error
+	lastGame               *stats.LastGame
+	lastGameErr            error
+	winProbabilityCalls    []int64
+	notablePlayersCalls    []notablePlayersCall
+	lastGameCalls          []int64
 }
 
 var _ StatsProvider = (*fakeStatsProvider)(nil)
+
+func (f *fakeStatsProvider) WinProbabilityAvailable() bool {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return !f.winProbabilityDisabled
+}
 
 func (f *fakeStatsProvider) WinProbability(ctx context.Context, matchID int64) (float64, error) {
 	f.mu.Lock()
@@ -403,20 +411,21 @@ func TestGetDataMapsActiveLinkedMatch(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, busdota.GetDataResponse{
-		Enabled:        true,
-		Linked:         true,
-		InGame:         true,
-		Mmr:            4200,
-		SessionWins:    8,
-		SessionLosses:  3,
-		HeroName:       "Pudge",
-		MatchID:        42,
-		TeamIsRadiant:  true,
-		RadiantScore:   21,
-		DireScore:      18,
-		GameTime:       1134,
-		WinProbability: 0.73,
-		NotablePlayers: []string{"Player One", "Player Two"},
+		Enabled:                 true,
+		Linked:                  true,
+		InGame:                  true,
+		Mmr:                     4200,
+		SessionWins:             8,
+		SessionLosses:           3,
+		HeroName:                "Pudge",
+		MatchID:                 42,
+		TeamIsRadiant:           true,
+		RadiantScore:            21,
+		DireScore:               18,
+		GameTime:                1134,
+		WinProbability:          0.73,
+		WinProbabilityAvailable: true,
+		NotablePlayers:          []string{"Player One", "Player Two"},
 	}, response)
 	require.Equal(t, []int64{42}, statsProvider.winProbabilityCalls)
 	require.Equal(
@@ -425,6 +434,65 @@ func TestGetDataMapsActiveLinkedMatch(t *testing.T) {
 		statsProvider.notablePlayersCalls,
 	)
 	require.Empty(t, statsProvider.lastGameCalls)
+}
+
+func TestGetDataSkipsWinProbabilityWhenUnavailable(t *testing.T) {
+	channelID := uuid.New()
+	accountID := "111"
+	repo := &fakeRepository{settings: model.ChannelDotaSettings{
+		Enabled:        true,
+		SteamAccountID: &accountID,
+	}}
+	state := &fakeStateProvider{snapshot: match.Snapshot{InGame: true, MatchID: 42}}
+	statsProvider := &fakeStatsProvider{winProbabilityDisabled: true}
+
+	response, err := newTestListener(repo, state, statsProvider).GetData(
+		context.Background(),
+		busdota.GetDataRequest{ChannelID: channelID.String()},
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, statsProvider.winProbabilityCalls)
+	requireWinProbabilityAvailability(t, response, false)
+}
+
+func TestGetDataMarksZeroWinProbabilityAvailableAfterSuccessfulFetch(t *testing.T) {
+	channelID := uuid.New()
+	accountID := "111"
+	repo := &fakeRepository{settings: model.ChannelDotaSettings{
+		Enabled:        true,
+		SteamAccountID: &accountID,
+	}}
+	state := &fakeStateProvider{snapshot: match.Snapshot{InGame: true, MatchID: 42}}
+	statsProvider := &fakeStatsProvider{winProbability: 0}
+
+	response, err := newTestListener(repo, state, statsProvider).GetData(
+		context.Background(),
+		busdota.GetDataRequest{ChannelID: channelID.String()},
+	)
+
+	require.NoError(t, err)
+	require.Zero(t, response.WinProbability)
+	requireWinProbabilityAvailability(t, response, true)
+}
+
+func TestGetDataLeavesWinProbabilityUnavailableAfterFetchError(t *testing.T) {
+	channelID := uuid.New()
+	accountID := "111"
+	repo := &fakeRepository{settings: model.ChannelDotaSettings{
+		Enabled:        true,
+		SteamAccountID: &accountID,
+	}}
+	state := &fakeStateProvider{snapshot: match.Snapshot{InGame: true, MatchID: 42}}
+	statsProvider := &fakeStatsProvider{winProbabilityErr: errors.New("STRATZ unavailable")}
+
+	response, err := newTestListener(repo, state, statsProvider).GetData(
+		context.Background(),
+		busdota.GetDataRequest{ChannelID: channelID.String()},
+	)
+
+	require.NoError(t, err)
+	requireWinProbabilityAvailability(t, response, false)
 }
 
 func TestGetDataHandlesConcurrentRequests(t *testing.T) {
@@ -1031,6 +1099,12 @@ func requireNoStatsCalls(t *testing.T, statsProvider *fakeStatsProvider) {
 	require.Zero(t, winProbabilityCalls)
 	require.Zero(t, notablePlayersCalls)
 	require.Zero(t, lastGameCalls)
+}
+
+func requireWinProbabilityAvailability(t *testing.T, response busdota.GetDataResponse, want bool) {
+	t.Helper()
+
+	require.Equal(t, want, response.WinProbabilityAvailable)
 }
 
 func testLogger() *slog.Logger {

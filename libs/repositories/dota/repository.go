@@ -38,7 +38,7 @@ type CreateInput struct {
 	MmrDelta           int
 	PredictionSettings model.PredictionSettings
 	ChatEvents         model.ChatEvents
-	CommandsSettings   model.CommandsSettings
+	CommandsSettings   *model.CommandsSettings
 }
 
 type UpdateInput struct {

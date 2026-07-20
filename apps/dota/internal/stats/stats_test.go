@@ -404,6 +404,22 @@ func TestWinProbability_NormalizesPercentAndCaches(t *testing.T) {
 	}
 }
 
+func TestWinProbabilityAvailableTracksStratzConfiguration(t *testing.T) {
+	enabled, _, _, _ := newTestStats(t, "test-token")
+	disabled, _, _, _ := newTestStats(t, "")
+	unconfigured := New(nil, nil, nil, nil)
+
+	if !enabled.WinProbabilityAvailable() {
+		t.Error("enabled STRATZ client was reported unavailable")
+	}
+	if disabled.WinProbabilityAvailable() {
+		t.Error("disabled STRATZ client was reported available")
+	}
+	if unconfigured.WinProbabilityAvailable() {
+		t.Error("unconfigured STRATZ client was reported available")
+	}
+}
+
 func TestWinProbability_StratzDisabled(t *testing.T) {
 	stats, stratzMock, _, _ := newTestStats(t, "")
 

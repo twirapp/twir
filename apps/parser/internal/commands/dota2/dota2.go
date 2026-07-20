@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/parser/internal/types"
@@ -16,6 +17,8 @@ import (
 )
 
 type medalTier string
+
+const dotaDataRequestTimeout = 5 * time.Second
 
 const (
 	medalHerald   medalTier = "herald"
@@ -95,6 +98,14 @@ func formatWinProbability(probability float64) string {
 	return fmt.Sprintf("%.1f%%", probability*100)
 }
 
+func winProbabilityOutput(data *busdota.GetDataResponse) (string, bool) {
+	if !data.WinProbabilityAvailable {
+		return "", false
+	}
+
+	return formatWinProbability(data.WinProbability), true
+}
+
 func joinNotablePlayers(players []string) string {
 	return strings.Join(players, ", ")
 }
@@ -141,8 +152,11 @@ func getDotaData(
 	ctx context.Context,
 	parseCtx *types.ParseContext,
 ) (*busdota.GetDataResponse, error) {
+	requestCtx, cancel := context.WithTimeout(ctx, dotaDataRequestTimeout)
+	defer cancel()
+
 	response, err := parseCtx.Services.Bus.Dota.GetData.Request(
-		ctx,
+		requestCtx,
 		busdota.GetDataRequest{
 			ChannelID:    parseCtx.Channel.DBChannelID,
 			TwitchUserID: parseCtx.Channel.ID,

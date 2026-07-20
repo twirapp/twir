@@ -18,6 +18,7 @@ errors:
   no_last_game: No recent Dota 2 game is available.
   no_active_match: No active Dota 2 match is available.
   no_notable_players: No notable players found in the active match.
+  win_probability_unavailable: Win probability is unavailable right now.
 hints:
   mmr: MMR
 medals:

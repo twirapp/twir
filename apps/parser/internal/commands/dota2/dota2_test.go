@@ -118,6 +118,27 @@ func TestFormatWinProbability(t *testing.T) {
 	}
 }
 
+func TestWinProbabilityOutputDistinguishesUnavailableFromZero(t *testing.T) {
+	output, available := winProbabilityOutput(&busdota.GetDataResponse{})
+	if available {
+		t.Error("unavailable win probability was reported as available")
+	}
+	if output != "" {
+		t.Errorf("unavailable win probability output = %q, want empty", output)
+	}
+
+	output, available = winProbabilityOutput(&busdota.GetDataResponse{
+		WinProbabilityAvailable: true,
+		WinProbability:          0,
+	})
+	if !available {
+		t.Error("valid zero win probability was reported as unavailable")
+	}
+	if output != "0.0%" {
+		t.Errorf("zero win probability output = %q, want 0.0%%", output)
+	}
+}
+
 func TestJoinNotablePlayers(t *testing.T) {
 	tests := []struct {
 		players []string
