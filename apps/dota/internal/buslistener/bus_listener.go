@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"sync"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/dota/internal/match"
@@ -53,6 +54,10 @@ type BusListener struct {
 	repository dotarepository.Repository
 	stats      StatsProvider
 	logger     *slog.Logger
+
+	handlersMu sync.Mutex
+	handlers   sync.WaitGroup
+	stopping   bool
 }
 
 func New(opts Opts) *BusListener {
@@ -83,15 +88,46 @@ func newBusListener(
 
 	lifecycle.Append(fx.Hook{
 		OnStart: func(context.Context) error {
-			return queue.SubscribeGroup("dota", listener.GetData)
+			return queue.SubscribeGroup("dota", listener.handleGetData)
 		},
-		OnStop: func(context.Context) error {
+		OnStop: func(ctx context.Context) error {
+			listener.handlersMu.Lock()
+			listener.stopping = true
 			queue.Unsubscribe()
-			return nil
+			listener.handlersMu.Unlock()
+
+			handlersDone := make(chan struct{})
+			go func() {
+				listener.handlers.Wait()
+				close(handlersDone)
+			}()
+
+			select {
+			case <-handlersDone:
+				return nil
+			case <-ctx.Done():
+				return ctx.Err()
+			}
 		},
 	})
 
 	return listener
+}
+
+func (l *BusListener) handleGetData(
+	ctx context.Context,
+	req busdota.GetDataRequest,
+) (busdota.GetDataResponse, error) {
+	l.handlersMu.Lock()
+	if l.stopping {
+		l.handlersMu.Unlock()
+		return busdota.GetDataResponse{}, fmt.Errorf("dota bus listener is stopping: %w", context.Canceled)
+	}
+	l.handlers.Add(1)
+	l.handlersMu.Unlock()
+	defer l.handlers.Done()
+
+	return l.GetData(ctx, req)
 }
 
 func (l *BusListener) GetData(
@@ -157,7 +193,17 @@ func (l *BusListener) GetData(
 
 		streamerAccountID := snapshot.SteamAccountID
 		if streamerAccountID == "" {
-			streamerAccountID = *settings.SteamAccountID
+			accountID, err := dotaAccountID(*settings.SteamAccountID)
+			if err != nil {
+				l.logger.WarnContext(
+					ctx,
+					"dota bus listener: invalid Steam account ID",
+					logger.Error(err),
+					slog.String("channel_id", channelID.String()),
+				)
+			} else {
+				streamerAccountID = strconv.FormatInt(accountID, 10)
+			}
 		}
 
 		notablePlayers, err := l.stats.NotablePlayers(ctx, snapshot.MatchID, streamerAccountID)
@@ -181,7 +227,7 @@ func (l *BusListener) GetData(
 			ctx,
 			"dota bus listener: invalid Steam account ID",
 			logger.Error(err),
-			slog.String("steam_account_id", *settings.SteamAccountID),
+			slog.String("channel_id", channelID.String()),
 		)
 		return response, nil
 	}
@@ -215,7 +261,7 @@ func (l *BusListener) GetData(
 func dotaAccountID(steamAccountID string) (int64, error) {
 	accountID, err := strconv.ParseInt(steamAccountID, 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("parse Steam account ID: %w", err)
+		return 0, errors.New("Steam account ID must be a decimal integer")
 	}
 	if accountID < 0 {
 		return 0, fmt.Errorf("Steam account ID must not be negative")

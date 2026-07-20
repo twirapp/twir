@@ -3,8 +3,10 @@ package buslistener
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
+	"strconv"
 	"sync"
 	"testing"
 
@@ -21,9 +23,15 @@ import (
 
 var errNotImplemented = errors.New("not implemented")
 
+type testLogRecord struct {
+	message string
+	attrs   []slog.Attr
+}
+
 type testLogHandler struct {
 	mu       sync.Mutex
 	messages []string
+	records  []testLogRecord
 }
 
 func (h *testLogHandler) Enabled(context.Context, slog.Level) bool {
@@ -31,10 +39,17 @@ func (h *testLogHandler) Enabled(context.Context, slog.Level) bool {
 }
 
 func (h *testLogHandler) Handle(_ context.Context, record slog.Record) error {
+	attrs := make([]slog.Attr, 0, record.NumAttrs())
+	record.Attrs(func(attr slog.Attr) bool {
+		attrs = append(attrs, attr)
+		return true
+	})
+
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
 	h.messages = append(h.messages, record.Message)
+	h.records = append(h.records, testLogRecord{message: record.Message, attrs: attrs})
 	return nil
 }
 
@@ -53,7 +68,41 @@ func (h *testLogHandler) Messages() []string {
 	return append([]string(nil), h.messages...)
 }
 
+func (h *testLogHandler) Records() []testLogRecord {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	records := make([]testLogRecord, len(h.records))
+	for i, record := range h.records {
+		records[i] = testLogRecord{
+			message: record.message,
+			attrs:   append([]slog.Attr(nil), record.attrs...),
+		}
+	}
+
+	return records
+}
+
+func (r testLogRecord) Attr(key string) (slog.Attr, bool) {
+	for _, attr := range r.attrs {
+		if attr.Key == key {
+			return attr, true
+		}
+	}
+
+	return slog.Attr{}, false
+}
+
+func logAttrText(attr slog.Attr) string {
+	if attr.Value.Kind() == slog.KindAny {
+		return fmt.Sprint(attr.Value.Any())
+	}
+
+	return attr.Value.String()
+}
+
 type fakeRepository struct {
+	mu         sync.Mutex
 	settings   model.ChannelDotaSettings
 	err        error
 	channelIDs []uuid.UUID
@@ -65,6 +114,9 @@ func (f *fakeRepository) GetByChannelID(
 	_ context.Context,
 	channelID uuid.UUID,
 ) (model.ChannelDotaSettings, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	f.channelIDs = append(f.channelIDs, channelID)
 	if f.err != nil {
 		return model.Nil, f.err
@@ -119,6 +171,7 @@ func (f *fakeRepository) RegenerateGsiToken(
 }
 
 type fakeStateProvider struct {
+	mu         sync.Mutex
 	snapshot   match.Snapshot
 	err        error
 	channelIDs []uuid.UUID
@@ -128,6 +181,9 @@ func (f *fakeStateProvider) GetSnapshot(
 	_ context.Context,
 	channelID uuid.UUID,
 ) (match.Snapshot, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	f.channelIDs = append(f.channelIDs, channelID)
 	return f.snapshot, f.err
 }
@@ -138,8 +194,11 @@ type notablePlayersCall struct {
 }
 
 type fakeStatsProvider struct {
+	mu                  sync.Mutex
 	winProbability      float64
 	winProbabilityErr   error
+	winProbabilityStart chan struct{}
+	winProbabilityDone  <-chan struct{}
 	notablePlayers      []string
 	notablePlayersErr   error
 	lastGame            *stats.LastGame
@@ -151,9 +210,27 @@ type fakeStatsProvider struct {
 
 var _ StatsProvider = (*fakeStatsProvider)(nil)
 
-func (f *fakeStatsProvider) WinProbability(_ context.Context, matchID int64) (float64, error) {
+func (f *fakeStatsProvider) WinProbability(ctx context.Context, matchID int64) (float64, error) {
+	f.mu.Lock()
 	f.winProbabilityCalls = append(f.winProbabilityCalls, matchID)
-	return f.winProbability, f.winProbabilityErr
+	probability := f.winProbability
+	err := f.winProbabilityErr
+	start := f.winProbabilityStart
+	done := f.winProbabilityDone
+	f.mu.Unlock()
+
+	if start != nil {
+		start <- struct{}{}
+	}
+	if done != nil {
+		select {
+		case <-done:
+		case <-ctx.Done():
+			return 0, ctx.Err()
+		}
+	}
+
+	return probability, err
 }
 
 func (f *fakeStatsProvider) NotablePlayers(
@@ -161,6 +238,9 @@ func (f *fakeStatsProvider) NotablePlayers(
 	matchID int64,
 	streamerAccountID string,
 ) ([]string, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	f.notablePlayersCalls = append(
 		f.notablePlayersCalls,
 		notablePlayersCall{matchID: matchID, streamerAccountID: streamerAccountID},
@@ -169,8 +249,18 @@ func (f *fakeStatsProvider) NotablePlayers(
 }
 
 func (f *fakeStatsProvider) LastGame(_ context.Context, accountID int64) (*stats.LastGame, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	f.lastGameCalls = append(f.lastGameCalls, accountID)
 	return f.lastGame, f.lastGameErr
+}
+
+func (f *fakeStatsProvider) callCounts() (winProbability, notablePlayers, lastGame int) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return len(f.winProbabilityCalls), len(f.notablePlayersCalls), len(f.lastGameCalls)
 }
 
 type fakeLifecycle struct {
@@ -182,23 +272,62 @@ func (f *fakeLifecycle) Append(hook fx.Hook) {
 }
 
 type fakeGetDataQueue struct {
-	group        string
-	callback     buscore.QueueSubscribeCallback[busdota.GetDataRequest, busdota.GetDataResponse]
-	subscribeErr error
-	unsubscribes int
+	mu               sync.Mutex
+	group            string
+	callback         buscore.QueueSubscribeCallback[busdota.GetDataRequest, busdota.GetDataResponse]
+	subscribeErr     error
+	unsubscribes     int
+	unsubscribed     chan struct{}
+	allowUnsubscribe <-chan struct{}
+	unsubscribeOnce  sync.Once
 }
 
 func (f *fakeGetDataQueue) SubscribeGroup(
 	group string,
 	callback buscore.QueueSubscribeCallback[busdota.GetDataRequest, busdota.GetDataResponse],
 ) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
 	f.group = group
 	f.callback = callback
 	return f.subscribeErr
 }
 
 func (f *fakeGetDataQueue) Unsubscribe() {
+	f.mu.Lock()
 	f.unsubscribes++
+	unsubscribed := f.unsubscribed
+	allowUnsubscribe := f.allowUnsubscribe
+	f.mu.Unlock()
+
+	if unsubscribed != nil {
+		f.unsubscribeOnce.Do(func() { close(unsubscribed) })
+	}
+	if allowUnsubscribe != nil {
+		<-allowUnsubscribe
+	}
+}
+
+func (f *fakeGetDataQueue) Group() string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return f.group
+}
+
+func (f *fakeGetDataQueue) Callback() buscore.QueueSubscribeCallback[busdota.GetDataRequest, busdota.GetDataResponse] {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return f.callback
+}
+
+func (f *fakeGetDataQueue) UnsubscribeCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return f.unsubscribes
 }
 
 func TestGetDataRejectsInvalidChannelID(t *testing.T) {
@@ -292,6 +421,50 @@ func TestGetDataMapsActiveLinkedMatch(t *testing.T) {
 	require.Empty(t, statsProvider.lastGameCalls)
 }
 
+func TestGetDataHandlesConcurrentRequests(t *testing.T) {
+	const requests = 16
+
+	channelID := uuid.New()
+	accountID := "12345"
+	repo := &fakeRepository{settings: model.ChannelDotaSettings{
+		Enabled:        true,
+		SteamAccountID: &accountID,
+	}}
+	state := &fakeStateProvider{snapshot: match.Snapshot{
+		InGame:         true,
+		MatchID:        42,
+		SteamAccountID: accountID,
+	}}
+	statsProvider := &fakeStatsProvider{}
+	listener := newTestListener(repo, state, statsProvider)
+
+	errs := make(chan error, requests)
+	var requestsGroup sync.WaitGroup
+	for range requests {
+		requestsGroup.Add(1)
+		go func() {
+			defer requestsGroup.Done()
+
+			_, err := listener.GetData(
+				context.Background(),
+				busdota.GetDataRequest{ChannelID: channelID.String()},
+			)
+			errs <- err
+		}()
+	}
+
+	requestsGroup.Wait()
+	close(errs)
+
+	for err := range errs {
+		require.NoError(t, err)
+	}
+	winProbabilityCalls, notablePlayersCalls, lastGameCalls := statsProvider.callCounts()
+	require.Equal(t, requests, winProbabilityCalls)
+	require.Equal(t, requests, notablePlayersCalls)
+	require.Zero(t, lastGameCalls)
+}
+
 func TestGetDataUsesSettingsAccountForNotablePlayersWhenSnapshotAccountIsEmpty(t *testing.T) {
 	channelID := uuid.New()
 	settingsAccountID := "111"
@@ -313,6 +486,40 @@ func TestGetDataUsesSettingsAccountForNotablePlayersWhenSnapshotAccountIsEmpty(t
 		[]notablePlayersCall{{matchID: 42, streamerAccountID: settingsAccountID}},
 		statsProvider.notablePlayersCalls,
 	)
+}
+
+func TestGetDataNormalizesSteamID64FallbackForNotablePlayers(t *testing.T) {
+	channelID := uuid.New()
+	steamID64 := "76561197960278073"
+	repo := &fakeRepository{settings: model.ChannelDotaSettings{
+		Enabled:        true,
+		SteamAccountID: &steamID64,
+	}}
+	state := &fakeStateProvider{snapshot: match.Snapshot{InGame: true, MatchID: 42}}
+	statsProvider := &fakeStatsProvider{}
+
+	_, err := newTestListener(repo, state, statsProvider).GetData(
+		context.Background(),
+		busdota.GetDataRequest{ChannelID: channelID.String()},
+	)
+
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		[]notablePlayersCall{{matchID: 42, streamerAccountID: "12345"}},
+		statsProvider.notablePlayersCalls,
+	)
+}
+
+func TestDotaAccountIDSanitizesInvalidInput(t *testing.T) {
+	invalidAccountID := "invalid-steam-id"
+
+	_, err := dotaAccountID(invalidAccountID)
+
+	require.EqualError(t, err, "Steam account ID must be a decimal integer")
+	require.NotContains(t, err.Error(), invalidAccountID)
+	var numberErr *strconv.NumError
+	require.False(t, errors.As(err, &numberErr))
 }
 
 func TestGetDataKeepsActiveMatchResponseWhenStatsFail(t *testing.T) {
@@ -353,6 +560,41 @@ func TestGetDataKeepsActiveMatchResponseWhenStatsFail(t *testing.T) {
 		"dota bus listener: failed to fetch win probability",
 		"dota bus listener: failed to fetch notable players",
 	}, logHandler.Messages())
+}
+
+func TestGetDataLogsAndUsesEmptyNotablePlayersFallbackForInvalidSteamID(t *testing.T) {
+	channelID := uuid.New()
+	invalidAccountID := "invalid-steam-id"
+	logHandler := &testLogHandler{}
+	repo := &fakeRepository{settings: model.ChannelDotaSettings{
+		Enabled:        true,
+		SteamAccountID: &invalidAccountID,
+	}}
+	state := &fakeStateProvider{snapshot: match.Snapshot{InGame: true, MatchID: 42}}
+	statsProvider := &fakeStatsProvider{}
+
+	_, err := newTestListenerWithLogger(repo, state, statsProvider, slog.New(logHandler)).GetData(
+		context.Background(),
+		busdota.GetDataRequest{ChannelID: channelID.String()},
+	)
+
+	require.NoError(t, err)
+	require.Equal(
+		t,
+		[]notablePlayersCall{{matchID: 42, streamerAccountID: ""}},
+		statsProvider.notablePlayersCalls,
+	)
+
+	records := logHandler.Records()
+	require.Len(t, records, 1)
+	record := records[0]
+	require.Equal(t, "dota bus listener: invalid Steam account ID", record.message)
+	channelAttr, ok := record.Attr("channel_id")
+	require.True(t, ok)
+	require.Equal(t, channelID.String(), channelAttr.Value.String())
+	for _, attr := range record.attrs {
+		require.NotContains(t, logAttrText(attr), invalidAccountID)
+	}
 }
 
 func TestGetDataMapsLastGameForIdleSteamID64Account(t *testing.T) {
@@ -481,6 +723,7 @@ func TestGetDataKeepsIdleResponseWhenLastGameFails(t *testing.T) {
 func TestGetDataKeepsPartialResponseForInvalidStoredSteamID(t *testing.T) {
 	channelID := uuid.New()
 	accountID := "invalid-steam-id"
+	logHandler := &testLogHandler{}
 	repo := &fakeRepository{settings: model.ChannelDotaSettings{
 		Enabled:        true,
 		SteamAccountID: &accountID,
@@ -494,7 +737,7 @@ func TestGetDataKeepsPartialResponseForInvalidStoredSteamID(t *testing.T) {
 	}}
 	statsProvider := &fakeStatsProvider{}
 
-	response, err := newTestListener(repo, state, statsProvider).GetData(
+	response, err := newTestListenerWithLogger(repo, state, statsProvider, slog.New(logHandler)).GetData(
 		context.Background(),
 		busdota.GetDataRequest{ChannelID: channelID.String()},
 	)
@@ -509,6 +752,20 @@ func TestGetDataKeepsPartialResponseForInvalidStoredSteamID(t *testing.T) {
 		DireScore:    12,
 	}, response)
 	requireNoStatsCalls(t, statsProvider)
+
+	records := logHandler.Records()
+	require.Len(t, records, 1)
+	record := records[0]
+	require.Equal(t, "dota bus listener: invalid Steam account ID", record.message)
+	channelAttr, ok := record.Attr("channel_id")
+	require.True(t, ok)
+	require.Equal(t, channelID.String(), channelAttr.Value.String())
+	_, hasSteamAccountID := record.Attr("steam_account_id")
+	require.False(t, hasSteamAccountID)
+	require.NotContains(t, record.message, accountID)
+	for _, attr := range record.attrs {
+		require.NotContains(t, logAttrText(attr), accountID)
+	}
 }
 
 func TestGetDataReturnsSnapshotError(t *testing.T) {
@@ -548,6 +805,154 @@ func TestGetDataReturnsSettingsError(t *testing.T) {
 	requireNoStatsCalls(t, statsProvider)
 }
 
+func TestBusListenerOnStopWaitsForActiveGetData(t *testing.T) {
+	channelID := uuid.New()
+	accountID := "12345"
+	requestStarted := make(chan struct{})
+	releaseRequest := make(chan struct{})
+	unsubscribeStarted := make(chan struct{})
+	allowUnsubscribe := make(chan struct{})
+	lifecycle := &fakeLifecycle{}
+	queue := &fakeGetDataQueue{
+		unsubscribed:     unsubscribeStarted,
+		allowUnsubscribe: allowUnsubscribe,
+	}
+	statsProvider := &fakeStatsProvider{
+		winProbabilityStart: requestStarted,
+		winProbabilityDone:  releaseRequest,
+	}
+
+	newBusListener(
+		&fakeStateProvider{snapshot: match.Snapshot{
+			InGame:         true,
+			MatchID:        42,
+			SteamAccountID: accountID,
+		}},
+		&fakeRepository{settings: model.ChannelDotaSettings{
+			Enabled:        true,
+			SteamAccountID: &accountID,
+		}},
+		statsProvider,
+		testLogger(),
+		lifecycle,
+		queue,
+	)
+
+	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	callback := queue.Callback()
+	require.NotNil(t, callback)
+
+	requestResult := make(chan error, 1)
+	go func() {
+		_, err := callback(context.Background(), busdota.GetDataRequest{ChannelID: channelID.String()})
+		requestResult <- err
+	}()
+	<-requestStarted
+	t.Cleanup(func() {
+		close(releaseRequest)
+		require.NoError(t, <-requestResult)
+	})
+
+	stopContext, cancelStop := context.WithCancel(context.Background())
+	defer cancelStop()
+	stopResult := make(chan error, 1)
+	go func() {
+		stopResult <- lifecycle.hooks[0].OnStop(stopContext)
+	}()
+	<-unsubscribeStarted
+	cancelStop()
+	close(allowUnsubscribe)
+
+	require.ErrorIs(t, <-stopResult, context.Canceled)
+	require.Equal(t, 1, queue.UnsubscribeCount())
+}
+
+func TestBusListenerOnStopCompletesAfterActiveGetDataFinishes(t *testing.T) {
+	channelID := uuid.New()
+	accountID := "12345"
+	requestStarted := make(chan struct{})
+	releaseRequest := make(chan struct{})
+	unsubscribeStarted := make(chan struct{})
+	lifecycle := &fakeLifecycle{}
+	queue := &fakeGetDataQueue{unsubscribed: unsubscribeStarted}
+	statsProvider := &fakeStatsProvider{
+		winProbabilityStart: requestStarted,
+		winProbabilityDone:  releaseRequest,
+	}
+
+	newBusListener(
+		&fakeStateProvider{snapshot: match.Snapshot{
+			InGame:         true,
+			MatchID:        42,
+			SteamAccountID: accountID,
+		}},
+		&fakeRepository{settings: model.ChannelDotaSettings{
+			Enabled:        true,
+			SteamAccountID: &accountID,
+		}},
+		statsProvider,
+		testLogger(),
+		lifecycle,
+		queue,
+	)
+
+	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	callback := queue.Callback()
+	require.NotNil(t, callback)
+
+	requestResult := make(chan error, 1)
+	go func() {
+		_, err := callback(context.Background(), busdota.GetDataRequest{ChannelID: channelID.String()})
+		requestResult <- err
+	}()
+	<-requestStarted
+
+	stopResult := make(chan error, 1)
+	go func() {
+		stopResult <- lifecycle.hooks[0].OnStop(context.Background())
+	}()
+	<-unsubscribeStarted
+	close(releaseRequest)
+
+	require.NoError(t, <-requestResult)
+	require.NoError(t, <-stopResult)
+}
+
+func TestBusListenerRejectsGetDataRequestsAfterStop(t *testing.T) {
+	channelID := uuid.New()
+	accountID := "12345"
+	lifecycle := &fakeLifecycle{}
+	queue := &fakeGetDataQueue{}
+	statsProvider := &fakeStatsProvider{}
+
+	newBusListener(
+		&fakeStateProvider{snapshot: match.Snapshot{
+			InGame:         true,
+			MatchID:        42,
+			SteamAccountID: accountID,
+		}},
+		&fakeRepository{settings: model.ChannelDotaSettings{
+			Enabled:        true,
+			SteamAccountID: &accountID,
+		}},
+		statsProvider,
+		testLogger(),
+		lifecycle,
+		queue,
+	)
+
+	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	require.NoError(t, lifecycle.hooks[0].OnStop(context.Background()))
+
+	callback := queue.Callback()
+	require.NotNil(t, callback)
+	response, err := callback(context.Background(), busdota.GetDataRequest{ChannelID: channelID.String()})
+
+	require.ErrorIs(t, err, context.Canceled)
+	require.Zero(t, response)
+	requireNoStatsCalls(t, statsProvider)
+}
+
 func TestBusListenerLifecycleSubscribesAndUnsubscribesGetData(t *testing.T) {
 	lifecycle := &fakeLifecycle{}
 	queue := &fakeGetDataQueue{}
@@ -563,10 +968,10 @@ func TestBusListenerLifecycleSubscribesAndUnsubscribesGetData(t *testing.T) {
 
 	require.Len(t, lifecycle.hooks, 1)
 	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
-	require.Equal(t, "dota", queue.group)
-	require.NotNil(t, queue.callback)
+	require.Equal(t, "dota", queue.Group())
+	require.NotNil(t, queue.Callback())
 	require.NoError(t, lifecycle.hooks[0].OnStop(context.Background()))
-	require.Equal(t, 1, queue.unsubscribes)
+	require.Equal(t, 1, queue.UnsubscribeCount())
 }
 
 func newTestListener(
@@ -593,9 +998,10 @@ func newTestListenerWithLogger(
 
 func requireNoStatsCalls(t *testing.T, statsProvider *fakeStatsProvider) {
 	t.Helper()
-	require.Empty(t, statsProvider.winProbabilityCalls)
-	require.Empty(t, statsProvider.notablePlayersCalls)
-	require.Empty(t, statsProvider.lastGameCalls)
+	winProbabilityCalls, notablePlayersCalls, lastGameCalls := statsProvider.callCounts()
+	require.Zero(t, winProbabilityCalls)
+	require.Zero(t, notablePlayersCalls)
+	require.Zero(t, lastGameCalls)
 }
 
 func testLogger() *slog.Logger {
