@@ -79,8 +79,10 @@ func New(
 	mux.HandleFunc("POST /gsi/{token}", s.handleGsi)
 
 	s.httpServer = &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.DotaHttpPort),
-		Handler: mux,
+		Addr:              fmt.Sprintf(":%d", config.DotaHttpPort),
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       15 * time.Second,
 	}
 
 	return s
