@@ -26,18 +26,22 @@ import (
 )
 
 const (
-	predictionKeyPrefix          = "cache:twir:dota:prediction:"
-	predictionTTL                = 12 * time.Hour
-	predictionsSubscriptionGroup = "dota-predictions"
-	minPredictionWindow          = 30
-	maxPredictionWindow          = 1_800
-	maxPredictionTitleRunes      = 45
+	predictionKeyPrefix                = "cache:twir:dota:prediction:"
+	predictionTTL                      = 12 * time.Hour
+	predictionsSubscriptionGroup       = "dota-predictions"
+	minPredictionWindow                = 30
+	maxPredictionWindow                = 1_800
+	maxPredictionTitleRunes            = 45
+	pendingIntentVersion               = 1
+	pendingPredictionCorrelationWindow = 2 * time.Minute
 )
 
 var (
 	errPredictionNotFound        = errors.New("dota prediction record not found")
 	errPredictionPending         = errors.New("dota prediction creation pending")
+	errPredictionIntentNotFound  = errors.New("dota prediction intent not found")
 	errPredictionReservationLost = errors.New("dota prediction reservation ownership lost")
+	errPredictionRecoveryUnsafe  = errors.New("dota prediction recovery is unsafe")
 )
 
 type storedPrediction struct {
@@ -46,16 +50,21 @@ type storedPrediction struct {
 	NoOutcomeID  string `json:"noOutcomeId"`
 }
 
-type pendingPrediction struct {
-	token  string
-	record storedPrediction
+type pendingPredictionIntent struct {
+	Version         int       `json:"version"`
+	Token           string    `json:"token"`
+	Title           string    `json:"title"`
+	YesOutcomeTitle string    `json:"yesOutcomeTitle"`
+	NoOutcomeTitle  string    `json:"noOutcomeTitle"`
+	ReservedAt      time.Time `json:"reservedAt"`
 }
 
 // Store keeps the Dota prediction that belongs to one channel and match.
 type Store interface {
-	Reserve(ctx context.Context, key string, token string, ttl time.Duration) (bool, error)
+	Reserve(ctx context.Context, key string, intent pendingPredictionIntent, ttl time.Duration) (bool, error)
 	Commit(ctx context.Context, key string, token string, record storedPrediction, ttl time.Duration) error
 	Get(ctx context.Context, key string) (storedPrediction, error)
+	GetPending(ctx context.Context, key string) (pendingPredictionIntent, error)
 	Release(ctx context.Context, key string, token string) error
 	Delete(ctx context.Context, key string) error
 }
@@ -130,9 +139,6 @@ type Predictions struct {
 	handlersMu sync.Mutex
 	handlers   sync.WaitGroup
 	stopping   bool
-
-	pendingMu sync.Mutex
-	pending   map[string]pendingPrediction
 }
 
 func New(opts Opts) *Predictions {
@@ -166,7 +172,6 @@ func newPredictions(
 		store:         store,
 		logger:        logger,
 		subscriptions: subscriptions,
-		pending:       make(map[string]pendingPrediction),
 	}
 
 	if lifecycle != nil {
@@ -300,7 +305,7 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 		return nil
 	}
 	key := predictionKey(channelID, message.MatchID)
-	if recovered, err := p.commitPending(ctx, key); recovered {
+	if recovered, err := p.recoverPendingPrediction(ctx, key, channelID); recovered {
 		return err
 	}
 
@@ -344,8 +349,15 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 		return nil
 	}
 
-	token := uuid.NewString()
-	reserved, err := p.store.Reserve(ctx, key, token, predictionTTL)
+	intent := pendingPredictionIntent{
+		Version:         pendingIntentVersion,
+		Token:           uuid.NewString(),
+		Title:           title,
+		YesOutcomeTitle: "Yes",
+		NoOutcomeTitle:  "No",
+		ReservedAt:      time.Now().UTC(),
+	}
+	reserved, err := p.store.Reserve(ctx, key, intent, predictionTTL)
 	if err != nil {
 		return fmt.Errorf("reserve prediction: %w", err)
 	}
@@ -355,7 +367,7 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 
 	client, err := p.clients.New(ctx, *channel.TwitchUserID)
 	if err != nil {
-		return p.creationFailed(ctx, key, token, fmt.Errorf("create Twitch client: %w", err))
+		return p.creationFailed(ctx, key, intent.Token, fmt.Errorf("create Twitch client: %w", err))
 	}
 
 	response, err := client.CreatePrediction(&helix.CreatePredictionParams{
@@ -369,30 +381,29 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 	})
 	if err != nil {
 		if isAlreadyActive(err) {
-			if releaseErr := p.releaseReservation(ctx, key, token); releaseErr != nil {
+			if releaseErr := p.releaseReservation(ctx, key, intent.Token); releaseErr != nil {
 				return releaseErr
 			}
 			return nil
 		}
-		return p.creationFailed(ctx, key, token, fmt.Errorf("create Twitch prediction: %w", err))
+		return p.creationFailed(ctx, key, intent.Token, fmt.Errorf("create Twitch prediction: %w", err))
 	}
 	if err := predictionResponseError(response); err != nil {
 		if isAlreadyActive(err) {
-			if releaseErr := p.releaseReservation(ctx, key, token); releaseErr != nil {
+			if releaseErr := p.releaseReservation(ctx, key, intent.Token); releaseErr != nil {
 				return releaseErr
 			}
 			return nil
 		}
-		return p.creationFailed(ctx, key, token, fmt.Errorf("create Twitch prediction: %w", err))
+		return p.creationFailed(ctx, key, intent.Token, fmt.Errorf("create Twitch prediction: %w", err))
 	}
 
 	record, err := recordFromCreateResponse(response)
 	if err != nil {
-		return p.creationFailed(ctx, key, token, err)
+		return p.creationFailed(ctx, key, intent.Token, err)
 	}
-	p.rememberPending(key, token, record)
-	if _, err := p.commitPending(ctx, key); err != nil {
-		return err
+	if err := p.store.Commit(ctx, key, intent.Token, record, predictionTTL); err != nil {
+		return fmt.Errorf("store created prediction: %w", err)
 	}
 
 	return nil
@@ -415,24 +426,62 @@ func (p *Predictions) releaseReservation(ctx context.Context, key string, token 
 	return nil
 }
 
-func (p *Predictions) rememberPending(key string, token string, record storedPrediction) {
-	p.pendingMu.Lock()
-	defer p.pendingMu.Unlock()
-	p.pending[key] = pendingPrediction{token: token, record: record}
-}
-
-func (p *Predictions) commitPending(ctx context.Context, key string) (bool, error) {
-	p.pendingMu.Lock()
-	defer p.pendingMu.Unlock()
-
-	pending, ok := p.pending[key]
-	if !ok {
+func (p *Predictions) recoverPendingPrediction(
+	ctx context.Context,
+	key string,
+	channelID uuid.UUID,
+) (bool, error) {
+	intent, err := p.store.GetPending(ctx, key)
+	if errors.Is(err, errPredictionIntentNotFound) {
 		return false, nil
 	}
-	if err := p.store.Commit(ctx, key, pending.token, pending.record, predictionTTL); err != nil {
-		return true, fmt.Errorf("commit known prediction: %w", err)
+	if err != nil {
+		return true, fmt.Errorf("get pending prediction intent: %w", err)
 	}
-	delete(p.pending, key)
+	if err := intent.validate(); err != nil {
+		return true, fmt.Errorf("%w: invalid pending intent: %v", errPredictionRecoveryUnsafe, err)
+	}
+
+	channel, err := p.channels.GetByID(ctx, channelID)
+	if err != nil {
+		return true, fmt.Errorf("get channel for pending prediction: %w", err)
+	}
+	if !channel.TwitchConnected() || channel.TwitchUserID == nil || channel.TwitchPlatformID == nil ||
+		strings.TrimSpace(*channel.TwitchPlatformID) == "" {
+		return true, errors.New("pending prediction channel is not connected to Twitch")
+	}
+
+	client, err := p.clients.New(ctx, *channel.TwitchUserID)
+	if err != nil {
+		return true, fmt.Errorf("create Twitch client for pending prediction: %w", err)
+	}
+	broadcasterID := strings.TrimSpace(*channel.TwitchPlatformID)
+	response, err := client.GetPredictions(&helix.PredictionsParams{
+		BroadcasterID: broadcasterID,
+		First:         "100",
+	})
+	if err != nil {
+		return true, fmt.Errorf("get Twitch predictions for pending prediction: %w", err)
+	}
+	if err := predictionResponseError(response); err != nil {
+		return true, fmt.Errorf("get Twitch predictions for pending prediction: %w", err)
+	}
+
+	prediction, found := matchingPendingPrediction(response, intent)
+	if !found {
+		return true, fmt.Errorf(
+			"%w: expected exactly one matching active or locked Twitch prediction",
+			errPredictionRecoveryUnsafe,
+		)
+	}
+	record, err := recordFromPrediction(prediction, intent.YesOutcomeTitle, intent.NoOutcomeTitle)
+	if err != nil {
+		return true, fmt.Errorf("%w: build recovered prediction record: %v", errPredictionRecoveryUnsafe, err)
+	}
+	if err := p.store.Commit(ctx, key, intent.Token, record, predictionTTL); err != nil {
+		return true, fmt.Errorf("commit recovered prediction: %w", err)
+	}
+
 	return true, nil
 }
 
@@ -454,8 +503,10 @@ func (p *Predictions) finishPrediction(
 	}
 
 	key := predictionKey(channelID, matchID)
-	if recovered, err := p.commitPending(ctx, key); recovered && err != nil {
-		return err
+	if recovered, err := p.recoverPendingPrediction(ctx, key, channelID); recovered {
+		if err != nil {
+			return err
+		}
 	}
 	record, err := p.store.Get(ctx, key)
 	if errors.Is(err, errPredictionNotFound) {
@@ -550,18 +601,30 @@ func recordFromCreateResponse(response *helix.PredictionsResponse) (storedPredic
 		return storedPrediction{}, errors.New("create Twitch prediction returned no prediction")
 	}
 
-	prediction := response.Data.Predictions[0]
+	return recordFromPrediction(response.Data.Predictions[0], "Yes", "No")
+}
+
+func recordFromPrediction(
+	prediction helix.Prediction,
+	yesOutcomeTitle string,
+	noOutcomeTitle string,
+) (storedPrediction, error) {
 	if strings.TrimSpace(prediction.ID) == "" {
 		return storedPrediction{}, errors.New("create Twitch prediction returned an empty prediction ID")
+	}
+	if len(prediction.Outcomes) != 2 {
+		return storedPrediction{}, errors.New("Twitch prediction returned unexpected outcomes")
 	}
 
 	record := storedPrediction{PredictionID: prediction.ID}
 	for _, outcome := range prediction.Outcomes {
 		switch outcome.Title {
-		case "Yes":
+		case yesOutcomeTitle:
 			record.YesOutcomeID = outcome.ID
-		case "No":
+		case noOutcomeTitle:
 			record.NoOutcomeID = outcome.ID
+		default:
+			return storedPrediction{}, errors.New("Twitch prediction returned unexpected outcomes")
 		}
 	}
 	if strings.TrimSpace(record.YesOutcomeID) == "" || strings.TrimSpace(record.NoOutcomeID) == "" {
@@ -569,6 +632,64 @@ func recordFromCreateResponse(response *helix.PredictionsResponse) (storedPredic
 	}
 
 	return record, nil
+}
+
+func (intent pendingPredictionIntent) validate() error {
+	if intent.Version != pendingIntentVersion {
+		return errors.New("unsupported pending intent version")
+	}
+	if strings.TrimSpace(intent.Token) == "" {
+		return errors.New("missing reservation token")
+	}
+	if strings.TrimSpace(intent.Title) == "" || utf8.RuneCountInString(intent.Title) > maxPredictionTitleRunes {
+		return errors.New("invalid prediction title")
+	}
+	if strings.TrimSpace(intent.YesOutcomeTitle) == "" || strings.TrimSpace(intent.NoOutcomeTitle) == "" ||
+		intent.YesOutcomeTitle == intent.NoOutcomeTitle {
+		return errors.New("invalid prediction outcomes")
+	}
+	if intent.ReservedAt.IsZero() {
+		return errors.New("missing reservation timestamp")
+	}
+	return nil
+}
+
+func matchingPendingPrediction(
+	response *helix.PredictionsResponse,
+	intent pendingPredictionIntent,
+) (helix.Prediction, bool) {
+	var match helix.Prediction
+	found := false
+	for _, prediction := range response.Data.Predictions {
+		if !matchesPendingIntent(prediction, intent) {
+			continue
+		}
+		if found {
+			return helix.Prediction{}, false
+		}
+		match = prediction
+		found = true
+	}
+	return match, found
+}
+
+func matchesPendingIntent(prediction helix.Prediction, intent pendingPredictionIntent) bool {
+	if prediction.Status != "ACTIVE" && prediction.Status != "LOCKED" {
+		return false
+	}
+	if prediction.Title != intent.Title || !matchesReservationTime(prediction.CreatedAt.Time, intent.ReservedAt) {
+		return false
+	}
+	_, err := recordFromPrediction(prediction, intent.YesOutcomeTitle, intent.NoOutcomeTitle)
+	return err == nil
+}
+
+func matchesReservationTime(createdAt time.Time, reservedAt time.Time) bool {
+	if createdAt.IsZero() || reservedAt.IsZero() {
+		return false
+	}
+	return !createdAt.Before(reservedAt.Add(-pendingPredictionCorrelationWindow)) &&
+		!createdAt.After(reservedAt.Add(pendingPredictionCorrelationWindow))
 }
 
 func activePrediction(response *helix.PredictionsResponse, predictionID string) (helix.Prediction, bool) {

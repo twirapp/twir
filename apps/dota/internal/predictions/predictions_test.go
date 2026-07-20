@@ -70,6 +70,7 @@ type fakePredictionStore struct {
 
 	records      map[string]storedPrediction
 	reservations map[string]string
+	pending      map[string]pendingPredictionIntent
 
 	reserveErr error
 	commitErr  error
@@ -87,13 +88,14 @@ func newFakePredictionStore() *fakePredictionStore {
 	return &fakePredictionStore{
 		records:      make(map[string]storedPrediction),
 		reservations: make(map[string]string),
+		pending:      make(map[string]pendingPredictionIntent),
 	}
 }
 
 func (s *fakePredictionStore) Reserve(
 	_ context.Context,
 	key string,
-	token string,
+	intent pendingPredictionIntent,
 	_ time.Duration,
 ) (bool, error) {
 	s.mu.Lock()
@@ -108,7 +110,8 @@ func (s *fakePredictionStore) Reserve(
 	if _, exists := s.reservations[key]; exists {
 		return false, nil
 	}
-	s.reservations[key] = token
+	s.reservations[key] = intent.Token
+	s.pending[key] = intent
 	return true, nil
 }
 
@@ -125,10 +128,17 @@ func (s *fakePredictionStore) Commit(
 	if s.commitErr != nil {
 		return s.commitErr
 	}
+	if existing, exists := s.records[key]; exists {
+		if existing == record {
+			return nil
+		}
+		return errPredictionReservationLost
+	}
 	if s.reservations[key] != token {
 		return errPredictionReservationLost
 	}
 	delete(s.reservations, key)
+	delete(s.pending, key)
 	s.records[key] = record
 	return nil
 }
@@ -149,6 +159,19 @@ func (s *fakePredictionStore) Get(_ context.Context, key string) (storedPredicti
 	return record, nil
 }
 
+func (s *fakePredictionStore) GetPending(
+	_ context.Context,
+	key string,
+) (pendingPredictionIntent, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	intent, ok := s.pending[key]
+	if !ok {
+		return pendingPredictionIntent{}, errPredictionIntentNotFound
+	}
+	return intent, nil
+}
+
 func (s *fakePredictionStore) Release(_ context.Context, key string, token string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -158,6 +181,7 @@ func (s *fakePredictionStore) Release(_ context.Context, key string, token strin
 	}
 	if s.reservations[key] == token {
 		delete(s.reservations, key)
+		delete(s.pending, key)
 	}
 	return nil
 }
@@ -170,6 +194,7 @@ func (s *fakePredictionStore) Delete(_ context.Context, key string) error {
 		return s.deleteErr
 	}
 	delete(s.records, key)
+	delete(s.pending, key)
 	return nil
 }
 
@@ -648,7 +673,7 @@ func TestMatchStartedReleasesReservationAfterTransientCreateFailure(t *testing.T
 	require.True(t, exists)
 }
 
-func TestMatchStartedRetainsKnownPredictionWhenCommitFailsAndRecoversOnReplay(t *testing.T) {
+func TestMatchStartedRetainsPendingIntentWhenCommitFailsAndRecoversOnReplay(t *testing.T) {
 	f := newFixture(t)
 	message := startMessage(f, 951)
 	key := predictionKey(f.channelID, message.MatchID)
@@ -662,6 +687,9 @@ func TestMatchStartedRetainsKnownPredictionWhenCommitFailsAndRecoversOnReplay(t 
 	require.Empty(t, f.store.releaseCalls)
 
 	f.store.commitErr = nil
+	intent, pendingErr := f.store.GetPending(context.Background(), key)
+	require.NoError(t, pendingErr)
+	f.client.getResponse = predictionsResponse(activePredictionForIntent(intent, "prediction-1"))
 	_, err = f.predictions.handleMatchStarted(context.Background(), message)
 
 	require.NoError(t, err)
@@ -708,7 +736,9 @@ func TestTerminalEventsRecoverKnownPredictionAfterCommitFailure(t *testing.T) {
 			require.Len(t, f.client.CreateCalls(), 1)
 
 			f.store.commitErr = nil
-			f.client.getResponse = predictionResponse("prediction-1", "ACTIVE")
+			intent, pendingErr := f.store.GetPending(context.Background(), predictionKey(f.channelID, message.MatchID))
+			require.NoError(t, pendingErr)
+			f.client.getResponse = predictionsResponse(activePredictionForIntent(intent, "prediction-1"))
 			require.NoError(t, tt.handle(f))
 			require.Len(t, f.client.CreateCalls(), 1)
 			endCalls := f.client.EndCalls()
@@ -718,6 +748,33 @@ func TestTerminalEventsRecoverKnownPredictionAfterCommitFailure(t *testing.T) {
 			require.False(t, exists)
 		})
 	}
+}
+
+func TestTerminalEventRecoversPredictionOnAnotherReplicaAfterCommitFailure(t *testing.T) {
+	f := newFixture(t)
+	message := startMessage(f, 953)
+	f.store.commitErr = errors.New("redis temporarily unavailable")
+
+	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+	require.ErrorIs(t, err, f.store.commitErr)
+	require.Len(t, f.client.CreateCalls(), 1)
+
+	replicaClient := newReplicaClient()
+	replica := newReplica(f, replicaClient)
+	f.store.commitErr = nil
+	intent, pendingErr := f.store.GetPending(context.Background(), predictionKey(f.channelID, message.MatchID))
+	require.NoError(t, pendingErr)
+	replicaClient.getResponse = predictionsResponse(activePredictionForIntent(intent, "prediction-1"))
+
+	_, err = replica.handleMatchEnded(context.Background(), endMessage(f, message.MatchID, true))
+
+	require.NoError(t, err)
+	require.Len(t, f.client.CreateCalls(), 1)
+	require.Empty(t, replicaClient.CreateCalls())
+	endCalls := replicaClient.EndCalls()
+	require.Len(t, endCalls, 1)
+	require.Equal(t, "prediction-1", endCalls[0].ID)
+	require.Equal(t, "RESOLVED", endCalls[0].Status)
 }
 
 func TestMatchStartedReturnsReservationStoreFailureWithoutCallingTwitch(t *testing.T) {
