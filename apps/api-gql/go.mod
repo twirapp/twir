@@ -29,9 +29,9 @@ require (
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0
 	github.com/samber/slog-gin v1.18.0
+	github.com/scorfly/gokick v1.17.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twirapp/kv v0.5.1
-	github.com/twirapp/twir/apps/parser v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/audit v0.0.0-20260102031833-cfb924c9b7eb
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20260105021550-59420996421f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20260102031833-cfb924c9b7eb
@@ -86,7 +86,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-redis/redis_rate/v10 v10.0.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
@@ -140,7 +139,6 @@ require (
 	github.com/samber/slog-sentry/v2 v2.10.1 // indirect
 	github.com/samber/slog-zerolog/v2 v2.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/scorfly/gokick v1.17.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect

@@ -3,6 +3,7 @@ module github.com/twirapp/twir/libs/twitch
 go 1.26.0
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/samber/lo v1.52.0
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
@@ -20,7 +21,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect

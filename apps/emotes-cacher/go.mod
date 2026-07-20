@@ -38,7 +38,6 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/mock v1.7.0-rc.1 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.4 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -111,4 +110,7 @@ require (
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
 
-require github.com/tmaxmax/go-sse v0.11.0
+require (
+	github.com/google/uuid v1.6.0
+	github.com/tmaxmax/go-sse v0.11.0
+)

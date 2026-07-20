@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/goccy/go-json v0.10.5
+	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0

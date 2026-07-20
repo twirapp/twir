@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/parser
 
-go 1.26.0
+go 1.26.1
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -23,8 +23,8 @@ require (
 	github.com/prometheus/client_golang v1.23.2
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0
-	github.com/scorfly/gokick v1.17.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/scorfly/gokick v1.17.0
 	github.com/tidwall/gjson v1.18.0
 	github.com/valyala/fasttemplate v1.2.2
 	github.com/xhit/go-str2duration/v2 v2.1.0
