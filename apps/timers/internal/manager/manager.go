@@ -95,7 +95,7 @@ func (c *Manager) initialize(ctx context.Context) error {
 	channels, err := c.channelsRepo.GetMany(
 		ctx,
 		channelsrepository.GetManyInput{
-			Enabled: lo.ToPtr(true),
+			Enabled: new(true),
 		},
 	)
 	if err != nil {

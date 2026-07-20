@@ -326,6 +326,7 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 			`c."isBotMod"`,
 			`c."botId"`,
 			"c.kick_bot_id",
+			"c.api_key",
 		).
 		From("channels c").
 		LeftJoin("users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'").
