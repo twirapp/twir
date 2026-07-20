@@ -22,9 +22,10 @@ import (
 )
 
 const (
-	dotaSubscriptionGroup = "dota"
-	cooldownKeyPrefix     = "cache:twir:dota:chat-alert"
-	maxCooldownSeconds    = math.MaxInt64 / int64(time.Second)
+	dotaSubscriptionGroup  = "dota"
+	cooldownKeyPrefix      = "cache:twir:dota:chat-alert"
+	maxCooldownSeconds     = math.MaxInt64 / int64(time.Second)
+	compareAndDeleteScript = `if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("DEL", KEYS[1]) end return 0`
 )
 
 type eventKind string
@@ -35,6 +36,19 @@ const (
 	eventRoshanKilled eventKind = "roshan_killed"
 	eventAegisPickup  eventKind = "aegis_pickup"
 )
+
+type terminalHandlerError struct {
+	kind  eventKind
+	cause error
+}
+
+func (e terminalHandlerError) Error() string {
+	return fmt.Sprintf("dota chat alert handler failed: %s", e.kind)
+}
+
+func (e terminalHandlerError) Unwrap() error {
+	return e.cause
+}
 
 type settingsRepository interface {
 	GetByChannelID(context.Context, uuid.UUID) (dotamodel.ChannelDotaSettings, error)
@@ -49,8 +63,13 @@ type CooldownStore interface {
 	Release(ctx context.Context, key string, token string) error
 }
 
+type redisCooldownClient interface {
+	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
+	Eval(ctx context.Context, script string, keys []string, args ...interface{}) *redis.Cmd
+}
+
 type RedisCooldownStore struct {
-	client *redis.Client
+	client redisCooldownClient
 }
 
 func NewRedisCooldownStore(client *redis.Client) *RedisCooldownStore {
@@ -69,7 +88,7 @@ func (s *RedisCooldownStore) Reserve(
 func (s *RedisCooldownStore) Release(ctx context.Context, key string, token string) error {
 	return s.client.Eval(
 		ctx,
-		`if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("DEL", KEYS[1]) end return 0`,
+		compareAndDeleteScript,
 		[]string{key},
 		token,
 	).Err()
@@ -329,8 +348,9 @@ func (c *ChatAlerts) handleTracked(ctx context.Context, event chatEvent) error {
 			"dota chat alert handler failed",
 			slog.String("event_kind", string(event.kind)),
 		)
+		return terminalHandlerError{kind: event.kind, cause: err}
 	}
-	return err
+	return nil
 }
 
 func (c *ChatAlerts) handle(ctx context.Context, event chatEvent) error {

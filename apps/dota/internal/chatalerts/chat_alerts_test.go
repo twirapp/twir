@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
@@ -95,6 +96,50 @@ func (c *fakeCooldownStore) releaseContext() (error, time.Time, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.releaseCtxErr, c.releaseDeadline, c.releaseHasDeadline
+}
+
+type fakeRedisCooldownClient struct {
+	values map[string]string
+
+	evalScript string
+	evalKeys   []string
+	evalArgs   []any
+}
+
+func (c *fakeRedisCooldownClient) SetNX(
+	_ context.Context,
+	key string,
+	value interface{},
+	_ time.Duration,
+) *redis.BoolCmd {
+	if _, exists := c.values[key]; exists {
+		return redis.NewBoolResult(false, nil)
+	}
+
+	c.values[key] = value.(string)
+	return redis.NewBoolResult(true, nil)
+}
+
+func (c *fakeRedisCooldownClient) Eval(
+	_ context.Context,
+	script string,
+	keys []string,
+	args ...interface{},
+) *redis.Cmd {
+	c.evalScript = script
+	c.evalKeys = append([]string(nil), keys...)
+	c.evalArgs = append([]any(nil), args...)
+
+	if len(keys) != 1 || len(args) != 1 {
+		return redis.NewCmdResult(nil, errors.New("unexpected Redis Eval arguments"))
+	}
+
+	if c.values[keys[0]] == args[0] {
+		delete(c.values, keys[0])
+		return redis.NewCmdResult(int64(1), nil)
+	}
+
+	return redis.NewCmdResult(int64(0), nil)
 }
 
 type fakeSettingsRepository struct {
@@ -739,6 +784,27 @@ func TestPublishFailureDoesNotReleaseReacquiredCooldown(t *testing.T) {
 	require.Equal(t, "token-b", store.Value())
 }
 
+func TestRedisCooldownStoreReleaseDoesNotDeleteReplacementToken(t *testing.T) {
+	const (
+		key   = "cache:twir:dota:chat-alert:channel:match_ended"
+		token = "token-a"
+	)
+	client := &fakeRedisCooldownClient{values: map[string]string{key: "token-b"}}
+	store := &RedisCooldownStore{client: client}
+
+	err := store.Release(context.Background(), key, token)
+
+	require.NoError(t, err)
+	require.Equal(t, "token-b", client.values[key])
+	require.Equal(
+		t,
+		`if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("DEL", KEYS[1]) end return 0`,
+		client.evalScript,
+	)
+	require.Equal(t, []string{key}, client.evalKeys)
+	require.Equal(t, []any{token}, client.evalArgs)
+}
+
 func TestPublishFailureUsesBoundedDetachedCleanupContext(t *testing.T) {
 	settings := enabledSettings()
 	settings.ChatEvents.MatchEnded = dotamodel.ChatEventSettings{
@@ -794,13 +860,17 @@ func TestCallbackLogsGenericTerminalErrorWithoutSensitiveData(t *testing.T) {
 	)
 
 	require.ErrorIs(t, err, reserveErr)
+	require.Equal(t, "dota chat alert handler failed: match_ended", err.Error())
+	require.NotContains(t, err.Error(), channelID.String())
+	require.NotContains(t, err.Error(), template)
+	require.NotContains(t, err.Error(), renderedMessage)
 	records := logs.Records()
 	require.Len(t, records, 1)
 	require.Equal(t, "dota chat alert handler failed", records[0].message)
 	require.Equal(t, map[string]string{"event_kind": "match_ended"}, records[0].attrs)
-	require.NotContains(t, records[0].message, channelID.String())
-	require.NotContains(t, records[0].message, template)
-	require.NotContains(t, records[0].message, renderedMessage)
+	require.NotContains(t, fmt.Sprint(records), channelID.String())
+	require.NotContains(t, fmt.Sprint(records), template)
+	require.NotContains(t, fmt.Sprint(records), renderedMessage)
 }
 
 func TestPublishFailureLogsGenericCleanupFailure(t *testing.T) {
