@@ -21,6 +21,7 @@ import (
 	channel_title "github.com/twirapp/twir/apps/parser/internal/commands/channel/title"
 	"github.com/twirapp/twir/apps/parser/internal/commands/chat_wall"
 	"github.com/twirapp/twir/apps/parser/internal/commands/clip"
+	"github.com/twirapp/twir/apps/parser/internal/commands/dota2"
 	"github.com/twirapp/twir/apps/parser/internal/commands/dudes"
 	"github.com/twirapp/twir/apps/parser/internal/commands/games"
 	"github.com/twirapp/twir/apps/parser/internal/commands/manage"
@@ -72,11 +73,20 @@ type Opts struct {
 }
 
 func New(opts *Opts) *Commands {
+	dota2.LocalizeDescriptions(context.Background())
+
 	commands := lo.SliceToMap(
 		[]*types.DefaultCommand{
 			song.CurrentSong,
 			song.Playlist,
 			song.History,
+			dota2.Mmr,
+			dota2.MmrSet,
+			dota2.Wl,
+			dota2.Lg,
+			dota2.Gm,
+			dota2.Np,
+			dota2.Wp,
 			channel_game.SetCommand,
 			channel_game.History,
 			channel_title.SetCommand,

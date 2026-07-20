@@ -1,0 +1,42 @@
+descriptions:
+  mmr: Show current Dota 2 MMR and medal
+  mmr_set: Set Dota 2 MMR
+  wl: Show Dota 2 session wins, losses, and win rate
+  lg: Show the latest Dota 2 game
+  gm: Show the current Dota 2 medal
+  np: Show notable players in the active Dota 2 match
+  wp: Show radiant win probability in the active Dota 2 match
+errors:
+  settings_not_found: Dota 2 is not configured for this channel.
+  disabled: Dota 2 is disabled for this channel.
+  command_disabled: This Dota 2 command is disabled.
+  get_settings: Unable to read Dota 2 settings right now.
+  get_data: Unable to get Dota 2 data right now.
+  mmr_required: MMR is required.
+  mmr_negative: MMR cannot be negative.
+  update_mmr: Unable to update MMR right now.
+  no_last_game: No recent Dota 2 game is available.
+  no_active_match: No active Dota 2 match is available.
+  no_notable_players: No notable players found in the active match.
+hints:
+  mmr: MMR
+medals:
+  herald: Herald
+  guardian: Guardian
+  crusader: Crusader
+  archon: Archon
+  legend: Legend
+  ancient: Ancient
+  divine: Divine
+  immortal: Immortal
+outputs:
+  mmr: "MMR: {mmr} ({medal})"
+  wl: "{record} ({winRate})"
+  last_game: "Latest game: {hero}, {kda}, {result}, {duration}"
+  gm: "{medal}"
+  notable_players: "{players}"
+  win_probability: "Radiant win probability: {probability}"
+  win: Win
+  loss: Loss
+success:
+  mmr_updated: "MMR updated to {mmr}."
