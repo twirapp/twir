@@ -1,0 +1,32 @@
+{
+  "provider": {"name": "Dota 2", "appid": 570, "version": 47, "timestamp": 1721430000},
+  "auth": {"token": "test-token"},
+  "map": {
+    "name": "start",
+    "matchid": 7812345678,
+    "game_time": 754,
+    "clock_time": 720,
+    "game_state": "DOTA_GAMERULES_STATE_GAME_IN_PROGRESS",
+    "paused": false,
+    "win_team": "none",
+    "radiant_score": 12,
+    "dire_score": 8
+  },
+  "player": {
+    "steamid": "76561198000000000",
+    "account_id": 123456789,
+    "name": "Streamer",
+    "activity": "playing",
+    "kills": 3,
+    "deaths": 2,
+    "assists": 7,
+    "team_name": "radiant"
+  },
+  "hero": {"id": 1, "name": "npc_dota_hero_antimage", "level": 12},
+  "events": [
+    {"event_type": "roshan_killed", "killer_team": "radiant", "game_time": 700},
+    {"event_type": "aegis_picked_up", "player": 2, "game_time": 740}
+  ],
+  "added": {"map": {"radiant_score": true}},
+  "previously": {"map": {"radiant_score": 11}}
+}
