@@ -22,7 +22,9 @@
     "next": "Next",
     "previous": "Previous",
     "reset": "Reset",
-    "popout": "Popout in new window"
+    "popout": "Popout in new window",
+    "hide": "Hide",
+    "show": "Show"
   },
   "sharedTexts": {
     "saved": "Saved",
