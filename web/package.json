@@ -8,7 +8,8 @@
     "start": "bun --bun run .output/server/index.mjs",
     "generate": "bunx --bun nuxt generate",
     "preview": "bunx --bun nuxt preview",
-    "postinstall": "bunx --bun nuxt prepare",
+    "nuxt-prepare": "bunx --bun nuxt prepare",
+    "prebuild": "bun prepare",
     "graphql-codegen": "bunx --bun graphql-codegen",
     "shadcn-vue": "shadcn-vue"
   },
