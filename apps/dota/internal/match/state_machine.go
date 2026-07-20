@@ -37,6 +37,9 @@ const (
 	snapshotKeyPrefix = "cache:twir:dota:matchstate:"
 	snapshotTTL       = 6 * time.Hour
 
+	winProbabilityUpdateThreshold = 0.05
+	winProbabilityEpsilon         = 1e-9
+
 	heroNamePrefix = "npc_dota_hero_"
 
 	eventRoshanKilled = "roshan_killed"
@@ -273,6 +276,7 @@ func (m *StateMachine) Process(ctx context.Context, channelID uuid.UUID, payload
 func (m *StateMachine) UpdateWinProbability(
 	ctx context.Context,
 	channelID uuid.UUID,
+	expectedMatchID int64,
 	probability float64,
 ) error {
 	if math.IsNaN(probability) || math.IsInf(probability, 0) || probability < 0 || probability > 1 {
@@ -284,11 +288,11 @@ func (m *StateMachine) UpdateWinProbability(
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 
-	if !cs.snap.InGame || cs.snap.MatchID == 0 {
+	if !cs.snap.InGame || cs.snap.MatchID == 0 || cs.snap.MatchID != expectedMatchID {
 		return nil
 	}
 
-	if math.Abs(cs.snap.WinProbability-probability) < 0.05 {
+	if math.Abs(cs.snap.WinProbability-probability)+winProbabilityEpsilon < winProbabilityUpdateThreshold {
 		return nil
 	}
 

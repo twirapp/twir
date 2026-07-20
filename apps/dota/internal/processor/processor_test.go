@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -17,22 +19,84 @@ import (
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	"github.com/twirapp/twir/libs/repositories/dota/model"
+	"go.uber.org/fx"
 )
 
 type fakeWinProbabilityProvider struct {
 	probability float64
 	err         error
 	matchIDs    []int64
-	onCall      func()
+	callCh      chan int64
+	mu          sync.Mutex
+}
+
+type blockingWinProbabilityProvider struct {
+	probability float64
+	started     chan struct{}
+	release     chan struct{}
+	releaseOnce sync.Once
+	mu          sync.Mutex
+	calls       int
+}
+
+type fakeLifecycle struct {
+	hooks []fx.Hook
+}
+
+func (f *fakeLifecycle) Append(hook fx.Hook) {
+	f.hooks = append(f.hooks, hook)
+}
+
+func (f *blockingWinProbabilityProvider) WinProbability(
+	ctx context.Context,
+	_ int64,
+) (float64, error) {
+	f.mu.Lock()
+	f.calls++
+	f.mu.Unlock()
+
+	select {
+	case f.started <- struct{}{}:
+	case <-ctx.Done():
+		return 0, ctx.Err()
+	}
+
+	select {
+	case <-f.release:
+		return f.probability, nil
+	case <-ctx.Done():
+		return 0, ctx.Err()
+	}
+}
+
+func (f *blockingWinProbabilityProvider) Release() {
+	f.releaseOnce.Do(func() {
+		close(f.release)
+	})
+}
+
+func (f *blockingWinProbabilityProvider) Calls() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.calls
 }
 
 func (f *fakeWinProbabilityProvider) WinProbability(_ context.Context, matchID int64) (float64, error) {
+	f.mu.Lock()
 	f.matchIDs = append(f.matchIDs, matchID)
-	if f.onCall != nil {
-		f.onCall()
+	f.mu.Unlock()
+
+	if f.callCh != nil {
+		f.callCh <- matchID
 	}
 
 	return f.probability, f.err
+}
+
+func (f *fakeWinProbabilityProvider) MatchIDs() []int64 {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return append([]int64(nil), f.matchIDs...)
 }
 
 type fakeRepo struct {
@@ -92,8 +156,9 @@ func (f *fakeRepo) RegenerateGsiToken(
 }
 
 type fakeEmitter struct {
-	roshanErr    error
-	stateUpdates []busapi.DotaStateUpdateMessage
+	roshanErr     error
+	stateUpdates  []busapi.DotaStateUpdateMessage
+	stateUpdateCh chan busapi.DotaStateUpdateMessage
 }
 
 func (f *fakeEmitter) MatchStarted(_ context.Context, _ busdota.MatchStartedMessage) error {
@@ -114,6 +179,9 @@ func (f *fakeEmitter) AegisPickup(_ context.Context, _ busdota.AegisPickupMessag
 
 func (f *fakeEmitter) StateUpdate(_ context.Context, msg busapi.DotaStateUpdateMessage) error {
 	f.stateUpdates = append(f.stateUpdates, msg)
+	if f.stateUpdateCh != nil {
+		f.stateUpdateCh <- msg
+	}
 	return nil
 }
 
@@ -226,24 +294,110 @@ func inGamePayload(matchID int64) gsi.Payload {
 	}
 }
 
+func waitFor[T any](t *testing.T, ch <-chan T, description string) T {
+	t.Helper()
+
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
+
+	select {
+	case value := <-ch:
+		return value
+	case <-timer.C:
+		t.Fatalf("timed out waiting for %s", description)
+		var zero T
+		return zero
+	}
+}
+
+func TestProcessReturnsBeforeBlockedWinProbabilityAndCommitsResult(t *testing.T) {
+	sm, emitter, channelID := newStateMachine()
+	emitter.stateUpdateCh = make(chan busapi.DotaStateUpdateMessage, 2)
+	provider := &blockingWinProbabilityProvider{
+		probability: 0.625,
+		started:     make(chan struct{}, 1),
+		release:     make(chan struct{}),
+	}
+	t.Cleanup(provider.Release)
+	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
+
+	processDone := make(chan error, 1)
+	go func() {
+		processDone <- processor.Process(context.Background(), channelID, inGamePayload(2004))
+	}()
+
+	waitFor(t, provider.started, "win probability request to start")
+	initial := waitFor(t, emitter.stateUpdateCh, "initial state update")
+	require.Zero(t, initial.WinProbability)
+	require.NoError(t, waitFor(t, processDone, "Process to return"))
+
+	snapshot, err := sm.GetSnapshot(context.Background(), channelID)
+	require.NoError(t, err)
+	require.Zero(t, snapshot.WinProbability)
+
+	provider.Release()
+	update := waitFor(t, emitter.stateUpdateCh, "win probability state update")
+	require.Equal(t, 0.625, update.WinProbability)
+
+	snapshot, err = sm.GetSnapshot(context.Background(), channelID)
+	require.NoError(t, err)
+	require.Equal(t, int64(2004), snapshot.MatchID)
+	require.Equal(t, 0.625, snapshot.WinProbability)
+}
+
+func TestProcessCoalescesBlockedWinProbabilityFetches(t *testing.T) {
+	sm, emitter, channelID := newStateMachine()
+	emitter.stateUpdateCh = make(chan busapi.DotaStateUpdateMessage, 2)
+	provider := &blockingWinProbabilityProvider{
+		probability: 0.625,
+		started:     make(chan struct{}, 2),
+		release:     make(chan struct{}),
+	}
+	t.Cleanup(provider.Release)
+	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
+	payload := inGamePayload(2005)
+
+	require.NoError(t, processor.Process(context.Background(), channelID, payload))
+	waitFor(t, provider.started, "first win probability request to start")
+	waitFor(t, emitter.stateUpdateCh, "initial state update")
+	require.NoError(t, processor.Process(context.Background(), channelID, payload))
+
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
+	select {
+	case <-provider.started:
+		t.Fatal("started a duplicate win probability request")
+	case <-timer.C:
+	}
+	require.Equal(t, 1, provider.Calls())
+
+	provider.Release()
+	update := waitFor(t, emitter.stateUpdateCh, "win probability state update")
+	require.Equal(t, 0.625, update.WinProbability)
+}
+
 func TestProcessRefreshesWinProbabilityAfterProcessingLiveMatch(t *testing.T) {
 	sm, emitter, channelID := newStateMachine()
-	provider := &fakeWinProbabilityProvider{probability: 0.625}
-	processor := New(sm, provider, slog.Default())
+	emitter.stateUpdateCh = make(chan busapi.DotaStateUpdateMessage, 2)
+	provider := &fakeWinProbabilityProvider{
+		probability: 0.625,
+		callCh:      make(chan int64, 1),
+	}
+	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
 	ctx := context.Background()
 
-	provider.onCall = func() {
-		snapshot, err := sm.GetSnapshot(ctx, channelID)
-		require.NoError(t, err)
-		require.True(t, snapshot.InGame)
-		require.Equal(t, int64(2001), snapshot.MatchID)
-	}
-
 	require.NoError(t, processor.Process(ctx, channelID, inGamePayload(2001)))
-	require.Equal(t, []int64{2001}, provider.matchIDs)
+	initial := waitFor(t, emitter.stateUpdateCh, "initial state update")
+	require.Zero(t, initial.WinProbability)
+	require.Equal(t, int64(2001), waitFor(t, provider.callCh, "win probability request"))
+	update := waitFor(t, emitter.stateUpdateCh, "win probability state update")
+	require.Equal(t, 0.625, update.WinProbability)
+	require.Equal(t, []int64{2001}, provider.MatchIDs())
 
 	snapshot, err := sm.GetSnapshot(ctx, channelID)
 	require.NoError(t, err)
+	require.True(t, snapshot.InGame)
+	require.Equal(t, int64(2001), snapshot.MatchID)
 	require.Equal(t, 0.625, snapshot.WinProbability)
 	require.Len(t, emitter.stateUpdates, 2)
 	require.Equal(t, 0.625, emitter.stateUpdates[1].WinProbability)
@@ -251,11 +405,15 @@ func TestProcessRefreshesWinProbabilityAfterProcessingLiveMatch(t *testing.T) {
 
 func TestProcessKeepsGsiAvailableWhenWinProbabilityFails(t *testing.T) {
 	sm, emitter, channelID := newStateMachine()
-	provider := &fakeWinProbabilityProvider{err: errors.New("stratz unavailable")}
-	processor := New(sm, provider, slog.Default())
+	provider := &fakeWinProbabilityProvider{
+		err:    errors.New("stratz unavailable"),
+		callCh: make(chan int64, 1),
+	}
+	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
 
 	require.NoError(t, processor.Process(context.Background(), channelID, inGamePayload(2002)))
-	require.Equal(t, []int64{2002}, provider.matchIDs)
+	require.Equal(t, int64(2002), waitFor(t, provider.callCh, "win probability request"))
+	require.Equal(t, []int64{2002}, provider.MatchIDs())
 
 	snapshot, err := sm.GetSnapshot(context.Background(), channelID)
 	require.NoError(t, err)
@@ -269,11 +427,11 @@ func TestProcessReturnsStateMachineErrorBeforeWinProbability(t *testing.T) {
 	sm, emitter, channelID := newStateMachine()
 	emitter.roshanErr = errors.New("publish failed")
 	provider := &fakeWinProbabilityProvider{probability: 0.625}
-	processor := New(sm, provider, slog.Default())
+	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
 	payload := inGamePayload(2003)
 	payload.Events = []gsi.Event{{EventType: "roshan_killed", GameTime: 300}}
 
 	err := processor.Process(context.Background(), channelID, payload)
 	require.ErrorIs(t, err, emitter.roshanErr)
-	require.Empty(t, provider.matchIDs)
+	require.Empty(t, provider.MatchIDs())
 }
