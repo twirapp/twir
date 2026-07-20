@@ -1,0 +1,26 @@
+{
+  "provider": {"name": "Dota 2", "appid": 570, "version": 47, "timestamp": 1721433600},
+  "auth": {"token": "test-token"},
+  "map": {
+    "name": "start",
+    "matchid": 7812345678,
+    "game_time": 2712,
+    "clock_time": 2700,
+    "game_state": "DOTA_GAMERULES_STATE_POST_GAME",
+    "paused": false,
+    "win_team": "radiant",
+    "radiant_score": 42,
+    "dire_score": 31
+  },
+  "player": {
+    "steamid": "76561198000000000",
+    "account_id": 123456789,
+    "name": "Streamer",
+    "activity": "playing",
+    "kills": 11,
+    "deaths": 4,
+    "assists": 18,
+    "team_name": "radiant"
+  },
+  "hero": {"id": 1, "name": "npc_dota_hero_antimage", "level": 25}
+}

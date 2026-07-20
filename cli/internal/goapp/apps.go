@@ -18,6 +18,7 @@ var Apps = []*TwirGoApp{
 	{Name: "timers", DebugPort: 2352},
 	{Name: "websockets", DebugPort: 2353},
 	{Name: "scheduler", DebugPort: 2355},
+	{Name: "dota", DebugPort: 2360},
 	{
 		Name:      "api-gql",
 		Port:      lo.ToPtr(3009),

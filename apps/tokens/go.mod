@@ -4,8 +4,10 @@ go 1.26.1
 
 require (
 	github.com/go-redsync/redsync/v4 v4.14.1
+	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
+	github.com/scorfly/gokick v1.17.0
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/config v0.0.0-20251127124349-67ad7fa0003f
@@ -47,7 +49,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang/mock v1.7.0-rc.1 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.4 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -76,7 +77,6 @@ require (
 	github.com/samber/slog-multi v1.6.0 // indirect
 	github.com/samber/slog-sentry/v2 v2.10.1 // indirect
 	github.com/samber/slog-zerolog/v2 v2.9.0 // indirect
-	github.com/scorfly/gokick v1.17.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twirapp/kv v0.5.1 // indirect

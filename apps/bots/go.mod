@@ -26,9 +26,10 @@ require (
 	cloud.google.com/go/translate v1.12.7
 	github.com/avast/retry-go/v4 v4.7.0
 	github.com/diamondburned/arikawa/v3 v3.6.0
-	github.com/guregu/null v4.0.0+incompatible
 	github.com/lkretschmer/deepl-go v0.3.0
 	github.com/raitonoberu/ytsearch v0.2.0
+	github.com/scorfly/gokick v1.17.0
+	github.com/stretchr/testify v1.11.1
 	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251217140736-48670d138d86
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251217140736-48670d138d86
@@ -58,6 +59,7 @@ require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.2 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/exaring/otelpgx v0.9.3 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/getsentry/sentry-go v0.42.0 // indirect
@@ -71,6 +73,7 @@ require (
 	github.com/gorilla/schema v1.4.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.4 // indirect
+	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.6 // indirect
@@ -89,6 +92,7 @@ require (
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.17.1 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.17.1 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect
@@ -97,7 +101,6 @@ require (
 	github.com/samber/slog-sentry/v2 v2.10.1 // indirect
 	github.com/samber/slog-zerolog/v2 v2.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/scorfly/gokick v1.17.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twirapp/twir/libs/audit v0.0.0-20251217140736-48670d138d86 // indirect
@@ -129,6 +132,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect
 	google.golang.org/grpc v1.78.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
 
