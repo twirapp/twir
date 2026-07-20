@@ -91,6 +91,10 @@ func setCached(ctx context.Context, kvStore kv.KV, key string, ttl time.Duration
 }
 
 func (s *Stats) WinProbability(ctx context.Context, matchID int64) (float64, error) {
+	if s.stratz == nil || !s.stratz.Enabled() {
+		return 0, nil
+	}
+
 	key := winProbabilityCachePrefix + strconv.FormatInt(matchID, 10)
 
 	cached, hit, err := getCached[float64](ctx, s.kv, key)
@@ -98,10 +102,6 @@ func (s *Stats) WinProbability(ctx context.Context, matchID int64) (float64, err
 		s.logger.Warn("failed to read win probability cache", slog.Any("err", err))
 	} else if hit {
 		return cached, nil
-	}
-
-	if s.stratz == nil || !s.stratz.Enabled() {
-		return 0, nil
 	}
 
 	probability, err := s.stratz.WinProbability(ctx, matchID)
@@ -126,7 +126,7 @@ func (s *Stats) NotablePlayers(
 	matchID int64,
 	streamerAccountID string,
 ) ([]string, error) {
-	key := notablePlayersCachePrefix + strconv.FormatInt(matchID, 10)
+	key := notablePlayersCachePrefix + strconv.FormatInt(matchID, 10) + ":" + streamerAccountID
 
 	cached, hit, err := getCached[[]string](ctx, s.kv, key)
 	if err != nil {
@@ -222,11 +222,11 @@ func (s *Stats) LastGame(ctx context.Context, accountID int64) (*LastGame, error
 
 	heroes, err := s.heroes(ctx)
 	if err != nil {
-		s.logger.Warn(
-			"failed to fetch heroes, hero name will be unknown",
+		s.logger.Error(
+			"failed to fetch heroes",
 			slog.Any("err", err),
 		)
-		heroes = map[int]string{}
+		return nil, err
 	}
 
 	last := matches[0]

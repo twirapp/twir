@@ -112,8 +112,7 @@ func (c *Client) RecentMatches(ctx context.Context, accountID int64) ([]RecentMa
 }
 
 func (c *Client) Heroes(ctx context.Context) (map[int]string, error) {
-	var heroes []struct {
-		ID            int    `json:"id"`
+	var heroes map[int]struct {
 		LocalizedName string `json:"localized_name"`
 	}
 	if err := c.get(ctx, "/constants/heroes", &heroes); err != nil {
@@ -121,8 +120,8 @@ func (c *Client) Heroes(ctx context.Context) (map[int]string, error) {
 	}
 
 	result := make(map[int]string, len(heroes))
-	for _, hero := range heroes {
-		result[hero.ID] = hero.LocalizedName
+	for id, hero := range heroes {
+		result[id] = hero.LocalizedName
 	}
 
 	return result, nil

@@ -205,6 +205,7 @@ type opendotaMock struct {
 	server         *httptest.Server
 	recentRequests atomic.Int32
 	heroesRequests atomic.Int32
+	heroesStatus   atomic.Int32
 	proRequests    atomic.Int32
 }
 
@@ -232,13 +233,18 @@ func newOpendotaMock(t *testing.T) *opendotaMock {
 		"GET /constants/heroes",
 		func(w http.ResponseWriter, _ *http.Request) {
 			mock.heroesRequests.Add(1)
+			if status := mock.heroesStatus.Load(); status != 0 {
+				http.Error(w, "heroes unavailable", int(status))
+				return
+			}
+
 			w.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(
 				w,
-				`[
-					{"id":1,"name":"npc_dota_hero_antimage","localized_name":"Anti-Mage"},
-					{"id":2,"name":"npc_dota_hero_axe","localized_name":"Axe"}
-				]`,
+				`{
+					"1":{"id":1,"name":"npc_dota_hero_antimage","localized_name":"Anti-Mage"},
+					"2":{"id":2,"name":"npc_dota_hero_axe","localized_name":"Axe"}
+				}`,
 			)
 		},
 	)
@@ -302,6 +308,25 @@ func TestLastGame_ParsesMatchAndResolvesHero(t *testing.T) {
 
 	if opendotaMock.recentRequests.Load() != 1 {
 		t.Errorf("expected 1 recentMatches request, got %d", opendotaMock.recentRequests.Load())
+	}
+	if opendotaMock.heroesRequests.Load() != 1 {
+		t.Errorf("expected 1 heroes request, got %d", opendotaMock.heroesRequests.Load())
+	}
+}
+
+func TestLastGame_ReturnsHeroLookupError(t *testing.T) {
+	stats, _, opendotaMock, _ := newTestStats(t, "test-token")
+	opendotaMock.heroesStatus.Store(http.StatusInternalServerError)
+
+	game, err := stats.LastGame(context.Background(), 42)
+	if err == nil {
+		t.Fatal("expected LastGame to return the heroes error")
+	}
+	if game != nil {
+		t.Errorf("expected nil game, got %+v", game)
+	}
+	if opendotaMock.recentRequests.Load() != 1 {
+		t.Errorf("expected 1 successful recentMatches request, got %d", opendotaMock.recentRequests.Load())
 	}
 	if opendotaMock.heroesRequests.Load() != 1 {
 		t.Errorf("expected 1 heroes request, got %d", opendotaMock.heroesRequests.Load())
@@ -394,6 +419,32 @@ func TestWinProbability_StratzDisabled(t *testing.T) {
 	}
 }
 
+func TestWinProbability_StratzDisabledBypassesCache(t *testing.T) {
+	stats, stratzMock, _, kvStore := newTestStats(t, "")
+	ctx := context.Background()
+
+	if err := setCached(
+		ctx,
+		kvStore,
+		winProbabilityCachePrefix+"777",
+		winProbabilityCacheTTL,
+		0.625,
+	); err != nil {
+		t.Fatalf("failed to populate win probability cache: %v", err)
+	}
+
+	probability, err := stats.WinProbability(ctx, 777)
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if probability != 0 {
+		t.Errorf("expected 0 probability, got %v", probability)
+	}
+	if stratzMock.winProbRequests.Load() != 0 {
+		t.Error("disabled stratz client must not hit the server")
+	}
+}
+
 func TestStratzClient_DisabledReturnsErrDisabled(t *testing.T) {
 	client := stratz.New("")
 
@@ -444,6 +495,32 @@ func TestNotablePlayers_CrossReferencesAndExcludesStreamer(t *testing.T) {
 			"expected 1 proPlayers request, got %d",
 			opendotaMock.proRequests.Load(),
 		)
+	}
+}
+
+func TestNotablePlayers_CacheKeyIncludesStreamerAccountID(t *testing.T) {
+	stats, _, _, _ := newTestStats(t, "test-token")
+	ctx := context.Background()
+
+	first, err := stats.NotablePlayers(ctx, 555, "300")
+	if err != nil {
+		t.Fatalf("first NotablePlayers call returned error: %v", err)
+	}
+	if len(first) != 1 || first[0] != "Miracle-" {
+		t.Fatalf("unexpected first notable players result: %v", first)
+	}
+
+	second, err := stats.NotablePlayers(ctx, 555, "100")
+	if err != nil {
+		t.Fatalf("second NotablePlayers call returned error: %v", err)
+	}
+	if len(second) != 1 || second[0] != "StreamerProName" {
+		t.Fatalf("unexpected second notable players result: %v", second)
+	}
+	for _, name := range second {
+		if name == "Miracle-" {
+			t.Error("second result included account 100")
+		}
 	}
 }
 
