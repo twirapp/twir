@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/dota/internal/buslistener"
+	"github.com/twirapp/twir/apps/dota/internal/chatalerts"
 	"github.com/twirapp/twir/apps/dota/internal/gsi"
 	"github.com/twirapp/twir/apps/dota/internal/match"
 	"github.com/twirapp/twir/apps/dota/internal/processor"
@@ -45,10 +46,12 @@ var App = fx.Module(
 		),
 		gsi.New,
 		buslistener.New,
+		chatalerts.New,
 	),
 	fx.Invoke(
 		otel.NewFx("dota"),
 		func(*buslistener.BusListener) {},
+		func(*chatalerts.ChatAlerts) {},
 		func(s *gsi.Server, lc fx.Lifecycle) {
 			lc.Append(fx.Hook{
 				OnStart: func(_ context.Context) error { return s.Start() },
