@@ -9,7 +9,11 @@ import (
 	"time"
 )
 
-const defaultBaseURL = "https://api.opendota.com/api"
+const (
+	defaultBaseURL               = "https://api.opendota.com/api"
+	maxResponseBodyBytes         = 1 << 20
+	maxErrorResponsePreviewBytes = 4 << 10
+)
 
 type RecentMatch struct {
 	MatchID    int64 `json:"match_id"`
@@ -38,6 +42,12 @@ type ProPlayer struct {
 	Name      string `json:"name"`
 	TeamName  string `json:"team_name"`
 	TeamTag   string `json:"team_tag"`
+}
+
+type PlayerHero struct {
+	HeroID int `json:"hero_id"`
+	Games  int `json:"games"`
+	Win    int `json:"win"`
 }
 
 type Client struct {
@@ -86,13 +96,22 @@ func (c *Client) get(ctx context.Context, path string, out any) error {
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseBodyBytes+1))
 	if err != nil {
 		return fmt.Errorf("opendota: failed to read response body: %w", err)
 	}
+	if len(body) > maxResponseBodyBytes {
+		return fmt.Errorf("opendota: response body exceeds %d bytes", maxResponseBodyBytes)
+	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("opendota: unexpected status %d: %s", resp.StatusCode, string(body))
+		preview := body
+		if len(preview) > maxErrorResponsePreviewBytes {
+			preview = preview[:maxErrorResponsePreviewBytes]
+			return fmt.Errorf("opendota: unexpected status %d: %s...", resp.StatusCode, preview)
+		}
+
+		return fmt.Errorf("opendota: unexpected status %d: %s", resp.StatusCode, preview)
 	}
 
 	if err := json.Unmarshal(body, out); err != nil {
@@ -109,6 +128,15 @@ func (c *Client) RecentMatches(ctx context.Context, accountID int64) ([]RecentMa
 	}
 
 	return matches, nil
+}
+
+func (c *Client) PlayerHeroes(ctx context.Context, accountID int64) ([]PlayerHero, error) {
+	var heroes []PlayerHero
+	if err := c.get(ctx, fmt.Sprintf("/players/%d/heroes", accountID), &heroes); err != nil {
+		return nil, err
+	}
+
+	return heroes, nil
 }
 
 func (c *Client) Heroes(ctx context.Context) (map[int]string, error) {

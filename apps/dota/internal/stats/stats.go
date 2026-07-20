@@ -126,6 +126,10 @@ func (s *Stats) NotablePlayers(
 	matchID int64,
 	streamerAccountID string,
 ) ([]string, error) {
+	if s.stratz == nil || !s.stratz.Enabled() {
+		return nil, nil
+	}
+
 	key := notablePlayersCachePrefix + strconv.FormatInt(matchID, 10) + ":" + streamerAccountID
 
 	cached, hit, err := getCached[[]string](ctx, s.kv, key)
@@ -133,10 +137,6 @@ func (s *Stats) NotablePlayers(
 		s.logger.Warn("failed to read notable players cache", slog.Any("err", err))
 	} else if hit {
 		return cached, nil
-	}
-
-	if s.stratz == nil || !s.stratz.Enabled() {
-		return nil, nil
 	}
 
 	notables, err := s.stratz.NotablePlayers(ctx, matchID)

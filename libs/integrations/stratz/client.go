@@ -11,7 +11,11 @@ import (
 	"time"
 )
 
-const defaultBaseURL = "https://api.stratz.com/graphql"
+const (
+	defaultBaseURL               = "https://api.stratz.com/graphql"
+	maxResponseBodyBytes         = 1 << 20
+	maxErrorResponsePreviewBytes = 4 << 10
+)
 
 var ErrDisabled = errors.New("stratz integration is disabled")
 
@@ -100,13 +104,22 @@ func (c *Client) do(ctx context.Context, query string, variables map[string]any,
 	}
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseBodyBytes+1))
 	if err != nil {
 		return fmt.Errorf("stratz: failed to read response body: %w", err)
 	}
+	if len(respBody) > maxResponseBodyBytes {
+		return fmt.Errorf("stratz: response body exceeds %d bytes", maxResponseBodyBytes)
+	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("stratz: unexpected status %d: %s", resp.StatusCode, string(respBody))
+		preview := respBody
+		if len(preview) > maxErrorResponsePreviewBytes {
+			preview = preview[:maxErrorResponsePreviewBytes]
+			return fmt.Errorf("stratz: unexpected status %d: %s...", resp.StatusCode, preview)
+		}
+
+		return fmt.Errorf("stratz: unexpected status %d: %s", resp.StatusCode, preview)
 	}
 
 	var envelope struct {
@@ -134,7 +147,7 @@ func (c *Client) do(ctx context.Context, query string, variables map[string]any,
 
 // Stratz live match schema is not publicly versioned; the query below targets
 // live.match.liveWinRateValues which is the closest documented shape for live
-// win rate values. Values arrive as a 0-100 percentage for the radiant side.
+// win rate values. Values can be probabilities or 0-100 percentages.
 const winProbabilityQuery = `
 query ($matchId: Long!) {
   live {
@@ -167,8 +180,14 @@ func (c *Client) WinProbability(ctx context.Context, matchID int64) (float64, er
 	values := data.Live.Match.LiveWinRateValues
 	winRate := values[len(values)-1].WinRate
 
-	if winRate > 1 {
-		winRate /= 100
+	if winRate < 0 || winRate > 100 {
+		return 0, fmt.Errorf("stratz: win rate %v is out of range for match %d", winRate, matchID)
+	}
+
+	for _, value := range values {
+		if value.WinRate > 1 {
+			return winRate / 100, nil
+		}
 	}
 
 	return winRate, nil

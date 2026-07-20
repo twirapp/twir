@@ -538,3 +538,29 @@ func TestNotablePlayers_StratzDisabled(t *testing.T) {
 		t.Error("disabled stratz client must not hit the server")
 	}
 }
+
+func TestNotablePlayers_StratzDisabledBypassesCache(t *testing.T) {
+	stats, stratzMock, _, kvStore := newTestStats(t, "")
+	ctx := context.Background()
+
+	if err := setCached(
+		ctx,
+		kvStore,
+		notablePlayersCachePrefix+"555:300",
+		notablePlayersCacheTTL,
+		[]string{"cached pro"},
+	); err != nil {
+		t.Fatalf("failed to populate notable players cache: %v", err)
+	}
+
+	names, err := stats.NotablePlayers(ctx, 555, "300")
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if names != nil {
+		t.Errorf("expected nil names, got %v", names)
+	}
+	if stratzMock.notableRequests.Load() != 0 {
+		t.Error("disabled stratz client must not hit the server")
+	}
+}
