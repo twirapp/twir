@@ -9,8 +9,8 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 
+	"github.com/twirapp/twir/libs/bus-core/api"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/samber/lo"
@@ -46,7 +46,7 @@ var WrongCommand = &types.DefaultCommand{
 			Where(
 				`"channelId" = ?::uuid AND "orderedById" = ? AND "deletedAt" IS NULL`,
 				parseCtx.Channel.DBChannelID,
-				parseCtx.Sender.ID,
+				parseCtx.Sender.DbUser.ID,
 			).
 			Limit(5).
 			Order(`"createdAt" desc`).
@@ -92,19 +92,13 @@ var WrongCommand = &types.DefaultCommand{
 			}
 		}
 
-		_, err = parseCtx.Services.GrpcClients.WebSockets.YoutubeRemoveSongToQueue(
+		parseCtx.Services.Bus.Api.SongRequestRemoveFromQueue.Publish(
 			ctx,
-			&websockets.YoutubeRemoveSongFromQueueRequest{
-				ChannelId: parseCtx.Channel.DBChannelID,
-				EntityId:  choosedSong.ID,
+			api.SongRequestRemoveFromQueue{
+				ChannelID: parseCtx.Channel.DBChannelID,
+				VideoID:   choosedSong.VideoID,
 			},
 		)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.RemoveSongFromQueue),
-				Err:     err,
-			}
-		}
 
 		result.Result = append(
 			result.Result,

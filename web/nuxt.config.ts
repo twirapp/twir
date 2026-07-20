@@ -5,6 +5,8 @@ import process from 'node:process'
 import tailwindcss from '@tailwindcss/vite'
 import { createResolver } from 'nuxt/kit'
 
+import { lodashMonacoTypesPlugin } from './lodash-monaco-types.vite'
+
 const { resolve } = createResolver(import.meta.url)
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -63,9 +65,14 @@ export default defineNuxtConfig({
 		defaultLocale: 'en',
 	},
 
+	extends: [
+		'./layers/widgets',
+	],
+
 	routeRules: {
 		'/dashboard': { ssr: false },
 		'/dashboard/**': { ssr: false },
+		'/w/**': { ssr: false },
 		...Object.fromEntries(
 			localeCodes.flatMap((l) => [
 				[`/${l}/dashboard`, { ssr: false }],
@@ -150,7 +157,7 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
-		plugins: [diagnosticsPlugin, tailwindcss()],
+		plugins: [diagnosticsPlugin, lodashMonacoTypesPlugin(), tailwindcss()],
 		optimizeDeps: {
 			exclude: ['@twir/frontend-chat'],
 			include: [
@@ -306,6 +313,7 @@ export default defineNuxtConfig({
 			'/**/import/**',
 			'/**/settings',
 			'/**/settings/**',
+			'/w/**',
 		],
 	},
 

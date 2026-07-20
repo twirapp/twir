@@ -49,7 +49,8 @@ SELECT
 	c."isTwitchBanned",
 	c."isBotMod",
 	c."botId",
-	c.kick_bot_id
+	c.kick_bot_id,
+	c.api_key
 FROM channels c
 LEFT JOIN users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'
 LEFT JOIN users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'`
@@ -91,7 +92,8 @@ SELECT
 	i."isTwitchBanned",
 	i."isBotMod",
 	i."botId",
-	i.kick_bot_id
+	i.kick_bot_id,
+	i.api_key
 FROM inserted i
 LEFT JOIN users tu ON tu.id = i.twitch_user_id AND tu.platform = 'twitch'
 LEFT JOIN users ku ON ku.id = i.kick_user_id AND ku.platform = 'kick'`
@@ -286,7 +288,8 @@ SELECT
 	u."isTwitchBanned",
 	u."isBotMod",
 	u."botId",
-	u.kick_bot_id
+	u.kick_bot_id,
+	u.api_key
 FROM updated u
 LEFT JOIN users tu ON tu.id = u.twitch_user_id AND tu.platform = 'twitch'
 LEFT JOIN users ku ON ku.id = u.kick_user_id AND ku.platform = 'kick'`

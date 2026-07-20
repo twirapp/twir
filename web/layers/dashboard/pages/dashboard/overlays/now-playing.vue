@@ -47,9 +47,9 @@ const openedTab = ref<string>()
 
 async function handleAdd() {
 	const input = { ...defaultSettings }
-	// @ts-expect-error
+	// @ts-expect-error: Create input excludes the persisted channel ID.
 	delete input.channelId
-	// @ts-expect-error
+	// @ts-expect-error: Create input excludes the persisted overlay ID.
 	delete input.id
 
 	await creator.executeMutation({
@@ -94,6 +94,8 @@ const { data: currentTrackSub } = useSubscription({
 				title
 				artist
 				imageUrl
+				progressMs
+				durationMs
 			}
 		}
 	`),
@@ -109,6 +111,8 @@ const defaultNowPlayingTrack = {
 	imageUrl: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
 	artist: 'Slipknot',
 	title: 'Psychosocial',
+	progressMs: 70_000,
+	durationMs: 238_000,
 }
 
 const nowPlayingTrack = computed(() => {
@@ -117,6 +121,8 @@ const nowPlayingTrack = computed(() => {
 			imageUrl: currentTrackSub.value.nowPlayingCurrentTrack.imageUrl,
 			artist: currentTrackSub.value.nowPlayingCurrentTrack.artist,
 			title: currentTrackSub.value.nowPlayingCurrentTrack.title,
+			progressMs: currentTrackSub.value.nowPlayingCurrentTrack.progressMs,
+			durationMs: currentTrackSub.value.nowPlayingCurrentTrack.durationMs,
 		}
 	}
 

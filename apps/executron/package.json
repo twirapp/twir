@@ -10,6 +10,7 @@
     "@isolated-vm/experimental": "0.0.9",
     "@twir/bus-core": "workspace:*",
     "@twir/config": "workspace:*",
+    "lodash": "4.17.21",
     "nats": "2.22.0"
   },
   "devDependencies": {

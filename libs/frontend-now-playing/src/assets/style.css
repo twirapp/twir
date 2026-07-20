@@ -2,11 +2,70 @@
 	animation: marque 10s linear infinite;
 }
 
+.np-palette-surface {
+	transition:
+		background-color 300ms ease,
+		color 300ms ease,
+		box-shadow 300ms ease;
+}
+
+.np-progress {
+	position: relative;
+	height: clamp(0.25rem, 1.2cqi, 0.375rem);
+	overflow: hidden;
+	border-radius: 999px;
+	background-color: color-mix(in srgb, var(--np-muted) 22%, transparent);
+}
+
+.np-progress::after {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: var(--track-progress, 0%);
+	border-radius: inherit;
+	background-color: var(--np-accent);
+	content: '';
+	transition:
+		width 1s linear,
+		background-color 300ms ease;
+}
+
+.np-progress[data-mode='ambient']::after {
+	width: 42%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		color-mix(in srgb, var(--np-accent) 70%, transparent),
+		transparent
+	);
+	animation: np-progress-sweep 2.8s ease-in-out infinite;
+}
+
 @keyframes marque {
 	0% {
 		transform: translateX(0);
 	}
 	100% {
 		transform: translateX(-100%);
+	}
+}
+
+@keyframes np-progress-sweep {
+	0% {
+		transform: translateX(-120%);
+	}
+	100% {
+		transform: translateX(340%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.marque,
+	.np-progress[data-mode='ambient']::after {
+		animation: none;
+	}
+
+	.np-palette-surface,
+	.np-progress::after {
+		transition: none;
 	}
 }

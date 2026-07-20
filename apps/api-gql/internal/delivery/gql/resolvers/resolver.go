@@ -59,6 +59,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
+	songrequestoverlaysettings "github.com/twirapp/twir/apps/api-gql/internal/services/song_request_overlay_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
@@ -149,6 +150,8 @@ type Deps struct {
 	ChannelsEmotesUsagesService           *channels_emotes_usages.Service
 	TTSService                            *tts.Service
 	SongRequestsService                   *song_requests.Service
+	SongRequestPlaybackStateService       *song_requests.PlaybackStateService
+	SongRequestOverlaySettingsService     *songrequestoverlaysettings.Service
 	CommunityRedemptionsService           *community_redemptions.Service
 	StreamElementsService                 *streamelements.Service
 	DashboardService                      *dashboard.Service

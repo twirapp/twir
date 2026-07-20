@@ -166,6 +166,10 @@ func (m *mockChannelsRepo) Create(_ context.Context, _ channelsrepository.Create
 	return m.channel, m.err
 }
 
+func (m *mockChannelsRepo) GetByApiKey(_ context.Context, _ string) (channelsmodel.Channel, error) {
+	return m.channel, m.err
+}
+
 type mockStreamsRepo struct {
 	stream      streamsmodel.Stream
 	err         error

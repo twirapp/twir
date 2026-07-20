@@ -574,13 +574,31 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				time.Second,
 				GobEncoder,
 			),
-			TriggerObsCommand: NewNatsQueue[api.TriggerObsCommand, struct{}](
-				nc,
-				api.TriggerObsCommandSubject,
-				time.Second,
-				GobEncoder,
-			),
-		},
+		TriggerObsCommand: NewNatsQueue[api.TriggerObsCommand, struct{}](
+			nc,
+			api.TriggerObsCommandSubject,
+			time.Second,
+			GobEncoder,
+		),
+		SongRequestAddToQueue: NewNatsQueue[api.SongRequestAddToQueue, struct{}](
+			nc,
+			api.SongRequestAddToQueueSubject,
+			time.Second,
+			GobEncoder,
+		),
+		SongRequestRemoveFromQueue: NewNatsQueue[api.SongRequestRemoveFromQueue, struct{}](
+			nc,
+			api.SongRequestRemoveFromQueueSubject,
+			time.Second,
+			GobEncoder,
+		),
+		SongRequestPlaybackState: NewNatsQueue[api.SongRequestPlaybackState, struct{}](
+			nc,
+			api.SongRequestPlaybackStateSubject,
+			time.Second,
+			GobEncoder,
+		),
+	},
 
 		CacheInvalidator: NewNatsQueue[cache_invalidator.InvalidateRequest, struct{}](
 			nc,

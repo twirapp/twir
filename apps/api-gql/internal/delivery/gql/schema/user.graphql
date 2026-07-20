@@ -37,6 +37,7 @@ type AuthenticatedUser implements TwirUser {
 	isEnabled: Boolean
 	isBotModerator: Boolean
 	apiKey: String!
+	channelApiKey: String!
 	hideOnLandingPage: Boolean!
 	botId: ID
 	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
@@ -57,6 +58,7 @@ type Dashboard {
 	apiKey: String!
 	planId: String
 	plan: Plan @goField(forceResolver: true)
+	channelApiKey: String!
 }
 
 type Plan {

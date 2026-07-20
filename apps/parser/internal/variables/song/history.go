@@ -39,12 +39,22 @@ var History = &types.Variable{
 		// Try to get lastfm integration from the new repository
 		var lastfmService *lastfm.Lastfm
 		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
-		if err == nil && !lastfmIntegration.IsNil() && lastfmIntegration.Enabled && lastfmIntegration.SessionKey != nil {
+		if err == nil && !lastfmIntegration.IsNil() && lastfmIntegration.Enabled {
+			var sessionKey, userName string
+			if lastfmIntegration.SessionKey != nil {
+				sessionKey = *lastfmIntegration.SessionKey
+			}
+			if lastfmIntegration.UserName != nil {
+				userName = *lastfmIntegration.UserName
+			}
+
 			i, err := lastfm.New(
+				ctx,
 				lastfm.Opts{
 					ApiKey:       parseCtx.Services.Config.LastFM.ApiKey,
 					ClientSecret: parseCtx.Services.Config.LastFM.ClientSecret,
-					SessionKey:   *lastfmIntegration.SessionKey,
+					SessionKey:   sessionKey,
+					UserName:     userName,
 				},
 			)
 			if err == nil {
@@ -79,7 +89,7 @@ var History = &types.Variable{
 		recentTracks := make(map[string]recentTrack)
 
 		if lastfmService != nil {
-			lfmTracks, err := lastfmService.GetRecentTracks(limit)
+			lfmTracks, err := lastfmService.GetRecentTracks(ctx, limit)
 			if err != nil {
 				result.Result = i18n.GetCtx(
 					ctx,

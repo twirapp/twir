@@ -62,6 +62,10 @@ func (m *mockChannelsRepoWebhook) Create(_ context.Context, _ channels.CreateInp
 	return channelsmodel.Nil, nil
 }
 
+func (m *mockChannelsRepoWebhook) GetByApiKey(_ context.Context, _ string) (channelsmodel.Channel, error) {
+	return channelsmodel.Nil, nil
+}
+
 type mockUsersRepoWebhook struct {
 	user usersmodel.User
 	err  error

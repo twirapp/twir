@@ -81,6 +81,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
+	songrequestoverlaysettings "github.com/twirapp/twir/apps/api-gql/internal/services/song_request_overlay_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
@@ -214,6 +215,8 @@ import (
 
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	songrequestoverlaysettingsrepository "github.com/twirapp/twir/libs/repositories/song_request_overlay_settings"
+	songrequestoverlaysettingspgx "github.com/twirapp/twir/libs/repositories/song_request_overlay_settings/pgx"
 
 	channelsgiveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
 	channelsgiveawaysrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways/pgx"
@@ -554,6 +557,10 @@ func main() {
 				commandrolecooldownpgx.NewFx,
 				fx.As(new(command_role_cooldown.Repository)),
 			),
+			fx.Annotate(
+				songrequestoverlaysettingspgx.NewFx,
+				fx.As(new(songrequestoverlaysettingsrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -595,6 +602,8 @@ func main() {
 			channels_secret.New,
 			channels_storage.New,
 			song_requests.New,
+			song_requests.NewPlaybackStateService,
+			songrequestoverlaysettings.New,
 			community_redemptions.New,
 			streamelements.New,
 			dashboard.New,
@@ -684,6 +693,7 @@ func main() {
 			httpbase.RegisterRoutes,
 			authroutes.New,
 			channelsfilesroute.New,
+			song_requests.NewBridge,
 			valorant.New,
 			stream.New,
 			func(l *slog.Logger) {

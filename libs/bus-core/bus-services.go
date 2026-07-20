@@ -140,7 +140,10 @@ type apiBus struct {
 	TriggerBrbStop    Queue[api.TriggerBrbStop, struct{}]
 	TriggerTtsSay     Queue[api.TriggerTtsSay, struct{}]
 	TriggerTtsSkip    Queue[api.TriggerTtsSkip, struct{}]
-	TriggerObsCommand Queue[api.TriggerObsCommand, struct{}]
+	TriggerObsCommand          Queue[api.TriggerObsCommand, struct{}]
+	SongRequestAddToQueue      Queue[api.SongRequestAddToQueue, struct{}]
+	SongRequestRemoveFromQueue Queue[api.SongRequestRemoveFromQueue, struct{}]
+	SongRequestPlaybackState   Queue[api.SongRequestPlaybackState, struct{}]
 }
 
 type discordBus struct {

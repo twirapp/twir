@@ -55,6 +55,10 @@ func (f *fakeChannelsRepo) Create(context.Context, channelsrepo.CreateInput) (ch
 	return channelsmodel.Nil, nil
 }
 
+func (f *fakeChannelsRepo) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {
+	return channelsmodel.Nil, nil
+}
+
 func TestResolveTwitchSubscriptionIdentities(t *testing.T) {
 	twitchPlatformID := "tw-123"
 	botID := "bot-456"

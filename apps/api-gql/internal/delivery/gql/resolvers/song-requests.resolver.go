@@ -12,7 +12,10 @@ import (
 	"log/slog"
 	"strings"
 	"sync"
+	"time"
 
+	gojson "github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/raitonoberu/ytsearch"
 	"github.com/samber/lo"
@@ -22,8 +25,15 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	songrequestoverlaysettings "github.com/twirapp/twir/apps/api-gql/internal/services/song_request_overlay_settings"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/libs/audit"
+	"github.com/twirapp/twir/libs/bus-core/api"
+	songrequestoverlaysettingsentity "github.com/twirapp/twir/libs/entities/song_request_overlay_settings"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/logger"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"gorm.io/gorm"
 )
 
@@ -97,6 +107,7 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		TranslationsSongMaximumOrdered:       opts.Translations.Song.MaximumOrdered,
 		TranslationsSongMinViews:             opts.Translations.Song.MinViews,
 		TranslationsChannelDenied:            opts.Translations.Channel.Denied,
+		Volume:                               opts.Volume,
 	}
 
 	err = r.deps.Gorm.WithContext(ctx).Save(&entity).Error
@@ -125,6 +136,206 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 	return true, nil
 }
 
+// SongRequestPlay is the resolver for the songRequestPlay field.
+func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.UUID, videoID string) (bool, error) {
+	channelIDStr := channelID.String()
+
+	var song model.RequestedSong
+	if err := r.deps.Gorm.WithContext(ctx).
+		Where(`"videoId" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, videoID, channelIDStr).
+		First(&song).Error; err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("song not found: %w", err))
+	}
+
+	// If same video is already playing, do nothing
+	currentState, _ := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
+	if currentState != nil && currentState.VideoID == videoID && currentState.IsPlaying {
+		return true, nil
+	}
+
+	// If resuming from pause, keep paused position
+	var position float64
+	if currentState != nil && currentState.VideoID == videoID {
+		position = currentState.Position
+	}
+
+	volume := getSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr)
+	if err := r.deps.SongRequestPlaybackStateService.SetPlaying(ctx, channelIDStr, videoID, song.Title, position, volume); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to set playing: %w", err))
+	}
+
+	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
+
+	return true, nil
+}
+
+// SongRequestPause is the resolver for the songRequestPause field.
+func (r *mutationResolver) SongRequestPause(ctx context.Context, channelID uuid.UUID) (bool, error) {
+	channelIDStr := channelID.String()
+
+	if err := r.deps.SongRequestPlaybackStateService.SetPaused(ctx, channelIDStr); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to pause: %w", err))
+	}
+
+	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
+
+	return true, nil
+}
+
+// SongRequestSkip is the resolver for the songRequestSkip field.
+func (r *mutationResolver) SongRequestSkip(ctx context.Context, channelID uuid.UUID) (bool, error) {
+	channelIDStr := channelID.String()
+
+	state, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
+	if err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to get state: %w", err))
+	}
+
+	if state != nil {
+		now := time.Now()
+		if err := r.deps.Gorm.WithContext(ctx).
+			Model(&model.RequestedSong{}).
+			Where(`"videoId" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, state.VideoID, channelIDStr).
+			Update("deletedAt", now).Error; err != nil {
+			return false, gqlerrors.HandleError(fmt.Errorf("failed to soft-delete song: %w", err))
+		}
+
+		_ = r.deps.TwirBus.Api.SongRequestRemoveFromQueue.Publish(ctx, api.SongRequestRemoveFromQueue{
+			ChannelID: channelIDStr,
+			VideoID:   state.VideoID,
+		})
+	}
+
+	if err := r.deps.SongRequestPlaybackStateService.ClearState(ctx, channelIDStr); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to clear state: %w", err))
+	}
+
+	r.deps.SongRequestPlaybackStateService.PublishClearedState(channelIDStr)
+
+	return true, nil
+}
+
+// SongRequestSetVolume is the resolver for the songRequestSetVolume field.
+func (r *mutationResolver) SongRequestSetVolume(ctx context.Context, channelID uuid.UUID, volume int) (bool, error) {
+	channelIDStr := channelID.String()
+	if volume < 0 || volume > 100 {
+		return false, gqlerrors.HandleError(fmt.Errorf("volume must be between 0 and 100"))
+	}
+
+	if err := saveSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr, volume); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to save volume setting: %w", err))
+	}
+
+	if err := r.deps.SongRequestPlaybackStateService.SetVolume(ctx, channelIDStr, volume); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to set volume: %w", err))
+	}
+
+	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
+
+	return true, nil
+}
+
+// SongRequestUpdatePosition is the resolver for the songRequestUpdatePosition field.
+func (r *mutationResolver) SongRequestUpdatePosition(ctx context.Context, channelID uuid.UUID, position float64) (bool, error) {
+	channelIDStr := channelID.String()
+
+	if err := r.deps.SongRequestPlaybackStateService.UpdatePosition(ctx, channelIDStr, position); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to update position: %w", err))
+	}
+
+	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
+
+	return true, nil
+}
+
+// SongRequestReorder is the resolver for the songRequestReorder field.
+func (r *mutationResolver) SongRequestReorder(ctx context.Context, channelID uuid.UUID, videoIds []string) (bool, error) {
+	channelIDStr := channelID.String()
+
+	for i, videoID := range videoIds {
+		if err := r.deps.Gorm.WithContext(ctx).
+			Model(&model.RequestedSong{}).
+			Where(`"videoId" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, videoID, channelIDStr).
+			Update("queuePosition", i).Error; err != nil {
+			return false, gqlerrors.HandleError(fmt.Errorf("failed to reorder song %s: %w", videoID, err))
+		}
+	}
+
+	_ = r.deps.TwirBus.Api.SongRequestAddToQueue.Publish(ctx, api.SongRequestAddToQueue{
+		ChannelID: channelIDStr,
+	})
+
+	return true, nil
+}
+
+// SongRequestDeleteFromQueue is the resolver for the songRequestDeleteFromQueue field.
+func (r *mutationResolver) SongRequestDeleteFromQueue(ctx context.Context, channelID uuid.UUID, videoID string) (bool, error) {
+	channelIDStr := channelID.String()
+
+	now := time.Now()
+	if err := r.deps.Gorm.WithContext(ctx).
+		Model(&model.RequestedSong{}).
+		Where(`"videoId" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, videoID, channelIDStr).
+		Update("deletedAt", now).Error; err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to delete from queue: %w", err))
+	}
+
+	_ = r.deps.TwirBus.Api.SongRequestRemoveFromQueue.Publish(ctx, api.SongRequestRemoveFromQueue{
+		ChannelID: channelIDStr,
+		VideoID:   videoID,
+	})
+
+	return true, nil
+}
+
+// SongRequestClearQueue is the resolver for the songRequestClearQueue field.
+func (r *mutationResolver) SongRequestClearQueue(ctx context.Context, channelID uuid.UUID) (bool, error) {
+	channelIDStr := channelID.String()
+
+	now := time.Now()
+	if err := r.deps.Gorm.WithContext(ctx).
+		Model(&model.RequestedSong{}).
+		Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelIDStr).
+		Update("deletedAt", now).Error; err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to clear queue: %w", err))
+	}
+
+	if err := r.deps.SongRequestPlaybackStateService.ClearState(ctx, channelIDStr); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to clear playback state: %w", err))
+	}
+
+	r.deps.SongRequestPlaybackStateService.PublishClearedState(channelIDStr)
+
+	return true, nil
+}
+
+// SongRequestOverlaySettingsUpdate is the resolver for the songRequestOverlaySettingsUpdate field.
+func (r *mutationResolver) SongRequestOverlaySettingsUpdate(ctx context.Context, opts gqlmodel.SongRequestOverlaySettingsUpdateInput) (*gqlmodel.SongRequestOverlaySettings, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	settings, err := r.deps.SongRequestOverlaySettingsService.Update(
+		ctx,
+		songrequestoverlaysettings.UpdateInput{
+			ChannelID:             dashboardID,
+			Style:                 songrequestoverlaysettingsentity.Style(opts.Style),
+			AccentColor:           opts.AccentColor,
+			TickerBackgroundColor: opts.TickerBackgroundColor,
+			TickerTextColor:       opts.TickerTextColor,
+			TickerSpeed:           opts.TickerSpeed,
+			HideOnPause:           opts.HideOnPause,
+		},
+	)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	mapped := mappers.SongRequestOverlaySettingsToGQL(settings)
+	return &mapped, nil
+}
+
 // SongRequests is the resolver for the songRequests field.
 func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequestsSettings, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
@@ -139,6 +350,21 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to get song requests settings: %w", err)
+	}
+
+	dashboardUUID, err := uuid.Parse(dashboardId)
+	if err != nil {
+		return nil, fmt.Errorf("invalid dashboard id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelsRepository.GetByID(ctx, dashboardUUID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get channel: %w", err)
+	}
+
+	var channelApiKey string
+	if channel.ApiKey != nil {
+		channelApiKey = *channel.ApiKey
 	}
 
 	return &gqlmodel.SongRequestsSettings{
@@ -198,6 +424,8 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 		},
 		TakeSongFromDonationMessages: entity.TakeSongFromDonationMessage,
 		PlayerNoCookieMode:           entity.PlayerNoCookieMode,
+		ChannelAPIKey:                channelApiKey,
+		Volume:                       entity.Volume,
 	}, nil
 }
 
@@ -207,7 +435,7 @@ func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, op
 		Items: make([]gqlmodel.SongRequestsSearchChannelOrVideoItem, 0, len(opts.Query)),
 	}
 
-	var getThumbNailUrl = func(url string) string {
+	getThumbNailUrl := func(url string) string {
 		return strings.Replace(url, "http://", "https://", 1)
 	}
 
@@ -296,9 +524,364 @@ func (r *queryResolver) SongRequestsPublicQueue(ctx context.Context, channelID s
 	return mapped, nil
 }
 
+// SongRequestWidgetData is the resolver for the songRequestWidgetData field.
+func (r *queryResolver) SongRequestWidgetData(ctx context.Context, channelID uuid.UUID) (*gqlmodel.SongRequestWidgetData, error) {
+	channelIDStr := channelID.String()
+
+	playbackState, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
+	if err != nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get playback state: %w", err))
+	}
+	settingsVolume := getSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr)
+
+	var gqlPlaybackState *gqlmodel.SongRequestPlaybackState
+	if playbackState != nil {
+		gqlPlaybackState = &gqlmodel.SongRequestPlaybackState{
+			VideoID:   playbackState.VideoID,
+			Title:     playbackState.Title,
+			Position:  playbackState.Position,
+			IsPlaying: playbackState.IsPlaying,
+			Volume:    playbackState.Volume,
+			UpdatedAt: time.UnixMilli(playbackState.UpdatedAt),
+		}
+	}
+
+	var queue []model.RequestedSong
+	if err := r.deps.Gorm.WithContext(ctx).
+		Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelIDStr).
+		Order(`"queuePosition" asc`).
+		Find(&queue).Error; err != nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get queue: %w", err))
+	}
+
+	gqlQueue := make([]gqlmodel.SongRequestQueueItem, 0, len(queue))
+	for _, song := range queue {
+		songLink := fmt.Sprintf("https://youtu.be/%s", song.VideoID)
+		if song.SongLink.Valid {
+			songLink = song.SongLink.String
+		}
+
+		gqlQueue = append(gqlQueue, gqlmodel.SongRequestQueueItem{
+			ID:                   song.VideoID,
+			Title:                song.Title,
+			SongLink:             songLink,
+			DurationSeconds:      int(song.Duration),
+			OrderedByName:        song.OrderedByName,
+			OrderedByDisplayName: song.OrderedByDisplayName.String,
+			QueuePosition:        song.QueuePosition,
+			CreatedAt:            song.CreatedAt,
+		})
+	}
+
+	return &gqlmodel.SongRequestWidgetData{
+		PlaybackState: gqlPlaybackState,
+		Queue:         gqlQueue,
+		Volume:        settingsVolume,
+	}, nil
+}
+
+// ChannelByAPIKey is the resolver for the channelByApiKey field.
+func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gqlmodel.ChannelByAPIKeyResult, error) {
+	// Try channel API key first
+	channel, err := r.deps.ChannelsRepository.GetByApiKey(ctx, apiKey)
+	if err == nil && !channel.IsNil() {
+		return &gqlmodel.ChannelByAPIKeyResult{
+			ID:           channel.ID,
+			TwitchUserID: channel.TwitchUserID,
+			KickUserID:   channel.KickUserID,
+		}, nil
+	}
+	if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by api key: %w", err))
+	}
+
+	// Fallback to user API key
+	user, err := r.deps.UsersRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get user by api key: %w", err))
+	}
+
+	if user.IsNil() {
+		return nil, nil
+	}
+
+	var channelID uuid.UUID
+	switch user.Platform {
+	case "kick":
+		channel, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
+		if err != nil {
+			if errors.Is(err, channelsrepository.ErrNotFound) {
+				return nil, nil
+			}
+			return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by kick user id: %w", err))
+		}
+		if channel.IsNil() {
+			return nil, nil
+		}
+		channelID = channel.ID
+	default:
+		channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+		if err != nil {
+			if errors.Is(err, channelsrepository.ErrNotFound) {
+				return nil, nil
+			}
+			return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by twitch user id: %w", err))
+		}
+		if channel.IsNil() {
+			return nil, nil
+		}
+		channelID = channel.ID
+	}
+
+	channel, err = r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel: %w", err))
+	}
+	if channel.IsNil() {
+		return nil, nil
+	}
+
+	result := &gqlmodel.ChannelByAPIKeyResult{
+		ID: channel.ID,
+	}
+
+	if channel.TwitchUserID != nil {
+		result.TwitchUserID = channel.TwitchUserID
+	}
+	if channel.KickUserID != nil {
+		result.KickUserID = channel.KickUserID
+	}
+
+	return result, nil
+}
+
+// SongRequestOverlaySettings is the resolver for the songRequestOverlaySettings field.
+func (r *queryResolver) SongRequestOverlaySettings(ctx context.Context) (*gqlmodel.SongRequestOverlaySettings, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	settings, err := r.deps.SongRequestOverlaySettingsService.Get(ctx, dashboardID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	mapped := mappers.SongRequestOverlaySettingsToGQL(settings)
+	return &mapped, nil
+}
+
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *songRequestPublicResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.SongRequestPublic) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
+}
+
+// SongRequestPlaybackState is the resolver for the songRequestPlaybackState field.
+func (r *subscriptionResolver) SongRequestPlaybackState(ctx context.Context, channelID uuid.UUID) (<-chan *gqlmodel.SongRequestPlaybackState, error) {
+	channelIDStr := channelID.String()
+
+	outputChan := make(chan *gqlmodel.SongRequestPlaybackState, 1)
+
+	go func() {
+		wsKey := song_requests.PlaybackStateWsKey(channelIDStr)
+		sub, err := r.deps.WsRouter.Subscribe([]string{wsKey})
+		if err != nil {
+			r.deps.Logger.Error("failed to subscribe to playback state", slog.Any("error", err))
+			close(outputChan)
+			return
+		}
+		r.deps.Logger.Info("Playback subscription active", slog.String("key", wsKey))
+		defer func() {
+			sub.Unsubscribe()
+			close(outputChan)
+		}()
+
+		initialState, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
+		if err == nil && initialState != nil {
+			r.deps.Logger.Info("Playback subscription sending initial state",
+				slog.String("channelID", channelIDStr),
+				slog.Float64("position", initialState.Position),
+			)
+			outputChan <- &gqlmodel.SongRequestPlaybackState{
+				VideoID:   initialState.VideoID,
+				Title:     initialState.Title,
+				Position:  initialState.Position,
+				IsPlaying: initialState.IsPlaying,
+				Volume:    initialState.Volume,
+				UpdatedAt: time.UnixMilli(initialState.UpdatedAt),
+			}
+		}
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data := <-sub.GetChannel():
+				r.deps.Logger.Info("Playback subscription received wsRouter data",
+					slog.String("channelID", channelIDStr),
+					slog.Int("dataLen", len(data)),
+				)
+				var state api.SongRequestPlaybackState
+				if err := gojson.Unmarshal(data, &state); err != nil {
+					r.deps.Logger.Error("failed to unmarshal playback state", slog.Any("error", err))
+					continue
+				}
+
+				outputChan <- &gqlmodel.SongRequestPlaybackState{
+					VideoID:   state.VideoID,
+					Title:     state.Title,
+					Position:  state.Position,
+					IsPlaying: state.IsPlaying,
+					Volume:    state.Volume,
+					UpdatedAt: time.UnixMilli(state.UpdatedAt),
+				}
+			}
+		}
+	}()
+
+	return outputChan, nil
+}
+
+// SongRequestQueueUpdated is the resolver for the songRequestQueueUpdated field.
+func (r *subscriptionResolver) SongRequestQueueUpdated(ctx context.Context, channelID uuid.UUID) (<-chan []gqlmodel.SongRequestQueueItem, error) {
+	channelIDStr := channelID.String()
+
+	outputChan := make(chan []gqlmodel.SongRequestQueueItem, 1)
+
+	go func() {
+		sub, err := r.deps.WsRouter.Subscribe(
+			[]string{
+				fmt.Sprintf("api.songRequestQueue.%s", channelIDStr),
+				fmt.Sprintf("api.songRequestQueueRemove.%s", channelIDStr),
+			},
+		)
+		if err != nil {
+			r.deps.Logger.Error("failed to subscribe to queue updates", slog.Any("error", err))
+			close(outputChan)
+			return
+		}
+		defer func() {
+			sub.Unsubscribe()
+			close(outputChan)
+		}()
+
+		sendQueue := func() {
+			var queue []model.RequestedSong
+			if err := r.deps.Gorm.WithContext(ctx).
+				Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelIDStr).
+				Order(`"queuePosition" asc`).
+				Find(&queue).Error; err != nil {
+				r.deps.Logger.Error("failed to get queue", slog.Any("error", err))
+				return
+			}
+
+			gqlQueue := make([]gqlmodel.SongRequestQueueItem, 0, len(queue))
+			for _, song := range queue {
+				songLink := fmt.Sprintf("https://youtu.be/%s", song.VideoID)
+				if song.SongLink.Valid {
+					songLink = song.SongLink.String
+				}
+
+				gqlQueue = append(gqlQueue, gqlmodel.SongRequestQueueItem{
+					ID:                   song.VideoID,
+					Title:                song.Title,
+					SongLink:             songLink,
+					DurationSeconds:      int(song.Duration),
+					OrderedByName:        song.OrderedByName,
+					OrderedByDisplayName: song.OrderedByDisplayName.String,
+					QueuePosition:        song.QueuePosition,
+					CreatedAt:            song.CreatedAt,
+				})
+			}
+
+			outputChan <- gqlQueue
+		}
+
+		sendQueue()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-sub.GetChannel():
+				sendQueue()
+			}
+		}
+	}()
+
+	return outputChan, nil
+}
+
+// SongRequestOverlaySettings is the resolver for the songRequestOverlaySettings field.
+func (r *subscriptionResolver) SongRequestOverlaySettings(ctx context.Context, apiKey string) (<-chan *gqlmodel.SongRequestOverlaySettings, error) {
+	channel, err := r.deps.ChannelsRepository.GetByApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by api key: %w", err))
+	}
+	if channel.IsNil() {
+		return nil, gqlerrors.HandleError(errors.New("channel not found for api key"))
+	}
+
+	channelID := channel.ID.String()
+	sub, err := r.deps.WsRouter.Subscribe(
+		[]string{songrequestoverlaysettings.SubscriptionKey(channelID)},
+	)
+	if err != nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to subscribe to song request overlay settings: %w", err))
+	}
+
+	initialSettings, err := r.deps.SongRequestOverlaySettingsService.Get(ctx, channelID)
+	if err != nil {
+		_ = sub.Unsubscribe()
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	outputChan := make(chan *gqlmodel.SongRequestOverlaySettings, 1)
+	mappedInitialSettings := mappers.SongRequestOverlaySettingsToGQL(initialSettings)
+	outputChan <- &mappedInitialSettings
+
+	go func() {
+		defer func() {
+			_ = sub.Unsubscribe()
+			close(outputChan)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data, ok := <-sub.GetChannel():
+				if !ok {
+					return
+				}
+
+				var settings songrequestoverlaysettingsentity.SongRequestOverlaySettings
+				if err := gojson.Unmarshal(data, &settings); err != nil {
+					r.deps.Logger.ErrorContext(
+						ctx,
+						"failed to unmarshal song request overlay settings",
+						logger.Error(err),
+					)
+					continue
+				}
+
+				mapped := mappers.SongRequestOverlaySettingsToGQL(settings)
+				select {
+				case outputChan <- &mapped:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
+
+	return outputChan, nil
 }
 
 // SongRequestPublic returns graph.SongRequestPublicResolver implementation.

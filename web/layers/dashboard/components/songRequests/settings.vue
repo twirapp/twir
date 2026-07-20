@@ -79,6 +79,7 @@ const formValue = ref<SongRequestsSettingsOpts>({
 	acceptOnlyWhenOnline: true,
 	takeSongFromDonationMessages: false,
 	playerNoCookieMode: false,
+	volume: 30,
 	channelPointsRewardId: '',
 	maxRequests: 500,
 	announcePlay: true,
@@ -148,8 +149,8 @@ watch(
 )
 
 async function save() {
-	const data = unref(formValue)
-	await youtubeModuleUpdater.executeMutation({ opts: data })
+	const { channelApiKey, __typename, ...data } = unref(formValue) as Record<string, unknown>
+	await youtubeModuleUpdater.executeMutation({ opts: data as SongRequestsSettingsOpts })
 	toast.success(t('sharedTexts.saved'))
 	isOpen.value = false
 }

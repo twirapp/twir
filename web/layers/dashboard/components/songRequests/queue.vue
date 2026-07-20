@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { Video } from '~~/layers/dashboard/components/songRequests/hook.js'
-
 import { dragAndDrop } from '@formkit/drag-and-drop/vue'
 import { formatDistanceToNow } from 'date-fns'
-import { computed, ref } from 'vue'
-import { useYoutubeSocket } from '~~/layers/dashboard/components/songRequests/hook.js'
+import { useProfile } from '~~/layers/dashboard/api/auth'
+import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
+import { useSongRequestGql } from '~~/layers/dashboard/composables/useSongRequestGql.js'
 import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
+
+import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
 
 import ActionConfirm from '@/components/ui/action-confirm'
 import {
@@ -29,27 +30,78 @@ import {
 	TableRow,
 } from '@/components/ui/table'
 
-const { videos, moveVideo, banSong, banUser, deleteVideo, deleteAllVideos } = useYoutubeSocket()
+const { data: profile } = useProfile()
+const channelId = computed(() => profile.value?.selectedDashboardId ?? '')
+
+const { queue, deleteFromQueue, clearQueue, reorder } = useSongRequestGql(channelId)
+
+const youtubeModuleManager = useSongRequestsApi()
+const { data: youtubeSettings } = youtubeModuleManager.useSongRequestQuery()
+const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
 const { t } = useI18n()
 
+function toSettingsOpts(settings: Record<string, unknown>): SongRequestsSettingsOpts {
+	const { channelApiKey, __typename, ...rest } = settings
+	return rest as unknown as SongRequestsSettingsOpts
+}
+
 const totalSongsLength = computed(() => {
-	return convertMillisToTime(videos.value.reduce((acc, cur) => acc + cur.duration * 1000, 0))
+	return convertMillisToTime(queue.value.reduce((acc, cur) => acc + cur.durationSeconds * 1000, 0))
 })
 
 const parentRef = ref<HTMLElement>()
 dragAndDrop({
 	parent: parentRef,
-	values: videos,
+	values: queue,
 	dragHandle: '.drag-handle',
 	draggable(child) {
 		return !child.classList.contains('no-drag')
 	},
-	handleEnd(data) {
-		const item = data.targetData.node.data.value as Video
-		moveVideo(item.id, data.targetData.node.data.index)
+	handleEnd() {
+		reorder(queue.value.map((item) => item.id))
 	},
 })
+
+async function banUser(userName: string) {
+	if (!youtubeSettings.value?.songRequests) return
+	const settings = toSettingsOpts(youtubeSettings.value.songRequests as Record<string, unknown>)
+
+	await youtubeModuleUpdater.executeMutation({
+		opts: {
+			...settings,
+			denyList: {
+				...settings.denyList,
+				users: [...settings.denyList!.users, userName],
+			},
+		},
+	})
+
+	const userVideos = queue.value.filter((video) => video.orderedByName === userName)
+	for (const video of userVideos) {
+		deleteFromQueue(video.id)
+	}
+}
+
+async function banSong(queueItemId: string) {
+	if (!youtubeSettings.value?.songRequests) return
+	const settings = toSettingsOpts(youtubeSettings.value.songRequests as Record<string, unknown>)
+
+	const video = queue.value.find((v) => v.id === queueItemId)
+	const videoId = video?.songLink?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1] ?? ''
+
+	await youtubeModuleUpdater.executeMutation({
+		opts: {
+			...settings,
+			denyList: {
+				...settings.denyList,
+				songs: [...settings.denyList!.songs, videoId],
+			},
+		},
+	})
+
+	deleteFromQueue(queueItemId)
+}
 
 const showConfirmClear = ref(false)
 
@@ -67,7 +119,7 @@ function formatRelativeTime(dateStr: string) {
 					size="icon"
 					class="size-8"
 					variant="secondary"
-					:disabled="!videos.length"
+					:disabled="!queue.length"
 					@click="showConfirmClear = true"
 				>
 					<Icon
@@ -90,7 +142,7 @@ function formatRelativeTime(dateStr: string) {
 				</TableHeader>
 				<TableBody ref="parentRef">
 					<TableRow
-						v-for="(video, index) of videos"
+						v-for="(video, index) of queue"
 						:key="video.id"
 					>
 						<TableCell>
@@ -125,7 +177,7 @@ function formatRelativeTime(dateStr: string) {
 										</AlertDialogHeader>
 										<AlertDialogFooter>
 											<AlertDialogCancel>{{ t('deleteConfirmation.cancel') }}</AlertDialogCancel>
-											<AlertDialogAction @click="banSong(video.videoId)">
+											<AlertDialogAction @click="banSong(video.id)">
 												{{ t('deleteConfirmation.confirm') }}
 											</AlertDialogAction>
 										</AlertDialogFooter>
@@ -155,7 +207,7 @@ function formatRelativeTime(dateStr: string) {
 										</AlertDialogHeader>
 										<AlertDialogFooter>
 											<AlertDialogCancel>{{ t('deleteConfirmation.cancel') }}</AlertDialogCancel>
-											<AlertDialogAction @click="banUser(video.orderedById)">
+											<AlertDialogAction @click="banUser(video.orderedByName)">
 												{{ t('deleteConfirmation.confirm') }}
 											</AlertDialogAction>
 										</AlertDialogFooter>
@@ -167,17 +219,17 @@ function formatRelativeTime(dateStr: string) {
 							{{ formatRelativeTime(video.createdAt) }}
 						</TableCell>
 						<TableCell>
-							{{ convertMillisToTime(video.duration * 1000) }}
+							{{ convertMillisToTime(video.durationSeconds * 1000) }}
 						</TableCell>
 						<TableCell>
 							<Button
 								class="min-w-5"
 								size="icon"
 								variant="destructive"
-								@click="deleteVideo(video.id)"
+								@click="deleteFromQueue(video.id)"
 							>
 								<Icon
-									name="lucide:trash2"
+									name="lucide:trash"
 									class="size-5"
 								/>
 							</Button>
@@ -186,7 +238,7 @@ function formatRelativeTime(dateStr: string) {
 					<TableRow class="no-drag">
 						<TableCell></TableCell>
 						<TableCell>
-							{{ videos.length }}
+							{{ queue.length }}
 						</TableCell>
 						<TableCell></TableCell>
 						<TableCell></TableCell>
@@ -204,6 +256,6 @@ function formatRelativeTime(dateStr: string) {
 	<ActionConfirm
 		v-model:open="showConfirmClear"
 		:confirm-text="t('songRequests.settings.confirmClearQueue')"
-		@confirm="deleteAllVideos"
+		@confirm="clearQueue"
 	/>
 </template>

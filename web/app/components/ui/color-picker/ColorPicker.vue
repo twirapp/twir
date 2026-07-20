@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import tinycolor from 'tinycolor2'
-import { type HTMLAttributes, onMounted, reactive, ref, watch } from 'vue'
+import { type HTMLAttributes, reactive, ref, watch } from 'vue'
+
+import { cn } from '@/lib/utils'
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 
 import {
 	ColorPickerAlpha,
@@ -11,8 +14,7 @@ import {
 	ColorPickerSaturation,
 } from '.'
 
-import { cn } from '@/lib/utils'
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
+defineOptions({ inheritAttrs: false })
 
 interface RGB {
 	r: number
@@ -34,6 +36,8 @@ interface Props {
 	showPipette?: boolean
 	showCopy?: boolean
 	outputFormat?: 'hex' | 'rgb' | 'hsl' | 'auto'
+	triggerId?: string
+	ariaLabel?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -79,7 +83,8 @@ function updateColor(): void {
 	rgba.g = g
 	rgba.b = b
 	rgba.a = alpha.value / 100
-	hex.value = color.toHexString()
+	const colorWithAlpha = color.setAlpha(alpha.value / 100)
+	hex.value = alpha.value < 100 ? colorWithAlpha.toHex8String() : colorWithAlpha.toHexString()
 
 	const outputColor = getOutputColor(color)
 	emit('update:modelValue', outputColor)
@@ -87,15 +92,25 @@ function updateColor(): void {
 
 function getOutputColor(color: tinycolor.Instance): string {
 	const colorWithAlpha = color.setAlpha(alpha.value / 100)
+	const getRgbString = () => {
+		if (alpha.value >= 100) return colorWithAlpha.toRgbString()
+		const { r, g, b } = colorWithAlpha.toRgb()
+		return `rgba(${r}, ${g}, ${b}, ${alpha.value / 100})`
+	}
+	const getHslString = () => {
+		if (alpha.value >= 100) return colorWithAlpha.toHslString()
+		const { h, s, l } = colorWithAlpha.toHsl()
+		return `hsla(${Math.round(h)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%, ${alpha.value / 100})`
+	}
 
 	if (props.outputFormat !== 'auto') {
 		switch (props.outputFormat) {
 			case 'hex':
 				return alpha.value < 100 ? colorWithAlpha.toHex8String() : colorWithAlpha.toHexString()
 			case 'rgb':
-				return colorWithAlpha.toRgbString()
+				return getRgbString()
 			case 'hsl':
-				return colorWithAlpha.toHslString()
+				return getHslString()
 		}
 	}
 
@@ -103,11 +118,11 @@ function getOutputColor(color: tinycolor.Instance): string {
 		case 'hex':
 			return alpha.value < 100 ? colorWithAlpha.toHex8String() : colorWithAlpha.toHexString()
 		case 'rgb':
-			return colorWithAlpha.toRgbString()
+			return getRgbString()
 		case 'hsl':
-			return colorWithAlpha.toHslString()
+			return getHslString()
 		default:
-			return colorWithAlpha.toRgbString()
+			return getRgbString()
 	}
 }
 
@@ -127,12 +142,18 @@ function updateColorFromHex(): void {
 	const color = tinycolor(hex.value)
 	if (color.isValid()) {
 		const hsv = color.toHsv()
+		alpha.value = color.getAlpha() * 100
 		updateFromHSV(hsv.h, hsv.s, hsv.v)
 	}
 }
 
-function updateColorFromRGB(): void {
-	const color = tinycolor({ r: rgb.r, g: rgb.g, b: rgb.b })
+function updateColorFromRGB(value: RGB): void {
+	const r = Number(value.r)
+	const g = Number(value.g)
+	const b = Number(value.b)
+	if ([r, g, b].some((channel) => !Number.isFinite(channel) || channel < 0 || channel > 255)) return
+
+	const color = tinycolor({ r, g, b })
 	if (color.isValid()) {
 		const hsv = color.toHsv()
 		updateFromHSV(hsv.h, hsv.s, hsv.v)
@@ -142,7 +163,7 @@ function updateColorFromRGB(): void {
 function setPresetColor(color: string): void {
 	const selectedColor = tinycolor(color)
 	const hsv = selectedColor.toHsv()
-	alpha.value = Math.round(selectedColor.getAlpha() * 100)
+	alpha.value = selectedColor.getAlpha() * 100
 	updateFromHSV(hsv.h, hsv.s, hsv.v)
 }
 
@@ -150,11 +171,10 @@ function handleColorPick(pickedColor: string): void {
 	const color = tinycolor(pickedColor)
 	if (color.isValid()) {
 		const hsv = color.toHsv()
-		const rgbValues = color.toRgb()
 		hue.value = hsv.h || 0
 		saturation.value = hsv.s
 		brightness.value = hsv.v
-		alpha.value = Math.round((rgbValues.a || 1) * 100)
+		alpha.value = color.getAlpha() * 100
 		updateColor()
 	}
 }
@@ -178,31 +198,17 @@ watch(
 			rgba.r = rgbValues.r
 			rgba.g = rgbValues.g
 			rgba.b = rgbValues.b
-			rgba.a = rgbValues.a || 1
+			rgba.a = rgbValues.a ?? 1
 			hue.value = hsv.h || 0
 			saturation.value = hsv.s
 			brightness.value = hsv.v
-			alpha.value = Math.round((rgbValues.a || 1) * 100)
-			hex.value = color.toHexString()
+			alpha.value = color.getAlpha() * 100
+			const colorWithAlpha = color.setAlpha(alpha.value / 100)
+			hex.value = alpha.value < 100 ? colorWithAlpha.toHex8String() : colorWithAlpha.toHexString()
 		}
 	},
 	{ immediate: true }
 )
-
-onMounted(() => {
-	if (props.modelValue) {
-		const color = tinycolor(props.modelValue)
-		if (color.isValid()) {
-			const hsv = color.toHsv()
-			const rgbValues = color.toRgb()
-			hue.value = hsv.h || 0
-			saturation.value = hsv.s
-			brightness.value = hsv.v
-			alpha.value = Math.round((rgbValues.a || 1) * 100)
-			updateColor()
-		}
-	}
-})
 </script>
 
 <template>
@@ -212,11 +218,17 @@ onMounted(() => {
 		@update:open="(v) => (colorPickerState = v)"
 	>
 		<PopoverTrigger
+			:id="props.triggerId"
+			:aria-label="props.ariaLabel"
+			v-bind="$attrs"
 			@click="colorPickerState = true"
 			:style="{ backgroundColor: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` }"
-			:class="cn('w-5 h-5 cursor-pointer rounded-sm border ', props.class)"
+			:class="cn('h-5 w-5 cursor-pointer rounded-sm border ', props.class)"
 		/>
-		<PopoverContent align="start" class="w-80 overflow-hidden">
+		<PopoverContent
+			align="start"
+			class="w-80 overflow-hidden"
+		>
 			<div class="grid gap-3">
 				<ColorPickerSaturation
 					:hex="hex"
@@ -226,16 +238,20 @@ onMounted(() => {
 					@update="updateFromHSV"
 				/>
 				<div class="inline-flex items-center gap-3">
-					<div class="flex-1 grid w-full gap-1">
+					<div class="grid w-full flex-1 gap-1">
 						<ColorPickerHue
 							:hue="hue"
 							@update:hue="(h) => updateFromHSV(h, saturation, brightness)"
 						/>
-						<ColorPickerAlpha :alpha="alpha" :hex="hex" @update:alpha="updateAlpha" />
+						<ColorPickerAlpha
+							:alpha="alpha"
+							:hex="hex"
+							@update:alpha="updateAlpha"
+						/>
 					</div>
 					<ColorPickerEyeDropper
 						v-if="props.showPipette"
-						class="w-8 h-8 bg-transparent"
+						class="h-8 w-8 bg-transparent"
 						@pick-color="handleColorPick"
 					/>
 				</div>
