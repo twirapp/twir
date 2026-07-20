@@ -31,8 +31,10 @@ type Processor struct {
 	logger     *slog.Logger
 	serviceCtx context.Context
 
-	inFlightMu sync.Mutex
-	inFlight   map[winProbabilityKey]struct{}
+	jobsMu   sync.Mutex
+	jobs     sync.WaitGroup
+	stopping bool
+	inFlight map[winProbabilityKey]struct{}
 }
 
 var _ gsi.MatchProcessor = (*Processor)(nil)
@@ -52,9 +54,24 @@ func New(
 		inFlight:   make(map[winProbabilityKey]struct{}),
 	}
 	lifecycle.Append(fx.Hook{
-		OnStop: func(context.Context) error {
+		OnStop: func(ctx context.Context) error {
+			p.jobsMu.Lock()
+			p.stopping = true
 			cancel()
-			return nil
+			p.jobsMu.Unlock()
+
+			jobsDone := make(chan struct{})
+			go func() {
+				p.jobs.Wait()
+				close(jobsDone)
+			}()
+
+			select {
+			case <-jobsDone:
+				return nil
+			case <-ctx.Done():
+				return ctx.Err()
+			}
 		},
 	})
 
@@ -75,13 +92,18 @@ func (p *Processor) Process(ctx context.Context, channelID uuid.UUID, payload gs
 	}
 
 	key := winProbabilityKey{channelID: channelID, matchID: snapshot.MatchID}
-	p.inFlightMu.Lock()
+	p.jobsMu.Lock()
+	if p.stopping {
+		p.jobsMu.Unlock()
+		return nil
+	}
 	if _, exists := p.inFlight[key]; exists {
-		p.inFlightMu.Unlock()
+		p.jobsMu.Unlock()
 		return nil
 	}
 	p.inFlight[key] = struct{}{}
-	p.inFlightMu.Unlock()
+	p.jobs.Add(1)
+	p.jobsMu.Unlock()
 
 	go p.updateWinProbability(ctx, key)
 
@@ -90,9 +112,10 @@ func (p *Processor) Process(ctx context.Context, channelID uuid.UUID, payload gs
 
 func (p *Processor) updateWinProbability(ctx context.Context, key winProbabilityKey) {
 	defer func() {
-		p.inFlightMu.Lock()
+		p.jobsMu.Lock()
 		delete(p.inFlight, key)
-		p.inFlightMu.Unlock()
+		p.jobsMu.Unlock()
+		p.jobs.Done()
 	}()
 
 	requestCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), winProbabilityTimeout)
@@ -113,7 +136,14 @@ func (p *Processor) updateWinProbability(ctx context.Context, key winProbability
 		return
 	}
 
-	if err := p.match.UpdateWinProbability(requestCtx, key.channelID, key.matchID, probability); err != nil {
+	p.jobsMu.Lock()
+	if p.stopping {
+		p.jobsMu.Unlock()
+		return
+	}
+	err = p.match.UpdateWinProbability(requestCtx, key.channelID, key.matchID, probability)
+	p.jobsMu.Unlock()
+	if err != nil {
 		p.logger.WarnContext(
 			requestCtx,
 			"dota processor: failed to update win probability",

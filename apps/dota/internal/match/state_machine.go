@@ -37,8 +37,8 @@ const (
 	snapshotKeyPrefix = "cache:twir:dota:matchstate:"
 	snapshotTTL       = 6 * time.Hour
 
-	winProbabilityUpdateThreshold = 0.05
-	winProbabilityEpsilon         = 1e-9
+	winProbabilityBasisPoints                = 10_000
+	winProbabilityUpdateThresholdBasisPoints = 500
 
 	heroNamePrefix = "npc_dota_hero_"
 
@@ -292,7 +292,10 @@ func (m *StateMachine) UpdateWinProbability(
 		return nil
 	}
 
-	if math.Abs(cs.snap.WinProbability-probability)+winProbabilityEpsilon < winProbabilityUpdateThreshold {
+	// Probabilities are compared at 0.01% precision; require a 5.00% (500 basis point) change.
+	currentBasisPoints := int64(math.Round(cs.snap.WinProbability * winProbabilityBasisPoints))
+	nextBasisPoints := int64(math.Round(probability * winProbabilityBasisPoints))
+	if math.Abs(float64(currentBasisPoints-nextBasisPoints)) < winProbabilityUpdateThresholdBasisPoints {
 		return nil
 	}
 

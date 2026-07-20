@@ -618,6 +618,44 @@ func TestUpdateWinProbabilityEmitsExactThresholdChange(t *testing.T) {
 	require.Equal(t, 0.35, f.emitter.stateUpdates[updatesBefore].WinProbability)
 }
 
+func TestUpdateWinProbabilityDoesNotEmitBelowThreshold(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(1009, "npc_dota_hero_pudge")))
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 1009, 0.30))
+	updatesBefore := len(f.emitter.stateUpdates)
+	persistsBefore := f.kv.sets
+
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 1009, 0.349))
+
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, 0.30, snap.WinProbability)
+	require.Equal(t, persistsBefore, f.kv.sets)
+	require.Len(t, f.emitter.stateUpdates, updatesBefore)
+}
+
+func TestUpdateWinProbabilityDoesNotEmitFor499BasisPointChange(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	initialProbability := math.Nextafter(0.29995, math.Inf(1))
+	nextProbability := math.Nextafter(0.34995, 0)
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(1010, "npc_dota_hero_pudge")))
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 1010, initialProbability))
+	updatesBefore := len(f.emitter.stateUpdates)
+	persistsBefore := f.kv.sets
+
+	require.NoError(t, f.sm.UpdateWinProbability(ctx, f.channel, 1010, nextProbability))
+
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, initialProbability, snap.WinProbability)
+	require.Equal(t, persistsBefore, f.kv.sets)
+	require.Len(t, f.emitter.stateUpdates, updatesBefore)
+}
+
 func TestUpdateWinProbabilityThrottlesSmallChanges(t *testing.T) {
 	f := newFixture(t)
 	ctx := context.Background()
