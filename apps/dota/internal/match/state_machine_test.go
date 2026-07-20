@@ -28,6 +28,7 @@ type updateMatchResultCall struct {
 type fakeRepo struct {
 	settings      model.ChannelDotaSettings
 	updated       model.ChannelDotaSettings
+	getErr        error
 	updateErr     error
 	updateCalls   []updateMatchResultCall
 	getByIDCalled int
@@ -38,6 +39,9 @@ func (f *fakeRepo) GetByChannelID(
 	_ uuid.UUID,
 ) (model.ChannelDotaSettings, error) {
 	f.getByIDCalled++
+	if f.getErr != nil {
+		return model.Nil, f.getErr
+	}
 	return f.settings, nil
 }
 
@@ -92,6 +96,8 @@ func (f *fakeRepo) RegenerateGsiToken(
 
 type fakeEmitter struct {
 	mu           sync.Mutex
+	roshanErr    error
+	aegisErr     error
 	matchStarted []busdota.MatchStartedMessage
 	matchEnded   []busdota.MatchEndedMessage
 	roshanKilled []busdota.RoshanKilledMessage
@@ -116,6 +122,9 @@ func (f *fakeEmitter) MatchEnded(_ context.Context, msg busdota.MatchEndedMessag
 func (f *fakeEmitter) RoshanKilled(_ context.Context, msg busdota.RoshanKilledMessage) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	if f.roshanErr != nil {
+		return f.roshanErr
+	}
 	f.roshanKilled = append(f.roshanKilled, msg)
 	return nil
 }
@@ -123,6 +132,9 @@ func (f *fakeEmitter) RoshanKilled(_ context.Context, msg busdota.RoshanKilledMe
 func (f *fakeEmitter) AegisPickup(_ context.Context, msg busdota.AegisPickupMessage) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	if f.aegisErr != nil {
+		return f.aegisErr
+	}
 	f.aegisPickup = append(f.aegisPickup, msg)
 	return nil
 }
@@ -473,6 +485,58 @@ func TestSnapshotPersistedAndRestored(t *testing.T) {
 	require.Equal(t, int64(888), snap.MatchID)
 	require.Equal(t, "antimage", snap.HeroName)
 	require.True(t, snap.IsRadiant)
+}
+
+func TestRoshanEmitFailureRetriesOnNextPayload(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	payload := inGamePayload(101, "npc_dota_hero_pudge")
+	payload.Events = []gsi.Event{
+		{EventType: "roshan_killed", KillerTeam: "dire", GameTime: 700},
+	}
+
+	f.emitter.roshanErr = errors.New("publish failed")
+	err := f.sm.Process(ctx, f.channel, payload)
+	require.Error(t, err)
+	require.Empty(t, f.emitter.roshanKilled)
+
+	f.emitter.roshanErr = nil
+	require.NoError(t, f.sm.Process(ctx, f.channel, payload))
+	require.Len(t, f.emitter.roshanKilled, 1)
+	require.Equal(t, "dire", f.emitter.roshanKilled[0].Team)
+	require.Equal(t, 700, f.emitter.roshanKilled[0].GameTime)
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, payload))
+	require.Len(t, f.emitter.roshanKilled, 1, "event must not be emitted twice after retry")
+}
+
+func TestFinishMatchBailsOnSettingsLoadFailure(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+
+	require.NoError(t, f.sm.Process(ctx, f.channel, inGamePayload(202, "npc_dota_hero_pudge")))
+
+	f.repo.getErr = errors.New("db down")
+	err := f.sm.Process(ctx, f.channel, postGamePayload(202, gsi.WinTeamRadiant))
+	require.Error(t, err)
+	require.Empty(t, f.repo.updateCalls, "UpdateMatchResult must not be called when settings are unavailable")
+	require.Empty(t, f.emitter.matchEnded)
+
+	snap, err := f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, int64(202), snap.MatchID, "match must stay tracked for retry")
+
+	f.repo.getErr = nil
+	require.NoError(t, f.sm.Process(ctx, f.channel, postGamePayload(202, gsi.WinTeamRadiant)))
+	require.Len(t, f.repo.updateCalls, 1)
+	require.True(t, f.repo.updateCalls[0].won)
+	require.Equal(t, 25, f.repo.updateCalls[0].mmrDelta)
+	require.Len(t, f.emitter.matchEnded, 1)
+
+	snap, err = f.sm.GetSnapshot(ctx, f.channel)
+	require.NoError(t, err)
+	require.Equal(t, StateIdle, snap.State)
 }
 
 func TestGetSnapshotReturnsCurrentState(t *testing.T) {

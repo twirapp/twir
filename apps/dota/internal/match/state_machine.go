@@ -258,7 +258,7 @@ func (m *StateMachine) Process(ctx context.Context, channelID uuid.UUID, payload
 	cs.snap.InGame = newState != StateIdle
 
 	if err := m.processEvents(ctx, cs, payload.Events); err != nil {
-		m.logger.WarnContext(ctx, "dota match: failed to emit events", logger.Error(err))
+		return err
 	}
 
 	if newState != prevState || scoreChanged {
@@ -297,13 +297,12 @@ func (m *StateMachine) finishMatch(
 
 	won := (payload.Map.WinTeam == gsi.WinTeamRadiant) == cs.snap.IsRadiant
 
-	delta := cs.mmrDelta
 	settings, err := m.repo.GetByChannelID(ctx, cs.snap.ChannelID)
 	if err != nil {
-		m.logger.WarnContext(ctx, "dota match: failed to refresh settings", logger.Error(err))
-	} else {
-		delta = settings.MmrDelta
+		return fmt.Errorf("get settings for match result: %w", err)
 	}
+
+	delta := settings.MmrDelta
 	if !won {
 		delta = -delta
 	}
@@ -378,7 +377,6 @@ func (m *StateMachine) processEvents(
 		if _, seen := cs.seenEvents[key]; seen {
 			continue
 		}
-		cs.seenEvents[key] = struct{}{}
 
 		switch event.EventType {
 		case eventRoshanKilled:
@@ -397,6 +395,8 @@ func (m *StateMachine) processEvents(
 				return fmt.Errorf("emit aegis pickup: %w", err)
 			}
 		}
+
+		cs.seenEvents[key] = struct{}{}
 	}
 
 	return nil
