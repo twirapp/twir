@@ -2,6 +2,8 @@ package predictions
 
 import (
 	"context"
+	cryptorand "crypto/rand"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -32,7 +34,13 @@ const (
 	minPredictionWindow                = 30
 	maxPredictionWindow                = 1_800
 	maxPredictionTitleRunes            = 45
-	pendingIntentVersion               = 1
+	predictionCorrelationBytes         = 8
+	predictionCorrelationEncodedLength = 11
+	predictionCorrelationMarkerPrefix  = " [d:"
+	predictionCorrelationMarkerSuffix  = "]"
+	predictionCorrelationMarkerRunes   = len(predictionCorrelationMarkerPrefix) +
+		predictionCorrelationEncodedLength + len(predictionCorrelationMarkerSuffix)
+	pendingIntentVersion               = 2
 	pendingPredictionCorrelationWindow = 2 * time.Minute
 )
 
@@ -54,6 +62,7 @@ type pendingPredictionIntent struct {
 	Version         int       `json:"version"`
 	Token           string    `json:"token"`
 	Title           string    `json:"title"`
+	Correlation     string    `json:"correlation"`
 	YesOutcomeTitle string    `json:"yesOutcomeTitle"`
 	NoOutcomeTitle  string    `json:"noOutcomeTitle"`
 	ReservedAt      time.Time `json:"reservedAt"`
@@ -324,9 +333,10 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 		return nil
 	}
 
-	title := strings.TrimSpace(settings.PredictionSettings.TitleTemplate)
+	template := settings.PredictionSettings.TitleTemplate
 	window := settings.PredictionSettings.WindowSeconds
-	if title == "" || utf8.RuneCountInString(title) > maxPredictionTitleRunes ||
+	if strings.TrimSpace(template) == "" ||
+		utf8.RuneCountInString(template)+predictionCorrelationMarkerRunes > maxPredictionTitleRunes ||
 		window < minPredictionWindow || window > maxPredictionWindow {
 		p.logger.WarnContext(
 			ctx,
@@ -336,6 +346,11 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 		)
 		return nil
 	}
+	correlation, err := newPredictionCorrelation()
+	if err != nil {
+		return fmt.Errorf("generate prediction correlation: %w", err)
+	}
+	title := template + predictionCorrelationMarker(correlation)
 
 	channel, err := p.channels.GetByID(ctx, channelID)
 	if errors.Is(err, channelsrepository.ErrNotFound) {
@@ -353,6 +368,7 @@ func (p *Predictions) createPrediction(ctx context.Context, message busdota.Matc
 		Version:         pendingIntentVersion,
 		Token:           uuid.NewString(),
 		Title:           title,
+		Correlation:     correlation,
 		YesOutcomeTitle: "Yes",
 		NoOutcomeTitle:  "No",
 		ReservedAt:      time.Now().UTC(),
@@ -582,6 +598,19 @@ func predictionKey(channelID uuid.UUID, matchID int64) string {
 	return predictionKeyPrefix + channelID.String() + ":" + strconv.FormatInt(matchID, 10)
 }
 
+func newPredictionCorrelation() (string, error) {
+	bytes := make([]byte, predictionCorrelationBytes)
+	if _, err := cryptorand.Read(bytes); err != nil {
+		return "", err
+	}
+
+	return base64.RawURLEncoding.EncodeToString(bytes), nil
+}
+
+func predictionCorrelationMarker(correlation string) string {
+	return predictionCorrelationMarkerPrefix + correlation + predictionCorrelationMarkerSuffix
+}
+
 func predictionResponseError(response *helix.PredictionsResponse) error {
 	if response == nil {
 		return errors.New("empty Twitch prediction response")
@@ -641,8 +670,15 @@ func (intent pendingPredictionIntent) validate() error {
 	if strings.TrimSpace(intent.Token) == "" {
 		return errors.New("missing reservation token")
 	}
-	if strings.TrimSpace(intent.Title) == "" || utf8.RuneCountInString(intent.Title) > maxPredictionTitleRunes {
+	if !validPredictionCorrelation(intent.Correlation) {
+		return errors.New("invalid prediction correlation")
+	}
+	if strings.TrimSpace(intent.Title) == "" || utf8.RuneCountInString(intent.Title) < 1 ||
+		utf8.RuneCountInString(intent.Title) > maxPredictionTitleRunes {
 		return errors.New("invalid prediction title")
+	}
+	if !strings.HasSuffix(intent.Title, predictionCorrelationMarker(intent.Correlation)) {
+		return errors.New("prediction title is missing correlation marker")
 	}
 	if strings.TrimSpace(intent.YesOutcomeTitle) == "" || strings.TrimSpace(intent.NoOutcomeTitle) == "" ||
 		intent.YesOutcomeTitle == intent.NoOutcomeTitle {
@@ -652,6 +688,12 @@ func (intent pendingPredictionIntent) validate() error {
 		return errors.New("missing reservation timestamp")
 	}
 	return nil
+}
+
+func validPredictionCorrelation(correlation string) bool {
+	decoded, err := base64.RawURLEncoding.DecodeString(correlation)
+	return err == nil && len(decoded) == predictionCorrelationBytes &&
+		base64.RawURLEncoding.EncodeToString(decoded) == correlation
 }
 
 func matchingPendingPrediction(
@@ -677,7 +719,9 @@ func matchesPendingIntent(prediction helix.Prediction, intent pendingPredictionI
 	if prediction.Status != "ACTIVE" && prediction.Status != "LOCKED" {
 		return false
 	}
-	if prediction.Title != intent.Title || !matchesReservationTime(prediction.CreatedAt.Time, intent.ReservedAt) {
+	if prediction.Title != intent.Title ||
+		!strings.HasSuffix(prediction.Title, predictionCorrelationMarker(intent.Correlation)) ||
+		!matchesReservationTime(prediction.CreatedAt.Time, intent.ReservedAt) {
 		return false
 	}
 	_, err := recordFromPrediction(prediction, intent.YesOutcomeTitle, intent.NoOutcomeTitle)

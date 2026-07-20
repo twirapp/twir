@@ -208,7 +208,8 @@ func TestRedisPredictionStoreAtomicallyPersistsPendingIntent(t *testing.T) {
 	intent := pendingPredictionIntent{
 		Version:         pendingIntentVersion,
 		Token:           "owner",
-		Title:           "Will the streamer win?",
+		Title:           "Will the streamer win? [d:AAAAAAAAAAA]",
+		Correlation:     "AAAAAAAAAAA",
 		YesOutcomeTitle: "Yes",
 		NoOutcomeTitle:  "No",
 		ReservedAt:      time.Date(2026, time.July, 20, 12, 0, 0, 0, time.UTC),
@@ -219,6 +220,9 @@ func TestRedisPredictionStoreAtomicallyPersistsPendingIntent(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, reserved)
 	require.Equal(t, reservationPrefix+intent.Token, client.values[key])
+	var persisted map[string]any
+	require.NoError(t, json.Unmarshal([]byte(client.values[pendingIntentKey(key)]), &persisted))
+	require.Equal(t, "AAAAAAAAAAA", persisted["correlation"])
 	encodedIntent, err := json.Marshal(intent)
 	require.NoError(t, err)
 	require.Equal(t, string(encodedIntent), client.values[pendingIntentKey(key)])

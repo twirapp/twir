@@ -2,6 +2,8 @@ package predictions
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"io"
 	"log/slog"
@@ -9,6 +11,7 @@ import (
 	"sync"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
@@ -445,6 +448,21 @@ func predictionResponse(id string, status string) *helix.PredictionsResponse {
 	}
 }
 
+func predictionCorrelationFromTitle(t *testing.T, template string, title string) string {
+	t.Helper()
+
+	const markerPrefix = " [d:"
+	require.True(t, strings.HasPrefix(title, template+markerPrefix))
+	require.True(t, strings.HasSuffix(title, "]"))
+
+	correlation := strings.TrimSuffix(strings.TrimPrefix(title, template+markerPrefix), "]")
+	decoded, err := base64.RawURLEncoding.DecodeString(correlation)
+	require.NoError(t, err)
+	require.GreaterOrEqual(t, len(decoded), 8)
+
+	return correlation
+}
+
 func TestMatchStartedCreatesAndStoresPrediction(t *testing.T) {
 	f := newFixture(t)
 
@@ -453,15 +471,14 @@ func TestMatchStartedCreatesAndStoresPrediction(t *testing.T) {
 	require.NoError(t, err)
 	createCalls := f.client.CreateCalls()
 	require.Len(t, createCalls, 1)
-	require.Equal(t, &helix.CreatePredictionParams{
-		BroadcasterID:    f.broadcaster,
-		Title:            "Will the streamer win?",
-		PredictionWindow: 300,
-		Outcomes: []helix.PredictionChoiceParam{
-			{Title: "Yes"},
-			{Title: "No"},
-		},
-	}, createCalls[0])
+	require.Equal(t, f.broadcaster, createCalls[0].BroadcasterID)
+	require.Equal(t, 300, createCalls[0].PredictionWindow)
+	require.Equal(t, []helix.PredictionChoiceParam{
+		{Title: "Yes"},
+		{Title: "No"},
+	}, createCalls[0].Outcomes)
+	predictionCorrelationFromTitle(t, f.settings.settings.PredictionSettings.TitleTemplate, createCalls[0].Title)
+	require.LessOrEqual(t, utf8.RuneCountInString(createCalls[0].Title), maxPredictionTitleRunes)
 
 	record, ok := f.store.Record(predictionKey(f.channelID, 91))
 	require.True(t, ok)
@@ -471,6 +488,34 @@ func TestMatchStartedCreatesAndStoresPrediction(t *testing.T) {
 		NoOutcomeID:  "no-outcome",
 	}, record)
 	require.Equal(t, []uuid.UUID{f.twitchUser}, f.clients.userIDs)
+}
+
+func TestMatchStartedPersistsMarkedTitleAndCorrelationBeforeCreate(t *testing.T) {
+	f := newFixture(t)
+	f.store.commitErr = errors.New("redis temporarily unavailable")
+	message := startMessage(f, 911)
+	key := predictionKey(f.channelID, message.MatchID)
+
+	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+
+	require.ErrorIs(t, err, f.store.commitErr)
+	createCalls := f.client.CreateCalls()
+	require.Len(t, createCalls, 1)
+	correlation := predictionCorrelationFromTitle(
+		t,
+		f.settings.settings.PredictionSettings.TitleTemplate,
+		createCalls[0].Title,
+	)
+	intent, pendingErr := f.store.GetPending(context.Background(), key)
+	require.NoError(t, pendingErr)
+	require.Equal(t, createCalls[0].Title, intent.Title)
+	require.Equal(t, correlation, intent.Correlation)
+
+	encodedIntent, marshalErr := json.Marshal(intent)
+	require.NoError(t, marshalErr)
+	var persisted map[string]any
+	require.NoError(t, json.Unmarshal(encodedIntent, &persisted))
+	require.Equal(t, correlation, persisted["correlation"])
 }
 
 func TestMatchStartedSkipsIneligibleInputs(t *testing.T) {
@@ -572,15 +617,24 @@ func TestMatchStartedEnforcesTwitchPredictionWindowLimits(t *testing.T) {
 }
 
 func TestMatchStartedEnforcesTwitchPredictionTitleRuneLimits(t *testing.T) {
+	const correlationMarkerRunes = 16
+	longestTemplateRunes := maxPredictionTitleRunes - correlationMarkerRunes
+
 	for _, tt := range []struct {
 		name    string
 		title   string
 		creates bool
 	}{
-		{name: "45 ASCII characters accepted", title: strings.Repeat("a", 45), creates: true},
-		{name: "46 ASCII characters rejected", title: strings.Repeat("a", 46), creates: false},
-		{name: "45 multibyte characters accepted", title: strings.Repeat("界", 45), creates: true},
-		{name: "46 multibyte characters rejected", title: strings.Repeat("界", 46), creates: false},
+		{
+			name:    "longest template that fits the marker is accepted",
+			title:   strings.Repeat("界", longestTemplateRunes),
+			creates: true,
+		},
+		{
+			name:    "one rune over the marker boundary is rejected",
+			title:   strings.Repeat("界", longestTemplateRunes+1),
+			creates: false,
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFixture(t)
