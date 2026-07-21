@@ -17,7 +17,7 @@ An error from either binding lookup stops reinitialization before subscriptions 
 
 ## Structure
 
-Extract the post-cleanup work into an unexported helper that accepts the subscription callback. `reinitChannels` passes a callback that invokes `subscribeToAllEventsByChannelID(ctx, id, "")`, so platform-specific lifecycle behavior remains unchanged. The callback seam keeps the regression test local and avoids Twitch, token, database, or Docker dependencies.
+Extract the post-cleanup work into an unexported helper that accepts the subscription callback. `reinitChannels` passes a callback that invokes `subscribeToAllEventsByChannelID(ctx, id, "")`, so platform-specific lifecycle behavior remains unchanged. Callbacks run with a local maximum of ten concurrent channel reinitializations, preserving the prior paged selection's effective upper bound. The callback seam keeps the regression test local and avoids Twitch, token, database, or Docker dependencies.
 
 ## Testing
 

@@ -375,6 +375,8 @@ func (c *BusListener) reinitChannels(
 }
 
 func (c *BusListener) reinitBoundChannels(ctx context.Context, reinit func(uuid.UUID)) (int, error) {
+	const maxConcurrentReinitializations = 10
+
 	twitchChannels, err := c.channelsRepo.GetAllByBindingPlatform(ctx, platformentity.PlatformTwitch)
 	if err != nil {
 		return 0, err
@@ -393,12 +395,15 @@ func (c *BusListener) reinitBoundChannels(ctx context.Context, reinit func(uuid.
 		channelIDs[channel.ID] = struct{}{}
 	}
 
+	semaphore := make(chan struct{}, maxConcurrentReinitializations)
 	var wg sync.WaitGroup
 	for channelID := range channelIDs {
+		semaphore <- struct{}{}
 		wg.Add(1)
 
 		go func(channelID uuid.UUID) {
 			defer wg.Done()
+			defer func() { <-semaphore }()
 			reinit(channelID)
 		}(channelID)
 	}
