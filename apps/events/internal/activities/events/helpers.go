@@ -9,11 +9,12 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/events/internal/channelbinding"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channels "github.com/twirapp/twir/libs/repositories/channels"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.temporal.io/sdk/activity"
 )
@@ -107,7 +108,7 @@ func (c *Activity) getChannelMods(client *helix.Client, twitchPlatformID string)
 			return nil, err
 		}
 		if modsReq.ErrorMessage != "" {
-			return nil, fmt.Errorf(modsReq.ErrorMessage)
+			return nil, errors.New(modsReq.ErrorMessage)
 		}
 
 		moderators = append(moderators, modsReq.Data.Moderators...)
@@ -140,7 +141,7 @@ func (c *Activity) getChannelVips(client *helix.Client, twitchPlatformID string)
 			return nil, err
 		}
 		if vipsReq.ErrorMessage != "" {
-			return nil, fmt.Errorf(vipsReq.ErrorMessage)
+			return nil, errors.New(vipsReq.ErrorMessage)
 		}
 
 		vips = append(vips, vipsReq.Data.ChannelsVips...)
@@ -191,21 +192,27 @@ func (c *Activity) getChannelRuntimeInfoByChannelUUID(
 		return channelRuntimeInfo{}, err
 	}
 
-	var broadcasterUserID string
-	if channel.TwitchPlatformID != nil {
-		broadcasterUserID = *channel.TwitchPlatformID
+	return getTwitchChannelRuntimeInfo(channel)
+}
+
+func getTwitchChannelRuntimeInfo(channel channelsmodel.Channel) (channelRuntimeInfo, error) {
+	twitchBinding, ok := channelbinding.Find(channel, platform.PlatformTwitch)
+	if !ok {
+		return channelRuntimeInfo{}, errors.New("twitch channel binding not found")
 	}
 
-	var twitchPlatformID string
-	if channel.TwitchPlatformID != nil {
-		twitchPlatformID = *channel.TwitchPlatformID
+	botConfig, err := channelbinding.ParseTwitchBotConfig(twitchBinding)
+	if err != nil {
+		return channelRuntimeInfo{}, fmt.Errorf("parse Twitch bot config: %w", err)
 	}
 
 	return channelRuntimeInfo{
 		ChannelID:         channel.ID.String(),
-		BroadcasterUserID: broadcasterUserID,
-		TwitchPlatformID:  twitchPlatformID,
-		BotID:             channel.BotID,
+		BroadcasterUserID: twitchBinding.PlatformChannelID,
+		TwitchPlatformID:  twitchBinding.PlatformChannelID,
+		BotID:             botConfig.BotID,
+		IsBotMod:          botConfig.IsBotMod,
+		IsTwitchBanned:    botConfig.IsTwitchBanned,
 	}, nil
 }
 
@@ -213,16 +220,11 @@ func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
 	ctx context.Context,
 	twitchBroadcasterID string,
 ) (channelRuntimeInfo, error) {
-	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchBroadcasterID)
-	if err != nil {
-		if errors.Is(err, usersmodel.ErrNotFound) {
-			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
-		}
-
-		return channelRuntimeInfo{}, err
-	}
-
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByPlatformChannelID(
+		ctx,
+		platform.PlatformTwitch,
+		twitchBroadcasterID,
+	)
 	if err != nil {
 		if errors.Is(err, channels.ErrNotFound) {
 			return channelRuntimeInfo{}, fmt.Errorf("channel not found")
@@ -231,12 +233,7 @@ func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
 		return channelRuntimeInfo{}, err
 	}
 
-	return channelRuntimeInfo{
-		ChannelID:         channel.ID.String(),
-		BroadcasterUserID: twitchBroadcasterID,
-		TwitchPlatformID:  twitchBroadcasterID,
-		BotID:             channel.BotID,
-	}, nil
+	return getTwitchChannelRuntimeInfo(channel)
 }
 
 func (c *Activity) getHelixUserByLogin(client *helix.Client, userLogin string) (helix.User, error) {
@@ -249,7 +246,7 @@ func (c *Activity) getHelixUserByLogin(client *helix.Client, userLogin string) (
 		return helix.User{}, err
 	}
 	if user.ErrorMessage != "" {
-		return helix.User{}, fmt.Errorf(user.ErrorMessage)
+		return helix.User{}, errors.New(user.ErrorMessage)
 	}
 
 	if len(user.Data.Users) == 0 {
@@ -269,7 +266,7 @@ func (c *Activity) getHelixUserById(client *helix.Client, userId string) (helix.
 		return helix.User{}, err
 	}
 	if user.ErrorMessage != "" {
-		return helix.User{}, fmt.Errorf(user.ErrorMessage)
+		return helix.User{}, errors.New(user.ErrorMessage)
 	}
 
 	if len(user.Data.Users) == 0 {
