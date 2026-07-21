@@ -93,6 +93,26 @@ func ValidateMatchResultInput(input ApplyMatchResultInput) error {
 	return nil
 }
 
+func ValidateOutboxActionInput(input model.OutboxActionInput) error {
+	if input.ChannelID == uuid.Nil {
+		return errors.New("channel ID is required")
+	}
+	if input.MatchID <= 0 {
+		return errors.New("match ID must be positive")
+	}
+	if !isOutboxAction(input.Action) {
+		return errors.New("action is invalid")
+	}
+	if input.Sequence <= 0 {
+		return errors.New("sequence must be positive")
+	}
+	if err := validateJSON("payload", input.Payload); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ValidateApplyMatchStateTransitionInput(input ApplyMatchStateTransitionInput) error {
 	if input.ChannelID == uuid.Nil {
 		return errors.New("channel ID is required")
@@ -115,17 +135,8 @@ func ValidateApplyMatchStateTransitionInput(input ApplyMatchStateTransitionInput
 		if action.ChannelID != input.ChannelID {
 			return fmt.Errorf("action %d channel ID must match transition channel ID", index)
 		}
-		if action.MatchID <= 0 {
-			return fmt.Errorf("action %d match ID must be positive", index)
-		}
-		if !isOutboxAction(action.Action) {
-			return fmt.Errorf("action %d is invalid", index)
-		}
-		if action.Sequence <= 0 {
-			return fmt.Errorf("action %d sequence must be positive", index)
-		}
-		if err := validateJSON(fmt.Sprintf("action %d payload", index), action.Payload); err != nil {
-			return err
+		if err := ValidateOutboxActionInput(action); err != nil {
+			return fmt.Errorf("action %d: %w", index, err)
 		}
 
 		key := struct {

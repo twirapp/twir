@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -121,47 +122,23 @@ func TestScanMatchStateReturnsIdleStateWhenNoRowExists(t *testing.T) {
 
 func TestClaimPredictionActions(t *testing.T) {
 	channelID := uuid.New()
-	create := model.ClaimedOutboxAction{
-		ID: uuid.New(),
-		OutboxActionInput: model.OutboxActionInput{
-			ChannelID: channelID,
-			MatchID:   42,
-			Action:    model.OutboxActionCreate,
-			Sequence:  10,
-			Payload:   json.RawMessage(`{"kind":"create"}`),
-		},
-	}
-	resolve := model.ClaimedOutboxAction{
-		ID: uuid.New(),
-		OutboxActionInput: model.OutboxActionInput{
-			ChannelID: channelID,
-			MatchID:   42,
-			Action:    model.OutboxActionResolve,
-			Sequence:  11,
-			Payload:   json.RawMessage(`{"kind":"resolve"}`),
-		},
-	}
+	now := time.Date(2026, time.July, 21, 2, 0, 0, 0, time.UTC)
+	input := dota.ClaimPredictionActionsInput{Limit: 2, Lease: time.Minute}
 
-	t.Run("returns only the first unfinished action for a match", func(t *testing.T) {
-		executor := &claimPredictionActionsExecutorFake{rows: []model.ClaimedOutboxAction{create}}
+	t.Run("returns create then resolve after create completes", func(t *testing.T) {
+		create := testOutboxAction(channelID, 42, model.OutboxActionCreate, 10, now)
+		resolve := testOutboxAction(channelID, 42, model.OutboxActionResolve, 11, now.Add(time.Second))
+		executor := newPredictionActionStoreExecutor(now, create, resolve)
 
-		claimed, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, dota.ClaimPredictionActionsInput{
-			Limit: 2,
-			Lease: time.Minute,
-		})
+		first, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
 		if err != nil {
-			t.Fatalf("claimPredictionActions() error = %v", err)
+			t.Fatalf("first claimPredictionActions() error = %v", err)
 		}
-		if len(claimed) != 1 {
-			t.Fatalf("claimed actions = %#v, want only create action", claimed)
+		if len(first) != 1 {
+			t.Fatalf("first claimed actions = %#v, want only create", first)
 		}
-		if got := claimed[0]; got.Action != model.OutboxActionCreate || got.Sequence != 10 {
-			t.Errorf("claimed action = %#v, want create sequence 10", got)
-		}
-		for _, action := range claimed {
-			if action.ID == resolve.ID {
-				t.Fatalf("claimed resolve sequence 11 before create sequence 10")
-			}
+		if got := first[0]; got.ID != create.ID || got.Action != model.OutboxActionCreate || got.Sequence != 10 {
+			t.Errorf("first claimed action = %#v, want create sequence 10", got)
 		}
 		if !strings.Contains(executor.query, "DISTINCT ON (channel_id, match_id)") {
 			t.Errorf("claim query does not select the first action per match: %s", executor.query)
@@ -169,57 +146,108 @@ func TestClaimPredictionActions(t *testing.T) {
 		if !strings.Contains(executor.query, "FOR UPDATE OF outbox SKIP LOCKED") {
 			t.Errorf("claim query does not lock candidates with SKIP LOCKED: %s", executor.query)
 		}
-	})
 
-	t.Run("reclaims an expired lease with a new token", func(t *testing.T) {
-		executor := &claimPredictionActionsExecutorFake{rows: []model.ClaimedOutboxAction{create}}
-		input := dota.ClaimPredictionActionsInput{Limit: 1, Lease: time.Minute}
-
-		first, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
-		if err != nil {
-			t.Fatalf("first claimPredictionActions() error = %v", err)
+		if err := (&Pgx{}).completePredictionAction(context.Background(), executor, first[0].ID, first[0].LockToken); err != nil {
+			t.Fatalf("completePredictionAction() error = %v", err)
 		}
+
 		second, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
 		if err != nil {
 			t.Fatalf("second claimPredictionActions() error = %v", err)
 		}
-		if len(first) != 1 || len(second) != 1 {
-			t.Fatalf("claimed rows = %#v, %#v; want one reclaimed row each", first, second)
+		if len(second) != 1 {
+			t.Fatalf("second claimed actions = %#v, want only resolve", second)
 		}
-		if first[0].LockToken == second[0].LockToken {
-			t.Errorf("reclaimed lock token = %s, want a new token", second[0].LockToken)
+		if got := second[0]; got.ID != resolve.ID || got.Action != model.OutboxActionResolve || got.Sequence != 11 {
+			t.Errorf("second claimed action = %#v, want resolve sequence 11", got)
 		}
-		if second[0].Attempts <= first[0].Attempts {
-			t.Errorf("reclaimed attempts = %d, want greater than %d", second[0].Attempts, first[0].Attempts)
+	})
+
+	t.Run("does not reclaim a non-expired lease", func(t *testing.T) {
+		action := testOutboxAction(channelID, 43, model.OutboxActionCreate, 10, now)
+		lockToken := uuid.New()
+		lockedAt := now.Add(-30 * time.Second)
+		action.Attempts = 1
+		action.LockToken = lockToken
+		action.LockedAt = &lockedAt
+		executor := newPredictionActionStoreExecutor(now, action)
+
+		claimed, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
+		if err != nil {
+			t.Fatalf("claimPredictionActions() error = %v", err)
 		}
-		if !strings.Contains(executor.query, "locked_at < now()") {
-			t.Errorf("claim query does not permit expired leases: %s", executor.query)
+		if len(claimed) != 0 {
+			t.Fatalf("claimed actions = %#v, want none while lease is active", claimed)
+		}
+		stored := executor.action(action.ID)
+		if stored.LockToken != lockToken || stored.Attempts != 1 || stored.CompletedAt != nil {
+			t.Errorf("stored action changed during active lease = %#v", stored)
+		}
+	})
+
+	t.Run("reclaims an expired lease with a new token and incremented attempts", func(t *testing.T) {
+		action := testOutboxAction(channelID, 44, model.OutboxActionCreate, 10, now)
+		previousToken := uuid.New()
+		lockedAt := now.Add(-61 * time.Second)
+		action.Attempts = 1
+		action.LockToken = previousToken
+		action.LockedAt = &lockedAt
+		executor := newPredictionActionStoreExecutor(now, action)
+
+		claimed, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
+		if err != nil {
+			t.Fatalf("claimPredictionActions() error = %v", err)
+		}
+		if len(claimed) != 1 {
+			t.Fatalf("claimed actions = %#v, want one reclaimed action", claimed)
+		}
+		if got := claimed[0]; got.LockToken == previousToken || got.Attempts != 2 {
+			t.Errorf("reclaimed action = %#v, want new token and attempts 2", got)
+		}
+		stored := executor.action(action.ID)
+		if stored.LockToken != claimed[0].LockToken || stored.Attempts != claimed[0].Attempts {
+			t.Errorf("stored reclaimed action = %#v, want %#v", stored, claimed[0])
 		}
 	})
 }
 
 func TestPredictionActionOwnershipLoss(t *testing.T) {
-	actionID := uuid.New()
+	now := time.Date(2026, time.July, 21, 2, 0, 0, 0, time.UTC)
+	action := testOutboxAction(uuid.New(), 42, model.OutboxActionCreate, 10, now)
+	ownerToken := uuid.New()
+	lockedAt := now.Add(-time.Second)
+	action.Attempts = 1
+	action.LockToken = ownerToken
+	action.LockedAt = &lockedAt
+	executor := newPredictionActionStoreExecutor(now, action)
 	wrongToken := uuid.New()
-	executor := &predictionActionMutationExecutorFake{}
 
-	t.Run("completion reports ownership loss for a wrong token", func(t *testing.T) {
-		err := (&Pgx{}).completePredictionAction(context.Background(), executor, actionID, wrongToken)
+	t.Run("completion with a wrong token reports ownership loss and leaves the row unfinished", func(t *testing.T) {
+		err := (&Pgx{}).completePredictionAction(context.Background(), executor, action.ID, wrongToken)
 		if !errors.Is(err, dota.ErrPredictionActionOwnershipLost) {
 			t.Fatalf("completePredictionAction() error = %v, want ownership loss", err)
 		}
+		stored := executor.action(action.ID)
+		if stored.CompletedAt != nil || stored.LockToken != ownerToken {
+			t.Errorf("stored action changed after failed completion = %#v", stored)
+		}
 	})
 
-	t.Run("retry reports ownership loss for a wrong token", func(t *testing.T) {
+	t.Run("retry with a wrong token reports ownership loss and leaves the row unfinished", func(t *testing.T) {
+		availableAt := now.Add(time.Minute)
 		err := (&Pgx{}).retryPredictionAction(
 			context.Background(),
 			executor,
-			actionID,
+			action.ID,
 			wrongToken,
-			time.Now().Add(time.Minute),
+			availableAt,
 		)
 		if !errors.Is(err, dota.ErrPredictionActionOwnershipLost) {
 			t.Fatalf("retryPredictionAction() error = %v, want ownership loss", err)
+		}
+		stored := executor.action(action.ID)
+		if stored.CompletedAt != nil || stored.LockToken != ownerToken || !stored.AvailableAt.Equal(action.AvailableAt) {
+			t.Errorf("stored action changed after failed retry = %#v", stored)
 		}
 	})
 }
@@ -367,39 +395,190 @@ func (r matchLifecycleRow) Scan(dest ...any) error {
 	return nil
 }
 
-type claimPredictionActionsExecutorFake struct {
-	rows       []model.ClaimedOutboxAction
-	query      string
-	attempts   int
-	queryError error
+type predictionActionStoreExecutorFake struct {
+	now     time.Time
+	actions []storedPredictionAction
+	query   string
 }
 
-func (f *claimPredictionActionsExecutorFake) Query(
+type storedPredictionAction struct {
+	ID uuid.UUID
+	model.OutboxActionInput
+	Attempts    int
+	AvailableAt time.Time
+	LockedAt    *time.Time
+	LockToken   uuid.UUID
+	CompletedAt *time.Time
+	CreatedAt   time.Time
+}
+
+func newPredictionActionStoreExecutor(
+	now time.Time,
+	actions ...storedPredictionAction,
+) *predictionActionStoreExecutorFake {
+	return &predictionActionStoreExecutorFake{
+		now:     now,
+		actions: append([]storedPredictionAction(nil), actions...),
+	}
+}
+
+func testOutboxAction(
+	channelID uuid.UUID,
+	matchID int64,
+	action model.OutboxAction,
+	sequence int64,
+	createdAt time.Time,
+) storedPredictionAction {
+	return storedPredictionAction{
+		ID: uuid.New(),
+		OutboxActionInput: model.OutboxActionInput{
+			ChannelID: channelID,
+			MatchID:   matchID,
+			Action:    action,
+			Sequence:  sequence,
+			Payload:   json.RawMessage(`{"kind":"prediction"}`),
+		},
+		AvailableAt: createdAt.Add(-time.Second),
+		CreatedAt:   createdAt,
+	}
+}
+
+func (f *predictionActionStoreExecutorFake) Query(
 	_ context.Context,
 	query string,
 	arguments ...any,
 ) (jackcpgx.Rows, error) {
 	f.query = query
-	if f.queryError != nil {
-		return nil, f.queryError
-	}
 	if len(arguments) != 3 {
 		return nil, fmt.Errorf("claim arguments = %d, want 3", len(arguments))
 	}
 
+	leaseMicros, ok := arguments[0].(int64)
+	if !ok {
+		return nil, fmt.Errorf("claim lease = %T, want int64", arguments[0])
+	}
+	limit, ok := arguments[1].(int)
+	if !ok {
+		return nil, fmt.Errorf("claim limit = %T, want int", arguments[1])
+	}
 	lockToken, ok := arguments[2].(uuid.UUID)
 	if !ok {
 		return nil, fmt.Errorf("claim lock token = %T, want uuid.UUID", arguments[2])
 	}
-	f.attempts++
 
-	rows := append([]model.ClaimedOutboxAction(nil), f.rows...)
-	for index := range rows {
-		rows[index].LockToken = lockToken
-		rows[index].Attempts = f.attempts
+	lease := time.Duration(leaseMicros) * time.Microsecond
+	earliestByMatch := make(map[struct {
+		channelID uuid.UUID
+		matchID   int64
+	}]*storedPredictionAction)
+	for index := range f.actions {
+		action := &f.actions[index]
+		if action.CompletedAt != nil {
+			continue
+		}
+
+		key := struct {
+			channelID uuid.UUID
+			matchID   int64
+		}{channelID: action.ChannelID, matchID: action.MatchID}
+		current, exists := earliestByMatch[key]
+		if !exists || action.Sequence < current.Sequence ||
+			(action.Sequence == current.Sequence && action.CreatedAt.Before(current.CreatedAt)) {
+			earliestByMatch[key] = action
+		}
 	}
 
-	return &claimedOutboxRows{actions: rows}, nil
+	candidates := make([]*storedPredictionAction, 0, len(earliestByMatch))
+	for _, action := range earliestByMatch {
+		if action.AvailableAt.After(f.now) {
+			continue
+		}
+		if action.LockedAt != nil && !action.LockedAt.Before(f.now.Add(-lease)) {
+			continue
+		}
+		candidates = append(candidates, action)
+	}
+	sort.Slice(candidates, func(left, right int) bool {
+		if !candidates[left].AvailableAt.Equal(candidates[right].AvailableAt) {
+			return candidates[left].AvailableAt.Before(candidates[right].AvailableAt)
+		}
+		if candidates[left].Sequence != candidates[right].Sequence {
+			return candidates[left].Sequence < candidates[right].Sequence
+		}
+		return candidates[left].CreatedAt.Before(candidates[right].CreatedAt)
+	})
+	if len(candidates) > limit {
+		candidates = candidates[:limit]
+	}
+
+	claimed := make([]model.ClaimedOutboxAction, 0, len(candidates))
+	for _, action := range candidates {
+		lockedAt := f.now
+		action.LockedAt = &lockedAt
+		action.LockToken = lockToken
+		action.Attempts++
+		claimed = append(claimed, model.ClaimedOutboxAction{
+			ID:                action.ID,
+			LockToken:         action.LockToken,
+			OutboxActionInput: action.OutboxActionInput,
+			Attempts:          action.Attempts,
+		})
+	}
+
+	return &claimedOutboxRows{actions: claimed}, nil
+}
+
+func (f *predictionActionStoreExecutorFake) Exec(
+	_ context.Context,
+	query string,
+	arguments ...any,
+) (pgconn.CommandTag, error) {
+	if len(arguments) < 2 {
+		return pgconn.CommandTag{}, fmt.Errorf("action mutation arguments = %d, want at least 2", len(arguments))
+	}
+
+	actionID, ok := arguments[0].(uuid.UUID)
+	if !ok {
+		return pgconn.CommandTag{}, fmt.Errorf("action ID = %T, want uuid.UUID", arguments[0])
+	}
+	lockToken, ok := arguments[1].(uuid.UUID)
+	if !ok {
+		return pgconn.CommandTag{}, fmt.Errorf("lock token = %T, want uuid.UUID", arguments[1])
+	}
+	action := f.action(actionID)
+	if action == nil || action.CompletedAt != nil || action.LockToken != lockToken {
+		return pgconn.NewCommandTag("UPDATE 0"), nil
+	}
+
+	switch {
+	case strings.Contains(query, "SET completed_at = now()"):
+		completedAt := f.now
+		action.CompletedAt = &completedAt
+		action.LockedAt = nil
+		action.LockToken = uuid.Nil
+		return pgconn.NewCommandTag("UPDATE 1"), nil
+	case strings.Contains(query, "SET available_at = $3"):
+		availableAt, ok := arguments[2].(time.Time)
+		if !ok {
+			return pgconn.CommandTag{}, fmt.Errorf("available at = %T, want time.Time", arguments[2])
+		}
+		action.AvailableAt = availableAt
+		action.LockedAt = nil
+		action.LockToken = uuid.Nil
+		return pgconn.NewCommandTag("UPDATE 1"), nil
+	default:
+		return pgconn.CommandTag{}, fmt.Errorf("unexpected action mutation query: %s", query)
+	}
+}
+
+func (f *predictionActionStoreExecutorFake) action(id uuid.UUID) *storedPredictionAction {
+	for index := range f.actions {
+		if f.actions[index].ID == id {
+			return &f.actions[index]
+		}
+	}
+
+	return nil
 }
 
 type claimedOutboxRows struct {
@@ -461,17 +640,4 @@ func (r *claimedOutboxRows) RawValues() [][]byte {
 
 func (r *claimedOutboxRows) Conn() *jackcpgx.Conn {
 	return nil
-}
-
-type predictionActionMutationExecutorFake struct {
-	query string
-}
-
-func (f *predictionActionMutationExecutorFake) Exec(
-	_ context.Context,
-	query string,
-	_ ...any,
-) (pgconn.CommandTag, error) {
-	f.query = query
-	return pgconn.NewCommandTag("UPDATE 0"), nil
 }

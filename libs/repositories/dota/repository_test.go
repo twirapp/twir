@@ -100,6 +100,111 @@ func TestValidateMatchResultInput(t *testing.T) {
 	}
 }
 
+func TestValidateOutboxActionInput(t *testing.T) {
+	channelID := uuid.New()
+	validInput := func() model.OutboxActionInput {
+		return model.OutboxActionInput{
+			ChannelID: channelID,
+			MatchID:   42,
+			Action:    model.OutboxActionCreate,
+			Sequence:  10,
+			Payload:   json.RawMessage(`{"kind":"create"}`),
+		}
+	}
+
+	tests := []struct {
+		name  string
+		input model.OutboxActionInput
+		want  bool
+	}{
+		{
+			name:  "accepts a valid action",
+			input: validInput(),
+		},
+		{
+			name: "requires a channel ID",
+			input: func() model.OutboxActionInput {
+				input := validInput()
+				input.ChannelID = uuid.Nil
+				return input
+			}(),
+			want: true,
+		},
+		{
+			name: "rejects a zero match ID",
+			input: func() model.OutboxActionInput {
+				input := validInput()
+				input.MatchID = 0
+				return input
+			}(),
+			want: true,
+		},
+		{
+			name: "rejects a negative match ID",
+			input: func() model.OutboxActionInput {
+				input := validInput()
+				input.MatchID = -1
+				return input
+			}(),
+			want: true,
+		},
+		{
+			name: "rejects an unsupported action",
+			input: func() model.OutboxActionInput {
+				input := validInput()
+				input.Action = "unknown"
+				return input
+			}(),
+			want: true,
+		},
+		{
+			name: "rejects a zero sequence",
+			input: func() model.OutboxActionInput {
+				input := validInput()
+				input.Sequence = 0
+				return input
+			}(),
+			want: true,
+		},
+		{
+			name: "rejects a negative sequence",
+			input: func() model.OutboxActionInput {
+				input := validInput()
+				input.Sequence = -1
+				return input
+			}(),
+			want: true,
+		},
+		{
+			name: "requires a payload",
+			input: func() model.OutboxActionInput {
+				input := validInput()
+				input.Payload = json.RawMessage(" \t")
+				return input
+			}(),
+			want: true,
+		},
+		{
+			name: "rejects invalid payload JSON",
+			input: func() model.OutboxActionInput {
+				input := validInput()
+				input.Payload = json.RawMessage(`{`)
+				return input
+			}(),
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateOutboxActionInput(tt.input)
+			if got := err != nil; got != tt.want {
+				t.Errorf("ValidateOutboxActionInput() error = %v, want error = %t", err, tt.want)
+			}
+		})
+	}
+}
+
 func TestValidateApplyMatchStateTransitionInput(t *testing.T) {
 	channelID := uuid.New()
 
