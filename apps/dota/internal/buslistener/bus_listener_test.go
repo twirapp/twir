@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -161,6 +162,37 @@ func (f *fakeRepository) ApplyMatchResultOnce(
 	_ dotarepository.ApplyMatchResultInput,
 ) (model.ChannelDotaSettings, error) {
 	return model.Nil, errNotImplemented
+}
+
+func (f *fakeRepository) GetMatchState(_ context.Context, _ uuid.UUID) (model.MatchState, error) {
+	return model.MatchState{}, errNotImplemented
+}
+
+func (f *fakeRepository) ApplyMatchStateTransition(
+	_ context.Context,
+	_ dotarepository.ApplyMatchStateTransitionInput,
+) (bool, error) {
+	return false, errNotImplemented
+}
+
+func (f *fakeRepository) ClaimPredictionActions(
+	_ context.Context,
+	_ dotarepository.ClaimPredictionActionsInput,
+) ([]model.ClaimedOutboxAction, error) {
+	return nil, errNotImplemented
+}
+
+func (f *fakeRepository) CompletePredictionAction(_ context.Context, _ uuid.UUID, _ uuid.UUID) error {
+	return errNotImplemented
+}
+
+func (f *fakeRepository) RetryPredictionAction(
+	_ context.Context,
+	_ uuid.UUID,
+	_ uuid.UUID,
+	_ time.Time,
+) error {
+	return errNotImplemented
 }
 
 func (f *fakeRepository) ResetSession(

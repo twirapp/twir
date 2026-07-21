@@ -208,6 +208,37 @@ func (f *fakeRepo) ApplyMatchResultOnce(
 	return f.settings, nil
 }
 
+func (f *fakeRepo) GetMatchState(_ context.Context, _ uuid.UUID) (model.MatchState, error) {
+	return model.MatchState{}, errors.New("not implemented")
+}
+
+func (f *fakeRepo) ApplyMatchStateTransition(
+	_ context.Context,
+	_ dotarepository.ApplyMatchStateTransitionInput,
+) (bool, error) {
+	return false, errors.New("not implemented")
+}
+
+func (f *fakeRepo) ClaimPredictionActions(
+	_ context.Context,
+	_ dotarepository.ClaimPredictionActionsInput,
+) ([]model.ClaimedOutboxAction, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (f *fakeRepo) CompletePredictionAction(_ context.Context, _ uuid.UUID, _ uuid.UUID) error {
+	return errors.New("not implemented")
+}
+
+func (f *fakeRepo) RetryPredictionAction(
+	_ context.Context,
+	_ uuid.UUID,
+	_ uuid.UUID,
+	_ time.Time,
+) error {
+	return errors.New("not implemented")
+}
+
 func (f *fakeRepo) ResetSession(
 	_ context.Context,
 	_ uuid.UUID,
