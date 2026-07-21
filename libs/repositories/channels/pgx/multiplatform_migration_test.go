@@ -40,13 +40,149 @@ func TestChannelPlatformsMigrationContainsSafeBackfills(t *testing.T) {
 	}
 }
 
+func TestChannelPlatformsMigrationRejectsOrphanedProviderState(t *testing.T) {
+	migration := channelPlatformsMigrationUpSQL(t)
+
+	for _, fragment := range []string{
+		"c.twitch_user_id IS NULL",
+		"c.twitch_bot_enabled",
+		`c."isBotMod"`,
+		`c."isTwitchBanned"`,
+		"c.kick_user_id IS NULL",
+		"c.kick_bot_enabled",
+		"c.kick_bot_id IS NOT NULL",
+	} {
+		if !strings.Contains(migration, fragment) {
+			t.Fatalf("migration does not reject orphaned provider state %q", fragment)
+		}
+	}
+}
+
 func TestChannelPlatformsMigrationBackfillsLegacyBindings(t *testing.T) {
+	ctx := context.Background()
+	tx := newMigrationTestTransaction(t, ctx)
+	fixtures := insertLegacyChannelFixtures(t, ctx, tx)
+
+	if _, err := tx.Exec(ctx, channelPlatformsMigrationUpSQL(t), pgx.QueryExecModeSimpleProtocol); err != nil {
+		t.Fatalf("run channel_platforms migration: %v", err)
+	}
+
+	for _, fixture := range fixtures {
+		fixture := fixture
+		t.Run(fixture.name, func(t *testing.T) {
+			for _, want := range fixture.bindings {
+				assertBackfilledBinding(t, ctx, tx, fixture.channelID, want)
+			}
+		})
+	}
+
+	var bindingCount int
+	if err := tx.QueryRow(ctx, `SELECT COUNT(*) FROM channel_platforms`).Scan(&bindingCount); err != nil {
+		t.Fatalf("count backfilled bindings: %v", err)
+	}
+	if bindingCount != 4 {
+		t.Fatalf("backfilled binding count = %d, want 4", bindingCount)
+	}
+}
+
+func TestChannelPlatformsMigrationRejectsOrphanedProviderStateIntegration(t *testing.T) {
+	ctx := context.Background()
+
+	tests := []struct {
+		name  string
+		setup func(*testing.T, context.Context, pgx.Tx)
+	}{
+		{
+			name: "Twitch enabled without owner",
+			setup: func(t *testing.T, ctx context.Context, tx pgx.Tx) {
+				t.Helper()
+				if _, err := tx.Exec(
+					ctx,
+					`INSERT INTO channels (id, twitch_bot_enabled) VALUES ($1, true)`,
+					uuid.New(),
+				); err != nil {
+					t.Fatalf("insert orphaned Twitch enabled channel: %v", err)
+				}
+			},
+		},
+		{
+			name: "Twitch moderation state without owner",
+			setup: func(t *testing.T, ctx context.Context, tx pgx.Tx) {
+				t.Helper()
+				if _, err := tx.Exec(
+					ctx,
+					`INSERT INTO channels (id, "isBotMod") VALUES ($1, true)`,
+					uuid.New(),
+				); err != nil {
+					t.Fatalf("insert orphaned Twitch moderation channel: %v", err)
+				}
+			},
+		},
+		{
+			name: "Twitch ban state without owner",
+			setup: func(t *testing.T, ctx context.Context, tx pgx.Tx) {
+				t.Helper()
+				if _, err := tx.Exec(
+					ctx,
+					`INSERT INTO channels (id, "isTwitchBanned") VALUES ($1, true)`,
+					uuid.New(),
+				); err != nil {
+					t.Fatalf("insert orphaned Twitch ban channel: %v", err)
+				}
+			},
+		},
+		{
+			name: "Kick enabled without owner",
+			setup: func(t *testing.T, ctx context.Context, tx pgx.Tx) {
+				t.Helper()
+				if _, err := tx.Exec(
+					ctx,
+					`INSERT INTO channels (id, kick_bot_enabled) VALUES ($1, true)`,
+					uuid.New(),
+				); err != nil {
+					t.Fatalf("insert orphaned Kick enabled channel: %v", err)
+				}
+			},
+		},
+		{
+			name: "Kick bot ID without owner",
+			setup: func(t *testing.T, ctx context.Context, tx pgx.Tx) {
+				t.Helper()
+				botUserID := insertLegacyUser(t, ctx, tx, platform.PlatformKick, "orphaned-kick-bot")
+				botID := insertLegacyKickBot(t, ctx, tx, botUserID)
+				if _, err := tx.Exec(
+					ctx,
+					`INSERT INTO channels (id, kick_bot_id) VALUES ($1, $2)`,
+					uuid.New(),
+					botID,
+				); err != nil {
+					t.Fatalf("insert orphaned Kick bot channel: %v", err)
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			tx := newMigrationTestTransaction(t, ctx)
+			tt.setup(t, ctx, tx)
+
+			if _, err := tx.Exec(ctx, channelPlatformsMigrationUpSQL(t), pgx.QueryExecModeSimpleProtocol); err == nil {
+				t.Fatal("channel_platforms migration accepted orphaned provider state")
+			}
+		})
+	}
+}
+
+func newMigrationTestTransaction(t *testing.T, ctx context.Context) pgx.Tx {
+	t.Helper()
+
 	databaseURL := os.Getenv(channelPlatformsMigrationTestDatabaseURLEnv)
 	if databaseURL == "" {
 		t.Skipf("set %s to run PostgreSQL migration tests", channelPlatformsMigrationTestDatabaseURLEnv)
 	}
 
-	ctx := context.Background()
 	pool, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
 		t.Fatalf("create PostgreSQL pool: %v", err)
@@ -72,28 +208,7 @@ func TestChannelPlatformsMigrationBackfillsLegacyBindings(t *testing.T) {
 	})
 
 	setupMigrationTestSchema(t, ctx, tx)
-	fixtures := insertLegacyChannelFixtures(t, ctx, tx)
-
-	if _, err := tx.Exec(ctx, channelPlatformsMigrationUpSQL(t), pgx.QueryExecModeSimpleProtocol); err != nil {
-		t.Fatalf("run channel_platforms migration: %v", err)
-	}
-
-	for _, fixture := range fixtures {
-		fixture := fixture
-		t.Run(fixture.name, func(t *testing.T) {
-			for _, want := range fixture.bindings {
-				assertBackfilledBinding(t, ctx, tx, fixture.channelID, want)
-			}
-		})
-	}
-
-	var bindingCount int
-	if err := tx.QueryRow(ctx, `SELECT COUNT(*) FROM channel_platforms`).Scan(&bindingCount); err != nil {
-		t.Fatalf("count backfilled bindings: %v", err)
-	}
-	if bindingCount != 4 {
-		t.Fatalf("backfilled binding count = %d, want 4", bindingCount)
-	}
+	return tx
 }
 
 type legacyChannelFixture struct {
