@@ -61,7 +61,7 @@ func (c *Activity) ModOrUnmod(
 
 	errWg.Go(
 		func() error {
-			m, err := c.getChannelMods(twitchClient, data.ChannelID)
+			m, err := c.getChannelMods(twitchClient, data.ChannelTwitchPlatformID)
 			if err != nil {
 				return err
 			}
@@ -74,7 +74,7 @@ func (c *Activity) ModOrUnmod(
 
 	errWg.Go(
 		func() error {
-			ch, err := c.getChannelDbEntity(ctx, data.ChannelID)
+			ch, err := c.getTwitchChannelDbEntity(ctx, data)
 			if err != nil {
 				return err
 			}
@@ -106,7 +106,7 @@ func (c *Activity) ModOrUnmod(
 
 		resp, err := twitchClient.AddChannelModerator(
 			&helix.AddChannelModeratorParams{
-				BroadcasterID: data.ChannelID,
+				BroadcasterID: data.ChannelTwitchPlatformID,
 				UserID:        user.ID,
 			},
 		)
@@ -123,7 +123,7 @@ func (c *Activity) ModOrUnmod(
 
 		resp, err := twitchClient.RemoveChannelModerator(
 			&helix.RemoveChannelModeratorParams{
-				BroadcasterID: data.ChannelID,
+				BroadcasterID: data.ChannelTwitchPlatformID,
 				UserID:        user.ID,
 			},
 		)
@@ -145,7 +145,7 @@ func (c *Activity) UnmodRandom(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbChannel, dbChannelErr := c.getTwitchChannelDbEntity(ctx, data)
 	if dbChannelErr != nil {
 		return dbChannelErr
 	}
@@ -155,7 +155,7 @@ func (c *Activity) UnmodRandom(
 		return twitchClientErr
 	}
 
-	mods, modsErr := c.getChannelMods(twitchClient, data.ChannelID)
+	mods, modsErr := c.getChannelMods(twitchClient, data.ChannelTwitchPlatformID)
 	if modsErr != nil {
 		return modsErr
 	}
@@ -170,7 +170,7 @@ func (c *Activity) UnmodRandom(
 
 	removeReq, err := twitchClient.RemoveChannelModerator(
 		&helix.RemoveChannelModeratorParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: data.ChannelTwitchPlatformID,
 			UserID:        randomMod.UserID,
 		},
 	)

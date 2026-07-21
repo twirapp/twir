@@ -170,6 +170,17 @@ func (c *Activity) getChannelDbEntity(ctx context.Context, channelId string) (
 	}, nil
 }
 
+func (c *Activity) getTwitchChannelDbEntity(ctx context.Context, data shared.EventData) (
+	model.Channels,
+	error,
+) {
+	if data.ChannelTwitchPlatformID == "" {
+		return model.Channels{}, errors.New("twitch broadcaster id is empty")
+	}
+
+	return c.getChannelDbEntity(ctx, data.ChannelTwitchPlatformID)
+}
+
 func (c *Activity) getChannelRuntimeInfo(ctx context.Context, channelId string) (channelRuntimeInfo, error) {
 	channelUUID, err := uuid.Parse(channelId)
 	if err == nil {

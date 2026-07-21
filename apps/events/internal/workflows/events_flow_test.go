@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -55,5 +56,19 @@ func TestGetEventChannelBindingsSelectsEventAndTwitchBindingsByPlatform(t *testi
 	}
 	if !bindings.twitchBotConfig.IsTwitchBanned {
 		t.Error("Twitch ban state = false, want true")
+	}
+
+	data := bindings.applyTo(shared.EventData{
+		ChannelID: "incoming-kick-channel",
+		Platform:  platform.PlatformKick,
+	})
+	if data.ChannelID != "kick-channel" {
+		t.Errorf("event ChannelID = %q, want %q", data.ChannelID, "kick-channel")
+	}
+	if data.ChannelTwitchPlatformID != "twitch-channel" {
+		t.Errorf("Twitch broadcaster ID = %q, want %q", data.ChannelTwitchPlatformID, "twitch-channel")
+	}
+	if data.ChannelTwitchUserID != twitchUserID.String() {
+		t.Errorf("Twitch user ID = %q, want %q", data.ChannelTwitchUserID, twitchUserID)
 	}
 }

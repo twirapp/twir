@@ -69,7 +69,7 @@ func (c *EventWorkflow) Flow(
 	if err != nil {
 		return err
 	}
-	data.ChannelID = bindings.event.PlatformChannelID
+	data = bindings.applyTo(data)
 
 	stream, err := c.streamsRepo.GetByChannelID(eventsCtx, channel.ID, streamPlatform)
 	if err != nil {
@@ -156,11 +156,6 @@ func (c *EventWorkflow) Flow(
 
 	// populate event type into data so activities can reference it
 	data.EventType = string(eventType)
-
-	// Preserve Twitch operation tokens independently of the triggering platform.
-	if bindings.hasTwitch {
-		data.ChannelTwitchUserID = bindings.twitch.UserID.String()
-	}
 
 	// execute event operations
 	for _, operation := range operations {
@@ -434,6 +429,16 @@ type eventChannelBindings struct {
 	twitch          channelplatformsmodel.ChannelPlatform
 	twitchBotConfig channelbinding.TwitchBotConfig
 	hasTwitch       bool
+}
+
+func (b eventChannelBindings) applyTo(data shared.EventData) shared.EventData {
+	data.ChannelID = b.event.PlatformChannelID
+	if b.hasTwitch {
+		data.ChannelTwitchPlatformID = b.twitch.PlatformChannelID
+		data.ChannelTwitchUserID = b.twitch.UserID.String()
+	}
+
+	return data
 }
 
 func getEventChannelBindings(

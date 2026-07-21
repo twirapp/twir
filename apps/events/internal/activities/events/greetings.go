@@ -23,7 +23,7 @@ func (c *Activity) CreateGreeting(
 		return errors.New("reward input is empty")
 	}
 
-	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbChannel, dbChannelErr := c.getTwitchChannelDbEntity(ctx, data)
 	if dbChannelErr != nil {
 		return dbChannelErr
 	}

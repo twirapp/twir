@@ -46,7 +46,7 @@ func (c *Activity) Ban(
 
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
-	dbChannel, err := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbChannel, err := c.getTwitchChannelDbEntity(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (c *Activity) Ban(
 
 	errwg.Go(
 		func() error {
-			m, err := c.getChannelMods(broadcasterTwitchClient, data.ChannelID)
+			m, err := c.getChannelMods(broadcasterTwitchClient, data.ChannelTwitchPlatformID)
 			if err != nil {
 				return err
 			}
@@ -103,7 +103,7 @@ func (c *Activity) Ban(
 
 	banReq, err := botTwitchClient.BanUser(
 		&helix.BanUserParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: data.ChannelTwitchPlatformID,
 			ModeratorId:   dbChannel.BotID,
 			Body: helix.BanUserRequestBody{
 				Duration: operation.TimeoutTime,
@@ -147,7 +147,7 @@ func (c *Activity) Unban(
 
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
-	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbChannel, dbChannelErr := c.getTwitchChannelDbEntity(ctx, data)
 	if dbChannelErr != nil {
 		return dbChannelErr
 	}
@@ -168,7 +168,7 @@ func (c *Activity) Unban(
 
 	resp, err := botTwitchClient.UnbanUser(
 		&helix.UnbanUserParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: data.ChannelTwitchPlatformID,
 			ModeratorID:   dbChannel.BotID,
 			UserID:        targetUser.ID,
 		},
@@ -190,7 +190,7 @@ func (c *Activity) BanRandom(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	dbChannel, err := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbChannel, err := c.getTwitchChannelDbEntity(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (c *Activity) BanRandom(
 		return twitchBotClientError
 	}
 
-	mods, err := c.getChannelMods(broadcasterTwitchClient, data.ChannelID)
+	mods, err := c.getChannelMods(broadcasterTwitchClient, data.ChannelTwitchPlatformID)
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func (c *Activity) BanRandom(
 
 	banReq, err := botTwitchClient.BanUser(
 		&helix.BanUserParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: data.ChannelTwitchPlatformID,
 			ModeratorId:   dbChannel.BotID,
 			Body: helix.BanUserRequestBody{
 				Duration: timeoutTime,
