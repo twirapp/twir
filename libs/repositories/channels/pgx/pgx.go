@@ -354,10 +354,10 @@ func (c *Pgx) GetBySlug(ctx context.Context, opts channels.GetBySlugInput) (mode
 		switch *opts.Platform {
 		case platform.PlatformKick:
 			query = query + ` WHERE ku."login" = $1`
-			query = query + ` AND ku."platform_id" = $2`
+			query = query + ` AND ku."platform" = $2`
 		case platform.PlatformTwitch:
 			query = query + ` WHERE tu."platform_id" = $1`
-			query = query + ` AND tu."platform_id" = $2`
+			query = query + ` AND tu."platform" = $2`
 		}
 
 		args = append(args, *opts.Platform)
