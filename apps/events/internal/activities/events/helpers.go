@@ -189,6 +189,9 @@ func twitchBroadcasterID(data shared.EventData) string {
 	if data.Platform == platform.PlatformTwitch {
 		return data.ChannelID
 	}
+	if data.Platform == "" && data.ChannelTwitchUserID != "" {
+		return data.ChannelID
+	}
 
 	return ""
 }
