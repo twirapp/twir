@@ -21,9 +21,11 @@ import (
 func TestResolveApiKeyChannelIdentityUsesBindingLookup(t *testing.T) {
 	twitchUserID := uuid.New()
 	kickUserID := uuid.New()
+	vkVideoLiveUserID := uuid.New()
 	channelID := uuid.New()
 	twitchPlatformID := "12345"
 	kickPlatformID := "67890"
+	vkVideoLivePlatformID := "vk-channel"
 
 	tests := []struct {
 		name         string
@@ -43,18 +45,32 @@ func TestResolveApiKeyChannelIdentityUsesBindingLookup(t *testing.T) {
 			wantPlatform: platformentity.PlatformKick,
 			wantUserID:   kickUserID,
 		},
+		{
+			name:         "vk video live api key resolves linked channel targets",
+			user:         usersmodel.User{ID: vkVideoLiveUserID, Platform: platformentity.PlatformVKVideoLive},
+			wantPlatform: platformentity.PlatformVKVideoLive,
+			wantUserID:   vkVideoLiveUserID,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			users := &fakeUsersRepository{user: tt.user}
-			channels := &fakeChannelsRepository{channel: channelWithBindings(
+			channel := channelWithBindings(
 				channelID,
 				twitchUserID,
 				twitchPlatformID,
 				kickUserID,
 				kickPlatformID,
-			)}
+			)
+			channel.Bindings = append(channel.Bindings, channelplatformsmodel.ChannelPlatform{
+				Platform:          platformentity.PlatformVKVideoLive,
+				UserID:            vkVideoLiveUserID,
+				PlatformChannelID: vkVideoLivePlatformID,
+				Enabled:           true,
+				BotConfig:         json.RawMessage(`{}`),
+			})
+			channels := &fakeChannelsRepository{channel: channel}
 			service := newTestService(users, channels)
 
 			identity, err := service.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
@@ -82,6 +98,14 @@ func TestResolveApiKeyChannelIdentityUsesBindingLookup(t *testing.T) {
 					t.Fatalf("target %q = %q, want %q", platform, gotTargets[platform], wantID)
 				}
 			}
+			if tt.wantPlatform == platformentity.PlatformVKVideoLive && gotTargets[tt.wantPlatform.String()] != vkVideoLivePlatformID {
+				t.Fatalf(
+					"target %q = %q, want %q",
+					tt.wantPlatform,
+					gotTargets[tt.wantPlatform.String()],
+					vkVideoLivePlatformID,
+				)
+			}
 
 			if len(channels.bindingUserLookups) != 1 {
 				t.Fatalf("GetByBindingUserID calls = %d, want 1", len(channels.bindingUserLookups))
@@ -97,6 +121,56 @@ func TestResolveApiKeyChannelIdentityUsesBindingLookup(t *testing.T) {
 				)
 			}
 		})
+	}
+}
+
+func TestResolveApiKeyChannelIdentityByAnyPlatformUUIDUsesVKBinding(t *testing.T) {
+	vkVideoLiveUserID := uuid.New()
+	channelID := uuid.New()
+	channel := channelsmodel.Channel{
+		ID: channelID,
+		Bindings: []channelplatformsmodel.ChannelPlatform{
+			{
+				Platform:          platformentity.PlatformVKVideoLive,
+				UserID:            vkVideoLiveUserID,
+				PlatformChannelID: "vk-channel",
+				Enabled:           true,
+				BotConfig:         json.RawMessage(`{}`),
+			},
+		},
+	}
+	channels := &fakeChannelsRepository{channel: channel}
+	service := newTestService(
+		&fakeUsersRepository{user: usersmodel.User{
+			ID:       vkVideoLiveUserID,
+			Platform: platformentity.PlatformVKVideoLive,
+		}},
+		channels,
+	)
+
+	identity, err := service.ResolveApiKeyChannelIdentityByAnyPlatformUUID(context.Background(), vkVideoLiveUserID)
+	if err != nil {
+		t.Fatalf("ResolveApiKeyChannelIdentityByAnyPlatformUUID() error = %v", err)
+	}
+	if identity.InternalChannelID != channelID.String() {
+		t.Fatalf("InternalChannelID = %q, want %q", identity.InternalChannelID, channelID)
+	}
+	if len(identity.ChatTargets) != 1 || identity.ChatTargets[0].Platform != platformentity.PlatformVKVideoLive.String() || identity.ChatTargets[0].PlatformChannelID != "vk-channel" {
+		t.Fatalf("ChatTargets = %#v, want VK Video Live channel", identity.ChatTargets)
+	}
+	if len(channels.bindingUserLookups) != 1 {
+		t.Fatalf("GetByBindingUserID calls = %d, want 1", len(channels.bindingUserLookups))
+	}
+
+	lookup := channels.bindingUserLookups[0]
+	if lookup.platform != platformentity.PlatformVKVideoLive || lookup.userID != vkVideoLiveUserID {
+		t.Fatalf(
+			"GetByBindingUserID(%s, %s), want (%s, %s)",
+			lookup.platform,
+			lookup.userID,
+			platformentity.PlatformVKVideoLive,
+			vkVideoLiveUserID,
+		)
 	}
 }
 
