@@ -129,3 +129,21 @@ func TestDualBoundKickEventKeepsEventIDAndResolvesTwitchRuntime(t *testing.T) {
 		t.Errorf("runtime broadcaster ID = %q, want %q", runtimeChannel.ID, "twitch-channel")
 	}
 }
+
+func TestTwitchBroadcasterIDKeepsLegacyTwitchEventCompatibility(t *testing.T) {
+	if got := twitchBroadcasterID(shared.EventData{
+		ChannelID: "twitch-channel",
+		Platform:  platform.PlatformTwitch,
+	}); got != "twitch-channel" {
+		t.Errorf("twitchBroadcasterID = %q, want %q", got, "twitch-channel")
+	}
+}
+
+func TestTwitchBroadcasterIDDoesNotUseKickEventID(t *testing.T) {
+	if got := twitchBroadcasterID(shared.EventData{
+		ChannelID: "kick-channel",
+		Platform:  platform.PlatformKick,
+	}); got != "" {
+		t.Errorf("twitchBroadcasterID = %q, want empty", got)
+	}
+}
