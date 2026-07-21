@@ -30,6 +30,7 @@ const { resetForm, handleSubmit, controlledValues, errors, setValues } = useForm
 		onlineEnabled: true,
 		platforms: [],
 	},
+	keepValuesOnUnmount: true,
 })
 
 onMounted(async () => {

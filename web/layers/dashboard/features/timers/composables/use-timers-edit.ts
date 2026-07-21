@@ -39,7 +39,7 @@ export const useTimersEdit = createGlobalState(() => {
 	async function findTimer(id: string) {
 		if (id === 'create') return
 
-		const fetchedData = await timers.then((timers) => timers)
+		const fetchedData = await timers.executeQuery().then((timers) => timers)
 		const timer = fetchedData.data?.value?.timers.find((timer) => timer.id === id)
 
 		if (!timer) throw new Error('Timer not found')
