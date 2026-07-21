@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -19,11 +21,13 @@ type redisStateEvalCall struct {
 }
 
 type fakeRedisStateClient struct {
-	values    map[string]string
-	actions   []string
-	getCalls  int
-	evalCalls []redisStateEvalCall
-	onEval    func(*fakeRedisStateClient, redisStateEvalCall) *redis.Cmd
+	values               map[string]string
+	actions              []string
+	getCalls             int
+	evalCalls            []redisStateEvalCall
+	failXAdd             bool
+	commitNextBeforeEval bool
+	onEval               func(*fakeRedisStateClient, redisStateEvalCall) *redis.Cmd
 }
 
 func newFakeRedisStateClient() *fakeRedisStateClient {
@@ -71,18 +75,52 @@ func (c *fakeRedisStateClient) Eval(
 		return redis.NewCmdResult(nil, errors.New("unexpected Redis state values"))
 	}
 
+	appendActions := func() error {
+		for _, arg := range args[4:] {
+			action, ok := arg.(string)
+			if !ok {
+				return errors.New("unexpected Redis action value")
+			}
+			if c.failXAdd {
+				return errors.New("simulated Redis XADD failure")
+			}
+			c.actions = append(c.actions, action)
+		}
+		return nil
+	}
+	if c.commitNextBeforeEval {
+		if err := appendActions(); err != nil {
+			return redis.NewCmdResult(nil, err)
+		}
+		c.values[keys[0]] = next
+		c.commitNextBeforeEval = false
+	}
+
 	current := c.values[keys[0]]
+	if strings.Contains(script, "if current == ARGV[2]") && current == next {
+		return redis.NewCmdResult(int64(2), nil)
+	}
 	if current != expected {
 		return redis.NewCmdResult(int64(0), nil)
 	}
 
-	c.values[keys[0]] = next
-	for _, arg := range args[4:] {
-		action, ok := arg.(string)
-		if !ok {
-			return redis.NewCmdResult(nil, errors.New("unexpected Redis action value"))
+	xaddIndex := strings.Index(script, `redis.call("XADD"`)
+	setIndex := strings.Index(script, `redis.call("SET"`)
+	if xaddIndex == -1 || setIndex == -1 {
+		return redis.NewCmdResult(nil, errors.New("missing Redis state mutation commands"))
+	}
+
+	if xaddIndex < setIndex {
+		if err := appendActions(); err != nil {
+			return redis.NewCmdResult(nil, err)
 		}
-		c.actions = append(c.actions, action)
+		c.values[keys[0]] = next
+		return redis.NewCmdResult(int64(1), nil)
+	}
+
+	c.values[keys[0]] = next
+	if err := appendActions(); err != nil {
+		return redis.NewCmdResult(nil, err)
 	}
 
 	return redis.NewCmdResult(int64(1), nil)
@@ -157,7 +195,11 @@ func TestRedisStateStoreCompareAndSwapInitialWriteUsesOneAtomicEval(t *testing.T
 
 	call := client.evalCalls[0]
 	require.Equal(t, compareAndSwapSnapshotScript, call.script)
-	require.Equal(t, []string{snapshotKey(channelID), lifecycleActionStreamKey}, call.keys)
+	expectedSnapshotKey := "cache:twir:dota:{dota}:matchstate:" + channelID.String()
+	expectedStreamKey := "stream:twir:dota:{dota}:lifecycle-actions"
+	require.Equal(t, expectedSnapshotKey, snapshotKey(channelID))
+	require.Equal(t, expectedStreamKey, lifecycleActionStreamKey)
+	require.Equal(t, []string{expectedSnapshotKey, expectedStreamKey}, call.keys)
 	require.Len(t, call.args, 5)
 	require.Equal(t, absentSnapshotSentinel, call.args[0])
 	require.Equal(t, snapshotTTL.Milliseconds(), call.args[2])
@@ -165,12 +207,82 @@ func TestRedisStateStoreCompareAndSwapInitialWriteUsesOneAtomicEval(t *testing.T
 
 	var saved Snapshot
 	require.NoError(t, json.Unmarshal([]byte(call.args[1].(string)), &saved))
-	require.Equal(t, next, saved)
+	expected := next
+	expected.MutationID = saved.MutationID
+	require.NotEmpty(t, saved.MutationID)
+	require.Equal(t, expected, saved)
 
 	actionJSON, err := json.Marshal(action)
 	require.NoError(t, err)
 	require.Equal(t, string(actionJSON), call.args[4])
 	require.Equal(t, []string{string(actionJSON)}, client.actions)
+}
+
+func TestRedisStateStoreCompareAndSwapKeepsStateWhenActionAppendFails(t *testing.T) {
+	ctx := context.Background()
+	channelID := uuid.New()
+	client := newFakeRedisStateClient()
+	client.failXAdd = true
+	store := &RedisStateStore{client: client}
+	current := Snapshot{
+		ChannelID: channelID,
+		State:     StateInGame,
+		MatchID:   12345,
+		Revision:  1,
+	}
+	client.values[snapshotKey(channelID)] = mustMarshalSnapshot(t, current)
+	next := current
+	next.Revision++
+	next.State = StateIdle
+	next.MatchID = 0
+	action := LifecycleAction{
+		Kind:      ActionCancel,
+		ChannelID: channelID,
+		MatchID:   current.MatchID,
+		Revision:  next.Revision,
+	}
+
+	swapped, err := store.CompareAndSwap(ctx, current, next, []LifecycleAction{action})
+
+	require.Error(t, err)
+	require.False(t, swapped)
+	require.Equal(t, mustMarshalSnapshot(t, current), client.values[snapshotKey(channelID)])
+	require.Empty(t, client.actions)
+}
+
+func TestRedisStateStoreCompareAndSwapTreatsCommittedMutationRetryAsSuccess(t *testing.T) {
+	ctx := context.Background()
+	channelID := uuid.New()
+	client := newFakeRedisStateClient()
+	client.commitNextBeforeEval = true
+	store := &RedisStateStore{client: client}
+	current := Snapshot{
+		ChannelID: channelID,
+		State:     StateInGame,
+		MatchID:   12345,
+		Revision:  1,
+	}
+	client.values[snapshotKey(channelID)] = mustMarshalSnapshot(t, current)
+	next := current
+	next.Revision++
+	next.State = StateIdle
+	next.MatchID = 0
+	action := LifecycleAction{
+		Kind:      ActionCancel,
+		ChannelID: channelID,
+		MatchID:   current.MatchID,
+		Revision:  next.Revision,
+	}
+
+	swapped, err := store.CompareAndSwap(ctx, current, next, []LifecycleAction{action})
+
+	require.NoError(t, err)
+	require.True(t, swapped)
+	require.Len(t, client.evalCalls, 1)
+	require.Len(t, client.actions, 1)
+	var saved Snapshot
+	require.NoError(t, json.Unmarshal([]byte(client.values[snapshotKey(channelID)]), &saved))
+	require.NotEmpty(t, saved.MutationID)
 }
 
 func TestRedisStateStoreCompareAndSwapPreservesMultipleActionOrder(t *testing.T) {
@@ -356,6 +468,177 @@ func TestRedisStateStoreCompareAndSwapRejectsInvalidInputBeforeEval(t *testing.T
 	}
 }
 
+func TestRedisStateStoreCompareAndSwapRejectsMaxRevisionBeforeEval(t *testing.T) {
+	channelID := uuid.New()
+	client := newFakeRedisStateClient()
+	store := &RedisStateStore{client: client}
+	current := Snapshot{
+		ChannelID: channelID,
+		State:     StateIdle,
+		Revision:  math.MaxUint64,
+	}
+	next := current
+	next.Revision++
+
+	swapped, err := store.CompareAndSwap(context.Background(), current, next, nil)
+
+	require.Error(t, err)
+	require.False(t, swapped)
+	require.Empty(t, client.evalCalls)
+}
+
+func TestRedisStateStoreCompareAndSwapRejectsInvalidCreateTransitionBeforeEval(t *testing.T) {
+	channelID := uuid.New()
+	current := Snapshot{
+		ChannelID: channelID,
+		State:     StateIdle,
+		Revision:  1,
+	}
+	validNext := current
+	validNext.Revision++
+	validNext.State = StateInGame
+	validNext.MatchID = 12345
+
+	tests := []struct {
+		name   string
+		next   Snapshot
+		action LifecycleAction
+	}{
+		{
+			name: "next match is missing",
+			next: Snapshot{
+				ChannelID: channelID,
+				State:     StateInGame,
+				Revision:  validNext.Revision,
+			},
+			action: LifecycleAction{
+				Kind:      ActionCreate,
+				ChannelID: channelID,
+				MatchID:   validNext.MatchID,
+				Revision:  validNext.Revision,
+			},
+		},
+		{
+			name: "action match differs from next match",
+			next: validNext,
+			action: LifecycleAction{
+				Kind:      ActionCreate,
+				ChannelID: channelID,
+				MatchID:   validNext.MatchID + 1,
+				Revision:  validNext.Revision,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			client := newFakeRedisStateClient()
+			store := &RedisStateStore{client: client}
+
+			swapped, err := store.CompareAndSwap(context.Background(), current, test.next, []LifecycleAction{test.action})
+
+			require.Error(t, err)
+			require.False(t, swapped)
+			require.Empty(t, client.evalCalls)
+		})
+	}
+}
+
+func TestRedisStateStoreCompareAndSwapRejectsInvalidTerminalTransitionBeforeEval(t *testing.T) {
+	channelID := uuid.New()
+	current := Snapshot{
+		ChannelID: channelID,
+		State:     StateInGame,
+		MatchID:   12345,
+		Revision:  1,
+	}
+	validNext := current
+	validNext.Revision++
+	validNext.State = StateIdle
+	validNext.MatchID = 0
+
+	tests := []struct {
+		name    string
+		current Snapshot
+		next    Snapshot
+		action  LifecycleAction
+	}{
+		{
+			name: "resolve without current match",
+			current: Snapshot{
+				ChannelID: channelID,
+				State:     StateInGame,
+				Revision:  current.Revision,
+			},
+			next: Snapshot{
+				ChannelID: channelID,
+				State:     StateIdle,
+				Revision:  validNext.Revision,
+			},
+			action: LifecycleAction{
+				Kind:      ActionResolve,
+				ChannelID: channelID,
+				MatchID:   current.MatchID,
+				Revision:  validNext.Revision,
+			},
+		},
+		{
+			name: "cancel without current match",
+			current: Snapshot{
+				ChannelID: channelID,
+				State:     StateInGame,
+				Revision:  current.Revision,
+			},
+			next: Snapshot{
+				ChannelID: channelID,
+				State:     StateIdle,
+				Revision:  validNext.Revision,
+			},
+			action: LifecycleAction{
+				Kind:      ActionCancel,
+				ChannelID: channelID,
+				MatchID:   current.MatchID,
+				Revision:  validNext.Revision,
+			},
+		},
+		{
+			name:    "resolve match differs from current match",
+			current: current,
+			next:    validNext,
+			action: LifecycleAction{
+				Kind:      ActionResolve,
+				ChannelID: channelID,
+				MatchID:   current.MatchID + 1,
+				Revision:  validNext.Revision,
+			},
+		},
+		{
+			name:    "cancel match differs from current match",
+			current: current,
+			next:    validNext,
+			action: LifecycleAction{
+				Kind:      ActionCancel,
+				ChannelID: channelID,
+				MatchID:   current.MatchID + 1,
+				Revision:  validNext.Revision,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			client := newFakeRedisStateClient()
+			store := &RedisStateStore{client: client}
+
+			swapped, err := store.CompareAndSwap(context.Background(), test.current, test.next, []LifecycleAction{test.action})
+
+			require.Error(t, err)
+			require.False(t, swapped)
+			require.Empty(t, client.evalCalls)
+		})
+	}
+}
+
 func TestSnapshotLoadOldJSONDefaultsOrderingFields(t *testing.T) {
 	channelID := uuid.New()
 	client := newFakeRedisStateClient()
@@ -374,6 +657,7 @@ func TestSnapshotLoadOldJSONDefaultsOrderingFields(t *testing.T) {
 	require.Zero(t, snapshot.Revision)
 	require.Zero(t, snapshot.LastProviderTimestamp)
 	require.Zero(t, snapshot.LastGameTime)
+	require.Empty(t, snapshot.MutationID)
 }
 
 func TestRedisStateStoreUpdateStatsRetriesAndPreservesConcurrentState(t *testing.T) {
@@ -420,7 +704,35 @@ func TestRedisStateStoreUpdateStatsRetriesAndPreservesConcurrentState(t *testing
 	expected.Mmr = 3200
 	expected.SessionWins = 7
 	expected.SessionLosses = 3
+	expected.MutationID = saved.MutationID
 	require.Equal(t, expected, saved)
+}
+
+func TestRedisStateStoreUpdateStatsSupportsSequentialCompareAndSwap(t *testing.T) {
+	ctx := context.Background()
+	channelID := uuid.New()
+	initial := Snapshot{
+		ChannelID: channelID,
+		State:     StateInGame,
+		MatchID:   12345,
+		Revision:  4,
+		Mmr:       1000,
+	}
+	client := newFakeRedisStateClient()
+	client.values[snapshotKey(channelID)] = mustMarshalSnapshot(t, initial)
+	store := &RedisStateStore{client: client}
+
+	require.NoError(t, store.UpdateStats(ctx, channelID, 2000, 1, 0))
+	require.NoError(t, store.UpdateStats(ctx, channelID, 2100, 2, 0))
+
+	require.Len(t, client.evalCalls, 2)
+	require.Equal(t, client.evalCalls[0].args[1], client.evalCalls[1].args[0])
+	var saved Snapshot
+	require.NoError(t, json.Unmarshal([]byte(client.values[snapshotKey(channelID)]), &saved))
+	require.Equal(t, initial.Revision+2, saved.Revision)
+	require.Equal(t, 2100, saved.Mmr)
+	require.Equal(t, 2, saved.SessionWins)
+	require.Zero(t, saved.SessionLosses)
 }
 
 func TestLifecycleActionJSONRoundTripPreservesResolveFields(t *testing.T) {

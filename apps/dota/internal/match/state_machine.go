@@ -34,7 +34,7 @@ const (
 )
 
 const (
-	snapshotKeyPrefix = "cache:twir:dota:matchstate:"
+	snapshotKeyPrefix = "cache:twir:dota:{dota}:matchstate:"
 	snapshotTTL       = 6 * time.Hour
 
 	winProbabilityBasisPoints                = 10_000
@@ -58,6 +58,7 @@ type EventEmitter interface {
 type Snapshot struct {
 	ChannelID             uuid.UUID `json:"channelId"`
 	Revision              uint64    `json:"revision"`
+	MutationID            string    `json:"mutationId"`
 	State                 State     `json:"state"`
 	InGame                bool      `json:"inGame"`
 	MatchID               int64     `json:"matchId"`

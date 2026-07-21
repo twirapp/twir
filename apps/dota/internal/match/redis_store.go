@@ -5,26 +5,30 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
 const (
-	lifecycleActionStreamKey    = "stream:twir:dota:lifecycle-actions"
+	lifecycleActionStreamKey    = "stream:twir:dota:{dota}:lifecycle-actions"
 	lifecycleActionStreamMaxLen = int64(100_000)
 	updateStatsMaxRetries       = 3
 
 	absentSnapshotSentinel = ""
 
+	// Append intents before state so failed XADDs cannot advance state; retries may
+	// duplicate intents, which workers safely reject through snapshot validation.
 	compareAndSwapSnapshotScript = `
 local current = redis.call("GET", KEYS[1])
 if current == false then current = "" end
+if current == ARGV[2] then return 2 end
 if current ~= ARGV[1] then return 0 end
-redis.call("SET", KEYS[1], ARGV[2], "PX", ARGV[3])
 for i = 5, #ARGV do
   redis.call("XADD", KEYS[2], "MAXLEN", "~", ARGV[4], "*", "action", ARGV[i])
 end
+redis.call("SET", KEYS[1], ARGV[2], "PX", ARGV[3])
 return 1`
 )
 
@@ -82,6 +86,11 @@ func (s *RedisStateStore) CompareAndSwap(
 	if err := validateCompareAndSwapInput(current, next, actions); err != nil {
 		return false, err
 	}
+	mutationID, err := uuid.NewRandom()
+	if err != nil {
+		return false, fmt.Errorf("generate dota match mutation ID: %w", err)
+	}
+	next.MutationID = mutationID.String()
 
 	expectedRaw, err := expectedSnapshotRaw(current)
 	if err != nil {
@@ -121,7 +130,7 @@ func (s *RedisStateStore) CompareAndSwap(
 	switch updated {
 	case 0:
 		return false, nil
-	case 1:
+	case 1, 2:
 		return true, nil
 	default:
 		return false, fmt.Errorf("unexpected dota match compare-and-swap result: %d", updated)
@@ -166,6 +175,9 @@ func validateCompareAndSwapInput(current Snapshot, next Snapshot, actions []Life
 	if next.ChannelID != current.ChannelID {
 		return errors.New("next snapshot channel ID must match current snapshot")
 	}
+	if current.Revision == math.MaxUint64 {
+		return errors.New("current snapshot revision cannot be incremented")
+	}
 	if next.Revision != current.Revision+1 {
 		return fmt.Errorf(
 			"next snapshot revision must increment from %d to %d",
@@ -191,6 +203,22 @@ func validateCompareAndSwapInput(current Snapshot, next Snapshot, actions []Life
 		}
 		if action.Revision != next.Revision {
 			return errors.New("lifecycle action revision must match next snapshot")
+		}
+		switch action.Kind {
+		case ActionCreate:
+			if next.MatchID <= 0 {
+				return errors.New("next snapshot match ID must be positive for a create action")
+			}
+			if action.MatchID != next.MatchID {
+				return errors.New("create action match ID must match next snapshot")
+			}
+		case ActionResolve, ActionCancel:
+			if current.MatchID <= 0 {
+				return errors.New("current snapshot match ID must be positive for a terminal action")
+			}
+			if action.MatchID != current.MatchID {
+				return errors.New("terminal action match ID must match current snapshot")
+			}
 		}
 	}
 
