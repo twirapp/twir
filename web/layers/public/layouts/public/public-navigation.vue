@@ -1,29 +1,27 @@
 <script lang="ts" setup>
-import { useRoute } from 'vue-router';
-
-const currentRoute = useRoute<'p-channelName'>()
+const currentRoute = useRoute()
 
 const routes = computed(() => {
 	return [
 		{
 			name: 'Commands',
 			icon: 'lucide:package',
-			to: `/p/${currentRoute.params.channelName}`,
+			to: `/p/${currentRoute.params.platform}/${currentRoute.params.channelName}`,
 		},
 		{
 			name: 'Song requests',
 			icon: 'lucide:audio-lines',
-			to: `/p/${currentRoute.params.channelName}/songs-requests`,
+			to: `/p/${currentRoute.params.platform}/${currentRoute.params.channelName}/songs-requests`,
 		},
 		{
 			name: 'TTS Profiles',
 			icon: 'lucide:square-activity',
-			to: `/p/${currentRoute.params.channelName}/tts`,
+			to: `/p/${currentRoute.params.platform}/${currentRoute.params.channelName}/tts`,
 		},
 		{
 			name: 'Users',
 			icon: 'lucide:users',
-			to: `/p/${currentRoute.params.channelName}/users`,
+			to: `/p/${currentRoute.params.platform}/${currentRoute.params.channelName}/users`,
 		},
 	]
 })

@@ -1,4 +1,4 @@
-import type { StreamerPublicSettingsQuery } from '~/gql/graphql.js'
+import type { Platform, StreamerPublicSettingsQuery } from '~/gql/graphql.js'
 
 import { graphql } from '~/gql'
 
@@ -26,6 +26,7 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 						login
 						displayName
 						profileImageUrl
+						description
 					}
 				}
 			}
@@ -33,6 +34,10 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 		variables: {
 			get userName() {
 				return unref((router.currentRoute.value.params.channelName as string) ?? '')
+			},
+			get platform() {
+				const platform = String(router.currentRoute.value.params.platform ?? '').toUpperCase()
+				return platform === 'TWITCH' || platform === 'KICK' ? (platform as Platform) : undefined
 			},
 		},
 		pause: true,
