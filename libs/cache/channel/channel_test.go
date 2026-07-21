@@ -68,6 +68,10 @@ func (f *fakeChannelsRepository) GetMany(context.Context, channelsrepo.GetManyIn
 	return nil, nil
 }
 
+func (f *fakeChannelsRepository) GetAllByBindingPlatform(context.Context, platform.Platform) ([]channelsmodel.Channel, error) {
+	return nil, nil
+}
+
 func (f *fakeChannelsRepository) GetByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }

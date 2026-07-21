@@ -129,14 +129,28 @@ func (m *mockUsersRepo) Create(_ context.Context, _ usersrepository.CreateInput)
 type mockChannelsRepo struct {
 	channel                 channelsmodel.Channel
 	channels                []channelsmodel.Channel
+	bindingPlatformChannels []channelsmodel.Channel
 	err                     error
 	bindingLookupPlatform   platform.Platform
 	bindingLookupUserID     uuid.UUID
+	bindingPlatformLookup   platform.Platform
 	channelLookupPlatform   platform.Platform
 	platformChannelLookupID string
 }
 
 func (m *mockChannelsRepo) GetMany(_ context.Context, _ channelsrepository.GetManyInput) ([]channelsmodel.Channel, error) {
+	return m.channels, m.err
+}
+
+func (m *mockChannelsRepo) GetAllByBindingPlatform(
+	_ context.Context,
+	p platform.Platform,
+) ([]channelsmodel.Channel, error) {
+	m.bindingPlatformLookup = p
+	if m.bindingPlatformChannels != nil {
+		return m.bindingPlatformChannels, m.err
+	}
+
 	return m.channels, m.err
 }
 

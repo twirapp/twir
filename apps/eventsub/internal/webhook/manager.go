@@ -117,10 +117,7 @@ func (m *Manager) logKickWebhookInstructions(ctx context.Context, callbackBaseUR
 }
 
 func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
-	hasKick := true
-	kickChannels, err := m.channelsRepo.GetMany(ctx, channels.GetManyInput{
-		HasKickUserID: &hasKick,
-	})
+	kickChannels, err := m.channelsRepo.GetAllByBindingPlatform(ctx, platformentity.PlatformKick)
 	if err != nil {
 		return fmt.Errorf("list kick channels: %w", err)
 	}
@@ -146,10 +143,7 @@ func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
 }
 
 func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
-	hasKick := true
-	kickChannels, err := m.channelsRepo.GetMany(ctx, channels.GetManyInput{
-		HasKickUserID: &hasKick,
-	})
+	kickChannels, err := m.channelsRepo.GetAllByBindingPlatform(ctx, platformentity.PlatformKick)
 	if err != nil {
 		return fmt.Errorf("list kick channels: %w", err)
 	}

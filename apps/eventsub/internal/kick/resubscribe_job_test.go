@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strconv"
 	"testing"
 	"time"
 
@@ -12,18 +13,19 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type mockSubManager struct {
-	listResult        []SubscriptionInfo
-	listErr           error
-	subscribeErr      error
-	subscribeAllCalls int
-	subscribeAllIDs   []uuid.UUID
+	listResult         []SubscriptionInfo
+	listErr            error
+	subscribeErr       error
+	subscribeAllCalls  int
+	subscribeAllIDs    []uuid.UUID
+	listBroadcasterIDs []int
 }
 
-func (m *mockSubManager) ListSubscriptions(_ context.Context, _ int) ([]SubscriptionInfo, error) {
+func (m *mockSubManager) ListSubscriptions(_ context.Context, broadcasterUserID int) ([]SubscriptionInfo, error) {
+	m.listBroadcasterIDs = append(m.listBroadcasterIDs, broadcasterUserID)
 	return m.listResult, m.listErr
 }
 
@@ -34,10 +36,18 @@ func (m *mockSubManager) SubscribeAll(_ context.Context, channelID uuid.UUID) er
 }
 
 func testKickBinding(userID uuid.UUID, enabled bool) channelplatformsmodel.ChannelPlatform {
+	return testKickBindingWithPlatformChannelID(userID, "12345", enabled)
+}
+
+func testKickBindingWithPlatformChannelID(
+	userID uuid.UUID,
+	platformChannelID string,
+	enabled bool,
+) channelplatformsmodel.ChannelPlatform {
 	return channelplatformsmodel.ChannelPlatform{
 		Platform:          platform.PlatformKick,
 		UserID:            userID,
-		PlatformChannelID: "12345",
+		PlatformChannelID: platformChannelID,
 		Enabled:           enabled,
 	}
 }
@@ -69,23 +79,15 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 						PlatformChannelID: "twitch-channel",
 						Enabled:           true,
 					},
-					testKickBinding(kickUserID, true),
+					testKickBindingWithPlatformChannelID(kickUserID, "98765", true),
 				},
 			},
-		},
-	}
-
-	usersRepo := &mockUsersRepo{
-		user: usersmodel.User{
-			ID:         kickUserID,
-			PlatformID: "12345",
 		},
 	}
 
 	job := &ResubscribeJob{
 		subManager:   subMgr,
 		channelsRepo: chRepo,
-		usersRepo:    usersRepo,
 		logger:       slog.Default(),
 		config:       cfg.Config{},
 		interval:     23 * time.Hour,
@@ -98,6 +100,63 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 	}
 	if len(subMgr.subscribeAllIDs) != 1 || subMgr.subscribeAllIDs[0] != kickUserID {
 		t.Fatalf("SubscribeAll IDs = %v, want [%s]", subMgr.subscribeAllIDs, kickUserID)
+	}
+	if len(subMgr.listBroadcasterIDs) != 1 || subMgr.listBroadcasterIDs[0] != 98765 {
+		t.Fatalf("ListSubscriptions IDs = %v, want [98765]", subMgr.listBroadcasterIDs)
+	}
+}
+
+func TestResubscribeJobProcessesAllKickBindingChannels(t *testing.T) {
+	const channelCount = 11
+
+	allKickChannels := make([]channelsmodel.Channel, 0, channelCount)
+	legacyPage := make([]channelsmodel.Channel, 0, channelCount-1)
+	for i := range channelCount {
+		channel := channelsmodel.Channel{
+			ID: uuid.New(),
+			Bindings: []channelplatformsmodel.ChannelPlatform{
+				testKickBindingWithPlatformChannelID(
+					uuid.New(),
+					strconv.Itoa(10000+i),
+					true,
+				),
+			},
+		}
+		allKickChannels = append(allKickChannels, channel)
+		if i < channelCount-1 {
+			legacyPage = append(legacyPage, channel)
+		}
+	}
+
+	subMgr := &mockSubManager{}
+	chRepo := &mockChannelsRepo{
+		channels:                legacyPage,
+		bindingPlatformChannels: allKickChannels,
+	}
+	job := &ResubscribeJob{
+		subManager:   subMgr,
+		channelsRepo: chRepo,
+		logger:       slog.Default(),
+		config:       cfg.Config{},
+		interval:     23 * time.Hour,
+	}
+
+	job.run(context.Background())
+
+	if subMgr.subscribeAllCalls != channelCount {
+		t.Fatalf("SubscribeAll calls = %d, want %d", subMgr.subscribeAllCalls, channelCount)
+	}
+	if len(subMgr.listBroadcasterIDs) != channelCount {
+		t.Fatalf("ListSubscriptions calls = %d, want %d", len(subMgr.listBroadcasterIDs), channelCount)
+	}
+	for i, broadcasterID := range subMgr.listBroadcasterIDs {
+		want := 10000 + i
+		if broadcasterID != want {
+			t.Fatalf("ListSubscriptions ID at %d = %d, want %d", i, broadcasterID, want)
+		}
+	}
+	if chRepo.bindingPlatformLookup != platform.PlatformKick {
+		t.Fatalf("binding platform lookup = %q, want %q", chRepo.bindingPlatformLookup, platform.PlatformKick)
 	}
 }
 
@@ -127,17 +186,9 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 		},
 	}
 
-	usersRepo := &mockUsersRepo{
-		user: usersmodel.User{
-			ID:         kickUserID,
-			PlatformID: "12345",
-		},
-	}
-
 	job := &ResubscribeJob{
 		subManager:   subMgr,
 		channelsRepo: chRepo,
-		usersRepo:    usersRepo,
 		logger:       slog.Default(),
 		config:       cfg.Config{},
 		interval:     23 * time.Hour,
@@ -166,17 +217,9 @@ func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
 		},
 	}
 
-	usersRepo := &mockUsersRepo{
-		user: usersmodel.User{
-			ID:         kickUserID,
-			PlatformID: "12345",
-		},
-	}
-
 	job := &ResubscribeJob{
 		subManager:   subMgr,
 		channelsRepo: chRepo,
-		usersRepo:    usersRepo,
 		logger:       slog.Default(),
 		config:       cfg.Config{},
 		interval:     23 * time.Hour,

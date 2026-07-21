@@ -12,7 +12,6 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
 
@@ -24,7 +23,6 @@ type SubscriptionLister interface {
 type ResubscribeJob struct {
 	subManager   SubscriptionLister
 	channelsRepo channels.Repository
-	usersRepo    usersrepository.Repository
 	logger       *slog.Logger
 	config       cfg.Config
 	interval     time.Duration
@@ -37,7 +35,6 @@ type ResubscribeJobOpts struct {
 
 	SubManager   *SubscriptionManager
 	ChannelsRepo channels.Repository
-	UsersRepo    usersrepository.Repository
 	Logger       *slog.Logger
 	Config       cfg.Config
 }
@@ -46,7 +43,6 @@ func NewResubscribeJob(opts ResubscribeJobOpts) *ResubscribeJob {
 	j := &ResubscribeJob{
 		subManager:   opts.SubManager,
 		channelsRepo: opts.ChannelsRepo,
-		usersRepo:    opts.UsersRepo,
 		logger:       opts.Logger,
 		config:       opts.Config,
 		interval:     23 * time.Hour,
@@ -82,10 +78,7 @@ func (j *ResubscribeJob) Start(stopCh <-chan struct{}) {
 }
 
 func (j *ResubscribeJob) run(ctx context.Context) {
-	hasKick := true
-	kickChannels, err := j.channelsRepo.GetMany(ctx, channels.GetManyInput{
-		HasKickUserID: &hasKick,
-	})
+	kickChannels, err := j.channelsRepo.GetAllByBindingPlatform(ctx, platform.PlatformKick)
 	if err != nil {
 		j.logger.ErrorContext(ctx, "resubscribe job: failed to list kick channels", logger.Error(err))
 		return
@@ -99,25 +92,14 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 
 		kickChannelID := binding.UserID.String()
 
-		user, err := j.usersRepo.GetByID(ctx, binding.UserID)
+		broadcasterUserID, err := strconv.Atoi(binding.PlatformChannelID)
 		if err != nil {
 			j.logger.ErrorContext(
 				ctx,
-				"resubscribe job: failed to get user for kick channel",
+				"resubscribe job: failed to parse kick platform channel ID",
 				slog.String("channel_id", ch.ID.String()),
 				slog.String("kick_user_id", kickChannelID),
-				logger.Error(err),
-			)
-			continue
-		}
-
-		broadcasterUserID, err := strconv.Atoi(user.PlatformID)
-		if err != nil {
-			j.logger.ErrorContext(
-				ctx,
-				"resubscribe job: failed to parse kick platform user ID",
-				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", kickChannelID),
+				slog.String("kick_platform_channel_id", binding.PlatformChannelID),
 				logger.Error(err),
 			)
 			continue

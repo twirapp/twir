@@ -10,6 +10,8 @@ import (
 
 type Repository interface {
 	GetMany(ctx context.Context, input GetManyInput) ([]model.Channel, error)
+	// GetAllByBindingPlatform returns every channel with a binding for p.
+	GetAllByBindingPlatform(ctx context.Context, p platform.Platform) ([]model.Channel, error)
 	GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, error)
 	GetByApiKey(ctx context.Context, apiKey string) (model.Channel, error)
 	// GetByBindingUserID resolves a channel from a platform-scoped linked user ID.
