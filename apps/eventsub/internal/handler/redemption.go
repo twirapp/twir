@@ -66,10 +66,10 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			continue
 		}
 
-		channel, err := c.channelService.GetChannelByConnectedUser(
+		channel, err := c.channelService.GetChannelByBindingUserID(
 			ctx,
-			broadcasterUser.ID,
 			platform.PlatformTwitch,
+			broadcasterUser.ID,
 		)
 		if err != nil {
 			c.logger.Error("cannot resolve channel by broadcaster user", logger.Error(err))
@@ -259,10 +259,10 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 		return
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(
+	channel, err := c.channelService.GetChannelByBindingUserID(
 		ctx,
-		broadcasterUser.ID,
 		platform.PlatformTwitch,
+		broadcasterUser.ID,
 	)
 	if err != nil {
 		if !errors.Is(err, channelsrepository.ErrNotFound) {
@@ -311,10 +311,10 @@ func (c *Handler) countUserChannelPoints(
 		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(
+	channel, err := c.channelService.GetChannelByBindingUserID(
 		ctx,
-		broadcasterUser.ID,
 		platform.PlatformTwitch,
+		broadcasterUser.ID,
 	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {

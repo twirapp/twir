@@ -30,10 +30,6 @@ type mockChannelsRepoWebhook struct {
 	err     error
 }
 
-func (m *mockChannelsRepoWebhook) GetByKickUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
-	return m.channel, m.err
-}
-
 func (m *mockChannelsRepoWebhook) GetMany(_ context.Context, _ channels.GetManyInput) ([]channelsmodel.Channel, error) {
 	return nil, nil
 }
@@ -42,16 +38,16 @@ func (m *mockChannelsRepoWebhook) GetByID(_ context.Context, _ uuid.UUID) (chann
 	return channelsmodel.Nil, nil
 }
 
-func (m *mockChannelsRepoWebhook) GetByTwitchUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (m *mockChannelsRepoWebhook) GetByBindingUserID(_ context.Context, _ platform.Platform, _ uuid.UUID) (channelsmodel.Channel, error) {
+	return m.channel, m.err
 }
 
-func (m *mockChannelsRepoWebhook) GetByTwitchPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (m *mockChannelsRepoWebhook) GetByPlatformChannelID(_ context.Context, _ platform.Platform, _ string) (channelsmodel.Channel, error) {
+	return m.channel, m.err
 }
 
-func (m *mockChannelsRepoWebhook) GetByKickPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (m *mockChannelsRepoWebhook) GetBySlug(_ context.Context, _ channels.GetBySlugInput) (channelsmodel.Channel, error) {
+	return m.channel, m.err
 }
 
 func (m *mockChannelsRepoWebhook) GetCount(_ context.Context, _ channels.GetCountInput) (int, error) {
@@ -131,7 +127,7 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 		redis:                   redisClient,
 		channelsRepo:            channelsRepo,
 		usersRepo:               usersRepo,
-		channelService:          channelservice.NewChannelService(channelsRepo, buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
+		channelService:          channelservice.NewChannelService(channelsRepo, &buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
 		chatMessages:            &mockQueue[generic.ChatMessage, struct{}]{},
 		processMessageAsCommand: &mockQueue[generic.ChatMessage, struct{}]{},
 	}
@@ -201,7 +197,7 @@ func TestWebhookHandler_LivestreamStatus(t *testing.T) {
 		redis:          redisClient,
 		channelsRepo:   channelsRepo,
 		usersRepo:      usersRepo,
-		channelService: channelservice.NewChannelService(channelsRepo, buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
+		channelService: channelservice.NewChannelService(channelsRepo, &buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
 		streamOnline:   &mockQueue[kickbus.KickStreamOnline, struct{}]{},
 		streamOffline:  &mockQueue[kickbus.KickStreamOffline, struct{}]{},
 	}

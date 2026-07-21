@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	platform "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -50,10 +51,10 @@ func (c *Handler) handleModerateActionBan(
 			return
 		}
 
-		channel, err := c.channelService.GetChannelByConnectedUser(
+		channel, err := c.channelService.GetChannelByBindingUserID(
 			ctx,
-			user.ID,
 			platform.PlatformTwitch,
+			user.ID,
 		)
 		if err != nil {
 			if errors.Is(err, channelsrepository.ErrNotFound) {
@@ -64,12 +65,22 @@ func (c *Handler) handleModerateActionBan(
 			return
 		}
 
-		if userId != channel.BotID {
+		twitchBinding, ok := channelbinding.Find(channel, platform.PlatformTwitch)
+		if !ok {
+			return
+		}
+		botConfig, err := channelbinding.ParseTwitchBotConfig(twitchBinding)
+		if err != nil {
+			c.logger.Error("failed to parse Twitch bot config", logger.Error(err))
+			return
+		}
+		if userId != botConfig.BotID {
 			return
 		}
 
 		isEnabled := false
-		overallEnabled := channel.KickBotJoined()
+		kickBinding, hasKickBinding := channelbinding.Find(channel, platform.PlatformKick)
+		overallEnabled := hasKickBinding && kickBinding.Enabled
 
 		channel, err = c.channelsRepo.Update(
 			ctx, channel.ID, channelsrepository.UpdateInput{

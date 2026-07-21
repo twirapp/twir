@@ -6,9 +6,11 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	cfg "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
@@ -124,16 +126,17 @@ func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
 	}
 
 	for _, ch := range kickChannels {
-		if ch.KickUserID == nil {
+		binding, ok := channelbinding.Find(ch, platformentity.PlatformKick)
+		if !ok {
 			continue
 		}
 
-		if err := m.kickSubMgr.UnsubscribeAll(ctx, *ch.KickUserID); err != nil {
+		if err := m.kickSubMgr.UnsubscribeAll(ctx, binding.UserID); err != nil {
 			m.logger.WarnContext(
 				ctx,
 				"webhook manager: failed to unsubscribe kick",
 				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", ch.KickUserID.String()),
+				slog.String("kick_user_id", binding.UserID.String()),
 				logger.Error(err),
 			)
 		}
@@ -158,16 +161,17 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 	)
 
 	for _, ch := range kickChannels {
-		if ch.KickUserID == nil || !ch.KickBotEnabled {
+		binding, ok := channelbinding.Find(ch, platformentity.PlatformKick)
+		if !ok || !binding.Enabled {
 			continue
 		}
 
-		if err := m.kickSubMgr.SubscribeAll(ctx, *ch.KickUserID); err != nil {
+		if err := m.kickSubMgr.SubscribeAll(ctx, binding.UserID); err != nil {
 			m.logger.ErrorContext(
 				ctx,
 				"webhook manager: failed to subscribe kick",
 				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", ch.KickUserID.String()),
+				slog.String("kick_user_id", binding.UserID.String()),
 				logger.Error(err),
 			)
 			continue
@@ -177,7 +181,7 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 			ctx,
 			"webhook manager: subscribed kick eventsub",
 			slog.String("channel_id", ch.ID.String()),
-			slog.String("kick_user_id", ch.KickUserID.String()),
+			slog.String("kick_user_id", binding.UserID.String()),
 		)
 	}
 

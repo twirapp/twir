@@ -20,8 +20,8 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
 	cfg "github.com/twirapp/twir/libs/config"
-	kickbotentity "github.com/twirapp/twir/libs/entities/kick_bot"
 	"github.com/twirapp/twir/libs/entities/platform"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
@@ -30,7 +30,6 @@ import (
 	channelsinfohistorymodel "github.com/twirapp/twir/libs/repositories/channels_info_history/model"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
 	channelsredemptionshistorymodel "github.com/twirapp/twir/libs/repositories/channels_redemptions_history/model"
-	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -128,9 +127,13 @@ func (m *mockUsersRepo) Create(_ context.Context, _ usersrepository.CreateInput)
 }
 
 type mockChannelsRepo struct {
-	channel  channelsmodel.Channel
-	channels []channelsmodel.Channel
-	err      error
+	channel                 channelsmodel.Channel
+	channels                []channelsmodel.Channel
+	err                     error
+	bindingLookupPlatform   platform.Platform
+	bindingLookupUserID     uuid.UUID
+	channelLookupPlatform   platform.Platform
+	platformChannelLookupID string
 }
 
 func (m *mockChannelsRepo) GetMany(_ context.Context, _ channelsrepository.GetManyInput) ([]channelsmodel.Channel, error) {
@@ -141,20 +144,42 @@ func (m *mockChannelsRepo) GetByID(_ context.Context, _ uuid.UUID) (channelsmode
 	return m.channel, m.err
 }
 
-func (m *mockChannelsRepo) GetByTwitchUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepo) GetByBindingUserID(
+	_ context.Context,
+	p platform.Platform,
+	userID uuid.UUID,
+) (channelsmodel.Channel, error) {
+	m.bindingLookupPlatform = p
+	m.bindingLookupUserID = userID
 	return m.channel, m.err
 }
 
-func (m *mockChannelsRepo) GetByTwitchPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepo) GetByPlatformChannelID(
+	_ context.Context,
+	p platform.Platform,
+	platformChannelID string,
+) (channelsmodel.Channel, error) {
+	m.channelLookupPlatform = p
+	m.platformChannelLookupID = platformChannelID
 	return m.channel, m.err
 }
 
-func (m *mockChannelsRepo) GetByKickUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepo) GetBySlug(_ context.Context, _ channelsrepository.GetBySlugInput) (channelsmodel.Channel, error) {
 	return m.channel, m.err
 }
 
-func (m *mockChannelsRepo) GetByKickPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
-	return m.channel, m.err
+func newKickChannel(channelID, userID uuid.UUID) channelsmodel.Channel {
+	return channelsmodel.Channel{
+		ID: channelID,
+		Bindings: []channelplatformsmodel.ChannelPlatform{
+			{
+				Platform:          platform.PlatformKick,
+				UserID:            userID,
+				PlatformChannelID: userID.String(),
+				Enabled:           true,
+			},
+		},
+	}
 }
 
 func (m *mockChannelsRepo) GetCount(_ context.Context, _ channelsrepository.GetCountInput) (int, error) {
@@ -195,6 +220,10 @@ func (m *mockStreamsRepo) GetListByChannelID(_ context.Context, _ uuid.UUID) ([]
 
 func (m *mockStreamsRepo) GetList(_ context.Context) ([]streamsmodel.Stream, error) {
 	return nil, m.err
+}
+
+func (m *mockStreamsRepo) Count(_ context.Context) (uint64, error) {
+	return 0, m.err
 }
 
 func (m *mockStreamsRepo) Save(_ context.Context, input streamsrepository.SaveInput) error {
@@ -268,35 +297,6 @@ type mockRedemptionsHistoryRepo struct {
 	err     error
 }
 
-type mockKickBotsRepo struct {
-	bot kickbotentity.KickBot
-	err error
-}
-
-func (m *mockKickBotsRepo) GetDefault(_ context.Context) (kickbotentity.KickBot, error) {
-	return m.bot, m.err
-}
-
-func (m *mockKickBotsRepo) GetByID(_ context.Context, _ uuid.UUID) (kickbotentity.KickBot, error) {
-	return m.bot, m.err
-}
-
-func (m *mockKickBotsRepo) GetByKickUserID(_ context.Context, _ uuid.UUID) (kickbotentity.KickBot, error) {
-	return m.bot, m.err
-}
-
-func (m *mockKickBotsRepo) Create(_ context.Context, _ kickbotsrepository.CreateInput) (kickbotentity.KickBot, error) {
-	return m.bot, m.err
-}
-
-func (m *mockKickBotsRepo) Upsert(_ context.Context, _ kickbotsrepository.UpsertInput) (kickbotentity.KickBot, error) {
-	return m.bot, m.err
-}
-
-func (m *mockKickBotsRepo) UpdateToken(_ context.Context, _ uuid.UUID, _ kickbotsrepository.UpdateTokenInput) (kickbotentity.KickBot, error) {
-	return m.bot, m.err
-}
-
 func (m *mockChannelsInfoHistoryRepo) GetMany(_ context.Context, _ channelsinfohistory.GetManyInput) ([]channelsinfohistorymodel.ChannelInfoHistory, error) {
 	return nil, m.err
 }
@@ -348,7 +348,6 @@ func buildTestHandlers(
 	streamOffline *mockQueue[kickbus.KickStreamOffline, struct{}],
 	usersRepo usersrepository.Repository,
 	channelsRepo channelsrepository.Repository,
-	kickBotsRepo kickbotsrepository.Repository,
 	streamsRepo ...streamsrepository.Repository,
 ) (*Handlers, redismock.ClientMock) {
 	t.Helper()
@@ -378,7 +377,7 @@ func buildTestHandlers(
 		streamsRepo:             streamRepo,
 		channelService: channelservice.NewChannelService(
 			channelsRepo,
-			buscore.Bus{},
+			&buscore.Bus{},
 			cfg.Config{},
 			kvinmemory.New(),
 			streamRepo,
@@ -388,7 +387,6 @@ func buildTestHandlers(
 		redemptionsHistoryRepo:  &mockRedemptionsHistoryRepo{},
 		channelsRepo:            channelsRepo,
 		usersRepo:               usersRepo,
-		kickBotsRepo:            kickBotsRepo,
 	}
 
 	return h, redisMock
@@ -414,8 +412,7 @@ func buildKickEventHandler(
 		&mockQueue[kickbus.KickStreamOnline, struct{}]{},
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		&mockUsersRepo{user: usersmodel.User{ID: uuid.New(), PlatformID: broadcasterPlatformID}},
-		&mockChannelsRepo{channel: channelsmodel.Channel{ID: channelUUID, KickUserID: &kickUserUUID}},
-		nil,
+		&mockChannelsRepo{channel: newKickChannel(channelUUID, kickUserUUID)},
 	)
 
 	if subscribeQueue != nil {
@@ -432,6 +429,42 @@ func buildKickEventHandler(
 	}
 
 	return h, redisMock
+}
+
+func TestResolveIDsUsesKickBindingLookup(t *testing.T) {
+	channelID := uuid.New()
+	kickUserID := uuid.New()
+	channelsRepo := &mockChannelsRepo{channel: newKickChannel(channelID, kickUserID)}
+	h := &Handlers{
+		usersRepo: &mockUsersRepo{user: usersmodel.User{ID: kickUserID, PlatformID: "kick-123"}},
+		channelService: channelservice.NewChannelService(
+			channelsRepo,
+			&buscore.Bus{},
+			cfg.Config{},
+			kvinmemory.New(),
+			nil,
+		),
+	}
+
+	channelUUID, userUUID, err := h.resolveIDs(
+		httptest.NewRequest(http.MethodPost, "/webhook/kick", nil),
+		"kick-123",
+	)
+	if err != nil {
+		t.Fatalf("resolveIDs returned error: %v", err)
+	}
+	if channelUUID != channelID {
+		t.Fatalf("channel ID = %s, want %s", channelUUID, channelID)
+	}
+	if userUUID != kickUserID {
+		t.Fatalf("user ID = %s, want %s", userUUID, kickUserID)
+	}
+	if channelsRepo.bindingLookupPlatform != platform.PlatformKick {
+		t.Fatalf("lookup platform = %q, want %q", channelsRepo.bindingLookupPlatform, platform.PlatformKick)
+	}
+	if channelsRepo.bindingLookupUserID != kickUserID {
+		t.Fatalf("lookup user ID = %s, want %s", channelsRepo.bindingLookupUserID, kickUserID)
+	}
 }
 
 func makeRequest(t *testing.T, messageID, eventType string, payload any) *http.Request {
@@ -463,10 +496,7 @@ func TestHandleChatMessage(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(channelUUID, kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -478,7 +508,6 @@ func TestHandleChatMessage(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "msg-001"
@@ -648,10 +677,7 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(channelUUID, kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -663,7 +689,6 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "dup-msg-001"
@@ -717,10 +742,7 @@ func TestHandleChannelFollow(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(channelUUID, kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -732,7 +754,6 @@ func TestHandleChannelFollow(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "follow-evt-001"
@@ -774,8 +795,8 @@ func TestHandleChannelFollow(t *testing.T) {
 	if follow.BaseInfo.ChannelPlatformID != "777" {
 		t.Errorf("expected channelID %q, got %q", "777", follow.BaseInfo.ChannelPlatformID)
 	}
-	if follow.BaseInfo.ChannelDBID != channelUUID.String() {
-		t.Errorf("expected channelDBID %q, got %q", channelUUID.String(), follow.BaseInfo.ChannelDBID)
+	if follow.BaseInfo.ChannelDBID != channelUUID {
+		t.Errorf("expected channelDBID %s, got %s", channelUUID, follow.BaseInfo.ChannelDBID)
 	}
 	if follow.UserName != "followerlogin" {
 		t.Errorf("expected UserName %q, got %q", "followerlogin", follow.UserName)
@@ -1097,10 +1118,7 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         uuid.New(),
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(uuid.New(), kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -1112,7 +1130,6 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 		streamOfflineQueue,
 		usersRepo,
 		channelsRepo,
-		nil,
 		streamsRepo,
 	)
 
@@ -1194,10 +1211,7 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         uuid.New(),
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(uuid.New(), kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -1209,7 +1223,6 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 		streamOfflineQueue,
 		usersRepo,
 		channelsRepo,
-		nil,
 		streamsRepo,
 	)
 
@@ -1289,10 +1302,7 @@ func TestHandleLivestreamMetadataUpdated(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         uuid.New(),
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(uuid.New(), kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -1304,7 +1314,6 @@ func TestHandleLivestreamMetadataUpdated(t *testing.T) {
 		streamOfflineQueue,
 		usersRepo,
 		channelsRepo,
-		nil,
 		streamsRepo,
 	)
 
@@ -1398,10 +1407,7 @@ func TestHandleChatMessageRealConcurrent(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(channelUUID, kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -1413,7 +1419,6 @@ func TestHandleChatMessageRealConcurrent(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	redisMock.MatchExpectationsInOrder(false)
@@ -1515,7 +1520,6 @@ func TestHandleChatMessageRealConcurrent(t *testing.T) {
 func TestHandleChatMessageIgnoresAssignedKickBotMessages(t *testing.T) {
 	channelUUID := uuid.New()
 	kickUserUUID := uuid.New()
-	kickBotID := uuid.New()
 	senderUserID := uuid.New()
 
 	chatQueue := &mockQueue[generic.ChatMessage, struct{}]{}
@@ -1530,15 +1534,22 @@ func TestHandleChatMessageIgnoresAssignedKickBotMessages(t *testing.T) {
 	}
 	channelsRepo := &mockChannelsRepo{
 		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-			KickBotID:  &kickBotID,
-		},
-	}
-	kickBotsRepo := &mockKickBotsRepo{
-		bot: kickbotentity.KickBot{
-			ID:         kickBotID,
-			KickUserID: senderUserID,
+			ID: channelUUID,
+			Bindings: []channelplatformsmodel.ChannelPlatform{
+				{
+					Platform:          platform.PlatformTwitch,
+					UserID:            uuid.New(),
+					PlatformChannelID: "twitch-channel",
+					Enabled:           true,
+				},
+				{
+					Platform:          platform.PlatformKick,
+					UserID:            kickUserUUID,
+					PlatformChannelID: "kick-channel",
+					Enabled:           true,
+					BotUserID:         &senderUserID,
+				},
+			},
 		},
 	}
 
@@ -1551,7 +1562,6 @@ func TestHandleChatMessageIgnoresAssignedKickBotMessages(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		kickBotsRepo,
 	)
 
 	msgID := "msg-self-bot-001"
@@ -1611,10 +1621,7 @@ func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(channelUUID, kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -1626,7 +1633,6 @@ func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "duplicate-processing-001"
@@ -1685,7 +1691,6 @@ func TestHandleChatMessageResolveIDsFailure(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "resolve-failure-001"
@@ -1747,7 +1752,6 @@ func TestHandleChatMessageUnknownBroadcasterIgnored(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "unknown-broadcaster-001"
@@ -1816,7 +1820,6 @@ func TestHandleChatMessageUnknownChannelIgnored(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "unknown-channel-001"
@@ -1883,7 +1886,6 @@ func TestHandleChatMessageFailureCleanup(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "cleanup-failure-001"
@@ -1955,10 +1957,7 @@ func TestHandleChatMessagePublishFailure(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(channelUUID, kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -1970,7 +1969,6 @@ func TestHandleChatMessagePublishFailure(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "publish-failure-001"
@@ -2033,10 +2031,7 @@ func TestHandleChatMessagePartialSuccess(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(channelUUID, kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -2048,7 +2043,6 @@ func TestHandleChatMessagePartialSuccess(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "partial-success-001"
@@ -2110,10 +2104,7 @@ func TestHandleChatMessageMarkProcessedFailure(t *testing.T) {
 		},
 	}
 	channelsRepo := &mockChannelsRepo{
-		channel: channelsmodel.Channel{
-			ID:         channelUUID,
-			KickUserID: &kickUserUUID,
-		},
+		channel: newKickChannel(channelUUID, kickUserUUID),
 	}
 
 	h, redisMock := buildTestHandlers(
@@ -2125,7 +2116,6 @@ func TestHandleChatMessageMarkProcessedFailure(t *testing.T) {
 		&mockQueue[kickbus.KickStreamOffline, struct{}]{},
 		usersRepo,
 		channelsRepo,
-		nil,
 	)
 
 	msgID := "mark-processed-failure-001"
