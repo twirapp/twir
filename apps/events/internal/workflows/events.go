@@ -18,7 +18,6 @@ import (
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
@@ -40,7 +39,6 @@ type EventsWorkflowOpts struct {
 	ChannelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
 	ChannelService                    *channelservice.ChannelService
 	StreamsRepo                       streamsrepository.Repository
-	UsersRepo                         usersrepository.Repository
 }
 
 func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
@@ -65,7 +63,6 @@ func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 		channelsCache:                     opts.ChannelsCache,
 		channelService:                    opts.ChannelService,
 		streamsRepo:                       opts.StreamsRepo,
-		usersRepo:                         opts.UsersRepo,
 	}, nil
 }
 
@@ -80,7 +77,6 @@ type EventWorkflow struct {
 	channelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
 	channelService                    *channelservice.ChannelService
 	streamsRepo                       streamsrepository.Repository
-	usersRepo                         usersrepository.Repository
 }
 
 func (c *EventWorkflow) Execute(
@@ -94,14 +90,9 @@ func (c *EventWorkflow) Execute(
 			plat = platform.PlatformTwitch
 		}
 
-		user, err := c.usersRepo.GetByPlatformID(ctx, plat, data.ChannelID)
-		if err != nil {
-			return fmt.Errorf("resolve user by platform id: %w", err)
-		}
-
-		channel, channelErr := c.channelService.GetChannelByConnectedUser(ctx, user.ID, plat)
+		channel, channelErr := c.channelService.GetChannelByPlatformChannelID(ctx, plat, data.ChannelID)
 		if channelErr != nil {
-			return fmt.Errorf("resolve channel: %w", channelErr)
+			return fmt.Errorf("resolve channel by platform channel id: %w", channelErr)
 		}
 
 		data.ChannelDBID = channel.ID.String()
@@ -111,7 +102,7 @@ func (c *EventWorkflow) Execute(
 	if err != nil {
 		return err
 	}
-	if channel == channelmodel.Nil {
+	if channel.IsNil() {
 		return errors.New("channel not found")
 	}
 

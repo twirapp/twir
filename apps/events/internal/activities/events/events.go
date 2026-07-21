@@ -80,4 +80,6 @@ type channelRuntimeInfo struct {
 	BroadcasterUserID string
 	TwitchPlatformID  string
 	BotID             string
+	IsBotMod          bool
+	IsTwitchBanned    bool
 }
