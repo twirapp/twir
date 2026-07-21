@@ -18,7 +18,7 @@ func (c *Activity) SwitchEmoteOnly(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	dbEntity, dbEntityErr := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbEntity, dbEntityErr := c.getTwitchChannelDbEntity(ctx, data)
 	if dbEntityErr != nil {
 		return dbEntityErr
 	}
@@ -30,7 +30,7 @@ func (c *Activity) SwitchEmoteOnly(
 
 	resp, err := twitchClient.UpdateChatSettings(
 		&helix.UpdateChatSettingsParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: data.ChannelTwitchPlatformID,
 			ModeratorID:   dbEntity.BotID,
 			EmoteMode: lo.ToPtr(
 				lo.
@@ -56,7 +56,7 @@ func (c *Activity) SwitchSubMode(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	dbEntity, dbEntityErr := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbEntity, dbEntityErr := c.getTwitchChannelDbEntity(ctx, data)
 	if dbEntityErr != nil {
 		return dbEntityErr
 	}
@@ -68,7 +68,7 @@ func (c *Activity) SwitchSubMode(
 
 	resp, err := twitchClient.UpdateChatSettings(
 		&helix.UpdateChatSettingsParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: data.ChannelTwitchPlatformID,
 			ModeratorID:   dbEntity.BotID,
 			SubscriberMode: lo.ToPtr(
 				lo.

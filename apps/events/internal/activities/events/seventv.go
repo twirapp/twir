@@ -42,7 +42,7 @@ func (c *Activity) SevenTvEmoteManage(
 
 	client := seventv.NewClient(c.cfg.SevenTvToken)
 
-	broadcasterProfile, err := client.GetProfileByTwitchId(ctx, data.ChannelID)
+	broadcasterProfile, err := client.GetProfileByTwitchId(ctx, data.ChannelTwitchPlatformID)
 	if err != nil {
 		return err
 	}
