@@ -69,6 +69,28 @@ services:
         - "traefik.http.routers.twir-adminer.service=twir-adminer"
         - "traefik.http.services.twir-adminer.loadbalancer.server.port=8080"
 
+  dbx:
+    image: t8y2/dbx:latest
+    ports:
+      - "4224:4224"
+    volumes:
+      - dbx-data:/app/data
+    networks:
+      - twir
+      - cloudflared
+      - traefik-public
+    deploy:
+      placement:
+        constraints:
+          - node.labels.databases != true
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=traefik-public"
+        - "traefik.http.routers.twir-dbx.rule=Host(`dbx.twir.app`)"
+        - "traefik.http.routers.twir-dbx.entrypoints=web"
+        - "traefik.http.routers.twir-dbx.service=twir-dbx"
+        - "traefik.http.services.twir-dbx.loadbalancer.server.port=4224"
+
   nats:
     image: nats:2.10.11-scratch
     restart: always
@@ -939,6 +961,7 @@ volumes:
   minio-data:
   temporal-postgres-data:
   clickhouse-data:
+  dbx-data:
 
 networks:
   twir:
