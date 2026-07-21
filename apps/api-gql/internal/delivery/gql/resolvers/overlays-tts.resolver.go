@@ -272,7 +272,7 @@ func (r *tTSOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.TTSOverl
 		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
@@ -291,7 +291,7 @@ func (r *tTSUserSettingsResolver) TwitchProfile(ctx context.Context, obj *gqlmod
 			return nil, fmt.Errorf("invalid owner channel id: %w", err)
 		}
 
-		channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+		channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
 		if err != nil {
 			return nil, fmt.Errorf("get owner channel: %w", err)
 		}

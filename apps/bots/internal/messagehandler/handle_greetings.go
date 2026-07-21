@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
@@ -75,22 +76,21 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMe
 		}
 	}
 
-	var twitchUserID string
-	if msg.EnrichedData.DbChannel.TwitchUserID != nil {
-		twitchUserID = msg.EnrichedData.DbChannel.TwitchUserID.String()
+	platformSource := platform.Platform(msg.Platform)
+	if platformSource == "" {
+		platformSource = platform.PlatformTwitch
 	}
 
 	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID:           msg.BroadcasterUserId,
-			ChannelName:         msg.BroadcasterUserLogin,
-			ChannelTwitchUserID: twitchUserID,
-			ChannelDBID:         msg.EnrichedData.DbChannel.ID.String(),
-			Text:                greeting.Text,
-			UserID:              msg.ChatterUserId,
-			UserLogin:           msg.ChatterUserLogin,
-			UserName:            msg.ChatterUserName,
-			Mentions:            mentions,
+			ChannelID:      msg.EnrichedData.DbChannel.ID,
+			ChannelName:    msg.BroadcasterUserLogin,
+			Text:           greeting.Text,
+			UserID:         msg.ChatterUserId,
+			UserLogin:      msg.ChatterUserLogin,
+			UserName:       msg.ChatterUserName,
+			Mentions:       mentions,
+			PlatformSource: &platformSource,
 		},
 	)
 	if err != nil {
@@ -122,8 +122,8 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMe
 		ctx,
 		events.GreetingSendedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   msg.BroadcasterUserId,
-				ChannelName: msg.BroadcasterUserLogin,
+				ChannelPlatformID: msg.BroadcasterUserId,
+				ChannelName:       msg.BroadcasterUserLogin,
 			},
 			UserID:          msg.ChatterUserId,
 			UserName:        msg.ChatterUserLogin,

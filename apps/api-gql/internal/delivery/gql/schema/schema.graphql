@@ -17,7 +17,9 @@ directive @rateLimit(
 	key: String!
 	capacity: Int!
 	window: Duration!
-) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION | FIELD_DEFINITION
+
+directive @noRateLimit on FIELD_DEFINITION
 
 scalar Upload
 scalar Time

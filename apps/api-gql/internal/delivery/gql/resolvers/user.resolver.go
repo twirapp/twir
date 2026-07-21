@@ -220,7 +220,7 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
@@ -238,7 +238,7 @@ func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashb
 		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
@@ -509,7 +509,7 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 		}
 
 		if err == nil {
-			channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+			channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
 			if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
 				return nil, fmt.Errorf("get channel by twitch user id: %w", err)
 			}

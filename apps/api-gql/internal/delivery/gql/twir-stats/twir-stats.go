@@ -14,6 +14,7 @@ import (
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"github.com/twirapp/twir/libs/repositories/pastebins"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -29,6 +30,7 @@ type Opts struct {
 	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
 	ShortenedUrlsRepository    shortened_urls.Repository
 	PastebinsRepository        pastebins.Repository
+	StreamsRepository          streamsrepository.Repository
 }
 
 type TwirStats struct {
@@ -42,6 +44,7 @@ type TwirStats struct {
 	channelsCommandsUsagesRepo channelscommandsusages.Repository
 	shortenedUrlsRepository    shortened_urls.Repository
 	pastebinsRepository        pastebins.Repository
+	streamsRepository          streamsrepository.Repository
 }
 
 type Stats struct {
@@ -69,6 +72,7 @@ func New(opts Opts) *TwirStats {
 		channelsCommandsUsagesRepo: opts.ChannelsCommandsUsagesRepo,
 		shortenedUrlsRepository:    opts.ShortenedUrlsRepository,
 		pastebinsRepository:        opts.PastebinsRepository,
+		streamsRepository:          opts.StreamsRepository,
 	}
 
 	go s.cacheCounts()
@@ -90,116 +94,139 @@ func (c *TwirStats) GetCachedData() *Stats {
 func (c *TwirStats) cacheCounts() {
 	var wg sync.WaitGroup
 
-	wg.Go(func() {
-		var count int64
-		c.gorm.Model(&model.Users{}).Count(&count)
-		c.cachedResponse.Viewers = int(count)
-	})
+	wg.Go(
+		func() {
+			var count int64
+			c.gorm.Model(&model.Users{}).Count(&count)
+			c.cachedResponse.Viewers = int(count)
+		},
+	)
 
-	wg.Go(func() {
-		var count int64
-		c.gorm.Model(&model.Channels{}).Where(
-			`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ?`,
-			true,
-			false,
-			false,
-		).Joins("User").Count(&count)
-		c.cachedResponse.Channels = int(count)
-	})
+	wg.Go(
+		func() {
+			var count int64
+			c.gorm.Model(&model.Channels{}).Where(
+				`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ?`,
+				true,
+				false,
+				false,
+			).Joins("User").Count(&count)
+			c.cachedResponse.Channels = int(count)
+		},
+	)
 
-	wg.Go(func() {
-		var count int64
-		c.gorm.Model(&model.Channels{}).Where(
-			`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ? AND "channels"."twitch_user_id" IS NOT NULL`,
-			true,
-			false,
-			false,
-		).Joins("User").Count(&count)
-		c.cachedResponse.TwitchChannels = int(count)
-	})
+	wg.Go(
+		func() {
+			var count int64
+			c.gorm.Model(&model.Channels{}).Where(
+				`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ? AND "channels"."twitch_user_id" IS NOT NULL`,
+				true,
+				false,
+				false,
+			).Joins("User").Count(&count)
+			c.cachedResponse.TwitchChannels = int(count)
+		},
+	)
 
-	wg.Go(func() {
-		var count int64
-		c.gorm.Model(&model.Channels{}).Joins(
-			`LEFT JOIN users ON users.id = channels.kick_user_id`,
-		).Where(
-			`"channels"."isEnabled" = ? AND "channels"."kick_user_id" IS NOT NULL AND "users"."is_banned" = ?`,
-			true,
-			false,
-		).Count(&count)
-		c.cachedResponse.KickChannels = int(count)
-	})
+	wg.Go(
+		func() {
+			var count int64
+			c.gorm.Model(&model.Channels{}).Joins(
+				`LEFT JOIN users ON users.id = channels.kick_user_id`,
+			).Where(
+				`"channels"."isEnabled" = ? AND "channels"."kick_user_id" IS NOT NULL AND "users"."is_banned" = ?`,
+				true,
+				false,
+			).Count(&count)
+			c.cachedResponse.KickChannels = int(count)
+		},
+	)
 
-	wg.Go(func() {
-		var count int64
-		c.gorm.Model(&model.ChannelsCommands{}).
-			Where("module = ?", "CUSTOM").
-			Count(&count)
-		c.cachedResponse.CreatedCommands = int(count)
-	})
+	wg.Go(
+		func() {
+			var count int64
+			c.gorm.Model(&model.ChannelsCommands{}).
+				Where("module = ?", "CUSTOM").
+				Count(&count)
+			c.cachedResponse.CreatedCommands = int(count)
+		},
+	)
 
-	wg.Go(func() {
-		result := statsNResult{}
-		c.gorm.Model(&model.UsersStats{}).
-			Select("sum(messages) as n").
-			Scan(&result)
-		c.cachedResponse.Messages = int(result.N)
-	})
+	wg.Go(
+		func() {
+			result := statsNResult{}
+			c.gorm.Model(&model.UsersStats{}).
+				Select("sum(messages) as n").
+				Scan(&result)
+			c.cachedResponse.Messages = int(result.N)
+		},
+	)
 
-	wg.Go(func() {
-		emotesCount, err := c.channelsEmotesUsagesRepo.Count(
-			context.TODO(),
-			channelsemotesusagesrepository.CountInput{},
-		)
-		if err != nil {
-			c.logger.Error("cannot count emotes", logger.Error(err))
-			return
-		}
+	wg.Go(
+		func() {
+			emotesCount, err := c.channelsEmotesUsagesRepo.Count(
+				context.TODO(),
+				channelsemotesusagesrepository.CountInput{},
+			)
+			if err != nil {
+				c.logger.Error("cannot count emotes", logger.Error(err))
+				return
+			}
 
-		c.cachedResponse.UsedEmotes = int(emotesCount)
-	})
+			c.cachedResponse.UsedEmotes = int(emotesCount)
+		},
+	)
 
-	wg.Go(func() {
-		count, err := c.channelsCommandsUsagesRepo.Count(
-			context.TODO(),
-			channelscommandsusages.CountInput{},
-		)
-		if err != nil {
-			c.logger.Error("cannot count commands", logger.Error(err))
-			return
-		}
+	wg.Go(
+		func() {
+			count, err := c.channelsCommandsUsagesRepo.Count(
+				context.TODO(),
+				channelscommandsusages.CountInput{},
+			)
+			if err != nil {
+				c.logger.Error("cannot count commands", logger.Error(err))
+				return
+			}
 
-		c.cachedResponse.UsedCommands = int(count)
-	})
+			c.cachedResponse.UsedCommands = int(count)
+		},
+	)
 
-	wg.Go(func() {
-		count, err := c.shortenedUrlsRepository.Count(context.TODO(), shortened_urls.CountInput{})
-		if err != nil {
-			c.logger.Error("cannot count shortened urls", logger.Error(err))
-			return
-		}
+	wg.Go(
+		func() {
+			count, err := c.shortenedUrlsRepository.Count(context.TODO(), shortened_urls.CountInput{})
+			if err != nil {
+				c.logger.Error("cannot count shortened urls", logger.Error(err))
+				return
+			}
 
-		c.cachedResponse.ShortUrls = int(count)
-	})
+			c.cachedResponse.ShortUrls = int(count)
+		},
+	)
 
-	wg.Go(func() {
-		count, err := c.pastebinsRepository.Count(context.TODO(), pastebins.CountInput{})
-		if err != nil {
-			c.logger.Error("cannot count pastebins", logger.Error(err))
-			return
-		}
+	wg.Go(
+		func() {
+			count, err := c.pastebinsRepository.Count(context.TODO(), pastebins.CountInput{})
+			if err != nil {
+				c.logger.Error("cannot count pastebins", logger.Error(err))
+				return
+			}
 
-		c.cachedResponse.HasteBins = int(count)
-	})
+			c.cachedResponse.HasteBins = int(count)
+		},
+	)
 
-	wg.Go(func() {
-		var liveChannels int64
-		if err := c.gorm.Model(&model.ChannelsStreams{}).Count(&liveChannels).Error; err != nil {
-			c.logger.Error("cannot count live channels", logger.Error(err))
-		}
+	wg.Go(
+		func() {
+			streams, err := c.streamsRepository.Count(context.TODO())
+			if err != nil {
+				c.logger.Error("cannot count live channels", logger.Error(err))
+				return
+			}
 
-		c.cachedResponse.LiveChannels = int(liveChannels)
-	})
+			c.cachedResponse.LiveChannels = int(streams)
+		},
+	)
 
 	wg.Wait()
 }

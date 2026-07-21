@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 )
 
@@ -20,18 +21,21 @@ type Opts struct {
 
 	ChannelsRepository channels.Repository
 	UsersRepository    users.Repository
+	ChannelService     *channelservice.ChannelService
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		channelsRepository: opts.ChannelsRepository,
 		usersRepository:    opts.UsersRepository,
+		channelService:     opts.ChannelService,
 	}
 }
 
 type Service struct {
 	channelsRepository channels.Repository
 	usersRepository    users.Repository
+	channelService     *channelservice.ChannelService
 }
 
 var ErrNotFound = fmt.Errorf("channel not found")
@@ -47,7 +51,7 @@ func (c *Service) mapToEntity(m model.Channel) entity.Channel {
 }
 
 func (c *Service) GetByID(ctx context.Context, channelID uuid.UUID) (entity.Channel, error) {
-	channel, err := c.channelsRepository.GetByID(ctx, channelID)
+	channel, err := c.channelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		if err == channels.ErrNotFound {
 			return entity.ChannelNil, ErrNotFound
@@ -60,7 +64,7 @@ func (c *Service) GetByID(ctx context.Context, channelID uuid.UUID) (entity.Chan
 }
 
 func (c *Service) GetByTwitchPlatformID(ctx context.Context, twitchPlatformID string) (entity.Channel, error) {
-	channel, err := c.channelsRepository.GetByTwitchPlatformID(ctx, twitchPlatformID)
+	channel, err := c.channelService.GetChannelByPlatformUserID(ctx, twitchPlatformID, platformentity.PlatformTwitch)
 	if err != nil {
 		if err == channels.ErrNotFound {
 			return entity.ChannelNil, ErrNotFound
@@ -73,7 +77,7 @@ func (c *Service) GetByTwitchPlatformID(ctx context.Context, twitchPlatformID st
 }
 
 func (c *Service) GetByKickPlatformID(ctx context.Context, kickPlatformID string) (entity.Channel, error) {
-	channel, err := c.channelsRepository.GetByKickPlatformID(ctx, kickPlatformID)
+	channel, err := c.channelService.GetChannelByPlatformUserID(ctx, kickPlatformID, platformentity.PlatformKick)
 	if err != nil {
 		if err == channels.ErrNotFound {
 			return entity.ChannelNil, ErrNotFound
@@ -105,12 +109,12 @@ func (c *Service) ResolveApiKeyChannelIdentityByAnyPlatformUUID(ctx context.Cont
 
 	switch user.Platform {
 	case platformentity.PlatformKick:
-		channel, err = c.channelsRepository.GetByKickUserID(ctx, user.ID)
+		channel, err = c.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformKick)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get kick channel: %w", err)
 		}
 	default:
-		channel, err = c.channelsRepository.GetByTwitchUserID(ctx, user.ID)
+		channel, err = c.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get twitch channel: %w", err)
 		}
@@ -156,12 +160,12 @@ func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 
 		switch user.Platform {
 		case platformentity.PlatformKick:
-			channel, err = c.channelsRepository.GetByKickUserID(ctx, user.ID)
+			channel, err = c.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformKick)
 			if err != nil {
 				return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get kick channel: %w", err)
 			}
 		default:
-			channel, err = c.channelsRepository.GetByTwitchUserID(ctx, user.ID)
+			channel, err = c.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
 			if err != nil {
 				return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get twitch channel: %w", err)
 			}
@@ -189,7 +193,7 @@ func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 }
 
 func (c *Service) GetPlatformIdentities(ctx context.Context, channelID uuid.UUID) ([]ChannelPlatformIdentity, error) {
-	channel, err := c.channelsRepository.GetByID(ctx, channelID)
+	channel, err := c.channelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}

@@ -4,7 +4,6 @@ import { useLocalStorage } from '@vueuse/core'
 import SidebarDashboardSelector from './sidebar-dashboard-selector.vue'
 import SidebarFooter from './sidebar-footer.vue'
 import SidebarHeader from './sidebar-header.vue'
-import SidebarMiniPlayer from './sidebar-mini-player.vue'
 
 import {
 	Sidebar,
@@ -32,8 +31,6 @@ const open = useLocalStorage('twirSidebarIsOpen', true)
 			</SidebarContent>
 
 			<SidebarSeparator class="mx-1" />
-
-			<SidebarMiniPlayer />
 
 			<SidebarFooter />
 		</Sidebar>

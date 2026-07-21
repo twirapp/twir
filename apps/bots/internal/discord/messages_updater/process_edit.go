@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"github.com/avast/retry-go/v4"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
 func (c *MessagesUpdater) updateDiscordMessages(
 	ctx context.Context,
-	stream model.ChannelsStreams,
+	stream streamsmodel.Stream,
 ) error {
 	integrations, err := c.getChannelDiscordIntegrations(ctx, stream.UserId)
 	if err != nil {

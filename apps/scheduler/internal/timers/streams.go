@@ -15,10 +15,13 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 
-	"github.com/lib/pq"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/scorfly/gokick"
@@ -35,6 +38,9 @@ type StreamOpts struct {
 
 	Gorm    *gorm.DB
 	TwirBus *buscore.Bus
+
+	StreamsRepo    streamsrepository.Repository
+	ChannelService *channelservice.ChannelService
 }
 
 type streams struct {
@@ -42,6 +48,9 @@ type streams struct {
 	logger  *slog.Logger
 	gorm    *gorm.DB
 	twirBus *buscore.Bus
+
+	streamsRepo    streamsrepository.Repository
+	channelService *channelservice.ChannelService
 }
 
 func NewStreams(opts StreamOpts) {
@@ -54,10 +63,12 @@ func NewStreams(opts StreamOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &streams{
-		config:  opts.Config,
-		logger:  opts.Logger,
-		gorm:    opts.Gorm,
-		twirBus: opts.TwirBus,
+		config:         opts.Config,
+		logger:         opts.Logger,
+		gorm:           opts.Gorm,
+		twirBus:        opts.TwirBus,
+		streamsRepo:    opts.StreamsRepo,
+		channelService: opts.ChannelService,
 	}
 
 	opts.Lc.Append(
@@ -137,15 +148,16 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 	usersIds = lo.Uniq(usersIds)
 
-	var existedStreams []model.ChannelsStreams
-	err = c.gorm.WithContext(ctx).Select(
-		"id",
-		`"userId"`,
-		`"parsedMessages"`,
-	).Find(&existedStreams).Error
+	existedStreams, err := c.streamsRepo.GetList(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot get existed streams: %w", err)
 	}
+
+	existedTwitchStreams := lo.Filter(
+		existedStreams, func(stream streamsmodel.Stream, _ int) bool {
+			return stream.Platform == platformentity.PlatformTwitch
+		},
+	)
 
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	if err != nil {
@@ -177,85 +189,94 @@ func (c *streams) processStreams(ctx context.Context) error {
 					},
 				)
 				dbStream, dbStreamExists := lo.Find(
-					existedStreams, func(stream model.ChannelsStreams) bool {
+					existedTwitchStreams, func(stream streamsmodel.Stream) bool {
 						return stream.UserId == userId
 					},
 				)
 
-				tags := &pq.StringArray{}
-				for _, tag := range twitchStream.Tags {
-					*tags = append(*tags, tag)
-				}
-
-				channelStream := &model.ChannelsStreams{
-					ID:           twitchStream.ID,
-					UserId:       userId,
-					UserLogin:    twitchStream.UserLogin,
-					UserName:     twitchStream.UserName,
-					GameId:       twitchStream.GameID,
-					GameName:     twitchStream.GameName,
-					CommunityIds: nil,
-					Type:         twitchStream.Type,
-					Title:        twitchStream.Title,
-					ViewerCount:  twitchStream.ViewerCount,
-					StartedAt:    twitchStream.StartedAt,
-					Language:     twitchStream.Language,
-					ThumbnailUrl: twitchStream.ThumbnailURL,
-					TagIds:       nil,
-					Tags:         tags,
-					IsMature:     twitchStream.IsMature,
-				}
-
-				if twitchStreamExists && dbStreamExists {
-					// stream still online, update
-					if result := c.gorm.WithContext(ctx).Where(
-						`"userId" = ?`,
-						userId,
-					).Save(channelStream); result.Error != nil {
-						c.logger.Error("cannot update stream", slog.Any("err", result.Error))
-						return
-					}
-				}
-
-				if twitchStreamExists && !dbStreamExists {
-					// stream online, create
-					if result := c.gorm.WithContext(ctx).Where(
-						`"userId" = ?`,
-						userId,
-					).Save(channelStream); result.Error != nil {
-						c.logger.Error("cannot create stream", slog.Any("err", result.Error))
-						return
-					}
-
-					c.twirBus.Channel.StreamOnline.Publish(
+				if twitchStreamExists {
+					channel, err := c.channelService.GetChannelByPlatformUserID(
 						ctx,
-						bustwitch.StreamOnlineMessage{
-							ChannelID:    channelStream.UserId,
-							StreamID:     channelStream.ID,
-							CategoryName: channelStream.GameName,
-							CategoryID:   channelStream.GameId,
-							Title:        channelStream.Title,
-							Viewers:      channelStream.ViewerCount,
-							StartedAt:    channelStream.StartedAt,
-						},
+						userId,
+						platformentity.PlatformTwitch,
 					)
+					if err != nil || channel.IsNil() {
+						c.logger.Error(
+							"cannot resolve channel for twitch user",
+							slog.String("twitch_user_id", userId),
+							logger.Error(err),
+						)
+						continue
+					}
+
+					if err := c.streamsRepo.Save(
+						ctx,
+						streamsrepository.SaveInput{
+							ID:           twitchStream.ID,
+							ChannelID:    channel.ID,
+							UserId:       userId,
+							UserLogin:    twitchStream.UserLogin,
+							UserName:     twitchStream.UserName,
+							GameId:       twitchStream.GameID,
+							GameName:     twitchStream.GameName,
+							CommunityIds: nil,
+							Type:         twitchStream.Type,
+							Title:        twitchStream.Title,
+							ViewerCount:  twitchStream.ViewerCount,
+							StartedAt:    twitchStream.StartedAt,
+							Language:     twitchStream.Language,
+							ThumbnailUrl: twitchStream.ThumbnailURL,
+							TagIds:       nil,
+							Tags:         twitchStream.Tags,
+							IsMature:     twitchStream.IsMature,
+							Platform:     platformentity.PlatformTwitch,
+						},
+					); err != nil {
+						c.logger.Error("cannot save stream", slog.Any("err", err))
+						continue
+					}
+
+					if err := c.channelService.InvalidateOnlineCache(ctx, channel.ID); err != nil {
+						c.logger.Error("cannot invalidate online cache", logger.Error(err))
+					}
+
+					if !dbStreamExists {
+						c.twirBus.Channel.StreamOnline.Publish(
+							ctx,
+							bustwitch.StreamOnlineMessage{
+								ChannelID:    userId,
+								StreamID:     twitchStream.ID,
+								CategoryName: twitchStream.GameName,
+								CategoryID:   twitchStream.GameID,
+								Title:        twitchStream.Title,
+								Viewers:      twitchStream.ViewerCount,
+								StartedAt:    twitchStream.StartedAt,
+							},
+						)
+					}
+
+					continue
 				}
 
-				if !twitchStreamExists && dbStreamExists {
+				if dbStreamExists {
 					// stream offline, delete
-					err = c.gorm.WithContext(ctx).Where(
-						`"userId" = ?`,
-						userId,
-					).Delete(&model.ChannelsStreams{}).Error
-					if err != nil {
+					if err := c.streamsRepo.DeleteByChannelID(
+						ctx,
+						dbStream.ChannelID,
+						platformentity.PlatformTwitch,
+					); err != nil {
 						c.logger.Error("cannot delete stream", logger.Error(err))
-						return
+						continue
+					}
+
+					if err := c.channelService.InvalidateOnlineCache(ctx, dbStream.ChannelID); err != nil {
+						c.logger.Error("cannot invalidate online cache", logger.Error(err))
 					}
 
 					c.twirBus.Channel.StreamOffline.Publish(
 						ctx,
 						bustwitch.StreamOfflineMessage{
-							ChannelID: channelStream.UserId,
+							ChannelID: userId,
 							StartedAt: dbStream.StartedAt,
 						},
 					)
@@ -317,7 +338,7 @@ func buildKickChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
 		Where(`COALESCE(users.is_banned, false) = false`)
 }
 
-func (c *streams) processKickStreams(ctx context.Context, existedStreams []model.ChannelsStreams) error {
+func (c *streams) processKickStreams(ctx context.Context, existedStreams []streamsmodel.Stream) error {
 	var channels []kickChannelRow
 	err := buildKickChannelsQuery(c.gorm, ctx).Scan(&channels).Error
 	if err != nil {
@@ -338,6 +359,12 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []model
 		return fmt.Errorf("create kick client: %w", err)
 	}
 
+	existedKickStreams := lo.Filter(
+		existedStreams, func(stream streamsmodel.Stream, _ int) bool {
+			return stream.Platform == platformentity.PlatformKick
+		},
+	)
+
 	validChannels := lo.Filter(channels, func(channel kickChannelRow, _ int) bool {
 		return channel.KickPlatformID != nil && *channel.KickPlatformID != ""
 	})
@@ -345,7 +372,6 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []model
 	chunks := lo.Chunk(validChannels, 50)
 	for _, chunk := range chunks {
 		platformIDs := make([]int, 0, len(chunk))
-		byPlatformID := make(map[string]kickChannelRow, len(chunk))
 		for _, channel := range chunk {
 			platformIDInt, convErr := strconv.Atoi(*channel.KickPlatformID)
 			if convErr != nil {
@@ -353,7 +379,6 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []model
 				continue
 			}
 			platformIDs = append(platformIDs, platformIDInt)
-			byPlatformID[*channel.KickPlatformID] = channel
 		}
 
 		if len(platformIDs) == 0 {
@@ -373,9 +398,15 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []model
 		for _, channel := range chunk {
 			platformID := *channel.KickPlatformID
 			kickChannel, exists := channelsByPlatformID[platformID]
-			dbStream, dbStreamExists := lo.Find(existedStreams, func(stream model.ChannelsStreams) bool {
-				return stream.UserId == channel.ID
+			dbStream, dbStreamExists := lo.Find(existedKickStreams, func(stream streamsmodel.Stream) bool {
+				return stream.UserId == platformID
 			})
+
+			channelUUID, uuidErr := uuid.Parse(channel.ID)
+			if uuidErr != nil {
+				c.logger.Error("cannot parse channel id", slog.Any("err", uuidErr), slog.String("channel_id", channel.ID))
+				continue
+			}
 
 			if exists && kickChannel.Stream.IsLive {
 				startedAt := time.Now().UTC()
@@ -385,33 +416,35 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []model
 					}
 				}
 
-				tags := &pq.StringArray{}
-				for _, tag := range kickChannel.Stream.CustomTags {
-					*tags = append(*tags, tag)
-				}
-
-				channelStream := &model.ChannelsStreams{
-					ID:           channel.ID,
-					UserId:       channel.ID,
-					UserLogin:    kickChannel.Slug,
-					UserName:     kickChannel.Slug,
-					GameId:       strconv.Itoa(kickChannel.Category.ID),
-					GameName:     kickChannel.Category.Name,
-					CommunityIds: nil,
-					Type:         "live",
-					Title:        kickChannel.StreamTitle,
-					ViewerCount:  kickChannel.Stream.ViewerCount,
-					StartedAt:    startedAt,
-					Language:     kickChannel.Stream.Language,
-					ThumbnailUrl: kickChannel.Stream.Thumbnail,
-					TagIds:       nil,
-					Tags:         tags,
-					IsMature:     kickChannel.Stream.IsMature,
-				}
-
-				if result := c.gorm.WithContext(ctx).Where(`"userId" = ?`, channel.ID).Save(channelStream); result.Error != nil {
-					c.logger.Error("cannot save kick stream", slog.Any("err", result.Error))
+				if err := c.streamsRepo.Save(
+					ctx,
+					streamsrepository.SaveInput{
+						ID:           "",
+						ChannelID:    channelUUID,
+						UserId:       platformID,
+						UserLogin:    kickChannel.Slug,
+						UserName:     kickChannel.Slug,
+						GameId:       strconv.Itoa(kickChannel.Category.ID),
+						GameName:     kickChannel.Category.Name,
+						CommunityIds: nil,
+						Type:         "live",
+						Title:        kickChannel.StreamTitle,
+						ViewerCount:  kickChannel.Stream.ViewerCount,
+						StartedAt:    startedAt,
+						Language:     kickChannel.Stream.Language,
+						ThumbnailUrl: kickChannel.Stream.Thumbnail,
+						TagIds:       nil,
+						Tags:         kickChannel.Stream.CustomTags,
+						IsMature:     kickChannel.Stream.IsMature,
+						Platform:     platformentity.PlatformKick,
+					},
+				); err != nil {
+					c.logger.Error("cannot save kick stream", slog.Any("err", err))
 					continue
+				}
+
+				if err := c.channelService.InvalidateOnlineCache(ctx, channelUUID); err != nil {
+					c.logger.Error("cannot invalidate online cache", logger.Error(err))
 				}
 
 				if !dbStreamExists {
@@ -424,9 +457,17 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []model
 			}
 
 			if dbStreamExists {
-				if err := c.gorm.WithContext(ctx).Where(`"userId" = ?`, channel.ID).Delete(&model.ChannelsStreams{}).Error; err != nil {
+				if err := c.streamsRepo.DeleteByChannelID(
+					ctx,
+					channelUUID,
+					platformentity.PlatformKick,
+				); err != nil {
 					c.logger.Error("cannot delete kick stream", logger.Error(err))
 					continue
+				}
+
+				if err := c.channelService.InvalidateOnlineCache(ctx, channelUUID); err != nil {
+					c.logger.Error("cannot invalidate online cache", logger.Error(err))
 				}
 
 				c.twirBus.KickStreamOffline.Publish(ctx, buskick.KickStreamOffline{

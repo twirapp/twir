@@ -29,3 +29,7 @@ type Middlewares struct {
 	logger      *slog.Logger
 	rateLimiter *rate_limiter.LeakyBucketRateLimiter
 }
+
+func (m *Middlewares) RateLimitInstance() *rate_limiter.LeakyBucketRateLimiter {
+	return m.rateLimiter
+}

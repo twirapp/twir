@@ -22,7 +22,9 @@
     "next": "Next",
     "previous": "Previous",
     "reset": "Reset",
-    "popout": "Popout in new window"
+    "popout": "Popout in new window",
+    "hide": "Hide",
+    "show": "Show"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -788,6 +790,15 @@
         "duration": "Duration"
       }
     },
+    "links": {
+      "title": "Widget & Overlay Links",
+      "apiKey": "API Key",
+      "widget": "Widget",
+      "overlay": "OBS Overlay",
+      "notConfigured": "Configure song requests to get your widget and overlay links.",
+      "copied": "{label} link copied!",
+      "copyError": "Failed to copy link to clipboard"
+    },
     "settings": {
       "onlineOnly": "Allow Song Requests when streaming?",
       "announcePlay": "Announce Current Song into Chat?",
@@ -816,6 +827,68 @@
       "takeSongFromDonationMessageDescription": "Enabling this option will make the bot to try to find song links in donation messages and add them to the queue automatically.",
       "onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live."
     },
+    "overlaySettings": {
+      "button": "Overlay settings",
+      "title": "Song request overlay",
+      "description": "Choose how the current song appears in OBS and preview changes before saving.",
+      "loading": "Loading overlay settings",
+      "loadError": {
+        "title": "Could not load overlay settings",
+        "description": "Your existing settings were not changed. Check your connection and try again.",
+        "retry": "Try again"
+      },
+      "styleLabel": "Overlay style",
+      "styleDescription": "Select one of six layouts for the current song.",
+      "accentColor": "Accent color",
+      "hideOnPause": "Hide on pause",
+      "hideOnPauseDescription": "Hide the overlay while song playback is paused.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "preview": {
+        "title": "Live preview",
+        "description": "Changes in this preview stay local until you save."
+      },
+      "ticker": {
+        "backgroundColor": "Ticker background color",
+        "textColor": "Ticker text color",
+        "speed": "Ticker speed",
+        "speedDescription": "Pixels per second, from 10 to 100."
+      },
+      "feedback": {
+        "success": "Overlay settings saved.",
+        "error": "Could not save overlay settings."
+      },
+      "validation": {
+        "color": "Use a hexadecimal color such as #8B5CF6 or #8B5CF6CC.",
+        "speed": "Ticker speed must be between 10 and 100."
+      },
+      "styles": {
+        "cinema": {
+          "name": "Cinema",
+          "description": "Full-screen media with a cinematic status bar."
+        },
+        "compact": {
+          "name": "Compact",
+          "description": "A small media card anchored to the lower corner."
+        },
+        "ticker": {
+          "name": "Ticker",
+          "description": "A slim scrolling title bar for minimal layouts."
+        },
+        "studio": {
+          "name": "Studio",
+          "description": "Artwork, playback details, and an animated waveform."
+        },
+        "portrait": {
+          "name": "Portrait",
+          "description": "A polished vertical card with an accent glow."
+        },
+        "pill": {
+          "name": "Pill",
+          "description": "A lightweight rounded bar with compact progress."
+        }
+      }
+    },
     "tabs": {
       "general": "General",
       "users": "Users",
@@ -827,6 +900,15 @@
       "song": "Ban song",
       "userConfirm": "Are you sure you want to ban this user?",
       "songConfirm": "Are you sure you want to ban this song?"
+    },
+    "overlay": {
+      "hideOnPause": "Hide on pause"
+    },
+    "widget": {
+      "queue": "Queue",
+      "clearAll": "Clear All",
+      "empty": "Queue is empty",
+      "nowPlaying": "Now Playing"
     }
   },
   "timers": {

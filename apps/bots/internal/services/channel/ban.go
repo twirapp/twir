@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -23,9 +24,9 @@ func (s *Service) getChannelByIDOrTwitchID(
 	id string,
 ) (channelmodel.Channel, error) {
 	if parsed, err := uuid.Parse(id); err == nil {
-		return s.channelsRepo.GetByID(ctx, parsed)
+		return s.channelService.GetChannelByID(ctx, parsed)
 	}
-	return s.channelsRepo.GetByTwitchPlatformID(ctx, id)
+	return s.channelService.GetChannelByPlatformUserID(ctx, id, platform.PlatformTwitch)
 }
 
 func (s *Service) Ban(ctx context.Context, req bots.BanRequest) error {

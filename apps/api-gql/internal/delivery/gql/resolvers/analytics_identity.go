@@ -25,7 +25,7 @@ func resolveSelectedDashboardAnalyticsIdentity(ctx context.Context, deps Deps) (
 		return "", "", err
 	}
 
-	channel, err := deps.ChannelsRepository.GetByID(ctx, parsedDashboardID)
+	channel, err := deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
 	if err != nil {
 		return "", "", err
 	}
@@ -70,7 +70,7 @@ func resolveSelectedDashboardChatMessageTargets(
 		return nil, err
 	}
 
-	channel, err := deps.ChannelsRepository.GetByID(ctx, parsedDashboardID)
+	channel, err := deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
 	if err != nil {
 		return nil, err
 	}

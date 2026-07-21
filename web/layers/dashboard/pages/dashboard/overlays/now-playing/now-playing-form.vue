@@ -97,6 +97,10 @@ const fontWeightOptions = computed(() => {
 							<SelectItem value="AIDEN_REDESIGN"> Aiden Redesign </SelectItem>
 							<SelectItem value="TRANSPARENT"> Transparent </SelectItem>
 							<SelectItem value="SIMPLE_LINE"> Simple line </SelectItem>
+							<SelectItem value="PULSE_STRIP"> Pulse Strip </SelectItem>
+							<SelectItem value="AURA_STACK"> Aura Stack </SelectItem>
+							<SelectItem value="VINYL_HAZE"> Vinyl Haze </SelectItem>
+							<SelectItem value="SIGNAL_DECK"> Signal Deck </SelectItem>
 						</SelectGroup>
 					</SelectContent>
 				</Select>

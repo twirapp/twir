@@ -26,7 +26,7 @@ func TwirEventBaseInfoToGql(
 func TwirEventFollowToGql(event events.FollowMessage) gqlmodel.EventFollowMessage {
 	return gqlmodel.EventFollowMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeFollow,
 		),
@@ -39,7 +39,7 @@ func TwirEventFollowToGql(event events.FollowMessage) gqlmodel.EventFollowMessag
 func TwirEventSubscribeToGql(event events.SubscribeMessage) gqlmodel.EventSubscribeMessage {
 	return gqlmodel.EventSubscribeMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeSubscribe,
 		),
@@ -53,7 +53,7 @@ func TwirEventSubscribeToGql(event events.SubscribeMessage) gqlmodel.EventSubscr
 func TwirEventSubGiftToGql(event events.SubGiftMessage) gqlmodel.EventSubGiftMessage {
 	return gqlmodel.EventSubGiftMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeSubGift,
 		),
@@ -69,7 +69,7 @@ func TwirEventSubGiftToGql(event events.SubGiftMessage) gqlmodel.EventSubGiftMes
 func TwirEventReSubscribeToGql(event events.ReSubscribeMessage) gqlmodel.EventReSubscribeMessage {
 	return gqlmodel.EventReSubscribeMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeResubscribe,
 		),
@@ -87,7 +87,7 @@ func TwirEventReSubscribeToGql(event events.ReSubscribeMessage) gqlmodel.EventRe
 func TwirEventRedemptionCreatedToGql(event events.RedemptionCreatedMessage) gqlmodel.EventRedemptionCreatedMessage {
 	return gqlmodel.EventRedemptionCreatedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeRedemptionCreated,
 		),
@@ -109,7 +109,7 @@ func TwirEventCommandUsedToGql(event events.CommandUsedMessage) gqlmodel.EventCo
 
 	return gqlmodel.EventCommandUsedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeCommandUsed,
 		),
@@ -128,7 +128,7 @@ func TwirEventCommandUsedToGql(event events.CommandUsedMessage) gqlmodel.EventCo
 func TwirEventFirstUserMessageToGql(event events.FirstUserMessageMessage) gqlmodel.EventFirstUserMessageMessage {
 	return gqlmodel.EventFirstUserMessageMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeFirstUserMessage,
 		),
@@ -142,7 +142,7 @@ func TwirEventFirstUserMessageToGql(event events.FirstUserMessageMessage) gqlmod
 func TwirEventRaidedToGql(event events.RaidedMessage) gqlmodel.EventRaidedMessage {
 	return gqlmodel.EventRaidedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeRaided,
 		),
@@ -156,7 +156,7 @@ func TwirEventRaidedToGql(event events.RaidedMessage) gqlmodel.EventRaidedMessag
 func TwirEventTitleOrCategoryChangedToGql(event events.TitleOrCategoryChangedMessage) gqlmodel.EventTitleOrCategoryChangedMessage {
 	return gqlmodel.EventTitleOrCategoryChangedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeTitleOrCategoryChanged,
 		),
@@ -170,7 +170,7 @@ func TwirEventTitleOrCategoryChangedToGql(event events.TitleOrCategoryChangedMes
 func TwirEventChatClearToGql(event events.ChatClearMessage) gqlmodel.EventChatClearMessage {
 	return gqlmodel.EventChatClearMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeOnChatClear,
 		),
@@ -180,7 +180,7 @@ func TwirEventChatClearToGql(event events.ChatClearMessage) gqlmodel.EventChatCl
 func TwirEventDonateToGql(event events.DonateMessage) gqlmodel.EventDonateMessage {
 	return gqlmodel.EventDonateMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeDonate,
 		),
@@ -194,7 +194,7 @@ func TwirEventDonateToGql(event events.DonateMessage) gqlmodel.EventDonateMessag
 func TwirEventKeywordMatchedToGql(event events.KeywordMatchedMessage) gqlmodel.EventKeywordMatchedMessage {
 	return gqlmodel.EventKeywordMatchedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeKeywordMatched,
 		),
@@ -210,7 +210,7 @@ func TwirEventKeywordMatchedToGql(event events.KeywordMatchedMessage) gqlmodel.E
 func TwirEventGreetingSendedToGql(event events.GreetingSendedMessage) gqlmodel.EventGreetingSendedMessage {
 	return gqlmodel.EventGreetingSendedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeGreetingSended,
 		),
@@ -262,7 +262,7 @@ func TwirEventPollInfoToGql(info events.PollInfo) *gqlmodel.EventPollInfo {
 func TwirEventPollBeginToGql(event events.PollBeginMessage) gqlmodel.EventPollBeginMessage {
 	return gqlmodel.EventPollBeginMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypePollBegin,
 		),
@@ -275,7 +275,7 @@ func TwirEventPollBeginToGql(event events.PollBeginMessage) gqlmodel.EventPollBe
 func TwirEventPollProgressToGql(event events.PollProgressMessage) gqlmodel.EventPollProgressMessage {
 	return gqlmodel.EventPollProgressMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypePollProgress,
 		),
@@ -288,7 +288,7 @@ func TwirEventPollProgressToGql(event events.PollProgressMessage) gqlmodel.Event
 func TwirEventPollEndToGql(event events.PollEndMessage) gqlmodel.EventPollEndMessage {
 	return gqlmodel.EventPollEndMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypePollEnd,
 		),
@@ -344,7 +344,7 @@ func TwirEventPredictionInfoToGql(info events.PredictionInfo) *gqlmodel.EventPre
 func TwirEventPredictionBeginToGql(event events.PredictionBeginMessage) gqlmodel.EventPredictionBeginMessage {
 	return gqlmodel.EventPredictionBeginMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypePredictionBegin,
 		),
@@ -357,7 +357,7 @@ func TwirEventPredictionBeginToGql(event events.PredictionBeginMessage) gqlmodel
 func TwirEventPredictionProgressToGql(event events.PredictionProgressMessage) gqlmodel.EventPredictionProgressMessage {
 	return gqlmodel.EventPredictionProgressMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypePredictionProgress,
 		),
@@ -370,7 +370,7 @@ func TwirEventPredictionProgressToGql(event events.PredictionProgressMessage) gq
 func TwirEventPredictionLockToGql(event events.PredictionLockMessage) gqlmodel.EventPredictionLockMessage {
 	return gqlmodel.EventPredictionLockMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypePredictionLock,
 		),
@@ -383,7 +383,7 @@ func TwirEventPredictionLockToGql(event events.PredictionLockMessage) gqlmodel.E
 func TwirEventPredictionEndToGql(event events.PredictionEndMessage) gqlmodel.EventPredictionEndMessage {
 	return gqlmodel.EventPredictionEndMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypePredictionEnd,
 		),
@@ -410,7 +410,7 @@ func TwirEventStreamOfflineToGql(event twitch.StreamOfflineMessage) gqlmodel.Eve
 func TwirEventStreamFirstUserJoinToGql(event events.StreamFirstUserJoinMessage) gqlmodel.EventStreamFirstUserJoinMessage {
 	return gqlmodel.EventStreamFirstUserJoinMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeFirstUserMessage,
 		),
@@ -428,7 +428,7 @@ func TwirEventChannelBanToGql(event events.ChannelBanMessage) gqlmodel.EventChan
 
 	return gqlmodel.EventChannelBanMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeChannelBan,
 		),
@@ -447,7 +447,7 @@ func TwirEventChannelBanToGql(event events.ChannelBanMessage) gqlmodel.EventChan
 func TwirEventChannelUnbanRequestCreateToGql(event events.ChannelUnbanRequestCreateMessage) gqlmodel.EventChannelUnbanRequestCreateMessage {
 	return gqlmodel.EventChannelUnbanRequestCreateMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeChannelUnbanRequestCreate,
 		),
@@ -461,7 +461,7 @@ func TwirEventChannelUnbanRequestCreateToGql(event events.ChannelUnbanRequestCre
 func TwirEventChannelUnbanRequestResolveToGql(event events.ChannelUnbanRequestResolveMessage) gqlmodel.EventChannelUnbanRequestResolveMessage {
 	return gqlmodel.EventChannelUnbanRequestResolveMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeChannelUnbanRequestResolve,
 		),
@@ -478,7 +478,7 @@ func TwirEventChannelUnbanRequestResolveToGql(event events.ChannelUnbanRequestRe
 func TwirEventChannelMessageDeleteToGql(event events.ChannelMessageDeleteMessage) gqlmodel.EventChannelMessageDeleteMessage {
 	return gqlmodel.EventChannelMessageDeleteMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeChannelMessageDelete,
 		),
@@ -486,7 +486,7 @@ func TwirEventChannelMessageDeleteToGql(event events.ChannelMessageDeleteMessage
 		UserID:               event.UserId,
 		UserName:             event.UserLogin,
 		UserDisplayName:      event.UserName,
-		ModeratorID:          event.BaseInfo.ChannelID,
+		ModeratorID:          event.BaseInfo.ChannelPlatformID,
 		ModeratorName:        event.BroadcasterUserLogin,
 		ModeratorDisplayName: event.BroadcasterUserName,
 	}
@@ -495,7 +495,7 @@ func TwirEventChannelMessageDeleteToGql(event events.ChannelMessageDeleteMessage
 func TwirEventVipAddedToGql(event events.VipAddedMessage) gqlmodel.EventVipAddedMessage {
 	return gqlmodel.EventVipAddedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeVipAdded,
 		),
@@ -508,7 +508,7 @@ func TwirEventVipAddedToGql(event events.VipAddedMessage) gqlmodel.EventVipAdded
 func TwirEventVipRemovedToGql(event events.VipRemovedMessage) gqlmodel.EventVipRemovedMessage {
 	return gqlmodel.EventVipRemovedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeVipRemoved,
 		),
@@ -521,7 +521,7 @@ func TwirEventVipRemovedToGql(event events.VipRemovedMessage) gqlmodel.EventVipR
 func TwirEventModeratorAddedToGql(event events.ModeratorAddedMessage) gqlmodel.EventModeratorAddedMessage {
 	return gqlmodel.EventModeratorAddedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeModeratorAdded,
 		),
@@ -534,7 +534,7 @@ func TwirEventModeratorAddedToGql(event events.ModeratorAddedMessage) gqlmodel.E
 func TwirEventModeratorRemovedToGql(event events.ModeratorRemovedMessage) gqlmodel.EventModeratorRemovedMessage {
 	return gqlmodel.EventModeratorRemovedMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeModeratorRemoved,
 		),
@@ -547,7 +547,7 @@ func TwirEventModeratorRemovedToGql(event events.ModeratorRemovedMessage) gqlmod
 func TwirEventChannelUnbanToGql(event events.ChannelUnbanMessage) gqlmodel.EventChannelUnbanMessage {
 	return gqlmodel.EventChannelUnbanMessage{
 		BaseInfo: TwirEventBaseInfoToGql(
-			event.BaseInfo.ChannelID,
+			event.BaseInfo.ChannelPlatformID,
 			event.BaseInfo.ChannelName,
 			entity.EventTypeChannelUnban,
 		),

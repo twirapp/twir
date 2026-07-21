@@ -10,16 +10,22 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 
+interface RGB {
+	r: number
+	g: number
+	b: number
+}
+
 const props = defineProps<{
 	hex: string
-	rgb: { r: number; g: number; b: number }
+	rgb: RGB
 	alpha: number
 	showCopy: boolean
 }>()
 
 const emit = defineEmits<{
 	'update:hex': [value: string]
-	'update:rgb': []
+	'update:rgb': [value: RGB]
 	'update:alpha': [value: number]
 	'update:color-model': [model: 'hex' | 'rgb' | 'hsl']
 }>()
@@ -80,19 +86,18 @@ watch(colorModel, (newModel) => {
 })
 
 const updateHex = () => emit('update:hex', localHex.value)
-const updateRgb = () => emit('update:rgb')
+const updateRgb = () => emit('update:rgb', { ...localRgb.value })
 const updateAlpha = () => emit('update:alpha', localAlpha.value)
 function updateFromHsl() {
 	const color = tinycolor({
 		h: editableHsl.value.h,
 		s: editableHsl.value.s / 100,
 		l: editableHsl.value.l / 100,
-	})
+	}).setAlpha(localAlpha.value / 100)
 	const rgb = color.toRgb()
 	localRgb.value = { r: rgb.r, g: rgb.g, b: rgb.b }
-	localHex.value = color.toHexString()
+	localHex.value = localAlpha.value < 100 ? color.toHex8String() : color.toHexString()
 	emit('update:hex', localHex.value)
-	emit('update:rgb')
 }
 
 async function copyColor() {
@@ -122,23 +127,44 @@ const inputClass =
 </script>
 
 <template>
-	<div class="flex items-center gap-1 w-full overflow-hidden">
+	<div class="flex w-full items-center gap-1 overflow-hidden">
 		<Select v-model="colorModel">
-			<SelectTrigger size="sm" class="px-2 text-xs shrink-0">
+			<SelectTrigger
+				size="sm"
+				class="shrink-0 px-2 text-xs"
+			>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent>
-				<SelectItem value="hex" class="text-xs"> HEX </SelectItem>
-				<SelectItem value="rgb" class="text-xs"> RGB </SelectItem>
-				<SelectItem value="hsl" class="text-xs"> HSL </SelectItem>
+				<SelectItem
+					value="hex"
+					class="text-xs"
+				>
+					HEX
+				</SelectItem>
+				<SelectItem
+					value="rgb"
+					class="text-xs"
+				>
+					RGB
+				</SelectItem>
+				<SelectItem
+					value="hsl"
+					class="text-xs"
+				>
+					HSL
+				</SelectItem>
 			</SelectContent>
 		</Select>
 
 		<!-- HEX -->
-		<div v-if="colorModel === 'hex'" class="inline-flex -space-x-px min-w-0">
+		<div
+			v-if="colorModel === 'hex'"
+			class="inline-flex min-w-0 -space-x-px"
+		>
 			<UiInput
 				v-model="localHex"
-				class="uppercase rounded-r-none border-r-0 min-w-0"
+				class="min-w-0 rounded-r-none border-r-0 uppercase"
 				:class="[inputClass]"
 				placeholder="HEX"
 				@blur="updateHex"
@@ -150,7 +176,7 @@ const inputClass =
 				min="0"
 				max="100"
 				placeholder="A"
-				class="rounded-l-none min-w-0"
+				class="min-w-0 rounded-l-none"
 				:class="[inputClass]"
 				@blur="updateAlpha"
 				@keydown.enter="updateAlpha"
@@ -158,14 +184,17 @@ const inputClass =
 		</div>
 
 		<!-- RGB -->
-		<div v-else-if="colorModel === 'rgb'" class="inline-flex -space-x-px min-w-0">
+		<div
+			v-else-if="colorModel === 'rgb'"
+			class="inline-flex min-w-0 -space-x-px"
+		>
 			<UiInput
 				v-model.number="localRgb.r"
 				type="number"
 				min="0"
 				max="255"
 				placeholder="R"
-				class="rounded-r-none border-r-0 min-w-0"
+				class="min-w-0 rounded-r-none border-r-0"
 				:class="[inputClass]"
 				@blur="updateRgb"
 				@keydown.enter="updateRgb"
@@ -176,7 +205,7 @@ const inputClass =
 				min="0"
 				max="255"
 				placeholder="G"
-				class="rounded-none border-r-0 min-w-0"
+				class="min-w-0 rounded-none border-r-0"
 				:class="[inputClass]"
 				@blur="updateRgb"
 				@keydown.enter="updateRgb"
@@ -187,7 +216,7 @@ const inputClass =
 				min="0"
 				max="255"
 				placeholder="B"
-				class="rounded-none border-r-0 min-w-0"
+				class="min-w-0 rounded-none border-r-0"
 				:class="[inputClass]"
 				@blur="updateRgb"
 				@keydown.enter="updateRgb"
@@ -198,7 +227,7 @@ const inputClass =
 				min="0"
 				max="100"
 				placeholder="A"
-				class="rounded-l-none min-w-0"
+				class="min-w-0 rounded-l-none"
 				:class="[inputClass]"
 				@blur="updateAlpha"
 				@keydown.enter="updateAlpha"
@@ -206,14 +235,17 @@ const inputClass =
 		</div>
 
 		<!-- HSL -->
-		<div v-else-if="colorModel === 'hsl'" class="flex flex-row -space-x-px min-w-0">
+		<div
+			v-else-if="colorModel === 'hsl'"
+			class="flex min-w-0 flex-row -space-x-px"
+		>
 			<UiInput
 				v-model.number="editableHsl.h"
 				type="number"
 				min="0"
 				max="360"
 				placeholder="H"
-				class="border-r-0 rounded-r-none min-w-0"
+				class="min-w-0 rounded-r-none border-r-0"
 				:class="[inputClass]"
 				@blur="updateFromHsl"
 				@keydown.enter="updateFromHsl"
@@ -224,7 +256,7 @@ const inputClass =
 				min="0"
 				max="100"
 				placeholder="S"
-				class="rounded-l-none rounded-r-none border-r-0 min-w-0"
+				class="min-w-0 rounded-l-none rounded-r-none border-r-0"
 				:class="[inputClass]"
 				@blur="updateFromHsl"
 				@keydown.enter="updateFromHsl"
@@ -235,7 +267,7 @@ const inputClass =
 				min="0"
 				max="100"
 				placeholder="L"
-				class="rounded-l-none rounded-r-none border-r-0 min-w-0"
+				class="min-w-0 rounded-l-none rounded-r-none border-r-0"
 				:class="[inputClass]"
 				@blur="updateFromHsl"
 				@keydown.enter="updateFromHsl"
@@ -246,7 +278,7 @@ const inputClass =
 				min="0"
 				max="100"
 				placeholder="A"
-				class="rounded-l-none min-w-0"
+				class="min-w-0 rounded-l-none"
 				:class="[inputClass]"
 				@blur="updateAlpha"
 				@keydown.enter="updateAlpha"
@@ -257,12 +289,23 @@ const inputClass =
 			v-if="props.showCopy"
 			variant="outline"
 			size="custom"
-			class="w-8 h-8 bg-transparent"
+			class="h-8 w-8 bg-transparent"
 			@click="copyColor"
 		>
-			<Transition name="fade" mode="out-in">
-				<Icon v-if="isCopied" name="lucide:check" class="w-3 h-3" />
-				<Icon v-else name="lucide:copy" class="w-3 h-3" />
+			<Transition
+				name="fade"
+				mode="out-in"
+			>
+				<Icon
+					v-if="isCopied"
+					name="lucide:check"
+					class="h-3 w-3"
+				/>
+				<Icon
+					v-else
+					name="lucide:copy"
+					class="h-3 w-3"
+				/>
 			</Transition>
 		</UiButton>
 	</div>

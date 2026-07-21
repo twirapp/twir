@@ -17,6 +17,7 @@ import (
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 	"github.com/twirapp/twir/libs/repositories/tokens"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -32,6 +33,7 @@ type Opts struct {
 	Logger           *slog.Logger
 	TokensRepository tokens.Repository
 	ChannelsRepo     channelsrepo.Repository
+	ChannelService   *channelservice.ChannelService
 	BotsRepo         botsrepo.Repository
 	UsersRepo        usersrepository.Repository
 	KickProvider     *kickplatform.Provider
@@ -47,6 +49,7 @@ type Auth struct {
 	logger           *slog.Logger
 	tokensRepository tokens.Repository
 	channelsRepo     channelsrepo.Repository
+	channelService   *channelservice.ChannelService
 	botsRepo         botsrepo.Repository
 	usersRepo        usersrepository.Repository
 	kickProvider     *kickplatform.Provider
@@ -63,6 +66,7 @@ func New(opts Opts) *Auth {
 		logger:           opts.Logger,
 		tokensRepository: opts.TokensRepository,
 		channelsRepo:     opts.ChannelsRepo,
+		channelService:   opts.ChannelService,
 		botsRepo:         opts.BotsRepo,
 		usersRepo:        opts.UsersRepo,
 		kickProvider:     opts.KickProvider,

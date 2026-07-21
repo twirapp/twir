@@ -30,7 +30,7 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 		return
 	}
 
-	channel, channelErr := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	channel, channelErr := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 	if channelErr != nil {
 		if !errors.Is(channelErr, channelsrepository.ErrNotFound) {
 			c.logger.Error("failed to get channel", logger.Error(channelErr))

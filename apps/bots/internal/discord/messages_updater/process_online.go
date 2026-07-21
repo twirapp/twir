@@ -6,7 +6,7 @@ import (
 	"github.com/avast/retry-go/v4"
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
 	"github.com/twirapp/twir/apps/bots/internal/discord/sended_messages_store"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 )
 
@@ -14,13 +14,12 @@ func (c *MessagesUpdater) ProcessOnline(
 	ctx context.Context,
 	twitchChannelId string,
 ) error {
-	stream := model.ChannelsStreams{}
-	err := c.db.
-		Where(`"userId" = ?`, twitchChannelId).
-		First(&stream).
-		Error
+	stream, err := c.streamsRepo.GetByUserID(ctx, twitchChannelId, platform.PlatformTwitch)
 	if err != nil {
 		return err
+	}
+	if stream.IsNil() {
+		return nil
 	}
 
 	integrations, err := c.getChannelDiscordIntegrations(ctx, stream.UserId)

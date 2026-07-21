@@ -5,14 +5,15 @@ import (
 	"strconv"
 	"strings"
 
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *ChatAlerts) donation(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req events.DonateMessage,
 ) error {
 	if !settings.Donations.Enabled {
@@ -34,13 +35,5 @@ func (c *ChatAlerts) donation(
 		return nil
 	}
 
-	return c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelId:         req.BaseInfo.ChannelID,
-			PlatformChannelID: req.BaseInfo.ChannelID,
-			Message:           sample,
-			SkipRateLimits:    true,
-		},
-	)
+	return c.sendMessage(ctx, channelID, req.BaseInfo.Platform, sample)
 }

@@ -12,11 +12,12 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
+	"github.com/twirapp/twir/libs/entities/platform"
 	apperrors "github.com/twirapp/twir/libs/errors"
-	"github.com/twirapp/twir/libs/repositories/channels"
 	channels_overlays "github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
@@ -25,7 +26,7 @@ type Opts struct {
 	fx.In
 
 	OverlaysRepository channels_overlays.Repository
-	ChannelsRepository channels.Repository
+	ChannelService     *channelservice.ChannelService
 	PlansRepository    plans.Repository
 	AuditRecorder      audit.Recorder
 	Bus                *buscore.Bus
@@ -35,7 +36,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		overlaysRepository: opts.OverlaysRepository,
-		channelsRepository: opts.ChannelsRepository,
+		channelService:     opts.ChannelService,
 		plansRepository:    opts.PlansRepository,
 		auditRecorder:      opts.AuditRecorder,
 		bus:                opts.Bus,
@@ -45,7 +46,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	overlaysRepository channels_overlays.Repository
-	channelsRepository channels.Repository
+	channelService     *channelservice.ChannelService
 	plansRepository    plans.Repository
 	auditRecorder      audit.Recorder
 	bus                *buscore.Bus
@@ -363,26 +364,13 @@ func (s *Service) ParseHtml(ctx context.Context, input ParseHtmlInput) (string, 
 		return "", fmt.Errorf("cannot parse channel id: %w", err)
 	}
 
-	channel, err := s.channelsRepository.GetByID(ctx, parsedChannelID)
-	if err != nil {
-		return "", fmt.Errorf("cannot get channel: %w", err)
-	}
-
-	var channelTwitchUserID string
-	if channel.TwitchPlatformID != nil {
-		channelTwitchUserID = *channel.TwitchPlatformID
-	}
-
-	var channelPlatformID string
-	if channel.TwitchPlatformID != nil {
-		channelPlatformID = *channel.TwitchPlatformID
-	}
+	platformSource := platform.PlatformTwitch
 
 	res, err := s.bus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID:           channelPlatformID,
-			ChannelTwitchUserID: channelTwitchUserID,
-			Text:                input.Html,
+			ChannelID:      parsedChannelID,
+			Text:           input.Html,
+			PlatformSource: &platformSource,
 		},
 	)
 	if err != nil {

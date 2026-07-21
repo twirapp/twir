@@ -16,6 +16,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
+	"github.com/twirapp/twir/libs/entities/platform"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
 	"go.uber.org/fx"
@@ -387,10 +388,10 @@ func (c *ChatAlerts) handle(ctx context.Context, event chatEvent) error {
 	}
 
 	request := bots.SendMessageRequest{
-		InternalChannelID: &channelID,
-		Platform:          "twitch",
-		Message:           message,
-		SkipRateLimits:    true,
+		ChannelID:      channelID,
+		Platforms:      []platform.Platform{platform.PlatformTwitch},
+		Message:        message,
+		SkipRateLimits: true,
 	}
 
 	if eventSettings.Cooldown <= 0 {

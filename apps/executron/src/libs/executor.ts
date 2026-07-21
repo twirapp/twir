@@ -4,6 +4,7 @@ import {
 	makeLinker,
 	makeStaticLoader,
 } from '@isolated-vm/experimental/utility/linker'
+import lodashSource from 'lodash/lodash.min.js' with { type: 'text' }
 
 import { hostFetch } from './host-fetch'
 import { handleStorageOperation } from './host-storage'
@@ -264,6 +265,8 @@ export async function executeCode(
 			import { startStorageOp } from "twir:storage";
 
 			const __secrets = ${secretsJson};
+			${lodashSource}
+			const _ = globalThis._;
 
 			const twir = {
 				secrets: {

@@ -11,7 +11,7 @@ import (
 
 var SongsRequested = &types.Variable{
 	Name:         "user.songs.requested.count",
-	Description:  lo.ToPtr("How many songs user requested"),
+	Description:  new("How many songs user requested"),
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
@@ -25,11 +25,21 @@ var SongsRequested = &types.Variable{
 				},
 			).
 			Else(parseCtx.Sender.ID)
+
+		user, err := parseCtx.Services.UsersRepo.GetByPlatformID(ctx, parseCtx.Platform, targetUserId)
+		if err != nil {
+			return nil, err
+		}
+
 		var count int64
-		err := parseCtx.Services.Gorm.
+		err = parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Model(&model.RequestedSong{}).
-			Where(`"channelId" = ?::uuid AND "orderedById" = ?`, parseCtx.Channel.DBChannelID, targetUserId).
+			Where(
+				`"channelId" = ?::uuid AND "orderedById" = ?`,
+				parseCtx.Channel.DBChannelID,
+				user.ID.String(),
+			).
 			Count(&count).
 			Error
 

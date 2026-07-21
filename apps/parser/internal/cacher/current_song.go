@@ -31,12 +31,22 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 	if lfmIntegration, err := c.services.LastfmRepo.GetByChannelID(
 		ctx,
 		c.parseCtxChannel.DBChannelID,
-	); err == nil && !lfmIntegration.IsNil() && lfmIntegration.SessionKey != nil {
+	); err == nil && !lfmIntegration.IsNil() && lfmIntegration.Enabled {
+		var sessionKey, userName string
+		if lfmIntegration.SessionKey != nil {
+			sessionKey = *lfmIntegration.SessionKey
+		}
+		if lfmIntegration.UserName != nil {
+			userName = *lfmIntegration.UserName
+		}
+
 		s, lfmErr := lastfm.New(
+			ctx,
 			lastfm.Opts{
 				ApiKey:       c.services.Config.LastFM.ApiKey,
 				ClientSecret: c.services.Config.LastFM.ClientSecret,
-				SessionKey:   *lfmIntegration.SessionKey,
+				SessionKey:   sessionKey,
+				UserName:     userName,
 			},
 		)
 		if lfmErr != nil {
@@ -128,7 +138,7 @@ checkServices:
 				continue
 			}
 
-			track, err := lastfmService.GetTrack()
+			track, err := lastfmService.GetTrack(ctx)
 			if err != nil {
 				c.services.Logger.Error("failed to get track from lfm", zap.Error(err))
 				continue

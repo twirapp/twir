@@ -103,7 +103,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}

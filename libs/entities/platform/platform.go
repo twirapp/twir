@@ -3,6 +3,7 @@ package platform
 import (
 	"database/sql/driver"
 	"fmt"
+	"slices"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -14,14 +15,12 @@ const (
 	PlatformKick   Platform = "kick"
 )
 
-func (Platform) Schema(r huma.Registry) *huma.Schema {
-	return &huma.Schema{
-		Type: "string",
-		Enum: []any{
-			string(PlatformTwitch),
-			string(PlatformKick),
-		},
-	}
+func (p Platform) IsTwitch() bool {
+	return p == PlatformTwitch
+}
+
+func (p Platform) IsKick() bool {
+	return p == PlatformKick
 }
 
 func (p Platform) IsValid() bool {
@@ -30,6 +29,16 @@ func (p Platform) IsValid() bool {
 		return true
 	}
 	return false
+}
+
+func (Platform) Schema(r huma.Registry) *huma.Schema {
+	return &huma.Schema{
+		Type: "string",
+		Enum: []any{
+			string(PlatformTwitch),
+			string(PlatformKick),
+		},
+	}
 }
 
 func (p Platform) String() string { return string(p) }
@@ -57,13 +66,7 @@ func ShouldExecute(platforms []Platform, current Platform) bool {
 		return true
 	}
 
-	for _, p := range platforms {
-		if p == current {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(platforms, current)
 }
 
 func All() []Platform {

@@ -64,6 +64,7 @@ func New(opts Opts) *Gql {
 	graphConfig.Directives.HasChannelRolesDashboardPermission = opts.Directives.HasChannelRolesDashboardPermission
 	graphConfig.Directives.Validate = opts.Directives.Validate
 	graphConfig.Directives.RateLimit = opts.Directives.RateLimit
+	graphConfig.Directives.NoRateLimit = opts.Directives.NoRateLimit
 
 	schema := graph.NewExecutableSchema(graphConfig)
 
@@ -72,6 +73,9 @@ func New(opts Opts) *Gql {
 	srv.AddTransport(transport.GET{})
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.MultipartForm{})
+	srv.Use(&rateLimitExtension{
+		rateLimiter: opts.Middlewares.RateLimitInstance(),
+	})
 	srv.AddTransport(
 		transport.Websocket{
 			KeepAlivePingInterval: 10 * time.Second,
@@ -132,11 +136,6 @@ func New(opts Opts) *Gql {
 	opts.Server.Any(
 		"/query",
 		opts.DataLoaderFactory.LoadMiddleware,
-		opts.Middlewares.RateLimit(
-			"graphql",
-			100,
-			60*time.Second,
-		),
 		func(c *gin.Context) {
 			srv.ServeHTTP(c.Writer, c.Request)
 		},

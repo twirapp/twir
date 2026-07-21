@@ -6,50 +6,41 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
+	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 )
 
 func (c *Manager) sendMessage(
 	ctx context.Context,
-	channelId,
-	channelTwitchUserID,
-	channelDBID,
+	channelId uuid.UUID,
+	platformSource platform.Platform,
 	text string,
 	isAnnounce bool,
 	announceColor timersentity.AnnounceColor,
 	count int,
-	platform string,
 ) error {
 	parseReq, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx,
 		busparser.ParseVariablesInTextRequest{
-			ChannelID:           channelId,
-			ChannelTwitchUserID: channelTwitchUserID,
-			ChannelDBID:         channelDBID,
-			Text:                text,
+			ChannelID:      channelId,
+			Text:           text,
+			PlatformSource: &platformSource,
 		},
 	)
 	if err != nil {
 		return err
 	}
 
-	var internalChannelID *uuid.UUID
-	if parsedChannelID, err := uuid.Parse(channelDBID); err == nil {
-		internalChannelID = &parsedChannelID
-	}
-
-	for i := 0; i < count; i++ {
+	for range count {
 		err = c.twirBus.Bots.SendMessage.Publish(
 			ctx,
 			bots.SendMessageRequest{
-				ChannelId:         channelId,
-				InternalChannelID: internalChannelID,
-				PlatformChannelID: channelId,
-				Platform:          platform,
-				Message:           parseReq.Data.Text,
-				IsAnnounce:        isAnnounce,
-				SkipRateLimits:    true,
-				AnnounceColor:     bots.AnnounceColor(announceColor),
+				ChannelID:      channelId,
+				Platforms:      []platform.Platform{platformSource},
+				Message:        parseReq.Data.Text,
+				IsAnnounce:     isAnnounce,
+				SkipRateLimits: true,
+				AnnounceColor:  bots.AnnounceColor(announceColor),
 			},
 		)
 		if err != nil {

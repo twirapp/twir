@@ -2,10 +2,22 @@ extend type Query {
 	songRequests: SongRequestsSettings @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
 	songRequestsSearchChannelOrVideo(opts: SongRequestsSearchChannelOrVideoOpts!): SongRequestsSearchChannelOrVideoResponse! @isAuthenticated
 	songRequestsPublicQueue(channelId: String!): [SongRequestPublic!]!
+	songRequestWidgetData(channelId: UUID!): SongRequestWidgetData @noRateLimit
+	channelByApiKey(apiKey: String!): ChannelByApiKeyResult @noRateLimit
+	songRequestOverlaySettings: SongRequestOverlaySettings! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
 }
 
 extend type Mutation {
 	songRequestsUpdate(opts: SongRequestsSettingsOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
+	songRequestPlay(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated @noRateLimit
+	songRequestPause(channelId: UUID!): Boolean! @isAuthenticated @noRateLimit
+	songRequestSkip(channelId: UUID!): Boolean! @isAuthenticated @noRateLimit
+	songRequestSetVolume(channelId: UUID!, volume: Int!): Boolean! @isAuthenticated @noRateLimit
+	songRequestUpdatePosition(channelId: UUID!, position: Float!): Boolean! @isAuthenticated @noRateLimit
+	songRequestReorder(channelId: UUID!, videoIds: [String!]!): Boolean! @isAuthenticated
+	songRequestDeleteFromQueue(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated
+	songRequestClearQueue(channelId: UUID!): Boolean! @isAuthenticated
+	songRequestOverlaySettingsUpdate(opts: SongRequestOverlaySettingsUpdateInput!): SongRequestOverlaySettings! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
 }
 
 type SongRequestsSettings {
@@ -21,6 +33,8 @@ type SongRequestsSettings {
 	translations: SongRequestsTranslations!
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
+	volume: Int!
+	channelApiKey: String!
 }
 
 type SongRequestsUserSettings {
@@ -94,6 +108,34 @@ input SongRequestsSettingsOpts {
 	translations: SongRequestsTranslationsOpts!
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
+	volume: Int! @validate(constraint: "min=0,max=100")
+}
+
+enum SongRequestOverlayStyle {
+	CINEMA
+	COMPACT
+	TICKER
+	STUDIO
+	PORTRAIT
+	PILL
+}
+
+type SongRequestOverlaySettings {
+	style: SongRequestOverlayStyle!
+	accentColor: String!
+	tickerBackgroundColor: String!
+	tickerTextColor: String!
+	tickerSpeed: Int!
+	hideOnPause: Boolean!
+}
+
+input SongRequestOverlaySettingsUpdateInput {
+	style: SongRequestOverlayStyle!
+	accentColor: String!
+	tickerBackgroundColor: String!
+	tickerTextColor: String!
+	tickerSpeed: Int!
+	hideOnPause: Boolean!
 }
 
 input SongRequestsUserSettingsOpts {
@@ -181,4 +223,42 @@ type SongRequestPublic {
 	createdAt: Time!
 	songLink: String!
 	durationSeconds: Int!
+}
+
+type SongRequestPlaybackState {
+	videoId: String!
+	title: String!
+	position: Float!
+	isPlaying: Boolean!
+	volume: Int!
+	updatedAt: Time!
+}
+
+type SongRequestQueueItem {
+	id: String!
+	title: String!
+	songLink: String!
+	durationSeconds: Int!
+	orderedByName: String!
+	orderedByDisplayName: String!
+	queuePosition: Int!
+	createdAt: Time!
+}
+
+type SongRequestWidgetData {
+	playbackState: SongRequestPlaybackState
+	queue: [SongRequestQueueItem!]!
+	volume: Int!
+}
+
+type ChannelByApiKeyResult {
+	id: UUID!
+	twitchUserId: UUID
+	kickUserId: UUID
+}
+
+extend type Subscription {
+	songRequestPlaybackState(channelId: UUID!): SongRequestPlaybackState @noRateLimit
+	songRequestQueueUpdated(channelId: UUID!): [SongRequestQueueItem!]! @noRateLimit
+	songRequestOverlaySettings(apiKey: String!): SongRequestOverlaySettings! @noRateLimit
 }

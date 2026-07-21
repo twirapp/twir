@@ -57,8 +57,9 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg gene
 		ctx,
 		events.StreamFirstUserJoinMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   msg.BroadcasterUserId,
-				ChannelName: msg.BroadcasterUserLogin,
+				ChannelDBID:       msg.EnrichedData.DbChannel.ID,
+				ChannelPlatformID: msg.BroadcasterUserId,
+				ChannelName:       msg.BroadcasterUserLogin,
 			},
 			UserLogin: msg.ChatterUserName,
 		},

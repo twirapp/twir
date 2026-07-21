@@ -11,18 +11,18 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	ttsmodel "github.com/twirapp/twir/libs/repositories/overlays_tts/model"
 	"github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
 
@@ -36,7 +36,7 @@ type Opts struct {
 	TwirBus         *buscore.Bus
 	Logger          *slog.Logger
 	UsersRepository users.Repository
-	ChannelsRepository channelsrepository.Repository
+	ChannelService  *channelservice.ChannelService
 	Cacher          *generic_cacher.GenericCacher[modules.TTSSettings]
 }
 
@@ -47,7 +47,7 @@ func New(opts Opts) *Service {
 		config:          opts.Config,
 		twirBus:         opts.TwirBus,
 		usersRepository: opts.UsersRepository,
-		channelsRepository: opts.ChannelsRepository,
+		channelService:  opts.ChannelService,
 		cacher:          opts.Cacher,
 	}
 
@@ -94,7 +94,7 @@ type Service struct {
 	config          config.Config
 	twirBus         *buscore.Bus
 	usersRepository users.Repository
-	channelsRepository channelsrepository.Repository
+	channelService  *channelservice.ChannelService
 	cacher          *generic_cacher.GenericCacher[modules.TTSSettings]
 }
 
@@ -111,13 +111,13 @@ func (s *Service) ResolveChannelIDByAPIKey(ctx context.Context, apiKey string) (
 
 	switch user.Platform {
 	case platformentity.PlatformKick:
-		resolvedChannel, err := s.channelsRepository.GetByKickUserID(ctx, parsedUserID)
+		resolvedChannel, err := s.channelService.GetChannelByConnectedUser(ctx, parsedUserID, platformentity.PlatformKick)
 		if err != nil {
 			return "", fmt.Errorf("failed to get channel by kick user id: %w", err)
 		}
 		return resolvedChannel.ID.String(), nil
 	default:
-		resolvedChannel, err := s.channelsRepository.GetByTwitchUserID(ctx, parsedUserID)
+		resolvedChannel, err := s.channelService.GetChannelByConnectedUser(ctx, parsedUserID, platformentity.PlatformTwitch)
 		if err != nil {
 			return "", fmt.Errorf("failed to get channel by twitch user id: %w", err)
 		}

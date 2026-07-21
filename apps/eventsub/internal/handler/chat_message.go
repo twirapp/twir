@@ -26,7 +26,6 @@ import (
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"go.opentelemetry.io/otel/attribute"
 	"golang.org/x/sync/errgroup"
 )
@@ -61,21 +60,17 @@ func (c *Handler) processChannelChatMessage(
 	data.EnrichedData.IsChatterVip = data.IsChatterVip()
 	data.EnrichedData.IsChatterSubscriber = data.IsChatterSubscriber()
 
-	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, data.BroadcasterUserId)
-	if err != nil {
-		if errors.Is(err, usersmodel.ErrNotFound) {
-			c.logger.Warn("cannot find broadcaster user for chat message", slog.String("broadcaster_user_id", data.BroadcasterUserId))
-			return
-		}
-
-		c.logger.Error("cannot resolve broadcaster user for chat message", logger.Error(err))
-		return
-	}
-
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	channel, err := c.channelService.GetChannelByPlatformUserID(
+		ctx,
+		data.BroadcasterUserId,
+		platform.PlatformTwitch,
+	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
-			c.logger.Warn("cannot find channel for chat message", slog.String("broadcaster_user_id", data.BroadcasterUserId))
+			c.logger.Warn(
+				"cannot find channel for chat message",
+				slog.String("broadcaster_user_id", data.BroadcasterUserId),
+			)
 			return
 		}
 
@@ -192,8 +187,8 @@ func (c *Handler) processChannelChatMessage(
 				if err := c.twirBus.Events.FirstUserMessage.Publish(
 					ctx, events.FirstUserMessageMessage{
 						BaseInfo: events.BaseInfo{
-							ChannelID:   data.BroadcasterUserId,
-							ChannelName: data.BroadcasterUserLogin,
+							ChannelPlatformID: data.BroadcasterUserId,
+							ChannelName:       data.BroadcasterUserLogin,
 						},
 						UserID:          data.ChatterUserId,
 						UserName:        data.ChatterUserLogin,
@@ -259,8 +254,8 @@ func (c *Handler) HandleChannelChatMessageDelete(
 		ctx,
 		events.ChannelMessageDeleteMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserId:               event.TargetUserId,
 			UserName:             event.TargetUserLogin,
@@ -434,7 +429,12 @@ func (c *Handler) chatMessageGetChannelStream(
 		return &stream, nil
 	}
 
-	stream, err := c.streamsrepository.GetByChannelID(ctx, channelId)
+	channelUUID, err := uuid.Parse(channelId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse channel id: %w", err)
+	}
+
+	stream, err := c.streamsrepository.GetByChannelID(ctx, channelUUID, platform.PlatformTwitch)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get stream by channel id: %w", err)
 	}

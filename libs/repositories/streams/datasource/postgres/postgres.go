@@ -3,7 +3,10 @@ package postgres
 import (
 	"context"
 	"errors"
+
+	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/twirapp/twir/libs/entities/platform"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -37,16 +40,21 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
-func (c *Pgx) GetByChannelID(ctx context.Context, channelID string) (model.Stream, error) {
+const selectColumns = `id, channel_id, "userId", "userLogin", "userName", "gameId", "gameName", "communityIds", type, title, "viewerCount", "startedAt", "language", "thumbnailUrl", "tagIds", tags, "isMature", platform`
+
+func (c *Pgx) GetByChannelID(
+	ctx context.Context,
+	channelID uuid.UUID,
+	platform platform.Platform,
+) (model.Stream, error) {
 	query := `
-SELECT id, "userId", "userLogin", "userName", "gameId", "gameName", "communityIds", type, title, "viewerCount", "startedAt", "language", "thumbnailUrl", "tagIds", tags, "isMature"
+SELECT ` + selectColumns + `
 FROM channels_streams
-WHERE "userId" = $1
+WHERE channel_id = $1 AND platform = $2
 LIMIT 1
 `
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, channelID)
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query, channelID, platform)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -62,14 +70,61 @@ LIMIT 1
 	return result, nil
 }
 
+func (c *Pgx) GetByUserID(
+	ctx context.Context,
+	userID string,
+	platform platform.Platform,
+) (model.Stream, error) {
+	query := `
+SELECT ` + selectColumns + `
+FROM channels_streams
+WHERE "userId" = $1 AND platform = $2
+LIMIT 1
+`
+
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query, userID, platform)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Stream])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, nil
+		}
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
+func (c *Pgx) GetListByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.Stream, error) {
+	query := `
+SELECT ` + selectColumns + `
+FROM channels_streams
+WHERE channel_id = $1
+`
+
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.Stream])
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) GetList(ctx context.Context) ([]model.Stream, error) {
 	query := `
-SELECT id, "userId", "userLogin", "userName", "gameId", "gameName", "communityIds", type, title, "viewerCount", "startedAt", "language", "thumbnailUrl", "tagIds", tags, "isMature"
+SELECT ` + selectColumns + `
 FROM channels_streams
 `
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query)
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -85,14 +140,14 @@ FROM channels_streams
 func (c *Pgx) Save(ctx context.Context, input streams.SaveInput) error {
 	query := `
 INSERT INTO channels_streams (
-	id, "userId", "userLogin", "userName", "gameId", "gameName", "communityIds", type,
-	title, "viewerCount", "startedAt", language, "thumbnailUrl", "tagIds", tags, "isMature"
+	id, channel_id, "userId", "userLogin", "userName", "gameId", "gameName", "communityIds", type,
+	title, "viewerCount", "startedAt", language, "thumbnailUrl", "tagIds", tags, "isMature", platform
 ) VALUES (
-	$1, $2, $3, $4, $5, $6, $7, $8,
-	$9, $10, $11, $12, $13, $14, $15, $16
+		COALESCE(NULLIF($1, ''), uuidv7()::text), $2, $3, $4, $5, $6, $7, $8, $9,
+	$10, $11, $12, $13, $14, $15, $16, $17, $18
 )
-ON CONFLICT (id) DO UPDATE SET
-	"userId" = EXCLUDED."userId",
+ON CONFLICT ("userId", platform) DO UPDATE SET
+	channel_id = EXCLUDED.channel_id,
 	"userLogin" = EXCLUDED."userLogin",
 	"userName" = EXCLUDED."userName",
 	"gameId" = EXCLUDED."gameId",
@@ -109,11 +164,11 @@ ON CONFLICT (id) DO UPDATE SET
 	"isMature" = EXCLUDED."isMature"
 `
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err := conn.Exec(
+	_, err := c.getter.DefaultTrOrDB(ctx, c.pool).Exec(
 		ctx,
 		query,
 		input.ID,
+		input.ChannelID,
 		input.UserId,
 		input.UserLogin,
 		input.UserName,
@@ -129,23 +184,29 @@ ON CONFLICT (id) DO UPDATE SET
 		pq.Array(input.TagIds),
 		pq.Array(input.Tags),
 		input.IsMature,
+		input.Platform,
 	)
 	return err
 }
 
-func (c *Pgx) DeleteByChannelID(ctx context.Context, channelID string) error {
-	query := `DELETE FROM channels_streams WHERE "userId" = $1`
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err := conn.Exec(ctx, query, channelID)
+func (c *Pgx) DeleteByChannelID(ctx context.Context, channelID uuid.UUID, platform platform.Platform) error {
+	query := `DELETE FROM channels_streams WHERE channel_id = $1 AND platform = $2`
+	_, err := c.getter.DefaultTrOrDB(ctx, c.pool).Exec(ctx, query, channelID, platform)
 	return err
 }
 
-func (c *Pgx) Update(ctx context.Context, channelID string, input streams.UpdateInput) error {
+func (c *Pgx) Update(
+	ctx context.Context,
+	channelID uuid.UUID,
+	platform platform.Platform,
+	input streams.UpdateInput,
+) error {
 	updateBuilder := sq.Update("channels_streams").
-		Where(squirrel.Eq{`"userId"`: channelID})
+		Where(squirrel.Eq{`channel_id`: channelID, `platform`: platform.String()})
 
 	updateBuilder = repositories.SquirrelApplyPatch(
-		updateBuilder, map[string]interface{}{
+		updateBuilder,
+		map[string]any{
 			`"gameId"`:       input.GameId,
 			`"gameName"`:     input.GameName,
 			`"communityIds"`: input.CommunityIds,
@@ -166,7 +227,14 @@ func (c *Pgx) Update(ctx context.Context, channelID string, input streams.Update
 		return err
 	}
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err = conn.Exec(ctx, query, args...)
+	_, err = c.getter.DefaultTrOrDB(ctx, c.pool).Exec(ctx, query, args...)
 	return err
+}
+
+func (c *Pgx) Count(ctx context.Context) (uint64, error) {
+	query := `SELECT COUNT(*) FROM channels_streams`
+
+	var count uint64
+	err := c.getter.DefaultTrOrDB(ctx, c.pool).QueryRow(ctx, query).Scan(&count)
+	return count, err
 }

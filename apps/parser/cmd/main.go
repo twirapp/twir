@@ -59,6 +59,7 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	userswithstatspostgres "github.com/twirapp/twir/libs/repositories/userswithstats/datasource/postgres"
 	vkintegrationpostgres "github.com/twirapp/twir/libs/repositories/vk_integration/datasource/postgres"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 
 	shortenedurlspgx "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 
@@ -252,6 +253,13 @@ func main() {
 	channelsInfoHistoryRepo := channelsinfohistorypostgres.New(channelsinfohistorypostgres.Opts{PgxPool: pgxconn})
 	shortenedUrlsRepo := shortenedurlspgx.New(shortenedurlspgx.Opts{PgxPool: pgxconn})
 	streamsRepository := streamsrepositorypostgres.New(streamsrepositorypostgres.Opts{PgxPool: pgxconn})
+	channelService := channelservice.NewChannelService(
+		channelsRepo,
+		bus,
+		*config,
+		kvStorageRedis,
+		streamsRepository,
+	)
 	channelsEmotesUsage := channelsemotesusagesrepositoryclickhouse.New(channelsemotesusagesrepositoryclickhouse.Opts{Client: clickhouseClient})
 	channelsCommandsUsagesRepo := channelscommandsusagesclickhouse.New(channelscommandsusagesclickhouse.Opts{Client: clickhouseClient})
 	chatMessagesRepo := chatmessagesrepositoryclickhouse.New(chatmessagesrepositoryclickhouse.Opts{Client: clickhouseClient})
@@ -311,6 +319,7 @@ func main() {
 		UsersRepo:                usersRepo,
 		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,
 		ChannelsRepo:             channelsRepo,
+		ChannelService:           channelService,
 		ScheduledVipsRepo:        scheduledVipsRepo,
 		CacheTwitchClient:        cachedTwitchClient,
 		ChannelsInfoHistoryRepo:  channelsInfoHistoryRepo,

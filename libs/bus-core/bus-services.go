@@ -136,13 +136,16 @@ type eventsBus struct {
 }
 
 type apiBus struct {
-	TriggerKappagen   Queue[api.TriggerKappagenMessage, struct{}]
-	TriggerBrbStart   Queue[api.TriggerBrbStart, struct{}]
-	TriggerBrbStop    Queue[api.TriggerBrbStop, struct{}]
-	TriggerTtsSay     Queue[api.TriggerTtsSay, struct{}]
-	TriggerTtsSkip    Queue[api.TriggerTtsSkip, struct{}]
-	TriggerObsCommand Queue[api.TriggerObsCommand, struct{}]
-	DotaStateUpdate   Queue[api.DotaStateUpdateMessage, struct{}]
+	TriggerKappagen            Queue[api.TriggerKappagenMessage, struct{}]
+	TriggerBrbStart            Queue[api.TriggerBrbStart, struct{}]
+	TriggerBrbStop             Queue[api.TriggerBrbStop, struct{}]
+	TriggerTtsSay              Queue[api.TriggerTtsSay, struct{}]
+	TriggerTtsSkip             Queue[api.TriggerTtsSkip, struct{}]
+	TriggerObsCommand          Queue[api.TriggerObsCommand, struct{}]
+	SongRequestAddToQueue      Queue[api.SongRequestAddToQueue, struct{}]
+	SongRequestRemoveFromQueue Queue[api.SongRequestRemoveFromQueue, struct{}]
+	SongRequestPlaybackState   Queue[api.SongRequestPlaybackState, struct{}]
+	DotaStateUpdate            Queue[api.DotaStateUpdateMessage, struct{}]
 }
 
 type dotaBus struct {

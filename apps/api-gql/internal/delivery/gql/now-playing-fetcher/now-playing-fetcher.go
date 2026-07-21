@@ -60,12 +60,22 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 
 	// Get lastfm integration from the new repository
 	lastfmIntegration, err := opts.LastfmRepository.GetByChannelID(ctx, opts.ChannelID)
-	if err == nil && !lastfmIntegration.IsNil() && lastfmIntegration.Enabled && lastfmIntegration.SessionKey != nil {
+	if err == nil && !lastfmIntegration.IsNil() && lastfmIntegration.Enabled {
+		var sessionKey, userName string
+		if lastfmIntegration.SessionKey != nil {
+			sessionKey = *lastfmIntegration.SessionKey
+		}
+		if lastfmIntegration.UserName != nil {
+			userName = *lastfmIntegration.UserName
+		}
+
 		l, err := lastfm.New(
+			ctx,
 			lastfm.Opts{
 				ApiKey:       opts.Config.LastFM.ApiKey,
 				ClientSecret: opts.Config.LastFM.ClientSecret,
-				SessionKey:   *lastfmIntegration.SessionKey,
+				SessionKey:   sessionKey,
+				UserName:     userName,
 			},
 		)
 		if err == nil {
@@ -165,6 +175,7 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	cachedTrack := &Track{}
 	err := c.kv.Get(ctx, redisKey).Scan(cachedTrack)
 	if err == nil {
+		cachedTrack.advanceProgress(time.Now())
 		cachedTrack.fromCache = true
 		return cachedTrack, nil
 	} else if !errors.Is(err, kv.ErrKeyNil) {
@@ -192,16 +203,23 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 		}
 
 		if spotifyTrack != nil && spotifyTrack.IsPlaying {
+			progressMs := spotifyTrack.ProgressMs
+			durationMs := spotifyTrack.DurationMs
+			progressObservedAt := time.Now()
+
 			return &Track{
-				Artist:   spotifyTrack.Artist,
-				Title:    spotifyTrack.Title,
-				ImageUrl: spotifyTrack.Image,
+				Artist:             spotifyTrack.Artist,
+				Title:              spotifyTrack.Title,
+				ImageUrl:           spotifyTrack.Image,
+				ProgressMs:         &progressMs,
+				DurationMs:         &durationMs,
+				ProgressObservedAt: progressObservedAt,
 			}, nil
 		}
 	}
 
 	if c.lastfmService != nil {
-		lastfmTrack, err := c.lastfmService.GetTrack()
+		lastfmTrack, err := c.lastfmService.GetTrack(ctx)
 		if err != nil {
 			c.logger.Error(
 				"cannot fetch lastfm track",
@@ -242,10 +260,35 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 }
 
 type Track struct {
-	Artist    string `json:"artist"`
-	Title     string `json:"title"`
-	ImageUrl  string `json:"image_url,omitempty"`
-	fromCache bool
+	Artist             string    `json:"artist"`
+	Title              string    `json:"title"`
+	ImageUrl           string    `json:"image_url,omitempty"`
+	ProgressMs         *int      `json:"progress_ms,omitempty"`
+	DurationMs         *int      `json:"duration_ms,omitempty"`
+	ProgressObservedAt time.Time `json:"progress_observed_at,omitempty"`
+	fromCache          bool
+}
+
+func (t *Track) advanceProgress(now time.Time) {
+	if t.ProgressMs == nil || t.DurationMs == nil || *t.DurationMs <= 0 || t.ProgressObservedAt.IsZero() {
+		return
+	}
+
+	elapsed := now.Sub(t.ProgressObservedAt)
+	if elapsed < 0 {
+		elapsed = 0
+	}
+
+	progress := *t.ProgressMs + int(elapsed/time.Millisecond)
+	if progress < 0 {
+		progress = 0
+	}
+	if progress > *t.DurationMs {
+		progress = *t.DurationMs
+	}
+
+	t.ProgressMs = &progress
+	t.ProgressObservedAt = now
 }
 
 func (i Track) MarshalBinary() ([]byte, error) {

@@ -152,7 +152,6 @@ func New(opts *Opts) *Variables {
 			chat_eval.ChatEval,
 			user.Reputation,
 			weather.Weather,
-			channel.Name,
 			channel.ID,
 			seventv.ProfileLink,
 			seventv.EmoteSetLink,
@@ -168,6 +167,10 @@ func New(opts *Opts) *Variables {
 			shorturl.Variable,
 			counttime.CountDown,
 			counttime.CountUp,
+			channel.TwitchID,
+			channel.TwitchName,
+			channel.KickID,
+			channel.KickName,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},

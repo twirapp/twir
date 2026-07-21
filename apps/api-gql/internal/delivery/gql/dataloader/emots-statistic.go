@@ -28,7 +28,7 @@ func (c *dataLoader) getEmoteStatistic(
 		return nil, []error{err}
 	}
 
-	channel, err := c.deps.ChannelsRepository.GetByID(ctx, parsedDashboardID)
+	channel, err := c.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
 	if err != nil {
 		return nil, []error{err}
 	}

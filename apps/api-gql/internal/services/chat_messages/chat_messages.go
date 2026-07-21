@@ -15,9 +15,9 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
@@ -27,7 +27,7 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	ChatMessagesRepository chat_messages.Repository
-	ChannelsRepository     channelsrepository.Repository
+	ChannelService         *channelservice.ChannelService
 	TwirBus                *buscore.Bus
 	WsRouter               wsrouter.WsRouter
 	Logger                 *slog.Logger
@@ -50,7 +50,7 @@ func chatOverlayModerationSubscriptionKeyCreate(platform string, channelId strin
 func New(opts Opts) *Service {
 	s := &Service{
 		chatMessagesRepository: opts.ChatMessagesRepository,
-		channelsRepository:     opts.ChannelsRepository,
+		channelService:         opts.ChannelService,
 		wsRouter:               opts.WsRouter,
 		logger:                 opts.Logger,
 		chanSubs:               make(map[string]struct{}),
@@ -87,7 +87,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	chatMessagesRepository chat_messages.Repository
-	channelsRepository     channelsrepository.Repository
+	channelService         *channelservice.ChannelService
 
 	wsRouter   wsrouter.WsRouter
 	logger     *slog.Logger
@@ -174,7 +174,10 @@ func (c *Service) SubscribeToNewMessagesByChannelIDs(
 ) <-chan entity.ChatMessage {
 	channelSubKeys := make([]string, 0, len(channelPairs))
 	for _, pair := range channelPairs {
-		channelSubKeys = append(channelSubKeys, chatMessagesSubscriptionKeyCreate(pair.Platform, pair.PlatformChannelID))
+		channelSubKeys = append(
+			channelSubKeys,
+			chatMessagesSubscriptionKeyCreate(pair.Platform, pair.PlatformChannelID),
+		)
 	}
 
 	c.chanSubsMu.Lock()
@@ -336,15 +339,15 @@ func (c *Service) handleChannelBanEvent(
 		platform = platformentity.PlatformTwitch
 	}
 
-	platformChannelID := msg.BaseInfo.ChannelID
+	platformChannelID := msg.BaseInfo.ChannelPlatformID
 	if platform == platformentity.PlatformKick {
-		channelUUID, err := uuid.Parse(msg.BaseInfo.ChannelID)
+		channelUUID, err := uuid.Parse(msg.BaseInfo.ChannelPlatformID)
 		if err != nil {
 			c.logger.Error("cannot parse kick ban channel id", logger.Error(err))
 			return struct{}{}, nil
 		}
 
-		channel, err := c.channelsRepository.GetByID(ctx, channelUUID)
+		channel, err := c.channelService.GetChannelByID(ctx, channelUUID)
 		if err != nil {
 			c.logger.Error("cannot resolve kick channel for ban event", logger.Error(err))
 			return struct{}{}, nil
@@ -380,7 +383,7 @@ func (c *Service) handleChannelMessageDeleteEvent(
 
 	c.publishModerationEvent(
 		platform.String(),
-		msg.BaseInfo.ChannelID,
+		msg.BaseInfo.ChannelPlatformID,
 		entity.ChatOverlayModerationEvent{
 			Type:      entity.ChatOverlayModerationEventMessageDeleted,
 			Platform:  platform.String(),
@@ -402,7 +405,7 @@ func (c *Service) handleChatClearEvent(
 
 	c.publishModerationEvent(
 		platform.String(),
-		msg.BaseInfo.ChannelID,
+		msg.BaseInfo.ChannelPlatformID,
 		entity.ChatOverlayModerationEvent{
 			Type:     entity.ChatOverlayModerationEventChatCleared,
 			Platform: platform.String(),

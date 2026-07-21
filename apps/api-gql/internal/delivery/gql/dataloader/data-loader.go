@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/libs/cache/twitch"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
 type ctxKey string
@@ -31,6 +32,7 @@ type Opts struct {
 
 	AuthService              *auth.Auth
 	ChannelsRepository       channelsrepository.Repository
+	ChannelService           *channelservice.ChannelService
 	CachedTwitchClient       *twitch.CachedTwitchClient
 	CommandsGroupsService    *commands_groups.Service
 	CommandsResponsesService *commands_responses.Service

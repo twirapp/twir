@@ -17,7 +17,6 @@ import (
 )
 
 type locks struct {
-	stream      sync.Mutex
 	dbUserStats sync.Mutex
 	dbChannel   sync.Mutex
 
@@ -35,7 +34,6 @@ type locks struct {
 }
 
 type cache struct {
-	stream      *model.ChannelsStreams
 	dbUserStats *model.UsersStats
 	dbChannel   *dbChannelInfo
 
@@ -141,7 +139,7 @@ func (c *cacher) getDbChannel(ctx context.Context) (*dbChannelInfo, error) {
 		return nil, err
 	}
 
-	ch, err := c.services.ChannelsRepo.GetByTwitchUserID(ctx, user.ID)
+	ch, err := c.services.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil, errors.New("channel not found")

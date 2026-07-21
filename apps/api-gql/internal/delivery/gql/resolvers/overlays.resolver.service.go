@@ -676,13 +676,13 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 	var channelID string
 	switch user.Platform {
 	case platform.PlatformKick:
-		ch, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
+		ch, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get channel by kick user id: %w", err)
 		}
 		channelID = ch.ID.String()
 	default:
-		ch, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+		ch, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get channel by twitch user id: %w", err)
 		}
@@ -740,13 +740,13 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 	var channelID string
 	switch user.Platform {
 	case platform.PlatformKick:
-		channel, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
+		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get channel by kick user id: %w", err)
 		}
 		channelID = channel.ID.String()
 	default:
-		channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get channel by twitch user id: %w", err)
 		}
@@ -771,40 +771,15 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 
 	channel := make(chan *gqlmodel.NowPlayingOverlayTrack)
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				track, err := npService.Fetch(ctx)
-				if err != nil {
-					r.deps.Logger.Error("failed to get now playing track", logger.Error(err))
-					time.Sleep(5 * time.Second)
-					continue
-				}
-
-				if track == nil {
-					channel <- nil
-					time.Sleep(5 * time.Second)
-					continue
-				}
-
-				var imageUrl *string
-				if track.ImageUrl != "" {
-					imageUrl = &track.ImageUrl
-				}
-
-				channel <- &gqlmodel.NowPlayingOverlayTrack{
-					Artist:   track.Artist,
-					Title:    track.Title,
-					ImageURL: imageUrl,
-				}
-
-				time.Sleep(5 * time.Second)
-			}
-		}
-	}()
+	go streamNowPlaying(
+		ctx,
+		channel,
+		npService.Fetch,
+		func(err error) {
+			r.deps.Logger.Error("failed to get now playing track", logger.Error(err))
+		},
+		5*time.Second,
+	)
 
 	return channel, nil
 }

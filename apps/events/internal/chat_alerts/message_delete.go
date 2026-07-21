@@ -4,15 +4,16 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *ChatAlerts) messageDelete(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req events.ChannelMessageDeleteMessage,
 ) error {
 	if !settings.MessageDelete.Enabled {
@@ -31,13 +32,5 @@ func (c *ChatAlerts) messageDelete(
 		return nil
 	}
 
-	return c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelId:         req.BaseInfo.ChannelID,
-			PlatformChannelID: req.BaseInfo.ChannelID,
-			Message:           text,
-			SkipRateLimits:    true,
-		},
-	)
+	return c.sendMessage(ctx, channelID, req.BaseInfo.Platform, text)
 }

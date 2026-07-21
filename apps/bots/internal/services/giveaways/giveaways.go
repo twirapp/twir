@@ -17,13 +17,13 @@ import (
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
 	"github.com/twirapp/twir/libs/repositories/users"
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 )
 
@@ -37,7 +37,7 @@ type Opts struct {
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	UsersRepository                 users.Repository
 	UsersStatsRepository            usersstats.Repository
-	ChannelsRepository              channels.Repository
+	ChannelService                  *channelservice.ChannelService
 	TwitchCache                     *twitchcache.CachedTwitchClient
 	Logger                          *slog.Logger
 	Redis                           *redis.Client
@@ -52,7 +52,7 @@ func New(opts Opts) *Service {
 		giveawaysCacher:                 opts.GiveawaysCacher,
 		usersRepository:                 opts.UsersRepository,
 		usersStatsRepository:            opts.UsersStatsRepository,
-		channelsRepository:              opts.ChannelsRepository,
+		channelService:                  opts.ChannelService,
 		twitchCache:                     opts.TwitchCache,
 		logger:                          opts.Logger,
 		redis:                           opts.Redis,
@@ -85,7 +85,7 @@ type Service struct {
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	usersRepository                 users.Repository
 	usersStatsRepository            usersstats.Repository
-	channelsRepository              channels.Repository
+	channelService                  *channelservice.ChannelService
 	twitchCache                     *twitchcache.CachedTwitchClient
 	logger                          *slog.Logger
 	redis                           *redis.Client
@@ -156,7 +156,7 @@ func (c *Service) TryAddParticipant(
 
 		// Check follow duration if required
 		if giveaway.MinFollowDuration != nil {
-			ch, chErr := c.channelsRepository.GetByID(ctx, parsedChannelID)
+			ch, chErr := c.channelService.GetChannelByID(ctx, parsedChannelID)
 			if chErr != nil {
 				c.logger.Error("cannot get channel for follow duration check", logger.Error(chErr))
 				return nil
@@ -264,7 +264,7 @@ func (c *Service) chooseWinner(
 		// Resolve channel for follow duration checks (once, outside the loop)
 		var channelForFollowCheck *channelmodel.Channel
 		if giveaway.MinFollowDuration != nil {
-			ch, chErr := c.channelsRepository.GetByID(ctx, parsedChannelID)
+			ch, chErr := c.channelService.GetChannelByID(ctx, parsedChannelID)
 			if chErr != nil {
 				return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("cannot get channel: %w", chErr)
 			}

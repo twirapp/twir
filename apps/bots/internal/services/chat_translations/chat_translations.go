@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelschattrenslationsrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
@@ -242,12 +243,16 @@ func (c *Service) Handle(ctx context.Context, msg generic.ChatMessage) error {
 	}
 	resultText.WriteString(fmt.Sprintf("%s: %s", msg.ChatterUserName, res.TranslatedText[0]))
 
+	platformSource := platform.Platform(msg.Platform)
+	if platformSource == "" {
+		platformSource = platform.PlatformTwitch
+	}
+
 	if err := c.twirBus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelName:       &msg.BroadcasterUserLogin,
-			ChannelId:         msg.BroadcasterUserId,
-			PlatformChannelID: msg.BroadcasterUserId,
+			ChannelID:         msg.EnrichedData.DbChannel.ID,
+			Platforms:         []platform.Platform{platformSource},
 			Message:           resultText.String(),
 			SkipToxicityCheck: false,
 		},

@@ -57,8 +57,8 @@ func (c *Handler) HandleChannelRaid(
 		ctx,
 		events.RaidedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelName: event.ToBroadcasterUserId,
-				ChannelID:   event.ToBroadcasterUserId,
+				ChannelName:       event.ToBroadcasterUserId,
+				ChannelPlatformID: event.ToBroadcasterUserId,
 			},
 			UserID:          event.FromBroadcasterUserId,
 			UserName:        event.FromBroadcasterUserLogin,

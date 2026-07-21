@@ -28,7 +28,7 @@ func (r *kappagenOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.Kap
 		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
@@ -51,7 +51,7 @@ func (r *kappagenTriggerPayloadResolver) Channel(ctx context.Context, obj *gqlmo
 		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}

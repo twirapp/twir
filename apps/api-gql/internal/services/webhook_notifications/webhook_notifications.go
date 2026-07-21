@@ -17,6 +17,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/entities/webhook_notifications"
 	channelsmoduleswebhooks "github.com/twirapp/twir/libs/repositories/channels_modules_webhooks"
 	"github.com/twirapp/twir/libs/repositories/streams"
@@ -111,7 +112,10 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (
 		},
 	)
 	if err != nil {
-		return webhook_notifications.Nil, fmt.Errorf("failed to create webhook module settings: %w", err)
+		return webhook_notifications.Nil, fmt.Errorf(
+			"failed to create webhook module settings: %w",
+			err,
+		)
 	}
 
 	_ = s.auditRecorder.RecordCreateOperation(
@@ -181,7 +185,10 @@ func (s *Service) Update(
 		},
 	)
 	if err != nil {
-		return webhook_notifications.Nil, fmt.Errorf("failed to update webhook module settings: %w", err)
+		return webhook_notifications.Nil, fmt.Errorf(
+			"failed to update webhook module settings: %w",
+			err,
+		)
 	}
 
 	_ = s.auditRecorder.RecordUpdateOperation(
@@ -558,21 +565,25 @@ func (s *Service) sendMessage(ctx context.Context, channelID string, message str
 		return nil
 	}
 
-	var internalChannelID *uuid.UUID
-	if parsedChannelID, err := uuid.Parse(channelID); err == nil {
-		internalChannelID = &parsedChannelID
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return fmt.Errorf("parse channel id: %w", err)
 	}
 
-	if err := s.bus.Bots.SendMessage.Publish(
+	if err = s.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:         channelID,
-			InternalChannelID: internalChannelID,
-			Message:           message,
-			SkipRateLimits:    true,
+			ChannelID:      parsedChannelID,
+			Message:        message,
+			SkipRateLimits: true,
 		},
 	); err != nil {
-		s.logger.Error("failed to send webhook notification message", slog.String("channel_id", channelID), slog.String("message", message), slog.Any("error", err))
+		s.logger.Error(
+			"failed to send webhook notification message",
+			slog.String("channel_id", channelID),
+			slog.String("message", message),
+			slog.Any("error", err),
+		)
 		return err
 	}
 
@@ -701,7 +712,18 @@ func (s *Service) filterChannelsByStatus(
 
 	result := make([]string, 0, len(channelIDs))
 	for _, channelID := range channelIDs {
-		stream, err := s.streamsRepo.GetByChannelID(ctx, channelID)
+		parsedChannelID, err := uuid.Parse(channelID)
+		if err != nil {
+			s.logger.WarnContext(
+				ctx,
+				"failed to parse channel id during webhook notification",
+				slog.String("channel_id", channelID),
+				slog.Any("error", err),
+			)
+			continue
+		}
+
+		stream, err := s.streamsRepo.GetByChannelID(ctx, parsedChannelID, platform.PlatformTwitch)
 		if err != nil {
 			s.logger.WarnContext(
 				ctx,
@@ -825,7 +847,11 @@ func (s *Service) shortenUrl(ctx context.Context, rawURL string) string {
 			},
 		)
 		if err != nil {
-			s.logger.Warn("failed to create short link", slog.String("url", rawURL), slog.Any("error", err))
+			s.logger.Warn(
+				"failed to create short link",
+				slog.String("url", rawURL),
+				slog.Any("error", err),
+			)
 			return rawURL
 		}
 	}

@@ -268,14 +268,14 @@ func createMessage(eventName string, data any) Message {
 
 func (s *Service) follow(ctx context.Context, msg events.FollowMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.FollowSubject, msg),
 	)
 }
 
 func (s *Service) subscribe(ctx context.Context, msg events.SubscribeMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.SubscribeSubject, msg),
 	)
 }
@@ -285,7 +285,7 @@ func (s *Service) reSubscribe(ctx context.Context, msg events.ReSubscribeMessage
 	error,
 ) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.ReSubscribeSubject, msg),
 	)
 }
@@ -295,14 +295,14 @@ func (s *Service) redemptionCreated(
 	msg events.RedemptionCreatedMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.RedemptionCreatedSubject, msg),
 	)
 }
 
 func (s *Service) subGift(ctx context.Context, msg events.SubGiftMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.SubGiftSubject, msg),
 	)
 }
@@ -312,7 +312,7 @@ func (s *Service) commandUsed(ctx context.Context, msg events.CommandUsedMessage
 	error,
 ) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.CommandUsedSubject, msg),
 	)
 }
@@ -322,14 +322,14 @@ func (s *Service) firstUserMessage(
 	msg events.FirstUserMessageMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.FirstUserMessageSubject, msg),
 	)
 }
 
 func (s *Service) raided(ctx context.Context, msg events.RaidedMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.RaidedSubject, msg),
 	)
 }
@@ -339,7 +339,7 @@ func (s *Service) titleOrCategoryChanged(
 	msg events.TitleOrCategoryChangedMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.TitleOrCategoryChangedSubject, msg),
 	)
 }
@@ -378,14 +378,14 @@ func (s *Service) streamOffline(ctx context.Context, msg bustwitch.StreamOffline
 
 func (s *Service) chatClear(ctx context.Context, msg events.ChatClearMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.ChatClearSubject, msg),
 	)
 }
 
 func (s *Service) donate(ctx context.Context, msg events.DonateMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.DonateSubject, msg),
 	)
 }
@@ -395,7 +395,7 @@ func (s *Service) keywordMatched(ctx context.Context, msg events.KeywordMatchedM
 	error,
 ) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.KeywordMatchedSubject, msg),
 	)
 }
@@ -405,14 +405,14 @@ func (s *Service) greetingSended(ctx context.Context, msg events.GreetingSendedM
 	error,
 ) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.GreetingSendedSubject, msg),
 	)
 }
 
 func (s *Service) pollBegin(ctx context.Context, msg events.PollBeginMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.PollBeginSubject, msg),
 	)
 }
@@ -422,14 +422,14 @@ func (s *Service) pollProgress(ctx context.Context, msg events.PollProgressMessa
 	error,
 ) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.PollProgressSubject, msg),
 	)
 }
 
 func (s *Service) pollEnd(ctx context.Context, msg events.PollEndMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.PollEndSubject, msg),
 	)
 }
@@ -439,7 +439,7 @@ func (s *Service) predictionBegin(ctx context.Context, msg events.PredictionBegi
 	error,
 ) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.PredictionBeginSubject, msg),
 	)
 }
@@ -449,7 +449,7 @@ func (s *Service) predictionProgress(
 	msg events.PredictionProgressMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.PredictionProgressSubject, msg),
 	)
 }
@@ -459,7 +459,7 @@ func (s *Service) predictionLock(ctx context.Context, msg events.PredictionLockM
 	error,
 ) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.PredictionLockSubject, msg),
 	)
 }
@@ -469,7 +469,7 @@ func (s *Service) predictionEnd(ctx context.Context, msg events.PredictionEndMes
 	error,
 ) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.PredictionEndSubject, msg),
 	)
 }
@@ -479,14 +479,14 @@ func (s *Service) streamFirstUserJoin(
 	msg events.StreamFirstUserJoinMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.StreamFirstUserJoinSubject, msg),
 	)
 }
 
 func (s *Service) channelBan(ctx context.Context, msg events.ChannelBanMessage) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.ChannelBanSubject, msg),
 	)
 }
@@ -496,7 +496,7 @@ func (s *Service) channelUnbanRequestCreate(
 	msg events.ChannelUnbanRequestCreateMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.ChannelUnbanRequestCreateSubject, msg),
 	)
 }
@@ -506,7 +506,7 @@ func (s *Service) channelUnbanRequestResolve(
 	msg events.ChannelUnbanRequestResolveMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.ChannelUnbanRequestResolveSubject, msg),
 	)
 }
@@ -516,7 +516,7 @@ func (s *Service) channelMessageDelete(
 	msg events.ChannelMessageDeleteMessage,
 ) (struct{}, error) {
 	return struct{}{}, s.wsRouter.Publish(
-		CreateSubscribeKey(msg.BaseInfo.ChannelID),
+		CreateSubscribeKey(msg.BaseInfo.ChannelPlatformID),
 		createMessage(events.ChannelMessageDeleteSubject, msg),
 	)
 }

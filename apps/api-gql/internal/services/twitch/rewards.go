@@ -23,7 +23,7 @@ func (c *Service) GetRewardsByChannelID(
 		return CustomRewardsResult{}, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepository.GetByID(ctx, parsedID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedID)
 	if err != nil {
 		return CustomRewardsResult{}, fmt.Errorf("get channel: %w", err)
 	}

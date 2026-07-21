@@ -36,16 +36,26 @@ var HistoryLastfm = &types.Variable{
 		}
 
 		lastfmIntegration, err := parseCtx.Services.LastfmRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
-		if err != nil || lastfmIntegration.IsNil() || !lastfmIntegration.Enabled || lastfmIntegration.SessionKey == nil {
+		if err != nil || lastfmIntegration.IsNil() || !lastfmIntegration.Enabled {
 			result.Result = i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.LastfmIntegration)
 			return result, nil
 		}
 
+		var sessionKey, userName string
+		if lastfmIntegration.SessionKey != nil {
+			sessionKey = *lastfmIntegration.SessionKey
+		}
+		if lastfmIntegration.UserName != nil {
+			userName = *lastfmIntegration.UserName
+		}
+
 		lastfmService, err := lastfm.New(
+			ctx,
 			lastfm.Opts{
 				ApiKey:       parseCtx.Services.Config.LastFM.ApiKey,
 				ClientSecret: parseCtx.Services.Config.LastFM.ClientSecret,
-				SessionKey:   *lastfmIntegration.SessionKey,
+				SessionKey:   sessionKey,
+				UserName:     userName,
 			},
 		)
 		if err != nil {
@@ -57,7 +67,7 @@ var HistoryLastfm = &types.Variable{
 			return result, nil
 		}
 
-		tracks, err := lastfmService.GetRecentTracks(limit)
+		tracks, err := lastfmService.GetRecentTracks(ctx, limit)
 		if err != nil {
 			result.Result = i18n.GetCtx(
 				ctx,

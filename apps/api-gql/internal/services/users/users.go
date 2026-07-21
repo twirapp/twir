@@ -11,9 +11,9 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -22,29 +22,29 @@ import (
 type Opts struct {
 	fx.In
 
-	UsersRepository    users.Repository
-	ChannelsRepository channelsrepository.Repository
-	Gorm               *gorm.DB
-	Config             config.Config
-	TwirBus            *buscore.Bus
+	UsersRepository users.Repository
+	ChannelService  *channelservice.ChannelService
+	Gorm            *gorm.DB
+	Config          config.Config
+	TwirBus         *buscore.Bus
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		usersRepository:    opts.UsersRepository,
-		channelsRepository: opts.ChannelsRepository,
-		gorm:               opts.Gorm,
-		config:             opts.Config,
-		twirBus:            opts.TwirBus,
+		usersRepository: opts.UsersRepository,
+		channelService:  opts.ChannelService,
+		gorm:            opts.Gorm,
+		config:          opts.Config,
+		twirBus:         opts.TwirBus,
 	}
 }
 
 type Service struct {
-	usersRepository    users.Repository
-	channelsRepository channelsrepository.Repository
-	gorm               *gorm.DB
-	config             config.Config
-	twirBus            *buscore.Bus
+	usersRepository users.Repository
+	channelService  *channelservice.ChannelService
+	gorm            *gorm.DB
+	config          config.Config
+	twirBus         *buscore.Bus
 }
 
 type UpdateInput struct {
@@ -174,7 +174,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		return entity.ChannelUserInfo{}, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepository.GetByID(ctx, parsedChannelID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedChannelID)
 	if err != nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("get channel: %w", err)
 	}

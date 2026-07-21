@@ -59,6 +59,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
+	songrequestoverlaysettings "github.com/twirapp/twir/apps/api-gql/internal/services/song_request_overlay_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
@@ -88,6 +89,7 @@ import (
 	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -111,6 +113,7 @@ type Deps struct {
 	GiveawaysSettingsRepository channels_giveaways_settings.Repository
 	ChannelsRepository          channelsrepository.Repository
 	UsersRepository             usersrepository.Repository
+	ChannelService              *channelservice.ChannelService
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB
@@ -149,6 +152,8 @@ type Deps struct {
 	ChannelsEmotesUsagesService           *channels_emotes_usages.Service
 	TTSService                            *tts.Service
 	SongRequestsService                   *song_requests.Service
+	SongRequestPlaybackStateService       *song_requests.PlaybackStateService
+	SongRequestOverlaySettingsService     *songrequestoverlaysettings.Service
 	CommunityRedemptionsService           *community_redemptions.Service
 	StreamElementsService                 *streamelements.Service
 	DashboardService                      *dashboard.Service

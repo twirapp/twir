@@ -13,11 +13,11 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/guregu/null"
-	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/twitch"
 	"github.com/valyala/fasttemplate"
 
@@ -25,6 +25,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 
+	googleuuid "github.com/google/uuid"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
@@ -80,12 +81,23 @@ var SrCommand = &types.DefaultCommand{
 		}
 
 		if moduleSettings.AcceptOnlyWhenOnline {
-			stream := &model.ChannelsStreams{}
-			parseCtx.Services.Gorm.WithContext(ctx).Where(
-				`"userId" = ?`,
-				parseCtx.Channel.ID,
-			).First(stream)
-			if stream.ID == "" {
+			channelUUID, err := googleuuid.Parse(parseCtx.Channel.ID)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
+					Err:     err,
+				}
+			}
+
+			online, err := parseCtx.Services.ChannelService.IsChannelOnline(ctx, channelUUID)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
+					Err:     err,
+				}
+			}
+
+			if !online {
 				result.Result = append(result.Result, moduleSettings.TranslationsAcceptOnlineWhenOnline)
 				return result, nil
 			}
@@ -144,6 +156,7 @@ var SrCommand = &types.DefaultCommand{
 				parseCtx.Services,
 				parseCtx.Channel.DBChannelID,
 				parseCtx.Channel.ID,
+				parseCtx.Sender.DbUser.ID,
 				parseCtx.Sender.ID,
 				*moduleSettings,
 				song,
@@ -160,7 +173,7 @@ var SrCommand = &types.DefaultCommand{
 				model := &model.RequestedSong{
 					ID:                   uuid.NewV4().String(),
 					ChannelID:            parseCtx.Channel.DBChannelID,
-					OrderedById:          parseCtx.Sender.ID,
+					OrderedById:          parseCtx.Sender.DbUser.ID,
 					OrderedByName:        parseCtx.Sender.Name,
 					OrderedByDisplayName: null.StringFrom(parseCtx.Sender.DisplayName),
 					VideoID:              song.Id,
@@ -198,11 +211,26 @@ var SrCommand = &types.DefaultCommand{
 		}
 
 		for _, song := range requested {
-			parseCtx.Services.GrpcClients.WebSockets.YoutubeAddSongToQueue(
-				context.Background(),
-				&websockets.YoutubeAddSongToQueueRequest{
-					ChannelId: parseCtx.Channel.DBChannelID,
-					EntityId:  song.ID,
+			songLink := ""
+			if song.SongLink.Valid {
+				songLink = song.SongLink.String
+			}
+
+			parseCtx.Services.Bus.Api.SongRequestAddToQueue.Publish(
+				ctx,
+				api.SongRequestAddToQueue{
+					ChannelID: parseCtx.Channel.DBChannelID,
+					SongRequest: api.SongRequestData{
+						ID:                   song.ID,
+						Title:                song.Title,
+						VideoID:              song.VideoID,
+						SongLink:             songLink,
+						DurationSeconds:      int(song.Duration),
+						OrderedByName:        song.OrderedByName,
+						OrderedByDisplayName: song.OrderedByDisplayName.String,
+						QueuePosition:        song.QueuePosition,
+						CreatedAt:            song.CreatedAt.UTC().String(),
+					},
 				},
 			)
 		}
@@ -214,7 +242,7 @@ var SrCommand = &types.DefaultCommand{
 func validate(
 	ctx context.Context,
 	services *services.Services,
-	dbChannelID, platformChannelID, userId string,
+	dbChannelID, platformChannelID, dbUserID, platformUserID string,
 	settings model.ChannelSongRequestsSettings,
 	song ytsr.Song,
 ) error {
@@ -272,7 +300,7 @@ func validate(
 		_, isUserDenied := lo.Find(
 			settings.DenyListUsers,
 			func(u string) bool {
-				return u == userId
+				return u == platformUserID
 			},
 		)
 
@@ -373,7 +401,7 @@ func validate(
 		var count int64
 		services.Gorm.WithContext(ctx).
 			Model(&model.RequestedSong{}).
-			Where(`"orderedById" = ? AND "channelId" = ?::uuid AND "deletedAt" IS NULL`, userId, dbChannelID).
+			Where(`"orderedById" = ? AND "channelId" = ?::uuid AND "deletedAt" IS NULL`, dbUserID, dbChannelID).
 			Count(&count)
 		if count >= int64(settings.UserMaxRequests) {
 			message := fasttemplate.ExecuteString(
@@ -390,7 +418,7 @@ func validate(
 
 	if settings.UserMinMessages != 0 || settings.UserMinWatchTime != 0 {
 		user := &model.Users{}
-		services.Gorm.WithContext(ctx).Where("id = ?::uuid", userId).Preload("Stats").First(&user)
+		services.Gorm.WithContext(ctx).Where("id = ?::uuid", dbUserID).Preload("Stats").First(&user)
 		if user.ID == "" {
 			return errors.New(
 				i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Validate.Errors.RestrictionsOnUser),
@@ -429,7 +457,7 @@ func validate(
 		neededDuration := time.Minute * time.Duration(settings.UserMinFollowTime)
 		followReq, err := twitchClient.GetUsersFollows(
 			&helix.UsersFollowsParams{
-				FromID: userId,
+				FromID: platformUserID,
 				ToID:   platformChannelID,
 			},
 		)

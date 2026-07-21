@@ -37,6 +37,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/userswithstats"
 	vkintegration "github.com/twirapp/twir/libs/repositories/vk_integration"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -64,6 +65,7 @@ type Services struct {
 	RedSync                    *redsync.Redsync
 	CommandsLock               *redsync.Mutex
 	ChannelsRepo               channelsrepository.Repository
+	ChannelService             *channelservice.ChannelService
 	CommandsPrefixRepository   channelscommandsprefixrepository.Repository
 	TTSCache                   *generic_cacher.GenericCacher[modules.TTSSettings]
 	TTSRepository              overlays_tts.Repository

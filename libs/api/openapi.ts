@@ -797,12 +797,14 @@ export interface StoredMatchesResponseMatchTeamsStruct {
 }
 
 export interface Stream {
+  ChannelID: string;
   CommunityIds: string[];
   GameId: string;
   GameName: string;
   ID: string;
   IsMature: boolean;
   Language: string;
+  Platform: StreamPlatformEnum;
   /** @format date-time */
   StartedAt: string;
   TagIds: string[];
@@ -904,6 +906,11 @@ export enum ExpireExpiresTypeEnum {
 export enum ScheduledVipOutputDtoRemoveTypeEnum {
   Time = "time",
   StreamEnd = "stream_end",
+}
+
+export enum StreamPlatformEnum {
+  Twitch = "twitch",
+  Kick = "kick",
 }
 
 /** @default "views" */

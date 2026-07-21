@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
+	"github.com/twirapp/twir/libs/entities/platform"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
 	"go.uber.org/fx"
@@ -477,10 +478,10 @@ func TestMatchEndedRendersAndPublishes(t *testing.T) {
 	require.Equal(
 		t,
 		bots.SendMessageRequest{
-			InternalChannelID: &f.channelID,
-			Platform:          "twitch",
-			Message:           "Earthshaker|4210|9|4|||",
-			SkipRateLimits:    true,
+			ChannelID:      f.channelID,
+			Platforms:      []platform.Platform{platform.PlatformTwitch},
+			Message:        "Earthshaker|4210|9|4|||",
+			SkipRateLimits: true,
 		},
 		f.publisher.requests[0],
 	)

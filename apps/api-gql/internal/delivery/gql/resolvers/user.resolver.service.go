@@ -80,7 +80,7 @@ func (r *authenticatedUserResolver) getAuthenticatedUserChannel(ctx context.Cont
 		return channelsmodel.Nil, fmt.Errorf("parse selected dashboard id: %w", err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedDashboardID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
 	if err != nil {
 		return channelsmodel.Nil, fmt.Errorf("get selected dashboard channel: %w", err)
 	}

@@ -6,15 +6,16 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *ChatAlerts) ban(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req events.ChannelBanMessage,
 ) error {
 	if !settings.Ban.Enabled {
@@ -71,17 +72,5 @@ func (c *ChatAlerts) ban(
 		return nil
 	}
 
-	err := c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelName:       lo.If(req.BaseInfo.ChannelName != "", &req.BaseInfo.ChannelName).Else(nil),
-			ChannelId:         req.BaseInfo.ChannelID,
-			PlatformChannelID: req.BaseInfo.ChannelID,
-			Platform:          req.BaseInfo.Platform.String(),
-			Message:           sample,
-			SkipRateLimits:    true,
-		},
-	)
-
-	return err
+	return c.sendMessage(ctx, channelID, req.BaseInfo.Platform, sample)
 }

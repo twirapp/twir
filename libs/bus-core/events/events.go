@@ -1,6 +1,9 @@
 package events
 
-import "github.com/twirapp/twir/libs/entities/platform"
+import (
+	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
+)
 
 const (
 	FollowSubject                     = "events.follow"
@@ -38,10 +41,10 @@ const (
 )
 
 type BaseInfo struct {
-	ChannelID   string            `json:"channel_id"`
-	ChannelDBID string            `json:"channel_db_id,omitempty"`
-	ChannelName string            `json:"channel_name"`
-	Platform    platform.Platform `json:"platform,omitempty"`
+	ChannelDBID       uuid.UUID         `json:"channel_db_id,omitempty"`
+	ChannelPlatformID string            `json:"channel_platform_id"`
+	ChannelName       string            `json:"channel_name"`
+	Platform          platform.Platform `json:"platform,omitempty"`
 }
 
 type FollowMessage struct {

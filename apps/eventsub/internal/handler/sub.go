@@ -70,9 +70,9 @@ func (c *Handler) HandleChannelSubscribe(
 		ctx,
 		events.SubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
-				Platform:    platformentity.PlatformTwitch,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
+				Platform:          platformentity.PlatformTwitch,
 			},
 			UserID:          event.UserId,
 			UserName:        event.UserLogin,
@@ -131,9 +131,9 @@ func (c *Handler) HandleChannelSubscriptionMessage(
 		ctx,
 		events.ReSubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
-				Platform:    platformentity.PlatformTwitch,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
+				Platform:          platformentity.PlatformTwitch,
 			},
 			UserID:          event.UserId,
 			UserName:        event.UserLogin,

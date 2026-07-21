@@ -15,10 +15,11 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
@@ -37,7 +38,8 @@ type EventsWorkflowOpts struct {
 	Logger                            *slog.Logger
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
 	ChannelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
-	ChannelsRepo                      channelsrepository.Repository
+	ChannelService                    *channelservice.ChannelService
+	StreamsRepo                       streamsrepository.Repository
 	UsersRepo                         usersrepository.Repository
 }
 
@@ -61,7 +63,8 @@ func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 		hydrator:                          opts.Hydrator,
 		channelsEventsWithOperationsCache: opts.ChannelsEventsWithOperationsCache,
 		channelsCache:                     opts.ChannelsCache,
-		channelsRepo:                      opts.ChannelsRepo,
+		channelService:                    opts.ChannelService,
+		streamsRepo:                       opts.StreamsRepo,
 		usersRepo:                         opts.UsersRepo,
 	}, nil
 }
@@ -75,7 +78,8 @@ type EventWorkflow struct {
 	hydrator                          *hydrator.Hydrator
 	channelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
 	channelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
-	channelsRepo                      channelsrepository.Repository
+	channelService                    *channelservice.ChannelService
+	streamsRepo                       streamsrepository.Repository
 	usersRepo                         usersrepository.Repository
 }
 
@@ -95,14 +99,7 @@ func (c *EventWorkflow) Execute(
 			return fmt.Errorf("resolve user by platform id: %w", err)
 		}
 
-		var channel channelmodel.Channel
-		var channelErr error
-		switch plat {
-		case platform.PlatformKick:
-			channel, channelErr = c.channelsRepo.GetByKickUserID(ctx, user.ID)
-		default:
-			channel, channelErr = c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
-		}
+		channel, channelErr := c.channelService.GetChannelByConnectedUser(ctx, user.ID, plat)
 		if channelErr != nil {
 			return fmt.Errorf("resolve channel: %w", channelErr)
 		}

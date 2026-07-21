@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/platform"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 type SubscribeMessage struct {
@@ -22,6 +21,7 @@ type SubscribeMessage struct {
 func (c *ChatAlerts) subscribe(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req SubscribeMessage,
 ) error {
 	if !settings.Subscribers.Enabled {
@@ -41,15 +41,5 @@ func (c *ChatAlerts) subscribe(
 		return nil
 	}
 
-	return c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelName:       lo.If(req.ChannelName != "", &req.ChannelName).Else(nil),
-			ChannelId:         req.ChannelId,
-			PlatformChannelID: req.ChannelId,
-			Platform:          req.Platform.String(),
-			Message:           sample,
-			SkipRateLimits:    true,
-		},
-	)
+	return c.sendMessage(ctx, channelID, req.Platform, sample)
 }

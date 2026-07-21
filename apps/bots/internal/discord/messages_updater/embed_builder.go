@@ -7,13 +7,13 @@ import (
 
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/nicklaw5/helix/v2"
-	model "github.com/twirapp/twir/libs/gomodels"
 	discordmodel "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/model"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
 func (c *MessagesUpdater) buildEmbed(
 	twitchUser helix.User,
-	stream model.ChannelsStreams,
+	stream streamsmodel.Stream,
 	integration discordmodel.ChannelIntegrationDiscord,
 ) discord.Embed {
 	twitchUrl := fmt.Sprintf("https://twitch.tv/%s", stream.UserLogin)

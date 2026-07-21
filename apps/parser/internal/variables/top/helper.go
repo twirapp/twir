@@ -43,7 +43,7 @@ func getTop(
 
 	channelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
 	if err != nil && parseCtx.Channel.TwitchUserID != uuid.Nil {
-		channel, chanErr := parseCtx.Services.ChannelsRepo.GetByTwitchUserID(ctx, parseCtx.Channel.TwitchUserID)
+		channel, chanErr := parseCtx.Services.ChannelService.GetChannelByConnectedUser(ctx, parseCtx.Channel.TwitchUserID, platform.PlatformTwitch)
 		if chanErr == nil && !channel.IsNil() {
 			channelID = channel.ID
 		}
@@ -53,7 +53,7 @@ func getTop(
 		return nil, false
 	}
 
-	channel, err := parseCtx.Services.ChannelsRepo.GetByID(ctx, channelID)
+	channel, err := parseCtx.Services.ChannelService.GetChannelByID(ctx, channelID)
 	if err != nil || channel.IsNil() {
 		parseCtx.Services.Logger.Sugar().Error(err)
 		return nil, false

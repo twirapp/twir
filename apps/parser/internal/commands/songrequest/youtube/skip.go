@@ -12,8 +12,8 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 
+	"github.com/twirapp/twir/libs/bus-core/api"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
 )
@@ -117,20 +117,13 @@ var SkipCommand = &types.DefaultCommand{
 		parseCtx.Services.Redis.Expire(ctx, redisKey, 1*time.Hour)
 
 		if votesCount+1 >= neededVotes {
-			_, err = parseCtx.Services.GrpcClients.WebSockets.YoutubeRemoveSongToQueue(
+			parseCtx.Services.Bus.Api.SongRequestRemoveFromQueue.Publish(
 				ctx,
-				&websockets.YoutubeRemoveSongFromQueueRequest{
-					ChannelId: parseCtx.Channel.DBChannelID,
-					EntityId:  currentSong.ID,
+				api.SongRequestRemoveFromQueue{
+					ChannelID: parseCtx.Channel.DBChannelID,
+					VideoID:   currentSong.VideoID,
 				},
 			)
-
-			if err != nil {
-				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.RemoveSongFromQueue),
-					Err:     err,
-				}
-			}
 
 			currentSong.DeletedAt = lo.ToPtr(time.Now().UTC())
 			parseCtx.Services.Gorm.WithContext(ctx).Updates(currentSong)

@@ -284,14 +284,7 @@ func (a *Auth) getChannelByPlatformUserID(
 	platform platformentity.Platform,
 	userID uuid.UUID,
 ) (channelsmodel.Channel, error) {
-	switch platform {
-	case platformentity.PlatformTwitch:
-		return a.channelsRepo.GetByTwitchUserID(ctx, userID)
-	case platformentity.PlatformKick:
-		return a.channelsRepo.GetByKickUserID(ctx, userID)
-	default:
-		return channelsmodel.Nil, fmt.Errorf("unsupported platform: %s", platform)
-	}
+	return a.channelService.GetChannelByConnectedUser(ctx, userID, platform)
 }
 
 func (a *Auth) linkPlatformToChannel(

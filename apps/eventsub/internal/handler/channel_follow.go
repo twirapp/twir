@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -45,6 +46,8 @@ func (c *Handler) HandleChannelFollow(
 		return
 	}
 
+	channelUUID := uuid.MustParse(channelID)
+
 	if err := c.eventsListRepository.Create(
 		ctx,
 		channelseventslist.CreateInput{
@@ -65,10 +68,10 @@ func (c *Handler) HandleChannelFollow(
 		ctx,
 		events.FollowMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelDBID: channelID,
-				ChannelName: event.BroadcasterUserLogin,
-				Platform:    platformentity.PlatformTwitch,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelDBID:       channelUUID,
+				ChannelName:       event.BroadcasterUserLogin,
+				Platform:          platformentity.PlatformTwitch,
 			},
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,

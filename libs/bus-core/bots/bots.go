@@ -5,33 +5,26 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/bus-core/generic"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 )
 
 const (
-	SendMessageSubject      = "bots.send_message"
-	DeleteMessageSubject    = "bots.delete_message"
-	BanSubject              = "bots.ban"
-	BanMultipleSubject      = "bots.ban_multiple"
-	ShoutOutSubject         = "bots.shoutout"
-	VipSubject              = "bots.vip"
-	UnVipSubject            = "bots.unvip"
-	ModeratorAddSubject     = "bots.moderator_add"
-	ModeratorRemoveSubject  = "bots.moderator_remove"
-	RegisterVotebanSubsject = "bots.voteban.register"
+	SendMessageSubject     = "bots.send_message"
+	DeleteMessageSubject   = "bots.delete_message"
+	BanSubject             = "bots.ban"
+	BanMultipleSubject     = "bots.ban_multiple"
+	ShoutOutSubject        = "bots.shoutout"
+	VipSubject             = "bots.vip"
+	UnVipSubject           = "bots.unvip"
+	ModeratorAddSubject    = "bots.moderator_add"
+	ModeratorRemoveSubject = "bots.moderator_remove"
+	RegisterVotebanSubject = "bots.voteban.register"
 )
 
 type SendMessageRequest struct {
-	// ChannelId is a legacy field kept for backward compatibility.
-	// For platform chat delivery, prefer PlatformChannelID.
-	ChannelName       *string
-	ChannelId         string
-	// InternalChannelID is the Twir DB channel UUID (`channels.id`).
-	InternalChannelID *uuid.UUID
-	// PlatformChannelID is the platform-native broadcaster/channel identifier
-	// (e.g. Twitch broadcaster user ID, Kick broadcaster user ID).
-	PlatformChannelID string
-	Platform          string
+	ChannelID         uuid.UUID
+	Platforms         []platformentity.Platform
 	Message           string
 	ReplyTo           string
 	IsAnnounce        bool
