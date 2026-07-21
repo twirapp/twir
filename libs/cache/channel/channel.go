@@ -11,8 +11,6 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func New(
@@ -41,7 +39,6 @@ type TwitchUserIDCacher struct {
 
 func NewByTwitchUserID(
 	channelsRepo channelsrepository.Repository,
-	usersRepo usersrepository.Repository,
 	kv kv.KV,
 ) *TwitchUserIDCacher {
 	return &TwitchUserIDCacher{
@@ -49,17 +46,13 @@ func NewByTwitchUserID(
 			generic_cacher.Opts[channelmodel.Channel]{
 				KV:        kv,
 				KeyPrefix: "cache:twir:channel_by_twitch_uid:",
-				LoadFn: func(ctx context.Context, twitchUserID string) (channelmodel.Channel, error) {
-					user, err := usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchUserID)
-					if err != nil {
-						return channelmodel.Nil, fmt.Errorf("find user by twitch id %s: %w", twitchUserID, err)
-					}
-					if user.IsNil() {
-						return channelmodel.Nil, usersmodel.ErrNotFound
-					}
-
-				return channelsRepo.GetByTwitchUserID(ctx, user.ID)
-			},
+				LoadFn: func(ctx context.Context, platformChannelID string) (channelmodel.Channel, error) {
+					return channelsRepo.GetByPlatformChannelID(
+						ctx,
+						platform.PlatformTwitch,
+						platformChannelID,
+					)
+				},
 				Ttl: 24 * time.Hour,
 			},
 		),
