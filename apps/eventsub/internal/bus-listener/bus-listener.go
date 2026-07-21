@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
@@ -360,32 +359,53 @@ func (c *BusListener) reinitChannels(
 		}
 	}
 
-	enabledChannels, err := c.channelsRepo.GetMany(ctx, channels.GetManyInput{
-		AnyBotEnabled: lo.ToPtr(true),
+	reinitializedChannels, err := c.reinitBoundChannels(ctx, func(channelID uuid.UUID) {
+		if _, err := c.subscribeToAllEventsByChannelID(ctx, channelID, ""); err != nil {
+			c.logger.Error("error subscribing to all events", logger.Error(err))
+		}
 	})
 	if err != nil {
 		c.logger.Error("error getting channels", logger.Error(err))
 		return struct{}{}, err
 	}
 
-	var wg sync.WaitGroup
+	c.logger.Info("reinitialized channels for eventsub", slog.Int("count", reinitializedChannels))
 
-	for _, channel := range enabledChannels {
+	return struct{}{}, nil
+}
+
+func (c *BusListener) reinitBoundChannels(ctx context.Context, reinit func(uuid.UUID)) (int, error) {
+	twitchChannels, err := c.channelsRepo.GetAllByBindingPlatform(ctx, platformentity.PlatformTwitch)
+	if err != nil {
+		return 0, err
+	}
+
+	kickChannels, err := c.channelsRepo.GetAllByBindingPlatform(ctx, platformentity.PlatformKick)
+	if err != nil {
+		return 0, err
+	}
+
+	channelIDs := make(map[uuid.UUID]struct{}, len(twitchChannels)+len(kickChannels))
+	for _, channel := range twitchChannels {
+		channelIDs[channel.ID] = struct{}{}
+	}
+	for _, channel := range kickChannels {
+		channelIDs[channel.ID] = struct{}{}
+	}
+
+	var wg sync.WaitGroup
+	for channelID := range channelIDs {
 		wg.Add(1)
 
-		go func() {
+		go func(channelID uuid.UUID) {
 			defer wg.Done()
-			if _, err := c.subscribeToAllEventsByChannelID(ctx, channel.ID, ""); err != nil {
-				c.logger.Error("error subscribing to all events", logger.Error(err))
-			}
-		}()
+			reinit(channelID)
+		}(channelID)
 	}
 
 	wg.Wait()
 
-	c.logger.Info("reinitialized channels for eventsub", slog.Int("count", len(enabledChannels)))
-
-	return struct{}{}, nil
+	return len(channelIDs), nil
 }
 
 func (c *BusListener) unsubscribe(ctx context.Context, msg eventsub.EventsubUnsubscribeRequest) (struct{}, error) {
