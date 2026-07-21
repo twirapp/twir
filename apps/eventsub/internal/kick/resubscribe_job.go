@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -90,19 +92,20 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 	}
 
 	for _, ch := range kickChannels {
-		if ch.KickUserID == nil || !ch.KickBotEnabled {
+		binding, ok := channelbinding.Find(ch, platform.PlatformKick)
+		if !ok || !binding.Enabled {
 			continue
 		}
 
-		kickChannelID := ch.KickUserID.String()
+		kickChannelID := binding.UserID.String()
 
-		user, err := j.usersRepo.GetByID(ctx, *ch.KickUserID)
+		user, err := j.usersRepo.GetByID(ctx, binding.UserID)
 		if err != nil {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to get user for kick channel",
 				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", ch.KickUserID.String()),
+				slog.String("kick_user_id", kickChannelID),
 				logger.Error(err),
 			)
 			continue
@@ -114,7 +117,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 				ctx,
 				"resubscribe job: failed to parse kick platform user ID",
 				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", ch.KickUserID.String()),
+				slog.String("kick_user_id", kickChannelID),
 				logger.Error(err),
 			)
 			continue
@@ -136,7 +139,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		if err := j.subManager.SubscribeAll(ctx, *ch.KickUserID); err != nil {
+		if err := j.subManager.SubscribeAll(ctx, binding.UserID); err != nil {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to re-subscribe kick eventsub",

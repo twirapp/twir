@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
@@ -30,7 +31,7 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 		return
 	}
 
-	channel, channelErr := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	channel, channelErr := c.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
 	if channelErr != nil {
 		if !errors.Is(channelErr, channelsrepository.ErrNotFound) {
 			c.logger.Error("failed to get channel", logger.Error(channelErr))
@@ -38,7 +39,8 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 	} else {
 		isBotMod := false
 		twitchEnabled := false
-		overallEnabled := channel.KickBotJoined()
+		kickBinding, hasKickBinding := channelbinding.Find(channel, platform.PlatformKick)
+		overallEnabled := hasKickBinding && kickBinding.Enabled
 
 		if _, updateErr := c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
 			IsBotMod:         &isBotMod,

@@ -14,6 +14,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/apps/eventsub/internal/mappers"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -60,10 +61,10 @@ func (c *Handler) processChannelChatMessage(
 	data.EnrichedData.IsChatterVip = data.IsChatterVip()
 	data.EnrichedData.IsChatterSubscriber = data.IsChatterSubscriber()
 
-	channel, err := c.channelService.GetChannelByPlatformUserID(
+	channel, err := c.channelService.GetChannelByPlatformChannelID(
 		ctx,
-		data.BroadcasterUserId,
 		platform.PlatformTwitch,
+		data.BroadcasterUserId,
 	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
@@ -216,17 +217,26 @@ func (c *Handler) processChannelChatMessage(
 				return
 			}
 
-			isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
-			if isCommand && data.ChatterUserId == data.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
+			messagePlatform := platform.Platform(data.Platform)
+			if messagePlatform == "" {
+				messagePlatform = platform.PlatformTwitch
+			}
+			binding, ok := channelbinding.Find(data.EnrichedData.DbChannel, messagePlatform)
+			if !ok {
+				return
+			}
+			botConfig, err := channelbinding.ParseTwitchBotConfig(binding)
+			if err != nil {
+				c.logger.Error("cannot parse channel bot config", logger.Error(err))
 				return
 			}
 
-			botEnabled := data.EnrichedData.DbChannel.TwitchBotEnabled
-			if data.Platform == "kick" {
-				botEnabled = data.EnrichedData.DbChannel.KickBotEnabled
+			isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
+			if isCommand && data.ChatterUserId == botConfig.BotID && c.config.AppEnv == "production" {
+				return
 			}
 
-			if isCommand && botEnabled {
+			if isCommand && binding.Enabled {
 				if err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(ctx, data); err != nil {
 					c.logger.Error("cannot publish process command", logger.Error(err))
 				}

@@ -9,6 +9,8 @@ import (
 
 	"github.com/google/uuid"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
@@ -18,15 +20,26 @@ type mockSubManager struct {
 	listErr           error
 	subscribeErr      error
 	subscribeAllCalls int
+	subscribeAllIDs   []uuid.UUID
 }
 
 func (m *mockSubManager) ListSubscriptions(_ context.Context, _ int) ([]SubscriptionInfo, error) {
 	return m.listResult, m.listErr
 }
 
-func (m *mockSubManager) SubscribeAll(_ context.Context, _ uuid.UUID) error {
+func (m *mockSubManager) SubscribeAll(_ context.Context, channelID uuid.UUID) error {
 	m.subscribeAllCalls++
+	m.subscribeAllIDs = append(m.subscribeAllIDs, channelID)
 	return m.subscribeErr
+}
+
+func testKickBinding(userID uuid.UUID, enabled bool) channelplatformsmodel.ChannelPlatform {
+	return channelplatformsmodel.ChannelPlatform{
+		Platform:          platform.PlatformKick,
+		UserID:            userID,
+		PlatformChannelID: "12345",
+		Enabled:           enabled,
+	}
 }
 
 func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
@@ -48,9 +61,16 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{
 			{
-				ID:             uuid.New(),
-				KickUserID:     &kickUserID,
-				KickBotEnabled: true,
+				ID: uuid.New(),
+				Bindings: []channelplatformsmodel.ChannelPlatform{
+					{
+						Platform:          platform.PlatformTwitch,
+						UserID:            uuid.New(),
+						PlatformChannelID: "twitch-channel",
+						Enabled:           true,
+					},
+					testKickBinding(kickUserID, true),
+				},
 			},
 		},
 	}
@@ -76,6 +96,9 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 	if subMgr.subscribeAllCalls != 1 {
 		t.Errorf("expected SubscribeAll called 1 time, got %d", subMgr.subscribeAllCalls)
 	}
+	if len(subMgr.subscribeAllIDs) != 1 || subMgr.subscribeAllIDs[0] != kickUserID {
+		t.Fatalf("SubscribeAll IDs = %v, want [%s]", subMgr.subscribeAllIDs, kickUserID)
+	}
 }
 
 func TestResubscribeJob_AllPresent(t *testing.T) {
@@ -98,9 +121,8 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{
 			{
-				ID:             uuid.New(),
-				KickUserID:     &kickUserID,
-				KickBotEnabled: true,
+				ID:       uuid.New(),
+				Bindings: []channelplatformsmodel.ChannelPlatform{testKickBinding(kickUserID, true)},
 			},
 		},
 	}
@@ -138,9 +160,8 @@ func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{
 			{
-				ID:             uuid.New(),
-				KickUserID:     &kickUserID,
-				KickBotEnabled: true,
+				ID:       uuid.New(),
+				Bindings: []channelplatformsmodel.ChannelPlatform{testKickBinding(kickUserID, true)},
 			},
 		},
 	}

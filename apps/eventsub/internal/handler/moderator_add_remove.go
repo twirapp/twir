@@ -99,10 +99,10 @@ func (c *Handler) updateUserModStatus(
 		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(
+	channel, err := c.channelService.GetChannelByBindingUserID(
 		ctx,
-		broadcasterUser.ID,
 		platform.PlatformTwitch,
+		broadcasterUser.ID,
 	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
@@ -139,7 +139,7 @@ func (c *Handler) updateBotStatus(
 		return
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return

@@ -20,10 +20,10 @@ func (c *Handler) HandleStreamOnline(
 	event eventsub.StreamOnlineEvent,
 	meta eventsub.WebsocketNotificationMetadata,
 ) {
-	channel, err := c.channelService.GetChannelByPlatformUserID(
+	channel, err := c.channelService.GetChannelByPlatformChannelID(
 		ctx,
-		event.BroadcasterUserId,
 		platform.PlatformTwitch,
+		event.BroadcasterUserId,
 	)
 	if err != nil {
 		c.logger.Error(
