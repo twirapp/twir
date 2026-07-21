@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -153,6 +154,120 @@ func TestReinitBoundChannelsProcessesEveryUniquePlatformBinding(t *testing.T) {
 	}
 	if len(calls) != len(wantCalls) {
 		t.Fatalf("reinitialized unique channels = %d, want %d", len(calls), len(wantCalls))
+	}
+	for id := range wantCalls {
+		if calls[id] != 1 {
+			t.Errorf("channel %s reinitialized %d times, want 1", id, calls[id])
+		}
+	}
+}
+
+func TestReinitBoundChannelsLimitsConcurrentCallbacks(t *testing.T) {
+	const maxConcurrentCallbacks = 10
+	const uniqueChannelCount = maxConcurrentCallbacks + 5
+
+	twitchChannels := make([]channelsmodel.Channel, 0, uniqueChannelCount)
+	kickChannels := make([]channelsmodel.Channel, 0, 1)
+	wantCalls := make(map[uuid.UUID]struct{}, uniqueChannelCount)
+
+	sharedID := uuid.New()
+	sharedChannel := reinitTestChannel(sharedID, platform.PlatformTwitch, platform.PlatformKick)
+	twitchChannels = append(twitchChannels, sharedChannel)
+	kickChannels = append(kickChannels, sharedChannel)
+	wantCalls[sharedID] = struct{}{}
+
+	for range uniqueChannelCount - 1 {
+		id := uuid.New()
+		twitchChannels = append(twitchChannels, reinitTestChannel(id, platform.PlatformTwitch))
+		wantCalls[id] = struct{}{}
+	}
+
+	repo := &reinitChannelsRepo{
+		channelsByPlatform: map[platform.Platform][]channelsmodel.Channel{
+			platform.PlatformTwitch: twitchChannels,
+			platform.PlatformKick:   kickChannels,
+		},
+	}
+	listener := &BusListener{channelsRepo: repo}
+
+	started := make(chan struct{}, uniqueChannelCount)
+	release := make(chan struct{})
+	type reinitResult struct {
+		count int
+		err   error
+	}
+	done := make(chan reinitResult, 1)
+
+	var mu sync.Mutex
+	inFlight := 0
+	maxInFlight := 0
+	calls := make(map[uuid.UUID]int, uniqueChannelCount)
+	go func() {
+		count, err := listener.reinitBoundChannels(context.Background(), func(id uuid.UUID) {
+			mu.Lock()
+			inFlight++
+			if inFlight > maxInFlight {
+				maxInFlight = inFlight
+			}
+			calls[id]++
+			mu.Unlock()
+
+			started <- struct{}{}
+			<-release
+
+			mu.Lock()
+			inFlight--
+			mu.Unlock()
+		})
+		done <- reinitResult{count: count, err: err}
+	}()
+
+	var releaseOnce sync.Once
+	releaseCallbacks := func() {
+		releaseOnce.Do(func() { close(release) })
+	}
+	completed := false
+	defer func() {
+		releaseCallbacks()
+		if !completed {
+			select {
+			case <-done:
+			case <-time.After(time.Second):
+				t.Error("reinitBoundChannels did not finish after callbacks were released")
+			}
+		}
+	}()
+
+	for range maxConcurrentCallbacks {
+		select {
+		case <-started:
+		case <-time.After(time.Second):
+			t.Fatalf("fewer than %d callbacks started", maxConcurrentCallbacks)
+		}
+	}
+	select {
+	case <-started:
+		t.Fatalf("started more than %d callbacks before release", maxConcurrentCallbacks)
+	case <-time.After(100 * time.Millisecond):
+	}
+
+	releaseCallbacks()
+	result := <-done
+	completed = true
+	if result.err != nil {
+		t.Fatalf("reinitBoundChannels returned error: %v", result.err)
+	}
+	if result.count != uniqueChannelCount {
+		t.Fatalf("reinitialized channels = %d, want %d", result.count, uniqueChannelCount)
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+	if maxInFlight > maxConcurrentCallbacks {
+		t.Fatalf("max in-flight callbacks = %d, want at most %d", maxInFlight, maxConcurrentCallbacks)
+	}
+	if len(calls) != uniqueChannelCount {
+		t.Fatalf("reinitialized unique channels = %d, want %d", len(calls), uniqueChannelCount)
 	}
 	for id := range wantCalls {
 		if calls[id] != 1 {
