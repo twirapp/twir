@@ -1,0 +1,10 @@
+extend type Query {
+	channelBySlug(channelName: String!, platform: Platform): TwirPublicUser
+}
+
+type TwirPublicUser {
+	id: UUID!
+	hideOnLandingPage: Boolean!
+	twitchProfile: TwirUserTwitchInfo
+	kickProfile: KickProfile
+}

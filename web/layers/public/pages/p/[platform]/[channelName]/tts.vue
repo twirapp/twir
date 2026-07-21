@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { useTtsPublicSettings } from '#layers/public/api/use-tts-settings.ts'
+
 import UserCell from '~/components/table/cells/user-cell.vue'
-import { useTtsPublicSettings } from '~~/layers/public/api/use-tts-settings'
 
 definePageMeta({
 	layout: 'public',
@@ -10,7 +11,7 @@ const { data } = await useTtsPublicSettings()
 </script>
 
 <template>
-	<div class="flex-wrap w-full border rounded-md bg-card">
+	<div class="bg-card w-full flex-wrap rounded-md border">
 		<UiTable>
 			<UiTableHeader>
 				<UiTableRow>
@@ -21,7 +22,10 @@ const { data } = await useTtsPublicSettings()
 				</UiTableRow>
 			</UiTableHeader>
 			<UiTableBody>
-				<UiTableRow v-for="setting in data?.ttsPublicUsersSettings" :key="setting.userId">
+				<UiTableRow
+					v-for="setting in data?.ttsPublicUsersSettings"
+					:key="setting.userId"
+				>
 					<UiTableCell class="font-medium">
 						<UserCell
 							:name="setting.twitchProfile.login"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FlexRender } from '@tanstack/vue-table'
 
-import { useCommunityUsersTable } from '~/features/community-users/composables/use-community-users-table'
+import { useCommunityUsersTable } from '~/features/community-users/composables/use-community-users-table.ts'
 import CommunityUsersTableSearch from '~/features/community-users/ui/community-users-table-search.vue'
 
 definePageMeta({
@@ -23,7 +23,7 @@ await useAsyncData('communityUsers', async () => store.fetchUsers().then(() => t
 			@update:page-size="(pageSize) => (store.pagination.pageSize = pageSize)"
 		/>
 
-		<div class="flex-wrap w-full border rounded-md bg-card">
+		<div class="bg-card w-full flex-wrap rounded-md border">
 			<UiTable>
 				<UiTableHeader>
 					<UiTableRow
@@ -46,10 +46,19 @@ await useAsyncData('communityUsers', async () => store.fetchUsers().then(() => t
 				</UiTableHeader>
 
 				<UiTableBody>
-					<UiTableRow v-for="row in store.table.getRowModel().rows" :key="row.id">
-						<template v-for="cell in row.getVisibleCells()" :key="cell.id">
+					<UiTableRow
+						v-for="row in store.table.getRowModel().rows"
+						:key="row.id"
+					>
+						<template
+							v-for="cell in row.getVisibleCells()"
+							:key="cell.id"
+						>
 							<UiTableCell>
-								<FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+								<FlexRender
+									:render="cell.column.columnDef.cell"
+									:props="cell.getContext()"
+								/>
 							</UiTableCell>
 						</template>
 					</UiTableRow>

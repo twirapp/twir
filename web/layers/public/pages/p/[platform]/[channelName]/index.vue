@@ -1,4 +1,10 @@
 <script lang="ts" setup>
+import { useCommands } from '#layers/public/api/use-commands.ts'
+import CommandsCooldownCell from '#layers/public/components/commands/commands-cooldown-cell.vue'
+import CommandsNameCell from '#layers/public/components/commands/commands-name-cell.vue'
+import CommandsPermissionsCell from '#layers/public/components/commands/commands-permissions-cell.vue'
+import CommandsResponsesCell from '#layers/public/components/commands/commands-responses-cell.vue'
+import { type Command, type Group, createGroups, isCommand } from '#layers/public/lib/commands.ts'
 import {
 	type Cell,
 	type ColumnDef,
@@ -8,16 +14,9 @@ import {
 	useVueTable,
 } from '@tanstack/vue-table'
 
-import { useCommands } from '~~/layers/public/api/use-commands'
-import CommandsCooldownCell from '~~/layers/public/components/commands/commands-cooldown-cell.vue'
-import CommandsNameCell from '~~/layers/public/components/commands/commands-name-cell.vue'
-import CommandsPermissionsCell from '~~/layers/public/components/commands/commands-permissions-cell.vue'
-import CommandsResponsesCell from '~~/layers/public/components/commands/commands-responses-cell.vue'
-import { type Command, type Group, createGroups, isCommand } from '~~/layers/public/lib/commands'
-
 definePageMeta({
 	layout: 'public',
-	alias: ['/p/:channelName/commands'],
+	alias: ['/p/:platform/:channelName/commands'],
 })
 
 const { data } = await useCommands()
@@ -101,7 +100,7 @@ function computeCellSpan(cell: Cell<Command | Group, unknown>) {
 </script>
 
 <template>
-	<div class="flex-wrap w-full border rounded-md bg-card">
+	<div class="bg-card w-full flex-wrap rounded-md border">
 		<UiTable>
 			<UiTableHeader>
 				<UiTableRow
@@ -124,8 +123,14 @@ function computeCellSpan(cell: Cell<Command | Group, unknown>) {
 			</UiTableHeader>
 
 			<UiTableBody>
-				<UiTableRow v-for="row in table.getRowModel().rows" :key="row.id">
-					<template v-for="cell in row.getVisibleCells()" :key="cell.id">
+				<UiTableRow
+					v-for="row in table.getRowModel().rows"
+					:key="row.id"
+				>
+					<template
+						v-for="cell in row.getVisibleCells()"
+						:key="cell.id"
+					>
 						<UiTableCell
 							v-if="isCommand(cell.row.original) || cell.column.id === 'Name'"
 							:colspan="computeCellSpan(cell)"

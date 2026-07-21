@@ -9,18 +9,18 @@ import (
 )
 
 type User struct {
-	ID                uuid.UUID
-	Platform          platform.Platform
-	PlatformID        string
-	TokenID           null.String
-	IsBotAdmin        bool
-	ApiKey            string
-	IsBanned          bool
-	HideOnLandingPage bool
-	CreatedAt         time.Time
-	Login             string
-	DisplayName       string
-	Avatar            string
+	ID                uuid.UUID         `json:"id,omitempty"`
+	Platform          platform.Platform `json:"platform,omitempty"`
+	PlatformID        string            `json:"platform_id,omitempty"`
+	TokenID           null.String       `json:"token_id"`
+	IsBotAdmin        bool              `json:"is_bot_admin,omitempty"`
+	ApiKey            string            `json:"api_key,omitempty"`
+	IsBanned          bool              `json:"is_banned,omitempty"`
+	HideOnLandingPage bool              `json:"hide_on_landing_page,omitempty"`
+	CreatedAt         time.Time         `json:"created_at"`
+	Login             string            `json:"login,omitempty"`
+	DisplayName       string            `json:"display_name,omitempty"`
+	Avatar            string            `json:"avatar,omitempty"`
 
 	isNil bool
 }

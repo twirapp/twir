@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/google/uuid"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type Channel struct {
@@ -19,6 +20,9 @@ type Channel struct {
 	BotID            string
 	KickBotID        *uuid.UUID
 	ApiKey           *string `db:"api_key"`
+
+	TwitchUser *usersmodel.User `json:"twitch_user,omitempty"`
+	KickUser   *usersmodel.User `json:"kick_user,omitempty"`
 
 	isNil bool
 }

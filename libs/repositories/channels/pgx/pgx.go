@@ -3,6 +3,9 @@ package pgx
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/Masterminds/squirrel"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -50,7 +53,35 @@ SELECT
 	c."isBotMod",
 	c."botId",
 	c.kick_bot_id,
-	c.api_key
+	c.api_key,
+	json_build_object(
+		'id', tu.id,
+		'platform', tu.platform,
+		'platform_id', tu.platform_id,
+		'token_id', tu."tokenId",
+		'is_bot_admin', tu."isBotAdmin",
+		'api_key', tu."apiKey",
+		'is_banned', tu.is_banned,
+		'hide_on_landing_page', tu.hide_on_landing_page,
+		'created_at', tu.created_at,
+		'login', tu.login,
+		'display_name', tu.display_name,
+		'avatar', tu.avatar
+	) as twitch_user,
+	json_build_object(
+		'id', ku.id,
+		'platform', ku.platform,
+		'platform_id', ku.platform_id,
+		'token_id', ku."tokenId",
+		'is_bot_admin', ku."isBotAdmin",
+		'api_key', ku."apiKey",
+		'is_banned', ku.is_banned,
+		'hide_on_landing_page', ku.hide_on_landing_page,
+		'created_at', ku.created_at,
+		'login', ku.login,
+		'display_name', ku.display_name,
+		'avatar', ku.avatar
+	)	as kick_user
 FROM channels c
 LEFT JOIN users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'
 LEFT JOIN users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'`
@@ -74,32 +105,12 @@ func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.Channel, er
 }
 
 func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
-	query := `
-WITH inserted AS (
-	INSERT INTO channels (twitch_user_id, kick_user_id, twitch_bot_enabled, kick_bot_enabled, "isEnabled", "botId", kick_bot_id)
+	query := `INSERT INTO channels (twitch_user_id, kick_user_id, twitch_bot_enabled, kick_bot_enabled, "isEnabled", "botId", kick_bot_id)
 	VALUES ($1, $2, $3, $4, $3 OR $4, $5, $6)
-	RETURNING *
-)
-SELECT
-	i."id",
-	i."twitch_user_id",
-	tu.platform_id AS twitch_platform_id,
-	i.twitch_bot_enabled,
-	i."kick_user_id",
-	ku.platform_id AS kick_platform_id,
-	i.kick_bot_enabled,
-	i."isEnabled",
-	i."isTwitchBanned",
-	i."isBotMod",
-	i."botId",
-	i.kick_bot_id,
-	i.api_key
-FROM inserted i
-LEFT JOIN users tu ON tu.id = i.twitch_user_id AND tu.platform = 'twitch'
-LEFT JOIN users ku ON ku.id = i.kick_user_id AND ku.platform = 'kick'`
+	RETURNING id`
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(
+	row := conn.QueryRow(
 		ctx,
 		query,
 		input.TwitchUserID,
@@ -109,16 +120,13 @@ LEFT JOIN users ku ON ku.id = i.kick_user_id AND ku.platform = 'kick'`
 		input.BotID,
 		input.KickBotID,
 	)
-	if err != nil {
+
+	var channelId uuid.UUID
+	if err := row.Scan(&channelId); err != nil {
 		return model.Nil, err
 	}
 
-	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
-	if err != nil {
-		return model.Nil, err
-	}
-
-	return result, nil
+	return c.GetByID(ctx, channelId)
 }
 
 func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, error) {
@@ -267,35 +275,88 @@ func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.Up
 		updateBuilder = updateBuilder.Set("kick_bot_id", *input.KickBotID)
 	}
 
-	updateBuilder = updateBuilder.Suffix(`RETURNING *`)
+	updateBuilder = updateBuilder.Suffix(`RETURNING id`)
 
 	innerQuery, args, err := updateBuilder.ToSql()
 	if err != nil {
 		return model.Nil, err
 	}
 
-	query := `
-WITH updated AS (` + innerQuery + `)
-SELECT
-	u."id",
-	u."twitch_user_id",
-	tu.platform_id AS twitch_platform_id,
-	u.twitch_bot_enabled,
-	u."kick_user_id",
-	ku.platform_id AS kick_platform_id,
-	u.kick_bot_enabled,
-	u."isEnabled",
-	u."isTwitchBanned",
-	u."isBotMod",
-	u."botId",
-	u.kick_bot_id,
-	u.api_key
-FROM updated u
-LEFT JOIN users tu ON tu.id = u.twitch_user_id AND tu.platform = 'twitch'
-LEFT JOIN users ku ON ku.id = u.kick_user_id AND ku.platform = 'kick'`
+	row := c.getter.DefaultTrOrDB(ctx, c.pool).QueryRow(ctx, innerQuery, args...)
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, args...)
+	var channelId uuid.UUID
+	if err := row.Scan(&channelId); err != nil {
+		return model.Nil, err
+	}
+
+	return c.GetByID(ctx, channelId)
+}
+
+func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model.Channel, error) {
+	query := selectQuery
+
+	var where []string
+	var args []any
+
+	if input.Enabled != nil {
+		where = append(where, `c."isEnabled" = $`+strconv.Itoa(len(args)+1))
+		args = append(args, *input.Enabled)
+	}
+
+	if input.TwitchBotEnabled != nil {
+		where = append(where, `c.twitch_bot_enabled = $`+strconv.Itoa(len(args)+1))
+		args = append(args, *input.TwitchBotEnabled)
+	}
+
+	if input.AnyBotEnabled != nil && *input.AnyBotEnabled {
+		where = append(where, `(c.twitch_bot_enabled OR c.kick_bot_enabled)`)
+	}
+
+	if len(where) > 0 {
+		query += "\nWHERE " + strings.Join(where, "\nAND ")
+	}
+
+	if input.PerPage == 0 {
+		input.PerPage = 10
+	}
+
+	if input.PerPage > 0 {
+		args = append(args, input.PerPage)
+		query += fmt.Sprintf("\nLIMIT $%d", len(args))
+	}
+
+	if input.Page > 0 {
+		args = append(args, input.Page*input.PerPage)
+		query += fmt.Sprintf("\nOFFSET $%d", len(args))
+	}
+
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (c *Pgx) GetBySlug(ctx context.Context, opts channels.GetBySlugInput) (model.Channel, error) {
+	query := selectQuery
+	args := []any{opts.Slug}
+
+	query = query + ` WHERE tu."login" = $1 OR ku."login" = $1`
+
+	if opts.Platform != nil {
+		query = query + ` AND "platform" = $2`
+		args = append(args, *opts.Platform)
+	}
+
+	query = query + " LIMIT 1"
+
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query, args...)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -306,78 +367,6 @@ LEFT JOIN users ku ON ku.id = u.kick_user_id AND ku.platform = 'kick'`
 			return model.Nil, channels.ErrNotFound
 		}
 		return model.Nil, err
-	}
-
-	return result, nil
-}
-
-func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model.Channel, error) {
-	selectBuilder := sq.
-		Select(
-			`c."id"`,
-			"c.twitch_user_id",
-			"tu.platform_id AS twitch_platform_id",
-			"c.twitch_bot_enabled",
-			"c.kick_user_id",
-			"ku.platform_id AS kick_platform_id",
-			"c.kick_bot_enabled",
-			`c."isEnabled"`,
-			`c."isTwitchBanned"`,
-			`c."isBotMod"`,
-			`c."botId"`,
-			"c.kick_bot_id",
-			"c.api_key",
-		).
-		From("channels c").
-		LeftJoin("users tu ON tu.id = c.twitch_user_id AND tu.platform = 'twitch'").
-		LeftJoin("users ku ON ku.id = c.kick_user_id AND ku.platform = 'kick'")
-
-	if input.Enabled != nil {
-		selectBuilder = selectBuilder.Where(`c."isEnabled" = ?`, *input.Enabled)
-	}
-
-	if input.TwitchBotEnabled != nil {
-		selectBuilder = selectBuilder.Where("c.twitch_bot_enabled = ?", *input.TwitchBotEnabled)
-	}
-
-	if input.KickBotEnabled != nil {
-		selectBuilder = selectBuilder.Where("c.kick_bot_enabled = ?", *input.KickBotEnabled)
-	}
-
-	if input.AnyBotEnabled != nil && *input.AnyBotEnabled {
-		selectBuilder = selectBuilder.Where("(c.twitch_bot_enabled = true OR c.kick_bot_enabled = true)")
-	}
-
-	if input.HasKickUserID != nil && *input.HasKickUserID {
-		selectBuilder = selectBuilder.Where("c.kick_user_id IS NOT NULL")
-	}
-
-	if input.HasTwitchUserID != nil && *input.HasTwitchUserID {
-		selectBuilder = selectBuilder.Where("c.twitch_user_id IS NOT NULL")
-	}
-
-	if input.PerPage > 0 {
-		selectBuilder = selectBuilder.Limit(uint64(input.PerPage))
-	}
-
-	if input.Page > 0 {
-		selectBuilder = selectBuilder.Offset(uint64(input.Page * input.PerPage))
-	}
-
-	query, args, err := selectBuilder.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	result, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.Channel])
-	if err != nil {
-		return nil, err
 	}
 
 	return result, nil
