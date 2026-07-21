@@ -3,13 +3,16 @@ package workflows
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/twirapp/twir/apps/events/internal/channelbinding"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/temporal"
@@ -47,7 +50,7 @@ func (c *EventWorkflow) Flow(
 		return err
 	}
 
-	if channel == channelmodel.Nil {
+	if channel.IsNil() {
 		return errors.New("channel not found")
 	}
 
@@ -60,6 +63,13 @@ func (c *EventWorkflow) Flow(
 	if streamPlatform == "" {
 		streamPlatform = platformentity.PlatformTwitch
 	}
+	data.Platform = streamPlatform
+
+	bindings, err := getEventChannelBindings(channel, streamPlatform)
+	if err != nil {
+		return err
+	}
+	data.ChannelID = bindings.event.PlatformChannelID
 
 	stream, err := c.streamsRepo.GetByChannelID(eventsCtx, channel.ID, streamPlatform)
 	if err != nil {
@@ -91,7 +101,7 @@ func (c *EventWorkflow) Flow(
 			continue
 		}
 
-		if !channel.IsEnabled || channel.IsTwitchBanned {
+		if !bindings.event.Enabled || bindings.twitchBotConfig.IsTwitchBanned {
 			continue
 		}
 
@@ -147,9 +157,9 @@ func (c *EventWorkflow) Flow(
 	// populate event type into data so activities can reference it
 	data.EventType = string(eventType)
 
-	// populate channel twitch user ID (internal UUID) for token lookups
-	if channel.TwitchUserID != nil {
-		data.ChannelTwitchUserID = channel.TwitchUserID.String()
+	// Preserve Twitch operation tokens independently of the triggering platform.
+	if bindings.hasTwitch {
+		data.ChannelTwitchUserID = bindings.twitch.UserID.String()
 	}
 
 	// execute event operations
@@ -417,6 +427,40 @@ func (c *EventWorkflow) Flow(
 	}
 
 	return nil
+}
+
+type eventChannelBindings struct {
+	event           channelplatformsmodel.ChannelPlatform
+	twitch          channelplatformsmodel.ChannelPlatform
+	twitchBotConfig channelbinding.TwitchBotConfig
+	hasTwitch       bool
+}
+
+func getEventChannelBindings(
+	channel channelmodel.Channel,
+	eventPlatform platformentity.Platform,
+) (eventChannelBindings, error) {
+	eventBinding, ok := channelbinding.Find(channel, eventPlatform)
+	if !ok {
+		return eventChannelBindings{}, fmt.Errorf("channel binding not found for platform %q", eventPlatform)
+	}
+
+	result := eventChannelBindings{event: eventBinding}
+	twitchBinding, ok := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	if !ok {
+		return result, nil
+	}
+
+	twitchBotConfig, err := channelbinding.ParseTwitchBotConfig(twitchBinding)
+	if err != nil {
+		return eventChannelBindings{}, fmt.Errorf("parse Twitch bot config: %w", err)
+	}
+
+	result.twitch = twitchBinding
+	result.twitchBotConfig = twitchBotConfig
+	result.hasTwitch = true
+
+	return result, nil
 }
 
 func (c *EventWorkflow) filtersOk(
