@@ -12,10 +12,10 @@ type Repository interface {
 	GetMany(ctx context.Context, input GetManyInput) ([]model.Channel, error)
 	GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, error)
 	GetByApiKey(ctx context.Context, apiKey string) (model.Channel, error)
-	GetByTwitchUserID(ctx context.Context, twitchUserID uuid.UUID) (model.Channel, error)
-	GetByTwitchPlatformID(ctx context.Context, twitchPlatformID string) (model.Channel, error)
-	GetByKickUserID(ctx context.Context, kickUserID uuid.UUID) (model.Channel, error)
-	GetByKickPlatformID(ctx context.Context, kickPlatformID string) (model.Channel, error)
+	// GetByBindingUserID resolves a channel from a platform-scoped linked user ID.
+	GetByBindingUserID(ctx context.Context, p platform.Platform, userID uuid.UUID) (model.Channel, error)
+	// GetByPlatformChannelID resolves a channel from a platform-scoped provider channel ID.
+	GetByPlatformChannelID(ctx context.Context, p platform.Platform, platformChannelID string) (model.Channel, error)
 	GetBySlug(ctx context.Context, opts GetBySlugInput) (model.Channel, error)
 	GetCount(ctx context.Context, input GetCountInput) (int, error)
 	Update(ctx context.Context, channelID uuid.UUID, input UpdateInput) (model.Channel, error)
