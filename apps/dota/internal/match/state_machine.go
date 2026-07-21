@@ -56,23 +56,28 @@ type EventEmitter interface {
 }
 
 type Snapshot struct {
-	ChannelID      uuid.UUID `json:"channelId"`
-	State          State     `json:"state"`
-	InGame         bool      `json:"inGame"`
-	MatchID        int64     `json:"matchId"`
-	HeroName       string    `json:"heroName"`
-	IsRadiant      bool      `json:"isRadiant"`
-	TeamKnown      bool      `json:"teamKnown"`
-	SteamAccountID string    `json:"steamAccountId"`
-	RadiantScore   int       `json:"radiantScore"`
-	DireScore      int       `json:"direScore"`
-	GameTime       int       `json:"gameTime"`
-	Mmr            int       `json:"mmr"`
-	SessionWins    int       `json:"sessionWins"`
-	SessionLosses  int       `json:"sessionLosses"`
-	WinProbability float64   `json:"winProbability"`
+	ChannelID             uuid.UUID `json:"channelId"`
+	Revision              uint64    `json:"revision"`
+	State                 State     `json:"state"`
+	InGame                bool      `json:"inGame"`
+	MatchID               int64     `json:"matchId"`
+	HeroName              string    `json:"heroName"`
+	IsRadiant             bool      `json:"isRadiant"`
+	TeamKnown             bool      `json:"teamKnown"`
+	SteamAccountID        string    `json:"steamAccountId"`
+	RadiantScore          int       `json:"radiantScore"`
+	DireScore             int       `json:"direScore"`
+	GameTime              int       `json:"gameTime"`
+	LastProviderTimestamp int64     `json:"lastProviderTimestamp"`
+	LastGameTime          int       `json:"lastGameTime"`
+	Mmr                   int       `json:"mmr"`
+	SessionWins           int       `json:"sessionWins"`
+	SessionLosses         int       `json:"sessionLosses"`
+	WinProbability        float64   `json:"winProbability"`
 
 	SeenEvents []string `json:"seenEvents,omitempty"`
+
+	rawState string
 }
 
 type channelState struct {
