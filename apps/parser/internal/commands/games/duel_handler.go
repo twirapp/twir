@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"gorm.io/gorm"
 )
@@ -40,9 +41,9 @@ func (c *duelHandler) getChannelSettings(ctx context.Context) (
 	return entity, nil
 }
 
-func (c *duelHandler) createHelixClient() (*helix.Client, error) {
+func (c *duelHandler) createHelixClient(twitchUserID uuid.UUID) (*helix.Client, error) {
 	client, err := twitch.NewUserClient(
-		c.parseCtx.Channel.TwitchUserID,
+		twitchUserID,
 		*c.parseCtx.Services.Config,
 		c.parseCtx.Services.Bus,
 	)
@@ -81,16 +82,13 @@ func (c *duelHandler) getTwitchTargetUser() (helix.User, error) {
 	return userRequest.Data.Users[0], nil
 }
 
-func (c *duelHandler) getDbChannel(ctx context.Context) (model.Channels, error) {
-	channel := model.Channels{}
-	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Where(
-		`"id" = ?`,
-		c.parseCtx.Channel.DBChannelID,
-	).First(&channel).Error; err != nil {
-		return model.Channels{}, err
+func (c *duelHandler) getDbChannel(ctx context.Context) (channelsmodel.Channel, error) {
+	channelID, err := uuid.Parse(c.parseCtx.Channel.DBChannelID)
+	if err != nil {
+		return channelsmodel.Channel{}, err
 	}
 
-	return channel, nil
+	return c.parseCtx.Services.ChannelsRepo.GetByID(ctx, channelID)
 }
 
 func (c *duelHandler) getUserCurrentDuel(ctx context.Context, userId string) (
@@ -134,15 +132,16 @@ func (c *duelHandler) validateParticipants(
 	ctx context.Context,
 	senderUserId string,
 	targetUserId string,
-	dbChannel model.Channels,
+	twitchChannelID string,
+	twitchBotID string,
 ) error {
 	if targetUserId == c.parseCtx.Sender.ID {
 		return &targetValidateError{message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelWithYourself)}
 	}
-	if targetUserId == c.parseCtx.Channel.ID {
+	if targetUserId == twitchChannelID {
 		return &targetValidateError{message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelWithStreamer)}
 	}
-	if dbChannel.BotID == targetUserId {
+	if twitchBotID != "" && twitchBotID == targetUserId {
 		return &targetValidateError{message: i18n.GetCtx(ctx, locales.Translations.Commands.Games.Errors.DuelWithBot)}
 	}
 
@@ -173,10 +172,10 @@ func (c *duelHandler) validateParticipants(
 	return nil
 }
 
-func (c *duelHandler) getChannelModerators() ([]helix.Moderator, error) {
+func (c *duelHandler) getChannelModerators(twitchChannelID string) ([]helix.Moderator, error) {
 	moderatorsRequest, err := c.helixClient.GetModerators(
 		&helix.GetModeratorsParams{
-			BroadcasterID: c.parseCtx.Channel.ID,
+			BroadcasterID: twitchChannelID,
 		},
 	)
 	if err != nil {
@@ -238,13 +237,14 @@ func (c *duelHandler) saveDuelData(
 func (c *duelHandler) timeoutUser(
 	ctx context.Context,
 	settings model.ChannelGamesDuel,
+	twitchChannelID string,
 	userID string,
 	isMod bool,
 ) error {
 	return c.parseCtx.Services.Bus.Bots.BanUser.Publish(
 		ctx,
 		bots.BanRequest{
-			ChannelID:      c.parseCtx.Channel.ID,
+			ChannelID:      twitchChannelID,
 			UserID:         userID,
 			Reason:         "lost in duel",
 			BanTime:        int(settings.TimeoutSeconds),

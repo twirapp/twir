@@ -7,6 +7,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -43,7 +44,7 @@ func getTop(
 
 	channelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
 	if err != nil && parseCtx.Channel.TwitchUserID != uuid.Nil {
-		channel, chanErr := parseCtx.Services.ChannelService.GetChannelByConnectedUser(ctx, parseCtx.Channel.TwitchUserID, platform.PlatformTwitch)
+		channel, chanErr := parseCtx.Services.ChannelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, parseCtx.Channel.TwitchUserID)
 		if chanErr == nil && !channel.IsNil() {
 			channelID = channel.ID
 		}
@@ -71,7 +72,11 @@ func getTop(
 		Where(`NOT EXISTS (SELECT 1 FROM users_ignored ui JOIN users u ON u.platform = 'twitch' AND u.platform_id = ui.id WHERE u.id = users_stats.user_id)`).
 		Where(`NOT EXISTS (SELECT 1 FROM bots b JOIN users u ON u.platform_id = b.id AND u.platform = 'twitch' WHERE u.id = users_stats.user_id)`)
 
-	qb = applyTopChannelBotFilters(qb, channel)
+	qb, err = applyTopChannelBotFilters(qb, channel)
+	if err != nil {
+		parseCtx.Services.Logger.Sugar().Error(err)
+		return nil, false
+	}
 
 	query, args, err := qb.
 		Limit(uint64(limit)).
@@ -175,27 +180,28 @@ func getTop(
 	return stats, false
 }
 
-func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelmodel.Channel) squirrel.SelectBuilder {
-	if channel.BotID != "" {
+func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelmodel.Channel) (squirrel.SelectBuilder, error) {
+	_, twitchBotConfig, hasTwitchBinding, err := channelbinding.FindTwitch(channel)
+	if err != nil {
+		return qb, err
+	}
+	if hasTwitchBinding && twitchBotConfig.BotID != "" {
 		qb = qb.Where(
 			squirrel.Expr(
 				`users_stats.user_id NOT IN (SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch')`,
-				channel.BotID,
+				twitchBotConfig.BotID,
 			),
 		)
 	}
 
-	if channel.KickBotID != nil {
-		qb = qb.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickBotID.String()})
+	for _, binding := range channel.Bindings {
+		if binding.BotUserID != nil {
+			qb = qb.Where(squirrel.NotEq{`users_stats.user_id`: binding.BotUserID.String()})
+		}
+		if binding.UserID != uuid.Nil {
+			qb = qb.Where(squirrel.NotEq{`users_stats.user_id`: binding.UserID.String()})
+		}
 	}
 
-	if channel.TwitchUserID != nil {
-		qb = qb.Where(squirrel.NotEq{`users_stats.user_id`: channel.TwitchUserID.String()})
-	}
-
-	if channel.KickUserID != nil {
-		qb = qb.Where(squirrel.NotEq{`users_stats.user_id`: channel.KickUserID.String()})
-	}
-
-	return qb
+	return qb, nil
 }

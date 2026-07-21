@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
+	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/commands"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
@@ -132,20 +132,13 @@ func (c *CommandsBus) Subscribe() error {
 				return parser.ParseVariablesInTextResponse{}, err
 			}
 
-			var platformChannelID string
-			switch platformSource {
-			case platformentity.PlatformTwitch:
-				if channelModel.TwitchPlatformID == nil {
-					return parser.ParseVariablesInTextResponse{}, fmt.Errorf("channel %s is not connected to %s", data.ChannelID, platformSource)
-				}
-				platformChannelID = *channelModel.TwitchPlatformID
-			case platformentity.PlatformKick:
-				if channelModel.KickPlatformID == nil {
-					return parser.ParseVariablesInTextResponse{}, fmt.Errorf("channel %s is not connected to %s", data.ChannelID, platformSource)
-				}
-				platformChannelID = *channelModel.KickPlatformID
-			default:
-				return parser.ParseVariablesInTextResponse{}, fmt.Errorf("unknown platform: %s", platformSource)
+			channel, ok := channelbinding.NewParseContextChannel(
+				channelModel,
+				platformSource,
+				data.ChannelName,
+			)
+			if !ok {
+				return parser.ParseVariablesInTextResponse{}, fmt.Errorf("channel %s is not connected to %s", data.ChannelID, platformSource)
 			}
 
 			foundStream, err := c.streamsRepository.GetByChannelID(ctx, data.ChannelID, platformSource)
@@ -159,16 +152,6 @@ func (c *CommandsBus) Subscribe() error {
 				stream = &foundStream
 			}
 
-			twitchUserID := uuid.Nil
-			if channelModel.TwitchUserID != nil {
-				twitchUserID = *channelModel.TwitchUserID
-			}
-			channel := &types.ParseContextChannel{
-				ID:           platformChannelID,
-				Name:         data.ChannelName,
-				TwitchUserID: twitchUserID,
-				DBChannelID:  data.ChannelID.String(),
-			}
 			sender := &types.ParseContextSender{
 				ID:          data.UserID,
 				Name:        data.UserLogin,

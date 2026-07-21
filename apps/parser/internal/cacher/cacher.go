@@ -5,14 +5,15 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -131,15 +132,11 @@ func (c *cacher) getDbChannel(ctx context.Context) (*dbChannelInfo, error) {
 		return c.cache.dbChannel, nil
 	}
 
-	user, err := c.services.UsersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, c.parseCtxChannel.ID)
-	if err != nil {
-		if errors.Is(err, usersmodel.ErrNotFound) {
-			return nil, errors.New("user not found for platform ID")
-		}
-		return nil, err
-	}
-
-	ch, err := c.services.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	ch, err := c.services.ChannelService.GetChannelByPlatformChannelID(
+		ctx,
+		platform.PlatformTwitch,
+		c.parseCtxChannel.ID,
+	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil, errors.New("channel not found")
@@ -147,15 +144,23 @@ func (c *cacher) getDbChannel(ctx context.Context) (*dbChannelInfo, error) {
 		return nil, err
 	}
 
+	twitchBinding, twitchBotConfig, ok, err := channelbinding.FindTwitch(ch)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, errors.New("channel has no Twitch binding")
+	}
+
 	var broadcasterUserID string
-	if ch.TwitchUserID != nil {
-		broadcasterUserID = ch.TwitchUserID.String()
+	if twitchBinding.UserID != uuid.Nil {
+		broadcasterUserID = twitchBinding.UserID.String()
 	}
 
 	channel := &dbChannelInfo{
 		ChannelID:         ch.ID.String(),
 		BroadcasterUserID: broadcasterUserID,
-		BotID:             ch.BotID,
+		BotID:             twitchBotConfig.BotID,
 	}
 
 	c.cache.dbChannel = channel
