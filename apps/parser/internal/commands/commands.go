@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
+	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	seventv "github.com/twirapp/twir/apps/parser/internal/commands/7tv"
 	"github.com/twirapp/twir/apps/parser/internal/commands/categories_aliases"
@@ -279,26 +279,23 @@ func (c *Commands) ParseCommandResponses(
 		result.SkipToxicityCheck = cmd.SkipToxicityCheck
 	}
 
+	parseCtxChannel, ok := channelbinding.NewParseContextChannel(
+		requestData.EnrichedData.DbChannel,
+		plat,
+		requestData.BroadcasterUserLogin,
+	)
+	if !ok {
+		return result
+	}
+
 	go c.services.ChannelsCommandsUsagesRepo.Create(
 		ctx,
 		channelscommandsusages.CreateInput{
-			ChannelID: requestData.BroadcasterUserId,
+			ChannelID: parseCtxChannel.ID,
 			UserID:    requestData.ChatterUserId,
 			CommandID: command.Cmd.ID,
 		},
 	)
-
-	var twitchUserID uuid.UUID
-	if requestData.EnrichedData.DbChannel.TwitchUserID != nil {
-		twitchUserID = *requestData.EnrichedData.DbChannel.TwitchUserID
-	}
-
-	parseCtxChannel := &types.ParseContextChannel{
-		ID:           requestData.BroadcasterUserId,
-		Name:         requestData.BroadcasterUserLogin,
-		TwitchUserID: twitchUserID,
-		DBChannelID:  requestData.EnrichedData.DbChannel.ID.String(),
-	}
 
 	parseCtxSender := &types.ParseContextSender{
 		ID:               requestData.ChatterUserId,

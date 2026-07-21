@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -104,12 +105,21 @@ var Voteban = &types.DefaultCommand{
 			}
 		}
 
-		// Fetch channel to check BotID
-		dbChannel := model.Channels{}
-		if err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Where(`"id" = ?`, parseCtx.Channel.DBChannelID).
-			First(&dbChannel).Error; err != nil {
+		dbChannel, err := parseCtx.Services.ChannelsRepo.GetByID(ctx, channelDBID)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Commands.Games.Errors.VotebanCannotFindSettings,
+				),
+				Err: err,
+			}
+		}
+		twitchBinding, twitchBotConfig, ok, err := channelbinding.FindTwitch(dbChannel)
+		if err != nil || !ok {
+			if err == nil {
+				err = errors.New("channel has no Twitch binding")
+			}
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
@@ -119,8 +129,8 @@ var Voteban = &types.DefaultCommand{
 			}
 		}
 
-		if targetUser.UserID == parseCtx.Channel.ID ||
-			targetUser.UserID == dbChannel.BotID {
+		if targetUser.UserID == twitchBinding.PlatformChannelID ||
+			(twitchBotConfig.BotID != "" && targetUser.UserID == twitchBotConfig.BotID) {
 			return nil, nil
 		}
 
@@ -155,7 +165,7 @@ var Voteban = &types.DefaultCommand{
 		res, err := parseCtx.Services.Bus.Bots.VotebanRegister.Request(
 			ctx, bots.VotebanRegisterRequest{
 				Data:                 entity,
-				PlatformChannelID:    parseCtx.Channel.ID,
+				PlatformChannelID:    twitchBinding.PlatformChannelID,
 				TargerUser:           targetUser,
 				InitiatorUserID:      parseCtx.Sender.ID,
 				InitiatorUserLogin:   parseCtx.Sender.Name,
