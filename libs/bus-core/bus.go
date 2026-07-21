@@ -28,28 +28,28 @@ import (
 )
 
 type Bus struct {
-	AuditLogs           *auditLogsBus
-	Parser              *parserBus
-	Websocket           *websocketBus
-	Channel             *channelBus
-	Bots                *botsBus
-	EmotesCacher        *emotesCacherBus
-	Timers              *timersBus
-	EventSub            *eventSubBus
-	Scheduler           *schedulerBus
-	Giveaways           *giveawaysBus
-	ChatMessages        Queue[generic.ChatMessage, struct{}]
-	RedemptionAdd       Queue[twitch.ActivatedRedemption, struct{}]
-	Events              *eventsBus
-	YTSRSearch          Queue[ytsr.SearchRequest, ytsr.SearchResponse]
-	Tokens              *tokensBus
-	Integrations        *integrationsBus
-	Api                 *apiBus
-	CacheInvalidator    Queue[cache_invalidator.InvalidateRequest, struct{}]
-	Discord             *discordBus
-	KickStreamOnline    Queue[kickbus.KickStreamOnline, struct{}]
-	KickStreamOffline   Queue[kickbus.KickStreamOffline, struct{}]
-	Executron           *executronBus
+	AuditLogs         *auditLogsBus
+	Parser            *parserBus
+	Websocket         *websocketBus
+	Channel           *channelBus
+	Bots              *botsBus
+	EmotesCacher      *emotesCacherBus
+	Timers            *timersBus
+	EventSub          *eventSubBus
+	Scheduler         *schedulerBus
+	Giveaways         *giveawaysBus
+	ChatMessages      Queue[generic.ChatMessage, struct{}]
+	RedemptionAdd     Queue[twitch.ActivatedRedemption, struct{}]
+	Events            *eventsBus
+	YTSRSearch        Queue[ytsr.SearchRequest, ytsr.SearchResponse]
+	Tokens            *tokensBus
+	Integrations      *integrationsBus
+	Api               *apiBus
+	CacheInvalidator  Queue[cache_invalidator.InvalidateRequest, struct{}]
+	Discord           *discordBus
+	KickStreamOnline  Queue[kickbus.KickStreamOnline, struct{}]
+	KickStreamOffline Queue[kickbus.KickStreamOffline, struct{}]
+	Executron         *executronBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -170,7 +170,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			),
 			VotebanRegister: NewNatsQueue[botsservice.VotebanRegisterRequest, botsservice.VotebanRegisterResponse](
 				nc,
-				botsservice.RegisterVotebanSubsject,
+				botsservice.RegisterVotebanSubject,
 				1*time.Minute,
 				GobEncoder,
 			),
@@ -574,31 +574,31 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				time.Second,
 				GobEncoder,
 			),
-		TriggerObsCommand: NewNatsQueue[api.TriggerObsCommand, struct{}](
-			nc,
-			api.TriggerObsCommandSubject,
-			time.Second,
-			GobEncoder,
-		),
-		SongRequestAddToQueue: NewNatsQueue[api.SongRequestAddToQueue, struct{}](
-			nc,
-			api.SongRequestAddToQueueSubject,
-			time.Second,
-			GobEncoder,
-		),
-		SongRequestRemoveFromQueue: NewNatsQueue[api.SongRequestRemoveFromQueue, struct{}](
-			nc,
-			api.SongRequestRemoveFromQueueSubject,
-			time.Second,
-			GobEncoder,
-		),
-		SongRequestPlaybackState: NewNatsQueue[api.SongRequestPlaybackState, struct{}](
-			nc,
-			api.SongRequestPlaybackStateSubject,
-			time.Second,
-			GobEncoder,
-		),
-	},
+			TriggerObsCommand: NewNatsQueue[api.TriggerObsCommand, struct{}](
+				nc,
+				api.TriggerObsCommandSubject,
+				time.Second,
+				GobEncoder,
+			),
+			SongRequestAddToQueue: NewNatsQueue[api.SongRequestAddToQueue, struct{}](
+				nc,
+				api.SongRequestAddToQueueSubject,
+				time.Second,
+				GobEncoder,
+			),
+			SongRequestRemoveFromQueue: NewNatsQueue[api.SongRequestRemoveFromQueue, struct{}](
+				nc,
+				api.SongRequestRemoveFromQueueSubject,
+				time.Second,
+				GobEncoder,
+			),
+			SongRequestPlaybackState: NewNatsQueue[api.SongRequestPlaybackState, struct{}](
+				nc,
+				api.SongRequestPlaybackStateSubject,
+				time.Second,
+				GobEncoder,
+			),
+		},
 
 		CacheInvalidator: NewNatsQueue[cache_invalidator.InvalidateRequest, struct{}](
 			nc,

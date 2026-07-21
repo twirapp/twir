@@ -56,13 +56,21 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			slog.String("channelId", event.BroadcasterUserId),
 		)
 
-		broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
+		broadcasterUser, err := c.usersRepo.GetByPlatformID(
+			ctx,
+			platform.PlatformTwitch,
+			event.BroadcasterUserId,
+		)
 		if err != nil {
 			c.logger.Error("cannot resolve broadcaster user", logger.Error(err))
 			continue
 		}
 
-		channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
+		channel, err := c.channelService.GetChannelByConnectedUser(
+			ctx,
+			broadcasterUser.ID,
+			platform.PlatformTwitch,
+		)
 		if err != nil {
 			c.logger.Error("cannot resolve channel by broadcaster user", logger.Error(err))
 			continue
@@ -109,9 +117,9 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			events.RedemptionCreatedMessage{
 				ID: event.Reward.Id,
 				BaseInfo: events.BaseInfo{
-					ChannelID:   event.BroadcasterUserId,
-					ChannelName: event.BroadcasterUserLogin,
-					Platform:    platform.PlatformTwitch,
+					ChannelPlatformID: event.BroadcasterUserId,
+					ChannelName:       event.BroadcasterUserLogin,
+					Platform:          platform.PlatformTwitch,
 				},
 				UserID:          event.UserId,
 				UserName:        event.UserLogin,
@@ -239,7 +247,11 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 		return
 	}
 
-	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.BroadcasterUserId)
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(
+		ctx,
+		platform.PlatformTwitch,
+		event.BroadcasterUserId,
+	)
 	if err != nil {
 		if !errors.Is(err, usersmodel.ErrNotFound) {
 			c.logger.Error(err.Error(), logger.Error(err))
@@ -247,7 +259,11 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 		return
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByConnectedUser(
+		ctx,
+		broadcasterUser.ID,
+		platform.PlatformTwitch,
+	)
 	if err != nil {
 		if !errors.Is(err, channelsrepository.ErrNotFound) {
 			c.logger.Error(err.Error(), logger.Error(err))
@@ -295,7 +311,11 @@ func (c *Handler) countUserChannelPoints(
 		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByConnectedUser(
+		ctx,
+		broadcasterUser.ID,
+		platform.PlatformTwitch,
+	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil
@@ -356,6 +376,10 @@ func (c *Handler) handleYoutubeSongRequests(
 	if entity.ID == "" || !entity.Enabled || event.Reward.Id != entity.ChannelPointsRewardID.String {
 		return nil
 	}
+	channelID, err := uuid.Parse(entity.ChannelID)
+	if err != nil {
+		return fmt.Errorf("parse channel id: %w", err)
+	}
 
 	var foundCommand *commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses
 	commands, err := c.commandsCache.Get(ctx, event.BroadcasterUserId)
@@ -404,16 +428,17 @@ func (c *Handler) handleYoutubeSongRequests(
 	}
 
 	for _, response := range res.Data.Responses {
-		c.twirBus.Bots.SendMessage.Publish(
+		if err := c.twirBus.Bots.SendMessage.Publish(
 			ctx,
 			bots.SendMessageRequest{
-				ChannelId:         event.BroadcasterUserId,
-				ChannelName:       &event.BroadcasterUserLogin,
-				PlatformChannelID: event.BroadcasterUserId,
-				Message:           fmt.Sprintf("@%s %s", event.UserLogin, response),
-				SkipRateLimits:    true,
+				ChannelID:      channelID,
+				Platforms:      []platform.Platform{platform.PlatformTwitch},
+				Message:        fmt.Sprintf("@%s %s", event.UserLogin, response),
+				SkipRateLimits: true,
 			},
-		)
+		); err != nil {
+			return err
+		}
 	}
 
 	return nil

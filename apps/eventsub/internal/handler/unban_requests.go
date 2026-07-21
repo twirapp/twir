@@ -57,8 +57,8 @@ func (c *Handler) HandleChannelUnbanRequestCreate(
 		ctx,
 		events.ChannelUnbanRequestCreateMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserName:             event.UserName,
 			UserLogin:            event.UserLogin,
@@ -122,8 +122,8 @@ func (c *Handler) HandleChannelUnbanRequestResolve(
 		ctx,
 		events.ChannelUnbanRequestResolveMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserName:             event.UserName,
 			UserLogin:            event.UserLogin,

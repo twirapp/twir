@@ -98,25 +98,25 @@ var CustomVar = &types.Variable{
 				text = strings.ReplaceAll(text, "$(command.param)", "")
 			}
 
-			channelTwitchUserID := ""
-			if parseCtx.Channel.TwitchUserID != uuid.Nil {
-				channelTwitchUserID = parseCtx.Channel.TwitchUserID.String()
+			channelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+			if err != nil {
+				return nil, fmt.Errorf("parse channel id: %w", err)
 			}
+			platformSource := parseCtx.Platform
 
 			filledWithVariablesValue, err := parseCtx.Services.Bus.Parser.ParseVariablesInText.Request(
 				requestCtx,
 				parser.ParseVariablesInTextRequest{
-					ChannelID:           parseCtx.Channel.ID,
-					ChannelName:         parseCtx.Channel.Name,
-					ChannelTwitchUserID: channelTwitchUserID,
-					ChannelDBID:         parseCtx.Channel.DBChannelID,
-					Text:                text,
-					UserID:              parseCtx.Sender.ID,
-					UserLogin:           parseCtx.Sender.Name,
-					UserName:            parseCtx.Sender.DisplayName,
-					IsCommand:           true,
-					IsInCustomVar:       true,
-					Mentions:            parseCtx.Mentions,
+					ChannelID:      channelID,
+					ChannelName:    parseCtx.Channel.Name,
+					Text:           text,
+					UserID:         parseCtx.Sender.ID,
+					UserLogin:      parseCtx.Sender.Name,
+					UserName:       parseCtx.Sender.DisplayName,
+					IsCommand:      true,
+					IsInCustomVar:  true,
+					Mentions:       parseCtx.Mentions,
+					PlatformSource: &platformSource,
 				},
 			)
 			if err != nil {

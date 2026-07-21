@@ -109,7 +109,10 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMes
 			defer wg.Done()
 
 			if len(k.RolesIDs) > 0 {
-				channelRoles, err := c.keywordsService.GetChannelRoles(ctx, msg.EnrichedData.DbChannel.ID.String())
+				channelRoles, err := c.keywordsService.GetChannelRoles(
+					ctx,
+					msg.EnrichedData.DbChannel.ID.String(),
+				)
 				if err != nil {
 					c.logger.Error(
 						"cannot get channel roles",
@@ -126,7 +129,10 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMes
 				}
 
 				for _, r := range channelRoles {
-					if r.Type != rolesmodel.ChannelRoleTypeCustom && slices.Contains(k.RolesIDs, r.ID) && msg.HasRoleFromDbByType(r.Type.String()) {
+					if r.Type != rolesmodel.ChannelRoleTypeCustom && slices.Contains(
+						k.RolesIDs,
+						r.ID,
+					) && msg.HasRoleFromDbByType(r.Type.String()) {
 						hasRole = true
 						break
 					}
@@ -164,18 +170,13 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMes
 			}
 
 			response := c.keywordsParseResponse(ctx, msg, k)
-			internalChannelID := msg.EnrichedData.DbChannel.ID
-			channelName := msg.BroadcasterUserLogin
 
 			c.keywordsTriggerEvent(ctx, msg, k, response)
 			if _, err := c.twirBus.Bots.SendMessage.Request(
 				ctx,
 				botsbus.SendMessageRequest{
-					ChannelName:       &channelName,
-					ChannelId:         internalChannelID.String(),
-					InternalChannelID: &internalChannelID,
-					PlatformChannelID: msg.PlatformChannelID,
-					Platform:          string(messagePlatform),
+					ChannelID:         msg.EnrichedData.DbChannel.ID,
+					Platforms:         []platformentity.Platform{messagePlatform},
 					Message:           response,
 					ReplyTo:           lo.If(k.IsReply, msg.MessageID).Else(""),
 					SkipRateLimits:    false,
@@ -185,7 +186,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMes
 				c.logger.Error(
 					"cannot send keyword response",
 					logger.Error(err),
-					slog.String("channelId", internalChannelID.String()),
+					slog.String("channelId", msg.EnrichedData.DbChannel.ID.String()),
 				)
 			}
 			c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID.String()])
@@ -240,9 +241,10 @@ func (c *MessageHandler) keywordsTriggerEvent(
 		ctx,
 		events.KeywordMatchedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   msg.EnrichedData.DbChannel.ID.String(),
-				ChannelName: msg.BroadcasterUserLogin,
-				Platform:    messagePlatform,
+				ChannelDBID:       msg.EnrichedData.DbChannel.ID,
+				ChannelPlatformID: msg.BroadcasterUserId,
+				ChannelName:       msg.BroadcasterUserLogin,
+				Platform:          messagePlatform,
 			},
 			KeywordID:       keyword.ID.String(),
 			KeywordName:     keyword.Text,
@@ -287,22 +289,21 @@ func (c *MessageHandler) keywordsParseResponse(
 		}
 	}
 
-	var twitchUserID string
-	if msg.EnrichedData.DbChannel.TwitchUserID != nil {
-		twitchUserID = msg.EnrichedData.DbChannel.TwitchUserID.String()
+	platformSource := platformentity.Platform(msg.Platform)
+	if platformSource == "" {
+		platformSource = platformentity.PlatformTwitch
 	}
 
 	res, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID:           msg.BroadcasterUserId,
-			ChannelName:         msg.BroadcasterUserLogin,
-			ChannelTwitchUserID: twitchUserID,
-			ChannelDBID:         msg.EnrichedData.DbChannel.ID.String(),
-			Text:                keyword.Response,
-			UserID:              msg.ChatterUserId,
-			UserLogin:           msg.ChatterUserLogin,
-			UserName:            msg.ChatterUserName,
-			Mentions:            mentions,
+			ChannelID:      msg.EnrichedData.DbChannel.ID,
+			ChannelName:    msg.BroadcasterUserLogin,
+			Text:           keyword.Response,
+			UserID:         msg.ChatterUserId,
+			UserLogin:      msg.ChatterUserLogin,
+			UserName:       msg.ChatterUserName,
+			Mentions:       mentions,
+			PlatformSource: &platformSource,
 		},
 	)
 	if err != nil {

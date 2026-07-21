@@ -1076,10 +1076,10 @@ func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Att
 		ctx,
 		events.FollowMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   broadcasterUserID,
-				ChannelDBID: channelID,
-				ChannelName: kickChannelName(payload.Broadcaster),
-				Platform:    platform.PlatformKick,
+				ChannelPlatformID: broadcasterUserID,
+				ChannelDBID:       channelUUID,
+				ChannelName:       kickChannelName(payload.Broadcaster),
+				Platform:          platform.PlatformKick,
 			},
 			UserID:          followerUserID,
 			UserName:        followerUserName,
@@ -1168,9 +1168,9 @@ func (h *Handlers) handleSubscriptionNew(r *http.Request, body []byte) ([]slog.A
 	if err := h.eventsSubscribe.Publish(
 		ctx, events.SubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   channelID,
-				ChannelName: kickChannelName(payload.Broadcaster),
-				Platform:    platform.PlatformKick,
+				ChannelPlatformID: channelID,
+				ChannelName:       kickChannelName(payload.Broadcaster),
+				Platform:          platform.PlatformKick,
 			},
 			UserID:          subscriberUserID,
 			UserName:        payload.Subscriber.Username,
@@ -1234,9 +1234,9 @@ func (h *Handlers) handleSubscriptionRenewal(r *http.Request, body []byte) ([]sl
 	if err := h.eventsReSubscribe.Publish(
 		ctx, events.ReSubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   channelID,
-				ChannelName: kickChannelName(payload.Broadcaster),
-				Platform:    platform.PlatformKick,
+				ChannelPlatformID: channelID,
+				ChannelName:       kickChannelName(payload.Broadcaster),
+				Platform:          platform.PlatformKick,
 			},
 			UserID:          subscriberUserID,
 			UserName:        payload.Subscriber.Username,
@@ -1310,9 +1310,9 @@ func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog
 		if err := h.eventsSubGift.Publish(
 			ctx, events.SubGiftMessage{
 				BaseInfo: events.BaseInfo{
-					ChannelID:   channelID,
-					ChannelName: kickChannelName(payload.Broadcaster),
-					Platform:    platform.PlatformKick,
+					ChannelPlatformID: channelID,
+					ChannelName:       kickChannelName(payload.Broadcaster),
+					Platform:          platform.PlatformKick,
 				},
 				SenderUserID:      gifterUserID,
 				SenderUserName:    payload.Gifter.Username,
@@ -1407,9 +1407,9 @@ func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) (
 		ctx, events.RedemptionCreatedMessage{
 			ID: payload.Reward.ID,
 			BaseInfo: events.BaseInfo{
-				ChannelID:   channelID,
-				ChannelName: kickChannelName(kickUser{Username: payload.Broadcaster.Username, ChannelSlug: payload.Broadcaster.ChannelSlug}),
-				Platform:    platform.PlatformKick,
+				ChannelPlatformID: channelID,
+				ChannelName:       kickChannelName(kickUser{Username: payload.Broadcaster.Username, ChannelSlug: payload.Broadcaster.ChannelSlug}),
+				Platform:          platform.PlatformKick,
 			},
 			UserID:          redeemerUserID,
 			UserName:        payload.Redeemer.Username,
@@ -1471,9 +1471,9 @@ func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.
 	if err := h.eventsChannelBan.Publish(
 		ctx, events.ChannelBanMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   channelID,
-				ChannelName: kickChannelName(payload.Broadcaster),
-				Platform:    platform.PlatformKick,
+				ChannelPlatformID: channelID,
+				ChannelName:       kickChannelName(payload.Broadcaster),
+				Platform:          platform.PlatformKick,
 			},
 			UserID:               bannedUserID,
 			UserName:             payload.BannedUser.Username,
@@ -1585,7 +1585,11 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) ([]slog.
 		}
 	} else {
 		if h.streamsRepo != nil {
-			if err := h.streamsRepo.DeleteByChannelID(ctx, channelUUID, platform.PlatformKick); err != nil {
+			if err := h.streamsRepo.DeleteByChannelID(
+				ctx,
+				channelUUID,
+				platform.PlatformKick,
+			); err != nil {
 				return nil, fmt.Errorf("delete kick current stream: %w", err)
 			}
 

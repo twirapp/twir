@@ -53,7 +53,7 @@ channels_storage/
 - `DeleteAllByChannelID(ctx, channelID) error`
 - `GetTotalSizeByChannelID(ctx, channelID) (int64, error)` — `pg_column_size` sum
 
-**SetInput**: `ChannelID`, `Key`, `Value` (json.RawMessage)
+**SetInput**: `ChannelPlatformID`, `Key`, `Value` (json.RawMessage)
 
 **Model**:
 ```go

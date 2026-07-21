@@ -482,8 +482,16 @@ func TestHandleChatMessage(t *testing.T) {
 	)
 
 	msgID := "msg-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,
@@ -612,7 +620,11 @@ func TestBuildKickMessageContentPreservesCommandEmotePositions(t *testing.T) {
 			t.Fatalf("emote fragment url = %q, want native kick url", fragment.Emote.URL)
 		}
 		if fragment.Position.Start != 10 || fragment.Position.End != 15 {
-			t.Fatalf("emote fragment position = %d-%d, want 10-15", fragment.Position.Start, fragment.Position.End)
+			t.Fatalf(
+				"emote fragment position = %d-%d, want 10-15",
+				fragment.Position.Start,
+				fragment.Position.End,
+			)
 		}
 		return
 	}
@@ -655,7 +667,11 @@ func TestHandleChatMessageIdempotency(t *testing.T) {
 	)
 
 	msgID := "dup-msg-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(false)
 	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessed)
 
 	payload := kickChatMessagePayload{
@@ -720,8 +736,16 @@ func TestHandleChannelFollow(t *testing.T) {
 	)
 
 	msgID := "follow-evt-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := kickFollowPayload{
 		Broadcaster: kickUser{
@@ -747,8 +771,8 @@ func TestHandleChannelFollow(t *testing.T) {
 		t.Fatalf("expected 1 follow event published, got %d", followQueue.PublishedCount())
 	}
 	follow := followQueue.FirstPublished()
-	if follow.BaseInfo.ChannelID != "777" {
-		t.Errorf("expected channelID %q, got %q", "777", follow.BaseInfo.ChannelID)
+	if follow.BaseInfo.ChannelPlatformID != "777" {
+		t.Errorf("expected channelID %q, got %q", "777", follow.BaseInfo.ChannelPlatformID)
 	}
 	if follow.BaseInfo.ChannelDBID != channelUUID.String() {
 		t.Errorf("expected channelDBID %q, got %q", channelUUID.String(), follow.BaseInfo.ChannelDBID)
@@ -771,16 +795,28 @@ func TestHandleChannelFollow(t *testing.T) {
 	}
 	eventListItem := eventsListRepo.created[0]
 	if eventListItem.ChannelID != channelUUID.String() {
-		t.Errorf("expected event list channelID %q, got %q", channelUUID.String(), eventListItem.ChannelID)
+		t.Errorf(
+			"expected event list channelID %q, got %q",
+			channelUUID.String(),
+			eventListItem.ChannelID,
+		)
 	}
 	if eventListItem.UserID == nil || *eventListItem.UserID != "111" {
 		t.Errorf("expected event list userID %q, got %v", "111", eventListItem.UserID)
 	}
 	if eventListItem.Platform != platform.PlatformKick {
-		t.Errorf("expected event list platform %q, got %q", platform.PlatformKick, eventListItem.Platform)
+		t.Errorf(
+			"expected event list platform %q, got %q",
+			platform.PlatformKick,
+			eventListItem.Platform,
+		)
 	}
 	if eventListItem.Type != channelseventslistmodel.ChannelEventListItemTypeFollow {
-		t.Errorf("expected event list type %q, got %q", channelseventslistmodel.ChannelEventListItemTypeFollow, eventListItem.Type)
+		t.Errorf(
+			"expected event list type %q, got %q",
+			channelseventslistmodel.ChannelEventListItemTypeFollow,
+			eventListItem.Type,
+		)
 	}
 	if eventListItem.Data == nil || eventListItem.Data.FollowUserName != "followerlogin" || eventListItem.Data.FollowUserDisplayName != "followerlogin" {
 		t.Errorf("unexpected event list data: %#v", eventListItem.Data)
@@ -796,14 +832,24 @@ func TestHandleSubscriptionNew(t *testing.T) {
 	h, redisMock := buildKickEventHandler(t, "901", subscribeQueue, nil, nil, nil)
 
 	msgID := "kick-sub-new-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
-	req := makeRequest(t, msgID, "channel.subscription.new", kickSubscriptionPayload{
-		Broadcaster: kickUser{UserID: 901, Username: "broadcaster901"},
-		Subscriber:  kickUser{UserID: 902, Username: "subscriber902"},
-		Duration:    1,
-	})
+	req := makeRequest(
+		t, msgID, "channel.subscription.new", kickSubscriptionPayload{
+			Broadcaster: kickUser{UserID: 901, Username: "broadcaster901"},
+			Subscriber:  kickUser{UserID: 902, Username: "subscriber902"},
+			Duration:    1,
+		},
+	)
 	w := httptest.NewRecorder()
 
 	h.HandleWebhook(w, req)
@@ -835,14 +881,24 @@ func TestHandleSubscriptionRenewal(t *testing.T) {
 	h, redisMock := buildKickEventHandler(t, "911", nil, resubscribeQueue, nil, nil)
 
 	msgID := "kick-resub-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
-	req := makeRequest(t, msgID, "channel.subscription.renewal", kickSubscriptionPayload{
-		Broadcaster: kickUser{UserID: 911, Username: "broadcaster911"},
-		Subscriber:  kickUser{UserID: 912, Username: "subscriber912"},
-		Duration:    3,
-	})
+	req := makeRequest(
+		t, msgID, "channel.subscription.renewal", kickSubscriptionPayload{
+			Broadcaster: kickUser{UserID: 911, Username: "broadcaster911"},
+			Subscriber:  kickUser{UserID: 912, Username: "subscriber912"},
+			Duration:    3,
+		},
+	)
 	w := httptest.NewRecorder()
 
 	h.HandleWebhook(w, req)
@@ -871,14 +927,24 @@ func TestHandleSubscriptionGifts(t *testing.T) {
 	h, redisMock := buildKickEventHandler(t, "921", nil, nil, subgiftQueue, nil)
 
 	msgID := "kick-subgift-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
-	req := makeRequest(t, msgID, "channel.subscription.gifts", kickSubscriptionGiftsPayload{
-		Broadcaster: kickUser{UserID: 921, Username: "broadcaster921"},
-		Gifter:      kickUser{UserID: 922, Username: "gifter922"},
-		Giftees:     []kickUser{{UserID: 923, Username: "giftee923"}, {UserID: 924, Username: "giftee924"}},
-	})
+	req := makeRequest(
+		t, msgID, "channel.subscription.gifts", kickSubscriptionGiftsPayload{
+			Broadcaster: kickUser{UserID: 921, Username: "broadcaster921"},
+			Gifter:      kickUser{UserID: 922, Username: "gifter922"},
+			Giftees:     []kickUser{{UserID: 923, Username: "giftee923"}, {UserID: 924, Username: "giftee924"}},
+		},
+	)
 	w := httptest.NewRecorder()
 
 	h.HandleWebhook(w, req)
@@ -903,30 +969,40 @@ func TestHandleRewardRedemptionUpdatedPending(t *testing.T) {
 	h, redisMock := buildKickEventHandler(t, "931", nil, nil, nil, redemptionQueue)
 
 	msgID := "kick-redemption-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
-	req := makeRequest(t, msgID, "channel.reward.redemption.updated", kickRewardRedemptionPayload{
-		ID:        "01KBHE78QE4HZY1617DK5FC7YD",
-		UserInput: "hello",
-		Status:    "pending",
-		Reward: struct {
-			ID          string `json:"id"`
-			Title       string `json:"title"`
-			Cost        int    `json:"cost"`
-			Description string `json:"description"`
-		}{ID: "01KBHE7RZNHB0SKDV1H86CD4F3", Title: "Reward", Cost: 100, Description: "desc"},
-		Redeemer: struct {
-			UserID      int    `json:"user_id"`
-			Username    string `json:"username"`
-			ChannelSlug string `json:"channel_slug"`
-		}{UserID: 932, Username: "redeemer932", ChannelSlug: "redeemer932"},
-		Broadcaster: struct {
-			UserID      int    `json:"user_id"`
-			Username    string `json:"username"`
-			ChannelSlug string `json:"channel_slug"`
-		}{UserID: 931, Username: "broadcaster931", ChannelSlug: "broadcaster931"},
-	})
+	req := makeRequest(
+		t, msgID, "channel.reward.redemption.updated", kickRewardRedemptionPayload{
+			ID:        "01KBHE78QE4HZY1617DK5FC7YD",
+			UserInput: "hello",
+			Status:    "pending",
+			Reward: struct {
+				ID          string `json:"id"`
+				Title       string `json:"title"`
+				Cost        int    `json:"cost"`
+				Description string `json:"description"`
+			}{ID: "01KBHE7RZNHB0SKDV1H86CD4F3", Title: "Reward", Cost: 100, Description: "desc"},
+			Redeemer: struct {
+				UserID      int    `json:"user_id"`
+				Username    string `json:"username"`
+				ChannelSlug string `json:"channel_slug"`
+			}{UserID: 932, Username: "redeemer932", ChannelSlug: "redeemer932"},
+			Broadcaster: struct {
+				UserID      int    `json:"user_id"`
+				Username    string `json:"username"`
+				ChannelSlug string `json:"channel_slug"`
+			}{UserID: 931, Username: "broadcaster931", ChannelSlug: "broadcaster931"},
+		},
+	)
 	w := httptest.NewRecorder()
 
 	h.HandleWebhook(w, req)
@@ -956,20 +1032,30 @@ func TestHandleModerationBanned(t *testing.T) {
 	h.eventsChannelBan = banQueue
 
 	msgID := "kick-ban-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	expiresAt := time.Now().UTC().Add(10 * time.Minute).Format(time.RFC3339)
-	req := makeRequest(t, msgID, "moderation.banned", kickModerationBannedPayload{
-		Broadcaster: kickUser{UserID: 941, Username: "broadcaster941"},
-		Moderator:   kickUser{UserID: 942, Username: "moderator942"},
-		BannedUser:  kickUser{UserID: 943, Username: "banned943"},
-		Metadata: struct {
-			Reason    string  `json:"reason"`
-			CreatedAt string  `json:"created_at"`
-			ExpiresAt *string `json:"expires_at"`
-		}{Reason: "spam", CreatedAt: time.Now().UTC().Format(time.RFC3339), ExpiresAt: &expiresAt},
-	})
+	req := makeRequest(
+		t, msgID, "moderation.banned", kickModerationBannedPayload{
+			Broadcaster: kickUser{UserID: 941, Username: "broadcaster941"},
+			Moderator:   kickUser{UserID: 942, Username: "moderator942"},
+			BannedUser:  kickUser{UserID: 943, Username: "banned943"},
+			Metadata: struct {
+				Reason    string  `json:"reason"`
+				CreatedAt string  `json:"created_at"`
+				ExpiresAt *string `json:"expires_at"`
+			}{Reason: "spam", CreatedAt: time.Now().UTC().Format(time.RFC3339), ExpiresAt: &expiresAt},
+		},
+	)
 	w := httptest.NewRecorder()
 
 	h.HandleWebhook(w, req)
@@ -1031,8 +1117,16 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 	)
 
 	msgID := "stream-online-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := kickLivestreamStatusPayload{
 		Broadcaster: kickUser{
@@ -1057,7 +1151,10 @@ func TestHandleLivestreamStatusOnline(t *testing.T) {
 	}
 
 	if streamOfflineQueue.PublishedCount() != 0 {
-		t.Fatalf("expected 0 stream offline events published, got %d", streamOfflineQueue.PublishedCount())
+		t.Fatalf(
+			"expected 0 stream offline events published, got %d",
+			streamOfflineQueue.PublishedCount(),
+		)
 	}
 
 	event := streamOnlineQueue.FirstPublished()
@@ -1117,8 +1214,16 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 	)
 
 	msgID := "stream-offline-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := kickLivestreamStatusPayload{
 		Broadcaster: kickUser{
@@ -1139,11 +1244,17 @@ func TestHandleLivestreamStatusOffline(t *testing.T) {
 	}
 
 	if streamOfflineQueue.PublishedCount() != 1 {
-		t.Fatalf("expected 1 stream offline event published, got %d", streamOfflineQueue.PublishedCount())
+		t.Fatalf(
+			"expected 1 stream offline event published, got %d",
+			streamOfflineQueue.PublishedCount(),
+		)
 	}
 
 	if streamOnlineQueue.PublishedCount() != 0 {
-		t.Fatalf("expected 0 stream online events published, got %d", streamOnlineQueue.PublishedCount())
+		t.Fatalf(
+			"expected 0 stream online events published, got %d",
+			streamOnlineQueue.PublishedCount(),
+		)
 	}
 
 	event := streamOfflineQueue.FirstPublished()
@@ -1198,8 +1309,16 @@ func TestHandleLivestreamMetadataUpdated(t *testing.T) {
 	)
 
 	msgID := "stream-meta-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := map[string]any{
 		"broadcaster": map[string]any{
@@ -1229,11 +1348,17 @@ func TestHandleLivestreamMetadataUpdated(t *testing.T) {
 	}
 
 	if streamOnlineQueue.PublishedCount() != 0 {
-		t.Fatalf("expected 0 stream online events published, got %d", streamOnlineQueue.PublishedCount())
+		t.Fatalf(
+			"expected 0 stream online events published, got %d",
+			streamOnlineQueue.PublishedCount(),
+		)
 	}
 
 	if streamOfflineQueue.PublishedCount() != 0 {
-		t.Fatalf("expected 0 stream offline events published, got %d", streamOfflineQueue.PublishedCount())
+		t.Fatalf(
+			"expected 0 stream offline events published, got %d",
+			streamOfflineQueue.PublishedCount(),
+		)
 	}
 	if len(streamsRepo.updated) != 1 {
 		t.Fatalf("expected 1 stream update, got %d", len(streamsRepo.updated))
@@ -1294,10 +1419,22 @@ func TestHandleChatMessageRealConcurrent(t *testing.T) {
 	redisMock.MatchExpectationsInOrder(false)
 
 	msgID := "concurrent-msg-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(false)
 	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessing)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,
@@ -1418,8 +1555,16 @@ func TestHandleChatMessageIgnoresAssignedKickBotMessages(t *testing.T) {
 	)
 
 	msgID := "msg-self-bot-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := kickChatMessagePayload{
 		MessageID:   msgID,
@@ -1485,7 +1630,11 @@ func TestHandleChatMessageDuplicateWhileProcessing(t *testing.T) {
 	)
 
 	msgID := "duplicate-processing-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(false)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(false)
 	redisMock.ExpectGet(idempotencyKeyPrefix + msgID).SetVal(idempotencyStatusProcessing)
 
 	payload := kickChatMessagePayload{
@@ -1540,7 +1689,11 @@ func TestHandleChatMessageResolveIDsFailure(t *testing.T) {
 	)
 
 	msgID := "resolve-failure-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,
@@ -1598,8 +1751,16 @@ func TestHandleChatMessageUnknownBroadcasterIgnored(t *testing.T) {
 	)
 
 	msgID := "unknown-broadcaster-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,
@@ -1659,8 +1820,16 @@ func TestHandleChatMessageUnknownChannelIgnored(t *testing.T) {
 	)
 
 	msgID := "unknown-channel-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetVal("OK")
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetVal("OK")
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,
@@ -1718,9 +1887,17 @@ func TestHandleChatMessageFailureCleanup(t *testing.T) {
 	)
 
 	msgID := "cleanup-failure-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
 	redisMock.ExpectDel(idempotencyKeyPrefix + msgID).SetVal(1)
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
 	redisMock.ExpectDel(idempotencyKeyPrefix + msgID).SetVal(1)
 
 	payload := kickChatMessagePayload{
@@ -1797,7 +1974,11 @@ func TestHandleChatMessagePublishFailure(t *testing.T) {
 	)
 
 	msgID := "publish-failure-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,
@@ -1871,7 +2052,11 @@ func TestHandleChatMessagePartialSuccess(t *testing.T) {
 	)
 
 	msgID := "partial-success-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
 	redisMock.ExpectDel(idempotencyKeyPrefix + msgID).SetVal(1)
 
 	payload := kickChatMessagePayload{
@@ -1944,8 +2129,16 @@ func TestHandleChatMessageMarkProcessedFailure(t *testing.T) {
 	)
 
 	msgID := "mark-processed-failure-001"
-	redisMock.ExpectSetNX(idempotencyKeyPrefix+msgID, idempotencyStatusProcessing, idempotencyProcessingTTL).SetVal(true)
-	redisMock.ExpectSet(idempotencyKeyPrefix+msgID, idempotencyStatusProcessed, idempotencyTTL).SetErr(errors.New("redis set failed"))
+	redisMock.ExpectSetNX(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).SetVal(true)
+	redisMock.ExpectSet(
+		idempotencyKeyPrefix+msgID,
+		idempotencyStatusProcessed,
+		idempotencyTTL,
+	).SetErr(errors.New("redis set failed"))
 
 	payload := kickChatMessagePayload{
 		MessageID: msgID,

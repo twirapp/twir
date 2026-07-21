@@ -121,13 +121,34 @@ func (c *CommandsBus) Subscribe() error {
 			ctx context.Context,
 			data parser.ParseVariablesInTextRequest,
 		) (parser.ParseVariablesInTextResponse, error) {
-			parsedChannelID, err := uuid.Parse(data.ChannelID)
+			platformSource := platformentity.PlatformTwitch
+			if data.PlatformSource != nil {
+				platformSource = *data.PlatformSource
+			}
+
+			channelModel, err := c.services.ChannelService.GetChannelByID(ctx, data.ChannelID)
 			if err != nil {
 				zap.S().Error(err)
 				return parser.ParseVariablesInTextResponse{}, err
 			}
 
-			foundStream, err := c.streamsRepository.GetByChannelID(ctx, parsedChannelID, data.Platform)
+			var platformChannelID string
+			switch platformSource {
+			case platformentity.PlatformTwitch:
+				if channelModel.TwitchPlatformID == nil {
+					return parser.ParseVariablesInTextResponse{}, fmt.Errorf("channel %s is not connected to %s", data.ChannelID, platformSource)
+				}
+				platformChannelID = *channelModel.TwitchPlatformID
+			case platformentity.PlatformKick:
+				if channelModel.KickPlatformID == nil {
+					return parser.ParseVariablesInTextResponse{}, fmt.Errorf("channel %s is not connected to %s", data.ChannelID, platformSource)
+				}
+				platformChannelID = *channelModel.KickPlatformID
+			default:
+				return parser.ParseVariablesInTextResponse{}, fmt.Errorf("unknown platform: %s", platformSource)
+			}
+
+			foundStream, err := c.streamsRepository.GetByChannelID(ctx, data.ChannelID, platformSource)
 			if err != nil {
 				zap.S().Error(err)
 				return parser.ParseVariablesInTextResponse{}, err
@@ -138,12 +159,15 @@ func (c *CommandsBus) Subscribe() error {
 				stream = &foundStream
 			}
 
-			twitchUserID, _ := uuid.Parse(data.ChannelTwitchUserID)
+			twitchUserID := uuid.Nil
+			if channelModel.TwitchUserID != nil {
+				twitchUserID = *channelModel.TwitchUserID
+			}
 			channel := &types.ParseContextChannel{
-				ID:           data.ChannelID,
+				ID:           platformChannelID,
 				Name:         data.ChannelName,
 				TwitchUserID: twitchUserID,
-				DBChannelID:  data.ChannelDBID,
+				DBChannelID:  data.ChannelID.String(),
 			}
 			sender := &types.ParseContextSender{
 				ID:          data.UserID,
@@ -154,7 +178,7 @@ func (c *CommandsBus) Subscribe() error {
 				ctx,
 				&types.ParseContext{
 					MessageId:     "",
-					Platform:      data.Platform,
+					Platform:      platformSource,
 					Channel:       channel,
 					Sender:        sender,
 					Emotes:        nil,
@@ -215,18 +239,15 @@ func (c *CommandsBus) Subscribe() error {
 				replyTo = data.MessageID
 			}
 
+			messagePlatform := platformentity.Platform(data.Platform)
+			if messagePlatform == "" {
+				messagePlatform = platformentity.PlatformTwitch
+			}
+
 			for _, r := range res.Responses {
-				internalChannelID := data.EnrichedData.DbChannel.ID
-				channelName := data.BroadcasterUserLogin
-				if channelName == "" {
-					channelName = data.PlatformChannelID
-				}
 				params := bots.SendMessageRequest{
-					ChannelName:       &channelName,
-					ChannelId:         data.PlatformChannelID,
-					InternalChannelID: &internalChannelID,
-					PlatformChannelID: data.PlatformChannelID,
-					Platform:          data.Platform,
+					ChannelID:         data.EnrichedData.DbChannel.ID,
+					Platforms:         []platformentity.Platform{messagePlatform},
 					Message:           r,
 					ReplyTo:           replyTo,
 					SkipRateLimits:    false,
@@ -252,30 +273,6 @@ func (c *CommandsBus) Subscribe() error {
 	)
 
 	return nil
-}
-func genericToSendMessageRequest(
-	msg generic.ChatMessage,
-	channelName *string,
-	message string,
-	replyTo string,
-	skipToxicityCheck bool,
-) bots.SendMessageRequest {
-	var internalChannelID *uuid.UUID
-	if parsedChannelID, err := uuid.Parse(msg.ChannelID); err == nil {
-		internalChannelID = &parsedChannelID
-	}
-
-	return bots.SendMessageRequest{
-		ChannelName:       channelName,
-		ChannelId:         msg.PlatformChannelID,
-		InternalChannelID: internalChannelID,
-		PlatformChannelID: msg.PlatformChannelID,
-		Platform:          msg.Platform,
-		Message:           message,
-		ReplyTo:           replyTo,
-		SkipRateLimits:    false,
-		SkipToxicityCheck: skipToxicityCheck,
-	}
 }
 
 func (c *CommandsBus) Unsubscribe() {

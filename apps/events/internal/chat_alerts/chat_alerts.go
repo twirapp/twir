@@ -5,13 +5,16 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	busevents "github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
@@ -71,6 +74,12 @@ func (c *ChatAlerts) ProcessEvent(
 	eventType model.EventType,
 	data any,
 ) {
+	channelID, err := uuid.Parse(channelId)
+	if err != nil {
+		c.logger.Error("cannot parse channel id", logger.Error(err))
+		return
+	}
+
 	entity, err := c.chatAlertsCache.Get(ctx, channelId)
 	if err != nil {
 		if errors.Is(err, chatalertscache.ErrChatAlertNotFound) {
@@ -104,79 +113,79 @@ func (c *ChatAlerts) ProcessEvent(
 		casted, ok := data.(busevents.FollowMessage)
 		if ok {
 			cooldown = parsedSettings.Followers.Cooldown
-			processErr = c.follow(ctx, parsedSettings, casted)
+			processErr = c.follow(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeChannelBan:
 		casted, ok := data.(busevents.ChannelBanMessage)
 		if ok {
 			cooldown = parsedSettings.Ban.Cooldown
-			processErr = c.ban(ctx, parsedSettings, casted)
+			processErr = c.ban(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeOnChatClear:
 		casted, ok := data.(busevents.ChatClearMessage)
 		if ok {
 			cooldown = parsedSettings.ChatCleared.Cooldown
-			processErr = c.chatCleared(ctx, parsedSettings, casted)
+			processErr = c.chatCleared(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeDonate:
 		casted, ok := data.(busevents.DonateMessage)
 		if ok {
 			cooldown = parsedSettings.Donations.Cooldown
-			processErr = c.donation(ctx, parsedSettings, casted)
+			processErr = c.donation(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeRaided:
 		casted, ok := data.(busevents.RaidedMessage)
 		if ok {
 			cooldown = parsedSettings.Raids.Cooldown
-			processErr = c.raid(ctx, parsedSettings, casted)
+			processErr = c.raid(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeRedemptionCreated:
 		casted, ok := data.(busevents.RedemptionCreatedMessage)
 		if ok {
 			cooldown = parsedSettings.Redemptions.Cooldown
-			processErr = c.redemption(ctx, parsedSettings, casted)
+			processErr = c.redemption(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeStreamOffline:
 		casted, ok := data.(twitch.StreamOfflineMessage)
 		if ok {
 			cooldown = parsedSettings.StreamOffline.Cooldown
-			processErr = c.streamOffline(ctx, parsedSettings, casted)
+			processErr = c.streamOffline(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeStreamOnline:
 		casted, ok := data.(twitch.StreamOnlineMessage)
 		if ok {
 			cooldown = parsedSettings.StreamOnline.Cooldown
-			processErr = c.streamOnline(ctx, parsedSettings, casted)
+			processErr = c.streamOnline(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeSubscribe:
 		casted, ok := data.(SubscribeMessage)
 		if ok {
 			cooldown = parsedSettings.Subscribers.Cooldown
-			processErr = c.subscribe(ctx, parsedSettings, casted)
+			processErr = c.subscribe(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeFirstUserMessage:
 		casted, ok := data.(busevents.FirstUserMessageMessage)
 		if ok {
 			cooldown = parsedSettings.FirstUserMessage.Cooldown
-			processErr = c.firstUserMessage(ctx, parsedSettings, casted)
+			processErr = c.firstUserMessage(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeChannelUnbanRequestCreate:
 		casted, ok := data.(busevents.ChannelUnbanRequestCreateMessage)
 		if ok {
 			cooldown = parsedSettings.Ban.Cooldown
-			processErr = c.unbanRequestCreate(ctx, parsedSettings, casted)
+			processErr = c.unbanRequestCreate(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeChannelUnbanRequestResolve:
 		casted, ok := data.(busevents.ChannelUnbanRequestResolveMessage)
 		if ok {
 			cooldown = parsedSettings.Ban.Cooldown
-			processErr = c.unbanRequestResolved(ctx, parsedSettings, casted)
+			processErr = c.unbanRequestResolved(ctx, parsedSettings, channelID, casted)
 		}
 	case model.EventTypeChannelMessageDelete:
 		casted, ok := data.(busevents.ChannelMessageDeleteMessage)
 		if ok {
 			cooldown = parsedSettings.MessageDelete.Cooldown
-			processErr = c.messageDelete(ctx, parsedSettings, casted)
+			processErr = c.messageDelete(ctx, parsedSettings, channelID, casted)
 		}
 	default:
 		c.logger.Warn("unknown event", slog.Any("eventType", eventType))
@@ -195,4 +204,25 @@ func (c *ChatAlerts) ProcessEvent(
 	}
 
 	return
+}
+
+func (c *ChatAlerts) sendMessage(
+	ctx context.Context,
+	channelID uuid.UUID,
+	source platform.Platform,
+	message string,
+) error {
+	if source == "" {
+		source = platform.PlatformTwitch
+	}
+
+	return c.bus.Bots.SendMessage.Publish(
+		ctx,
+		bots.SendMessageRequest{
+			ChannelID:      channelID,
+			Platforms:      []platform.Platform{source},
+			Message:        message,
+			SkipRateLimits: true,
+		},
+	)
 }

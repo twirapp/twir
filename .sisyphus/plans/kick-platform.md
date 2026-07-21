@@ -1613,7 +1613,7 @@ Wave FINAL — Review (after ALL implementation tasks):
     	Emotes            []Emote
     }
     ```
-  - `ChannelID` MUST be `channels.id` (the new surrogate UUID from T4), **not** `users.id`. This is
+  - `ChannelPlatformID` MUST be `channels.id` (the new surrogate UUID from T4), **not** `users.id`. This is
     the key used by ALL channel-scoped repository lookups in the parser (commands, timers,
     keywords — all keyed by `channel_id`). `UserID` carries `users.id` for user-scoped operations.
   - Add two new Bus fields to `libs/bus-core/bus.go`:
@@ -1745,7 +1745,7 @@ Wave FINAL — Review (after ALL implementation tasks):
   - `apps/eventsub/internal/handler/chat_message.go` — Twitch event handler pattern
   - `apps/eventsub/internal/handler/handler.go` — how handlers are registered and dispatched
   - `libs/bus-core/kick/` (T16) — Kick-specific topics to publish to
-  - `libs/bus-core/generic/chat-message.go` (T17) — generic struct to build; note `ChannelID` =
+  - `libs/bus-core/generic/chat-message.go` (T17) — generic struct to build; note `ChannelPlatformID` =
     `channels.id` surrogate UUID
   - `libs/repositories/user_platform_accounts/` (T8) — step 1: look up `user_id` from
     `(platform, platform_user_id)`
@@ -1820,7 +1820,7 @@ Wave FINAL — Review (after ALL implementation tasks):
       `generic.ChatMessage{Platform: "twitch", ...}`.
   - This dual-publish is temporary scaffolding — parser will eventually drop its
     `ProcessMessageAsCommand` subscriber and use only `ProcessGenericMessage`.
-  - The `ChannelID` field in `genericMsg` for Twitch messages must be `channels.id` (the T4
+  - The `ChannelPlatformID` field in `genericMsg` for Twitch messages must be `channels.id` (the T4
     surrogate UUID), NOT the Twitch broadcaster ID. Look up `channels.id` via
     `channels.GetByUserIDAndPlatform(userID, "twitch")` where `userID` = internal `users.id` from
     session/event.
@@ -2040,7 +2040,7 @@ Wave FINAL — Review (after ALL implementation tasks):
   - In `apps/parser/internal/commands-bus/commands-bus.go`, add a **second** bus subscription to
     `bus.Parser.ProcessGenericMessage` (in addition to the existing `bus.Parser.ProcessMessageAsCommand` subscription — keep
     both active from day one).
-  - The `ProcessGenericMessage` handler receives `generic.ChatMessage` (T17), reads `Platform`, `MessageID`, `ChannelID`, `UserID`, `Text`
+  - The `ProcessGenericMessage` handler receives `generic.ChatMessage` (T17), reads `Platform`, `MessageID`, `ChannelPlatformID`, `UserID`, `Text`
     etc., constructs `ParseContext` (T21) with
     `Platform` set correctly, and feeds into the same execution pipeline.
   - The `ProcessMessageAsCommand` handler (Twitch) remains untouched — but now that T19 dual-publishes Twitch

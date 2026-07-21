@@ -4,15 +4,17 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/entities/platform"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *ChatAlerts) streamOnline(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req twitch.StreamOnlineMessage,
 ) error {
 	if !settings.StreamOnline.Enabled {
@@ -32,20 +34,13 @@ func (c *ChatAlerts) streamOnline(
 		return nil
 	}
 
-	return c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelId:         req.ChannelID,
-			PlatformChannelID: req.ChannelID,
-			Message:           text,
-			SkipRateLimits:    true,
-		},
-	)
+	return c.sendMessage(ctx, channelID, platform.PlatformTwitch, text)
 }
 
 func (c *ChatAlerts) streamOffline(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req twitch.StreamOfflineMessage,
 ) error {
 	if !settings.StreamOffline.Enabled {
@@ -63,13 +58,5 @@ func (c *ChatAlerts) streamOffline(
 		return nil
 	}
 
-	return c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelId:         req.ChannelID,
-			PlatformChannelID: req.ChannelID,
-			Message:           text,
-			SkipRateLimits:    true,
-		},
-	)
+	return c.sendMessage(ctx, channelID, platform.PlatformTwitch, text)
 }

@@ -565,18 +565,17 @@ func (s *Service) sendMessage(ctx context.Context, channelID string, message str
 		return nil
 	}
 
-	var internalChannelID *uuid.UUID
-	if parsedChannelID, err := uuid.Parse(channelID); err == nil {
-		internalChannelID = &parsedChannelID
+	parsedChannelID, err := uuid.Parse(channelID)
+	if err != nil {
+		return fmt.Errorf("parse channel id: %w", err)
 	}
 
-	if err := s.bus.Bots.SendMessage.Publish(
+	if err = s.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelId:         channelID,
-			InternalChannelID: internalChannelID,
-			Message:           message,
-			SkipRateLimits:    true,
+			ChannelID:      parsedChannelID,
+			Message:        message,
+			SkipRateLimits: true,
 		},
 	); err != nil {
 		s.logger.Error(

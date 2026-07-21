@@ -27,7 +27,11 @@ func (c *Handler) resolveUserAndChannel(
 		return "", "", fmt.Errorf("cannot resolve user: %w", err)
 	}
 
-	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, broadcasterPlatformID)
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(
+		ctx,
+		platform.PlatformTwitch,
+		broadcasterPlatformID,
+	)
 	if err != nil {
 		if errors.Is(err, usersmodel.ErrNotFound) {
 			return "", "", nil
@@ -35,7 +39,11 @@ func (c *Handler) resolveUserAndChannel(
 		return "", "", fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByConnectedUser(
+		ctx,
+		broadcasterUser.ID,
+		platform.PlatformTwitch,
+	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return "", "", nil
@@ -50,7 +58,11 @@ func (c *Handler) resolveChannelIDByTwitchBroadcasterID(
 	ctx context.Context,
 	broadcasterPlatformID string,
 ) (string, error) {
-	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, broadcasterPlatformID)
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(
+		ctx,
+		platform.PlatformTwitch,
+		broadcasterPlatformID,
+	)
 	if err != nil {
 		if errors.Is(err, usersmodel.ErrNotFound) {
 			return "", nil
@@ -59,7 +71,11 @@ func (c *Handler) resolveChannelIDByTwitchBroadcasterID(
 		return "", fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByConnectedUser(
+		ctx,
+		broadcasterUser.ID,
+		platform.PlatformTwitch,
+	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return "", nil
@@ -87,8 +103,8 @@ func (c *Handler) HandleChannelVipAdd(
 		ctx,
 		events.VipAddedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserID:   event.UserId,
 			UserName: event.UserLogin,
@@ -142,8 +158,8 @@ func (c *Handler) HandleChannelVipRemove(
 		ctx,
 		events.VipRemovedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserID:   event.UserId,
 			UserName: event.UserLogin,

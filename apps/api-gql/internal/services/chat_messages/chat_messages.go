@@ -174,7 +174,10 @@ func (c *Service) SubscribeToNewMessagesByChannelIDs(
 ) <-chan entity.ChatMessage {
 	channelSubKeys := make([]string, 0, len(channelPairs))
 	for _, pair := range channelPairs {
-		channelSubKeys = append(channelSubKeys, chatMessagesSubscriptionKeyCreate(pair.Platform, pair.PlatformChannelID))
+		channelSubKeys = append(
+			channelSubKeys,
+			chatMessagesSubscriptionKeyCreate(pair.Platform, pair.PlatformChannelID),
+		)
 	}
 
 	c.chanSubsMu.Lock()
@@ -336,9 +339,9 @@ func (c *Service) handleChannelBanEvent(
 		platform = platformentity.PlatformTwitch
 	}
 
-	platformChannelID := msg.BaseInfo.ChannelID
+	platformChannelID := msg.BaseInfo.ChannelPlatformID
 	if platform == platformentity.PlatformKick {
-		channelUUID, err := uuid.Parse(msg.BaseInfo.ChannelID)
+		channelUUID, err := uuid.Parse(msg.BaseInfo.ChannelPlatformID)
 		if err != nil {
 			c.logger.Error("cannot parse kick ban channel id", logger.Error(err))
 			return struct{}{}, nil
@@ -380,7 +383,7 @@ func (c *Service) handleChannelMessageDeleteEvent(
 
 	c.publishModerationEvent(
 		platform.String(),
-		msg.BaseInfo.ChannelID,
+		msg.BaseInfo.ChannelPlatformID,
 		entity.ChatOverlayModerationEvent{
 			Type:      entity.ChatOverlayModerationEventMessageDeleted,
 			Platform:  platform.String(),
@@ -402,7 +405,7 @@ func (c *Service) handleChatClearEvent(
 
 	c.publishModerationEvent(
 		platform.String(),
-		msg.BaseInfo.ChannelID,
+		msg.BaseInfo.ChannelPlatformID,
 		entity.ChatOverlayModerationEvent{
 			Type:     entity.ChatOverlayModerationEventChatCleared,
 			Platform: platform.String(),

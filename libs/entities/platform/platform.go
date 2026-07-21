@@ -3,6 +3,7 @@ package platform
 import (
 	"database/sql/driver"
 	"fmt"
+	"slices"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -65,13 +66,7 @@ func ShouldExecute(platforms []Platform, current Platform) bool {
 		return true
 	}
 
-	for _, p := range platforms {
-		if p == current {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(platforms, current)
 }
 
 func All() []Platform {

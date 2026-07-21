@@ -50,7 +50,11 @@ func (c *Handler) handleModerateActionBan(
 			return
 		}
 
-		channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+		channel, err := c.channelService.GetChannelByConnectedUser(
+			ctx,
+			user.ID,
+			platform.PlatformTwitch,
+		)
 		if err != nil {
 			if errors.Is(err, channelsrepository.ErrNotFound) {
 				return
@@ -67,10 +71,12 @@ func (c *Handler) handleModerateActionBan(
 		isEnabled := false
 		overallEnabled := channel.KickBotJoined()
 
-		channel, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
-			IsEnabled:        &overallEnabled,
-			TwitchBotEnabled: &isEnabled,
-		})
+		channel, err = c.channelsRepo.Update(
+			ctx, channel.ID, channelsrepository.UpdateInput{
+				IsEnabled:        &overallEnabled,
+				TwitchBotEnabled: &isEnabled,
+			},
+		)
 		if err != nil {
 			c.logger.Error("failed to disable channel", logger.Error(err))
 			return
@@ -102,9 +108,9 @@ func (c *Handler) handleModerateActionBan(
 		ctx,
 		events.ChannelBanMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserID,
-				ChannelName: event.BroadcasterUserLogin,
-				Platform:    platform.PlatformTwitch,
+				ChannelPlatformID: event.BroadcasterUserID,
+				ChannelName:       event.BroadcasterUserLogin,
+				Platform:          platform.PlatformTwitch,
 			},
 			UserName:             userName,
 			UserLogin:            userLogin,
@@ -164,8 +170,8 @@ func (c *Handler) handleModerateActionUnBan(
 ) {
 	payload := events.ChannelUnbanMessage{
 		BaseInfo: events.BaseInfo{
-			ChannelID:   event.BroadcasterUserID,
-			ChannelName: event.BroadcasterUserLogin,
+			ChannelPlatformID: event.BroadcasterUserID,
+			ChannelName:       event.BroadcasterUserLogin,
 		},
 		BroadcasterUserName:  event.BroadcasterUserName,
 		BroadcasterUserLogin: event.BroadcasterUserLogin,

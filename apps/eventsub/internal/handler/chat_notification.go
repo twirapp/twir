@@ -89,9 +89,9 @@ func (c *Handler) _notificationSubGift(
 		ctx,
 		events.SubGiftMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
-				Platform:    platformentity.PlatformTwitch,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
+				Platform:          platformentity.PlatformTwitch,
 			},
 			SenderUserID:      event.ChatterUserId,
 			SenderUserName:    event.ChatterUserLogin,

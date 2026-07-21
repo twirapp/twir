@@ -11,15 +11,15 @@ import (
 
 type (
 	sessionResult struct {
-		channelId    string
+		channelId         string
 		platformChannelId string
-		isModerator  bool
-		isBan        bool
-		targetUserId string
-		message      string
-		yesVotes     int
-		noVotes      int
-		banDuration  int
+		isModerator       bool
+		isBan             bool
+		targetUserId      string
+		message           string
+		yesVotes          int
+		noVotes           int
+		banDuration       int
 	}
 
 	session struct {
@@ -113,15 +113,15 @@ func (s *session) writeResult() {
 	s.resultOnce.Do(
 		func() {
 			s.result <- sessionResult{
-				isModerator:  s.isTargetUserModerator,
-				isBan:        isBan,
-				targetUserId: s.targetUserId,
-				message:      message,
-				yesVotes:     s.yesVotes,
-				noVotes:      s.noVotes,
-				channelId:    s.voteban.ChannelID,
+				isModerator:       s.isTargetUserModerator,
+				isBan:             isBan,
+				targetUserId:      s.targetUserId,
+				message:           message,
+				yesVotes:          s.yesVotes,
+				noVotes:           s.noVotes,
+				channelId:         s.voteban.ChannelID,
 				platformChannelId: s.platformChannelID,
-				banDuration:  s.voteban.TimeoutSeconds,
+				banDuration:       s.voteban.TimeoutSeconds,
 			}
 			close(s.result)
 		},

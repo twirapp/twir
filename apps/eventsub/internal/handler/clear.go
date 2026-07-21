@@ -49,8 +49,8 @@ func (c *Handler) HandleChannelChatClear(
 		ctx,
 		events.ChatClearMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 		},
 	)

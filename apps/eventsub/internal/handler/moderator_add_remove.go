@@ -32,8 +32,8 @@ func (c *Handler) HandleChannelModeratorAdd(
 		ctx,
 		events.ModeratorAddedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserID:   event.UserId,
 			UserName: event.UserLogin,
@@ -63,8 +63,8 @@ func (c *Handler) HandleChannelModeratorRemove(
 		ctx,
 		events.ModeratorRemovedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserID:   event.UserId,
 			UserName: event.UserLogin,
@@ -99,7 +99,11 @@ func (c *Handler) updateUserModStatus(
 		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByConnectedUser(
+		ctx,
+		broadcasterUser.ID,
+		platform.PlatformTwitch,
+	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil
@@ -145,7 +149,11 @@ func (c *Handler) updateBotStatus(
 		return
 	}
 
-	channel, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsBotMod: &newStatus})
+	channel, err = c.channelsRepo.Update(
+		ctx,
+		channel.ID,
+		channelsrepository.UpdateInput{IsBotMod: &newStatus},
+	)
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 		return

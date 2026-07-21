@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
@@ -20,6 +19,7 @@ import (
 func (c *ChatAlerts) follow(
 	ctx context.Context,
 	settings deprecatedgormmodel.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req events.FollowMessage,
 ) error {
 	if !settings.Followers.Enabled {
@@ -31,20 +31,11 @@ func (c *ChatAlerts) follow(
 	}
 
 	sample := lo.Sample(settings.Followers.Messages)
-	internalChannelID := req.BaseInfo.ChannelDBID
-	if internalChannelID == "" {
-		internalChannelID = req.BaseInfo.ChannelID
-	}
-	platformChannelID := req.BaseInfo.ChannelID
+	platformChannelID := req.BaseInfo.ChannelPlatformID
 	eventPlatform := req.BaseInfo.Platform
 	if eventPlatform == "" {
 		eventPlatform = platform.PlatformTwitch
 	}
-	channelID, err := uuid.Parse(internalChannelID)
-	if err != nil {
-		return fmt.Errorf("parse channel id: %w", err)
-	}
-
 	stream, err := c.streamsRepo.GetByChannelID(ctx, channelID, eventPlatform)
 	if err != nil {
 		return err
@@ -58,7 +49,7 @@ func (c *ChatAlerts) follow(
 		count, err := c.channelEventListsRepo.CountBy(
 			ctx,
 			channelseventslist.CountByInput{
-				ChannelID:    &internalChannelID,
+				ChannelID:    lo.ToPtr(channelID.String()),
 				Platform:     &eventPlatform,
 				CreatedAtGTE: &stream.StartedAt,
 				Type:         &t,
@@ -102,15 +93,5 @@ func (c *ChatAlerts) follow(
 		return nil
 	}
 
-	return c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelName:       lo.If(req.BaseInfo.ChannelName != "", &req.BaseInfo.ChannelName).Else(nil),
-			ChannelId:         internalChannelID,
-			PlatformChannelID: platformChannelID,
-			Platform:          eventPlatform.String(),
-			Message:           text,
-			SkipRateLimits:    true,
-		},
-	)
+	return c.sendMessage(ctx, channelID, eventPlatform, text)
 }

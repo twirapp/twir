@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -143,23 +144,24 @@ func (c *Manager) tryTick(id TimerID) {
 		}
 	}
 
-	var twitchUserID string
-	if channel.TwitchUserID != nil {
-		twitchUserID = channel.TwitchUserID.String()
-	}
-
 	wasSent := false
 	for _, target := range targets {
+		if !channel.KickConnected() && target.platform == platform.PlatformKick {
+			continue
+		}
+
+		if !channel.TwitchConnected() && target.platform == platform.PlatformTwitch {
+			continue
+		}
+
 		err = c.sendMessage(
 			ctx,
-			target.channelID,
-			twitchUserID,
-			channel.ID.String(),
+			channel.ID,
+			target.platform,
 			response.Text,
 			response.IsAnnounce,
 			response.AnnounceColor,
 			response.Count,
-			string(target.platform),
 		)
 		if err != nil {
 			c.logger.Error(

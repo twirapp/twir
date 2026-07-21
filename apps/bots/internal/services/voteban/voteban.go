@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
@@ -176,13 +177,15 @@ func (s *Service) processSessionResult(result sessionResult) error {
 	defer cancel()
 
 	group, _ := errgroup.WithContext(ctx)
-
+	channelID, err := uuid.Parse(result.channelId)
+	if err != nil {
+		return fmt.Errorf("parse channel id: %w", err)
+	}
 	group.Go(
 		func() error {
 			if err := s.channelService.SendMessage(
 				ctx, bots.SendMessageRequest{
-					ChannelId:         result.platformChannelId,
-					PlatformChannelID: result.platformChannelId,
+					ChannelID:         channelID,
 					Message:           result.message,
 					IsAnnounce:        true,
 					SkipRateLimits:    true,

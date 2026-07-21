@@ -47,7 +47,7 @@ func (c *Handler) HandleChannelUpdate(
 	c.twirBus.Events.TitleOrCategoryChanged.Publish(
 		ctx,
 		events.TitleOrCategoryChangedMessage{
-			BaseInfo:    events.BaseInfo{ChannelID: event.BroadcasterUserId, Platform: platformentity.PlatformTwitch},
+			BaseInfo:    events.BaseInfo{ChannelPlatformID: event.BroadcasterUserId, Platform: platformentity.PlatformTwitch},
 			NewTitle:    event.Title,
 			NewCategory: event.CategoryName,
 		},

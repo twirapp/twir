@@ -3,15 +3,16 @@ package chat_alerts
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *ChatAlerts) chatCleared(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req events.ChatClearMessage,
 ) error {
 	if !settings.ChatCleared.Enabled {
@@ -28,15 +29,5 @@ func (c *ChatAlerts) chatCleared(
 		return nil
 	}
 
-	err := c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelId:         req.BaseInfo.ChannelID,
-			PlatformChannelID: req.BaseInfo.ChannelID,
-			Message:           sample.Text,
-			SkipRateLimits:    true,
-		},
-	)
-
-	return err
+	return c.sendMessage(ctx, channelID, req.BaseInfo.Platform, sample.Text)
 }

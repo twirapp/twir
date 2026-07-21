@@ -32,78 +32,71 @@ func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) 
 			defer span.End()
 
 			span.SetAttributes(
-				attribute.String("channel_id", req.ChannelId),
-				attribute.String("platform_channel_id", req.PlatformChannelID),
-				attribute.String("platform", req.Platform),
+				attribute.String("channel_id", req.ChannelID.String()),
 				attribute.String("message", req.Message),
 				attribute.String("reply_to", req.ReplyTo),
 			)
 
-			if req.InternalChannelID != nil {
-				span.SetAttributes(attribute.String("internal_channel_id", req.InternalChannelID.String()))
-			}
-
-			platformChannelID := req.PlatformChannelID
-			if platformChannelID == "" && req.InternalChannelID != nil {
-				platformChannelID = req.InternalChannelID.String()
-			}
-			if platformChannelID == "" {
-				platformChannelID = req.ChannelId
-			}
-
-			if platformChannelID == "" {
+			if req.ChannelID == uuid.Nil {
 				return ErrNoChannelId
 			}
 
-			if _, parseErr := uuid.Parse(platformChannelID); parseErr == nil {
-				ch, err := s.getChannelByIDOrTwitchID(ctx, platformChannelID)
-				if err != nil {
-					if errors.Is(err, channelsrepository.ErrNotFound) {
-						s.logger.Error(
-							"channel not found by internal id",
-							slog.String("channelId", platformChannelID),
-						)
-					} else {
-						s.logger.Error(
-							"cannot resolve channel by internal id",
-							logger.Error(err),
-							slog.String("channelId", platformChannelID),
-						)
-					}
-					return fmt.Errorf("resolve channel: %w", err)
-				}
-				if ch.TwitchPlatformID != nil {
-					platformChannelID = *ch.TwitchPlatformID
-				}
+			req.Platforms = platformsForRequest(req.Platforms)
+			platformsSliceAttribute := make([]string, len(req.Platforms))
+			for i, p := range req.Platforms {
+				platformsSliceAttribute[i] = p.String()
 			}
+			span.SetAttributes(attribute.StringSlice("platforms", platformsSliceAttribute))
 
-			var err error
-
-			switch req.Platform {
-			case "kick":
-				err = s.sendKickMessage(ctx, req, platformChannelID)
-			case "", "twitch":
-				err = s.twitchActions.SendMessage(
-					ctx,
-					twitchactions.SendMessageOpts{
-						BroadcasterID:        platformChannelID,
-						SenderID:             "",
-						Message:              req.Message,
-						ReplyParentMessageID: req.ReplyTo,
-						IsAnnounce:           req.IsAnnounce,
-						SkipToxicityCheck:    req.SkipToxicityCheck,
-						SkipRateLimits:       req.SkipRateLimits,
-						AnnounceColor:        req.AnnounceColor,
-					},
-				)
-			default:
-				s.logger.Error("unknown platform for send message", slog.String("platform", req.Platform))
-				return fmt.Errorf("unknown platform: %s", req.Platform)
-			}
-
+			channel, err := s.channelService.GetChannelByID(ctx, req.ChannelID)
 			if err != nil {
-				s.logger.Error("cannot send message", logger.Error(err))
 				return err
+			}
+
+			for _, p := range req.Platforms {
+				switch p {
+				case platform.PlatformKick:
+					if channel.KickPlatformID == nil {
+						s.logger.Error(
+							"invalid channel id",
+							slog.String("channel_id", req.ChannelID.String()),
+							slog.String("platform", p.String()),
+						)
+						continue
+					}
+
+					err = s.sendKickMessage(ctx, req, *channel.KickPlatformID)
+				case platform.PlatformTwitch:
+					if channel.TwitchPlatformID == nil {
+						s.logger.Error(
+							"invalid channel id",
+							slog.String("channel_id", req.ChannelID.String()),
+							slog.String("platform", p.String()),
+						)
+						continue
+					}
+
+					err = s.twitchActions.SendMessage(
+						ctx,
+						twitchactions.SendMessageOpts{
+							BroadcasterID:        *channel.TwitchPlatformID,
+							SenderID:             "",
+							Message:              req.Message,
+							ReplyParentMessageID: req.ReplyTo,
+							IsAnnounce:           req.IsAnnounce,
+							SkipToxicityCheck:    req.SkipToxicityCheck,
+							SkipRateLimits:       req.SkipRateLimits,
+							AnnounceColor:        req.AnnounceColor,
+						},
+					)
+				default:
+					return fmt.Errorf("unknown platform: %s", p)
+				}
+
+				if err != nil {
+					s.logger.Error("cannot send message", logger.Error(err), slog.String("platform", p.String()))
+					return err
+				}
 			}
 
 			return nil
@@ -111,11 +104,16 @@ func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) 
 	).Wait()
 }
 
+func platformsForRequest(platforms []platform.Platform) []platform.Platform {
+	if len(platforms) == 0 {
+		return platform.All()
+	}
+
+	return platforms
+}
+
 func (s *Service) sendKickMessage(ctx context.Context, req bots.SendMessageRequest, platformChannelID string) error {
 	kickChannelID := platformChannelID
-	if kickChannelID == "" && req.ChannelName != nil {
-		kickChannelID = *req.ChannelName
-	}
 
 	if kickChannelID == "" {
 		return fmt.Errorf("kick channel id is not provided")
@@ -168,7 +166,8 @@ func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageReque
 			}
 
 			return wg.Wait()
-		}).Wait()
+		},
+	).Wait()
 }
 
 func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID string) (deleteMessageChannel, bool, error) {

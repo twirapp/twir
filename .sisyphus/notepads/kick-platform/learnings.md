@@ -11,7 +11,7 @@
 - Channels multi-platform migration can safely reuse `channels.id` as the legacy-to-new UUID mapping source after renaming it to `user_id`, then re-point all child FKs by updating UUID values before re-adding the original FK definitions.
 - QA for the new `(user_id, platform)` uniqueness must copy required non-null channel fields like `botId` from an existing Twitch row; bare `INSERT (user_id, platform)` will fail on existing table constraints unrelated to the new schema.
 - Tokens repository callers now need to parse legacy string user IDs into `uuid.UUID` at the boundary before hitting the pgx repository API.
-- Bus-core generic chat messages now live in `libs/bus-core/generic/chat-message.go`; `ChannelID` is the internal surrogate `channels.id` and `UserID` is the internal `users.id`.
+- Bus-core generic chat messages now live in `libs/bus-core/generic/chat-message.go`; `ChannelPlatformID` is the internal surrogate `channels.id` and `UserID` is the internal `users.id`.
 - `libs/bus-core/bus.go` wires `ChatMessagesGeneric` to `chat.messages.generic` and `Parser.ProcessGenericMessage` to `parser.process_generic_message` without touching the existing Twitch queues.
 - `apps/parser/internal/types/ParseContext` now carries a `Platform` string, and parser constructors should populate it from the originating message platform.
 - Shared platform filtering is easiest to keep consistent with a small helper on `libs/entities/platform`, then reuse it in parser/timer/keyword execution paths.
@@ -47,7 +47,7 @@
 ### Redis dedup pattern
 - Key: `parser:dedup:{messageID}`
 - `redis.SetNX(ctx, key, "1", 60*time.Second)` — returns `true` if key was SET (new msg), `false` if existed (dup)
-- So: `isDuplicate = !set` 
+- So: `isDuplicate = !set`
 - On Redis error: log and proceed (don't drop message)
 - Empty messageID: skip dedup (return false, nil)
 
@@ -86,7 +86,7 @@
 
 ### Fix (Option A — explicit parameter)
 - Added `platform string` parameter to both `ParseCommandResponses` and `ProcessChatMessage` signatures
-- `ParseCommandResponses` uses `platform` instead of hardcoded `"twitch"` 
+- `ParseCommandResponses` uses `platform` instead of hardcoded `"twitch"`
 - `ProcessChatMessage` receives `platform` and forwards it to `ParseCommandResponses`
 - Call sites in `commands-bus.go`:
   - `GetCommandResponse` handler: passes `"twitch"`

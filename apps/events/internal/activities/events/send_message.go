@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 )
@@ -27,22 +28,21 @@ func (c *Activity) SendMessage(
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	var internalChannelID *uuid.UUID
-	if parsedChannelID, err := uuid.Parse(data.ChannelDBID); err == nil {
-		internalChannelID = &parsedChannelID
+	channelID, err := uuid.Parse(data.ChannelDBID)
+	if err != nil {
+		return fmt.Errorf("parse channel id: %w", err)
 	}
 
-	if err = c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelId:         data.ChannelID,
-			InternalChannelID: internalChannelID,
-			PlatformChannelID: data.ChannelID,
-			Platform:          data.Platform.String(),
-			Message:           msg,
-			IsAnnounce:        operation.UseAnnounce,
-		},
-	); err != nil {
+	request := bots.SendMessageRequest{
+		ChannelID:  channelID,
+		Message:    msg,
+		IsAnnounce: operation.UseAnnounce,
+	}
+	if data.Platform != "" {
+		request.Platforms = []platform.Platform{data.Platform}
+	}
+
+	if err = c.bus.Bots.SendMessage.Publish(ctx, request); err != nil {
 		return fmt.Errorf("cannot send message %w", err)
 	}
 

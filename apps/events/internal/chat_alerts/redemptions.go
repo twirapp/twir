@@ -5,15 +5,16 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	model "github.com/twirapp/twir/libs/gomodels"
 )
 
 func (c *ChatAlerts) redemption(
 	ctx context.Context,
 	settings model.ChatAlertsSettings,
+	channelID uuid.UUID,
 	req events.RedemptionCreatedMessage,
 ) error {
 	if !settings.Redemptions.Enabled {
@@ -38,15 +39,5 @@ func (c *ChatAlerts) redemption(
 		return nil
 	}
 
-	return c.bus.Bots.SendMessage.Publish(
-		ctx,
-		bots.SendMessageRequest{
-			ChannelName:       lo.If(req.BaseInfo.ChannelName != "", &req.BaseInfo.ChannelName).Else(nil),
-			ChannelId:         req.BaseInfo.ChannelID,
-			PlatformChannelID: req.BaseInfo.ChannelID,
-			Platform:          req.BaseInfo.Platform.String(),
-			Message:           text,
-			SkipRateLimits:    true,
-		},
-	)
+	return c.sendMessage(ctx, channelID, req.BaseInfo.Platform, text)
 }

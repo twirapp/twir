@@ -7,8 +7,11 @@ import (
 	"strings"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/events/internal/shared"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -92,18 +95,30 @@ func (c *Hydrator) HydrateStringWithData(channelId, channelTwitchUserID, channel
 		userLogin = m["userDisplayName"].(string)
 	}
 
-	resp, _ := c.twirBus.Parser.ParseVariablesInText.Request(
+	parsedChannelID, err := uuid.Parse(channelDBID)
+	if err != nil {
+		return "", fmt.Errorf("parse channel id: %w", err)
+	}
+
+	var platformSource *platform.Platform
+	if eventData, ok := data.(shared.EventData); ok && eventData.Platform != "" {
+		source := eventData.Platform
+		platformSource = &source
+	}
+
+	resp, err := c.twirBus.Parser.ParseVariablesInText.Request(
 		context.Background(), parser.ParseVariablesInTextRequest{
-			ChannelID:           channelId,
-			ChannelName:         "",
-			ChannelTwitchUserID: channelTwitchUserID,
-			ChannelDBID:         channelDBID,
-			Text:                s,
-			UserID:              userId,
-			UserLogin:           userName,
-			UserName:            userLogin,
+			ChannelID:      parsedChannelID,
+			Text:           s,
+			UserID:         userId,
+			UserLogin:      userName,
+			UserName:       userLogin,
+			PlatformSource: platformSource,
 		},
 	)
+	if err != nil {
+		return "", err
+	}
 
 	if resp.Data.Text != "" {
 		s = resp.Data.Text

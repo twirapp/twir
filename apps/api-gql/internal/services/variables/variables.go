@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/plans"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
@@ -92,11 +93,6 @@ func (c *Service) EvaluateScript(
 		return "", fmt.Errorf("cannot get channel: %w", err)
 	}
 
-	var channelTwitchUserID string
-	if channel.TwitchPlatformID != nil {
-		channelTwitchUserID = *channel.TwitchPlatformID
-	}
-
 	if testAsUserName != nil && *testAsUserName != "" {
 		if channel.TwitchPlatformID == nil {
 			return "", fmt.Errorf("channel has no twitch platform ID")
@@ -134,17 +130,18 @@ func (c *Service) EvaluateScript(
 			return "", err
 		}
 
+		platformSource := platform.PlatformTwitch
 		preparedEvalValue, err := c.twirbus.Parser.ParseVariablesInText.Request(
 			ctx, parser.ParseVariablesInTextRequest{
-				ChannelID:           channelUser.ID,
-				ChannelName:         channelUser.Login,
-				ChannelTwitchUserID: channelTwitchUserID,
-				Text:                script,
-				UserID:              user.ID,
-				UserLogin:           user.Login,
-				UserName:            user.DisplayName,
-				IsCommand:           true,
-				IsInCustomVar:       true,
+				ChannelID:      parsedChannelID,
+				ChannelName:    channelUser.Login,
+				Text:           script,
+				UserID:         user.ID,
+				UserLogin:      user.Login,
+				UserName:       user.DisplayName,
+				IsCommand:      true,
+				IsInCustomVar:  true,
+				PlatformSource: &platformSource,
 			},
 		)
 		if err != nil {

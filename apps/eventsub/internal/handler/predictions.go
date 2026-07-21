@@ -67,8 +67,8 @@ func (c *Handler) HandleChannelPredictionBegin(
 		ctx,
 		events.PredictionBeginMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserName:        event.BroadcasterUserLogin,
 			UserDisplayName: event.BroadcasterUserName,
@@ -102,8 +102,8 @@ func (c *Handler) HandleChannelPredictionProgress(
 		ctx,
 		events.PredictionProgressMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserName:        event.BroadcasterUserLogin,
 			UserDisplayName: event.BroadcasterUserName,
@@ -137,8 +137,8 @@ func (c *Handler) HandleChannelPredictionLock(
 		ctx,
 		events.PredictionLockMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserName:        event.BroadcasterUserLogin,
 			UserDisplayName: event.BroadcasterUserName,
@@ -177,8 +177,8 @@ func (c *Handler) HandleChannelPredictionEnd(
 		ctx,
 		events.PredictionEndMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserName:        event.BroadcasterUserLogin,
 			UserDisplayName: event.BroadcasterUserName,

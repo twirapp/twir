@@ -45,8 +45,8 @@ func (c *Handler) HandleChannelPollBegin(
 
 	msg := events.PollBeginMessage{
 		BaseInfo: events.BaseInfo{
-			ChannelID:   event.BroadcasterUserId,
-			ChannelName: event.BroadcasterUserLogin,
+			ChannelPlatformID: event.BroadcasterUserId,
+			ChannelName:       event.BroadcasterUserLogin,
 		},
 		UserName:        event.BroadcasterUserLogin,
 		UserDisplayName: event.BroadcasterUserName,
@@ -86,8 +86,8 @@ func (c *Handler) HandleChannelPollProgress(
 
 	msg := events.PollProgressMessage{
 		BaseInfo: events.BaseInfo{
-			ChannelID:   event.BroadcasterUserId,
-			ChannelName: event.BroadcasterUserLogin,
+			ChannelPlatformID: event.BroadcasterUserId,
+			ChannelName:       event.BroadcasterUserLogin,
 		},
 		UserName:        event.BroadcasterUserLogin,
 		UserDisplayName: event.BroadcasterUserName,
@@ -127,8 +127,8 @@ func (c *Handler) HandleChannelPollEnd(
 
 	msg := events.PollEndMessage{
 		BaseInfo: events.BaseInfo{
-			ChannelID:   event.BroadcasterUserId,
-			ChannelName: event.BroadcasterUserLogin,
+			ChannelPlatformID: event.BroadcasterUserId,
+			ChannelName:       event.BroadcasterUserLogin,
 		},
 		UserName:        event.BroadcasterUserLogin,
 		UserDisplayName: event.BroadcasterUserName,

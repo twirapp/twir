@@ -12,6 +12,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
+	"github.com/twirapp/twir/libs/entities/platform"
 	apperrors "github.com/twirapp/twir/libs/errors"
 	channels_overlays "github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays/model"
@@ -363,26 +364,13 @@ func (s *Service) ParseHtml(ctx context.Context, input ParseHtmlInput) (string, 
 		return "", fmt.Errorf("cannot parse channel id: %w", err)
 	}
 
-	channel, err := s.channelService.GetChannelByID(ctx, parsedChannelID)
-	if err != nil {
-		return "", fmt.Errorf("cannot get channel: %w", err)
-	}
-
-	var channelTwitchUserID string
-	if channel.TwitchPlatformID != nil {
-		channelTwitchUserID = *channel.TwitchPlatformID
-	}
-
-	var channelPlatformID string
-	if channel.TwitchPlatformID != nil {
-		channelPlatformID = *channel.TwitchPlatformID
-	}
+	platformSource := platform.PlatformTwitch
 
 	res, err := s.bus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
-			ChannelID:           channelPlatformID,
-			ChannelTwitchUserID: channelTwitchUserID,
-			Text:                input.Html,
+			ChannelID:      parsedChannelID,
+			Text:           input.Html,
+			PlatformSource: &platformSource,
 		},
 	)
 	if err != nil {

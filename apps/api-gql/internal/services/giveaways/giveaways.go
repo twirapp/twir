@@ -15,6 +15,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
@@ -598,7 +599,8 @@ func (c *Service) sendWinnerMessage(
 		err := c.twirBus.Bots.SendMessage.Publish(
 			ctx,
 			botsbus.SendMessageRequest{
-				ChannelId:      *channel.TwitchPlatformID,
+				ChannelID:      parsedChannelID,
+				Platforms:      []platform.Platform{platform.PlatformTwitch},
 				Message:        message,
 				SkipRateLimits: true,
 			},

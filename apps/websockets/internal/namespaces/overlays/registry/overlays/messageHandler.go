@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/websockets/types"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays"
 )
@@ -85,32 +86,6 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			return
 		}
 
-		var channel model.Channels
-		if err := c.gorm.
-			Select("twitch_user_id").
-			First(&channel, "id = ?", layer.Overlay.ChannelID).
-			Error; err != nil {
-			c.logger.Error(err.Error())
-			return
-		}
-		var channelTwitchUserID string
-		if channel.TwitchUserID != nil {
-			channelTwitchUserID = *channel.TwitchUserID
-		}
-
-		var twitchPlatformID string
-		if channel.TwitchUserID != nil {
-			var platformID string
-			if err := c.gorm.Raw(
-				`SELECT platform_id FROM users WHERE id = ? LIMIT 1`,
-				*channel.TwitchUserID,
-			).Scan(&platformID).Error; err != nil {
-				c.logger.Error(err.Error())
-				return
-			}
-			twitchPlatformID = platformID
-		}
-
 		// Handle both old base64-encoded data and new plain text data
 		// Try to decode as base64. If successful, use decoded text.
 		// Otherwise, use the original text (new GraphQL format stores plain text).
@@ -119,12 +94,18 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			text = decodedText
 		}
 
+		channelID, err := uuid.Parse(layer.Overlay.ChannelID)
+		if err != nil {
+			c.logger.Error(err.Error())
+			return
+		}
+		platformSource := platform.PlatformTwitch
 		res, err := c.bus.Parser.ParseVariablesInText.Request(
 			context.Background(),
 			parser.ParseVariablesInTextRequest{
-				ChannelID:           twitchPlatformID,
-				ChannelTwitchUserID: channelTwitchUserID,
-				Text:                text,
+				ChannelID:      channelID,
+				Text:           text,
+				PlatformSource: &platformSource,
 			},
 		)
 		if err != nil {

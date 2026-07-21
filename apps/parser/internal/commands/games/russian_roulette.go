@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"golang.org/x/exp/rand"
@@ -86,17 +87,15 @@ var RussianRoulette = &types.DefaultCommand{
 		).Else("")
 
 		err = parseCtx.Services.Bus.Bots.SendMessage.Publish(
-				ctx,
-				bots.SendMessageRequest{
-					ChannelId:         parseCtx.Channel.ID,
-					ChannelName:       &parseCtx.Channel.Name,
-					InternalChannelID: &internalChannelID,
-					PlatformChannelID: parseCtx.Channel.ID,
-					Message:           initMessage,
-					SkipRateLimits:    true,
-					ReplyTo:           replyTo,
-				},
-			)
+			ctx,
+			bots.SendMessageRequest{
+				ChannelID:      internalChannelID,
+				Platforms:      []platform.Platform{parseCtx.Platform},
+				Message:        initMessage,
+				SkipRateLimits: true,
+				ReplyTo:        replyTo,
+			},
+		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -121,16 +120,14 @@ var RussianRoulette = &types.DefaultCommand{
 			result.Result = []string{surviveMessage}
 			return result, nil
 		} else {
-			parseCtx.Services.Bus.Bots.SendMessage.Publish(
+			err = parseCtx.Services.Bus.Bots.SendMessage.Publish(
 				ctx,
 				bots.SendMessageRequest{
-					ChannelId:         parseCtx.Channel.ID,
-					ChannelName:       &parseCtx.Channel.Name,
-					InternalChannelID: &internalChannelID,
-					PlatformChannelID: parseCtx.Channel.ID,
-					Message:           deathMessage,
-					SkipRateLimits:    true,
-					ReplyTo:           replyTo,
+					ChannelID:      internalChannelID,
+					Platforms:      []platform.Platform{parseCtx.Platform},
+					Message:        deathMessage,
+					SkipRateLimits: true,
+					ReplyTo:        replyTo,
 				},
 			)
 			if err != nil {

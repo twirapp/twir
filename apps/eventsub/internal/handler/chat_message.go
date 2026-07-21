@@ -26,7 +26,6 @@ import (
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"go.opentelemetry.io/otel/attribute"
 	"golang.org/x/sync/errgroup"
 )
@@ -61,25 +60,11 @@ func (c *Handler) processChannelChatMessage(
 	data.EnrichedData.IsChatterVip = data.IsChatterVip()
 	data.EnrichedData.IsChatterSubscriber = data.IsChatterSubscriber()
 
-	broadcasterUser, err := c.usersRepo.GetByPlatformID(
+	channel, err := c.channelService.GetChannelByPlatformUserID(
 		ctx,
-		platform.PlatformTwitch,
 		data.BroadcasterUserId,
+		platform.PlatformTwitch,
 	)
-	if err != nil {
-		if errors.Is(err, usersmodel.ErrNotFound) {
-			c.logger.Warn(
-				"cannot find broadcaster user for chat message",
-				slog.String("broadcaster_user_id", data.BroadcasterUserId),
-			)
-			return
-		}
-
-		c.logger.Error("cannot resolve broadcaster user for chat message", logger.Error(err))
-		return
-	}
-
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			c.logger.Warn(
@@ -202,8 +187,8 @@ func (c *Handler) processChannelChatMessage(
 				if err := c.twirBus.Events.FirstUserMessage.Publish(
 					ctx, events.FirstUserMessageMessage{
 						BaseInfo: events.BaseInfo{
-							ChannelID:   data.BroadcasterUserId,
-							ChannelName: data.BroadcasterUserLogin,
+							ChannelPlatformID: data.BroadcasterUserId,
+							ChannelName:       data.BroadcasterUserLogin,
 						},
 						UserID:          data.ChatterUserId,
 						UserName:        data.ChatterUserLogin,
@@ -269,8 +254,8 @@ func (c *Handler) HandleChannelChatMessageDelete(
 		ctx,
 		events.ChannelMessageDeleteMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelID:   event.BroadcasterUserId,
-				ChannelName: event.BroadcasterUserLogin,
+				ChannelPlatformID: event.BroadcasterUserId,
+				ChannelName:       event.BroadcasterUserLogin,
 			},
 			UserId:               event.TargetUserId,
 			UserName:             event.TargetUserLogin,
