@@ -34,6 +34,10 @@ func (m *mockChannelsRepoWebhook) GetMany(_ context.Context, _ channels.GetManyI
 	return nil, nil
 }
 
+func (m *mockChannelsRepoWebhook) GetAllByBindingPlatform(_ context.Context, _ platform.Platform) ([]channelsmodel.Channel, error) {
+	return nil, nil
+}
+
 func (m *mockChannelsRepoWebhook) GetByID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }

@@ -43,6 +43,24 @@ func TestUpdateChannelAndBindingsQueryIsAtomic(t *testing.T) {
 	}
 }
 
+func TestGetAllByBindingPlatformQueryIsComplete(t *testing.T) {
+	for _, fragment := range []string{
+		"WHERE EXISTS",
+		"FROM channel_platforms cp_filter",
+		"cp_filter.channel_id = c.id",
+		"cp_filter.platform = $1",
+		"ORDER BY c.id",
+	} {
+		if !strings.Contains(getAllByBindingPlatformQuery, fragment) {
+			t.Fatalf("platform binding query does not contain %q", fragment)
+		}
+	}
+
+	if strings.Contains(strings.ToUpper(getAllByBindingPlatformQuery), "LIMIT") {
+		t.Fatal("platform binding query must not apply a result limit")
+	}
+}
+
 func assertAtomicChannelBindingQuery(t *testing.T, query, channelMutation, channelCTE string) {
 	t.Helper()
 
