@@ -19,6 +19,8 @@ import (
 	"go.temporal.io/sdk/activity"
 )
 
+type twitchBotClientFactory func(context.Context, string) (*helix.Client, error)
+
 func (c *Activity) getWorkflowExecutionState(ctx context.Context) (
 	shared.EventsWorkflowExecutionState,
 	error,
@@ -86,6 +88,10 @@ func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
 	*helix.Client,
 	error,
 ) {
+	if c.newTwitchBotClient != nil {
+		return c.newTwitchBotClient(ctx, botID)
+	}
+
 	return twitch.NewBotClientWithContext(ctx, botID, c.cfg, c.bus)
 }
 
@@ -182,14 +188,23 @@ func (c *Activity) getTwitchChannelDbEntity(ctx context.Context, data shared.Eve
 	return c.getChannelDbEntity(ctx, broadcasterID)
 }
 
+func (c *Activity) getEventTwitchBotApiClient(ctx context.Context, data shared.EventData) (
+	*helix.Client,
+	error,
+) {
+	channel, err := c.getTwitchChannelDbEntity(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.getHelixBotApiClient(ctx, channel.BotID)
+}
+
 func twitchBroadcasterID(data shared.EventData) string {
 	if data.ChannelTwitchPlatformID != "" {
 		return data.ChannelTwitchPlatformID
 	}
 	if data.Platform == platform.PlatformTwitch {
-		return data.ChannelID
-	}
-	if data.Platform == "" && data.ChannelTwitchUserID != "" {
 		return data.ChannelID
 	}
 
