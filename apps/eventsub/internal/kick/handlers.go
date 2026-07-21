@@ -18,6 +18,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -36,7 +37,6 @@ import (
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
-	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	streams "github.com/twirapp/twir/libs/repositories/streams"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
@@ -187,7 +187,6 @@ type Handlers struct {
 	streamOffline           bus_core.Queue[kickbus.KickStreamOffline, struct{}]
 	channelsRepo            channelsrepository.Repository
 	usersRepo               usersrepository.Repository
-	kickBotsRepo            kickbotsrepository.Repository
 	eventsListRepo          channelseventslist.Repository
 	channelsInfoHistoryRepo channelsinfohistory.Repository
 	redemptionsHistoryRepo  channelsredemptionshistory.Repository
@@ -207,7 +206,6 @@ type HandlersOpts struct {
 	Bus                     *bus_core.Bus
 	ChannelsRepo            channelsrepository.Repository
 	UsersRepo               usersrepository.Repository
-	KickBotsRepo            kickbotsrepository.Repository
 	EventsListRepo          channelseventslist.Repository
 	ChannelsInfoHistoryRepo channelsinfohistory.Repository
 	RedemptionsHistoryRepo  channelsredemptionshistory.Repository
@@ -233,7 +231,6 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		streamOffline:           opts.Bus.KickStreamOffline,
 		channelsRepo:            opts.ChannelsRepo,
 		usersRepo:               opts.UsersRepo,
-		kickBotsRepo:            opts.KickBotsRepo,
 		eventsListRepo:          opts.EventsListRepo,
 		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
 		redemptionsHistoryRepo:  opts.RedemptionsHistoryRepo,
@@ -903,7 +900,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		slog.Bool("is_subscriber", isSubscriber),
 	}
 
-	if h.shouldIgnoreBotSelfMessage(ctx, channel, senderUser, payload.Sender.Username) {
+	if h.shouldIgnoreBotSelfMessage(channel, senderUser) {
 		return append(eventAttrs, slog.Bool("ignored_self_message", true)), nil
 	}
 
@@ -1005,32 +1002,11 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 }
 
 func (h *Handlers) shouldIgnoreBotSelfMessage(
-	ctx context.Context,
 	channel channelsmodel.Channel,
 	senderUser usersmodel.User,
-	senderUsername string,
 ) bool {
-	if h.kickBotsRepo == nil || channel.KickBotID == nil {
-		return false
-	}
-
-	bot, err := h.kickBotsRepo.GetByID(ctx, *channel.KickBotID)
-	if err != nil {
-		if errors.Is(err, kickbotsrepository.ErrNotFound) {
-			return false
-		}
-
-		h.logger.DebugContext(
-			ctx, "kick: failed to resolve assigned bot for self-message guard",
-			slog.String("channel_id", channel.ID.String()),
-			slog.String("kick_bot_id", channel.KickBotID.String()),
-			slog.String("sender_username", senderUsername),
-			logger.Error(err),
-		)
-		return false
-	}
-
-	return bot.KickUserID.String() == senderUser.ID.String()
+	binding, ok := channelbinding.Find(channel, platform.PlatformKick)
+	return ok && binding.BotUserID != nil && *binding.BotUserID == senderUser.ID
 }
 
 func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Attr, error) {
@@ -1638,7 +1614,7 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.U
 		return uuid.Nil, uuid.Nil, fmt.Errorf("get user by platform id: %w", err)
 	}
 
-	channel, err := h.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
+	channel, err := h.channelService.GetChannelByBindingUserID(ctx, platform.PlatformKick, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return uuid.Nil, uuid.Nil, fmt.Errorf(

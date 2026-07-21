@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -13,9 +14,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	goredislib "github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
@@ -208,9 +211,15 @@ func (c *Manager) resolveTwitchSubscriptionIdentities(ctx context.Context, chann
 		return "", "", err
 	}
 
-	if channel.TwitchPlatformID == nil || *channel.TwitchPlatformID == "" {
+	binding, ok := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	if !ok || binding.PlatformChannelID == "" {
 		return "", "", errors.New("channel has no twitch platform id")
 	}
 
-	return *channel.TwitchPlatformID, channel.BotID, nil
+	botConfig, err := channelbinding.ParseTwitchBotConfig(binding)
+	if err != nil {
+		return "", "", fmt.Errorf("parse Twitch bot config: %w", err)
+	}
+
+	return binding.PlatformChannelID, botConfig.BotID, nil
 }
