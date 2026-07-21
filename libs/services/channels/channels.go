@@ -3,7 +3,6 @@ package channelservice
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -50,34 +49,22 @@ func (c *ChannelService) GetChannelByID(ctx context.Context, id uuid.UUID) (chan
 	return c.repo.GetByID(ctx, id)
 }
 
-func (c *ChannelService) GetChannelByConnectedUser(
+// GetChannelByBindingUserID resolves a channel from a platform-scoped linked user ID.
+func (c *ChannelService) GetChannelByBindingUserID(
 	ctx context.Context,
-	userID uuid.UUID,
 	p platform.Platform,
+	userID uuid.UUID,
 ) (channelsmodel.Channel, error) {
-	switch p {
-	case platform.PlatformTwitch:
-		return c.repo.GetByTwitchUserID(ctx, userID)
-	case platform.PlatformKick:
-		return c.repo.GetByKickUserID(ctx, userID)
-	default:
-		return channelsmodel.Nil, fmt.Errorf("unknown platform: %s", p)
-	}
+	return c.repo.GetByBindingUserID(ctx, p, userID)
 }
 
-func (c *ChannelService) GetChannelByPlatformUserID(
+// GetChannelByPlatformChannelID resolves a channel from a platform-scoped provider channel ID.
+func (c *ChannelService) GetChannelByPlatformChannelID(
 	ctx context.Context,
-	platformUserID string,
 	p platform.Platform,
+	platformChannelID string,
 ) (channelsmodel.Channel, error) {
-	switch p {
-	case platform.PlatformTwitch:
-		return c.repo.GetByTwitchPlatformID(ctx, platformUserID)
-	case platform.PlatformKick:
-		return c.repo.GetByKickPlatformID(ctx, platformUserID)
-	default:
-		return channelsmodel.Nil, fmt.Errorf("unknown platform: %s", p)
-	}
+	return c.repo.GetByPlatformChannelID(ctx, p, platformChannelID)
 }
 
 type ChannelStreamWithChatLines struct {
