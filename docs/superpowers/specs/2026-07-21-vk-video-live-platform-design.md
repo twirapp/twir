@@ -60,7 +60,7 @@ An empty platform filter selects every enabled binding that supports the capabil
 
 ## API and Dashboard
 
-GraphQL returns the ordered list of a channel's platform bindings and their capabilities. It exposes connect, disconnect, status, and binding-specific bot authorization flows without representing a primary platform.
+GraphQL returns the list of a channel's platform bindings and their capabilities. It exposes connect, disconnect, status, and binding-specific bot authorization flows without representing a primary platform.
 
 The dashboard renders independent Twitch, Kick, and VK Video Live binding cards. Each supports connect/disconnect, status, bot authorization state, and the provider's available capabilities. Shared features such as commands and timers retain platform selection but use the capability data to prevent invalid choices.
 
