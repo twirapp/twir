@@ -137,17 +137,9 @@ func (c *Service) ResolveApiKeyChannelIdentityByAnyPlatformUUID(ctx context.Cont
 
 	var channel model.Channel
 
-	switch user.Platform {
-	case platformentity.PlatformKick:
-		channel, err = c.channelService.GetChannelByBindingUserID(ctx, platformentity.PlatformKick, user.ID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get kick channel: %w", err)
-		}
-	default:
-		channel, err = c.channelService.GetChannelByBindingUserID(ctx, platformentity.PlatformTwitch, user.ID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get twitch channel: %w", err)
-		}
+	channel, err = c.channelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get %s channel: %w", user.Platform, err)
 	}
 
 	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, 2)
@@ -188,17 +180,9 @@ func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get user: %w", err)
 		}
 
-		switch user.Platform {
-		case platformentity.PlatformKick:
-			channel, err = c.channelService.GetChannelByBindingUserID(ctx, platformentity.PlatformKick, user.ID)
-			if err != nil {
-				return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get kick channel: %w", err)
-			}
-		default:
-			channel, err = c.channelService.GetChannelByBindingUserID(ctx, platformentity.PlatformTwitch, user.ID)
-			if err != nil {
-				return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get twitch channel: %w", err)
-			}
+		channel, err = c.channelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+		if err != nil {
+			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get %s channel: %w", user.Platform, err)
 		}
 	}
 
