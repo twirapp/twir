@@ -20,6 +20,12 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
+	t.withTickLock(func() {
+		c.tryTickLocked(id, t)
+	})
+}
+
+func (c *Manager) tryTickLocked(id TimerID, t *Timer) {
 	ctx := context.Background()
 
 	channel, err := c.channelCachedRepo.Get(ctx, t.dbRow.ChannelID.String())
