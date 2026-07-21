@@ -5,9 +5,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -31,11 +33,31 @@ var MakeClip = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		channel := &model.Channels{}
-		if err := parseCtx.Services.Gorm.Where(
-			"id = ?",
-			parseCtx.Channel.DBChannelID,
-		).First(channel).Error; err != nil {
+		channelID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotFindChannelDb,
+				),
+				Err: err,
+			}
+		}
+		channel, err := parseCtx.Services.ChannelsRepo.GetByID(ctx, channelID)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(
+					ctx,
+					locales.Translations.Errors.Generic.CannotFindChannelDb,
+				),
+				Err: err,
+			}
+		}
+		twitchBinding, twitchBotConfig, ok, err := channelbinding.FindTwitch(channel)
+		if err != nil || !ok {
+			if err == nil {
+				err = errors.New("channel has no Twitch binding")
+			}
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
@@ -47,7 +69,7 @@ var MakeClip = &types.DefaultCommand{
 
 		twitchClient, err := twitch.NewBotClientWithContext(
 			ctx,
-			channel.BotID,
+			twitchBotConfig.BotID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
 		)
@@ -63,7 +85,7 @@ var MakeClip = &types.DefaultCommand{
 
 		resp, err := twitchClient.CreateClip(
 			&helix.CreateClipParams{
-				BroadcasterID: parseCtx.Channel.ID,
+				BroadcasterID: twitchBinding.PlatformChannelID,
 			},
 		)
 		if err != nil {

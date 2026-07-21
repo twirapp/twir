@@ -8,8 +8,10 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
@@ -68,15 +70,22 @@ var DuelAccept = &types.DefaultCommand{
 			}, nil
 		}
 
-		_, err = handler.getDbChannel(ctx)
+		dbChannel, err := handler.getDbChannel(ctx)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetDbChannel),
 				Err:     err,
 			}
 		}
+		twitchBinding, ok := channelbinding.Find(dbChannel, platform.PlatformTwitch)
+		if !ok {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetDbChannel),
+				Err:     errors.New("channel has no Twitch binding"),
+			}
+		}
 
-		_, err = handler.createHelixClient()
+		_, err = handler.createHelixClient(twitchBinding.UserID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.BroadcasterClient),
@@ -144,7 +153,7 @@ var DuelAccept = &types.DefaultCommand{
 		}
 
 		for _, user := range usersForTimeout {
-			err = handler.timeoutUser(ctx, settings, user.ID, user.IsMod)
+			err = handler.timeoutUser(ctx, settings, twitchBinding.PlatformChannelID, user.ID, user.IsMod)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotTimeoutUser),
