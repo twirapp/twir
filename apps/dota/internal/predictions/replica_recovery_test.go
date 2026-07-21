@@ -19,8 +19,7 @@ func newReplica(f *fixture, client predictionClient) *Predictions {
 		&fakeClientFactory{client: client},
 		f.store,
 		slog.New(slog.NewTextHandler(io.Discard, nil)),
-		nil,
-		nil,
+		f.predictions.terminalLease,
 	)
 }
 
@@ -30,9 +29,9 @@ func newReplicaClient() *fakePredictionClient {
 
 func createPendingPrediction(t *testing.T, f *fixture, matchID int64) pendingPredictionIntent {
 	t.Helper()
-	message := startMessage(f, matchID)
+	action := createAction(f, matchID)
 	f.store.commitErr = errors.New("redis temporarily unavailable")
-	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+	err := f.predictions.Create(context.Background(), action)
 	require.ErrorIs(t, err, f.store.commitErr)
 	require.Len(t, f.client.CreateCalls(), 1)
 	f.store.commitErr = nil
@@ -63,18 +62,18 @@ func predictionsResponse(predictions ...helix.Prediction) *helix.PredictionsResp
 
 func TestAnotherReplicaRecoversPendingPredictionOnStartReplay(t *testing.T) {
 	f := newFixture(t)
-	message := startMessage(f, 2_001)
-	intent := createPendingPrediction(t, f, message.MatchID)
+	action := createAction(f, 2_001)
+	intent := createPendingPrediction(t, f, action.MatchID)
 	replicaClient := newReplicaClient()
 	replica := newReplica(f, replicaClient)
 	replicaClient.getResponse = predictionsResponse(activePredictionForIntent(intent, "prediction-1"))
 
-	_, err := replica.handleMatchStarted(context.Background(), message)
+	err := replica.Create(context.Background(), action)
 
 	require.NoError(t, err)
 	require.Len(t, f.client.CreateCalls(), 1)
 	require.Empty(t, replicaClient.CreateCalls())
-	record, exists := f.store.Record(predictionKey(f.channelID, message.MatchID))
+	record, exists := f.store.Record(predictionKey(f.channelID, action.MatchID))
 	require.True(t, exists)
 	require.Equal(t, storedPrediction{
 		PredictionID: "prediction-1",
@@ -95,7 +94,7 @@ func TestAnotherReplicaRecoversMarkedPendingPredictionForTerminalEvents(t *testi
 		{
 			name: "resolve",
 			handle: func(replica *Predictions, f *fixture, matchID int64) error {
-				_, err := replica.handleMatchEnded(context.Background(), endMessage(f, matchID, true))
+				_, err := replica.Resolve(context.Background(), resolveAction(f, matchID, true))
 				return err
 			},
 			status: "RESOLVED",
@@ -103,8 +102,7 @@ func TestAnotherReplicaRecoversMarkedPendingPredictionForTerminalEvents(t *testi
 		{
 			name: "cancel",
 			handle: func(replica *Predictions, f *fixture, matchID int64) error {
-				_, err := replica.handleMatchAbandoned(context.Background(), abandonedMessage(f, matchID))
-				return err
+				return replica.Cancel(context.Background(), cancelAction(f, matchID))
 			},
 			status: "CANCELED",
 		},
@@ -156,11 +154,11 @@ func TestAnotherReplicaRejectsUnmarkedOtherwiseIdenticalManualPrediction(t *test
 	manualPrediction.Title = f.settings.settings.PredictionSettings.TitleTemplate
 	replicaClient.getResponse = predictionsResponse(manualPrediction)
 
-	_, err := replica.handleMatchEnded(context.Background(), endMessage(f, matchID, true))
+	_, err := replica.Resolve(context.Background(), resolveAction(f, matchID, true))
 
 	require.ErrorIs(t, err, errPredictionRecoveryUnsafe)
 	require.Empty(t, replicaClient.EndCalls())
-	require.Empty(t, f.store.deleteCalls)
+	require.Empty(t, f.store.completeTerminalCalls)
 	key := predictionKey(f.channelID, matchID)
 	require.True(t, f.store.HasReservation(key))
 	pending, pendingErr := f.store.GetPending(context.Background(), key)
@@ -187,11 +185,11 @@ func TestAnotherReplicaRejectsCandidateWithDifferentCorrelationMarker(t *testing
 	candidate.Title = f.settings.settings.PredictionSettings.TitleTemplate + " [d:" + differentCorrelation + "]"
 	replicaClient.getResponse = predictionsResponse(candidate)
 
-	_, err := replica.handleMatchEnded(context.Background(), endMessage(f, matchID, true))
+	_, err := replica.Resolve(context.Background(), resolveAction(f, matchID, true))
 
 	require.ErrorIs(t, err, errPredictionRecoveryUnsafe)
 	require.Empty(t, replicaClient.EndCalls())
-	require.Empty(t, f.store.deleteCalls)
+	require.Empty(t, f.store.completeTerminalCalls)
 	key := predictionKey(f.channelID, matchID)
 	require.True(t, f.store.HasReservation(key))
 	pending, pendingErr := f.store.GetPending(context.Background(), key)
@@ -254,11 +252,11 @@ func TestAnotherReplicaRetainsPendingIntentWhenCandidatesAreUnsafe(t *testing.T)
 			replica := newReplica(f, replicaClient)
 			replicaClient.getResponse = predictionsResponse(tt.candidates(intent)...)
 
-			_, err := replica.handleMatchEnded(context.Background(), endMessage(f, matchID, true))
+			_, err := replica.Resolve(context.Background(), resolveAction(f, matchID, true))
 
 			require.Error(t, err)
 			require.Empty(t, replicaClient.EndCalls())
-			require.Empty(t, f.store.deleteCalls)
+			require.Empty(t, f.store.completeTerminalCalls)
 			require.True(t, f.store.HasReservation(predictionKey(f.channelID, matchID)))
 			pending, pendingErr := f.store.GetPending(context.Background(), predictionKey(f.channelID, matchID))
 			require.NoError(t, pendingErr)

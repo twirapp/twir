@@ -15,8 +15,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/dota/internal/match"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -29,8 +29,12 @@ import (
 
 const (
 	predictionKeyPrefix                = "cache:twir:dota:prediction:"
+	matchEndedDeliveryKeyPrefix        = "cache:twir:dota:match-ended:"
 	predictionTTL                      = 12 * time.Hour
-	predictionsSubscriptionGroup       = "dota-predictions"
+	matchEndedDeliveryTTL              = 7 * 24 * time.Hour
+	terminalClaimTTL                   = 2 * time.Minute
+	terminalOperationTimeout           = 5 * time.Minute
+	terminalRenewTimeout               = 2 * time.Second
 	minPredictionWindow                = 30
 	maxPredictionWindow                = 1_800
 	maxPredictionTitleRunes            = 45
@@ -50,6 +54,9 @@ var (
 	errPredictionIntentNotFound  = errors.New("dota prediction intent not found")
 	errPredictionReservationLost = errors.New("dota prediction reservation ownership lost")
 	errPredictionRecoveryUnsafe  = errors.New("dota prediction recovery is unsafe")
+
+	ErrTerminalInProgress    = errors.New("dota prediction terminal operation in progress")
+	ErrTerminalOwnershipLost = errors.New("dota prediction terminal ownership lost")
 )
 
 type storedPrediction struct {
@@ -75,11 +82,94 @@ type Store interface {
 	Get(ctx context.Context, key string) (storedPrediction, error)
 	GetPending(ctx context.Context, key string) (pendingPredictionIntent, error)
 	Release(ctx context.Context, key string, token string) error
-	Delete(ctx context.Context, key string) error
+	ClaimTerminal(ctx context.Context, key string, token string, ttl time.Duration) (bool, error)
+	RenewTerminal(ctx context.Context, key string, token string, ttl time.Duration) (bool, error)
+	CompleteTerminal(ctx context.Context, key string, token string) (bool, error)
+	ReleaseTerminal(ctx context.Context, key string, token string) error
+	ClaimMatchEndedDelivery(
+		ctx context.Context,
+		key string,
+		token string,
+		ttl time.Duration,
+	) (matchEndedDeliveryState, error)
+	CompleteMatchEndedDelivery(ctx context.Context, key string, token string, ttl time.Duration) (bool, error)
+	RenewMatchEndedDelivery(ctx context.Context, key string, token string, ttl time.Duration) (bool, error)
+	ReleaseMatchEndedDelivery(ctx context.Context, key string, token string) error
+}
+
+type matchEndedDeliveryState uint8
+
+const (
+	matchEndedDeliveryAcquired matchEndedDeliveryState = iota + 1
+	matchEndedDeliveryPending
+	matchEndedDeliveryDelivered
+)
+
+type terminalLease struct {
+	ttl           time.Duration
+	renewInterval time.Duration
+}
+
+func defaultTerminalLease() terminalLease {
+	return terminalLease{
+		ttl:           terminalClaimTTL,
+		renewInterval: terminalClaimTTL / 3,
+	}
+}
+
+func (l terminalLease) normalized() terminalLease {
+	if l.ttl <= 0 {
+		l.ttl = terminalClaimTTL
+	}
+	if l.renewInterval <= 0 || l.renewInterval >= l.ttl {
+		l.renewInterval = l.ttl / 3
+	}
+	if l.renewInterval <= 0 {
+		l.renewInterval = time.Nanosecond
+	}
+
+	return l
+}
+
+type terminalHeartbeat struct {
+	operationCtx    context.Context
+	operationCancel context.CancelFunc
+	stopCh          chan struct{}
+	done            chan struct{}
+
+	stopOnce sync.Once
+	errMu    sync.Mutex
+	err      error
+}
+
+func (h *terminalHeartbeat) stop() error {
+	h.stopOnce.Do(func() { close(h.stopCh) })
+	<-h.done
+
+	h.errMu.Lock()
+	defer h.errMu.Unlock()
+	return h.err
+}
+
+func (h *terminalHeartbeat) setError(err error) {
+	h.errMu.Lock()
+	defer h.errMu.Unlock()
+	if h.err == nil {
+		h.err = err
+	}
+}
+
+func (h *terminalHeartbeat) fail(err error) {
+	h.setError(err)
+	h.operationCancel()
 }
 
 type settingsRepository interface {
 	GetByChannelID(ctx context.Context, channelID uuid.UUID) (dotamodel.ChannelDotaSettings, error)
+	ApplyMatchResultOnce(
+		ctx context.Context,
+		input dotarepository.ApplyMatchResultInput,
+	) (dotamodel.ChannelDotaSettings, error)
 }
 
 type channelRepository interface {
@@ -105,31 +195,12 @@ func (f twitchClientFactory) New(ctx context.Context, userID uuid.UUID) (predict
 	return twitch.NewUserClientWithContext(ctx, userID, f.config, f.bus)
 }
 
-type subscription interface {
-	Subscribe(group string) error
-	Unsubscribe()
-}
-
-type subscriptionFunc struct {
-	subscribe   func(group string) error
-	unsubscribe func()
-}
-
-func (s subscriptionFunc) Subscribe(group string) error {
-	return s.subscribe(group)
-}
-
-func (s subscriptionFunc) Unsubscribe() {
-	s.unsubscribe()
-}
-
 type Opts struct {
 	fx.In
 
-	Lifecycle fx.Lifecycle
-	Bus       *buscore.Bus
-	Config    cfg.Config
-	Logger    *slog.Logger
+	Bus    *buscore.Bus
+	Config cfg.Config
+	Logger *slog.Logger
 
 	SettingsRepository dotarepository.Repository
 	ChannelsRepository channelsrepository.Repository
@@ -137,17 +208,12 @@ type Opts struct {
 }
 
 type Predictions struct {
-	settings settingsRepository
-	channels channelRepository
-	clients  clientFactory
-	store    Store
-	logger   *slog.Logger
-
-	subscriptions []subscription
-
-	handlersMu sync.Mutex
-	handlers   sync.WaitGroup
-	stopping   bool
+	settings      settingsRepository
+	channels      channelRepository
+	clients       clientFactory
+	store         Store
+	logger        *slog.Logger
+	terminalLease terminalLease
 }
 
 func New(opts Opts) *Predictions {
@@ -157,10 +223,8 @@ func New(opts Opts) *Predictions {
 		twitchClientFactory{config: opts.Config, bus: opts.Bus},
 		opts.Store,
 		opts.Logger,
-		nil,
-		opts.Lifecycle,
+		defaultTerminalLease(),
 	)
-	predictions.subscriptions = newBusSubscriptions(opts.Bus, predictions)
 
 	return predictions
 }
@@ -171,155 +235,76 @@ func newPredictions(
 	clients clientFactory,
 	store Store,
 	logger *slog.Logger,
-	subscriptions []subscription,
-	lifecycle fx.Lifecycle,
+	terminalLease terminalLease,
 ) *Predictions {
-	predictions := &Predictions{
+	return &Predictions{
 		settings:      settings,
 		channels:      channels,
 		clients:       clients,
 		store:         store,
 		logger:        logger,
-		subscriptions: subscriptions,
-	}
-
-	if lifecycle != nil {
-		lifecycle.Append(fx.Hook{
-			OnStart: predictions.Start,
-			OnStop:  predictions.Stop,
-		})
-	}
-
-	return predictions
-}
-
-func newBusSubscriptions(bus *buscore.Bus, predictions *Predictions) []subscription {
-	return []subscription{
-		subscriptionFunc{
-			subscribe: func(group string) error {
-				return bus.Dota.MatchStarted.SubscribeGroup(group, predictions.handleMatchStarted)
-			},
-			unsubscribe: bus.Dota.MatchStarted.Unsubscribe,
-		},
-		subscriptionFunc{
-			subscribe: func(group string) error {
-				return bus.Dota.MatchEnded.SubscribeGroup(group, predictions.handleMatchEnded)
-			},
-			unsubscribe: bus.Dota.MatchEnded.Unsubscribe,
-		},
-		subscriptionFunc{
-			subscribe: func(group string) error {
-				return bus.Dota.MatchAbandoned.SubscribeGroup(group, predictions.handleMatchAbandoned)
-			},
-			unsubscribe: bus.Dota.MatchAbandoned.Unsubscribe,
-		},
+		terminalLease: terminalLease.normalized(),
 	}
 }
 
-func (p *Predictions) Start(_ context.Context) error {
-	started := make([]subscription, 0, len(p.subscriptions))
-	for _, subscription := range p.subscriptions {
-		if err := subscription.Subscribe(predictionsSubscriptionGroup); err != nil {
-			for i := len(started) - 1; i >= 0; i-- {
-				started[i].Unsubscribe()
-			}
-			return fmt.Errorf("subscribe to dota predictions: %w", err)
-		}
-		started = append(started, subscription)
-	}
-
-	return nil
-}
-
-func (p *Predictions) Stop(ctx context.Context) error {
-	p.handlersMu.Lock()
-	p.stopping = true
-	for _, subscription := range p.subscriptions {
-		subscription.Unsubscribe()
-	}
-	p.handlersMu.Unlock()
-
-	handlersDone := make(chan struct{})
-	go func() {
-		p.handlers.Wait()
-		close(handlersDone)
-	}()
-
-	select {
-	case <-handlersDone:
-		return nil
-	case <-ctx.Done():
-		return ctx.Err()
-	}
-}
-
-func (p *Predictions) handleMatchStarted(
-	ctx context.Context,
-	message busdota.MatchStartedMessage,
-) (struct{}, error) {
-	return struct{}{}, p.handleTracked(ctx, "match_started", func() error {
-		return p.createPrediction(ctx, message)
-	})
-}
-
-func (p *Predictions) handleMatchEnded(
-	ctx context.Context,
-	message busdota.MatchEndedMessage,
-) (struct{}, error) {
-	return struct{}{}, p.handleTracked(ctx, "match_ended", func() error {
-		return p.finishPrediction(ctx, message.ChannelID, message.MatchID, message.Win, false)
-	})
-}
-
-func (p *Predictions) handleMatchAbandoned(
-	ctx context.Context,
-	message busdota.MatchAbandonedMessage,
-) (struct{}, error) {
-	return struct{}{}, p.handleTracked(ctx, "match_abandoned", func() error {
-		return p.finishPrediction(ctx, message.ChannelID, message.MatchID, false, true)
-	})
-}
-
-func (p *Predictions) handleTracked(ctx context.Context, eventKind string, handler func() error) error {
-	p.handlersMu.Lock()
-	if p.stopping {
-		p.handlersMu.Unlock()
-		return context.Canceled
-	}
-	p.handlers.Add(1)
-	p.handlersMu.Unlock()
-	defer p.handlers.Done()
-
-	if err := handler(); err != nil {
-		p.logger.ErrorContext(
-			ctx,
-			"dota prediction handler failed",
-			slog.String("event_kind", eventKind),
-			logger.Error(err),
-		)
-		return err
-	}
-
-	return nil
-}
-
-func (p *Predictions) createPrediction(ctx context.Context, message busdota.MatchStartedMessage) error {
-	if message.MatchID <= 0 {
+func (p *Predictions) Create(ctx context.Context, action match.LifecycleAction) error {
+	if !action.TeamKnown {
 		return nil
 	}
 
-	channelID, err := uuid.Parse(message.ChannelID)
+	return p.createPrediction(ctx, action.ChannelID, action.MatchID)
+}
+
+func (p *Predictions) Resolve(
+	ctx context.Context,
+	action match.LifecycleAction,
+) (dotamodel.ChannelDotaSettings, error) {
+	if action.ChannelID == uuid.Nil || action.MatchID <= 0 {
+		return dotamodel.Nil, nil
+	}
+
+	settings, err := p.settings.GetByChannelID(ctx, action.ChannelID)
 	if err != nil {
-		p.logger.WarnContext(ctx, "dota prediction skipped: invalid channel ID", logger.Error(err))
+		return dotamodel.Nil, fmt.Errorf("get dota settings: %w", err)
+	}
+
+	mmrDelta := settings.MmrDelta
+	if !action.Win {
+		mmrDelta = -mmrDelta
+	}
+	settings, err = p.settings.ApplyMatchResultOnce(ctx, dotarepository.ApplyMatchResultInput{
+		ChannelID: action.ChannelID,
+		MatchID:   action.MatchID,
+		Won:       action.Win,
+		MmrDelta:  mmrDelta,
+	})
+	if err != nil {
+		return dotamodel.Nil, fmt.Errorf("apply dota match result: %w", err)
+	}
+
+	if err := p.finishPrediction(ctx, action.ChannelID, action.MatchID, action.Win, false); err != nil {
+		return settings, err
+	}
+
+	return settings, nil
+}
+
+func (p *Predictions) Cancel(ctx context.Context, action match.LifecycleAction) error {
+	return p.finishPrediction(ctx, action.ChannelID, action.MatchID, false, true)
+}
+
+func (p *Predictions) createPrediction(ctx context.Context, channelID uuid.UUID, matchID int64) error {
+	if matchID <= 0 {
 		return nil
 	}
-	key := predictionKey(channelID, message.MatchID)
+
+	if channelID == uuid.Nil {
+		p.logger.WarnContext(ctx, "dota prediction skipped: invalid channel ID")
+		return nil
+	}
+	key := predictionKey(channelID, matchID)
 	if recovered, err := p.recoverPendingPrediction(ctx, key, channelID); recovered {
 		return err
-	}
-
-	if !message.TeamKnown {
-		return nil
 	}
 
 	settings, err := p.settings.GetByChannelID(ctx, channelID)
@@ -503,7 +488,7 @@ func (p *Predictions) recoverPendingPrediction(
 
 func (p *Predictions) finishPrediction(
 	ctx context.Context,
-	channelIDValue string,
+	channelID uuid.UUID,
 	matchID int64,
 	win bool,
 	cancel bool,
@@ -512,38 +497,48 @@ func (p *Predictions) finishPrediction(
 		return nil
 	}
 
-	channelID, err := uuid.Parse(channelIDValue)
-	if err != nil {
-		p.logger.WarnContext(ctx, "dota prediction skipped: invalid channel ID", logger.Error(err))
+	if channelID == uuid.Nil {
+		p.logger.WarnContext(ctx, "dota prediction skipped: invalid channel ID")
 		return nil
 	}
 
 	key := predictionKey(channelID, matchID)
-	if recovered, err := p.recoverPendingPrediction(ctx, key, channelID); recovered {
+	token := uuid.NewString()
+	claimed, err := p.store.ClaimTerminal(ctx, key, token, p.terminalLease.ttl)
+	if err != nil {
+		return fmt.Errorf("claim prediction terminal: %w", err)
+	}
+	if !claimed {
+		return ErrTerminalInProgress
+	}
+	heartbeat := p.startTerminalHeartbeat(ctx, key, token)
+	operationCtx := heartbeat.operationCtx
+
+	if recovered, err := p.recoverPendingPrediction(operationCtx, key, channelID); recovered {
 		if err != nil {
-			return err
+			return p.terminalFailed(ctx, key, token, heartbeat, err)
 		}
 	}
-	record, err := p.store.Get(ctx, key)
+	record, err := p.store.Get(operationCtx, key)
 	if errors.Is(err, errPredictionNotFound) {
-		return nil
+		return p.completeTerminal(ctx, key, token, heartbeat, "complete missing prediction")
 	}
 	if err != nil {
-		return fmt.Errorf("get stored prediction: %w", err)
+		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("get stored prediction: %w", err))
 	}
 
-	channel, err := p.channels.GetByID(ctx, channelID)
+	channel, err := p.channels.GetByID(operationCtx, channelID)
 	if err != nil {
-		return fmt.Errorf("get channel for stored prediction: %w", err)
+		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("get channel for stored prediction: %w", err))
 	}
 	if !channel.TwitchConnected() || channel.TwitchUserID == nil || channel.TwitchPlatformID == nil ||
 		strings.TrimSpace(*channel.TwitchPlatformID) == "" {
-		return errors.New("stored prediction channel is not connected to Twitch")
+		return p.terminalFailed(ctx, key, token, heartbeat, errors.New("stored prediction channel is not connected to Twitch"))
 	}
 
-	client, err := p.clients.New(ctx, *channel.TwitchUserID)
+	client, err := p.clients.New(operationCtx, *channel.TwitchUserID)
 	if err != nil {
-		return fmt.Errorf("create Twitch client for stored prediction: %w", err)
+		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("create Twitch client for stored prediction: %w", err))
 	}
 	broadcasterID := strings.TrimSpace(*channel.TwitchPlatformID)
 	response, err := client.GetPredictions(&helix.PredictionsParams{
@@ -551,18 +546,15 @@ func (p *Predictions) finishPrediction(
 		ID:            record.PredictionID,
 	})
 	if err != nil {
-		return fmt.Errorf("get Twitch prediction: %w", err)
+		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("get Twitch prediction: %w", err))
 	}
 	if err := predictionResponseError(response); err != nil {
-		return fmt.Errorf("get Twitch prediction: %w", err)
+		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("get Twitch prediction: %w", err))
 	}
 
 	prediction, active := activePrediction(response, record.PredictionID)
 	if !active {
-		if err := p.store.Delete(ctx, key); err != nil {
-			return fmt.Errorf("delete inactive prediction: %w", err)
-		}
-		return nil
+		return p.completeTerminal(ctx, key, token, heartbeat, "complete inactive prediction")
 	}
 
 	params := &helix.EndPredictionParams{
@@ -582,20 +574,136 @@ func (p *Predictions) finishPrediction(
 
 	endResponse, err := client.EndPrediction(params)
 	if err != nil {
-		return fmt.Errorf("end Twitch prediction: %w", err)
+		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("end Twitch prediction: %w", err))
 	}
 	if err := predictionResponseError(endResponse); err != nil {
-		return fmt.Errorf("end Twitch prediction: %w", err)
-	}
-	if err := p.store.Delete(ctx, key); err != nil {
-		return fmt.Errorf("delete finished prediction: %w", err)
+		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("end Twitch prediction: %w", err))
 	}
 
+	return p.completeTerminal(ctx, key, token, heartbeat, "complete finished prediction")
+}
+
+func (p *Predictions) startTerminalHeartbeat(ctx context.Context, key string, token string) *terminalHeartbeat {
+	operationCtx, operationCancel := context.WithTimeout(ctx, terminalOperationTimeout)
+	heartbeat := &terminalHeartbeat{
+		operationCtx:    operationCtx,
+		operationCancel: operationCancel,
+		stopCh:          make(chan struct{}),
+		done:            make(chan struct{}),
+	}
+
+	go func() {
+		defer operationCancel()
+		defer close(heartbeat.done)
+
+		ticker := time.NewTicker(p.terminalLease.renewInterval)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-heartbeat.stopCh:
+				if err := operationCtx.Err(); err != nil {
+					heartbeat.setError(err)
+				}
+				return
+			case <-operationCtx.Done():
+				heartbeat.setError(operationCtx.Err())
+				return
+			case <-ticker.C:
+				renewCtx, renewCancel := context.WithTimeout(operationCtx, terminalRenewTimeout)
+				renewed, err := p.store.RenewTerminal(
+					renewCtx,
+					key,
+					token,
+					p.terminalLease.ttl,
+				)
+				renewCancel()
+				select {
+				case <-heartbeat.stopCh:
+					if err := operationCtx.Err(); err != nil {
+						heartbeat.setError(err)
+					}
+					return
+				default:
+				}
+				if err != nil {
+					heartbeat.fail(fmt.Errorf("renew prediction terminal claim: %w", err))
+					return
+				}
+				if !renewed {
+					heartbeat.fail(ErrTerminalOwnershipLost)
+					return
+				}
+			}
+		}
+	}()
+
+	return heartbeat
+}
+
+func (p *Predictions) terminalFailed(
+	ctx context.Context,
+	key string,
+	token string,
+	heartbeat *terminalHeartbeat,
+	cause error,
+) error {
+	if err := heartbeat.stop(); err != nil {
+		cause = fmt.Errorf("%w; stop prediction terminal heartbeat: %v", cause, err)
+	}
+	return p.releaseTerminalFailure(ctx, key, token, cause)
+}
+
+func (p *Predictions) releaseTerminalFailure(ctx context.Context, key string, token string, cause error) error {
+	if err := p.releaseTerminal(ctx, key, token); err != nil {
+		return fmt.Errorf("%w; release prediction terminal claim: %v", cause, err)
+	}
+	return cause
+}
+
+func (p *Predictions) releaseTerminal(ctx context.Context, key string, token string) error {
+	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
+	defer cancel()
+	if err := p.store.ReleaseTerminal(cleanupCtx, key, token); err != nil {
+		p.logger.ErrorContext(cleanupCtx, "dota prediction terminal claim cleanup failed", logger.Error(err))
+		return err
+	}
+	return nil
+}
+
+func (p *Predictions) completeTerminal(
+	ctx context.Context,
+	key string,
+	token string,
+	heartbeat *terminalHeartbeat,
+	operation string,
+) error {
+	if err := heartbeat.stop(); err != nil {
+		return p.releaseTerminalFailure(
+			ctx,
+			key,
+			token,
+			fmt.Errorf("%s: stop prediction terminal heartbeat: %w", operation, err),
+		)
+	}
+
+	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
+	defer cancel()
+	completed, err := p.store.CompleteTerminal(cleanupCtx, key, token)
+	if err != nil {
+		return p.releaseTerminalFailure(ctx, key, token, fmt.Errorf("%s: %w", operation, err))
+	}
+	if !completed {
+		return p.releaseTerminalFailure(ctx, key, token, fmt.Errorf("%s: %w", operation, ErrTerminalOwnershipLost))
+	}
 	return nil
 }
 
 func predictionKey(channelID uuid.UUID, matchID int64) string {
 	return predictionKeyPrefix + channelID.String() + ":" + strconv.FormatInt(matchID, 10)
+}
+
+func matchEndedDeliveryKey(channelID uuid.UUID, matchID int64) string {
+	return matchEndedDeliveryKeyPrefix + channelID.String() + ":" + strconv.FormatInt(matchID, 10)
 }
 
 func newPredictionCorrelation() (string, error) {

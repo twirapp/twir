@@ -16,17 +16,20 @@ import (
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/stretchr/testify/require"
-	busdota "github.com/twirapp/twir/libs/bus-core/dota"
+	"github.com/twirapp/twir/apps/dota/internal/match"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
-	"go.uber.org/fx"
 )
 
 type fakeSettingsRepository struct {
-	mu       sync.Mutex
-	settings dotamodel.ChannelDotaSettings
-	err      error
-	calls    int
+	mu             sync.Mutex
+	settings       dotamodel.ChannelDotaSettings
+	err            error
+	calls          int
+	applyErr       error
+	applyCalls     []dotarepository.ApplyMatchResultInput
+	settledMatches map[int64]struct{}
 }
 
 func (r *fakeSettingsRepository) GetByChannelID(
@@ -46,6 +49,44 @@ func (r *fakeSettingsRepository) Calls() int {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.calls
+}
+
+func (r *fakeSettingsRepository) ApplyMatchResultOnce(
+	_ context.Context,
+	input dotarepository.ApplyMatchResultInput,
+) (dotamodel.ChannelDotaSettings, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.applyCalls = append(r.applyCalls, input)
+	if r.applyErr != nil {
+		return dotamodel.Nil, r.applyErr
+	}
+	if r.settledMatches == nil {
+		r.settledMatches = make(map[int64]struct{})
+	}
+	if _, settled := r.settledMatches[input.MatchID]; !settled {
+		r.settledMatches[input.MatchID] = struct{}{}
+		r.settings.Mmr += input.MmrDelta
+		if input.Won {
+			r.settings.SessionWins++
+		} else {
+			r.settings.SessionLosses++
+		}
+	}
+
+	return r.settings, nil
+}
+
+func (r *fakeSettingsRepository) ApplyCalls() []dotarepository.ApplyMatchResultInput {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return append([]dotarepository.ApplyMatchResultInput(nil), r.applyCalls...)
+}
+
+func (r *fakeSettingsRepository) Settlements() int {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return len(r.settledMatches)
 }
 
 type fakeChannelsRepository struct {
@@ -68,23 +109,48 @@ func (r *fakeChannelsRepository) GetByID(
 	return r.channel, nil
 }
 
+type terminalClaim struct {
+	token     string
+	expiresAt time.Time
+}
+
+type matchEndedDeliveryRecord struct {
+	token     string
+	delivered bool
+	expiresAt time.Time
+}
+
 type fakePredictionStore struct {
 	mu sync.Mutex
 
 	records      map[string]storedPrediction
 	reservations map[string]string
 	pending      map[string]pendingPredictionIntent
+	terminal     map[string]terminalClaim
+	deliveries   map[string]matchEndedDeliveryRecord
 
-	reserveErr error
-	commitErr  error
-	getErr     error
-	releaseErr error
-	deleteErr  error
+	reserveErr          error
+	commitErr           error
+	getErr              error
+	releaseErr          error
+	claimTerminalErr    error
+	renewTerminalErr    error
+	completeTerminalErr error
+	releaseTerminalErr  error
+	claimStarted        chan struct{}
+	claimRelease        chan struct{}
+	claimStartedOnce    sync.Once
+	renewStarted        chan struct{}
+	renewRelease        chan struct{}
+	renewStartedOnce    sync.Once
 
-	reserveCalls []string
-	commitCalls  []string
-	releaseCalls []string
-	deleteCalls  []string
+	reserveCalls          []string
+	commitCalls           []string
+	releaseCalls          []string
+	claimTerminalCalls    []string
+	renewTerminalCalls    []string
+	completeTerminalCalls []string
+	releaseTerminalCalls  []string
 }
 
 func newFakePredictionStore() *fakePredictionStore {
@@ -92,6 +158,8 @@ func newFakePredictionStore() *fakePredictionStore {
 		records:      make(map[string]storedPrediction),
 		reservations: make(map[string]string),
 		pending:      make(map[string]pendingPredictionIntent),
+		terminal:     make(map[string]terminalClaim),
+		deliveries:   make(map[string]matchEndedDeliveryRecord),
 	}
 }
 
@@ -189,15 +257,166 @@ func (s *fakePredictionStore) Release(_ context.Context, key string, token strin
 	return nil
 }
 
-func (s *fakePredictionStore) Delete(_ context.Context, key string) error {
+func (s *fakePredictionStore) ClaimTerminal(
+	_ context.Context,
+	key string,
+	token string,
+	ttl time.Duration,
+) (bool, error) {
+	shouldBlock := false
+	if s.claimStarted != nil {
+		s.claimStartedOnce.Do(func() {
+			shouldBlock = true
+			close(s.claimStarted)
+		})
+	}
+	if shouldBlock {
+		<-s.claimRelease
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.deleteCalls = append(s.deleteCalls, key)
-	if s.deleteErr != nil {
-		return s.deleteErr
+	s.claimTerminalCalls = append(s.claimTerminalCalls, key)
+	if s.claimTerminalErr != nil {
+		return false, s.claimTerminalErr
+	}
+	if _, claimed := s.activeTerminalClaim(key); claimed {
+		return false, nil
+	}
+	s.terminal[key] = terminalClaim{token: token, expiresAt: time.Now().Add(ttl)}
+	return true, nil
+}
+
+func (s *fakePredictionStore) RenewTerminal(
+	ctx context.Context,
+	key string,
+	token string,
+	ttl time.Duration,
+) (bool, error) {
+	s.mu.Lock()
+	s.renewTerminalCalls = append(s.renewTerminalCalls, key)
+	if s.renewTerminalErr != nil {
+		s.mu.Unlock()
+		return false, s.renewTerminalErr
+	}
+	claim, claimed := s.activeTerminalClaim(key)
+	if !claimed || claim.token != token {
+		s.mu.Unlock()
+		return false, nil
+	}
+	claim.expiresAt = time.Now().Add(ttl)
+	s.terminal[key] = claim
+	started := s.renewStarted
+	release := s.renewRelease
+	s.mu.Unlock()
+
+	if started != nil {
+		s.renewStartedOnce.Do(func() { close(started) })
+		select {
+		case <-release:
+		case <-ctx.Done():
+			return false, ctx.Err()
+		}
+	}
+
+	return true, nil
+}
+
+func (s *fakePredictionStore) CompleteTerminal(
+	_ context.Context,
+	key string,
+	token string,
+) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.completeTerminalCalls = append(s.completeTerminalCalls, key)
+	if s.completeTerminalErr != nil {
+		return false, s.completeTerminalErr
+	}
+	claim, claimed := s.activeTerminalClaim(key)
+	if !claimed || claim.token != token {
+		return false, nil
 	}
 	delete(s.records, key)
+	delete(s.reservations, key)
 	delete(s.pending, key)
+	delete(s.terminal, key)
+	return true, nil
+}
+
+func (s *fakePredictionStore) ReleaseTerminal(_ context.Context, key string, token string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.releaseTerminalCalls = append(s.releaseTerminalCalls, key)
+	if s.releaseTerminalErr != nil {
+		return s.releaseTerminalErr
+	}
+	claim, claimed := s.activeTerminalClaim(key)
+	if claimed && claim.token == token {
+		delete(s.terminal, key)
+	}
+	return nil
+}
+
+func (s *fakePredictionStore) ClaimMatchEndedDelivery(
+	_ context.Context,
+	key string,
+	token string,
+	ttl time.Duration,
+) (matchEndedDeliveryState, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if claim, exists := s.deliveries[key]; exists && claim.expiresAt.After(time.Now()) {
+		if claim.delivered {
+			return matchEndedDeliveryDelivered, nil
+		}
+		return matchEndedDeliveryPending, nil
+	}
+	s.deliveries[key] = matchEndedDeliveryRecord{token: token, expiresAt: time.Now().Add(ttl)}
+	return matchEndedDeliveryAcquired, nil
+}
+
+func (s *fakePredictionStore) CompleteMatchEndedDelivery(
+	_ context.Context,
+	key string,
+	token string,
+	ttl time.Duration,
+) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	claim, exists := s.deliveries[key]
+	if !exists || !claim.expiresAt.After(time.Now()) || claim.delivered || claim.token != token {
+		return false, nil
+	}
+	claim.delivered = true
+	claim.expiresAt = time.Now().Add(ttl)
+	s.deliveries[key] = claim
+	return true, nil
+}
+
+func (s *fakePredictionStore) RenewMatchEndedDelivery(
+	_ context.Context,
+	key string,
+	token string,
+	ttl time.Duration,
+) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	claim, exists := s.deliveries[key]
+	if !exists || !claim.expiresAt.After(time.Now()) || claim.delivered || claim.token != token {
+		return false, nil
+	}
+	claim.expiresAt = time.Now().Add(ttl)
+	s.deliveries[key] = claim
+	return true, nil
+}
+
+func (s *fakePredictionStore) ReleaseMatchEndedDelivery(_ context.Context, key string, token string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if claim, exists := s.deliveries[key]; exists && !claim.delivered && claim.token == token {
+		delete(s.deliveries, key)
+	}
 	return nil
 }
 
@@ -221,8 +440,35 @@ func (s *fakePredictionStore) HasReservation(key string) bool {
 	return ok
 }
 
+func (s *fakePredictionStore) HasTerminalClaim(key string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, ok := s.activeTerminalClaim(key)
+	return ok
+}
+
+func (s *fakePredictionStore) RenewTerminalCallCount() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return len(s.renewTerminalCalls)
+}
+
+func (s *fakePredictionStore) activeTerminalClaim(key string) (terminalClaim, bool) {
+	claim, ok := s.terminal[key]
+	if !ok {
+		return terminalClaim{}, false
+	}
+	if !time.Now().Before(claim.expiresAt) {
+		delete(s.terminal, key)
+		return terminalClaim{}, false
+	}
+	return claim, true
+}
+
 type fakePredictionClient struct {
 	mu sync.Mutex
+
+	requestCtx context.Context
 
 	createResponse *helix.PredictionsResponse
 	createErr      error
@@ -235,8 +481,14 @@ type fakePredictionClient struct {
 	getCalls    []*helix.PredictionsParams
 	endCalls    []*helix.EndPredictionParams
 
-	createStarted chan struct{}
-	createRelease chan struct{}
+	createStarted  chan struct{}
+	createRelease  chan struct{}
+	getStarted     chan struct{}
+	getRelease     chan struct{}
+	getStartedOnce sync.Once
+	endStarted     chan struct{}
+	endRelease     chan struct{}
+	endStartedOnce sync.Once
 }
 
 func (c *fakePredictionClient) CreatePrediction(
@@ -261,18 +513,61 @@ func (c *fakePredictionClient) GetPredictions(
 	params *helix.PredictionsParams,
 ) (*helix.PredictionsResponse, error) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 	c.getCalls = append(c.getCalls, params)
-	return c.getResponse, c.getErr
+	requestCtx := c.requestCtx
+	started := c.getStarted
+	release := c.getRelease
+	response := c.getResponse
+	err := c.getErr
+	c.mu.Unlock()
+
+	if started != nil {
+		c.getStartedOnce.Do(func() { close(started) })
+		select {
+		case <-release:
+		case <-requestCtx.Done():
+			return nil, requestCtx.Err()
+		}
+	}
+	if requestCtx != nil {
+		select {
+		case <-requestCtx.Done():
+			return nil, requestCtx.Err()
+		default:
+		}
+	}
+
+	return response, err
 }
 
 func (c *fakePredictionClient) EndPrediction(
 	params *helix.EndPredictionParams,
 ) (*helix.PredictionsResponse, error) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
+	requestCtx := c.requestCtx
+	c.mu.Unlock()
+	if requestCtx != nil {
+		select {
+		case <-requestCtx.Done():
+			return nil, requestCtx.Err()
+		default:
+		}
+	}
+
+	c.mu.Lock()
 	c.endCalls = append(c.endCalls, params)
-	return c.endResponse, c.endErr
+	started := c.endStarted
+	release := c.endRelease
+	response := c.endResponse
+	err := c.endErr
+	c.mu.Unlock()
+
+	if started != nil {
+		c.endStartedOnce.Do(func() { close(started) })
+		<-release
+	}
+
+	return response, err
 }
 
 func (c *fakePredictionClient) CreateCalls() []*helix.CreatePredictionParams {
@@ -293,56 +588,40 @@ func (c *fakePredictionClient) EndCalls() []*helix.EndPredictionParams {
 	return append([]*helix.EndPredictionParams(nil), c.endCalls...)
 }
 
-type fakeClientFactory struct {
-	mu      sync.Mutex
-	client  predictionClient
-	err     error
-	userIDs []uuid.UUID
+func (c *fakePredictionClient) setRequestContext(ctx context.Context) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.requestCtx = ctx
 }
 
-func (f *fakeClientFactory) New(_ context.Context, userID uuid.UUID) (predictionClient, error) {
+type fakeClientFactory struct {
+	mu       sync.Mutex
+	client   predictionClient
+	err      error
+	userIDs  []uuid.UUID
+	contexts []context.Context
+}
+
+func (f *fakeClientFactory) New(ctx context.Context, userID uuid.UUID) (predictionClient, error) {
+	f.mu.Lock()
+	f.userIDs = append(f.userIDs, userID)
+	f.contexts = append(f.contexts, ctx)
+	client := f.client
+	err := f.err
+	f.mu.Unlock()
+	if predictionClient, ok := client.(*fakePredictionClient); ok {
+		predictionClient.setRequestContext(ctx)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
+}
+
+func (f *fakeClientFactory) LastContext() context.Context {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	f.userIDs = append(f.userIDs, userID)
-	if f.err != nil {
-		return nil, f.err
-	}
-	return f.client, nil
-}
-
-type fakeSubscription struct {
-	groups       []string
-	unsubscribes int
-	err          error
-}
-
-func (s *fakeSubscription) Subscribe(group string) error {
-	s.groups = append(s.groups, group)
-	return s.err
-}
-
-func (s *fakeSubscription) Unsubscribe() {
-	s.unsubscribes++
-}
-
-type notifyingSubscription struct {
-	unsubscribed chan struct{}
-}
-
-func (s *notifyingSubscription) Subscribe(_ string) error {
-	return nil
-}
-
-func (s *notifyingSubscription) Unsubscribe() {
-	close(s.unsubscribed)
-}
-
-type fakeLifecycle struct {
-	hooks []fx.Hook
-}
-
-func (l *fakeLifecycle) Append(hook fx.Hook) {
-	l.hooks = append(l.hooks, hook)
+	return f.contexts[len(f.contexts)-1]
 }
 
 type fixture struct {
@@ -358,6 +637,10 @@ type fixture struct {
 }
 
 func newFixture(t *testing.T) *fixture {
+	return newFixtureWithTerminalLease(t, defaultTerminalLease())
+}
+
+func newFixtureWithTerminalLease(t *testing.T, terminalLease terminalLease) *fixture {
 	t.Helper()
 
 	channelID := uuid.New()
@@ -390,8 +673,7 @@ func newFixture(t *testing.T) *fixture {
 			clients,
 			store,
 			slog.New(slog.NewTextHandler(io.Discard, nil)),
-			nil,
-			nil,
+			terminalLease,
 		),
 		settings:    settings,
 		channels:    channels,
@@ -404,25 +686,28 @@ func newFixture(t *testing.T) *fixture {
 	}
 }
 
-func startMessage(f *fixture, matchID int64) busdota.MatchStartedMessage {
-	return busdota.MatchStartedMessage{
-		ChannelID: f.channelID.String(),
+func createAction(f *fixture, matchID int64) match.LifecycleAction {
+	return match.LifecycleAction{
+		Kind:      match.ActionCreate,
+		ChannelID: f.channelID,
 		MatchID:   matchID,
 		TeamKnown: true,
 	}
 }
 
-func endMessage(f *fixture, matchID int64, win bool) busdota.MatchEndedMessage {
-	return busdota.MatchEndedMessage{
-		ChannelID: f.channelID.String(),
+func resolveAction(f *fixture, matchID int64, win bool) match.LifecycleAction {
+	return match.LifecycleAction{
+		Kind:      match.ActionResolve,
+		ChannelID: f.channelID,
 		MatchID:   matchID,
 		Win:       win,
 	}
 }
 
-func abandonedMessage(f *fixture, matchID int64) busdota.MatchAbandonedMessage {
-	return busdota.MatchAbandonedMessage{
-		ChannelID: f.channelID.String(),
+func cancelAction(f *fixture, matchID int64) match.LifecycleAction {
+	return match.LifecycleAction{
+		Kind:      match.ActionCancel,
+		ChannelID: f.channelID,
 		MatchID:   matchID,
 	}
 }
@@ -448,6 +733,405 @@ func predictionResponse(id string, status string) *helix.PredictionsResponse {
 	}
 }
 
+func TestCreateCreatesAndStoresPrediction(t *testing.T) {
+	f := newFixture(t)
+	action := match.LifecycleAction{
+		Kind:      match.ActionCreate,
+		ChannelID: f.channelID,
+		MatchID:   901,
+		TeamKnown: true,
+	}
+
+	err := f.predictions.Create(context.Background(), action)
+
+	require.NoError(t, err)
+	require.Len(t, f.client.CreateCalls(), 1)
+	record, ok := f.store.Record(predictionKey(f.channelID, action.MatchID))
+	require.True(t, ok)
+	require.Equal(t, storedPrediction{
+		PredictionID: "prediction-1",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	}, record)
+}
+
+func TestResolveSettlesOnceAndReturnsSettingsOnReplay(t *testing.T) {
+	f := newFixture(t)
+	f.settings.settings.Mmr = 1_500
+	f.settings.settings.MmrDelta = 25
+	action := match.LifecycleAction{
+		Kind:      match.ActionResolve,
+		ChannelID: f.channelID,
+		MatchID:   902,
+		Win:       false,
+	}
+	key := predictionKey(f.channelID, action.MatchID)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-902",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.client.getResponse = predictionResponse("prediction-902", "ACTIVE")
+
+	settings, err := f.predictions.Resolve(context.Background(), action)
+
+	require.NoError(t, err)
+	require.Equal(t, 1_475, settings.Mmr)
+	require.Equal(t, 1, settings.SessionLosses)
+	require.Equal(t, []dotarepository.ApplyMatchResultInput{{
+		ChannelID: f.channelID,
+		MatchID:   action.MatchID,
+		Won:       false,
+		MmrDelta:  -25,
+	}}, f.settings.ApplyCalls())
+	require.Len(t, f.client.EndCalls(), 1)
+
+	replayedSettings, err := f.predictions.Resolve(context.Background(), action)
+
+	require.NoError(t, err)
+	require.Equal(t, settings, replayedSettings)
+	require.Equal(t, 1, f.settings.Settlements())
+	require.Len(t, f.settings.ApplyCalls(), 2)
+	require.Len(t, f.client.EndCalls(), 1)
+}
+
+func TestResolveAndCancelRaceEndPredictionOnce(t *testing.T) {
+	f := newFixture(t)
+	key := predictionKey(f.channelID, 903)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-903",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.client.getResponse = predictionResponse("prediction-903", "ACTIVE")
+	f.client.endStarted = make(chan struct{})
+	f.client.endRelease = make(chan struct{})
+
+	var releaseOnce sync.Once
+	releaseEnd := func() {
+		releaseOnce.Do(func() { close(f.client.endRelease) })
+	}
+	defer releaseEnd()
+
+	results := make(chan error, 2)
+	go func() {
+		_, err := f.predictions.Resolve(context.Background(), match.LifecycleAction{
+			Kind:      match.ActionResolve,
+			ChannelID: f.channelID,
+			MatchID:   903,
+			Win:       true,
+		})
+		results <- err
+	}()
+	go func() {
+		results <- f.predictions.Cancel(context.Background(), match.LifecycleAction{
+			Kind:      match.ActionCancel,
+			ChannelID: f.channelID,
+			MatchID:   903,
+		})
+	}()
+
+	<-f.client.endStarted
+	select {
+	case err := <-results:
+		require.ErrorIs(t, err, ErrTerminalInProgress)
+	case <-time.After(time.Second):
+		t.Fatal("terminal loser did not return while the winner held EndPrediction")
+	}
+
+	releaseEnd()
+	require.NoError(t, <-results)
+	require.Len(t, f.client.EndCalls(), 1)
+}
+
+func TestTerminalClaimPrecedesRecordReadAfterConcurrentCompletion(t *testing.T) {
+	f := newFixture(t)
+	key := predictionKey(f.channelID, 909)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-909",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.store.claimStarted = make(chan struct{})
+	f.store.claimRelease = make(chan struct{})
+	f.client.getResponse = predictionResponse("prediction-909", "ACTIVE")
+
+	var releaseClaimOnce sync.Once
+	releaseClaim := func() {
+		releaseClaimOnce.Do(func() { close(f.store.claimRelease) })
+	}
+	defer releaseClaim()
+
+	firstDone := make(chan error, 1)
+	go func() {
+		firstDone <- f.predictions.Cancel(context.Background(), cancelAction(f, 909))
+	}()
+	<-f.store.claimStarted
+
+	secondDone := make(chan error, 1)
+	go func() {
+		secondDone <- f.predictions.Cancel(context.Background(), cancelAction(f, 909))
+	}()
+	require.NoError(t, <-secondDone)
+
+	releaseClaim()
+	require.NoError(t, <-firstDone)
+	require.Len(t, f.client.EndCalls(), 1)
+	_, exists := f.store.Record(key)
+	require.False(t, exists)
+}
+
+func TestTerminalHeartbeatFailureCancelsClientOperationBeforeEnd(t *testing.T) {
+	lease := terminalLease{
+		ttl:           100 * time.Millisecond,
+		renewInterval: 10 * time.Millisecond,
+	}
+	f := newFixtureWithTerminalLease(t, lease)
+	key := predictionKey(f.channelID, 910)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-910",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.store.renewTerminalErr = errors.New("redis temporarily unavailable")
+	f.client.getResponse = predictionResponse("prediction-910", "ACTIVE")
+	f.client.getStarted = make(chan struct{})
+	f.client.getRelease = make(chan struct{})
+
+	var releaseGetOnce sync.Once
+	releaseGet := func() {
+		releaseGetOnce.Do(func() { close(f.client.getRelease) })
+	}
+	defer releaseGet()
+
+	result := make(chan error, 1)
+	go func() {
+		result <- f.predictions.Cancel(context.Background(), cancelAction(f, 910))
+	}()
+	<-f.client.getStarted
+
+	operationCtx := f.clients.LastContext()
+	select {
+	case <-operationCtx.Done():
+	case <-time.After(time.Second):
+		t.Fatal("heartbeat failure did not cancel the client operation context")
+	}
+
+	err := <-result
+	require.ErrorIs(t, err, context.Canceled)
+	require.Empty(t, f.client.EndCalls())
+	_, exists := f.store.Record(key)
+	require.True(t, exists)
+}
+
+func TestResolveReleasesTerminalClaimAfterTransientFailureAndRetries(t *testing.T) {
+	f := newFixture(t)
+	f.settings.settings.MmrDelta = 25
+	action := match.LifecycleAction{
+		Kind:      match.ActionResolve,
+		ChannelID: f.channelID,
+		MatchID:   904,
+		Win:       true,
+	}
+	key := predictionKey(f.channelID, action.MatchID)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-904",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.client.getResponse = predictionResponse("prediction-904", "ACTIVE")
+	f.client.endErr = errors.New("twitch temporarily unavailable")
+
+	settings, err := f.predictions.Resolve(context.Background(), action)
+
+	require.ErrorIs(t, err, f.client.endErr)
+	require.Equal(t, 25, settings.Mmr)
+	require.True(t, f.store.HasTerminalClaim(key) == false)
+	_, exists := f.store.Record(key)
+	require.True(t, exists)
+
+	f.client.endErr = nil
+	settings, err = f.predictions.Resolve(context.Background(), action)
+
+	require.NoError(t, err)
+	require.Equal(t, 25, settings.Mmr)
+	require.Equal(t, 1, f.settings.Settlements())
+	require.Len(t, f.client.EndCalls(), 2)
+	_, exists = f.store.Record(key)
+	require.False(t, exists)
+}
+
+func TestResolveReleasesTerminalClaimAfterTransientLookupFailureAndRetries(t *testing.T) {
+	f := newFixture(t)
+	action := resolveAction(f, 905, true)
+	key := predictionKey(f.channelID, action.MatchID)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-905",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.client.getResponse = predictionResponse("prediction-905", "ACTIVE")
+	f.client.getErr = errors.New("twitch temporarily unavailable")
+
+	_, err := f.predictions.Resolve(context.Background(), action)
+
+	require.ErrorIs(t, err, f.client.getErr)
+	require.Equal(t, []string{key}, f.store.releaseTerminalCalls)
+	require.Empty(t, f.client.EndCalls())
+	_, exists := f.store.Record(key)
+	require.True(t, exists)
+
+	f.client.getErr = nil
+	_, err = f.predictions.Resolve(context.Background(), action)
+
+	require.NoError(t, err)
+	require.Len(t, f.client.GetCalls(), 2)
+	require.Len(t, f.client.EndCalls(), 1)
+	_, exists = f.store.Record(key)
+	require.False(t, exists)
+}
+
+func TestTerminalLeaseRenewalPreventsConcurrentEndAfterClaimExpiry(t *testing.T) {
+	lease := terminalLease{
+		ttl:           100 * time.Millisecond,
+		renewInterval: 10 * time.Millisecond,
+	}
+	f := newFixtureWithTerminalLease(t, lease)
+	key := predictionKey(f.channelID, 906)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-906",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.client.getResponse = predictionResponse("prediction-906", "ACTIVE")
+	f.client.endStarted = make(chan struct{})
+	f.client.endRelease = make(chan struct{})
+
+	var releaseOnce sync.Once
+	releaseEnd := func() {
+		releaseOnce.Do(func() { close(f.client.endRelease) })
+	}
+	defer releaseEnd()
+
+	firstDone := make(chan error, 1)
+	go func() {
+		_, err := f.predictions.Resolve(context.Background(), resolveAction(f, 906, true))
+		firstDone <- err
+	}()
+	<-f.client.endStarted
+
+	deadline := time.After(time.Second)
+	for f.store.RenewTerminalCallCount() == 0 {
+		select {
+		case <-deadline:
+			t.Fatal("terminal lease was not renewed while EndPrediction was blocked")
+		case <-time.After(lease.renewInterval):
+		}
+	}
+	time.Sleep(lease.ttl * 2)
+	require.True(t, f.store.HasTerminalClaim(key))
+
+	secondDone := make(chan error, 1)
+	go func() {
+		secondDone <- f.predictions.Cancel(context.Background(), cancelAction(f, 906))
+	}()
+	select {
+	case err := <-secondDone:
+		require.ErrorIs(t, err, ErrTerminalInProgress)
+	case <-time.After(time.Second):
+		t.Fatal("terminal caller did not yield while another caller held the renewed lease")
+	}
+	require.Len(t, f.client.EndCalls(), 1)
+
+	releaseEnd()
+	require.NoError(t, <-firstDone)
+}
+
+func TestTerminalHeartbeatShutdownWaitsForRenewalWithoutFailure(t *testing.T) {
+	lease := terminalLease{
+		ttl:           100 * time.Millisecond,
+		renewInterval: 10 * time.Millisecond,
+	}
+	f := newFixtureWithTerminalLease(t, lease)
+	key := predictionKey(f.channelID, 907)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-907",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.client.getResponse = predictionResponse("prediction-907", "ACTIVE")
+	f.client.endStarted = make(chan struct{})
+	f.client.endRelease = make(chan struct{})
+	f.store.renewStarted = make(chan struct{})
+	f.store.renewRelease = make(chan struct{})
+
+	var releaseEndOnce sync.Once
+	releaseEnd := func() {
+		releaseEndOnce.Do(func() { close(f.client.endRelease) })
+	}
+	defer releaseEnd()
+	var releaseRenewOnce sync.Once
+	releaseRenew := func() {
+		releaseRenewOnce.Do(func() { close(f.store.renewRelease) })
+	}
+	defer releaseRenew()
+
+	result := make(chan error, 1)
+	go func() {
+		_, err := f.predictions.Resolve(context.Background(), resolveAction(f, 907, true))
+		result <- err
+	}()
+	<-f.client.endStarted
+	<-f.store.renewStarted
+
+	releaseEnd()
+	select {
+	case err := <-result:
+		t.Fatalf("terminal completion returned before renewal stopped: %v", err)
+	case <-time.After(50 * time.Millisecond):
+	}
+
+	releaseRenew()
+	require.NoError(t, <-result)
+	_, exists := f.store.Record(key)
+	require.False(t, exists)
+}
+
+func TestTerminalHeartbeatHonorsOperationDeadline(t *testing.T) {
+	f := newFixture(t)
+	key := predictionKey(f.channelID, 908)
+	f.store.Store(key, storedPrediction{
+		PredictionID: "prediction-908",
+		YesOutcomeID: "yes-outcome",
+		NoOutcomeID:  "no-outcome",
+	})
+	f.client.getResponse = predictionResponse("prediction-908", "ACTIVE")
+	f.client.endStarted = make(chan struct{})
+	f.client.endRelease = make(chan struct{})
+
+	var releaseEndOnce sync.Once
+	releaseEnd := func() {
+		releaseEndOnce.Do(func() { close(f.client.endRelease) })
+	}
+	defer releaseEnd()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	result := make(chan error, 1)
+	go func() {
+		_, err := f.predictions.Resolve(ctx, resolveAction(f, 908, true))
+		result <- err
+	}()
+	<-f.client.endStarted
+	<-ctx.Done()
+
+	releaseEnd()
+	err := <-result
+	require.ErrorIs(t, err, context.DeadlineExceeded)
+	_, exists := f.store.Record(key)
+	require.True(t, exists)
+}
+
 func predictionCorrelationFromTitle(t *testing.T, template string, title string) string {
 	t.Helper()
 
@@ -463,10 +1147,10 @@ func predictionCorrelationFromTitle(t *testing.T, template string, title string)
 	return correlation
 }
 
-func TestMatchStartedCreatesAndStoresPrediction(t *testing.T) {
+func TestCreateUsesConfiguredTwitchParameters(t *testing.T) {
 	f := newFixture(t)
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), startMessage(f, 91))
+	err := f.predictions.Create(context.Background(), createAction(f, 91))
 
 	require.NoError(t, err)
 	createCalls := f.client.CreateCalls()
@@ -490,13 +1174,13 @@ func TestMatchStartedCreatesAndStoresPrediction(t *testing.T) {
 	require.Equal(t, []uuid.UUID{f.twitchUser}, f.clients.userIDs)
 }
 
-func TestMatchStartedPersistsMarkedTitleAndCorrelationBeforeCreate(t *testing.T) {
+func TestCreatePersistsMarkedTitleAndCorrelationBeforeCreate(t *testing.T) {
 	f := newFixture(t)
 	f.store.commitErr = errors.New("redis temporarily unavailable")
-	message := startMessage(f, 911)
-	key := predictionKey(f.channelID, message.MatchID)
+	action := createAction(f, 911)
+	key := predictionKey(f.channelID, action.MatchID)
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+	err := f.predictions.Create(context.Background(), action)
 
 	require.ErrorIs(t, err, f.store.commitErr)
 	createCalls := f.client.CreateCalls()
@@ -518,56 +1202,62 @@ func TestMatchStartedPersistsMarkedTitleAndCorrelationBeforeCreate(t *testing.T)
 	require.Equal(t, correlation, persisted["correlation"])
 }
 
-func TestMatchStartedSkipsIneligibleInputs(t *testing.T) {
+func TestCreateSkipsIneligibleInputs(t *testing.T) {
 	tests := []struct {
 		name      string
-		configure func(*fixture, *busdota.MatchStartedMessage)
+		configure func(*fixture, *match.LifecycleAction)
 	}{
 		{
 			name: "disabled dota module",
-			configure: func(f *fixture, _ *busdota.MatchStartedMessage) {
+			configure: func(f *fixture, _ *match.LifecycleAction) {
 				f.settings.settings.Enabled = false
 			},
 		},
 		{
 			name: "disabled prediction settings",
-			configure: func(f *fixture, _ *busdota.MatchStartedMessage) {
+			configure: func(f *fixture, _ *match.LifecycleAction) {
 				f.settings.settings.PredictionSettings.Enabled = false
 			},
 		},
 		{
 			name: "missing match id",
-			configure: func(_ *fixture, msg *busdota.MatchStartedMessage) {
-				msg.MatchID = 0
+			configure: func(_ *fixture, action *match.LifecycleAction) {
+				action.MatchID = 0
+			},
+		},
+		{
+			name: "missing channel id",
+			configure: func(_ *fixture, action *match.LifecycleAction) {
+				action.ChannelID = uuid.Nil
 			},
 		},
 		{
 			name: "unknown team",
-			configure: func(_ *fixture, msg *busdota.MatchStartedMessage) {
-				msg.TeamKnown = false
+			configure: func(_ *fixture, action *match.LifecycleAction) {
+				action.TeamKnown = false
 			},
 		},
 		{
 			name: "blank title",
-			configure: func(f *fixture, _ *busdota.MatchStartedMessage) {
+			configure: func(f *fixture, _ *match.LifecycleAction) {
 				f.settings.settings.PredictionSettings.TitleTemplate = " \t"
 			},
 		},
 		{
 			name: "zero window",
-			configure: func(f *fixture, _ *busdota.MatchStartedMessage) {
+			configure: func(f *fixture, _ *match.LifecycleAction) {
 				f.settings.settings.PredictionSettings.WindowSeconds = 0
 			},
 		},
 		{
 			name: "window above helix limit",
-			configure: func(f *fixture, _ *busdota.MatchStartedMessage) {
+			configure: func(f *fixture, _ *match.LifecycleAction) {
 				f.settings.settings.PredictionSettings.WindowSeconds = 1_801
 			},
 		},
 		{
 			name: "disconnected channel",
-			configure: func(f *fixture, _ *busdota.MatchStartedMessage) {
+			configure: func(f *fixture, _ *match.LifecycleAction) {
 				f.channels.channel = channelsmodel.Channel{}
 			},
 		},
@@ -576,10 +1266,10 @@ func TestMatchStartedSkipsIneligibleInputs(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFixture(t)
-			message := startMessage(f, 92)
-			tt.configure(f, &message)
+			action := createAction(f, 92)
+			tt.configure(f, &action)
 
-			_, err := f.predictions.handleMatchStarted(context.Background(), message)
+			err := f.predictions.Create(context.Background(), action)
 
 			require.NoError(t, err)
 			require.Empty(t, f.client.CreateCalls())
@@ -588,7 +1278,7 @@ func TestMatchStartedSkipsIneligibleInputs(t *testing.T) {
 	}
 }
 
-func TestMatchStartedEnforcesTwitchPredictionWindowLimits(t *testing.T) {
+func TestCreateEnforcesTwitchPredictionWindowLimits(t *testing.T) {
 	for _, tt := range []struct {
 		name          string
 		windowSeconds int
@@ -603,7 +1293,7 @@ func TestMatchStartedEnforcesTwitchPredictionWindowLimits(t *testing.T) {
 			f := newFixture(t)
 			f.settings.settings.PredictionSettings.WindowSeconds = tt.windowSeconds
 
-			_, err := f.predictions.handleMatchStarted(context.Background(), startMessage(f, 921))
+			err := f.predictions.Create(context.Background(), createAction(f, 921))
 
 			require.NoError(t, err)
 			if tt.creates {
@@ -616,7 +1306,7 @@ func TestMatchStartedEnforcesTwitchPredictionWindowLimits(t *testing.T) {
 	}
 }
 
-func TestMatchStartedEnforcesTwitchPredictionTitleRuneLimits(t *testing.T) {
+func TestCreateEnforcesTwitchPredictionTitleRuneLimits(t *testing.T) {
 	const correlationMarkerRunes = 16
 	longestTemplateRunes := maxPredictionTitleRunes - correlationMarkerRunes
 
@@ -640,7 +1330,7 @@ func TestMatchStartedEnforcesTwitchPredictionTitleRuneLimits(t *testing.T) {
 			f := newFixture(t)
 			f.settings.settings.PredictionSettings.TitleTemplate = tt.title
 
-			_, err := f.predictions.handleMatchStarted(context.Background(), startMessage(f, 922))
+			err := f.predictions.Create(context.Background(), createAction(f, 922))
 
 			require.NoError(t, err)
 			if tt.creates {
@@ -653,39 +1343,50 @@ func TestMatchStartedEnforcesTwitchPredictionTitleRuneLimits(t *testing.T) {
 	}
 }
 
-func TestMatchStartedDeduplicatesConcurrentAndReplayedEvents(t *testing.T) {
+func TestCreateRecoversConcurrentPendingActionAndDeduplicatesReplay(t *testing.T) {
 	f := newFixture(t)
-	message := startMessage(f, 93)
+	action := createAction(f, 93)
+	f.client.createStarted = make(chan struct{})
+	f.client.createRelease = make(chan struct{})
 
-	var wg sync.WaitGroup
-	errs := make(chan error, 2)
-	for range 2 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			_, err := f.predictions.handleMatchStarted(context.Background(), message)
-			errs <- err
-		}()
+	var releaseOnce sync.Once
+	releaseCreate := func() {
+		releaseOnce.Do(func() { close(f.client.createRelease) })
 	}
-	wg.Wait()
-	close(errs)
-	for err := range errs {
-		require.NoError(t, err)
-	}
+	defer releaseCreate()
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+	firstResult := make(chan error, 1)
+	go func() {
+		firstResult <- f.predictions.Create(context.Background(), action)
+	}()
+	<-f.client.createStarted
+
+	intent, err := f.store.GetPending(context.Background(), predictionKey(f.channelID, action.MatchID))
+	require.NoError(t, err)
+	f.client.getResponse = predictionsResponse(activePredictionForIntent(intent, "prediction-1"))
+
+	secondResult := make(chan error, 1)
+	go func() {
+		secondResult <- f.predictions.Create(context.Background(), action)
+	}()
+	require.NoError(t, <-secondResult)
+
+	releaseCreate()
+	require.NoError(t, <-firstResult)
+
+	err = f.predictions.Create(context.Background(), action)
 	require.NoError(t, err)
 	require.Len(t, f.client.CreateCalls(), 1)
-	require.Len(t, f.store.commitCalls, 1)
+	require.Len(t, f.store.commitCalls, 2)
 }
 
-func TestMatchStartedTreatsAlreadyActivePredictionAsNoopAndReleasesReservation(t *testing.T) {
+func TestCreateTreatsAlreadyActivePredictionAsNoopAndReleasesReservation(t *testing.T) {
 	f := newFixture(t)
 	f.client.createResponse = &helix.PredictionsResponse{
 		ResponseCommon: helix.ResponseCommon{ErrorMessage: "Prediction is ALREADY ACTIVE"},
 	}
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), startMessage(f, 94))
+	err := f.predictions.Create(context.Background(), createAction(f, 94))
 
 	require.NoError(t, err)
 	key := predictionKey(f.channelID, 94)
@@ -695,12 +1396,12 @@ func TestMatchStartedTreatsAlreadyActivePredictionAsNoopAndReleasesReservation(t
 	require.False(t, exists)
 }
 
-func TestMatchStartedTreatsAlreadyActiveCreateErrorAsNoopAndReleasesReservation(t *testing.T) {
+func TestCreateTreatsAlreadyActiveCreateErrorAsNoopAndReleasesReservation(t *testing.T) {
 	f := newFixture(t)
 	f.client.createResponse = nil
 	f.client.createErr = errors.New("prediction is already active")
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), startMessage(f, 941))
+	err := f.predictions.Create(context.Background(), createAction(f, 941))
 
 	require.NoError(t, err)
 	key := predictionKey(f.channelID, 941)
@@ -708,12 +1409,12 @@ func TestMatchStartedTreatsAlreadyActiveCreateErrorAsNoopAndReleasesReservation(
 	require.False(t, f.store.HasReservation(key))
 }
 
-func TestMatchStartedReleasesReservationAfterTransientCreateFailure(t *testing.T) {
+func TestCreateReleasesReservationAfterTransientCreateFailure(t *testing.T) {
 	f := newFixture(t)
 	f.client.createErr = errors.New("twitch temporarily unavailable")
-	message := startMessage(f, 95)
+	action := createAction(f, 95)
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+	err := f.predictions.Create(context.Background(), action)
 
 	require.Error(t, err)
 	key := predictionKey(f.channelID, 95)
@@ -721,19 +1422,19 @@ func TestMatchStartedReleasesReservationAfterTransientCreateFailure(t *testing.T
 	require.Equal(t, []string{key}, f.store.releaseCalls)
 
 	f.client.createErr = nil
-	_, err = f.predictions.handleMatchStarted(context.Background(), message)
+	err = f.predictions.Create(context.Background(), action)
 	require.NoError(t, err)
 	_, exists := f.store.Record(key)
 	require.True(t, exists)
 }
 
-func TestMatchStartedRetainsPendingIntentWhenCommitFailsAndRecoversOnReplay(t *testing.T) {
+func TestCreateRetainsPendingIntentWhenCommitFailsAndRecoversOnReplay(t *testing.T) {
 	f := newFixture(t)
-	message := startMessage(f, 951)
-	key := predictionKey(f.channelID, message.MatchID)
+	action := createAction(f, 951)
+	key := predictionKey(f.channelID, action.MatchID)
 	f.store.commitErr = errors.New("redis temporarily unavailable")
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+	err := f.predictions.Create(context.Background(), action)
 
 	require.ErrorIs(t, err, f.store.commitErr)
 	require.True(t, f.store.HasReservation(key))
@@ -744,7 +1445,7 @@ func TestMatchStartedRetainsPendingIntentWhenCommitFailsAndRecoversOnReplay(t *t
 	intent, pendingErr := f.store.GetPending(context.Background(), key)
 	require.NoError(t, pendingErr)
 	f.client.getResponse = predictionsResponse(activePredictionForIntent(intent, "prediction-1"))
-	_, err = f.predictions.handleMatchStarted(context.Background(), message)
+	err = f.predictions.Create(context.Background(), action)
 
 	require.NoError(t, err)
 	require.Len(t, f.client.CreateCalls(), 1)
@@ -757,7 +1458,7 @@ func TestMatchStartedRetainsPendingIntentWhenCommitFailsAndRecoversOnReplay(t *t
 	}, record)
 }
 
-func TestTerminalEventsRecoverKnownPredictionAfterCommitFailure(t *testing.T) {
+func TestTerminalActionsRecoverKnownPredictionAfterCommitFailure(t *testing.T) {
 	for _, tt := range []struct {
 		name   string
 		handle func(*fixture) error
@@ -766,7 +1467,7 @@ func TestTerminalEventsRecoverKnownPredictionAfterCommitFailure(t *testing.T) {
 		{
 			name: "resolve",
 			handle: func(f *fixture) error {
-				_, err := f.predictions.handleMatchEnded(context.Background(), endMessage(f, 952, true))
+				_, err := f.predictions.Resolve(context.Background(), resolveAction(f, 952, true))
 				return err
 			},
 			status: "RESOLVED",
@@ -774,23 +1475,22 @@ func TestTerminalEventsRecoverKnownPredictionAfterCommitFailure(t *testing.T) {
 		{
 			name: "cancel",
 			handle: func(f *fixture) error {
-				_, err := f.predictions.handleMatchAbandoned(context.Background(), abandonedMessage(f, 952))
-				return err
+				return f.predictions.Cancel(context.Background(), cancelAction(f, 952))
 			},
 			status: "CANCELED",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFixture(t)
-			message := startMessage(f, 952)
+			action := createAction(f, 952)
 			f.store.commitErr = errors.New("redis temporarily unavailable")
 
-			_, err := f.predictions.handleMatchStarted(context.Background(), message)
+			err := f.predictions.Create(context.Background(), action)
 			require.ErrorIs(t, err, f.store.commitErr)
 			require.Len(t, f.client.CreateCalls(), 1)
 
 			f.store.commitErr = nil
-			intent, pendingErr := f.store.GetPending(context.Background(), predictionKey(f.channelID, message.MatchID))
+			intent, pendingErr := f.store.GetPending(context.Background(), predictionKey(f.channelID, action.MatchID))
 			require.NoError(t, pendingErr)
 			f.client.getResponse = predictionsResponse(activePredictionForIntent(intent, "prediction-1"))
 			require.NoError(t, tt.handle(f))
@@ -798,29 +1498,29 @@ func TestTerminalEventsRecoverKnownPredictionAfterCommitFailure(t *testing.T) {
 			endCalls := f.client.EndCalls()
 			require.Len(t, endCalls, 1)
 			require.Equal(t, tt.status, endCalls[0].Status)
-			_, exists := f.store.Record(predictionKey(f.channelID, message.MatchID))
+			_, exists := f.store.Record(predictionKey(f.channelID, action.MatchID))
 			require.False(t, exists)
 		})
 	}
 }
 
-func TestTerminalEventRecoversPredictionOnAnotherReplicaAfterCommitFailure(t *testing.T) {
+func TestTerminalActionRecoversPredictionOnAnotherReplicaAfterCommitFailure(t *testing.T) {
 	f := newFixture(t)
-	message := startMessage(f, 953)
+	action := createAction(f, 953)
 	f.store.commitErr = errors.New("redis temporarily unavailable")
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), message)
+	err := f.predictions.Create(context.Background(), action)
 	require.ErrorIs(t, err, f.store.commitErr)
 	require.Len(t, f.client.CreateCalls(), 1)
 
 	replicaClient := newReplicaClient()
 	replica := newReplica(f, replicaClient)
 	f.store.commitErr = nil
-	intent, pendingErr := f.store.GetPending(context.Background(), predictionKey(f.channelID, message.MatchID))
+	intent, pendingErr := f.store.GetPending(context.Background(), predictionKey(f.channelID, action.MatchID))
 	require.NoError(t, pendingErr)
 	replicaClient.getResponse = predictionsResponse(activePredictionForIntent(intent, "prediction-1"))
 
-	_, err = replica.handleMatchEnded(context.Background(), endMessage(f, message.MatchID, true))
+	_, err = replica.Resolve(context.Background(), resolveAction(f, action.MatchID, true))
 
 	require.NoError(t, err)
 	require.Len(t, f.client.CreateCalls(), 1)
@@ -831,28 +1531,30 @@ func TestTerminalEventRecoversPredictionOnAnotherReplicaAfterCommitFailure(t *te
 	require.Equal(t, "RESOLVED", endCalls[0].Status)
 }
 
-func TestMatchStartedReturnsReservationStoreFailureWithoutCallingTwitch(t *testing.T) {
+func TestCreateReturnsReservationStoreFailureWithoutCallingTwitch(t *testing.T) {
 	f := newFixture(t)
 	f.store.reserveErr = errors.New("redis unavailable")
 
-	_, err := f.predictions.handleMatchStarted(context.Background(), startMessage(f, 96))
+	err := f.predictions.Create(context.Background(), createAction(f, 96))
 
 	require.ErrorIs(t, err, f.store.reserveErr)
 	require.Empty(t, f.client.CreateCalls())
 }
 
-func TestMatchEndedResolvesStoredActivePredictionWithoutRecheckingSettings(t *testing.T) {
+func TestResolveSettlesAndResolvesStoredActivePrediction(t *testing.T) {
 	for _, tt := range []struct {
 		name           string
 		win            bool
 		winningOutcome string
+		mmrDelta       int
 	}{
-		{name: "win", win: true, winningOutcome: "yes-outcome"},
-		{name: "loss", win: false, winningOutcome: "no-outcome"},
+		{name: "win", win: true, winningOutcome: "yes-outcome", mmrDelta: 25},
+		{name: "loss", win: false, winningOutcome: "no-outcome", mmrDelta: -25},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFixture(t)
 			f.settings.settings.Enabled = false
+			f.settings.settings.MmrDelta = 25
 			f.store.Store(predictionKey(f.channelID, 97), storedPrediction{
 				PredictionID: "prediction-97",
 				YesOutcomeID: "yes-outcome",
@@ -860,10 +1562,16 @@ func TestMatchEndedResolvesStoredActivePredictionWithoutRecheckingSettings(t *te
 			})
 			f.client.getResponse = predictionResponse("prediction-97", "ACTIVE")
 
-			_, err := f.predictions.handleMatchEnded(context.Background(), endMessage(f, 97, tt.win))
+			_, err := f.predictions.Resolve(context.Background(), resolveAction(f, 97, tt.win))
 
 			require.NoError(t, err)
-			require.Zero(t, f.settings.Calls())
+			require.Equal(t, 1, f.settings.Calls())
+			require.Equal(t, []dotarepository.ApplyMatchResultInput{{
+				ChannelID: f.channelID,
+				MatchID:   97,
+				Won:       tt.win,
+				MmrDelta:  tt.mmrDelta,
+			}}, f.settings.ApplyCalls())
 			require.Equal(t, []*helix.PredictionsParams{{
 				BroadcasterID: f.broadcaster,
 				ID:            "prediction-97",
@@ -880,57 +1588,58 @@ func TestMatchEndedResolvesStoredActivePredictionWithoutRecheckingSettings(t *te
 	}
 }
 
-func TestMatchEndedDeletesStoredPredictionThatIsNoLongerActive(t *testing.T) {
+func TestResolveCompletesStoredPredictionThatIsNoLongerActive(t *testing.T) {
 	f := newFixture(t)
 	key := predictionKey(f.channelID, 98)
 	f.store.Store(key, storedPrediction{PredictionID: "prediction-98", YesOutcomeID: "yes", NoOutcomeID: "no"})
 	f.client.getResponse = predictionResponse("prediction-98", "RESOLVED")
 
-	_, err := f.predictions.handleMatchEnded(context.Background(), endMessage(f, 98, true))
+	_, err := f.predictions.Resolve(context.Background(), resolveAction(f, 98, true))
 
 	require.NoError(t, err)
 	require.Empty(t, f.client.EndCalls())
-	require.Equal(t, []string{key}, f.store.deleteCalls)
+	require.Equal(t, []string{key}, f.store.completeTerminalCalls)
 	_, exists := f.store.Record(key)
 	require.False(t, exists)
 }
 
-func TestMatchEndedRetainsStoredPredictionAfterTransientEndFailure(t *testing.T) {
+func TestResolveRetainsStoredPredictionAfterTransientEndFailure(t *testing.T) {
 	f := newFixture(t)
 	key := predictionKey(f.channelID, 99)
 	f.store.Store(key, storedPrediction{PredictionID: "prediction-99", YesOutcomeID: "yes", NoOutcomeID: "no"})
 	f.client.getResponse = predictionResponse("prediction-99", "LOCKED")
 	f.client.endErr = errors.New("twitch temporarily unavailable")
 
-	_, err := f.predictions.handleMatchEnded(context.Background(), endMessage(f, 99, true))
+	_, err := f.predictions.Resolve(context.Background(), resolveAction(f, 99, true))
 
 	require.ErrorIs(t, err, f.client.endErr)
-	require.Empty(t, f.store.deleteCalls)
+	require.Empty(t, f.store.completeTerminalCalls)
+	require.Equal(t, []string{key}, f.store.releaseTerminalCalls)
 	_, exists := f.store.Record(key)
 	require.True(t, exists)
 }
 
-func TestMatchEndedRetainsStoredPredictionAfterTemporaryStorageFailure(t *testing.T) {
+func TestResolveRetainsStoredPredictionAfterTemporaryStorageFailure(t *testing.T) {
 	f := newFixture(t)
 	key := predictionKey(f.channelID, 100)
 	f.store.Store(key, storedPrediction{PredictionID: "prediction-100", YesOutcomeID: "yes", NoOutcomeID: "no"})
-	f.store.deleteErr = errors.New("redis temporarily unavailable")
+	f.store.completeTerminalErr = errors.New("redis temporarily unavailable")
 	f.client.getResponse = predictionResponse("prediction-100", "RESOLVED")
 
-	_, err := f.predictions.handleMatchEnded(context.Background(), endMessage(f, 100, true))
+	_, err := f.predictions.Resolve(context.Background(), resolveAction(f, 100, true))
 
-	require.ErrorIs(t, err, f.store.deleteErr)
+	require.ErrorIs(t, err, f.store.completeTerminalErr)
 	_, exists := f.store.Record(key)
 	require.True(t, exists)
 }
 
-func TestMatchAbandonedCancelsOnlyStoredActivePrediction(t *testing.T) {
+func TestCancelCancelsOnlyStoredActivePrediction(t *testing.T) {
 	f := newFixture(t)
 	key := predictionKey(f.channelID, 101)
 	f.store.Store(key, storedPrediction{PredictionID: "dota-prediction", YesOutcomeID: "yes", NoOutcomeID: "no"})
 	f.client.getResponse = predictionResponse("dota-prediction", "ACTIVE")
 
-	_, err := f.predictions.handleMatchAbandoned(context.Background(), abandonedMessage(f, 101))
+	err := f.predictions.Cancel(context.Background(), cancelAction(f, 101))
 
 	require.NoError(t, err)
 	require.Equal(t, []*helix.PredictionsParams{{
@@ -946,83 +1655,18 @@ func TestMatchAbandonedCancelsOnlyStoredActivePrediction(t *testing.T) {
 	require.False(t, exists)
 }
 
-func TestMatchAbandonedRetainsStoredPredictionAfterTransientCancelFailure(t *testing.T) {
+func TestCancelRetainsStoredPredictionAfterTransientCancelFailure(t *testing.T) {
 	f := newFixture(t)
 	key := predictionKey(f.channelID, 102)
 	f.store.Store(key, storedPrediction{PredictionID: "prediction-102", YesOutcomeID: "yes", NoOutcomeID: "no"})
 	f.client.getResponse = predictionResponse("prediction-102", "ACTIVE")
 	f.client.endErr = errors.New("twitch temporarily unavailable")
 
-	_, err := f.predictions.handleMatchAbandoned(context.Background(), abandonedMessage(f, 102))
+	err := f.predictions.Cancel(context.Background(), cancelAction(f, 102))
 
 	require.ErrorIs(t, err, f.client.endErr)
-	require.Empty(t, f.store.deleteCalls)
+	require.Empty(t, f.store.completeTerminalCalls)
+	require.Equal(t, []string{key}, f.store.releaseTerminalCalls)
 	_, exists := f.store.Record(key)
 	require.True(t, exists)
-}
-
-func TestLifecycleSubscribesWithDedicatedGroupAndWaitsForHandlers(t *testing.T) {
-	f := newFixture(t)
-	lifecycle := &fakeLifecycle{}
-	subscriptions := []*fakeSubscription{{}, {}, {}}
-	service := newPredictions(
-		f.settings,
-		f.channels,
-		f.clients,
-		f.store,
-		slog.New(slog.NewTextHandler(io.Discard, nil)),
-		[]subscription{subscriptions[0], subscriptions[1], subscriptions[2]},
-		lifecycle,
-	)
-	require.NotNil(t, service)
-	require.Len(t, lifecycle.hooks, 1)
-
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
-	for _, sub := range subscriptions {
-		require.Equal(t, []string{"dota-predictions"}, sub.groups)
-	}
-	require.NoError(t, lifecycle.hooks[0].OnStop(context.Background()))
-	for _, sub := range subscriptions {
-		require.Equal(t, 1, sub.unsubscribes)
-	}
-}
-
-func TestLifecycleStopWaitsForInFlightHandler(t *testing.T) {
-	f := newFixture(t)
-	lifecycle := &fakeLifecycle{}
-	sub := &notifyingSubscription{unsubscribed: make(chan struct{})}
-	f.client.createStarted = make(chan struct{})
-	f.client.createRelease = make(chan struct{})
-	service := newPredictions(
-		f.settings,
-		f.channels,
-		f.clients,
-		f.store,
-		slog.New(slog.NewTextHandler(io.Discard, nil)),
-		[]subscription{sub},
-		lifecycle,
-	)
-
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
-	handlerResult := make(chan error, 1)
-	go func() {
-		_, err := service.handleMatchStarted(context.Background(), startMessage(f, 103))
-		handlerResult <- err
-	}()
-	<-f.client.createStarted
-
-	stopResult := make(chan error, 1)
-	go func() {
-		stopResult <- lifecycle.hooks[0].OnStop(context.Background())
-	}()
-	<-sub.unsubscribed
-	select {
-	case err := <-stopResult:
-		t.Fatalf("OnStop returned while the handler was blocked: %v", err)
-	default:
-	}
-
-	close(f.client.createRelease)
-	require.NoError(t, <-handlerResult)
-	require.NoError(t, <-stopResult)
 }

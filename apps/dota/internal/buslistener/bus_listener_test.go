@@ -182,6 +182,15 @@ func (f *fakeRepository) ClaimPredictionActions(
 	return nil, errNotImplemented
 }
 
+func (f *fakeRepository) RenewPredictionAction(
+	_ context.Context,
+	_ uuid.UUID,
+	_ uuid.UUID,
+	_ time.Duration,
+) error {
+	return errNotImplemented
+}
+
 func (f *fakeRepository) CompletePredictionAction(_ context.Context, _ uuid.UUID, _ uuid.UUID) error {
 	return errNotImplemented
 }

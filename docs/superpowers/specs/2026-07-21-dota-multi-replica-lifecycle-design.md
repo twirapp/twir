@@ -2,8 +2,12 @@
 
 ## Status
 
-Approved for implementation on 2026-07-21. Revised to PostgreSQL state and
-outbox on 2026-07-21 after Redis action-fencing analysis.
+Implemented on 2026-07-21. Revised to PostgreSQL state and outbox on
+2026-07-21 after Redis action-fencing analysis.
+
+`MatchEnded` publication is deliberately at-least-once: a token-owned Redis
+pending/delivered marker suppresses stable replays for seven days, but an
+external bus publish cannot be made atomic with PostgreSQL outbox completion.
 
 ## Problem
 

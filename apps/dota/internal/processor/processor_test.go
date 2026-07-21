@@ -2,8 +2,8 @@ package processor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
 	"sync"
 	"testing"
@@ -11,8 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"github.com/twirapp/kv"
-	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/apps/dota/internal/gsi"
 	"github.com/twirapp/twir/apps/dota/internal/match"
 	busapi "github.com/twirapp/twir/libs/bus-core/api"
@@ -160,13 +158,17 @@ func (f *fakeWinProbabilityProvider) MatchIDs() []int64 {
 }
 
 type fakeRepo struct {
+	mu       sync.Mutex
 	settings model.ChannelDotaSettings
+	states   map[uuid.UUID]model.MatchState
 }
 
 func (f *fakeRepo) GetByChannelID(
 	_ context.Context,
 	_ uuid.UUID,
 ) (model.ChannelDotaSettings, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
 	return f.settings, nil
 }
 
@@ -208,15 +210,43 @@ func (f *fakeRepo) ApplyMatchResultOnce(
 	return f.settings, nil
 }
 
-func (f *fakeRepo) GetMatchState(_ context.Context, _ uuid.UUID) (model.MatchState, error) {
-	return model.MatchState{}, errors.New("not implemented")
+func (f *fakeRepo) GetMatchState(
+	_ context.Context,
+	channelID uuid.UUID,
+) (model.MatchState, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	state, ok := f.states[channelID]
+	if !ok {
+		return model.MatchState{ChannelID: channelID, Snapshot: json.RawMessage(`{}`)}, nil
+	}
+	state.Snapshot = append(json.RawMessage(nil), state.Snapshot...)
+	return state, nil
 }
 
 func (f *fakeRepo) ApplyMatchStateTransition(
 	_ context.Context,
-	_ dotarepository.ApplyMatchStateTransitionInput,
+	input dotarepository.ApplyMatchStateTransitionInput,
 ) (bool, error) {
-	return false, errors.New("not implemented")
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	current, ok := f.states[input.ChannelID]
+	if !ok {
+		current = model.MatchState{ChannelID: input.ChannelID, Snapshot: json.RawMessage(`{}`)}
+	}
+	if current.Revision != input.ExpectedRevision {
+		return false, nil
+	}
+
+	f.states[input.ChannelID] = model.MatchState{
+		ChannelID:         input.ChannelID,
+		Revision:          current.Revision + 1,
+		ProviderTimestamp: input.ProviderTimestamp,
+		Snapshot:          append(json.RawMessage(nil), input.Snapshot...),
+	}
+	return true, nil
 }
 
 func (f *fakeRepo) ClaimPredictionActions(
@@ -224,6 +254,15 @@ func (f *fakeRepo) ClaimPredictionActions(
 	_ dotarepository.ClaimPredictionActionsInput,
 ) ([]model.ClaimedOutboxAction, error) {
 	return nil, errors.New("not implemented")
+}
+
+func (f *fakeRepo) RenewPredictionAction(
+	_ context.Context,
+	_ uuid.UUID,
+	_ uuid.UUID,
+	_ time.Duration,
+) error {
+	return errors.New("not implemented")
 }
 
 func (f *fakeRepo) CompletePredictionAction(_ context.Context, _ uuid.UUID, _ uuid.UUID) error {
@@ -287,87 +326,6 @@ func (f *fakeEmitter) StateUpdate(_ context.Context, msg busapi.DotaStateUpdateM
 	return nil
 }
 
-type fakeValuer struct {
-	bytes []byte
-	err   error
-}
-
-func (v fakeValuer) Int() (int64, error)     { return 0, v.err }
-func (v fakeValuer) String() (string, error) { return string(v.bytes), v.err }
-func (v fakeValuer) Bytes() ([]byte, error)  { return v.bytes, v.err }
-func (v fakeValuer) Bool() (bool, error)     { return false, v.err }
-func (v fakeValuer) Float() (float64, error) { return 0, v.err }
-func (v fakeValuer) Scan(_ any) error        { return v.err }
-func (v fakeValuer) Err() error              { return v.err }
-
-type fakeKV struct {
-	store map[string][]byte
-}
-
-func newFakeKV() *fakeKV {
-	return &fakeKV{store: make(map[string][]byte)}
-}
-
-func (f *fakeKV) Get(_ context.Context, key string) kv.Valuer {
-	value, ok := f.store[key]
-	if !ok {
-		return fakeValuer{err: kv.ErrKeyNil}
-	}
-
-	return fakeValuer{bytes: value}
-}
-
-func (f *fakeKV) Set(_ context.Context, key string, value any, _ ...kvoptions.Option) error {
-	bytes, ok := value.([]byte)
-	if !ok {
-		return fmt.Errorf("unsupported value type %T", value)
-	}
-
-	f.store[key] = bytes
-	return nil
-}
-
-func (f *fakeKV) SetMany(_ context.Context, values []kv.SetMany) error {
-	for _, value := range values {
-		if err := f.Set(context.Background(), value.Key, value.Value, value.Options...); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (f *fakeKV) Delete(_ context.Context, key string) error {
-	delete(f.store, key)
-	return nil
-}
-
-func (f *fakeKV) DeleteMany(_ context.Context, keys []string) error {
-	for _, key := range keys {
-		delete(f.store, key)
-	}
-
-	return nil
-}
-
-func (f *fakeKV) Exists(_ context.Context, key string) (bool, error) {
-	_, ok := f.store[key]
-	return ok, nil
-}
-
-func (f *fakeKV) ExistsMany(_ context.Context, keys []string) ([]bool, error) {
-	exists := make([]bool, len(keys))
-	for i, key := range keys {
-		exists[i], _ = f.Exists(context.Background(), key)
-	}
-
-	return exists, nil
-}
-
-func (f *fakeKV) GetKeysByPattern(_ context.Context, _ string) ([]string, error) {
-	return nil, nil
-}
-
 func newStateMachine() (*match.StateMachine, *fakeEmitter, uuid.UUID) {
 	channelID := uuid.New()
 	repo := &fakeRepo{
@@ -376,14 +334,16 @@ func newStateMachine() (*match.StateMachine, *fakeEmitter, uuid.UUID) {
 			Mmr:       3000,
 			MmrDelta:  25,
 		},
+		states: make(map[uuid.UUID]model.MatchState),
 	}
 	emitter := &fakeEmitter{}
 
-	return match.New(repo, emitter, newFakeKV(), slog.Default()), emitter, channelID
+	return match.New(repo, emitter, slog.Default()), emitter, channelID
 }
 
 func inGamePayload(matchID int64) gsi.Payload {
 	return gsi.Payload{
+		Provider: gsi.Provider{Timestamp: matchID},
 		Map: &gsi.Map{
 			MatchID:   matchID,
 			GameState: gsi.GameStateInProgress,
@@ -538,17 +498,24 @@ func TestProcessKeepsGsiAvailableWhenWinProbabilityFails(t *testing.T) {
 	require.Len(t, emitter.stateUpdates, 1)
 }
 
-func TestProcessReturnsStateMachineErrorBeforeWinProbability(t *testing.T) {
+func TestProcessKeepsStateCommittedWhenRoshanPublicationFails(t *testing.T) {
 	sm, emitter, channelID := newStateMachine()
 	emitter.roshanErr = errors.New("publish failed")
-	provider := &fakeWinProbabilityProvider{probability: 0.625}
+	provider := &fakeWinProbabilityProvider{
+		probability: 0.625,
+		callCh:      make(chan int64, 1),
+	}
 	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
 	payload := inGamePayload(2003)
 	payload.Events = []gsi.Event{{EventType: "roshan_killed", GameTime: 300}}
 
-	err := processor.Process(context.Background(), channelID, payload)
-	require.ErrorIs(t, err, emitter.roshanErr)
-	require.Empty(t, provider.MatchIDs())
+	require.NoError(t, processor.Process(context.Background(), channelID, payload))
+	require.Equal(t, int64(2003), waitFor(t, provider.callCh, "win probability request"))
+	require.Equal(t, []int64{2003}, provider.MatchIDs())
+
+	snapshot, err := sm.GetSnapshot(context.Background(), channelID)
+	require.NoError(t, err)
+	require.Equal(t, int64(2003), snapshot.MatchID)
 }
 
 func TestOnStopCancelsAndWaitsForWinProbabilityJob(t *testing.T) {

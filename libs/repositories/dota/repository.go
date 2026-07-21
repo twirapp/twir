@@ -37,6 +37,7 @@ type Repository interface {
 		ctx context.Context,
 		input ClaimPredictionActionsInput,
 	) ([]model.ClaimedOutboxAction, error)
+	RenewPredictionAction(ctx context.Context, actionID uuid.UUID, lockToken uuid.UUID, lease time.Duration) error
 	CompletePredictionAction(ctx context.Context, actionID uuid.UUID, lockToken uuid.UUID) error
 	RetryPredictionAction(
 		ctx context.Context,
@@ -131,6 +132,7 @@ func ValidateApplyMatchStateTransitionInput(input ApplyMatchStateTransitionInput
 		matchID int64
 		action  model.OutboxAction
 	}]struct{})
+	seenSequences := make(map[int64]struct{})
 	for index, action := range input.Actions {
 		if action.ChannelID != input.ChannelID {
 			return fmt.Errorf("action %d channel ID must match transition channel ID", index)
@@ -150,6 +152,11 @@ func ValidateApplyMatchStateTransitionInput(input ApplyMatchStateTransitionInput
 			return fmt.Errorf("duplicate action for match %d and action %q", action.MatchID, action.Action)
 		}
 		seenActions[key] = struct{}{}
+
+		if _, exists := seenSequences[action.Sequence]; exists {
+			return fmt.Errorf("duplicate sequence %d for channel", action.Sequence)
+		}
+		seenSequences[action.Sequence] = struct{}{}
 	}
 
 	return nil
@@ -159,8 +166,19 @@ func ValidateClaimPredictionActionsInput(input ClaimPredictionActionsInput) erro
 	if input.Limit <= 0 {
 		return errors.New("claim limit must be positive")
 	}
-	if input.Lease <= 0 {
-		return errors.New("claim lease must be positive")
+	if err := ValidatePredictionActionLease(input.Lease); err != nil {
+		return fmt.Errorf("claim lease: %w", err)
+	}
+
+	return nil
+}
+
+func ValidatePredictionActionLease(lease time.Duration) error {
+	if lease <= 0 {
+		return errors.New("prediction action lease must be positive")
+	}
+	if lease < time.Microsecond {
+		return errors.New("prediction action lease must be at least one microsecond")
 	}
 
 	return nil

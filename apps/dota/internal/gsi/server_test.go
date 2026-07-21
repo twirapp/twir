@@ -93,6 +93,10 @@ func (f *fakeRepo) ClaimPredictionActions(
 	return nil, errors.New("not implemented")
 }
 
+func (f *fakeRepo) RenewPredictionAction(context.Context, uuid.UUID, uuid.UUID, time.Duration) error {
+	return errors.New("not implemented")
+}
+
 func (f *fakeRepo) CompletePredictionAction(context.Context, uuid.UUID, uuid.UUID) error {
 	return errors.New("not implemented")
 }

@@ -77,6 +77,28 @@ func TestApplyMatchStateTransition(t *testing.T) {
 		}
 	})
 
+	t.Run("does not create an idle state for a missing nonzero revision", func(t *testing.T) {
+		executor := &matchLifecycleExecutorFake{}
+
+		applied, err := (&Pgx{}).applyMatchStateTransition(
+			context.Background(),
+			executor,
+			lifecycleTransitionInput(channelID, 1),
+		)
+		if err != nil {
+			t.Fatalf("applyMatchStateTransition() error = %v", err)
+		}
+		if applied {
+			t.Fatal("applyMatchStateTransition() applied = true, want false")
+		}
+		if executor.hasState {
+			t.Errorf("state was created for a rejected transition = %#v", executor.state)
+		}
+		if len(executor.actions) != 0 {
+			t.Errorf("inserted actions = %#v, want none", executor.actions)
+		}
+	})
+
 	t.Run("rolls back the state when an action insert fails", func(t *testing.T) {
 		store := matchLifecycleStore{executor: matchLifecycleExecutorFake{
 			outboxInsertErr: errors.New("outbox insert failed"),
@@ -100,6 +122,21 @@ func TestApplyMatchStateTransition(t *testing.T) {
 			t.Errorf("actions persisted after rollback = %#v, want none", store.executor.actions)
 		}
 	})
+}
+
+func TestValidateApplyMatchStateTransitionInput(t *testing.T) {
+	channelID := uuid.New()
+	input := lifecycleTransitionInput(channelID, 0)
+	input.Actions[1].MatchID++
+	input.Actions[1].Sequence = input.Actions[0].Sequence
+
+	err := dota.ValidateApplyMatchStateTransitionInput(input)
+	if err == nil {
+		t.Fatal("ValidateApplyMatchStateTransitionInput() error = nil, want duplicate sequence error")
+	}
+	if !strings.Contains(err.Error(), "duplicate sequence") {
+		t.Errorf("ValidateApplyMatchStateTransitionInput() error = %q, want duplicate sequence error", err)
+	}
 }
 
 func TestScanMatchStateReturnsIdleStateWhenNoRowExists(t *testing.T) {
@@ -140,11 +177,15 @@ func TestClaimPredictionActions(t *testing.T) {
 		if got := first[0]; got.ID != create.ID || got.Action != model.OutboxActionCreate || got.Sequence != 10 {
 			t.Errorf("first claimed action = %#v, want create sequence 10", got)
 		}
-		if !strings.Contains(executor.query, "DISTINCT ON (channel_id, match_id)") {
-			t.Errorf("claim query does not select the first action per match: %s", executor.query)
+		if !strings.Contains(executor.query, "DISTINCT ON (channel_id)") ||
+			strings.Contains(executor.query, "DISTINCT ON (channel_id, match_id)") {
+			t.Errorf("claim query does not select the first action per channel: %s", executor.query)
 		}
 		if !strings.Contains(executor.query, "FOR UPDATE OF outbox SKIP LOCKED") {
 			t.Errorf("claim query does not lock candidates with SKIP LOCKED: %s", executor.query)
+		}
+		if !strings.Contains(executor.query, "lease_expires_at") {
+			t.Errorf("claim query does not use the stored lease expiry: %s", executor.query)
 		}
 
 		if err := (&Pgx{}).completePredictionAction(context.Background(), executor, first[0].ID, first[0].LockToken); err != nil {
@@ -163,13 +204,47 @@ func TestClaimPredictionActions(t *testing.T) {
 		}
 	})
 
+	t.Run("returns replacement cancel before replacement create", func(t *testing.T) {
+		cancel := testOutboxAction(channelID, 45, model.OutboxActionCancel, 20, now)
+		create := testOutboxAction(channelID, 46, model.OutboxActionCreate, 21, now)
+		executor := newPredictionActionStoreExecutor(now, cancel, create)
+
+		first, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
+		if err != nil {
+			t.Fatalf("first claimPredictionActions() error = %v", err)
+		}
+		if len(first) != 1 {
+			t.Fatalf("first claimed actions = %#v, want only replacement cancel", first)
+		}
+		if got := first[0]; got.ID != cancel.ID || got.Action != model.OutboxActionCancel || got.MatchID != 45 {
+			t.Errorf("first claimed action = %#v, want replacement cancel", got)
+		}
+
+		if err := (&Pgx{}).completePredictionAction(context.Background(), executor, first[0].ID, first[0].LockToken); err != nil {
+			t.Fatalf("completePredictionAction() error = %v", err)
+		}
+
+		second, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
+		if err != nil {
+			t.Fatalf("second claimPredictionActions() error = %v", err)
+		}
+		if len(second) != 1 {
+			t.Fatalf("second claimed actions = %#v, want only replacement create", second)
+		}
+		if got := second[0]; got.ID != create.ID || got.Action != model.OutboxActionCreate || got.MatchID != 46 {
+			t.Errorf("second claimed action = %#v, want replacement create", got)
+		}
+	})
+
 	t.Run("does not reclaim a non-expired lease", func(t *testing.T) {
 		action := testOutboxAction(channelID, 43, model.OutboxActionCreate, 10, now)
 		lockToken := uuid.New()
 		lockedAt := now.Add(-30 * time.Second)
+		leaseExpiresAt := now.Add(30 * time.Second)
 		action.Attempts = 1
 		action.LockToken = lockToken
 		action.LockedAt = &lockedAt
+		action.LeaseExpiresAt = &leaseExpiresAt
 		executor := newPredictionActionStoreExecutor(now, action)
 
 		claimed, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
@@ -189,9 +264,11 @@ func TestClaimPredictionActions(t *testing.T) {
 		action := testOutboxAction(channelID, 44, model.OutboxActionCreate, 10, now)
 		previousToken := uuid.New()
 		lockedAt := now.Add(-61 * time.Second)
+		leaseExpiresAt := now.Add(-time.Second)
 		action.Attempts = 1
 		action.LockToken = previousToken
 		action.LockedAt = &lockedAt
+		action.LeaseExpiresAt = &leaseExpiresAt
 		executor := newPredictionActionStoreExecutor(now, action)
 
 		claimed, err := (&Pgx{}).claimPredictionActions(context.Background(), executor, input)
@@ -250,6 +327,92 @@ func TestPredictionActionOwnershipLoss(t *testing.T) {
 			t.Errorf("stored action changed after failed retry = %#v", stored)
 		}
 	})
+}
+
+func TestRenewPredictionAction(t *testing.T) {
+	now := time.Date(2026, time.July, 21, 2, 0, 0, 0, time.UTC)
+	action := testOutboxAction(uuid.New(), 42, model.OutboxActionCreate, 10, now)
+	ownerToken := uuid.New()
+	lockedAt := now.Add(-time.Second)
+	leaseExpiresAt := now.Add(time.Minute)
+	action.Attempts = 1
+	action.LockToken = ownerToken
+	action.LockedAt = &lockedAt
+	action.LeaseExpiresAt = &leaseExpiresAt
+	executor := newPredictionActionStoreExecutor(now, action)
+
+	if err := (&Pgx{}).renewPredictionAction(context.Background(), executor, action.ID, ownerToken, 2*time.Minute); err != nil {
+		t.Fatalf("renewPredictionAction() error = %v", err)
+	}
+	stored := executor.action(action.ID)
+	if stored.LeaseExpiresAt == nil || !stored.LeaseExpiresAt.Equal(now.Add(2*time.Minute)) {
+		t.Fatalf("renewed lease expiry = %v, want %v", stored.LeaseExpiresAt, now.Add(2*time.Minute))
+	}
+
+	renewedExpiry := *stored.LeaseExpiresAt
+	err := (&Pgx{}).renewPredictionAction(context.Background(), executor, action.ID, uuid.New(), time.Minute)
+	if !errors.Is(err, dota.ErrPredictionActionOwnershipLost) {
+		t.Fatalf("renewPredictionAction() error = %v, want ownership loss", err)
+	}
+	if stored.LeaseExpiresAt == nil || !stored.LeaseExpiresAt.Equal(renewedExpiry) || stored.LockToken != ownerToken {
+		t.Errorf("stored action changed after stale renewal = %#v", stored)
+	}
+}
+
+func TestExpiredPredictionActionOwnershipLoss(t *testing.T) {
+	now := time.Date(2026, time.July, 21, 2, 0, 0, 0, time.UTC)
+
+	tests := []struct {
+		name   string
+		mutate func(*predictionActionStoreExecutorFake, uuid.UUID, uuid.UUID) error
+	}{
+		{
+			name: "renew",
+			mutate: func(executor *predictionActionStoreExecutorFake, actionID, lockToken uuid.UUID) error {
+				return (&Pgx{}).renewPredictionAction(context.Background(), executor, actionID, lockToken, time.Minute)
+			},
+		},
+		{
+			name: "complete",
+			mutate: func(executor *predictionActionStoreExecutorFake, actionID, lockToken uuid.UUID) error {
+				return (&Pgx{}).completePredictionAction(context.Background(), executor, actionID, lockToken)
+			},
+		},
+		{
+			name: "retry",
+			mutate: func(executor *predictionActionStoreExecutorFake, actionID, lockToken uuid.UUID) error {
+				return (&Pgx{}).retryPredictionAction(context.Background(), executor, actionID, lockToken, now.Add(time.Minute))
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			action := testOutboxAction(uuid.New(), 42, model.OutboxActionCreate, 10, now)
+			ownerToken := uuid.New()
+			expiredAt := now.Add(-time.Second)
+			action.Attempts = 1
+			action.LockToken = ownerToken
+			action.LeaseExpiresAt = &expiredAt
+			executor := newPredictionActionStoreExecutor(now, action)
+
+			err := test.mutate(executor, action.ID, ownerToken)
+			if !errors.Is(err, dota.ErrPredictionActionOwnershipLost) {
+				t.Fatalf("expired %s error = %v, want ownership loss", test.name, err)
+			}
+			if !strings.Contains(executor.mutationQuery, "lease_expires_at > now()") {
+				t.Errorf("%s query does not require a live lease: %s", test.name, executor.mutationQuery)
+			}
+
+			stored := executor.action(action.ID)
+			if stored.CompletedAt != nil || stored.LockToken != ownerToken || !stored.AvailableAt.Equal(action.AvailableAt) {
+				t.Errorf("stored action changed after expired %s = %#v", test.name, stored)
+			}
+			if stored.LeaseExpiresAt == nil || !stored.LeaseExpiresAt.Equal(expiredAt) {
+				t.Errorf("stored lease after expired %s = %v, want %v", test.name, stored.LeaseExpiresAt, expiredAt)
+			}
+		})
+	}
 }
 
 func lifecycleTransitionInput(channelID uuid.UUID, expectedRevision int64) dota.ApplyMatchStateTransitionInput {
@@ -396,20 +559,22 @@ func (r matchLifecycleRow) Scan(dest ...any) error {
 }
 
 type predictionActionStoreExecutorFake struct {
-	now     time.Time
-	actions []storedPredictionAction
-	query   string
+	now           time.Time
+	actions       []storedPredictionAction
+	query         string
+	mutationQuery string
 }
 
 type storedPredictionAction struct {
 	ID uuid.UUID
 	model.OutboxActionInput
-	Attempts    int
-	AvailableAt time.Time
-	LockedAt    *time.Time
-	LockToken   uuid.UUID
-	CompletedAt *time.Time
-	CreatedAt   time.Time
+	Attempts       int
+	AvailableAt    time.Time
+	LockedAt       *time.Time
+	LeaseExpiresAt *time.Time
+	LockToken      uuid.UUID
+	CompletedAt    *time.Time
+	CreatedAt      time.Time
 }
 
 func newPredictionActionStoreExecutor(
@@ -467,33 +632,25 @@ func (f *predictionActionStoreExecutorFake) Query(
 	}
 
 	lease := time.Duration(leaseMicros) * time.Microsecond
-	earliestByMatch := make(map[struct {
-		channelID uuid.UUID
-		matchID   int64
-	}]*storedPredictionAction)
+	earliestByChannel := make(map[uuid.UUID]*storedPredictionAction)
 	for index := range f.actions {
 		action := &f.actions[index]
 		if action.CompletedAt != nil {
 			continue
 		}
 
-		key := struct {
-			channelID uuid.UUID
-			matchID   int64
-		}{channelID: action.ChannelID, matchID: action.MatchID}
-		current, exists := earliestByMatch[key]
-		if !exists || action.Sequence < current.Sequence ||
-			(action.Sequence == current.Sequence && action.CreatedAt.Before(current.CreatedAt)) {
-			earliestByMatch[key] = action
+		current, exists := earliestByChannel[action.ChannelID]
+		if !exists || action.Sequence < current.Sequence {
+			earliestByChannel[action.ChannelID] = action
 		}
 	}
 
-	candidates := make([]*storedPredictionAction, 0, len(earliestByMatch))
-	for _, action := range earliestByMatch {
+	candidates := make([]*storedPredictionAction, 0, len(earliestByChannel))
+	for _, action := range earliestByChannel {
 		if action.AvailableAt.After(f.now) {
 			continue
 		}
-		if action.LockedAt != nil && !action.LockedAt.Before(f.now.Add(-lease)) {
+		if action.LeaseExpiresAt != nil && action.LeaseExpiresAt.After(f.now) {
 			continue
 		}
 		candidates = append(candidates, action)
@@ -502,10 +659,13 @@ func (f *predictionActionStoreExecutorFake) Query(
 		if !candidates[left].AvailableAt.Equal(candidates[right].AvailableAt) {
 			return candidates[left].AvailableAt.Before(candidates[right].AvailableAt)
 		}
+		if candidates[left].ChannelID != candidates[right].ChannelID {
+			return candidates[left].ChannelID.String() < candidates[right].ChannelID.String()
+		}
 		if candidates[left].Sequence != candidates[right].Sequence {
 			return candidates[left].Sequence < candidates[right].Sequence
 		}
-		return candidates[left].CreatedAt.Before(candidates[right].CreatedAt)
+		return false
 	})
 	if len(candidates) > limit {
 		candidates = candidates[:limit]
@@ -514,7 +674,9 @@ func (f *predictionActionStoreExecutorFake) Query(
 	claimed := make([]model.ClaimedOutboxAction, 0, len(candidates))
 	for _, action := range candidates {
 		lockedAt := f.now
+		leaseExpiresAt := f.now.Add(lease)
 		action.LockedAt = &lockedAt
+		action.LeaseExpiresAt = &leaseExpiresAt
 		action.LockToken = lockToken
 		action.Attempts++
 		claimed = append(claimed, model.ClaimedOutboxAction{
@@ -533,6 +695,7 @@ func (f *predictionActionStoreExecutorFake) Exec(
 	query string,
 	arguments ...any,
 ) (pgconn.CommandTag, error) {
+	f.mutationQuery = query
 	if len(arguments) < 2 {
 		return pgconn.CommandTag{}, fmt.Errorf("action mutation arguments = %d, want at least 2", len(arguments))
 	}
@@ -549,13 +712,26 @@ func (f *predictionActionStoreExecutorFake) Exec(
 	if action == nil || action.CompletedAt != nil || action.LockToken != lockToken {
 		return pgconn.NewCommandTag("UPDATE 0"), nil
 	}
+	if strings.Contains(query, "lease_expires_at > now()") &&
+		(action.LeaseExpiresAt == nil || !action.LeaseExpiresAt.After(f.now)) {
+		return pgconn.NewCommandTag("UPDATE 0"), nil
+	}
 
 	switch {
 	case strings.Contains(query, "SET completed_at = now()"):
 		completedAt := f.now
 		action.CompletedAt = &completedAt
 		action.LockedAt = nil
+		action.LeaseExpiresAt = nil
 		action.LockToken = uuid.Nil
+		return pgconn.NewCommandTag("UPDATE 1"), nil
+	case strings.Contains(query, "SET lease_expires_at = now() +"):
+		leaseMicros, ok := arguments[2].(int64)
+		if !ok {
+			return pgconn.CommandTag{}, fmt.Errorf("lease duration = %T, want int64", arguments[2])
+		}
+		leaseExpiresAt := f.now.Add(time.Duration(leaseMicros) * time.Microsecond)
+		action.LeaseExpiresAt = &leaseExpiresAt
 		return pgconn.NewCommandTag("UPDATE 1"), nil
 	case strings.Contains(query, "SET available_at = $3"):
 		availableAt, ok := arguments[2].(time.Time)
@@ -564,6 +740,7 @@ func (f *predictionActionStoreExecutorFake) Exec(
 		}
 		action.AvailableAt = availableAt
 		action.LockedAt = nil
+		action.LeaseExpiresAt = nil
 		action.LockToken = uuid.Nil
 		return pgconn.NewCommandTag("UPDATE 1"), nil
 	default:

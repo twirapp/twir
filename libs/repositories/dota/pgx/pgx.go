@@ -334,13 +334,15 @@ func (p *Pgx) applyMatchStateTransition(
 	conn matchStateTransitionExecutor,
 	input dota.ApplyMatchStateTransitionInput,
 ) (bool, error) {
-	insertIdleStateQuery := `
+	if input.ExpectedRevision == 0 {
+		insertIdleStateQuery := `
 INSERT INTO dota_channel_match_states (channel_id, snapshot)
 VALUES ($1, '{}'::jsonb)
 ON CONFLICT (channel_id) DO NOTHING;
 `
-	if _, err := conn.Exec(ctx, insertIdleStateQuery, input.ChannelID); err != nil {
-		return false, fmt.Errorf("dota match state insert idle: %w", err)
+		if _, err := conn.Exec(ctx, insertIdleStateQuery, input.ChannelID); err != nil {
+			return false, fmt.Errorf("dota match state insert idle: %w", err)
+		}
 	}
 
 	selectRevisionQuery := `
@@ -348,9 +350,13 @@ SELECT revision
 FROM dota_channel_match_states
 WHERE channel_id = $1
 FOR UPDATE;
-`
+	`
 	var revision int64
 	if err := conn.QueryRow(ctx, selectRevisionQuery, input.ChannelID).Scan(&revision); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+
 		return false, fmt.Errorf("dota match state lock: %w", err)
 	}
 	if revision != input.ExpectedRevision {
@@ -431,22 +437,23 @@ func (p *Pgx) claimPredictionActions(
 	lockToken := uuid.New()
 	query := `
 WITH earliest_actions AS MATERIALIZED (
-	SELECT DISTINCT ON (channel_id, match_id) id
+	SELECT DISTINCT ON (channel_id) id
 	FROM dota_prediction_outbox
 	WHERE completed_at IS NULL
-	ORDER BY channel_id, match_id, sequence, created_at
+	ORDER BY channel_id, sequence
 ), claimable_actions AS (
 	SELECT outbox.id
 	FROM dota_prediction_outbox AS outbox
 	JOIN earliest_actions AS earliest ON earliest.id = outbox.id
 	WHERE outbox.available_at <= now()
-		AND (outbox.locked_at IS NULL OR outbox.locked_at < now() - ($1 * INTERVAL '1 microsecond'))
-	ORDER BY outbox.available_at, outbox.sequence, outbox.created_at
+		AND (outbox.lease_expires_at IS NULL OR outbox.lease_expires_at <= now())
+	ORDER BY outbox.available_at, outbox.channel_id, outbox.sequence
 	LIMIT $2
 	FOR UPDATE OF outbox SKIP LOCKED
 )
 UPDATE dota_prediction_outbox AS outbox
 SET locked_at = now(),
+	lease_expires_at = now() + ($1 * INTERVAL '1 microsecond'),
 	lock_token = $3,
 	attempts = outbox.attempts + 1
 FROM claimable_actions
@@ -498,6 +505,50 @@ func (p *Pgx) CompletePredictionAction(ctx context.Context, actionID uuid.UUID, 
 	return nil
 }
 
+func (p *Pgx) RenewPredictionAction(
+	ctx context.Context,
+	actionID uuid.UUID,
+	lockToken uuid.UUID,
+	lease time.Duration,
+) error {
+	if err := dota.ValidatePredictionActionLease(lease); err != nil {
+		return fmt.Errorf("validate renew prediction action lease: %w", err)
+	}
+
+	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
+	if err := p.renewPredictionAction(ctx, conn, actionID, lockToken, lease); err != nil {
+		return fmt.Errorf("renew prediction action: %w", err)
+	}
+
+	return nil
+}
+
+func (p *Pgx) renewPredictionAction(
+	ctx context.Context,
+	conn predictionActionMutationExecutor,
+	actionID uuid.UUID,
+	lockToken uuid.UUID,
+	lease time.Duration,
+) error {
+	query := `
+UPDATE dota_prediction_outbox
+SET lease_expires_at = now() + ($3 * INTERVAL '1 microsecond')
+WHERE id = $1
+	AND lock_token = $2
+	AND completed_at IS NULL
+	AND lease_expires_at > now();
+`
+	result, err := conn.Exec(ctx, query, actionID, lockToken, lease.Microseconds())
+	if err != nil {
+		return fmt.Errorf("renew prediction action update: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("renew prediction action ownership: %w", dota.ErrPredictionActionOwnershipLost)
+	}
+
+	return nil
+}
+
 func (p *Pgx) completePredictionAction(
 	ctx context.Context,
 	conn predictionActionMutationExecutor,
@@ -508,10 +559,12 @@ func (p *Pgx) completePredictionAction(
 UPDATE dota_prediction_outbox
 SET completed_at = now(),
 	locked_at = NULL,
+	lease_expires_at = NULL,
 	lock_token = NULL
 WHERE id = $1
 	AND lock_token = $2
-	AND completed_at IS NULL;
+	AND completed_at IS NULL
+	AND lease_expires_at > now();
 `
 	result, err := conn.Exec(ctx, query, actionID, lockToken)
 	if err != nil {
@@ -549,10 +602,12 @@ func (p *Pgx) retryPredictionAction(
 UPDATE dota_prediction_outbox
 SET available_at = $3,
 	locked_at = NULL,
+	lease_expires_at = NULL,
 	lock_token = NULL
 WHERE id = $1
 	AND lock_token = $2
-	AND completed_at IS NULL;
+	AND completed_at IS NULL
+	AND lease_expires_at > now();
 `
 	result, err := conn.Exec(ctx, query, actionID, lockToken, availableAt)
 	if err != nil {

@@ -314,6 +314,20 @@ func TestValidateApplyMatchStateTransitionInput(t *testing.T) {
 				return input
 			}(),
 		},
+		{
+			name: "rejects duplicate sequences across matches in a channel",
+			input: func() ApplyMatchStateTransitionInput {
+				input := validInput()
+				input.Actions = append(input.Actions, model.OutboxActionInput{
+					ChannelID: channelID,
+					MatchID:   43,
+					Action:    model.OutboxActionCancel,
+					Sequence:  input.Actions[0].Sequence,
+					Payload:   json.RawMessage(`{"kind":"cancel"}`),
+				})
+				return input
+			}(),
+		},
 	}
 
 	for _, tt := range tests {
@@ -355,6 +369,13 @@ func TestValidateClaimPredictionActionsInput(t *testing.T) {
 				Lease: -time.Second,
 			},
 		},
+		{
+			name: "rejects a positive lease below one microsecond",
+			input: ClaimPredictionActionsInput{
+				Limit: 1,
+				Lease: time.Nanosecond,
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -370,5 +391,14 @@ func TestValidateClaimPredictionActionsInput(t *testing.T) {
 		Lease: time.Minute,
 	}); err != nil {
 		t.Fatalf("ValidateClaimPredictionActionsInput() error = %v", err)
+	}
+}
+
+func TestValidatePredictionActionLease(t *testing.T) {
+	if err := ValidatePredictionActionLease(time.Nanosecond); err == nil {
+		t.Fatal("ValidatePredictionActionLease() error = nil, want sub-microsecond lease error")
+	}
+	if err := ValidatePredictionActionLease(time.Microsecond); err != nil {
+		t.Fatalf("ValidatePredictionActionLease() error = %v", err)
 	}
 }

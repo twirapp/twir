@@ -18,17 +18,19 @@ CREATE TABLE dota_prediction_outbox (
     attempts INT NOT NULL DEFAULT 0 CHECK (attempts >= 0),
     available_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     locked_at TIMESTAMPTZ,
+    lease_expires_at TIMESTAMPTZ,
     lock_token UUID,
     completed_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (channel_id, match_id, action)
+    UNIQUE (channel_id, match_id, action),
+    UNIQUE (channel_id, sequence)
 );
 
 CREATE INDEX dota_prediction_outbox_claim_idx
-    ON dota_prediction_outbox (available_at, sequence, created_at)
+    ON dota_prediction_outbox (available_at, channel_id, sequence)
     WHERE completed_at IS NULL;
-CREATE INDEX dota_prediction_outbox_match_order_idx
-    ON dota_prediction_outbox (channel_id, match_id, sequence)
+CREATE INDEX dota_prediction_outbox_channel_order_idx
+    ON dota_prediction_outbox (channel_id, sequence)
     WHERE completed_at IS NULL;
 -- +goose StatementEnd
 

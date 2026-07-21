@@ -63,12 +63,13 @@ var App = fx.Module(
 			fx.As(new(predictions.Store)),
 		),
 		predictions.New,
+		predictions.NewLifecycleWorker,
 	),
 	fx.Invoke(
 		otel.NewFx("dota"),
 		func(*buslistener.BusListener) {},
 		func(*chatalerts.ChatAlerts) {},
-		func(*predictions.Predictions) {},
+		func(*predictions.LifecycleWorker) {},
 		func(s *gsi.Server, lc fx.Lifecycle) {
 			lc.Append(fx.Hook{
 				OnStart: func(_ context.Context) error { return s.Start() },
