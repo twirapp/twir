@@ -2,6 +2,7 @@ package spam
 
 import (
 	"context"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -18,6 +19,12 @@ const (
 	spamCountArgName   = "count"
 	spamMessageArgName = "message_or_command"
 )
+
+var repeatVariableRegexp = regexp.MustCompile(`\$\(repeat(?:\.[^)|]+)?(?:\|[^)]*)?\)`)
+
+func stripRepeatVariable(text string) string {
+	return repeatVariableRegexp.ReplaceAllString(text, "")
+}
 
 var Command = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
@@ -94,7 +101,7 @@ var Command = &types.DefaultCommand{
 					continue
 				}
 
-				result.Result = append(result.Result, *r.Text)
+				result.Result = append(result.Result, stripRepeatVariable(*r.Text))
 			}
 		}
 
