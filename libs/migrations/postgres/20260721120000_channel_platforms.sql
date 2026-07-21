@@ -21,6 +21,35 @@ CREATE INDEX channel_platforms_channel_id_idx ON channel_platforms USING btree (
 CREATE INDEX channel_platforms_user_id_idx ON channel_platforms USING btree (user_id);
 CREATE INDEX channel_platforms_bot_user_id_idx ON channel_platforms USING btree (bot_user_id);
 
+DO $$
+BEGIN
+    -- botId is a required legacy channels FK, so it cannot identify an orphaned provider binding.
+    IF EXISTS (
+        SELECT 1
+        FROM channels c
+        WHERE c.twitch_user_id IS NULL
+          AND (
+              c.twitch_bot_enabled
+              OR c."isBotMod"
+              OR c."isTwitchBanned"
+          )
+    ) THEN
+        RAISE EXCEPTION 'cannot backfill channel_platforms: Twitch provider state exists without a Twitch owner';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM channels c
+        WHERE c.kick_user_id IS NULL
+          AND (
+              c.kick_bot_enabled
+              OR c.kick_bot_id IS NOT NULL
+          )
+    ) THEN
+        RAISE EXCEPTION 'cannot backfill channel_platforms: Kick provider state exists without a Kick owner';
+    END IF;
+END $$;
+
 INSERT INTO channel_platforms (
     channel_id,
     platform,
