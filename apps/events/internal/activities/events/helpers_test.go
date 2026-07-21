@@ -139,10 +139,27 @@ func TestTwitchBroadcasterIDKeepsLegacyTwitchEventCompatibility(t *testing.T) {
 	}
 }
 
+func TestTwitchBroadcasterIDKeepsPlatformlessLegacyTwitchEventCompatibility(t *testing.T) {
+	if got := twitchBroadcasterID(shared.EventData{
+		ChannelID:           "twitch-channel",
+		ChannelTwitchUserID: "twitch-user",
+	}); got != "twitch-channel" {
+		t.Errorf("twitchBroadcasterID = %q, want %q", got, "twitch-channel")
+	}
+}
+
 func TestTwitchBroadcasterIDDoesNotUseKickEventID(t *testing.T) {
 	if got := twitchBroadcasterID(shared.EventData{
 		ChannelID: "kick-channel",
 		Platform:  platform.PlatformKick,
+	}); got != "" {
+		t.Errorf("twitchBroadcasterID = %q, want empty", got)
+	}
+}
+
+func TestTwitchBroadcasterIDDoesNotUsePlatformlessEventIDWithoutTwitchIdentity(t *testing.T) {
+	if got := twitchBroadcasterID(shared.EventData{
+		ChannelID: "unknown-channel",
 	}); got != "" {
 		t.Errorf("twitchBroadcasterID = %q, want empty", got)
 	}
