@@ -26,6 +26,7 @@ type fakeRedisStateClient struct {
 	getCalls             int
 	evalCalls            []redisStateEvalCall
 	failXAdd             bool
+	failSet              bool
 	commitNextBeforeEval bool
 	onEval               func(*fakeRedisStateClient, redisStateEvalCall) *redis.Cmd
 }
@@ -114,10 +115,16 @@ func (c *fakeRedisStateClient) Eval(
 		if err := appendActions(); err != nil {
 			return redis.NewCmdResult(nil, err)
 		}
+		if c.failSet {
+			return redis.NewCmdResult(nil, errors.New("simulated Redis SET failure"))
+		}
 		c.values[keys[0]] = next
 		return redis.NewCmdResult(int64(1), nil)
 	}
 
+	if c.failSet {
+		return redis.NewCmdResult(nil, errors.New("simulated Redis SET failure"))
+	}
 	c.values[keys[0]] = next
 	if err := appendActions(); err != nil {
 		return redis.NewCmdResult(nil, err)
@@ -212,7 +219,9 @@ func TestRedisStateStoreCompareAndSwapInitialWriteUsesOneAtomicEval(t *testing.T
 	require.NotEmpty(t, saved.MutationID)
 	require.Equal(t, expected, saved)
 
-	actionJSON, err := json.Marshal(action)
+	expectedAction := action
+	expectedAction.MutationID = saved.MutationID
+	actionJSON, err := json.Marshal(expectedAction)
 	require.NoError(t, err)
 	require.Equal(t, string(actionJSON), call.args[4])
 	require.Equal(t, []string{string(actionJSON)}, client.actions)
@@ -283,6 +292,9 @@ func TestRedisStateStoreCompareAndSwapTreatsCommittedMutationRetryAsSuccess(t *t
 	var saved Snapshot
 	require.NoError(t, json.Unmarshal([]byte(client.values[snapshotKey(channelID)]), &saved))
 	require.NotEmpty(t, saved.MutationID)
+	var streamedAction LifecycleAction
+	require.NoError(t, json.Unmarshal([]byte(client.actions[0]), &streamedAction))
+	require.True(t, ActionMatchesSnapshot(streamedAction, saved))
 }
 
 func TestRedisStateStoreCompareAndSwapPreservesMultipleActionOrder(t *testing.T) {
@@ -323,9 +335,15 @@ func TestRedisStateStoreCompareAndSwapPreservesMultipleActionOrder(t *testing.T)
 
 	call := client.evalCalls[0]
 	require.Len(t, call.args, 6)
-	cancelJSON, err := json.Marshal(actions[0])
+	var saved Snapshot
+	require.NoError(t, json.Unmarshal([]byte(call.args[1].(string)), &saved))
+	expectedActions := append([]LifecycleAction(nil), actions...)
+	for index := range expectedActions {
+		expectedActions[index].MutationID = saved.MutationID
+	}
+	cancelJSON, err := json.Marshal(expectedActions[0])
 	require.NoError(t, err)
-	createJSON, err := json.Marshal(actions[1])
+	createJSON, err := json.Marshal(expectedActions[1])
 	require.NoError(t, err)
 	require.Equal(t, []interface{}{string(cancelJSON), string(createJSON)}, call.args[4:])
 
@@ -335,7 +353,56 @@ func TestRedisStateStoreCompareAndSwapPreservesMultipleActionOrder(t *testing.T)
 		require.NoError(t, json.Unmarshal([]byte(rawAction.(string)), &action))
 		decoded = append(decoded, action)
 	}
-	require.Equal(t, actions, decoded)
+	require.Equal(t, expectedActions, decoded)
+}
+
+func TestRedisStateStoreCompareAndSwapFencesActionsAfterSetFailure(t *testing.T) {
+	ctx := context.Background()
+	channelID := uuid.New()
+	client := newFakeRedisStateClient()
+	store := &RedisStateStore{client: client}
+	current := Snapshot{
+		ChannelID: channelID,
+		State:     StateInGame,
+		MatchID:   12345,
+		Revision:  1,
+	}
+	client.values[snapshotKey(channelID)] = mustMarshalSnapshot(t, current)
+	next := current
+	next.Revision++
+	next.State = StateIdle
+	next.MatchID = 0
+	action := LifecycleAction{
+		Kind:      ActionCancel,
+		ChannelID: channelID,
+		MatchID:   current.MatchID,
+		Revision:  next.Revision,
+	}
+
+	client.failSet = true
+	swapped, err := store.CompareAndSwap(ctx, current, next, []LifecycleAction{action})
+	require.Error(t, err)
+	require.False(t, swapped)
+	require.Equal(t, mustMarshalSnapshot(t, current), client.values[snapshotKey(channelID)])
+	require.Len(t, client.actions, 1)
+
+	client.failSet = false
+	swapped, err = store.CompareAndSwap(ctx, current, next, []LifecycleAction{action})
+	require.NoError(t, err)
+	require.True(t, swapped)
+	require.Len(t, client.actions, 2)
+
+	var staleAction LifecycleAction
+	require.NoError(t, json.Unmarshal([]byte(client.actions[0]), &staleAction))
+	var committedAction LifecycleAction
+	require.NoError(t, json.Unmarshal([]byte(client.actions[1]), &committedAction))
+	var committedSnapshot Snapshot
+	require.NoError(t, json.Unmarshal([]byte(client.values[snapshotKey(channelID)]), &committedSnapshot))
+	require.NotEmpty(t, staleAction.MutationID)
+	require.NotEmpty(t, committedAction.MutationID)
+	require.NotEqual(t, staleAction.MutationID, committedAction.MutationID)
+	require.False(t, ActionMatchesSnapshot(staleAction, committedSnapshot))
+	require.True(t, ActionMatchesSnapshot(committedAction, committedSnapshot))
 }
 
 func TestRedisStateStoreCompareAndSwapLossDoesNotAppendAction(t *testing.T) {
@@ -735,14 +802,43 @@ func TestRedisStateStoreUpdateStatsSupportsSequentialCompareAndSwap(t *testing.T
 	require.Zero(t, saved.SessionLosses)
 }
 
+func TestRedisStateStoreCompareAndSwapRejectsCallerProvidedActionMutationIDBeforeEval(t *testing.T) {
+	channelID := uuid.New()
+	client := newFakeRedisStateClient()
+	store := &RedisStateStore{client: client}
+	current := Snapshot{
+		ChannelID: channelID,
+		State:     StateIdle,
+		Revision:  1,
+	}
+	next := current
+	next.Revision++
+	next.State = StateInGame
+	next.MatchID = 12345
+	action := LifecycleAction{
+		Kind:       ActionCreate,
+		ChannelID:  channelID,
+		MatchID:    next.MatchID,
+		Revision:   next.Revision,
+		MutationID: "forged",
+	}
+
+	swapped, err := store.CompareAndSwap(context.Background(), current, next, []LifecycleAction{action})
+
+	require.Error(t, err)
+	require.False(t, swapped)
+	require.Empty(t, client.evalCalls)
+}
+
 func TestLifecycleActionJSONRoundTripPreservesResolveFields(t *testing.T) {
 	action := LifecycleAction{
-		Kind:      ActionResolve,
-		ChannelID: uuid.New(),
-		MatchID:   12345,
-		Revision:  8,
-		Win:       true,
-		HeroName:  "axe",
+		Kind:       ActionResolve,
+		ChannelID:  uuid.New(),
+		MatchID:    12345,
+		Revision:   8,
+		MutationID: "mutation-id",
+		Win:        true,
+		HeroName:   "axe",
 	}
 
 	data, err := json.Marshal(action)
@@ -753,4 +849,32 @@ func TestLifecycleActionJSONRoundTripPreservesResolveFields(t *testing.T) {
 	require.Equal(t, action, decoded)
 	require.True(t, decoded.Win)
 	require.Equal(t, "axe", decoded.HeroName)
+	require.Equal(t, "mutation-id", decoded.MutationID)
+}
+
+func TestActionMatchesSnapshot(t *testing.T) {
+	channelID := uuid.New()
+	snapshot := Snapshot{
+		ChannelID:  channelID,
+		Revision:   8,
+		MutationID: "mutation-id",
+	}
+	action := LifecycleAction{
+		ChannelID:  channelID,
+		Revision:   snapshot.Revision,
+		MutationID: snapshot.MutationID,
+	}
+
+	require.True(t, ActionMatchesSnapshot(action, snapshot))
+
+	for _, mutate := range []func(*LifecycleAction){
+		func(action *LifecycleAction) { action.ChannelID = uuid.New() },
+		func(action *LifecycleAction) { action.Revision++ },
+		func(action *LifecycleAction) { action.MutationID = "other-mutation" },
+		func(action *LifecycleAction) { action.MutationID = "" },
+	} {
+		mismatched := action
+		mutate(&mismatched)
+		require.False(t, ActionMatchesSnapshot(mismatched, snapshot))
+	}
 }

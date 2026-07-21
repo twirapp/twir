@@ -110,6 +110,7 @@ func (s *RedisStateStore) CompareAndSwap(
 		lifecycleActionStreamMaxLen,
 	)
 	for _, action := range actions {
+		action.MutationID = next.MutationID
 		actionJSON, err := json.Marshal(action)
 		if err != nil {
 			return false, fmt.Errorf("encode lifecycle action: %w", err)
@@ -203,6 +204,9 @@ func validateCompareAndSwapInput(current Snapshot, next Snapshot, actions []Life
 		}
 		if action.Revision != next.Revision {
 			return errors.New("lifecycle action revision must match next snapshot")
+		}
+		if action.MutationID != "" {
+			return errors.New("lifecycle action mutation ID must be empty")
 		}
 		switch action.Kind {
 		case ActionCreate:

@@ -15,12 +15,21 @@ const (
 )
 
 type LifecycleAction struct {
-	Kind      ActionKind `json:"kind"`
-	ChannelID uuid.UUID  `json:"channelId"`
-	MatchID   int64      `json:"matchId"`
-	Revision  uint64     `json:"revision"`
-	Win       bool       `json:"win,omitempty"`
-	HeroName  string     `json:"heroName,omitempty"`
+	Kind       ActionKind `json:"kind"`
+	ChannelID  uuid.UUID  `json:"channelId"`
+	MatchID    int64      `json:"matchId"`
+	Revision   uint64     `json:"revision"`
+	MutationID string     `json:"mutationId"`
+	Win        bool       `json:"win,omitempty"`
+	HeroName   string     `json:"heroName,omitempty"`
+}
+
+func ActionMatchesSnapshot(action LifecycleAction, snapshot Snapshot) bool {
+	return action.ChannelID != uuid.Nil &&
+		action.ChannelID == snapshot.ChannelID &&
+		action.Revision == snapshot.Revision &&
+		action.MutationID != "" &&
+		action.MutationID == snapshot.MutationID
 }
 
 type StateStore interface {
