@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
 )
@@ -347,10 +348,18 @@ func (c *Pgx) GetBySlug(ctx context.Context, opts channels.GetBySlugInput) (mode
 	query := selectQuery
 	args := []any{opts.Slug}
 
-	query = query + ` WHERE tu."login" = $1 OR ku."login" = $1`
+	if opts.Platform == nil {
+		query = query + ` WHERE tu."login" = $1 OR ku."login" = $1`
+	} else {
+		switch *opts.Platform {
+		case platform.PlatformKick:
+			query = query + ` WHERE ku."login" = $1`
+			query = query + ` AND ku."platform_id" = $2`
+		case platform.PlatformTwitch:
+			query = query + ` WHERE tu."platform_id" = $1`
+			query = query + ` AND tu."platform_id" = $2`
+		}
 
-	if opts.Platform != nil {
-		query = query + ` AND "platform" = $2`
 		args = append(args, *opts.Platform)
 	}
 

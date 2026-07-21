@@ -25,5 +25,6 @@ export function useTtsPublicSettings() {
 				channelId: unref(currentChannelId) ?? '',
 			}
 		},
+		pause: computed(() => !currentChannelId.value),
 	})
 }

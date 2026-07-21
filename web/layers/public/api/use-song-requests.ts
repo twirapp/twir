@@ -26,5 +26,6 @@ export function useSongRequests() {
 				channelId: unref(currentChannelId) ?? '',
 			}
 		},
+		pause: computed(() => !currentChannelId.value),
 	})
 }
