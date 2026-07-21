@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
+	"os/exec"
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channel_platforms"
@@ -26,6 +28,25 @@ func TestChannelPlatformNil(t *testing.T) {
 
 	if (model.ChannelPlatform{}).IsNil() {
 		t.Fatal("a populated-value model must not report itself as nil")
+	}
+}
+
+func TestRequireUniqueViolationMatchesPgxV5Error(t *testing.T) {
+	const childEnv = "TWIR_CHANNEL_PLATFORMS_UNIQUE_VIOLATION_CHILD"
+
+	if os.Getenv(childEnv) == "1" {
+		requireUniqueViolation(
+			t,
+			fmt.Errorf("wrapped: %w", &pgconn.PgError{Code: "23505"}),
+		)
+		return
+	}
+
+	command := exec.Command(os.Args[0], "-test.run=^TestRequireUniqueViolationMatchesPgxV5Error$")
+	command.Env = append(os.Environ(), childEnv+"=1")
+	output, err := command.CombinedOutput()
+	if err != nil {
+		t.Fatalf("requireUniqueViolation rejected a pgx v5 unique violation: %v\n%s", err, output)
 	}
 }
 
