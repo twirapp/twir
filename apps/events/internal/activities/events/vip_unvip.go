@@ -69,7 +69,7 @@ func (c *Activity) VipOrUnvip(
 	var vips []helix.ChannelVips
 	errWg.Go(
 		func() error {
-			v, err := c.getChannelVips(twitchClient, data.ChannelTwitchPlatformID)
+			v, err := c.getChannelVips(twitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -82,7 +82,7 @@ func (c *Activity) VipOrUnvip(
 	var mods []helix.Moderator
 	errWg.Go(
 		func() error {
-			m, err := c.getChannelMods(twitchClient, data.ChannelTwitchPlatformID)
+			m, err := c.getChannelMods(twitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -127,7 +127,7 @@ func (c *Activity) VipOrUnvip(
 
 		resp, err := twitchClient.AddChannelVip(
 			&helix.AddChannelVipParams{
-				BroadcasterID: data.ChannelTwitchPlatformID,
+				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
@@ -143,7 +143,7 @@ func (c *Activity) VipOrUnvip(
 		}
 		resp, err := twitchClient.RemoveChannelVip(
 			&helix.RemoveChannelVipParams{
-				BroadcasterID: data.ChannelTwitchPlatformID,
+				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
@@ -175,7 +175,7 @@ func (c *Activity) UnvipRandom(
 		return twitchClientErr
 	}
 
-	vips, vipsErr := c.getChannelVips(twitchClient, data.ChannelTwitchPlatformID)
+	vips, vipsErr := c.getChannelVips(twitchClient, twitchBroadcasterID(data))
 	if vipsErr != nil {
 		return vipsErr
 	}
@@ -209,7 +209,7 @@ func (c *Activity) UnvipRandom(
 
 	removeReq, err := twitchClient.RemoveChannelVip(
 		&helix.RemoveChannelVipParams{
-			BroadcasterID: data.ChannelTwitchPlatformID,
+			BroadcasterID: twitchBroadcasterID(data),
 			UserID:        randomVip.UserID,
 		},
 	)

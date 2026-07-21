@@ -59,9 +59,9 @@ func (c *Activity) ShoutoutChannel(
 
 	result, err := twitchClient.SendShoutout(
 		&helix.SendShoutoutParams{
-			FromBroadcasterID: data.ChannelTwitchPlatformID,
+			FromBroadcasterID: twitchBroadcasterID(data),
 			ToBroadcasterID:   user.ID,
-			ModeratorID:       data.ChannelTwitchPlatformID,
+			ModeratorID:       twitchBroadcasterID(data),
 		},
 	)
 	if err != nil {

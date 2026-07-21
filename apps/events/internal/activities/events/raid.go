@@ -36,7 +36,7 @@ func (c *Activity) RaidChannel(
 		return nil
 	}
 
-	if data.ChannelTwitchPlatformID == "" {
+	if twitchBroadcasterID(data) == "" {
 		return errors.New("no channel id provided")
 	}
 
@@ -52,7 +52,7 @@ func (c *Activity) RaidChannel(
 
 	raidReq, raidErr := twitchClient.StartRaid(
 		&helix.StartRaidParams{
-			FromBroadcasterID: data.ChannelTwitchPlatformID,
+			FromBroadcasterID: twitchBroadcasterID(data),
 			ToBroadcasterID:   user.ID,
 		},
 	)

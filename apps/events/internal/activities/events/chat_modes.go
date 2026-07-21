@@ -30,7 +30,7 @@ func (c *Activity) SwitchEmoteOnly(
 
 	resp, err := twitchClient.UpdateChatSettings(
 		&helix.UpdateChatSettingsParams{
-			BroadcasterID: data.ChannelTwitchPlatformID,
+			BroadcasterID: twitchBroadcasterID(data),
 			ModeratorID:   dbEntity.BotID,
 			EmoteMode: lo.ToPtr(
 				lo.
@@ -68,7 +68,7 @@ func (c *Activity) SwitchSubMode(
 
 	resp, err := twitchClient.UpdateChatSettings(
 		&helix.UpdateChatSettingsParams{
-			BroadcasterID: data.ChannelTwitchPlatformID,
+			BroadcasterID: twitchBroadcasterID(data),
 			ModeratorID:   dbEntity.BotID,
 			SubscriberMode: lo.ToPtr(
 				lo.
