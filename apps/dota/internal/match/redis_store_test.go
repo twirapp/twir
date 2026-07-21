@@ -173,6 +173,59 @@ func TestRedisStateStoreCompareAndSwapInitialWriteUsesOneAtomicEval(t *testing.T
 	require.Equal(t, []string{string(actionJSON)}, client.actions)
 }
 
+func TestRedisStateStoreCompareAndSwapPreservesMultipleActionOrder(t *testing.T) {
+	ctx := context.Background()
+	channelID := uuid.New()
+	client := newFakeRedisStateClient()
+	store := &RedisStateStore{client: client}
+	current := Snapshot{
+		ChannelID: channelID,
+		State:     StateInGame,
+		MatchID:   12345,
+		Revision:  4,
+	}
+	client.values[snapshotKey(channelID)] = mustMarshalSnapshot(t, current)
+	next := current
+	next.Revision++
+	next.MatchID = 67890
+	actions := []LifecycleAction{
+		{
+			Kind:      ActionCancel,
+			ChannelID: channelID,
+			MatchID:   current.MatchID,
+			Revision:  next.Revision,
+		},
+		{
+			Kind:      ActionCreate,
+			ChannelID: channelID,
+			MatchID:   next.MatchID,
+			Revision:  next.Revision,
+		},
+	}
+
+	swapped, err := store.CompareAndSwap(ctx, current, next, actions)
+
+	require.NoError(t, err)
+	require.True(t, swapped)
+	require.Len(t, client.evalCalls, 1)
+
+	call := client.evalCalls[0]
+	require.Len(t, call.args, 6)
+	cancelJSON, err := json.Marshal(actions[0])
+	require.NoError(t, err)
+	createJSON, err := json.Marshal(actions[1])
+	require.NoError(t, err)
+	require.Equal(t, []interface{}{string(cancelJSON), string(createJSON)}, call.args[4:])
+
+	decoded := make([]LifecycleAction, 0, len(actions))
+	for _, rawAction := range call.args[4:] {
+		var action LifecycleAction
+		require.NoError(t, json.Unmarshal([]byte(rawAction.(string)), &action))
+		decoded = append(decoded, action)
+	}
+	require.Equal(t, actions, decoded)
+}
+
 func TestRedisStateStoreCompareAndSwapLossDoesNotAppendAction(t *testing.T) {
 	ctx := context.Background()
 	channelID := uuid.New()
@@ -265,6 +318,26 @@ func TestRedisStateStoreCompareAndSwapRejectsInvalidInputBeforeEval(t *testing.T
 				Kind:      ActionCreate,
 				ChannelID: channelID,
 				Revision:  validAction.Revision,
+			}},
+		},
+		{
+			name: "action kind is invalid",
+			next: validNext,
+			actions: []LifecycleAction{{
+				Kind:      ActionKind("invalid"),
+				ChannelID: channelID,
+				MatchID:   validAction.MatchID,
+				Revision:  validAction.Revision,
+			}},
+		},
+		{
+			name: "action revision does not match next snapshot",
+			next: validNext,
+			actions: []LifecycleAction{{
+				Kind:      ActionCreate,
+				ChannelID: channelID,
+				MatchID:   validAction.MatchID,
+				Revision:  current.Revision,
 			}},
 		},
 	}

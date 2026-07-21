@@ -175,6 +175,11 @@ func validateCompareAndSwapInput(current Snapshot, next Snapshot, actions []Life
 	}
 
 	for _, action := range actions {
+		switch action.Kind {
+		case ActionCreate, ActionResolve, ActionCancel:
+		default:
+			return errors.New("lifecycle action kind is invalid")
+		}
 		if action.ChannelID == uuid.Nil {
 			return errors.New("lifecycle action channel ID is required")
 		}
@@ -183,6 +188,9 @@ func validateCompareAndSwapInput(current Snapshot, next Snapshot, actions []Life
 		}
 		if action.MatchID <= 0 {
 			return errors.New("lifecycle action match ID must be positive")
+		}
+		if action.Revision != next.Revision {
+			return errors.New("lifecycle action revision must match next snapshot")
 		}
 	}
 
