@@ -1,4 +1,4 @@
-import type { StreamerPublicSettingsQuery } from '~/gql/graphql.js'
+import type { Platform, StreamerPublicSettingsQuery } from '~/gql/graphql.js'
 
 import { graphql } from '~/gql'
 
@@ -9,20 +9,35 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 
 	const { data, executeQuery: executeFetchStreamer } = useQuery({
 		query: graphql(`
-			query StreamerTwitchProfile($userName: String!) {
-				twitchGetUserByName(name: $userName) {
+			query StreamerProfile($userName: String!, $platform: Platform) {
+				channelBySlug(channelName: $userName, platform: $platform) {
 					id
-					profileImageUrl
-					login
-					description
-					displayName
-					notFound
+					hideOnLandingPage
+					kickProfile {
+						id
+						slug
+						displayName
+						followersCount
+						isLive
+						profilePicture
+					}
+					twitchProfile {
+						id
+						login
+						displayName
+						profileImageUrl
+						description
+					}
 				}
 			}
 		`),
 		variables: {
 			get userName() {
-				return unref(router.currentRoute.value.params.channelName as string ?? '')
+				return unref((router.currentRoute.value.params.channelName as string) ?? '')
+			},
+			get platform() {
+				const platform = String(router.currentRoute.value.params.platform ?? '').toUpperCase()
+				return platform === 'TWITCH' || platform === 'KICK' ? (platform as Platform) : undefined
 			},
 		},
 		pause: true,
@@ -30,30 +45,34 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 
 	const publicProfile = ref<StreamerPublicSettingsQuery>()
 
-	const fetchPublicSettings = (streamerId: string) => urqlClient.query(graphql(`
-		query StreamerPublicSettings($streamerId: String!) {
-			userPublicSettings(userId: $streamerId) {
-				channelId
-				socialLinks {
-					title
-					href
+	const fetchPublicSettings = (streamerId: string) =>
+		urqlClient.query(
+			graphql(`
+				query StreamerPublicSettings($streamerId: String!) {
+					userPublicSettings(userId: $streamerId) {
+						channelId
+						socialLinks {
+							title
+							href
+						}
+						description
+					}
 				}
-				description
-			}
-		}
-	`), { streamerId })
+			`),
+			{ streamerId }
+		)
 
 	async function fetchProfile() {
 		const { data } = await executeFetchStreamer()
-		if (!data.value?.twitchGetUserByName?.id) {
+		if (!data.value?.channelBySlug?.id) {
 			currentChannelId.value = null
 			publicProfile.value = undefined
 			return
 		}
 
-		const { data: publicData } = await fetchPublicSettings(data.value.twitchGetUserByName.id)
+		const { data: publicData } = await fetchPublicSettings(data.value.channelBySlug.id)
 		publicProfile.value = publicData
-		currentChannelId.value = publicData?.userPublicSettings?.channelId ?? null
+		currentChannelId.value = data.value.channelBySlug.id ?? null
 	}
 
 	return {

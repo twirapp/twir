@@ -1,22 +1,21 @@
-import { computed } from 'vue'
-
 import { useProfile } from '~~/layers/dashboard/api/auth'
 
 export function usePublicPageHref() {
 	const { data: profileData } = useProfile()
 	const requestUrl = useRequestURL()
-	const selectedDashboardTwitchUser = computed(() => {
+	const selectedDashboard = computed(() => {
 		return profileData.value?.availableDashboards.find(
 			(d) => d.id === profileData.value?.selectedDashboardId
-		)?.twitchProfile
+		)
 	})
 
 	return computed(() => {
-		const selectedDashboardLogin = selectedDashboardTwitchUser.value?.login
+		const dashboard = selectedDashboard.value
+		const selectedDashboardLogin = dashboard?.kickProfile?.slug ?? dashboard?.twitchProfile?.login
 		if (!selectedDashboardLogin) {
 			return null
 		}
 
-		return `${requestUrl.origin}/p/${selectedDashboardLogin}`
+		return `${requestUrl.origin}/p/${dashboard?.platform}/${selectedDashboardLogin}`
 	})
 }

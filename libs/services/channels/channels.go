@@ -146,3 +146,20 @@ func (c *ChannelService) IsChannelOnline(ctx context.Context, channelID uuid.UUI
 func (c *ChannelService) InvalidateOnlineCache(ctx context.Context, channelID uuid.UUID) error {
 	return c.cache.Delete(ctx, createStreamsCacheKey(channelID))
 }
+
+type GetBySlugOpts struct {
+	Slug     string
+	Platform *platform.Platform
+}
+
+func (c *ChannelService) GetBySlug(ctx context.Context, opts GetBySlugOpts) (channelsmodel.Channel, error) {
+	channel, err := c.repo.GetBySlug(
+		ctx,
+		channelsrepo.GetBySlugInput{Slug: opts.Slug, Platform: opts.Platform},
+	)
+	if err != nil {
+		return channelsmodel.Channel{}, err
+	}
+
+	return channel, nil
+}

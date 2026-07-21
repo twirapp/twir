@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { useSongRequests } from '#layers/public/api/use-song-requests.ts'
+
 import UserCell from '~/components/table/cells/user-cell.vue'
-import { convertMillisToTime } from '~/utils/time-utils'
-import { useSongRequests } from '~~/layers/public/api/use-song-requests'
+import { convertMillisToTime } from '~/utils/time-utils.ts'
 
 definePageMeta({
 	layout: 'public',
@@ -11,7 +12,7 @@ const { data } = await useSongRequests()
 </script>
 
 <template>
-	<div class="flex-wrap w-full border rounded-md bg-card">
+	<div class="bg-card w-full flex-wrap rounded-md border">
 		<UiTable>
 			<UiTableHeader>
 				<UiTableRow>
@@ -21,9 +22,15 @@ const { data } = await useSongRequests()
 				</UiTableRow>
 			</UiTableHeader>
 			<UiTableBody>
-				<UiTableRow v-for="song in data?.songRequestsPublicQueue" :key="song.userId">
+				<UiTableRow
+					v-for="song in data?.songRequestsPublicQueue"
+					:key="song.userId"
+				>
 					<UiTableCell>
-						<a class="underline text-white" :href="song.songLink">
+						<a
+							class="text-white underline"
+							:href="song.songLink"
+						>
 							{{ song.title }}
 						</a>
 					</UiTableCell>

@@ -6,6 +6,35 @@ import { useStreamerProfile } from '~~/layers/public/api/use-streamer-profile'
 
 const streamerProfile = useStreamerProfile()
 await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
+
+const profile = computed(() => {
+	const channel = streamerProfile.profile?.channelBySlug
+	if (!channel) return null
+
+	if (channel.kickProfile) {
+		return {
+			avatar: channel.kickProfile.profilePicture,
+			description: undefined,
+			displayName: channel.kickProfile.displayName,
+			login: channel.kickProfile.slug,
+			url: `https://kick.com/${channel.kickProfile.slug}`,
+			platform: 'Kick',
+		}
+	}
+
+	if (channel.twitchProfile) {
+		return {
+			avatar: channel.twitchProfile.profileImageUrl,
+			description: channel.twitchProfile.description,
+			displayName: channel.twitchProfile.displayName,
+			login: channel.twitchProfile.login,
+			url: `https://twitch.tv/${channel.twitchProfile.login}`,
+			platform: 'Twitch',
+		}
+	}
+
+	return null
+})
 </script>
 
 <template>
@@ -41,30 +70,29 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 				<UiCardContent class="p-6">
 					<div class="flex flex-row flex-wrap justify-between w-full gap-4">
 						<div class="flex gap-4 flex-row flex-1">
-							<img
-								:src="streamerProfile.profile?.twitchGetUserByName?.profileImageUrl"
-								class="w-16 h-16 rounded-full"
-								:alt="`${streamerProfile.profile?.twitchGetUserByName?.login}-avatar`"
-							/>
-							<div class="flex flex-col gap-2">
-								<span class="text-4xl">{{
-									streamerProfile.profile?.twitchGetUserByName?.displayName
-								}}</span>
-								<span class="text-sm text-muted-foreground break-all">
-									{{
-										streamerProfile.publicProfile?.userPublicSettings.description ||
-										streamerProfile.profile?.twitchGetUserByName?.description
-									}}
-								</span>
+								<img
+									:src="profile?.avatar ?? undefined"
+									class="w-16 h-16 rounded-full"
+									:alt="`${profile?.login ?? ''}-avatar`"
+								/>
+								<div class="flex flex-col gap-2">
+									<span class="text-4xl">{{ profile?.displayName }}</span>
+									<span class="text-sm text-muted-foreground break-all">
+										{{
+											streamerProfile.publicProfile?.userPublicSettings.description ||
+											profile?.description
+										}}
+									</span>
+								</div>
 							</div>
-						</div>
-						<div class="flex flex-col gap-2 flex-none">
-							<a
-								class="underline"
-								:href="`https://twitch.tv/${streamerProfile.profile?.twitchGetUserByName?.login}`"
-							>
-								Twitch
-							</a>
+							<div class="flex flex-col gap-2 flex-none">
+								<a
+									v-if="profile"
+									class="underline"
+									:href="profile.url"
+								>
+									{{ profile.platform }}
+								</a>
 							<a
 								v-for="(link, idx) of streamerProfile.publicProfile?.userPublicSettings.socialLinks"
 								:key="idx"
