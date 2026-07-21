@@ -37,7 +37,7 @@ func TestRequireUniqueViolationMatchesPgxV5Error(t *testing.T) {
 	if os.Getenv(childEnv) == "1" {
 		requireUniqueViolation(
 			t,
-			fmt.Errorf("wrapped: %w", &pgconn.PgError{Code: "23505"}),
+			fmt.Errorf("wrapped: %w", newPgxV5UniqueViolationError()),
 		)
 		return
 	}
