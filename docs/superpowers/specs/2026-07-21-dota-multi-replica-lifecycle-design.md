@@ -2,7 +2,8 @@
 
 ## Status
 
-Approved for implementation on 2026-07-21.
+Approved for implementation on 2026-07-21. Revised to PostgreSQL state and
+outbox on 2026-07-21 after Redis action-fencing analysis.
 
 ## Problem
 
@@ -31,8 +32,10 @@ updates are not idempotent across crash or replay.
 
 ## Authoritative Match State
 
-Redis is the authoritative match-state store. The state machine no longer
-caches channel state in process memory.
+PostgreSQL is the authoritative match-state and action-outbox store. Redis
+continues to hold non-authoritative live snapshots and prediction ownership
+records, but it is not the source of transition truth. The state machine no
+longer caches channel state in process memory.
 
 Each snapshot includes:
 
@@ -41,19 +44,19 @@ Each snapshot includes:
 - Current match identity and game state.
 - Last terminal match identity where needed to suppress replayed terminal data.
 
-Every GSI request follows this loop:
+`dota_channel_match_states` has one row per channel with a JSONB snapshot,
+revision, and source-order fields. Every GSI request follows one transaction:
 
-1. Load the current Redis snapshot.
+1. Insert an idle row if absent, then select the channel row `FOR UPDATE`.
 2. Reject a payload older than the snapshot source timestamp. For a matching
    match, use game time to order payloads with equal provider timestamps.
 3. Require a `post_game` payload match ID to equal the tracked match ID.
 4. Never abandon a tracked match from a map-less or inactive payload unless its
    source timestamp is strictly newer than the tracked state.
-5. Build the next snapshot and lifecycle action, if any.
-6. Atomically compare the expected serialized snapshot, write the next
-   revision, and append the lifecycle action to a Redis Stream using one Lua
-   script.
-7. Retry from step 1 when the compare-and-swap loses to another replica.
+5. Build the next revision and zero or more lifecycle action rows.
+6. Update the locked state row and insert action rows into the PostgreSQL
+   outbox in the same transaction.
+7. Commit before performing any Twitch or bus side effect.
 
 A different in-game match can replace the tracked match only when it is newer
 than the tracked source state. The same atomic transition emits a cancel action
@@ -61,32 +64,28 @@ for the old match before the create action for the new match.
 
 ## Durable Prediction Actions
 
-Lifecycle actions are stored in a Redis Stream in the state-transition Lua
-script. Actions are `create`, `resolve`, and `cancel` and carry the channel ID,
-match ID, state revision, and terminal result when applicable.
+`dota_prediction_outbox` stores `create`, `resolve`, and `cancel` actions with
+their channel, match, revision/sequence, terminal result, payload, attempt
+count, availability time, lock token, and completion time. A unique action key
+prevents duplicate inserts for the same channel, match, and action.
 
-Workers form a `dota-predictions` consumer group:
-
-- New entries are read with `XREADGROUP`.
-- An entry is acknowledged with `XACK` only after its action succeeds or is a
-  safe idempotent no-op.
-- Failed entries stay pending for retry.
-- Each replica periodically uses `XAUTOCLAIM` to recover work owned by a dead
-  consumer.
-- Stream retention is bounded only after all consumer-group requirements are
-  satisfied.
+Workers claim rows with `FOR UPDATE SKIP LOCKED`, assign a random lock token,
+and perform Twitch work outside the claim transaction. Completion and retry
+updates require that token. A stale lease can be claimed by another replica.
+Failures clear the lease and move `available_at` forward with bounded backoff.
 
 Workers validate a create action against current authoritative state before
 calling Twitch. If the match has already reached a terminal state, the create
-action is acknowledged without creating a late prediction. Terminal actions
-operate on the prediction record for their exact channel and match regardless
-of the currently active newer match.
+action completes as a safe no-op rather than creating a late prediction.
+Terminal actions operate on the prediction record for their exact channel and
+match regardless of a newer active match. Workers process only the earliest
+unfinished action for a match, so a terminal action cannot overtake creation.
 
-The prediction store adds an atomic terminal claim. A worker must own that
-claim before reading and ending a Twitch prediction. Successful terminal work
-marks the action complete; transient failures release the claim for retry. This
-prevents concurrent resolve and cancel workers from both ending the same
-prediction.
+The Redis prediction store retains an atomic terminal claim. A worker must own
+that claim before reading and ending a Twitch prediction. Successful terminal
+work marks the action complete; transient failures release the claim for retry.
+This is a second idempotency boundary if a database action lease expires during
+an external Twitch call.
 
 ## Idempotent Settlement
 
@@ -103,9 +102,8 @@ match_id)`. It records the immutable result and makes settlement idempotent.
 The resolve worker applies this settlement before resolving the prediction.
 Retries can therefore repeat the complete action without double-counting MMR
 or W/L. After settlement, it publishes the existing `MatchEnded` chat/API data
-with the returned settings. The state snapshot receives the settled MMR and
-session values through a revision-fenced update so overlays remain current even
-if a new match has already begun.
+with the returned settings and transactionally updates the authoritative state
+statistics without changing any newer match identity.
 
 ## Event Semantics
 
@@ -119,9 +117,10 @@ if a new match has already begun.
 
 ## Failure Handling
 
-- Lost Redis CAS: reload and retry without external side effects.
-- Worker crash: another replica claims the unacknowledged Stream entry.
-- Twitch timeout: leave the stream entry pending and preserve the existing
+- Database transaction conflict: release the row lock and retry the transition
+  without external side effects.
+- Worker crash: another replica claims the expired outbox lease.
+- Twitch timeout: leave the outbox action available for retry and preserve the existing
   managed prediction correlation record for safe recovery.
 - Database retry: settlement ledger returns the prior result without applying
   the delta again.
@@ -135,10 +134,12 @@ Tests must cover:
 - Two independent state-machine instances racing on one channel.
 - Delayed post-game and map-less payloads after a newer match.
 - Exactly one emitted terminal action under concurrent resolve/cancel paths.
-- Stream action retry, acknowledgement, and stale-consumer claim behavior.
+- Outbox action retry, completion, sequence ordering, and stale-lease claim
+  behavior.
 - Create action suppression after a terminal transition.
 - Settlement replay without duplicate MMR/W/L updates.
 - Existing GSI, prediction, bus Gob, and chat-alert behavior.
 
-Database migration and repository tests must validate the unique settlement
-key, atomic first application, and replay return path.
+Database migration and repository tests must validate state-row locking,
+outbox uniqueness/claim completion, the unique settlement key, atomic first
+application, and replay return path.
