@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -130,6 +131,64 @@ func TestDualBoundKickEventKeepsEventIDAndResolvesTwitchRuntime(t *testing.T) {
 	}
 }
 
+func TestGetEventTwitchBotApiClientUsesTwitchBindingBotID(t *testing.T) {
+	repo := &runtimeChannelRepositoryFake{
+		channel: channelsmodel.Channel{
+			ID: uuid.New(),
+			Bindings: []channelplatformsmodel.ChannelPlatform{
+				{
+					Platform:          platform.PlatformKick,
+					PlatformChannelID: "kick-channel",
+				},
+				{
+					Platform:          platform.PlatformTwitch,
+					PlatformChannelID: "twitch-channel",
+					BotConfig:         json.RawMessage(`{"bot_id":"twitch-bot"}`),
+				},
+			},
+		},
+	}
+	var clientBotID string
+	activity := Activity{
+		channelService: channelservice.NewChannelService(
+			repo,
+			&buscore.Bus{},
+			cfg.Config{},
+			nil,
+			nil,
+		),
+		newTwitchBotClient: func(_ context.Context, botID string) (*helix.Client, error) {
+			clientBotID = botID
+			return &helix.Client{}, nil
+		},
+	}
+	data := shared.EventData{
+		ChannelID:               "kick-channel",
+		ChannelTwitchPlatformID: "twitch-channel",
+		Platform:                platform.PlatformKick,
+	}
+
+	client, err := activity.getEventTwitchBotApiClient(context.Background(), data)
+	if err != nil {
+		t.Fatalf("getEventTwitchBotApiClient returned error: %v", err)
+	}
+	if client == nil {
+		t.Fatal("getEventTwitchBotApiClient returned nil client")
+	}
+	if clientBotID != "twitch-bot" {
+		t.Errorf("bot client ID = %q, want %q", clientBotID, "twitch-bot")
+	}
+	if clientBotID == data.ChannelID {
+		t.Errorf("bot client ID = event ChannelID %q, want Twitch bot ID", data.ChannelID)
+	}
+	if repo.lookupPlatform != platform.PlatformTwitch {
+		t.Errorf("runtime lookup platform = %q, want %q", repo.lookupPlatform, platform.PlatformTwitch)
+	}
+	if repo.lookupPlatformChannelID != "twitch-channel" {
+		t.Errorf("runtime lookup channel ID = %q, want %q", repo.lookupPlatformChannelID, "twitch-channel")
+	}
+}
+
 func TestTwitchBroadcasterIDKeepsLegacyTwitchEventCompatibility(t *testing.T) {
 	if got := twitchBroadcasterID(shared.EventData{
 		ChannelID: "twitch-channel",
@@ -139,12 +198,12 @@ func TestTwitchBroadcasterIDKeepsLegacyTwitchEventCompatibility(t *testing.T) {
 	}
 }
 
-func TestTwitchBroadcasterIDKeepsPlatformlessLegacyTwitchEventCompatibility(t *testing.T) {
+func TestTwitchBroadcasterIDDoesNotUsePlatformlessKickIDWithLegacyTwitchUser(t *testing.T) {
 	if got := twitchBroadcasterID(shared.EventData{
-		ChannelID:           "twitch-channel",
+		ChannelID:           "kick-channel",
 		ChannelTwitchUserID: "twitch-user",
-	}); got != "twitch-channel" {
-		t.Errorf("twitchBroadcasterID = %q, want %q", got, "twitch-channel")
+	}); got != "" {
+		t.Errorf("twitchBroadcasterID = %q, want empty", got)
 	}
 }
 

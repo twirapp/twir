@@ -34,7 +34,7 @@ func (c *Activity) CommandAllowOrRemoveUserPermission(
 		return fmt.Errorf("cannot hydrate string %w", hydrateErr)
 	}
 
-	twitchClient, twitchClientErr := c.getHelixBotApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getEventTwitchBotApiClient(ctx, data)
 	if twitchClientErr != nil {
 		return fmt.Errorf("cannot get twitch client %w", twitchClientErr)
 	}
@@ -108,7 +108,7 @@ func (c *Activity) CommandDenyOrRemoveUserPermission(
 		return fmt.Errorf("cannot hydrate string %w", hydrateErr)
 	}
 
-	twitchClient, twitchClientErr := c.getHelixBotApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getEventTwitchBotApiClient(ctx, data)
 	if twitchClientErr != nil {
 		return fmt.Errorf("cannot get twitch client %w", twitchClientErr)
 	}
