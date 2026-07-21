@@ -67,6 +67,15 @@ SELECT
 	) AS bindings
 FROM channels c`
 
+const getAllByBindingPlatformQuery = selectQuery + `
+WHERE EXISTS (
+	SELECT 1
+	FROM channel_platforms cp_filter
+	WHERE cp_filter.channel_id = c.id
+		AND cp_filter.platform = $1
+)
+ORDER BY c.id`
+
 const createChannelAndBindingsQuery = `
 WITH requested AS (
 	SELECT
@@ -362,6 +371,31 @@ func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, 
 
 func (c *Pgx) GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, error) {
 	return c.getOne(ctx, selectQuery+` WHERE c."id" = $1`, channelID)
+}
+
+func (c *Pgx) GetAllByBindingPlatform(
+	ctx context.Context,
+	p platform.Platform,
+) ([]model.Channel, error) {
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, getAllByBindingPlatformQuery, p)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make([]model.Channel, 0)
+	for rows.Next() {
+		channel, err := scanChannel(rows)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, channel)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (c *Pgx) GetByBindingUserID(
