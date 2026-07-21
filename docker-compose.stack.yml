@@ -116,22 +116,22 @@ services:
         - "traefik.http.routers.twir-nats.service=twir-nats"
         - "traefik.http.services.twir-nats.loadbalancer.server.port=8222"
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.121.0
-    user: "0:0"
-    volumes:
-      - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    networks:
-      - twir
-    deploy:
-      mode: global
-      restart_policy:
-        condition: any
-        delay: 3s
-        max_attempts: 30
-      endpoint_mode: dnsrr
+#  otel-collector:
+#    image: otel/opentelemetry-collector-contrib:0.121.0
+#    user: "0:0"
+#    volumes:
+#      - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
+#      - /var/run/docker.sock:/var/run/docker.sock:ro
+#      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+#    networks:
+#      - twir
+#    deploy:
+#      mode: global
+#      restart_policy:
+#        condition: any
+#        delay: 3s
+#        max_attempts: 30
+#      endpoint_mode: dnsrr
 
   postgres:
     image: postgres:18.1
