@@ -43,6 +43,7 @@ import (
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
@@ -191,6 +192,7 @@ type Handlers struct {
 	channelsInfoHistoryRepo channelsinfohistory.Repository
 	redemptionsHistoryRepo  channelsredemptionshistory.Repository
 	streamsRepo             streamsrepository.Repository
+	channelService          *channelservice.ChannelService
 	userCreatorService      *user_creator.UserCreatorService
 	prefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	channelEmotes           bus_core.Queue[emotes_cacher.GetChannelEmotesRequest, emotes_cacher.Response]
@@ -210,6 +212,7 @@ type HandlersOpts struct {
 	ChannelsInfoHistoryRepo channelsinfohistory.Repository
 	RedemptionsHistoryRepo  channelsredemptionshistory.Repository
 	StreamsRepo             streamsrepository.Repository
+	ChannelService          *channelservice.ChannelService
 	UserCreatorService      *user_creator.UserCreatorService
 	PrefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 }
@@ -235,6 +238,7 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
 		redemptionsHistoryRepo:  opts.RedemptionsHistoryRepo,
 		streamsRepo:             opts.StreamsRepo,
+		channelService:          opts.ChannelService,
 		userCreatorService:      opts.UserCreatorService,
 		prefixCache:             opts.PrefixCache,
 		channelEmotes:           opts.Bus.EmotesCacher.GetChannelEmotes,
@@ -336,7 +340,14 @@ func splitTextIntoKickFragments(
 			for j < len(runes) && unicode.IsSpace(runes[j]) {
 				j++
 			}
-			fragments = appendKickFragment(fragments, position, generic.FragmentType_TEXT, string(runes[i:j]), "", "")
+			fragments = appendKickFragment(
+				fragments,
+				position,
+				generic.FragmentType_TEXT,
+				string(runes[i:j]),
+				"",
+				"",
+			)
 			i = j
 			continue
 		}
@@ -348,7 +359,14 @@ func splitTextIntoKickFragments(
 
 		token := string(runes[i:j])
 		if emote, ok := channelEmoteNames[token]; ok {
-			fragments = appendKickFragment(fragments, position, generic.FragmentType_EMOTE, token, emote.id, emote.url)
+			fragments = appendKickFragment(
+				fragments,
+				position,
+				generic.FragmentType_EMOTE,
+				token,
+				emote.id,
+				emote.url,
+			)
 		} else {
 			fragments = appendKickFragment(fragments, position, generic.FragmentType_TEXT, token, "", "")
 		}
@@ -382,7 +400,8 @@ func (h *Handlers) buildKickMessageContent(
 				channelEmoteNames[emote.Name] = kickEmoteLookup{id: emote.ID, url: emoteCacherURL(emote)}
 			}
 		} else {
-			h.logger.DebugContext(ctx, "kick: failed to get channel emotes for message normalization",
+			h.logger.DebugContext(
+				ctx, "kick: failed to get channel emotes for message normalization",
 				slog.String("channel_id", platformChannelID),
 				logger.Error(err),
 			)
@@ -405,7 +424,8 @@ func (h *Handlers) buildKickMessageContent(
 				channelEmoteNames[emote.Name] = kickEmoteLookup{id: emote.ID, url: emoteCacherURL(emote)}
 			}
 		} else {
-			h.logger.DebugContext(ctx, "kick: failed to get global emotes for message normalization",
+			h.logger.DebugContext(
+				ctx, "kick: failed to get global emotes for message normalization",
 				slog.String("channel_id", platformChannelID),
 				logger.Error(err),
 			)
@@ -420,15 +440,20 @@ func (h *Handlers) buildKickMessageContent(
 			if rawToken == "" {
 				continue
 			}
-			spans = append(spans, kickEmoteSpan{start: pos.S, end: pos.E, id: emote.EmoteID, text: extractKickEmoteName(rawToken)})
+			spans = append(
+				spans,
+				kickEmoteSpan{start: pos.S, end: pos.E, id: emote.EmoteID, text: extractKickEmoteName(rawToken)},
+			)
 		}
 	}
-	sort.Slice(spans, func(i, j int) bool {
-		if spans[i].start == spans[j].start {
-			return spans[i].end < spans[j].end
-		}
-		return spans[i].start < spans[j].start
-	})
+	sort.Slice(
+		spans, func(i, j int) bool {
+			if spans[i].start == spans[j].start {
+				return spans[i].end < spans[j].end
+			}
+			return spans[i].start < spans[j].start
+		},
+	)
 
 	fragments := make([]generic.ChatMessageMessageFragment, 0)
 	parsedEmotes := make([]generic.ChatMessageEmote, 0)
@@ -441,17 +466,34 @@ func (h *Handlers) buildKickMessageContent(
 		}
 
 		plainText := string(contentRunes[current:span.start])
-		fragments = splitTextIntoKickFragments(plainText, channelEmoteNames, &normalizedPosition, fragments)
+		fragments = splitTextIntoKickFragments(
+			plainText,
+			channelEmoteNames,
+			&normalizedPosition,
+			fragments,
+		)
 		normalized.WriteString(plainText)
 
-		fragments = appendKickFragment(fragments, &normalizedPosition, generic.FragmentType_EMOTE, span.text, span.id, kickNativeEmoteURL(span.id))
+		fragments = appendKickFragment(
+			fragments,
+			&normalizedPosition,
+			generic.FragmentType_EMOTE,
+			span.text,
+			span.id,
+			kickNativeEmoteURL(span.id),
+		)
 		normalized.WriteString(span.text)
 		parsedEmotes = append(parsedEmotes, generic.ChatMessageEmote{ID: span.id, Text: span.text})
 		current = span.end + 1
 	}
 
 	trailing := string(contentRunes[current:])
-	fragments = splitTextIntoKickFragments(trailing, channelEmoteNames, &normalizedPosition, fragments)
+	fragments = splitTextIntoKickFragments(
+		trailing,
+		channelEmoteNames,
+		&normalizedPosition,
+		fragments,
+	)
 	normalized.WriteString(trailing)
 
 	for _, fragment := range fragments {
@@ -466,7 +508,14 @@ func (h *Handlers) buildKickMessageContent(
 	}
 
 	if len(fragments) == 0 {
-		fragments = appendKickFragment(fragments, &normalizedPosition, generic.FragmentType_TEXT, content, "", "")
+		fragments = appendKickFragment(
+			fragments,
+			&normalizedPosition,
+			generic.FragmentType_TEXT,
+			content,
+			"",
+			"",
+		)
 		normalized.WriteString(content)
 	}
 
@@ -484,9 +533,15 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	timestamp := KickMessageTimestampFromContext(ctx)
 
 	idempotencyKey := idempotencyKeyPrefix + messageID
-	ok, err := h.redis.SetNX(ctx, idempotencyKey, idempotencyStatusProcessing, idempotencyProcessingTTL).Result()
+	ok, err := h.redis.SetNX(
+		ctx,
+		idempotencyKey,
+		idempotencyStatusProcessing,
+		idempotencyProcessingTTL,
+	).Result()
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to claim idempotency key",
+		h.logger.ErrorContext(
+			ctx, "kick: failed to claim idempotency key",
 			slog.String("message_id", messageID),
 			slog.String("event_type", eventType),
 			logger.Error(err),
@@ -498,7 +553,8 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		status, err := h.redis.Get(ctx, idempotencyKey).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
-			h.logger.ErrorContext(ctx, "kick: failed to read idempotency status",
+			h.logger.ErrorContext(
+				ctx, "kick: failed to read idempotency status",
 				slog.String("message_id", messageID),
 				slog.String("event_type", eventType),
 				logger.Error(err),
@@ -509,19 +565,22 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 
 		switch status {
 		case idempotencyStatusProcessed:
-			h.logger.InfoContext(ctx, "kick: duplicate processed event, skipping",
+			h.logger.InfoContext(
+				ctx, "kick: duplicate processed event, skipping",
 				slog.String("message_id", messageID),
 				slog.String("event_type", eventType),
 			)
 			w.WriteHeader(http.StatusOK)
 		case idempotencyStatusProcessing:
-			h.logger.InfoContext(ctx, "kick: event already processing, deferring",
+			h.logger.InfoContext(
+				ctx, "kick: event already processing, deferring",
 				slog.String("message_id", messageID),
 				slog.String("event_type", eventType),
 			)
 			w.WriteHeader(http.StatusAccepted)
 		default:
-			h.logger.InfoContext(ctx, "kick: idempotency key already exists, skipping",
+			h.logger.InfoContext(
+				ctx, "kick: idempotency key already exists, skipping",
 				slog.String("message_id", messageID),
 				slog.String("event_type", eventType),
 				slog.String("status", status),
@@ -561,14 +620,16 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	case "moderation.banned":
 		eventLogAttrs, err = h.handleModerationBanned(r, body)
 	default:
-		h.logger.InfoContext(ctx, "kick: unknown event type, ignoring",
+		h.logger.InfoContext(
+			ctx, "kick: unknown event type, ignoring",
 			slog.String("event_type", eventType),
 		)
 	}
 
 	if err != nil {
 		if errors.Is(err, errKickWebhookUnknownBroadcaster) {
-			h.logger.InfoContext(ctx, "kick: ignoring webhook for unknown broadcaster mapping",
+			h.logger.InfoContext(
+				ctx, "kick: ignoring webhook for unknown broadcaster mapping",
 				slog.String("message_id", messageID),
 				slog.String("event_type", eventType),
 				logger.Error(err),
@@ -578,13 +639,15 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to process webhook event",
+		h.logger.ErrorContext(
+			ctx, "kick: failed to process webhook event",
 			slog.String("message_id", messageID),
 			slog.String("event_type", eventType),
 			logger.Error(err),
 		)
 		if delErr := h.redis.Del(context.WithoutCancel(ctx), idempotencyKey).Err(); delErr != nil {
-			h.logger.ErrorContext(ctx, "kick: failed to clean up processing key after error",
+			h.logger.ErrorContext(
+				ctx, "kick: failed to clean up processing key after error",
 				slog.String("message_id", messageID),
 				logger.Error(delErr),
 			)
@@ -595,7 +658,8 @@ func (h *Handlers) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	err = h.redis.Set(ctx, idempotencyKey, idempotencyStatusProcessed, idempotencyTTL).Err()
 	if err != nil {
-		h.logger.ErrorContext(ctx, "kick: failed to mark event as processed",
+		h.logger.ErrorContext(
+			ctx, "kick: failed to mark event as processed",
 			slog.String("message_id", messageID),
 			slog.String("event_type", eventType),
 			logger.Error(err),
@@ -638,31 +702,39 @@ func (h *Handlers) handleLivestreamMetadata(r *http.Request, body []byte) ([]slo
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for livestream.metadata.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for livestream.metadata.updated broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 
 	if h.streamsRepo != nil {
 		categoryID := strconv.Itoa(payload.Metadata.Category.ID)
 		thumbnailURL := payload.Metadata.Category.Thumbnail
-		if err := h.streamsRepo.Update(ctx, channelID, streams.UpdateInput{
-			GameId:       &categoryID,
-			GameName:     &payload.Metadata.Category.Name,
-			Title:        &payload.Metadata.Title,
-			Language:     &payload.Metadata.Language,
-			ThumbnailUrl: &thumbnailURL,
-			IsMature:     &payload.Metadata.HasMatureContent,
-		}); err != nil {
+		if err := h.streamsRepo.Update(
+			ctx, channelUUID, platform.PlatformKick, streams.UpdateInput{
+				GameId:       &categoryID,
+				GameName:     &payload.Metadata.Category.Name,
+				Title:        &payload.Metadata.Title,
+				Language:     &payload.Metadata.Language,
+				ThumbnailUrl: &thumbnailURL,
+				IsMature:     &payload.Metadata.HasMatureContent,
+			},
+		); err != nil {
 			return nil, fmt.Errorf("update kick current stream metadata: %w", err)
 		}
 	}
 	if h.channelsInfoHistoryRepo != nil && payload.Metadata.Category.Name != "" {
-		if err := h.channelsInfoHistoryRepo.Create(ctx, channelsinfohistory.CreateInput{
-			ChannelID: channelID,
-			Platform:  platform.PlatformKick,
-			Title:     payload.Metadata.Title,
-			Category:  payload.Metadata.Category.Name,
-		}); err != nil {
+		if err := h.channelsInfoHistoryRepo.Create(
+			ctx, channelsinfohistory.CreateInput{
+				ChannelID: channelID,
+				Platform:  platform.PlatformKick,
+				Title:     payload.Metadata.Title,
+				Category:  payload.Metadata.Category.Name,
+			},
+		); err != nil {
 			return nil, fmt.Errorf("create kick channel info history: %w", err)
 		}
 	}
@@ -682,7 +754,8 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), 30*time.Second)
 	defer cancel()
 
-	h.logger.DebugContext(ctx, "kick: handling chat message",
+	h.logger.DebugContext(
+		ctx, "kick: handling chat message",
 		slog.Int("body_size", len(body)),
 	)
 
@@ -691,7 +764,8 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		return nil, fmt.Errorf("unmarshal chat message payload: %w", err)
 	}
 
-	h.logger.DebugContext(ctx, "kick: parsed chat message payload",
+	h.logger.DebugContext(
+		ctx, "kick: parsed chat message payload",
 		slog.Int("broadcaster_user_id", payload.Broadcaster.UserID),
 		slog.String("broadcaster_username", payload.Broadcaster.Username),
 		slog.Int("sender_user_id", payload.Sender.UserID),
@@ -701,7 +775,11 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for chat message broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for chat message broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 
@@ -713,12 +791,14 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	if payload.Sender.Identity != nil {
 		color = payload.Sender.Identity.UsernameColor
 		for _, b := range payload.Sender.Identity.Badges {
-			badges = append(badges, generic.ChatMessageBadge{
-				ID:    b.Type,
-				SetID: b.Type,
-				Info:  b.Text,
-				Text:  b.Text,
-			})
+			badges = append(
+				badges, generic.ChatMessageBadge{
+					ID:    b.Type,
+					SetID: b.Type,
+					Info:  b.Text,
+					Text:  b.Text,
+				},
+			)
 			switch b.Type {
 			case "broadcaster":
 				isBroadcaster = true
@@ -736,7 +816,12 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		isBroadcaster = true
 	}
 
-	normalizedText, fragments, parsedEmotes, err := h.buildKickMessageContent(ctx, broadcasterUserID, payload.Content, payload.Emotes)
+	normalizedText, fragments, parsedEmotes, err := h.buildKickMessageContent(
+		ctx,
+		broadcasterUserID,
+		payload.Content,
+		payload.Emotes,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("build kick message content: %w", err)
 	}
@@ -749,32 +834,38 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 
 	var errwg errgroup.Group
 
-	errwg.Go(func() error {
-		var err error
-		channel, err = h.channelsRepo.GetByID(ctx, channelUUID)
-		if err != nil {
-			return fmt.Errorf("get channel by id: %w", err)
-		}
-		return nil
-	})
+	errwg.Go(
+		func() error {
+			var err error
+			channel, err = h.channelService.GetChannelByID(ctx, channelUUID)
+			if err != nil {
+				return fmt.Errorf("get channel by id: %w", err)
+			}
+			return nil
+		},
+	)
 
-	errwg.Go(func() error {
-		var err error
-		stream, err = h.getChannelStream(ctx, channelID)
-		if err != nil {
-			return fmt.Errorf("get channel stream: %w", err)
-		}
-		return nil
-	})
+	errwg.Go(
+		func() error {
+			var err error
+			stream, err = h.getChannelStream(ctx, channelUUID)
+			if err != nil {
+				return fmt.Errorf("get channel stream: %w", err)
+			}
+			return nil
+		},
+	)
 
-	errwg.Go(func() error {
-		var err error
-		commandsPrefix, err = h.getChannelCommandPrefix(ctx, channelID)
-		if err != nil {
-			return fmt.Errorf("get channel command prefix: %w", err)
-		}
-		return nil
-	})
+	errwg.Go(
+		func() error {
+			var err error
+			commandsPrefix, err = h.getChannelCommandPrefix(ctx, channelID)
+			if err != nil {
+				return fmt.Errorf("get channel command prefix: %w", err)
+			}
+			return nil
+		},
+	)
 
 	if err := errwg.Wait(); err != nil {
 		return nil, err
@@ -785,12 +876,14 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		if !errors.Is(err, usersmodel.ErrNotFound) {
 			return nil, fmt.Errorf("get sender user by platform id: %w", err)
 		}
-		createdUser, createErr := h.usersRepo.Create(ctx, usersrepository.CreateInput{
-			Platform:    platform.PlatformKick,
-			PlatformID:  senderPlatformID,
-			Login:       payload.Sender.Username,
-			DisplayName: payload.Sender.Username,
-		})
+		createdUser, createErr := h.usersRepo.Create(
+			ctx, usersrepository.CreateInput{
+				Platform:    platform.PlatformKick,
+				PlatformID:  senderPlatformID,
+				Login:       payload.Sender.Username,
+				DisplayName: payload.Sender.Username,
+			},
+		)
 		if createErr != nil {
 			return nil, fmt.Errorf("create sender user: %w", createErr)
 		}
@@ -927,7 +1020,8 @@ func (h *Handlers) shouldIgnoreBotSelfMessage(
 			return false
 		}
 
-		h.logger.DebugContext(ctx, "kick: failed to resolve assigned bot for self-message guard",
+		h.logger.DebugContext(
+			ctx, "kick: failed to resolve assigned bot for self-message guard",
 			slog.String("channel_id", channel.ID.String()),
 			slog.String("kick_bot_id", channel.KickBotID.String()),
 			slog.String("sender_username", senderUsername),
@@ -951,23 +1045,29 @@ func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Att
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for follow broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for follow broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 	followerUserID := strconv.Itoa(payload.Follower.UserID)
 	followerUserName := payload.Follower.Username
 
 	if h.eventsListRepo != nil {
-		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
-			ChannelID: channelID,
-			UserID:    &followerUserID,
-			Platform:  platform.PlatformKick,
-			Type:      channelseventslistmodel.ChannelEventListItemTypeFollow,
-			Data: &channelseventslistmodel.ChannelsEventsListItemData{
-				FollowUserName:        followerUserName,
-				FollowUserDisplayName: followerUserName,
+		if err := h.eventsListRepo.Create(
+			ctx, channelseventslist.CreateInput{
+				ChannelID: channelID,
+				UserID:    &followerUserID,
+				Platform:  platform.PlatformKick,
+				Type:      channelseventslistmodel.ChannelEventListItemTypeFollow,
+				Data: &channelseventslistmodel.ChannelsEventsListItemData{
+					FollowUserName:        followerUserName,
+					FollowUserDisplayName: followerUserName,
+				},
 			},
-		}); err != nil {
+		); err != nil {
 			return nil, fmt.Errorf("create follow event list item: %w", err)
 		}
 	}
@@ -1039,37 +1139,45 @@ func (h *Handlers) handleSubscriptionNew(r *http.Request, body []byte) ([]slog.A
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for channel.subscription.new broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for channel.subscription.new broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 
 	subscriberUserID := strconv.Itoa(payload.Subscriber.UserID)
 	if h.eventsListRepo != nil {
-		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
-			ChannelID: channelID,
-			UserID:    &subscriberUserID,
-			Platform:  platform.PlatformKick,
-			Type:      channelseventslistmodel.ChannelEventListItemTypeSubscribe,
-			Data: &channelseventslistmodel.ChannelsEventsListItemData{
-				SubUserName:        payload.Subscriber.Username,
-				SubUserDisplayName: payload.Subscriber.Username,
+		if err := h.eventsListRepo.Create(
+			ctx, channelseventslist.CreateInput{
+				ChannelID: channelID,
+				UserID:    &subscriberUserID,
+				Platform:  platform.PlatformKick,
+				Type:      channelseventslistmodel.ChannelEventListItemTypeSubscribe,
+				Data: &channelseventslistmodel.ChannelsEventsListItemData{
+					SubUserName:        payload.Subscriber.Username,
+					SubUserDisplayName: payload.Subscriber.Username,
+				},
 			},
-		}); err != nil {
+		); err != nil {
 			return nil, fmt.Errorf("create kick subscribe event list item: %w", err)
 		}
 	}
 
-	if err := h.eventsSubscribe.Publish(ctx, events.SubscribeMessage{
-		BaseInfo: events.BaseInfo{
-			ChannelID:   channelID,
-			ChannelName: kickChannelName(payload.Broadcaster),
-			Platform:    platform.PlatformKick,
+	if err := h.eventsSubscribe.Publish(
+		ctx, events.SubscribeMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   channelID,
+				ChannelName: kickChannelName(payload.Broadcaster),
+				Platform:    platform.PlatformKick,
+			},
+			UserID:          subscriberUserID,
+			UserName:        payload.Subscriber.Username,
+			UserDisplayName: payload.Subscriber.Username,
+			Level:           "",
 		},
-		UserID:          subscriberUserID,
-		UserName:        payload.Subscriber.Username,
-		UserDisplayName: payload.Subscriber.Username,
-		Level:           "",
-	}); err != nil {
+	); err != nil {
 		return nil, fmt.Errorf("publish kick subscribe event: %w", err)
 	}
 
@@ -1094,44 +1202,52 @@ func (h *Handlers) handleSubscriptionRenewal(r *http.Request, body []byte) ([]sl
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for channel.subscription.renewal broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for channel.subscription.renewal broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 
 	subscriberUserID := strconv.Itoa(payload.Subscriber.UserID)
 	months := max(payload.Duration, 0)
 	if h.eventsListRepo != nil {
-		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
-			ChannelID: channelID,
-			UserID:    &subscriberUserID,
-			Platform:  platform.PlatformKick,
-			Type:      channelseventslistmodel.ChannelEventListItemTypeReSubscribe,
-			Data: &channelseventslistmodel.ChannelsEventsListItemData{
-				ReSubUserName:        payload.Subscriber.Username,
-				ReSubUserDisplayName: payload.Subscriber.Username,
-				ReSubMonths:          strconv.Itoa(months),
-				ReSubStreak:          "0",
+		if err := h.eventsListRepo.Create(
+			ctx, channelseventslist.CreateInput{
+				ChannelID: channelID,
+				UserID:    &subscriberUserID,
+				Platform:  platform.PlatformKick,
+				Type:      channelseventslistmodel.ChannelEventListItemTypeReSubscribe,
+				Data: &channelseventslistmodel.ChannelsEventsListItemData{
+					ReSubUserName:        payload.Subscriber.Username,
+					ReSubUserDisplayName: payload.Subscriber.Username,
+					ReSubMonths:          strconv.Itoa(months),
+					ReSubStreak:          "0",
+				},
 			},
-		}); err != nil {
+		); err != nil {
 			return nil, fmt.Errorf("create kick resubscribe event list item: %w", err)
 		}
 	}
 
-	if err := h.eventsReSubscribe.Publish(ctx, events.ReSubscribeMessage{
-		BaseInfo: events.BaseInfo{
-			ChannelID:   channelID,
-			ChannelName: kickChannelName(payload.Broadcaster),
-			Platform:    platform.PlatformKick,
+	if err := h.eventsReSubscribe.Publish(
+		ctx, events.ReSubscribeMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   channelID,
+				ChannelName: kickChannelName(payload.Broadcaster),
+				Platform:    platform.PlatformKick,
+			},
+			UserID:          subscriberUserID,
+			UserName:        payload.Subscriber.Username,
+			UserDisplayName: payload.Subscriber.Username,
+			Months:          int64(months),
+			Streak:          0,
+			IsPrime:         false,
+			Message:         "",
+			Level:           "",
 		},
-		UserID:          subscriberUserID,
-		UserName:        payload.Subscriber.Username,
-		UserDisplayName: payload.Subscriber.Username,
-		Months:          int64(months),
-		Streak:          0,
-		IsPrime:         false,
-		Message:         "",
-		Level:           "",
-	}); err != nil {
+	); err != nil {
 		return nil, fmt.Errorf("publish kick resubscribe event: %w", err)
 	}
 
@@ -1156,7 +1272,11 @@ func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for channel.subscription.gifts broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for channel.subscription.gifts broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 
@@ -1165,35 +1285,43 @@ func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog
 		gifteeUserID := strconv.Itoa(giftee.UserID)
 
 		if h.eventsListRepo != nil {
-			if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
-				ChannelID: channelID,
-				UserID:    &gifterUserID,
-				Platform:  platform.PlatformKick,
-				Type:      channelseventslistmodel.ChannelEventListItemTypeSubGift,
-				Data: &channelseventslistmodel.ChannelsEventsListItemData{
-					SubGiftUserName:              payload.Gifter.Username,
-					SubGiftUserDisplayName:       payload.Gifter.Username,
-					SubGiftTargetUserName:        giftee.Username,
-					SubGiftTargetUserDisplayName: giftee.Username,
+			if err := h.eventsListRepo.Create(
+				ctx, channelseventslist.CreateInput{
+					ChannelID: channelID,
+					UserID:    &gifterUserID,
+					Platform:  platform.PlatformKick,
+					Type:      channelseventslistmodel.ChannelEventListItemTypeSubGift,
+					Data: &channelseventslistmodel.ChannelsEventsListItemData{
+						SubGiftUserName:              payload.Gifter.Username,
+						SubGiftUserDisplayName:       payload.Gifter.Username,
+						SubGiftTargetUserName:        giftee.Username,
+						SubGiftTargetUserDisplayName: giftee.Username,
+					},
 				},
-			}); err != nil {
-				return nil, fmt.Errorf("create kick subgift event list item for giftee %s: %w", gifteeUserID, err)
+			); err != nil {
+				return nil, fmt.Errorf(
+					"create kick subgift event list item for giftee %s: %w",
+					gifteeUserID,
+					err,
+				)
 			}
 		}
 
-		if err := h.eventsSubGift.Publish(ctx, events.SubGiftMessage{
-			BaseInfo: events.BaseInfo{
-				ChannelID:   channelID,
-				ChannelName: kickChannelName(payload.Broadcaster),
-				Platform:    platform.PlatformKick,
+		if err := h.eventsSubGift.Publish(
+			ctx, events.SubGiftMessage{
+				BaseInfo: events.BaseInfo{
+					ChannelID:   channelID,
+					ChannelName: kickChannelName(payload.Broadcaster),
+					Platform:    platform.PlatformKick,
+				},
+				SenderUserID:      gifterUserID,
+				SenderUserName:    payload.Gifter.Username,
+				SenderDisplayName: payload.Gifter.Username,
+				TargetUserName:    giftee.Username,
+				TargetDisplayName: giftee.Username,
+				Level:             "",
 			},
-			SenderUserID:      gifterUserID,
-			SenderUserName:    payload.Gifter.Username,
-			SenderDisplayName: payload.Gifter.Username,
-			TargetUserName:    giftee.Username,
-			TargetDisplayName: giftee.Username,
-			Level:             "",
-		}); err != nil {
+		); err != nil {
 			return nil, fmt.Errorf("publish kick subgift event for giftee %s: %w", gifteeUserID, err)
 		}
 	}
@@ -1220,7 +1348,11 @@ func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) (
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for channel.reward.redemption.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for channel.reward.redemption.updated broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 
@@ -1236,51 +1368,57 @@ func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) (
 
 	redeemerUserID := strconv.Itoa(payload.Redeemer.UserID)
 	if h.redemptionsHistoryRepo != nil {
-		if err := h.redemptionsHistoryRepo.Create(ctx, channelsredemptionshistory.CreateInput{
-			ChannelID:    channelID,
-			UserID:       redeemerUserID,
-			Platform:     platform.PlatformKick,
-			RewardID:     kickRewardHistoryUUID(payload.Reward.ID),
-			RewardPrompt: lo.If(payload.UserInput != "", &payload.UserInput).Else(nil),
-			RewardTitle:  payload.Reward.Title,
-			RewardCost:   payload.Reward.Cost,
-		}); err != nil {
+		if err := h.redemptionsHistoryRepo.Create(
+			ctx, channelsredemptionshistory.CreateInput{
+				ChannelID:    channelID,
+				UserID:       redeemerUserID,
+				Platform:     platform.PlatformKick,
+				RewardID:     kickRewardHistoryUUID(payload.Reward.ID),
+				RewardPrompt: lo.If(payload.UserInput != "", &payload.UserInput).Else(nil),
+				RewardTitle:  payload.Reward.Title,
+				RewardCost:   payload.Reward.Cost,
+			},
+		); err != nil {
 			return nil, fmt.Errorf("create kick redemption history: %w", err)
 		}
 	}
 
 	if h.eventsListRepo != nil {
-		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
-			ChannelID: channelID,
-			UserID:    &redeemerUserID,
-			Platform:  platform.PlatformKick,
-			Type:      channelseventslistmodel.ChannelEventListItemTypeRedemptionCreated,
-			Data: &channelseventslistmodel.ChannelsEventsListItemData{
-				RedemptionInput:           payload.UserInput,
-				RedemptionTitle:           payload.Reward.Title,
-				RedemptionUserName:        payload.Redeemer.Username,
-				RedemptionUserDisplayName: payload.Redeemer.Username,
-				RedemptionCost:            strconv.Itoa(payload.Reward.Cost),
+		if err := h.eventsListRepo.Create(
+			ctx, channelseventslist.CreateInput{
+				ChannelID: channelID,
+				UserID:    &redeemerUserID,
+				Platform:  platform.PlatformKick,
+				Type:      channelseventslistmodel.ChannelEventListItemTypeRedemptionCreated,
+				Data: &channelseventslistmodel.ChannelsEventsListItemData{
+					RedemptionInput:           payload.UserInput,
+					RedemptionTitle:           payload.Reward.Title,
+					RedemptionUserName:        payload.Redeemer.Username,
+					RedemptionUserDisplayName: payload.Redeemer.Username,
+					RedemptionCost:            strconv.Itoa(payload.Reward.Cost),
+				},
 			},
-		}); err != nil {
+		); err != nil {
 			return nil, fmt.Errorf("create kick redemption event list item: %w", err)
 		}
 	}
 
-	if err := h.eventsRedemptionCreated.Publish(ctx, events.RedemptionCreatedMessage{
-		ID: payload.Reward.ID,
-		BaseInfo: events.BaseInfo{
-			ChannelID:   channelID,
-			ChannelName: kickChannelName(kickUser{Username: payload.Broadcaster.Username, ChannelSlug: payload.Broadcaster.ChannelSlug}),
-			Platform:    platform.PlatformKick,
+	if err := h.eventsRedemptionCreated.Publish(
+		ctx, events.RedemptionCreatedMessage{
+			ID: payload.Reward.ID,
+			BaseInfo: events.BaseInfo{
+				ChannelID:   channelID,
+				ChannelName: kickChannelName(kickUser{Username: payload.Broadcaster.Username, ChannelSlug: payload.Broadcaster.ChannelSlug}),
+				Platform:    platform.PlatformKick,
+			},
+			UserID:          redeemerUserID,
+			UserName:        payload.Redeemer.Username,
+			UserDisplayName: payload.Redeemer.Username,
+			RewardName:      payload.Reward.Title,
+			RewardCost:      strconv.Itoa(payload.Reward.Cost),
+			Input:           lo.If(payload.UserInput != "", &payload.UserInput).Else(nil),
 		},
-		UserID:          redeemerUserID,
-		UserName:        payload.Redeemer.Username,
-		UserDisplayName: payload.Redeemer.Username,
-		RewardName:      payload.Reward.Title,
-		RewardCost:      strconv.Itoa(payload.Reward.Cost),
-		Input:           lo.If(payload.UserInput != "", &payload.UserInput).Else(nil),
-	}); err != nil {
+	); err != nil {
 		return nil, fmt.Errorf("publish kick redemption created event: %w", err)
 	}
 
@@ -1307,7 +1445,11 @@ func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for moderation.banned broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for moderation.banned broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 
@@ -1326,42 +1468,46 @@ func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.
 		}
 	}
 
-	if err := h.eventsChannelBan.Publish(ctx, events.ChannelBanMessage{
-		BaseInfo: events.BaseInfo{
-			ChannelID:   channelID,
-			ChannelName: kickChannelName(payload.Broadcaster),
-			Platform:    platform.PlatformKick,
+	if err := h.eventsChannelBan.Publish(
+		ctx, events.ChannelBanMessage{
+			BaseInfo: events.BaseInfo{
+				ChannelID:   channelID,
+				ChannelName: kickChannelName(payload.Broadcaster),
+				Platform:    platform.PlatformKick,
+			},
+			UserID:               bannedUserID,
+			UserName:             payload.BannedUser.Username,
+			UserLogin:            payload.BannedUser.Username,
+			BroadcasterUserName:  payload.Broadcaster.Username,
+			BroadcasterUserLogin: payload.Broadcaster.Username,
+			ModeratorUserID:      moderatorUserID,
+			ModeratorUserName:    payload.Moderator.Username,
+			ModeratorUserLogin:   payload.Moderator.Username,
+			Reason:               payload.Metadata.Reason,
+			EndsAt:               endsAt,
+			IsPermanent:          isPermanent,
 		},
-		UserID:               bannedUserID,
-		UserName:             payload.BannedUser.Username,
-		UserLogin:            payload.BannedUser.Username,
-		BroadcasterUserName:  payload.Broadcaster.Username,
-		BroadcasterUserLogin: payload.Broadcaster.Username,
-		ModeratorUserID:      moderatorUserID,
-		ModeratorUserName:    payload.Moderator.Username,
-		ModeratorUserLogin:   payload.Moderator.Username,
-		Reason:               payload.Metadata.Reason,
-		EndsAt:               endsAt,
-		IsPermanent:          isPermanent,
-	}); err != nil {
+	); err != nil {
 		return nil, fmt.Errorf("publish kick channel ban event: %w", err)
 	}
 
 	if h.eventsListRepo != nil {
-		if err := h.eventsListRepo.Create(ctx, channelseventslist.CreateInput{
-			ChannelID: channelID,
-			UserID:    &bannedUserID,
-			Platform:  platform.PlatformKick,
-			Type:      channelseventslistmodel.ChannelEventListItemTypeChannelBan,
-			Data: &channelseventslistmodel.ChannelsEventsListItemData{
-				BanReason:            payload.Metadata.Reason,
-				BanEndsInMinutes:     endsAt,
-				BannedUserLogin:      payload.BannedUser.Username,
-				BannedUserName:       payload.BannedUser.Username,
-				ModeratorDisplayName: payload.Moderator.Username,
-				ModeratorName:        payload.Moderator.Username,
+		if err := h.eventsListRepo.Create(
+			ctx, channelseventslist.CreateInput{
+				ChannelID: channelID,
+				UserID:    &bannedUserID,
+				Platform:  platform.PlatformKick,
+				Type:      channelseventslistmodel.ChannelEventListItemTypeChannelBan,
+				Data: &channelseventslistmodel.ChannelsEventsListItemData{
+					BanReason:            payload.Metadata.Reason,
+					BanEndsInMinutes:     endsAt,
+					BannedUserLogin:      payload.BannedUser.Username,
+					BannedUserName:       payload.BannedUser.Username,
+					ModeratorDisplayName: payload.Moderator.Username,
+					ModeratorName:        payload.Moderator.Username,
+				},
 			},
-		}); err != nil {
+		); err != nil {
 			return nil, fmt.Errorf("create kick channel ban event list item: %w", err)
 		}
 	}
@@ -1388,7 +1534,11 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) ([]slog.
 	broadcasterUserID := strconv.Itoa(payload.Broadcaster.UserID)
 	channelUUID, _, err := h.resolveIDs(r, broadcasterUserID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve ids for livestream.status.updated broadcaster_user_id=%s: %w", broadcasterUserID, err)
+		return nil, fmt.Errorf(
+			"resolve ids for livestream.status.updated broadcaster_user_id=%s: %w",
+			broadcasterUserID,
+			err,
+		)
 	}
 	channelID := channelUUID.String()
 
@@ -1401,36 +1551,59 @@ func (h *Handlers) handleLivestreamStatus(r *http.Request, body []byte) ([]slog.
 		}
 
 		if h.streamsRepo != nil {
-			if err := h.streamsRepo.Save(ctx, streams.SaveInput{
-				ID:        channelID,
-				UserId:    channelID,
-				UserLogin: payload.Broadcaster.ChannelSlug,
-				UserName:  payload.Broadcaster.Username,
-				Type:      "live",
-				Title:     payload.Title,
-				StartedAt: startedAt,
-			}); err != nil {
+			if err := h.streamsRepo.Save(
+				ctx, streams.SaveInput{
+					ChannelID: channelUUID,
+					UserId:    broadcasterUserID,
+					UserLogin: payload.Broadcaster.ChannelSlug,
+					UserName:  payload.Broadcaster.Username,
+					Type:      "live",
+					Title:     payload.Title,
+					StartedAt: startedAt,
+					Platform:  platform.PlatformKick,
+				},
+			); err != nil {
 				return nil, fmt.Errorf("save kick current stream: %w", err)
+			}
+
+			if err := h.channelService.InvalidateOnlineCache(ctx, channelUUID); err != nil {
+				h.logger.Error(
+					"cannot invalidate online cache",
+					slog.String("channel_id", channelID),
+					logger.Error(err),
+				)
 			}
 		}
 
-		if err := h.streamOnline.Publish(ctx, kickbus.KickStreamOnline{
-			BroadcasterUserID:    broadcasterUserID,
-			BroadcasterUserLogin: payload.Broadcaster.Username,
-		}); err != nil {
+		if err := h.streamOnline.Publish(
+			ctx, kickbus.KickStreamOnline{
+				BroadcasterUserID:    broadcasterUserID,
+				BroadcasterUserLogin: payload.Broadcaster.Username,
+			},
+		); err != nil {
 			return nil, fmt.Errorf("publish stream online event: %w", err)
 		}
 	} else {
 		if h.streamsRepo != nil {
-			if err := h.streamsRepo.DeleteByChannelID(ctx, channelID); err != nil {
+			if err := h.streamsRepo.DeleteByChannelID(ctx, channelUUID, platform.PlatformKick); err != nil {
 				return nil, fmt.Errorf("delete kick current stream: %w", err)
+			}
+
+			if err := h.channelService.InvalidateOnlineCache(ctx, channelUUID); err != nil {
+				h.logger.Error(
+					"cannot invalidate online cache",
+					slog.String("channel_id", channelID),
+					logger.Error(err),
+				)
 			}
 		}
 
-		if err := h.streamOffline.Publish(ctx, kickbus.KickStreamOffline{
-			BroadcasterUserID:    broadcasterUserID,
-			BroadcasterUserLogin: payload.Broadcaster.Username,
-		}); err != nil {
+		if err := h.streamOffline.Publish(
+			ctx, kickbus.KickStreamOffline{
+				BroadcasterUserID:    broadcasterUserID,
+				BroadcasterUserLogin: payload.Broadcaster.Username,
+			},
+		); err != nil {
 			return nil, fmt.Errorf("publish stream offline event: %w", err)
 		}
 	}
@@ -1451,15 +1624,25 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.U
 	user, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, broadcasterUserID)
 	if err != nil {
 		if errors.Is(err, usersmodel.ErrNotFound) {
-			return uuid.Nil, uuid.Nil, fmt.Errorf("%w: no kick user for broadcaster_user_id=%s: %w", errKickWebhookUnknownBroadcaster, broadcasterUserID, err)
+			return uuid.Nil, uuid.Nil, fmt.Errorf(
+				"%w: no kick user for broadcaster_user_id=%s: %w",
+				errKickWebhookUnknownBroadcaster,
+				broadcasterUserID,
+				err,
+			)
 		}
 		return uuid.Nil, uuid.Nil, fmt.Errorf("get user by platform id: %w", err)
 	}
 
-	channel, err := h.channelsRepo.GetByKickUserID(ctx, user.ID)
+	channel, err := h.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
-			return uuid.Nil, uuid.Nil, fmt.Errorf("%w: channel not found for user_id=%s platform=kick: %w", errKickWebhookUnknownBroadcaster, user.ID, err)
+			return uuid.Nil, uuid.Nil, fmt.Errorf(
+				"%w: channel not found for user_id=%s platform=kick: %w",
+				errKickWebhookUnknownBroadcaster,
+				user.ID,
+				err,
+			)
 		}
 		return uuid.Nil, uuid.Nil, fmt.Errorf("get channel by kick user id: %w", err)
 	}
@@ -1508,13 +1691,13 @@ func (h *Handlers) getChannelCommandPrefix(ctx context.Context, channelId string
 
 func (h *Handlers) getChannelStream(
 	ctx context.Context,
-	channelId string,
+	channelID uuid.UUID,
 ) (*streamsmodel.Stream, error) {
 	if h.streamsRepo == nil {
 		return nil, nil
 	}
 
-	cacheKey := redis_keys.StreamByChannelID(channelId)
+	cacheKey := redis_keys.StreamByChannelID(channelID.String())
 	cachedBytes, err := h.redis.Get(ctx, cacheKey).Bytes()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, fmt.Errorf("failed to get stream cache: %w", err)
@@ -1529,7 +1712,7 @@ func (h *Handlers) getChannelStream(
 		return &stream, nil
 	}
 
-	stream, err := h.streamsRepo.GetByChannelID(ctx, channelId)
+	stream, err := h.streamsRepo.GetByChannelID(ctx, channelID, platform.PlatformKick)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get stream by channel id: %w", err)
 	}

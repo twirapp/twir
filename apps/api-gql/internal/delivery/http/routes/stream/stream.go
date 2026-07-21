@@ -5,8 +5,10 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	streammodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"go.uber.org/fx"
@@ -53,7 +55,16 @@ func New(opts Opts) {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
 
-			stream, err := opts.StreamsRepository.GetByChannelID(ctx, selectedDashboardID)
+			parsedDashboardID, err := uuid.Parse(selectedDashboardID)
+			if err != nil {
+				return nil, huma.NewError(http.StatusBadRequest, "Invalid dashboard id", err)
+			}
+
+			stream, err := opts.StreamsRepository.GetByChannelID(
+				ctx,
+				parsedDashboardID,
+				platform.PlatformTwitch,
+			)
 			if err != nil {
 				return nil, huma.NewError(http.StatusInternalServerError, "Cannot get stream", err)
 			}

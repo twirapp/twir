@@ -12,6 +12,9 @@ import (
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
@@ -44,6 +47,11 @@ var App = fx.Module(
 			channelsrepositorypgx.NewFx,
 			fx.As(new(channelsrepository.Repository)),
 		),
+		fx.Annotate(
+			streamsrepositorypostgres.NewFx,
+			fx.As(new(streamsrepository.Repository)),
+		),
+		channelservice.NewChannelService,
 	),
 	fx.Invoke(
 		otel.NewFx(service),

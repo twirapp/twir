@@ -14,10 +14,12 @@ import (
 
 	"github.com/go-redis/redismock/v9"
 	"github.com/google/uuid"
+	kvinmemory "github.com/twirapp/kv/stores/inmemory"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
+	cfg "github.com/twirapp/twir/libs/config"
 	kickbotentity "github.com/twirapp/twir/libs/entities/kick_bot"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -33,6 +35,7 @@ import (
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
 type mockQueue[Req, Res any] struct {
@@ -175,11 +178,19 @@ type mockStreamsRepo struct {
 	err         error
 	saved       []streamsrepository.SaveInput
 	updated     []streamsrepository.UpdateInput
-	deletedByID []string
+	deletedByID []uuid.UUID
 }
 
-func (m *mockStreamsRepo) GetByChannelID(_ context.Context, _ string) (streamsmodel.Stream, error) {
+func (m *mockStreamsRepo) GetByChannelID(_ context.Context, _ uuid.UUID, _ platform.Platform) (streamsmodel.Stream, error) {
 	return m.stream, m.err
+}
+
+func (m *mockStreamsRepo) GetByUserID(_ context.Context, _ string, _ platform.Platform) (streamsmodel.Stream, error) {
+	return m.stream, m.err
+}
+
+func (m *mockStreamsRepo) GetListByChannelID(_ context.Context, _ uuid.UUID) ([]streamsmodel.Stream, error) {
+	return nil, m.err
 }
 
 func (m *mockStreamsRepo) GetList(_ context.Context) ([]streamsmodel.Stream, error) {
@@ -190,6 +201,7 @@ func (m *mockStreamsRepo) Save(_ context.Context, input streamsrepository.SaveIn
 	m.saved = append(m.saved, input)
 	m.stream = streamsmodel.Stream{
 		ID:           input.ID,
+		ChannelID:    input.ChannelID,
 		UserId:       input.UserId,
 		UserLogin:    input.UserLogin,
 		UserName:     input.UserName,
@@ -205,16 +217,17 @@ func (m *mockStreamsRepo) Save(_ context.Context, input streamsrepository.SaveIn
 		TagIds:       input.TagIds,
 		Tags:         input.Tags,
 		IsMature:     input.IsMature,
+		Platform:     input.Platform,
 	}
 	return m.err
 }
 
-func (m *mockStreamsRepo) DeleteByChannelID(_ context.Context, channelID string) error {
+func (m *mockStreamsRepo) DeleteByChannelID(_ context.Context, channelID uuid.UUID, _ platform.Platform) error {
 	m.deletedByID = append(m.deletedByID, channelID)
 	return m.err
 }
 
-func (m *mockStreamsRepo) Update(_ context.Context, _ string, input streamsrepository.UpdateInput) error {
+func (m *mockStreamsRepo) Update(_ context.Context, _ uuid.UUID, _ platform.Platform, input streamsrepository.UpdateInput) error {
 	m.updated = append(m.updated, input)
 	if input.Title != nil {
 		m.stream.Title = *input.Title
@@ -363,6 +376,13 @@ func buildTestHandlers(
 		streamOnline:            streamOnline,
 		streamOffline:           streamOffline,
 		streamsRepo:             streamRepo,
+		channelService: channelservice.NewChannelService(
+			channelsRepo,
+			buscore.Bus{},
+			cfg.Config{},
+			kvinmemory.New(),
+			streamRepo,
+		),
 		eventsListRepo:          &mockEventsListRepo{},
 		channelsInfoHistoryRepo: infoHistoryRepo,
 		redemptionsHistoryRepo:  &mockRedemptionsHistoryRepo{},

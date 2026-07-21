@@ -26,6 +26,7 @@ import (
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -44,6 +45,7 @@ type Opts struct {
 	TwirBus                 *buscore.Bus
 	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	ChannelsRepo            channelsrepository.Repository
+	ChannelService          *channelservice.ChannelService
 	ChannelEmotesUsagesRepo channelsemotesusagesrepository.Repository
 	StreamsRepository       streams.Repository
 	UsersRepo               usersrepository.Repository
@@ -61,6 +63,7 @@ func New(opts Opts) *Service {
 		twirBus:                 opts.TwirBus,
 		channelsCache:           opts.ChannelsCache,
 		channelsRepo:            opts.ChannelsRepo,
+		channelService:          opts.ChannelService,
 		channelEmotesUsagesRepo: opts.ChannelEmotesUsagesRepo,
 		streamsRepository:       opts.StreamsRepository,
 		usersRepo:               opts.UsersRepo,
@@ -78,6 +81,7 @@ type Service struct {
 	twirBus                 *buscore.Bus
 	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
 	channelsRepo            channelsrepository.Repository
+	channelService          *channelservice.ChannelService
 	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
 	streamsRepository       streams.Repository
 	usersRepo               usersrepository.Repository
@@ -119,7 +123,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByID(ctx, parsedID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
@@ -129,7 +133,8 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 
 	stream, err := c.streamsRepository.GetByChannelID(
 		ctx,
-		channelID,
+		parsedID,
+		platformentity.PlatformTwitch,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("get stream by channel id: %w", err)
@@ -348,11 +353,11 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 			emotesCount, err := c.channelEmotesUsagesRepo.Count(
 				ctx,
 				channelsemotesusagesrepository.CountInput{
-				Platform:          &analyticsPlatform,
-				PlatformChannelID: &analyticsPlatformChannelID,
-				TimeAfter:         &stream.StartedAt,
-			},
-		)
+					Platform:          &analyticsPlatform,
+					PlatformChannelID: &analyticsPlatformChannelID,
+					TimeAfter:         &stream.StartedAt,
+				},
+			)
 			if err != nil {
 				return fmt.Errorf("get count of used emotes: %w", err)
 			}
@@ -406,7 +411,7 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByID(ctx, parsedID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
@@ -583,7 +588,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		return false, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByID(ctx, parsedID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedID)
 	if err != nil {
 		return false, err
 	}
@@ -673,17 +678,17 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		return false, fmt.Errorf("user not found on twitch")
 	}
 
-		if channel.TwitchBotJoined() {
-			c.twirBus.EventSub.SubscribeToAllEvents.Publish(
-				ctx,
-				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
-			)
-		} else {
-			c.twirBus.EventSub.Unsubscribe.Publish(
-				ctx,
-				eventsub.EventsubUnsubscribeRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
-			)
-		}
+	if channel.TwitchBotJoined() {
+		c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+			ctx,
+			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
+		)
+	} else {
+		c.twirBus.EventSub.Unsubscribe.Publish(
+			ctx,
+			eventsub.EventsubUnsubscribeRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
+		)
+	}
 
 	broadcasterClient, err := twitch.NewUserClientWithContext(
 		ctx,

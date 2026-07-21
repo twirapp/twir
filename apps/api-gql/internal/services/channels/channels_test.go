@@ -5,11 +5,14 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepo "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
 func TestResolveApiKeyChannelIdentity(t *testing.T) {
@@ -65,6 +68,13 @@ func TestResolveApiKeyChannelIdentity(t *testing.T) {
 					Opts{
 						UsersRepository:    users,
 						ChannelsRepository: channels,
+						ChannelService: channelservice.NewChannelService(
+							channels,
+							buscore.Bus{},
+							config.Config{},
+							nil,
+							nil,
+						),
 					},
 				)
 

@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/kvizyx/twitchy/eventsub"
-	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -20,9 +20,23 @@ func (c *Handler) HandleStreamOnline(
 	event eventsub.StreamOnlineEvent,
 	meta eventsub.WebsocketNotificationMetadata,
 ) {
+	channel, err := c.channelService.GetChannelByPlatformUserID(
+		ctx,
+		event.BroadcasterUserId,
+		platform.PlatformTwitch,
+	)
+	if err != nil {
+		c.logger.Error(
+			"cannot resolve channel for stream online",
+			slog.String("channelId", event.BroadcasterUserId),
+			logger.Error(err),
+		)
+		return
+	}
+
 	if err := c.redisClient.Del(
 		ctx,
-		redis_keys.StreamByChannelID(event.BroadcasterUserId),
+		redis_keys.StreamByChannelID(channel.ID.String()),
 	).Err(); err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 	}
@@ -73,23 +87,11 @@ func (c *Handler) HandleStreamOnline(
 
 		stream := streamsReq.Data.Streams[0]
 
-		c.gorm.WithContext(ctx).Where(
-			`"userId" = ?`,
-			event.BroadcasterUserId,
-		).Delete(&model.ChannelsStreams{})
-
-		tags := pq.StringArray{}
-		for _, tag := range stream.Tags {
-			tags = append(tags, tag)
-		}
-		tagIds := pq.StringArray{}
-		for _, tagId := range stream.TagIDs {
-			tagIds = append(tagIds, tagId)
-		}
-
-		err = c.gorm.WithContext(ctx).Create(
-			&model.ChannelsStreams{
+		err = c.streamsrepository.Save(
+			ctx,
+			streamsrepository.SaveInput{
 				ID:           event.Id,
+				ChannelID:    channel.ID,
 				UserId:       event.BroadcasterUserId,
 				UserLogin:    event.BroadcasterUserLogin,
 				UserName:     event.BroadcasterUserName,
@@ -102,15 +104,24 @@ func (c *Handler) HandleStreamOnline(
 				StartedAt:    stream.StartedAt,
 				Language:     stream.Language,
 				ThumbnailUrl: stream.ThumbnailURL,
-				TagIds:       &tagIds,
-				Tags:         &tags,
+				TagIds:       stream.TagIDs,
+				Tags:         stream.Tags,
 				IsMature:     stream.IsMature,
+				Platform:     platform.PlatformTwitch,
 			},
-		).Error
+		)
 		if err != nil {
 			c.logger.Error(
 				"cannot create stream record",
 				slog.String("channelId", event.BroadcasterUserId),
+				logger.Error(err),
+			)
+		}
+
+		if err := c.channelService.InvalidateOnlineCache(ctx, channel.ID); err != nil {
+			c.logger.Error(
+				"cannot invalidate online cache",
+				slog.String("channelId", channel.ID.String()),
 				logger.Error(err),
 			)
 		}

@@ -6,7 +6,6 @@ import (
 
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type twitchChannelLookupResult struct {
@@ -18,16 +17,11 @@ func (c *PubSubHandlers) findTwitchChannelByPlatformUserID(
 	ctx context.Context,
 	platformUserID string,
 ) (twitchChannelLookupResult, bool, error) {
-	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, platformUserID)
-	if err != nil {
-		if errors.Is(err, usersmodel.ErrNotFound) {
-			return twitchChannelLookupResult{}, false, nil
-		}
-
-		return twitchChannelLookupResult{}, false, err
-	}
-
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	channel, err := c.channelService.GetChannelByPlatformUserID(
+		ctx,
+		platformUserID,
+		platform.PlatformTwitch,
+	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return twitchChannelLookupResult{}, false, nil

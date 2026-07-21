@@ -82,12 +82,15 @@ import (
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	sentmessagesrepository "github.com/twirapp/twir/libs/repositories/sentmessages"
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 
 	"go.uber.org/fx"
 )
@@ -112,6 +115,10 @@ var App = fx.Module(
 		fx.Annotate(
 			channelsrepositorypgx.NewFx,
 			fx.As(new(channelsrepository.Repository)),
+		),
+		fx.Annotate(
+			streamsrepositorypostgres.NewFx,
+			fx.As(new(streamsrepository.Repository)),
 		),
 		fx.Annotate(
 			toxicmessagesrepositorypgx.NewFx,
@@ -184,6 +191,7 @@ var App = fx.Module(
 	),
 	fx.Provide(
 		tlds.New,
+		channelservice.NewChannelService,
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},

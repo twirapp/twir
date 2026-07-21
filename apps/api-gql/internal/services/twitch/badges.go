@@ -18,7 +18,7 @@ func (c *Service) GetChannelChatBadges(ctx context.Context, channelID string) (
 		return nil, fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepository.GetByID(ctx, parsedID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedID)
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}

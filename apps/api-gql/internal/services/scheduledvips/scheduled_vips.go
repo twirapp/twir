@@ -14,10 +14,10 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"github.com/twirapp/twir/libs/logger"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 )
@@ -26,7 +26,7 @@ type Opts struct {
 	fx.In
 
 	ScheduledVipsRepository scheduledvipsrepository.Repository
-	ChannelsRepository      channelsrepository.Repository
+	ChannelService          *channelservice.ChannelService
 	UsersRepository         usersrepository.Repository
 	Config                  config.Config
 	Bus                     *buscore.Bus
@@ -35,22 +35,22 @@ type Opts struct {
 
 func New(opts Opts) *Service {
 	return &Service{
-		repo:         opts.ScheduledVipsRepository,
-		channelsRepo: opts.ChannelsRepository,
-		usersRepo:    opts.UsersRepository,
-		config:       opts.Config,
-		bus:          opts.Bus,
-		logger:       opts.Logger,
+		repo:           opts.ScheduledVipsRepository,
+		channelService: opts.ChannelService,
+		usersRepo:      opts.UsersRepository,
+		config:         opts.Config,
+		bus:            opts.Bus,
+		logger:         opts.Logger,
 	}
 }
 
 type Service struct {
-	repo         scheduledvipsrepository.Repository
-	channelsRepo channelsrepository.Repository
-	usersRepo    usersrepository.Repository
-	config       config.Config
-	bus          *buscore.Bus
-	logger       *slog.Logger
+	repo           scheduledvipsrepository.Repository
+	channelService *channelservice.ChannelService
+	usersRepo      usersrepository.Repository
+	config         config.Config
+	bus            *buscore.Bus
+	logger         *slog.Logger
 }
 
 func (c *Service) GetUserByPlatformID(ctx context.Context, platformUserID string) (usersmodel.User, error) {
@@ -118,7 +118,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByID(ctx, parsedChannelID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedChannelID)
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
@@ -207,7 +207,7 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 		return fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByID(ctx, parsedChannelID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedChannelID)
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}

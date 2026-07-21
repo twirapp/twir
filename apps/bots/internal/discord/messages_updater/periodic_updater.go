@@ -8,9 +8,10 @@ import (
 
 	"github.com/avast/retry-go/v4"
 	"github.com/twirapp/twir/apps/bots/internal/discord/sended_messages_store"
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	discordmodel "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/model"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
 const (
@@ -51,8 +52,8 @@ func (c *MessagesUpdater) StartPeriodicUpdater(ctx context.Context) {
 // processPeriodicUpdates checks all live streams and updates messages that need updating
 func (c *MessagesUpdater) processPeriodicUpdates(ctx context.Context) error {
 	// Get all active streams
-	var streams []model.ChannelsStreams
-	if err := c.db.Find(&streams).Error; err != nil {
+	streams, err := c.streamsRepo.GetList(ctx)
+	if err != nil {
 		return err
 	}
 
@@ -67,6 +68,9 @@ func (c *MessagesUpdater) processPeriodicUpdates(ctx context.Context) error {
 	)
 
 	for _, stream := range streams {
+		if stream.Platform != platform.PlatformTwitch {
+			continue
+		}
 		if err := c.updateMessagesForStream(ctx, stream); err != nil {
 			c.logger.ErrorContext(
 				ctx,
@@ -83,7 +87,7 @@ func (c *MessagesUpdater) processPeriodicUpdates(ctx context.Context) error {
 // updateMessagesForStream updates Discord messages for a specific stream if interval has passed
 func (c *MessagesUpdater) updateMessagesForStream(
 	ctx context.Context,
-	stream model.ChannelsStreams,
+	stream streamsmodel.Stream,
 ) error {
 	integrations, err := c.getChannelDiscordIntegrations(ctx, stream.UserId)
 	if err != nil && !errors.Is(err, ErrIntegrationNotFound) {
@@ -144,7 +148,7 @@ func (c *MessagesUpdater) updateMessagesForStream(
 func (c *MessagesUpdater) updateSingleMessage(
 	ctx context.Context,
 	message *sended_messages_store.Message,
-	stream model.ChannelsStreams,
+	stream streamsmodel.Stream,
 	integration discordmodel.ChannelIntegrationDiscord,
 ) error {
 	twitchUser, err := c.getTwitchUser(stream.UserId)

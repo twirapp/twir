@@ -19,6 +19,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 // Channel is the resolver for the channel field.
@@ -28,7 +29,7 @@ func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.
 		return dataloader.GetHelixUserById(ctx, obj.ChannelID)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedID)
 	if err != nil || channel.IsNil() || !channel.TwitchConnected() {
 		dbUser, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 		if err != nil {
@@ -38,7 +39,7 @@ func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.
 		if err != nil {
 			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
 		}
-		twitchChannel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, parsedUserID)
+		twitchChannel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, parsedUserID, platform.PlatformTwitch)
 		if err != nil || twitchChannel.IsNil() || !twitchChannel.TwitchConnected() {
 			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
 		}

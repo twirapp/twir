@@ -48,16 +48,16 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{
 			{
-				ID:         uuid.New(),
-				KickUserID: &kickUserID,
-				IsEnabled:  true,
+				ID:             uuid.New(),
+				KickUserID:     &kickUserID,
+				KickBotEnabled: true,
 			},
 		},
 	}
 
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         kickUserID,
+			ID:         kickUserID,
 			PlatformID: "12345",
 		},
 	}
@@ -98,16 +98,16 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{
 			{
-				ID:         uuid.New(),
-				KickUserID: &kickUserID,
-				IsEnabled:  true,
+				ID:             uuid.New(),
+				KickUserID:     &kickUserID,
+				KickBotEnabled: true,
 			},
 		},
 	}
 
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         kickUserID,
+			ID:         kickUserID,
 			PlatformID: "12345",
 		},
 	}
@@ -138,16 +138,16 @@ func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
 	chRepo := &mockChannelsRepo{
 		channels: []channelsmodel.Channel{
 			{
-				ID:         uuid.New(),
-				KickUserID: &kickUserID,
-				IsEnabled:  true,
+				ID:             uuid.New(),
+				KickUserID:     &kickUserID,
+				KickBotEnabled: true,
 			},
 		},
 	}
 
 	usersRepo := &mockUsersRepo{
 		user: usersmodel.User{
-		ID:         kickUserID,
+			ID:         kickUserID,
 			PlatformID: "12345",
 		},
 	}

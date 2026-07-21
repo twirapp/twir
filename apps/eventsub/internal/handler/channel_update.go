@@ -7,10 +7,10 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 )
 
 func (c *Handler) HandleChannelUpdate(
@@ -18,9 +18,20 @@ func (c *Handler) HandleChannelUpdate(
 	event eventsub.ChannelUpdateEvent,
 	meta eventsub.WebsocketNotificationMetadata,
 ) {
+	channel, err := c.channelService.GetChannelByPlatformUserID(
+		ctx,
+		event.BroadcasterUserId,
+		platformentity.PlatformTwitch,
+	)
+	if err != nil {
+		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+	channelID := channel.ID.String()
+
 	if err := c.redisClient.Del(
 		ctx,
-		redis_keys.StreamByChannelID(event.BroadcasterUserId),
+		redis_keys.StreamByChannelID(channelID),
 	).Err(); err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 	}
@@ -32,15 +43,6 @@ func (c *Handler) HandleChannelUpdate(
 		slog.String("channelId", event.BroadcasterUserId),
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
-
-	channelID, err := c.resolveChannelIDByTwitchBroadcasterID(ctx, event.BroadcasterUserId)
-	if err != nil {
-		c.logger.Error(err.Error(), logger.Error(err))
-		return
-	}
-	if channelID == "" {
-		return
-	}
 
 	c.twirBus.Events.TitleOrCategoryChanged.Publish(
 		ctx,
@@ -63,17 +65,16 @@ func (c *Handler) HandleChannelUpdate(
 		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
-	err = c.gorm.
-		WithContext(ctx).
-		Model(&model.ChannelsStreams{}).
-		Where(`"userId" = ?`, event.BroadcasterUserId).
-		Updates(
-			map[string]any{
-				"title":      event.Title,
-				`"gameName"`: event.CategoryName,
-				`"gameId"`:   event.CategoryId,
-			},
-		).Error
+	err = c.streamsrepository.Update(
+		ctx,
+		channel.ID,
+		platformentity.PlatformTwitch,
+		streamsrepository.UpdateInput{
+			Title:    &event.Title,
+			GameName: &event.CategoryName,
+			GameId:   &event.CategoryId,
+		},
+	)
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 	}

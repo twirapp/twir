@@ -15,7 +15,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
@@ -33,19 +32,38 @@ func (c *Handler) HandleStreamOffline(
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
+	channel, err := c.channelService.GetChannelByPlatformUserID(
+		ctx,
+		event.BroadcasterUserId,
+		platform.PlatformTwitch,
+	)
+	if err != nil {
+		c.logger.Error(
+			"cannot resolve channel for stream offline",
+			slog.String("channelId", event.BroadcasterUserId),
+			logger.Error(err),
+		)
+		return
+	}
+
 	if err := c.redisClient.Del(
 		ctx,
-		redis_keys.StreamByChannelID(event.BroadcasterUserId),
+		redis_keys.StreamByChannelID(channel.ID.String()),
 	).Err(); err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 	}
 
-	dbStream := model.ChannelsStreams{}
-	if err := c.gorm.WithContext(ctx).Where(
-		`"userId" = ?`,
-		event.BroadcasterUserId,
-	).First(&dbStream).Error; err != nil {
+	dbStream, err := c.streamsrepository.GetByChannelID(ctx, channel.ID, platform.PlatformTwitch)
+	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
+		return
+	}
+
+	if dbStream.IsNil() {
+		c.logger.Error(
+			"stream offline event received but no stream record found",
+			slog.String("channelId", event.BroadcasterUserId),
+		)
 		return
 	}
 
@@ -57,12 +75,16 @@ func (c *Handler) HandleStreamOffline(
 		},
 	)
 
-	err := c.gorm.WithContext(ctx).Where(
-		`"userId" = ?`,
-		event.BroadcasterUserId,
-	).Delete(&model.ChannelsStreams{}).Error
-	if err != nil {
+	if err := c.streamsrepository.DeleteByChannelID(ctx, channel.ID, platform.PlatformTwitch); err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
+	}
+
+	if err := c.channelService.InvalidateOnlineCache(ctx, channel.ID); err != nil {
+		c.logger.Error(
+			"cannot invalidate online cache",
+			slog.String("channelId", channel.ID.String()),
+			logger.Error(err),
+		)
 	}
 
 	go func() {
@@ -84,14 +106,14 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 		return fmt.Errorf("failed to get user by platform id: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 	if err != nil {
 		return fmt.Errorf("failed to get channel by broadcaster user: %w", err)
 	}
 
 	channelID := channel.ID.String()
 
-	stream, err := c.streamsrepository.GetByChannelID(ctx, channelID)
+	stream, err := c.streamsrepository.GetByChannelID(ctx, channel.ID, platform.PlatformTwitch)
 	if err != nil {
 		return fmt.Errorf("failed to get stream by channel id: %w", err)
 	}
@@ -136,13 +158,21 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 
 			vipUserID, err := uuid.Parse(vip.UserID)
 			if err != nil {
-				c.logger.Error("failed to parse vip user id", slog.String("userId", vip.UserID), logger.Error(err))
+				c.logger.Error(
+					"failed to parse vip user id",
+					slog.String("userId", vip.UserID),
+					logger.Error(err),
+				)
 				return
 			}
 
 			vipUser, err := c.usersRepo.GetByID(ctx, vipUserID)
 			if err != nil {
-				c.logger.Error("failed to get vip user by id", slog.String("userId", vip.UserID), logger.Error(err))
+				c.logger.Error(
+					"failed to get vip user by id",
+					slog.String("userId", vip.UserID),
+					logger.Error(err),
+				)
 				return
 			}
 			if vipUser.IsNil() {

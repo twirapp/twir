@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 // TwitchSetChannelInformation is the resolver for the twitchSetChannelInformation field.
@@ -196,7 +197,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 	// Try to find a Twitch-connected channel
 	parsedID, err := uuid.Parse(userId)
 	if err == nil {
-		channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedID)
+		channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedID)
 		if err == nil && !channel.IsNil() && channel.TwitchConnected() {
 			// Selected channel has Twitch — use it directly
 		} else {
@@ -211,7 +212,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
 			}
 
-			twitchChannel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, parsedUserID)
+			twitchChannel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, parsedUserID, platform.PlatformTwitch)
 			if err != nil || twitchChannel.IsNil() || !twitchChannel.TwitchConnected() {
 				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
 			}

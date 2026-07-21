@@ -24,6 +24,7 @@ import (
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -45,6 +46,7 @@ type Handler struct {
 	eventsListRepository         channelseventslist.Repository
 
 	userCreatorService *user_creator.UserCreatorService
+	channelService     *channelservice.ChannelService
 
 	gorm        *gorm.DB
 	redisClient *redis.Client
@@ -79,6 +81,7 @@ type Opts struct {
 	ChannelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
 	ChannelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
 	UserCreatorService                  *user_creator.UserCreatorService
+	ChannelService                      *channelservice.ChannelService
 
 	Tracer    trace.Tracer
 	Gorm      *gorm.DB
@@ -115,6 +118,7 @@ func New(opts Opts) *Handler {
 		channelSongRequestsSettingsCache:    opts.ChannelSongRequestsSettingsCache,
 		channelsIntegrationsSettingsSeventv: opts.ChannelsIntegrationsSettingsSeventv,
 		userCreatorService:                  opts.UserCreatorService,
+		channelService:                      opts.ChannelService,
 	}
 
 	batcherCtx, batcherStop := context.WithCancel(context.Background())

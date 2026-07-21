@@ -181,7 +181,7 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 		return deleteMessageChannel{}, false, err
 	}
 
-	channel, err := s.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+	channel, err := s.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return deleteMessageChannel{}, false, nil

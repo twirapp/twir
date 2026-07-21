@@ -7,12 +7,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
-	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
 func (c *Manager) tryTick(id TimerID) {
@@ -38,7 +36,7 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	stream, err := c.getChannelStream(ctx, channel.TwitchPlatformID)
+	streams, err := c.channelservice.GetChannelStreams(ctx, channel.ID)
 	if err != nil {
 		c.logger.Error(
 			"[tick] cannot get channel stream",
@@ -49,7 +47,7 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	isOffline := stream == nil
+	isOffline := len(streams) == 0
 
 	if isOffline {
 		if !t.dbRow.OfflineEnabled {
@@ -73,18 +71,12 @@ func (c *Manager) tryTick(id TimerID) {
 		currentMessageNumber = t.offlineMessageNumber
 		lastTriggerMessageCount = t.lastTriggerOfflineNumber
 	} else {
-		streamParsedMessages, err := c.getStreamChatLines(ctx, stream.ID)
-		if err != nil {
-			c.logger.Error(
-				"[tick] cannot get stream parsed messages",
-				logger.Error(err),
-				slog.String("channelId", t.dbRow.ChannelID.String()),
-				slog.String("timerId", id.String()),
-			)
-			return
+		var streamParsedMessages uint64
+		for _, stream := range streams {
+			streamParsedMessages += stream.ParsedChatLines
 		}
 
-		currentMessageNumber = streamParsedMessages
+		currentMessageNumber = int(streamParsedMessages)
 		lastTriggerMessageCount = t.lastTriggerMessageNumber
 	}
 
@@ -201,32 +193,6 @@ func (c *Manager) tryTick(id TimerID) {
 	}
 
 	t.currentResponseIndex = nextIndex
-}
-
-func (c *Manager) getChannelStream(ctx context.Context, channelID *string) (
-	*streamsmodel.Stream,
-	error,
-) {
-	if channelID == nil {
-		return nil, nil
-	}
-
-	cacheKey := redis_keys.StreamByChannelID(*channelID)
-	cachedBytes, err := c.redis.Get(ctx, cacheKey).Bytes()
-	if err != nil && !errors.Is(err, redis.Nil) {
-		return nil, fmt.Errorf("failed to get stream cache: %w", err)
-	}
-
-	if len(cachedBytes) > 0 {
-		var stream streamsmodel.Stream
-		if err := json.Unmarshal(cachedBytes, &stream); err != nil {
-			return nil, err
-		}
-
-		return &stream, nil
-	}
-
-	return nil, nil
 }
 
 func (c *Manager) getStreamChatLines(ctx context.Context, streamID string) (int, error) {

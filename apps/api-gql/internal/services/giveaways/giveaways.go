@@ -17,11 +17,11 @@ import (
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/logger"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	giveawaysparticipantsmodel "github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
@@ -33,7 +33,7 @@ type Opts struct {
 	GiveawaysRepository             giveaways.Repository
 	GiveawaysParticipantsRepository giveaways_participants.Repository
 	GiveawaysSettingsRepository     channels_giveaways_settings.Repository
-	ChannelsRepository              channelsrepository.Repository
+	ChannelService                  *channelservice.ChannelService
 	GiveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	TwirBus                         *buscore.Bus
 	Logger                          *slog.Logger
@@ -46,7 +46,7 @@ func New(opts Opts) *Service {
 		giveawaysRepository:             opts.GiveawaysRepository,
 		giveawaysParticipantsRepository: opts.GiveawaysParticipantsRepository,
 		giveawaysSettingsRepository:     opts.GiveawaysSettingsRepository,
-		channelsRepository:              opts.ChannelsRepository,
+		channelService:                  opts.ChannelService,
 		giveawaysCacher:                 opts.GiveawaysCacher,
 		twirBus:                         opts.TwirBus,
 		logger:                          opts.Logger,
@@ -80,7 +80,7 @@ type Service struct {
 	giveawaysRepository             giveaways.Repository
 	giveawaysParticipantsRepository giveaways_participants.Repository
 	giveawaysSettingsRepository     channels_giveaways_settings.Repository
-	channelsRepository              channelsrepository.Repository
+	channelService                  *channelservice.ChannelService
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	twirBus                         *buscore.Bus
 	logger                          *slog.Logger
@@ -584,7 +584,7 @@ func (c *Service) sendWinnerMessage(
 		return nil
 	}
 
-	channel, err := c.channelsRepository.GetByID(ctx, parsedChannelID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedChannelID)
 	if err != nil {
 		return err
 	}

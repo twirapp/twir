@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/bots"
@@ -39,21 +40,20 @@ func (c *ChatAlerts) follow(
 	if eventPlatform == "" {
 		eventPlatform = platform.PlatformTwitch
 	}
-	streamUserID := platformChannelID
-	if eventPlatform == platform.PlatformKick {
-		streamUserID = internalChannelID
+	channelID, err := uuid.Parse(internalChannelID)
+	if err != nil {
+		return fmt.Errorf("parse channel id: %w", err)
 	}
 
-	var stream *deprecatedgormmodel.ChannelsStreams
-	if err := c.db.Where(`"userId" = ?`, streamUserID).
-		Find(&stream).Error; err != nil {
+	stream, err := c.streamsRepo.GetByChannelID(ctx, channelID, eventPlatform)
+	if err != nil {
 		return err
 	}
 
 	text := strings.ReplaceAll(sample.Text, "{user}", req.UserName)
 
 	var followersCount int64
-	if stream != nil && stream.ID != "" {
+	if !stream.IsNil() {
 		t := model.ChannelEventListItemTypeFollow
 		count, err := c.channelEventListsRepo.CountBy(
 			ctx,

@@ -35,11 +35,16 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypostgres "github.com/twirapp/twir/libs/repositories/channels/pgx"
 
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
+
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	variablesrepositorypostgres "github.com/twirapp/twir/libs/repositories/variables/pgx"
+
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
 var App = fx.Module(
@@ -53,6 +58,10 @@ var App = fx.Module(
 		fx.Annotate(
 			channelsrepositorypostgres.NewFx,
 			fx.As(new(channelsrepository.Repository)),
+		),
+		fx.Annotate(
+			streamsrepositorypostgres.NewFx,
+			fx.As(new(streamsrepository.Repository)),
 		),
 		fx.Annotate(
 			commandsrepositorypgx.NewFx,
@@ -80,6 +89,7 @@ var App = fx.Module(
 		),
 
 		channel.New,
+		channelservice.NewChannelService,
 		tts.NewTTSSettings,
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)

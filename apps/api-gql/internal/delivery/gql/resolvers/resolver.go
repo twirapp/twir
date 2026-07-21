@@ -89,6 +89,7 @@ import (
 	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -112,6 +113,7 @@ type Deps struct {
 	GiveawaysSettingsRepository channels_giveaways_settings.Repository
 	ChannelsRepository          channelsrepository.Repository
 	UsersRepository             usersrepository.Repository
+	ChannelService              *channelservice.ChannelService
 
 	Sessions                         *auth.Auth
 	Gorm                             *gorm.DB

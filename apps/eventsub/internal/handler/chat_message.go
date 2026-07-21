@@ -61,10 +61,17 @@ func (c *Handler) processChannelChatMessage(
 	data.EnrichedData.IsChatterVip = data.IsChatterVip()
 	data.EnrichedData.IsChatterSubscriber = data.IsChatterSubscriber()
 
-	broadcasterUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, data.BroadcasterUserId)
+	broadcasterUser, err := c.usersRepo.GetByPlatformID(
+		ctx,
+		platform.PlatformTwitch,
+		data.BroadcasterUserId,
+	)
 	if err != nil {
 		if errors.Is(err, usersmodel.ErrNotFound) {
-			c.logger.Warn("cannot find broadcaster user for chat message", slog.String("broadcaster_user_id", data.BroadcasterUserId))
+			c.logger.Warn(
+				"cannot find broadcaster user for chat message",
+				slog.String("broadcaster_user_id", data.BroadcasterUserId),
+			)
 			return
 		}
 
@@ -72,10 +79,13 @@ func (c *Handler) processChannelChatMessage(
 		return
 	}
 
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
-			c.logger.Warn("cannot find channel for chat message", slog.String("broadcaster_user_id", data.BroadcasterUserId))
+			c.logger.Warn(
+				"cannot find channel for chat message",
+				slog.String("broadcaster_user_id", data.BroadcasterUserId),
+			)
 			return
 		}
 
@@ -434,7 +444,12 @@ func (c *Handler) chatMessageGetChannelStream(
 		return &stream, nil
 	}
 
-	stream, err := c.streamsrepository.GetByChannelID(ctx, channelId)
+	channelUUID, err := uuid.Parse(channelId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse channel id: %w", err)
+	}
+
+	stream, err := c.streamsrepository.GetByChannelID(ctx, channelUUID, platform.PlatformTwitch)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get stream by channel id: %w", err)
 	}

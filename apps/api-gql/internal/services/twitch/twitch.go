@@ -4,8 +4,8 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 )
 
@@ -16,7 +16,7 @@ type Opts struct {
 	Config             config.Config
 	CachedTwitchClient *twitchcahe.CachedTwitchClient
 	UsersRepository    users.Repository
-	ChannelsRepository channels.Repository
+	ChannelService     *channelservice.ChannelService
 }
 
 func New(opts Opts) *Service {
@@ -25,7 +25,7 @@ func New(opts Opts) *Service {
 		config:             opts.Config,
 		cachedTwitchClient: opts.CachedTwitchClient,
 		usersRepository:    opts.UsersRepository,
-		channelsRepository: opts.ChannelsRepository,
+		channelService:     opts.ChannelService,
 	}
 }
 
@@ -34,5 +34,5 @@ type Service struct {
 	config             config.Config
 	cachedTwitchClient *twitchcahe.CachedTwitchClient
 	usersRepository    users.Repository
-	channelsRepository channels.Repository
+	channelService     *channelservice.ChannelService
 }

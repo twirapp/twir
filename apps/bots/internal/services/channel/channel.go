@@ -6,8 +6,8 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/kick"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -20,7 +20,7 @@ type Opts struct {
 	KickChatClient *kick.ChatClient
 	TwitchActions  *twitchactions.TwitchActions
 	WorkersPool    *workers.Pool
-	ChannelsRepo   channelsrepository.Repository
+	ChannelService *channelservice.ChannelService
 	UsersRepo      usersrepository.Repository
 }
 
@@ -31,7 +31,7 @@ func New(opts Opts) *Service {
 		logger:         opts.Logger,
 		twitchActions:  opts.TwitchActions,
 		workersPool:    opts.WorkersPool,
-		channelsRepo:   opts.ChannelsRepo,
+		channelService: opts.ChannelService,
 		usersRepo:      opts.UsersRepo,
 	}
 }
@@ -42,6 +42,6 @@ type Service struct {
 	kickChatClient *kick.ChatClient
 	twitchActions  *twitchactions.TwitchActions
 	workersPool    *workers.Pool
-	channelsRepo   channelsrepository.Repository
+	channelService *channelservice.ChannelService
 	usersRepo      usersrepository.Repository
 }

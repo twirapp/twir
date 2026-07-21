@@ -16,6 +16,7 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/timers"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 )
 
@@ -30,6 +31,7 @@ type Opts struct {
 	TwirBus           *buscore.Bus
 	Config            cfg.Config
 	ChannelsRepo      channelsrepository.Repository
+	ChannelsService   *channelservice.ChannelService
 }
 
 func New(opts Opts) *Manager {
@@ -43,6 +45,7 @@ func New(opts Opts) *Manager {
 		twirBus:           opts.TwirBus,
 		config:            opts.Config,
 		channelsRepo:      opts.ChannelsRepo,
+		channelservice:    opts.ChannelsService,
 	}
 
 	opts.LC.Append(
@@ -76,6 +79,7 @@ type Manager struct {
 	twirBus           *buscore.Bus
 	config            cfg.Config
 	channelsRepo      channelsrepository.Repository
+	channelservice    *channelservice.ChannelService
 }
 
 func (c *Manager) initialize(ctx context.Context) error {

@@ -93,7 +93,7 @@ func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInf
 		return fmt.Errorf("invalid channel id: %w", err)
 	}
 
-	channel, err := s.channelsRepository.GetByID(ctx, parsedID)
+	channel, err := s.channelService.GetChannelByID(ctx, parsedID)
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}

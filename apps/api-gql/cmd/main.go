@@ -190,6 +190,7 @@ import (
 	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
 	vkintegrationrepopostgres "github.com/twirapp/twir/libs/repositories/vk_integration/datasource/postgres"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
 
 	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
@@ -565,6 +566,7 @@ func main() {
 		// services
 		fx.Provide(
 			kickplatform.New,
+			channelservice.NewChannelService,
 			fx.Annotate(
 				twitchplatform.New,
 				fx.As(new(platform.PlatformProvider)),

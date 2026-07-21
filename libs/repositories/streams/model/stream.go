@@ -2,10 +2,14 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 type Stream struct {
 	ID           string
+	ChannelID    uuid.UUID `db:"channel_id"`
 	UserId       string
 	UserLogin    string
 	UserName     string
@@ -21,6 +25,7 @@ type Stream struct {
 	TagIds       []string
 	Tags         []string
 	IsMature     bool
+	Platform     platform.Platform
 
 	isNil bool
 }

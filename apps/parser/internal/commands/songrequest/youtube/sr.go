@@ -25,6 +25,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 
+	googleuuid "github.com/google/uuid"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
@@ -80,12 +81,23 @@ var SrCommand = &types.DefaultCommand{
 		}
 
 		if moduleSettings.AcceptOnlyWhenOnline {
-			stream := &model.ChannelsStreams{}
-			parseCtx.Services.Gorm.WithContext(ctx).Where(
-				`"userId" = ?`,
-				parseCtx.Channel.ID,
-			).First(stream)
-			if stream.ID == "" {
+			channelUUID, err := googleuuid.Parse(parseCtx.Channel.ID)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
+					Err:     err,
+				}
+			}
+
+			online, err := parseCtx.Services.ChannelService.IsChannelOnline(ctx, channelUUID)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
+					Err:     err,
+				}
+			}
+
+			if !online {
 				result.Result = append(result.Result, moduleSettings.TranslationsAcceptOnlineWhenOnline)
 				return result, nil
 			}

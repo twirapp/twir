@@ -1,6 +1,9 @@
 package parser
 
-import "github.com/twirapp/twir/libs/bus-core/generic"
+import (
+	"github.com/twirapp/twir/libs/bus-core/generic"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
+)
 
 type CommandParseResponse struct {
 	Responses         []string
@@ -21,6 +24,7 @@ type ParseVariablesInTextRequest struct {
 	IsCommand           bool
 	IsInCustomVar       bool
 	Mentions            []generic.ChatMessageMessageFragmentMention
+	Platform            platformentity.Platform
 }
 
 type ParseVariablesInTextResponse struct {

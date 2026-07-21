@@ -56,7 +56,7 @@ func resolveChannelProfile(ctx context.Context, r *Resolver, channelID string) (
 		return nil, "", nil
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedID)
 	if err != nil {
 		if err == channelsrepo.ErrNotFound {
 			return nil, "", nil

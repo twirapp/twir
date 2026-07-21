@@ -14,14 +14,12 @@ const (
 	PlatformKick   Platform = "kick"
 )
 
-func (Platform) Schema(r huma.Registry) *huma.Schema {
-	return &huma.Schema{
-		Type: "string",
-		Enum: []any{
-			string(PlatformTwitch),
-			string(PlatformKick),
-		},
-	}
+func (p Platform) IsTwitch() bool {
+	return p == PlatformTwitch
+}
+
+func (p Platform) IsKick() bool {
+	return p == PlatformKick
 }
 
 func (p Platform) IsValid() bool {
@@ -30,6 +28,16 @@ func (p Platform) IsValid() bool {
 		return true
 	}
 	return false
+}
+
+func (Platform) Schema(r huma.Registry) *huma.Schema {
+	return &huma.Schema{
+		Type: "string",
+		Enum: []any{
+			string(PlatformTwitch),
+			string(PlatformKick),
+		},
+	}
 }
 
 func (p Platform) String() string { return string(p) }

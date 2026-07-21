@@ -32,7 +32,7 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, parsedID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedID)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}

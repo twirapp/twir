@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/nicklaw5/helix/v2"
-	model "github.com/twirapp/twir/libs/gomodels"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
 func TestAppendUniqueChattersRetainsEveryPage(t *testing.T) {
@@ -63,14 +63,16 @@ func TestTwitchChannelRowToChannelKeepsOwner(t *testing.T) {
 		IsBanned:   false,
 	}
 
-	stream := &model.ChannelsStreams{UserId: row.PlatformID}
-	stream.Channel = row.toChannel()
+	stream := onlineStream{
+		stream:  streamsmodel.Stream{UserId: row.PlatformID},
+		channel: row.toChannel(),
+	}
 
-	if stream.Channel.User == nil {
+	if stream.channel.User == nil {
 		t.Fatal("channel owner must be attached to the Twitch stream")
 	}
-	if stream.Channel.User.ID != row.UserID {
-		t.Fatalf("owner ID = %q, want %q", stream.Channel.User.ID, row.UserID)
+	if stream.channel.User.ID != row.UserID {
+		t.Fatalf("owner ID = %q, want %q", stream.channel.User.ID, row.UserID)
 	}
 	if (&onlineUsers{}).shouldSkipStream(stream) {
 		t.Fatal("an enabled Twitch channel with an unbanned owner must be processed")

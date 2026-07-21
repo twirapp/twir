@@ -18,6 +18,7 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
@@ -31,6 +32,7 @@ type BusListener struct {
 	bus            *buscore.Bus
 	logger         *slog.Logger
 	channelsRepo   channels.Repository
+	channelService *channelservice.ChannelService
 	config         config.Config
 }
 
@@ -44,6 +46,7 @@ type Opts struct {
 	Bus            *buscore.Bus
 	Logger         *slog.Logger
 	ChannelsRepo   channels.Repository
+	ChannelService *channelservice.ChannelService
 	Config         config.Config
 }
 
@@ -55,6 +58,7 @@ func New(opts Opts) (*BusListener, error) {
 		bus:            opts.Bus,
 		logger:         opts.Logger,
 		channelsRepo:   opts.ChannelsRepo,
+		channelService: opts.ChannelService,
 		config:         opts.Config,
 	}
 
@@ -142,7 +146,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		platformLabel = "all"
 	}
 
-	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
+	channel, err := c.channelService.GetChannelByID(ctx, channelUUID)
 	if err != nil {
 		c.logger.Error("error getting channel by ID", slog.String("channel_id", channelID))
 		return struct{}{}, err
@@ -380,7 +384,7 @@ func (c *BusListener) unsubscribe(ctx context.Context, msg eventsub.EventsubUnsu
 		return struct{}{}, fmt.Errorf("parse channel UUID: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
+	channel, err := c.channelService.GetChannelByID(ctx, channelUUID)
 	if err != nil {
 		c.logger.Error("error getting channel for unsubscribe", slog.String("channel_id", msg.ChannelID), logger.Error(err))
 		return struct{}{}, err

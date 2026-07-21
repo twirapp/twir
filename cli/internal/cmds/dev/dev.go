@@ -44,28 +44,34 @@ func CreateDevCommand() *cli.Command {
 				Name:  "skip-docker",
 				Usage: "skip docker compose check and startup",
 			},
+			&cli.BoolFlag{
+				Name:  "skip-proxy",
+				Usage: "skip proxy start",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			// Ensure docker compose is running before starting anything
-			skipDocker := c.Bool("skip-docker")
-			if !skipDocker {
+			if !c.Bool("skip-docker") {
 				if err := helpers.EnsureDockerComposeRunning(c.Context); err != nil {
 					pterm.Fatal.Println("Failed to start docker compose:", err)
 					return err
 				}
 			}
 
-			proxyStartedChan, proxyInstance, err := proxy.StartProxy(false)
-			if err != nil {
-				pterm.Fatal.Println(err)
-				return err
-			}
-			<-proxyStartedChan
+			if !c.Bool("skip-proxy") {
+				proxyStartedChan, proxyInstance, err := proxy.StartProxy(false)
+				if err != nil {
+					pterm.Fatal.Println(err)
+					return err
+				}
+				<-proxyStartedChan
 
-			skipDeps := c.Bool("skip-deps")
+				defer proxyInstance.Stop()
+			}
+
 			isDebugEnabled := c.Bool("debug")
 
-			if !skipDeps {
+			if !c.Bool("skip-deps") {
 				if err := dependencies.Cmd.Run(c); err != nil {
 					return err
 				}
@@ -108,33 +114,24 @@ func CreateDevCommand() *cli.Command {
 				pterm.Error.Println(err)
 				return err
 			}
+			defer golangApps.Stop()
 
 			if err := frontendApps.Start(); err != nil {
 				pterm.Error.Println(err)
 				return err
 			}
+			defer frontendApps.Stop()
 
 			if err := nodejsApps.Start(); err != nil {
 				pterm.Error.Println(err)
 				return err
 			}
+			defer nodejsApps.Stop()
 
 			exitSignal := make(chan os.Signal, 1)
 			signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 
 			<-exitSignal
-			if err := golangApps.Stop(); err != nil {
-				pterm.Error.Println("Failed to stop golang apps:", err)
-			}
-			if err := frontendApps.Stop(); err != nil {
-				pterm.Error.Println("Failed to stop frontend apps:", err)
-			}
-			if err := nodejsApps.Stop(); err != nil {
-				pterm.Error.Println("Failed to stop nodejs apps:", err)
-			}
-			if err := proxyInstance.Stop(); err != nil {
-				pterm.Error.Println("Failed to stop proxy:", err)
-			}
 
 			return nil
 		},

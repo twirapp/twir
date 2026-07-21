@@ -10,7 +10,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/temporal"
@@ -57,10 +56,12 @@ func (c *EventWorkflow) Flow(
 		return err
 	}
 
-	var stream deprecatedmodel.ChannelsStreams
-	err = c.db.
-		Where(`"userId" = ?`, data.ChannelID).
-		Find(&stream).Error
+	streamPlatform := data.Platform
+	if streamPlatform == "" {
+		streamPlatform = platformentity.PlatformTwitch
+	}
+
+	stream, err := c.streamsRepo.GetByChannelID(eventsCtx, channel.ID, streamPlatform)
 	if err != nil {
 		return err
 	}
@@ -78,7 +79,7 @@ func (c *EventWorkflow) Flow(
 			continue
 		}
 
-		if entity.OnlineOnly && stream.ID == "" {
+		if entity.OnlineOnly && stream.IsNil() {
 			continue
 		}
 

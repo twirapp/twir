@@ -676,13 +676,13 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 	var channelID string
 	switch user.Platform {
 	case platform.PlatformKick:
-		ch, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
+		ch, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get channel by kick user id: %w", err)
 		}
 		channelID = ch.ID.String()
 	default:
-		ch, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+		ch, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get channel by twitch user id: %w", err)
 		}
@@ -740,13 +740,13 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 	var channelID string
 	switch user.Platform {
 	case platform.PlatformKick:
-		channel, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
+		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get channel by kick user id: %w", err)
 		}
 		channelID = channel.ID.String()
 	default:
-		channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get channel by twitch user id: %w", err)
 		}

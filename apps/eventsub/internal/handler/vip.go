@@ -35,7 +35,7 @@ func (c *Handler) resolveUserAndChannel(
 		return "", "", fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return "", "", nil
@@ -59,7 +59,7 @@ func (c *Handler) resolveChannelIDByTwitchBroadcasterID(
 		return "", fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelsRepo.GetByTwitchUserID(ctx, broadcasterUser.ID)
+	channel, err := c.channelService.GetChannelByConnectedUser(ctx, broadcasterUser.ID, platform.PlatformTwitch)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return "", nil

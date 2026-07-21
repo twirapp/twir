@@ -12,9 +12,9 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 )
@@ -29,7 +29,7 @@ type ScheduledVipsOpts struct {
 
 	ScheduledVipsRepo scheduledvipsrepository.Repository
 	UsersRepo         usersrepository.Repository
-	ChannelsRepo      channelsrepository.Repository
+	ChannelService    *channelservice.ChannelService
 }
 
 func NewScheduledVips(opts ScheduledVipsOpts) {
@@ -47,7 +47,7 @@ func NewScheduledVips(opts ScheduledVipsOpts) {
 		twirBus:           opts.TwirBus,
 		scheduledVipsRepo: opts.ScheduledVipsRepo,
 		usersRepo:         opts.UsersRepo,
-		channelsRepo:      opts.ChannelsRepo,
+		channelService:    opts.ChannelService,
 	}
 
 	opts.LC.Append(
@@ -81,7 +81,7 @@ type scheduledVips struct {
 	twirBus           *buscore.Bus
 	scheduledVipsRepo scheduledvipsrepository.Repository
 	usersRepo         usersrepository.Repository
-	channelsRepo      channelsrepository.Repository
+	channelService    *channelservice.ChannelService
 }
 
 func (s *scheduledVips) process(ctx context.Context) {
@@ -107,7 +107,7 @@ func (s *scheduledVips) process(ctx context.Context) {
 				continue
 			}
 
-			channel, err := s.channelsRepo.GetByID(ctx, channelUUID)
+			channel, err := s.channelService.GetChannelByID(ctx, channelUUID)
 			if err != nil {
 				s.logger.Error(
 					"failed to get channel by id",

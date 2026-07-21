@@ -6,8 +6,12 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	kvinmemory "github.com/twirapp/kv/stores/inmemory"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	cfg "github.com/twirapp/twir/libs/config"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
 type fakeChannelsRepo struct {
@@ -59,14 +63,27 @@ func (f *fakeChannelsRepo) GetByApiKey(context.Context, string) (channelsmodel.C
 	return channelsmodel.Nil, nil
 }
 
+func newTestManager(repo channelsrepo.Repository) *Manager {
+	return &Manager{
+		channelsRepo: repo,
+		channelService: channelservice.NewChannelService(
+			repo,
+			buscore.Bus{},
+			cfg.Config{},
+			kvinmemory.New(),
+			nil,
+		),
+	}
+}
+
 func TestResolveTwitchSubscriptionIdentities(t *testing.T) {
 	twitchPlatformID := "tw-123"
 	botID := "bot-456"
-	m := &Manager{
-		channelsRepo: &fakeChannelsRepo{
+	m := newTestManager(
+		&fakeChannelsRepo{
 			channel: channelsmodel.Channel{TwitchPlatformID: &twitchPlatformID, BotID: botID},
 		},
-	}
+	)
 
 	channelID := uuid.New().String()
 	broadcasterID, resolvedBotID, err := m.resolveTwitchSubscriptionIdentities(context.Background(), channelID)
@@ -84,9 +101,7 @@ func TestResolveTwitchSubscriptionIdentities(t *testing.T) {
 }
 
 func TestResolveTwitchSubscriptionIdentitiesRequiresPlatformID(t *testing.T) {
-	m := &Manager{
-		channelsRepo: &fakeChannelsRepo{},
-	}
+	m := newTestManager(&fakeChannelsRepo{})
 
 	_, _, err := m.resolveTwitchSubscriptionIdentities(context.Background(), uuid.New().String())
 	if err == nil {
@@ -96,9 +111,7 @@ func TestResolveTwitchSubscriptionIdentitiesRequiresPlatformID(t *testing.T) {
 
 func TestResolveTwitchSubscriptionIdentitiesReturnsRepositoryError(t *testing.T) {
 	wantErr := errors.New("boom")
-	m := &Manager{
-		channelsRepo: &fakeChannelsRepo{err: wantErr},
-	}
+	m := newTestManager(&fakeChannelsRepo{err: wantErr})
 
 	_, _, err := m.resolveTwitchSubscriptionIdentities(context.Background(), uuid.New().String())
 	if !errors.Is(err, wantErr) {

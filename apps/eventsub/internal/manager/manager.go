@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
@@ -32,6 +33,7 @@ type Manager struct {
 	gorm               *gorm.DB
 	twirBus            *buscore.Bus
 	channelsRepo       channelsrepo.Repository
+	channelService     *channelservice.ChannelService
 	conduitsRepository twitchconduits.Repository
 	redSync            *redsync.Redsync
 	eventsub           eventsub.EventSub
@@ -54,6 +56,7 @@ type Opts struct {
 	Gorm               *gorm.DB
 	TwirBus            *buscore.Bus
 	ChannelsRepo       channelsrepo.Repository
+	ChannelService     *channelservice.ChannelService
 	ConduitsRepository twitchconduits.Repository
 	Redis              *goredislib.Client
 	Handler            *handler.Handler
@@ -81,6 +84,7 @@ func NewManager(opts Opts) (*Manager, error) {
 		gorm:               opts.Gorm,
 		twirBus:            opts.TwirBus,
 		channelsRepo:       opts.ChannelsRepo,
+		channelService:     opts.ChannelService,
 		conduitsRepository: opts.ConduitsRepository,
 		redSync:            redsync.New(goredis.NewPool(opts.Redis)),
 		eventsub:           eventsub.New(),
@@ -199,7 +203,7 @@ func (c *Manager) resolveTwitchSubscriptionIdentities(ctx context.Context, chann
 		return "", "", err
 	}
 
-	channel, err := c.channelsRepo.GetByID(ctx, channelUUID)
+	channel, err := c.channelService.GetChannelByID(ctx, channelUUID)
 	if err != nil {
 		return "", "", err
 	}

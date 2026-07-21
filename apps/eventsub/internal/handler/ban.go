@@ -50,7 +50,7 @@ func (c *Handler) handleModerateActionBan(
 			return
 		}
 
-		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
+		channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
 		if err != nil {
 			if errors.Is(err, channelsrepository.ErrNotFound) {
 				return

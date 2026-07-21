@@ -29,6 +29,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	songrequestoverlaysettingsentity "github.com/twirapp/twir/libs/entities/song_request_overlay_settings"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
@@ -357,7 +358,7 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 		return nil, fmt.Errorf("invalid dashboard id: %w", err)
 	}
 
-	channel, err := r.deps.ChannelsRepository.GetByID(ctx, dashboardUUID)
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, dashboardUUID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get channel: %w", err)
 	}
@@ -611,7 +612,7 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 	var channelID uuid.UUID
 	switch user.Platform {
 	case "kick":
-		channel, err := r.deps.ChannelsRepository.GetByKickUserID(ctx, user.ID)
+		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformKick)
 		if err != nil {
 			if errors.Is(err, channelsrepository.ErrNotFound) {
 				return nil, nil
@@ -623,7 +624,7 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 		}
 		channelID = channel.ID
 	default:
-		channel, err := r.deps.ChannelsRepository.GetByTwitchUserID(ctx, user.ID)
+		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
 		if err != nil {
 			if errors.Is(err, channelsrepository.ErrNotFound) {
 				return nil, nil
@@ -636,7 +637,7 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 		channelID = channel.ID
 	}
 
-	channel, err = r.deps.ChannelsRepository.GetByID(ctx, channelID)
+	channel, err = r.deps.ChannelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil, nil

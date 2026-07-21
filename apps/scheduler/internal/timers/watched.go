@@ -48,7 +48,7 @@ func NewWatched(opts WatchedOpts) {
 							if err := opts.Gorm.WithContext(ctx).Raw(`
 								SELECT DISTINCT c.id
 								FROM channels_streams cs
-								JOIN users u ON u.platform_id = cs."userId" AND u.platform = 'twitch'
+								JOIN users u ON u.platform_id = cs."userId" AND u.platform = 'twitch' AND cs.platform = 'twitch'
 								JOIN channels c ON c.twitch_user_id = u.id
 							`).Scan(&channelIDs).Error; err != nil {
 								opts.Logger.Error("cannot get stream channel IDs", logger.Error(err))

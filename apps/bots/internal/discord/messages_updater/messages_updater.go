@@ -11,9 +11,9 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -23,10 +23,10 @@ type Opts struct {
 	Logger      *slog.Logger
 	LC          fx.Lifecycle
 	Config      cfg.Config
-	DB          *gorm.DB
 	Discord     *discord_go.Discord
 	Bus         *buscore.Bus
 	DiscordRepo channelsintegrationsdiscord.Repository
+	StreamsRepo streamsrepository.Repository
 }
 
 func New(opts Opts) (*MessagesUpdater, error) {
@@ -39,11 +39,11 @@ func New(opts Opts) (*MessagesUpdater, error) {
 		store:        opts.Store,
 		logger:       logger.WithComponent(opts.Logger, "messages_updater"),
 		config:       opts.Config,
-		db:           opts.DB,
 		discord:      opts.Discord,
 		twitchClient: twitchClient,
 		twirBus:      opts.Bus,
 		discordRepo:  opts.DiscordRepo,
+		streamsRepo:  opts.StreamsRepo,
 	}
 
 	closeCtx, closeFunc := context.WithCancel(context.Background())
@@ -69,10 +69,10 @@ type MessagesUpdater struct {
 	store   *sended_messages_store.SendedMessagesStore
 	logger  *slog.Logger
 	config  cfg.Config
-	db      *gorm.DB
 	discord *discord_go.Discord
 
 	twirBus      *buscore.Bus
 	twitchClient *helix.Client
 	discordRepo  channelsintegrationsdiscord.Repository
+	streamsRepo  streamsrepository.Repository
 }

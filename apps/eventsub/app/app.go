@@ -51,6 +51,7 @@ import (
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
 	userswithstatsrepository "github.com/twirapp/twir/libs/repositories/userswithstats"
 	userswithstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/userswithstats/datasource/postgres"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 
 	twitchconduitsrepository "github.com/twirapp/twir/libs/repositories/twitch_conduits"
@@ -120,6 +121,7 @@ var App = fx.Options(
 			fx.As(new(kickbotsrepository.Repository)),
 		),
 		channelcache.New,
+		channelservice.NewChannelService,
 		func(
 			repo channelscommandsprefixrepository.Repository,
 			bus *buscore.Bus,
@@ -143,10 +145,12 @@ var App = fx.Options(
 		otel.NewFx("eventsub"),
 		bus_listener.New,
 		func(s *httpserver.Server, lc fx.Lifecycle) {
-			lc.Append(fx.Hook{
-				OnStart: func(_ context.Context) error { return s.Start() },
-				OnStop:  func(ctx context.Context) error { return s.Stop(ctx) },
-			})
+			lc.Append(
+				fx.Hook{
+					OnStart: func(_ context.Context) error { return s.Start() },
+					OnStop:  func(ctx context.Context) error { return s.Stop(ctx) },
+				},
+			)
 		},
 		func(_ *webhook.Manager) {},
 		func(l *slog.Logger) {

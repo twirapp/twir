@@ -14,8 +14,11 @@ import (
 	"github.com/samber/lo"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -30,13 +33,16 @@ type OnlineUsersOpts struct {
 
 	Gorm    *gorm.DB
 	TwirBus *buscore.Bus
+
+	StreamsRepo streamsrepository.Repository
 }
 
 type onlineUsers struct {
-	config  config.Config
-	logger  *slog.Logger
-	db      *gorm.DB
-	twirBus *buscore.Bus
+	config      config.Config
+	logger      *slog.Logger
+	db          *gorm.DB
+	twirBus     *buscore.Bus
+	streamsRepo streamsrepository.Repository
 }
 
 type twitchChannelRow struct {
@@ -95,10 +101,11 @@ func NewOnlineUsers(opts OnlineUsersOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &onlineUsers{
-		config:  opts.Config,
-		logger:  opts.Logger,
-		db:      opts.Gorm,
-		twirBus: opts.TwirBus,
+		config:      opts.Config,
+		logger:      opts.Logger,
+		db:          opts.Gorm,
+		twirBus:     opts.TwirBus,
+		streamsRepo: opts.StreamsRepo,
 	}
 
 	opts.Lc.Append(
@@ -153,22 +160,32 @@ func (c *onlineUsers) updateOnlineUsers(ctx context.Context) {
 	wg.Wait()
 }
 
+type onlineStream struct {
+	stream  streamsmodel.Stream
+	channel *model.Channels
+}
+
 func (c *onlineUsers) getStreams(
 	ctx context.Context,
-) ([]*model.ChannelsStreams, error) {
-	var streams []*model.ChannelsStreams
-	err := c.db.WithContext(ctx).Find(&streams).Error
+) ([]onlineStream, error) {
+	streams, err := c.streamsRepo.GetList(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	platformIDs := lo.Map(streams, func(s *model.ChannelsStreams, _ int) string {
+	twitchStreams := lo.Filter(
+		streams, func(s streamsmodel.Stream, _ int) bool {
+			return s.Platform == platformentity.PlatformTwitch
+		},
+	)
+
+	platformIDs := lo.Map(twitchStreams, func(s streamsmodel.Stream, _ int) string {
 		return s.UserId
 	})
 	platformIDs = lo.Uniq(platformIDs)
 
 	if len(platformIDs) == 0 {
-		return streams, nil
+		return nil, nil
 	}
 
 	var rows []twitchChannelRow
@@ -187,24 +204,28 @@ func (c *onlineUsers) getStreams(
 		channelByPlatform[r.PlatformID] = r.toChannel()
 	}
 
-	for _, s := range streams {
-		if ch, ok := channelByPlatform[s.UserId]; ok {
-			s.Channel = ch
-		}
+	result := make([]onlineStream, 0, len(twitchStreams))
+	for _, s := range twitchStreams {
+		result = append(
+			result, onlineStream{
+				stream:  s,
+				channel: channelByPlatform[s.UserId],
+			},
+		)
 	}
 
-	return streams, nil
+	return result, nil
 }
 
-func (c *onlineUsers) shouldSkipStream(stream *model.ChannelsStreams) bool {
-	return stream == nil || stream.Channel == nil || stream.Channel.User == nil || (!stream.Channel.IsEnabled || stream.Channel.User.IsBanned)
+func (c *onlineUsers) shouldSkipStream(stream onlineStream) bool {
+	return stream.channel == nil || stream.channel.User == nil || (!stream.channel.IsEnabled || stream.channel.User.IsBanned)
 }
 
 func (c *onlineUsers) updateStreamUsers(
 	ctx context.Context,
-	stream *model.ChannelsStreams,
+	stream onlineStream,
 ) error {
-	twitchUserID, err := uuid.Parse(stream.Channel.User.ID)
+	twitchUserID, err := uuid.Parse(stream.channel.User.ID)
 	if err != nil {
 		return fmt.Errorf("parse twitch user id: %w", err)
 	}
@@ -219,12 +240,12 @@ func (c *onlineUsers) updateStreamUsers(
 		return err
 	}
 
-	chatters, err := c.getChannelChatters(ctx, twitchClient, stream.UserId)
+	chatters, err := c.getChannelChatters(ctx, twitchClient, stream.stream.UserId)
 	if err != nil {
 		return err
 	}
 
-	return c.replaceOnlineUsers(ctx, stream.Channel.ID, chatters)
+	return c.replaceOnlineUsers(ctx, stream.channel.ID, chatters)
 }
 
 func (c *onlineUsers) getChannelChatters(

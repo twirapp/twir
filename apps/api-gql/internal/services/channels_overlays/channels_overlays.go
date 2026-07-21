@@ -13,10 +13,10 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 	apperrors "github.com/twirapp/twir/libs/errors"
-	"github.com/twirapp/twir/libs/repositories/channels"
 	channels_overlays "github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
@@ -25,7 +25,7 @@ type Opts struct {
 	fx.In
 
 	OverlaysRepository channels_overlays.Repository
-	ChannelsRepository channels.Repository
+	ChannelService     *channelservice.ChannelService
 	PlansRepository    plans.Repository
 	AuditRecorder      audit.Recorder
 	Bus                *buscore.Bus
@@ -35,7 +35,7 @@ type Opts struct {
 func New(opts Opts) *Service {
 	return &Service{
 		overlaysRepository: opts.OverlaysRepository,
-		channelsRepository: opts.ChannelsRepository,
+		channelService:     opts.ChannelService,
 		plansRepository:    opts.PlansRepository,
 		auditRecorder:      opts.AuditRecorder,
 		bus:                opts.Bus,
@@ -45,7 +45,7 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	overlaysRepository channels_overlays.Repository
-	channelsRepository channels.Repository
+	channelService     *channelservice.ChannelService
 	plansRepository    plans.Repository
 	auditRecorder      audit.Recorder
 	bus                *buscore.Bus
@@ -363,7 +363,7 @@ func (s *Service) ParseHtml(ctx context.Context, input ParseHtmlInput) (string, 
 		return "", fmt.Errorf("cannot parse channel id: %w", err)
 	}
 
-	channel, err := s.channelsRepository.GetByID(ctx, parsedChannelID)
+	channel, err := s.channelService.GetChannelByID(ctx, parsedChannelID)
 	if err != nil {
 		return "", fmt.Errorf("cannot get channel: %w", err)
 	}

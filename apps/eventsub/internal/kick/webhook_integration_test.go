@@ -12,13 +12,17 @@ import (
 
 	"github.com/go-redis/redismock/v9"
 	"github.com/google/uuid"
+	kvinmemory "github.com/twirapp/kv/stores/inmemory"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channels "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
 type mockChannelsRepoWebhook struct {
@@ -127,6 +131,7 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 		redis:                   redisClient,
 		channelsRepo:            channelsRepo,
 		usersRepo:               usersRepo,
+		channelService:          channelservice.NewChannelService(channelsRepo, buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
 		chatMessages:            &mockQueue[generic.ChatMessage, struct{}]{},
 		processMessageAsCommand: &mockQueue[generic.ChatMessage, struct{}]{},
 	}
@@ -192,12 +197,13 @@ func TestWebhookHandler_LivestreamStatus(t *testing.T) {
 	}
 
 	handlers := &Handlers{
-		logger:        slog.Default(),
-		redis:         redisClient,
-		channelsRepo:  channelsRepo,
-		usersRepo:     usersRepo,
-		streamOnline:  &mockQueue[kickbus.KickStreamOnline, struct{}]{},
-		streamOffline: &mockQueue[kickbus.KickStreamOffline, struct{}]{},
+		logger:         slog.Default(),
+		redis:          redisClient,
+		channelsRepo:   channelsRepo,
+		usersRepo:      usersRepo,
+		channelService: channelservice.NewChannelService(channelsRepo, buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
+		streamOnline:   &mockQueue[kickbus.KickStreamOnline, struct{}]{},
+		streamOffline:  &mockQueue[kickbus.KickStreamOffline, struct{}]{},
 	}
 
 	payload := kickLivestreamStatusPayload{

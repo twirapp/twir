@@ -6,14 +6,14 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back/model"
 	"github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
+	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 )
 
@@ -26,7 +26,7 @@ type Opts struct {
 	TwirBus         *buscore.Bus
 	Logger          *slog.Logger
 	UsersRepository users.Repository
-	ChannelsRepository channelsrepository.Repository
+	ChannelService  *channelservice.ChannelService
 }
 
 func New(opts Opts) *Service {
@@ -35,7 +35,7 @@ func New(opts Opts) *Service {
 		wsRouter:        opts.WsRouter,
 		twirBus:         opts.TwirBus,
 		usersRepository: opts.UsersRepository,
-		channelsRepository: opts.ChannelsRepository,
+		channelService:  opts.ChannelService,
 	}
 
 	opts.LC.Append(
@@ -81,7 +81,7 @@ type Service struct {
 	twirBus    *buscore.Bus
 
 	usersRepository users.Repository
-	channelsRepository channelsrepository.Repository
+	channelService  *channelservice.ChannelService
 }
 
 func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {
@@ -95,13 +95,13 @@ func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (
 
 	switch user.Platform {
 	case platformentity.PlatformKick:
-		channel, err := s.channelsRepository.GetByKickUserID(ctx, user.ID)
+		channel, err := s.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformKick)
 		if err != nil {
 			return "", err
 		}
 		return channel.ID.String(), nil
 	default:
-		channel, err := s.channelsRepository.GetByTwitchUserID(ctx, user.ID)
+		channel, err := s.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
 		if err != nil {
 			return "", err
 		}

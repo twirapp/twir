@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
@@ -19,7 +21,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/platform"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
@@ -28,6 +29,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/utils"
 	"go.uber.org/fx"
@@ -49,7 +51,7 @@ type Opts struct {
 	EventsWorkflow         *workflows.EventWorkflow
 	SongRequest            *song_request.SongRequest
 	TwirBus                *buscore.Bus
-	ChannelsRepo           channelsrepository.Repository
+	ChannelService         *channelservice.ChannelService
 	ChannelsEventsListRepo channelseventslist.Repository
 	UsersRepo              usersrepository.Repository
 }
@@ -65,7 +67,7 @@ func New(opts Opts) error {
 		eventsWorkflow:         opts.EventsWorkflow,
 		songsRequest:           opts.SongRequest,
 		twirBus:                opts.TwirBus,
-		channelsRepo:           opts.ChannelsRepo,
+		channelService:         opts.ChannelService,
 		channelsEventsListRepo: opts.ChannelsEventsListRepo,
 		usersRepo:              opts.UsersRepo,
 	}
@@ -293,7 +295,7 @@ type EventsGrpcImplementation struct {
 	eventsWorkflow         *workflows.EventWorkflow
 	songsRequest           *song_request.SongRequest
 	twirBus                *buscore.Bus
-	channelsRepo           channelsrepository.Repository
+	channelService         *channelservice.ChannelService
 	channelsEventsListRepo channelseventslist.Repository
 	usersRepo              usersrepository.Repository
 }
@@ -321,20 +323,12 @@ func (c *EventsGrpcImplementation) resolveInternalChannelID(
 		return "", fmt.Errorf("resolve user by platform id: %w", err)
 	}
 
-	switch plat {
-	case platform.PlatformKick:
-		channel, err := c.channelsRepo.GetByKickUserID(ctx, user.ID)
-		if err != nil {
-			return "", fmt.Errorf("resolve channel by kick user id: %w", err)
-		}
-		return channel.ID.String(), nil
-	default:
-		channel, err := c.channelsRepo.GetByTwitchUserID(ctx, user.ID)
-		if err != nil {
-			return "", fmt.Errorf("resolve channel by twitch user id: %w", err)
-		}
-		return channel.ID.String(), nil
+	channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, plat)
+	if err != nil {
+		return "", fmt.Errorf("resolve channel by user id: %w", err)
 	}
+
+	return channel.ID.String(), nil
 }
 
 func (c *EventsGrpcImplementation) resolveChannelDBID(
@@ -363,29 +357,37 @@ func (c *EventsGrpcImplementation) Follow(
 		channelDBID = resolvedChannelID
 	}
 
-	streamUserID := msg.BaseInfo.ChannelID
-	if eventPlatform == platform.PlatformKick {
-		streamUserID = channelDBID
-	}
-
 	wg.Go(
 		func() {
-			var stream *deprecatedgormmodel.ChannelsStreams
-			if err := c.db.Where(`"userId" = ?`, streamUserID).
-				Find(&stream).Error; err != nil {
+			channelID, err := uuid.Parse(channelDBID)
+			if err != nil {
+				c.logger.Error("Parse channel ID", logger.Error(err))
+				return
+			}
+
+			streams, err := c.channelService.GetChannelStreams(ctx, channelID)
+			if err != nil {
 				c.logger.Error("Error get stream", logger.Error(err))
 				return
 			}
 
+			var streamStartedAt *time.Time
+			for _, stream := range streams {
+				if stream.Platform == eventPlatform {
+					streamStartedAt = &stream.StartedAt
+					break
+				}
+			}
+
 			var streamFollowersCount int64
-			if stream != nil && stream.ID != "" {
+			if streamStartedAt != nil {
 				t := channelseventslistmodel.ChannelEventListItemTypeFollow
 				count, err := c.channelsEventsListRepo.CountBy(
 					ctx,
 					channelseventslist.CountByInput{
 						ChannelID:    &channelDBID,
 						Platform:     &eventPlatform,
-						CreatedAtGTE: &stream.StartedAt,
+						CreatedAtGTE: streamStartedAt,
 						Type:         &t,
 					},
 				)
@@ -429,7 +431,7 @@ func (c *EventsGrpcImplementation) Follow(
 				totalFollowers = int64(followersReq.Data.Total)
 			}
 
-			err := c.eventsWorkflow.Execute(
+			err = c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeFollow,
 				withPlatform(eventPlatform, shared.EventData{

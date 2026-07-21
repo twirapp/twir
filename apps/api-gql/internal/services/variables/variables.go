@@ -14,10 +14,10 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/plans"
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -33,7 +33,7 @@ type Opts struct {
 	AuditRecorder       audit.Recorder
 	VariablesRepository variables.Repository
 	PlansRepository     plans.Repository
-	ChannelsRepository  channels.Repository
+	ChannelService      *channelservice.ChannelService
 }
 
 type Service struct {
@@ -44,7 +44,7 @@ type Service struct {
 	auditRecorder       audit.Recorder
 	variablesRepository variables.Repository
 	plansRepository     plans.Repository
-	channelsRepository  channels.Repository
+	channelService      *channelservice.ChannelService
 }
 
 func New(opts Opts) *Service {
@@ -56,7 +56,7 @@ func New(opts Opts) *Service {
 		auditRecorder:       opts.AuditRecorder,
 		variablesRepository: opts.VariablesRepository,
 		plansRepository:     opts.PlansRepository,
-		channelsRepository:  opts.ChannelsRepository,
+		channelService:      opts.ChannelService,
 	}
 }
 
@@ -87,7 +87,7 @@ func (c *Service) EvaluateScript(
 		return "", fmt.Errorf("cannot parse channel id: %w", err)
 	}
 
-	channel, err := c.channelsRepository.GetByID(ctx, parsedChannelID)
+	channel, err := c.channelService.GetChannelByID(ctx, parsedChannelID)
 	if err != nil {
 		return "", fmt.Errorf("cannot get channel: %w", err)
 	}
