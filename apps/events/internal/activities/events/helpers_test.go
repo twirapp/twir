@@ -1,14 +1,38 @@
 package events
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/events/internal/shared"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
+
+type runtimeChannelRepositoryFake struct {
+	channelsrepository.Repository
+
+	channel                 channelsmodel.Channel
+	lookupPlatform          platform.Platform
+	lookupPlatformChannelID string
+}
+
+func (f *runtimeChannelRepositoryFake) GetByPlatformChannelID(
+	_ context.Context,
+	p platform.Platform,
+	platformChannelID string,
+) (channelsmodel.Channel, error) {
+	f.lookupPlatform = p
+	f.lookupPlatformChannelID = platformChannelID
+	return f.channel, nil
+}
 
 func TestGetTwitchChannelRuntimeInfoSelectsTwitchBindingByPlatform(t *testing.T) {
 	channelID := uuid.New()
@@ -52,5 +76,56 @@ func TestGetTwitchChannelRuntimeInfoSelectsTwitchBindingByPlatform(t *testing.T)
 	}
 	if !info.IsTwitchBanned {
 		t.Error("IsTwitchBanned = false, want true")
+	}
+}
+
+func TestDualBoundKickEventKeepsEventIDAndResolvesTwitchRuntime(t *testing.T) {
+	channelID := uuid.New()
+	repo := &runtimeChannelRepositoryFake{
+		channel: channelsmodel.Channel{
+			ID: channelID,
+			Bindings: []channelplatformsmodel.ChannelPlatform{
+				{
+					Platform:          platform.PlatformKick,
+					PlatformChannelID: "kick-channel",
+				},
+				{
+					Platform:          platform.PlatformTwitch,
+					PlatformChannelID: "twitch-channel",
+					BotConfig:         json.RawMessage(`{"bot_id":"twitch-bot"}`),
+				},
+			},
+		},
+	}
+	activity := Activity{
+		channelService: channelservice.NewChannelService(
+			repo,
+			&buscore.Bus{},
+			cfg.Config{},
+			nil,
+			nil,
+		),
+	}
+	data := shared.EventData{
+		ChannelID:               "kick-channel",
+		ChannelTwitchPlatformID: "twitch-channel",
+		Platform:                platform.PlatformKick,
+	}
+
+	runtimeChannel, err := activity.getTwitchChannelDbEntity(context.Background(), data)
+	if err != nil {
+		t.Fatalf("getTwitchChannelDbEntity returned error: %v", err)
+	}
+	if data.ChannelID != "kick-channel" {
+		t.Errorf("event ChannelID = %q, want %q", data.ChannelID, "kick-channel")
+	}
+	if repo.lookupPlatform != platform.PlatformTwitch {
+		t.Errorf("runtime lookup platform = %q, want %q", repo.lookupPlatform, platform.PlatformTwitch)
+	}
+	if repo.lookupPlatformChannelID != "twitch-channel" {
+		t.Errorf("runtime lookup channel ID = %q, want %q", repo.lookupPlatformChannelID, "twitch-channel")
+	}
+	if runtimeChannel.ID != "twitch-channel" {
+		t.Errorf("runtime broadcaster ID = %q, want %q", runtimeChannel.ID, "twitch-channel")
 	}
 }

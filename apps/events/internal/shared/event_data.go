@@ -3,11 +3,12 @@ package shared
 import "github.com/twirapp/twir/libs/entities/platform"
 
 type EventData struct {
-	ChannelID           string            `json:"channelId"`
-	ChannelTwitchUserID string            `json:"channelTwitchUserId,omitempty"`
-	ChannelDBID         string            `json:"channelDbId,omitempty"`
-	EventType           string            `json:"eventType,omitempty"`
-	Platform            platform.Platform `json:"platform,omitempty"`
+	ChannelID               string            `json:"channelId"`
+	ChannelTwitchUserID     string            `json:"channelTwitchUserId,omitempty"`
+	ChannelTwitchPlatformID string            `json:"channelTwitchPlatformId,omitempty"`
+	ChannelDBID             string            `json:"channelDbId,omitempty"`
+	EventType               string            `json:"eventType,omitempty"`
+	Platform                platform.Platform `json:"platform,omitempty"`
 
 	//
 	UserName        string `json:"userName,omitempty"`
