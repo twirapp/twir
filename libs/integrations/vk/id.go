@@ -88,6 +88,9 @@ func NewIDClient(opts IDClientOpts) (*IDClient, error) {
 	if strings.TrimSpace(opts.RedirectURL) == "" {
 		return nil, errors.New("VK ID redirect URL is required")
 	}
+	if strings.TrimSpace(opts.ServiceToken) == "" {
+		return nil, errors.New("VK ID service token is required")
+	}
 
 	apiBaseURL := opts.APIBaseURL
 	if apiBaseURL == "" {
@@ -204,6 +207,9 @@ func (c *IDClient) exchangeToken(ctx context.Context, form url.Values) (*IDToken
 	}
 	if err := c.postForm(ctx, "oauth2/auth", form, &response); err != nil {
 		return nil, err
+	}
+	if strings.TrimSpace(response.AccessToken) == "" {
+		return nil, errors.New("VK ID token response is missing access token")
 	}
 
 	return &IDToken{
