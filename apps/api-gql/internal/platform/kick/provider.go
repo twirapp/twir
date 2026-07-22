@@ -32,6 +32,8 @@ type Provider struct {
 	client *gokick.Client
 }
 
+var _ platform.PlatformProvider = (*Provider)(nil)
+
 func New(opts Opts) *Provider {
 	client, _ := gokick.NewClient(
 		&gokick.ClientOptions{
@@ -72,8 +74,8 @@ func (p *Provider) buildAuthURL(state, codeChallenge, redirectURI string) string
 	return authURL
 }
 
-func (p *Provider) ExchangeCode(ctx context.Context, code, codeVerifier string) (*platform.PlatformTokens, error) {
-	return p.exchangeCodeWithRedirectURI(ctx, code, codeVerifier, p.config.GetKickCallbackUrl())
+func (p *Provider) ExchangeCode(ctx context.Context, input platform.ExchangeCodeInput) (*platform.PlatformTokens, error) {
+	return p.exchangeCodeWithRedirectURI(ctx, input.Code, input.CodeVerifier, p.config.GetKickCallbackUrl())
 }
 
 func (p *Provider) ExchangeBotSetupCode(ctx context.Context, code, codeVerifier string) (*platform.PlatformTokens, error) {
@@ -99,8 +101,8 @@ func (p *Provider) exchangeCodeWithRedirectURI(ctx context.Context, code, codeVe
 	}, nil
 }
 
-func (p *Provider) RefreshToken(ctx context.Context, refreshToken string) (*platform.PlatformTokens, error) {
-	token, err := p.client.RefreshToken(ctx, refreshToken)
+func (p *Provider) RefreshToken(ctx context.Context, input platform.RefreshTokenInput) (*platform.PlatformTokens, error) {
+	token, err := p.client.RefreshToken(ctx, input.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("kick token refresh: %w", err)
 	}

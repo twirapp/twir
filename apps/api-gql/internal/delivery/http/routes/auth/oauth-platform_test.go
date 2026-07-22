@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	cfg "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/crypto"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	tokensrepo "github.com/twirapp/twir/libs/repositories/tokens"
 	tokensmodel "github.com/twirapp/twir/libs/repositories/tokens/model"
@@ -121,6 +122,77 @@ func TestUpsertPlatformUserToken_UpdatesExistingTokenWithoutRebinding(t *testing
 
 	if usersRepository.updateCalls != 0 {
 		t.Fatalf("expected users update not to be called, got %d", usersRepository.updateCalls)
+	}
+}
+
+func TestUpsertPlatformUserToken_EncryptsDeviceIDForNewToken(t *testing.T) {
+	userID := uuid.New()
+	createdTokenID := uuid.New()
+
+	tokensRepository := &fakeTokensRepository{
+		getByUserIDFunc: func(context.Context, uuid.UUID) (*tokensmodel.Token, error) {
+			return nil, tokensrepo.ErrNotFound
+		},
+		createUserTokenFunc: func(_ context.Context, input tokensrepo.CreateInput) (*tokensmodel.Token, error) {
+			if input.DeviceID == nil {
+				t.Fatal("expected encrypted device ID")
+			}
+			deviceID, err := crypto.Decrypt(*input.DeviceID, "pnyfwfiulmnqlhkvixaeligpprcnlyke")
+			if err != nil {
+				t.Fatalf("decrypt persisted device ID: %v", err)
+			}
+			if deviceID != "device-id" {
+				t.Fatalf("persisted device ID = %q, want device-id", deviceID)
+			}
+
+			return &tokensmodel.Token{ID: createdTokenID}, nil
+		},
+	}
+
+	usersRepository := &fakeUsersRepository{
+		updateFunc: func(context.Context, uuid.UUID, usersrepo.UpdateInput) (usersmodel.User, error) {
+			return usersmodel.User{}, nil
+		},
+	}
+
+	tokens := testPlatformTokens()
+	tokens.DeviceID = "device-id"
+	if err := newTestAuth(tokensRepository, usersRepository).upsertPlatformUserToken(context.Background(), userID, tokens); err != nil {
+		t.Fatalf("upsert token: %v", err)
+	}
+}
+
+func TestUpsertPlatformUserToken_EncryptsDeviceIDForExistingToken(t *testing.T) {
+	userID := uuid.New()
+	existingTokenID := uuid.New()
+
+	tokensRepository := &fakeTokensRepository{
+		getByUserIDFunc: func(context.Context, uuid.UUID) (*tokensmodel.Token, error) {
+			return &tokensmodel.Token{ID: existingTokenID}, nil
+		},
+		updateTokenByIDFunc: func(_ context.Context, id uuid.UUID, input tokensrepo.UpdateTokenInput) (*tokensmodel.Token, error) {
+			if id != existingTokenID {
+				t.Fatalf("update token ID = %s, want %s", id, existingTokenID)
+			}
+			if input.DeviceID == nil {
+				t.Fatal("expected encrypted device ID")
+			}
+			deviceID, err := crypto.Decrypt(*input.DeviceID, "pnyfwfiulmnqlhkvixaeligpprcnlyke")
+			if err != nil {
+				t.Fatalf("decrypt persisted device ID: %v", err)
+			}
+			if deviceID != "device-id" {
+				t.Fatalf("persisted device ID = %q, want device-id", deviceID)
+			}
+
+			return &tokensmodel.Token{ID: existingTokenID}, nil
+		},
+	}
+
+	tokens := testPlatformTokens()
+	tokens.DeviceID = "device-id"
+	if err := newTestAuth(tokensRepository, &fakeUsersRepository{}).upsertPlatformUserToken(context.Background(), userID, tokens); err != nil {
+		t.Fatalf("upsert token: %v", err)
 	}
 }
 

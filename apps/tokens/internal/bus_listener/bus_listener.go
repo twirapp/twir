@@ -18,6 +18,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/crypto"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/integrations/vk"
 	channelsintegrationsrepository "github.com/twirapp/twir/libs/repositories/channels_integrations"
 	channelsintegrationsspotifyrepository "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
@@ -65,6 +66,10 @@ type kickTokenRefresher interface {
 	RefreshToken(ctx context.Context, refreshToken string) (gokick.TokenResponse, error)
 }
 
+type vkTokenRefresher interface {
+	RefreshToken(ctx context.Context, input vk.IDRefreshTokenInput) (*vk.IDToken, error)
+}
+
 type tokensImpl struct {
 	globalClient   *helix.Client
 	httpClient     *http.Client
@@ -83,6 +88,7 @@ type tokensImpl struct {
 	usersRepository         usersrepository.Repository
 	newMutex                func(name string) lockableMutex
 	newKickTokenRefresher   func() (kickTokenRefresher, error)
+	newVKTokenRefresher     func() (vkTokenRefresher, error)
 	spotifyTokenURL         string
 	nightbotTokenURL        string
 }
@@ -162,6 +168,14 @@ func NewTokens(opts Opts) error {
 				HTTPClient:   httpClient,
 				ClientID:     opts.Config.KickClientId,
 				ClientSecret: opts.Config.KickClientSecret,
+			})
+		},
+		newVKTokenRefresher: func() (vkTokenRefresher, error) {
+			return vk.NewIDClient(vk.IDClientOpts{
+				ClientID:     opts.Config.VKVideoClientID,
+				ServiceToken: opts.Config.VKVideoServiceToken,
+				RedirectURL:  opts.Config.VKVideoCallbackURL,
+				APIBaseURL:   opts.Config.VKVideoAPIBaseURL,
 			})
 		},
 		spotifyTokenURL:  "https://accounts.spotify.com/api/token",
@@ -289,7 +303,7 @@ func (c *tokensImpl) RequestUserToken(
 	ctx context.Context,
 	data tokens.GetUserTokenRequest,
 ) (tokens.TokenResponse, error) {
-	mu := c.redSync.NewMutex("tokens-users-lock-" + data.UserId.String())
+	mu := c.newMutex("tokens-users-lock-" + data.UserId.String())
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -333,6 +347,30 @@ func (c *tokensImpl) RequestUserToken(
 			refreshedRefreshToken = kickTokens.RefreshToken
 			refreshedExpiresIn = kickTokens.ExpiresIn
 			refreshedScopes = kickTokens.Scopes
+		case platformentity.PlatformVKVideoLive:
+			if token.DeviceID == nil || *token.DeviceID == "" {
+				return tokens.TokenResponse{}, errors.New("VK refresh requires a stored device ID")
+			}
+
+			decryptedDeviceID, decryptErr := crypto.Decrypt(*token.DeviceID, c.config.TokensCipherKey)
+			if decryptErr != nil {
+				return tokens.TokenResponse{}, fmt.Errorf("decrypt VK device ID: %w", decryptErr)
+			}
+			if decryptedDeviceID == "" {
+				return tokens.TokenResponse{}, errors.New("VK refresh requires a stored device ID")
+			}
+
+			vkTokens, refreshErr := c.refreshVKToken(ctx, decryptedRefreshToken, decryptedDeviceID)
+			if refreshErr != nil {
+				return tokens.TokenResponse{}, fmt.Errorf("VK refresh token: %w", refreshErr)
+			}
+			if vkTokens.RefreshToken == "" {
+				vkTokens.RefreshToken = decryptedRefreshToken
+			}
+			refreshedAccessToken = vkTokens.AccessToken
+			refreshedRefreshToken = vkTokens.RefreshToken
+			refreshedExpiresIn = vkTokens.ExpiresIn
+			refreshedScopes = vkTokens.Scopes
 		default:
 			newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 			if err != nil {
@@ -431,6 +469,18 @@ func (c *tokensImpl) refreshKickToken(ctx context.Context, refreshToken string) 
 		ExpiresIn:    res.ExpiresIn,
 		Scopes:       strings.Fields(res.Scope),
 	}, nil
+}
+
+func (c *tokensImpl) refreshVKToken(ctx context.Context, refreshToken, deviceID string) (*vk.IDToken, error) {
+	client, err := c.newVKTokenRefresher()
+	if err != nil {
+		return nil, fmt.Errorf("create VK ID client: %w", err)
+	}
+
+	return client.RefreshToken(ctx, vk.IDRefreshTokenInput{
+		RefreshToken: refreshToken,
+		DeviceID:     deviceID,
+	})
 }
 
 func (c *tokensImpl) RequestBotToken(

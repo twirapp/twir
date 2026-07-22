@@ -358,6 +358,15 @@ func (a *Auth) upsertPlatformUserToken(
 		return fmt.Errorf("encrypt refresh token: %w", err)
 	}
 
+	var encryptedDeviceID *string
+	if tokens.DeviceID != "" {
+		deviceID, encryptErr := crypto.Encrypt(tokens.DeviceID, a.config.TokensCipherKey)
+		if encryptErr != nil {
+			return fmt.Errorf("encrypt device ID: %w", encryptErr)
+		}
+		encryptedDeviceID = &deviceID
+	}
+
 	currentToken, err := a.tokensRepository.GetByUserID(ctx, userID)
 	if err != nil && !errors.Is(err, tokensrepository.ErrNotFound) {
 		return fmt.Errorf("get user token: %w", err)
@@ -375,6 +384,7 @@ func (a *Auth) upsertPlatformUserToken(
 				ExpiresIn:           &tokenExpires,
 				ObtainmentTimestamp: &tokenCreatedAt,
 				Scopes:              tokens.Scopes,
+				DeviceID:            encryptedDeviceID,
 			},
 		)
 		if err != nil {
@@ -393,6 +403,7 @@ func (a *Auth) upsertPlatformUserToken(
 			ExpiresIn:           tokens.ExpiresIn,
 			ObtainmentTimestamp: tokenCreatedAt,
 			Scopes:              tokens.Scopes,
+			DeviceID:            encryptedDeviceID,
 		},
 	)
 	if err != nil {
