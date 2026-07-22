@@ -162,6 +162,35 @@ func (r *Pgx) ListByChannelID(
 	return bindings, nil
 }
 
+func (r *Pgx) LockByChannelID(ctx context.Context, channelID uuid.UUID) error {
+	rows, err := r.connection(ctx).Query(
+		ctx,
+		`
+			SELECT id
+			FROM channel_platforms
+			WHERE channel_id = $1
+			ORDER BY id
+			FOR UPDATE`,
+		channelID,
+	)
+	if err != nil {
+		return fmt.Errorf("lock channel platform bindings: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return fmt.Errorf("scan locked channel platform binding: %w", err)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("iterate locked channel platform bindings: %w", err)
+	}
+
+	return nil
+}
+
 func (r *Pgx) Update(
 	ctx context.Context,
 	id uuid.UUID,

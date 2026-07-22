@@ -1365,6 +1365,10 @@ type oauthChannelPlatformsRepository struct {
 	updateCalls                 int
 }
 
+func (*oauthChannelPlatformsRepository) LockByChannelID(context.Context, uuid.UUID) error {
+	return nil
+}
+
 func (r *oauthChannelPlatformsRepository) Create(ctx context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
 	r.createCalls++
 	if r.createFunc == nil {

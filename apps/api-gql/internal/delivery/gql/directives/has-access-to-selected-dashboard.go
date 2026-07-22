@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/google/uuid"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
@@ -25,31 +26,41 @@ func (c *Directives) HasAccessToSelectedDashboard(
 		return nil, err
 	}
 
-	var channel model.Channels
-	if err := c.gorm.WithContext(ctx).Where("id = ?::uuid", dashboardId).First(&channel).Error; err != nil {
+	legacyChannel, err := c.selectedDashboardStore.GetSelectedDashboardChannel(ctx, dashboardId)
+	if err != nil {
 		return nil, fmt.Errorf("cannot get channel: %w", err)
 	}
 
-	if channel.IsOwner(user.ID) || user.IsBotAdmin {
+	if user.IsBotAdmin {
 		return next(ctx)
 	}
 
-	var channelRoles []model.ChannelRole
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(`"channelId" = ?::uuid`, dashboardId).
-		Preload("Users", `user_id = ?`, user.ID).
-		Find(&channelRoles).
-		Error; err != nil {
+	dashboardUUID, err := uuid.Parse(dashboardId)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get channel: %w", err)
+	}
+	normalizedChannel, err := c.channels.GetChannelByID(ctx, dashboardUUID)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get channel: %w", err)
+	}
+
+	if len(normalizedChannel.Bindings) > 0 {
+		for _, binding := range normalizedChannel.Bindings {
+			if binding.UserID.String() == user.ID {
+				return next(ctx)
+			}
+		}
+	} else if legacyChannel.IsOwner(user.ID) {
+		return next(ctx)
+	}
+
+	channelRoles, err := c.selectedDashboardStore.GetSelectedDashboardRoles(ctx, dashboardId, user.ID)
+	if err != nil {
 		return nil, fmt.Errorf("cannot get channel roles: %w", err)
 	}
 
-	var userStat model.UsersStats
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(`user_id = ? AND channel_id = ?::uuid`, user.ID, dashboardId).
-		First(&userStat).
-		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	userStat, err := c.selectedDashboardStore.GetSelectedDashboardUserStat(ctx, user.ID, dashboardId)
+	if err != nil {
 		return nil, fmt.Errorf("cannot get user stats: %w", err)
 	}
 
@@ -87,4 +98,48 @@ func (c *Directives) HasAccessToSelectedDashboard(
 	}
 
 	return nil, fmt.Errorf("user does not have access to selected dashboard")
+}
+
+type gormSelectedDashboardStore struct {
+	gorm *gorm.DB
+}
+
+func (s *gormSelectedDashboardStore) GetSelectedDashboardChannel(ctx context.Context, dashboardID string) (model.Channels, error) {
+	var channel model.Channels
+	if err := s.gorm.WithContext(ctx).Where("id = ?::uuid", dashboardID).First(&channel).Error; err != nil {
+		return model.Channels{}, err
+	}
+
+	return channel, nil
+}
+
+func (s *gormSelectedDashboardStore) GetSelectedDashboardRoles(ctx context.Context, dashboardID, userID string) ([]model.ChannelRole, error) {
+	var channelRoles []model.ChannelRole
+	if err := s.gorm.
+		WithContext(ctx).
+		Where(`"channelId" = ?::uuid`, dashboardID).
+		Preload("Users", `user_id = ?`, userID).
+		Find(&channelRoles).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return channelRoles, nil
+}
+
+func (s *gormSelectedDashboardStore) GetSelectedDashboardUserStat(ctx context.Context, userID, dashboardID string) (model.UsersStats, error) {
+	var userStat model.UsersStats
+	err := s.gorm.
+		WithContext(ctx).
+		Where(`user_id = ? AND channel_id = ?::uuid`, userID, dashboardID).
+		First(&userStat).
+		Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return userStat, nil
+	}
+	if err != nil {
+		return model.UsersStats{}, err
+	}
+
+	return userStat, nil
 }
