@@ -136,7 +136,7 @@ func TestBuildGetManyCountQueryWithoutJoinFiltersCountsUsersDirectly(t *testing.
 	}
 }
 
-func TestBuildGetManyCountQueryUsesBindingExistsForEnabledFilter(t *testing.T) {
+func TestBuildGetManyCountQueryUsesSelectedBindingForEnabledFilter(t *testing.T) {
 	enabled := true
 	query, _, err := buildGetManyCountQuery(users_with_channel.GetManyInput{ChannelEnabled: &enabled})
 	if err != nil {
@@ -144,11 +144,13 @@ func TestBuildGetManyCountQueryUsesBindingExistsForEnabledFilter(t *testing.T) {
 	}
 
 	for _, fragment := range []string{
-		"EXISTS",
-		"FROM channel_platforms cp_enabled",
-		"cp_enabled.user_id = u.id",
-		"cp_enabled.platform = u.platform",
-		"cp_enabled.enabled",
+		"LEFT JOIN LATERAL",
+		"FROM channel_platforms cp",
+		"cp.user_id = u.id",
+		"cp.platform = u.platform",
+		"ORDER BY cp.channel_id",
+		"LIMIT 1",
+		"cb.enabled",
 	} {
 		if !strings.Contains(query, fragment) {
 			t.Fatalf("query does not contain %q: %s", fragment, query)
@@ -156,5 +158,44 @@ func TestBuildGetManyCountQueryUsesBindingExistsForEnabledFilter(t *testing.T) {
 	}
 	if strings.Contains(query, "JOIN channels") {
 		t.Fatalf("count query must not join legacy channels columns: %s", query)
+	}
+	if strings.Contains(query, "EXISTS") {
+		t.Fatalf("count query must filter the selected binding, not any matching binding: %s", query)
+	}
+}
+
+func TestBuildGetManyAndCountQueriesUseSameSelectedBindingForMultipleMatchingBindings(t *testing.T) {
+	enabled := true
+	pageQuery, _, err := buildGetManyQuery(users_with_channel.GetManyInput{ChannelEnabled: &enabled})
+	if err != nil {
+		t.Fatalf("build page query: %v", err)
+	}
+	countQuery, _, err := buildGetManyCountQuery(users_with_channel.GetManyInput{ChannelEnabled: &enabled})
+	if err != nil {
+		t.Fatalf("build count query: %v", err)
+	}
+
+	// A later enabled binding must not qualify a user when the first binding by channel_id is disabled.
+	for name, query := range map[string]string{
+		"page":  pageQuery,
+		"count": countQuery,
+	} {
+		for _, fragment := range []string{
+			"LEFT JOIN LATERAL",
+			"FROM channel_platforms cp",
+			"cp.user_id = u.id",
+			"cp.platform = u.platform",
+			"ORDER BY cp.channel_id",
+			"LIMIT 1",
+			"cb.enabled",
+		} {
+			if !strings.Contains(query, fragment) {
+				t.Fatalf("%s query does not contain %q: %s", name, fragment, query)
+			}
+		}
+	}
+
+	if strings.Contains(countQuery, "EXISTS") {
+		t.Fatalf("count query must filter the selected binding, not any matching binding: %s", countQuery)
 	}
 }
