@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
@@ -29,6 +30,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	twitchplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/twitch"
+	"github.com/twirapp/twir/apps/api-gql/internal/platform/vkvideo"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
@@ -580,11 +582,9 @@ func main() {
 		// services
 		fx.Provide(
 			kickplatform.New,
+			twitchplatform.New,
+			newPlatformRegistry,
 			channelservice.NewChannelService,
-			fx.Annotate(
-				twitchplatform.New,
-				fx.As(new(platform.PlatformProvider)),
-			),
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
 				return valorantintegration.NewHenrikApiClient(c.Valorant.HenrikApiKey)
 			},
@@ -704,6 +704,7 @@ func main() {
 		scheduledvipsroutes.FxModule,
 		// huma routes end
 		fx.Invoke(
+			func(*platform.Registry) {},
 			gql.New,
 			publicroutes.New,
 			v2publicroutes.New,
@@ -719,4 +720,23 @@ func main() {
 			},
 		),
 	).Run()
+}
+
+func newPlatformRegistry(
+	config cfg.Config,
+	twitchProvider *twitchplatform.Provider,
+	kickProvider *kickplatform.Provider,
+) (*platform.Registry, error) {
+	return platform.NewFeatureGatedRegistry(
+		config.VKVideoEnabled,
+		[]platform.PlatformProvider{twitchProvider, kickProvider},
+		func() (platform.PlatformProvider, error) {
+			provider, err := vkvideo.New(vkvideo.Opts{Config: config})
+			if err != nil {
+				return nil, fmt.Errorf("create VK Video platform provider: %w", err)
+			}
+
+			return provider, nil
+		},
+	)
 }

@@ -57,7 +57,10 @@ func (a *Auth) handleKickCode(
 		return nil, huma.Error400BadRequest("Cannot get code verifier", err)
 	}
 
-	tokens, err := a.kickProvider.ExchangeCode(ctx, input.Code, codeVerifier)
+	tokens, err := a.kickProvider.ExchangeCode(ctx, appplatform.ExchangeCodeInput{
+		Code:         input.Code,
+		CodeVerifier: codeVerifier,
+	})
 	if err != nil {
 		a.logger.ErrorContext(ctx, "kick auth: failed to exchange code", logger.Error(err))
 		return nil, huma.Error500InternalServerError("Cannot exchange code", err)
