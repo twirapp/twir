@@ -268,18 +268,9 @@ func buildGetManyCountQuery(input users_with_channel.GetManyInput) (string, []an
 	selectQuery := sq.Select(countColumn).From("users u")
 
 	if input.ChannelEnabled != nil {
-		selectQuery = selectQuery.Where(
-			squirrel.Expr(
-				`EXISTS (
-					SELECT 1
-					FROM channel_platforms cp_enabled
-					WHERE cp_enabled.user_id = u.id
-						AND cp_enabled.platform = u.platform
-						AND cp_enabled.enabled = ?
-				)`,
-				*input.ChannelEnabled,
-			),
-		)
+		selectQuery = selectQuery.
+			LeftJoin(ownerBindingLateral).
+			Where(squirrel.Eq{"cb.enabled": *input.ChannelEnabled})
 	}
 
 	if len(input.HasBadgesIDS) > 0 {
