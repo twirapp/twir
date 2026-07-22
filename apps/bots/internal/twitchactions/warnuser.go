@@ -2,7 +2,7 @@ package twitchactions
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/libs/twitch"
@@ -36,7 +36,7 @@ func (c *TwitchActions) WarnUser(ctx context.Context, opts WarnUserOpts) error {
 	}
 
 	if resp.ErrorMessage != "" {
-		return fmt.Errorf(resp.ErrorMessage)
+		return errors.New(resp.ErrorMessage)
 	}
 
 	return nil

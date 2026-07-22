@@ -72,4 +72,6 @@ type TwitchActions struct {
 	kv                      kv.KV
 	modTaskDistributor      mod_task_queue.TaskDistributor
 	cachedTwitchClient      *twitch.CachedTwitchClient
+	newUserClient           twitchUserClientFactory
+	newBotClient            twitchBotClientFactory
 }
