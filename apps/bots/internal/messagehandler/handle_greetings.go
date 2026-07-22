@@ -5,6 +5,7 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
@@ -98,14 +99,17 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMe
 	}
 
 	if res.Data.Text != "" {
-		c.twitchActions.SendMessage(
-			ctx, twitchactions.SendMessageOpts{
-				BroadcasterID:        msg.BroadcasterUserId,
-				SenderID:             msg.EnrichedData.DbChannel.BotID,
-				Message:              res.Data.Text,
-				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageID).Else(""),
-			},
-		)
+		binding, found := channelbinding.Find(msg.EnrichedData.DbChannel, platform.PlatformTwitch)
+		if found {
+			c.twitchActions.SendMessage(
+				ctx,
+				binding,
+				twitchactions.SendMessageOpts{
+					Message:              res.Data.Text,
+					ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageID).Else(""),
+				},
+			)
+		}
 	}
 
 	if greeting.WithShoutOut {

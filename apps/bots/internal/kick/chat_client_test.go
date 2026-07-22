@@ -13,6 +13,7 @@ import (
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 func TestSplitMessage_UsesByteLimit(t *testing.T) {
@@ -51,7 +52,7 @@ func TestSendMessage_RequestsKickTokenFromBus(t *testing.T) {
 		requestBotToken: requester,
 	}
 
-	err := client.SendMessage(context.Background(), "42", "hello", "")
+	err := client.SendMessage(context.Background(), kickBinding("42"), "hello", "")
 	require.NoError(t, err)
 	require.Equal(t, 1, requester.calls)
 	require.Equal(t, platformentity.PlatformKick, requester.req.Platform)
@@ -124,7 +125,7 @@ func TestSendMessage_OmitsReplyToWhenEmpty(t *testing.T) {
 		requestBotToken: requester,
 	}
 
-	err := client.SendMessage(context.Background(), "42", "hello", "")
+	err := client.SendMessage(context.Background(), kickBinding("42"), "hello", "")
 	require.NoError(t, err)
 	require.Contains(t, transport.body, `"content":"hello"`)
 	require.NotContains(t, transport.body, `"reply_to_message_id"`)
@@ -149,7 +150,15 @@ func TestSendMessage_IncludesReplyToWhenProvided(t *testing.T) {
 	}
 
 	replyToMessageID := "opaque-reply-id-123"
-	err := client.SendMessage(context.Background(), "42", "hello", replyToMessageID)
+	err := client.SendMessage(context.Background(), kickBinding("42"), "hello", replyToMessageID)
 	require.NoError(t, err)
 	require.Contains(t, transport.body, `"reply_to_message_id":"opaque-reply-id-123"`)
+}
+
+func kickBinding(platformChannelID string) channelplatformsmodel.ChannelPlatform {
+	return channelplatformsmodel.ChannelPlatform{
+		Platform:          platformentity.PlatformKick,
+		PlatformChannelID: platformChannelID,
+		Enabled:           true,
+	}
 }
