@@ -42,8 +42,8 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 			return
 		}
 
-		var channel model.Channels
-		if err := c.gorm.WithContext(ctx).Where("id = ?::uuid", dashboardId).First(&channel).Error; err != nil {
+		isOwner, err := c.isSelectedDashboardOwner(ctx, dashboardId, user.ID)
+		if err != nil {
 			huma.WriteErr(
 				c.huma,
 				hc,
@@ -54,7 +54,7 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 			return
 		}
 
-		if channel.IsOwner(user.ID) || user.IsBotAdmin {
+		if isOwner || user.IsBotAdmin {
 			next(hc)
 			return
 		}
@@ -94,43 +94,9 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 			return
 		}
 
-		roleToStats := map[model.ChannelRoleEnum]bool{
-			model.ChannelRoleTypeModerator:  userStat.IsMod,
-			model.ChannelRoleTypeVip:        userStat.IsVip,
-			model.ChannelRoleTypeSubscriber: userStat.IsSubscriber,
-		}
-
-		for i, role := range channelRoles {
-			if roleToStats[role.Type] {
-				channelRoles[i].Users = append(
-					role.Users,
-					&model.ChannelRoleUser{
-						ID:     "", // not needed
-						UserID: user.ID,
-						RoleID: role.ID,
-					},
-				)
-			}
-		}
-
-		for _, role := range channelRoles {
-			// we do not check does role.Users contains request author user
-			// because we are doing preload by user id
-			if len(role.Users) == 0 || len(role.Permissions) == 0 {
-				continue
-			}
-
-			for _, perm := range role.Permissions {
-				if perm == dashboard_permissions.ChannelRolePermissionEnumCanAccessDashboard.String() {
-					next(hc)
-					return
-				}
-
-				if permission.String() == perm {
-					next(hc)
-					return
-				}
-			}
+		if hasChannelRolesDashboardAccess(channelRoles, user.ID, userStat, &permission) {
+			next(hc)
+			return
 		}
 
 		huma.WriteErr(
