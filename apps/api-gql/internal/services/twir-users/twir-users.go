@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
@@ -28,7 +29,7 @@ type Service struct {
 	usersWithChannelsRepository users_with_channel.Repository
 }
 
-func (c *Service) modelToEntity(m userswithchannelmodel.UserWithChannel) entity.UserWithChannel {
+func (c *Service) modelToEntity(m userswithchannelmodel.UserWithChannel) (entity.UserWithChannel, error) {
 	e := entity.UserWithChannel{
 		User: entity.User{
 			ID:                m.User.ID.String(),
@@ -45,17 +46,35 @@ func (c *Service) modelToEntity(m userswithchannelmodel.UserWithChannel) entity.
 		},
 	}
 
-	if m.Channel != nil {
-		e.Channel = &entity.Channel{
-			ID:             m.Channel.ID,
-			IsEnabled:      m.Channel.IsEnabled,
-			IsTwitchBanned: m.Channel.IsTwitchBanned,
-			IsBotMod:       m.Channel.IsBotMod,
-			BotID:          m.Channel.BotID,
-		}
+	if m.Channel == nil {
+		return e, nil
 	}
 
-	return e
+	e.Channel = &entity.Channel{ID: m.Channel.ID}
+	binding, found := apiChannelbinding.Find(*m.Channel, m.User.Platform)
+	if !found {
+		return e, nil
+	}
+
+	e.Channel.IsEnabled = binding.Enabled
+	if binding.Platform != platformentity.PlatformTwitch {
+		if binding.BotUserID != nil {
+			e.Channel.BotID = binding.BotUserID.String()
+		}
+
+		return e, nil
+	}
+
+	_, botConfig, _, err := apiChannelbinding.FindTwitch(*m.Channel)
+	if err != nil {
+		return entity.UserWithChannel{}, fmt.Errorf("parse Twitch channel bot config: %w", err)
+	}
+
+	e.Channel.IsTwitchBanned = botConfig.IsTwitchBanned
+	e.Channel.IsBotMod = botConfig.IsBotMod
+	e.Channel.BotID = botConfig.BotID
+
+	return e, nil
 }
 
 type GetManyInput struct {
@@ -118,7 +137,12 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 
 	entities := make([]entity.UserWithChannel, 0, len(dbUsers))
 	for _, dbUser := range dbUsers {
-		entities = append(entities, c.modelToEntity(dbUser))
+		user, err := c.modelToEntity(dbUser)
+		if err != nil {
+			return GetManyOutput{}, fmt.Errorf("map user with channel: %w", err)
+		}
+
+		entities = append(entities, user)
 	}
 
 	total, err := c.usersWithChannelsRepository.GetManyCount(ctx, usersInput)
