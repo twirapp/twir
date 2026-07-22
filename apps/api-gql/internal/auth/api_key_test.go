@@ -166,6 +166,42 @@ func TestGetAuthenticatedUserByApiKeyFallsBackToUserKeyWhenChannelOwnershipCanno
 	}
 }
 
+func TestGetAuthenticatedUserByApiKeyFallsBackWhenBindingOwnerIsNilWithoutError(t *testing.T) {
+	bindingOwnerID := uuid.New()
+	fallbackUserID := uuid.New()
+	channels := &apiKeyChannelsRepository{
+		channel: channelsmodel.Channel{Bindings: []channelplatformsmodel.ChannelPlatform{{
+			Platform: platform.PlatformTwitch,
+			UserID:   bindingOwnerID,
+		}}},
+	}
+	users := &apiKeyUsersRepository{
+		usersByID: map[uuid.UUID]usersmodel.User{
+			bindingOwnerID: usersmodel.Nil,
+		},
+		userByAPIKey: usersmodel.User{ID: fallbackUserID},
+	}
+
+	got, err := newAPIKeyAuthForTest(channels, users).GetAuthenticatedUserByApiKey(
+		authenticatedAPIKeyContext("channel-api-key"),
+	)
+	if err != nil {
+		t.Fatalf("GetAuthenticatedUserByApiKey() error = %v", err)
+	}
+	if got.ID == uuid.Nil.String() {
+		t.Fatal("GetAuthenticatedUserByApiKey() authenticated a zero-ID binding owner")
+	}
+	if got.ID != fallbackUserID.String() {
+		t.Fatalf("authenticated user ID = %q, want fallback user %q", got.ID, fallbackUserID)
+	}
+	if len(users.idLookups) != 1 || users.idLookups[0] != bindingOwnerID {
+		t.Fatalf("binding owner lookups = %#v, want [%s]", users.idLookups, bindingOwnerID)
+	}
+	if len(users.apiKeyLookups) != 1 || users.apiKeyLookups[0] != "channel-api-key" {
+		t.Fatalf("user API key lookups = %#v, want [channel-api-key]", users.apiKeyLookups)
+	}
+}
+
 func TestGetAuthenticatedUserByApiKeyWrapsUserLookupErrors(t *testing.T) {
 	userLookupErr := errors.New("user lookup failed")
 	auth := newAPIKeyAuthForTest(
