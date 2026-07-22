@@ -38,6 +38,11 @@ func (c *Manager) tryTickLocked(id TimerID, t *Timer) {
 		return
 	}
 
+	targets := getTimerSendTargets(channel, t.dbRow.Platforms)
+	if len(targets) == 0 {
+		return
+	}
+
 	streams, err := c.channelservice.GetChannelStreams(ctx, channel.ID)
 	if err != nil {
 		c.logger.Error(
@@ -129,11 +134,6 @@ func (c *Manager) tryTickLocked(id TimerID, t *Timer) {
 	}
 
 	if !shouldSend {
-		return
-	}
-
-	targets := getTimerSendTargets(channel, t.dbRow.Platforms)
-	if len(targets) == 0 {
 		return
 	}
 
