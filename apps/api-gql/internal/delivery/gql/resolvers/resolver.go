@@ -119,6 +119,7 @@ type Deps struct {
 	ChannelService                 *channelservice.ChannelService
 	ChannelPlatformBindingsService channelplatformservice.Operations
 	ChannelPlatformDashboard       SelectedDashboardGetter
+	CurrentPlatform                CurrentPlatformGetter
 
 	Sessions                         *auth.Auth
 	Auth                             *authroutes.Auth
@@ -204,6 +205,10 @@ type Deps struct {
 
 type SelectedDashboardGetter interface {
 	GetSelectedDashboard(context.Context) (string, error)
+}
+
+type CurrentPlatformGetter interface {
+	GetCurrentPlatform(context.Context) (string, error)
 }
 
 type Resolver struct {

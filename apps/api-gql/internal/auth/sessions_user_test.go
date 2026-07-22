@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/platform"
 )
 
@@ -19,10 +20,12 @@ func TestOAuthAttemptKeepsPKCEAndCallbackDeviceIDInSession(t *testing.T) {
 	auth := &Auth{sessionManager: sessionManager}
 
 	const state = "opaque-state"
+	targetChannelID := uuid.New()
 	if err := auth.SetOAuthAttempt(ctx, state, OAuthAttempt{
-		Platform:     platform.PlatformVKVideoLive,
-		RedirectTo:   "/dashboard/settings",
-		CodeVerifier: "pkce-verifier",
+		Platform:        platform.PlatformVKVideoLive,
+		RedirectTo:      "/dashboard/settings",
+		CodeVerifier:    "pkce-verifier",
+		TargetChannelID: &targetChannelID,
 	}); err != nil {
 		t.Fatalf("store OAuth attempt: %v", err)
 	}
@@ -31,7 +34,7 @@ func TestOAuthAttemptKeepsPKCEAndCallbackDeviceIDInSession(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load OAuth attempt: %v", err)
 	}
-	if attempt.Platform != platform.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard/settings" || attempt.CodeVerifier != "pkce-verifier" || attempt.DeviceID != "" {
+	if attempt.Platform != platform.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard/settings" || attempt.CodeVerifier != "pkce-verifier" || attempt.DeviceID != "" || attempt.TargetChannelID == nil || *attempt.TargetChannelID != targetChannelID {
 		t.Fatalf("stored OAuth attempt = %+v", attempt)
 	}
 

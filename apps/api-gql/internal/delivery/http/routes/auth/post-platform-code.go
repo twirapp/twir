@@ -57,10 +57,28 @@ func (a *Auth) StartPlatformAuth(
 	return a.startPlatformAuth(ctx, platform, redirectTo)
 }
 
+func (a *Auth) StartPlatformAuthForChannel(
+	ctx context.Context,
+	channelID uuid.UUID,
+	platform platformentity.Platform,
+	redirectTo string,
+) (string, error) {
+	return a.startPlatformAuthForChannel(ctx, platform, redirectTo, &channelID)
+}
+
 func (a *Auth) startPlatformAuth(
 	ctx context.Context,
 	platform platformentity.Platform,
 	redirectTo string,
+) (string, error) {
+	return a.startPlatformAuthForChannel(ctx, platform, redirectTo, nil)
+}
+
+func (a *Auth) startPlatformAuthForChannel(
+	ctx context.Context,
+	platform platformentity.Platform,
+	redirectTo string,
+	targetChannelID *uuid.UUID,
 ) (string, error) {
 	provider, err := a.platformProvider(platform)
 	if err != nil {
@@ -77,9 +95,10 @@ func (a *Auth) startPlatformAuth(
 
 	state := uuid.NewString()
 	if err := a.sessions.SetOAuthAttempt(ctx, state, authsessions.OAuthAttempt{
-		Platform:     platform,
-		RedirectTo:   redirectTo,
-		CodeVerifier: codeVerifier,
+		Platform:        platform,
+		RedirectTo:      redirectTo,
+		CodeVerifier:    codeVerifier,
+		TargetChannelID: targetChannelID,
 	}); err != nil {
 		return "", fmt.Errorf("store OAuth attempt: %w", err)
 	}
@@ -121,6 +140,7 @@ func (a *Auth) completePlatformCode(ctx context.Context, input platformCodeInput
 		attempt.CodeVerifier,
 		attempt.DeviceID,
 		attempt.RedirectTo,
+		attempt.TargetChannelID,
 	)
 	if err != nil {
 		return platformCodeResult{}, err
@@ -140,6 +160,7 @@ func (a *Auth) completePlatformExchange(
 	codeVerifier string,
 	deviceID string,
 	redirectTo string,
+	targetChannelID *uuid.UUID,
 ) (platformCodeResult, error) {
 	tokens, err := provider.ExchangeCode(ctx, appplatform.ExchangeCodeInput{
 		Code:         code,
@@ -161,10 +182,11 @@ func (a *Auth) completePlatformExchange(
 	}
 
 	authResult, err := a.completePlatformAuth(ctx, completePlatformAuthInput{
-		Platform:      platform,
-		PlatformUser:  platformUser,
-		Tokens:        tokens,
-		BindingConfig: bindingConfig,
+		Platform:        platform,
+		PlatformUser:    platformUser,
+		Tokens:          tokens,
+		BindingConfig:   bindingConfig,
+		TargetChannelID: targetChannelID,
 	})
 	if err != nil {
 		return platformCodeResult{}, err

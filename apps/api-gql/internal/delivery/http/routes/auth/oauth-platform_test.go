@@ -827,7 +827,7 @@ func TestStartTwitchAuthUsesServerSideOAuthAttempt(t *testing.T) {
 	if !ok {
 		t.Fatal("Twitch OAuth state was not stored server-side")
 	}
-	if attempt.Platform != platformentity.PlatformTwitch || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" {
+	if attempt.Platform != platformentity.PlatformTwitch || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" || attempt.TargetChannelID != nil {
 		t.Fatalf("stored Twitch OAuth attempt = %+v", attempt)
 	}
 }
@@ -857,8 +857,122 @@ func TestStartPlatformAuthUsesGenericRegisteredProvider(t *testing.T) {
 	if !ok {
 		t.Fatal("generic OAuth state was not stored server-side")
 	}
-	if attempt.Platform != platformentity.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" {
+	if attempt.Platform != platformentity.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" || attempt.TargetChannelID != nil {
 		t.Fatalf("stored generic OAuth attempt = %+v", attempt)
+	}
+}
+
+func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t *testing.T) {
+	ctx := context.Background()
+	collaboratorID := uuid.New()
+	selectedDashboardID := uuid.New()
+	ownChannelID := uuid.New()
+	providerUserID := uuid.New()
+	createdBindings := make([]channelplatforms.CreateInput, 0, 1)
+	transaction := &oauthTransaction{}
+	sessions := &fakeOAuthSession{internalUserID: collaboratorID}
+	provider := &oauthPlatformProvider{
+		name: platformentity.PlatformKick.String(),
+		getAuthURLFunc: func(state, _ string) string {
+			return "https://id.example.test/authorize?state=" + url.QueryEscape(state)
+		},
+		exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
+			return testPlatformTokens(), nil
+		},
+		getUserFunc: func(context.Context, string) (*appplatform.PlatformUser, error) {
+			return &appplatform.PlatformUser{ID: "provider-kick"}, nil
+		},
+	}
+	channels := &oauthChannelsRepository{
+		getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+			if channelID != selectedDashboardID {
+				t.Fatalf("target channel lookup = %s, want %s", channelID, selectedDashboardID)
+			}
+			if transaction.calls == 0 {
+				t.Fatal("target channel was not loaded inside the auth transaction")
+			}
+
+			return channelsmodel.Channel{ID: selectedDashboardID}, nil
+		},
+		getByBindingUserIDFunc: func(_ context.Context, platform platformentity.Platform, userID uuid.UUID) (channelsmodel.Channel, error) {
+			switch {
+			case platform == platformentity.PlatformTwitch && userID == collaboratorID:
+				return channelsmodel.Channel{ID: ownChannelID}, nil
+			case platform == platformentity.PlatformKick && userID == providerUserID:
+				return channelsmodel.Nil, channelsrepo.ErrNotFound
+			default:
+				t.Fatalf("unexpected binding lookup (%s, %s)", platform, userID)
+				return channelsmodel.Nil, nil
+			}
+		},
+	}
+	bindings := &oauthChannelPlatformsRepository{
+		getByChannelAndPlatformFunc: func(_ context.Context, channelID uuid.UUID, platform platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+			if channelID != selectedDashboardID || platform != platformentity.PlatformKick {
+				t.Fatalf("target binding lookup = (%s, %s)", channelID, platform)
+			}
+
+			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+		},
+		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+			if transaction.calls == 0 || transaction.committed {
+				t.Fatal("provider binding was not created transactionally")
+			}
+			createdBindings = append(createdBindings, input)
+			return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled, BotConfig: input.BotConfig}, nil
+		},
+	}
+	users := &oauthUsersRepository{
+		getByIDFunc: func(_ context.Context, userID uuid.UUID) (usersmodel.User, error) {
+			if userID != collaboratorID {
+				t.Fatalf("session user lookup = %s, want %s", userID, collaboratorID)
+			}
+			return usersmodel.User{ID: collaboratorID, Platform: platformentity.PlatformTwitch, PlatformID: "collaborator-twitch"}, nil
+		},
+		getByPlatformIDFunc: func(_ context.Context, platform platformentity.Platform, platformID string) (usersmodel.User, error) {
+			if platform != platformentity.PlatformKick || platformID != "provider-kick" {
+				t.Fatalf("provider user lookup = (%s, %q)", platform, platformID)
+			}
+			return usersmodel.User{ID: providerUserID, Platform: platform, PlatformID: platformID}, nil
+		},
+	}
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions:    sessions,
+		users:       users,
+		channels:    channels,
+		bindings:    bindings,
+		tokens:      newCreateTokenRepository(providerUserID),
+		registry:    appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
+		transaction: transaction,
+	})
+
+	authorizeURL, err := authHandler.StartPlatformAuthForChannel(ctx, selectedDashboardID, platformentity.PlatformKick, "/dashboard/platforms")
+	if err != nil {
+		t.Fatalf("start target OAuth: %v", err)
+	}
+	if strings.Contains(authorizeURL, selectedDashboardID.String()) {
+		t.Fatalf("authorization URL leaked selected dashboard: %s", authorizeURL)
+	}
+	parsedURL, err := url.Parse(authorizeURL)
+	if err != nil {
+		t.Fatalf("parse authorization URL: %v", err)
+	}
+	state := parsedURL.Query().Get("state")
+	attempt, ok := sessions.attempts[state]
+	if !ok || attempt.TargetChannelID == nil || *attempt.TargetChannelID != selectedDashboardID {
+		t.Fatalf("stored OAuth attempt = %+v, want selected dashboard %s", attempt, selectedDashboardID)
+	}
+
+	_, err = authHandler.completePlatformCode(ctx, platformCodeInput{
+		Platform: platformentity.PlatformKick,
+		Code:     "authorization-code",
+		State:    state,
+	})
+	if err != nil {
+		t.Fatalf("complete selected-dashboard OAuth: %v", err)
+	}
+	if len(createdBindings) != 1 || createdBindings[0].ChannelID != selectedDashboardID {
+		t.Fatalf("created bindings = %#v, want provider linked to selected dashboard %s", createdBindings, selectedDashboardID)
 	}
 }
 
@@ -1180,6 +1294,7 @@ func (r *oauthBotsRepository) GetDefault(context.Context) (botsmodel.Bot, error)
 
 type oauthChannelsRepository struct {
 	createFunc                  func(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error)
+	getByIDFunc                 func(context.Context, uuid.UUID) (channelsmodel.Channel, error)
 	getByBindingUserIDFunc      func(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error)
 	getAllByBindingPlatformFunc func(context.Context, platformentity.Platform) ([]channelsmodel.Channel, error)
 	createCalls                 int
@@ -1214,8 +1329,12 @@ func (r *oauthChannelsRepository) GetAllByBindingPlatform(ctx context.Context, p
 	return r.getAllByBindingPlatformFunc(ctx, platform)
 }
 
-func (*oauthChannelsRepository) GetByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, errors.New("unexpected GetByID call")
+func (r *oauthChannelsRepository) GetByID(ctx context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+	if r.getByIDFunc == nil {
+		return channelsmodel.Nil, errors.New("unexpected GetByID call")
+	}
+
+	return r.getByIDFunc(ctx, channelID)
 }
 
 func (*oauthChannelsRepository) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {

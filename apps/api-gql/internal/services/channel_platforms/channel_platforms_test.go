@@ -107,11 +107,11 @@ func TestBindingOperationsUseGenericDependencies(t *testing.T) {
 		registry: testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 	}
 
-	url, err := service.Connect(context.Background(), platformentity.PlatformKick, "/dashboard")
+	url, err := service.Connect(context.Background(), channelID, platformentity.PlatformKick, "/dashboard")
 	if err != nil {
 		t.Fatalf("Connect() error = %v", err)
 	}
-	if url != oauth.url || oauth.platform != platformentity.PlatformKick || oauth.redirectTo != "/dashboard" {
+	if url != oauth.url || oauth.channelID != channelID || oauth.platform != platformentity.PlatformKick || oauth.redirectTo != "/dashboard" {
 		t.Fatalf("Connect() = %q, starter = %#v", url, oauth)
 	}
 
@@ -128,6 +128,52 @@ func TestBindingOperationsUseGenericDependencies(t *testing.T) {
 	}
 	if repository.deletedID != binding.ID {
 		t.Fatalf("Disconnect() deleted %s, want %s", repository.deletedID, binding.ID)
+	}
+}
+
+func TestDisconnectRejectsLastAvailableBindingWhenDisabledPlatformIsHidden(t *testing.T) {
+	t.Parallel()
+
+	channelID := uuid.New()
+	twitchBinding := channelplatformsmodel.ChannelPlatform{
+		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true,
+	}
+	repository := &fakeBindingRepository{binding: twitchBinding}
+	service := &Service{
+		channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+			twitchBinding,
+			{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformVKVideoLive, UserID: uuid.New(), PlatformChannelID: "vk-channel", Enabled: false},
+		}}},
+		bindings: repository,
+		registry: testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+	}
+
+	err := service.Disconnect(context.Background(), channelID, platformentity.PlatformTwitch)
+	if !errors.Is(err, ErrLastBinding) {
+		t.Fatalf("Disconnect() error = %v, want ErrLastBinding", err)
+	}
+	if repository.deletedID != uuid.Nil {
+		t.Fatalf("Disconnect() deleted hidden-only fallback binding %s", repository.deletedID)
+	}
+}
+
+func TestBindingOperationsRejectUnavailablePlatform(t *testing.T) {
+	t.Parallel()
+
+	channelID := uuid.New()
+	service := &Service{
+		channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID}},
+		registry: testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+	}
+
+	if _, err := service.Connect(context.Background(), channelID, platformentity.PlatformVKVideoLive, "/dashboard"); !errors.Is(err, ErrPlatformUnavailable) {
+		t.Fatalf("Connect() error = %v, want ErrPlatformUnavailable", err)
+	}
+	if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformVKVideoLive); !errors.Is(err, ErrPlatformUnavailable) {
+		t.Fatalf("Disconnect() error = %v, want ErrPlatformUnavailable", err)
+	}
+	if _, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformVKVideoLive, false); !errors.Is(err, ErrPlatformUnavailable) {
+		t.Fatalf("SetEnabled() error = %v, want ErrPlatformUnavailable", err)
 	}
 }
 
@@ -178,11 +224,13 @@ func (f *fakeBindingRepository) Delete(_ context.Context, id uuid.UUID) error {
 
 type fakeOAuthStarter struct {
 	url        string
+	channelID  uuid.UUID
 	platform   platformentity.Platform
 	redirectTo string
 }
 
-func (f *fakeOAuthStarter) StartPlatformAuth(_ context.Context, platform platformentity.Platform, redirectTo string) (string, error) {
+func (f *fakeOAuthStarter) StartPlatformAuthForChannel(_ context.Context, channelID uuid.UUID, platform platformentity.Platform, redirectTo string) (string, error) {
+	f.channelID = channelID
 	f.platform = platform
 	f.redirectTo = redirectTo
 	return f.url, nil

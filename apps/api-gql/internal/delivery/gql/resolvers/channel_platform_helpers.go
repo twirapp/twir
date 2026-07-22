@@ -2,10 +2,13 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 )
+
+var errCannotUnlinkCurrentPlatform = errors.New("cannot unlink current platform")
 
 func (r *Resolver) selectedChannelPlatformDashboard(ctx context.Context) (uuid.UUID, error) {
 	if r.deps.ChannelPlatformDashboard == nil {
