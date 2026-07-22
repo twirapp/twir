@@ -28,6 +28,7 @@ use (
 	./libs/logger
 	./libs/migrations
 	./libs/otel
+	./libs/platforms
 	./libs/pubsub
 	./libs/redis_keys
 	./libs/repositories

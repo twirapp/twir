@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
+	botplatforms "github.com/twirapp/twir/apps/bots/internal/platforms"
 	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	chattranslationsservice "github.com/twirapp/twir/apps/bots/internal/services/chat_translations"
 	"github.com/twirapp/twir/apps/bots/internal/services/giveaways"
@@ -217,6 +218,7 @@ var App = fx.Module(
 		channelcache.NewByTwitchUserID,
 		twitchactions.New,
 		kickchat.NewChatClient,
+		botplatforms.NewChatRegistry,
 		channelsmoderationsettingscache.New,
 		channelsgamesvotebancache.New,
 		moderationhelpers.New,

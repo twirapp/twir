@@ -12,8 +12,11 @@ import (
 	"github.com/aidenwallis/go-ratelimiting/redis"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/logger"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
 	"github.com/twirapp/twir/libs/twitch"
@@ -63,7 +66,13 @@ func validateResponseSlashes(response string) string {
 	}
 }
 
-func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) error {
+func (c *TwitchActions) SendMessage(
+	ctx context.Context,
+	binding channelplatformsmodel.ChannelPlatform,
+	opts SendMessageOpts,
+) error {
+	opts.BroadcasterID = binding.PlatformChannelID
+
 	resp, err := c.rateLimiter.Use(
 		ctx,
 		&redis.SlidingWindowOptions{
@@ -79,20 +88,24 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		return nil
 	}
 
-	channel, err := c.channelsByTwitchIDCache.Get(ctx, opts.BroadcasterID)
+	botConfig, active, err := activeTwitchBinding(binding)
 	if err != nil {
-		return err
+		return fmt.Errorf("parse Twitch bot config: %w", err)
 	}
-	if !channel.TwitchBotEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
+	if !active {
 		return nil
 	}
 
 	if opts.SenderID == "" {
-		opts.SenderID = channel.BotID
+		opts.SenderID = botConfig.BotID
 	}
 
 	if strings.HasPrefix(opts.Message, "/timeout") || strings.HasPrefix(opts.Message, "/ban") {
-		return c.timeoutFromMessage(ctx, channel, opts)
+		return c.timeoutFromMessage(
+			ctx,
+			channelsmodel.Channel{Bindings: []channelplatformsmodel.ChannelPlatform{binding}},
+			opts,
+		)
 	}
 
 	if strings.HasPrefix(opts.Message, "/announce") && !opts.IsAnnounce {
@@ -279,6 +292,23 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	}
 
 	return nil
+}
+
+func activeTwitchBinding(
+	binding channelplatformsmodel.ChannelPlatform,
+) (channelbinding.TwitchBotConfig, bool, error) {
+	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channelsmodel.Channel{
+		Bindings: []channelplatformsmodel.ChannelPlatform{binding},
+	})
+	if err != nil {
+		return channelbinding.TwitchBotConfig{}, false, err
+	}
+	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" ||
+		!botConfig.IsBotMod || botConfig.IsTwitchBanned || botConfig.BotID == "" {
+		return botConfig, false, nil
+	}
+
+	return botConfig, true, nil
 }
 
 const MAX_TWITCH_MESSAGE_LENGTH = 465
