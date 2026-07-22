@@ -31,6 +31,27 @@ const (
 	CapabilityEventsReward     Capability = "events.reward"
 )
 
+var capabilitiesByPlatform = map[Platform]Capabilities{
+	PlatformTwitch: {
+		CapabilityChatRead,
+		CapabilityChatWrite,
+		CapabilityChatReply,
+		CapabilityModerationDelete,
+		CapabilityStreamsRead,
+		CapabilityEventsFollow,
+		CapabilityEventsRaid,
+		CapabilityEventsReward,
+	},
+	PlatformKick: {
+		CapabilityChatWrite,
+		CapabilityChatReply,
+		CapabilityStreamsRead,
+		CapabilityEventsFollow,
+		CapabilityEventsReward,
+	},
+	PlatformVKVideoLive: {},
+}
+
 func (p Platform) IsValid() bool {
 	switch p {
 	case PlatformTwitch, PlatformKick, PlatformVKVideoLive:
@@ -51,6 +72,10 @@ func (Platform) Schema(r huma.Registry) *huma.Schema {
 }
 
 func (p Platform) String() string { return string(p) }
+
+func (p Platform) Capabilities() Capabilities {
+	return slices.Clone(capabilitiesByPlatform[p])
+}
 
 func (c Capabilities) Supports(capability Capability) bool {
 	return slices.Contains(c, capability)

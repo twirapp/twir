@@ -3,9 +3,12 @@ package dataloader
 import (
 	"context"
 	"fmt"
+
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 )
 
@@ -33,21 +36,11 @@ func (c *dataLoader) getEmoteStatistic(
 		return nil, []error{err}
 	}
 
-	var platformChannelID string
-	switch currentPlatform {
-	case "kick":
-		if channel.KickPlatformID == nil || *channel.KickPlatformID == "" {
-			return nil, []error{fmt.Errorf("kick platform channel id not found")}
-		}
-		platformChannelID = *channel.KickPlatformID
-	case "twitch":
-		if channel.TwitchPlatformID == nil || *channel.TwitchPlatformID == "" {
-			return nil, []error{fmt.Errorf("twitch platform channel id not found")}
-		}
-		platformChannelID = *channel.TwitchPlatformID
-	default:
-		return nil, []error{fmt.Errorf("unknown platform: %s", currentPlatform)}
+	binding, found := channelbinding.Find(channel, platformentity.Platform(currentPlatform))
+	if !found || binding.PlatformChannelID == "" {
+		return nil, []error{fmt.Errorf("%s platform channel id not found", currentPlatform)}
 	}
+	platformChannelID := binding.PlatformChannelID
 
 	emotesNames := make([]string, 0, len(emotes))
 	for _, e := range emotes {

@@ -103,6 +103,45 @@ func TestCapabilitiesSupports(t *testing.T) {
 	}
 }
 
+func TestPlatformCapabilities(t *testing.T) {
+	tests := []struct {
+		platform Platform
+		want     Capabilities
+	}{
+		{
+			platform: PlatformTwitch,
+			want: Capabilities{
+				CapabilityChatRead,
+				CapabilityChatWrite,
+				CapabilityChatReply,
+				CapabilityModerationDelete,
+				CapabilityStreamsRead,
+				CapabilityEventsFollow,
+				CapabilityEventsRaid,
+				CapabilityEventsReward,
+			},
+		},
+		{
+			platform: PlatformKick,
+			want: Capabilities{
+				CapabilityChatWrite,
+				CapabilityChatReply,
+				CapabilityStreamsRead,
+				CapabilityEventsFollow,
+				CapabilityEventsReward,
+			},
+		},
+		{platform: PlatformVKVideoLive, want: Capabilities{}},
+		{platform: "unknown", want: Capabilities{}},
+	}
+
+	for _, tt := range tests {
+		if got := tt.platform.Capabilities(); !slices.Equal(got, tt.want) {
+			t.Errorf("Platform(%q).Capabilities() = %v, want %v", tt.platform, got, tt.want)
+		}
+	}
+}
+
 func TestErrUnsupportedCapability(t *testing.T) {
 	var err error = ErrUnsupportedCapability{
 		Platform:   PlatformVKVideoLive,
