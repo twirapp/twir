@@ -4,13 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
-var ErrNotFound = errors.New("channel platform binding not found")
+var (
+	ErrNotFound              = errors.New("channel platform binding not found")
+	ErrInvalidBotConfigPatch = errors.New("channel platform bot config patch must be a JSON object")
+)
 
 type Repository interface {
 	Create(ctx context.Context, input CreateInput) (model.ChannelPlatform, error)
@@ -43,4 +47,20 @@ type UpdateInput struct {
 type PatchInput struct {
 	Enabled        *bool
 	BotConfigPatch json.RawMessage
+}
+
+func (i PatchInput) Validate() error {
+	if len(i.BotConfigPatch) == 0 {
+		return nil
+	}
+
+	var patch map[string]json.RawMessage
+	if err := json.Unmarshal(i.BotConfigPatch, &patch); err != nil {
+		return fmt.Errorf("%w: %w", ErrInvalidBotConfigPatch, err)
+	}
+	if patch == nil {
+		return ErrInvalidBotConfigPatch
+	}
+
+	return nil
 }
