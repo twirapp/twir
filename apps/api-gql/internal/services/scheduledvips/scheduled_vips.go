@@ -15,6 +15,7 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"github.com/twirapp/twir/libs/logger"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
@@ -47,11 +48,26 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	repo           scheduledvipsrepository.Repository
-	channelService *channelservice.ChannelService
+	channelService channelLookup
 	usersRepo      usersrepository.Repository
 	config         config.Config
 	bus            *buscore.Bus
 	logger         *slog.Logger
+	newUserClient  twitchUserClientFactory
+}
+
+type channelLookup interface {
+	GetChannelByID(ctx context.Context, id uuid.UUID) (channelsmodel.Channel, error)
+}
+
+type twitchUserClientFactory func(uuid.UUID) (*helix.Client, error)
+
+func (c *Service) createUserClient(userID uuid.UUID) (*helix.Client, error) {
+	if c.newUserClient != nil {
+		return c.newUserClient(userID)
+	}
+
+	return twitch.NewUserClient(userID, c.config, c.bus)
 }
 
 func (c *Service) GetUserByPlatformID(ctx context.Context, platformUserID string) (usersmodel.User, error) {
@@ -128,7 +144,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 	}
 
 	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
-	if !found || twitchBinding.UserID == uuid.Nil || twitchBinding.PlatformChannelID == "" {
+	if !found || twitchBinding.UserID == uuid.Nil {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
@@ -142,11 +158,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return fmt.Errorf("get vip user: %w", err)
 	}
 
-	twitchClient, err := twitch.NewUserClient(
-		twitchBinding.UserID,
-		c.config,
-		c.bus,
-	)
+	twitchClient, err := c.createUserClient(twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client: %w", err)
 	}
@@ -222,7 +234,7 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 	}
 
 	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
-	if !found || twitchBinding.UserID == uuid.Nil || twitchBinding.PlatformChannelID == "" {
+	if !found || twitchBinding.UserID == uuid.Nil {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
@@ -231,11 +243,7 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 		return fmt.Errorf("cannot get user by platform id: %w", err)
 	}
 
-	twitchClient, err := twitch.NewUserClient(
-		twitchBinding.UserID,
-		c.config,
-		c.bus,
-	)
+	twitchClient, err := c.createUserClient(twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client: %w", err)
 	}

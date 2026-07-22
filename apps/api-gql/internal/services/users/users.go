@@ -13,6 +13,7 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -42,11 +43,50 @@ func New(opts Opts) *Service {
 }
 
 type Service struct {
-	usersRepository users.Repository
-	channelService  *channelservice.ChannelService
-	gorm            *gorm.DB
-	config          config.Config
-	twirBus         *buscore.Bus
+	usersRepository     users.Repository
+	channelService      channelLookup
+	gorm                *gorm.DB
+	config              config.Config
+	twirBus             *buscore.Bus
+	newUserClient       twitchUserClientFactory
+	loadChannelUserInfo channelUserInfoLoader
+}
+
+type channelLookup interface {
+	GetChannelByID(ctx context.Context, id uuid.UUID) (channelsmodel.Channel, error)
+}
+
+type twitchUserClientFactory func(context.Context, uuid.UUID) (*helix.Client, error)
+
+type channelUserInfoLoader func(context.Context, ChannelUserInfoInput) (deprecatedgormmodel.Users, error)
+
+func (c *Service) createUserClient(ctx context.Context, userID uuid.UUID) (*helix.Client, error) {
+	if c.newUserClient != nil {
+		return c.newUserClient(ctx, userID)
+	}
+
+	return twitch.NewUserClientWithContext(ctx, userID, c.config, c.twirBus)
+}
+
+func (c *Service) getChannelUserInfoRecord(
+	ctx context.Context,
+	input ChannelUserInfoInput,
+) (deprecatedgormmodel.Users, error) {
+	if c.loadChannelUserInfo != nil {
+		return c.loadChannelUserInfo(ctx, input)
+	}
+
+	dbUserInfo := deprecatedgormmodel.Users{}
+	if err := c.gorm.
+		WithContext(ctx).
+		Where("id = ?::uuid", input.UserID).
+		Preload("Stats", `channel_id = ?::uuid AND user_id = ?`, input.ChannelID, input.UserID).
+		First(&dbUserInfo).
+		Error; err != nil {
+		return deprecatedgormmodel.Users{}, err
+	}
+
+	return dbUserInfo, nil
 }
 
 type UpdateInput struct {
@@ -199,13 +239,8 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		return entity.ChannelUserInfo{}, fmt.Errorf("get user: %w", err)
 	}
 
-	dbUserInfo := deprecatedgormmodel.Users{}
-	if err := c.gorm.
-		WithContext(ctx).
-		Where("id = ?::uuid", input.UserID).
-		Preload("Stats", `channel_id = ?::uuid AND user_id = ?`, input.ChannelID, input.UserID).
-		First(&dbUserInfo).
-		Error; err != nil {
+	dbUserInfo, err := c.getChannelUserInfoRecord(ctx, input)
+	if err != nil {
 		return entity.ChannelUserInfo{}, err
 	}
 
@@ -231,12 +266,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		info.IsSubscriber = dbUserInfo.Stats.IsSubscriber
 	}
 
-	channelTwitchClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		twitchBinding.UserID,
-		c.config,
-		c.twirBus,
-	)
+	channelTwitchClient, err := c.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("cannot create channel twitch client: %w", err)
 	}

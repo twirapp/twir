@@ -108,12 +108,7 @@ func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInf
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		twitchBinding.UserID,
-		s.config,
-		s.twirBus,
-	)
+	twitchClient, err := s.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client for user %s: %w", input.ChannelID, err)
 	}
