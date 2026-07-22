@@ -2,18 +2,22 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/crypto"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	channelplatformsrepo "github.com/twirapp/twir/libs/repositories/channel_platforms"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
@@ -23,13 +27,35 @@ import (
 
 var errPlatformConflict = errors.New("platform account is already linked to another channel")
 var errAuthForbidden = errors.New("forbidden")
+var errPlatformUnavailable = errors.New("platform is not available")
+
+type transactionRunner interface {
+	Do(context.Context, func(context.Context) error) error
+}
+
+type eventSubPublisher interface {
+	Publish(context.Context, buscoreeventsub.EventsubSubscribeToAllEventsRequest) error
+}
+
+type platformBindingConfig struct {
+	BotUserID *uuid.UUID
+	BotConfig json.RawMessage
+}
+
+type platformBindingConfigResolver func(context.Context) (platformBindingConfig, error)
+
+type postPlatformAuthHook func(
+	context.Context,
+	completePlatformAuthResult,
+	*appplatform.PlatformUser,
+	*appplatform.PlatformTokens,
+) error
 
 type completePlatformAuthInput struct {
-	Platform         platformentity.Platform
-	PlatformUser     *appplatform.PlatformUser
-	Tokens           *appplatform.PlatformTokens
-	DefaultBotID     string
-	DefaultKickBotID *uuid.UUID
+	Platform      platformentity.Platform
+	PlatformUser  *appplatform.PlatformUser
+	Tokens        *appplatform.PlatformTokens
+	BindingConfig platformBindingConfig
 }
 
 type completePlatformAuthResult struct {
@@ -48,109 +74,91 @@ func (a *Auth) completePlatformAuth(
 	if input.PlatformUser == nil {
 		return completePlatformAuthResult{}, fmt.Errorf("platform user is required")
 	}
-
 	if input.Tokens == nil {
 		return completePlatformAuthResult{}, fmt.Errorf("platform tokens are required")
+	}
+	if a.transactionRunner == nil {
+		return completePlatformAuthResult{}, fmt.Errorf("auth transaction runner is not configured")
 	}
 
 	sessionUser, hasLiveSession, err := a.getLiveSessionUser(ctx)
 	if err != nil {
 		return completePlatformAuthResult{}, fmt.Errorf("get live session user: %w", err)
 	}
+	if hasLiveSession && sessionUser.IsBanned {
+		return completePlatformAuthResult{}, errAuthForbidden
+	}
 
 	platformUser, createdUser, err := a.getOrCreatePlatformUser(ctx, input.Platform, input.PlatformUser)
 	if err != nil {
 		return completePlatformAuthResult{}, fmt.Errorf("get or create platform user: %w", err)
 	}
-
 	if platformUser.IsBanned {
 		return completePlatformAuthResult{}, errAuthForbidden
 	}
 
-	platformUserID := platformUser.ID
-
-	var (
-		channel        channelsmodel.Channel
-		createdChannel bool
-		sessionUserID  uuid.UUID
-	)
-
+	result := completePlatformAuthResult{
+		PlatformUserID:  platformUser.ID,
+		CreatedUser:     createdUser,
+		UsedLiveSession: hasLiveSession,
+	}
 	if hasLiveSession {
-		if sessionUser.IsBanned {
-			return completePlatformAuthResult{}, errAuthForbidden
-		}
-
-		sessionUserID = sessionUser.ID
-
-		channel, createdChannel, err = a.getOrCreateChannelForUser(
-			ctx,
-			sessionUserID,
-			sessionUser.Platform,
-			input.DefaultBotID,
-			input.DefaultKickBotID,
-		)
-		if err != nil {
-			return completePlatformAuthResult{}, fmt.Errorf("get or create session channel: %w", err)
-		}
-
-		if sessionUser.Platform == input.Platform {
-			if sessionUser.PlatformID != input.PlatformUser.ID {
-				return completePlatformAuthResult{}, errPlatformConflict
-			}
-		} else {
-			channel, err = a.linkPlatformToChannel(
-				ctx,
-				channel,
-				input.Platform,
-				platformUserID,
-				input.DefaultKickBotID,
-			)
-			if err != nil {
-				return completePlatformAuthResult{}, fmt.Errorf("link platform to channel: %w", err)
-			}
-		}
+		result.SessionUserID = sessionUser.ID
 	} else {
-		sessionUserID = platformUserID
-		channel, createdChannel, err = a.getOrCreateChannelForUser(
-			ctx,
-			platformUserID,
-			input.Platform,
-			input.DefaultBotID,
-			input.DefaultKickBotID,
-		)
-		if err != nil {
-			return completePlatformAuthResult{}, fmt.Errorf("get or create platform channel: %w", err)
-		}
+		result.SessionUserID = platformUser.ID
 	}
 
-	if err := a.upsertPlatformUserToken(ctx, platformUserID, input.Tokens); err != nil {
+	err = a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
+		var channelBindingConfig platformBindingConfig
+		if hasLiveSession && sessionUser.Platform == input.Platform {
+			channelBindingConfig = input.BindingConfig
+		}
+
+		if hasLiveSession {
+			channel, createdChannel, getChannelErr := a.getOrCreateChannelForUser(txCtx, sessionUser, channelBindingConfig)
+			if getChannelErr != nil {
+				return fmt.Errorf("get or create session channel: %w", getChannelErr)
+			}
+			result.Channel = channel
+			result.CreatedChannel = createdChannel
+		} else {
+			channel, createChannelErr := a.createChannel(txCtx)
+			if createChannelErr != nil {
+				return fmt.Errorf("create platform channel: %w", createChannelErr)
+			}
+			result.Channel = channel
+			result.CreatedChannel = true
+		}
+
+		channel, linkErr := a.linkPlatformToChannel(
+			txCtx,
+			result.Channel,
+			input.Platform,
+			platformUser.ID,
+			input.PlatformUser.ID,
+			input.BindingConfig,
+		)
+		if linkErr != nil {
+			return fmt.Errorf("link platform to channel: %w", linkErr)
+		}
+		result.Channel = channel
+
+		return nil
+	})
+	if err != nil {
+		return completePlatformAuthResult{}, err
+	}
+
+	if err := a.upsertPlatformUserToken(ctx, result.PlatformUserID, input.Tokens); err != nil {
 		return completePlatformAuthResult{}, fmt.Errorf("upsert platform user token: %w", err)
 	}
 
-	if createdChannel {
-		if err = a.bus.Scheduler.CreateDefaultRoles.Publish(
-			ctx,
-			scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{channel.ID.String()}},
-		); err != nil {
-			a.logger.ErrorContext(ctx, "cannot publish create default roles", logger.Error(err), slog.String("channel_id", channel.ID.String()))
-		}
-
-		if err = a.bus.Scheduler.CreateDefaultCommands.Publish(
-			ctx,
-			scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{channel.ID.String()}},
-		); err != nil {
-			a.logger.ErrorContext(ctx, "cannot publish create default commands", logger.Error(err), slog.String("channel_id", channel.ID.String()))
-		}
+	if result.CreatedChannel {
+		a.publishDefaultChannelResources(ctx, result.Channel.ID)
 	}
+	a.publishEventSubSubscription(ctx, result.Channel.ID, input.Platform)
 
-	if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
-		ctx,
-		buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channel.ID.String(), Platform: input.Platform},
-	); err != nil {
-		a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channel.ID.String()))
-	}
-
-	if err := a.sessions.SetSessionInternalUserID(ctx, sessionUserID); err != nil {
+	if err := a.sessions.SetSessionInternalUserID(ctx, result.SessionUserID); err != nil {
 		return completePlatformAuthResult{}, fmt.Errorf("set internal user id: %w", err)
 	}
 
@@ -158,23 +166,14 @@ func (a *Auth) completePlatformAuth(
 	if hasLiveSession {
 		sessionPlatform = sessionUser.Platform.String()
 	}
-
 	if err := a.sessions.SetSessionCurrentPlatform(ctx, sessionPlatform); err != nil {
 		return completePlatformAuthResult{}, fmt.Errorf("set current platform: %w", err)
 	}
-
-	if err := a.sessions.SetSessionSelectedDashboard(ctx, channel.ID.String()); err != nil {
+	if err := a.sessions.SetSessionSelectedDashboard(ctx, result.Channel.ID.String()); err != nil {
 		return completePlatformAuthResult{}, fmt.Errorf("set selected dashboard: %w", err)
 	}
 
-	return completePlatformAuthResult{
-		SessionUserID:   sessionUserID,
-		PlatformUserID:  platformUserID,
-		Channel:         channel,
-		CreatedUser:     createdUser,
-		CreatedChannel:  createdChannel,
-		UsedLiveSession: hasLiveSession,
-	}, nil
+	return result, nil
 }
 
 func (a *Auth) getLiveSessionUser(ctx context.Context) (usersmodel.User, bool, error) {
@@ -237,41 +236,23 @@ func (a *Auth) getOrCreatePlatformUser(
 
 func (a *Auth) getOrCreateChannelForUser(
 	ctx context.Context,
-	userID uuid.UUID,
-	platform platformentity.Platform,
-	defaultBotID string,
-	defaultKickBotID *uuid.UUID,
+	user usersmodel.User,
+	bindingConfig platformBindingConfig,
 ) (channelsmodel.Channel, bool, error) {
-	channel, err := a.getChannelByPlatformUserID(ctx, platform, userID)
+	channel, err := a.channelsRepo.GetByBindingUserID(ctx, user.Platform, user.ID)
 	if err == nil {
-		if platform == platformentity.PlatformKick && channel.KickBotID == nil && defaultKickBotID != nil {
-			updatedChannel, updateErr := a.channelsRepo.Update(
-				ctx,
-				channel.ID,
-				channelsrepo.UpdateInput{KickBotID: defaultKickBotID},
-			)
-			if updateErr != nil {
-				return channelsmodel.Nil, false, fmt.Errorf("repair kick bot assignment: %w", updateErr)
-			}
-
-			channel = updatedChannel
-		}
-
 		return channel, false, nil
 	}
-
 	if !errors.Is(err, channelsrepo.ErrNotFound) {
 		return channelsmodel.Nil, false, err
 	}
 
-	switch platform {
-	case platformentity.PlatformTwitch:
-		channel, err = a.createChannel(ctx, &userID, nil, defaultBotID, nil)
-	case platformentity.PlatformKick:
-		channel, err = a.createChannel(ctx, nil, &userID, defaultBotID, defaultKickBotID)
-	default:
-		return channelsmodel.Nil, false, fmt.Errorf("unsupported platform: %s", platform)
+	channel, err = a.createChannel(ctx)
+	if err != nil {
+		return channelsmodel.Nil, false, err
 	}
+
+	channel, err = a.linkPlatformToChannel(ctx, channel, user.Platform, user.ID, user.PlatformID, bindingConfig)
 	if err != nil {
 		return channelsmodel.Nil, false, err
 	}
@@ -279,12 +260,25 @@ func (a *Auth) getOrCreateChannelForUser(
 	return channel, true, nil
 }
 
-func (a *Auth) getChannelByPlatformUserID(
-	ctx context.Context,
-	platform platformentity.Platform,
-	userID uuid.UUID,
-) (channelsmodel.Channel, error) {
-	return a.channelService.GetChannelByConnectedUser(ctx, userID, platform)
+func (a *Auth) createChannel(ctx context.Context) (channelsmodel.Channel, error) {
+	if a.botsRepo == nil {
+		return channelsmodel.Nil, fmt.Errorf("bots repository is not configured")
+	}
+
+	defaultBot, err := a.botsRepo.GetDefault(ctx)
+	if err != nil {
+		return channelsmodel.Nil, fmt.Errorf("get default bot: %w", err)
+	}
+	if defaultBot.ID == "" {
+		return channelsmodel.Nil, fmt.Errorf("default bot not found")
+	}
+
+	channel, err := a.channelsRepo.Create(ctx, channelsrepo.CreateInput{BotID: defaultBot.ID})
+	if err != nil {
+		return channelsmodel.Nil, fmt.Errorf("create channel: %w", err)
+	}
+
+	return channel, nil
 }
 
 func (a *Auth) linkPlatformToChannel(
@@ -292,54 +286,91 @@ func (a *Auth) linkPlatformToChannel(
 	channel channelsmodel.Channel,
 	platform platformentity.Platform,
 	platformUserID uuid.UUID,
-	defaultKickBotID *uuid.UUID,
+	platformChannelID string,
+	bindingConfig platformBindingConfig,
 ) (channelsmodel.Channel, error) {
-	linkedUserID := linkedPlatformUserID(channel, platform)
-	if linkedUserID != nil {
-		if *linkedUserID == platformUserID {
-			return channel, nil
+	binding, err := a.channelPlatformsRepo.GetByChannelAndPlatform(ctx, channel.ID, platform)
+	if err == nil {
+		if binding.UserID != platformUserID || binding.PlatformChannelID != platformChannelID {
+			return channelsmodel.Nil, errPlatformConflict
 		}
 
-		return channelsmodel.Nil, errPlatformConflict
+		return channel, nil
 	}
-
-	existingPlatformChannel, err := a.getChannelByPlatformUserID(ctx, platform, platformUserID)
-	if err != nil && !errors.Is(err, channelsrepo.ErrNotFound) {
+	if !errors.Is(err, channelplatformsrepo.ErrNotFound) {
 		return channelsmodel.Nil, err
 	}
 
+	existingPlatformChannel, err := a.channelsRepo.GetByBindingUserID(ctx, platform, platformUserID)
+	if err != nil && !errors.Is(err, channelsrepo.ErrNotFound) {
+		return channelsmodel.Nil, err
+	}
 	if err == nil && existingPlatformChannel.ID != channel.ID {
 		return channelsmodel.Nil, errPlatformConflict
 	}
 
-	updateInput := channelsrepo.UpdateInput{}
-	switch platform {
-	case platformentity.PlatformTwitch:
-		updateInput.TwitchUserID = &platformUserID
-		isEnabled := true
-		updateInput.TwitchBotEnabled = &isEnabled
-	case platformentity.PlatformKick:
-		updateInput.KickUserID = &platformUserID
-		isEnabled := true
-		updateInput.KickBotEnabled = &isEnabled
-		if channel.KickBotID == nil && defaultKickBotID != nil {
-			updateInput.KickBotID = defaultKickBotID
+	if len(bindingConfig.BotConfig) == 0 {
+		bindingConfig.BotConfig = json.RawMessage(`{}`)
+	}
+	createdBinding, err := a.channelPlatformsRepo.Create(ctx, channelplatformsrepo.CreateInput{
+		ChannelID:         channel.ID,
+		Platform:          platform,
+		UserID:            platformUserID,
+		PlatformChannelID: platformChannelID,
+		Enabled:           true,
+		BotUserID:         bindingConfig.BotUserID,
+		BotConfig:         bindingConfig.BotConfig,
+	})
+	if err != nil {
+		if isUniqueViolation(err) {
+			return channelsmodel.Nil, errPlatformConflict
 		}
-	default:
-		return channelsmodel.Nil, fmt.Errorf("unsupported platform: %s", platform)
+		return channelsmodel.Nil, err
 	}
 
-	return a.channelsRepo.Update(ctx, channel.ID, updateInput)
+	updatedChannel := channel
+	updatedChannel.Bindings = append(
+		append([]channelplatformsmodel.ChannelPlatform(nil), channel.Bindings...),
+		createdBinding,
+	)
+
+	return updatedChannel, nil
 }
 
-func linkedPlatformUserID(channel channelsmodel.Channel, platform platformentity.Platform) *uuid.UUID {
-	switch platform {
-	case platformentity.PlatformTwitch:
-		return channel.TwitchUserID
-	case platformentity.PlatformKick:
-		return channel.KickUserID
-	default:
-		return nil
+func isUniqueViolation(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23505"
+}
+
+func (a *Auth) publishDefaultChannelResources(ctx context.Context, channelID uuid.UUID) {
+	if a.bus == nil || a.bus.Scheduler == nil {
+		return
+	}
+
+	if err := a.bus.Scheduler.CreateDefaultRoles.Publish(
+		ctx,
+		scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{channelID.String()}},
+	); err != nil {
+		a.logger.ErrorContext(ctx, "cannot publish create default roles", logger.Error(err), slog.String("channel_id", channelID.String()))
+	}
+	if err := a.bus.Scheduler.CreateDefaultCommands.Publish(
+		ctx,
+		scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{channelID.String()}},
+	); err != nil {
+		a.logger.ErrorContext(ctx, "cannot publish create default commands", logger.Error(err), slog.String("channel_id", channelID.String()))
+	}
+}
+
+func (a *Auth) publishEventSubSubscription(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform) {
+	if a.eventSubPublisher == nil {
+		return
+	}
+
+	if err := a.eventSubPublisher.Publish(ctx, buscoreeventsub.EventsubSubscribeToAllEventsRequest{
+		ChannelID: channelID.String(),
+		Platform:  platform,
+	}); err != nil {
+		a.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channelID.String()))
 	}
 }
 

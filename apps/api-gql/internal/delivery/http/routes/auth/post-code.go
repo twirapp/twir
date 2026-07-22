@@ -2,20 +2,15 @@ package auth
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
-	"github.com/twirapp/twir/libs/entities/platform"
-	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	"github.com/twirapp/twir/libs/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type authBody struct {
@@ -31,106 +26,54 @@ func (a *Auth) handleAuthPostCode(
 	ctx context.Context,
 	input authBody,
 ) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
-	redirectTo, err := base64.StdEncoding.DecodeString(input.State)
+	_, attemptErr := a.sessions.GetOAuthAttempt(ctx, input.State)
+	if attemptErr == nil {
+		result, err := a.completePlatformCode(ctx, platformCodeInput{
+			Platform: platformentity.PlatformTwitch,
+			Code:     input.Code,
+			State:    input.State,
+		})
+		if err != nil {
+			return nil, a.platformAuthHTTPError(err)
+		}
+
+		return a.completeTwitchAuthResponse(ctx, result)
+	}
+	if !errors.Is(attemptErr, authsessions.ErrOAuthAttemptNotFound) {
+		return nil, huma.Error400BadRequest("Cannot read OAuth state", attemptErr)
+	}
+
+	redirectTo, err := decodeRedirectState(input.State)
 	if err != nil {
 		return nil, huma.Error400BadRequest("Cannot decode state", err)
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, a.config, a.bus)
+	result, err := a.completeLegacyPlatformCode(ctx, platformentity.PlatformTwitch, input.Code, string(redirectTo))
 	if err != nil {
-		return nil, huma.Error500InternalServerError("Cannot create twitch client", err)
+		return nil, a.platformAuthHTTPError(err)
 	}
 
-	tokens, err := twitchClient.RequestUserAccessToken(input.Code)
-	if err != nil {
-		return nil, err
+	return a.completeTwitchAuthResponse(ctx, result)
+}
+
+func (a *Auth) completeTwitchAuthResponse(
+	ctx context.Context,
+	result platformCodeResult,
+) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
+	if result.PlatformUser == nil {
+		return nil, huma.Error500InternalServerError("Cannot get user data from twitch", fmt.Errorf("twitch user not found"))
 	}
 
-	if tokens.ErrorMessage != "" {
-		return nil, huma.Error500InternalServerError(
-			"Cannot get user access token",
-			fmt.Errorf("error message: %s", tokens.ErrorMessage),
-		)
-	}
-
-	twitchClient.SetUserAccessToken(tokens.Data.AccessToken)
-
-	users, err := twitchClient.GetUsers(&helix.UsersParams{})
-	if err != nil {
-		return nil, huma.Error500InternalServerError("Cannot get user data from twitch", err)
-	}
-	if len(users.Data.Users) == 0 {
-		return nil, huma.Error500InternalServerError(
-			"Cannot get user data from twitch",
-			fmt.Errorf("twitch user not found"),
-		)
-	}
-
-	twitchUser := users.Data.Users[0]
-
-	defaultBot, err := a.botsRepo.GetDefault(ctx)
-	if err != nil {
-		return nil, huma.Error500InternalServerError("Cannot find default bot", err)
-	}
-	if defaultBot.ID == "" {
-		return nil, huma.Error500InternalServerError("Cannot find default bot", fmt.Errorf("no default bot found"))
-	}
-
-	result, err := a.completePlatformAuth(ctx, completePlatformAuthInput{
-		Platform: platform.PlatformTwitch,
-		PlatformUser: &appplatform.PlatformUser{
-			ID:          twitchUser.ID,
-			Login:       twitchUser.Login,
-			DisplayName: twitchUser.DisplayName,
-			Avatar:      twitchUser.ProfileImageURL,
-		},
-		Tokens: &appplatform.PlatformTokens{
-			AccessToken:  tokens.Data.AccessToken,
-			RefreshToken: tokens.Data.RefreshToken,
-			ExpiresIn:    tokens.Data.ExpiresIn,
-			Scopes:       tokens.Data.Scopes,
-		},
-		DefaultBotID: defaultBot.ID,
-	})
-	if err != nil {
-		if errors.Is(err, errAuthForbidden) {
-			return nil, huma.Error403Forbidden("Forbidden", nil)
-		}
-
-		if errors.Is(err, errPlatformConflict) {
-			return nil, huma.Error409Conflict("Platform account already linked to another dashboard", err)
-		}
-
-		return nil, huma.Error500InternalServerError("Cannot complete auth", err)
-	}
-
-	if err := a.sessions.SetSessionTwitchUser(ctx, twitchUser); err != nil {
+	if err := a.sessions.SetSessionTwitchUser(ctx, helix.User{
+		ID:              result.PlatformUser.ID,
+		Login:           result.PlatformUser.Login,
+		DisplayName:     result.PlatformUser.DisplayName,
+		ProfileImageURL: result.PlatformUser.Avatar,
+	}); err != nil {
 		return nil, huma.Error500InternalServerError("Cannot set twitch user", err)
 	}
 
-	a.logger.InfoContext(ctx, "twitch auth: completed successfully", slog.String("channel_id", result.Channel.ID.String()), slog.String("user_id", result.SessionUserID.String()))
+	a.logger.InfoContext(ctx, "twitch auth: completed successfully", slog.String("channel_id", result.AuthResult.Channel.ID.String()), slog.String("user_id", result.AuthResult.SessionUserID.String()))
 
-	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: string(redirectTo)}), nil
-}
-
-func (a *Auth) createChannel(
-	ctx context.Context,
-	twitchUserID *uuid.UUID,
-	kickUserID *uuid.UUID,
-	botID string,
-	kickBotID *uuid.UUID,
-) (channelsmodel.Channel, error) {
-	channel, err := a.channelsRepo.Create(ctx, channelsrepo.CreateInput{
-		TwitchUserID:     twitchUserID,
-		KickUserID:       kickUserID,
-		TwitchBotEnabled: twitchUserID != nil,
-		KickBotEnabled:   kickUserID != nil,
-		BotID:            botID,
-		KickBotID:        kickBotID,
-	})
-	if err != nil {
-		return channelsmodel.Nil, fmt.Errorf("create channel: %w", err)
-	}
-
-	return channel, nil
+	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: result.RedirectTo}), nil
 }
