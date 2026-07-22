@@ -70,7 +70,6 @@ const onlineTwitchChannelRowsQuery = `
 	JOIN channels c ON c.id = cp.channel_id
 	JOIN users u ON u.id = cp.user_id AND u.platform = 'twitch'
 	WHERE cp.platform = 'twitch'
-		AND cp.enabled = TRUE
 		AND cp.platform_channel_id IN ?
 `
 
