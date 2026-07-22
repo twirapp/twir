@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
@@ -18,6 +19,7 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/logger"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
@@ -81,12 +83,16 @@ type Service struct {
 	giveawaysRepository             giveaways.Repository
 	giveawaysParticipantsRepository giveaways_participants.Repository
 	giveawaysSettingsRepository     channels_giveaways_settings.Repository
-	channelService                  *channelservice.ChannelService
+	channelService                  giveawayChannelLookup
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	twirBus                         *buscore.Bus
 	logger                          *slog.Logger
 	wsRouter                        wsrouter.WsRouter
 	twitchCache                     *twitchcache.CachedTwitchClient
+}
+
+type giveawayChannelLookup interface {
+	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
 }
 
 type CreateInput struct {
@@ -589,7 +595,8 @@ func (c *Service) sendWinnerMessage(
 	if err != nil {
 		return err
 	}
-	if channel.TwitchPlatformID == nil {
+	_, hasTwitchBinding := apiChannelbinding.Find(channel, platform.PlatformTwitch)
+	if !hasTwitchBinding {
 		return fmt.Errorf("channel has no twitch platform id")
 	}
 

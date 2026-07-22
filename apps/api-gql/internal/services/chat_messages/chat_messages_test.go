@@ -1,0 +1,132 @@
+package chat_messages
+
+import (
+	"context"
+	"encoding/json"
+	"testing"
+
+	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/libs/bus-core/events"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	"github.com/twirapp/twir/libs/wsrouter"
+)
+
+func TestHandleChannelBanEventUsesSelectedEventPlatformBinding(t *testing.T) {
+	channelID := uuid.New()
+	platformChannelID := "kick-channel"
+	key := chatOverlayModerationSubscriptionKeyCreate(
+		platformentity.PlatformKick.String(),
+		platformChannelID,
+	)
+	router := &chatMessagesTestWsRouter{}
+	service := &Service{
+		channelService: chatMessagesTestChannelLookup{channel: channelsmodel.Channel{
+			ID: channelID,
+			Bindings: []channelplatformsmodel.ChannelPlatform{
+				{
+					Platform:          platformentity.PlatformVKVideoLive,
+					PlatformChannelID: "vk-channel",
+					BotConfig:         json.RawMessage(`{"unexpected":"vk"}`),
+				},
+				{
+					Platform:          platformentity.PlatformTwitch,
+					PlatformChannelID: "twitch-channel",
+					BotConfig:         json.RawMessage(`{"unexpected":"twitch"}`),
+				},
+				{
+					Platform:          platformentity.PlatformKick,
+					PlatformChannelID: platformChannelID,
+					BotConfig:         json.RawMessage(`{"unexpected":"kick"}`),
+				},
+			},
+		}},
+		wsRouter: router,
+		chanSubs: map[string]struct{}{key: {}},
+	}
+
+	_, err := service.handleChannelBanEvent(context.Background(), events.ChannelBanMessage{
+		BaseInfo: events.BaseInfo{
+			Platform:          platformentity.PlatformKick,
+			ChannelPlatformID: channelID.String(),
+		},
+		UserLogin: "banned-user",
+	})
+	if err != nil {
+		t.Fatalf("handle channel ban event: %v", err)
+	}
+
+	if len(router.published) != 1 {
+		t.Fatalf("published events = %d, want 1", len(router.published))
+	}
+	if router.published[0].key != key {
+		t.Fatalf("published key = %q, want %q", router.published[0].key, key)
+	}
+
+	event, ok := router.published[0].data.(entity.ChatOverlayModerationEvent)
+	if !ok {
+		t.Fatalf("published data = %T, want ChatOverlayModerationEvent", router.published[0].data)
+	}
+	if event.Platform != platformentity.PlatformKick.String() || event.UserLogin != "banned-user" {
+		t.Fatalf("published event = %#v, want Kick ban for banned-user", event)
+	}
+}
+
+func TestHandleChannelBanEventSkipsMissingEventPlatformBinding(t *testing.T) {
+	channelID := uuid.New()
+	router := &chatMessagesTestWsRouter{}
+	service := &Service{
+		channelService: chatMessagesTestChannelLookup{channel: channelsmodel.Channel{
+			ID: channelID,
+			Bindings: []channelplatformsmodel.ChannelPlatform{
+				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel"},
+			},
+		}},
+		wsRouter: router,
+		chanSubs: map[string]struct{}{},
+	}
+
+	_, err := service.handleChannelBanEvent(context.Background(), events.ChannelBanMessage{
+		BaseInfo: events.BaseInfo{
+			Platform:          platformentity.PlatformKick,
+			ChannelPlatformID: channelID.String(),
+		},
+	})
+	if err != nil {
+		t.Fatalf("handle channel ban event: %v", err)
+	}
+	if len(router.published) != 0 {
+		t.Fatalf("published events = %d, want 0", len(router.published))
+	}
+}
+
+type chatMessagesTestChannelLookup struct {
+	channel channelsmodel.Channel
+}
+
+func (r chatMessagesTestChannelLookup) GetChannelByID(
+	context.Context,
+	uuid.UUID,
+) (channelsmodel.Channel, error) {
+	return r.channel, nil
+}
+
+type chatMessagesPublishedEvent struct {
+	key  string
+	data any
+}
+
+type chatMessagesTestWsRouter struct {
+	published []chatMessagesPublishedEvent
+}
+
+func (*chatMessagesTestWsRouter) Subscribe([]string) (wsrouter.WsRouterSubscription, error) {
+	return nil, nil
+}
+
+func (r *chatMessagesTestWsRouter) Publish(key string, data any) error {
+	r.published = append(r.published, chatMessagesPublishedEvent{key: key, data: data})
+	return nil
+}

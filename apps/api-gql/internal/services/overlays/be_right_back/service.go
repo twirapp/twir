@@ -5,13 +5,16 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back/model"
 	"github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
@@ -80,8 +83,16 @@ type Service struct {
 	wsRouter   wsrouter.WsRouter
 	twirBus    *buscore.Bus
 
-	usersRepository users.Repository
-	channelService  *channelservice.ChannelService
+	usersRepository apiKeyUserLookup
+	channelService  bindingUserChannelLookup
+}
+
+type apiKeyUserLookup interface {
+	GetByApiKey(context.Context, string) (usersmodel.User, error)
+}
+
+type bindingUserChannelLookup interface {
+	GetChannelByBindingUserID(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error)
 }
 
 func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {
@@ -93,20 +104,12 @@ func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (
 		return "", errors.New("user not found for provided api key")
 	}
 
-	switch user.Platform {
-	case platformentity.PlatformKick:
-		channel, err := s.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformKick)
-		if err != nil {
-			return "", err
-		}
-		return channel.ID.String(), nil
-	default:
-		channel, err := s.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
-		if err != nil {
-			return "", err
-		}
-		return channel.ID.String(), nil
+	channel, err := s.channelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+	if err != nil {
+		return "", err
 	}
+
+	return channel.ID.String(), nil
 }
 
 // GetOrCreate gets the be right back overlay for the given channel ID or creates a new one with default settings if it doesn't exist

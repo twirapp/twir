@@ -9,12 +9,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -87,12 +89,16 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	chatMessagesRepository chat_messages.Repository
-	channelService         *channelservice.ChannelService
+	channelService         chatMessagesChannelLookup
 
 	wsRouter   wsrouter.WsRouter
 	logger     *slog.Logger
 	chanSubs   map[string]struct{}
 	chanSubsMu sync.RWMutex
+}
+
+type chatMessagesChannelLookup interface {
+	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
 }
 
 func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
@@ -352,11 +358,16 @@ func (c *Service) handleChannelBanEvent(
 			c.logger.Error("cannot resolve kick channel for ban event", logger.Error(err))
 			return struct{}{}, nil
 		}
-		if channel.IsNil() || channel.KickPlatformID == nil {
+		if channel.IsNil() {
 			return struct{}{}, nil
 		}
 
-		platformChannelID = *channel.KickPlatformID
+		binding, hasBinding := apiChannelbinding.Find(channel, platform)
+		if !hasBinding {
+			return struct{}{}, nil
+		}
+
+		platformChannelID = binding.PlatformChannelID
 	}
 
 	c.publishModerationEvent(
