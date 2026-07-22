@@ -33,7 +33,7 @@ func (c *Service) GetChannelChatBadges(ctx context.Context, channelID string) (
 		return nil, nil
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+	twitchClient, err := c.createAppClient(ctx)
 	if err != nil {
 		return nil, err
 	}

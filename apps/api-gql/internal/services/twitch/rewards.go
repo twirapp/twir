@@ -8,7 +8,6 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"github.com/twirapp/twir/libs/twitch"
 )
 
 type CustomRewardsResult struct {
@@ -38,7 +37,7 @@ func (c *Service) GetRewardsByChannelID(
 		return CustomRewardsResult{}, nil
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, twitchBinding.UserID, c.config, c.twirBus)
+	twitchClient, err := c.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
 		return CustomRewardsResult{}, fmt.Errorf("failed to create twitch client: %w", err)
 	}
