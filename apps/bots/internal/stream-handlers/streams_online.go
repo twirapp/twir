@@ -15,7 +15,7 @@ func (c *PubSubHandlers) streamsOnline(
 	ctx context.Context,
 	data twitch.StreamOnlineMessage,
 ) (struct{}, error) {
-	channel, found, err := c.findTwitchChannelByPlatformUserID(ctx, data.ChannelID)
+	channel, found, err := c.findTwitchChannelByPlatformChannelID(ctx, data.ChannelID)
 	if err != nil {
 		c.logger.Error(
 			"cannot find channel",
