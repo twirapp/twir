@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
@@ -27,8 +28,13 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 
 var _ channelplatforms.Repository = (*Pgx)(nil)
 
+type database interface {
+	Query(ctx context.Context, sql string, arguments ...any) (pgx.Rows, error)
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
+}
+
 type Pgx struct {
-	pool *pgxpool.Pool
+	pool database
 }
 
 const selectColumns = `
@@ -196,6 +202,10 @@ func (r *Pgx) Patch(
 	id uuid.UUID,
 	input channelplatforms.PatchInput,
 ) (model.ChannelPlatform, error) {
+	if err := input.Validate(); err != nil {
+		return model.Nil, err
+	}
+
 	var enabled any
 	if input.Enabled != nil {
 		enabled = *input.Enabled
