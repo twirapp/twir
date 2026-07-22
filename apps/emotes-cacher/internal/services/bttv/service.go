@@ -92,17 +92,21 @@ func New(opts Opts) error {
 
 func (c *Service) start(ctx context.Context) error {
 	var channels []string
-	if err := c.gorm.
-		WithContext(ctx).
-		Table("channels c").
-		Select("tu.platform_id").
-		Joins("JOIN users tu ON tu.id = c.twitch_user_id").
-		Where("c.twitch_bot_enabled = true").
+	if err := buildEnabledTwitchChannelsQuery(c.gorm, ctx).
 		Find(&channels).Error; err != nil {
 		return err
 	}
 
 	return c.AddChannels(ctx, channels...)
+}
+
+func buildEnabledTwitchChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
+	return db.
+		WithContext(ctx).
+		Table("channel_platforms AS cp").
+		Select("cp.platform_channel_id").
+		Where("cp.platform = ?", platform.PlatformTwitch).
+		Where("cp.enabled = ?", true)
 }
 
 func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error {
