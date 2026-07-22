@@ -67,14 +67,19 @@ func hasChannelRolesDashboardAccess(
 			continue
 		}
 
-		if permission == nil {
-			for _, roleUser := range role.Users {
-				if roleUser.UserID == userID {
-					return true
-				}
+		hasRoleUser := false
+		for _, roleUser := range role.Users {
+			if roleUser.UserID == userID {
+				hasRoleUser = true
+				break
 			}
-
+		}
+		if !hasRoleUser {
 			continue
+		}
+
+		if permission == nil {
+			return true
 		}
 
 		for _, rolePermission := range role.Permissions {
