@@ -52,10 +52,11 @@ type postPlatformAuthHook func(
 ) error
 
 type completePlatformAuthInput struct {
-	Platform      platformentity.Platform
-	PlatformUser  *appplatform.PlatformUser
-	Tokens        *appplatform.PlatformTokens
-	BindingConfig platformBindingConfig
+	Platform        platformentity.Platform
+	PlatformUser    *appplatform.PlatformUser
+	Tokens          *appplatform.PlatformTokens
+	BindingConfig   platformBindingConfig
+	TargetChannelID *uuid.UUID
 }
 
 type completePlatformAuthResult struct {
@@ -88,6 +89,9 @@ func (a *Auth) completePlatformAuth(
 	if hasLiveSession && sessionUser.IsBanned {
 		return completePlatformAuthResult{}, errAuthForbidden
 	}
+	if input.TargetChannelID != nil && !hasLiveSession {
+		return completePlatformAuthResult{}, errAuthForbidden
+	}
 
 	platformUser, createdUser, err := a.getOrCreatePlatformUser(ctx, input.Platform, input.PlatformUser)
 	if err != nil {
@@ -109,7 +113,13 @@ func (a *Auth) completePlatformAuth(
 	}
 
 	err = a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
-		if hasLiveSession {
+		if input.TargetChannelID != nil {
+			channel, getChannelErr := a.channelsRepo.GetByID(txCtx, *input.TargetChannelID)
+			if getChannelErr != nil {
+				return fmt.Errorf("get target channel: %w", getChannelErr)
+			}
+			result.Channel = channel
+		} else if hasLiveSession {
 			channel, createdChannel, getChannelErr := a.getOrCreateChannelForUser(txCtx, sessionUser)
 			if getChannelErr != nil {
 				return fmt.Errorf("get or create session channel: %w", getChannelErr)

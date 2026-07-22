@@ -121,7 +121,7 @@ func TestChannelPlatformBindingMutationsUseGenericOperations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ChannelPlatformConnect() error = %v", err)
 	}
-	if url != oauth.url || oauth.platform != platformentity.PlatformKick || oauth.redirectTo != "/dashboard/platforms" {
+	if url != oauth.url || oauth.channelID != dashboardID || oauth.platform != platformentity.PlatformKick || oauth.redirectTo != "/dashboard/platforms" {
 		t.Fatalf("ChannelPlatformConnect() = %q, oauth = %#v", url, oauth)
 	}
 
@@ -226,11 +226,13 @@ func (r *resolverBindingRepository) Delete(_ context.Context, id uuid.UUID) erro
 
 type resolverOAuthStarter struct {
 	url        string
+	channelID  uuid.UUID
 	platform   platformentity.Platform
 	redirectTo string
 }
 
-func (r *resolverOAuthStarter) StartPlatformAuth(_ context.Context, platform platformentity.Platform, redirectTo string) (string, error) {
+func (r *resolverOAuthStarter) StartPlatformAuthForChannel(_ context.Context, channelID uuid.UUID, platform platformentity.Platform, redirectTo string) (string, error) {
+	r.channelID = channelID
 	r.platform = platform
 	r.redirectTo = redirectTo
 	return r.url, nil

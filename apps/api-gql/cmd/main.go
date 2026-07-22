@@ -685,6 +685,7 @@ func main() {
 			resolvers.New,
 			func(service *channelplatformservice.Service) channelplatformservice.Operations { return service },
 			func(sessions *auth.Auth) resolvers.SelectedDashboardGetter { return sessions },
+			func(sessions *auth.Auth) resolvers.CurrentPlatformGetter { return sessions },
 			directives.New,
 			middlewares.New,
 			server.New,

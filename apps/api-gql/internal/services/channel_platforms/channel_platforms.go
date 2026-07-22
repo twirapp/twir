@@ -61,7 +61,7 @@ func New(
 
 type Operations interface {
 	List(context.Context, uuid.UUID) ([]Binding, error)
-	Connect(context.Context, platformentity.Platform, string) (string, error)
+	Connect(context.Context, uuid.UUID, platformentity.Platform, string) (string, error)
 	Disconnect(context.Context, uuid.UUID, platformentity.Platform) error
 	SetEnabled(context.Context, uuid.UUID, platformentity.Platform, bool) (Binding, error)
 }
@@ -97,7 +97,7 @@ type BindingRepository interface {
 }
 
 type OAuthStarter interface {
-	StartPlatformAuth(context.Context, platformentity.Platform, string) (string, error)
+	StartPlatformAuthForChannel(context.Context, uuid.UUID, platformentity.Platform, string) (string, error)
 }
 
 func (s *Service) List(ctx context.Context, channelID uuid.UUID) ([]Binding, error) {
@@ -126,7 +126,7 @@ func (s *Service) List(ctx context.Context, channelID uuid.UUID) ([]Binding, err
 	return result, nil
 }
 
-func (s *Service) Connect(ctx context.Context, platform platformentity.Platform, redirectTo string) (string, error) {
+func (s *Service) Connect(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform, redirectTo string) (string, error) {
 	if err := s.requireAvailable(platform); err != nil {
 		return "", err
 	}
@@ -134,7 +134,7 @@ func (s *Service) Connect(ctx context.Context, platform platformentity.Platform,
 		return "", fmt.Errorf("platform OAuth service is not configured")
 	}
 
-	return s.oauth.StartPlatformAuth(ctx, platform, redirectTo)
+	return s.oauth.StartPlatformAuthForChannel(ctx, channelID, platform, redirectTo)
 }
 
 func (s *Service) Disconnect(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform) error {
@@ -149,7 +149,13 @@ func (s *Service) Disconnect(ctx context.Context, channelID uuid.UUID, platform 
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
-	if len(channel.Bindings) <= 1 {
+	availableBindings := 0
+	for _, binding := range channel.Bindings {
+		if s.isAvailable(binding.Platform) {
+			availableBindings++
+		}
+	}
+	if availableBindings <= 1 {
 		return ErrLastBinding
 	}
 
