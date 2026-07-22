@@ -1,6 +1,7 @@
 package cfg
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -100,6 +101,14 @@ type Config struct {
 	VKClientSecret   string `required:"false" envconfig:"VK_CLIENT_SECRET"`
 	VkAppAccessToken string `required:"false" envconfig:"VK_APP_ACCESS_TOKEN"`
 
+	VKVideoEnabled       bool   `required:"false" default:"false" envconfig:"VK_VIDEO_ENABLED"`
+	VKVideoClientID      string `required:"false" envconfig:"VK_VIDEO_CLIENT_ID"`
+	VKVideoClientSecret  string `required:"false" envconfig:"VK_VIDEO_CLIENT_SECRET"`
+	VKVideoServiceToken  string `required:"false" envconfig:"VK_VIDEO_SERVICE_TOKEN"`
+	VKVideoCallbackURL   string `required:"false" envconfig:"VK_VIDEO_CALLBACK_URL"`
+	VKVideoWebhookSecret string `required:"false" envconfig:"VK_VIDEO_WEBHOOK_SECRET"`
+	VKVideoAPIBaseURL    string `required:"false" default:"https://id.vk.ru" envconfig:"VK_VIDEO_API_BASE_URL"`
+
 	FaceitClientId     string `required:"false" envconfig:"FACEIT_CLIENT_ID"`
 	FaceitClientSecret string `required:"false" envconfig:"FACEIT_CLIENT_SECRET"`
 	FaceitApiKey       string `required:"false" envconfig:"FACEIT_API_KEY"`
@@ -150,8 +159,31 @@ func NewWithEnvPath(envPath string) (*Config, error) {
 	if err := envconfig.Process("", &newCfg); err != nil {
 		return nil, err
 	}
+	if err := newCfg.validateVKVideo(); err != nil {
+		return nil, err
+	}
 
 	return &newCfg, nil
+}
+
+func (c *Config) validateVKVideo() error {
+	if !c.VKVideoEnabled {
+		return nil
+	}
+
+	for name, value := range map[string]string{
+		"VK_VIDEO_CLIENT_ID":      c.VKVideoClientID,
+		"VK_VIDEO_CLIENT_SECRET":  c.VKVideoClientSecret,
+		"VK_VIDEO_SERVICE_TOKEN":  c.VKVideoServiceToken,
+		"VK_VIDEO_CALLBACK_URL":   c.VKVideoCallbackURL,
+		"VK_VIDEO_WEBHOOK_SECRET": c.VKVideoWebhookSecret,
+	} {
+		if strings.TrimSpace(value) == "" {
+			return fmt.Errorf("%s is required when VK_VIDEO_ENABLED is true", name)
+		}
+	}
+
+	return nil
 }
 
 func New() (*Config, error) {

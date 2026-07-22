@@ -7,6 +7,18 @@ type PlatformTokens struct {
 	RefreshToken string
 	ExpiresIn    int
 	Scopes       []string
+	DeviceID     string
+}
+
+type ExchangeCodeInput struct {
+	Code         string
+	CodeVerifier string
+	DeviceID     string
+}
+
+type RefreshTokenInput struct {
+	RefreshToken string
+	DeviceID     string
 }
 
 type PlatformUser struct {
@@ -19,7 +31,7 @@ type PlatformUser struct {
 type PlatformProvider interface {
 	Name() string
 	GetAuthURL(state, codeChallenge string) string
-	ExchangeCode(ctx context.Context, code, codeVerifier string) (*PlatformTokens, error)
-	RefreshToken(ctx context.Context, refreshToken string) (*PlatformTokens, error)
+	ExchangeCode(ctx context.Context, input ExchangeCodeInput) (*PlatformTokens, error)
+	RefreshToken(ctx context.Context, input RefreshTokenInput) (*PlatformTokens, error)
 	GetUser(ctx context.Context, accessToken string) (*PlatformUser, error)
 }

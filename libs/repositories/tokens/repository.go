@@ -26,6 +26,7 @@ type CreateInput struct {
 	ExpiresIn           int
 	ObtainmentTimestamp time.Time
 	Scopes              []string
+	DeviceID            *string
 }
 
 type UpdateTokenInput struct {
@@ -34,4 +35,5 @@ type UpdateTokenInput struct {
 	ExpiresIn           *int
 	ObtainmentTimestamp *time.Time
 	Scopes              []string
+	DeviceID            *string
 }

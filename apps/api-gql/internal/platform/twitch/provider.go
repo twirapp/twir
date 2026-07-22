@@ -22,6 +22,8 @@ type Provider struct {
 	config cfg.Config
 }
 
+var _ platform.PlatformProvider = (*Provider)(nil)
+
 func New(opts Opts) *Provider {
 	return &Provider{config: opts.Config}
 }
@@ -105,13 +107,13 @@ func (p *Provider) GetAuthURL(state, _ string) string {
 	})
 }
 
-func (p *Provider) ExchangeCode(ctx context.Context, code, _ string) (*platform.PlatformTokens, error) {
+func (p *Provider) ExchangeCode(ctx context.Context, input platform.ExchangeCodeInput) (*platform.PlatformTokens, error) {
 	client, err := p.newClient()
 	if err != nil {
 		return nil, fmt.Errorf("create helix client: %w", err)
 	}
 
-	resp, err := client.RequestUserAccessToken(code)
+	resp, err := client.RequestUserAccessToken(input.Code)
 	if err != nil {
 		return nil, fmt.Errorf("request user access token: %w", err)
 	}
@@ -128,13 +130,13 @@ func (p *Provider) ExchangeCode(ctx context.Context, code, _ string) (*platform.
 	}, nil
 }
 
-func (p *Provider) RefreshToken(ctx context.Context, refreshToken string) (*platform.PlatformTokens, error) {
+func (p *Provider) RefreshToken(ctx context.Context, input platform.RefreshTokenInput) (*platform.PlatformTokens, error) {
 	client, err := p.newClient()
 	if err != nil {
 		return nil, fmt.Errorf("create helix client: %w", err)
 	}
 
-	resp, err := client.RefreshUserAccessToken(refreshToken)
+	resp, err := client.RefreshUserAccessToken(input.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("refresh user access token: %w", err)
 	}
