@@ -6,10 +6,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
@@ -178,7 +180,12 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 	if err != nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	if channel.IsNil() {
+		return entity.ChannelUserInfo{}, fmt.Errorf("channel not found or twitch not connected")
+	}
+
+	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	if !found || twitchBinding.UserID == uuid.Nil || twitchBinding.PlatformChannelID == "" {
 		return entity.ChannelUserInfo{}, fmt.Errorf("channel not found or twitch not connected")
 	}
 
@@ -226,7 +233,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 
 	channelTwitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchUserID,
+		twitchBinding.UserID,
 		c.config,
 		c.twirBus,
 	)
@@ -236,7 +243,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 
 	follows, err := channelTwitchClient.GetChannelFollows(
 		&helix.GetChannelFollowsParams{
-			BroadcasterID: *channel.TwitchPlatformID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        user.PlatformID,
 		},
 	)
