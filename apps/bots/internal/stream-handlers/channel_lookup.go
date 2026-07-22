@@ -9,18 +9,17 @@ import (
 )
 
 type twitchChannelLookupResult struct {
-	ID    string
-	BotID string
+	ID string
 }
 
-func (c *PubSubHandlers) findTwitchChannelByPlatformUserID(
+func (c *PubSubHandlers) findTwitchChannelByPlatformChannelID(
 	ctx context.Context,
-	platformUserID string,
+	platformChannelID string,
 ) (twitchChannelLookupResult, bool, error) {
-	channel, err := c.channelService.GetChannelByPlatformUserID(
+	channel, err := c.channelService.GetChannelByPlatformChannelID(
 		ctx,
-		platformUserID,
 		platform.PlatformTwitch,
+		platformChannelID,
 	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
@@ -30,5 +29,5 @@ func (c *PubSubHandlers) findTwitchChannelByPlatformUserID(
 		return twitchChannelLookupResult{}, false, err
 	}
 
-	return twitchChannelLookupResult{ID: channel.ID.String(), BotID: channel.BotID}, true, nil
+	return twitchChannelLookupResult{ID: channel.ID.String()}, true, nil
 }

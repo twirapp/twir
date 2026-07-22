@@ -9,6 +9,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
 	kvoptions "github.com/twirapp/kv/options"
+	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -30,10 +31,25 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 	if err != nil {
 		return fmt.Errorf("cannot get channel by twitch id: %w", err)
 	}
-	if channel.TwitchUserID == nil {
-		return fmt.Errorf("channel has no twitch user id for broadcaster %s", opts.BroadcasterID)
+	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+	if err != nil {
+		return fmt.Errorf("cannot parse Twitch bot config: %w", err)
 	}
-	twitchUserID := *channel.TwitchUserID
+	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" {
+		return fmt.Errorf("channel has no enabled Twitch binding for broadcaster %s", opts.BroadcasterID)
+	}
+	if twitchBinding.PlatformChannelID != opts.BroadcasterID {
+		return fmt.Errorf("Twitch binding channel id does not match broadcaster %s", opts.BroadcasterID)
+	}
+	if !botConfig.IsBotMod || botConfig.IsTwitchBanned {
+		return nil
+	}
+	if botConfig.BotID == "" {
+		return fmt.Errorf("channel has no Twitch bot id for broadcaster %s", opts.BroadcasterID)
+	}
+
+	twitchUserID := twitchBinding.UserID
+	moderatorID := botConfig.BotID
 
 	broadcasterHelixClient, err := twitch.NewUserClientWithContext(
 		ctx,
@@ -47,7 +63,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 
 	botHelixClient, err := twitch.NewBotClientWithContext(
 		ctx,
-		opts.ModeratorID,
+		moderatorID,
 		c.config,
 		c.twirBus,
 	)
@@ -99,7 +115,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 	resp, err := botHelixClient.BanUser(
 		&helix.BanUserParams{
 			BroadcasterID: opts.BroadcasterID,
-			ModeratorId:   opts.ModeratorID,
+			ModeratorId:   moderatorID,
 			Body: helix.BanUserRequestBody{
 				Duration: opts.Duration,
 				Reason:   opts.Reason,

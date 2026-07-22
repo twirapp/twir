@@ -9,12 +9,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 var ErrFriendlyFire = errors.New("friendly fire")
@@ -22,11 +23,32 @@ var ErrFriendlyFire = errors.New("friendly fire")
 func (s *Service) getChannelByIDOrTwitchID(
 	ctx context.Context,
 	id string,
-) (channelmodel.Channel, error) {
+) (channelsmodel.Channel, error) {
 	if parsed, err := uuid.Parse(id); err == nil {
 		return s.channelService.GetChannelByID(ctx, parsed)
 	}
-	return s.channelService.GetChannelByPlatformUserID(ctx, id, platform.PlatformTwitch)
+	return s.channelService.GetChannelByPlatformChannelID(ctx, platform.PlatformTwitch, id)
+}
+
+type twitchBanTarget struct {
+	broadcasterID string
+	botID         string
+}
+
+func getTwitchBanTarget(channel channelsmodel.Channel) (twitchBanTarget, bool, error) {
+	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+	if err != nil {
+		return twitchBanTarget{}, false, fmt.Errorf("parse Twitch bot config: %w", err)
+	}
+	if !found || !twitchBinding.Enabled || !botConfig.IsBotMod || botConfig.IsTwitchBanned ||
+		twitchBinding.PlatformChannelID == "" || botConfig.BotID == "" {
+		return twitchBanTarget{}, false, nil
+	}
+
+	return twitchBanTarget{
+		broadcasterID: twitchBinding.PlatformChannelID,
+		botID:         botConfig.BotID,
+	}, true, nil
 }
 
 func (s *Service) Ban(ctx context.Context, req bots.BanRequest) error {
@@ -46,9 +68,12 @@ func (s *Service) Ban(ctx context.Context, req bots.BanRequest) error {
 				return fmt.Errorf("get channel entity: %w", err)
 			}
 
-			broadcasterID := req.ChannelID
-			if channelEntity.TwitchPlatformID != nil {
-				broadcasterID = *channelEntity.TwitchPlatformID
+			target, canBan, err := getTwitchBanTarget(channelEntity)
+			if err != nil {
+				return fmt.Errorf("get Twitch ban target: %w", err)
+			}
+			if !canBan {
+				return nil
 			}
 
 			if err := s.twitchActions.Ban(
@@ -56,9 +81,9 @@ func (s *Service) Ban(ctx context.Context, req bots.BanRequest) error {
 				twitchactions.BanOpts{
 					Duration:       req.BanTime,
 					Reason:         req.Reason,
-					BroadcasterID:  broadcasterID,
+					BroadcasterID:  target.broadcasterID,
 					UserID:         req.UserID,
-					ModeratorID:    channelEntity.BotID,
+					ModeratorID:    target.botID,
 					IsModerator:    req.IsModerator,
 					AddModAfterBan: req.AddModAfterBan,
 				},
@@ -87,7 +112,7 @@ func (s *Service) BanMany(ctx context.Context, reqs []bots.BanRequest) error {
 				return nil
 			}
 
-			channelsByID := make(map[string]channelmodel.Channel, len(uniqueChannelIDs))
+			channelsByID := make(map[string]twitchBanTarget, len(uniqueChannelIDs))
 			for id := range uniqueChannelIDs {
 				ch, err := s.getChannelByIDOrTwitchID(ctx, id)
 				if err != nil {
@@ -102,7 +127,18 @@ func (s *Service) BanMany(ctx context.Context, reqs []bots.BanRequest) error {
 					)
 					continue
 				}
-				channelsByID[id] = ch
+				target, canBan, targetErr := getTwitchBanTarget(ch)
+				if targetErr != nil {
+					s.logger.Error(
+						"cannot get Twitch ban target",
+						logger.Error(targetErr),
+						slog.String("channelId", id),
+					)
+					continue
+				}
+				if canBan {
+					channelsByID[id] = target
+				}
 			}
 
 			if len(channelsByID) == 0 {
@@ -119,22 +155,17 @@ func (s *Service) BanMany(ctx context.Context, reqs []bots.BanRequest) error {
 			)
 
 			for _, r := range reqs {
-				channelEntity, ok := channelsByID[r.ChannelID]
+				target, ok := channelsByID[r.ChannelID]
 				if !ok {
 					continue
 				}
 
-				if r.ChannelID == r.UserID || channelEntity.BotID == r.UserID {
+				if r.ChannelID == r.UserID || target.botID == r.UserID {
 					continue
 				}
 
-				broadcasterID := r.ChannelID
-				if channelEntity.TwitchPlatformID != nil {
-					broadcasterID = *channelEntity.TwitchPlatformID
-				}
-
 				wg.Add(1)
-				go func(broadcasterID, botID string, r bots.BanRequest) {
+				go func(target twitchBanTarget, r bots.BanRequest) {
 					defer wg.Done()
 
 					if err := s.twitchActions.Ban(
@@ -142,9 +173,9 @@ func (s *Service) BanMany(ctx context.Context, reqs []bots.BanRequest) error {
 						twitchactions.BanOpts{
 							Duration:       r.BanTime,
 							Reason:         r.Reason,
-							BroadcasterID:  broadcasterID,
+							BroadcasterID:  target.broadcasterID,
 							UserID:         r.UserID,
-							ModeratorID:    botID,
+							ModeratorID:    target.botID,
 							IsModerator:    r.IsModerator,
 							AddModAfterBan: r.AddModAfterBan,
 						},
@@ -154,7 +185,7 @@ func (s *Service) BanMany(ctx context.Context, reqs []bots.BanRequest) error {
 						banErrors = append(banErrors, err)
 						mu.Unlock()
 					}
-				}(broadcasterID, channelEntity.BotID, r)
+				}(target, r)
 			}
 
 			wg.Wait()
