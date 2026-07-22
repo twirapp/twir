@@ -91,6 +91,7 @@ func usersMixedTwitchBindings(ownerID uuid.UUID) []channelplatformsmodel.Channel
 			Platform:          platform.PlatformTwitch,
 			UserID:            ownerID,
 			PlatformChannelID: "twitch-channel",
+			BotConfig:         json.RawMessage(`{`),
 		},
 	}
 }
@@ -173,5 +174,47 @@ func TestGetChannelUserInfoRejectsMissingTwitchBinding(t *testing.T) {
 	}
 	if clientCalls != 0 {
 		t.Fatalf("user client calls = %d, want 0", clientCalls)
+	}
+}
+
+func TestGetChannelUserInfoUsesEmptySelectedTwitchProviderID(t *testing.T) {
+	channelID := uuid.New()
+	userID := uuid.New()
+	ownerID := uuid.New()
+	bindings := usersMixedTwitchBindings(ownerID)
+	bindings[2].PlatformChannelID = ""
+	transport := &usersCaptureTransport{}
+	loaderCalls := 0
+	var clientOwnerID uuid.UUID
+	service := &Service{
+		channelService: usersChannelLookupStub{channel: channelsmodel.Channel{Bindings: bindings}},
+		usersRepository: usersRepositoryStub{user: usersmodel.User{
+			ID:         userID,
+			PlatformID: "viewer-platform-user",
+		}},
+		loadChannelUserInfo: func(context.Context, ChannelUserInfoInput) (deprecatedgormmodel.Users, error) {
+			loaderCalls++
+			return deprecatedgormmodel.Users{ID: userID.String()}, nil
+		},
+		newUserClient: func(_ context.Context, gotOwnerID uuid.UUID) (*helix.Client, error) {
+			clientOwnerID = gotOwnerID
+			return newUsersServiceTestClient(t, transport), nil
+		},
+	}
+
+	if _, err := service.GetChannelUserInfo(context.Background(), ChannelUserInfoInput{
+		ChannelID: channelID.String(),
+		UserID:    userID.String(),
+	}); err != nil {
+		t.Fatalf("get channel user info: %v", err)
+	}
+	if loaderCalls != 1 {
+		t.Fatalf("database loader calls = %d, want 1", loaderCalls)
+	}
+	if clientOwnerID != ownerID {
+		t.Fatalf("user client owner ID = %s, want %s", clientOwnerID, ownerID)
+	}
+	if transport.calls != 1 {
+		t.Fatalf("HTTP calls = %d, want 1", transport.calls)
 	}
 }

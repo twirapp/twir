@@ -29,7 +29,7 @@ func (c *Service) GetChannelChatBadges(ctx context.Context, channelID string) (
 	}
 
 	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
-	if !found || twitchBinding.UserID == uuid.Nil || twitchBinding.PlatformChannelID == "" {
+	if !found || twitchBinding.UserID == uuid.Nil {
 		return nil, nil
 	}
 

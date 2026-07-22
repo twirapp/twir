@@ -79,6 +79,7 @@ func mixedTwitchBindings(ownerID uuid.UUID) []channelplatformsmodel.ChannelPlatf
 			Platform:          platform.PlatformTwitch,
 			UserID:            ownerID,
 			PlatformChannelID: "twitch-channel",
+			BotConfig:         json.RawMessage(`{`),
 		},
 	}
 }
@@ -129,6 +130,28 @@ func TestGetChannelChatBadgesSkipsMissingTwitchBinding(t *testing.T) {
 	}
 	if badges != nil {
 		t.Fatalf("badges = %#v, want nil", badges)
+	}
+}
+
+func TestGetChannelChatBadgesUsesEmptySelectedTwitchProviderID(t *testing.T) {
+	ownerID := uuid.New()
+	bindings := mixedTwitchBindings(ownerID)
+	bindings[2].PlatformChannelID = ""
+	transport := &twitchCaptureTransport{}
+	appClientCalls := 0
+	service := &Service{
+		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{Bindings: bindings}},
+		newAppClient: func(context.Context) (*helix.Client, error) {
+			appClientCalls++
+			return newTwitchServiceTestClient(t, transport), nil
+		},
+	}
+
+	if _, err := service.GetChannelChatBadges(context.Background(), uuid.NewString()); err != nil {
+		t.Fatalf("get channel chat badges: %v", err)
+	}
+	if appClientCalls != 1 || transport.calls != 1 {
+		t.Fatalf("app client calls = %d, HTTP calls = %d, want 1 each", appClientCalls, transport.calls)
 	}
 }
 
@@ -186,6 +209,35 @@ func TestSetChannelInformationRejectsMissingTwitchBinding(t *testing.T) {
 	}
 }
 
+func TestSetChannelInformationUsesEmptySelectedTwitchProviderID(t *testing.T) {
+	ownerID := uuid.New()
+	bindings := mixedTwitchBindings(ownerID)
+	bindings[2].PlatformChannelID = ""
+	transport := &twitchCaptureTransport{}
+	var clientOwnerID uuid.UUID
+	categoryID := "game-id"
+	service := &Service{
+		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{Bindings: bindings}},
+		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
+			clientOwnerID = userID
+			return newTwitchServiceTestClient(t, transport), nil
+		},
+	}
+
+	if err := service.SetChannelInformation(context.Background(), SetChannelInformationInput{
+		ChannelID:  uuid.NewString(),
+		CategoryID: &categoryID,
+	}); err != nil {
+		t.Fatalf("set channel information: %v", err)
+	}
+	if clientOwnerID != ownerID {
+		t.Fatalf("user client owner ID = %s, want %s", clientOwnerID, ownerID)
+	}
+	if transport.calls != 1 {
+		t.Fatalf("HTTP calls = %d, want 1", transport.calls)
+	}
+}
+
 func TestGetRewardsByChannelIDUsesSelectedTwitchBinding(t *testing.T) {
 	channelID := uuid.New()
 	ownerID := uuid.New()
@@ -236,5 +288,34 @@ func TestGetRewardsByChannelIDSkipsMissingTwitchBinding(t *testing.T) {
 	}
 	if result.IsPartnerOrAffiliate || result.Rewards != nil {
 		t.Fatalf("result = %#v, want zero result", result)
+	}
+}
+
+func TestGetRewardsByChannelIDUsesEmptySelectedTwitchProviderID(t *testing.T) {
+	ownerID := uuid.New()
+	bindings := mixedTwitchBindings(ownerID)
+	bindings[2].PlatformChannelID = ""
+	transport := &twitchCaptureTransport{}
+	var clientOwnerID uuid.UUID
+	service := &Service{
+		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{Bindings: bindings}},
+		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
+			clientOwnerID = userID
+			return newTwitchServiceTestClient(t, transport), nil
+		},
+	}
+
+	result, err := service.GetRewardsByChannelID(context.Background(), uuid.NewString())
+	if err != nil {
+		t.Fatalf("get rewards: %v", err)
+	}
+	if !result.IsPartnerOrAffiliate {
+		t.Fatal("expected a successful Twitch rewards response")
+	}
+	if clientOwnerID != ownerID {
+		t.Fatalf("user client owner ID = %s, want %s", clientOwnerID, ownerID)
+	}
+	if transport.calls != 1 {
+		t.Fatalf("HTTP calls = %d, want 1", transport.calls)
 	}
 }

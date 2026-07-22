@@ -225,7 +225,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 	}
 
 	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
-	if !found || twitchBinding.UserID == uuid.Nil || twitchBinding.PlatformChannelID == "" {
+	if !found || twitchBinding.UserID == uuid.Nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("channel not found or twitch not connected")
 	}
 
