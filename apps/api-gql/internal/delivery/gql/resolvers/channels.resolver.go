@@ -7,12 +7,76 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
+
+// ChannelPlatformConnect is the resolver for the channelPlatformConnect field.
+func (r *mutationResolver) ChannelPlatformConnect(ctx context.Context, platform gqlmodel.Platform, redirectTo string) (string, error) {
+	entityPlatform, err := mappers.GraphQLPlatformToEntity(platform)
+	if err != nil {
+		return "", err
+	}
+	if r.deps.ChannelPlatformBindingsService == nil {
+		return "", fmt.Errorf("channel platform binding service is not configured")
+	}
+
+	return r.deps.ChannelPlatformBindingsService.Connect(ctx, entityPlatform, redirectTo)
+}
+
+// ChannelPlatformDisconnect is the resolver for the channelPlatformDisconnect field.
+func (r *mutationResolver) ChannelPlatformDisconnect(ctx context.Context, platform gqlmodel.Platform) (bool, error) {
+	entityPlatform, err := mappers.GraphQLPlatformToEntity(platform)
+	if err != nil {
+		return false, err
+	}
+	dashboardID, err := r.selectedChannelPlatformDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+	if r.deps.ChannelPlatformBindingsService == nil {
+		return false, fmt.Errorf("channel platform binding service is not configured")
+	}
+
+	if err := r.deps.ChannelPlatformBindingsService.Disconnect(ctx, dashboardID, entityPlatform); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// ChannelPlatformSetEnabled is the resolver for the channelPlatformSetEnabled field.
+func (r *mutationResolver) ChannelPlatformSetEnabled(ctx context.Context, platform gqlmodel.Platform, enabled bool) (*gqlmodel.ChannelPlatformBinding, error) {
+	entityPlatform, err := mappers.GraphQLPlatformToEntity(platform)
+	if err != nil {
+		return nil, err
+	}
+	dashboardID, err := r.selectedChannelPlatformDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if r.deps.ChannelPlatformBindingsService == nil {
+		return nil, fmt.Errorf("channel platform binding service is not configured")
+	}
+
+	binding, err := r.deps.ChannelPlatformBindingsService.SetEnabled(ctx, dashboardID, entityPlatform, enabled)
+	if err != nil {
+		return nil, err
+	}
+
+	mapped, err := mappers.ChannelPlatformBindingToGraphQL(binding.Binding, binding.Profile, binding.Capabilities)
+	if err != nil {
+		return nil, err
+	}
+
+	return &mapped, nil
+}
 
 // ChannelBySlug is the resolver for the channelBySlug field.
 func (r *queryResolver) ChannelBySlug(ctx context.Context, channelName string, platform *gqlmodel.Platform) (*gqlmodel.TwirPublicUser, error) {
@@ -36,5 +100,41 @@ func (r *queryResolver) ChannelBySlug(ctx context.Context, channelName string, p
 		return nil, err
 	}
 
-	return mappers.MapChannelModelToGqlPublicUser(ch), nil
+	profiles := make(map[uuid.UUID]usersmodel.User, len(ch.Bindings))
+	for _, binding := range ch.Bindings {
+		profile, err := r.deps.UsersRepository.GetByID(ctx, binding.UserID)
+		if err != nil {
+			return nil, fmt.Errorf("get channel platform profile: %w", err)
+		}
+		profiles[binding.UserID] = profile
+	}
+
+	return mappers.MapChannelModelToGqlPublicUser(ch, profiles), nil
+}
+
+// ChannelPlatformBindings is the resolver for the channelPlatformBindings field.
+func (r *queryResolver) ChannelPlatformBindings(ctx context.Context) ([]gqlmodel.ChannelPlatformBinding, error) {
+	dashboardID, err := r.selectedChannelPlatformDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if r.deps.ChannelPlatformBindingsService == nil {
+		return nil, fmt.Errorf("channel platform binding service is not configured")
+	}
+
+	bindings, err := r.deps.ChannelPlatformBindingsService.List(ctx, dashboardID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]gqlmodel.ChannelPlatformBinding, 0, len(bindings))
+	for _, binding := range bindings {
+		mapped, err := mappers.ChannelPlatformBindingToGraphQL(binding.Binding, binding.Profile, binding.Capabilities)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, mapped)
+	}
+
+	return result, nil
 }

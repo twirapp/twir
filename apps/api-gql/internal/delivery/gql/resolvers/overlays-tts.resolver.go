@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -19,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -276,11 +278,12 @@ func (r *tTSOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.TTSOverl
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || channel.TwitchPlatformID == nil {
+	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}
 
-	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+	return dataloader.GetHelixUserById(ctx, twitchBinding.PlatformChannelID)
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
@@ -295,11 +298,12 @@ func (r *tTSUserSettingsResolver) TwitchProfile(ctx context.Context, obj *gqlmod
 		if err != nil {
 			return nil, fmt.Errorf("get owner channel: %w", err)
 		}
-		if channel.IsNil() || channel.TwitchPlatformID == nil {
+		twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+		if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 			return nil, nil
 		}
 
-		return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+		return dataloader.GetHelixUserById(ctx, twitchBinding.PlatformChannelID)
 	}
 
 	parsedUserID, err := uuid.Parse(obj.UserID)

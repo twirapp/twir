@@ -29,7 +29,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/api"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	songrequestoverlaysettingsentity "github.com/twirapp/twir/libs/entities/song_request_overlay_settings"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
@@ -586,11 +585,7 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 	// Try channel API key first
 	channel, err := r.deps.ChannelsRepository.GetByApiKey(ctx, apiKey)
 	if err == nil && !channel.IsNil() {
-		return &gqlmodel.ChannelByAPIKeyResult{
-			ID:           channel.ID,
-			TwitchUserID: channel.TwitchUserID,
-			KickUserID:   channel.KickUserID,
-		}, nil
+		return mapChannelByAPIKeyResult(channel), nil
 	}
 	if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
 		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by api key: %w", err))
@@ -609,57 +604,18 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 		return nil, nil
 	}
 
-	var channelID uuid.UUID
-	switch user.Platform {
-	case "kick":
-		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformKick)
-		if err != nil {
-			if errors.Is(err, channelsrepository.ErrNotFound) {
-				return nil, nil
-			}
-			return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by kick user id: %w", err))
-		}
-		if channel.IsNil() {
-			return nil, nil
-		}
-		channelID = channel.ID
-	default:
-		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
-		if err != nil {
-			if errors.Is(err, channelsrepository.ErrNotFound) {
-				return nil, nil
-			}
-			return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by twitch user id: %w", err))
-		}
-		if channel.IsNil() {
-			return nil, nil
-		}
-		channelID = channel.ID
-	}
-
-	channel, err = r.deps.ChannelService.GetChannelByID(ctx, channelID)
+	channel, err = r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return nil, nil
 		}
-		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel: %w", err))
+		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get channel by platform user id: %w", err))
 	}
 	if channel.IsNil() {
 		return nil, nil
 	}
 
-	result := &gqlmodel.ChannelByAPIKeyResult{
-		ID: channel.ID,
-	}
-
-	if channel.TwitchUserID != nil {
-		result.TwitchUserID = channel.TwitchUserID
-	}
-	if channel.KickUserID != nil {
-		result.KickUserID = channel.KickUserID
-	}
-
-	return result, nil
+	return mapChannelByAPIKeyResult(channel), nil
 }
 
 // SongRequestOverlaySettings is the resolver for the songRequestOverlaySettings field.

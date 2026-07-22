@@ -1,5 +1,27 @@
 extend type Query {
 	channelBySlug(channelName: String!, platform: Platform): TwirPublicUser
+	channelPlatformBindings: [ChannelPlatformBinding!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	channelPlatformConnect(platform: Platform!, redirectTo: String!): String! @isAuthenticated @hasAccessToSelectedDashboard
+	channelPlatformDisconnect(platform: Platform!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	channelPlatformSetEnabled(platform: Platform!, enabled: Boolean!): ChannelPlatformBinding!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+}
+
+type ChannelPlatformBinding {
+	id: UUID!
+	platform: Platform!
+	userId: UUID!
+	platformChannelId: String!
+	enabled: Boolean!
+	platformUserId: String!
+	platformLogin: String!
+	platformDisplayName: String!
+	platformAvatar: String
+	capabilities: [PlatformCapability!]!
 }
 
 type TwirPublicUser {

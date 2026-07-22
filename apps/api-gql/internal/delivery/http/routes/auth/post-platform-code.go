@@ -49,6 +49,14 @@ func (a *Auth) StartTwitchAuth(ctx context.Context, redirectTo string) (string, 
 	return a.startPlatformAuth(ctx, platformentity.PlatformTwitch, redirectTo)
 }
 
+func (a *Auth) StartPlatformAuth(
+	ctx context.Context,
+	platform platformentity.Platform,
+	redirectTo string,
+) (string, error) {
+	return a.startPlatformAuth(ctx, platform, redirectTo)
+}
+
 func (a *Auth) startPlatformAuth(
 	ctx context.Context,
 	platform platformentity.Platform,

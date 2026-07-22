@@ -832,6 +832,36 @@ func TestStartTwitchAuthUsesServerSideOAuthAttempt(t *testing.T) {
 	}
 }
 
+func TestStartPlatformAuthUsesGenericRegisteredProvider(t *testing.T) {
+	sessions := &fakeOAuthSession{}
+	provider := &oauthPlatformProvider{
+		name: platformentity.PlatformVKVideoLive.String(),
+		getAuthURLFunc: func(state, _ string) string {
+			return "https://id.example.test/authorize?state=" + url.QueryEscape(state)
+		},
+	}
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions: sessions,
+		registry: appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
+	})
+
+	authorizeURL, err := authHandler.StartPlatformAuth(context.Background(), platformentity.PlatformVKVideoLive, "/dashboard")
+	if err != nil {
+		t.Fatalf("start generic VK OAuth: %v", err)
+	}
+	parsedURL, err := url.Parse(authorizeURL)
+	if err != nil {
+		t.Fatalf("parse authorization URL: %v", err)
+	}
+	attempt, ok := sessions.attempts[parsedURL.Query().Get("state")]
+	if !ok {
+		t.Fatal("generic OAuth state was not stored server-side")
+	}
+	if attempt.Platform != platformentity.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" {
+		t.Fatalf("stored generic OAuth attempt = %+v", attempt)
+	}
+}
+
 func TestStartPlatformAuthRejectsUnregisteredProvider(t *testing.T) {
 	_, err := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
 		sessions: &fakeOAuthSession{},

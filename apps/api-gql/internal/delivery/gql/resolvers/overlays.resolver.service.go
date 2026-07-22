@@ -13,7 +13,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	now_playing_fetcher "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/now-playing-fetcher"
 	"github.com/twirapp/twir/libs/audit"
-	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/types/types/api/overlays"
@@ -673,21 +672,11 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	var channelID string
-	switch user.Platform {
-	case platform.PlatformKick:
-		ch, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get channel by kick user id: %w", err)
-		}
-		channelID = ch.ID.String()
-	default:
-		ch, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get channel by twitch user id: %w", err)
-		}
-		channelID = ch.ID.String()
+	ch, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get channel by platform user id: %w", err)
 	}
+	channelID := ch.ID.String()
 
 	channel := make(chan *gqlmodel.NowPlayingOverlay)
 
@@ -737,21 +726,11 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	var channelID string
-	switch user.Platform {
-	case platform.PlatformKick:
-		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get channel by kick user id: %w", err)
-		}
-		channelID = channel.ID.String()
-	default:
-		channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get channel by twitch user id: %w", err)
-		}
-		channelID = channel.ID.String()
+	resolvedChannel, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get channel by platform user id: %w", err)
 	}
+	channelID := resolvedChannel.ID.String()
 
 	npService, err := now_playing_fetcher.New(
 		now_playing_fetcher.Opts{

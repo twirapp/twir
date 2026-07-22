@@ -11,6 +11,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -19,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 // Channel is the resolver for the channel field.
@@ -32,11 +34,12 @@ func (r *kappagenOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.Kap
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || channel.TwitchPlatformID == nil {
+	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}
 
-	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+	return dataloader.GetHelixUserById(ctx, twitchBinding.PlatformChannelID)
 }
 
 // ChannelIdentities is the resolver for the channelIdentities field.
@@ -55,11 +58,12 @@ func (r *kappagenTriggerPayloadResolver) Channel(ctx context.Context, obj *gqlmo
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || channel.TwitchPlatformID == nil {
+	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}
 
-	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+	return dataloader.GetHelixUserById(ctx, twitchBinding.PlatformChannelID)
 }
 
 // ChannelIdentities is the resolver for the channelIdentities field.

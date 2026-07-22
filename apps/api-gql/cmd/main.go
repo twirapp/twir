@@ -40,6 +40,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
@@ -604,6 +605,7 @@ func main() {
 			roles_with_roles_users.New,
 			twitch.New,
 			channels.New,
+			channelplatformservice.NewFx,
 			chat_messages.New,
 			channels_commands_prefix.New,
 			channels_emotes_usages.New,
@@ -681,6 +683,8 @@ func main() {
 			),
 			twir_stats.New,
 			resolvers.New,
+			func(service *channelplatformservice.Service) channelplatformservice.Operations { return service },
+			func(sessions *auth.Auth) resolvers.SelectedDashboardGetter { return sessions },
 			directives.New,
 			middlewares.New,
 			server.New,
