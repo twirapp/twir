@@ -75,6 +75,21 @@ func (c *Handler) processChannelChatMessage(
 	}
 
 	channelID := channel.ID.String()
+	messagePlatform := platform.Platform(data.Platform)
+	if messagePlatform == "" {
+		messagePlatform = platform.PlatformTwitch
+	}
+	binding, bindingFound := channelbinding.Find(channel, messagePlatform)
+	if !bindingFound {
+		c.logger.Warn(
+			"cannot find channel binding for chat message",
+			slog.String("channel_id", channelID),
+			slog.String("platform", string(messagePlatform)),
+		)
+		return
+	}
+	data.ChannelBindingID = binding.ID.String()
+
 	var (
 		usedEmotesWithThirdParty map[string]int
 		commandsPrefix           string
@@ -191,14 +206,6 @@ func (c *Handler) processChannelChatMessage(
 				return
 			}
 
-			messagePlatform := platform.Platform(data.Platform)
-			if messagePlatform == "" {
-				messagePlatform = platform.PlatformTwitch
-			}
-			binding, ok := channelbinding.Find(channel, messagePlatform)
-			if !ok {
-				return
-			}
 			botConfig, err := channelbinding.ParseTwitchBotConfig(binding)
 			if err != nil {
 				c.logger.Error("cannot parse channel bot config", logger.Error(err))
