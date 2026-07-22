@@ -56,11 +56,6 @@ func (c *Handler) processChannelChatMessage(
 ) {
 	var errwg errgroup.Group
 
-	data.EnrichedData.IsChatterBroadcaster = data.IsChatterBroadcaster()
-	data.EnrichedData.IsChatterModerator = data.IsChatterModerator()
-	data.EnrichedData.IsChatterVip = data.IsChatterVip()
-	data.EnrichedData.IsChatterSubscriber = data.IsChatterSubscriber()
-
 	channel, err := c.channelService.GetChannelByPlatformChannelID(
 		ctx,
 		platform.PlatformTwitch,
@@ -80,7 +75,11 @@ func (c *Handler) processChannelChatMessage(
 	}
 
 	channelID := channel.ID.String()
-	data.EnrichedData.DbChannel = channel
+	var (
+		usedEmotesWithThirdParty map[string]int
+		commandsPrefix           string
+		stream                   *streamsmodel.Stream
+	)
 
 	errwg.Go(
 		func() error {
@@ -88,7 +87,7 @@ func (c *Handler) processChannelChatMessage(
 			if emotesErr != nil {
 				c.logger.Error("cannot count emotes", slog.Any("err", emotesErr))
 			}
-			data.EnrichedData.UsedEmotesWithThirdParty = emotes
+			usedEmotesWithThirdParty = emotes
 
 			return nil
 		},
@@ -96,11 +95,11 @@ func (c *Handler) processChannelChatMessage(
 
 	errwg.Go(
 		func() error {
-			commandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, channelID)
+			fetchedCommandsPrefix, err := c.chatMessageGetChannelCommandPrefix(ctx, channelID)
 			if err != nil {
 				return err
 			}
-			data.EnrichedData.ChannelCommandPrefix = commandsPrefix
+			commandsPrefix = fetchedCommandsPrefix
 
 			return nil
 		},
@@ -108,12 +107,12 @@ func (c *Handler) processChannelChatMessage(
 
 	errwg.Go(
 		func() error {
-			stream, err := c.chatMessageGetChannelStream(ctx, channelID)
+			fetchedStream, err := c.chatMessageGetChannelStream(ctx, channelID)
 			if err != nil {
 				return err
 			}
 
-			data.EnrichedData.ChannelStream = stream
+			stream = fetchedStream
 
 			return nil
 		},
@@ -124,27 +123,26 @@ func (c *Handler) processChannelChatMessage(
 		return
 	}
 
-	var usedEmotesWithThirdParty int
-	for _, count := range data.EnrichedData.UsedEmotesWithThirdParty {
-		usedEmotesWithThirdParty += count
+	var usedEmotesCount int
+	for _, count := range usedEmotesWithThirdParty {
+		usedEmotesCount += count
 	}
 
-	ensuredUser, ensuredUserStats, err := c.userCreatorService.UnsureUser(
+	ensuredUser, _, err := c.userCreatorService.UnsureUser(
 		ctx, user_creator.CreateUserInput{
 			UserID:                   data.ChatterUserId,
 			PlatformID:               data.ChatterUserId,
 			Platform:                 platform.PlatformTwitch,
 			Login:                    data.ChatterUserLogin,
 			DisplayName:              data.ChatterUserName,
-			ChannelID:                lo.ToPtr(data.EnrichedData.DbChannel.ID.String()),
+			ChannelID:                lo.ToPtr(channelID),
 			Badges:                   data.Badges,
-			UsedEmotesWithThirdParty: &usedEmotesWithThirdParty,
-			ShouldUpdateStats: data.EnrichedData.ChannelStream != nil &&
-				data.EnrichedData.ChannelStream.ID != "",
-			IsBroadcaster: data.IsChatterBroadcaster(),
-			IsModerator:   data.IsChatterModerator(),
-			IsVip:         data.IsChatterVip(),
-			IsSubscriber:  data.IsChatterSubscriber(),
+			UsedEmotesWithThirdParty: &usedEmotesCount,
+			ShouldUpdateStats:        stream != nil && stream.ID != "",
+			IsBroadcaster:            data.IsChatterBroadcaster(),
+			IsModerator:              data.IsChatterModerator(),
+			IsVip:                    data.IsChatterVip(),
+			IsSubscriber:             data.IsChatterSubscriber(),
 		},
 	)
 	if err != nil {
@@ -153,31 +151,7 @@ func (c *Handler) processChannelChatMessage(
 	}
 
 	data.ChannelID = channelID
-
-	data.EnrichedData.DbUser = &generic.DbUser{
-		ID:                ensuredUser.ID.String(),
-		TokenID:           ensuredUser.TokenID.Ptr(),
-		IsBotAdmin:        ensuredUser.IsBotAdmin,
-		ApiKey:            ensuredUser.ApiKey,
-		IsBanned:          ensuredUser.IsBanned,
-		HideOnLandingPage: ensuredUser.HideOnLandingPage,
-		CreatedAt:         ensuredUser.CreatedAt,
-	}
-	data.EnrichedData.DbUserChannelStat = &generic.DbUserChannelStat{
-		ID:                ensuredUserStats.ID,
-		UserID:            ensuredUserStats.UserID.String(),
-		ChannelID:         ensuredUserStats.ChannelID.String(),
-		Messages:          ensuredUserStats.Messages,
-		Watched:           ensuredUserStats.Watched,
-		UsedChannelPoints: ensuredUserStats.UsedChannelPoints,
-		IsMod:             ensuredUserStats.IsMod,
-		IsVip:             ensuredUserStats.IsVip,
-		IsSubscriber:      ensuredUserStats.IsSubscriber,
-		Reputation:        ensuredUserStats.Reputation,
-		Emotes:            ensuredUserStats.Emotes,
-		CreatedAt:         ensuredUserStats.CreatedAt,
-		UpdatedAt:         ensuredUserStats.UpdatedAt,
-	}
+	data.UserID = ensuredUser.ID.String()
 
 	var wg sync.WaitGroup
 
@@ -221,7 +195,7 @@ func (c *Handler) processChannelChatMessage(
 			if messagePlatform == "" {
 				messagePlatform = platform.PlatformTwitch
 			}
-			binding, ok := channelbinding.Find(data.EnrichedData.DbChannel, messagePlatform)
+			binding, ok := channelbinding.Find(channel, messagePlatform)
 			if !ok {
 				return
 			}
@@ -231,7 +205,7 @@ func (c *Handler) processChannelChatMessage(
 				return
 			}
 
-			isCommand := strings.HasPrefix(data.Message.Text, data.EnrichedData.ChannelCommandPrefix)
+			isCommand := strings.HasPrefix(data.Message.Text, commandsPrefix)
 			if isCommand && data.ChatterUserId == botConfig.BotID && c.config.AppEnv == "production" {
 				return
 			}

@@ -25,14 +25,11 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
-	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
@@ -42,7 +39,6 @@ import (
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
-	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -193,7 +189,6 @@ type Handlers struct {
 	streamsRepo             streamsrepository.Repository
 	channelService          *channelservice.ChannelService
 	userCreatorService      *user_creator.UserCreatorService
-	prefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	channelEmotes           bus_core.Queue[emotes_cacher.GetChannelEmotesRequest, emotes_cacher.Response]
 	globalEmotes            bus_core.Queue[emotes_cacher.GetGlobalEmotesRequest, emotes_cacher.Response]
 }
@@ -212,7 +207,6 @@ type HandlersOpts struct {
 	StreamsRepo             streamsrepository.Repository
 	ChannelService          *channelservice.ChannelService
 	UserCreatorService      *user_creator.UserCreatorService
-	PrefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 }
 
 func NewHandlers(opts HandlersOpts) *Handlers {
@@ -237,7 +231,6 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		streamsRepo:             opts.StreamsRepo,
 		channelService:          opts.ChannelService,
 		userCreatorService:      opts.UserCreatorService,
-		prefixCache:             opts.PrefixCache,
 		channelEmotes:           opts.Bus.EmotesCacher.GetChannelEmotes,
 		globalEmotes:            opts.Bus.EmotesCacher.GetGlobalEmotes,
 	}
@@ -824,9 +817,8 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	}
 
 	var (
-		channel        channelsmodel.Channel
-		stream         *streamsmodel.Stream
-		commandsPrefix string
+		channel channelsmodel.Channel
+		stream  *streamsmodel.Stream
 	)
 
 	var errwg errgroup.Group
@@ -848,17 +840,6 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 			stream, err = h.getChannelStream(ctx, channelUUID)
 			if err != nil {
 				return fmt.Errorf("get channel stream: %w", err)
-			}
-			return nil
-		},
-	)
-
-	errwg.Go(
-		func() error {
-			var err error
-			commandsPrefix, err = h.getChannelCommandPrefix(ctx, channelID)
-			if err != nil {
-				return fmt.Errorf("get channel command prefix: %w", err)
 			}
 			return nil
 		},
@@ -904,9 +885,8 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		return append(eventAttrs, slog.Bool("ignored_self_message", true)), nil
 	}
 
-	senderStats := &usersstatsmodel.UserStat{}
 	if h.userCreatorService != nil {
-		_, senderStats, err = h.userCreatorService.UnsureUser(
+		_, _, err = h.userCreatorService.UnsureUser(
 			ctx,
 			user_creator.CreateUserInput{
 				UserID:            senderUser.ID.String(),
@@ -924,9 +904,6 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("ensure sender user stats: %w", err)
-		}
-		if senderStats == nil {
-			senderStats = &usersstatsmodel.UserStat{}
 		}
 	}
 
@@ -953,41 +930,12 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		MessageID:            payload.MessageID,
 		Text:                 normalizedText,
 		Badges:               badges,
+		IsBroadcaster:        isBroadcaster,
+		IsModerator:          isModerator,
+		IsVip:                isVip,
+		IsSubscriber:         isSubscriber,
 		Color:                color,
 		Emotes:               parsedEmotes,
-		EnrichedData: generic.ChatMessageEnrichedData{
-			ChannelCommandPrefix: commandsPrefix,
-			DbChannel:            channel,
-			ChannelStream:        stream,
-			DbUser: &generic.DbUser{
-				ID:                senderUser.ID.String(),
-				TokenID:           senderUser.TokenID.Ptr(),
-				IsBotAdmin:        senderUser.IsBotAdmin,
-				ApiKey:            senderUser.ApiKey,
-				IsBanned:          senderUser.IsBanned,
-				HideOnLandingPage: senderUser.HideOnLandingPage,
-				CreatedAt:         senderUser.CreatedAt,
-			},
-			DbUserChannelStat: &generic.DbUserChannelStat{
-				ID:                senderStats.ID,
-				UserID:            senderStats.UserID.String(),
-				ChannelID:         senderStats.ChannelID.String(),
-				Messages:          senderStats.Messages,
-				Watched:           senderStats.Watched,
-				UsedChannelPoints: senderStats.UsedChannelPoints,
-				IsMod:             senderStats.IsMod,
-				IsVip:             senderStats.IsVip,
-				IsSubscriber:      senderStats.IsSubscriber,
-				Reputation:        senderStats.Reputation,
-				Emotes:            senderStats.Emotes,
-				CreatedAt:         senderStats.CreatedAt,
-				UpdatedAt:         senderStats.UpdatedAt,
-			},
-			IsChatterBroadcaster: isBroadcaster,
-			IsChatterModerator:   isModerator,
-			IsChatterVip:         isVip,
-			IsChatterSubscriber:  isSubscriber,
-		},
 	}
 
 	if err := h.chatMessages.Publish(ctx, genericMsg); err != nil {
@@ -1628,45 +1576,6 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.U
 	}
 
 	return channel.ID, user.ID, nil
-}
-
-func (h *Handlers) getChannelCommandPrefix(ctx context.Context, channelId string) (
-	string,
-	error,
-) {
-	commandsPrefix := "!"
-	if h.prefixCache == nil {
-		return commandsPrefix, nil
-	}
-
-	fetchedCommandsPrefix, err := h.prefixCache.Get(ctx, channelId)
-	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
-		return "", err
-	}
-
-	if fetchedCommandsPrefix != channelscommandsprefixmodel.Nil {
-		commandsPrefix = fetchedCommandsPrefix.Prefix
-	} else {
-		prefixCtx := context.WithoutCancel(ctx)
-
-		go func() {
-			if err := h.prefixCache.SetValue(
-				prefixCtx,
-				channelId,
-				channelscommandsprefixmodel.ChannelsCommandsPrefix{
-					ID:        uuid.New(),
-					ChannelID: channelId,
-					Prefix:    commandsPrefix,
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
-			); err != nil {
-				h.logger.Error("cannot set default command prefix", logger.Error(err))
-			}
-		}()
-	}
-
-	return commandsPrefix, nil
 }
 
 func (h *Handlers) getChannelStream(

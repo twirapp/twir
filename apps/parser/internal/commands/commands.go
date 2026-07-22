@@ -247,7 +247,7 @@ func (c *Commands) FindChannelCommandInInput(
 func (c *Commands) ParseCommandResponses(
 	ctx context.Context,
 	command *FindByMessageResult,
-	requestData generic.ChatMessage,
+	requestData ChatMessageContext,
 	plat platformentity.Platform,
 	userRoles []model.ChannelRole,
 	userChannelStats *model.UsersStats,
@@ -257,7 +257,7 @@ func (c *Commands) ParseCommandResponses(
 	defer span.End()
 	ctx = newCtx
 
-	commandsPrefix := requestData.EnrichedData.ChannelCommandPrefix
+	commandsPrefix := requestData.CommandPrefix
 
 	result := &busparser.CommandParseResponse{
 		KeepOrder: command.Cmd.KeepResponsesOrder,
@@ -285,7 +285,7 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	parseCtxChannel, ok := channelbinding.NewParseContextChannel(
-		requestData.EnrichedData.DbChannel,
+		requestData.Channel,
 		plat,
 		requestData.BroadcasterUserLogin,
 	)
@@ -366,7 +366,7 @@ func (c *Commands) ParseCommandResponses(
 				ParseCtxText:    cmdParams,
 			},
 		),
-		ChannelStream: requestData.EnrichedData.ChannelStream,
+		ChannelStream: requestData.Stream,
 		Emotes:        emotes,
 		Mentions:      mentions,
 		Command:       command.Cmd,
@@ -458,22 +458,22 @@ func (c *Commands) ParseCommandResponses(
 			len(command.Cmd.Responses),
 		)
 		for _, r := range command.Cmd.Responses {
-			if len(r.TwitchCategoryIDs) > 0 && requestData.EnrichedData.ChannelStream != nil {
+			if len(r.TwitchCategoryIDs) > 0 && requestData.Stream != nil {
 				if !lo.ContainsBy(
 					r.TwitchCategoryIDs,
 					func(categoryId string) bool {
-						return categoryId == requestData.EnrichedData.ChannelStream.GameId
+						return categoryId == requestData.Stream.GameId
 					},
 				) {
 					continue
 				}
 			}
 
-			if r.OnlineOnly && requestData.EnrichedData.ChannelStream == nil {
+			if r.OnlineOnly && requestData.Stream == nil {
 				continue
 			}
 
-			if r.OfflineOnly && requestData.EnrichedData.ChannelStream != nil {
+			if r.OfflineOnly && requestData.Stream != nil {
 				continue
 			}
 
@@ -518,7 +518,7 @@ func (c *Commands) ParseCommandResponses(
 	return result
 }
 
-func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMessage, plat platformentity.Platform) (
+func (c *Commands) ProcessChatMessage(ctx context.Context, data ChatMessageContext, plat platformentity.Platform) (
 	*busparser.CommandParseResponse,
 	error,
 ) {
@@ -526,12 +526,12 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMess
 		return nil, fmt.Errorf("message is nil")
 	}
 
-	if data.EnrichedData.DbUser == nil || data.EnrichedData.DbUserChannelStat == nil {
+	if data.UserStats == nil {
 		return nil, fmt.Errorf("db user or user channel stats is nil")
 	}
 
-	channelDBID := data.EnrichedData.DbChannel.ID.String()
-	commandsPrefix := data.EnrichedData.ChannelCommandPrefix
+	channelDBID := data.Channel.ID.String()
+	commandsPrefix := data.CommandPrefix
 
 	if !strings.HasPrefix(data.Message.Text, commandsPrefix) {
 		return nil, nil
@@ -587,21 +587,21 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMess
 	}
 
 	if cmd.Cmd.OnlineOnly {
-		stream := data.EnrichedData.ChannelStream
+		stream := data.Stream
 		if stream == nil || stream.ID == "" {
 			return nil, nil
 		}
 	}
 
 	if cmd.Cmd.OfflineOnly {
-		stream := data.EnrichedData.ChannelStream
+		stream := data.Stream
 		if stream != nil && stream.ID != "" {
 			return nil, nil
 		}
 	}
 
 	if len(cmd.Cmd.EnabledCategories) != 0 {
-		stream := data.EnrichedData.ChannelStream
+		stream := data.Stream
 		if stream != nil && stream.ID != "" {
 			if !lo.ContainsBy(
 				cmd.Cmd.EnabledCategories,
@@ -620,7 +620,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMess
 
 	_, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
 		ctx,
-		data.EnrichedData.DbUser.ID,
+		data.User.ID.String(),
 		channelDBID,
 		data,
 		cmd.Cmd,
@@ -648,27 +648,27 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMess
 	}
 
 	dbUser := &model.Users{
-		ID:         data.EnrichedData.DbUser.ID,
-		IsBotAdmin: data.EnrichedData.DbUser.IsBotAdmin,
-		ApiKey:     data.EnrichedData.DbUser.ApiKey,
+		ID:         data.User.ID.String(),
+		IsBotAdmin: data.User.IsBotAdmin,
+		ApiKey:     data.User.ApiKey,
 		Stats: &model.UsersStats{
-			ID:                data.EnrichedData.DbUserChannelStat.ID.String(),
-			UserID:            data.EnrichedData.DbUserChannelStat.UserID,
-			ChannelID:         data.EnrichedData.DbUserChannelStat.ChannelID,
-			Messages:          data.EnrichedData.DbUserChannelStat.Messages,
-			Watched:           data.EnrichedData.DbUserChannelStat.Watched,
-			UsedChannelPoints: data.EnrichedData.DbUserChannelStat.UsedChannelPoints,
-			IsMod:             data.EnrichedData.DbUserChannelStat.IsMod,
-			IsVip:             data.EnrichedData.DbUserChannelStat.IsVip,
-			IsSubscriber:      data.EnrichedData.DbUserChannelStat.IsSubscriber,
-			Reputation:        data.EnrichedData.DbUserChannelStat.Reputation,
-			Emotes:            data.EnrichedData.DbUserChannelStat.Emotes,
-			CreatedAt:         data.EnrichedData.DbUserChannelStat.CreatedAt,
-			UpdatedAt:         data.EnrichedData.DbUserChannelStat.UpdatedAt,
+			ID:                data.UserStats.ID.String(),
+			UserID:            data.UserStats.UserID.String(),
+			ChannelID:         data.UserStats.ChannelID.String(),
+			Messages:          data.UserStats.Messages,
+			Watched:           data.UserStats.Watched,
+			UsedChannelPoints: data.UserStats.UsedChannelPoints,
+			IsMod:             data.UserStats.IsMod,
+			IsVip:             data.UserStats.IsVip,
+			IsSubscriber:      data.UserStats.IsSubscriber,
+			Reputation:        data.UserStats.Reputation,
+			Emotes:            data.UserStats.Emotes,
+			CreatedAt:         data.UserStats.CreatedAt,
+			UpdatedAt:         data.UserStats.UpdatedAt,
 		},
-		IsBanned:          data.EnrichedData.DbUser.IsBanned,
-		CreatedAt:         data.EnrichedData.DbUser.CreatedAt,
-		HideOnLandingPage: data.EnrichedData.DbUser.HideOnLandingPage,
+		IsBanned:          data.User.IsBanned,
+		CreatedAt:         data.User.CreatedAt,
+		HideOnLandingPage: data.User.HideOnLandingPage,
 	}
 
 	hasPerm := c.isUserHasPermissionToCommand(
@@ -693,7 +693,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data generic.ChatMess
 				events.CommandUsedMessage{
 					BaseInfo: events.BaseInfo{
 						ChannelPlatformID: data.BroadcasterUserId,
-						ChannelDBID:       data.EnrichedData.DbChannel.ID,
+						ChannelDBID:       data.Channel.ID,
 						ChannelName:       data.BroadcasterUserLogin,
 						Platform:          plat,
 					},
