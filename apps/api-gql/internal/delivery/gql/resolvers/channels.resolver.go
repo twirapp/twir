@@ -23,11 +23,15 @@ func (r *mutationResolver) ChannelPlatformConnect(ctx context.Context, platform 
 	if err != nil {
 		return "", err
 	}
+	dashboardID, err := r.selectedChannelPlatformDashboard(ctx)
+	if err != nil {
+		return "", err
+	}
 	if r.deps.ChannelPlatformBindingsService == nil {
 		return "", fmt.Errorf("channel platform binding service is not configured")
 	}
 
-	return r.deps.ChannelPlatformBindingsService.Connect(ctx, entityPlatform, redirectTo)
+	return r.deps.ChannelPlatformBindingsService.Connect(ctx, dashboardID, entityPlatform, redirectTo)
 }
 
 // ChannelPlatformDisconnect is the resolver for the channelPlatformDisconnect field.

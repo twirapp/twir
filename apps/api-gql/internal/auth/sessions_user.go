@@ -33,10 +33,11 @@ type KickSessionUser struct {
 
 // OAuthAttempt retains callback material in the authenticated browser session.
 type OAuthAttempt struct {
-	Platform     platform.Platform
-	RedirectTo   string
-	CodeVerifier string
-	DeviceID     string
+	Platform        platform.Platform
+	RedirectTo      string
+	CodeVerifier    string
+	DeviceID        string
+	TargetChannelID *uuid.UUID
 }
 
 func (s *Auth) GetLatestShortenerUrlsIds(ctx context.Context) ([]string, error) {

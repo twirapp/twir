@@ -406,6 +406,16 @@ func (r *mutationResolver) UnlinkPlatformAccount(ctx context.Context, platform s
 	if !entityPlatform.IsValid() {
 		return false, fmt.Errorf("unsupported platform: %s", platform)
 	}
+	if r.deps.CurrentPlatform == nil {
+		return false, fmt.Errorf("current platform session is not configured")
+	}
+	currentPlatform, err := r.deps.CurrentPlatform.GetCurrentPlatform(ctx)
+	if err != nil {
+		return false, fmt.Errorf("get current platform: %w", err)
+	}
+	if currentPlatform == entityPlatform.String() {
+		return false, errCannotUnlinkCurrentPlatform
+	}
 	dashboardID, err := r.selectedChannelPlatformDashboard(ctx)
 	if err != nil {
 		return false, err
