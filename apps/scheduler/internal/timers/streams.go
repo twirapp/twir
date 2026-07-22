@@ -107,8 +107,8 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 	usersIds := make([]string, 0, len(channels))
 	for _, channel := range channels {
-		if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
-			usersIds = append(usersIds, *channel.TwitchPlatformID)
+		if channel.TwitchPlatformID != "" {
+			usersIds = append(usersIds, channel.TwitchPlatformID)
 		}
 	}
 
@@ -195,10 +195,10 @@ func (c *streams) processStreams(ctx context.Context) error {
 				)
 
 				if twitchStreamExists {
-					channel, err := c.channelService.GetChannelByPlatformUserID(
+					channel, err := c.channelService.GetChannelByPlatformChannelID(
 						ctx,
-						userId,
 						platformentity.PlatformTwitch,
+						userId,
 					)
 					if err != nil || channel.IsNil() {
 						c.logger.Error(
@@ -295,47 +295,48 @@ func (c *streams) processStreams(ctx context.Context) error {
 }
 
 type twitchStreamChannelRow struct {
-	ID               string  `gorm:"column:id"`
-	TwitchPlatformID *string `gorm:"column:twitch_platform_id"`
+	ID               string `gorm:"column:id"`
+	TwitchPlatformID string `gorm:"column:twitch_platform_id"`
 }
 
 const (
-	twitchChannelsSelectClause        = `channels.id, users.platform_id AS twitch_platform_id`
-	twitchChannelsJoinClause          = `LEFT JOIN users ON users.id = channels.twitch_user_id`
-	twitchChannelsPlatformIDIsNotNull = `users.platform_id IS NOT NULL`
+	twitchChannelsSelectClause = `cp.channel_id AS id, cp.platform_channel_id AS twitch_platform_id`
+	twitchChannelsJoinClause   = `JOIN channels c ON c.id = cp.channel_id
+		JOIN users u ON u.id = cp.user_id AND u.platform = 'twitch'`
 )
 
 func buildTwitchChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
 	return db.
 		WithContext(ctx).
-		Table("channels").
+		Table("channel_platforms AS cp").
 		Select(twitchChannelsSelectClause).
 		Joins(twitchChannelsJoinClause).
-		Where(`channels.twitch_bot_enabled IS TRUE`).
-		Where(twitchChannelsPlatformIDIsNotNull).
-		Where(`COALESCE(users.is_banned, false) = false`)
+		Where(`cp.platform = ?`, platformentity.PlatformTwitch).
+		Where(`cp.enabled = ?`, true).
+		Where(`COALESCE(u.is_banned, false) = false`)
 }
 
 type kickChannelRow struct {
-	ID             string  `gorm:"column:id"`
-	KickPlatformID *string `gorm:"column:kick_platform_id"`
+	ID             string `gorm:"column:id"`
+	KickPlatformID string `gorm:"column:kick_platform_id"`
 }
 
 const (
-	kickChannelsSelectClause        = `channels.id, users.platform_id AS kick_platform_id`
-	kickChannelsJoinClause          = `LEFT JOIN users ON users.id = channels.kick_user_id`
-	kickChannelsPlatformIDIsNotNull = `users.platform_id IS NOT NULL`
+	kickChannelsSelectClause = `cp.channel_id AS id, cp.platform_channel_id AS kick_platform_id`
+	kickChannelsJoinClause   = `JOIN channels c ON c.id = cp.channel_id
+		JOIN users u ON u.id = cp.user_id AND u.platform = 'kick'`
 )
 
 func buildKickChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
 	return db.
 		WithContext(ctx).
-		Table("channels").
+		Table("channel_platforms AS cp").
 		Select(kickChannelsSelectClause).
 		Joins(kickChannelsJoinClause).
-		Where(`channels."isEnabled" = ?`, true).
-		Where(kickChannelsPlatformIDIsNotNull).
-		Where(`COALESCE(users.is_banned, false) = false`)
+		Where(`cp.platform = ?`, platformentity.PlatformKick).
+		Where(`c."isEnabled" = ?`, true).
+		Where(`cp.enabled = ?`, true).
+		Where(`COALESCE(u.is_banned, false) = false`)
 }
 
 func (c *streams) processKickStreams(ctx context.Context, existedStreams []streamsmodel.Stream) error {
@@ -366,14 +367,14 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []strea
 	)
 
 	validChannels := lo.Filter(channels, func(channel kickChannelRow, _ int) bool {
-		return channel.KickPlatformID != nil && *channel.KickPlatformID != ""
+		return channel.KickPlatformID != ""
 	})
 
 	chunks := lo.Chunk(validChannels, 50)
 	for _, chunk := range chunks {
 		platformIDs := make([]int, 0, len(chunk))
 		for _, channel := range chunk {
-			platformIDInt, convErr := strconv.Atoi(*channel.KickPlatformID)
+			platformIDInt, convErr := strconv.Atoi(channel.KickPlatformID)
 			if convErr != nil {
 				c.logger.Error("cannot parse kick platform id", slog.Any("err", convErr), slog.String("channel_id", channel.ID))
 				continue
@@ -396,7 +397,7 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []strea
 		}
 
 		for _, channel := range chunk {
-			platformID := *channel.KickPlatformID
+			platformID := channel.KickPlatformID
 			kickChannel, exists := channelsByPlatformID[platformID]
 			dbStream, dbStreamExists := lo.Find(existedKickStreams, func(stream streamsmodel.Stream) bool {
 				return stream.UserId == platformID

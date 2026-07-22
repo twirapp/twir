@@ -64,6 +64,20 @@ func (r twitchChannelRow) toChannel() *model.Channels {
 	}
 }
 
+const onlineTwitchChannelRowsQuery = `
+	SELECT c.id AS channel_id, cp.platform_channel_id AS platform_id, cp.user_id AS user_id, c."isEnabled" AS is_enabled, u.is_banned
+	FROM channel_platforms cp
+	JOIN channels c ON c.id = cp.channel_id
+	JOIN users u ON u.id = cp.user_id AND u.platform = 'twitch'
+	WHERE cp.platform = 'twitch'
+		AND cp.enabled = TRUE
+		AND cp.platform_channel_id IN ?
+`
+
+func buildOnlineTwitchChannelRowsQuery(db *gorm.DB, ctx context.Context, platformIDs []string) *gorm.DB {
+	return db.WithContext(ctx).Raw(onlineTwitchChannelRowsQuery, platformIDs)
+}
+
 func appendUniqueChatters(
 	chatters []helix.ChatChatter,
 	indices map[string]int,
@@ -189,12 +203,7 @@ func (c *onlineUsers) getStreams(
 	}
 
 	var rows []twitchChannelRow
-	err = c.db.WithContext(ctx).Raw(`
-		SELECT c.id AS channel_id, u.platform_id, u.id AS user_id, c."isEnabled" AS is_enabled, u.is_banned
-		FROM channels c
-		JOIN users u ON u.id = c.twitch_user_id AND u.platform = 'twitch'
-		WHERE u.platform_id IN ?
-	`, platformIDs).Scan(&rows).Error
+	err = buildOnlineTwitchChannelRowsQuery(c.db, ctx, platformIDs).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("lookup channels by platform id: %w", err)
 	}
