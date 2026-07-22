@@ -335,7 +335,6 @@ func buildKickChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
 		Joins(kickChannelsJoinClause).
 		Where(`cp.platform = ?`, platformentity.PlatformKick).
 		Where(`c."isEnabled" = ?`, true).
-		Where(`cp.enabled = ?`, true).
 		Where(`COALESCE(u.is_banned, false) = false`)
 }
 

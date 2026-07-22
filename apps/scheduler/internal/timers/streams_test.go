@@ -29,7 +29,7 @@ func TestBuildTwitchChannelsQueryUsesTwitchBinding(t *testing.T) {
 	assertSingleBindingSource(t, sql)
 }
 
-func TestBuildKickChannelsQueryUsesKickBinding(t *testing.T) {
+func TestBuildKickChannelsQueryUsesKickBindingAndRetainsGlobalEnablementEligibility(t *testing.T) {
 	t.Parallel()
 
 	db := newDryRunPostgresDB(t)
@@ -43,10 +43,9 @@ func TestBuildKickChannelsQueryUsesKickBinding(t *testing.T) {
 		"JOIN users u ON u.id = cp.user_id AND u.platform = 'kick'",
 		"cp.platform = $1",
 		`c."isEnabled" = $2`,
-		"cp.enabled = $3",
 		"COALESCE(u.is_banned, false) = false",
 	)
-	assertQueryExcludes(t, sql, "kick_user_id", "kick_bot_enabled", "users.platform_id")
+	assertQueryExcludes(t, sql, "kick_user_id", "kick_bot_enabled", "users.platform_id", "cp.enabled")
 	assertSingleBindingSource(t, sql)
 }
 
