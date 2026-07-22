@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -18,16 +19,21 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 	if err != nil {
 		return fmt.Errorf("cannot get channel: %w", err)
 	}
-	if !channel.TwitchBotEnabled || !channel.IsBotMod || channel.IsTwitchBanned {
+	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+	if err != nil {
+		return fmt.Errorf("cannot parse Twitch bot config: %w", err)
+	}
+	if !found || !twitchBinding.Enabled || !botConfig.IsBotMod || botConfig.IsTwitchBanned ||
+		twitchBinding.PlatformChannelID == "" {
 		return nil
 	}
-	if channel.TwitchUserID == nil {
-		return fmt.Errorf("channel has no twitch user id for broadcaster %s", input.BroadcasterID)
+	if twitchBinding.PlatformChannelID != input.BroadcasterID {
+		return fmt.Errorf("Twitch binding channel id does not match broadcaster %s", input.BroadcasterID)
 	}
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchUserID,
+		twitchBinding.UserID,
 		c.config,
 		c.twirBus,
 	)
@@ -37,9 +43,9 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 
 	resp, err := twitchClient.SendShoutout(
 		&helix.SendShoutoutParams{
-			FromBroadcasterID: input.BroadcasterID,
+			FromBroadcasterID: twitchBinding.PlatformChannelID,
 			ToBroadcasterID:   input.TargetID,
-			ModeratorID:       input.BroadcasterID,
+			ModeratorID:       twitchBinding.PlatformChannelID,
 		},
 	)
 	if err != nil {
