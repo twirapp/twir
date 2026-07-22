@@ -26,6 +26,8 @@ import (
 	"github.com/twirapp/twir/libs/otel"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
+	channelplatformsrepository "github.com/twirapp/twir/libs/repositories/channel_platforms"
+	channelplatformsrepositorypgx "github.com/twirapp/twir/libs/repositories/channel_platforms/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -67,6 +69,10 @@ var App = fx.Options(
 		fx.Annotate(
 			channelsrepositorypgx.NewFx,
 			fx.As(new(channelsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelplatformsrepositorypgx.NewFx,
+			fx.As(new(channelplatformsrepository.Repository)),
 		),
 		fx.Annotate(
 			channelscommandsprefixpgx.NewFx,

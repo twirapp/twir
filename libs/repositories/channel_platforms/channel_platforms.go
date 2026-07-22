@@ -18,6 +18,7 @@ type Repository interface {
 	GetByPlatformChannelID(ctx context.Context, platform platform.Platform, platformChannelID string) (model.ChannelPlatform, error)
 	ListByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.ChannelPlatform, error)
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.ChannelPlatform, error)
+	Patch(ctx context.Context, id uuid.UUID, input PatchInput) (model.ChannelPlatform, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -37,4 +38,9 @@ type UpdateInput struct {
 	Enabled           bool
 	BotUserID         *uuid.UUID
 	BotConfig         json.RawMessage
+}
+
+type PatchInput struct {
+	Enabled        *bool
+	BotConfigPatch json.RawMessage
 }
