@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"context"
 	"log/slog"
 
 	botplatforms "github.com/twirapp/twir/apps/bots/internal/platforms"
@@ -25,6 +26,11 @@ type Opts struct {
 	UsersRepo      usersrepository.Repository
 }
 
+type twitchActionsClient interface {
+	Ban(context.Context, twitchactions.BanOpts) error
+	DeleteMessage(context.Context, twitchactions.DeleteMessageOpts) error
+}
+
 func New(opts Opts) *Service {
 	return &Service{
 		gorm:           opts.Gorm,
@@ -40,7 +46,7 @@ func New(opts Opts) *Service {
 type Service struct {
 	logger         *slog.Logger
 	gorm           *gorm.DB
-	twitchActions  *twitchactions.TwitchActions
+	twitchActions  twitchActionsClient
 	chatRegistry   *platformsregistry.Registry[botplatforms.ChatAdapter]
 	workersPool    *workers.Pool
 	channelService *channelservice.ChannelService
