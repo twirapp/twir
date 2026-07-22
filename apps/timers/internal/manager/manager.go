@@ -131,7 +131,7 @@ func (c *Manager) initialize(ctx context.Context) error {
 
 		for _, t := range timersBatch {
 			foundChannel, ok := channelsByID[t.ChannelID.String()]
-			if !ok || (!foundChannel.TwitchConnected() && !foundChannel.KickConnected()) {
+			if !ok || !hasSupportedTimerBinding(foundChannel) {
 				continue
 			}
 
