@@ -2,15 +2,19 @@ package pgx
 
 import (
 	"context"
-	"database/sql"
+	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	usermodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 )
@@ -39,14 +43,64 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
-const channelOwnershipJoinCondition = `(u.platform = 'twitch' AND uc.twitch_user_id = u.id) OR (u.platform = 'kick' AND uc.kick_user_id = u.id)`
+const userWithChannelColumns = `
+	u.id,
+	u.platform,
+	u.platform_id,
+	u.login,
+	u.display_name,
+	u.avatar,
+	u."isBotAdmin",
+	u."tokenId",
+	u."apiKey",
+	u.hide_on_landing_page,
+	u.is_banned,
+	cb.channel_id,
+	CASE WHEN cb.id IS NULL THEN NULL ELSE jsonb_build_object(
+		'ID', cb.id,
+		'ChannelID', cb.channel_id,
+		'Platform', cb.platform,
+		'UserID', cb.user_id,
+		'PlatformChannelID', cb.platform_channel_id,
+		'Enabled', cb.enabled,
+		'BotUserID', cb.bot_user_id,
+		'BotConfig', cb.bot_config,
+		'CreatedAt', cb.created_at,
+		'UpdatedAt', cb.updated_at
+	) END AS channel_binding`
+
+const ownerBindingLateral = `LATERAL (
+	SELECT
+		cp.id,
+		cp.channel_id,
+		cp.platform,
+		cp.user_id,
+		cp.platform_channel_id,
+		cp.enabled,
+		cp.bot_user_id,
+		cp.bot_config,
+		cp.created_at,
+		cp.updated_at
+	FROM channel_platforms cp
+	WHERE cp.user_id = u.id
+		AND cp.platform = u.platform
+	ORDER BY cp.channel_id
+	LIMIT 1
+) cb ON TRUE`
+
+const ownerBindingJoin = `LEFT JOIN ` + ownerBindingLateral
+
+const getByIDQuery = `
+SELECT ` + userWithChannelColumns + `
+FROM users u
+` + ownerBindingJoin + `
+WHERE u.id = $1::uuid
+LIMIT 1`
 
 func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 	userWithChannel := model.UserWithChannel{}
-	var channelID sql.Null[uuid.UUID]
-	var channelTwitchUserID, channelKickUserID sql.Null[uuid.UUID]
-	var channelBotID sql.Null[string]
-	var channelIsBotMod, channelIsEnabled, channelIsTwitchBanned sql.Null[bool]
+	var channelID pgtype.UUID
+	var bindingJSON []byte
 
 	err := row.Scan(
 		&userWithChannel.User.ID,
@@ -61,59 +115,40 @@ func (c *Pgx) scanUserWithChannel(row pgx.Row) (model.UserWithChannel, error) {
 		&userWithChannel.User.HideOnLandingPage,
 		&userWithChannel.User.IsBanned,
 		&channelID,
-		&channelTwitchUserID,
-		&channelKickUserID,
-		&channelIsBotMod,
-		&channelIsEnabled,
-		&channelIsTwitchBanned,
-		&channelBotID,
+		&bindingJSON,
 	)
 	if err != nil {
 		return model.Nil, err
 	}
 
-	if channelID.Valid {
-		ch := &channelmodel.Channel{
-			ID:             channelID.V,
-			IsBotMod:       channelIsBotMod.V,
-			IsEnabled:      channelIsEnabled.V,
-			IsTwitchBanned: channelIsTwitchBanned.V,
-			BotID:          channelBotID.V,
-		}
-		if channelTwitchUserID.Valid {
-			ch.TwitchUserID = &channelTwitchUserID.V
-		}
-		if channelKickUserID.Valid {
-			ch.KickUserID = &channelKickUserID.V
-		}
-		userWithChannel.Channel = ch
+	return mapUserWithChannelProjection(userWithChannel.User, channelID, bindingJSON)
+}
+
+func mapUserWithChannelProjection(
+	user usermodel.User,
+	channelID pgtype.UUID,
+	bindingJSON []byte,
+) (model.UserWithChannel, error) {
+	result := model.UserWithChannel{User: user}
+	if !channelID.Valid {
+		return result, nil
 	}
 
-	return userWithChannel, err
+	var binding channelplatformsmodel.ChannelPlatform
+	if err := json.Unmarshal(bindingJSON, &binding); err != nil {
+		return model.Nil, fmt.Errorf("unmarshal channel platform binding: %w", err)
+	}
+
+	result.Channel = &channelmodel.Channel{
+		ID:       uuid.UUID(channelID.Bytes),
+		Bindings: []channelplatformsmodel.ChannelPlatform{binding},
+	}
+
+	return result, nil
 }
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.UserWithChannel, error) {
-	query := `
-SELECT u.id, u.platform, u.platform_id, u.login, u.display_name, u.avatar, u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned,
-       uc.id, uc.twitch_user_id, uc.kick_user_id, uc."isBotMod", uc."isEnabled", uc."isTwitchBanned", uc."botId"
-FROM users u
-LEFT JOIN channels uc ON ` + channelOwnershipJoinCondition + `
-WHERE u.id = $1::uuid
-GROUP BY u.id, uc.id
-LIMIT 1
-`
-
-	rows, err := c.pool.Query(ctx, query, id)
-	if err != nil {
-		return model.Nil, err
-	}
-
-	user, err := c.scanUserWithChannel(rows)
-	if err != nil {
-		return model.Nil, err
-	}
-
-	return user, nil
+	return c.scanUserWithChannel(c.pool.QueryRow(ctx, getByIDQuery, id))
 }
 
 func platformsToStrings(platforms []platformentity.Platform) []string {
@@ -147,10 +182,6 @@ func applyFilters(selectQuery squirrel.SelectBuilder, input users_with_channel.G
 		selectQuery = selectQuery.Where(squirrel.Eq{"bu.badge_id": input.HasBadgesIDS})
 	}
 
-	if input.ChannelEnabled != nil {
-		selectQuery = selectQuery.Where(squirrel.Eq{`uc."isEnabled"`: input.ChannelEnabled})
-	}
-
 	if input.ChannelIsBotAdmin != nil {
 		selectQuery = selectQuery.Where(squirrel.Eq{`u."isBotAdmin"`: input.ChannelIsBotAdmin})
 	}
@@ -164,28 +195,9 @@ func applyFilters(selectQuery squirrel.SelectBuilder, input users_with_channel.G
 
 func buildGetManyQuery(input users_with_channel.GetManyInput) (string, []any, error) {
 	selectQuery := sq.
-		Select(
-			"u.id",
-			"u.platform",
-			"u.platform_id",
-			"u.login",
-			"u.display_name",
-			"u.avatar",
-			`u."isBotAdmin"`,
-			`u."tokenId"`,
-			`u."apiKey"`,
-			"u.hide_on_landing_page",
-			"u.is_banned",
-			"uc.id AS channel_id",
-			"uc.twitch_user_id AS channel_twitch_user_id",
-			"uc.kick_user_id AS channel_kick_user_id",
-			`uc."isBotMod" AS channel_is_bot_mod`,
-			`uc."isEnabled" AS channel_is_enabled`,
-			`uc."isTwitchBanned" AS channel_is_twitch_banned`,
-			`uc."botId" AS channel_bot_id`,
-		).
+		Select(userWithChannelColumns).
 		From("users u").
-		LeftJoin("channels uc ON " + channelOwnershipJoinCondition).
+		LeftJoin(ownerBindingLateral).
 		OrderBy("u.id asc")
 
 	if len(input.HasBadgesIDS) > 0 {
@@ -193,6 +205,9 @@ func buildGetManyQuery(input users_with_channel.GetManyInput) (string, []any, er
 	}
 
 	selectQuery = applyFilters(selectQuery, input)
+	if input.ChannelEnabled != nil {
+		selectQuery = selectQuery.Where(squirrel.Eq{"cb.enabled": *input.ChannelEnabled})
+	}
 
 	var page int
 	perPage := 20
@@ -253,7 +268,18 @@ func buildGetManyCountQuery(input users_with_channel.GetManyInput) (string, []an
 	selectQuery := sq.Select(countColumn).From("users u")
 
 	if input.ChannelEnabled != nil {
-		selectQuery = selectQuery.LeftJoin("channels uc ON " + channelOwnershipJoinCondition)
+		selectQuery = selectQuery.Where(
+			squirrel.Expr(
+				`EXISTS (
+					SELECT 1
+					FROM channel_platforms cp_enabled
+					WHERE cp_enabled.user_id = u.id
+						AND cp_enabled.platform = u.platform
+						AND cp_enabled.enabled = ?
+				)`,
+				*input.ChannelEnabled,
+			),
+		)
 	}
 
 	if len(input.HasBadgesIDS) > 0 {
