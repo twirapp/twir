@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -145,39 +146,20 @@ func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gql
 		return nil, fmt.Errorf("get authenticated user channel: %w", err)
 	}
 
-	accounts := make([]gqlmodel.LinkedAccount, 0, 2)
-
-	if channel.TwitchUserID != nil {
-		twitchUser, err := r.deps.UsersRepository.GetByID(ctx, *channel.TwitchUserID)
+	accounts := make([]gqlmodel.LinkedAccount, 0, len(channel.Bindings))
+	for _, binding := range channel.Bindings {
+		user, err := r.deps.UsersRepository.GetByID(ctx, binding.UserID)
 		if err != nil {
-			return nil, fmt.Errorf("get linked twitch user: %w", err)
+			return nil, fmt.Errorf("get linked platform user: %w", err)
 		}
 
 		account := gqlmodel.LinkedAccount{
-			Platform:       string(platformentity.PlatformTwitch),
-			PlatformUserID: twitchUser.PlatformID,
-			PlatformLogin:  twitchUser.Login,
+			Platform:       binding.Platform.String(),
+			PlatformUserID: user.PlatformID,
+			PlatformLogin:  user.Login,
 		}
-		if twitchUser.Avatar != "" {
-			account.PlatformAvatar = &twitchUser.Avatar
-		}
-
-		accounts = append(accounts, account)
-	}
-
-	if channel.KickUserID != nil {
-		kickUser, err := r.deps.UsersRepository.GetByID(ctx, *channel.KickUserID)
-		if err != nil {
-			return nil, fmt.Errorf("get linked kick user: %w", err)
-		}
-
-		account := gqlmodel.LinkedAccount{
-			Platform:       string(platformentity.PlatformKick),
-			PlatformUserID: kickUser.PlatformID,
-			PlatformLogin:  kickUser.Login,
-		}
-		if kickUser.Avatar != "" {
-			account.PlatformAvatar = &kickUser.Avatar
+		if user.Avatar != "" {
+			account.PlatformAvatar = &user.Avatar
 		}
 
 		accounts = append(accounts, account)
@@ -220,11 +202,12 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || channel.TwitchUserID == nil {
+	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}
 
-	return data_loader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+	return data_loader.GetHelixUserById(ctx, twitchBinding.PlatformChannelID)
 }
 
 // KickProfile is the resolver for the kickProfile field.
@@ -238,16 +221,12 @@ func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashb
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || channel.KickUserID == nil {
+	kickBinding, found := channelbinding.Find(channel, platformentity.PlatformKick)
+	if channel.IsNil() || !found {
 		return nil, nil
 	}
 
-	currentUserID, err := r.deps.Sessions.GetInternalUserID(ctx)
-	if err != nil || *channel.KickUserID != currentUserID {
-		return nil, nil
-	}
-
-	kickUser, err := r.deps.Sessions.GetSessionKickUser(ctx)
+	kickUser, err := r.deps.UsersRepository.GetByID(ctx, kickBinding.UserID)
 	if err != nil {
 		return nil, nil
 	}
@@ -258,9 +237,9 @@ func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashb
 	}
 
 	return &gqlmodel.KickProfile{
-		ID:             kickUser.ID,
+		ID:             kickUser.PlatformID,
 		Slug:           kickUser.Login,
-		DisplayName:    kickUser.Login,
+		DisplayName:    kickUser.DisplayName,
 		ProfilePicture: profilePicture,
 		IsLive:         false,
 		FollowersCount: 0,
@@ -423,30 +402,20 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // UnlinkPlatformAccount is the resolver for the unlinkPlatformAccount field.
 func (r *mutationResolver) UnlinkPlatformAccount(ctx context.Context, platform string) (bool, error) {
-	channel, err := (&authenticatedUserResolver{r.Resolver}).getAuthenticatedUserChannel(ctx)
-	if err != nil {
-		return false, fmt.Errorf("get authenticated user channel: %w", err)
+	entityPlatform := platformentity.Platform(platform)
+	if !entityPlatform.IsValid() {
+		return false, fmt.Errorf("unsupported platform: %s", platform)
 	}
-
-	currentPlatform, err := r.deps.Sessions.GetCurrentPlatform(ctx)
-	if err != nil {
-		return false, fmt.Errorf("get current platform: %w", err)
-	}
-
-	updates, err := unlinkPlatformUpdates(
-		channel,
-		platformentity.Platform(currentPlatform),
-		platformentity.Platform(platform),
-	)
+	dashboardID, err := r.selectedChannelPlatformDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
+	if r.deps.ChannelPlatformBindingsService == nil {
+		return false, fmt.Errorf("channel platform binding service is not configured")
+	}
 
-	if err := r.deps.Gorm.WithContext(ctx).Model(&model.Channels{}).Where(
-		"id = ?",
-		channel.ID,
-	).Updates(updates).Error; err != nil {
-		return false, fmt.Errorf("unlink platform account: %w", err)
+	if err := r.deps.ChannelPlatformBindingsService.Disconnect(ctx, dashboardID, entityPlatform); err != nil {
+		return false, err
 	}
 
 	return true, nil
@@ -483,10 +452,27 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 	}
 
 	if user.Channel != nil {
-		authedUser.IsEnabled = &user.Channel.IsEnabled
-		authedUser.IsBotModerator = &user.Channel.IsBotMod
-		authedUser.BotID = &user.Channel.BotID
 		authedUser.PlanID = user.Channel.PlanID
+	}
+
+	if parsedDashboardID, parseErr := uuid.Parse(dashboardId); parseErr == nil {
+		channel, channelErr := r.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
+		if channelErr == nil && !channel.IsNil() {
+			twitchBinding, twitchConfig, found, configErr := channelbinding.FindTwitch(channel)
+			if configErr != nil {
+				return nil, fmt.Errorf("parse Twitch channel binding configuration: %w", configErr)
+			}
+			if found {
+				enabled := twitchBinding.Enabled
+				authedUser.IsEnabled = &enabled
+				isBotModerator := twitchConfig.IsBotMod
+				authedUser.IsBotModerator = &isBotModerator
+				if twitchConfig.BotID != "" {
+					botID := twitchConfig.BotID
+					authedUser.BotID = &botID
+				}
+			}
+		}
 	}
 
 	return authedUser, nil
@@ -505,7 +491,7 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 		}
 
 		if err == nil {
-			channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
+			channel, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
 			if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
 				return nil, fmt.Errorf("get channel by twitch user id: %w", err)
 			}

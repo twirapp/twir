@@ -8,6 +8,7 @@ import (
 
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
@@ -105,12 +106,11 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Model(&model.Channels{}).Where(
-				`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ?`,
-				true,
-				false,
-				false,
-			).Joins("User").Count(&count)
+			c.gorm.Table("channel_platforms AS cp").
+				Joins("JOIN users AS u ON u.id = cp.user_id").
+				Where("cp.enabled = ? AND u.is_banned = ?", true, false).
+				Distinct("cp.channel_id").
+				Count(&count)
 			c.cachedResponse.Channels = int(count)
 		},
 	)
@@ -118,12 +118,11 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Model(&model.Channels{}).Where(
-				`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ? AND "channels"."twitch_user_id" IS NOT NULL`,
-				true,
-				false,
-				false,
-			).Joins("User").Count(&count)
+			c.gorm.Table("channel_platforms AS cp").
+				Joins("JOIN users AS u ON u.id = cp.user_id").
+				Where("cp.enabled = ? AND cp.platform = ? AND u.is_banned = ?", true, platformentity.PlatformTwitch, false).
+				Distinct("cp.channel_id").
+				Count(&count)
 			c.cachedResponse.TwitchChannels = int(count)
 		},
 	)
@@ -131,13 +130,11 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Model(&model.Channels{}).Joins(
-				`LEFT JOIN users ON users.id = channels.kick_user_id`,
-			).Where(
-				`"channels"."isEnabled" = ? AND "channels"."kick_user_id" IS NOT NULL AND "users"."is_banned" = ?`,
-				true,
-				false,
-			).Count(&count)
+			c.gorm.Table("channel_platforms AS cp").
+				Joins("JOIN users AS u ON u.id = cp.user_id").
+				Where("cp.enabled = ? AND cp.platform = ? AND u.is_banned = ?", true, platformentity.PlatformKick, false).
+				Distinct("cp.channel_id").
+				Count(&count)
 			c.cachedResponse.KickChannels = int(count)
 		},
 	)

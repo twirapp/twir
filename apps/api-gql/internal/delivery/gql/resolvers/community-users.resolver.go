@@ -14,6 +14,7 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -108,6 +109,19 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		return nil, gqlerrors.HandleError(err)
 	}
 
+	boundUserIDs := make([]string, 0, len(channel.Bindings))
+	botUserIDs := make([]string, 0, len(channel.Bindings))
+	for _, binding := range channel.Bindings {
+		boundUserIDs = append(boundUserIDs, binding.UserID.String())
+		if binding.BotUserID != nil {
+			botUserIDs = append(botUserIDs, binding.BotUserID.String())
+		}
+	}
+	_, twitchBotConfig, hasTwitchBinding, err := channelbinding.FindTwitch(channel)
+	if err != nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("parse Twitch binding configuration: %w", err))
+	}
+
 	// Determine which platforms are requested
 	requestedPlatforms := platformentity.All()
 	if opts.Platforms.IsSet() && len(opts.Platforms.Value()) > 0 {
@@ -198,20 +212,17 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		)`,
 		)
 
-		if channel.TwitchUserID != nil {
-			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.TwitchUserID.String()))
+		for _, userID := range boundUserIDs {
+			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, userID))
 		}
-		if channel.KickUserID != nil {
-			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.KickUserID.String()))
+		for _, botUserID := range botUserIDs {
+			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, botUserID))
 		}
-		if channel.KickBotID != nil {
-			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.KickBotID.String()))
-		}
-		if channel.BotID != "" {
+		if hasTwitchBinding && twitchBotConfig.BotID != "" {
 			b = b.Where(
 				`users_stats.user_id != (
 				SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch' LIMIT 1
-			)`, channel.BotID,
+			)`, twitchBotConfig.BotID,
 			)
 		}
 

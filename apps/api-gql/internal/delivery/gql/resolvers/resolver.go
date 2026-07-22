@@ -16,6 +16,7 @@ import (
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
 	channelsservice "github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
@@ -107,14 +108,16 @@ type Deps struct {
 	AuditRecorder audit.Recorder
 	WsRouter      wsrouter.WsRouter
 
-	SpotifyRepository           channelsintegrationsspotify.Repository
-	LastfmRepository            channelsintegrationslastfm.Repository
-	VKIntegrationRepository     vkintegrationrepo.Repository
-	PlansRepository             plansrepository.Repository
-	GiveawaysSettingsRepository channels_giveaways_settings.Repository
-	ChannelsRepository          channelsrepository.Repository
-	UsersRepository             usersrepository.Repository
-	ChannelService              *channelservice.ChannelService
+	SpotifyRepository              channelsintegrationsspotify.Repository
+	LastfmRepository               channelsintegrationslastfm.Repository
+	VKIntegrationRepository        vkintegrationrepo.Repository
+	PlansRepository                plansrepository.Repository
+	GiveawaysSettingsRepository    channels_giveaways_settings.Repository
+	ChannelsRepository             channelsrepository.Repository
+	UsersRepository                usersrepository.Repository
+	ChannelService                 *channelservice.ChannelService
+	ChannelPlatformBindingsService channelplatformservice.Operations
+	ChannelPlatformDashboard       SelectedDashboardGetter
 
 	Sessions                         *auth.Auth
 	Auth                             *authroutes.Auth
@@ -195,6 +198,10 @@ type Deps struct {
 	StreamlabsIntegrationService          *streamlabs_integration.Service
 	ChannelsSecretService                 *channels_secret.Service
 	ChannelsStorageService                *channels_storage.Service
+}
+
+type SelectedDashboardGetter interface {
+	GetSelectedDashboard(context.Context) (string, error)
 }
 
 type Resolver struct {

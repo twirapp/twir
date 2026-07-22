@@ -10,9 +10,11 @@ import (
 	"slices"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 // TwitchRewards is the resolver for the twitchRewards field.
@@ -36,11 +38,12 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}
 
-	rewards, err := r.deps.CachedTwitchClient.GetChannelRewards(ctx, *channel.TwitchUserID, *channel.TwitchPlatformID)
+	rewards, err := r.deps.CachedTwitchClient.GetChannelRewards(ctx, twitchBinding.UserID, twitchBinding.PlatformChannelID)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
