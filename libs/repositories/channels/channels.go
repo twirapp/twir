@@ -25,12 +25,7 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	TwitchUserID     *uuid.UUID
-	KickUserID       *uuid.UUID
-	TwitchBotEnabled bool
-	KickBotEnabled   bool
-	BotID            string
-	KickBotID        *uuid.UUID
+	BotID string
 }
 
 type UpdateInput struct {

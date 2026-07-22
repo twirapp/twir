@@ -31,6 +31,13 @@ func TestChannelPlatformNil(t *testing.T) {
 	}
 }
 
+func TestNewUsesTransactionContextGetter(t *testing.T) {
+	repository := New(Opts{})
+	if repository.getter == nil {
+		t.Fatal("channel platform repository must use the request transaction context")
+	}
+}
+
 func TestRequireUniqueViolationMatchesPgxV5Error(t *testing.T) {
 	const childEnv = "TWIR_CHANNEL_PLATFORMS_UNIQUE_VIOLATION_CHILD"
 
@@ -232,10 +239,7 @@ func createTestChannel(t *testing.T, ctx context.Context, pool *pgxpool.Pool, us
 	t.Helper()
 
 	channel, err := channelspgx.New(channelspgx.Opts{PgxPool: pool}).Create(ctx, channels.CreateInput{
-		TwitchUserID:     &userID,
-		TwitchBotEnabled: true,
-		KickBotEnabled:   false,
-		BotID:            "channel-platform-test-" + uuid.NewString(),
+		BotID: "channel-platform-test-" + uuid.NewString(),
 	})
 	if err != nil {
 		t.Fatalf("create test channel: %v", err)

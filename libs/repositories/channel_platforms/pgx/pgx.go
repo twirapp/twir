@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -19,7 +20,11 @@ type Opts struct {
 }
 
 func New(opts Opts) *Pgx {
-	return &Pgx{pool: opts.PgxPool}
+	return &Pgx{
+		pool:            opts.PgxPool,
+		transactionPool: opts.PgxPool,
+		getter:          trmpgx.DefaultCtxGetter,
+	}
 }
 
 func NewFx(pool *pgxpool.Pool) *Pgx {
@@ -34,7 +39,9 @@ type database interface {
 }
 
 type Pgx struct {
-	pool database
+	pool            database
+	transactionPool *pgxpool.Pool
+	getter          *trmpgx.CtxGetter
 }
 
 const selectColumns = `
@@ -75,7 +82,7 @@ func (r *Pgx) Create(
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING ` + selectColumns
 
-	rows, err := r.pool.Query(
+	rows, err := r.connection(ctx).Query(
 		ctx,
 		query,
 		input.ChannelID,
@@ -142,7 +149,7 @@ func (r *Pgx) ListByChannelID(
 		WHERE channel_id = $1
 		ORDER BY platform`
 
-	rows, err := r.pool.Query(ctx, query, channelID)
+	rows, err := r.connection(ctx).Query(ctx, query, channelID)
 	if err != nil {
 		return nil, fmt.Errorf("list channel platform bindings: %w", err)
 	}
@@ -172,7 +179,7 @@ func (r *Pgx) Update(
 		WHERE id = $1
 		RETURNING ` + selectColumns
 
-	rows, err := r.pool.Query(
+	rows, err := r.connection(ctx).Query(
 		ctx,
 		query,
 		id,
@@ -216,7 +223,7 @@ func (r *Pgx) Patch(
 		botConfigPatch = input.BotConfigPatch
 	}
 
-	rows, err := r.pool.Query(ctx, patchQuery, id, enabled, botConfigPatch)
+	rows, err := r.connection(ctx).Query(ctx, patchQuery, id, enabled, botConfigPatch)
 	if err != nil {
 		return model.Nil, fmt.Errorf("patch channel platform binding: %w", err)
 	}
@@ -233,7 +240,7 @@ func (r *Pgx) Patch(
 }
 
 func (r *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
-	commandTag, err := r.pool.Exec(
+	commandTag, err := r.connection(ctx).Exec(
 		ctx,
 		`DELETE FROM channel_platforms WHERE id = $1`,
 		id,
@@ -253,7 +260,7 @@ func (r *Pgx) getOne(
 	query string,
 	args ...any,
 ) (model.ChannelPlatform, error) {
-	rows, err := r.pool.Query(ctx, query, args...)
+	rows, err := r.connection(ctx).Query(ctx, query, args...)
 	if err != nil {
 		return model.Nil, fmt.Errorf("query channel platform binding: %w", err)
 	}
@@ -267,4 +274,12 @@ func (r *Pgx) getOne(
 	}
 
 	return binding, nil
+}
+
+func (r *Pgx) connection(ctx context.Context) database {
+	if r.transactionPool != nil {
+		return r.getter.DefaultTrOrDB(ctx, r.transactionPool)
+	}
+
+	return r.pool
 }

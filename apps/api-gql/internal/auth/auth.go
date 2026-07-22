@@ -37,16 +37,22 @@ func NewSessions(opts Opts) *Auth {
 	sessionManager.Lifetime = 24 * time.Hour * 31
 	sessionManager.Store = goredisstore.New(opts.Redis)
 
-	gob.Register(model.Users{})
-	gob.Register(helix.User{})
-	gob.Register(uuid.UUID{})
-	gob.Register(KickSessionUser{})
+	registerSessionTypes()
 
 	return &Auth{
 		sessionManager: sessionManager,
 		usersRepo:      opts.UsersRepo,
 		channelService: opts.ChannelService,
 	}
+}
+
+func registerSessionTypes() {
+	gob.Register(model.Users{})
+	gob.Register(helix.User{})
+	gob.Register(uuid.UUID{})
+	gob.Register(KickSessionUser{})
+	gob.Register(OAuthAttempt{})
+	gob.Register(map[string]OAuthAttempt{})
 }
 
 const SESSION_KEY = "__session__"

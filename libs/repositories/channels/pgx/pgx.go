@@ -76,119 +76,10 @@ WHERE EXISTS (
 )
 ORDER BY c.id`
 
-const createChannelAndBindingsQuery = `
-WITH requested AS (
-	SELECT
-		$1::uuid AS twitch_user_id,
-		$2::uuid AS kick_user_id,
-		$3::boolean AS twitch_bot_enabled,
-		$4::boolean AS kick_bot_enabled,
-		$5::text AS bot_id,
-		$6::uuid AS kick_bot_id
-),
-created_channel AS (
-	INSERT INTO channels (
-		twitch_user_id,
-		kick_user_id,
-		twitch_bot_enabled,
-		kick_bot_enabled,
-		"isEnabled",
-		"botId",
-		kick_bot_id
-	)
-	SELECT
-		r.twitch_user_id,
-		r.kick_user_id,
-		r.twitch_bot_enabled,
-		r.kick_bot_enabled,
-		r.twitch_bot_enabled OR r.kick_bot_enabled,
-		r.bot_id,
-		r.kick_bot_id
-	FROM requested r
-	WHERE (r.twitch_user_id IS NOT NULL OR r.twitch_bot_enabled = false)
-		AND (
-			r.kick_user_id IS NOT NULL
-			OR (r.kick_bot_enabled = false AND r.kick_bot_id IS NULL)
-		)
-		AND (
-			r.twitch_user_id IS NULL
-			OR EXISTS (
-				SELECT 1
-				FROM users u
-				WHERE u.id = r.twitch_user_id AND u.platform = 'twitch'
-			)
-		)
-		AND (
-			r.kick_user_id IS NULL
-			OR EXISTS (
-				SELECT 1
-				FROM users u
-				WHERE u.id = r.kick_user_id AND u.platform = 'kick'
-			)
-		)
-	RETURNING
-		id,
-		twitch_user_id,
-		twitch_bot_enabled,
-		kick_user_id,
-		kick_bot_enabled,
-		"botId",
-		"isBotMod",
-		"isTwitchBanned",
-		kick_bot_id
-),
-twitch_binding AS (
-	INSERT INTO channel_platforms (
-		channel_id,
-		platform,
-		user_id,
-		platform_channel_id,
-		enabled,
-		bot_user_id,
-		bot_config
-	)
-	SELECT
-		c.id,
-		'twitch',
-		c.twitch_user_id,
-		u.platform_id,
-		c.twitch_bot_enabled,
-		NULL,
-		jsonb_build_object(
-			'bot_id', c."botId",
-			'is_bot_mod', c."isBotMod",
-			'is_twitch_banned', c."isTwitchBanned"
-		)
-	FROM created_channel c
-	JOIN users u ON u.id = c.twitch_user_id AND u.platform = 'twitch'
-	WHERE c.twitch_user_id IS NOT NULL
-	RETURNING channel_id
-),
-kick_binding AS (
-	INSERT INTO channel_platforms (
-		channel_id,
-		platform,
-		user_id,
-		platform_channel_id,
-		enabled,
-		bot_user_id,
-		bot_config
-	)
-	SELECT
-		c.id,
-		'kick',
-		c.kick_user_id,
-		u.platform_id,
-		c.kick_bot_enabled,
-		kb.kick_user_id,
-		jsonb_strip_nulls(jsonb_build_object('kick_bot_id', c.kick_bot_id))
-	FROM created_channel c
-	JOIN users u ON u.id = c.kick_user_id AND u.platform = 'kick'
-	LEFT JOIN kick_bots kb ON kb.id = c.kick_bot_id
-	WHERE c.kick_user_id IS NOT NULL
-	RETURNING channel_id
-)
-SELECT id FROM created_channel`
+const createChannelQuery = `
+INSERT INTO channels ("botId")
+VALUES ($1)
+RETURNING id`
 
 const updateChannelAndBindingsQuery = `
 WITH input AS (
@@ -335,13 +226,8 @@ func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Cha
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	row := conn.QueryRow(
 		ctx,
-		createChannelAndBindingsQuery,
-		valueOrNil(input.TwitchUserID),
-		valueOrNil(input.KickUserID),
-		input.TwitchBotEnabled,
-		input.KickBotEnabled,
+		createChannelQuery,
 		input.BotID,
-		valueOrNil(input.KickBotID),
 	)
 
 	var channelId uuid.UUID
