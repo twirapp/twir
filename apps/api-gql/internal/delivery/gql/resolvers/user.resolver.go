@@ -7,20 +7,16 @@ package resolvers
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"net/url"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
-	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -568,81 +564,16 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 
 // AuthLink is the resolver for the authLink field.
 func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string, error) {
-	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, r.deps.Config.SiteBaseUrl)
-	if err != nil {
-		return "", gqlerrors.HandleError(err)
-	}
-
 	if redirectTo == "" {
 		return "", fmt.Errorf("incorrect auth link %s", redirectTo)
 	}
 
-	u, err := url.Parse(baseUrl)
+	authorizeURL, err := r.deps.Auth.StartTwitchAuth(ctx, redirectTo)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse base url: %w", err)
+		return "", gqlerrors.HandleError(err)
 	}
 
-	twitchClient, err := helix.NewClientWithContext(
-		ctx, &helix.Options{
-			ClientID:    r.deps.Config.TwitchClientId,
-			RedirectURI: u.JoinPath("login").String(),
-		},
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to create twitch client: %w", err)
-	}
-
-	state := base64.StdEncoding.EncodeToString([]byte(redirectTo))
-
-	if r.deps.Config.TwitchMockEnabled {
-		siteURL, err := url.Parse(r.deps.Config.SiteBaseUrl)
-		if err != nil {
-			return "", fmt.Errorf("failed to parse site base url: %w", err)
-		}
-		mockAuthUrl := fmt.Sprintf(
-			"%s/oauth2/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=&state=%s",
-			r.deps.Config.TwitchMockAuthUrl,
-			r.deps.Config.TwitchClientId,
-			url.QueryEscape(siteURL.JoinPath("login").String()),
-			url.QueryEscape(state),
-		)
-		return mockAuthUrl, nil
-	}
-
-	twitchScopes := []string{
-		"moderation:read",
-		"channel:manage:broadcast",
-		"channel:read:redemptions",
-		"channel:manage:redemptions",
-		"moderator:read:chatters",
-		"moderator:manage:shoutouts",
-		"moderator:manage:banned_users",
-		"channel:read:vips",
-		"channel:manage:vips",
-		"channel:manage:moderators",
-		"moderator:read:followers",
-		"moderator:manage:chat_settings",
-		"channel:read:polls",
-		"channel:manage:polls",
-		"channel:read:predictions",
-		"channel:manage:predictions",
-		"channel:read:subscriptions",
-		"channel:moderate",
-		"user:read:follows",
-		"channel:bot",
-		"channel:manage:raids",
-	}
-
-	url := twitchClient.GetAuthorizationURL(
-		&helix.AuthorizationURLParams{
-			ResponseType: "code",
-			Scopes:       twitchScopes,
-			State:        state,
-			ForceVerify:  false,
-		},
-	)
-
-	return url, nil
+	return authorizeURL, nil
 }
 
 // ChannelUserInfo is the resolver for the channelUserInfo field.
