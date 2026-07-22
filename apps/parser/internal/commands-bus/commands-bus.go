@@ -2,10 +2,12 @@ package commands_bus
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
 	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
@@ -18,8 +20,10 @@ import (
 	generic "github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
+	"github.com/twirapp/twir/libs/repositories/userswithstats"
 	"go.uber.org/zap"
 )
 
@@ -63,6 +67,67 @@ func (c *CommandsBus) dedupMessage(ctx context.Context, messageID string) (bool,
 	return !set, nil
 }
 
+func (c *CommandsBus) enrichChatMessage(
+	ctx context.Context,
+	data generic.ChatMessage,
+) (commands.ChatMessageContext, error) {
+	messagePlatform := platformentity.Platform(data.Platform)
+	if messagePlatform == "" {
+		messagePlatform = platformentity.PlatformTwitch
+	}
+
+	channelID, err := uuid.Parse(data.ChannelID)
+	if err != nil {
+		return commands.ChatMessageContext{}, fmt.Errorf("parse message channel id: %w", err)
+	}
+	channel, err := c.services.ChannelService.GetChannelByID(ctx, channelID)
+	if err != nil {
+		return commands.ChatMessageContext{}, fmt.Errorf("get message channel: %w", err)
+	}
+
+	userID, err := uuid.Parse(data.UserID)
+	if err != nil {
+		return commands.ChatMessageContext{}, fmt.Errorf("parse message user id: %w", err)
+	}
+	userWithStats, err := c.services.UsersWithStatsRepository.GetByUserAndChannelID(
+		ctx,
+		userswithstats.GetByUserAndChannelIDInput{
+			UserID:    userID,
+			ChannelID: channelID,
+		},
+	)
+	if err != nil {
+		return commands.ChatMessageContext{}, fmt.Errorf("get message user and stats: %w", err)
+	}
+
+	commandsPrefix := "!"
+	prefix, err := c.services.CommandsPrefixCache.Get(ctx, channelID.String())
+	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+		return commands.ChatMessageContext{}, fmt.Errorf("get message command prefix: %w", err)
+	}
+	if err == nil && prefix.Prefix != "" {
+		commandsPrefix = prefix.Prefix
+	}
+
+	stream, err := c.streamsRepository.GetByChannelID(ctx, channelID, messagePlatform)
+	if err != nil {
+		return commands.ChatMessageContext{}, fmt.Errorf("get message channel stream: %w", err)
+	}
+	var channelStream *streamsmodel.Stream
+	if stream.ID != "" {
+		channelStream = &stream
+	}
+
+	return commands.ChatMessageContext{
+		ChatMessage:   data,
+		Channel:       channel,
+		Stream:        channelStream,
+		User:          userWithStats.User,
+		UserStats:     userWithStats.Stats,
+		CommandPrefix: commandsPrefix,
+	}, nil
+}
+
 func (c *CommandsBus) Subscribe() error {
 	c.bus.Parser.GetDefaultCommands.SubscribeGroup(
 		"parser",
@@ -99,9 +164,14 @@ func (c *CommandsBus) Subscribe() error {
 	c.bus.Parser.GetCommandResponse.SubscribeGroup(
 		"parser",
 		func(ctx context.Context, data generic.ChatMessage) (parser.CommandParseResponse, error) {
+			message, err := c.enrichChatMessage(ctx, data)
+			if err != nil {
+				return parser.CommandParseResponse{}, err
+			}
+
 			res, err := c.commandService.ProcessChatMessage(
 				ctx,
-				data,
+				message,
 				platformentity.Platform(data.Platform),
 			)
 			if err != nil {
@@ -204,9 +274,15 @@ func (c *CommandsBus) Subscribe() error {
 				return struct{}{}, nil
 			}
 
+			message, err := c.enrichChatMessage(ctx, data)
+			if err != nil {
+				zap.S().Error(err)
+				return struct{}{}, err
+			}
+
 			res, err := c.commandService.ProcessChatMessage(
 				ctx,
-				data,
+				message,
 				platformentity.Platform(data.Platform),
 			)
 			if err != nil {
@@ -229,7 +305,7 @@ func (c *CommandsBus) Subscribe() error {
 
 			for _, r := range res.Responses {
 				params := bots.SendMessageRequest{
-					ChannelID:         data.EnrichedData.DbChannel.ID,
+					ChannelID:         message.Channel.ID,
 					Platforms:         []platformentity.Platform{messagePlatform},
 					Message:           r,
 					ReplyTo:           replyTo,

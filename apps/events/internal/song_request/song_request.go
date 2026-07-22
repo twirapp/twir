@@ -126,6 +126,7 @@ func (c *SongRequest) ProcessFromDonation(
 						Text:  "broadcaster",
 					},
 				},
+				IsBroadcaster:               true,
 				MessageType:                 "",
 				Cheer:                       nil,
 				Reply:                       nil,

@@ -21,7 +21,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMessage) error {
+func (c *MessageHandler) handleGreetings(ctx context.Context, msg enrichedChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -37,7 +37,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMe
 
 	var greeting *greetingsmodel.Greeting
 	for _, g := range allGreetings {
-		if g.UserID.String() == msg.EnrichedData.DbUser.ID && g.Enabled && !g.Processed {
+		if g.UserID == msg.EnrichedData.DbUser.ID && g.Enabled && !g.Processed {
 			greeting = &g
 			break
 		}

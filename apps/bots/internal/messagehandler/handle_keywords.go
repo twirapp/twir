@@ -28,7 +28,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMessage) error {
+func (c *MessageHandler) handleKeywords(ctx context.Context, msg enrichedChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -142,14 +142,14 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg generic.ChatMes
 					userRoles, err := c.keywordsService.GetUserAccessibleRoles(
 						ctx,
 						msg.EnrichedData.DbChannel.ID.String(),
-						msg.EnrichedData.DbUser.ID,
+						msg.EnrichedData.DbUser.ID.String(),
 					)
 					if err != nil {
 						c.logger.Error(
 							"cannot get user roles",
 							logger.Error(err),
 							slog.String("channelId", msg.EnrichedData.DbChannel.ID.String()),
-							slog.String("userId", msg.EnrichedData.DbUser.ID),
+							slog.String("userId", msg.EnrichedData.DbUser.ID.String()),
 						)
 						return
 					}
@@ -228,7 +228,7 @@ func (c *MessageHandler) keywordsIncrementStats(
 
 func (c *MessageHandler) keywordsTriggerEvent(
 	ctx context.Context,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 	keyword entity.Keyword,
 	response string,
 ) {
@@ -266,7 +266,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 
 func (c *MessageHandler) keywordsParseResponse(
 	ctx context.Context,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 	keyword entity.Keyword,
 ) string {
 	if keyword.Response == "" {

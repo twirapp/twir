@@ -6,14 +6,13 @@ import (
 	"time"
 
 	"github.com/twirapp/twir/libs/bus-core/events"
-	"github.com/twirapp/twir/libs/bus-core/generic"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg generic.ChatMessage) error {
+func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg enrichedChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
