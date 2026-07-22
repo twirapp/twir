@@ -6,41 +6,70 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
+	"github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/entities/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
-func TestSendWinnerMessageUsesSelectedTwitchBinding(t *testing.T) {
+func TestSendWinnerMessagePublishesSelectedTwitchNATSRequest(t *testing.T) {
 	channelID := uuid.New()
+	twitchBinding := channelplatformsmodel.ChannelPlatform{
+		ChannelID:         channelID,
+		Platform:          platform.PlatformTwitch,
+		PlatformChannelID: "",
+		BotConfig:         json.RawMessage(`{"unexpected":"twitch"}`),
+	}
+	publisher := &giveawayTestWinnerMessagePublisher{}
 	service := &Service{
 		giveawaysSettingsRepository: giveawayTestSettingsRepository{
-			settings: channels_giveaways_settings.Settings{WinnerMessage: "winner"},
+			settings: channels_giveaways_settings.Settings{WinnerMessage: "winner {winner}"},
 		},
 		channelService: giveawayTestChannelLookup{channel: channelsmodel.Channel{
 			ID: channelID,
 			Bindings: []channelplatformsmodel.ChannelPlatform{
 				{
-					Platform:  platform.PlatformVKVideoLive,
-					BotConfig: json.RawMessage(`{"unexpected":"vk"}`),
+					ChannelID:         uuid.New(),
+					Platform:          platform.PlatformVKVideoLive,
+					PlatformChannelID: "wrong-vk-channel",
+					BotConfig:         json.RawMessage(`{"unexpected":"vk"}`),
 				},
 				{
-					Platform:  platform.PlatformKick,
-					BotConfig: json.RawMessage(`{"unexpected":"kick"}`),
+					ChannelID:         uuid.New(),
+					Platform:          platform.PlatformKick,
+					PlatformChannelID: "wrong-kick-channel",
+					BotConfig:         json.RawMessage(`{"unexpected":"kick"}`),
 				},
-				{
-					Platform:          platform.PlatformTwitch,
-					PlatformChannelID: "",
-					BotConfig:         json.RawMessage(`{"unexpected":"twitch"}`),
-				},
+				twitchBinding,
 			},
 		}},
+		winnerMessagePublisher: publisher,
 	}
 
-	err := service.sendWinnerMessage(context.Background(), channelID.String(), nil)
+	err := service.sendWinnerMessage(context.Background(), channelID.String(), []channels_giveaways.GiveawayWinner{
+		{UserID: uuid.New(), UserLogin: "winner"},
+	})
 	if err != nil {
 		t.Fatalf("send winner message: %v", err)
+	}
+	if len(publisher.requests) != 1 {
+		t.Fatalf("published requests = %d, want 1", len(publisher.requests))
+	}
+
+	request := publisher.requests[0]
+	if request.ChannelID != twitchBinding.ChannelID {
+		t.Fatalf("request channel ID = %s, want selected Twitch channel ID %s", request.ChannelID, twitchBinding.ChannelID)
+	}
+	if len(request.Platforms) != 1 || request.Platforms[0] != platform.PlatformTwitch {
+		t.Fatalf("request platforms = %#v, want only Twitch", request.Platforms)
+	}
+	if !request.SkipRateLimits {
+		t.Fatal("expected winner message to skip rate limits")
+	}
+	if request.Message != "winner winner" {
+		t.Fatalf("request message = %q, want winner replacement", request.Message)
 	}
 }
 
@@ -92,4 +121,16 @@ func (r giveawayTestChannelLookup) GetChannelByID(
 	uuid.UUID,
 ) (channelsmodel.Channel, error) {
 	return r.channel, nil
+}
+
+type giveawayTestWinnerMessagePublisher struct {
+	requests []botsbus.SendMessageRequest
+}
+
+func (p *giveawayTestWinnerMessagePublisher) Publish(
+	_ context.Context,
+	request botsbus.SendMessageRequest,
+) error {
+	p.requests = append(p.requests, request)
+	return nil
 }
