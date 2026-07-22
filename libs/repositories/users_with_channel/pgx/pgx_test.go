@@ -1,11 +1,82 @@
 package pgx
 
 import (
+	"encoding/json"
+	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/twirapp/twir/libs/entities/platform"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
 )
+
+func TestMapUserWithChannelProjectionKeepsSelectedBinding(t *testing.T) {
+	channelID := uuid.New()
+	binding := channelplatformsmodel.ChannelPlatform{
+		ID:                uuid.New(),
+		ChannelID:         channelID,
+		Platform:          platform.PlatformTwitch,
+		UserID:            uuid.New(),
+		PlatformChannelID: "twitch-channel",
+		Enabled:           true,
+		BotConfig:         json.RawMessage(`{"bot_id":"twir-bot","is_bot_mod":true}`),
+	}
+	bindingJSON, err := json.Marshal(binding)
+	if err != nil {
+		t.Fatalf("marshal binding: %v", err)
+	}
+
+	result, err := mapUserWithChannelProjection(
+		usersmodel.User{ID: binding.UserID, Platform: platform.PlatformTwitch},
+		pgtype.UUID{Bytes: [16]byte(channelID), Valid: true},
+		bindingJSON,
+	)
+	if err != nil {
+		t.Fatalf("map projection: %v", err)
+	}
+	if result.Channel == nil {
+		t.Fatal("expected projected channel")
+	}
+	if result.Channel.ID != channelID {
+		t.Fatalf("channel ID = %s, want %s", result.Channel.ID, channelID)
+	}
+	if len(result.Channel.Bindings) != 1 {
+		t.Fatalf("bindings = %d, want 1", len(result.Channel.Bindings))
+	}
+	if !reflect.DeepEqual(result.Channel.Bindings[0], binding) {
+		t.Fatalf("binding = %#v, want %#v", result.Channel.Bindings[0], binding)
+	}
+}
+
+func TestGetByIDQueryUsesNormalizedBindingProjection(t *testing.T) {
+	for _, fragment := range []string{
+		"LEFT JOIN LATERAL",
+		"FROM channel_platforms cp",
+		"cp.user_id = u.id",
+		"cp.platform = u.platform",
+		"LIMIT 1",
+	} {
+		if !strings.Contains(getByIDQuery, fragment) {
+			t.Fatalf("query does not contain %q: %s", fragment, getByIDQuery)
+		}
+	}
+	for _, legacyColumn := range []string{
+		"twitch_user_id",
+		"kick_user_id",
+		"twitch_bot_enabled",
+		"kick_bot_enabled",
+		`"isEnabled"`,
+		`"botId"`,
+	} {
+		if strings.Contains(getByIDQuery, legacyColumn) {
+			t.Fatalf("query must not use legacy channel column %q: %s", legacyColumn, getByIDQuery)
+		}
+	}
+}
 
 func TestBuildGetManyQuerySkipsBadgesJoinWithoutBadgeFilter(t *testing.T) {
 	query, _, err := buildGetManyQuery(users_with_channel.GetManyInput{PerPage: 10})
@@ -14,6 +85,41 @@ func TestBuildGetManyQuerySkipsBadgesJoinWithoutBadgeFilter(t *testing.T) {
 	}
 	if strings.Contains(query, "badges_users") {
 		t.Fatalf("unexpected badges join in query: %s", query)
+	}
+}
+
+func TestBuildGetManyQueryUsesNormalizedBindingProjection(t *testing.T) {
+	query, _, err := buildGetManyQuery(users_with_channel.GetManyInput{PerPage: 10})
+	if err != nil {
+		t.Fatalf("build query: %v", err)
+	}
+
+	for _, fragment := range []string{
+		"LEFT JOIN LATERAL",
+		"FROM channel_platforms cp",
+		"cp.user_id = u.id",
+		"cp.platform = u.platform",
+		"jsonb_build_object",
+	} {
+		if !strings.Contains(query, fragment) {
+			t.Fatalf("query does not contain %q: %s", fragment, query)
+		}
+	}
+	if joins := strings.Count(query, "LEFT JOIN"); joins != 1 {
+		t.Fatalf("left joins = %d, want one lateral binding join: %s", joins, query)
+	}
+
+	for _, legacyColumn := range []string{
+		"twitch_user_id",
+		"kick_user_id",
+		"twitch_bot_enabled",
+		"kick_bot_enabled",
+		`"isEnabled"`,
+		`"botId"`,
+	} {
+		if strings.Contains(query, legacyColumn) {
+			t.Fatalf("query must not use legacy channel column %q: %s", legacyColumn, query)
+		}
 	}
 }
 
@@ -27,5 +133,28 @@ func TestBuildGetManyCountQueryWithoutJoinFiltersCountsUsersDirectly(t *testing.
 	}
 	if len(args) != 0 {
 		t.Fatalf("expected no query arguments, got %d", len(args))
+	}
+}
+
+func TestBuildGetManyCountQueryUsesBindingExistsForEnabledFilter(t *testing.T) {
+	enabled := true
+	query, _, err := buildGetManyCountQuery(users_with_channel.GetManyInput{ChannelEnabled: &enabled})
+	if err != nil {
+		t.Fatalf("build query: %v", err)
+	}
+
+	for _, fragment := range []string{
+		"EXISTS",
+		"FROM channel_platforms cp_enabled",
+		"cp_enabled.user_id = u.id",
+		"cp_enabled.platform = u.platform",
+		"cp_enabled.enabled",
+	} {
+		if !strings.Contains(query, fragment) {
+			t.Fatalf("query does not contain %q: %s", fragment, query)
+		}
+	}
+	if strings.Contains(query, "JOIN channels") {
+		t.Fatalf("count query must not join legacy channels columns: %s", query)
 	}
 }
