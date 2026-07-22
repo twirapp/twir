@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
@@ -49,6 +50,24 @@ func (p *Provider) newClient() (*helix.Client, error) {
 }
 
 func (p *Provider) GetAuthURL(state, _ string) string {
+	if p.config.TwitchMockEnabled {
+		mockAuthURL, err := url.Parse(p.config.TwitchMockAuthUrl)
+		if err != nil {
+			return ""
+		}
+
+		mockAuthURL = mockAuthURL.JoinPath("oauth2", "authorize")
+		query := mockAuthURL.Query()
+		query.Set("response_type", "code")
+		query.Set("client_id", p.config.TwitchClientId)
+		query.Set("redirect_uri", p.config.GetTwitchCallbackUrl())
+		query.Set("scope", "")
+		query.Set("state", state)
+		mockAuthURL.RawQuery = query.Encode()
+
+		return mockAuthURL.String()
+	}
+
 	client, err := p.newClient()
 	if err != nil {
 		return ""

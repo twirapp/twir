@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
@@ -116,6 +117,7 @@ type Deps struct {
 	ChannelService              *channelservice.ChannelService
 
 	Sessions                         *auth.Auth
+	Auth                             *authroutes.Auth
 	Gorm                             *gorm.DB
 	CachedTwitchClient               *twitchcahe.CachedTwitchClient
 	CachedCommandsClient             *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
