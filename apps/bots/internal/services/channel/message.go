@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	botplatforms "github.com/twirapp/twir/apps/bots/internal/platforms"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
@@ -131,7 +132,7 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 		return deleteMessageChannel{}, false, err
 	}
 
-	channel, err := s.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	channel, err := s.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return deleteMessageChannel{}, false, nil
@@ -140,8 +141,16 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 		return deleteMessageChannel{}, false, err
 	}
 
+	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+	if err != nil {
+		return deleteMessageChannel{}, false, fmt.Errorf("parse Twitch bot config: %w", err)
+	}
+	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" || botConfig.BotID == "" {
+		return deleteMessageChannel{}, false, nil
+	}
+
 	return deleteMessageChannel{
-		BotID:         channel.BotID,
-		BroadcasterID: twitchUserID,
+		BotID:         botConfig.BotID,
+		BroadcasterID: twitchBinding.PlatformChannelID,
 	}, true, nil
 }
