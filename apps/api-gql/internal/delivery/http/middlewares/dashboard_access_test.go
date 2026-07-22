@@ -122,6 +122,18 @@ func TestHasChannelRolesDashboardAccess(t *testing.T) {
 			permission: &manageCommands,
 			want:       false,
 		},
+		{
+			name: "denies permissions assigned to a different user",
+			roles: []model.ChannelRole{{
+				Users: []*model.ChannelRoleUser{{UserID: uuid.NewString()}},
+				Permissions: pq.StringArray{
+					dashboard_permissions.ChannelRolePermissionEnumCanAccessDashboard.String(),
+					manageCommands.String(),
+				},
+			}},
+			permission: &manageCommands,
+			want:       false,
+		},
 	}
 
 	for _, tt := range tests {
