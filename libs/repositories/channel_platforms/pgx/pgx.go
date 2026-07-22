@@ -43,6 +43,15 @@ const selectColumns = `
 	created_at,
 	updated_at`
 
+const patchQuery = `
+	UPDATE channel_platforms
+	SET
+		enabled = COALESCE($2::boolean, enabled),
+		bot_config = COALESCE(bot_config, '{}'::jsonb) || COALESCE($3::jsonb, '{}'::jsonb),
+		updated_at = NOW()
+	WHERE id = $1
+	RETURNING ` + selectColumns
+
 func (r *Pgx) Create(
 	ctx context.Context,
 	input channelplatforms.CreateInput,
@@ -177,6 +186,37 @@ func (r *Pgx) Update(
 			return model.Nil, channelplatforms.ErrNotFound
 		}
 		return model.Nil, fmt.Errorf("collect updated channel platform binding: %w", err)
+	}
+
+	return binding, nil
+}
+
+func (r *Pgx) Patch(
+	ctx context.Context,
+	id uuid.UUID,
+	input channelplatforms.PatchInput,
+) (model.ChannelPlatform, error) {
+	var enabled any
+	if input.Enabled != nil {
+		enabled = *input.Enabled
+	}
+
+	var botConfigPatch any
+	if len(input.BotConfigPatch) > 0 {
+		botConfigPatch = input.BotConfigPatch
+	}
+
+	rows, err := r.pool.Query(ctx, patchQuery, id, enabled, botConfigPatch)
+	if err != nil {
+		return model.Nil, fmt.Errorf("patch channel platform binding: %w", err)
+	}
+
+	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channelplatforms.ErrNotFound
+		}
+		return model.Nil, fmt.Errorf("collect patched channel platform binding: %w", err)
 	}
 
 	return binding, nil

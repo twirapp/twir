@@ -14,6 +14,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
@@ -38,6 +39,7 @@ type Handler struct {
 	websocketsGrpc               websockets.WebsocketClient
 	tracer                       trace.Tracer
 	scheduledVipsRepo            scheduledvipsrepository.Repository
+	channelPlatformsRepo         channelplatforms.Repository
 	channelsRepo                 channelsrepository.Repository
 	channelsCache                *generic_cacher.GenericCacher[channelmodel.Channel]
 	channelsInfoHistoryRepo      channelsinfohistory.Repository
@@ -70,6 +72,7 @@ type Opts struct {
 	Logger *slog.Logger
 
 	WebsocketsGrpc                      websockets.WebsocketClient
+	ChannelPlatformsRepository          channelplatforms.Repository
 	ChannelsRepository                  channelsrepository.Repository
 	ScheduledVipsRepo                   scheduledvipsrepository.Repository
 	ChannelsRepo                        *generic_cacher.GenericCacher[channelmodel.Channel]
@@ -107,6 +110,7 @@ func New(opts Opts) *Handler {
 		twirBus:                             opts.Bus,
 		prefixCache:                         opts.PrefixCache,
 		scheduledVipsRepo:                   opts.ScheduledVipsRepo,
+		channelPlatformsRepo:                opts.ChannelPlatformsRepository,
 		channelsRepo:                        opts.ChannelsRepository,
 		channelsCache:                       opts.ChannelsRepo,
 		channelsInfoHistoryRepo:             opts.ChannelsInfoHistoryRepo,
