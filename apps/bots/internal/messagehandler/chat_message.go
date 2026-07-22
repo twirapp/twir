@@ -37,6 +37,25 @@ type chatMessageEnrichedData struct {
 	UsedEmotesWithThirdParty map[string]int
 }
 
+func findChatMessageBinding(
+	channel channelsmodel.Channel,
+	message generic.ChatMessage,
+	messagePlatform platform.Platform,
+) (channelplatformsmodel.ChannelPlatform, bool, error) {
+	if message.ChannelBindingID == "" {
+		binding, found := channelbinding.Find(channel, messagePlatform)
+		return binding, found, nil
+	}
+
+	bindingID, err := uuid.Parse(message.ChannelBindingID)
+	if err != nil {
+		return channelplatformsmodel.ChannelPlatform{}, false, fmt.Errorf("parse message channel binding id: %w", err)
+	}
+
+	binding, found := channelbinding.FindByID(channel, bindingID)
+	return binding, found, nil
+}
+
 func (c *MessageHandler) enrichChatMessage(
 	ctx context.Context,
 	message generic.ChatMessage,
@@ -60,13 +79,16 @@ func (c *MessageHandler) enrichChatMessage(
 	result.EnrichedData.DbChannel = channel
 
 	messagePlatform := chatMessagePlatform(message)
-	binding, found := channelbinding.Find(channel, messagePlatform)
+	binding, found, err := findChatMessageBinding(channel, message, messagePlatform)
+	if err != nil {
+		return result, err
+	}
 	if !found || !binding.Enabled {
 		return result, nil
 	}
 	result.EnrichedData.Binding = binding
 	if messagePlatform == platform.PlatformTwitch {
-		_, botConfig, _, err := channelbinding.FindTwitch(channel)
+		botConfig, err := channelbinding.ParseTwitchBotConfig(binding)
 		if err != nil {
 			return result, fmt.Errorf("parse Twitch bot config: %w", err)
 		}

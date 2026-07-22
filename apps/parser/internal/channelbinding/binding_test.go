@@ -56,7 +56,7 @@ func TestNewParseContextChannelUsesSelectedPlatformAndTwitchBinding(t *testing.T
 		},
 	}
 
-	parseContextChannel, ok := NewParseContextChannel(channel, platform.PlatformKick, "channel-name")
+	parseContextChannel, ok := NewParseContextChannel(channel, platform.PlatformKick, "channel-name", "")
 	if !ok {
 		t.Fatal("expected Kick parse context channel")
 	}
@@ -68,6 +68,47 @@ func TestNewParseContextChannelUsesSelectedPlatformAndTwitchBinding(t *testing.T
 	}
 	if parseContextChannel.TwitchUserID != twitchUserID {
 		t.Errorf("TwitchUserID = %s, want %s", parseContextChannel.TwitchUserID, twitchUserID)
+	}
+}
+
+func TestNewParseContextChannelUsesBindingIDWhenPresent(t *testing.T) {
+	channelID := uuid.New()
+	platformBinding := channelplatformsmodel.ChannelPlatform{
+		ID:                uuid.New(),
+		Platform:          platform.PlatformKick,
+		PlatformChannelID: "fallback-kick-channel",
+	}
+	canonicalBinding := channelplatformsmodel.ChannelPlatform{
+		ID:                uuid.New(),
+		Platform:          platform.PlatformKick,
+		PlatformChannelID: "canonical-kick-channel",
+	}
+	channel := channelsmodel.Channel{
+		ID:       channelID,
+		Bindings: []channelplatformsmodel.ChannelPlatform{platformBinding, canonicalBinding},
+	}
+
+	parseContextChannel, ok := NewParseContextChannel(
+		channel,
+		platform.PlatformKick,
+		"channel-name",
+		canonicalBinding.ID.String(),
+	)
+	if !ok {
+		t.Fatal("expected canonical Kick parse context channel")
+	}
+	if parseContextChannel.ID != canonicalBinding.PlatformChannelID {
+		t.Errorf("ID = %q, want %q", parseContextChannel.ID, canonicalBinding.PlatformChannelID)
+	}
+
+	_, ok = NewParseContextChannel(channel, platform.PlatformKick, "channel-name", uuid.New().String())
+	if ok {
+		t.Fatal("expected no parse context channel for an unknown binding ID")
+	}
+
+	_, ok = NewParseContextChannel(channel, platform.PlatformKick, "channel-name", "not-a-uuid")
+	if ok {
+		t.Fatal("expected no parse context channel for an invalid binding ID")
 	}
 }
 

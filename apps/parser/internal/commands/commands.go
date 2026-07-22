@@ -283,6 +283,7 @@ func (c *Commands) ParseCommandResponses(
 		requestData.Channel,
 		plat,
 		requestData.BroadcasterUserLogin,
+		requestData.ChannelBindingID,
 	)
 	if !ok {
 		return result

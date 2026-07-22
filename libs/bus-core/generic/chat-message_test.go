@@ -14,6 +14,7 @@ func TestChatMessageJSONIsCanonicalTransport(t *testing.T) {
 			"message_id":"message-123",
 			"platform":"kick",
 			"channel_id":"channel-123",
+			"channel_binding_id":"binding-123",
 			"platform_channel_id":"provider-channel-123",
 			"user_id":"user-123",
 			"message":{"text":"hello Kappa","fragments":[{"type":2,"text":"Kappa","emote":{"id":"25"}}]},
@@ -54,6 +55,7 @@ func TestChatMessageJSONIsCanonicalTransport(t *testing.T) {
 	assertChatMessageJSONField(t, payload, "message_id", `"message-123"`)
 	assertChatMessageJSONField(t, payload, "platform", `"kick"`)
 	assertChatMessageJSONField(t, payload, "channel_id", `"channel-123"`)
+	assertChatMessageJSONField(t, payload, "channel_binding_id", `"binding-123"`)
 	assertChatMessageJSONField(t, payload, "platform_channel_id", `"provider-channel-123"`)
 	assertChatMessageJSONField(t, payload, "user_id", `"user-123"`)
 	assertChatMessageJSONField(t, payload, "is_broadcaster", "true")

@@ -206,6 +206,7 @@ func (c *CommandsBus) Subscribe() error {
 				channelModel,
 				platformSource,
 				data.ChannelName,
+				"",
 			)
 			if !ok {
 				return parser.ParseVariablesInTextResponse{}, fmt.Errorf("channel %s is not connected to %s", data.ChannelID, platformSource)

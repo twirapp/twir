@@ -20,6 +20,7 @@ type ChatMessage struct {
 	ChannelPointsCustomRewardId string              `json:"channel_points_custom_reward_id,omitempty"`
 	Platform                    string              `json:"platform"`
 	ChannelID                   string              `json:"channel_id"`
+	ChannelBindingID            string              `json:"channel_binding_id"`
 	UserID                      string              `json:"user_id"`
 	PlatformChannelID           string              `json:"platform_channel_id"`
 	SenderID                    string              `json:"sender_id"`
