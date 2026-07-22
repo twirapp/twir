@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -122,7 +123,12 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	if channel.IsNil() {
+		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
+	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	if !found || twitchBinding.UserID == uuid.Nil || twitchBinding.PlatformChannelID == "" {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
@@ -137,7 +143,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 	}
 
 	twitchClient, err := twitch.NewUserClient(
-		*channel.TwitchUserID,
+		twitchBinding.UserID,
 		c.config,
 		c.bus,
 	)
@@ -156,7 +162,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 
 	vipResp, err := twitchClient.RemoveChannelVip(
 		&helix.RemoveChannelVipParams{
-			BroadcasterID: *channel.TwitchPlatformID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        vipUser.PlatformID,
 		},
 	)
@@ -211,7 +217,12 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	if channel.IsNil() {
+		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
+	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	if !found || twitchBinding.UserID == uuid.Nil || twitchBinding.PlatformChannelID == "" {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
@@ -221,7 +232,7 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 	}
 
 	twitchClient, err := twitch.NewUserClient(
-		*channel.TwitchUserID,
+		twitchBinding.UserID,
 		c.config,
 		c.bus,
 	)
@@ -231,7 +242,7 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 
 	vipResp, err := twitchClient.AddChannelVip(
 		&helix.AddChannelVipParams{
-			BroadcasterID: *channel.TwitchPlatformID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        input.UserID,
 		},
 	)

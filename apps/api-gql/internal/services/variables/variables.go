@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -94,7 +95,8 @@ func (c *Service) EvaluateScript(
 	}
 
 	if testAsUserName != nil && *testAsUserName != "" {
-		if channel.TwitchPlatformID == nil {
+		twitchBinding, found := apiChannelbinding.Find(channel, platform.PlatformTwitch)
+		if !found || twitchBinding.PlatformChannelID == "" {
 			return "", fmt.Errorf("channel has no twitch platform ID")
 		}
 
@@ -103,7 +105,7 @@ func (c *Service) EvaluateScript(
 
 		wg.Go(
 			func() error {
-				u, err := c.cachedTwitchClient.GetUserById(ctx, *channel.TwitchPlatformID)
+				u, err := c.cachedTwitchClient.GetUserById(ctx, twitchBinding.PlatformChannelID)
 				if err != nil {
 					return fmt.Errorf("cannot get channel user: %w", err)
 				}
