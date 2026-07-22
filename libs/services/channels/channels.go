@@ -49,6 +49,11 @@ func (c *ChannelService) GetChannelByID(ctx context.Context, id uuid.UUID) (chan
 	return c.repo.GetByID(ctx, id)
 }
 
+// GetChannelByApiKey resolves a channel and its platform bindings from a channel API key.
+func (c *ChannelService) GetChannelByApiKey(ctx context.Context, apiKey string) (channelsmodel.Channel, error) {
+	return c.repo.GetByApiKey(ctx, apiKey)
+}
+
 // GetChannelByBindingUserID resolves a channel from a platform-scoped linked user ID.
 func (c *ChannelService) GetChannelByBindingUserID(
 	ctx context.Context,

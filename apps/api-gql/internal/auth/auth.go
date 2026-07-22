@@ -14,22 +14,22 @@ import (
 	"github.com/redis/go-redis/v9"
 	model "github.com/twirapp/twir/libs/gomodels"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 )
 
 type Opts struct {
 	fx.In
 
-	Redis     *redis.Client
-	Gorm      *gorm.DB
-	UsersRepo usersrepository.Repository
+	Redis          *redis.Client
+	UsersRepo      usersrepository.Repository
+	ChannelService *channelservice.ChannelService
 }
 
 type Auth struct {
 	sessionManager *scs.SessionManager
-	gorm           *gorm.DB
 	usersRepo      usersrepository.Repository
+	channelService *channelservice.ChannelService
 }
 
 func NewSessions(opts Opts) *Auth {
@@ -44,8 +44,8 @@ func NewSessions(opts Opts) *Auth {
 
 	return &Auth{
 		sessionManager: sessionManager,
-		gorm:           opts.Gorm,
 		usersRepo:      opts.UsersRepo,
+		channelService: opts.ChannelService,
 	}
 }
 
