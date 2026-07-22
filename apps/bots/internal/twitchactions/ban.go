@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
 	kvoptions "github.com/twirapp/kv/options"
@@ -24,6 +25,26 @@ type BanOpts struct {
 	Duration       int
 	IsModerator    bool
 	AddModAfterBan bool
+}
+
+type twitchUserClientFactory func(context.Context, uuid.UUID) (*helix.Client, error)
+
+type twitchBotClientFactory func(context.Context, string) (*helix.Client, error)
+
+func (c *TwitchActions) createUserClient(ctx context.Context, userID uuid.UUID) (*helix.Client, error) {
+	if c.newUserClient != nil {
+		return c.newUserClient(ctx, userID)
+	}
+
+	return twitch.NewUserClientWithContext(ctx, userID, c.config, c.twirBus)
+}
+
+func (c *TwitchActions) createBotClient(ctx context.Context, botID string) (*helix.Client, error) {
+	if c.newBotClient != nil {
+		return c.newBotClient(ctx, botID)
+	}
+
+	return twitch.NewBotClientWithContext(ctx, botID, c.config, c.twirBus)
 }
 
 func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
@@ -51,22 +72,12 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 	twitchUserID := twitchBinding.UserID
 	moderatorID := botConfig.BotID
 
-	broadcasterHelixClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		twitchUserID,
-		c.config,
-		c.twirBus,
-	)
+	broadcasterHelixClient, err := c.createUserClient(ctx, twitchUserID)
 	if err != nil {
 		return fmt.Errorf("cannot create helix client: %w", err)
 	}
 
-	botHelixClient, err := twitch.NewBotClientWithContext(
-		ctx,
-		moderatorID,
-		c.config,
-		c.twirBus,
-	)
+	botHelixClient, err := c.createBotClient(ctx, moderatorID)
 	if err != nil {
 		c.logger.Error("cannot create helix client", logger.Error(err))
 		return fmt.Errorf("cannot create helix client: %w", err)
