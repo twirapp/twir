@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -36,10 +35,6 @@ func (c *Manager) tryTickLocked(id TimerID, t *Timer) {
 			slog.String("channelId", t.dbRow.ChannelID.String()),
 			slog.String("timerId", id.String()),
 		)
-		return
-	}
-
-	if !channel.IsBotMod || !channel.IsEnabled {
 		return
 	}
 
@@ -152,14 +147,6 @@ func (c *Manager) tryTickLocked(id TimerID, t *Timer) {
 
 	wasSent := false
 	for _, target := range targets {
-		if !channel.KickConnected() && target.platform == platform.PlatformKick {
-			continue
-		}
-
-		if !channel.TwitchConnected() && target.platform == platform.PlatformTwitch {
-			continue
-		}
-
 		err = c.sendMessage(
 			ctx,
 			channel.ID,
