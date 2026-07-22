@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
+	"github.com/twirapp/twir/libs/entities/platform"
+	model "github.com/twirapp/twir/libs/gomodels"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func (s *Auth) GetAuthenticatedUserByApiKey(ctx context.Context) (*model.Users, error) {
@@ -27,29 +30,67 @@ func (s *Auth) GetAuthenticatedUserByApiKey(ctx context.Context) (*model.Users, 
 		return nil, fmt.Errorf("api key is required")
 	}
 
-	// Try channel API key first
-	channel := model.Channels{}
-	if err := s.gorm.Where(`"api_key" = ?`, apiKey).First(&channel).Error; err == nil {
-		// Found channel by API key, resolve owner user
-		var userID string
-		if channel.TwitchUserID != nil {
-			userID = *channel.TwitchUserID
-		} else if channel.KickUserID != nil {
-			userID = *channel.KickUserID
-		}
-		if userID != "" {
-			user := model.Users{}
-			if err := s.gorm.Where("id = ?", userID).First(&user).Error; err == nil {
-				return &user, nil
-			}
-		}
+	if user, found := s.resolveChannelAPIKeyOwner(ctx, apiKey); found {
+		return user, nil
 	}
 
-	// Fallback to user API key
-	user := model.Users{}
-	if err := s.gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+	user, err := s.usersRepo.GetByApiKey(ctx, apiKey)
+	if err != nil {
 		return nil, fmt.Errorf("cannot get user from db: %w", err)
 	}
 
-	return &user, nil
+	return mapRepositoryUser(user), nil
+}
+
+func (s *Auth) resolveChannelAPIKeyOwner(ctx context.Context, apiKey string) (*model.Users, bool) {
+	channel, err := s.channelService.GetChannelByApiKey(ctx, apiKey)
+	if err != nil || channel.IsNil() {
+		return nil, false
+	}
+
+	for _, p := range platform.All() {
+		for _, binding := range channel.Bindings {
+			if binding.Platform != p {
+				continue
+			}
+
+			return s.getBindingOwner(ctx, binding.UserID)
+		}
+	}
+
+	for _, binding := range channel.Bindings {
+		if binding.UserID == uuid.Nil {
+			continue
+		}
+
+		return s.getBindingOwner(ctx, binding.UserID)
+	}
+
+	return nil, false
+}
+
+func (s *Auth) getBindingOwner(ctx context.Context, userID uuid.UUID) (*model.Users, bool) {
+	if userID == uuid.Nil {
+		return nil, false
+	}
+
+	user, err := s.usersRepo.GetByID(ctx, userID)
+	if err != nil || user.IsNil() {
+		return nil, false
+	}
+
+	return mapRepositoryUser(user), true
+}
+
+func mapRepositoryUser(user usersmodel.User) *model.Users {
+	return &model.Users{
+		ID:                user.ID.String(),
+		PlatformID:        user.PlatformID,
+		TokenID:           user.TokenID.NullString,
+		IsBotAdmin:        user.IsBotAdmin,
+		ApiKey:            user.ApiKey,
+		IsBanned:          user.IsBanned,
+		CreatedAt:         user.CreatedAt,
+		HideOnLandingPage: user.HideOnLandingPage,
+	}
 }
