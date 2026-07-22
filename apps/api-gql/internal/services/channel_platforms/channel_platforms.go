@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
@@ -31,6 +32,7 @@ type Opts struct {
 	ChannelPlatformsRepo channelplatformsrepo.Repository
 	Auth                 *authroutes.Auth
 	PlatformRegistry     *appplatform.Registry
+	TrmManager           trm.Manager
 }
 
 func NewFx(opts Opts) *Service {
@@ -40,6 +42,7 @@ func NewFx(opts Opts) *Service {
 		opts.ChannelPlatformsRepo,
 		opts.Auth,
 		opts.PlatformRegistry,
+		opts.TrmManager,
 	)
 }
 
@@ -49,13 +52,15 @@ func New(
 	bindings BindingRepository,
 	oauth OAuthStarter,
 	registry *appplatform.Registry,
+	transactions transactionRunner,
 ) *Service {
 	return &Service{
-		channels: channels,
-		users:    users,
-		bindings: bindings,
-		oauth:    oauth,
-		registry: registry,
+		channels:     channels,
+		users:        users,
+		bindings:     bindings,
+		oauth:        oauth,
+		registry:     registry,
+		transactions: transactions,
 	}
 }
 
@@ -67,11 +72,12 @@ type Operations interface {
 }
 
 type Service struct {
-	channels ChannelReader
-	users    UserLookup
-	bindings BindingRepository
-	oauth    OAuthStarter
-	registry *appplatform.Registry
+	channels     ChannelReader
+	users        UserLookup
+	bindings     BindingRepository
+	oauth        OAuthStarter
+	registry     *appplatform.Registry
+	transactions transactionRunner
 }
 
 var _ Operations = (*Service)(nil)
@@ -92,8 +98,13 @@ type UserLookup interface {
 
 type BindingRepository interface {
 	GetByChannelAndPlatform(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error)
+	LockByChannelID(context.Context, uuid.UUID) error
 	Patch(context.Context, uuid.UUID, channelplatformsrepo.PatchInput) (channelplatformsmodel.ChannelPlatform, error)
 	Delete(context.Context, uuid.UUID) error
+}
+
+type transactionRunner interface {
+	Do(context.Context, func(context.Context) error) error
 }
 
 type OAuthStarter interface {
@@ -141,33 +152,39 @@ func (s *Service) Disconnect(ctx context.Context, channelID uuid.UUID, platform 
 	if err := s.requireAvailable(platform); err != nil {
 		return err
 	}
-	if s.channels == nil || s.bindings == nil {
+	if s.channels == nil || s.bindings == nil || s.transactions == nil {
 		return fmt.Errorf("channel platform binding service is not configured")
 	}
 
-	channel, err := s.channels.GetChannelByID(ctx, channelID)
-	if err != nil {
-		return fmt.Errorf("get channel: %w", err)
-	}
-	availableBindings := 0
-	for _, binding := range channel.Bindings {
-		if s.isAvailable(binding.Platform) {
-			availableBindings++
+	return s.transactions.Do(ctx, func(txCtx context.Context) error {
+		if err := s.bindings.LockByChannelID(txCtx, channelID); err != nil {
+			return fmt.Errorf("lock channel platform bindings: %w", err)
 		}
-	}
-	if availableBindings <= 1 {
-		return ErrLastBinding
-	}
 
-	binding, err := s.bindings.GetByChannelAndPlatform(ctx, channelID, platform)
-	if err != nil {
-		return fmt.Errorf("get channel platform binding: %w", err)
-	}
-	if err := s.bindings.Delete(ctx, binding.ID); err != nil {
-		return fmt.Errorf("delete channel platform binding: %w", err)
-	}
+		channel, err := s.channels.GetChannelByID(txCtx, channelID)
+		if err != nil {
+			return fmt.Errorf("get channel: %w", err)
+		}
+		availableBindings := 0
+		for _, binding := range channel.Bindings {
+			if s.isAvailable(binding.Platform) {
+				availableBindings++
+			}
+		}
+		if availableBindings <= 1 {
+			return ErrLastBinding
+		}
 
-	return nil
+		binding, err := s.bindings.GetByChannelAndPlatform(txCtx, channelID, platform)
+		if err != nil {
+			return fmt.Errorf("get channel platform binding: %w", err)
+		}
+		if err := s.bindings.Delete(txCtx, binding.ID); err != nil {
+			return fmt.Errorf("delete channel platform binding: %w", err)
+		}
+
+		return nil
+	})
 }
 
 func (s *Service) SetEnabled(

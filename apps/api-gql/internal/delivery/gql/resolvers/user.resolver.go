@@ -145,27 +145,7 @@ func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gql
 	if err != nil {
 		return nil, fmt.Errorf("get authenticated user channel: %w", err)
 	}
-
-	accounts := make([]gqlmodel.LinkedAccount, 0, len(channel.Bindings))
-	for _, binding := range channel.Bindings {
-		user, err := r.deps.UsersRepository.GetByID(ctx, binding.UserID)
-		if err != nil {
-			return nil, fmt.Errorf("get linked platform user: %w", err)
-		}
-
-		account := gqlmodel.LinkedAccount{
-			Platform:       binding.Platform.String(),
-			PlatformUserID: user.PlatformID,
-			PlatformLogin:  user.Login,
-		}
-		if user.Avatar != "" {
-			account.PlatformAvatar = &user.Avatar
-		}
-
-		accounts = append(accounts, account)
-	}
-
-	return accounts, nil
+	return r.linkedAccountsForChannel(ctx, channel)
 }
 
 // CurrentPlatform is the resolver for the currentPlatform field.
