@@ -96,7 +96,7 @@ func (c *Service) EvaluateScript(
 
 	if testAsUserName != nil && *testAsUserName != "" {
 		twitchBinding, found := apiChannelbinding.Find(channel, platform.PlatformTwitch)
-		if !found || twitchBinding.PlatformChannelID == "" {
+		if !found {
 			return "", fmt.Errorf("channel has no twitch platform ID")
 		}
 
