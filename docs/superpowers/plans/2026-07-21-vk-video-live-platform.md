@@ -138,7 +138,7 @@
 
 **Files:**
 - Modify: `libs/config/config.go` and sample env documentation
-- Create: `libs/migrations/postgres/20260722120000_add_tokens_device_id.sql`
+- Create: `libs/migrations/postgres/20260722184627_add_tokens_device_id.sql`
 - Modify: `libs/repositories/tokens/{repository.go,model/model.go,datasources/postgres/pgx.go}`
 - Create: `libs/integrations/vk/id.go`
 - Create: `libs/integrations/vk/id_test.go`
