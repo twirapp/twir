@@ -61,4 +61,41 @@
 
 ## Commit
 
-- Pending local commit: `fix(emotes-cacher): use channel platform bindings`
+- `96c1ecd2a` `fix(emotes-cacher): use channel platform bindings`
+
+## Important Test Follow-up
+
+### Scope
+
+- Addressed only the Task 4g review finding that DryRun tests asserted SQL placeholders but not their bound values.
+- Production code and dependencies are unchanged.
+
+### RED
+
+- Deliberately incorrect ordered `statement.Vars` expectations failed under the existing query builders:
+  - Fill returned `{true, twitch, kick}` rather than `{false, kick, twitch}`.
+  - BTTV returned `{twitch, true}` rather than `{kick, false}`.
+  - 7TV startup returned `{twitch, kick, true}` rather than `{kick, twitch, false}`.
+  - 7TV profile binding returned `{channel-id, twitch, kick}` rather than `{wrong-channel-id, kick, twitch}`.
+- Commands:
+  - `go test -count=1 ./apps/emotes-cacher/internal/emotes_store -run '^TestBuildStartupChannelsQueryUsesExplicitNormalizedBindings$'`
+  - `go test -count=1 ./apps/emotes-cacher/internal/services/bttv -run '^TestBuildEnabledTwitchChannelsQueryUsesTwitchBindingEligibility$'`
+  - `go test -count=1 ./apps/emotes-cacher/internal/services/seventv -run '^(TestBuildStartupChannelsQueryUsesEnabledTwitchOrKickBindingWithoutDuplicateChannels|TestBuildChannelBindingsQueryUsesExplicitTwitchAndKickBindingsRegardlessOfBindingEnablement)$'`
+
+### GREEN
+
+- Each query test now compares its complete ordered `statement.Vars` with exact supported platform and eligibility values using `reflect.DeepEqual`.
+- The focused emote-store, BTTV, and 7TV test commands passed.
+- `go test -count=1 ./apps/emotes-cacher/...` passed.
+- `gofmt -d` and `git diff --check` produced no output.
+
+### Changed Files
+
+- `apps/emotes-cacher/internal/emotes_store/fill_test.go`
+- `apps/emotes-cacher/internal/services/bttv/service_test.go`
+- `apps/emotes-cacher/internal/services/seventv/bindings_test.go`
+- `.superpowers/sdd/task-4g-report.md`
+
+### Commit
+
+- `5ab09d783` `test(emotes-cacher): assert query vars`
