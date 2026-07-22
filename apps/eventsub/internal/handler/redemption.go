@@ -398,26 +398,36 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
+	chatUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.UserId)
+	if err != nil {
+		return fmt.Errorf("get redemption user: %w", err)
+	}
+
+	message := generic.ChatMessage{
+		ID:                   event.Id,
+		BroadcasterUserId:    event.BroadcasterUserId,
+		BroadcasterUserName:  event.BroadcasterUserName,
+		BroadcasterUserLogin: event.BroadcasterUserLogin,
+		ChatterUserId:        event.UserId,
+		ChatterUserName:      event.UserName,
+		ChatterUserLogin:     event.UserLogin,
+		MessageID:            event.Id,
+		Platform:             string(platform.PlatformTwitch),
+		PlatformChannelID:    event.BroadcasterUserId,
+		ChannelID:            channelID.String(),
+		UserID:               chatUser.ID.String(),
+		SenderID:             event.UserId,
+		SenderLogin:          event.UserLogin,
+		SenderDisplayName:    event.UserName,
+		Message: &generic.ChatMessageMessage{
+			Text: fmt.Sprintf("!%s %s", foundCommand.Name, event.UserInput),
+		},
+	}
+	message.IsBroadcaster = message.IsChatterBroadcaster()
+
 	res, err := c.twirBus.Parser.GetCommandResponse.Request(
 		ctx,
-		generic.ChatMessage{
-			BroadcasterUserId:    event.BroadcasterUserId,
-			BroadcasterUserName:  event.BroadcasterUserName,
-			BroadcasterUserLogin: event.BroadcasterUserLogin,
-			ChatterUserId:        event.UserId,
-			ChatterUserName:      event.UserName,
-			ChatterUserLogin:     event.UserLogin,
-			MessageID:            event.Id,
-			PlatformChannelID:    event.BroadcasterUserId,
-			ChannelID:            event.BroadcasterUserId,
-			UserID:               event.UserId,
-			SenderID:             event.UserId,
-			SenderLogin:          event.UserLogin,
-			SenderDisplayName:    event.UserName,
-			Message: &generic.ChatMessageMessage{
-				Text: fmt.Sprintf("!%s %s", foundCommand.Name, event.UserInput),
-			},
-		},
+		message,
 	)
 	if err != nil {
 		return err

@@ -11,7 +11,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
-	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/redis_keys"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
@@ -20,14 +19,14 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleChatWall(ctx context.Context, msg generic.ChatMessage) error {
+func (c *MessageHandler) handleChatWall(ctx context.Context, msg enrichedChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
 
 	if msg.Message == nil ||
 		msg.ChatterUserId == msg.BroadcasterUserId ||
-		msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
+		msg.ChatterUserId == msg.EnrichedData.BotPlatformID {
 		return nil
 	}
 
@@ -109,7 +108,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg generic.ChatMes
 				ctx,
 				twitchactions.DeleteMessageOpts{
 					BroadcasterID: msg.BroadcasterUserId,
-					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.BotPlatformID,
 					MessageID:     msg.ID,
 				},
 			); err != nil {
@@ -128,7 +127,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg generic.ChatMes
 					Reason:        "banned by twir for chat wall phrase: " + wall.Phrase,
 					BroadcasterID: msg.BroadcasterUserId,
 					UserID:        msg.ChatterUserId,
-					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.BotPlatformID,
 				},
 			); err != nil {
 				return err
@@ -139,7 +138,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg generic.ChatMes
 			ctx,
 			chatwallrepository.CreateLogInput{
 				WallID: wall.ID,
-				UserID: uuid.MustParse(msg.EnrichedData.DbUser.ID),
+				UserID: msg.EnrichedData.DbUser.ID,
 				Text:   msg.Message.Text,
 			},
 		); err != nil {

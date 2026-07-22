@@ -17,7 +17,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
-	"github.com/twirapp/twir/libs/bus-core/generic"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
@@ -36,7 +35,7 @@ var moderationFunctionsMapping = map[channelsmoderationsettingsmodel.ModerationS
 	c *MessageHandler,
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult{
 	channelsmoderationsettingsmodel.ModerationSettingsTypeLinks:       (*MessageHandler).moderationLinksParser,
 	channelsmoderationsettingsmodel.ModerationSettingsTypeDenylist:    (*MessageHandler).moderationDenyListParser,
@@ -48,7 +47,7 @@ var moderationFunctionsMapping = map[channelsmoderationsettingsmodel.ModerationS
 	channelsmoderationsettingsmodel.ModerationSettingsTypeOneManSpam:  (*MessageHandler).moderationOneManSpam,
 }
 
-func (c *MessageHandler) handleModeration(ctx context.Context, msg generic.ChatMessage) error {
+func (c *MessageHandler) handleModeration(ctx context.Context, msg enrichedChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -82,7 +81,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg generic.ChatM
 				ctx,
 				twitchactions.DeleteMessageOpts{
 					BroadcasterID: msg.BroadcasterUserId,
-					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.BotPlatformID,
 					MessageID:     msg.MessageID,
 				},
 			)
@@ -112,7 +111,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg generic.ChatM
 			err = c.twitchActions.WarnUser(
 				ctx, twitchactions.WarnUserOpts{
 					BroadcasterID: msg.BroadcasterUserId,
-					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.BotPlatformID,
 					UserID:        msg.ChatterUserId,
 					Reason:        warningMessage,
 				},
@@ -132,7 +131,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg generic.ChatM
 					Reason:        entity.BanMessage,
 					BroadcasterID: msg.BroadcasterUserId,
 					UserID:        msg.ChatterUserId,
-					ModeratorID:   msg.EnrichedData.DbChannel.BotID,
+					ModeratorID:   msg.EnrichedData.BotPlatformID,
 				},
 			)
 
@@ -166,7 +165,7 @@ func (c *MessageHandler) getChannelModerationSettings(ctx context.Context, chann
 
 func (c *MessageHandler) moderationHandleResult(
 	ctx context.Context,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
 ) *moderationHandleResult {
 	var channelRoles []model.ChannelRole
@@ -259,7 +258,7 @@ func (c *MessageHandler) moderationHandleResult(
 func (c *MessageHandler) moderationLinksParser(
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult {
 	containLink := c.moderationHelpers.HasLink(msg.Message.Text, settings.CheckClips)
 
@@ -290,7 +289,7 @@ func (c *MessageHandler) moderationLinksParser(
 func (c *MessageHandler) moderationDenyListParser(
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult {
 	if len(settings.DenyList) == 0 {
 		return nil
@@ -315,7 +314,7 @@ func (c *MessageHandler) moderationDenyListParser(
 func (c *MessageHandler) moderationSymbolsParser(
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult {
 	if utf8.RuneCountInString(msg.Message.Text) < settings.TriggerLength {
 		return nil
@@ -335,7 +334,7 @@ func (c *MessageHandler) moderationSymbolsParser(
 func (c *MessageHandler) moderationLongMessageParser(
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult {
 	isToLong := c.moderationHelpers.IsTooLong(msg.Message.Text, settings.TriggerLength)
 
@@ -349,7 +348,7 @@ func (c *MessageHandler) moderationLongMessageParser(
 func (c *MessageHandler) moderationCapsParser(
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult {
 	text := msg.Message.Text
 
@@ -373,7 +372,7 @@ func (c *MessageHandler) moderationCapsParser(
 func (c *MessageHandler) moderationEmotesParser(
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult {
 	if settings.TriggerLength == 0 {
 		return nil
@@ -449,7 +448,7 @@ func (c *MessageHandler) moderationDetectLanguage(text string) (*langDetectResul
 func (c *MessageHandler) moderationLanguageParser(
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult {
 	text := msg.Message.Text
 	for emote, _ := range msg.EnrichedData.UsedEmotesWithThirdParty {
@@ -489,7 +488,7 @@ func (c *MessageHandler) moderationLanguageParser(
 func (c *MessageHandler) moderationOneManSpam(
 	ctx context.Context,
 	settings channelsmoderationsettingsmodel.ChannelModerationSettings,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) *moderationHandleResult {
 	if len(msg.Message.Text) < settings.TriggerLength {
 		return nil

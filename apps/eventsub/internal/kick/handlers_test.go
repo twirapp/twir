@@ -607,12 +607,27 @@ func TestHandleChatMessage(t *testing.T) {
 	if !foundKickEmote {
 		t.Fatalf("expected kick emote fragment KEKW/4148074 to be present")
 	}
-	if !msg.IsChatterModerator() {
-		t.Fatalf("expected moderator role to be detected from kick badge")
+	if !msg.IsModerator {
+		t.Fatalf("expected canonical moderator role flag")
 	}
 
 	if parserQueue.PublishedCount() != 1 {
 		t.Fatalf("expected 1 parser message published, got %d", parserQueue.PublishedCount())
+	}
+	parserMessage := parserQueue.FirstPublished()
+	if parserMessage.ChannelID != channelUUID.String() || parserMessage.UserID != userID {
+		t.Fatalf("parser message did not retain canonical IDs: %#v", parserMessage)
+	}
+	serialized, err := json.Marshal(parserMessage)
+	if err != nil {
+		t.Fatalf("marshal parser message: %v", err)
+	}
+	var parserPayload map[string]json.RawMessage
+	if err := json.Unmarshal(serialized, &parserPayload); err != nil {
+		t.Fatalf("unmarshal parser message: %v", err)
+	}
+	if _, ok := parserPayload["enriched_data"]; ok {
+		t.Fatalf("parser message includes repository enrichment: %s", serialized)
 	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {

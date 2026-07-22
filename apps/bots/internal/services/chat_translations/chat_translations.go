@@ -14,6 +14,7 @@ import (
 	googletranslate "cloud.google.com/go/translate"
 	redislimiter "github.com/aidenwallis/go-ratelimiting/redis"
 	redislimiteradapter "github.com/aidenwallis/go-ratelimiting/redis/adapters/go-redis"
+	"github.com/google/uuid"
 	"github.com/lkretschmer/deepl-go"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/kv"
@@ -24,7 +25,6 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelschattrenslationsrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
 	"go.uber.org/fx"
@@ -121,7 +121,6 @@ type Service struct {
 	twirBus                        *buscore.Bus
 	redis                          *redis.Client
 	kv                             kv.KV
-	channelsRepository             channelsrepository.Repository
 	channelsTranslationsRepository channelschattrenslationsrepository.Repository
 	channelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]
 
@@ -131,10 +130,20 @@ type Service struct {
 	googleTranslateClient *googletranslate.Client
 }
 
-func (c *Service) Handle(ctx context.Context, msg generic.ChatMessage) error {
+type ChatMessageInput struct {
+	Message                  generic.ChatMessage
+	ChannelID                uuid.UUID
+	BotUserID                *uuid.UUID
+	ChannelCommandPrefix     string
+	UsedEmotesWithThirdParty map[string]int
+}
+
+func (c *Service) Handle(ctx context.Context, input ChatMessageInput) error {
+	msg := input.Message
+
 	if msg.Message == nil || strings.HasPrefix(
 		msg.Message.Text,
-		msg.EnrichedData.ChannelCommandPrefix,
+		input.ChannelCommandPrefix,
 	) {
 		return nil
 	}
@@ -143,7 +152,7 @@ func (c *Service) Handle(ctx context.Context, msg generic.ChatMessage) error {
 		return nil
 	}
 
-	if msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
+	if input.BotUserID != nil && msg.UserID == input.BotUserID.String() {
 		return nil
 	}
 
@@ -164,7 +173,7 @@ func (c *Service) Handle(ctx context.Context, msg generic.ChatMessage) error {
 
 	channelTranslationSettings, err := c.channelsTranslationsCache.Get(
 		ctx,
-		msg.EnrichedData.DbChannel.ID.String(),
+		input.ChannelID.String(),
 	)
 	if err != nil {
 		if errors.Is(err, channelschattrenslationsrepository.ErrSettingsNotFound) {
@@ -184,12 +193,12 @@ func (c *Service) Handle(ctx context.Context, msg generic.ChatMessage) error {
 		return nil
 	}
 
-	if c.config.IsProduction() && msg.ChatterUserId == msg.EnrichedData.DbChannel.BotID {
+	if c.config.IsProduction() && input.BotUserID != nil && msg.UserID == input.BotUserID.String() {
 		return nil
 	}
 
 	textForTranslate := msg.Message.Text
-	for emoteName := range msg.EnrichedData.UsedEmotesWithThirdParty {
+	for emoteName := range input.UsedEmotesWithThirdParty {
 		textForTranslate = strings.ReplaceAll(textForTranslate, emoteName, "")
 	}
 
@@ -211,8 +220,8 @@ func (c *Service) Handle(ctx context.Context, msg generic.ChatMessage) error {
 		return nil
 	}
 
-	excludedWords := make([]string, 0, len(msg.EnrichedData.UsedEmotesWithThirdParty))
-	for k := range msg.EnrichedData.UsedEmotesWithThirdParty {
+	excludedWords := make([]string, 0, len(input.UsedEmotesWithThirdParty))
+	for k := range input.UsedEmotesWithThirdParty {
 		excludedWords = append(excludedWords, k)
 	}
 
@@ -251,7 +260,7 @@ func (c *Service) Handle(ctx context.Context, msg generic.ChatMessage) error {
 	if err := c.twirBus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelID:         msg.EnrichedData.DbChannel.ID,
+			ChannelID:         input.ChannelID,
 			Platforms:         []platform.Platform{platformSource},
 			Message:           resultText.String(),
 			SkipToxicityCheck: false,

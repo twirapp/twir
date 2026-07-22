@@ -5,7 +5,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/twirapp/twir/libs/bus-core/generic"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	"github.com/twirapp/twir/libs/utils"
@@ -13,7 +12,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleTts(ctx context.Context, msg generic.ChatMessage) error {
+func (c *MessageHandler) handleTts(ctx context.Context, msg enrichedChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -70,7 +69,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg generic.ChatMessage)
 	originalCopy.Text = text
 	newMessage.Message = &originalCopy
 
-	_, err = c.twirBus.Parser.ProcessMessageAsCommand.Request(ctx, newMessage)
+	_, err = c.twirBus.Parser.ProcessMessageAsCommand.Request(ctx, newMessage.ChatMessage)
 	if err != nil {
 		return err
 	}

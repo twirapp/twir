@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/utils"
 	"go.opentelemetry.io/otel/attribute"
@@ -13,7 +12,7 @@ import (
 
 func (c *MessageHandler) handleIncrementStreamMessages(
 	ctx context.Context,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()

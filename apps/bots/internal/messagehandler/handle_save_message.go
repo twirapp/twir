@@ -3,7 +3,6 @@ package messagehandler
 import (
 	"context"
 
-	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/logger"
 	chatmessages "github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/utils"
@@ -11,7 +10,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleSaveMessageBatched(ctx context.Context, data []generic.ChatMessage) {
+func (c *MessageHandler) handleSaveMessageBatched(ctx context.Context, data []enrichedChatMessage) {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -39,7 +38,7 @@ func (c *MessageHandler) handleSaveMessageBatched(ctx context.Context, data []ge
 
 func (c *MessageHandler) handleSaveMessage(
 	_ context.Context,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) error {
 	if msg.Message == nil {
 		return nil

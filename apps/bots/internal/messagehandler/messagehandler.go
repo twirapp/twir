@@ -28,6 +28,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	"github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	channelsmoderationsettingsmodel "github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -35,6 +36,7 @@ import (
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	"github.com/twirapp/twir/libs/repositories/users"
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
 	"github.com/twirapp/twir/libs/utils"
@@ -69,6 +71,8 @@ type Opts struct {
 	ChatWallRepository               chatwallrepository.Repository
 	ChatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 	ChannelsRepository               channelsrepository.Repository
+	StreamsRepository                streamsrepository.Repository
+	PrefixCache                      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	GiveawaysCacher                  *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
 	VotebanService                   *voteban.Service
@@ -99,6 +103,9 @@ type MessageHandler struct {
 	chatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
 	giveawaysCacher                  *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
+	channelsRepository               channelsrepository.Repository
+	streamsRepository                streamsrepository.Repository
+	prefixCache                      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	votebanService                   *voteban.Service
 	chatTranslatorService            *chattranslationsservice.Service
 	giveawaysService                 *giveaways.Service
@@ -109,9 +116,9 @@ type MessageHandler struct {
 	workersPool     *workers.Pool
 	trmManager      trm.Manager
 
-	messagesSaveBatcher    *batchprocessor.BatchProcessor[generic.ChatMessage]
-	messagesLurkersBatcher *batchprocessor.BatchProcessor[generic.ChatMessage]
-	messagesEmotesBatcher  *batchprocessor.BatchProcessor[generic.ChatMessage]
+	messagesSaveBatcher    *batchprocessor.BatchProcessor[enrichedChatMessage]
+	messagesLurkersBatcher *batchprocessor.BatchProcessor[enrichedChatMessage]
+	messagesEmotesBatcher  *batchprocessor.BatchProcessor[enrichedChatMessage]
 }
 
 var messageHandlerTracer = otel.Tracer("message-handler")
@@ -119,7 +126,7 @@ var messageHandlerTracer = otel.Tracer("message-handler")
 var handlersForExecute = []func(
 	c *MessageHandler,
 	ctx context.Context,
-	msg generic.ChatMessage,
+	msg enrichedChatMessage,
 ) error{
 	(*MessageHandler).handleSaveMessage,
 	(*MessageHandler).handleIncrementStreamMessages,
@@ -157,6 +164,9 @@ func New(opts Opts) *MessageHandler {
 		chatWallSettingsCacher:           opts.ChatWallSettingsCacher,
 		giveawaysCacher:                  opts.GiveawaysCacher,
 		channelsModerationSettingsCacher: opts.ChannelsModerationSettingsCacher,
+		channelsRepository:               opts.ChannelsRepository,
+		streamsRepository:                opts.StreamsRepository,
+		prefixCache:                      opts.PrefixCache,
 		trmManager:                       opts.TrmManager,
 		usersRepository:                  opts.UsersRepository,
 		votebanService:                   opts.VotebanService,
@@ -168,22 +178,22 @@ func New(opts Opts) *MessageHandler {
 
 	batcherCtx, batcherCancel := context.WithCancel(context.Background())
 
-	handler.messagesSaveBatcher = batchprocessor.NewBatchProcessor[generic.ChatMessage](
-		batchprocessor.BatchProcessorOpts[generic.ChatMessage]{
+	handler.messagesSaveBatcher = batchprocessor.NewBatchProcessor[enrichedChatMessage](
+		batchprocessor.BatchProcessorOpts[enrichedChatMessage]{
 			Interval:  500 * time.Millisecond,
 			BatchSize: 1000,
 			Callback:  handler.handleSaveMessageBatched,
 		},
 	)
-	handler.messagesLurkersBatcher = batchprocessor.NewBatchProcessor[generic.ChatMessage](
-		batchprocessor.BatchProcessorOpts[generic.ChatMessage]{
+	handler.messagesLurkersBatcher = batchprocessor.NewBatchProcessor[enrichedChatMessage](
+		batchprocessor.BatchProcessorOpts[enrichedChatMessage]{
 			Interval:  100 * time.Millisecond,
 			BatchSize: 100,
 			Callback:  handler.handleRemoveLurkerBatched,
 		},
 	)
-	handler.messagesEmotesBatcher = batchprocessor.NewBatchProcessor[generic.ChatMessage](
-		batchprocessor.BatchProcessorOpts[generic.ChatMessage]{
+	handler.messagesEmotesBatcher = batchprocessor.NewBatchProcessor[enrichedChatMessage](
+		batchprocessor.BatchProcessorOpts[enrichedChatMessage]{
 			Interval:  500 * time.Millisecond,
 			BatchSize: 1000,
 			Callback:  handler.handleEmotesUsagesBatched,
@@ -228,8 +238,17 @@ func New(opts Opts) *MessageHandler {
 
 	handlersForExecute = append(
 		handlersForExecute,
-		func(c *MessageHandler, ctx context.Context, msg generic.ChatMessage) error {
-			return c.chatTranslatorService.Handle(ctx, msg)
+		func(c *MessageHandler, ctx context.Context, msg enrichedChatMessage) error {
+			return c.chatTranslatorService.Handle(
+				ctx,
+				chattranslationsservice.ChatMessageInput{
+					Message:                  msg.ChatMessage,
+					ChannelID:                msg.EnrichedData.DbChannel.ID,
+					BotUserID:                msg.EnrichedData.Binding.BotUserID,
+					ChannelCommandPrefix:     msg.EnrichedData.ChannelCommandPrefix,
+					UsedEmotesWithThirdParty: msg.EnrichedData.UsedEmotesWithThirdParty,
+				},
+			)
 		},
 	)
 
@@ -249,23 +268,28 @@ func (c *MessageHandler) Handle(ctx context.Context, req generic.ChatMessage) er
 		attribute.String("user.login", req.ChatterUserLogin),
 	)
 
-	botEnabled := req.EnrichedData.DbChannel.TwitchBotEnabled
-	if req.Platform == "kick" {
-		botEnabled = req.EnrichedData.DbChannel.KickBotEnabled
-	}
-	if !botEnabled {
-		return nil
-	}
-
 	if req.Message == nil {
 		return nil
 	}
 
-	if req.EnrichedData.DbUser == nil {
-		return fmt.Errorf("db user not found after ensureUser")
+	msg, err := c.enrichChatMessage(ctx, req)
+	if err != nil {
+		return err
 	}
 
-	if req.ChatterUserId == req.EnrichedData.DbChannel.BotID && c.config.AppEnv == "production" {
+	if !msg.EnrichedData.Binding.Enabled {
+		return nil
+	}
+
+	if msg.EnrichedData.DbUser == nil {
+		return fmt.Errorf("db user not found after enrichment")
+	}
+
+	if msg.EnrichedData.Binding.BotUserID != nil && req.UserID == msg.EnrichedData.Binding.BotUserID.String() {
+		return nil
+	}
+
+	if msg.EnrichedData.BotPlatformID != "" && req.ChatterUserId == msg.EnrichedData.BotPlatformID && c.config.AppEnv == "production" {
 		return nil
 	}
 
@@ -286,7 +310,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req generic.ChatMessage) er
 				)
 				defer handlerSpan.End()
 
-				handlerError := handlerFunc(c, handlerCtx, req)
+				handlerError := handlerFunc(c, handlerCtx, msg)
 				if handlerError != nil {
 					handlerSpan.RecordError(handlerError)
 					c.logger.Error(
