@@ -2,9 +2,11 @@ package seventv
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/twirapp/twir/libs/entities/platform"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -32,6 +34,7 @@ func TestBuildStartupChannelsQueryUsesEnabledTwitchOrKickBindingWithoutDuplicate
 		`c."isEnabled"`,
 	)
 	assertSingleBindingSource(t, query)
+	assertQueryVars(t, statement.Vars, platform.PlatformTwitch, platform.PlatformKick, true)
 }
 
 func TestBuildChannelBindingsQueryUsesExplicitTwitchAndKickBindingsRegardlessOfBindingEnablement(t *testing.T) {
@@ -57,6 +60,7 @@ func TestBuildChannelBindingsQueryUsesExplicitTwitchAndKickBindingsRegardlessOfB
 		"vk",
 	)
 	assertSingleBindingSource(t, query)
+	assertQueryVars(t, statement.Vars, "channel-id", platform.PlatformTwitch, platform.PlatformKick)
 }
 
 func newDryRunPostgresDB(t *testing.T) *gorm.DB {
@@ -98,5 +102,13 @@ func assertSingleBindingSource(t *testing.T, query string) {
 
 	if got := strings.Count(query, "channel_platforms"); got != 1 {
 		t.Fatalf("channel_platforms references = %d, want 1 selected binding source: %s", got, query)
+	}
+}
+
+func assertQueryVars(t *testing.T, actual []any, expected ...any) {
+	t.Helper()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("query vars = %#v, want %#v", actual, expected)
 	}
 }
