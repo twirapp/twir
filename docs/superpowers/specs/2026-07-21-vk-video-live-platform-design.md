@@ -42,6 +42,14 @@ A registry resolves adapters and their immutable capability sets by `platform.Pl
 
 VK implements `EventTransport` with verified webhooks. A future WebSocket transport plugs into the same adapter and feeds the same normalizers, subscription state, idempotency, and canonical events. Webhooks remain available as fallback.
 
+## VK ID OAuth 2.1 Contract
+
+VK identity uses the documented VK ID OAuth 2.1 endpoints: `GET https://id.vk.ru/authorize`, `POST https://id.vk.ru/oauth2/auth`, and `POST https://id.vk.ru/oauth2/user_info`. The authorization request uses PKCE S256 and a verified state. Both authorization-code and refresh-token exchanges require the browser-issued `device_id`; confidential applications additionally send a configured application `service_token`.
+
+`device_id` is per-user refresh state, not an application secret. It is carried through a typed provider request, encrypted with the existing token cipher, and stored in a nullable `tokens."deviceID"` column without an index. Existing Twitch and Kick token rows remain valid with a null device ID. The service token remains a separate feature-gated configuration secret and is never persisted per user or logged.
+
+The shared HTTP implementation belongs in `libs/integrations/vk`, so both API-GQL code exchange and the token service refresh flow use the same request/response/error handling. The provider's initial identity scope is `vkid.personal_info`; Video-specific scopes and endpoints remain deferred until they are confirmed in the developer cabinet.
+
 ## Event and Action Flows
 
 Incoming events follow one path:
@@ -91,4 +99,4 @@ Provider credentials and application keys are configuration secrets. VK stays be
 
 ## Constraints and Open Dependencies
 
-The public VK Video Live page confirms an HTTP API, API-key application registration, and webhook event categories, but detailed API contracts are access-gated. Exact OAuth parameters, chat endpoints, webhook signing, event schemas, rate limits, and any WebSocket support must be confirmed from the developer cabinet before their adapter methods are implemented.
+The public VK Video Live page confirms an HTTP API, API-key application registration, and webhook event categories, but detailed Video API contracts are access-gated. VK ID OAuth 2.1 identity endpoints, PKCE, device ID, refresh semantics, profile shape, and error schemas are confirmed from VK ID documentation. Exact Video-specific scopes, chat endpoints, webhook signing, event schemas, rate limits, and any WebSocket support must be confirmed from the developer cabinet before their adapter methods are implemented.
