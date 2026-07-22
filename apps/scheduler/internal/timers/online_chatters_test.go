@@ -9,7 +9,7 @@ import (
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 
-func TestBuildOnlineTwitchChannelRowsQueryUsesTwitchBinding(t *testing.T) {
+func TestBuildOnlineTwitchChannelRowsQueryUsesTwitchBindingWithoutFilteringDisabledBindings(t *testing.T) {
 	t.Parallel()
 
 	db := newDryRunPostgresDB(t)
@@ -21,16 +21,16 @@ func TestBuildOnlineTwitchChannelRowsQueryUsesTwitchBinding(t *testing.T) {
 	sql := statement.SQL.String()
 
 	assertQueryContains(t, sql,
+		`c."isEnabled" AS is_enabled`,
 		"cp.platform_channel_id AS platform_id",
 		"cp.user_id AS user_id",
 		"FROM channel_platforms cp",
 		"JOIN channels c ON c.id = cp.channel_id",
 		"JOIN users u ON u.id = cp.user_id AND u.platform = 'twitch'",
 		"cp.platform = 'twitch'",
-		"cp.enabled = TRUE",
 		"cp.platform_channel_id IN ($1)",
 	)
-	assertQueryExcludes(t, sql, "c.twitch_user_id", "users.platform_id AS platform_id")
+	assertQueryExcludes(t, sql, "c.twitch_user_id", "users.platform_id AS platform_id", "cp.enabled")
 
 	if got := strings.Count(sql, "channel_platforms"); got != 1 {
 		t.Fatalf("channel_platforms references = %d, want 1 selected Twitch binding source: %s", got, sql)

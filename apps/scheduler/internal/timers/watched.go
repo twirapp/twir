@@ -23,6 +23,19 @@ type WatchedOpts struct {
 	TwirBus *buscore.Bus
 }
 
+const watchedChannelIDsQuery = `
+	SELECT DISTINCT cp.channel_id AS id
+	FROM channels_streams cs
+	JOIN channel_platforms cp
+		ON cp.platform = 'twitch'
+		AND cp.platform_channel_id = cs."userId"
+	WHERE cs.platform = 'twitch'
+`
+
+func buildWatchedChannelIDsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
+	return db.WithContext(ctx).Raw(watchedChannelIDsQuery)
+}
+
 func NewWatched(opts WatchedOpts) {
 	timeTick := 15 * time.Second
 	if opts.Config.AppEnv == "production" {
@@ -45,12 +58,7 @@ func NewWatched(opts WatchedOpts) {
 							var channelIDs []struct {
 								ID string `gorm:"column:id"`
 							}
-							if err := opts.Gorm.WithContext(ctx).Raw(`
-								SELECT DISTINCT c.id
-								FROM channels_streams cs
-								JOIN users u ON u.platform_id = cs."userId" AND u.platform = 'twitch' AND cs.platform = 'twitch'
-								JOIN channels c ON c.twitch_user_id = u.id
-							`).Scan(&channelIDs).Error; err != nil {
+							if err := buildWatchedChannelIDsQuery(opts.Gorm, ctx).Scan(&channelIDs).Error; err != nil {
 								opts.Logger.Error("cannot get stream channel IDs", logger.Error(err))
 								continue
 							}
