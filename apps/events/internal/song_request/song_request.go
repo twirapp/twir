@@ -114,22 +114,24 @@ func (c *SongRequest) ProcessFromDonation(
 	}
 
 	for _, song := range ytsrResult.Data.Songs {
+		messageID := uuid.NewString()
 		err := c.twirBus.Parser.ProcessMessageAsCommand.Publish(
 			ctx,
 			generic.ChatMessage{
-				ID:                   "",
-				BroadcasterUserId:    input.ChannelID,
+				ID:                   messageID,
+				BroadcasterUserId:    binding.PlatformChannelID,
 				BroadcasterUserName:  "",
 				BroadcasterUserLogin: "",
-				ChatterUserId:        input.ChannelID,
+				ChatterUserId:        binding.PlatformChannelID,
 				ChatterUserName:      "",
 				ChatterUserLogin:     "",
-				MessageID:            "",
-				PlatformChannelID:    input.ChannelID,
+				MessageID:            messageID,
+				Platform:             string(platform.PlatformTwitch),
+				PlatformChannelID:    binding.PlatformChannelID,
 				ChannelID:            input.ChannelID,
 				ChannelBindingID:     binding.ID.String(),
-				UserID:               input.ChannelID,
-				SenderID:             input.ChannelID,
+				UserID:               binding.UserID.String(),
+				SenderID:             binding.PlatformChannelID,
 				Message: &generic.ChatMessageMessage{
 					Text: fmt.Sprintf(
 						"!%s https://youtu.be/%s",
