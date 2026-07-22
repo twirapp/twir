@@ -172,6 +172,7 @@ func newChannelPlatformTestResolverWithDependencies(
 		bindings,
 		oauth,
 		registry,
+		resolverTransactionRunner{},
 	)
 
 	return &Resolver{deps: Deps{
@@ -204,6 +205,10 @@ type resolverBindingRepository struct {
 	binding   channelplatformsmodel.ChannelPlatform
 	patch     channelplatformsrepo.PatchInput
 	deletedID uuid.UUID
+}
+
+func (*resolverBindingRepository) LockByChannelID(context.Context, uuid.UUID) error {
+	return nil
 }
 
 func (r *resolverBindingRepository) GetByChannelAndPlatform(_ context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
@@ -244,6 +249,12 @@ type resolverDashboardGetter struct {
 
 func (r resolverDashboardGetter) GetSelectedDashboard(context.Context) (string, error) {
 	return r.dashboardID, nil
+}
+
+type resolverTransactionRunner struct{}
+
+func (resolverTransactionRunner) Do(ctx context.Context, fn func(context.Context) error) error {
+	return fn(ctx)
 }
 
 type resolverPlatformProvider struct {

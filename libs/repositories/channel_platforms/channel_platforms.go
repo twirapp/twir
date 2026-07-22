@@ -21,6 +21,7 @@ type Repository interface {
 	GetByChannelAndPlatform(ctx context.Context, channelID uuid.UUID, platform platform.Platform) (model.ChannelPlatform, error)
 	GetByPlatformChannelID(ctx context.Context, platform platform.Platform, platformChannelID string) (model.ChannelPlatform, error)
 	ListByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.ChannelPlatform, error)
+	LockByChannelID(ctx context.Context, channelID uuid.UUID) error
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.ChannelPlatform, error)
 	Patch(ctx context.Context, id uuid.UUID, input PatchInput) (model.ChannelPlatform, error)
 	Delete(ctx context.Context, id uuid.UUID) error
