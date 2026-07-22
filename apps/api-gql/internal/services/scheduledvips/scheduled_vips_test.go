@@ -121,6 +121,7 @@ func scheduledVipBindings(ownerID uuid.UUID, twitchChannelID string) []channelpl
 			Platform:          platform.PlatformTwitch,
 			UserID:            ownerID,
 			PlatformChannelID: twitchChannelID,
+			BotConfig:         json.RawMessage(`{`),
 		},
 	}
 }
@@ -284,5 +285,45 @@ func TestCreateWithTwitchVipKeepsLegacyEmptyProviderIDBehavior(t *testing.T) {
 	}
 	if len(repository.created) != 1 || repository.created[0].UserID != targetUserID.String() {
 		t.Fatalf("created scheduled VIPs = %#v, want target database user", repository.created)
+	}
+}
+
+func TestCreateWithTwitchVipUsesSelectedTwitchBinding(t *testing.T) {
+	channelID := uuid.New()
+	ownerID := uuid.New()
+	targetUserID := uuid.New()
+	repository := &scheduledVipRepositoryStub{}
+	transport := &scheduledVipCaptureTransport{}
+	var clientOwnerID uuid.UUID
+	service := &Service{
+		repo: repository,
+		channelService: scheduledVipChannelLookupStub{channel: channelsmodel.Channel{
+			Bindings: scheduledVipBindings(ownerID, "twitch-channel"),
+		}},
+		usersRepo: scheduledVipUsersRepositoryStub{user: usersmodel.User{ID: targetUserID}},
+		newUserClient: func(userID uuid.UUID) (*helix.Client, error) {
+			clientOwnerID = userID
+			return newScheduledVipTestClient(t, transport), nil
+		},
+	}
+
+	err := service.CreateWithTwitchVip(context.Background(), CreateWithTwitchVipInput{
+		ChannelID: channelID.String(),
+		UserID:    "target-platform-user",
+	})
+	if err != nil {
+		t.Fatalf("create scheduled Twitch VIP: %v", err)
+	}
+	if clientOwnerID != ownerID {
+		t.Fatalf("user client owner ID = %s, want %s", clientOwnerID, ownerID)
+	}
+	if transport.method != http.MethodPost || transport.path != "/helix/channels/vips" {
+		t.Fatalf("request = %s %s, want POST /helix/channels/vips", transport.method, transport.path)
+	}
+	if got := transport.query.Get("broadcaster_id"); got != "twitch-channel" {
+		t.Fatalf("broadcaster ID = %q, want selected Twitch channel", got)
+	}
+	if got := transport.query.Get("user_id"); got != "target-platform-user" {
+		t.Fatalf("VIP user ID = %q, want target platform user", got)
 	}
 }

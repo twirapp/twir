@@ -33,7 +33,7 @@ func (c *Service) GetRewardsByChannelID(
 	}
 
 	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
-	if !found || twitchBinding.UserID == uuid.Nil || twitchBinding.PlatformChannelID == "" {
+	if !found || twitchBinding.UserID == uuid.Nil {
 		return CustomRewardsResult{}, nil
 	}
 
