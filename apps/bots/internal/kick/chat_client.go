@@ -15,6 +15,7 @@ import (
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 type botTokenRequester interface {
@@ -37,7 +38,13 @@ func NewChatClient(twirBus *buscore.Bus, config cfg.Config) *ChatClient {
 	}
 }
 
-func (c *ChatClient) SendMessage(ctx context.Context, broadcasterKickID string, text string, replyToMessageID string) error {
+func (c *ChatClient) SendMessage(
+	ctx context.Context,
+	binding channelplatformsmodel.ChannelPlatform,
+	text string,
+	replyToMessageID string,
+) error {
+	broadcasterKickID := binding.PlatformChannelID
 	broadcasterUserID, err := strconv.Atoi(broadcasterKickID)
 	if err != nil {
 		return fmt.Errorf("parse broadcaster kick id: %w", err)
