@@ -22,8 +22,8 @@ func TestHandleChannelBanEventUsesSelectedEventPlatformBinding(t *testing.T) {
 		platformChannelID,
 	)
 	router := &chatMessagesTestWsRouter{}
-	service := &Service{
-		channelService: chatMessagesTestChannelLookup{channel: channelsmodel.Channel{
+	lookup := &chatMessagesTestChannelLookup{channels: map[uuid.UUID]channelsmodel.Channel{
+		channelID: {
 			ID: channelID,
 			Bindings: []channelplatformsmodel.ChannelPlatform{
 				{
@@ -42,9 +42,12 @@ func TestHandleChannelBanEventUsesSelectedEventPlatformBinding(t *testing.T) {
 					BotConfig:         json.RawMessage(`{"unexpected":"kick"}`),
 				},
 			},
-		}},
-		wsRouter: router,
-		chanSubs: map[string]struct{}{key: {}},
+		},
+	}}
+	service := &Service{
+		channelService: lookup,
+		wsRouter:       router,
+		chanSubs:       map[string]struct{}{key: {}},
 	}
 
 	_, err := service.handleChannelBanEvent(context.Background(), events.ChannelBanMessage{
@@ -76,16 +79,38 @@ func TestHandleChannelBanEventUsesSelectedEventPlatformBinding(t *testing.T) {
 
 func TestHandleChannelBanEventSkipsMissingEventPlatformBinding(t *testing.T) {
 	channelID := uuid.New()
+	wrongProviderID := uuid.New()
+	wrongProviderChannelID := wrongProviderID.String()
+	wrongProviderRoute := chatOverlayModerationSubscriptionKeyCreate(
+		platformentity.PlatformKick.String(),
+		wrongProviderChannelID,
+	)
+	wrongProviderLookupRoute := chatOverlayModerationSubscriptionKeyCreate(
+		platformentity.PlatformKick.String(),
+		"wrong-kick-channel",
+	)
 	router := &chatMessagesTestWsRouter{}
-	service := &Service{
-		channelService: chatMessagesTestChannelLookup{channel: channelsmodel.Channel{
+	lookup := &chatMessagesTestChannelLookup{channels: map[uuid.UUID]channelsmodel.Channel{
+		channelID: {
 			ID: channelID,
 			Bindings: []channelplatformsmodel.ChannelPlatform{
-				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel"},
+				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: wrongProviderChannelID},
 			},
-		}},
-		wsRouter: router,
-		chanSubs: map[string]struct{}{},
+		},
+		wrongProviderID: {
+			ID: wrongProviderID,
+			Bindings: []channelplatformsmodel.ChannelPlatform{
+				{Platform: platformentity.PlatformKick, PlatformChannelID: "wrong-kick-channel"},
+			},
+		},
+	}}
+	service := &Service{
+		channelService: lookup,
+		wsRouter:       router,
+		chanSubs: map[string]struct{}{
+			wrongProviderRoute:       {},
+			wrongProviderLookupRoute: {},
+		},
 	}
 
 	_, err := service.handleChannelBanEvent(context.Background(), events.ChannelBanMessage{
@@ -97,20 +122,30 @@ func TestHandleChannelBanEventSkipsMissingEventPlatformBinding(t *testing.T) {
 	if err != nil {
 		t.Fatalf("handle channel ban event: %v", err)
 	}
+	if len(lookup.channelIDs) != 1 || lookup.channelIDs[0] != channelID {
+		t.Fatalf("channel lookups = %#v, want only parsed internal channel ID %s", lookup.channelIDs, channelID)
+	}
 	if len(router.published) != 0 {
 		t.Fatalf("published events = %d, want 0", len(router.published))
 	}
 }
 
 type chatMessagesTestChannelLookup struct {
-	channel channelsmodel.Channel
+	channels   map[uuid.UUID]channelsmodel.Channel
+	channelIDs []uuid.UUID
 }
 
-func (r chatMessagesTestChannelLookup) GetChannelByID(
-	context.Context,
-	uuid.UUID,
+func (r *chatMessagesTestChannelLookup) GetChannelByID(
+	_ context.Context,
+	channelID uuid.UUID,
 ) (channelsmodel.Channel, error) {
-	return r.channel, nil
+	r.channelIDs = append(r.channelIDs, channelID)
+	channel, ok := r.channels[channelID]
+	if !ok {
+		return channelsmodel.Nil, nil
+	}
+
+	return channel, nil
 }
 
 type chatMessagesPublishedEvent struct {

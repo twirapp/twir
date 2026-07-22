@@ -52,6 +52,7 @@ func New(opts Opts) *Service {
 		channelService:                  opts.ChannelService,
 		giveawaysCacher:                 opts.GiveawaysCacher,
 		twirBus:                         opts.TwirBus,
+		winnerMessagePublisher:          opts.TwirBus.Bots.SendMessage,
 		logger:                          opts.Logger,
 		wsRouter:                        opts.WsRouter,
 		twitchCache:                     opts.TwitchCache,
@@ -86,6 +87,7 @@ type Service struct {
 	channelService                  giveawayChannelLookup
 	giveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
 	twirBus                         *buscore.Bus
+	winnerMessagePublisher          giveawayWinnerMessagePublisher
 	logger                          *slog.Logger
 	wsRouter                        wsrouter.WsRouter
 	twitchCache                     *twitchcache.CachedTwitchClient
@@ -93,6 +95,10 @@ type Service struct {
 
 type giveawayChannelLookup interface {
 	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
+}
+
+type giveawayWinnerMessagePublisher interface {
+	Publish(context.Context, botsbus.SendMessageRequest) error
 }
 
 type CreateInput struct {
@@ -595,7 +601,7 @@ func (c *Service) sendWinnerMessage(
 	if err != nil {
 		return err
 	}
-	_, hasTwitchBinding := apiChannelbinding.Find(channel, platform.PlatformTwitch)
+	twitchBinding, hasTwitchBinding := apiChannelbinding.Find(channel, platform.PlatformTwitch)
 	if !hasTwitchBinding {
 		return fmt.Errorf("channel has no twitch platform id")
 	}
@@ -603,10 +609,10 @@ func (c *Service) sendWinnerMessage(
 	for _, winner := range winners {
 		message := strings.ReplaceAll(settings.WinnerMessage, "{winner}", winner.UserLogin)
 
-		err := c.twirBus.Bots.SendMessage.Publish(
+		err := c.winnerMessagePublisher.Publish(
 			ctx,
 			botsbus.SendMessageRequest{
-				ChannelID:      parsedChannelID,
+				ChannelID:      twitchBinding.ChannelID,
 				Platforms:      []platform.Platform{platform.PlatformTwitch},
 				Message:        message,
 				SkipRateLimits: true,
