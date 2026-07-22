@@ -47,11 +47,33 @@ func TestIDClientAuthorizationURLUsesVKIDPKCEContract(t *testing.T) {
 	})
 }
 
+func TestNewIDClientRequiresServiceTokenBeforeAnyRequest(t *testing.T) {
+	requests := 0
+	client, err := NewIDClient(IDClientOpts{
+		ClientID:     "client-id",
+		ServiceToken: " \t ",
+		RedirectURL:  "https://twir.example.test/auth/vk/callback",
+		HTTPClient: &http.Client{Transport: idRoundTripFunc(func(*http.Request) (*http.Response, error) {
+			requests++
+			return nil, errors.New("unexpected HTTP request")
+		})},
+	})
+	if err == nil {
+		t.Fatal("expected blank service token to be rejected")
+	}
+	if client != nil {
+		t.Fatal("expected no client when service token is blank")
+	}
+	if requests != 0 {
+		t.Fatalf("expected no HTTP requests, got %d", requests)
+	}
+}
+
 func TestIDClientExchangeCodeSendsVKIDForm(t *testing.T) {
 	client := newTestIDClient(t, idRoundTripFunc(func(req *http.Request) (*http.Response, error) {
 		assertIDEndpoint(t, req, "/oauth2/auth")
 		form := parseRequestForm(t, req)
-		assertFormValues(t, form, map[string]string{
+		assertExactFormValues(t, form, map[string]string{
 			"grant_type":    "authorization_code",
 			"client_id":     "client-id",
 			"code":          "authorization-code",
@@ -60,10 +82,6 @@ func TestIDClientExchangeCodeSendsVKIDForm(t *testing.T) {
 			"device_id":     "device-id",
 			"service_token": "service-token",
 		})
-		if form.Has("client_secret") {
-			t.Error("VK ID form must not send client_secret")
-		}
-
 		return idResponse(http.StatusOK, `{"access_token":"access-token","refresh_token":"refresh-token","expires_in":3600,"scope":"vkid.personal_info"}`), nil
 	}))
 
@@ -80,6 +98,21 @@ func TestIDClientExchangeCodeSendsVKIDForm(t *testing.T) {
 	}
 	if got, want := tokens.Scopes, []string{"vkid.personal_info"}; !equalStrings(got, want) {
 		t.Fatalf("token scopes = %#v, want %#v", got, want)
+	}
+}
+
+func TestIDClientExchangeCodeRejectsMissingAccessToken(t *testing.T) {
+	client := newTestIDClient(t, idRoundTripFunc(func(*http.Request) (*http.Response, error) {
+		return idResponse(http.StatusOK, `{"refresh_token":"refresh-token","expires_in":3600,"scope":"vkid.personal_info"}`), nil
+	}))
+
+	_, err := client.ExchangeCode(context.Background(), IDExchangeCodeInput{
+		Code:         "authorization-code",
+		CodeVerifier: "pkce-verifier",
+		DeviceID:     "device-id",
+	})
+	if err == nil {
+		t.Fatal("expected token exchange without access_token to fail")
 	}
 }
 
@@ -106,17 +139,13 @@ func TestIDClientRefreshTokenSendsVKIDForm(t *testing.T) {
 	client := newTestIDClient(t, idRoundTripFunc(func(req *http.Request) (*http.Response, error) {
 		assertIDEndpoint(t, req, "/oauth2/auth")
 		form := parseRequestForm(t, req)
-		assertFormValues(t, form, map[string]string{
+		assertExactFormValues(t, form, map[string]string{
 			"grant_type":    "refresh_token",
 			"client_id":     "client-id",
 			"refresh_token": "refresh-token",
 			"device_id":     "device-id",
 			"service_token": "service-token",
 		})
-		if form.Has("client_secret") {
-			t.Error("VK ID form must not send client_secret")
-		}
-
 		return idResponse(http.StatusOK, `{"access_token":"new-access-token","expires_in":7200,"scope":"vkid.personal_info"}`), nil
 	}))
 
@@ -129,6 +158,20 @@ func TestIDClientRefreshTokenSendsVKIDForm(t *testing.T) {
 	}
 	if tokens.AccessToken != "new-access-token" || tokens.RefreshToken != "" || tokens.ExpiresIn != 7200 {
 		t.Fatalf("unexpected token response: %#v", tokens)
+	}
+}
+
+func TestIDClientRefreshTokenRejectsMissingAccessToken(t *testing.T) {
+	client := newTestIDClient(t, idRoundTripFunc(func(*http.Request) (*http.Response, error) {
+		return idResponse(http.StatusOK, `{"refresh_token":"refresh-token","expires_in":3600,"scope":"vkid.personal_info"}`), nil
+	}))
+
+	_, err := client.RefreshToken(context.Background(), IDRefreshTokenInput{
+		RefreshToken: "refresh-token",
+		DeviceID:     "device-id",
+	})
+	if err == nil {
+		t.Fatal("expected token refresh without access_token to fail")
 	}
 }
 
@@ -276,6 +319,35 @@ func assertFormValues(t *testing.T, form url.Values, want map[string]string) {
 	for key, expected := range want {
 		if got := form.Get(key); got != expected {
 			t.Errorf("form %s = %q, want %q", key, got, expected)
+		}
+	}
+}
+
+func assertExactFormValues(t *testing.T, form url.Values, want map[string]string) {
+	t.Helper()
+	if len(form) != len(want) {
+		t.Errorf("form field count = %d, want %d: %#v", len(form), len(want), form)
+	}
+
+	for key, values := range form {
+		expected, ok := want[key]
+		if !ok {
+			t.Errorf("form contains unexpected field %q", key)
+			continue
+		}
+		if len(values) != 1 {
+			t.Errorf("form %s has %d values, want 1", key, len(values))
+			continue
+		}
+		if values[0] != expected {
+			t.Errorf("form %s = %q, want %q", key, values[0], expected)
+		}
+	}
+
+	for key, expected := range want {
+		_, ok := form[key]
+		if !ok {
+			t.Errorf("form is missing %s=%q", key, expected)
 		}
 	}
 }
