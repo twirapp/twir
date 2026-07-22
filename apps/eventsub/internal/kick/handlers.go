@@ -848,6 +848,10 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	if err := errwg.Wait(); err != nil {
 		return nil, err
 	}
+	binding, bindingFound := channelbinding.Find(channel, platform.PlatformKick)
+	if !bindingFound {
+		return nil, fmt.Errorf("find kick channel binding")
+	}
 
 	senderUser, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, senderPlatformID)
 	if err != nil {
@@ -922,6 +926,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		ChatterUserLogin:     payload.Sender.Username,
 		MessageType:          "text",
 		ChannelID:            channelID,
+		ChannelBindingID:     binding.ID.String(),
 		UserID:               senderUser.ID.String(),
 		PlatformChannelID:    broadcasterUserID,
 		SenderID:             senderPlatformID,

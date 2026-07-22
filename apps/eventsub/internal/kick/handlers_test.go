@@ -187,6 +187,7 @@ func newKickChannel(channelID, userID uuid.UUID) channelsmodel.Channel {
 		ID: channelID,
 		Bindings: []channelplatformsmodel.ChannelPlatform{
 			{
+				ID:                uuid.New(),
 				Platform:          platform.PlatformKick,
 				UserID:            userID,
 				PlatformChannelID: userID.String(),
@@ -585,6 +586,13 @@ func TestHandleChatMessage(t *testing.T) {
 	if msg.ChannelID != channelUUID.String() {
 		t.Errorf("expected channelID %q, got %q", channelUUID.String(), msg.ChannelID)
 	}
+	if msg.ChannelBindingID != channelsRepo.channel.Bindings[0].ID.String() {
+		t.Errorf(
+			"expected channel binding ID %q, got %q",
+			channelsRepo.channel.Bindings[0].ID,
+			msg.ChannelBindingID,
+		)
+	}
 	if msg.Text != "Hi KEKW there" {
 		t.Errorf("expected text %q, got %q", "Hi KEKW there", msg.Text)
 	}
@@ -617,6 +625,13 @@ func TestHandleChatMessage(t *testing.T) {
 	parserMessage := parserQueue.FirstPublished()
 	if parserMessage.ChannelID != channelUUID.String() || parserMessage.UserID != userID {
 		t.Fatalf("parser message did not retain canonical IDs: %#v", parserMessage)
+	}
+	if parserMessage.ChannelBindingID != channelsRepo.channel.Bindings[0].ID.String() {
+		t.Errorf(
+			"expected parser channel binding ID %q, got %q",
+			channelsRepo.channel.Bindings[0].ID,
+			parserMessage.ChannelBindingID,
+		)
 	}
 	serialized, err := json.Marshal(parserMessage)
 	if err != nil {

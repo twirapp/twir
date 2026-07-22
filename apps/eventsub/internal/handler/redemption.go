@@ -11,6 +11,7 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -145,12 +146,19 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 
 		// youtube song requests
 
-		go func() {
-			e := c.handleYoutubeSongRequests(ctxWithoutCancel, &event)
-			if e != nil {
-				c.logger.Error(e.Error(), slog.Any("e", err))
-			}
-		}()
+		if binding, found := channelbinding.Find(channel, platform.PlatformTwitch); found {
+			go func(channelBindingID string) {
+				e := c.handleYoutubeSongRequests(ctxWithoutCancel, &event, channelBindingID)
+				if e != nil {
+					c.logger.Error(e.Error(), slog.Any("e", err))
+				}
+			}(binding.ID.String())
+		} else {
+			c.logger.Error(
+				"cannot resolve Twitch binding for redemption song request",
+				slog.String("channel_id", channel.ID.String()),
+			)
+		}
 
 		go func() {
 			e := c.handleAlerts(ctxWithoutCancel, &event)
@@ -361,6 +369,7 @@ func (c *Handler) countUserChannelPoints(
 func (c *Handler) handleYoutubeSongRequests(
 	ctx context.Context,
 	event *eventsub.ChannelPointsCustomRewardRedemptionAddEvent,
+	channelBindingID string,
 ) error {
 	if event.UserInput == "" {
 		return nil
@@ -415,6 +424,7 @@ func (c *Handler) handleYoutubeSongRequests(
 		Platform:             string(platform.PlatformTwitch),
 		PlatformChannelID:    event.BroadcasterUserId,
 		ChannelID:            channelID.String(),
+		ChannelBindingID:     channelBindingID,
 		UserID:               chatUser.ID.String(),
 		SenderID:             event.UserId,
 		SenderLogin:          event.UserLogin,

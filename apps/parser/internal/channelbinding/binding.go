@@ -3,6 +3,7 @@ package channelbinding
 import (
 	"encoding/json"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
@@ -12,6 +13,16 @@ import (
 func Find(channel channelsmodel.Channel, p platform.Platform) (channelplatformsmodel.ChannelPlatform, bool) {
 	for _, binding := range channel.Bindings {
 		if binding.Platform == p {
+			return binding, true
+		}
+	}
+
+	return channelplatformsmodel.ChannelPlatform{}, false
+}
+
+func FindByID(channel channelsmodel.Channel, id uuid.UUID) (channelplatformsmodel.ChannelPlatform, bool) {
+	for _, binding := range channel.Bindings {
+		if binding.ID == id {
 			return binding, true
 		}
 	}
@@ -61,8 +72,21 @@ func NewParseContextChannel(
 	channel channelsmodel.Channel,
 	p platform.Platform,
 	name string,
+	bindingID string,
 ) (*types.ParseContextChannel, bool) {
-	binding, ok := Find(channel, p)
+	var (
+		binding channelplatformsmodel.ChannelPlatform
+		ok      bool
+	)
+	if bindingID == "" {
+		binding, ok = Find(channel, p)
+	} else {
+		parsedBindingID, err := uuid.Parse(bindingID)
+		if err != nil {
+			return nil, false
+		}
+		binding, ok = FindByID(channel, parsedBindingID)
+	}
 	if !ok {
 		return nil, false
 	}

@@ -3,6 +3,7 @@ package channelbinding
 import (
 	"encoding/json"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -27,6 +28,32 @@ func Find(
 	return channelplatformsmodel.ChannelPlatform{}, false
 }
 
+func ParseTwitchBotConfig(binding channelplatformsmodel.ChannelPlatform) (TwitchBotConfig, error) {
+	if len(binding.BotConfig) == 0 {
+		return TwitchBotConfig{}, nil
+	}
+
+	var config TwitchBotConfig
+	if err := json.Unmarshal(binding.BotConfig, &config); err != nil {
+		return TwitchBotConfig{}, err
+	}
+
+	return config, nil
+}
+
+func FindByID(
+	channel channelsmodel.Channel,
+	id uuid.UUID,
+) (channelplatformsmodel.ChannelPlatform, bool) {
+	for _, binding := range channel.Bindings {
+		if binding.ID == id {
+			return binding, true
+		}
+	}
+
+	return channelplatformsmodel.ChannelPlatform{}, false
+}
+
 func FindTwitch(channel channelsmodel.Channel) (
 	channelplatformsmodel.ChannelPlatform,
 	TwitchBotConfig,
@@ -38,12 +65,8 @@ func FindTwitch(channel channelsmodel.Channel) (
 		return channelplatformsmodel.ChannelPlatform{}, TwitchBotConfig{}, false, nil
 	}
 
-	if len(binding.BotConfig) == 0 {
-		return binding, TwitchBotConfig{}, true, nil
-	}
-
-	var config TwitchBotConfig
-	if err := json.Unmarshal(binding.BotConfig, &config); err != nil {
+	config, err := ParseTwitchBotConfig(binding)
+	if err != nil {
 		return channelplatformsmodel.ChannelPlatform{}, TwitchBotConfig{}, false, err
 	}
 
