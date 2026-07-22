@@ -17,6 +17,8 @@
 - `libs/migrations/postgres/20260721120000_channel_platforms.sql`: schema, Twitch/Kick backfill, constraints and indexes.
 - `libs/repositories/channels/{channels.go,model/model.go,pgx/pgx.go}` and `libs/services/channels/channels.go`: remove platform columns and expose binding-based lookup.
 - `apps/api-gql/internal/platform/{registry.go,vkvideo/provider.go}`: platform adapter registry and VK OAuth/API client.
+- `libs/integrations/vk/id.go`: shared VK ID OAuth 2.1 HTTP client used by API-GQL and tokens.
+- `libs/repositories/tokens/*` and `apps/tokens/internal/bus_listener`: encrypted VK device ID persistence and token refresh.
 - `apps/eventsub/internal/{platforms, vkvideo}`: transport contract, VK webhook verification and event normalizers.
 - `apps/bots/internal/platforms` and `apps/bots/internal/services/channel/message.go`: capability-aware outgoing chat and moderation routing.
 - `apps/api-gql/internal/delivery/{http/routes/auth,gql}`: binding OAuth, GraphQL types/mappers/resolvers.
@@ -136,17 +138,28 @@
 
 **Files:**
 - Modify: `libs/config/config.go` and sample env documentation
+- Create: `libs/migrations/postgres/20260722120000_add_tokens_device_id.sql`
+- Modify: `libs/repositories/tokens/{repository.go,model/model.go,datasources/postgres/pgx.go}`
+- Create: `libs/integrations/vk/id.go`
+- Create: `libs/integrations/vk/id_test.go`
 - Create: `apps/api-gql/internal/platform/vkvideo/provider.go`
 - Create: `apps/api-gql/internal/platform/vkvideo/provider_test.go`
-- Modify: `apps/api-gql/internal/platform/registry.go`
-- Modify: `apps/api-gql/internal/platform/platform.go`
+- Modify: `apps/api-gql/internal/platform/provider.go`
+- Create: `apps/api-gql/internal/platform/registry.go`
+- Modify: `apps/api-gql/cmd/main.go`
+- Modify: `apps/tokens/go.mod`
+- Modify: `apps/tokens/internal/bus_listener/bus_listener.go`
+- Modify: `apps/tokens/internal/bus_listener/bus_listener_test.go`
 
-- [ ] Obtain the authenticated VK developer-cabinet contract before writing fixtures: authorization URL parameters, token endpoint, profile endpoint, refresh semantics, scopes, and error response schemas.
-- [ ] Record sanitized HTTP fixtures for authorization-code exchange, refresh, and profile lookup; write tests against an `http.RoundTripper` fixture transport.
-- [ ] Confirm each test fails before the VK provider exists.
-- [ ] Add `VKVideoClientID`, `VKVideoClientSecret`, callback URL, webhook secret, API base URL, and feature flag config. Mark secrets as required only when the feature flag is enabled.
-- [ ] Implement the same `PlatformProvider` interface used by Kick with PKCE/state validation, typed provider errors, context-bound HTTP requests, and no credentials in logs.
-- [ ] Run `go test ./apps/api-gql/internal/platform/...`.
+- [ ] Use the confirmed VK ID contract when writing fixtures: `GET https://id.vk.ru/authorize` with `response_type=code`, `client_id`, `redirect_uri`, `state`, `code_challenge`, `code_challenge_method=S256`, and `scope=vkid.personal_info`; `POST https://id.vk.ru/oauth2/auth` for authorization-code and refresh grants; and `POST https://id.vk.ru/oauth2/user_info` with form-encoded `client_id` and `access_token`.
+- [ ] Write RoundTripper-based tests for authorization-code exchange, refresh, profile lookup, malformed JSON, non-2xx responses, and VK error objects. Assert that code and refresh exchanges require and send `device_id`, confidential requests send only the configured `service_token`, and profile mapping uses `user_id`, `first_name`, `last_name`, and `avatar`.
+- [ ] Run the tests and confirm they fail before the shared client/provider exists.
+- [ ] Add feature-gated `VKVideoClientID`, `VKVideoClientSecret`, `VKVideoServiceToken`, `VKVideoCallbackURL`, `VKVideoWebhookSecret`, `VKVideoAPIBaseURL`, and `VKVideoEnabled` config. Validate required application secrets only when the feature is enabled; do not reuse legacy `VK_*` integration credentials.
+- [ ] Extend the provider exchange contract with a typed input carrying `Code`, `CodeVerifier`, and `DeviceID`; extend `PlatformTokens` with `DeviceID`. Update Twitch and Kick adapters without changing their OAuth behavior.
+- [ ] Add an additive nullable `tokens."deviceID"` column. Persist the device ID encrypted with the existing token cipher through token repository create/read/update methods; do not index it. Existing null rows must continue to work.
+- [ ] Implement the shared VK ID client and feature-gated API-GQL provider with PKCE/state inputs, typed provider errors, context-bound HTTP requests, and no credentials or tokens in logs. Register it only when the feature is enabled.
+- [ ] Add an explicit VK branch in the token service refresh path that decrypts the persisted device ID, uses the shared client, preserves a returned-empty refresh token, and persists rotated tokens. Reject a VK refresh with no stored device ID before making an HTTP request.
+- [ ] Run `go test ./libs/integrations/vk/... ./libs/repositories/tokens/... ./apps/tokens/... ./apps/api-gql/internal/platform/...`.
 
 ### Task 9: Make OAuth bind any platform without provider switches
 
@@ -156,9 +169,9 @@
 - Modify: `apps/api-gql/internal/delivery/http/routes/auth/oauth-platform_test.go`
 - Modify: `apps/api-gql/internal/auth/sessions_user.go`
 
-- [ ] Write tests for creating a VK-only Twir channel, linking VK to an existing Twitch/Kick channel, rejecting an account linked to another channel, and preserving existing bindings.
+- [ ] Write tests for creating a VK-only Twir channel, linking VK to an existing Twitch/Kick channel, rejecting an account linked to another channel, preserving existing bindings, and carrying VK's callback `device_id` from the verified OAuth attempt into the token exchange and encrypted token persistence.
 - [ ] Confirm they fail because the auth flow creates/updates Twitch/Kick fields.
-- [ ] Make channel creation independent of platform; create or update a `channel_platforms` row inside the auth transaction, then store user tokens as today.
+- [ ] Make channel creation independent of platform; create or update a `channel_platforms` row inside the auth transaction, then store user tokens as today. Store OAuth attempt state, PKCE verifier, and VK callback device ID server-side; never place the device ID or application service token in redirect state.
 - [ ] Keep Kick's special bot selection in a binding-specific configuration path, not in the shared OAuth function.
 - [ ] Publish generic EventSub subscription requests after a binding transaction commits.
 - [ ] Run `go test ./apps/api-gql/internal/delivery/http/routes/auth/...`.
