@@ -12,10 +12,12 @@ import (
 	goredis "github.com/redis/go-redis/v9"
 	"github.com/scorfly/gokick"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
@@ -89,12 +91,28 @@ func (m *SubscriptionManager) Name() string {
 	return "kick"
 }
 
+func (*SubscriptionManager) Platform() platformentity.Platform {
+	return platformentity.PlatformKick
+}
+
+func (*SubscriptionManager) Capabilities() platformentity.Capabilities {
+	return platformentity.Capabilities{
+		platformentity.CapabilityEventsFollow,
+		platformentity.CapabilityEventsReward,
+		platformentity.CapabilityStreamsRead,
+	}
+}
+
 func (m *SubscriptionManager) SetCallbackBaseURL(baseURL string) {
 	m.callbackBaseURL = baseURL
 }
 
-func redisKey(kickChannelID, eventType string) string {
-	return redisKeyPrefix + kickChannelID + ":" + eventType
+func redisKey(
+	bindingID uuid.UUID,
+	eventType string,
+	transportKind buscoreeventsub.TransportKind,
+) string {
+	return redisKeyPrefix + bindingID.String() + ":" + eventType + ":" + string(transportKind)
 }
 
 func (m *SubscriptionManager) getWebhookCallbackURL() string {
@@ -202,10 +220,11 @@ func (m *SubscriptionManager) unsubscribe(
 	return nil
 }
 
-func (m *SubscriptionManager) SubscribeAll(
+func (m *SubscriptionManager) Subscribe(
 	ctx context.Context,
-	kickChannelID uuid.UUID,
+	binding channelplatformsmodel.ChannelPlatform,
 ) error {
+	kickChannelID := binding.UserID
 	kickChannelIDStr := kickChannelID.String()
 
 	user, err := m.usersRepo.GetByID(ctx, kickChannelID)
@@ -236,7 +255,7 @@ func (m *SubscriptionManager) SubscribeAll(
 		subs, ok := existingByEvent[eventType]
 		if ok && len(subs) > 0 {
 			firstSub := &subs[0]
-			key := redisKey(kickChannelIDStr, eventType)
+			key := redisKey(binding.ID, eventType, buscoreeventsub.TransportWebhook)
 			if err := m.redis.Set(ctx, key, firstSub.SubscriptionID, redisTTL).Err(); err != nil {
 				return fmt.Errorf("failed to store existing subscription ID for %q in Redis: %w", eventType, err)
 			}
@@ -268,7 +287,7 @@ func (m *SubscriptionManager) SubscribeAll(
 			return fmt.Errorf("failed to subscribe to %q: %w", eventType, err)
 		}
 
-		key := redisKey(kickChannelIDStr, eventType)
+		key := redisKey(binding.ID, eventType, buscoreeventsub.TransportWebhook)
 		if err := m.redis.Set(ctx, key, subID, redisTTL).Err(); err != nil {
 			return fmt.Errorf("failed to store subscription ID for %q in Redis: %w", eventType, err)
 		}
@@ -285,10 +304,11 @@ func (m *SubscriptionManager) SubscribeAll(
 	return nil
 }
 
-func (m *SubscriptionManager) UnsubscribeAll(
+func (m *SubscriptionManager) Unsubscribe(
 	ctx context.Context,
-	kickChannelID uuid.UUID,
+	binding channelplatformsmodel.ChannelPlatform,
 ) error {
+	kickChannelID := binding.UserID
 	kickChannelIDStr := kickChannelID.String()
 
 	user, err := m.usersRepo.GetByID(ctx, kickChannelID)
@@ -302,7 +322,7 @@ func (m *SubscriptionManager) UnsubscribeAll(
 	}
 
 	for _, eventType := range EventTypes {
-		key := redisKey(kickChannelIDStr, eventType)
+		key := redisKey(binding.ID, eventType, buscoreeventsub.TransportWebhook)
 
 		subIDs := make([]string, 0, 1)
 
@@ -311,13 +331,13 @@ func (m *SubscriptionManager) UnsubscribeAll(
 			if err == goredis.Nil {
 				subs, listErr := m.ListSubscriptions(ctx, broadcasterUserID)
 				if listErr != nil {
-				m.logger.WarnContext(
-					ctx,
-					"Failed to list Kick subscriptions for cleanup fallback",
-					slog.String("kick_channel_id", kickChannelIDStr),
-					slog.String("event_type", eventType),
-					logger.Error(listErr),
-				)
+					m.logger.WarnContext(
+						ctx,
+						"Failed to list Kick subscriptions for cleanup fallback",
+						slog.String("kick_channel_id", kickChannelIDStr),
+						slog.String("event_type", eventType),
+						logger.Error(listErr),
+					)
 					continue
 				}
 

@@ -6,18 +6,18 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
 )
 
 type SubscriptionLister interface {
 	ListSubscriptions(ctx context.Context, broadcasterUserID int) ([]SubscriptionInfo, error)
-	SubscribeAll(ctx context.Context, kickChannelID uuid.UUID) error
+	Subscribe(ctx context.Context, binding channelplatformsmodel.ChannelPlatform) error
 }
 
 type ResubscribeJob struct {
@@ -121,7 +121,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 			continue
 		}
 
-		if err := j.subManager.SubscribeAll(ctx, binding.UserID); err != nil {
+		if err := j.subManager.Subscribe(ctx, binding); err != nil {
 			j.logger.ErrorContext(
 				ctx,
 				"resubscribe job: failed to re-subscribe kick eventsub",

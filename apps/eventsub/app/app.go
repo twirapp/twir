@@ -9,6 +9,7 @@ import (
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
+	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/apps/eventsub/internal/webhook"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -143,6 +144,7 @@ var App = fx.Options(
 		handler.New,
 		httpserver.New,
 		kick.New,
+		eventplatforms.NewKickRegistry,
 		kick.NewHandlers,
 		kick.NewResubscribeJob,
 		webhook.NewManager,
