@@ -214,7 +214,7 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 			)
 		} else {
 			kickUserIDStr := kickBinding.UserID.String()
-			if err := c.kickSubManager.SubscribeAll(ctx, kickBinding.UserID); err != nil {
+			if err := c.kickSubManager.Subscribe(ctx, kickBinding); err != nil {
 				c.logger.Error(
 					"error subscribing to kick events",
 					logger.Error(err),
@@ -438,7 +438,7 @@ func (c *BusListener) unsubscribe(ctx context.Context, msg eventsub.EventsubUnsu
 	kickBinding, hasKickBinding := channelbinding.Find(channel, platformentity.PlatformKick)
 	if (msg.Platform == "" || msg.Platform == platformentity.PlatformKick) && hasKickBinding {
 		kickUserIDStr := kickBinding.UserID.String()
-		if err := c.kickSubManager.UnsubscribeAll(ctx, kickBinding.UserID); err != nil {
+		if err := c.kickSubManager.Unsubscribe(ctx, kickBinding); err != nil {
 			c.logger.Error(
 				"error unsubscribing from kick events",
 				logger.Error(err),
