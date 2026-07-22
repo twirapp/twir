@@ -245,6 +245,140 @@ func TestUpsertPlatformUserToken_ReturnsErrorWhenBindingFails(t *testing.T) {
 	}
 }
 
+func TestHandleAuthPostCodeRejectsMissingOAuthAttemptWithoutExchange(t *testing.T) {
+	exchangeCalls := 0
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions: &fakeOAuthSession{},
+		registry: appplatform.NewRegistry([]appplatform.PlatformProvider{
+			&oauthPlatformProvider{
+				name: platformentity.PlatformTwitch.String(),
+				exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
+					exchangeCalls++
+					return nil, errors.New("provider exchange should not be called")
+				},
+			},
+		}),
+	})
+
+	_, err := authHandler.handleAuthPostCode(context.Background(), authBody{
+		Code:  "authorization-code",
+		State: "L2Rhc2hib2FyZA==", // Base64 for /dashboard, accepted by the legacy fallback.
+	})
+	if exchangeCalls != 0 {
+		t.Fatalf("provider exchanges = %d, want 0", exchangeCalls)
+	}
+	if err == nil {
+		t.Fatal("missing OAuth attempt should be rejected")
+	}
+	if !strings.Contains(err.Error(), "Invalid or expired OAuth state") {
+		t.Fatalf("missing OAuth attempt error = %v", err)
+	}
+}
+
+func TestCompletePlatformAuthCreatesMissingTwitchBindingWithTwitchConfigWhenLinkingVK(t *testing.T) {
+	ctx := context.Background()
+	sessionUserID := uuid.New()
+	vkUserID := uuid.New()
+	channelID := uuid.New()
+	linkedProviderConfig := json.RawMessage(`{"linked_provider":"vk"}`)
+	createdBindings := make([]channelplatforms.CreateInput, 0, 2)
+	transaction := &oauthTransaction{}
+	bindings := &oauthChannelPlatformsRepository{
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+		},
+		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+			createdBindings = append(createdBindings, input)
+			return channelplatformsmodel.ChannelPlatform{
+				ID:                uuid.New(),
+				ChannelID:         input.ChannelID,
+				Platform:          input.Platform,
+				UserID:            input.UserID,
+				PlatformChannelID: input.PlatformChannelID,
+				Enabled:           input.Enabled,
+				BotConfig:         input.BotConfig,
+			}, nil
+		},
+	}
+	users := &oauthUsersRepository{
+		getByIDFunc: func(_ context.Context, id uuid.UUID) (usersmodel.User, error) {
+			if id != sessionUserID {
+				t.Fatalf("session user ID = %s, want %s", id, sessionUserID)
+			}
+			return usersmodel.User{ID: sessionUserID, Platform: platformentity.PlatformTwitch, PlatformID: "twitch-channel"}, nil
+		},
+		getByPlatformIDFunc: func(_ context.Context, platform platformentity.Platform, platformID string) (usersmodel.User, error) {
+			if platform != platformentity.PlatformVKVideoLive || platformID != "vk-channel" {
+				t.Fatalf("platform user lookup = (%s, %q)", platform, platformID)
+			}
+			return usersmodel.User{ID: vkUserID, Platform: platform, PlatformID: platformID}, nil
+		},
+	}
+	channels := &oauthChannelsRepository{
+		createFunc: func(_ context.Context, input channelsrepo.CreateInput) (channelsmodel.Channel, error) {
+			if input.BotID != "default-bot" {
+				t.Fatalf("channel BotID = %q, want default-bot", input.BotID)
+			}
+			return channelsmodel.Channel{ID: channelID}, nil
+		},
+		getByBindingUserIDFunc: func(_ context.Context, platform platformentity.Platform, userID uuid.UUID) (channelsmodel.Channel, error) {
+			switch {
+			case platform == platformentity.PlatformTwitch && userID == sessionUserID:
+				return channelsmodel.Nil, channelsrepo.ErrNotFound
+			case platform == platformentity.PlatformVKVideoLive && userID == vkUserID:
+				return channelsmodel.Nil, channelsrepo.ErrNotFound
+			default:
+				t.Fatalf("unexpected channel lookup (%s, %s)", platform, userID)
+				return channelsmodel.Nil, nil
+			}
+		},
+	}
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions:    &fakeOAuthSession{internalUserID: sessionUserID},
+		users:       users,
+		channels:    channels,
+		bindings:    bindings,
+		tokens:      newCreateTokenRepository(vkUserID),
+		bots:        &oauthBotsRepository{defaultBot: botsmodel.Bot{ID: "default-bot"}},
+		transaction: transaction,
+	})
+	authHandler.bindingConfigResolvers = map[platformentity.Platform]platformBindingConfigResolver{
+		platformentity.PlatformTwitch: authHandler.twitchBindingConfig,
+	}
+
+	_, err := authHandler.completePlatformAuth(ctx, completePlatformAuthInput{
+		Platform:      platformentity.PlatformVKVideoLive,
+		PlatformUser:  &appplatform.PlatformUser{ID: "vk-channel"},
+		Tokens:        testPlatformTokens(),
+		BindingConfig: platformBindingConfig{BotConfig: linkedProviderConfig},
+	})
+	if err != nil {
+		t.Fatalf("link VK auth: %v", err)
+	}
+	if len(createdBindings) != 2 {
+		t.Fatalf("created bindings = %d, want 2", len(createdBindings))
+	}
+
+	var twitchConfig struct {
+		BotID          string `json:"bot_id"`
+		IsBotMod       bool   `json:"is_bot_mod"`
+		IsTwitchBanned bool   `json:"is_twitch_banned"`
+	}
+	if err := json.Unmarshal(createdBindings[0].BotConfig, &twitchConfig); err != nil {
+		t.Fatalf("decode Twitch binding config: %v", err)
+	}
+	if createdBindings[0].Platform != platformentity.PlatformTwitch || twitchConfig != (struct {
+		BotID          string `json:"bot_id"`
+		IsBotMod       bool   `json:"is_bot_mod"`
+		IsTwitchBanned bool   `json:"is_twitch_banned"`
+	}{BotID: "default-bot"}) {
+		t.Fatalf("created Twitch binding = %+v, config = %+v", createdBindings[0], twitchConfig)
+	}
+	if createdBindings[1].Platform != platformentity.PlatformVKVideoLive || string(createdBindings[1].BotConfig) != string(linkedProviderConfig) {
+		t.Fatalf("created VK binding = %+v, want incoming config %s", createdBindings[1], linkedProviderConfig)
+	}
+}
+
 func TestCompletePlatformAuthCreatesVKOnlyChannel(t *testing.T) {
 	ctx := context.Background()
 	platformUserID := uuid.New()
@@ -665,6 +799,36 @@ func TestStartPlatformAuthStoresOpaqueStateAndPKCEOnServer(t *testing.T) {
 	}
 	if attempt.Platform != platformentity.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard/settings" || attempt.CodeVerifier == "" {
 		t.Fatalf("stored OAuth attempt = %+v", attempt)
+	}
+}
+
+func TestStartTwitchAuthUsesServerSideOAuthAttempt(t *testing.T) {
+	sessions := &fakeOAuthSession{}
+	provider := &oauthPlatformProvider{
+		name: platformentity.PlatformTwitch.String(),
+		getAuthURLFunc: func(state, _ string) string {
+			return "https://id.example.test/authorize?state=" + url.QueryEscape(state)
+		},
+	}
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions: sessions,
+		registry: appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
+	})
+
+	authorizeURL, err := authHandler.StartTwitchAuth(context.Background(), "/dashboard")
+	if err != nil {
+		t.Fatalf("start Twitch OAuth: %v", err)
+	}
+	parsedURL, err := url.Parse(authorizeURL)
+	if err != nil {
+		t.Fatalf("parse authorization URL: %v", err)
+	}
+	attempt, ok := sessions.attempts[parsedURL.Query().Get("state")]
+	if !ok {
+		t.Fatal("Twitch OAuth state was not stored server-side")
+	}
+	if attempt.Platform != platformentity.PlatformTwitch || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" {
+		t.Fatalf("stored Twitch OAuth attempt = %+v", attempt)
 	}
 }
 

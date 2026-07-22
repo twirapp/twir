@@ -45,6 +45,10 @@ type platformCodeResult struct {
 	Tokens       *appplatform.PlatformTokens
 }
 
+func (a *Auth) StartTwitchAuth(ctx context.Context, redirectTo string) (string, error) {
+	return a.startPlatformAuth(ctx, platformentity.PlatformTwitch, redirectTo)
+}
+
 func (a *Auth) startPlatformAuth(
 	ctx context.Context,
 	platform platformentity.Platform,
@@ -118,20 +122,6 @@ func (a *Auth) completePlatformCode(ctx context.Context, input platformCodeInput
 	}
 
 	return result, nil
-}
-
-func (a *Auth) completeLegacyPlatformCode(
-	ctx context.Context,
-	platform platformentity.Platform,
-	code string,
-	redirectTo string,
-) (platformCodeResult, error) {
-	provider, err := a.platformProvider(platform)
-	if err != nil {
-		return platformCodeResult{}, err
-	}
-
-	return a.completePlatformExchange(ctx, platform, provider, code, "", "", redirectTo)
 }
 
 func (a *Auth) completePlatformExchange(
@@ -355,28 +345,4 @@ func generatePKCE() (string, string, error) {
 	verifier := base64.RawURLEncoding.EncodeToString(randomBytes)
 	hash := sha256.Sum256([]byte(verifier))
 	return verifier, base64.RawURLEncoding.EncodeToString(hash[:]), nil
-}
-
-func decodeRedirectState(state string) ([]byte, error) {
-	decoded, err := base64.URLEncoding.DecodeString(state)
-	if err == nil {
-		return decoded, nil
-	}
-
-	decoded, rawErr := base64.RawURLEncoding.DecodeString(state)
-	if rawErr == nil {
-		return decoded, nil
-	}
-
-	decoded, stdErr := base64.StdEncoding.DecodeString(state)
-	if stdErr == nil {
-		return decoded, nil
-	}
-
-	decoded, rawStdErr := base64.RawStdEncoding.DecodeString(state)
-	if rawStdErr == nil {
-		return decoded, nil
-	}
-
-	return nil, fmt.Errorf("decode state: %w", err)
 }

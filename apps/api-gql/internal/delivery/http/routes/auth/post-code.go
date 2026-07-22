@@ -2,13 +2,11 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/nicklaw5/helix/v2"
-	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
@@ -26,29 +24,11 @@ func (a *Auth) handleAuthPostCode(
 	ctx context.Context,
 	input authBody,
 ) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
-	_, attemptErr := a.sessions.GetOAuthAttempt(ctx, input.State)
-	if attemptErr == nil {
-		result, err := a.completePlatformCode(ctx, platformCodeInput{
-			Platform: platformentity.PlatformTwitch,
-			Code:     input.Code,
-			State:    input.State,
-		})
-		if err != nil {
-			return nil, a.platformAuthHTTPError(err)
-		}
-
-		return a.completeTwitchAuthResponse(ctx, result)
-	}
-	if !errors.Is(attemptErr, authsessions.ErrOAuthAttemptNotFound) {
-		return nil, huma.Error400BadRequest("Cannot read OAuth state", attemptErr)
-	}
-
-	redirectTo, err := decodeRedirectState(input.State)
-	if err != nil {
-		return nil, huma.Error400BadRequest("Cannot decode state", err)
-	}
-
-	result, err := a.completeLegacyPlatformCode(ctx, platformentity.PlatformTwitch, input.Code, string(redirectTo))
+	result, err := a.completePlatformCode(ctx, platformCodeInput{
+		Platform: platformentity.PlatformTwitch,
+		Code:     input.Code,
+		State:    input.State,
+	})
 	if err != nil {
 		return nil, a.platformAuthHTTPError(err)
 	}

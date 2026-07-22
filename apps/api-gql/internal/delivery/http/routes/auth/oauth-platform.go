@@ -109,13 +109,8 @@ func (a *Auth) completePlatformAuth(
 	}
 
 	err = a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
-		var channelBindingConfig platformBindingConfig
-		if hasLiveSession && sessionUser.Platform == input.Platform {
-			channelBindingConfig = input.BindingConfig
-		}
-
 		if hasLiveSession {
-			channel, createdChannel, getChannelErr := a.getOrCreateChannelForUser(txCtx, sessionUser, channelBindingConfig)
+			channel, createdChannel, getChannelErr := a.getOrCreateChannelForUser(txCtx, sessionUser)
 			if getChannelErr != nil {
 				return fmt.Errorf("get or create session channel: %w", getChannelErr)
 			}
@@ -237,7 +232,6 @@ func (a *Auth) getOrCreatePlatformUser(
 func (a *Auth) getOrCreateChannelForUser(
 	ctx context.Context,
 	user usersmodel.User,
-	bindingConfig platformBindingConfig,
 ) (channelsmodel.Channel, bool, error) {
 	channel, err := a.channelsRepo.GetByBindingUserID(ctx, user.Platform, user.ID)
 	if err == nil {
@@ -245,6 +239,10 @@ func (a *Auth) getOrCreateChannelForUser(
 	}
 	if !errors.Is(err, channelsrepo.ErrNotFound) {
 		return channelsmodel.Nil, false, err
+	}
+	bindingConfig, err := a.platformBindingConfig(ctx, user.Platform)
+	if err != nil {
+		return channelsmodel.Nil, false, fmt.Errorf("get %s binding configuration: %w", user.Platform, err)
 	}
 
 	channel, err = a.createChannel(ctx)
