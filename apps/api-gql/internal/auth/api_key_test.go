@@ -202,6 +202,30 @@ func TestGetAuthenticatedUserByApiKeyFallsBackWhenBindingOwnerIsNilWithoutError(
 	}
 }
 
+func TestGetAuthenticatedUserByApiKeyRejectsNilUserKeyWithoutError(t *testing.T) {
+	channels := &apiKeyChannelsRepository{}
+	users := &apiKeyUsersRepository{userByAPIKey: usersmodel.Nil}
+
+	got, err := newAPIKeyAuthForTest(channels, users).GetAuthenticatedUserByApiKey(
+		authenticatedAPIKeyContext("user-api-key"),
+	)
+	if got != nil {
+		t.Fatalf("GetAuthenticatedUserByApiKey() user = %#v, want nil", got)
+	}
+	if !errors.Is(err, usersmodel.ErrNotFound) {
+		t.Fatalf("GetAuthenticatedUserByApiKey() error = %v, want wrapped %v", err, usersmodel.ErrNotFound)
+	}
+	if !strings.Contains(err.Error(), "cannot get user from db") {
+		t.Fatalf("GetAuthenticatedUserByApiKey() error = %q, want user database context", err)
+	}
+	if len(channels.apiKeyLookups) != 1 || channels.apiKeyLookups[0] != "user-api-key" {
+		t.Fatalf("channel API key lookups = %#v, want [user-api-key]", channels.apiKeyLookups)
+	}
+	if len(users.apiKeyLookups) != 1 || users.apiKeyLookups[0] != "user-api-key" {
+		t.Fatalf("user API key lookups = %#v, want [user-api-key]", users.apiKeyLookups)
+	}
+}
+
 func TestGetAuthenticatedUserByApiKeyWrapsUserLookupErrors(t *testing.T) {
 	userLookupErr := errors.New("user lookup failed")
 	auth := newAPIKeyAuthForTest(
