@@ -19,8 +19,8 @@ type mockSubManager struct {
 	listResult         []SubscriptionInfo
 	listErr            error
 	subscribeErr       error
-	subscribeAllCalls  int
-	subscribeAllIDs    []uuid.UUID
+	subscribeCalls     int
+	subscribeBindings  []channelplatformsmodel.ChannelPlatform
 	listBroadcasterIDs []int
 }
 
@@ -29,9 +29,9 @@ func (m *mockSubManager) ListSubscriptions(_ context.Context, broadcasterUserID 
 	return m.listResult, m.listErr
 }
 
-func (m *mockSubManager) SubscribeAll(_ context.Context, channelID uuid.UUID) error {
-	m.subscribeAllCalls++
-	m.subscribeAllIDs = append(m.subscribeAllIDs, channelID)
+func (m *mockSubManager) Subscribe(_ context.Context, binding channelplatformsmodel.ChannelPlatform) error {
+	m.subscribeCalls++
+	m.subscribeBindings = append(m.subscribeBindings, binding)
 	return m.subscribeErr
 }
 
@@ -95,11 +95,11 @@ func TestResubscribeJob_MissingSubscriptions(t *testing.T) {
 
 	job.run(context.Background())
 
-	if subMgr.subscribeAllCalls != 1 {
-		t.Errorf("expected SubscribeAll called 1 time, got %d", subMgr.subscribeAllCalls)
+	if subMgr.subscribeCalls != 1 {
+		t.Errorf("expected Subscribe called 1 time, got %d", subMgr.subscribeCalls)
 	}
-	if len(subMgr.subscribeAllIDs) != 1 || subMgr.subscribeAllIDs[0] != kickUserID {
-		t.Fatalf("SubscribeAll IDs = %v, want [%s]", subMgr.subscribeAllIDs, kickUserID)
+	if len(subMgr.subscribeBindings) != 1 || subMgr.subscribeBindings[0].UserID != kickUserID {
+		t.Fatalf("Subscribe bindings = %v, want user ID [%s]", subMgr.subscribeBindings, kickUserID)
 	}
 	if len(subMgr.listBroadcasterIDs) != 1 || subMgr.listBroadcasterIDs[0] != 98765 {
 		t.Fatalf("ListSubscriptions IDs = %v, want [98765]", subMgr.listBroadcasterIDs)
@@ -143,8 +143,8 @@ func TestResubscribeJobProcessesAllKickBindingChannels(t *testing.T) {
 
 	job.run(context.Background())
 
-	if subMgr.subscribeAllCalls != channelCount {
-		t.Fatalf("SubscribeAll calls = %d, want %d", subMgr.subscribeAllCalls, channelCount)
+	if subMgr.subscribeCalls != channelCount {
+		t.Fatalf("Subscribe calls = %d, want %d", subMgr.subscribeCalls, channelCount)
 	}
 	if len(subMgr.listBroadcasterIDs) != channelCount {
 		t.Fatalf("ListSubscriptions calls = %d, want %d", len(subMgr.listBroadcasterIDs), channelCount)
@@ -196,8 +196,8 @@ func TestResubscribeJob_AllPresent(t *testing.T) {
 
 	job.run(context.Background())
 
-	if subMgr.subscribeAllCalls != 0 {
-		t.Errorf("expected SubscribeAll not called, got %d calls", subMgr.subscribeAllCalls)
+	if subMgr.subscribeCalls != 0 {
+		t.Errorf("expected Subscribe not called, got %d calls", subMgr.subscribeCalls)
 	}
 }
 
@@ -227,7 +227,7 @@ func TestResubscribeJob_ListSubscriptionsError(t *testing.T) {
 
 	job.run(context.Background())
 
-	if subMgr.subscribeAllCalls != 0 {
-		t.Errorf("expected SubscribeAll not called on error, got %d calls", subMgr.subscribeAllCalls)
+	if subMgr.subscribeCalls != 0 {
+		t.Errorf("expected Subscribe not called on error, got %d calls", subMgr.subscribeCalls)
 	}
 }
