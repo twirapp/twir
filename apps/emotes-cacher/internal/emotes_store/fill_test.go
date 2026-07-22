@@ -2,9 +2,11 @@ package emotes_store
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/twirapp/twir/libs/entities/platform"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -34,6 +36,7 @@ func TestBuildStartupChannelsQueryUsesExplicitNormalizedBindings(t *testing.T) {
 		"cp.enabled",
 	)
 	assertSingleBindingSource(t, query)
+	assertQueryVars(t, statement.Vars, true, platform.PlatformTwitch, platform.PlatformKick)
 }
 
 func newDryRunPostgresDB(t *testing.T) *gorm.DB {
@@ -75,5 +78,13 @@ func assertSingleBindingSource(t *testing.T, query string) {
 
 	if got := strings.Count(query, "channel_platforms"); got != 1 {
 		t.Fatalf("channel_platforms references = %d, want 1 selected binding source: %s", got, query)
+	}
+}
+
+func assertQueryVars(t *testing.T, actual []any, expected ...any) {
+	t.Helper()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("query vars = %#v, want %#v", actual, expected)
 	}
 }
