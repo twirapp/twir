@@ -2,10 +2,12 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
@@ -18,12 +20,23 @@ const (
 	currentPlatformKey        = "currentPlatform"
 	selectedDashboardIdKey    = "selectedDashboardId"
 	kickUserKey               = "kickUser"
+	oauthAttemptsKey          = "oauthAttempts"
 )
+
+var ErrOAuthAttemptNotFound = errors.New("oauth attempt not found")
 
 type KickSessionUser struct {
 	ID     string
 	Login  string
 	Avatar string
+}
+
+// OAuthAttempt retains callback material in the authenticated browser session.
+type OAuthAttempt struct {
+	Platform     platform.Platform
+	RedirectTo   string
+	CodeVerifier string
+	DeviceID     string
 }
 
 func (s *Auth) GetLatestShortenerUrlsIds(ctx context.Context) ([]string, error) {
@@ -132,6 +145,7 @@ func (s *Auth) SessionLogout(ctx context.Context) error {
 	s.sessionManager.Remove(ctx, currentPlatformKey)
 	s.sessionManager.Remove(ctx, selectedDashboardIdKey)
 	s.sessionManager.Remove(ctx, kickUserKey)
+	s.sessionManager.Remove(ctx, oauthAttemptsKey)
 	if _, _, err := s.sessionManager.Commit(ctx); err != nil {
 		return fmt.Errorf("cannot commit session: %w", err)
 	}
@@ -139,6 +153,51 @@ func (s *Auth) SessionLogout(ctx context.Context) error {
 	fmt.Println(s.sessionManager.Keys(ctx))
 
 	return nil
+}
+
+func (s *Auth) SetOAuthAttempt(ctx context.Context, state string, attempt OAuthAttempt) error {
+	attempts := s.oauthAttempts(ctx)
+	attempts[state] = attempt
+	s.sessionManager.Put(ctx, oauthAttemptsKey, attempts)
+	if _, _, err := s.sessionManager.Commit(ctx); err != nil {
+		return fmt.Errorf("cannot commit OAuth attempt: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Auth) GetOAuthAttempt(ctx context.Context, state string) (OAuthAttempt, error) {
+	attempt, ok := s.oauthAttempts(ctx)[state]
+	if !ok {
+		return OAuthAttempt{}, fmt.Errorf("%w: %s", ErrOAuthAttemptNotFound, state)
+	}
+
+	return attempt, nil
+}
+
+func (s *Auth) DeleteOAuthAttempt(ctx context.Context, state string) error {
+	attempts := s.oauthAttempts(ctx)
+	if _, ok := attempts[state]; !ok {
+		return fmt.Errorf("%w: %s", ErrOAuthAttemptNotFound, state)
+	}
+
+	delete(attempts, state)
+	s.sessionManager.Put(ctx, oauthAttemptsKey, attempts)
+	if _, _, err := s.sessionManager.Commit(ctx); err != nil {
+		return fmt.Errorf("cannot commit OAuth attempt deletion: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Auth) oauthAttempts(ctx context.Context) map[string]OAuthAttempt {
+	storedAttempts, _ := s.sessionManager.Get(ctx, oauthAttemptsKey).(map[string]OAuthAttempt)
+	attempts := make(map[string]OAuthAttempt, len(storedAttempts)+1)
+	for state, attempt := range storedAttempts {
+		attempts[state] = attempt
+	}
+
+	return attempts
 }
 
 func (s *Auth) SetSessionInternalUserID(ctx context.Context, id uuid.UUID) error {

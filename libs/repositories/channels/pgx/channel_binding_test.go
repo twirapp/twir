@@ -21,17 +21,22 @@ func TestCollectExactlyOneChannelRejectsMultipleRows(t *testing.T) {
 	}
 }
 
-func TestCreateChannelAndBindingsQueryIsAtomic(t *testing.T) {
-	assertAtomicChannelBindingQuery(t, createChannelAndBindingsQuery, "INSERT INTO channels", "created_channel")
-
-	for _, fragment := range []string{
-		"twitch_bot_enabled = false",
-		"kick_bot_enabled = false",
-		"kick_bot_id IS NULL",
+func TestCreateChannelQueryDoesNotWriteProviderLinkage(t *testing.T) {
+	for _, legacyColumn := range []string{
+		"twitch_user_id",
+		"kick_user_id",
+		"twitch_bot_enabled",
+		"kick_bot_enabled",
+		"kick_bot_id",
+		"channel_platforms",
 	} {
-		if !strings.Contains(createChannelAndBindingsQuery, fragment) {
-			t.Fatalf("create query does not reject orphaned provider state %q", fragment)
+		if strings.Contains(createChannelQuery, legacyColumn) {
+			t.Fatalf("generic channel creation writes legacy provider linkage %q", legacyColumn)
 		}
+	}
+
+	if !strings.Contains(createChannelQuery, `INSERT INTO channels ("botId")`) {
+		t.Fatalf("generic channel creation query = %q, want independent channel insert", createChannelQuery)
 	}
 }
 

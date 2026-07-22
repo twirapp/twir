@@ -2,10 +2,12 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -14,116 +16,282 @@ import (
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	"github.com/twirapp/twir/libs/crypto"
-	"github.com/twirapp/twir/libs/entities/platform"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 )
 
-type kickCodeBody struct {
-	Code  string `json:"code" minLength:"1" required:"true"`
-	State string `json:"state" required:"true"`
+var errOAuthAttemptPlatformMismatch = errors.New("oauth attempt belongs to another platform")
+
+type platformCodeBody struct {
+	Code     string `json:"code" minLength:"1" required:"true"`
+	State    string `json:"state" required:"true"`
+	DeviceID string `json:"device_id"`
+}
+
+type kickCodeBody = platformCodeBody
+
+type platformCodeInput struct {
+	Platform platformentity.Platform
+	Code     string
+	State    string
+	DeviceID string
+}
+
+type platformCodeResult struct {
+	AuthResult   completePlatformAuthResult
+	RedirectTo   string
+	PlatformUser *appplatform.PlatformUser
+	Tokens       *appplatform.PlatformTokens
+}
+
+func (a *Auth) startPlatformAuth(
+	ctx context.Context,
+	platform platformentity.Platform,
+	redirectTo string,
+) (string, error) {
+	provider, err := a.platformProvider(platform)
+	if err != nil {
+		return "", err
+	}
+
+	codeVerifier, codeChallenge, err := generatePKCE()
+	if err != nil {
+		return "", err
+	}
+	if redirectTo == "" {
+		redirectTo = "/dashboard"
+	}
+
+	state := uuid.NewString()
+	if err := a.sessions.SetOAuthAttempt(ctx, state, authsessions.OAuthAttempt{
+		Platform:     platform,
+		RedirectTo:   redirectTo,
+		CodeVerifier: codeVerifier,
+	}); err != nil {
+		return "", fmt.Errorf("store OAuth attempt: %w", err)
+	}
+
+	authorizeURL := provider.GetAuthURL(state, codeChallenge)
+	if authorizeURL == "" {
+		_ = a.sessions.DeleteOAuthAttempt(ctx, state)
+		return "", fmt.Errorf("build %s authorization URL", platform)
+	}
+
+	return authorizeURL, nil
+}
+
+func (a *Auth) completePlatformCode(ctx context.Context, input platformCodeInput) (platformCodeResult, error) {
+	provider, err := a.platformProvider(input.Platform)
+	if err != nil {
+		return platformCodeResult{}, err
+	}
+
+	attempt, err := a.sessions.GetOAuthAttempt(ctx, input.State)
+	if err != nil {
+		return platformCodeResult{}, fmt.Errorf("get OAuth attempt: %w", err)
+	}
+	if attempt.Platform != input.Platform {
+		return platformCodeResult{}, errOAuthAttemptPlatformMismatch
+	}
+	if input.DeviceID != "" {
+		attempt.DeviceID = input.DeviceID
+		if err := a.sessions.SetOAuthAttempt(ctx, input.State, attempt); err != nil {
+			return platformCodeResult{}, fmt.Errorf("store callback device ID: %w", err)
+		}
+	}
+
+	result, err := a.completePlatformExchange(
+		ctx,
+		input.Platform,
+		provider,
+		input.Code,
+		attempt.CodeVerifier,
+		attempt.DeviceID,
+		attempt.RedirectTo,
+	)
+	if err != nil {
+		return platformCodeResult{}, err
+	}
+	if err := a.sessions.DeleteOAuthAttempt(ctx, input.State); err != nil {
+		return platformCodeResult{}, fmt.Errorf("delete OAuth attempt: %w", err)
+	}
+
+	return result, nil
+}
+
+func (a *Auth) completeLegacyPlatformCode(
+	ctx context.Context,
+	platform platformentity.Platform,
+	code string,
+	redirectTo string,
+) (platformCodeResult, error) {
+	provider, err := a.platformProvider(platform)
+	if err != nil {
+		return platformCodeResult{}, err
+	}
+
+	return a.completePlatformExchange(ctx, platform, provider, code, "", "", redirectTo)
+}
+
+func (a *Auth) completePlatformExchange(
+	ctx context.Context,
+	platform platformentity.Platform,
+	provider appplatform.PlatformProvider,
+	code string,
+	codeVerifier string,
+	deviceID string,
+	redirectTo string,
+) (platformCodeResult, error) {
+	tokens, err := provider.ExchangeCode(ctx, appplatform.ExchangeCodeInput{
+		Code:         code,
+		CodeVerifier: codeVerifier,
+		DeviceID:     deviceID,
+	})
+	if err != nil {
+		return platformCodeResult{}, fmt.Errorf("exchange platform code: %w", err)
+	}
+
+	platformUser, err := provider.GetUser(ctx, tokens.AccessToken)
+	if err != nil {
+		return platformCodeResult{}, fmt.Errorf("get platform user: %w", err)
+	}
+
+	bindingConfig, err := a.platformBindingConfig(ctx, platform)
+	if err != nil {
+		return platformCodeResult{}, fmt.Errorf("get platform binding configuration: %w", err)
+	}
+
+	authResult, err := a.completePlatformAuth(ctx, completePlatformAuthInput{
+		Platform:      platform,
+		PlatformUser:  platformUser,
+		Tokens:        tokens,
+		BindingConfig: bindingConfig,
+	})
+	if err != nil {
+		return platformCodeResult{}, err
+	}
+
+	if hook, ok := a.postPlatformAuthHooks[platform]; ok {
+		if err := hook(ctx, authResult, platformUser, tokens); err != nil {
+			return platformCodeResult{}, err
+		}
+	}
+
+	return platformCodeResult{
+		AuthResult:   authResult,
+		RedirectTo:   redirectTo,
+		PlatformUser: platformUser,
+		Tokens:       tokens,
+	}, nil
+}
+
+func (a *Auth) handlePlatformCode(
+	ctx context.Context,
+	input platformCodeInput,
+) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
+	result, err := a.completePlatformCode(ctx, input)
+	if err != nil {
+		return nil, a.platformAuthHTTPError(err)
+	}
+
+	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: result.RedirectTo}), nil
 }
 
 func (a *Auth) handleKickCode(
 	ctx context.Context,
 	input kickCodeBody,
 ) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
-	a.logger.InfoContext(ctx, "kick auth: started", slog.String("state", input.State))
-
-	redirectTo, err := decodeRedirectState(input.State)
-	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to decode state", logger.Error(err))
-		return nil, huma.Error400BadRequest("Cannot decode state", err)
-	}
-
-	if a.kickProvider == nil {
-		a.logger.ErrorContext(ctx, "kick auth: kick provider is nil")
-		return nil, huma.Error500InternalServerError("Kick provider is not configured", fmt.Errorf("kick provider is nil"))
-	}
-
-	if a.channelsRepo == nil {
-		a.logger.ErrorContext(ctx, "kick auth: channels repo is nil")
-		return nil, huma.Error500InternalServerError("Channels repository is not configured", fmt.Errorf("channels repo is nil"))
-	}
-
-	if a.botsRepo == nil {
-		a.logger.ErrorContext(ctx, "kick auth: bots repo is nil")
-		return nil, huma.Error500InternalServerError("Bots repository is not configured", fmt.Errorf("bots repo is nil"))
-	}
-
-	codeVerifier, err := a.getKickCodeVerifier(ctx)
-	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to get code verifier", logger.Error(err))
-		return nil, huma.Error400BadRequest("Cannot get code verifier", err)
-	}
-
-	tokens, err := a.kickProvider.ExchangeCode(ctx, appplatform.ExchangeCodeInput{
-		Code:         input.Code,
-		CodeVerifier: codeVerifier,
+	return a.handlePlatformCode(ctx, platformCodeInput{
+		Platform: platformentity.PlatformKick,
+		Code:     input.Code,
+		State:    input.State,
+		DeviceID: input.DeviceID,
 	})
-	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to exchange code", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot exchange code", err)
+}
+
+func (a *Auth) platformProvider(platform platformentity.Platform) (appplatform.PlatformProvider, error) {
+	if a.platformRegistry == nil {
+		return nil, errPlatformUnavailable
 	}
 
-	platformUser, err := a.kickProvider.GetUser(ctx, tokens.AccessToken)
-	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to get user from kick", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot get user data from kick", err)
+	provider, ok := a.platformRegistry.Get(platform)
+	if !ok || provider == nil {
+		return nil, errPlatformUnavailable
+	}
+
+	return provider, nil
+}
+
+func (a *Auth) platformBindingConfig(
+	ctx context.Context,
+	platform platformentity.Platform,
+) (platformBindingConfig, error) {
+	resolver, ok := a.bindingConfigResolvers[platform]
+	if !ok {
+		return platformBindingConfig{BotConfig: json.RawMessage(`{}`)}, nil
+	}
+
+	return resolver(ctx)
+}
+
+func (a *Auth) twitchBindingConfig(ctx context.Context) (platformBindingConfig, error) {
+	if a.botsRepo == nil {
+		return platformBindingConfig{}, fmt.Errorf("bots repository is not configured")
 	}
 
 	defaultBot, err := a.botsRepo.GetDefault(ctx)
 	if err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to get default bot", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot find default bot", err)
+		return platformBindingConfig{}, fmt.Errorf("get default bot: %w", err)
 	}
 	if defaultBot.ID == "" {
-		a.logger.ErrorContext(ctx, "kick auth: no default bot found")
-		return nil, huma.Error500InternalServerError("Cannot find default bot", fmt.Errorf("no default bot found"))
+		return platformBindingConfig{}, fmt.Errorf("default bot not found")
 	}
 
-	defaultKickBot, kickBotErr := a.kickBotsRepo.GetDefault(ctx)
-	if kickBotErr != nil && !errors.Is(kickBotErr, kickbotsrepo.ErrNotFound) {
-		a.logger.ErrorContext(ctx, "kick auth: failed to get default kick bot", logger.Error(kickBotErr))
-	}
-
-	var defaultKickBotID *uuid.UUID
-	if kickBotErr == nil {
-		botID := defaultKickBot.ID
-		defaultKickBotID = &botID
-	}
-
-	result, err := a.completePlatformAuth(ctx, completePlatformAuthInput{
-		Platform: platform.PlatformKick,
-		PlatformUser: &appplatform.PlatformUser{
-			ID:          platformUser.ID,
-			Login:       platformUser.Login,
-			DisplayName: platformUser.DisplayName,
-			Avatar:      platformUser.Avatar,
-		},
-		Tokens: &appplatform.PlatformTokens{
-			AccessToken:  tokens.AccessToken,
-			RefreshToken: tokens.RefreshToken,
-			ExpiresIn:    tokens.ExpiresIn,
-			Scopes:       tokens.Scopes,
-		},
-		DefaultBotID:     defaultBot.ID,
-		DefaultKickBotID: defaultKickBotID,
-	})
+	config, err := json.Marshal(struct {
+		BotID          string `json:"bot_id"`
+		IsBotMod       bool   `json:"is_bot_mod"`
+		IsTwitchBanned bool   `json:"is_twitch_banned"`
+	}{BotID: defaultBot.ID})
 	if err != nil {
-		if errors.Is(err, errAuthForbidden) {
-			return nil, huma.Error403Forbidden("Forbidden", nil)
-		}
-
-		if errors.Is(err, errPlatformConflict) {
-			return nil, huma.Error409Conflict("Platform account already linked to another dashboard", err)
-		}
-
-		a.logger.ErrorContext(ctx, "kick auth: failed to complete auth", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot complete auth", err)
+		return platformBindingConfig{}, fmt.Errorf("encode Twitch binding configuration: %w", err)
 	}
 
-	if !result.CreatedUser {
+	return platformBindingConfig{BotConfig: config}, nil
+}
+
+func (a *Auth) kickBindingConfig(ctx context.Context) (platformBindingConfig, error) {
+	if a.kickBotsRepo == nil {
+		return platformBindingConfig{}, fmt.Errorf("kick bots repository is not configured")
+	}
+
+	defaultBot, err := a.kickBotsRepo.GetDefault(ctx)
+	if errors.Is(err, kickbotsrepo.ErrNotFound) {
+		return platformBindingConfig{BotConfig: json.RawMessage(`{}`)}, nil
+	}
+	if err != nil {
+		a.logger.ErrorContext(ctx, "kick auth: failed to get default kick bot", logger.Error(err))
+		return platformBindingConfig{BotConfig: json.RawMessage(`{}`)}, nil
+	}
+
+	config, err := json.Marshal(struct {
+		KickBotID string `json:"kick_bot_id"`
+	}{KickBotID: defaultBot.ID.String()})
+	if err != nil {
+		return platformBindingConfig{}, fmt.Errorf("encode Kick binding configuration: %w", err)
+	}
+
+	botUserID := defaultBot.KickUserID
+	return platformBindingConfig{BotUserID: &botUserID, BotConfig: config}, nil
+}
+
+func (a *Auth) updateKickBotTokenAfterAuth(
+	ctx context.Context,
+	result completePlatformAuthResult,
+	platformUser *appplatform.PlatformUser,
+	tokens *appplatform.PlatformTokens,
+) error {
+	if !result.CreatedUser && a.kickBotsRepo != nil {
 		accessToken, encryptAccessErr := crypto.Encrypt(tokens.AccessToken, a.config.TokensCipherKey)
 		if encryptAccessErr != nil {
 			a.logger.ErrorContext(ctx, "kick auth: failed to encrypt access token for kick bot update", logger.Error(encryptAccessErr))
@@ -136,19 +304,14 @@ func (a *Auth) handleKickCode(
 				if kickBotByUserErr != nil && !errors.Is(kickBotByUserErr, kickbotsrepo.ErrNotFound) {
 					a.logger.ErrorContext(ctx, "kick auth: failed to get kick bot by user id", logger.Error(kickBotByUserErr))
 				}
-
 				if kickBotByUserErr == nil {
-					_, updateErr := a.kickBotsRepo.UpdateToken(
-						ctx,
-						existingKickBot.ID,
-						kickbotsrepo.UpdateTokenInput{
-							AccessToken:         accessToken,
-							RefreshToken:        refreshToken,
-							Scopes:              tokens.Scopes,
-							ExpiresIn:           tokens.ExpiresIn,
-							ObtainmentTimestamp: time.Now().UTC(),
-						},
-					)
+					_, updateErr := a.kickBotsRepo.UpdateToken(ctx, existingKickBot.ID, kickbotsrepo.UpdateTokenInput{
+						AccessToken:         accessToken,
+						RefreshToken:        refreshToken,
+						Scopes:              tokens.Scopes,
+						ExpiresIn:           tokens.ExpiresIn,
+						ObtainmentTimestamp: time.Now().UTC(),
+					})
 					if updateErr != nil {
 						a.logger.ErrorContext(ctx, "kick auth: failed to update kick bot token on re-login", logger.Error(updateErr))
 					}
@@ -162,13 +325,36 @@ func (a *Auth) handleKickCode(
 		Login:  platformUser.Login,
 		Avatar: platformUser.Avatar,
 	}); err != nil {
-		a.logger.ErrorContext(ctx, "kick auth: failed to set kick user", logger.Error(err))
-		return nil, huma.Error500InternalServerError("Cannot set kick user", err)
+		return fmt.Errorf("set kick session user: %w", err)
 	}
 
-	a.logger.InfoContext(ctx, "kick auth: completed successfully", slog.String("redirect_to", string(redirectTo)), slog.String("user_id", result.SessionUserID.String()), slog.String("channel_id", result.Channel.ID.String()))
+	return nil
+}
 
-	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: string(redirectTo)}), nil
+func (a *Auth) platformAuthHTTPError(err error) error {
+	switch {
+	case errors.Is(err, errAuthForbidden):
+		return huma.Error403Forbidden("Forbidden", nil)
+	case errors.Is(err, errPlatformConflict):
+		return huma.Error409Conflict("Platform account already linked to another dashboard", err)
+	case errors.Is(err, errPlatformUnavailable):
+		return huma.Error404NotFound("Platform is not available", nil)
+	case errors.Is(err, authsessions.ErrOAuthAttemptNotFound), errors.Is(err, errOAuthAttemptPlatformMismatch):
+		return huma.Error400BadRequest("Invalid or expired OAuth state", nil)
+	default:
+		return huma.Error500InternalServerError("Cannot complete platform auth", err)
+	}
+}
+
+func generatePKCE() (string, string, error) {
+	randomBytes := make([]byte, 96)
+	if _, err := rand.Read(randomBytes); err != nil {
+		return "", "", fmt.Errorf("generate PKCE verifier: %w", err)
+	}
+
+	verifier := base64.RawURLEncoding.EncodeToString(randomBytes)
+	hash := sha256.Sum256([]byte(verifier))
+	return verifier, base64.RawURLEncoding.EncodeToString(hash[:]), nil
 }
 
 func decodeRedirectState(state string) ([]byte, error) {
@@ -193,13 +379,4 @@ func decodeRedirectState(state string) ([]byte, error) {
 	}
 
 	return nil, fmt.Errorf("decode state: %w", err)
-}
-
-func (a *Auth) getKickCodeVerifier(ctx context.Context) (string, error) {
-	codeVerifier, ok := a.sessions.Get(ctx, kickCodeVerifierSessionKey).(string)
-	if !ok || codeVerifier == "" {
-		return "", fmt.Errorf("kick code verifier not found in session")
-	}
-
-	return codeVerifier, nil
 }
