@@ -38,6 +38,9 @@ func (s *Auth) GetAuthenticatedUserByApiKey(ctx context.Context) (*model.Users, 
 	if err != nil {
 		return nil, fmt.Errorf("cannot get user from db: %w", err)
 	}
+	if user.IsNil() {
+		return nil, fmt.Errorf("cannot get user from db: %w", usersmodel.ErrNotFound)
+	}
 
 	return mapRepositoryUser(user), nil
 }
