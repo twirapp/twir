@@ -61,6 +61,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	dashboard_widgets "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widgets"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/discord_integration"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
@@ -606,6 +607,7 @@ func main() {
 			twitch.New,
 			channels.New,
 			channelplatformservice.NewFx,
+			dashboardaccess.NewFx,
 			chat_messages.New,
 			channels_commands_prefix.New,
 			channels_emotes_usages.New,

@@ -16,6 +16,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/crypto"
@@ -945,6 +946,13 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 		registry:    appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
 		transaction: transaction,
 	})
+	authHandler.dashboardAccess = dashboardAccessFunc(func(_ context.Context, subject dashboardaccess.Subject, channelID uuid.UUID, permission string) (bool, error) {
+		if subject.ID != collaboratorID.String() || channelID != selectedDashboardID || permission != "" {
+			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
+		}
+
+		return true, nil
+	})
 
 	authorizeURL, err := authHandler.StartPlatformAuthForChannel(ctx, selectedDashboardID, platformentity.PlatformKick, "/dashboard/platforms")
 	if err != nil {
@@ -973,6 +981,49 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 	}
 	if len(createdBindings) != 1 || createdBindings[0].ChannelID != selectedDashboardID {
 		t.Fatalf("created bindings = %#v, want provider linked to selected dashboard %s", createdBindings, selectedDashboardID)
+	}
+}
+
+func TestCompletePlatformAuthRejectsUnauthorizedTargetDashboard(t *testing.T) {
+	sessionUserID := uuid.New()
+	targetChannelID := uuid.New()
+	accessCalls := 0
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions: &fakeOAuthSession{internalUserID: sessionUserID},
+		users: &oauthUsersRepository{
+			getByIDFunc: func(_ context.Context, userID uuid.UUID) (usersmodel.User, error) {
+				if userID != sessionUserID {
+					t.Fatalf("session user ID = %s, want %s", userID, sessionUserID)
+				}
+
+				return usersmodel.User{ID: sessionUserID}, nil
+			},
+			getByPlatformIDFunc: func(context.Context, platformentity.Platform, string) (usersmodel.User, error) {
+				t.Fatal("platform user lookup must not run for an unauthorized target")
+				return usersmodel.Nil, nil
+			},
+		},
+	})
+	authHandler.dashboardAccess = dashboardAccessFunc(func(_ context.Context, subject dashboardaccess.Subject, channelID uuid.UUID, permission string) (bool, error) {
+		accessCalls++
+		if subject.ID != sessionUserID.String() || channelID != targetChannelID || permission != "" {
+			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
+		}
+
+		return false, nil
+	})
+
+	_, err := authHandler.completePlatformAuth(context.Background(), completePlatformAuthInput{
+		Platform:        platformentity.PlatformKick,
+		PlatformUser:    &appplatform.PlatformUser{ID: "provider-kick"},
+		Tokens:          testPlatformTokens(),
+		TargetChannelID: &targetChannelID,
+	})
+	if !errors.Is(err, errAuthForbidden) {
+		t.Fatalf("completePlatformAuth() error = %v, want errAuthForbidden", err)
+	}
+	if accessCalls != 1 {
+		t.Fatalf("dashboard access calls = %d, want 1", accessCalls)
 	}
 }
 
@@ -1236,6 +1287,17 @@ func (t *oauthTransaction) Do(ctx context.Context, fn func(context.Context) erro
 type oauthEventSubPublisher struct {
 	transaction *oauthTransaction
 	requests    []buscoreeventsub.EventsubSubscribeToAllEventsRequest
+}
+
+type dashboardAccessFunc func(context.Context, dashboardaccess.Subject, uuid.UUID, string) (bool, error)
+
+func (f dashboardAccessFunc) CanAccess(
+	ctx context.Context,
+	subject dashboardaccess.Subject,
+	channelID uuid.UUID,
+	permission string,
+) (bool, error) {
+	return f(ctx, subject, channelID, permission)
 }
 
 func (p *oauthEventSubPublisher) Publish(_ context.Context, input buscoreeventsub.EventsubSubscribeToAllEventsRequest) error {

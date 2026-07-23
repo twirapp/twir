@@ -14,6 +14,7 @@ import (
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -44,6 +45,7 @@ type Opts struct {
 	KickProvider         *kickplatform.Provider
 	KickBotsRepo         kickbotsrepo.Repository
 	KV                   kv.KV
+	DashboardAccess      *dashboardaccess.Service
 }
 
 type Auth struct {
@@ -61,9 +63,14 @@ type Auth struct {
 	kickProvider           *kickplatform.Provider
 	kickBotsRepo           kickbotsrepo.Repository
 	kv                     kv.KV
+	dashboardAccess        dashboardAccessChecker
 	eventSubPublisher      eventSubPublisher
 	bindingConfigResolvers map[platformentity.Platform]platformBindingConfigResolver
 	postPlatformAuthHooks  map[platformentity.Platform]postPlatformAuthHook
+}
+
+type dashboardAccessChecker interface {
+	CanAccess(context.Context, dashboardaccess.Subject, uuid.UUID, string) (bool, error)
 }
 
 type sessionStore interface {
@@ -94,6 +101,7 @@ func New(opts Opts) *Auth {
 		kickProvider:         opts.KickProvider,
 		kickBotsRepo:         opts.KickBotsRepo,
 		kv:                   opts.KV,
+		dashboardAccess:      opts.DashboardAccess,
 	}
 	if opts.Bus != nil && opts.Bus.EventSub != nil {
 		p.eventSubPublisher = opts.Bus.EventSub.SubscribeToAllEvents
