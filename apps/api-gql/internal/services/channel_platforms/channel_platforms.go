@@ -4,12 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/logger"
 	channelplatformsrepo "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
@@ -33,10 +37,12 @@ type Opts struct {
 	Auth                 *authroutes.Auth
 	PlatformRegistry     *appplatform.Registry
 	TrmManager           trm.Manager
+	TwirBus              *buscore.Bus
+	Logger               *slog.Logger
 }
 
 func NewFx(opts Opts) *Service {
-	return New(
+	service := New(
 		opts.ChannelService,
 		opts.UsersRepository,
 		opts.ChannelPlatformsRepo,
@@ -44,6 +50,9 @@ func NewFx(opts Opts) *Service {
 		opts.PlatformRegistry,
 		opts.TrmManager,
 	)
+	service.eventSub = busEventSubPublisher{bus: opts.TwirBus}
+	service.logger = opts.Logger
+	return service
 }
 
 func New(
@@ -79,6 +88,8 @@ type Service struct {
 	oauth        OAuthStarter
 	registry     *appplatform.Registry
 	transactions transactionRunner
+	eventSub     eventSubPublisher
+	logger       *slog.Logger
 }
 
 var _ Operations = (*Service)(nil)
@@ -111,6 +122,23 @@ type BindingRepository interface {
 
 type transactionRunner interface {
 	Do(context.Context, func(context.Context) error) error
+}
+
+type eventSubPublisher interface {
+	Subscribe(context.Context, eventsub.EventsubSubscribeToAllEventsRequest) error
+	Unsubscribe(context.Context, eventsub.EventsubUnsubscribeRequest) error
+}
+
+type busEventSubPublisher struct {
+	bus *buscore.Bus
+}
+
+func (p busEventSubPublisher) Subscribe(ctx context.Context, request eventsub.EventsubSubscribeToAllEventsRequest) error {
+	return p.bus.EventSub.SubscribeToAllEvents.Publish(ctx, request)
+}
+
+func (p busEventSubPublisher) Unsubscribe(ctx context.Context, request eventsub.EventsubUnsubscribeRequest) error {
+	return p.bus.EventSub.Unsubscribe.Publish(ctx, request)
 }
 
 type OAuthStarter interface {
@@ -177,7 +205,8 @@ func (s *Service) Disconnect(ctx context.Context, channelID uuid.UUID, platform 
 		return fmt.Errorf("channel platform binding service is not configured")
 	}
 
-	return s.transactions.Do(ctx, func(txCtx context.Context) error {
+	var binding channelplatformsmodel.ChannelPlatform
+	err := s.transactions.Do(ctx, func(txCtx context.Context) error {
 		if err := s.bindings.LockByChannelID(txCtx, channelID); err != nil {
 			return fmt.Errorf("lock channel platform bindings: %w", err)
 		}
@@ -196,7 +225,7 @@ func (s *Service) Disconnect(ctx context.Context, channelID uuid.UUID, platform 
 			return ErrLastBinding
 		}
 
-		binding, err := s.bindings.GetByChannelAndPlatform(txCtx, channelID, platform)
+		binding, err = s.bindings.GetByChannelAndPlatform(txCtx, channelID, platform)
 		if err != nil {
 			return fmt.Errorf("get channel platform binding: %w", err)
 		}
@@ -206,6 +235,12 @@ func (s *Service) Disconnect(ctx context.Context, channelID uuid.UUID, platform 
 
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	s.publishBindingUnsubscribe(ctx, channelID, binding)
+	return nil
 }
 
 func (s *Service) SetEnabled(
@@ -217,20 +252,70 @@ func (s *Service) SetEnabled(
 	if err := s.requireAvailable(platform); err != nil {
 		return Binding{}, err
 	}
-	if s.bindings == nil {
-		return Binding{}, fmt.Errorf("channel platform binding repository is not configured")
+	if s.bindings == nil || s.transactions == nil {
+		return Binding{}, fmt.Errorf("channel platform binding service is not configured")
 	}
 
-	binding, err := s.bindings.GetByChannelAndPlatform(ctx, channelID, platform)
+	var updated channelplatformsmodel.ChannelPlatform
+	err := s.transactions.Do(ctx, func(txCtx context.Context) error {
+		binding, err := s.bindings.GetByChannelAndPlatform(txCtx, channelID, platform)
+		if err != nil {
+			return fmt.Errorf("get channel platform binding: %w", err)
+		}
+		updated, err = s.bindings.Patch(txCtx, binding.ID, channelplatformsrepo.PatchInput{Enabled: &enabled})
+		if err != nil {
+			return fmt.Errorf("set channel platform binding enabled state: %w", err)
+		}
+		return nil
+	})
 	if err != nil {
-		return Binding{}, fmt.Errorf("get channel platform binding: %w", err)
-	}
-	updated, err := s.bindings.Patch(ctx, binding.ID, channelplatformsrepo.PatchInput{Enabled: &enabled})
-	if err != nil {
-		return Binding{}, fmt.Errorf("set channel platform binding enabled state: %w", err)
+		return Binding{}, err
 	}
 
+	s.publishBindingLifecycle(ctx, channelID, updated)
 	return s.withProfile(ctx, updated)
+}
+
+func (s *Service) publishBindingLifecycle(
+	ctx context.Context,
+	channelID uuid.UUID,
+	binding channelplatformsmodel.ChannelPlatform,
+) {
+	if binding.Enabled {
+		s.publishBindingSubscribe(ctx, channelID, binding.Platform)
+		return
+	}
+
+	s.publishBindingUnsubscribe(ctx, channelID, binding)
+}
+
+func (s *Service) publishBindingSubscribe(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform) {
+	if s.eventSub == nil {
+		return
+	}
+	if err := s.eventSub.Subscribe(ctx, eventsub.EventsubSubscribeToAllEventsRequest{
+		ChannelID: channelID.String(),
+		Platform:  platform,
+	}); err != nil && s.logger != nil {
+		s.logger.ErrorContext(ctx, "cannot publish eventsub subscribe", logger.Error(err), slog.String("channel_id", channelID.String()), slog.String("platform", platform.String()))
+	}
+}
+
+func (s *Service) publishBindingUnsubscribe(ctx context.Context, channelID uuid.UUID, binding channelplatformsmodel.ChannelPlatform) {
+	if s.eventSub == nil {
+		return
+	}
+	if err := s.eventSub.Unsubscribe(ctx, eventsub.EventsubUnsubscribeRequest{
+		ChannelID: channelID.String(),
+		Platform:  binding.Platform,
+		Binding: &eventsub.EventsubBindingSnapshot{
+			ID:                binding.ID.String(),
+			UserID:            binding.UserID.String(),
+			PlatformChannelID: binding.PlatformChannelID,
+		},
+	}); err != nil && s.logger != nil {
+		s.logger.ErrorContext(ctx, "cannot publish eventsub unsubscribe", logger.Error(err), slog.String("channel_id", channelID.String()), slog.String("platform", binding.Platform.String()))
+	}
 }
 
 func (s *Service) withProfile(ctx context.Context, binding channelplatformsmodel.ChannelPlatform) (Binding, error) {

@@ -3,11 +3,13 @@ package channel_platforms
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/google/uuid"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsrepo "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
@@ -150,6 +152,194 @@ func TestBindingOperationsUseGenericDependencies(t *testing.T) {
 	if repository.deletedID != binding.ID {
 		t.Fatalf("Disconnect() deleted %s, want %s", repository.deletedID, binding.ID)
 	}
+}
+
+func TestSetEnabledUsesTransactionContext(t *testing.T) {
+	t.Parallel()
+
+	channelID := uuid.New()
+	userID := uuid.New()
+	binding := channelplatformsmodel.ChannelPlatform{
+		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: userID, PlatformChannelID: "kick-channel", Enabled: true,
+	}
+	service := &Service{
+		bindings:     &transactionAwareSetEnabledBindingRepository{fakeBindingRepository: fakeBindingRepository{binding: binding}},
+		users:        fakeUserLookup{users: map[uuid.UUID]usersmodel.User{userID: {ID: userID}}},
+		registry:     testRegistry(platformentity.PlatformKick),
+		transactions: &lifecycleTransactionRunner{},
+	}
+
+	updated, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, false)
+	if err != nil {
+		t.Fatalf("SetEnabled() error = %v", err)
+	}
+	if updated.Binding.Enabled {
+		t.Fatalf("SetEnabled() = %#v, want disabled binding", updated)
+	}
+}
+
+func TestServiceExposesEventSubPublisher(t *testing.T) {
+	serviceType := reflect.TypeOf(Service{})
+	field, found := serviceType.FieldByName("eventSub")
+	if !found {
+		t.Fatal("channel platform service is missing eventSub")
+	}
+	if field.Type.Kind() != reflect.Interface {
+		t.Fatalf("eventSub type = %s, want interface", field.Type)
+	}
+	for _, method := range []string{"Subscribe", "Unsubscribe"} {
+		if _, found := field.Type.MethodByName(method); !found {
+			t.Fatalf("eventSub publisher is missing %s", method)
+		}
+	}
+}
+
+func TestSetEnabledPublishesLifecycleAfterCommit(t *testing.T) {
+	t.Parallel()
+
+	for _, enabled := range []bool{false, true} {
+		t.Run(fmt.Sprintf("enabled_%t", enabled), func(t *testing.T) {
+			channelID := uuid.New()
+			binding := channelplatformsmodel.ChannelPlatform{
+				ID:                uuid.New(),
+				ChannelID:         channelID,
+				Platform:          platformentity.PlatformKick,
+				UserID:            uuid.New(),
+				PlatformChannelID: "kick-channel",
+				Enabled:           !enabled,
+			}
+			transaction := &lifecycleTransactionRunner{}
+			publisher := &recordingEventSubPublisher{committed: &transaction.committed}
+			service := &Service{
+				bindings:     &fakeBindingRepository{binding: binding},
+				users:        fakeUserLookup{users: map[uuid.UUID]usersmodel.User{binding.UserID: {ID: binding.UserID}}},
+				registry:     testRegistry(platformentity.PlatformKick),
+				transactions: transaction,
+				eventSub:     publisher,
+			}
+
+			updated, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, enabled)
+			if err != nil {
+				t.Fatalf("set enabled: %v", err)
+			}
+			if updated.Binding.Enabled != enabled || !transaction.committed {
+				t.Fatalf("updated binding = %+v, committed = %t", updated.Binding, transaction.committed)
+			}
+
+			if enabled {
+				want := eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID.String(), Platform: platformentity.PlatformKick}
+				if !reflect.DeepEqual(publisher.subscribeRequests, []eventsub.EventsubSubscribeToAllEventsRequest{want}) || len(publisher.unsubscribeRequests) != 0 {
+					t.Fatalf("subscribe = %#v, unsubscribe = %#v", publisher.subscribeRequests, publisher.unsubscribeRequests)
+				}
+				return
+			}
+
+			want := eventsub.EventsubUnsubscribeRequest{
+				ChannelID: channelID.String(),
+				Platform:  platformentity.PlatformKick,
+				Binding: &eventsub.EventsubBindingSnapshot{
+					ID:                binding.ID.String(),
+					UserID:            binding.UserID.String(),
+					PlatformChannelID: binding.PlatformChannelID,
+				},
+			}
+			if !reflect.DeepEqual(publisher.unsubscribeRequests, []eventsub.EventsubUnsubscribeRequest{want}) || len(publisher.subscribeRequests) != 0 {
+				t.Fatalf("unsubscribe = %#v, subscribe = %#v", publisher.unsubscribeRequests, publisher.subscribeRequests)
+			}
+		})
+	}
+}
+
+func TestDisconnectPublishesBindingSnapshotAfterCommit(t *testing.T) {
+	channelID := uuid.New()
+	binding := channelplatformsmodel.ChannelPlatform{
+		ID:                uuid.New(),
+		ChannelID:         channelID,
+		Platform:          platformentity.PlatformKick,
+		UserID:            uuid.New(),
+		PlatformChannelID: "kick-channel",
+		Enabled:           true,
+	}
+	transaction := &lifecycleTransactionRunner{}
+	publisher := &recordingEventSubPublisher{committed: &transaction.committed}
+	repository := &fakeBindingRepository{binding: binding}
+	service := &Service{
+		channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+			binding,
+			{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
+		}}},
+		bindings:     repository,
+		registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+		transactions: transaction,
+		eventSub:     publisher,
+	}
+
+	if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformKick); err != nil {
+		t.Fatalf("disconnect: %v", err)
+	}
+	want := eventsub.EventsubUnsubscribeRequest{
+		ChannelID: channelID.String(),
+		Platform:  platformentity.PlatformKick,
+		Binding: &eventsub.EventsubBindingSnapshot{
+			ID:                binding.ID.String(),
+			UserID:            binding.UserID.String(),
+			PlatformChannelID: binding.PlatformChannelID,
+		},
+	}
+	if repository.deletedID != binding.ID || !transaction.committed || !reflect.DeepEqual(publisher.unsubscribeRequests, []eventsub.EventsubUnsubscribeRequest{want}) {
+		t.Fatalf("deleted = %s, committed = %t, unsubscribe = %#v", repository.deletedID, transaction.committed, publisher.unsubscribeRequests)
+	}
+}
+
+func TestBindingLifecycleDoesNotPublishWhenTransactionFails(t *testing.T) {
+	commitErr := errors.New("commit failed")
+	channelID := uuid.New()
+	binding := channelplatformsmodel.ChannelPlatform{
+		ID:                uuid.New(),
+		ChannelID:         channelID,
+		Platform:          platformentity.PlatformKick,
+		UserID:            uuid.New(),
+		PlatformChannelID: "kick-channel",
+		Enabled:           true,
+	}
+
+	t.Run("set enabled", func(t *testing.T) {
+		transaction := &lifecycleTransactionRunner{commitErr: commitErr}
+		publisher := &recordingEventSubPublisher{committed: &transaction.committed}
+		service := &Service{
+			bindings:     &fakeBindingRepository{binding: binding},
+			registry:     testRegistry(platformentity.PlatformKick),
+			transactions: transaction,
+			eventSub:     publisher,
+		}
+		if _, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, false); !errors.Is(err, commitErr) {
+			t.Fatalf("set enabled error = %v, want %v", err, commitErr)
+		}
+		if len(publisher.subscribeRequests) != 0 || len(publisher.unsubscribeRequests) != 0 {
+			t.Fatalf("published requests = subscribe %#v unsubscribe %#v", publisher.subscribeRequests, publisher.unsubscribeRequests)
+		}
+	})
+
+	t.Run("disconnect", func(t *testing.T) {
+		transaction := &lifecycleTransactionRunner{commitErr: commitErr}
+		publisher := &recordingEventSubPublisher{committed: &transaction.committed}
+		service := &Service{
+			channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+				binding,
+				{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
+			}}},
+			bindings:     &fakeBindingRepository{binding: binding},
+			registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+			transactions: transaction,
+			eventSub:     publisher,
+		}
+		if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformKick); !errors.Is(err, commitErr) {
+			t.Fatalf("disconnect error = %v, want %v", err, commitErr)
+		}
+		if len(publisher.subscribeRequests) != 0 || len(publisher.unsubscribeRequests) != 0 {
+			t.Fatalf("published requests = subscribe %#v unsubscribe %#v", publisher.subscribeRequests, publisher.unsubscribeRequests)
+		}
+	})
 }
 
 func TestDisconnectRejectsLastAvailableBindingWhenDisabledPlatformIsHidden(t *testing.T) {
@@ -348,6 +538,69 @@ type fakeBindingRepository struct {
 	binding   channelplatformsmodel.ChannelPlatform
 	patch     channelplatformsrepo.PatchInput
 	deletedID uuid.UUID
+}
+
+type lifecycleTransactionContextKey struct{}
+
+type lifecycleTransactionRunner struct {
+	committed bool
+	commitErr error
+}
+
+func (r *lifecycleTransactionRunner) Do(ctx context.Context, fn func(context.Context) error) error {
+	if err := fn(context.WithValue(ctx, lifecycleTransactionContextKey{}, true)); err != nil {
+		return err
+	}
+	if r.commitErr != nil {
+		return r.commitErr
+	}
+	r.committed = true
+	return nil
+}
+
+type recordingEventSubPublisher struct {
+	committed           *bool
+	subscribeRequests   []eventsub.EventsubSubscribeToAllEventsRequest
+	unsubscribeRequests []eventsub.EventsubUnsubscribeRequest
+}
+
+func (p *recordingEventSubPublisher) Subscribe(_ context.Context, request eventsub.EventsubSubscribeToAllEventsRequest) error {
+	if p.committed != nil && !*p.committed {
+		return errors.New("subscribe published before transaction commit")
+	}
+	p.subscribeRequests = append(p.subscribeRequests, request)
+	return nil
+}
+
+func (p *recordingEventSubPublisher) Unsubscribe(_ context.Context, request eventsub.EventsubUnsubscribeRequest) error {
+	if p.committed != nil && !*p.committed {
+		return errors.New("unsubscribe published before transaction commit")
+	}
+	p.unsubscribeRequests = append(p.unsubscribeRequests, request)
+	return nil
+}
+
+type transactionAwareSetEnabledBindingRepository struct {
+	fakeBindingRepository
+}
+
+func (r *transactionAwareSetEnabledBindingRepository) GetByChannelAndPlatform(ctx context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+	if ctx.Value(lifecycleTransactionContextKey{}) != true {
+		return channelplatformsmodel.Nil, errors.New("binding lookup did not receive transaction context")
+	}
+	return r.binding, nil
+}
+
+func (r *transactionAwareSetEnabledBindingRepository) Patch(ctx context.Context, _ uuid.UUID, input channelplatformsrepo.PatchInput) (channelplatformsmodel.ChannelPlatform, error) {
+	if ctx.Value(lifecycleTransactionContextKey{}) != true {
+		return channelplatformsmodel.Nil, errors.New("binding patch did not receive transaction context")
+	}
+	r.patch = input
+	updated := r.binding
+	if input.Enabled != nil {
+		updated.Enabled = *input.Enabled
+	}
+	return updated, nil
 }
 
 func (*fakeBindingRepository) LockByChannelID(context.Context, uuid.UUID) error {
