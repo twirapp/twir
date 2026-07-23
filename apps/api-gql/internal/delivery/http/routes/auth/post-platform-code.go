@@ -21,7 +21,12 @@ import (
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 )
 
-var errOAuthAttemptPlatformMismatch = errors.New("oauth attempt belongs to another platform")
+const targetedOAuthAttemptLifetime = 15 * time.Minute
+
+var (
+	errOAuthAttemptPlatformMismatch = errors.New("oauth attempt belongs to another platform")
+	errOAuthAttemptInvalid          = errors.New("invalid or expired oauth state")
+)
 
 type platformCodeBody struct {
 	Code     string `json:"code" minLength:"1" required:"true"`
@@ -74,7 +79,8 @@ func (a *Auth) StartPlatformAuthForChannel(
 		return "", err
 	}
 
-	return a.startPlatformAuthForChannel(ctx, platform, redirectTo, &channelID)
+	initiatorUserID := sessionUser.ID
+	return a.startPlatformAuthForChannel(ctx, platform, redirectTo, &channelID, &initiatorUserID)
 }
 
 func (a *Auth) startPlatformAuth(
@@ -82,7 +88,7 @@ func (a *Auth) startPlatformAuth(
 	platform platformentity.Platform,
 	redirectTo string,
 ) (string, error) {
-	return a.startPlatformAuthForChannel(ctx, platform, redirectTo, nil)
+	return a.startPlatformAuthForChannel(ctx, platform, redirectTo, nil, nil)
 }
 
 func (a *Auth) startPlatformAuthForChannel(
@@ -90,6 +96,7 @@ func (a *Auth) startPlatformAuthForChannel(
 	platform platformentity.Platform,
 	redirectTo string,
 	targetChannelID *uuid.UUID,
+	initiatorUserID *uuid.UUID,
 ) (string, error) {
 	provider, err := a.platformProvider(platform)
 	if err != nil {
@@ -105,12 +112,21 @@ func (a *Auth) startPlatformAuthForChannel(
 	}
 
 	state := uuid.NewString()
-	if err := a.sessions.SetOAuthAttempt(ctx, state, authsessions.OAuthAttempt{
+	attempt := authsessions.OAuthAttempt{
 		Platform:        platform,
 		RedirectTo:      redirectTo,
 		CodeVerifier:    codeVerifier,
 		TargetChannelID: targetChannelID,
-	}); err != nil {
+	}
+	if targetChannelID != nil {
+		if initiatorUserID == nil {
+			return "", fmt.Errorf("targeted OAuth attempt requires an initiator")
+		}
+
+		attempt.InitiatorUserID = initiatorUserID
+		attempt.ExpiresAt = time.Now().UTC().Add(targetedOAuthAttemptLifetime)
+	}
+	if err := a.sessions.SetOAuthAttempt(ctx, state, attempt); err != nil {
 		return "", fmt.Errorf("store OAuth attempt: %w", err)
 	}
 
@@ -135,6 +151,9 @@ func (a *Auth) completePlatformCode(ctx context.Context, input platformCodeInput
 	}
 	if attempt.Platform != input.Platform {
 		return platformCodeResult{}, errOAuthAttemptPlatformMismatch
+	}
+	if err := a.validateTargetedOAuthAttempt(ctx, input.State, attempt); err != nil {
+		return platformCodeResult{}, err
 	}
 	if input.DeviceID != "" {
 		attempt.DeviceID = input.DeviceID
@@ -161,6 +180,35 @@ func (a *Auth) completePlatformCode(ctx context.Context, input platformCodeInput
 	}
 
 	return result, nil
+}
+
+func (a *Auth) validateTargetedOAuthAttempt(
+	ctx context.Context,
+	state string,
+	attempt authsessions.OAuthAttempt,
+) error {
+	if attempt.TargetChannelID == nil {
+		return nil
+	}
+	if *attempt.TargetChannelID == uuid.Nil ||
+		attempt.InitiatorUserID == nil ||
+		*attempt.InitiatorUserID == uuid.Nil ||
+		attempt.ExpiresAt.IsZero() ||
+		!time.Now().UTC().Before(attempt.ExpiresAt) {
+		return a.invalidateOAuthAttempt(ctx, state)
+	}
+
+	sessionUser, hasLiveSession, err := a.getLiveSessionUser(ctx)
+	if err != nil || !hasLiveSession || sessionUser.IsBanned || sessionUser.ID != *attempt.InitiatorUserID {
+		return a.invalidateOAuthAttempt(ctx, state)
+	}
+
+	return nil
+}
+
+func (a *Auth) invalidateOAuthAttempt(ctx context.Context, state string) error {
+	_ = a.sessions.DeleteOAuthAttempt(ctx, state)
+	return errOAuthAttemptInvalid
 }
 
 func (a *Auth) completePlatformExchange(
@@ -370,7 +418,7 @@ func (a *Auth) platformAuthHTTPError(err error) error {
 		return huma.Error409Conflict("Platform account already linked to another dashboard", err)
 	case errors.Is(err, errPlatformUnavailable):
 		return huma.Error404NotFound("Platform is not available", nil)
-	case errors.Is(err, authsessions.ErrOAuthAttemptNotFound), errors.Is(err, errOAuthAttemptPlatformMismatch):
+	case errors.Is(err, authsessions.ErrOAuthAttemptNotFound), errors.Is(err, errOAuthAttemptPlatformMismatch), errors.Is(err, errOAuthAttemptInvalid):
 		return huma.Error400BadRequest("Invalid or expired OAuth state", nil)
 	default:
 		return huma.Error500InternalServerError("Cannot complete platform auth", err)
