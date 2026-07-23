@@ -58,6 +58,7 @@ type completePlatformAuthInput struct {
 	Tokens          *appplatform.PlatformTokens
 	BindingConfig   platformBindingConfig
 	TargetChannelID *uuid.UUID
+	InitiatorUserID *uuid.UUID
 }
 
 type completePlatformAuthResult struct {
@@ -90,10 +91,13 @@ func (a *Auth) completePlatformAuth(
 	if hasLiveSession && sessionUser.IsBanned {
 		return completePlatformAuthResult{}, errAuthForbidden
 	}
-	if input.TargetChannelID != nil && !hasLiveSession {
-		return completePlatformAuthResult{}, errAuthForbidden
-	}
 	if input.TargetChannelID != nil {
+		if input.InitiatorUserID == nil ||
+			*input.InitiatorUserID == uuid.Nil ||
+			!hasLiveSession ||
+			sessionUser.ID != *input.InitiatorUserID {
+			return completePlatformAuthResult{}, errAuthForbidden
+		}
 		if err := a.authorizeTargetDashboard(ctx, sessionUser, *input.TargetChannelID); err != nil {
 			return completePlatformAuthResult{}, err
 		}

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -171,6 +172,7 @@ func (a *Auth) completePlatformCode(ctx context.Context, input platformCodeInput
 		attempt.DeviceID,
 		attempt.RedirectTo,
 		attempt.TargetChannelID,
+		attempt.InitiatorUserID,
 	)
 	if err != nil {
 		return platformCodeResult{}, err
@@ -194,6 +196,7 @@ func (a *Auth) validateTargetedOAuthAttempt(
 		attempt.InitiatorUserID == nil ||
 		*attempt.InitiatorUserID == uuid.Nil ||
 		attempt.ExpiresAt.IsZero() ||
+		strings.TrimSpace(attempt.CodeVerifier) == "" ||
 		!time.Now().UTC().Before(attempt.ExpiresAt) {
 		return a.invalidateOAuthAttempt(ctx, state)
 	}
@@ -220,6 +223,7 @@ func (a *Auth) completePlatformExchange(
 	deviceID string,
 	redirectTo string,
 	targetChannelID *uuid.UUID,
+	initiatorUserID *uuid.UUID,
 ) (platformCodeResult, error) {
 	tokens, err := provider.ExchangeCode(ctx, appplatform.ExchangeCodeInput{
 		Code:         code,
@@ -246,6 +250,7 @@ func (a *Auth) completePlatformExchange(
 		Tokens:          tokens,
 		BindingConfig:   bindingConfig,
 		TargetChannelID: targetChannelID,
+		InitiatorUserID: initiatorUserID,
 	})
 	if err != nil {
 		return platformCodeResult{}, err
