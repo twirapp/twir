@@ -1,10 +1,13 @@
 package channel_platforms
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -342,6 +345,76 @@ func TestBindingLifecycleDoesNotPublishWhenTransactionFails(t *testing.T) {
 	})
 }
 
+func TestSetEnabledSucceedsAndLogsPostCommitPublishErrors(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		name           string
+		enabled        bool
+		subscribeErr   error
+		unsubscribeErr error
+	}{
+		{name: "subscribe", enabled: true, subscribeErr: errors.New("subscribe publish failed")},
+		{name: "unsubscribe", enabled: false, unsubscribeErr: errors.New("unsubscribe publish failed")},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			channelID := uuid.New()
+			userID := uuid.New()
+			binding := channelplatformsmodel.ChannelPlatform{
+				ID:                uuid.New(),
+				ChannelID:         channelID,
+				Platform:          platformentity.PlatformKick,
+				UserID:            userID,
+				PlatformChannelID: "kick-channel",
+				Enabled:           !test.enabled,
+			}
+			repository := &fakeBindingRepository{binding: binding}
+			transaction := &lifecycleTransactionRunner{}
+			publisher := &recordingEventSubPublisher{
+				committed:      &transaction.committed,
+				subscribeErr:   test.subscribeErr,
+				unsubscribeErr: test.unsubscribeErr,
+			}
+			var logs bytes.Buffer
+			service := &Service{
+				bindings:     repository,
+				users:        fakeUserLookup{users: map[uuid.UUID]usersmodel.User{userID: {ID: userID}}},
+				registry:     testRegistry(platformentity.PlatformKick),
+				transactions: transaction,
+				eventSub:     publisher,
+				logger:       slog.New(slog.NewJSONHandler(&logs, nil)),
+			}
+
+			updated, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, test.enabled)
+			if err != nil {
+				t.Fatalf("SetEnabled() error = %v", err)
+			}
+			if !transaction.committed || updated.Binding.Enabled != test.enabled || repository.patch.Enabled == nil || *repository.patch.Enabled != test.enabled {
+				t.Fatalf("updated = %#v, patch = %#v, committed = %t", updated, repository.patch, transaction.committed)
+			}
+
+			if test.enabled {
+				if len(publisher.subscribeRequests) != 1 || len(publisher.unsubscribeRequests) != 0 {
+					t.Fatalf("subscribe = %#v, unsubscribe = %#v", publisher.subscribeRequests, publisher.unsubscribeRequests)
+				}
+			} else if len(publisher.unsubscribeRequests) != 1 || len(publisher.subscribeRequests) != 0 {
+				t.Fatalf("unsubscribe = %#v, subscribe = %#v", publisher.unsubscribeRequests, publisher.subscribeRequests)
+			}
+
+			for _, want := range []string{
+				`"level":"ERROR"`,
+				fmt.Sprintf(`"msg":"cannot publish eventsub %s"`, test.name),
+				fmt.Sprintf(`"channel_id":%q`, channelID.String()),
+				fmt.Sprintf(`"platform":%q`, binding.Platform.String()),
+			} {
+				if !strings.Contains(logs.String(), want) {
+					t.Fatalf("log = %q, want %q", logs.String(), want)
+				}
+			}
+		})
+	}
+}
+
 func TestDisconnectRejectsLastAvailableBindingWhenDisabledPlatformIsHidden(t *testing.T) {
 	t.Parallel()
 
@@ -560,6 +633,8 @@ func (r *lifecycleTransactionRunner) Do(ctx context.Context, fn func(context.Con
 
 type recordingEventSubPublisher struct {
 	committed           *bool
+	subscribeErr        error
+	unsubscribeErr      error
 	subscribeRequests   []eventsub.EventsubSubscribeToAllEventsRequest
 	unsubscribeRequests []eventsub.EventsubUnsubscribeRequest
 }
@@ -569,7 +644,7 @@ func (p *recordingEventSubPublisher) Subscribe(_ context.Context, request events
 		return errors.New("subscribe published before transaction commit")
 	}
 	p.subscribeRequests = append(p.subscribeRequests, request)
-	return nil
+	return p.subscribeErr
 }
 
 func (p *recordingEventSubPublisher) Unsubscribe(_ context.Context, request eventsub.EventsubUnsubscribeRequest) error {
@@ -577,7 +652,7 @@ func (p *recordingEventSubPublisher) Unsubscribe(_ context.Context, request even
 		return errors.New("unsubscribe published before transaction commit")
 	}
 	p.unsubscribeRequests = append(p.unsubscribeRequests, request)
-	return nil
+	return p.unsubscribeErr
 }
 
 type transactionAwareSetEnabledBindingRepository struct {
