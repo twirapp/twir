@@ -1,12 +1,11 @@
 package middlewares
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"gorm.io/gorm"
+	"github.com/google/uuid"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 )
 
 func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(huma.Context)) {
@@ -38,7 +37,7 @@ func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(hu
 		return
 	}
 
-	isOwner, err := c.isSelectedDashboardOwner(ctx, dashboardId, user.ID)
+	dashboardUUID, err := uuid.Parse(dashboardId)
 	if err != nil {
 		huma.WriteErr(
 			c.huma,
@@ -50,50 +49,20 @@ func (c *Middlewares) HasAccessToSelectedDashboard(hc huma.Context, next func(hu
 		return
 	}
 
-	if isOwner || user.IsBotAdmin {
+	if c.dashboardAccess == nil {
+		huma.WriteErr(c.huma, hc, http.StatusInternalServerError, "Cannot check dashboard access", nil)
+		return
+	}
+	hasAccess, err := c.dashboardAccess.CanAccess(ctx, dashboardaccess.Subject{
+		ID:         user.ID,
+		IsBotAdmin: user.IsBotAdmin,
+	}, dashboardUUID, "")
+	if err != nil {
+		huma.WriteErr(c.huma, hc, http.StatusInternalServerError, "Cannot check dashboard access", err)
+		return
+	}
+	if hasAccess {
 		next(hc)
-		return
-	}
-
-	var channelRoles []model.ChannelRole
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(`"channelId" = ?::uuid`, dashboardId).
-		Preload("Users", `user_id = ?`, user.ID).
-		Find(&channelRoles).
-		Error; err != nil {
-		huma.WriteErr(
-			c.huma,
-			hc,
-			http.StatusInternalServerError,
-			"Cannot get channel roles",
-			err,
-		)
-
-		return
-	}
-
-	var userStat model.UsersStats
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(`user_id = ? AND channel_id = ?::uuid`, user.ID, dashboardId).
-		First(&userStat).
-		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-
-		huma.WriteErr(
-			c.huma,
-			hc,
-			http.StatusInternalServerError,
-			"Cannot get user stats",
-			err,
-		)
-
-		return
-	}
-
-	if hasChannelRolesDashboardAccess(channelRoles, user.ID, userStat, nil) {
-		next(hc)
-
 		return
 	}
 

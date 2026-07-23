@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/crypto"
@@ -91,6 +92,11 @@ func (a *Auth) completePlatformAuth(
 	}
 	if input.TargetChannelID != nil && !hasLiveSession {
 		return completePlatformAuthResult{}, errAuthForbidden
+	}
+	if input.TargetChannelID != nil {
+		if err := a.authorizeTargetDashboard(ctx, sessionUser, *input.TargetChannelID); err != nil {
+			return completePlatformAuthResult{}, err
+		}
 	}
 
 	platformUser, createdUser, err := a.getOrCreatePlatformUser(ctx, input.Platform, input.PlatformUser)
@@ -179,6 +185,29 @@ func (a *Auth) completePlatformAuth(
 	}
 
 	return result, nil
+}
+
+func (a *Auth) authorizeTargetDashboard(
+	ctx context.Context,
+	user usersmodel.User,
+	channelID uuid.UUID,
+) error {
+	if a.dashboardAccess == nil {
+		return fmt.Errorf("dashboard access service is not configured")
+	}
+
+	hasAccess, err := a.dashboardAccess.CanAccess(ctx, dashboardaccess.Subject{
+		ID:         user.ID.String(),
+		IsBotAdmin: user.IsBotAdmin,
+	}, channelID, "")
+	if err != nil {
+		return fmt.Errorf("check target dashboard access: %w", err)
+	}
+	if !hasAccess {
+		return errAuthForbidden
+	}
+
+	return nil
 }
 
 func (a *Auth) getLiveSessionUser(ctx context.Context) (usersmodel.User, bool, error) {
