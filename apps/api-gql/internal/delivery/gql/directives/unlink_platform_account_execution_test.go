@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
@@ -21,16 +22,19 @@ import (
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
-func TestUnlinkPlatformAccountGraphQLRequiresSelectedDashboardAccess(t *testing.T) {
+func TestUnlinkPlatformAccountGraphQLRequiresManageBotSettings(t *testing.T) {
 	t.Parallel()
 
 	dashboardID := uuid.New()
 	ownerID := uuid.New()
+	managerID := uuid.New()
+	viewerID := uuid.New()
 	unauthorizedUserID := uuid.New()
 
 	tests := []struct {
 		name                string
 		userID              uuid.UUID
+		roles               []model.ChannelRole
 		wantError           string
 		wantDisconnectCalls int
 	}{
@@ -38,6 +42,24 @@ func TestUnlinkPlatformAccountGraphQLRequiresSelectedDashboardAccess(t *testing.
 			name:      "denies stale selected dashboard before disconnecting",
 			userID:    unauthorizedUserID,
 			wantError: "user does not have access to selected dashboard",
+		},
+		{
+			name:   "denies selected-dashboard view collaborator before disconnecting",
+			userID: viewerID,
+			roles: []model.ChannelRole{{
+				Users:       []*model.ChannelRoleUser{{UserID: viewerID.String()}},
+				Permissions: pq.StringArray{"VIEW_BOT_SETTINGS"},
+			}},
+			wantError: "user has no permission to access this resource",
+		},
+		{
+			name:   "allows selected-dashboard manager to unlink",
+			userID: managerID,
+			roles: []model.ChannelRole{{
+				Users:       []*model.ChannelRoleUser{{UserID: managerID.String()}},
+				Permissions: pq.StringArray{"MANAGE_BOT_SETTINGS"},
+			}},
+			wantDisconnectCalls: 1,
 		},
 		{
 			name:                "allows normalized binding owner to unlink",
@@ -49,7 +71,7 @@ func TestUnlinkPlatformAccountGraphQLRequiresSelectedDashboardAccess(t *testing.
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			operations := &unlinkPlatformAccountOperations{}
-			server := newUnlinkPlatformAccountGraphQLServer(t, dashboardID, ownerID, tt.userID, operations)
+			server := newUnlinkPlatformAccountGraphQLServer(t, dashboardID, ownerID, tt.userID, tt.roles, operations)
 
 			response := executeUnlinkPlatformAccount(t, server)
 			if tt.wantError != "" {
@@ -80,6 +102,7 @@ func newUnlinkPlatformAccountGraphQLServer(
 	dashboardID uuid.UUID,
 	ownerID uuid.UUID,
 	userID uuid.UUID,
+	roles []model.ChannelRole,
 	operations *unlinkPlatformAccountOperations,
 ) *handler.Server {
 	t.Helper()
@@ -105,15 +128,16 @@ func newUnlinkPlatformAccountGraphQLServer(
 					ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: ownerID, PlatformChannelID: "owner-channel", Enabled: true,
 				}},
 			}},
-			&selectedDashboardDirectiveStore{},
+			&selectedDashboardDirectiveStore{roles: roles},
 		),
 	}
 
 	server := handler.New(graph.NewExecutableSchema(graph.Config{
 		Resolvers: resolver,
 		Directives: graph.DirectiveRoot{
-			IsAuthenticated:              directive.IsAuthenticated,
-			HasAccessToSelectedDashboard: directive.HasAccessToSelectedDashboard,
+			IsAuthenticated:                    directive.IsAuthenticated,
+			HasAccessToSelectedDashboard:       directive.HasAccessToSelectedDashboard,
+			HasChannelRolesDashboardPermission: directive.HasChannelRolesDashboardPermission,
 		},
 	}))
 	server.AddTransport(transport.POST{})
