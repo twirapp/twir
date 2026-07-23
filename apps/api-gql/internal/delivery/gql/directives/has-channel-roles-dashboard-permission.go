@@ -2,13 +2,12 @@ package directives
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"gorm.io/gorm"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 )
 
 func (c *Directives) HasChannelRolesDashboardPermission(
@@ -21,74 +20,32 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 	if err != nil {
 		return nil, err
 	}
-	dashboardId, err := c.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := c.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var channel model.Channels
-	if err := c.gorm.WithContext(ctx).Where("id = ?::uuid", dashboardId).First(&channel).Error; err != nil {
+	dashboardUUID, err := uuid.Parse(dashboardID)
+	if err != nil {
 		return nil, fmt.Errorf("cannot get channel: %w", err)
 	}
+	if c.dashboardAccess == nil {
+		return nil, fmt.Errorf("dashboard access service is not configured")
+	}
 
-	if channel.IsOwner(user.ID) || user.IsBotAdmin {
+	permissionValue := ""
+	if permission != nil {
+		permissionValue = permission.String()
+	}
+	hasAccess, err := c.dashboardAccess.CanAccess(ctx, dashboardaccess.Subject{
+		ID:         user.ID,
+		IsBotAdmin: user.IsBotAdmin,
+	}, dashboardUUID, permissionValue)
+	if err != nil {
+		return nil, fmt.Errorf("cannot check dashboard access: %w", err)
+	}
+	if hasAccess {
 		return next(ctx)
-	}
-
-	var channelRoles []model.ChannelRole
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(`"channelId" = ?::uuid`, dashboardId).
-		Preload("Users", `user_id = ?`, user.ID).
-		Find(&channelRoles).
-		Error; err != nil {
-		return nil, fmt.Errorf("cannot get channel roles: %w", err)
-	}
-
-	var userStat model.UsersStats
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(`user_id = ? AND channel_id = ?::uuid`, user.ID, dashboardId).
-		First(&userStat).
-		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, fmt.Errorf("cannot get user stats: %w", err)
-	}
-
-	roleToStats := map[model.ChannelRoleEnum]bool{
-		model.ChannelRoleTypeModerator:  userStat.IsMod,
-		model.ChannelRoleTypeVip:        userStat.IsVip,
-		model.ChannelRoleTypeSubscriber: userStat.IsSubscriber,
-	}
-
-	for i, role := range channelRoles {
-		if roleToStats[role.Type] {
-			channelRoles[i].Users = append(
-				role.Users,
-				&model.ChannelRoleUser{
-					ID:     "", // not needed
-					UserID: user.ID,
-					RoleID: role.ID,
-				},
-			)
-		}
-	}
-
-	for _, role := range channelRoles {
-		// we do not check does role.Users contains request author user
-		// because we are doing preload by user id
-		if len(role.Users) == 0 || len(role.Permissions) == 0 {
-			continue
-		}
-
-		for _, perm := range role.Permissions {
-			if perm == gqlmodel.ChannelRolePermissionEnumCanAccessDashboard.String() {
-				return next(ctx)
-			}
-
-			if permission.String() == perm {
-				return next(ctx)
-			}
-		}
 	}
 
 	return nil, fmt.Errorf("user has no permission to access this resource")
