@@ -17,10 +17,10 @@ const {
 	disconnect: disconnectPlatform,
 	setEnabled: setPlatformEnabled,
 } = useChannelPlatforms()
-const busyPlatform = ref<Platform | null>(null)
+const pendingActionCount = ref(0)
 
 async function runAction(platform: Platform, action: () => Promise<unknown>) {
-	busyPlatform.value = platform
+	pendingActionCount.value++
 
 	try {
 		if (await action()) {
@@ -29,7 +29,7 @@ async function runAction(platform: Platform, action: () => Promise<unknown>) {
 	} catch {
 		toast.error('Unable to update platform binding')
 	} finally {
-		busyPlatform.value = null
+		pendingActionCount.value = Math.max(0, pendingActionCount.value - 1)
 	}
 }
 
@@ -86,7 +86,7 @@ function setEnabled(platform: Platform, enabled: boolean) {
 				:presentation="card.presentation"
 				:capabilities="card.capabilities"
 				:binding="card.binding"
-				:busy="busyPlatform === card.platform"
+				:busy="pendingActionCount > 0"
 				@connect="connect"
 				@disconnect="disconnect"
 				@set-enabled="setEnabled"
