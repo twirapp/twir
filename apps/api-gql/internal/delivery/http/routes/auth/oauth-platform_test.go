@@ -1283,8 +1283,8 @@ func TestCompletePlatformCodeRejectsChangedTargetedInitiatorBeforeLocalAuth(t *t
 	if !reflect.DeepEqual(sessionLookupIDs, []uuid.UUID{initiatorUserID, changedUserID}) {
 		t.Fatalf("session user lookups = %#v, want [%s %s]", sessionLookupIDs, initiatorUserID, changedUserID)
 	}
-	if providerUserLookups != 0 || providerUserWrites != 0 || tokenCalls != 0 || bindingCalls != 0 || accessCalls != 0 || transaction.calls != 0 {
-		t.Fatalf("local auth calls = provider lookup %d, provider write %d, token %d, binding %d, access %d, transaction %d, want all zero", providerUserLookups, providerUserWrites, tokenCalls, bindingCalls, accessCalls, transaction.calls)
+	if providerUserLookups != 0 || providerUserWrites != 0 || tokenCalls != 0 || bindingCalls != 0 || accessCalls != 1 || transaction.calls != 0 {
+		t.Fatalf("local auth calls = provider lookup %d, provider write %d, token %d, binding %d, access %d, transaction %d, want only one early access check", providerUserLookups, providerUserWrites, tokenCalls, bindingCalls, accessCalls, transaction.calls)
 	}
 }
 
@@ -1329,6 +1329,134 @@ func TestCompletePlatformAuthRejectsUnauthorizedTargetDashboard(t *testing.T) {
 	}
 	if accessCalls != 1 {
 		t.Fatalf("dashboard access calls = %d, want 1", accessCalls)
+	}
+}
+
+func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProviderWork(t *testing.T) {
+	const state = "targeted-oauth-state"
+
+	initiatorUserID := uuid.New()
+	targetChannelID := uuid.New()
+	providerUserID := uuid.New()
+	exchangeCalls := 0
+	getUserCalls := 0
+	providerUserLookups := 0
+	providerUserWrites := 0
+	tokenCalls := 0
+	bindingCalls := 0
+	accessCalls := 0
+	transaction := &oauthTransaction{}
+	sessions := &fakeOAuthSession{
+		internalUserID: initiatorUserID,
+		attempts: map[string]authsessions.OAuthAttempt{
+			state: {
+				Platform:        platformentity.PlatformKick,
+				RedirectTo:      "/dashboard/bot-settings",
+				CodeVerifier:    "stored-pkce-verifier",
+				TargetChannelID: &targetChannelID,
+				InitiatorUserID: &initiatorUserID,
+				ExpiresAt:       time.Now().UTC().Add(time.Minute),
+			},
+		},
+	}
+	provider := &oauthPlatformProvider{
+		name: platformentity.PlatformKick.String(),
+		exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
+			exchangeCalls++
+			return testPlatformTokens(), nil
+		},
+		getUserFunc: func(context.Context, string) (*appplatform.PlatformUser, error) {
+			getUserCalls++
+			return &appplatform.PlatformUser{ID: "provider-kick"}, nil
+		},
+	}
+	users := &oauthUsersRepository{
+		getByIDFunc: func(_ context.Context, userID uuid.UUID) (usersmodel.User, error) {
+			if userID != initiatorUserID {
+				t.Fatalf("session user ID = %s, want %s", userID, initiatorUserID)
+			}
+			return usersmodel.User{ID: initiatorUserID}, nil
+		},
+		getByPlatformIDFunc: func(context.Context, platformentity.Platform, string) (usersmodel.User, error) {
+			providerUserLookups++
+			return usersmodel.User{ID: providerUserID, Platform: platformentity.PlatformKick, PlatformID: "provider-kick"}, nil
+		},
+		updateFunc: func(_ context.Context, id uuid.UUID, _ usersrepo.UpdateInput) (usersmodel.User, error) {
+			providerUserWrites++
+			return usersmodel.User{ID: id}, nil
+		},
+	}
+	tokens := &fakeTokensRepository{
+		getByUserIDFunc: func(context.Context, uuid.UUID) (*tokensmodel.Token, error) {
+			tokenCalls++
+			return nil, tokensrepo.ErrNotFound
+		},
+		createUserTokenFunc: func(context.Context, tokensrepo.CreateInput) (*tokensmodel.Token, error) {
+			tokenCalls++
+			return &tokensmodel.Token{ID: uuid.New()}, nil
+		},
+		updateTokenByIDFunc: func(context.Context, uuid.UUID, tokensrepo.UpdateTokenInput) (*tokensmodel.Token, error) {
+			tokenCalls++
+			return &tokensmodel.Token{ID: uuid.New()}, nil
+		},
+	}
+	bindings := &oauthChannelPlatformsRepository{
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+			bindingCalls++
+			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+		},
+		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+			bindingCalls++
+			return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled}, nil
+		},
+	}
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions: sessions,
+		users:    users,
+		channels: &oauthChannelsRepository{
+			getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+				return channelsmodel.Channel{ID: channelID}, nil
+			},
+		},
+		bindings:    bindings,
+		tokens:      tokens,
+		registry:    appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
+		transaction: transaction,
+	})
+	authHandler.dashboardAccess = dashboardAccessFunc(func(_ context.Context, subject dashboardaccess.Subject, channelID uuid.UUID, permission string) (bool, error) {
+		accessCalls++
+		if subject.ID != initiatorUserID.String() || channelID != targetChannelID || permission != "MANAGE_BOT_SETTINGS" {
+			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
+		}
+		return false, nil
+	})
+
+	output, err := authHandler.handlePlatformCode(context.Background(), platformCodeInput{
+		Platform: platformentity.PlatformKick,
+		Code:     "authorization-code",
+		State:    state,
+		DeviceID: "callback-device-id",
+	})
+	if output != nil {
+		t.Fatalf("handlePlatformCode() output = %#v, want nil", output)
+	}
+	if err == nil || !strings.Contains(err.Error(), "Forbidden") {
+		t.Fatalf("handlePlatformCode() error = %v, want forbidden error", err)
+	}
+	if accessCalls != 1 {
+		t.Fatalf("dashboard access calls = %d, want 1", accessCalls)
+	}
+	if sessions.setOAuthAttemptCalls != 0 {
+		t.Fatalf("callback OAuth attempt writes = %d, want 0", sessions.setOAuthAttemptCalls)
+	}
+	if exchangeCalls != 0 || getUserCalls != 0 {
+		t.Fatalf("provider calls = exchange %d, user %d, want all zero", exchangeCalls, getUserCalls)
+	}
+	if providerUserLookups != 0 || providerUserWrites != 0 || tokenCalls != 0 || bindingCalls != 0 || transaction.calls != 0 {
+		t.Fatalf("local auth calls = provider lookup %d, provider write %d, token %d, binding %d, transaction %d, want all zero", providerUserLookups, providerUserWrites, tokenCalls, bindingCalls, transaction.calls)
+	}
+	if _, exists := sessions.attempts[state]; !exists {
+		t.Fatal("revoked targeted OAuth attempt was removed")
 	}
 }
 

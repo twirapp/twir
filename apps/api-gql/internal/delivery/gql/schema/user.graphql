@@ -11,7 +11,10 @@ extend type Mutation {
 	authenticatedUserRegenerateApiKey: String! @isAuthenticated
 	authenticatedUserUpdatePublicPage(opts: UserUpdatePublicSettingsInput!): Boolean! @isAuthenticated
 	logout: Boolean! @isAuthenticated
-	unlinkPlatformAccount(platform: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	unlinkPlatformAccount(platform: String!): Boolean!
+		@isAuthenticated
+		@hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)
+		@hasAccessToSelectedDashboard
 }
 
 type KickProfile {

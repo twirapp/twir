@@ -20,6 +20,7 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 const (
@@ -162,8 +163,14 @@ func (a *Auth) completePlatformCode(ctx context.Context, input platformCodeInput
 	if attempt.Platform != input.Platform {
 		return platformCodeResult{}, errOAuthAttemptPlatformMismatch
 	}
-	if err := a.validateTargetedOAuthAttempt(ctx, input.State, attempt); err != nil {
+	sessionUser, err := a.validateTargetedOAuthAttempt(ctx, input.State, attempt)
+	if err != nil {
 		return platformCodeResult{}, err
+	}
+	if attempt.TargetChannelID != nil {
+		if err := a.authorizeTargetDashboard(ctx, sessionUser, *attempt.TargetChannelID); err != nil {
+			return platformCodeResult{}, err
+		}
 	}
 	if input.DeviceID != "" {
 		attempt.DeviceID = input.DeviceID
@@ -197,9 +204,9 @@ func (a *Auth) validateTargetedOAuthAttempt(
 	ctx context.Context,
 	state string,
 	attempt authsessions.OAuthAttempt,
-) error {
+) (usersmodel.User, error) {
 	if attempt.TargetChannelID == nil {
-		return nil
+		return usersmodel.Nil, nil
 	}
 	if *attempt.TargetChannelID == uuid.Nil ||
 		attempt.InitiatorUserID == nil ||
@@ -207,15 +214,15 @@ func (a *Auth) validateTargetedOAuthAttempt(
 		attempt.ExpiresAt.IsZero() ||
 		strings.TrimSpace(attempt.CodeVerifier) == "" ||
 		!time.Now().UTC().Before(attempt.ExpiresAt) {
-		return a.invalidateOAuthAttempt(ctx, state)
+		return usersmodel.Nil, a.invalidateOAuthAttempt(ctx, state)
 	}
 
 	sessionUser, hasLiveSession, err := a.getLiveSessionUser(ctx)
 	if err != nil || !hasLiveSession || sessionUser.IsBanned || sessionUser.ID != *attempt.InitiatorUserID {
-		return a.invalidateOAuthAttempt(ctx, state)
+		return usersmodel.Nil, a.invalidateOAuthAttempt(ctx, state)
 	}
 
-	return nil
+	return sessionUser, nil
 }
 
 func (a *Auth) invalidateOAuthAttempt(ctx context.Context, state string) error {
