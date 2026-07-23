@@ -9,14 +9,12 @@ import (
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 )
 
 type Opts struct {
 	fx.In
 
 	Sessions        *auth.Auth
-	Gorm            *gorm.DB
 	DashboardAccess *dashboardaccess.Service
 	RateLimiter     *rate_limiter.LeakyBucketRateLimiter
 }
@@ -25,7 +23,6 @@ func New(opts Opts) *Directives {
 	return &Directives{
 		sessions:        opts.Sessions,
 		dashboardAccess: opts.DashboardAccess,
-		gorm:            opts.Gorm,
 		rateLimiter:     opts.RateLimiter,
 	}
 }
@@ -33,7 +30,6 @@ func New(opts Opts) *Directives {
 type Directives struct {
 	sessions        sessionReader
 	dashboardAccess *dashboardaccess.Service
-	gorm            *gorm.DB
 	rateLimiter     *rate_limiter.LeakyBucketRateLimiter
 }
 
