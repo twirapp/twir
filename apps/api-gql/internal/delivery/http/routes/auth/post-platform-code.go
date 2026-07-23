@@ -63,6 +63,17 @@ func (a *Auth) StartPlatformAuthForChannel(
 	platform platformentity.Platform,
 	redirectTo string,
 ) (string, error) {
+	sessionUser, hasLiveSession, err := a.getLiveSessionUser(ctx)
+	if err != nil {
+		return "", fmt.Errorf("get live session user: %w", err)
+	}
+	if !hasLiveSession || sessionUser.IsBanned {
+		return "", errAuthForbidden
+	}
+	if err := a.authorizeTargetDashboard(ctx, sessionUser, channelID); err != nil {
+		return "", err
+	}
+
 	return a.startPlatformAuthForChannel(ctx, platform, redirectTo, &channelID)
 }
 

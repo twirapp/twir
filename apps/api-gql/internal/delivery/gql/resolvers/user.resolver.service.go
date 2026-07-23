@@ -9,29 +9,57 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	"gorm.io/gorm"
 )
 
-func (r *authenticatedUserResolver) getDashboardPlatform(ctx context.Context, channelID, userID string) string {
-	parsedChannelID, err := uuid.Parse(channelID)
+func (r *authenticatedUserResolver) getDashboardPlatform(
+	ctx context.Context,
+	channel model.Channels,
+	userID string,
+) string {
+	parsedChannelID, err := uuid.Parse(channel.ID)
 	if err != nil {
-		return ""
+		return channel.Platform()
 	}
 
-	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedChannelID)
+	normalizedChannel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedChannelID)
 	if err != nil {
-		return ""
+		return channel.Platform()
 	}
 
-	for _, binding := range channel.Bindings {
+	for _, binding := range normalizedChannel.Bindings {
 		if binding.UserID.String() == userID {
 			return binding.Platform.String()
 		}
 	}
-	for _, binding := range channel.Bindings {
+	for _, binding := range normalizedChannel.Bindings {
 		return binding.Platform.String()
 	}
 
-	return ""
+	return channel.Platform()
+}
+
+func ownedDashboardsQuery(db *gorm.DB, ctx context.Context, userID string) *gorm.DB {
+	return db.WithContext(ctx).Where(
+		`EXISTS (
+			SELECT 1
+			FROM channel_platforms AS cp_owner
+			WHERE cp_owner.channel_id = channels.id
+				AND cp_owner.user_id = ?::uuid
+		) OR (
+			NOT EXISTS (
+				SELECT 1
+				FROM channel_platforms AS cp_existing
+				WHERE cp_existing.channel_id = channels.id
+			) AND (
+				channels.twitch_user_id = ?::uuid
+				OR channels.kick_user_id = ?::uuid
+			)
+		)`,
+		userID,
+		userID,
+		userID,
+	)
 }
 
 func (r *authenticatedUserResolver) getAuthenticatedUserChannel(ctx context.Context) (channelsmodel.Channel, error) {
@@ -72,7 +100,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		for _, channel := range channels {
 			dashboard := gqlmodel.Dashboard{
 				ID:       channel.ID,
-				Platform: r.getDashboardPlatform(ctx, channel.ID, obj.ID),
+				Platform: r.getDashboardPlatform(ctx, channel, obj.ID),
 				Flags: []gqlmodel.ChannelRolePermissionEnum{
 					gqlmodel.ChannelRolePermissionEnumCanAccessDashboard,
 				},
@@ -83,10 +111,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		}
 	} else {
 		var ownChannels []model.Channels
-		if err := r.deps.Gorm.WithContext(ctx).
-			Table("channels").
-			Joins("JOIN channel_platforms ON channel_platforms.channel_id = channels.id").
-			Where("channel_platforms.user_id = ?::uuid", obj.ID).
+		if err := ownedDashboardsQuery(r.deps.Gorm, ctx, obj.ID).
 			Find(&ownChannels).Error; err != nil {
 			return nil, err
 		}
@@ -94,7 +119,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		for _, channel := range ownChannels {
 			dashboard := gqlmodel.Dashboard{
 				ID:       channel.ID,
-				Platform: r.getDashboardPlatform(ctx, channel.ID, obj.ID),
+				Platform: r.getDashboardPlatform(ctx, channel, obj.ID),
 				Flags:    []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
 				APIKey:   obj.APIKey,
 				PlanID:   channel.PlanID,
@@ -130,7 +155,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			existing := dashboardsEntities[role.Role.Channel.ID]
 			platform := existing.Platform
 			if platform == "" {
-				platform = r.getDashboardPlatform(ctx, role.Role.Channel.ID, obj.ID)
+				platform = r.getDashboardPlatform(ctx, *role.Role.Channel, obj.ID)
 			}
 
 			dashboard := gqlmodel.Dashboard{
@@ -198,7 +223,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			existing := dashboardsEntities[role.ChannelID]
 			platform := existing.Platform
 			if platform == "" {
-				platform = r.getDashboardPlatform(ctx, role.ChannelID, obj.ID)
+				platform = r.getDashboardPlatform(ctx, *role.Channel, obj.ID)
 			}
 
 			dashboard := gqlmodel.Dashboard{

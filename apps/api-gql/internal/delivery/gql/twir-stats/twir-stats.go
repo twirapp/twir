@@ -92,6 +92,27 @@ func (c *TwirStats) GetCachedData() *Stats {
 	return c.cachedResponse
 }
 
+func visibleChannelBindingsQuery(
+	db *gorm.DB,
+	ctx context.Context,
+	platform *platformentity.Platform,
+) *gorm.DB {
+	query := db.WithContext(ctx).
+		Table("channel_platforms AS cp").
+		Joins("JOIN users AS u ON u.id = cp.user_id").
+		Where("cp.enabled = ? AND u.is_banned = ?", true, false).
+		Where(
+			"NOT (cp.platform = ? AND cp.bot_config @> ?::jsonb)",
+			platformentity.PlatformTwitch,
+			`{"is_twitch_banned":true}`,
+		)
+	if platform != nil {
+		query = query.Where("cp.platform = ?", *platform)
+	}
+
+	return query
+}
+
 func (c *TwirStats) cacheCounts() {
 	var wg sync.WaitGroup
 
@@ -106,9 +127,7 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Table("channel_platforms AS cp").
-				Joins("JOIN users AS u ON u.id = cp.user_id").
-				Where("cp.enabled = ? AND u.is_banned = ?", true, false).
+			visibleChannelBindingsQuery(c.gorm, context.Background(), nil).
 				Distinct("cp.channel_id").
 				Count(&count)
 			c.cachedResponse.Channels = int(count)
@@ -118,9 +137,8 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Table("channel_platforms AS cp").
-				Joins("JOIN users AS u ON u.id = cp.user_id").
-				Where("cp.enabled = ? AND cp.platform = ? AND u.is_banned = ?", true, platformentity.PlatformTwitch, false).
+			platform := platformentity.PlatformTwitch
+			visibleChannelBindingsQuery(c.gorm, context.Background(), &platform).
 				Distinct("cp.channel_id").
 				Count(&count)
 			c.cachedResponse.TwitchChannels = int(count)
@@ -130,9 +148,8 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Table("channel_platforms AS cp").
-				Joins("JOIN users AS u ON u.id = cp.user_id").
-				Where("cp.enabled = ? AND cp.platform = ? AND u.is_banned = ?", true, platformentity.PlatformKick, false).
+			platform := platformentity.PlatformKick
+			visibleChannelBindingsQuery(c.gorm, context.Background(), &platform).
 				Distinct("cp.channel_id").
 				Count(&count)
 			c.cachedResponse.KickChannels = int(count)

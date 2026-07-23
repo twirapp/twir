@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
@@ -57,8 +58,10 @@ func TestHasAccessToSelectedDashboardUsesNormalizedBindingOwnership(t *testing.T
 					user:        &model.Users{ID: ownerID.String()},
 					dashboardID: dashboardID.String(),
 				},
-				channels:               selectedDashboardDirectiveChannelReader{channel: tt.normalized},
-				selectedDashboardStore: store,
+				dashboardAccess: dashboardaccess.New(
+					selectedDashboardDirectiveChannelReader{channel: tt.normalized},
+					store,
+				),
 			}
 			nextCalls := 0
 
@@ -121,16 +124,16 @@ type selectedDashboardDirectiveStore struct {
 	roleLookups int
 }
 
-func (s *selectedDashboardDirectiveStore) GetSelectedDashboardChannel(context.Context, string) (model.Channels, error) {
+func (s *selectedDashboardDirectiveStore) GetLegacyChannel(context.Context, uuid.UUID) (model.Channels, error) {
 	return s.channel, nil
 }
 
-func (s *selectedDashboardDirectiveStore) GetSelectedDashboardRoles(context.Context, string, string) ([]model.ChannelRole, error) {
+func (s *selectedDashboardDirectiveStore) GetRoles(context.Context, uuid.UUID, string) ([]model.ChannelRole, error) {
 	s.roleLookups++
 	return nil, nil
 }
 
-func (*selectedDashboardDirectiveStore) GetSelectedDashboardUserStat(context.Context, string, string) (model.UsersStats, error) {
+func (*selectedDashboardDirectiveStore) GetUserStat(context.Context, string, uuid.UUID) (model.UsersStats, error) {
 	return model.UsersStats{}, nil
 }
 
