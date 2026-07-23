@@ -46,44 +46,7 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		return false, gqlerrors.HandleError(err)
 	}
 
-	var channel model.Channels
-	if err := r.deps.Gorm.WithContext(ctx).Where(
-		"id = ?",
-		dashboardId,
-	).First(&channel).Error; err != nil {
-		return false, gqlerrors.HandleError(err)
-	}
-
-	if !channel.IsOwner(user.ID) {
-		return false, fmt.Errorf("you cannot reset stats for this user")
-	}
-
-	var field string
-
-	switch typeArg {
-	case gqlmodel.CommunityUsersResetTypeMessages:
-		field = "messages"
-	case gqlmodel.CommunityUsersResetTypeWatched:
-		field = "watched"
-	case gqlmodel.CommunityUsersResetTypeUsedChannelsPoints:
-		field = "usedChannelPoints"
-	case gqlmodel.CommunityUsersResetTypeUsedEmotes:
-		field = "emotes"
-	}
-
-	if field == "" {
-		return false, fmt.Errorf("unknown reset typeArg: %s", typeArg)
-	}
-
-	err = r.deps.Gorm.WithContext(ctx).
-		Model(&model.UsersStats{}).
-		Where(`channel_id = ?`, dashboardId).
-		Update(field, 0).Error
-	if err != nil {
-		return false, gqlerrors.HandleError(err)
-	}
-
-	return true, nil
+	return r.resetCommunityStats(ctx, user.ID, dashboardId, typeArg)
 }
 
 // CommunityUsers is the resolver for the communityUsers field.

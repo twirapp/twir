@@ -121,6 +121,8 @@ func (r selectedDashboardDirectiveChannelReader) GetChannelByID(_ context.Contex
 
 type selectedDashboardDirectiveStore struct {
 	channel     model.Channels
+	roles       []model.ChannelRole
+	stat        model.UsersStats
 	roleLookups int
 }
 
@@ -130,11 +132,11 @@ func (s *selectedDashboardDirectiveStore) GetLegacyChannel(context.Context, uuid
 
 func (s *selectedDashboardDirectiveStore) GetRoles(context.Context, uuid.UUID, string) ([]model.ChannelRole, error) {
 	s.roleLookups++
-	return nil, nil
+	return s.roles, nil
 }
 
-func (*selectedDashboardDirectiveStore) GetUserStat(context.Context, string, uuid.UUID) (model.UsersStats, error) {
-	return model.UsersStats{}, nil
+func (s *selectedDashboardDirectiveStore) GetUserStat(context.Context, string, uuid.UUID) (model.UsersStats, error) {
+	return s.stat, nil
 }
 
 func boolToInt(value bool) int {

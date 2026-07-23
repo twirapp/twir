@@ -59,28 +59,13 @@ func (s *Service) CanAccess(
 	if subject.IsBotAdmin {
 		return true, nil
 	}
-	if s == nil || s.channels == nil || s.store == nil {
-		return false, fmt.Errorf("dashboard access service is not configured")
-	}
 
-	channel, err := s.channels.GetChannelByID(ctx, channelID)
+	isOwner, err := s.IsOwner(ctx, subject.ID, channelID)
 	if err != nil {
-		return false, fmt.Errorf("get channel: %w", err)
+		return false, err
 	}
-	if len(channel.Bindings) == 0 {
-		legacyChannel, legacyErr := s.store.GetLegacyChannel(ctx, channelID)
-		if legacyErr != nil {
-			return false, fmt.Errorf("get legacy channel: %w", legacyErr)
-		}
-		if legacyChannel.IsOwner(subject.ID) {
-			return true, nil
-		}
-	} else {
-		for _, binding := range channel.Bindings {
-			if binding.UserID.String() == subject.ID {
-				return true, nil
-			}
-		}
+	if isOwner {
+		return true, nil
 	}
 
 	roles, err := s.store.GetRoles(ctx, channelID, subject.ID)
@@ -93,6 +78,33 @@ func (s *Service) CanAccess(
 	}
 
 	return rolesAllowAccess(roles, subject.ID, userStat, permission), nil
+}
+
+func (s *Service) IsOwner(ctx context.Context, userID string, channelID uuid.UUID) (bool, error) {
+	if s == nil || s.channels == nil || s.store == nil {
+		return false, fmt.Errorf("dashboard access service is not configured")
+	}
+
+	channel, err := s.channels.GetChannelByID(ctx, channelID)
+	if err != nil {
+		return false, fmt.Errorf("get channel: %w", err)
+	}
+	if len(channel.Bindings) > 0 {
+		for _, binding := range channel.Bindings {
+			if binding.UserID.String() == userID {
+				return true, nil
+			}
+		}
+
+		return false, nil
+	}
+
+	legacyChannel, err := s.store.GetLegacyChannel(ctx, channelID)
+	if err != nil {
+		return false, fmt.Errorf("get legacy channel: %w", err)
+	}
+
+	return legacyChannel.IsOwner(userID), nil
 }
 
 func rolesAllowAccess(

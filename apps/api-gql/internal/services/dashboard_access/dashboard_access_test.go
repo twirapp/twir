@@ -72,6 +72,61 @@ func TestCanAccessUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
 	}
 }
 
+func TestIsOwnerUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
+	t.Parallel()
+
+	dashboardID := uuid.New()
+	ownerID := uuid.New()
+	otherUserID := uuid.New()
+	legacyOwnerID := ownerID.String()
+
+	tests := []struct {
+		name          string
+		channel       channelsmodel.Channel
+		legacyChannel model.Channels
+		want          bool
+	}{
+		{
+			name: "allows a normalized VK binding owner",
+			channel: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: ownerID,
+			}}},
+			want: true,
+		},
+		{
+			name:          "allows a legacy owner when no bindings exist",
+			channel:       channelsmodel.Channel{ID: dashboardID},
+			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
+			want:          true,
+		},
+		{
+			name: "denies stale legacy ownership when a binding remains",
+			channel: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: otherUserID,
+			}}},
+			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
+			want:          false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			service := New(
+				testChannelReader{channel: tt.channel},
+				&testStore{channel: tt.legacyChannel},
+			)
+
+			got, err := service.IsOwner(context.Background(), ownerID.String(), dashboardID)
+			if err != nil {
+				t.Fatalf("IsOwner() error = %v", err)
+			}
+			if got != tt.want {
+				t.Fatalf("IsOwner() = %t, want %t", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestCanAccessAllowsDashboardPermissionForRole(t *testing.T) {
 	t.Parallel()
 
