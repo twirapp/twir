@@ -66,7 +66,8 @@ func New(
 
 type Operations interface {
 	List(context.Context, uuid.UUID) ([]Binding, error)
-	Connect(context.Context, uuid.UUID, platformentity.Platform, string) (string, error)
+	Options() []Option
+	Connect(context.Context, uuid.UUID, platformentity.Platform) (string, error)
 	Disconnect(context.Context, uuid.UUID, platformentity.Platform) error
 	SetEnabled(context.Context, uuid.UUID, platformentity.Platform, bool) (Binding, error)
 }
@@ -85,6 +86,11 @@ var _ Operations = (*Service)(nil)
 type Binding struct {
 	Binding      channelplatformsmodel.ChannelPlatform
 	Profile      usersmodel.User
+	Capabilities platformentity.Capabilities
+}
+
+type Option struct {
+	Platform     platformentity.Platform
 	Capabilities platformentity.Capabilities
 }
 
@@ -108,7 +114,7 @@ type transactionRunner interface {
 }
 
 type OAuthStarter interface {
-	StartPlatformAuthForChannel(context.Context, uuid.UUID, platformentity.Platform, string) (string, error)
+	StartPlatformAuthForChannel(context.Context, uuid.UUID, platformentity.Platform) (string, error)
 }
 
 func (s *Service) List(ctx context.Context, channelID uuid.UUID) ([]Binding, error) {
@@ -137,7 +143,22 @@ func (s *Service) List(ctx context.Context, channelID uuid.UUID) ([]Binding, err
 	return result, nil
 }
 
-func (s *Service) Connect(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform, redirectTo string) (string, error) {
+func (s *Service) Options() []Option {
+	platforms := platformentity.All()
+	options := make([]Option, 0, len(platforms))
+	for _, platform := range platforms {
+		if s.isAvailable(platform) {
+			options = append(options, Option{
+				Platform:     platform,
+				Capabilities: platform.Capabilities(),
+			})
+		}
+	}
+
+	return options
+}
+
+func (s *Service) Connect(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform) (string, error) {
 	if err := s.requireAvailable(platform); err != nil {
 		return "", err
 	}
@@ -145,7 +166,7 @@ func (s *Service) Connect(ctx context.Context, channelID uuid.UUID, platform pla
 		return "", fmt.Errorf("platform OAuth service is not configured")
 	}
 
-	return s.oauth.StartPlatformAuthForChannel(ctx, channelID, platform, redirectTo)
+	return s.oauth.StartPlatformAuthForChannel(ctx, channelID, platform)
 }
 
 func (s *Service) Disconnect(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform) error {

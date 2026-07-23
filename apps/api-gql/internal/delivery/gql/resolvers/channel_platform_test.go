@@ -94,6 +94,31 @@ func TestChannelPlatformBindingsOmitsVKWhenFeatureIsDisabled(t *testing.T) {
 	}
 }
 
+func TestChannelPlatformOptionsReturnRegisteredPlatformsInDomainOrder(t *testing.T) {
+	t.Parallel()
+
+	resolver := newChannelPlatformTestResolver(
+		uuid.New(),
+		channelsmodel.Channel{},
+		nil,
+		testResolverPlatformRegistry(
+			platformentity.PlatformVKVideoLive,
+			platformentity.PlatformTwitch,
+		),
+	)
+
+	got, err := (&queryResolver{resolver}).ChannelPlatformOptions(context.Background())
+	if err != nil {
+		t.Fatalf("ChannelPlatformOptions() error = %v", err)
+	}
+	if len(got) != 2 || got[0].Platform != gqlmodel.PlatformTwitch || got[1].Platform != gqlmodel.PlatformVkVideoLive {
+		t.Fatalf("ChannelPlatformOptions() = %#v, want Twitch then VK", got)
+	}
+	if len(got[0].Capabilities) != len(platformentity.PlatformTwitch.Capabilities()) || len(got[1].Capabilities) != 0 {
+		t.Fatalf("ChannelPlatformOptions() capabilities = %#v", got)
+	}
+}
+
 func TestChannelPlatformBindingMutationsUseGenericOperations(t *testing.T) {
 	t.Parallel()
 
@@ -117,11 +142,11 @@ func TestChannelPlatformBindingMutationsUseGenericOperations(t *testing.T) {
 	)
 
 	mutation := &mutationResolver{resolver}
-	url, err := mutation.ChannelPlatformConnect(context.Background(), gqlmodel.PlatformKick, "/dashboard/platforms")
+	url, err := mutation.ChannelPlatformConnect(context.Background(), gqlmodel.PlatformKick)
 	if err != nil {
 		t.Fatalf("ChannelPlatformConnect() error = %v", err)
 	}
-	if url != oauth.url || oauth.channelID != dashboardID || oauth.platform != platformentity.PlatformKick || oauth.redirectTo != "/dashboard/platforms" {
+	if url != oauth.url || oauth.channelID != dashboardID || oauth.platform != platformentity.PlatformKick {
 		t.Fatalf("ChannelPlatformConnect() = %q, oauth = %#v", url, oauth)
 	}
 
@@ -230,16 +255,14 @@ func (r *resolverBindingRepository) Delete(_ context.Context, id uuid.UUID) erro
 }
 
 type resolverOAuthStarter struct {
-	url        string
-	channelID  uuid.UUID
-	platform   platformentity.Platform
-	redirectTo string
+	url       string
+	channelID uuid.UUID
+	platform  platformentity.Platform
 }
 
-func (r *resolverOAuthStarter) StartPlatformAuthForChannel(_ context.Context, channelID uuid.UUID, platform platformentity.Platform, redirectTo string) (string, error) {
+func (r *resolverOAuthStarter) StartPlatformAuthForChannel(_ context.Context, channelID uuid.UUID, platform platformentity.Platform) (string, error) {
 	r.channelID = channelID
 	r.platform = platform
-	r.redirectTo = redirectTo
 	return r.url, nil
 }
 

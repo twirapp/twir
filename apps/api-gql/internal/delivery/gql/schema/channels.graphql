@@ -1,14 +1,28 @@
 extend type Query {
 	channelBySlug(channelName: String!, platform: Platform): TwirPublicUser
-	channelPlatformBindings: [ChannelPlatformBinding!]! @isAuthenticated @hasAccessToSelectedDashboard
+	channelPlatformBindings: [ChannelPlatformBinding!]!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_BOT_SETTINGS)
+	channelPlatformOptions: [ChannelPlatformOption!]!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: VIEW_BOT_SETTINGS)
 }
 
 extend type Mutation {
-	channelPlatformConnect(platform: Platform!, redirectTo: String!): String! @isAuthenticated @hasAccessToSelectedDashboard
-	channelPlatformDisconnect(platform: Platform!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	channelPlatformConnect(platform: Platform!): String!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)
+	channelPlatformDisconnect(platform: Platform!): Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)
 	channelPlatformSetEnabled(platform: Platform!, enabled: Boolean!): ChannelPlatformBinding!
 		@isAuthenticated
 		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)
 }
 
 type ChannelPlatformBinding {
@@ -21,6 +35,11 @@ type ChannelPlatformBinding {
 	platformLogin: String!
 	platformDisplayName: String!
 	platformAvatar: String
+	capabilities: [PlatformCapability!]!
+}
+
+type ChannelPlatformOption {
+	platform: Platform!
 	capabilities: [PlatformCapability!]!
 }
 

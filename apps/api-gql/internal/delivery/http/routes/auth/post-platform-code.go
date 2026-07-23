@@ -22,7 +22,11 @@ import (
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 )
 
-const targetedOAuthAttemptLifetime = 15 * time.Minute
+const (
+	targetedOAuthAttemptLifetime     = 15 * time.Minute
+	channelPlatformBindingRedirectTo = "/dashboard/bot-settings"
+	manageBotSettingsPermission      = "MANAGE_BOT_SETTINGS"
+)
 
 var (
 	errOAuthAttemptPlatformMismatch = errors.New("oauth attempt belongs to another platform")
@@ -67,7 +71,6 @@ func (a *Auth) StartPlatformAuthForChannel(
 	ctx context.Context,
 	channelID uuid.UUID,
 	platform platformentity.Platform,
-	redirectTo string,
 ) (string, error) {
 	sessionUser, hasLiveSession, err := a.getLiveSessionUser(ctx)
 	if err != nil {
@@ -81,7 +84,13 @@ func (a *Auth) StartPlatformAuthForChannel(
 	}
 
 	initiatorUserID := sessionUser.ID
-	return a.startPlatformAuthForChannel(ctx, platform, redirectTo, &channelID, &initiatorUserID)
+	return a.startPlatformAuthForChannel(
+		ctx,
+		platform,
+		channelPlatformBindingRedirectTo,
+		&channelID,
+		&initiatorUserID,
+	)
 }
 
 func (a *Auth) startPlatformAuth(

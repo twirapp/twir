@@ -947,14 +947,14 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 		transaction: transaction,
 	})
 	authHandler.dashboardAccess = dashboardAccessFunc(func(_ context.Context, subject dashboardaccess.Subject, channelID uuid.UUID, permission string) (bool, error) {
-		if subject.ID != collaboratorID.String() || channelID != selectedDashboardID || permission != "" {
+		if subject.ID != collaboratorID.String() || channelID != selectedDashboardID || permission != "MANAGE_BOT_SETTINGS" {
 			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
 		}
 
 		return true, nil
 	})
 
-	authorizeURL, err := authHandler.StartPlatformAuthForChannel(ctx, selectedDashboardID, platformentity.PlatformKick, "/dashboard/platforms")
+	authorizeURL, err := authHandler.StartPlatformAuthForChannel(ctx, selectedDashboardID, platformentity.PlatformKick)
 	if err != nil {
 		t.Fatalf("start target OAuth: %v", err)
 	}
@@ -967,7 +967,7 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 	}
 	state := parsedURL.Query().Get("state")
 	attempt, ok := sessions.attempts[state]
-	if !ok || attempt.TargetChannelID == nil || *attempt.TargetChannelID != selectedDashboardID || attempt.InitiatorUserID == nil || *attempt.InitiatorUserID != collaboratorID || attempt.ExpiresAt.IsZero() {
+	if !ok || attempt.TargetChannelID == nil || *attempt.TargetChannelID != selectedDashboardID || attempt.InitiatorUserID == nil || *attempt.InitiatorUserID != collaboratorID || attempt.ExpiresAt.IsZero() || attempt.RedirectTo != "/dashboard/bot-settings" {
 		t.Fatalf("stored OAuth attempt = %+v, want selected dashboard %s", attempt, selectedDashboardID)
 	}
 
@@ -1310,7 +1310,7 @@ func TestCompletePlatformAuthRejectsUnauthorizedTargetDashboard(t *testing.T) {
 	})
 	authHandler.dashboardAccess = dashboardAccessFunc(func(_ context.Context, subject dashboardaccess.Subject, channelID uuid.UUID, permission string) (bool, error) {
 		accessCalls++
-		if subject.ID != sessionUserID.String() || channelID != targetChannelID || permission != "" {
+		if subject.ID != sessionUserID.String() || channelID != targetChannelID || permission != "MANAGE_BOT_SETTINGS" {
 			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
 		}
 
@@ -1329,6 +1329,38 @@ func TestCompletePlatformAuthRejectsUnauthorizedTargetDashboard(t *testing.T) {
 	}
 	if accessCalls != 1 {
 		t.Fatalf("dashboard access calls = %d, want 1", accessCalls)
+	}
+}
+
+func TestStartPlatformAuthForChannelRejectsUserWithoutManageBotSettings(t *testing.T) {
+	ctx := context.Background()
+	userID := uuid.New()
+	targetChannelID := uuid.New()
+	sessions := &fakeOAuthSession{internalUserID: userID}
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions: sessions,
+		users: &oauthUsersRepository{
+			getByIDFunc: func(_ context.Context, gotUserID uuid.UUID) (usersmodel.User, error) {
+				if gotUserID != userID {
+					t.Fatalf("session user ID = %s, want %s", gotUserID, userID)
+				}
+				return usersmodel.User{ID: userID}, nil
+			},
+		},
+	})
+	authHandler.dashboardAccess = dashboardAccessFunc(func(_ context.Context, subject dashboardaccess.Subject, channelID uuid.UUID, permission string) (bool, error) {
+		if subject.ID != userID.String() || channelID != targetChannelID || permission != "MANAGE_BOT_SETTINGS" {
+			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
+		}
+		return false, nil
+	})
+
+	_, err := authHandler.StartPlatformAuthForChannel(ctx, targetChannelID, platformentity.PlatformKick)
+	if !errors.Is(err, errAuthForbidden) {
+		t.Fatalf("StartPlatformAuthForChannel() error = %v, want errAuthForbidden", err)
+	}
+	if sessions.setOAuthAttemptCalls != 0 {
+		t.Fatalf("stored OAuth attempts = %d, want 0", sessions.setOAuthAttemptCalls)
 	}
 }
 
