@@ -12,19 +12,32 @@ import (
 	"gorm.io/gorm"
 )
 
+type dashboardPlatformReader interface {
+	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
+}
+
 func (r *authenticatedUserResolver) getDashboardPlatform(
 	ctx context.Context,
 	channel model.Channels,
 	userID string,
 ) string {
+	return resolveDashboardPlatform(ctx, r.deps.ChannelService, channel, userID)
+}
+
+func resolveDashboardPlatform(
+	ctx context.Context,
+	reader dashboardPlatformReader,
+	channel model.Channels,
+	userID string,
+) string {
 	parsedChannelID, err := uuid.Parse(channel.ID)
 	if err != nil {
-		return channel.Platform()
+		return ""
 	}
 
-	normalizedChannel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedChannelID)
+	normalizedChannel, err := reader.GetChannelByID(ctx, parsedChannelID)
 	if err != nil {
-		return channel.Platform()
+		return ""
 	}
 
 	for _, binding := range normalizedChannel.Bindings {
@@ -32,11 +45,11 @@ func (r *authenticatedUserResolver) getDashboardPlatform(
 			return binding.Platform.String()
 		}
 	}
-	for _, binding := range normalizedChannel.Bindings {
-		return binding.Platform.String()
+	if len(normalizedChannel.Bindings) == 0 {
+		return channel.Platform()
 	}
 
-	return channel.Platform()
+	return normalizedChannel.Bindings[0].Platform.String()
 }
 
 func ownedDashboardsQuery(db *gorm.DB, ctx context.Context, userID string) *gorm.DB {

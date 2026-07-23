@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/google/uuid"
@@ -21,11 +22,15 @@ func TestOAuthAttemptKeepsPKCEAndCallbackDeviceIDInSession(t *testing.T) {
 
 	const state = "opaque-state"
 	targetChannelID := uuid.New()
+	initiatorUserID := uuid.New()
+	expiresAt := time.Now().UTC().Add(15 * time.Minute)
 	if err := auth.SetOAuthAttempt(ctx, state, OAuthAttempt{
 		Platform:        platform.PlatformVKVideoLive,
 		RedirectTo:      "/dashboard/settings",
 		CodeVerifier:    "pkce-verifier",
 		TargetChannelID: &targetChannelID,
+		InitiatorUserID: &initiatorUserID,
+		ExpiresAt:       expiresAt,
 	}); err != nil {
 		t.Fatalf("store OAuth attempt: %v", err)
 	}
@@ -34,7 +39,7 @@ func TestOAuthAttemptKeepsPKCEAndCallbackDeviceIDInSession(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load OAuth attempt: %v", err)
 	}
-	if attempt.Platform != platform.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard/settings" || attempt.CodeVerifier != "pkce-verifier" || attempt.DeviceID != "" || attempt.TargetChannelID == nil || *attempt.TargetChannelID != targetChannelID {
+	if attempt.Platform != platform.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard/settings" || attempt.CodeVerifier != "pkce-verifier" || attempt.DeviceID != "" || attempt.TargetChannelID == nil || *attempt.TargetChannelID != targetChannelID || attempt.InitiatorUserID == nil || *attempt.InitiatorUserID != initiatorUserID || !attempt.ExpiresAt.Equal(expiresAt) {
 		t.Fatalf("stored OAuth attempt = %+v", attempt)
 	}
 

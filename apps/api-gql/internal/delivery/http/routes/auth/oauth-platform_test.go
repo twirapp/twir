@@ -828,7 +828,7 @@ func TestStartTwitchAuthUsesServerSideOAuthAttempt(t *testing.T) {
 	if !ok {
 		t.Fatal("Twitch OAuth state was not stored server-side")
 	}
-	if attempt.Platform != platformentity.PlatformTwitch || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" || attempt.TargetChannelID != nil {
+	if attempt.Platform != platformentity.PlatformTwitch || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" || attempt.TargetChannelID != nil || attempt.InitiatorUserID != nil || !attempt.ExpiresAt.IsZero() {
 		t.Fatalf("stored Twitch OAuth attempt = %+v", attempt)
 	}
 }
@@ -858,7 +858,7 @@ func TestStartPlatformAuthUsesGenericRegisteredProvider(t *testing.T) {
 	if !ok {
 		t.Fatal("generic OAuth state was not stored server-side")
 	}
-	if attempt.Platform != platformentity.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" || attempt.TargetChannelID != nil {
+	if attempt.Platform != platformentity.PlatformVKVideoLive || attempt.RedirectTo != "/dashboard" || attempt.CodeVerifier == "" || attempt.TargetChannelID != nil || attempt.InitiatorUserID != nil || !attempt.ExpiresAt.IsZero() {
 		t.Fatalf("stored generic OAuth attempt = %+v", attempt)
 	}
 }
@@ -958,7 +958,7 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 	if err != nil {
 		t.Fatalf("start target OAuth: %v", err)
 	}
-	if strings.Contains(authorizeURL, selectedDashboardID.String()) {
+	if strings.Contains(authorizeURL, selectedDashboardID.String()) || strings.Contains(authorizeURL, collaboratorID.String()) {
 		t.Fatalf("authorization URL leaked selected dashboard: %s", authorizeURL)
 	}
 	parsedURL, err := url.Parse(authorizeURL)
@@ -967,7 +967,7 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 	}
 	state := parsedURL.Query().Get("state")
 	attempt, ok := sessions.attempts[state]
-	if !ok || attempt.TargetChannelID == nil || *attempt.TargetChannelID != selectedDashboardID {
+	if !ok || attempt.TargetChannelID == nil || *attempt.TargetChannelID != selectedDashboardID || attempt.InitiatorUserID == nil || *attempt.InitiatorUserID != collaboratorID || attempt.ExpiresAt.IsZero() {
 		t.Fatalf("stored OAuth attempt = %+v, want selected dashboard %s", attempt, selectedDashboardID)
 	}
 
@@ -981,6 +981,176 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 	}
 	if len(createdBindings) != 1 || createdBindings[0].ChannelID != selectedDashboardID {
 		t.Fatalf("created bindings = %#v, want provider linked to selected dashboard %s", createdBindings, selectedDashboardID)
+	}
+}
+
+func TestCompletePlatformCodeRejectsInvalidTargetedAttemptsBeforeProviderExchange(t *testing.T) {
+	now := time.Now().UTC()
+	targetChannelID := uuid.New()
+	initiatorUserID := uuid.New()
+	otherUserID := uuid.New()
+
+	tests := []struct {
+		name          string
+		attempt       authsessions.OAuthAttempt
+		sessionUserID uuid.UUID
+		sessionBanned bool
+	}{
+		{
+			name: "expired",
+			attempt: authsessions.OAuthAttempt{
+				Platform:        platformentity.PlatformKick,
+				RedirectTo:      "/dashboard",
+				CodeVerifier:    "stored-pkce-verifier",
+				TargetChannelID: &targetChannelID,
+				InitiatorUserID: &initiatorUserID,
+				ExpiresAt:       now.Add(-time.Minute),
+			},
+			sessionUserID: initiatorUserID,
+		},
+		{
+			name: "missing initiator",
+			attempt: authsessions.OAuthAttempt{
+				Platform:        platformentity.PlatformKick,
+				RedirectTo:      "/dashboard",
+				CodeVerifier:    "stored-pkce-verifier",
+				TargetChannelID: &targetChannelID,
+				ExpiresAt:       now.Add(time.Minute),
+			},
+			sessionUserID: initiatorUserID,
+		},
+		{
+			name: "missing expiry",
+			attempt: authsessions.OAuthAttempt{
+				Platform:        platformentity.PlatformKick,
+				RedirectTo:      "/dashboard",
+				CodeVerifier:    "stored-pkce-verifier",
+				TargetChannelID: &targetChannelID,
+				InitiatorUserID: &initiatorUserID,
+			},
+			sessionUserID: initiatorUserID,
+		},
+		{
+			name: "different callback session",
+			attempt: authsessions.OAuthAttempt{
+				Platform:        platformentity.PlatformKick,
+				RedirectTo:      "/dashboard",
+				CodeVerifier:    "stored-pkce-verifier",
+				TargetChannelID: &targetChannelID,
+				InitiatorUserID: &initiatorUserID,
+				ExpiresAt:       now.Add(time.Minute),
+			},
+			sessionUserID: otherUserID,
+		},
+		{
+			name: "banned callback session",
+			attempt: authsessions.OAuthAttempt{
+				Platform:        platformentity.PlatformKick,
+				RedirectTo:      "/dashboard",
+				CodeVerifier:    "stored-pkce-verifier",
+				TargetChannelID: &targetChannelID,
+				InitiatorUserID: &initiatorUserID,
+				ExpiresAt:       now.Add(time.Minute),
+			},
+			sessionUserID: initiatorUserID,
+			sessionBanned: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			const state = "targeted-oauth-state"
+			exchangeCalls := 0
+			getUserCalls := 0
+			tokenCalls := 0
+			bindingCalls := 0
+			providerUserID := uuid.New()
+			sessions := &fakeOAuthSession{
+				internalUserID: tt.sessionUserID,
+				attempts:       map[string]authsessions.OAuthAttempt{state: tt.attempt},
+			}
+			provider := &oauthPlatformProvider{
+				name: platformentity.PlatformKick.String(),
+				exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
+					exchangeCalls++
+					return testPlatformTokens(), nil
+				},
+				getUserFunc: func(context.Context, string) (*appplatform.PlatformUser, error) {
+					getUserCalls++
+					return &appplatform.PlatformUser{ID: "provider-kick"}, nil
+				},
+			}
+			bindings := &oauthChannelPlatformsRepository{
+				getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+					bindingCalls++
+					return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+				},
+				createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+					bindingCalls++
+					return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled}, nil
+				},
+			}
+			tokens := &fakeTokensRepository{
+				getByUserIDFunc: func(context.Context, uuid.UUID) (*tokensmodel.Token, error) {
+					tokenCalls++
+					return nil, tokensrepo.ErrNotFound
+				},
+				createUserTokenFunc: func(context.Context, tokensrepo.CreateInput) (*tokensmodel.Token, error) {
+					tokenCalls++
+					return &tokensmodel.Token{ID: uuid.New()}, nil
+				},
+			}
+			authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+				sessions: sessions,
+				users: &oauthUsersRepository{
+					getByIDFunc: func(_ context.Context, userID uuid.UUID) (usersmodel.User, error) {
+						return usersmodel.User{ID: userID, IsBanned: tt.sessionBanned}, nil
+					},
+					getByPlatformIDFunc: func(context.Context, platformentity.Platform, string) (usersmodel.User, error) {
+						return usersmodel.User{ID: providerUserID, Platform: platformentity.PlatformKick, PlatformID: "provider-kick"}, nil
+					},
+				},
+				channels: &oauthChannelsRepository{
+					getByIDFunc: func(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+						return channelsmodel.Channel{ID: targetChannelID}, nil
+					},
+					getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error) {
+						return channelsmodel.Nil, channelsrepo.ErrNotFound
+					},
+				},
+				bindings: bindings,
+				tokens:   tokens,
+				registry: appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
+			})
+			authHandler.dashboardAccess = dashboardAccessFunc(func(context.Context, dashboardaccess.Subject, uuid.UUID, string) (bool, error) {
+				return true, nil
+			})
+
+			output, err := authHandler.handlePlatformCode(context.Background(), platformCodeInput{
+				Platform: platformentity.PlatformKick,
+				Code:     "authorization-code",
+				State:    state,
+				DeviceID: "callback-device-id",
+			})
+			if output != nil {
+				t.Fatalf("handlePlatformCode() output = %#v, want nil", output)
+			}
+			if err == nil || !strings.Contains(err.Error(), "Invalid or expired OAuth state") {
+				t.Fatalf("handlePlatformCode() error = %v, want non-enumerating invalid-state error", err)
+			}
+			if strings.Contains(err.Error(), targetChannelID.String()) || strings.Contains(err.Error(), initiatorUserID.String()) {
+				t.Fatalf("handlePlatformCode() leaked target metadata: %v", err)
+			}
+			if exchangeCalls != 0 || getUserCalls != 0 || tokenCalls != 0 || bindingCalls != 0 {
+				t.Fatalf("provider and persistence calls = exchange %d, user %d, token %d, binding %d, want all zero", exchangeCalls, getUserCalls, tokenCalls, bindingCalls)
+			}
+			if sessions.setOAuthAttemptCalls != 0 {
+				t.Fatalf("callback OAuth attempt writes = %d, want 0", sessions.setOAuthAttemptCalls)
+			}
+			if _, exists := sessions.attempts[state]; exists {
+				t.Fatal("invalid targeted OAuth attempt was not removed")
+			}
+		})
 	}
 }
 
@@ -1218,9 +1388,10 @@ func newCreateTokenRepository(userID uuid.UUID) *fakeTokensRepository {
 }
 
 type fakeOAuthSession struct {
-	internalUserID  uuid.UUID
-	internalUserErr error
-	attempts        map[string]authsessions.OAuthAttempt
+	internalUserID       uuid.UUID
+	internalUserErr      error
+	attempts             map[string]authsessions.OAuthAttempt
+	setOAuthAttemptCalls int
 }
 
 func (s *fakeOAuthSession) GetInternalUserID(context.Context) (uuid.UUID, error) {
@@ -1248,6 +1419,7 @@ func (*fakeOAuthSession) SetSessionKickUser(context.Context, authsessions.KickSe
 }
 
 func (s *fakeOAuthSession) SetOAuthAttempt(_ context.Context, state string, attempt authsessions.OAuthAttempt) error {
+	s.setOAuthAttemptCalls++
 	if s.attempts == nil {
 		s.attempts = make(map[string]authsessions.OAuthAttempt)
 	}

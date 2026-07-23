@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
@@ -38,6 +39,8 @@ type OAuthAttempt struct {
 	CodeVerifier    string
 	DeviceID        string
 	TargetChannelID *uuid.UUID
+	InitiatorUserID *uuid.UUID
+	ExpiresAt       time.Time
 }
 
 func (s *Auth) GetLatestShortenerUrlsIds(ctx context.Context) ([]string, error) {
