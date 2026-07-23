@@ -671,6 +671,74 @@ func TestCompletePlatformAuthPreservesExistingBindingForSameAccount(t *testing.T
 	}
 }
 
+func TestCompletePlatformAuthReusesExistingBindingForLoggedOutUser(t *testing.T) {
+	t.Parallel()
+
+	for _, platform := range []platformentity.Platform{
+		platformentity.PlatformTwitch,
+		platformentity.PlatformKick,
+		platformentity.PlatformVKVideoLive,
+	} {
+		t.Run(platform.String(), func(t *testing.T) {
+			platformUserID := uuid.New()
+			channelID := uuid.New()
+			platformChannelID := platform.String() + "-channel"
+			existingBinding := channelplatformsmodel.ChannelPlatform{
+				ID:                uuid.New(),
+				ChannelID:         channelID,
+				Platform:          platform,
+				UserID:            platformUserID,
+				PlatformChannelID: platformChannelID,
+				Enabled:           true,
+			}
+			transaction := &oauthTransaction{}
+			bindings := &oauthChannelPlatformsRepository{
+				getByChannelAndPlatformFunc: func(_ context.Context, gotChannelID uuid.UUID, gotPlatform platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+					if gotChannelID != channelID || gotPlatform != platform {
+						t.Fatalf("binding lookup = (%s, %s), want (%s, %s)", gotChannelID, gotPlatform, channelID, platform)
+					}
+					return existingBinding, nil
+				},
+			}
+			channels := &oauthChannelsRepository{
+				createFunc: func(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error) {
+					t.Fatal("logged-out reauthentication must not create a channel")
+					return channelsmodel.Nil, nil
+				},
+				getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, gotUserID uuid.UUID) (channelsmodel.Channel, error) {
+					if gotPlatform != platform || gotUserID != platformUserID {
+						t.Fatalf("channel binding lookup = (%s, %s), want (%s, %s)", gotPlatform, gotUserID, platform, platformUserID)
+					}
+					return channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{existingBinding}}, nil
+				},
+			}
+			result, err := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+				sessions: &fakeOAuthSession{internalUserErr: errors.New("not signed in")},
+				users: &oauthUsersRepository{getByPlatformIDFunc: func(context.Context, platformentity.Platform, string) (usersmodel.User, error) {
+					return usersmodel.User{ID: platformUserID, Platform: platform, PlatformID: platformChannelID}, nil
+				}},
+				channels:    channels,
+				bindings:    bindings,
+				tokens:      newCreateTokenRepository(platformUserID),
+				transaction: transaction,
+			}).completePlatformAuth(context.Background(), completePlatformAuthInput{
+				Platform:     platform,
+				PlatformUser: &appplatform.PlatformUser{ID: platformChannelID},
+				Tokens:       testPlatformTokens(),
+			})
+			if err != nil {
+				t.Fatalf("complete logged-out %s auth: %v", platform, err)
+			}
+			if result.Channel.ID != channelID || result.CreatedChannel {
+				t.Fatalf("auth result = %+v, want existing channel %s without creation", result, channelID)
+			}
+			if channels.createCalls != 0 || bindings.createCalls != 0 || !transaction.committed {
+				t.Fatalf("creates = channel %d binding %d, committed = %t", channels.createCalls, bindings.createCalls, transaction.committed)
+			}
+		})
+	}
+}
+
 func TestPlatformCodeCarriesVKCallbackDeviceIDThroughExchangeAndPersistence(t *testing.T) {
 	ctx := context.Background()
 	platformUserID := uuid.New()
