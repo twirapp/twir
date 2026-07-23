@@ -177,7 +177,11 @@ func (*unlinkPlatformAccountOperations) List(context.Context, uuid.UUID) ([]chan
 	return nil, nil
 }
 
-func (*unlinkPlatformAccountOperations) Connect(context.Context, uuid.UUID, platformentity.Platform, string) (string, error) {
+func (*unlinkPlatformAccountOperations) Options() []channelplatformservice.Option {
+	return nil
+}
+
+func (*unlinkPlatformAccountOperations) Connect(context.Context, uuid.UUID, platformentity.Platform) (string, error) {
 	return "", nil
 }
 

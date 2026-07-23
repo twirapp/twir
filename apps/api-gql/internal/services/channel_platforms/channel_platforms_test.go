@@ -86,6 +86,26 @@ func TestListOmitsBindingsForUnavailablePlatforms(t *testing.T) {
 	}
 }
 
+func TestOptionsReturnsRegisteredPlatformsInDomainOrder(t *testing.T) {
+	t.Parallel()
+
+	service := &Service{
+		registry: testRegistry(
+			platformentity.PlatformVKVideoLive,
+			platformentity.PlatformTwitch,
+		),
+	}
+
+	got := service.Options()
+	want := []Option{
+		{Platform: platformentity.PlatformTwitch, Capabilities: platformentity.PlatformTwitch.Capabilities()},
+		{Platform: platformentity.PlatformVKVideoLive, Capabilities: platformentity.PlatformVKVideoLive.Capabilities()},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("Options() = %#v, want %#v", got, want)
+	}
+}
+
 func TestBindingOperationsUseGenericDependencies(t *testing.T) {
 	t.Parallel()
 
@@ -108,11 +128,11 @@ func TestBindingOperationsUseGenericDependencies(t *testing.T) {
 		transactions: &disconnectTransactionRunner{},
 	}
 
-	url, err := service.Connect(context.Background(), channelID, platformentity.PlatformKick, "/dashboard")
+	url, err := service.Connect(context.Background(), channelID, platformentity.PlatformKick)
 	if err != nil {
 		t.Fatalf("Connect() error = %v", err)
 	}
-	if url != oauth.url || oauth.channelID != channelID || oauth.platform != platformentity.PlatformKick || oauth.redirectTo != "/dashboard" {
+	if url != oauth.url || oauth.channelID != channelID || oauth.platform != platformentity.PlatformKick {
 		t.Fatalf("Connect() = %q, starter = %#v", url, oauth)
 	}
 
@@ -168,7 +188,7 @@ func TestBindingOperationsRejectUnavailablePlatform(t *testing.T) {
 		registry: testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 	}
 
-	if _, err := service.Connect(context.Background(), channelID, platformentity.PlatformVKVideoLive, "/dashboard"); !errors.Is(err, ErrPlatformUnavailable) {
+	if _, err := service.Connect(context.Background(), channelID, platformentity.PlatformVKVideoLive); !errors.Is(err, ErrPlatformUnavailable) {
 		t.Fatalf("Connect() error = %v, want ErrPlatformUnavailable", err)
 	}
 	if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformVKVideoLive); !errors.Is(err, ErrPlatformUnavailable) {
@@ -481,16 +501,14 @@ func (f *fakeBindingRepository) Delete(_ context.Context, id uuid.UUID) error {
 }
 
 type fakeOAuthStarter struct {
-	url        string
-	channelID  uuid.UUID
-	platform   platformentity.Platform
-	redirectTo string
+	url       string
+	channelID uuid.UUID
+	platform  platformentity.Platform
 }
 
-func (f *fakeOAuthStarter) StartPlatformAuthForChannel(_ context.Context, channelID uuid.UUID, platform platformentity.Platform, redirectTo string) (string, error) {
+func (f *fakeOAuthStarter) StartPlatformAuthForChannel(_ context.Context, channelID uuid.UUID, platform platformentity.Platform) (string, error) {
 	f.channelID = channelID
 	f.platform = platform
-	f.redirectTo = redirectTo
 	return f.url, nil
 }
 
