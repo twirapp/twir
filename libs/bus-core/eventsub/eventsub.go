@@ -27,7 +27,14 @@ type EventsubSubscribeRequest struct {
 	Version   string
 }
 
+type EventsubBindingSnapshot struct {
+	ID                string
+	UserID            string
+	PlatformChannelID string
+}
+
 type EventsubUnsubscribeRequest struct {
 	ChannelID string
 	Platform  platformentity.Platform
+	Binding   *EventsubBindingSnapshot
 }
