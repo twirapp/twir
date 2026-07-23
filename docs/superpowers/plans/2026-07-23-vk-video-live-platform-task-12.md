@@ -183,21 +183,37 @@ Expected: only intentional package/test configuration, implementation, and ignor
 **Files:**
 - Create: `web/layers/dashboard/features/channel-platforms/api.ts`
 - Create: `web/layers/dashboard/features/channel-platforms/composables/use-channel-platforms.ts`
-- Test: `web/layers/dashboard/features/channel-platforms/ui/platform-bindings.spec.ts`
+- Test: `web/layers/dashboard/features/channel-platforms/composables/use-channel-platforms.spec.ts`
 
 **Consumes:** Generated `graphql` tag from `~/gql/gql.js`, `Platform` types from `~/gql/graphql.js`, `useMutation` from `~~/layers/dashboard/composables/use-mutation.js`, and the backend operations below.
 
 **Produces:** `useChannelPlatforms()` with `cards`, `fetching`, `error`, `connect(platform)`, `disconnect(platform)`, and `setEnabled(platform, enabled)`.
 
-- [ ] **Step 1: Write the failing OAuth action test**
+- [ ] **Step 1: Write the failing composable behavior test**
 
-In `platform-bindings.spec.ts`, mock `useChannelPlatforms` to return a disconnected Twitch card and a `connect` spy. Mount `platform-bindings.vue`, click its `Connect` button, and assert the spy receives `'TWITCH'`:
+Create `web/layers/dashboard/features/channel-platforms/composables/use-channel-platforms.spec.ts`. Mock the feature-local API module, then verify the real composable joins options with bindings in server option order and starts OAuth only from the returned URL:
 
 ```ts
-expect(connect).toHaveBeenCalledWith('TWITCH')
+const executeConnect = vi.fn().mockResolvedValue({
+	data: { channelPlatformConnect: 'https://id.example/authorize' },
+})
+
+vi.mocked(useChannelPlatformsApi).mockReturnValue({
+	useQuery: () => query,
+	useConnect: () => ({ executeMutation: executeConnect }),
+	useDisconnect: () => ({ executeMutation: vi.fn() }),
+	useSetEnabled: () => ({ executeMutation: vi.fn() }),
+} as never)
+
+const platforms = useChannelPlatforms()
+await platforms.connect('TWITCH')
+
+expect(platforms.cards.value.map(({ platform }) => platform)).toEqual(['TWITCH', 'KICK'])
+expect(executeConnect).toHaveBeenCalledWith({ platform: 'TWITCH' })
+expect(assign).toHaveBeenCalledWith('https://id.example/authorize')
 ```
 
-Also add a direct composable assertion using mocked mutation results: when Connect returns `{ channelPlatformConnect: 'https://id.example/authorize' }`, it calls `window.location.assign('https://id.example/authorize')`; when the result has `error`, it does not navigate.
+Add a second case whose connect mutation resolves with `error`; assert `assign` is not called. This test must fail because `use-channel-platforms.ts` does not exist.
 
 - [ ] **Step 2: Define the complete generated GraphQL surface in `api.ts`**
 
@@ -274,14 +290,14 @@ Implement `disconnect` and `setEnabled` with their generated mutation variables.
 
 - [ ] **Step 4: Run the focused action test**
 
-Run: `bun run --cwd web test -- layers/dashboard/features/channel-platforms/ui/platform-bindings.spec.ts`
+Run: `bun run --cwd web test -- layers/dashboard/features/channel-platforms/composables/use-channel-platforms.spec.ts`
 
-Expected: PASS for button-to-connect wiring, successful OAuth navigation, and no navigation on a mutation error.
+Expected: PASS for server-option ordering, successful OAuth navigation, and no navigation on a mutation error.
 
 - [ ] **Step 5: Commit the test harness and data layer**
 
 ```bash
-git add web/package.json bun.lock web/vitest.config.ts web/layers/dashboard/features/channel-platforms/api.ts web/layers/dashboard/features/channel-platforms/composables/use-channel-platforms.ts web/layers/dashboard/features/channel-platforms/ui/platform-bindings.spec.ts
+git add web/layers/dashboard/features/channel-platforms/api.ts web/layers/dashboard/features/channel-platforms/composables/use-channel-platforms.ts web/layers/dashboard/features/channel-platforms/composables/use-channel-platforms.spec.ts
 git commit -m "feat(web): add platform binding data"
 ```
 
@@ -333,13 +349,26 @@ it('keeps the generic enabled switch for a capability-less binding', () => {
 
 Use an `AlertDialog` confirmation before emitting `disconnect`; assert that confirming emits `disconnect` with the platform. For any connected card, assert that the switch is rendered and its model update emits `set-enabled` with the new boolean. Also assert that capabilities render as badges without a provider-name conditional.
 
-- [ ] **Step 2: Confirm the focused card test still fails**
+- [ ] **Step 2: Write the failing feature-container wiring test**
+
+Create `web/layers/dashboard/features/channel-platforms/ui/platform-bindings.spec.ts`. Mock `useChannelPlatforms()` with one disconnected Twitch card and a `connect` spy, mount the missing `platform-bindings.vue`, click Connect, and assert the generic intent reaches the composable:
+
+```ts
+await wrapper.get('button').trigger('click')
+expect(connect).toHaveBeenCalledWith('TWITCH')
+```
+
+- [ ] **Step 3: Confirm both focused UI tests fail**
 
 Run: `bun run --cwd web test -- layers/dashboard/features/channel-platforms/ui/platform-binding-card.spec.ts`
 
 Expected: FAIL until the card provides connected state, confirmation, capability badges, and the generic enabled status control.
 
-- [ ] **Step 3: Implement `platform-binding-card.vue` as a generic intent emitter**
+Run: `bun run --cwd web test -- layers/dashboard/features/channel-platforms/ui/platform-bindings.spec.ts`
+
+Expected: FAIL because `platform-bindings.vue` does not exist.
+
+- [ ] **Step 4: Implement `platform-binding-card.vue` as a generic intent emitter**
 
 Use explicit typed props and emits:
 
@@ -361,11 +390,11 @@ const emit = defineEmits<{
 
 Render `Card`, `CardHeader`, `CardContent`, and `CardFooter`. Use `<Icon :name="presentation.icon" />` for the platform mark, use the avatar when present, and render the profile display name/login when connected. Render capability names as `Badge` elements. For a disconnected binding, emit Connect. For every connected binding, place Disconnect behind existing `AlertDialog` primitives and render the `Switch` labelled `Enable bot`. No `v-if` may inspect `platform` values or individual capability names.
 
-- [ ] **Step 4: Implement `platform-bindings.vue` as the feature container**
+- [ ] **Step 5: Implement `platform-bindings.vue` as the feature container**
 
 Call `useChannelPlatforms()` once. Render a `Platform bindings` section title, loading state, mutation/query error text, and a responsive grid of `PlatformBindingCard` instances. Wire card events to `connect`, `disconnect`, and `setEnabled`. Use `toast.error('Unable to update platform binding')` only after an action returns an error; do not show success toasts immediately before OAuth navigation.
 
-- [ ] **Step 5: Mount the section in Bot Settings**
+- [ ] **Step 6: Mount the section in Bot Settings**
 
 Add this import to `web/layers/dashboard/features/bot-settings/bot-settings.vue`:
 
@@ -375,13 +404,13 @@ import PlatformBindings from '~~/layers/dashboard/features/channel-platforms/ui/
 
 Add `<PlatformBindings />` before `<CommandsPrefix />` inside the existing `flex flex-col gap-12` content wrapper.
 
-- [ ] **Step 6: Run focused frontend tests**
+- [ ] **Step 7: Run focused frontend tests**
 
 Run: `bun run --cwd web test -- layers/dashboard/features/channel-platforms`
 
 Expected: PASS for disconnected/connected cards, generic enabled state for a capability-less binding, disconnect confirmation, and OAuth initiation.
 
-- [ ] **Step 7: Commit the generic UI**
+- [ ] **Step 8: Commit the generic UI**
 
 ```bash
 git add web/layers/dashboard/features/channel-platforms/ui/platform-binding-card.vue web/layers/dashboard/features/channel-platforms/ui/platform-bindings.vue web/layers/dashboard/features/channel-platforms/ui/platform-binding-card.spec.ts web/layers/dashboard/features/channel-platforms/ui/platform-bindings.spec.ts web/layers/dashboard/features/bot-settings/bot-settings.vue
