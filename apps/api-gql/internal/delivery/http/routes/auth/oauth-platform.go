@@ -137,12 +137,23 @@ func (a *Auth) completePlatformAuth(
 			result.Channel = channel
 			result.CreatedChannel = createdChannel
 		} else {
-			channel, createChannelErr := a.createChannel(txCtx)
-			if createChannelErr != nil {
-				return fmt.Errorf("create platform channel: %w", createChannelErr)
+			channel, getChannelErr := a.channelsRepo.GetByBindingUserID(
+				txCtx,
+				input.Platform,
+				platformUser.ID,
+			)
+			if getChannelErr == nil {
+				result.Channel = channel
+			} else if errors.Is(getChannelErr, channelsrepo.ErrNotFound) {
+				channel, createChannelErr := a.createChannel(txCtx)
+				if createChannelErr != nil {
+					return fmt.Errorf("create platform channel: %w", createChannelErr)
+				}
+				result.Channel = channel
+				result.CreatedChannel = true
+			} else {
+				return fmt.Errorf("get existing platform channel: %w", getChannelErr)
 			}
-			result.Channel = channel
-			result.CreatedChannel = true
 		}
 
 		channel, linkErr := a.linkPlatformToChannel(
