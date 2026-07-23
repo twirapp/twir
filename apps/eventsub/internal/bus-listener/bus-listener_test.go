@@ -3,7 +3,10 @@ package bus_listener
 import (
 	"context"
 	"errors"
+	"io"
+	"log/slog"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -29,11 +32,12 @@ func TestBusListenerUsesNarrowDependencies(t *testing.T) {
 
 type recordingEventSubManager struct {
 	unsubscribedChannels []string
+	unsubscribeErr       error
 }
 
 func (m *recordingEventSubManager) UnsubscribeChannel(_ context.Context, channelID string) error {
 	m.unsubscribedChannels = append(m.unsubscribedChannels, channelID)
-	return nil
+	return m.unsubscribeErr
 }
 
 func (*recordingEventSubManager) SubscribeToNeededEvents(context.Context, []model.EventsubTopic, string, string) error {
@@ -45,7 +49,8 @@ func (*recordingEventSubManager) SubscribeToEvent(context.Context, string, strin
 }
 
 type recordingKickSubscriptionManager struct {
-	unsubscribed []channelplatformsmodel.ChannelPlatform
+	unsubscribed   []channelplatformsmodel.ChannelPlatform
+	unsubscribeErr error
 }
 
 func (*recordingKickSubscriptionManager) Subscribe(context.Context, channelplatformsmodel.ChannelPlatform) error {
@@ -54,14 +59,52 @@ func (*recordingKickSubscriptionManager) Subscribe(context.Context, channelplatf
 
 func (m *recordingKickSubscriptionManager) Unsubscribe(_ context.Context, binding channelplatformsmodel.ChannelPlatform) error {
 	m.unsubscribed = append(m.unsubscribed, binding)
-	return nil
+	return m.unsubscribeErr
+}
+
+const invalidSnapshotChannelID = "not-a-channel-id"
+
+type failingUnsubscribeChannelReader struct {
+	calls int
+}
+
+func (r *failingUnsubscribeChannelReader) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+	r.calls++
+	return channelsmodel.Nil, errors.New("unexpected channel lookup")
+}
+
+func newSnapshotUnsubscribeListener(
+	twitch eventSubManager,
+	kick kickSubscriptionManager,
+) (*BusListener, *failingUnsubscribeChannelReader) {
+	reader := &failingUnsubscribeChannelReader{}
+	return &BusListener{
+		eventSubClient: twitch,
+		kickSubManager: kick,
+		channelService: reader,
+		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}, reader
+}
+
+func assertNoUnsubscribeChannelLookup(t *testing.T, reader *failingUnsubscribeChannelReader) {
+	t.Helper()
+	if reader.calls != 0 {
+		t.Fatalf("channel lookup calls = %d, want 0", reader.calls)
+	}
+}
+
+func requireErrorPrefix(t *testing.T, err error, prefix string) {
+	t.Helper()
+	if err == nil || !strings.HasPrefix(err.Error(), prefix) {
+		t.Fatalf("unsubscribe error = %v, want prefix %q", err, prefix)
+	}
 }
 
 func TestUnsubscribeUsesTwitchSnapshotWithoutChannelLookup(t *testing.T) {
 	twitch := &recordingEventSubManager{}
-	listener := &BusListener{eventSubClient: twitch}
+	listener, reader := newSnapshotUnsubscribeListener(twitch, nil)
 	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
-		ChannelID: uuid.NewString(),
+		ChannelID: invalidSnapshotChannelID,
 		Platform:  platform.PlatformTwitch,
 		Binding:   &eventsub.EventsubBindingSnapshot{PlatformChannelID: "twitch-channel"},
 	})
@@ -71,15 +114,16 @@ func TestUnsubscribeUsesTwitchSnapshotWithoutChannelLookup(t *testing.T) {
 	if !reflect.DeepEqual(twitch.unsubscribedChannels, []string{"twitch-channel"}) {
 		t.Fatalf("twitch unsubscribe calls = %#v", twitch.unsubscribedChannels)
 	}
+	assertNoUnsubscribeChannelLookup(t, reader)
 }
 
 func TestUnsubscribeUsesKickSnapshotWithoutChannelLookup(t *testing.T) {
 	bindingID := uuid.New()
 	userID := uuid.New()
 	kick := &recordingKickSubscriptionManager{}
-	listener := &BusListener{kickSubManager: kick}
+	listener, reader := newSnapshotUnsubscribeListener(nil, kick)
 	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
-		ChannelID: uuid.NewString(),
+		ChannelID: "",
 		Platform:  platform.PlatformKick,
 		Binding: &eventsub.EventsubBindingSnapshot{
 			ID:                bindingID.String(),
@@ -93,6 +137,102 @@ func TestUnsubscribeUsesKickSnapshotWithoutChannelLookup(t *testing.T) {
 	if len(kick.unsubscribed) != 1 || kick.unsubscribed[0].ID != bindingID || kick.unsubscribed[0].UserID != userID {
 		t.Fatalf("kick unsubscribe bindings = %#v", kick.unsubscribed)
 	}
+	assertNoUnsubscribeChannelLookup(t, reader)
+}
+
+func TestUnsubscribeSnapshotRejectsMissingTwitchPlatformChannelID(t *testing.T) {
+	twitch := &recordingEventSubManager{}
+	listener, reader := newSnapshotUnsubscribeListener(twitch, nil)
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: invalidSnapshotChannelID,
+		Platform:  platform.PlatformTwitch,
+		Binding:   &eventsub.EventsubBindingSnapshot{},
+	})
+	if err == nil || err.Error() != "missing Twitch platform channel ID for unsubscribe" {
+		t.Fatalf("unsubscribe error = %v", err)
+	}
+	if len(twitch.unsubscribedChannels) != 0 {
+		t.Fatalf("twitch unsubscribe calls = %#v", twitch.unsubscribedChannels)
+	}
+	assertNoUnsubscribeChannelLookup(t, reader)
+}
+
+func TestUnsubscribeSnapshotRejectsInvalidKickBindingID(t *testing.T) {
+	kick := &recordingKickSubscriptionManager{}
+	listener, reader := newSnapshotUnsubscribeListener(nil, kick)
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: "",
+		Platform:  platform.PlatformKick,
+		Binding: &eventsub.EventsubBindingSnapshot{
+			ID:     "invalid-binding-id",
+			UserID: uuid.NewString(),
+		},
+	})
+	requireErrorPrefix(t, err, "parse Kick binding ID: ")
+	if len(kick.unsubscribed) != 0 {
+		t.Fatalf("kick unsubscribe bindings = %#v", kick.unsubscribed)
+	}
+	assertNoUnsubscribeChannelLookup(t, reader)
+}
+
+func TestUnsubscribeSnapshotRejectsInvalidKickUserID(t *testing.T) {
+	kick := &recordingKickSubscriptionManager{}
+	listener, reader := newSnapshotUnsubscribeListener(nil, kick)
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: invalidSnapshotChannelID,
+		Platform:  platform.PlatformKick,
+		Binding: &eventsub.EventsubBindingSnapshot{
+			ID:     uuid.NewString(),
+			UserID: "invalid-user-id",
+		},
+	})
+	requireErrorPrefix(t, err, "parse Kick binding user ID: ")
+	if len(kick.unsubscribed) != 0 {
+		t.Fatalf("kick unsubscribe bindings = %#v", kick.unsubscribed)
+	}
+	assertNoUnsubscribeChannelLookup(t, reader)
+}
+
+func TestUnsubscribeSnapshotWrapsTwitchManagerError(t *testing.T) {
+	wantErr := errors.New("twitch unsubscribe failed")
+	twitch := &recordingEventSubManager{unsubscribeErr: wantErr}
+	listener, reader := newSnapshotUnsubscribeListener(twitch, nil)
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: invalidSnapshotChannelID,
+		Platform:  platform.PlatformTwitch,
+		Binding:   &eventsub.EventsubBindingSnapshot{PlatformChannelID: "twitch-channel"},
+	})
+	if !errors.Is(err, wantErr) || err.Error() != "unsubscribe Twitch channel: twitch unsubscribe failed" {
+		t.Fatalf("unsubscribe error = %v", err)
+	}
+	if !reflect.DeepEqual(twitch.unsubscribedChannels, []string{"twitch-channel"}) {
+		t.Fatalf("twitch unsubscribe calls = %#v", twitch.unsubscribedChannels)
+	}
+	assertNoUnsubscribeChannelLookup(t, reader)
+}
+
+func TestUnsubscribeSnapshotWrapsKickManagerError(t *testing.T) {
+	bindingID := uuid.New()
+	userID := uuid.New()
+	wantErr := errors.New("kick unsubscribe failed")
+	kick := &recordingKickSubscriptionManager{unsubscribeErr: wantErr}
+	listener, reader := newSnapshotUnsubscribeListener(nil, kick)
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: "",
+		Platform:  platform.PlatformKick,
+		Binding: &eventsub.EventsubBindingSnapshot{
+			ID:                bindingID.String(),
+			UserID:            userID.String(),
+			PlatformChannelID: "kick-channel",
+		},
+	})
+	if !errors.Is(err, wantErr) || err.Error() != "unsubscribe Kick channel: kick unsubscribe failed" {
+		t.Fatalf("unsubscribe error = %v", err)
+	}
+	if len(kick.unsubscribed) != 1 || kick.unsubscribed[0].ID != bindingID || kick.unsubscribed[0].UserID != userID {
+		t.Fatalf("kick unsubscribe bindings = %#v", kick.unsubscribed)
+	}
+	assertNoUnsubscribeChannelLookup(t, reader)
 }
 
 type unsubscribeChannelReader struct {
@@ -108,17 +248,27 @@ func (r *unsubscribeChannelReader) GetChannelByID(_ context.Context, channelID u
 	return r.channel, nil
 }
 
+func unsubscribeTestBinding(
+	channelID uuid.UUID,
+	bindingPlatform platform.Platform,
+	platformChannelID string,
+) channelplatformsmodel.ChannelPlatform {
+	return channelplatformsmodel.ChannelPlatform{
+		ID:                uuid.New(),
+		ChannelID:         channelID,
+		Platform:          bindingPlatform,
+		UserID:            uuid.New(),
+		PlatformChannelID: platformChannelID,
+	}
+}
+
 func TestUnsubscribeWithoutSnapshotLoadsChannel(t *testing.T) {
 	channelID := uuid.New()
 	twitch := &recordingEventSubManager{}
+	twitchBinding := unsubscribeTestBinding(channelID, platform.PlatformTwitch, "twitch-channel")
 	reader := &unsubscribeChannelReader{channel: channelsmodel.Channel{
-		ID: channelID,
-		Bindings: []channelplatformsmodel.ChannelPlatform{{
-			ID:                uuid.New(),
-			ChannelID:         channelID,
-			Platform:          platform.PlatformTwitch,
-			PlatformChannelID: "twitch-channel",
-		}},
+		ID:       channelID,
+		Bindings: []channelplatformsmodel.ChannelPlatform{twitchBinding},
 	}}
 	listener := &BusListener{eventSubClient: twitch, channelService: reader}
 	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
@@ -130,6 +280,63 @@ func TestUnsubscribeWithoutSnapshotLoadsChannel(t *testing.T) {
 	}
 	if reader.calls != 1 || !reflect.DeepEqual(twitch.unsubscribedChannels, []string{"twitch-channel"}) {
 		t.Fatalf("reader calls = %d, twitch unsubscribe calls = %#v", reader.calls, twitch.unsubscribedChannels)
+	}
+}
+
+func TestUnsubscribeWithoutSnapshotWithEmptyPlatformUnsubscribesAllBindings(t *testing.T) {
+	channelID := uuid.New()
+	twitch := &recordingEventSubManager{}
+	kick := &recordingKickSubscriptionManager{}
+	twitchBinding := unsubscribeTestBinding(channelID, platform.PlatformTwitch, "twitch-channel")
+	kickBinding := unsubscribeTestBinding(channelID, platform.PlatformKick, "kick-channel")
+	reader := &unsubscribeChannelReader{channel: channelsmodel.Channel{
+		ID:       channelID,
+		Bindings: []channelplatformsmodel.ChannelPlatform{twitchBinding, kickBinding},
+	}}
+	listener := &BusListener{
+		eventSubClient: twitch,
+		kickSubManager: kick,
+		channelService: reader,
+		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: channelID.String(),
+	})
+	if err != nil {
+		t.Fatalf("unsubscribe without snapshot: %v", err)
+	}
+	if reader.calls != 1 || !reflect.DeepEqual(twitch.unsubscribedChannels, []string{"twitch-channel"}) ||
+		!reflect.DeepEqual(kick.unsubscribed, []channelplatformsmodel.ChannelPlatform{kickBinding}) {
+		t.Fatalf("reader calls = %d, twitch calls = %#v, kick bindings = %#v", reader.calls, twitch.unsubscribedChannels, kick.unsubscribed)
+	}
+}
+
+func TestUnsubscribeWithoutSnapshotWithKickPlatformUnsubscribesOnlyKickBinding(t *testing.T) {
+	channelID := uuid.New()
+	twitch := &recordingEventSubManager{}
+	kick := &recordingKickSubscriptionManager{}
+	twitchBinding := unsubscribeTestBinding(channelID, platform.PlatformTwitch, "twitch-channel")
+	kickBinding := unsubscribeTestBinding(channelID, platform.PlatformKick, "kick-channel")
+	reader := &unsubscribeChannelReader{channel: channelsmodel.Channel{
+		ID:       channelID,
+		Bindings: []channelplatformsmodel.ChannelPlatform{twitchBinding, kickBinding},
+	}}
+	listener := &BusListener{
+		eventSubClient: twitch,
+		kickSubManager: kick,
+		channelService: reader,
+		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: channelID.String(),
+		Platform:  platform.PlatformKick,
+	})
+	if err != nil {
+		t.Fatalf("unsubscribe without snapshot: %v", err)
+	}
+	if reader.calls != 1 || len(twitch.unsubscribedChannels) != 0 ||
+		!reflect.DeepEqual(kick.unsubscribed, []channelplatformsmodel.ChannelPlatform{kickBinding}) {
+		t.Fatalf("reader calls = %d, twitch calls = %#v, kick bindings = %#v", reader.calls, twitch.unsubscribedChannels, kick.unsubscribed)
 	}
 }
 
