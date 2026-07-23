@@ -203,7 +203,7 @@ func (a *Auth) authorizeTargetDashboard(
 	hasAccess, err := a.dashboardAccess.CanAccess(ctx, dashboardaccess.Subject{
 		ID:         user.ID.String(),
 		IsBotAdmin: user.IsBotAdmin,
-	}, channelID, "")
+	}, channelID, manageBotSettingsPermission)
 	if err != nil {
 		return fmt.Errorf("check target dashboard access: %w", err)
 	}

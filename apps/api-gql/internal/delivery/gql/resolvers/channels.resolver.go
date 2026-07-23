@@ -18,7 +18,7 @@ import (
 )
 
 // ChannelPlatformConnect is the resolver for the channelPlatformConnect field.
-func (r *mutationResolver) ChannelPlatformConnect(ctx context.Context, platform gqlmodel.Platform, redirectTo string) (string, error) {
+func (r *mutationResolver) ChannelPlatformConnect(ctx context.Context, platform gqlmodel.Platform) (string, error) {
 	entityPlatform, err := mappers.GraphQLPlatformToEntity(platform)
 	if err != nil {
 		return "", err
@@ -31,7 +31,7 @@ func (r *mutationResolver) ChannelPlatformConnect(ctx context.Context, platform 
 		return "", fmt.Errorf("channel platform binding service is not configured")
 	}
 
-	return r.deps.ChannelPlatformBindingsService.Connect(ctx, dashboardID, entityPlatform, redirectTo)
+	return r.deps.ChannelPlatformBindingsService.Connect(ctx, dashboardID, entityPlatform)
 }
 
 // ChannelPlatformDisconnect is the resolver for the channelPlatformDisconnect field.
@@ -134,6 +134,28 @@ func (r *queryResolver) ChannelPlatformBindings(ctx context.Context) ([]gqlmodel
 	result := make([]gqlmodel.ChannelPlatformBinding, 0, len(bindings))
 	for _, binding := range bindings {
 		mapped, err := mappers.ChannelPlatformBindingToGraphQL(binding.Binding, binding.Profile, binding.Capabilities)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, mapped)
+	}
+
+	return result, nil
+}
+
+// ChannelPlatformOptions is the resolver for the channelPlatformOptions field.
+func (r *queryResolver) ChannelPlatformOptions(ctx context.Context) ([]gqlmodel.ChannelPlatformOption, error) {
+	if _, err := r.selectedChannelPlatformDashboard(ctx); err != nil {
+		return nil, err
+	}
+	if r.deps.ChannelPlatformBindingsService == nil {
+		return nil, fmt.Errorf("channel platform binding service is not configured")
+	}
+
+	options := r.deps.ChannelPlatformBindingsService.Options()
+	result := make([]gqlmodel.ChannelPlatformOption, 0, len(options))
+	for _, option := range options {
+		mapped, err := mappers.ChannelPlatformOptionToGraphQL(option)
 		if err != nil {
 			return nil, err
 		}
