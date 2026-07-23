@@ -186,6 +186,10 @@ func (r *handlerStatusBindingsRepo) ListByChannelID(
 	return nil, nil
 }
 
+func (r *handlerStatusBindingsRepo) LockByChannelID(context.Context, uuid.UUID) error {
+	return nil
+}
+
 func (r *handlerStatusBindingsRepo) Update(
 	context.Context,
 	uuid.UUID,
