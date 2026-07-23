@@ -2,16 +2,136 @@ package bus_listener
 
 import (
 	"context"
+	"errors"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/gomodels"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
+
+func TestBusListenerUsesNarrowDependencies(t *testing.T) {
+	listenerType := reflect.TypeOf(BusListener{})
+	for _, name := range []string{"eventSubClient", "kickSubManager", "channelService"} {
+		field, found := listenerType.FieldByName(name)
+		if !found || field.Type.Kind() != reflect.Interface {
+			t.Fatalf("BusListener field %s is not an interface dependency", name)
+		}
+	}
+}
+
+type recordingEventSubManager struct {
+	unsubscribedChannels []string
+}
+
+func (m *recordingEventSubManager) UnsubscribeChannel(_ context.Context, channelID string) error {
+	m.unsubscribedChannels = append(m.unsubscribedChannels, channelID)
+	return nil
+}
+
+func (*recordingEventSubManager) SubscribeToNeededEvents(context.Context, []model.EventsubTopic, string, string) error {
+	return nil
+}
+
+func (*recordingEventSubManager) SubscribeToEvent(context.Context, string, string, string) error {
+	return nil
+}
+
+type recordingKickSubscriptionManager struct {
+	unsubscribed []channelplatformsmodel.ChannelPlatform
+}
+
+func (*recordingKickSubscriptionManager) Subscribe(context.Context, channelplatformsmodel.ChannelPlatform) error {
+	return nil
+}
+
+func (m *recordingKickSubscriptionManager) Unsubscribe(_ context.Context, binding channelplatformsmodel.ChannelPlatform) error {
+	m.unsubscribed = append(m.unsubscribed, binding)
+	return nil
+}
+
+func TestUnsubscribeUsesTwitchSnapshotWithoutChannelLookup(t *testing.T) {
+	twitch := &recordingEventSubManager{}
+	listener := &BusListener{eventSubClient: twitch}
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: uuid.NewString(),
+		Platform:  platform.PlatformTwitch,
+		Binding:   &eventsub.EventsubBindingSnapshot{PlatformChannelID: "twitch-channel"},
+	})
+	if err != nil {
+		t.Fatalf("unsubscribe snapshot: %v", err)
+	}
+	if !reflect.DeepEqual(twitch.unsubscribedChannels, []string{"twitch-channel"}) {
+		t.Fatalf("twitch unsubscribe calls = %#v", twitch.unsubscribedChannels)
+	}
+}
+
+func TestUnsubscribeUsesKickSnapshotWithoutChannelLookup(t *testing.T) {
+	bindingID := uuid.New()
+	userID := uuid.New()
+	kick := &recordingKickSubscriptionManager{}
+	listener := &BusListener{kickSubManager: kick}
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: uuid.NewString(),
+		Platform:  platform.PlatformKick,
+		Binding: &eventsub.EventsubBindingSnapshot{
+			ID:                bindingID.String(),
+			UserID:            userID.String(),
+			PlatformChannelID: "kick-channel",
+		},
+	})
+	if err != nil {
+		t.Fatalf("unsubscribe snapshot: %v", err)
+	}
+	if len(kick.unsubscribed) != 1 || kick.unsubscribed[0].ID != bindingID || kick.unsubscribed[0].UserID != userID {
+		t.Fatalf("kick unsubscribe bindings = %#v", kick.unsubscribed)
+	}
+}
+
+type unsubscribeChannelReader struct {
+	channel channelsmodel.Channel
+	calls   int
+}
+
+func (r *unsubscribeChannelReader) GetChannelByID(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+	r.calls++
+	if channelID != r.channel.ID {
+		return channelsmodel.Nil, errors.New("unexpected channel ID")
+	}
+	return r.channel, nil
+}
+
+func TestUnsubscribeWithoutSnapshotLoadsChannel(t *testing.T) {
+	channelID := uuid.New()
+	twitch := &recordingEventSubManager{}
+	reader := &unsubscribeChannelReader{channel: channelsmodel.Channel{
+		ID: channelID,
+		Bindings: []channelplatformsmodel.ChannelPlatform{{
+			ID:                uuid.New(),
+			ChannelID:         channelID,
+			Platform:          platform.PlatformTwitch,
+			PlatformChannelID: "twitch-channel",
+		}},
+	}}
+	listener := &BusListener{eventSubClient: twitch, channelService: reader}
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: channelID.String(),
+		Platform:  platform.PlatformTwitch,
+	})
+	if err != nil {
+		t.Fatalf("unsubscribe without snapshot: %v", err)
+	}
+	if reader.calls != 1 || !reflect.DeepEqual(twitch.unsubscribedChannels, []string{"twitch-channel"}) {
+		t.Fatalf("reader calls = %d, twitch unsubscribe calls = %#v", reader.calls, twitch.unsubscribedChannels)
+	}
+}
 
 type reinitChannelsRepo struct {
 	channelsByPlatform map[platform.Platform][]channelsmodel.Channel
