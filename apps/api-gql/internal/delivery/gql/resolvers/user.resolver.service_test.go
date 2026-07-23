@@ -2,11 +2,16 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
+	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -41,6 +46,72 @@ func TestOwnedDashboardsQueryIncludesZeroBindingLegacyOwners(t *testing.T) {
 	if want := []any{userID, userID, userID}; !reflect.DeepEqual(statement.Vars, want) {
 		t.Fatalf("query vars = %#v, want %#v", statement.Vars, want)
 	}
+}
+
+func TestResolveDashboardPlatformFallsBackOnlyAfterZeroBindingLookup(t *testing.T) {
+	t.Parallel()
+
+	channelID := uuid.New()
+	userID := uuid.NewString()
+	twitchUserID := userID
+	kickUserID := userID
+
+	tests := []struct {
+		name    string
+		channel model.Channels
+		reader  resolverDashboardPlatformReader
+		want    string
+	}{
+		{
+			name:    "zero binding Twitch legacy channel",
+			channel: model.Channels{ID: channelID.String(), TwitchUserID: &twitchUserID},
+			reader:  resolverDashboardPlatformReader{channel: channelsmodel.Channel{ID: channelID}},
+			want:    "twitch",
+		},
+		{
+			name:    "zero binding Kick legacy channel",
+			channel: model.Channels{ID: channelID.String(), KickUserID: &kickUserID},
+			reader:  resolverDashboardPlatformReader{channel: channelsmodel.Channel{ID: channelID}},
+			want:    "kick",
+		},
+		{
+			name:    "normalized owner overrides legacy platform",
+			channel: model.Channels{ID: channelID.String(), TwitchUserID: &twitchUserID},
+			reader: resolverDashboardPlatformReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+				Platform: platformentity.PlatformVKVideoLive, UserID: uuid.MustParse(userID),
+			}}}},
+			want: "vk_video_live",
+		},
+		{
+			name:    "invalid channel ID does not use legacy platform",
+			channel: model.Channels{ID: "not-a-uuid", TwitchUserID: &twitchUserID},
+			want:    "",
+		},
+		{
+			name:    "normalized lookup error does not use legacy platform",
+			channel: model.Channels{ID: channelID.String(), TwitchUserID: &twitchUserID},
+			reader:  resolverDashboardPlatformReader{err: errors.New("lookup failed")},
+			want:    "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := resolveDashboardPlatform(context.Background(), tt.reader, tt.channel, userID)
+			if got != tt.want {
+				t.Fatalf("resolveDashboardPlatform() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+type resolverDashboardPlatformReader struct {
+	channel channelsmodel.Channel
+	err     error
+}
+
+func (r resolverDashboardPlatformReader) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+	return r.channel, r.err
 }
 
 func newResolverDryRunPostgresDB(t *testing.T) *gorm.DB {
