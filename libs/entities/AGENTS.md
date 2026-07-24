@@ -15,11 +15,11 @@ libs/entities/
 ├── go.mod
 └── ...
 
-# Examples:
-channels/
-└── entity.go               # Channel entity
-users/
-└── entity.go               # User entity
+# Current domains include:
+channel/ channel_platform/ platform/ kick_bot/ vk_integration/ dashboard_widget/
+faceit_integration/ streamlabs_integration/ timers/ plan/ secret/ voteban/ obs/
+scheduled_vips/ short_links_custom_domain/ song_request_overlay_settings/
+webhook_notifications/ channels_giveaways*/ command_with_relations/ custom_overlay/ ...
 ```
 
 ## CONVENTIONS

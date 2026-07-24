@@ -10,19 +10,29 @@ Shared data access layer using pgx (PostgreSQL driver). Provides type-safe datab
 
 ```
 libs/repositories/
-├── {entity}/                # One directory per entity. But is it legacy. Instead write entities in `/libs/entities`
-│   ├── pgx/
-│   │   └── pgx.go          # pgx implementation
-│   └── model.go            # Repository model (if needed)
+├── {domain}/               # One package per domain entity (entities live in /libs/entities)
+│   ├── repository.go       # Repository interface + Create/Update opts (newer packages)
+│   ├── errors.go           # Domain errors (e.g. ErrNotFound)
+│   ├── model/ or model.go  # DB model with isNil/Nil pattern
+│   ├── pgx/                # pgx implementation (most packages)
+│   └── datasource/postgres/# alternative impl layout (e.g. vk_integration)
 ├── go.mod
 └── ...
 
-# Example:
+# Examples:
 channels/
-├── pgx/
-│   └── pgx.go              # ChannelsRepository implementation
-└── model.go                # Channel model
+├── channels.go
+├── errors.go
+├── model/
+└── pgx/
+vk_integration/
+├── repository.go           # interface
+└── datasource/postgres/    # implementation
 ```
+
+Note: two implementation layouts coexist — `pgx/` (majority) and `datasource/postgres/`
+(newer, e.g. `vk_integration`). Follow the layout of the package you touch; for brand-new
+repositories prefer the `repository.go` interface + `datasource/postgres/` style.
 
 ## CONVENTIONS
 
