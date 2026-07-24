@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import PageLayout, { type PageLayoutTab } from '~~/layers/dashboard/layout/page-layout.vue'
 import UserAccountSettings from './user-account-settings.vue'
-import UserLinkedAccounts from './user-linked-accounts.vue'
 import UserPublicSettings from './user-public-settings.vue'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
@@ -18,11 +17,6 @@ const pageTabs: PageLayoutTab[] = [
 		name: 'public',
 		title: t('userSettings.public.title'),
 		component: UserPublicSettings,
-	},
-	{
-		name: 'linked-accounts',
-		title: 'Linked Accounts',
-		component: UserLinkedAccounts,
 	},
 ]
 </script>

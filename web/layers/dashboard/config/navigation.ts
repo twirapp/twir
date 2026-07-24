@@ -24,9 +24,9 @@ export const baseNavigationItems: Array<Partial<NavigationItem>> = [
 		path: '/dashboard',
 	},
 	{
-		name: 'Bot Settings',
-		icon: 'lucide:settings',
-		path: '/dashboard/bot-settings',
+		name: 'Platforms',
+		icon: 'lucide:layers',
+		path: '/dashboard/platforms',
 	},
 	{
 		name: 'Modules',

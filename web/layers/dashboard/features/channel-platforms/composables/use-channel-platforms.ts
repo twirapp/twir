@@ -5,10 +5,10 @@ import type { Platform } from '~/gql/graphql.js'
 import { useChannelPlatformsApi } from '../api.js'
 
 const platformPresentation = {
-	TWITCH: { label: 'Twitch', icon: 'lucide:radio' },
-	KICK: { label: 'Kick', icon: 'lucide:circle-play' },
-	VK_VIDEO_LIVE: { label: 'VK Video Live', icon: 'lucide:video' },
-} satisfies Record<Platform, { label: string; icon: string }>
+	TWITCH: { label: 'Twitch', icon: 'simple-icons:twitch', iconClass: 'text-[#9146FF]' },
+	KICK: { label: 'Kick', icon: 'simple-icons:kick', iconClass: 'text-[#53FC18]' },
+	VK_VIDEO_LIVE: { label: 'VK Video Live', icon: 'simple-icons:vk', iconClass: 'text-[#0077FF]' },
+} satisfies Record<Platform, { label: string; icon: string; iconClass: string }>
 
 export function useChannelPlatforms() {
 	const api = useChannelPlatformsApi()

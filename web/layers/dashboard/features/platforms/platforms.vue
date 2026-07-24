@@ -8,7 +8,7 @@ import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 <template>
 	<PageLayout>
 		<template #title>
-			Bot Settings
+			Platforms
 		</template>
 
 		<template #content>

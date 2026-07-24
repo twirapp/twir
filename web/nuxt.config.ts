@@ -121,11 +121,11 @@ export default defineNuxtConfig({
 		clientBundle: {
 			includeCustomCollections: true,
 		},
-		customCollections: [
-			{
-				prefix: 'twir-overlays',
-				dir: resolve('./layers/dashboard/assets/overlays'),
-			},
+	customCollections: [
+		{
+			prefix: 'twir-overlays',
+			dir: resolve('./layers/dashboard/assets/overlays'),
+		},
 			{
 				prefix: 'twir-integrations',
 				dir: resolve('./layers/dashboard/assets/integrations'),
