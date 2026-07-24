@@ -15,12 +15,14 @@
 > - [`apps/timers/AGENTS.md`](apps/timers/AGENTS.md) — Chat timers
 > - [`apps/tokens/AGENTS.md`](apps/tokens/AGENTS.md) — OAuth tokens
 > - [`apps/websockets/AGENTS.md`](apps/websockets/AGENTS.md) — WebSocket server
+> - [`apps/executron/AGENTS.md`](apps/executron/AGENTS.md) — Sandboxed JS execution (Bun/TS)
+> - [`apps/twitch-mock/AGENTS.md`](apps/twitch-mock/AGENTS.md) — Local Twitch API mock (dev only)
 >
 > **Frontend:**
 >
-> - [`frontend/dashboard/AGENTS.md`](frontend/dashboard/AGENTS.md) — Vue dashboard app
+> - [`web/AGENTS.md`](web/AGENTS.md) — Nuxt website + dashboard (layers)
+> - [`web/layers/dashboard/AGENTS.md`](web/layers/dashboard/AGENTS.md) — Dashboard SPA (Nuxt layer)
 > - [`frontend/overlays/AGENTS.md`](frontend/overlays/AGENTS.md) — Browser overlays
-> - [`web/AGENTS.md`](web/AGENTS.md) — Nuxt public website
 >
 > **Tools & Libraries:**
 >
@@ -40,6 +42,7 @@
 > - [`libs/types/AGENTS.md`](libs/types/AGENTS.md) — TypeScript types
 > - [`libs/api/AGENTS.md`](libs/api/AGENTS.md) — API client
 > - [`libs/pubsub/AGENTS.md`](libs/pubsub/AGENTS.md) — Pub/sub messaging
+> - [`libs/frontend-chat/AGENTS.md`](libs/frontend-chat/AGENTS.md) — Chat widget Vue library
 
 This document outlines the core conventions, technologies, and patterns used in this project. Please
 adhere to these guidelines strictly to maintain code consistency and quality.
@@ -47,18 +50,18 @@ adhere to these guidelines strictly to maintain code consistency and quality.
 ### **1. General Project Context**
 
 - **Structure:** This is a monorepo.
-  - **`frontend/dashboard`**: The main dashboard application (Vue 3 + Vite).
-  - **`web`**: The public-facing website (Nuxt 3).
+  - **`web`**: Nuxt 3 app — public website **and** dashboard (as Nuxt layers, see
+    `web/layers/dashboard`). The old `frontend/dashboard` (Vue 3 + Vite) was removed.
+  - **`frontend/overlays`**: Browser overlays (Vue 3 + Vite).
   - **`apps/api-gql`**: The main backend service (Go) serving GraphQL and HTTP APIs.
-  - **`libs`**: Shared Go libraries.
+  - **`libs`**: Shared Go libraries and TS packages.
 - **Package Manager & Runtime:** We use **Bun** for all JavaScript/TypeScript package management,
   script execution, and as the runtime. Use `bun install`, `bun add`, and `bun run` commands.
 - **Primary Technologies:**
-  - **Frontend (Dashboard):** Vue 3, TypeScript, Vite, Tailwind CSS, vee-validate, zod,
-    lucide-vue-next, shadcn-vue, TanStack Query, Urql.
-  - **Web (Public Site):** Nuxt 3, TypeScript, Tailwind CSS, shadcn-nuxt, Pinia, Urql.
+  - **Web (site + dashboard):** Nuxt 3, TypeScript, Tailwind CSS, Reka UI / shadcn-vue, Pinia,
+    Urql, vee-validate, zod, `@nuxt/icon`.
   - **Backend:** Go (Golang), pgx (PostgreSQL driver), gqlgen (GraphQL).
-  - **Tooling:** Bun, Docker.
+  - **Tooling:** Bun, Docker, oxlint (`bun lint`).
 - **MCP Tools Usage**
   - **CodeGraph MCP** — use for exploring project structure, understanding architecture, finding symbol definitions/callers/callees, and analyzing impact of changes. Always prefer codegraph over manual file searching when codegraph is configured.
   - **Context7 MCP** — use for reading up-to-date library/framework documentation. If you are unsure about some library (e.g., you know version 3 but the project uses version 4), ask context7 for the correct version docs. Avoid searching the internet for library documentation — always use context7 if available.
@@ -142,12 +145,11 @@ import UserProfile from "./components/UserProfile";
 
 #### **2.3. Existing Components**
 
-- **Delete Confirmation:** The project already has a standardized delete confirmation component. \*
-  \*Do not create a new one.\*\* When you need to confirm a delete action, import and use the existing
-  component.
-  - Assume its import path is something like:
-    `import DeleteConfirmationDialog from '@/components/shared/DeleteConfirmationDialog.vue'`
-  - Utilize its props and events as defined in its implementation.
+- **Confirmations:** The project already has a standardized confirmation component. **Do not create
+  a new one.** Use `ActionConfirm` from `web/app/components/ui/action-confirm/ActionConfirm.vue`
+  (`v-model:open`, `confirm`/`cancel` emits) for delete/destructive confirmations.
+- **Responsive modals:** Use `web/layers/dashboard/components/dialog-or-sheet.vue` (`DialogOrSheet`)
+  for dialog-on-desktop / sheet-on-mobile UX.
 
 ---
 
@@ -228,34 +230,22 @@ const onSubmit = handleSubmit((values) => {
 
 ### **4. Iconography**
 
-- **Primary Library:** **Always use `lucide-vue-next` for icons.** It is the project's standard.
-- **Fallback:** Only if a specific icon is absolutely not available in Lucide should you consider
-  using another library or a local SVG file. This should be a rare exception.
-- **Usage:**
-  - **Dashboard (`frontend`):** Import icons by name from the library.
-  - **Web (`web`):** Use the `<Icon />` Nuxt component, and pass the name of the icon as
-    `name="lucide:icon-name"`.
+- **Primary Library:** **Lucide icons via the Nuxt `<Icon />` component** (`name="lucide:icon-name"`).
+  This is the standard for UI chrome everywhere in `web` (site and dashboard). **Do not** import
+  `lucide-vue-next` components in `web`.
+- **Brand / platform logos (Twitch, Kick, VK, etc.):** use `simple-icons:*` via the same `<Icon />`
+  component — the collection is installed locally. Color them with Tailwind `text-[#...]` classes.
+- **Integration cards & artwork:** local SVG collections via `<Icon />` (`twir-integrations:*`,
+  `twir-overlays:*`, `twir-compare:*`) or `Svgo*` components from `nuxt-svgo` where already used.
+- **Fallback:** Only if a specific icon is not available in Lucide/simple-icons should you add a
+  local SVG file. This should be a rare exception.
 
-**Example Dashboard:**
-
-```typescript
-import { User, Mail, CheckCircle2 } from "lucide-vue-next";
-```
-
-```vue
-<template>
-	<button class="btn">
-		<User class="h-4 w-4 mr-2" />
-		Profile
-	</button>
-</template>
-```
-
-**Example Web:**
+**Example:**
 
 ```vue
 <template>
 	<Icon name="lucide:user" class="h-4 w-4 mr-2" />
+	<Icon name="simple-icons:twitch" class="h-4 w-4 text-[#9146FF]" />
 </template>
 ```
 
@@ -285,7 +275,7 @@ single request, optimizing network usage and improving user experience.
 #### **6.1. Unified Query Pattern**
 
 - **Single Query File:** All integrations page data is fetched via a unified query in
-  `frontend/dashboard/src/api/integrations/integrations-page.ts`.
+  `web/layers/dashboard/api/integrations/integrations-page.ts`.
 - **Why:** This approach allows fetching data for all integrations (Discord, Spotify, LastFM,
   Valorant, DonationAlerts, etc.) in a single GraphQL request, which is significantly more efficient
   than making separate requests per integration.
@@ -439,11 +429,13 @@ bun lint
 #### **8.3. CI/CD (GitHub Actions)**
 
 - **Primary Workflow**: `.github/workflows/dockerv3.yml`
+  - Trigger: tags `v*` + manual dispatch
   - Matrix builds for all apps
   - Change detection (only builds changed apps)
   - Builds Docker images → `registry.twir.app/twirapp/<app>:latest`
-- **PR Checks**: `.github/workflows/build-and-lint.yml`
-  - Runs `bun cli build` and `bun lint`
+- **Branch Checks**: `.github/workflows/build-and-lint.yml`
+  - Trigger: push to any branch except `main` + manual dispatch
+  - Runs `bun cli deps`, `bun cli build` and `bun lint`
 
 #### **8.4. Key Files**
 

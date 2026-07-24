@@ -1,10 +1,10 @@
 # AGENTS.md — web
 
-Nuxt 3 public website with layered architecture. Landing pages, docs, and public services.
+Nuxt 3 application with layered architecture: public website, dashboard SPA, docs, and public services.
 
 ## OVERVIEW
 
-Multi-layer Nuxt 3 application. Serves public-facing content including landing page, documentation, URL shortener, and pastebin. Uses Nuxt's layer system for feature separation.
+Multi-layer Nuxt 3 application. Serves public-facing content (landing page, documentation, URL shortener, pastebin) **and** the authenticated dashboard (`layers/dashboard`, migrated from the deleted `frontend/dashboard`).
 
 ## STRUCTURE
 
@@ -16,11 +16,13 @@ web/
 │   ├── pages/               # Route pages
 │   └── assets/              # Static assets
 ├── layers/                  # Nuxt layers (feature modules)
+│   ├── dashboard/           # Dashboard SPA (own AGENTS.md)
 │   ├── landing/             # Marketing site
 │   ├── public/              # Public utilities
 │   ├── url-shortener/       # Short link service
 │   ├── pastebin/            # Code sharing
-│   └── overlays/            # Public overlay previews
+│   ├── overlays/            # Public overlay previews
+│   └── widgets/             # Public widgets
 ├── nuxt.config.ts           # Main Nuxt config
 ├── package.json
 └── Dockerfile
@@ -61,26 +63,26 @@ layers/url-shortener/
 └── package.json            # Layer deps (if any)
 ```
 
-Layers are registered in main `nuxt.config.ts`:
-
-```typescript
-export default defineNuxtConfig({
-	extends: ["./layers/landing", "./layers/url-shortener", "./layers/pastebin", "./layers/public"],
-});
-```
+Layers under `layers/` are auto-registered by Nuxt; explicit `extends` in main `nuxt.config.ts`
+is only needed for layers outside that directory.
 
 ### Icons
 
-Use Nuxt Icon component with Lucide:
+Use the Nuxt `<Icon />` component everywhere, including shared UI components and layers:
 
 ```vue
 <template>
 	<Icon name="lucide:user" class="h-4 w-4" />
+	<Icon name="simple-icons:twitch" class="h-4 w-4 text-[#9146FF]" />
 </template>
 ```
 
-Do not import icon components from `@lucide/vue` or `lucide-vue-next` in `web`. Use the Nuxt
-`<Icon />` component everywhere, including shared UI components and layers.
+- `lucide:*` — UI chrome (default).
+- `simple-icons:*` — brand/platform logos (Twitch, Kick, VK, ...); locally installed collection.
+- `twir-integrations:*` / `twir-overlays:*` / `twir-compare:*` — local SVG custom collections
+  (dirs under `layers/dashboard/assets/*` and `layers/landing/assets/compare`).
+
+Do not import icon components from `@lucide/vue` or `lucide-vue-next` in `web`.
 
 ### Styling
 
@@ -128,11 +130,15 @@ const { data } = await useAsyncQuery(gql`
 
 | Layer           | Purpose          | Routes        |
 | --------------- | ---------------- | ------------- |
+| `dashboard`     | Dashboard SPA    | `/dashboard/*`|
 | `landing`       | Marketing site   | `/`           |
 | `url-shortener` | Link shortening  | `/s/*`        |
 | `pastebin`      | Code sharing     | `/paste/*`    |
 | `public`        | Public utilities | `/public/*`   |
 | `overlays`      | Overlay previews | `/overlays/*` |
+| `widgets`       | Public widgets   | `/w/*`        |
+
+Layers in `layers/` are auto-registered by Nuxt (no manual `extends` needed).
 
 ## PORTS
 
