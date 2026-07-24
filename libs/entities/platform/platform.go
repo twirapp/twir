@@ -49,7 +49,9 @@ var capabilitiesByPlatform = map[Platform]Capabilities{
 		CapabilityEventsFollow,
 		CapabilityEventsReward,
 	},
-	PlatformVKVideoLive: {},
+	PlatformVKVideoLive: {
+		CapabilityChatWrite,
+	},
 }
 
 func (p Platform) IsValid() bool {

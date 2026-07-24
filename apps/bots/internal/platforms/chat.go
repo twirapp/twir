@@ -7,6 +7,7 @@ import (
 
 	kickchat "github.com/twirapp/twir/apps/bots/internal/kick"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	vkchat "github.com/twirapp/twir/apps/bots/internal/vk"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -37,10 +38,12 @@ func newRegistry(adapters ...ChatAdapter) *platformsregistry.Registry[ChatAdapte
 func NewChatRegistry(
 	twitchActions *twitchactions.TwitchActions,
 	kickClient *kickchat.ChatClient,
+	vkClient *vkchat.ChatClient,
 ) *platformsregistry.Registry[ChatAdapter] {
 	return newRegistry(
 		NewTwitchChatAdapter(twitchActions),
 		NewKickChatAdapter(kickClient),
+		NewVKVideoLiveChatAdapter(vkClient),
 	)
 }
 
@@ -186,4 +189,34 @@ func (a kickChatAdapter) SendMessage(
 	_ ChatOptions,
 ) error {
 	return a.sender.SendMessage(ctx, binding, message, replyID)
+}
+
+type vkVideoLiveMessageSender interface {
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, string) error
+}
+
+type vkVideoLiveChatAdapter struct {
+	sender vkVideoLiveMessageSender
+}
+
+func NewVKVideoLiveChatAdapter(sender vkVideoLiveMessageSender) ChatAdapter {
+	return vkVideoLiveChatAdapter{sender: sender}
+}
+
+func (a vkVideoLiveChatAdapter) Platform() platform.Platform {
+	return platform.PlatformVKVideoLive
+}
+
+func (a vkVideoLiveChatAdapter) Capabilities() platform.Capabilities {
+	return platform.Capabilities{platform.CapabilityChatWrite}
+}
+
+func (a vkVideoLiveChatAdapter) SendMessage(
+	ctx context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	message string,
+	_ string,
+	_ ChatOptions,
+) error {
+	return a.sender.SendMessage(ctx, binding, message)
 }

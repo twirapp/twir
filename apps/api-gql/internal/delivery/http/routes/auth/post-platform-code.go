@@ -253,9 +253,13 @@ func (a *Auth) completePlatformExchange(
 		return platformCodeResult{}, fmt.Errorf("get platform user: %w", err)
 	}
 
-	bindingConfig, err := a.platformBindingConfig(ctx, platform)
-	if err != nil {
-		return platformCodeResult{}, fmt.Errorf("get platform binding configuration: %w", err)
+	bindingConfig := platformBindingConfig{BotConfig: json.RawMessage(`{}`)}
+	if platform != platformentity.PlatformVKVideoLive {
+		var configErr error
+		bindingConfig, configErr = a.platformBindingConfig(ctx, platform)
+		if configErr != nil {
+			return platformCodeResult{}, fmt.Errorf("get platform binding configuration: %w", configErr)
+		}
 	}
 
 	authResult, err := a.completePlatformAuth(ctx, completePlatformAuthInput{

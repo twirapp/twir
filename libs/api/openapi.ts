@@ -1279,6 +1279,31 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
+     * @name AuthVkVideoBotCallback
+     * @summary VK Video bot setup callback
+     * @request GET:/auth/vk-video/bot-callback
+     * @response `200` `BaseOutputBodyJsonAuthResponseDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    authVkVideoBotCallback: (
+      query?: {
+        code?: string;
+        state?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonAuthResponseDto, any>({
+        path: `/auth/vk-video/bot-callback`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
      * @name AuthPlatformAuthorize
      * @summary Get platform OAuth authorize URL
      * @request GET:/auth/{platform}/authorize

@@ -2,6 +2,7 @@
 import { DISCORD_INVITE_URL, GITHUB_ORG_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
 import 'vue-sonner/style.css'
 import { Toaster } from '@/components/ui/sonner'
+
 import { ogEnMessages } from './utils/og-en-messages'
 
 interface OgImageRoute {
@@ -36,15 +37,15 @@ const ogImageRoutes: Readonly<Record<string, OgImageRoute>> = Object.freeze({
 
 const route = useRoute()
 const routeBaseName = useRouteBaseName()(route)
-const ogImageRoute = routeBaseName ? ogImageRoutes[routeBaseName] : undefined
+const ogImageRoute = routeBaseName ? ogImageRoutes[routeBaseName.toString()] : undefined
 const { t } = useI18n()
 
-if (ogImageRoute) {
+if (ogImageRoute && import.meta.server) {
 	defineOgImage('Twir', {
 		title: ogEnMessages[ogImageRoute.titleKey] ?? t(ogImageRoute.titleKey),
 		description: ogEnMessages[ogImageRoute.descriptionKey] ?? t(ogImageRoute.descriptionKey),
 	})
-} else {
+} else if (import.meta.server) {
 	defineOgImage('Twir', undefined, { url: metaImg })
 }
 

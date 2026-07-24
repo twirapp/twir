@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"sync"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/danielgtaylor/huma/v2"
@@ -14,6 +15,7 @@ import (
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
+	vkvideo "github.com/twirapp/twir/apps/api-gql/internal/platform/vkvideo"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
@@ -24,6 +26,7 @@ import (
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 	"github.com/twirapp/twir/libs/repositories/tokens"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	vkvideobotsrepo "github.com/twirapp/twir/libs/repositories/vk_video_bots"
 	"go.uber.org/fx"
 )
 
@@ -44,6 +47,8 @@ type Opts struct {
 	UsersRepo            usersrepository.Repository
 	KickProvider         *kickplatform.Provider
 	KickBotsRepo         kickbotsrepo.Repository
+	VKVideoBotProvider   *vkvideo.BotSetupProvider
+	VKVideoBotsRepo      vkvideobotsrepo.Repository
 	KV                   kv.KV
 	DashboardAccess      *dashboardaccess.Service
 }
@@ -62,7 +67,10 @@ type Auth struct {
 	usersRepo              usersrepository.Repository
 	kickProvider           *kickplatform.Provider
 	kickBotsRepo           kickbotsrepo.Repository
+	vkVideoBotProvider     vkVideoBotSetupProvider
+	vkVideoBotsRepo        vkvideobotsrepo.Repository
 	kv                     kv.KV
+	vkVideoBotSetupStateMu sync.Mutex
 	dashboardAccess        dashboardAccessChecker
 	eventSubPublisher      eventSubPublisher
 	bindingConfigResolvers map[platformentity.Platform]platformBindingConfigResolver
@@ -100,6 +108,8 @@ func New(opts Opts) *Auth {
 		usersRepo:            opts.UsersRepo,
 		kickProvider:         opts.KickProvider,
 		kickBotsRepo:         opts.KickBotsRepo,
+		vkVideoBotProvider:   opts.VKVideoBotProvider,
+		vkVideoBotsRepo:      opts.VKVideoBotsRepo,
 		kv:                   opts.KV,
 		dashboardAccess:      opts.DashboardAccess,
 	}
@@ -107,8 +117,9 @@ func New(opts Opts) *Auth {
 		p.eventSubPublisher = opts.Bus.EventSub.SubscribeToAllEvents
 	}
 	p.bindingConfigResolvers = map[platformentity.Platform]platformBindingConfigResolver{
-		platformentity.PlatformTwitch: p.twitchBindingConfig,
-		platformentity.PlatformKick:   p.kickBindingConfig,
+		platformentity.PlatformTwitch:      p.twitchBindingConfig,
+		platformentity.PlatformKick:        p.kickBindingConfig,
+		platformentity.PlatformVKVideoLive: p.vkVideoBotBindingConfig,
 	}
 	p.postPlatformAuthHooks = map[platformentity.Platform]postPlatformAuthHook{
 		platformentity.PlatformKick: p.updateKickBotTokenAfterAuth,
@@ -223,6 +234,27 @@ func New(opts Opts) *Auth {
 		},
 		) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
 			return p.handleKickBotCallback(ctx, kickBotCallbackInput{Code: i.Code, State: i.State})
+		},
+	)
+
+	huma.Register(
+		opts.Huma,
+		huma.Operation{
+			OperationID: "auth-vk-video-bot-callback",
+			Method:      http.MethodGet,
+			Path:        "/auth/vk-video/bot-callback",
+			Tags:        []string{"Auth"},
+			Summary:     "VK Video bot setup callback",
+		},
+		func(ctx context.Context, i *struct {
+			Code  string `query:"code"`
+			State string `query:"state"`
+		}) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
+			if err := p.CompleteVKVideoBotSetup(ctx, i.Code, i.State); err != nil {
+				return nil, huma.Error400BadRequest("Cannot complete VK Video bot setup", err)
+			}
+
+			return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: p.config.GetVkVideoBotCallbackUrl()}), nil
 		},
 	)
 
