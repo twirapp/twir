@@ -106,6 +106,7 @@ type Config struct {
 	VKVideoWebhookSecret string `required:"false" envconfig:"VK_VIDEO_WEBHOOK_SECRET"`
 	VKVideoAPIBaseURL    string `required:"false" default:"https://api.live.vkvideo.ru" envconfig:"VK_VIDEO_API_BASE_URL"`
 	VKVideoAuthBaseURL   string `required:"false" default:"https://auth.live.vkvideo.ru" envconfig:"VK_VIDEO_AUTH_BASE_URL"`
+	VKVideoDevAPIBaseURL string `required:"false" default:"https://apidev.live.vkvideo.ru" envconfig:"VK_VIDEO_DEVAPI_BASE_URL"`
 
 	FaceitClientId     string `required:"false" envconfig:"FACEIT_CLIENT_ID"`
 	FaceitClientSecret string `required:"false" envconfig:"FACEIT_CLIENT_SECRET"`

@@ -11,7 +11,6 @@ const code = url.searchParams.get('code')
 const state = url.searchParams.get('state')
 const error = ref(url.searchParams.get('error'))
 const loading = ref(true)
-const api = useOapi()
 
 onMounted(async () => {
 	if (import.meta.server) return
@@ -21,17 +20,21 @@ onMounted(async () => {
 	}
 
 	if (!code || !state) {
-		error.value = `[kick] Something unexpected happened, because authorization code wasn't provided. Please try to log in again`
+		error.value = `[vk] Something unexpected happened, because authorization code wasn't provided. Please try to log in again`
 		return
 	}
 
 	try {
-		const res = await api.auth.authKickCode({
-			code,
-			state,
-		})
+		const res = await $fetch<{ data: { redirect_to: string } }>(
+			`${window.location.origin}/api/auth/vk_video_live/code`,
+			{
+				method: 'POST',
+				body: { code, state },
+				credentials: 'include',
+			}
+		)
 
-		window.location.replace(res.data.data.redirect_to)
+		window.location.replace(res.data.redirect_to)
 	} catch (requestError) {
 		console.error(requestError)
 		error.value = 'Internal error happened, please contact devs in discord'
@@ -79,7 +82,7 @@ onMounted(async () => {
 				xmlns="http://www.w3.org/2000/svg"
 			>
 				<path
-					d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+					d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 50.5908 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
 					fill="currentColor"
 				/>
 				<path

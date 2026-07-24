@@ -65,9 +65,7 @@ export default defineNuxtConfig({
 		defaultLocale: 'en',
 	},
 
-	extends: [
-		'./layers/widgets',
-	],
+	extends: ['./layers/widgets'],
 
 	routeRules: {
 		'/dashboard': { ssr: false },
@@ -180,6 +178,7 @@ export default defineNuxtConfig({
 				'@unhead/schema-org/vue',
 				'@tanstack/vue-virtual',
 				'tinycolor2',
+				'date-fns',
 			],
 		},
 		server: {
