@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/kill"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/twirapp/twir/cli/internal/cmds/proxy"
+	"github.com/twirapp/twir/cli/internal/cmds/vkvideoprobe"
 	"github.com/urfave/cli/v2"
 )
 
@@ -33,6 +34,7 @@ func main() {
 			dev.CreateDevCommand(),
 			execbin.Cmd,
 			kill.Cmd,
+			vkvideoprobe.Cmd,
 		},
 	}
 
