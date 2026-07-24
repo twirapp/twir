@@ -64,14 +64,14 @@ function handlePasteDeleted() {
 						@click="() => userStore.login()"
 					>
 						Login with Twitch
-						<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
+						<Icon name="simple-icons:twitch" class="w-5 h-5 text-white" />
 					</button>
 					<button
 						class="flex flex-row px-6 py-3 items-center gap-2 bg-[#53FC18] text-black rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 cursor-pointer hover:bg-[#53FC18]/80 transition-all"
 						@click="() => userStore.loginWithKick()"
 					>
 						Login with Kick
-						<Icon name="lucide:tv" class="w-5 h-5 text-black" />
+						<Icon name="simple-icons:kick" class="w-5 h-5 text-black" />
 					</button>
 				</div>
 			</div>

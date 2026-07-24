@@ -23,7 +23,7 @@ import (
 
 const (
 	targetedOAuthAttemptLifetime     = 15 * time.Minute
-	channelPlatformBindingRedirectTo = "/dashboard/bot-settings"
+	channelPlatformBindingRedirectTo = "/dashboard/platforms"
 	manageBotSettingsPermission      = "MANAGE_BOT_SETTINGS"
 )
 
