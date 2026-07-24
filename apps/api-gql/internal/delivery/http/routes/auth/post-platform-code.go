@@ -35,9 +35,9 @@ var (
 )
 
 type platformCodeBody struct {
-	Code     string `json:"code" minLength:"1" required:"true"`
-	State    string `json:"state" required:"true"`
-	DeviceID string `json:"device_id"`
+	Code     string  `json:"code" minLength:"1" required:"true"`
+	State    string  `json:"state" required:"true"`
+	DeviceID *string `json:"device_id" required:"false"`
 }
 
 type kickCodeBody = platformCodeBody
@@ -46,7 +46,7 @@ type platformCodeInput struct {
 	Platform platformentity.Platform
 	Code     string
 	State    string
-	DeviceID string
+	DeviceID *string
 }
 
 type platformCodeResult struct {
@@ -172,8 +172,8 @@ func (a *Auth) completePlatformCode(ctx context.Context, input platformCodeInput
 			return platformCodeResult{}, err
 		}
 	}
-	if input.DeviceID != "" {
-		attempt.DeviceID = input.DeviceID
+	if input.DeviceID != nil && *input.DeviceID != "" {
+		attempt.DeviceID = *input.DeviceID
 		if err := a.sessions.SetOAuthAttempt(ctx, input.State, attempt); err != nil {
 			return platformCodeResult{}, fmt.Errorf("store callback device ID: %w", err)
 		}

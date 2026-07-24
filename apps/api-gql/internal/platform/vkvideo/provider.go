@@ -11,8 +11,6 @@ import (
 	"go.uber.org/fx"
 )
 
-var authorizationScopes = []string{"user_info"}
-
 type Opts struct {
 	fx.In
 
@@ -27,11 +25,12 @@ var _ platform.PlatformProvider = (*Provider)(nil)
 
 func New(opts Opts) (*Provider, error) {
 	client, err := vk.NewOAuthClient(vk.OAuthClientOpts{
-		ClientID:     opts.Config.VKVideoClientID,
-		ClientSecret: opts.Config.VKVideoClientSecret,
-		RedirectURL:  opts.Config.GetVkCallbackUrl(),
-		APIBaseURL:   opts.Config.VKVideoAPIBaseURL,
-		AuthBaseURL:  opts.Config.VKVideoAuthBaseURL,
+		ClientID:      opts.Config.VKVideoClientID,
+		ClientSecret:  opts.Config.VKVideoClientSecret,
+		RedirectURL:   opts.Config.GetVkCallbackUrl(),
+		APIBaseURL:    opts.Config.VKVideoAPIBaseURL,
+		AuthBaseURL:   opts.Config.VKVideoAuthBaseURL,
+		DevAPIBaseURL: opts.Config.VKVideoDevAPIBaseURL,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("create VK Video OAuth client: %w", err)
@@ -45,7 +44,7 @@ func (p *Provider) Name() string {
 }
 
 func (p *Provider) GetAuthURL(state, _ string) string {
-	authorizationURL, err := p.client.AuthorizationURL(state, authorizationScopes)
+	authorizationURL, err := p.client.AuthorizationURL(state, nil)
 	if err != nil {
 		return ""
 	}

@@ -92,7 +92,7 @@
     "@graphql-typed-document-node/core": "catalog:",
     "@iconify-json/lucide": "1.2.80",
     "@intlify/unplugin-vue-i18n": "11.2.3",
-    "@nuxt/icon": "2.1.0",
+    "@nuxt/icon": "2.3.1",
     "@nuxt/test-utils": "4.0.3",
     "@nuxtjs/color-mode": "4.0.0",
     "@tailwindcss/forms": "0.5.10",

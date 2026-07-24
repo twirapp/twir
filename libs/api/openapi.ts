@@ -660,7 +660,7 @@ export interface PlatformCodeBody {
   $schema?: string;
   /** @minLength 1 */
   code: string;
-  device_id: string;
+  device_id?: string | null;
   state: string;
 }
 
