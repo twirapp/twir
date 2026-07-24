@@ -24,6 +24,7 @@ import (
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	kickbotentity "github.com/twirapp/twir/libs/entities/kick_bot"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	vkvideobotentity "github.com/twirapp/twir/libs/entities/vk_video_bot"
 	botsrepo "github.com/twirapp/twir/libs/repositories/bots"
 	botsmodel "github.com/twirapp/twir/libs/repositories/bots/model"
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
@@ -281,7 +282,6 @@ func TestCompletePlatformAuthCreatesMissingTwitchBindingWithTwitchConfigWhenLink
 	sessionUserID := uuid.New()
 	vkUserID := uuid.New()
 	channelID := uuid.New()
-	linkedProviderConfig := json.RawMessage(`{"linked_provider":"vk"}`)
 	createdBindings := make([]channelplatforms.CreateInput, 0, 2)
 	transaction := &oauthTransaction{}
 	bindings := &oauthChannelPlatformsRepository{
@@ -346,12 +346,14 @@ func TestCompletePlatformAuthCreatesMissingTwitchBindingWithTwitchConfigWhenLink
 	authHandler.bindingConfigResolvers = map[platformentity.Platform]platformBindingConfigResolver{
 		platformentity.PlatformTwitch: authHandler.twitchBindingConfig,
 	}
+	vkBotUserID := uuid.New()
+	authHandler.vkVideoBotsRepo = &vkVideoBotRepositoryFake{bot: vkvideobotentity.VKVideoBot{ID: uuid.New(), VKUserID: vkBotUserID}}
 
 	_, err := authHandler.completePlatformAuth(ctx, completePlatformAuthInput{
 		Platform:      platformentity.PlatformVKVideoLive,
 		PlatformUser:  &appplatform.PlatformUser{ID: "vk-channel"},
 		Tokens:        testPlatformTokens(),
-		BindingConfig: platformBindingConfig{BotConfig: linkedProviderConfig},
+		BindingConfig: platformBindingConfig{BotConfig: json.RawMessage(`{"linked_provider":"vk"}`)},
 	})
 	if err != nil {
 		t.Fatalf("link VK auth: %v", err)
@@ -375,8 +377,8 @@ func TestCompletePlatformAuthCreatesMissingTwitchBindingWithTwitchConfigWhenLink
 	}{BotID: "default-bot"}) {
 		t.Fatalf("created Twitch binding = %+v, config = %+v", createdBindings[0], twitchConfig)
 	}
-	if createdBindings[1].Platform != platformentity.PlatformVKVideoLive || string(createdBindings[1].BotConfig) != string(linkedProviderConfig) {
-		t.Fatalf("created VK binding = %+v, want incoming config %s", createdBindings[1], linkedProviderConfig)
+	if createdBindings[1].Platform != platformentity.PlatformVKVideoLive || createdBindings[1].BotUserID == nil || *createdBindings[1].BotUserID != vkBotUserID || string(createdBindings[1].BotConfig) != "{}" {
+		t.Fatalf("created VK binding = %+v, want global VK bot", createdBindings[1])
 	}
 }
 
@@ -1686,6 +1688,7 @@ type oauthFlowTestAuthOpts struct {
 	registry          *appplatform.Registry
 	transaction       *oauthTransaction
 	eventSubPublisher *oauthEventSubPublisher
+	vkVideoBots       *vkVideoBotRepositoryFake
 }
 
 func newOAuthFlowTestAuth(opts oauthFlowTestAuthOpts) *Auth {
@@ -1716,6 +1719,9 @@ func newOAuthFlowTestAuth(opts oauthFlowTestAuthOpts) *Auth {
 	if opts.eventSubPublisher == nil {
 		opts.eventSubPublisher = &oauthEventSubPublisher{transaction: opts.transaction}
 	}
+	if opts.vkVideoBots == nil {
+		opts.vkVideoBots = &vkVideoBotRepositoryFake{bot: vkvideobotentity.VKVideoBot{ID: uuid.New(), VKUserID: uuid.New()}}
+	}
 
 	return &Auth{
 		config:               cfg.Config{TokensCipherKey: "pnyfwfiulmnqlhkvixaeligpprcnlyke"},
@@ -1729,6 +1735,7 @@ func newOAuthFlowTestAuth(opts oauthFlowTestAuthOpts) *Auth {
 		platformRegistry:     opts.registry,
 		transactionRunner:    opts.transaction,
 		eventSubPublisher:    opts.eventSubPublisher,
+		vkVideoBotsRepo:      opts.vkVideoBots,
 	}
 }
 
@@ -1966,6 +1973,10 @@ type oauthChannelPlatformsRepository struct {
 	updateFunc                  func(context.Context, uuid.UUID, channelplatforms.UpdateInput) (channelplatformentity.ChannelPlatform, error)
 	createCalls                 int
 	updateCalls                 int
+}
+
+func (*oauthChannelPlatformsRepository) AssignVKVideoLiveBot(context.Context, uuid.UUID) ([]uuid.UUID, error) {
+	return nil, errors.New("unexpected AssignVKVideoLiveBot call")
 }
 
 func (*oauthChannelPlatformsRepository) LockByChannelID(context.Context, uuid.UUID) error {

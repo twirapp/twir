@@ -112,7 +112,8 @@ func TestChannelPlatformOptionsReturnRegisteredPlatformsInDomainOrder(t *testing
 	if len(got) != 2 || got[0].Platform != gqlmodel.PlatformTwitch || got[1].Platform != gqlmodel.PlatformVkVideoLive {
 		t.Fatalf("ChannelPlatformOptions() = %#v, want Twitch then VK", got)
 	}
-	if len(got[0].Capabilities) != len(platformentity.PlatformTwitch.Capabilities()) || len(got[1].Capabilities) != 0 {
+	if len(got[0].Capabilities) != len(platformentity.PlatformTwitch.Capabilities()) ||
+		len(got[1].Capabilities) != len(platformentity.PlatformVKVideoLive.Capabilities()) {
 		t.Fatalf("ChannelPlatformOptions() capabilities = %#v", got)
 	}
 }

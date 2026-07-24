@@ -102,3 +102,32 @@ func (r *mutationResolver) KickBotSetupLink(ctx context.Context) (string, error)
 
 	return r.deps.KickProvider.GetBotSetupAuthURL(state, codeChallenge), nil
 }
+
+// VkVideoBotSetupLink is the resolver for the vkVideoBotSetupLink field.
+func (r *mutationResolver) VkVideoBotSetupLink(ctx context.Context) (string, error) {
+	url, err := r.deps.Auth.StartVKVideoBotSetup(ctx)
+	if err != nil {
+		return "", gqlerrors.HandleError(err)
+	}
+
+	return url, nil
+}
+
+// VkVideoBotSetupStatus is the resolver for the vkVideoBotSetupStatus field.
+func (r *mutationResolver) VkVideoBotSetupStatus(ctx context.Context) (bool, error) {
+	configured, err := r.deps.Auth.VKVideoBotConfigured(ctx)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	return configured, nil
+}
+
+// VkVideoBotSetupComplete is the resolver for the vkVideoBotSetupComplete field.
+func (r *mutationResolver) VkVideoBotSetupComplete(ctx context.Context, code string, state string) (bool, error) {
+	if err := r.deps.Auth.CompleteVKVideoBotSetup(ctx, code, state); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	return true, nil
+}

@@ -26,6 +26,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/ytsr"
 	stream_handlers "github.com/twirapp/twir/apps/bots/internal/stream-handlers"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	vkchat "github.com/twirapp/twir/apps/bots/internal/vk"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	"github.com/twirapp/twir/apps/bots/pkg/tlds"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -91,6 +92,8 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
+	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 
 	"go.uber.org/fx"
@@ -189,6 +192,10 @@ var App = fx.Module(
 			kickbotsrepositorypgx.NewFx,
 			fx.As(new(kickbotsrepository.Repository)),
 		),
+		fx.Annotate(
+			vkvideobotsrepositorypgx.NewFx,
+			fx.As(new(vkvideobotsrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -218,6 +225,8 @@ var App = fx.Module(
 		channelcache.NewByTwitchUserID,
 		twitchactions.New,
 		kickchat.NewChatClient,
+		newVKVideoChatClient,
+		vkchat.NewChatClient,
 		botplatforms.NewChatRegistry,
 		channelsmoderationsettingscache.New,
 		channelsgamesvotebancache.New,

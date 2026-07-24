@@ -213,6 +213,8 @@ import (
 
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
+	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
 
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallpostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
@@ -409,6 +411,10 @@ func main() {
 				fx.As(new(kickbotsrepository.Repository)),
 			),
 			fx.Annotate(
+				vkvideobotsrepositorypgx.NewFx,
+				fx.As(new(vkvideobotsrepository.Repository)),
+			),
+			fx.Annotate(
 				chatwallpostgres.NewFx,
 				fx.As(new(chatwallrepository.Repository)),
 			),
@@ -577,6 +583,7 @@ func main() {
 		fx.Provide(
 			kickplatform.New,
 			twitchplatform.New,
+			vkvideo.NewBotSetupProvider,
 			newPlatformRegistry,
 			channelservice.NewChannelService,
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {

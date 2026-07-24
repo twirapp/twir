@@ -15,16 +15,18 @@ import (
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 	tokensrepositorypostgres "github.com/twirapp/twir/libs/repositories/tokens/datasources/postgres"
 
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
-	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
-	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
 	channelsintegrationsrepository "github.com/twirapp/twir/libs/repositories/channels_integrations"
 	channelsintegrationsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_integrations/datasource/postgres"
 	channelsintegrationsspotifyrepository "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifyrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
 	integrationsrepositorypgx "github.com/twirapp/twir/libs/repositories/integrations/datasource/postgres"
+	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
+	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
 )
 
 var App = fx.Module(
@@ -46,6 +48,10 @@ var App = fx.Module(
 		fx.Annotate(
 			kickbotsrepositorypgx.NewFx,
 			fx.As(new(kickbotsrepository.Repository)),
+		),
+		fx.Annotate(
+			vkvideobotsrepositorypgx.NewFx,
+			fx.As(new(vkvideobotsrepository.Repository)),
 		),
 		fx.Annotate(
 			channelsintegrationsrepositorypgx.NewFx,
