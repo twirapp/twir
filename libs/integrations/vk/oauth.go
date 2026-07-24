@@ -13,28 +13,31 @@ import (
 )
 
 const (
-	defaultOAuthAPIBaseURL  = "https://api.live.vkvideo.ru"
-	defaultOAuthAuthBaseURL = "https://auth.live.vkvideo.ru"
-	defaultOAuthHTTPTimeout = 10 * time.Second
-	maxOAuthResponseSize    = int64(1 << 20)
+	defaultOAuthAPIBaseURL    = "https://api.live.vkvideo.ru"
+	defaultOAuthAuthBaseURL   = "https://auth.live.vkvideo.ru"
+	defaultOAuthDevAPIBaseURL = "https://apidev.live.vkvideo.ru"
+	defaultOAuthHTTPTimeout   = 10 * time.Second
+	maxOAuthResponseSize      = int64(1 << 20)
 )
 
 type OAuthClientOpts struct {
-	ClientID     string
-	ClientSecret string
-	RedirectURL  string
-	APIBaseURL   string
-	AuthBaseURL  string
-	HTTPClient   *http.Client
+	ClientID      string
+	ClientSecret  string
+	RedirectURL   string
+	APIBaseURL    string
+	AuthBaseURL   string
+	DevAPIBaseURL string
+	HTTPClient    *http.Client
 }
 
 type OAuthClient struct {
-	clientID     string
-	clientSecret string
-	redirectURL  string
-	apiBaseURL   string
-	authBaseURL  string
-	httpClient   *http.Client
+	clientID      string
+	clientSecret  string
+	redirectURL   string
+	apiBaseURL    string
+	authBaseURL   string
+	devAPIBaseURL string
+	httpClient    *http.Client
 }
 
 type OAuthToken struct {
@@ -97,18 +100,27 @@ func NewOAuthClient(opts OAuthClientOpts) (*OAuthClient, error) {
 		return nil, fmt.Errorf("invalid VK Video auth base URL: %w", err)
 	}
 
+	devAPIBaseURL := opts.DevAPIBaseURL
+	if devAPIBaseURL == "" {
+		devAPIBaseURL = defaultOAuthDevAPIBaseURL
+	}
+	if err := validateBaseURL(devAPIBaseURL); err != nil {
+		return nil, fmt.Errorf("invalid VK Video DevAPI base URL: %w", err)
+	}
+
 	httpClient := opts.HTTPClient
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: defaultOAuthHTTPTimeout}
 	}
 
 	return &OAuthClient{
-		clientID:     opts.ClientID,
-		clientSecret: opts.ClientSecret,
-		redirectURL:  opts.RedirectURL,
-		apiBaseURL:   strings.TrimRight(apiBaseURL, "/"),
-		authBaseURL:  strings.TrimRight(authBaseURL, "/"),
-		httpClient:   httpClient,
+		clientID:      opts.ClientID,
+		clientSecret:  opts.ClientSecret,
+		redirectURL:   opts.RedirectURL,
+		apiBaseURL:    strings.TrimRight(apiBaseURL, "/"),
+		authBaseURL:   strings.TrimRight(authBaseURL, "/"),
+		devAPIBaseURL: strings.TrimRight(devAPIBaseURL, "/"),
+		httpClient:    httpClient,
 	}, nil
 }
 
@@ -154,7 +166,7 @@ func (c *OAuthClient) RefreshToken(ctx context.Context, refreshToken string) (*O
 }
 
 func (c *OAuthClient) CurrentUser(ctx context.Context, accessToken string) (*VideoUser, error) {
-	endpoint, err := url.JoinPath(c.apiBaseURL, "v1", "current_user")
+	endpoint, err := url.JoinPath(c.devAPIBaseURL, "v1", "current_user")
 	if err != nil {
 		return nil, fmt.Errorf("build VK Video current user endpoint: %w", err)
 	}

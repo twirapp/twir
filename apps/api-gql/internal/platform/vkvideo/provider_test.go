@@ -29,8 +29,11 @@ func TestProviderBuildsDevAPIAuthorizationURL(t *testing.T) {
 	if !strings.HasPrefix(rawURL, "https://auth.example.test/app/oauth2/authorize?") {
 		t.Fatalf("unexpected VK Video authorization URL: %s", rawURL)
 	}
-	if !strings.Contains(rawURL, "response_type=code") || !strings.Contains(rawURL, "scope=user_info") {
+	if !strings.Contains(rawURL, "response_type=code") {
 		t.Fatalf("unexpected VK Video authorization URL: %s", rawURL)
+	}
+	if strings.Contains(rawURL, "scope=") {
+		t.Fatalf("VK Video DevAPI current user requires no scope, got: %s", rawURL)
 	}
 	if strings.Contains(rawURL, "code_challenge") {
 		t.Fatalf("VK Video DevAPI authorization must not use PKCE: %s", rawURL)

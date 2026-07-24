@@ -154,7 +154,7 @@ func TestOAuthClientCurrentUserMapsDevAPIProfile(t *testing.T) {
 		if req.Method != http.MethodGet {
 			t.Errorf("request method = %s, want GET", req.Method)
 		}
-		if req.URL.Scheme != "https" || req.URL.Host != "api.example.test" || req.URL.Path != "/v1/current_user" {
+		if req.URL.Scheme != "https" || req.URL.Host != "devapi.example.test" || req.URL.Path != "/v1/current_user" {
 			t.Errorf("unexpected endpoint: %s", req.URL)
 		}
 		if auth := req.Header.Get("Authorization"); auth != "Bearer access-token" {
@@ -239,12 +239,13 @@ func newTestOAuthClient(t *testing.T, transport http.RoundTripper) *OAuthClient 
 	t.Helper()
 
 	client, err := NewOAuthClient(OAuthClientOpts{
-		ClientID:     "client-id",
-		ClientSecret: "client-secret",
-		RedirectURL:  "https://twir.example.test/auth/vk/callback",
-		APIBaseURL:   "https://api.example.test",
-		AuthBaseURL:  "https://auth.example.test",
-		HTTPClient:   &http.Client{Transport: transport},
+		ClientID:      "client-id",
+		ClientSecret:  "client-secret",
+		RedirectURL:   "https://twir.example.test/auth/vk/callback",
+		APIBaseURL:    "https://api.example.test",
+		AuthBaseURL:   "https://auth.example.test",
+		DevAPIBaseURL: "https://devapi.example.test",
+		HTTPClient:    &http.Client{Transport: transport},
 	})
 	if err != nil {
 		t.Fatalf("create VK Video OAuth client: %v", err)

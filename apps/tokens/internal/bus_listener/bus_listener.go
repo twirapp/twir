@@ -172,11 +172,12 @@ func NewTokens(opts Opts) error {
 		},
 		newVKTokenRefresher: func() (vkTokenRefresher, error) {
 			return vk.NewOAuthClient(vk.OAuthClientOpts{
-				ClientID:     opts.Config.VKVideoClientID,
-				ClientSecret: opts.Config.VKVideoClientSecret,
-				RedirectURL:  opts.Config.GetVkCallbackUrl(),
-				APIBaseURL:   opts.Config.VKVideoAPIBaseURL,
-				AuthBaseURL:  opts.Config.VKVideoAuthBaseURL,
+				ClientID:      opts.Config.VKVideoClientID,
+				ClientSecret:  opts.Config.VKVideoClientSecret,
+				RedirectURL:   opts.Config.GetVkCallbackUrl(),
+				APIBaseURL:    opts.Config.VKVideoAPIBaseURL,
+				AuthBaseURL:   opts.Config.VKVideoAuthBaseURL,
+				DevAPIBaseURL: opts.Config.VKVideoDevAPIBaseURL,
 			})
 		},
 		spotifyTokenURL:  "https://accounts.spotify.com/api/token",
