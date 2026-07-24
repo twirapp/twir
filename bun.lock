@@ -300,12 +300,12 @@
     },
   },
   "trustedDependencies": [
-    "esbuild",
-    "sharp",
-    "protobufjs",
     "@twir/web",
-    "vue-demi",
     "@parcel/watcher",
+    "esbuild",
+    "vue-demi",
+    "protobufjs",
+    "sharp",
   ],
   "overrides": {
     "vite": "8.1.0",

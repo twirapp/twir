@@ -5,7 +5,6 @@ import (
 	"io"
 	"log/slog"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
@@ -174,7 +173,7 @@ func TestRequestUserToken_VKRefreshesAndPersistsRotatedTokens(t *testing.T) {
 	if response.AccessToken != "new-access" {
 		t.Fatalf("access token = %q, want new-access", response.AccessToken)
 	}
-	if refresher.calls != 1 || refresher.refreshToken != "old-refresh" || refresher.deviceID != "device-id" {
+	if refresher.calls != 1 || refresher.refreshToken != "old-refresh" {
 		t.Fatalf("unexpected VK refresh invocation: %#v", refresher)
 	}
 
@@ -203,19 +202,18 @@ func TestRequestUserToken_VKPreservesRefreshTokenWhenProviderOmitsIt(t *testing.
 	}
 }
 
-func TestRequestUserToken_VKRejectsMissingDeviceIDBeforeRefresh(t *testing.T) {
+func TestRequestUserToken_VKRefreshesWithoutStoredDeviceID(t *testing.T) {
 	impl, repo, refresher := newVKTokenTestImplementation(t, "new-refresh")
 	repo.userToken.DeviceID = nil
 
-	_, err := impl.RequestUserToken(context.Background(), buscoretokens.GetUserTokenRequest{UserId: uuid.New()})
-	if err == nil || !strings.Contains(err.Error(), "device ID") {
-		t.Fatalf("expected missing device ID error, got %v", err)
+	if _, err := impl.RequestUserToken(context.Background(), buscoretokens.GetUserTokenRequest{UserId: uuid.New()}); err != nil {
+		t.Fatalf("VK refresh must not require a stored device ID: %v", err)
 	}
-	if refresher.calls != 0 {
-		t.Fatalf("VK refresh must not be called without a stored device ID, got %d calls", refresher.calls)
+	if refresher.calls != 1 {
+		t.Fatalf("expected one VK refresh, got %d", refresher.calls)
 	}
-	if repo.updateCalls != 0 {
-		t.Fatalf("token must not be updated without a stored device ID, got %d updates", repo.updateCalls)
+	if repo.updateCalls != 1 {
+		t.Fatalf("expected token to be updated once, got %d updates", repo.updateCalls)
 	}
 }
 
@@ -244,15 +242,15 @@ func newVKTokenTestImplementation(t *testing.T, refreshToken string) (*tokensImp
 			DeviceID:            &encryptedDeviceID,
 			ExpiresIn:           1,
 			ObtainmentTimestamp: time.Now().UTC().Add(-time.Hour),
-			Scopes:              []string{"vkid.personal_info"},
+			Scopes:              []string{"user_info"},
 		},
 	}
 	refresher := &fakeVKTokenRefresher{
-		response: &vk.IDToken{
+		response: &vk.OAuthToken{
 			AccessToken:  "new-access",
 			RefreshToken: refreshToken,
 			ExpiresIn:    7200,
-			Scopes:       []string{"vkid.personal_info"},
+			Scopes:       []string{"user_info"},
 		},
 	}
 
@@ -287,15 +285,13 @@ type fakeKickTokenRefresher struct {
 type fakeVKTokenRefresher struct {
 	calls        int
 	refreshToken string
-	deviceID     string
-	response     *vk.IDToken
+	response     *vk.OAuthToken
 	err          error
 }
 
-func (f *fakeVKTokenRefresher) RefreshToken(ctx context.Context, input vk.IDRefreshTokenInput) (*vk.IDToken, error) {
+func (f *fakeVKTokenRefresher) RefreshToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error) {
 	f.calls++
-	f.refreshToken = input.RefreshToken
-	f.deviceID = input.DeviceID
+	f.refreshToken = refreshToken
 	return f.response, f.err
 }
 
