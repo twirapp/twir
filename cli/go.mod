@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.84
 	github.com/ClickHouse/clickhouse-go/v2 v2.41.0
 	github.com/Masterminds/semver/v3 v3.4.0
+	github.com/coder/websocket v1.8.15
 	github.com/lib/pq v1.10.9
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/pterm/pterm v0.12.81
