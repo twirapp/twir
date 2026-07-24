@@ -9,12 +9,11 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/apps/events/internal/channelbinding"
 	"github.com/twirapp/twir/apps/events/internal/shared"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channels "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.temporal.io/sdk/activity"
 )
@@ -236,15 +235,13 @@ func (c *Activity) getChannelRuntimeInfoByChannelUUID(
 	return getTwitchChannelRuntimeInfo(channel)
 }
 
-func getTwitchChannelRuntimeInfo(channel channelsmodel.Channel) (channelRuntimeInfo, error) {
-	twitchBinding, ok := channelbinding.Find(channel, platform.PlatformTwitch)
-	if !ok {
-		return channelRuntimeInfo{}, errors.New("twitch channel binding not found")
-	}
-
-	botConfig, err := channelbinding.ParseTwitchBotConfig(twitchBinding)
+func getTwitchChannelRuntimeInfo(channel channelentity.Channel) (channelRuntimeInfo, error) {
+	twitchBinding, botConfig, ok, err := channel.TwitchBinding()
 	if err != nil {
 		return channelRuntimeInfo{}, fmt.Errorf("parse Twitch bot config: %w", err)
+	}
+	if !ok {
+		return channelRuntimeInfo{}, errors.New("twitch channel binding not found")
 	}
 
 	return channelRuntimeInfo{

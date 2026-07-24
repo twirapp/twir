@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -95,7 +94,7 @@ func (c *Service) EvaluateScript(
 	}
 
 	if testAsUserName != nil && *testAsUserName != "" {
-		twitchBinding, found := apiChannelbinding.Find(channel, platform.PlatformTwitch)
+		twitchBinding, found := channel.Binding(platform.PlatformTwitch)
 		if !found {
 			return "", fmt.Errorf("channel has no twitch platform ID")
 		}

@@ -9,14 +9,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -98,7 +97,7 @@ type Service struct {
 }
 
 type chatMessagesChannelLookup interface {
-	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error)
 }
 
 func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
@@ -362,7 +361,7 @@ func (c *Service) handleChannelBanEvent(
 			return struct{}{}, nil
 		}
 
-		binding, hasBinding := apiChannelbinding.Find(channel, platform)
+		binding, hasBinding := channel.Binding(platform)
 		if !hasBinding {
 			return struct{}{}, nil
 		}

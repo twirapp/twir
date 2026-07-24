@@ -6,14 +6,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -53,7 +52,7 @@ type Service struct {
 }
 
 type channelLookup interface {
-	GetChannelByID(ctx context.Context, id uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error)
 }
 
 type twitchUserClientFactory func(context.Context, uuid.UUID) (*helix.Client, error)
@@ -224,7 +223,7 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		return entity.ChannelUserInfo{}, fmt.Errorf("channel not found or twitch not connected")
 	}
 
-	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if !found || twitchBinding.UserID == uuid.Nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("channel not found or twitch not connected")
 	}

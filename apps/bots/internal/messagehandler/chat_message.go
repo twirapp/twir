@@ -7,13 +7,12 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/generic"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
@@ -27,8 +26,8 @@ type enrichedChatMessage struct {
 }
 
 type chatMessageEnrichedData struct {
-	Binding                  channelplatformsmodel.ChannelPlatform
-	DbChannel                channelsmodel.Channel
+	Binding                  channelplatformentity.ChannelPlatform
+	DbChannel                channelentity.Channel
 	BotPlatformID            string
 	ChannelStream            *streamsmodel.Stream
 	DbUser                   *usersmodel.User
@@ -38,21 +37,21 @@ type chatMessageEnrichedData struct {
 }
 
 func findChatMessageBinding(
-	channel channelsmodel.Channel,
+	channel channelentity.Channel,
 	message generic.ChatMessage,
 	messagePlatform platform.Platform,
-) (channelplatformsmodel.ChannelPlatform, bool, error) {
+) (channelplatformentity.ChannelPlatform, bool, error) {
 	if message.ChannelBindingID == "" {
-		binding, found := channelbinding.Find(channel, messagePlatform)
+		binding, found := channel.Binding(messagePlatform)
 		return binding, found, nil
 	}
 
 	bindingID, err := uuid.Parse(message.ChannelBindingID)
 	if err != nil {
-		return channelplatformsmodel.ChannelPlatform{}, false, fmt.Errorf("parse message channel binding id: %w", err)
+		return channelplatformentity.ChannelPlatform{}, false, fmt.Errorf("parse message channel binding id: %w", err)
 	}
 
-	binding, found := channelbinding.FindByID(channel, bindingID)
+	binding, found := channel.BindingByID(bindingID)
 	return binding, found, nil
 }
 
@@ -88,7 +87,7 @@ func (c *MessageHandler) enrichChatMessage(
 	}
 	result.EnrichedData.Binding = binding
 	if messagePlatform == platform.PlatformTwitch {
-		botConfig, err := channelbinding.ParseTwitchBotConfig(binding)
+		botConfig, err := binding.ParseTwitchBotConfig()
 		if err != nil {
 			return result, fmt.Errorf("parse Twitch bot config: %w", err)
 		}

@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel/model"
@@ -60,9 +60,9 @@ func TestModelToEntityUsesMatchingTwitchBinding(t *testing.T) {
 	kickBotUserID := uuid.New()
 	result, err := (&Service{}).modelToEntity(model.UserWithChannel{
 		User: usersmodel.User{ID: uuid.New(), Platform: platform.PlatformTwitch},
-		Channel: &channelsmodel.Channel{
+		Channel: &channelentity.Channel{
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{
 					Platform:          platform.PlatformKick,
 					PlatformChannelID: "kick-channel",
@@ -104,9 +104,9 @@ func TestModelToEntityUsesBindingBotUserIDForNonTwitchPlatform(t *testing.T) {
 	botUserID := uuid.New()
 	result, err := (&Service{}).modelToEntity(model.UserWithChannel{
 		User: usersmodel.User{ID: uuid.New(), Platform: platform.PlatformKick},
-		Channel: &channelsmodel.Channel{
+		Channel: &channelentity.Channel{
 			ID: uuid.New(),
-			Bindings: []channelplatformsmodel.ChannelPlatform{{
+			Bindings: []channelplatformentity.ChannelPlatform{{
 				Platform:  platform.PlatformKick,
 				Enabled:   true,
 				BotUserID: &botUserID,
@@ -130,9 +130,9 @@ func TestModelToEntityUsesBindingBotUserIDForNonTwitchPlatform(t *testing.T) {
 func TestModelToEntityRejectsMalformedTwitchBotConfig(t *testing.T) {
 	_, err := (&Service{}).modelToEntity(model.UserWithChannel{
 		User: usersmodel.User{ID: uuid.New(), Platform: platform.PlatformTwitch},
-		Channel: &channelsmodel.Channel{
+		Channel: &channelentity.Channel{
 			ID: uuid.New(),
-			Bindings: []channelplatformsmodel.ChannelPlatform{{
+			Bindings: []channelplatformentity.ChannelPlatform{{
 				Platform:  platform.PlatformTwitch,
 				BotConfig: json.RawMessage(`{"bot_id":`),
 			}},

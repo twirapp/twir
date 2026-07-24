@@ -10,17 +10,17 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
 type runtimeChannelRepositoryFake struct {
 	channelsrepository.Repository
 
-	channel                 channelsmodel.Channel
+	channel                 channelentity.Channel
 	lookupPlatform          platform.Platform
 	lookupPlatformChannelID string
 }
@@ -29,7 +29,7 @@ func (f *runtimeChannelRepositoryFake) GetByPlatformChannelID(
 	_ context.Context,
 	p platform.Platform,
 	platformChannelID string,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	f.lookupPlatform = p
 	f.lookupPlatformChannelID = platformChannelID
 	return f.channel, nil
@@ -37,9 +37,9 @@ func (f *runtimeChannelRepositoryFake) GetByPlatformChannelID(
 
 func TestGetTwitchChannelRuntimeInfoSelectsTwitchBindingByPlatform(t *testing.T) {
 	channelID := uuid.New()
-	channel := channelsmodel.Channel{
+	channel := channelentity.Channel{
 		ID: channelID,
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{
 				Platform:          platform.PlatformKick,
 				PlatformChannelID: "kick-channel",
@@ -83,9 +83,9 @@ func TestGetTwitchChannelRuntimeInfoSelectsTwitchBindingByPlatform(t *testing.T)
 func TestDualBoundKickEventKeepsEventIDAndResolvesTwitchRuntime(t *testing.T) {
 	channelID := uuid.New()
 	repo := &runtimeChannelRepositoryFake{
-		channel: channelsmodel.Channel{
+		channel: channelentity.Channel{
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{
 					Platform:          platform.PlatformKick,
 					PlatformChannelID: "kick-channel",
@@ -133,9 +133,9 @@ func TestDualBoundKickEventKeepsEventIDAndResolvesTwitchRuntime(t *testing.T) {
 
 func TestGetEventTwitchBotApiClientUsesTwitchBindingBotID(t *testing.T) {
 	repo := &runtimeChannelRepositoryFake{
-		channel: channelsmodel.Channel{
+		channel: channelentity.Channel{
 			ID: uuid.New(),
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{
 					Platform:          platform.PlatformKick,
 					PlatformChannelID: "kick-channel",

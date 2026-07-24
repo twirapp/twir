@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/events/internal/channelbinding"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
@@ -97,7 +96,7 @@ func (c *SongRequest) ProcessFromDonation(
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
-	binding, found := channelbinding.Find(channel, platform.PlatformTwitch)
+	binding, found := channel.Binding(platform.PlatformTwitch)
 	if !found {
 		return fmt.Errorf("find Twitch channel binding")
 	}

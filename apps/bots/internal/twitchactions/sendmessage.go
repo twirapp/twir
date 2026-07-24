@@ -12,11 +12,10 @@ import (
 	"github.com/aidenwallis/go-ratelimiting/redis"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/logger"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
 	"github.com/twirapp/twir/libs/twitch"
@@ -68,7 +67,7 @@ func validateResponseSlashes(response string) string {
 
 func (c *TwitchActions) SendMessage(
 	ctx context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 	opts SendMessageOpts,
 ) error {
 	opts.BroadcasterID = binding.PlatformChannelID
@@ -103,7 +102,7 @@ func (c *TwitchActions) SendMessage(
 	if strings.HasPrefix(opts.Message, "/timeout") || strings.HasPrefix(opts.Message, "/ban") {
 		return c.timeoutFromMessage(
 			ctx,
-			channelsmodel.Channel{Bindings: []channelplatformsmodel.ChannelPlatform{binding}},
+			channelentity.Channel{Bindings: []channelplatformentity.ChannelPlatform{binding}},
 			opts,
 		)
 	}
@@ -295,13 +294,13 @@ func (c *TwitchActions) SendMessage(
 }
 
 func activeTwitchBinding(
-	binding channelplatformsmodel.ChannelPlatform,
-) (channelbinding.TwitchBotConfig, bool, error) {
-	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channelsmodel.Channel{
-		Bindings: []channelplatformsmodel.ChannelPlatform{binding},
-	})
+	binding channelplatformentity.ChannelPlatform,
+) (channelplatformentity.TwitchBotConfig, bool, error) {
+	twitchBinding, botConfig, found, err := (channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{binding},
+	}).TwitchBinding()
 	if err != nil {
-		return channelbinding.TwitchBotConfig{}, false, err
+		return channelplatformentity.TwitchBotConfig{}, false, err
 	}
 	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" ||
 		!botConfig.IsBotMod || botConfig.IsTwitchBanned || botConfig.BotID == "" {

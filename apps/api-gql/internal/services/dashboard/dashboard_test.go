@@ -7,10 +7,9 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -24,10 +23,10 @@ func (s dashboardCurrentPlatformStub) GetCurrentPlatform(context.Context) (strin
 }
 
 type dashboardChannelLookupStub struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
-func (s dashboardChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+func (s dashboardChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return s.channel, nil
 }
 
@@ -46,8 +45,8 @@ func (s dashboardUsersLookupStub) GetByID(_ context.Context, id uuid.UUID) (user
 
 func TestResolveAnalyticsIdentitySelectsCurrentPlatformBinding(t *testing.T) {
 	service := &Service{authService: dashboardCurrentPlatformStub{platform: platform.PlatformKick.String()}}
-	channel := channelsmodel.Channel{
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+	channel := channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformTwitch, PlatformChannelID: "twitch-channel"},
 			{Platform: platform.PlatformKick, PlatformChannelID: "kick-channel"},
 		},
@@ -61,8 +60,8 @@ func TestResolveAnalyticsIdentitySelectsCurrentPlatformBinding(t *testing.T) {
 
 func TestResolveAnalyticsIdentityFallsBackToTwitchBinding(t *testing.T) {
 	service := &Service{authService: dashboardCurrentPlatformStub{err: errors.New("no current platform")}}
-	channel := channelsmodel.Channel{
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+	channel := channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformKick, PlatformChannelID: "kick-channel"},
 			{Platform: platform.PlatformTwitch, PlatformChannelID: "twitch-channel"},
 		},
@@ -79,9 +78,9 @@ func TestGetBotStatusesMapsKickBindingIdentity(t *testing.T) {
 	kickOwnerID := uuid.New()
 	kickBotUserID := uuid.New()
 	service := &Service{
-		channelService: dashboardChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: dashboardChannelLookupStub{channel: channelentity.Channel{
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{{
+			Bindings: []channelplatformentity.ChannelPlatform{{
 				Platform:          platform.PlatformKick,
 				UserID:            kickOwnerID,
 				PlatformChannelID: "kick-channel",
@@ -116,9 +115,9 @@ func TestGetBotStatusesMapsKickBindingIdentity(t *testing.T) {
 
 func TestGetBasicTwitchBotStatusUsesTwitchBindingConfig(t *testing.T) {
 	twitchOwnerID := uuid.New()
-	channel := channelsmodel.Channel{
+	channel := channelentity.Channel{
 		ID: uuid.New(),
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformKick, Enabled: false},
 			{
 				Platform:          platform.PlatformTwitch,
@@ -131,7 +130,7 @@ func TestGetBasicTwitchBotStatusUsesTwitchBindingConfig(t *testing.T) {
 			},
 		},
 	}
-	binding, config, found, err := apiChannelbinding.FindTwitch(channel)
+	binding, config, found, err := channel.TwitchBinding()
 	if err != nil {
 		t.Fatalf("find Twitch binding: %v", err)
 	}

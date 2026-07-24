@@ -6,17 +6,17 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestApplyTopChannelBotFiltersUsesEveryBinding(t *testing.T) {
 	kickUserID := uuid.New()
 	kickBotUserID := uuid.New()
 	twitchUserID := uuid.New()
-	channel := channelsmodel.Channel{
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+	channel := channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{
 				Platform:  platform.PlatformKick,
 				UserID:    kickUserID,

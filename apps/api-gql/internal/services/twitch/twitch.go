@@ -8,7 +8,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchclient "github.com/twirapp/twir/libs/twitch"
@@ -46,7 +46,7 @@ type Service struct {
 }
 
 type channelLookup interface {
-	GetChannelByID(ctx context.Context, id uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error)
 }
 
 type twitchAppClientFactory func(context.Context) (*helix.Client, error)

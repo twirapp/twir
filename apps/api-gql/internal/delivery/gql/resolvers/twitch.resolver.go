@@ -10,7 +10,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -199,7 +198,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 	parsedID, err := uuid.Parse(userId)
 	if err == nil {
 		channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedID)
-		_, hasTwitchBinding := channelbinding.Find(channel, platform.PlatformTwitch)
+		_, hasTwitchBinding := channel.Binding(platform.PlatformTwitch)
 		if err == nil && !channel.IsNil() && hasTwitchBinding {
 			// Selected channel has Twitch — use it directly
 		} else {
@@ -219,7 +218,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
 			}
 			twitchChannel, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
-			_, hasTwitchBinding := channelbinding.Find(twitchChannel, platform.PlatformTwitch)
+			_, hasTwitchBinding := twitchChannel.Binding(platform.PlatformTwitch)
 			if err != nil || twitchChannel.IsNil() || !hasTwitchBinding {
 				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
 			}

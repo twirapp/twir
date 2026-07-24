@@ -14,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
 	goredislib "github.com/redis/go-redis/v9"
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -211,12 +210,12 @@ func (c *Manager) resolveTwitchSubscriptionIdentities(ctx context.Context, chann
 		return "", "", err
 	}
 
-	binding, ok := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	binding, ok := channel.Binding(platformentity.PlatformTwitch)
 	if !ok || binding.PlatformChannelID == "" {
 		return "", "", errors.New("channel has no twitch platform id")
 	}
 
-	botConfig, err := channelbinding.ParseTwitchBotConfig(binding)
+	botConfig, err := binding.ParseTwitchBotConfig()
 	if err != nil {
 		return "", "", fmt.Errorf("parse Twitch bot config: %w", err)
 	}

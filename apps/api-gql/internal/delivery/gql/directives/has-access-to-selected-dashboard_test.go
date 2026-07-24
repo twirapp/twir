@@ -6,10 +6,10 @@ import (
 
 	"github.com/google/uuid"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestHasAccessToSelectedDashboardUsesNormalizedBindingOwnership(t *testing.T) {
@@ -23,13 +23,13 @@ func TestHasAccessToSelectedDashboardUsesNormalizedBindingOwnership(t *testing.T
 	tests := []struct {
 		name           string
 		legacyChannel  model.Channels
-		normalized     channelsmodel.Channel
+		normalized     channelentity.Channel
 		wantAccess     bool
 		wantRoleLookup bool
 	}{
 		{
 			name: "generic VK owner",
-			normalized: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: ownerID, PlatformChannelID: "vk-channel", Enabled: true,
 			}}},
 			wantAccess: true,
@@ -37,13 +37,13 @@ func TestHasAccessToSelectedDashboardUsesNormalizedBindingOwnership(t *testing.T
 		{
 			name:          "legacy owner without normalized bindings",
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			normalized:    channelsmodel.Channel{ID: dashboardID},
+			normalized:    channelentity.Channel{ID: dashboardID},
 			wantAccess:    true,
 		},
 		{
 			name:          "stale legacy owner denied when normalized binding belongs to another user",
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			normalized: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: otherUserID, PlatformChannelID: "vk-channel", Enabled: true,
 			}}},
 			wantRoleLookup: true,
@@ -109,12 +109,12 @@ func (s *selectedDashboardDirectiveSession) GetSelectedDashboard(context.Context
 }
 
 type selectedDashboardDirectiveChannelReader struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
-func (r selectedDashboardDirectiveChannelReader) GetChannelByID(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+func (r selectedDashboardDirectiveChannelReader) GetChannelByID(_ context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
 	if channelID != r.channel.ID {
-		return channelsmodel.Nil, context.Canceled
+		return channelentity.Nil, context.Canceled
 	}
 	return r.channel, nil
 }

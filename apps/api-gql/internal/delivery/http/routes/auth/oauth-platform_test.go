@@ -20,14 +20,14 @@ import (
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/crypto"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	kickbotentity "github.com/twirapp/twir/libs/entities/kick_bot"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	botsrepo "github.com/twirapp/twir/libs/repositories/bots"
 	botsmodel "github.com/twirapp/twir/libs/repositories/bots/model"
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	tokensrepo "github.com/twirapp/twir/libs/repositories/tokens"
 	tokensmodel "github.com/twirapp/twir/libs/repositories/tokens/model"
 	usersrepo "github.com/twirapp/twir/libs/repositories/users"
@@ -252,7 +252,7 @@ func TestHandleAuthPostCodeRejectsMissingOAuthAttemptWithoutExchange(t *testing.
 		sessions: &fakeOAuthSession{},
 		registry: appplatform.NewRegistry([]appplatform.PlatformProvider{
 			&oauthPlatformProvider{
-				name: platformentity.PlatformTwitch.String(),
+				platform: platformentity.PlatformTwitch,
 				exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
 					exchangeCalls++
 					return nil, errors.New("provider exchange should not be called")
@@ -285,12 +285,12 @@ func TestCompletePlatformAuthCreatesMissingTwitchBindingWithTwitchConfigWhenLink
 	createdBindings := make([]channelplatforms.CreateInput, 0, 2)
 	transaction := &oauthTransaction{}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
-			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		},
-		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
 			createdBindings = append(createdBindings, input)
-			return channelplatformsmodel.ChannelPlatform{
+			return channelplatformentity.ChannelPlatform{
 				ID:                uuid.New(),
 				ChannelID:         input.ChannelID,
 				Platform:          input.Platform,
@@ -316,21 +316,21 @@ func TestCompletePlatformAuthCreatesMissingTwitchBindingWithTwitchConfigWhenLink
 		},
 	}
 	channels := &oauthChannelsRepository{
-		createFunc: func(_ context.Context, input channelsrepo.CreateInput) (channelsmodel.Channel, error) {
+		createFunc: func(_ context.Context, input channelsrepo.CreateInput) (channelentity.Channel, error) {
 			if input.BotID != "default-bot" {
 				t.Fatalf("channel BotID = %q, want default-bot", input.BotID)
 			}
-			return channelsmodel.Channel{ID: channelID}, nil
+			return channelentity.Channel{ID: channelID}, nil
 		},
-		getByBindingUserIDFunc: func(_ context.Context, platform platformentity.Platform, userID uuid.UUID) (channelsmodel.Channel, error) {
+		getByBindingUserIDFunc: func(_ context.Context, platform platformentity.Platform, userID uuid.UUID) (channelentity.Channel, error) {
 			switch {
 			case platform == platformentity.PlatformTwitch && userID == sessionUserID:
-				return channelsmodel.Nil, channelsrepo.ErrNotFound
+				return channelentity.Nil, channelsrepo.ErrNotFound
 			case platform == platformentity.PlatformVKVideoLive && userID == vkUserID:
-				return channelsmodel.Nil, channelsrepo.ErrNotFound
+				return channelentity.Nil, channelsrepo.ErrNotFound
 			default:
 				t.Fatalf("unexpected channel lookup (%s, %s)", platform, userID)
-				return channelsmodel.Nil, nil
+				return channelentity.Nil, nil
 			}
 		},
 	}
@@ -387,8 +387,8 @@ func TestCompletePlatformAuthCreatesVKOnlyChannel(t *testing.T) {
 	transaction := &oauthTransaction{}
 	publisher := &oauthEventSubPublisher{transaction: transaction}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
-			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		},
 	}
 
@@ -405,18 +405,18 @@ func TestCompletePlatformAuthCreatesVKOnlyChannel(t *testing.T) {
 		},
 	}
 	channels := &oauthChannelsRepository{
-		createFunc: func(_ context.Context, input channelsrepo.CreateInput) (channelsmodel.Channel, error) {
+		createFunc: func(_ context.Context, input channelsrepo.CreateInput) (channelentity.Channel, error) {
 			if input.BotID != "default-bot" {
 				t.Fatalf("channel BotID = %q, want default-bot", input.BotID)
 			}
 
-			return channelsmodel.Channel{ID: channelID}, nil
+			return channelentity.Channel{ID: channelID}, nil
 		},
-		getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error) {
-			return channelsmodel.Nil, channelsrepo.ErrNotFound
+		getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error) {
+			return channelentity.Nil, channelsrepo.ErrNotFound
 		},
 	}
-	bindings.createFunc = func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+	bindings.createFunc = func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
 		if input.ChannelID != channelID || input.Platform != platformentity.PlatformVKVideoLive || input.UserID != platformUserID || input.PlatformChannelID != "vk-channel" || !input.Enabled {
 			t.Fatalf("created VK binding = %+v", input)
 		}
@@ -424,7 +424,7 @@ func TestCompletePlatformAuthCreatesVKOnlyChannel(t *testing.T) {
 			t.Fatalf("VK binding bot config = %s, want {}", input.BotConfig)
 		}
 
-		return channelplatformsmodel.ChannelPlatform{
+		return channelplatformentity.ChannelPlatform{
 			ID:                uuid.New(),
 			ChannelID:         input.ChannelID,
 			Platform:          input.Platform,
@@ -475,38 +475,38 @@ func TestCompletePlatformAuthLinksVKToExistingTwitchKickChannel(t *testing.T) {
 	sessionUserID := uuid.New()
 	vkUserID := uuid.New()
 	channelID := uuid.New()
-	existingBindings := []channelplatformsmodel.ChannelPlatform{
+	existingBindings := []channelplatformentity.ChannelPlatform{
 		{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: sessionUserID, PlatformChannelID: "twitch-channel", Enabled: true},
 		{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: uuid.New(), PlatformChannelID: "kick-channel", Enabled: true},
 	}
-	channel := channelsmodel.Channel{ID: channelID, Bindings: append([]channelplatformsmodel.ChannelPlatform(nil), existingBindings...)}
+	channel := channelentity.Channel{ID: channelID, Bindings: append([]channelplatformentity.ChannelPlatform(nil), existingBindings...)}
 	transaction := &oauthTransaction{}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(_ context.Context, gotChannelID uuid.UUID, gotPlatform platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+		getByChannelAndPlatformFunc: func(_ context.Context, gotChannelID uuid.UUID, gotPlatform platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 			if gotChannelID != channelID || gotPlatform != platformentity.PlatformVKVideoLive {
 				t.Fatalf("binding lookup = (%s, %s)", gotChannelID, gotPlatform)
 			}
 
-			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		},
 	}
-	bindings.createFunc = func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+	bindings.createFunc = func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
 		if input.ChannelID != channelID || input.UserID != vkUserID || input.PlatformChannelID != "vk-channel" {
 			t.Fatalf("new VK binding = %+v", input)
 		}
 
-		return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: channelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: true, BotConfig: input.BotConfig}, nil
+		return channelplatformentity.ChannelPlatform{ID: uuid.New(), ChannelID: channelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: true, BotConfig: input.BotConfig}, nil
 	}
 	channels := &oauthChannelsRepository{
-		getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, userID uuid.UUID) (channelsmodel.Channel, error) {
+		getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, userID uuid.UUID) (channelentity.Channel, error) {
 			switch {
 			case gotPlatform == platformentity.PlatformTwitch && userID == sessionUserID:
 				return channel, nil
 			case gotPlatform == platformentity.PlatformVKVideoLive && userID == vkUserID:
-				return channelsmodel.Nil, channelsrepo.ErrNotFound
+				return channelentity.Nil, channelsrepo.ErrNotFound
 			default:
 				t.Fatalf("unexpected channel lookup (%s, %s)", gotPlatform, userID)
-				return channelsmodel.Nil, nil
+				return channelentity.Nil, nil
 			}
 		},
 	}
@@ -559,20 +559,20 @@ func TestCompletePlatformAuthRejectsVKAccountBoundToAnotherChannel(t *testing.T)
 	otherChannelID := uuid.New()
 	transaction := &oauthTransaction{}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
-			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		},
 	}
 	channels := &oauthChannelsRepository{
-		getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, userID uuid.UUID) (channelsmodel.Channel, error) {
+		getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, userID uuid.UUID) (channelentity.Channel, error) {
 			switch {
 			case gotPlatform == platformentity.PlatformTwitch && userID == sessionUserID:
-				return channelsmodel.Channel{ID: channelID}, nil
+				return channelentity.Channel{ID: channelID}, nil
 			case gotPlatform == platformentity.PlatformVKVideoLive && userID == vkUserID:
-				return channelsmodel.Channel{ID: otherChannelID}, nil
+				return channelentity.Channel{ID: otherChannelID}, nil
 			default:
 				t.Fatalf("unexpected channel lookup (%s, %s)", gotPlatform, userID)
-				return channelsmodel.Nil, nil
+				return channelentity.Nil, nil
 			}
 		},
 	}
@@ -616,7 +616,7 @@ func TestCompletePlatformAuthPreservesExistingBindingForSameAccount(t *testing.T
 	sessionUserID := uuid.New()
 	vkUserID := uuid.New()
 	channelID := uuid.New()
-	existingBinding := channelplatformsmodel.ChannelPlatform{
+	existingBinding := channelplatformentity.ChannelPlatform{
 		ID:                uuid.New(),
 		ChannelID:         channelID,
 		Platform:          platformentity.PlatformVKVideoLive,
@@ -627,17 +627,17 @@ func TestCompletePlatformAuthPreservesExistingBindingForSameAccount(t *testing.T
 	}
 	transaction := &oauthTransaction{}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 			return existingBinding, nil
 		},
 	}
 	channels := &oauthChannelsRepository{
-		getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, userID uuid.UUID) (channelsmodel.Channel, error) {
+		getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, userID uuid.UUID) (channelentity.Channel, error) {
 			if gotPlatform == platformentity.PlatformTwitch && userID == sessionUserID {
-				return channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{existingBinding}}, nil
+				return channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{existingBinding}}, nil
 			}
 			t.Fatalf("unexpected channel lookup (%s, %s)", gotPlatform, userID)
-			return channelsmodel.Nil, nil
+			return channelentity.Nil, nil
 		},
 	}
 	users := &oauthUsersRepository{
@@ -683,7 +683,7 @@ func TestCompletePlatformAuthReusesExistingBindingForLoggedOutUser(t *testing.T)
 			platformUserID := uuid.New()
 			channelID := uuid.New()
 			platformChannelID := platform.String() + "-channel"
-			existingBinding := channelplatformsmodel.ChannelPlatform{
+			existingBinding := channelplatformentity.ChannelPlatform{
 				ID:                uuid.New(),
 				ChannelID:         channelID,
 				Platform:          platform,
@@ -693,7 +693,7 @@ func TestCompletePlatformAuthReusesExistingBindingForLoggedOutUser(t *testing.T)
 			}
 			transaction := &oauthTransaction{}
 			bindings := &oauthChannelPlatformsRepository{
-				getByChannelAndPlatformFunc: func(_ context.Context, gotChannelID uuid.UUID, gotPlatform platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+				getByChannelAndPlatformFunc: func(_ context.Context, gotChannelID uuid.UUID, gotPlatform platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 					if gotChannelID != channelID || gotPlatform != platform {
 						t.Fatalf("binding lookup = (%s, %s), want (%s, %s)", gotChannelID, gotPlatform, channelID, platform)
 					}
@@ -701,15 +701,15 @@ func TestCompletePlatformAuthReusesExistingBindingForLoggedOutUser(t *testing.T)
 				},
 			}
 			channels := &oauthChannelsRepository{
-				createFunc: func(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error) {
+				createFunc: func(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error) {
 					t.Fatal("logged-out reauthentication must not create a channel")
-					return channelsmodel.Nil, nil
+					return channelentity.Nil, nil
 				},
-				getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, gotUserID uuid.UUID) (channelsmodel.Channel, error) {
+				getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, gotUserID uuid.UUID) (channelentity.Channel, error) {
 					if gotPlatform != platform || gotUserID != platformUserID {
 						t.Fatalf("channel binding lookup = (%s, %s), want (%s, %s)", gotPlatform, gotUserID, platform, platformUserID)
 					}
-					return channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{existingBinding}}, nil
+					return channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{existingBinding}}, nil
 				},
 			}
 			result, err := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
@@ -754,7 +754,7 @@ func TestPlatformCodeCarriesVKCallbackDeviceIDThroughExchangeAndPersistence(t *t
 	}}
 	transaction := &oauthTransaction{}
 	provider := &oauthPlatformProvider{
-		name: platformentity.PlatformVKVideoLive.String(),
+		platform: platformentity.PlatformVKVideoLive,
 		exchangeCodeFunc: func(_ context.Context, input appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
 			attempt, ok := sessions.attempts[state]
 			if !ok || attempt.DeviceID != deviceID {
@@ -798,11 +798,11 @@ func TestPlatformCodeCarriesVKCallbackDeviceIDThroughExchangeAndPersistence(t *t
 		},
 	}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
-			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		},
-		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
-			return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled, BotConfig: input.BotConfig}, nil
+		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
+			return channelplatformentity.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled, BotConfig: input.BotConfig}, nil
 		},
 	}
 
@@ -810,11 +810,11 @@ func TestPlatformCodeCarriesVKCallbackDeviceIDThroughExchangeAndPersistence(t *t
 		sessions: sessions,
 		users:    users,
 		channels: &oauthChannelsRepository{
-			createFunc: func(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error) {
-				return channelsmodel.Channel{ID: channelID}, nil
+			createFunc: func(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error) {
+				return channelentity.Channel{ID: channelID}, nil
 			},
-			getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error) {
-				return channelsmodel.Nil, channelsrepo.ErrNotFound
+			getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error) {
+				return channelentity.Nil, channelsrepo.ErrNotFound
 			},
 		},
 		bindings:          bindings,
@@ -827,7 +827,7 @@ func TestPlatformCodeCarriesVKCallbackDeviceIDThroughExchangeAndPersistence(t *t
 		Platform: platformentity.PlatformVKVideoLive,
 		Code:     "authorization-code",
 		State:    state,
-		DeviceID: deviceID,
+		DeviceID: stringPtr(deviceID),
 	})
 	if err != nil {
 		t.Fatalf("complete VK platform code: %v", err)
@@ -840,7 +840,7 @@ func TestPlatformCodeCarriesVKCallbackDeviceIDThroughExchangeAndPersistence(t *t
 func TestStartPlatformAuthStoresOpaqueStateAndPKCEOnServer(t *testing.T) {
 	sessions := &fakeOAuthSession{}
 	provider := &oauthPlatformProvider{
-		name: platformentity.PlatformVKVideoLive.String(),
+		platform: platformentity.PlatformVKVideoLive,
 		getAuthURLFunc: func(state, codeChallenge string) string {
 			return "https://id.example.test/authorize?state=" + url.QueryEscape(state) + "&challenge=" + url.QueryEscape(codeChallenge)
 		},
@@ -874,7 +874,7 @@ func TestStartPlatformAuthStoresOpaqueStateAndPKCEOnServer(t *testing.T) {
 func TestStartTwitchAuthUsesServerSideOAuthAttempt(t *testing.T) {
 	sessions := &fakeOAuthSession{}
 	provider := &oauthPlatformProvider{
-		name: platformentity.PlatformTwitch.String(),
+		platform: platformentity.PlatformTwitch,
 		getAuthURLFunc: func(state, _ string) string {
 			return "https://id.example.test/authorize?state=" + url.QueryEscape(state)
 		},
@@ -904,7 +904,7 @@ func TestStartTwitchAuthUsesServerSideOAuthAttempt(t *testing.T) {
 func TestStartPlatformAuthUsesGenericRegisteredProvider(t *testing.T) {
 	sessions := &fakeOAuthSession{}
 	provider := &oauthPlatformProvider{
-		name: platformentity.PlatformVKVideoLive.String(),
+		platform: platformentity.PlatformVKVideoLive,
 		getAuthURLFunc: func(state, _ string) string {
 			return "https://id.example.test/authorize?state=" + url.QueryEscape(state)
 		},
@@ -941,7 +941,7 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 	transaction := &oauthTransaction{}
 	sessions := &fakeOAuthSession{internalUserID: collaboratorID}
 	provider := &oauthPlatformProvider{
-		name: platformentity.PlatformKick.String(),
+		platform: platformentity.PlatformKick,
 		getAuthURLFunc: func(state, _ string) string {
 			return "https://id.example.test/authorize?state=" + url.QueryEscape(state)
 		},
@@ -953,7 +953,7 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 		},
 	}
 	channels := &oauthChannelsRepository{
-		getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+		getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
 			if channelID != selectedDashboardID {
 				t.Fatalf("target channel lookup = %s, want %s", channelID, selectedDashboardID)
 			}
@@ -961,34 +961,34 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 				t.Fatal("target channel was not loaded inside the auth transaction")
 			}
 
-			return channelsmodel.Channel{ID: selectedDashboardID}, nil
+			return channelentity.Channel{ID: selectedDashboardID}, nil
 		},
-		getByBindingUserIDFunc: func(_ context.Context, platform platformentity.Platform, userID uuid.UUID) (channelsmodel.Channel, error) {
+		getByBindingUserIDFunc: func(_ context.Context, platform platformentity.Platform, userID uuid.UUID) (channelentity.Channel, error) {
 			switch {
 			case platform == platformentity.PlatformTwitch && userID == collaboratorID:
-				return channelsmodel.Channel{ID: ownChannelID}, nil
+				return channelentity.Channel{ID: ownChannelID}, nil
 			case platform == platformentity.PlatformKick && userID == providerUserID:
-				return channelsmodel.Nil, channelsrepo.ErrNotFound
+				return channelentity.Nil, channelsrepo.ErrNotFound
 			default:
 				t.Fatalf("unexpected binding lookup (%s, %s)", platform, userID)
-				return channelsmodel.Nil, nil
+				return channelentity.Nil, nil
 			}
 		},
 	}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(_ context.Context, channelID uuid.UUID, platform platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+		getByChannelAndPlatformFunc: func(_ context.Context, channelID uuid.UUID, platform platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 			if channelID != selectedDashboardID || platform != platformentity.PlatformKick {
 				t.Fatalf("target binding lookup = (%s, %s)", channelID, platform)
 			}
 
-			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		},
-		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
 			if transaction.calls == 0 || transaction.committed {
 				t.Fatal("provider binding was not created transactionally")
 			}
 			createdBindings = append(createdBindings, input)
-			return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled, BotConfig: input.BotConfig}, nil
+			return channelplatformentity.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled, BotConfig: input.BotConfig}, nil
 		},
 	}
 	users := &oauthUsersRepository{
@@ -1150,7 +1150,7 @@ func TestCompletePlatformCodeRejectsInvalidTargetedAttemptsBeforeProviderExchang
 				attempts:       map[string]authsessions.OAuthAttempt{state: tt.attempt},
 			}
 			provider := &oauthPlatformProvider{
-				name: platformentity.PlatformKick.String(),
+				platform: platformentity.PlatformKick,
 				exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
 					exchangeCalls++
 					return testPlatformTokens(), nil
@@ -1161,13 +1161,13 @@ func TestCompletePlatformCodeRejectsInvalidTargetedAttemptsBeforeProviderExchang
 				},
 			}
 			bindings := &oauthChannelPlatformsRepository{
-				getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+				getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 					bindingCalls++
-					return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+					return channelplatformentity.Nil, channelplatforms.ErrNotFound
 				},
-				createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+				createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
 					bindingCalls++
-					return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled}, nil
+					return channelplatformentity.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled}, nil
 				},
 			}
 			tokens := &fakeTokensRepository{
@@ -1191,11 +1191,11 @@ func TestCompletePlatformCodeRejectsInvalidTargetedAttemptsBeforeProviderExchang
 					},
 				},
 				channels: &oauthChannelsRepository{
-					getByIDFunc: func(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
-						return channelsmodel.Channel{ID: targetChannelID}, nil
+					getByIDFunc: func(context.Context, uuid.UUID) (channelentity.Channel, error) {
+						return channelentity.Channel{ID: targetChannelID}, nil
 					},
-					getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error) {
-						return channelsmodel.Nil, channelsrepo.ErrNotFound
+					getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error) {
+						return channelentity.Nil, channelsrepo.ErrNotFound
 					},
 				},
 				bindings: bindings,
@@ -1210,7 +1210,7 @@ func TestCompletePlatformCodeRejectsInvalidTargetedAttemptsBeforeProviderExchang
 				Platform: platformentity.PlatformKick,
 				Code:     "authorization-code",
 				State:    state,
-				DeviceID: "callback-device-id",
+				DeviceID: stringPtr("callback-device-id"),
 			})
 			if output != nil {
 				t.Fatalf("handlePlatformCode() output = %#v, want nil", output)
@@ -1264,7 +1264,7 @@ func TestCompletePlatformCodeRejectsChangedTargetedInitiatorBeforeLocalAuth(t *t
 		},
 	}
 	provider := &oauthPlatformProvider{
-		name: platformentity.PlatformKick.String(),
+		platform: platformentity.PlatformKick,
 		exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
 			exchangeCalls++
 			return testPlatformTokens(), nil
@@ -1303,21 +1303,21 @@ func TestCompletePlatformCodeRejectsChangedTargetedInitiatorBeforeLocalAuth(t *t
 		},
 	}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 			bindingCalls++
-			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		},
-		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
 			bindingCalls++
-			return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled}, nil
+			return channelplatformentity.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled}, nil
 		},
 	}
 	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
 		sessions: sessions,
 		users:    users,
 		channels: &oauthChannelsRepository{
-			getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
-				return channelsmodel.Channel{ID: channelID}, nil
+			getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
+				return channelentity.Channel{ID: channelID}, nil
 			},
 		},
 		bindings:    bindings,
@@ -1334,7 +1334,7 @@ func TestCompletePlatformCodeRejectsChangedTargetedInitiatorBeforeLocalAuth(t *t
 		Platform: platformentity.PlatformKick,
 		Code:     "authorization-code",
 		State:    state,
-		DeviceID: "callback-device-id",
+		DeviceID: stringPtr("callback-device-id"),
 	})
 	if output != nil {
 		t.Fatalf("handlePlatformCode() output = %#v, want nil", output)
@@ -1428,7 +1428,7 @@ func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProvide
 		},
 	}
 	provider := &oauthPlatformProvider{
-		name: platformentity.PlatformKick.String(),
+		platform: platformentity.PlatformKick,
 		exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
 			exchangeCalls++
 			return testPlatformTokens(), nil
@@ -1469,21 +1469,21 @@ func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProvide
 		},
 	}
 	bindings := &oauthChannelPlatformsRepository{
-		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+		getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 			bindingCalls++
-			return channelplatformsmodel.Nil, channelplatforms.ErrNotFound
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		},
-		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+		createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
 			bindingCalls++
-			return channelplatformsmodel.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled}, nil
+			return channelplatformentity.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled}, nil
 		},
 	}
 	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
 		sessions: sessions,
 		users:    users,
 		channels: &oauthChannelsRepository{
-			getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
-				return channelsmodel.Channel{ID: channelID}, nil
+			getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
+				return channelentity.Channel{ID: channelID}, nil
 			},
 		},
 		bindings:    bindings,
@@ -1503,7 +1503,7 @@ func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProvide
 		Platform: platformentity.PlatformKick,
 		Code:     "authorization-code",
 		State:    state,
-		DeviceID: "callback-device-id",
+		DeviceID: stringPtr("callback-device-id"),
 	})
 	if output != nil {
 		t.Fatalf("handlePlatformCode() output = %#v, want nil", output)
@@ -1587,7 +1587,7 @@ func TestAssignDefaultKickBotToUnconfiguredKickBindings(t *testing.T) {
 	defaultKickBotUserID := uuid.New()
 	channelID := uuid.New()
 	configuredChannelID := uuid.New()
-	unconfiguredBinding := channelplatformsmodel.ChannelPlatform{
+	unconfiguredBinding := channelplatformentity.ChannelPlatform{
 		ID:                uuid.New(),
 		ChannelID:         channelID,
 		Platform:          platformentity.PlatformKick,
@@ -1596,7 +1596,7 @@ func TestAssignDefaultKickBotToUnconfiguredKickBindings(t *testing.T) {
 		Enabled:           true,
 		BotConfig:         json.RawMessage(`{"existing":"value"}`),
 	}
-	configuredBinding := channelplatformsmodel.ChannelPlatform{
+	configuredBinding := channelplatformentity.ChannelPlatform{
 		ID:                uuid.New(),
 		ChannelID:         configuredChannelID,
 		Platform:          platformentity.PlatformKick,
@@ -1606,18 +1606,18 @@ func TestAssignDefaultKickBotToUnconfiguredKickBindings(t *testing.T) {
 		BotConfig:         json.RawMessage(`{"kick_bot_id":"already-selected"}`),
 	}
 	channels := &oauthChannelsRepository{
-		getAllByBindingPlatformFunc: func(_ context.Context, gotPlatform platformentity.Platform) ([]channelsmodel.Channel, error) {
+		getAllByBindingPlatformFunc: func(_ context.Context, gotPlatform platformentity.Platform) ([]channelentity.Channel, error) {
 			if gotPlatform != platformentity.PlatformKick {
 				t.Fatalf("binding platform = %s, want kick", gotPlatform)
 			}
-			return []channelsmodel.Channel{
-				{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{unconfiguredBinding}},
-				{ID: configuredChannelID, Bindings: []channelplatformsmodel.ChannelPlatform{configuredBinding}},
+			return []channelentity.Channel{
+				{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{unconfiguredBinding}},
+				{ID: configuredChannelID, Bindings: []channelplatformentity.ChannelPlatform{configuredBinding}},
 			}, nil
 		},
 	}
 	bindings := &oauthChannelPlatformsRepository{
-		updateFunc: func(_ context.Context, bindingID uuid.UUID, input channelplatforms.UpdateInput) (channelplatformsmodel.ChannelPlatform, error) {
+		updateFunc: func(_ context.Context, bindingID uuid.UUID, input channelplatforms.UpdateInput) (channelplatformentity.ChannelPlatform, error) {
 			if bindingID != unconfiguredBinding.ID || input.UserID != unconfiguredBinding.UserID || input.PlatformChannelID != unconfiguredBinding.PlatformChannelID || !input.Enabled {
 				t.Fatalf("updated Kick binding = (%s, %+v)", bindingID, input)
 			}
@@ -1850,13 +1850,13 @@ func (p *oauthEventSubPublisher) Publish(_ context.Context, input buscoreeventsu
 }
 
 type oauthPlatformProvider struct {
-	name             string
+	platform         platformentity.Platform
 	getAuthURLFunc   func(string, string) string
 	exchangeCodeFunc func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error)
 	getUserFunc      func(context.Context, string) (*appplatform.PlatformUser, error)
 }
 
-func (p *oauthPlatformProvider) Name() string { return p.name }
+func (p *oauthPlatformProvider) Platform() platformentity.Platform { return p.platform }
 
 func (p *oauthPlatformProvider) GetAuthURL(state, codeChallenge string) string {
 	if p.getAuthURLFunc == nil {
@@ -1896,35 +1896,35 @@ func (r *oauthBotsRepository) GetDefault(context.Context) (botsmodel.Bot, error)
 }
 
 type oauthChannelsRepository struct {
-	createFunc                  func(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error)
-	getByIDFunc                 func(context.Context, uuid.UUID) (channelsmodel.Channel, error)
-	getByBindingUserIDFunc      func(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error)
-	getAllByBindingPlatformFunc func(context.Context, platformentity.Platform) ([]channelsmodel.Channel, error)
+	createFunc                  func(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error)
+	getByIDFunc                 func(context.Context, uuid.UUID) (channelentity.Channel, error)
+	getByBindingUserIDFunc      func(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error)
+	getAllByBindingPlatformFunc func(context.Context, platformentity.Platform) ([]channelentity.Channel, error)
 	createCalls                 int
 }
 
-func (r *oauthChannelsRepository) Create(ctx context.Context, input channelsrepo.CreateInput) (channelsmodel.Channel, error) {
+func (r *oauthChannelsRepository) Create(ctx context.Context, input channelsrepo.CreateInput) (channelentity.Channel, error) {
 	r.createCalls++
 	if r.createFunc == nil {
-		return channelsmodel.Nil, errors.New("unexpected Create call")
+		return channelentity.Nil, errors.New("unexpected Create call")
 	}
 
 	return r.createFunc(ctx, input)
 }
 
-func (r *oauthChannelsRepository) GetByBindingUserID(ctx context.Context, p platformentity.Platform, userID uuid.UUID) (channelsmodel.Channel, error) {
+func (r *oauthChannelsRepository) GetByBindingUserID(ctx context.Context, p platformentity.Platform, userID uuid.UUID) (channelentity.Channel, error) {
 	if r.getByBindingUserIDFunc == nil {
-		return channelsmodel.Nil, errors.New("unexpected GetByBindingUserID call")
+		return channelentity.Nil, errors.New("unexpected GetByBindingUserID call")
 	}
 
 	return r.getByBindingUserIDFunc(ctx, p, userID)
 }
 
-func (*oauthChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelsmodel.Channel, error) {
+func (*oauthChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelentity.Channel, error) {
 	return nil, errors.New("unexpected GetMany call")
 }
 
-func (r *oauthChannelsRepository) GetAllByBindingPlatform(ctx context.Context, platform platformentity.Platform) ([]channelsmodel.Channel, error) {
+func (r *oauthChannelsRepository) GetAllByBindingPlatform(ctx context.Context, platform platformentity.Platform) ([]channelentity.Channel, error) {
 	if r.getAllByBindingPlatformFunc == nil {
 		return nil, errors.New("unexpected GetAllByBindingPlatform call")
 	}
@@ -1932,38 +1932,38 @@ func (r *oauthChannelsRepository) GetAllByBindingPlatform(ctx context.Context, p
 	return r.getAllByBindingPlatformFunc(ctx, platform)
 }
 
-func (r *oauthChannelsRepository) GetByID(ctx context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+func (r *oauthChannelsRepository) GetByID(ctx context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
 	if r.getByIDFunc == nil {
-		return channelsmodel.Nil, errors.New("unexpected GetByID call")
+		return channelentity.Nil, errors.New("unexpected GetByID call")
 	}
 
 	return r.getByIDFunc(ctx, channelID)
 }
 
-func (*oauthChannelsRepository) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, errors.New("unexpected GetByApiKey call")
+func (*oauthChannelsRepository) GetByApiKey(context.Context, string) (channelentity.Channel, error) {
+	return channelentity.Nil, errors.New("unexpected GetByApiKey call")
 }
 
-func (*oauthChannelsRepository) GetByPlatformChannelID(context.Context, platformentity.Platform, string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, errors.New("unexpected GetByPlatformChannelID call")
+func (*oauthChannelsRepository) GetByPlatformChannelID(context.Context, platformentity.Platform, string) (channelentity.Channel, error) {
+	return channelentity.Nil, errors.New("unexpected GetByPlatformChannelID call")
 }
 
-func (*oauthChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, errors.New("unexpected GetBySlug call")
+func (*oauthChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelentity.Channel, error) {
+	return channelentity.Nil, errors.New("unexpected GetBySlug call")
 }
 
 func (*oauthChannelsRepository) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
 	return 0, errors.New("unexpected GetCount call")
 }
 
-func (*oauthChannelsRepository) Update(context.Context, uuid.UUID, channelsrepo.UpdateInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, errors.New("unexpected Update call")
+func (*oauthChannelsRepository) Update(context.Context, uuid.UUID, channelsrepo.UpdateInput) (channelentity.Channel, error) {
+	return channelentity.Nil, errors.New("unexpected Update call")
 }
 
 type oauthChannelPlatformsRepository struct {
-	getByChannelAndPlatformFunc func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error)
-	createFunc                  func(context.Context, channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error)
-	updateFunc                  func(context.Context, uuid.UUID, channelplatforms.UpdateInput) (channelplatformsmodel.ChannelPlatform, error)
+	getByChannelAndPlatformFunc func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error)
+	createFunc                  func(context.Context, channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error)
+	updateFunc                  func(context.Context, uuid.UUID, channelplatforms.UpdateInput) (channelplatformentity.ChannelPlatform, error)
 	createCalls                 int
 	updateCalls                 int
 }
@@ -1972,42 +1972,42 @@ func (*oauthChannelPlatformsRepository) LockByChannelID(context.Context, uuid.UU
 	return nil
 }
 
-func (r *oauthChannelPlatformsRepository) Create(ctx context.Context, input channelplatforms.CreateInput) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *oauthChannelPlatformsRepository) Create(ctx context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
 	r.createCalls++
 	if r.createFunc == nil {
-		return channelplatformsmodel.Nil, errors.New("unexpected binding Create call")
+		return channelplatformentity.Nil, errors.New("unexpected binding Create call")
 	}
 
 	return r.createFunc(ctx, input)
 }
 
-func (r *oauthChannelPlatformsRepository) GetByChannelAndPlatform(ctx context.Context, channelID uuid.UUID, p platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *oauthChannelPlatformsRepository) GetByChannelAndPlatform(ctx context.Context, channelID uuid.UUID, p platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 	if r.getByChannelAndPlatformFunc == nil {
-		return channelplatformsmodel.Nil, errors.New("unexpected GetByChannelAndPlatform call")
+		return channelplatformentity.Nil, errors.New("unexpected GetByChannelAndPlatform call")
 	}
 
 	return r.getByChannelAndPlatformFunc(ctx, channelID, p)
 }
 
-func (*oauthChannelPlatformsRepository) GetByPlatformChannelID(context.Context, platformentity.Platform, string) (channelplatformsmodel.ChannelPlatform, error) {
-	return channelplatformsmodel.Nil, errors.New("unexpected GetByPlatformChannelID call")
+func (*oauthChannelPlatformsRepository) GetByPlatformChannelID(context.Context, platformentity.Platform, string) (channelplatformentity.ChannelPlatform, error) {
+	return channelplatformentity.Nil, errors.New("unexpected GetByPlatformChannelID call")
 }
 
-func (*oauthChannelPlatformsRepository) ListByChannelID(context.Context, uuid.UUID) ([]channelplatformsmodel.ChannelPlatform, error) {
+func (*oauthChannelPlatformsRepository) ListByChannelID(context.Context, uuid.UUID) ([]channelplatformentity.ChannelPlatform, error) {
 	return nil, errors.New("unexpected ListByChannelID call")
 }
 
-func (r *oauthChannelPlatformsRepository) Update(ctx context.Context, id uuid.UUID, input channelplatforms.UpdateInput) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *oauthChannelPlatformsRepository) Update(ctx context.Context, id uuid.UUID, input channelplatforms.UpdateInput) (channelplatformentity.ChannelPlatform, error) {
 	r.updateCalls++
 	if r.updateFunc == nil {
-		return channelplatformsmodel.Nil, errors.New("unexpected binding Update call")
+		return channelplatformentity.Nil, errors.New("unexpected binding Update call")
 	}
 
 	return r.updateFunc(ctx, id, input)
 }
 
-func (*oauthChannelPlatformsRepository) Patch(context.Context, uuid.UUID, channelplatforms.PatchInput) (channelplatformsmodel.ChannelPlatform, error) {
-	return channelplatformsmodel.Nil, errors.New("unexpected binding Patch call")
+func (*oauthChannelPlatformsRepository) Patch(context.Context, uuid.UUID, channelplatforms.PatchInput) (channelplatformentity.ChannelPlatform, error) {
+	return channelplatformentity.Nil, errors.New("unexpected binding Patch call")
 }
 
 func (*oauthChannelPlatformsRepository) Delete(context.Context, uuid.UUID) error {
@@ -2166,3 +2166,7 @@ func (w testWriter) Write(p []byte) (n int, err error) {
 }
 
 var _ = time.Now
+
+func stringPtr(s string) *string {
+	return &s
+}

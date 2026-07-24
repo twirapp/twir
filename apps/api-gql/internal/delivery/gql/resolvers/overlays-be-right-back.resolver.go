@@ -12,7 +12,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -31,7 +30,7 @@ func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.
 	}
 
 	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedID)
-	twitchBinding, hasTwitchBinding := channelbinding.Find(channel, platform.PlatformTwitch)
+	twitchBinding, hasTwitchBinding := channel.Binding(platform.PlatformTwitch)
 	if err != nil || channel.IsNil() || !hasTwitchBinding || twitchBinding.PlatformChannelID == "" {
 		dbUser, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 		if err != nil {
@@ -49,7 +48,7 @@ func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.
 		if err != nil || twitchChannel.IsNil() {
 			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
 		}
-		twitchBinding, hasTwitchBinding := channelbinding.Find(twitchChannel, platform.PlatformTwitch)
+		twitchBinding, hasTwitchBinding := twitchChannel.Binding(platform.PlatformTwitch)
 		if !hasTwitchBinding || twitchBinding.PlatformChannelID == "" {
 			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
 		}

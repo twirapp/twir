@@ -14,7 +14,7 @@ import (
 	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
+	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 )
 
@@ -81,7 +81,7 @@ func (r *mutationResolver) KickBotSetupLink(ctx context.Context) (string, error)
 		return "", fmt.Errorf("cannot generate state: %w", err)
 	}
 
-	codeVerifier, err := kickplatform.GenerateCodeVerifier()
+	codeVerifier, codeChallenge, err := appplatform.GeneratePKCE()
 	if err != nil {
 		return "", fmt.Errorf("cannot generate code verifier: %w", err)
 	}
@@ -100,6 +100,5 @@ func (r *mutationResolver) KickBotSetupLink(ctx context.Context) (string, error)
 		return "", fmt.Errorf("cannot store setup state: %w", err)
 	}
 
-	codeChallenge := kickplatform.GenerateCodeChallenge(codeVerifier)
 	return r.deps.KickProvider.GetBotSetupAuthURL(state, codeChallenge), nil
 }

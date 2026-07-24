@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	"github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 var (
@@ -17,13 +17,13 @@ var (
 )
 
 type Repository interface {
-	Create(ctx context.Context, input CreateInput) (model.ChannelPlatform, error)
-	GetByChannelAndPlatform(ctx context.Context, channelID uuid.UUID, platform platform.Platform) (model.ChannelPlatform, error)
-	GetByPlatformChannelID(ctx context.Context, platform platform.Platform, platformChannelID string) (model.ChannelPlatform, error)
-	ListByChannelID(ctx context.Context, channelID uuid.UUID) ([]model.ChannelPlatform, error)
+	Create(ctx context.Context, input CreateInput) (channelplatformentity.ChannelPlatform, error)
+	GetByChannelAndPlatform(ctx context.Context, channelID uuid.UUID, platform platform.Platform) (channelplatformentity.ChannelPlatform, error)
+	GetByPlatformChannelID(ctx context.Context, platform platform.Platform, platformChannelID string) (channelplatformentity.ChannelPlatform, error)
+	ListByChannelID(ctx context.Context, channelID uuid.UUID) ([]channelplatformentity.ChannelPlatform, error)
 	LockByChannelID(ctx context.Context, channelID uuid.UUID) error
-	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.ChannelPlatform, error)
-	Patch(ctx context.Context, id uuid.UUID, input PatchInput) (model.ChannelPlatform, error)
+	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (channelplatformentity.ChannelPlatform, error)
+	Patch(ctx context.Context, id uuid.UUID, input PatchInput) (channelplatformentity.ChannelPlatform, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 

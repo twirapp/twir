@@ -2,9 +2,9 @@ package pgx
 
 import (
 	"encoding/json"
-	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -16,6 +16,9 @@ import (
 
 func TestMapUserWithChannelProjectionKeepsSelectedBinding(t *testing.T) {
 	channelID := uuid.New()
+	botUserID := uuid.New()
+	createdAt := time.Date(2026, 7, 24, 1, 2, 3, 0, time.UTC)
+	updatedAt := createdAt.Add(time.Hour)
 	binding := channelplatformsmodel.ChannelPlatform{
 		ID:                uuid.New(),
 		ChannelID:         channelID,
@@ -23,7 +26,10 @@ func TestMapUserWithChannelProjectionKeepsSelectedBinding(t *testing.T) {
 		UserID:            uuid.New(),
 		PlatformChannelID: "twitch-channel",
 		Enabled:           true,
+		BotUserID:         &botUserID,
 		BotConfig:         json.RawMessage(`{"bot_id":"twir-bot","is_bot_mod":true}`),
+		CreatedAt:         createdAt,
+		UpdatedAt:         updatedAt,
 	}
 	bindingJSON, err := json.Marshal(binding)
 	if err != nil {
@@ -47,8 +53,24 @@ func TestMapUserWithChannelProjectionKeepsSelectedBinding(t *testing.T) {
 	if len(result.Channel.Bindings) != 1 {
 		t.Fatalf("bindings = %d, want 1", len(result.Channel.Bindings))
 	}
-	if !reflect.DeepEqual(result.Channel.Bindings[0], binding) {
-		t.Fatalf("binding = %#v, want %#v", result.Channel.Bindings[0], binding)
+	got := result.Channel.Bindings[0]
+	if got.ID != binding.ID ||
+		got.ChannelID != binding.ChannelID ||
+		got.Platform != binding.Platform ||
+		got.UserID != binding.UserID ||
+		got.PlatformChannelID != binding.PlatformChannelID ||
+		got.Enabled != binding.Enabled ||
+		string(got.BotConfig) != string(binding.BotConfig) {
+		t.Fatalf("binding = %#v, want fields of %#v", got, binding)
+	}
+	if got.BotUserID == nil || *got.BotUserID != botUserID {
+		t.Fatalf("BotUserID = %v, want %v", got.BotUserID, botUserID)
+	}
+	if !got.CreatedAt.Equal(createdAt) || !got.UpdatedAt.Equal(updatedAt) {
+		t.Fatalf("timestamps = (%v, %v), want (%v, %v)", got.CreatedAt, got.UpdatedAt, createdAt, updatedAt)
+	}
+	if got.IsNil() {
+		t.Fatal("projected binding must not be nil-marked")
 	}
 }
 

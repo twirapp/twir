@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/twitch"
 )
@@ -28,7 +27,7 @@ func (c *Service) GetChannelChatBadges(ctx context.Context, channelID string) (
 		return nil, nil
 	}
 
-	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if !found || twitchBinding.UserID == uuid.Nil {
 		return nil, nil
 	}

@@ -14,7 +14,6 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/apps/eventsub/internal/mappers"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -79,7 +78,7 @@ func (c *Handler) processChannelChatMessage(
 	if messagePlatform == "" {
 		messagePlatform = platform.PlatformTwitch
 	}
-	binding, bindingFound := channelbinding.Find(channel, messagePlatform)
+	binding, bindingFound := channel.Binding(messagePlatform)
 	if !bindingFound {
 		c.logger.Warn(
 			"cannot find channel binding for chat message",
@@ -206,7 +205,7 @@ func (c *Handler) processChannelChatMessage(
 				return
 			}
 
-			botConfig, err := channelbinding.ParseTwitchBotConfig(binding)
+			botConfig, err := binding.ParseTwitchBotConfig()
 			if err != nil {
 				c.logger.Error("cannot parse channel bot config", logger.Error(err))
 				return

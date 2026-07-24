@@ -10,11 +10,11 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -50,13 +50,13 @@ func (q *songRequestQueue[Req, Res]) Unsubscribe() {}
 type songRequestChannelsRepositoryFake struct {
 	channelsrepository.Repository
 
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
 func (r *songRequestChannelsRepositoryFake) GetByID(
 	context.Context,
 	uuid.UUID,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	return r.channel, nil
 }
 
@@ -79,9 +79,9 @@ func TestProcessFromDonationPublishesCanonicalTwitchCommands(t *testing.T) {
 
 	channelService := channelservice.NewChannelService(
 		&songRequestChannelsRepositoryFake{
-			channel: channelsmodel.Channel{
+			channel: channelentity.Channel{
 				ID: channelID,
-				Bindings: []channelplatformsmodel.ChannelPlatform{
+				Bindings: []channelplatformentity.ChannelPlatform{
 					{
 						ID:                bindingID,
 						ChannelID:         channelID,

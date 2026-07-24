@@ -4,27 +4,27 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestCountEnabledTwitchChannelsUsesSelectedBinding(t *testing.T) {
-	channels := []channelsmodel.Channel{
+	channels := []channelentity.Channel{
 		{
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platform.PlatformKick, Enabled: true},
 				{Platform: platform.PlatformTwitch, Enabled: false},
 			},
 		},
 		{
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platform.PlatformKick, Enabled: false},
 				{Platform: platform.PlatformTwitch, Enabled: true},
 			},
 		},
 		{
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platform.PlatformKick, Enabled: true},
 			},
 		},

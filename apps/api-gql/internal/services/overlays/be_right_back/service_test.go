@@ -5,15 +5,15 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func TestResolveChannelIDByAPIKeyUsesUserPlatformBinding(t *testing.T) {
 	userID := uuid.New()
 	channelID := uuid.New()
-	lookup := &beRightBackTestChannelLookup{channel: channelsmodel.Channel{ID: channelID}}
+	lookup := &beRightBackTestChannelLookup{channel: channelentity.Channel{ID: channelID}}
 	service := &Service{
 		usersRepository: beRightBackTestUsersRepository{user: usersmodel.User{
 			ID:       userID,
@@ -52,7 +52,7 @@ func (r beRightBackTestUsersRepository) GetByApiKey(
 }
 
 type beRightBackTestChannelLookup struct {
-	channel  channelsmodel.Channel
+	channel  channelentity.Channel
 	platform platformentity.Platform
 	userID   uuid.UUID
 }
@@ -61,7 +61,7 @@ func (r *beRightBackTestChannelLookup) GetChannelByBindingUserID(
 	_ context.Context,
 	p platformentity.Platform,
 	userID uuid.UUID,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	r.platform = p
 	r.userID = userID
 	return r.channel, nil

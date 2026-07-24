@@ -5,22 +5,22 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/bus-core/generic"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestFindChatMessageBindingUsesCanonicalBindingID(t *testing.T) {
-	platformBinding := channelplatformsmodel.ChannelPlatform{
+	platformBinding := channelplatformentity.ChannelPlatform{
 		ID:       uuid.New(),
 		Platform: platform.PlatformTwitch,
 	}
-	canonicalBinding := channelplatformsmodel.ChannelPlatform{
+	canonicalBinding := channelplatformentity.ChannelPlatform{
 		ID:       uuid.New(),
 		Platform: platform.PlatformTwitch,
 	}
-	channel := channelsmodel.Channel{
-		Bindings: []channelplatformsmodel.ChannelPlatform{platformBinding, canonicalBinding},
+	channel := channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{platformBinding, canonicalBinding},
 	}
 
 	binding, found, err := findChatMessageBinding(
@@ -40,12 +40,12 @@ func TestFindChatMessageBindingUsesCanonicalBindingID(t *testing.T) {
 }
 
 func TestFindChatMessageBindingFallsBackOnlyWhenBindingIDIsAbsent(t *testing.T) {
-	platformBinding := channelplatformsmodel.ChannelPlatform{
+	platformBinding := channelplatformentity.ChannelPlatform{
 		ID:       uuid.New(),
 		Platform: platform.PlatformTwitch,
 	}
-	channel := channelsmodel.Channel{
-		Bindings: []channelplatformsmodel.ChannelPlatform{platformBinding},
+	channel := channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{platformBinding},
 	}
 
 	binding, found, err := findChatMessageBinding(

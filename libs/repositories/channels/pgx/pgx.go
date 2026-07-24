@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels/model"
@@ -218,11 +219,11 @@ kick_binding AS (
 )
 SELECT id FROM updated_channel`
 
-func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (model.Channel, error) {
+func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (channelentity.Channel, error) {
 	return c.getOne(ctx, selectQuery+` WHERE c.api_key = $1`, apiKey)
 }
 
-func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Channel, error) {
+func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (channelentity.Channel, error) {
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	row := conn.QueryRow(
 		ctx,
@@ -232,7 +233,7 @@ func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (model.Cha
 
 	var channelId uuid.UUID
 	if err := row.Scan(&channelId); err != nil {
-		return model.Nil, err
+		return channelentity.Nil, err
 	}
 
 	return c.GetByID(ctx, channelId)
@@ -255,27 +256,27 @@ func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, 
 	return count, nil
 }
 
-func (c *Pgx) GetByID(ctx context.Context, channelID uuid.UUID) (model.Channel, error) {
+func (c *Pgx) GetByID(ctx context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
 	return c.getOne(ctx, selectQuery+` WHERE c."id" = $1`, channelID)
 }
 
 func (c *Pgx) GetAllByBindingPlatform(
 	ctx context.Context,
 	p platform.Platform,
-) ([]model.Channel, error) {
+) ([]channelentity.Channel, error) {
 	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, getAllByBindingPlatformQuery, p)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	result := make([]model.Channel, 0)
+	result := make([]channelentity.Channel, 0)
 	for rows.Next() {
 		channel, err := scanChannel(rows)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, channel)
+		result = append(result, mapChannelToEntity(channel))
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -288,7 +289,7 @@ func (c *Pgx) GetByBindingUserID(
 	ctx context.Context,
 	p platform.Platform,
 	userID uuid.UUID,
-) (model.Channel, error) {
+) (channelentity.Channel, error) {
 	return c.getOne(
 		ctx,
 		selectQuery+`
@@ -303,7 +304,7 @@ func (c *Pgx) GetByPlatformChannelID(
 	ctx context.Context,
 	p platform.Platform,
 	platformChannelID string,
-) (model.Channel, error) {
+) (channelentity.Channel, error) {
 	return c.getOne(
 		ctx,
 		selectQuery+`
@@ -314,7 +315,7 @@ func (c *Pgx) GetByPlatformChannelID(
 	)
 }
 
-func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.UpdateInput) (model.Channel, error) {
+func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.UpdateInput) (channelentity.Channel, error) {
 	row := c.getter.DefaultTrOrDB(ctx, c.pool).QueryRow(
 		ctx,
 		updateChannelAndBindingsQuery,
@@ -330,7 +331,7 @@ func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.Up
 
 	var channelId uuid.UUID
 	if err := row.Scan(&channelId); err != nil {
-		return model.Nil, err
+		return channelentity.Nil, err
 	}
 
 	return c.GetByID(ctx, channelId)
@@ -344,7 +345,7 @@ func valueOrNil[T any](value *T) any {
 	return *value
 }
 
-func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model.Channel, error) {
+func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]channelentity.Channel, error) {
 	query := selectQuery
 
 	var where []string
@@ -388,13 +389,13 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 	}
 	defer rows.Close()
 
-	result := make([]model.Channel, 0)
+	result := make([]channelentity.Channel, 0)
 	for rows.Next() {
 		channel, err := scanChannel(rows)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, channel)
+		result = append(result, mapChannelToEntity(channel))
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -403,7 +404,7 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 	return result, nil
 }
 
-func (c *Pgx) GetBySlug(ctx context.Context, opts channels.GetBySlugInput) (model.Channel, error) {
+func (c *Pgx) GetBySlug(ctx context.Context, opts channels.GetBySlugInput) (channelentity.Channel, error) {
 	query := selectQuery + `
 		JOIN channel_platforms cp ON cp.channel_id = c.id
 		JOIN users u ON u.id = cp.user_id
@@ -435,19 +436,19 @@ func collectExactlyOneChannel(rows pgx.Rows) (model.Channel, error) {
 	return pgx.CollectExactlyOneRow(rows, scanChannel)
 }
 
-func (c *Pgx) getOne(ctx context.Context, query string, args ...any) (model.Channel, error) {
+func (c *Pgx) getOne(ctx context.Context, query string, args ...any) (channelentity.Channel, error) {
 	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(ctx, query, args...)
 	if err != nil {
-		return model.Nil, err
+		return channelentity.Nil, err
 	}
 
 	channel, err := collectExactlyOneChannel(rows)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Nil, channels.ErrNotFound
+			return channelentity.Nil, channels.ErrNotFound
 		}
-		return model.Nil, err
+		return channelentity.Nil, err
 	}
 
-	return channel, nil
+	return mapChannelToEntity(channel), nil
 }

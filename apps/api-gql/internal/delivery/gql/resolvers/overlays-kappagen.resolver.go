@@ -11,7 +11,6 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -34,7 +33,7 @@ func (r *kappagenOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.Kap
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}
@@ -58,7 +57,7 @@ func (r *kappagenTriggerPayloadResolver) Channel(ctx context.Context, obj *gqlmo
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}

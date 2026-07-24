@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -278,7 +277,7 @@ func (r *tTSOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.TTSOverl
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}
@@ -298,7 +297,7 @@ func (r *tTSUserSettingsResolver) TwitchProfile(ctx context.Context, obj *gqlmod
 		if err != nil {
 			return nil, fmt.Errorf("get owner channel: %w", err)
 		}
-		twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+		twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 		if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 			return nil, nil
 		}

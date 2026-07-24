@@ -9,7 +9,7 @@ import (
 )
 
 func TestRegistryGetsRegisteredProvider(t *testing.T) {
-	twitch := &fakeProvider{name: platformentity.PlatformTwitch.String()}
+	twitch := &fakeProvider{platform: platformentity.PlatformTwitch}
 	registry := NewRegistry([]PlatformProvider{twitch})
 
 	provider, ok := registry.Get(platformentity.PlatformTwitch)
@@ -20,8 +20,8 @@ func TestRegistryGetsRegisteredProvider(t *testing.T) {
 
 func TestRegistryDoesNotContainVKUntilItIsRegistered(t *testing.T) {
 	registry := NewRegistry([]PlatformProvider{
-		&fakeProvider{name: platformentity.PlatformTwitch.String()},
-		&fakeProvider{name: platformentity.PlatformKick.String()},
+		&fakeProvider{platform: platformentity.PlatformTwitch},
+		&fakeProvider{platform: platformentity.PlatformKick},
 	})
 
 	if provider, ok := registry.Get(platformentity.PlatformVKVideoLive); ok || provider != nil {
@@ -33,10 +33,10 @@ func TestNewFeatureGatedRegistryDoesNotCreateVKProviderWhileDisabled(t *testing.
 	created := 0
 	registry, err := NewFeatureGatedRegistry(
 		false,
-		[]PlatformProvider{&fakeProvider{name: platformentity.PlatformTwitch.String()}},
+		[]PlatformProvider{&fakeProvider{platform: platformentity.PlatformTwitch}},
 		func() (PlatformProvider, error) {
 			created++
-			return &fakeProvider{name: platformentity.PlatformVKVideoLive.String()}, nil
+			return &fakeProvider{platform: platformentity.PlatformVKVideoLive}, nil
 		},
 	)
 	if err != nil {
@@ -51,10 +51,10 @@ func TestNewFeatureGatedRegistryDoesNotCreateVKProviderWhileDisabled(t *testing.
 }
 
 func TestNewFeatureGatedRegistryRegistersVKProviderWhenEnabled(t *testing.T) {
-	vkProvider := &fakeProvider{name: platformentity.PlatformVKVideoLive.String()}
+	vkProvider := &fakeProvider{platform: platformentity.PlatformVKVideoLive}
 	registry, err := NewFeatureGatedRegistry(
 		true,
-		[]PlatformProvider{&fakeProvider{name: platformentity.PlatformTwitch.String()}},
+		[]PlatformProvider{&fakeProvider{platform: platformentity.PlatformTwitch}},
 		func() (PlatformProvider, error) {
 			return vkProvider, nil
 		},
@@ -84,11 +84,11 @@ func TestNewFeatureGatedRegistryReturnsVKFactoryError(t *testing.T) {
 }
 
 type fakeProvider struct {
-	name string
+	platform platformentity.Platform
 }
 
-func (f *fakeProvider) Name() string {
-	return f.name
+func (f *fakeProvider) Platform() platformentity.Platform {
+	return f.platform
 }
 
 func (f *fakeProvider) GetAuthURL(string, string) string {

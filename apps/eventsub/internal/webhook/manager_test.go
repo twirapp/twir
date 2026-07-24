@@ -8,11 +8,11 @@ import (
 
 	"github.com/google/uuid"
 	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
+	channelsmodel "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformsmodel "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channels "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 type bulkChannelsRepo struct {

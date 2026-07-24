@@ -13,9 +13,9 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/twitch"
 	"gorm.io/gorm"
 )
@@ -82,10 +82,10 @@ func (c *duelHandler) getTwitchTargetUser() (helix.User, error) {
 	return userRequest.Data.Users[0], nil
 }
 
-func (c *duelHandler) getDbChannel(ctx context.Context) (channelsmodel.Channel, error) {
+func (c *duelHandler) getDbChannel(ctx context.Context) (channelentity.Channel, error) {
 	channelID, err := uuid.Parse(c.parseCtx.Channel.DBChannelID)
 	if err != nil {
-		return channelsmodel.Channel{}, err
+		return channelentity.Channel{}, err
 	}
 
 	return c.parseCtx.Services.ChannelsRepo.GetByID(ctx, channelID)

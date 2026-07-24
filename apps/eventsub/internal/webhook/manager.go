@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
 )
@@ -75,15 +74,15 @@ func (m *Manager) registeredTransports() []eventplatforms.EventTransport {
 func (m *Manager) bindingsForPlatform(
 	ctx context.Context,
 	platform platformentity.Platform,
-) ([]channelplatformsmodel.ChannelPlatform, error) {
+) ([]channelplatformentity.ChannelPlatform, error) {
 	channels, err := m.channelsRepo.GetAllByBindingPlatform(ctx, platform)
 	if err != nil {
 		return nil, fmt.Errorf("list %s channels: %w", platform, err)
 	}
 
-	bindings := make([]channelplatformsmodel.ChannelPlatform, 0, len(channels))
+	bindings := make([]channelplatformentity.ChannelPlatform, 0, len(channels))
 	for _, channel := range channels {
-		binding, ok := channelbinding.Find(channel, platform)
+		binding, ok := channel.Binding(platform)
 		if !ok {
 			continue
 		}

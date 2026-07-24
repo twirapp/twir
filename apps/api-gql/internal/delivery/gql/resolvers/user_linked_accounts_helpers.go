@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 )
 
-func (r *authenticatedUserResolver) linkedAccountsForChannel(ctx context.Context, channel channelsmodel.Channel) ([]gqlmodel.LinkedAccount, error) {
+func (r *authenticatedUserResolver) linkedAccountsForChannel(ctx context.Context, channel channelentity.Channel) ([]gqlmodel.LinkedAccount, error) {
 	if channel.IsNil() {
 		return []gqlmodel.LinkedAccount{}, nil
 	}

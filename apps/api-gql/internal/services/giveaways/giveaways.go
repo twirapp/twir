@@ -9,17 +9,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
 	giveawaysbus "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channels_giveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/logger"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/repositories/giveaways"
 	"github.com/twirapp/twir/libs/repositories/giveaways_participants"
@@ -94,7 +93,7 @@ type Service struct {
 }
 
 type giveawayChannelLookup interface {
-	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error)
 }
 
 type giveawayWinnerMessagePublisher interface {
@@ -601,7 +600,7 @@ func (c *Service) sendWinnerMessage(
 	if err != nil {
 		return err
 	}
-	twitchBinding, hasTwitchBinding := apiChannelbinding.Find(channel, platform.PlatformTwitch)
+	twitchBinding, hasTwitchBinding := channel.Binding(platform.PlatformTwitch)
 	if !hasTwitchBinding {
 		return fmt.Errorf("channel has no twitch platform id")
 	}

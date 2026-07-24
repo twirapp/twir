@@ -9,10 +9,10 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepo "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -63,7 +63,7 @@ func TestResolveApiKeyChannelIdentityUsesBindingLookup(t *testing.T) {
 				kickUserID,
 				kickPlatformID,
 			)
-			channel.Bindings = append(channel.Bindings, channelplatformsmodel.ChannelPlatform{
+			channel.Bindings = append(channel.Bindings, channelplatformentity.ChannelPlatform{
 				Platform:          platformentity.PlatformVKVideoLive,
 				UserID:            vkVideoLiveUserID,
 				PlatformChannelID: vkVideoLivePlatformID,
@@ -127,9 +127,9 @@ func TestResolveApiKeyChannelIdentityUsesBindingLookup(t *testing.T) {
 func TestResolveApiKeyChannelIdentityByAnyPlatformUUIDUsesVKBinding(t *testing.T) {
 	vkVideoLiveUserID := uuid.New()
 	channelID := uuid.New()
-	channel := channelsmodel.Channel{
+	channel := channelentity.Channel{
 		ID: channelID,
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{
 				Platform:          platformentity.PlatformVKVideoLive,
 				UserID:            vkVideoLiveUserID,
@@ -277,16 +277,73 @@ func TestGetByIDUsesTwitchBindingRegardlessOfBindingOrder(t *testing.T) {
 	}
 }
 
+func TestGetByIDUsesFirstTwitchBinding(t *testing.T) {
+	channelID := uuid.New()
+	channels := &fakeChannelsRepository{channel: channelentity.Channel{
+		ID: channelID,
+		Bindings: []channelplatformentity.ChannelPlatform{
+			{
+				Platform: platformentity.PlatformTwitch,
+				Enabled:  true,
+				BotConfig: json.RawMessage(
+					`{"bot_id":"first-bot","is_bot_mod":true,"is_twitch_banned":true}`,
+				),
+			},
+			{
+				Platform: platformentity.PlatformTwitch,
+				Enabled:  false,
+				BotConfig: json.RawMessage(
+					`{"bot_id":"second-bot","is_bot_mod":false,"is_twitch_banned":false}`,
+				),
+			},
+		},
+	}}
+	service := newTestService(&fakeUsersRepository{}, channels)
+
+	got, err := service.GetByID(context.Background(), channelID)
+	if err != nil {
+		t.Fatalf("GetByID() error = %v", err)
+	}
+
+	want := entity.Channel{
+		ID:             channelID,
+		IsEnabled:      true,
+		IsTwitchBanned: true,
+		IsBotMod:       true,
+		BotID:          "first-bot",
+	}
+	if got != want {
+		t.Fatalf("GetByID() = %#v, want %#v", got, want)
+	}
+}
+
+func TestGetByIDRejectsMalformedTwitchBotConfig(t *testing.T) {
+	channelID := uuid.New()
+	channels := &fakeChannelsRepository{channel: channelentity.Channel{
+		ID: channelID,
+		Bindings: []channelplatformentity.ChannelPlatform{{
+			Platform:  platformentity.PlatformTwitch,
+			BotConfig: json.RawMessage(`{"bot_id":`),
+		}},
+	}}
+	service := newTestService(&fakeUsersRepository{}, channels)
+
+	_, err := service.GetByID(context.Background(), channelID)
+	if err == nil {
+		t.Fatal("expected malformed Twitch bot config error")
+	}
+}
+
 func channelWithBindings(
 	channelID uuid.UUID,
 	twitchUserID uuid.UUID,
 	twitchPlatformID string,
 	kickUserID uuid.UUID,
 	kickPlatformID string,
-) channelsmodel.Channel {
-	return channelsmodel.Channel{
+) channelentity.Channel {
+	return channelentity.Channel{
 		ID: channelID,
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{
 				Platform:          platformentity.PlatformKick,
 				UserID:            kickUserID,
@@ -360,7 +417,7 @@ func (f *fakeUsersRepository) Create(context.Context, usersrepo.CreateInput) (us
 }
 
 type fakeChannelsRepository struct {
-	channel                channelsmodel.Channel
+	channel                channelentity.Channel
 	bindingUserLookups     []bindingUserLookup
 	platformChannelLookups []platformChannelLookup
 }
@@ -379,7 +436,7 @@ func (f *fakeChannelsRepository) GetByBindingUserID(
 	_ context.Context,
 	p platformentity.Platform,
 	userID uuid.UUID,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	f.bindingUserLookups = append(f.bindingUserLookups, bindingUserLookup{platform: p, userID: userID})
 	return f.channel, nil
 }
@@ -388,7 +445,7 @@ func (f *fakeChannelsRepository) GetByPlatformChannelID(
 	_ context.Context,
 	p platformentity.Platform,
 	platformChannelID string,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	f.platformChannelLookups = append(
 		f.platformChannelLookups,
 		platformChannelLookup{platform: p, platformChannelID: platformChannelID},
@@ -396,34 +453,34 @@ func (f *fakeChannelsRepository) GetByPlatformChannelID(
 	return f.channel, nil
 }
 
-func (f *fakeChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelsmodel.Channel, error) {
+func (f *fakeChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelentity.Channel, error) {
 	return nil, nil
 }
 
-func (f *fakeChannelsRepository) GetAllByBindingPlatform(context.Context, platformentity.Platform) ([]channelsmodel.Channel, error) {
+func (f *fakeChannelsRepository) GetAllByBindingPlatform(context.Context, platformentity.Platform) ([]channelentity.Channel, error) {
 	return nil, nil
 }
 
-func (f *fakeChannelsRepository) GetByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+func (f *fakeChannelsRepository) GetByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return f.channel, nil
 }
 
-func (f *fakeChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (f *fakeChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (f *fakeChannelsRepository) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
 	return 0, nil
 }
 
-func (f *fakeChannelsRepository) Update(context.Context, uuid.UUID, channelsrepo.UpdateInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (f *fakeChannelsRepository) Update(context.Context, uuid.UUID, channelsrepo.UpdateInput) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
-func (f *fakeChannelsRepository) Create(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (f *fakeChannelsRepository) Create(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
-func (f *fakeChannelsRepository) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (f *fakeChannelsRepository) GetByApiKey(context.Context, string) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }

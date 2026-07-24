@@ -2,9 +2,6 @@ package auth
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,6 +14,7 @@ import (
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	"github.com/twirapp/twir/libs/crypto"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
@@ -114,7 +112,7 @@ func (a *Auth) startPlatformAuthForChannel(
 		return "", err
 	}
 
-	codeVerifier, codeChallenge, err := generatePKCE()
+	codeVerifier, codeChallenge, err := appplatform.GeneratePKCE()
 	if err != nil {
 		return "", err
 	}
@@ -348,11 +346,7 @@ func (a *Auth) twitchBindingConfig(ctx context.Context) (platformBindingConfig, 
 		return platformBindingConfig{}, fmt.Errorf("default bot not found")
 	}
 
-	config, err := json.Marshal(struct {
-		BotID          string `json:"bot_id"`
-		IsBotMod       bool   `json:"is_bot_mod"`
-		IsTwitchBanned bool   `json:"is_twitch_banned"`
-	}{BotID: defaultBot.ID})
+	config, err := json.Marshal(channelplatformentity.TwitchBotConfig{BotID: defaultBot.ID})
 	if err != nil {
 		return platformBindingConfig{}, fmt.Errorf("encode Twitch binding configuration: %w", err)
 	}
@@ -444,15 +438,4 @@ func (a *Auth) platformAuthHTTPError(err error) error {
 	default:
 		return huma.Error500InternalServerError("Cannot complete platform auth", err)
 	}
-}
-
-func generatePKCE() (string, string, error) {
-	randomBytes := make([]byte, 96)
-	if _, err := rand.Read(randomBytes); err != nil {
-		return "", "", fmt.Errorf("generate PKCE verifier: %w", err)
-	}
-
-	verifier := base64.RawURLEncoding.EncodeToString(randomBytes)
-	hash := sha256.Sum256([]byte(verifier))
-	return verifier, base64.RawURLEncoding.EncodeToString(hash[:]), nil
 }

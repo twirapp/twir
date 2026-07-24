@@ -6,18 +6,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
 )
 
 type SubscriptionLister interface {
 	ListSubscriptions(ctx context.Context, broadcasterUserID int) ([]SubscriptionInfo, error)
-	Subscribe(ctx context.Context, binding channelplatformsmodel.ChannelPlatform) error
+	Subscribe(ctx context.Context, binding channelplatformentity.ChannelPlatform) error
 }
 
 type ResubscribeJob struct {
@@ -85,7 +84,7 @@ func (j *ResubscribeJob) run(ctx context.Context) {
 	}
 
 	for _, ch := range kickChannels {
-		binding, ok := channelbinding.Find(ch, platform.PlatformKick)
+		binding, ok := ch.Binding(platform.PlatformKick)
 		if !ok || !binding.Enabled {
 			continue
 		}

@@ -8,18 +8,17 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
@@ -34,12 +33,12 @@ type eventSubManager interface {
 }
 
 type kickSubscriptionManager interface {
-	Subscribe(context.Context, channelplatformsmodel.ChannelPlatform) error
-	Unsubscribe(context.Context, channelplatformsmodel.ChannelPlatform) error
+	Subscribe(context.Context, channelplatformentity.ChannelPlatform) error
+	Unsubscribe(context.Context, channelplatformentity.ChannelPlatform) error
 }
 
 type channelReader interface {
-	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error)
 }
 
 type BusListener struct {
@@ -169,18 +168,18 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		return struct{}{}, err
 	}
 
-	twitchBinding, hasTwitchBinding := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, hasTwitchBinding := channel.Binding(platformentity.PlatformTwitch)
 	hasTwitchBinding = hasTwitchBinding &&
 		twitchBinding.UserID != uuid.Nil &&
 		twitchBinding.PlatformChannelID != ""
-	kickBinding, hasKickBinding := channelbinding.Find(channel, platformentity.PlatformKick)
+	kickBinding, hasKickBinding := channel.Binding(platformentity.PlatformKick)
 	hasKickBinding = hasKickBinding &&
 		kickBinding.UserID != uuid.Nil &&
 		kickBinding.PlatformChannelID != ""
 
 	var twitchBotID string
 	if (platform == "" || platform == platformentity.PlatformTwitch) && hasTwitchBinding {
-		botConfig, configErr := channelbinding.ParseTwitchBotConfig(twitchBinding)
+		botConfig, configErr := twitchBinding.ParseTwitchBotConfig()
 		if configErr != nil {
 			c.logger.Error(
 				"cannot parse Twitch bot config",
@@ -447,7 +446,7 @@ func (c *BusListener) unsubscribe(ctx context.Context, msg eventsub.EventsubUnsu
 		return struct{}{}, err
 	}
 
-	twitchBinding, hasTwitchBinding := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, hasTwitchBinding := channel.Binding(platformentity.PlatformTwitch)
 	if (msg.Platform == "" || msg.Platform == platformentity.PlatformTwitch) &&
 		hasTwitchBinding && twitchBinding.PlatformChannelID != "" {
 		if err := c.eventSubClient.UnsubscribeChannel(ctx, twitchBinding.PlatformChannelID); err != nil {
@@ -456,7 +455,7 @@ func (c *BusListener) unsubscribe(ctx context.Context, msg eventsub.EventsubUnsu
 		}
 	}
 
-	kickBinding, hasKickBinding := channelbinding.Find(channel, platformentity.PlatformKick)
+	kickBinding, hasKickBinding := channel.Binding(platformentity.PlatformKick)
 	if (msg.Platform == "" || msg.Platform == platformentity.PlatformKick) && hasKickBinding {
 		kickUserIDStr := kickBinding.UserID.String()
 		if err := c.kickSubManager.Unsubscribe(ctx, kickBinding); err != nil {
@@ -500,7 +499,7 @@ func (c *BusListener) unsubscribeSnapshot(
 		if err != nil {
 			return struct{}{}, fmt.Errorf("parse Kick binding user ID: %w", err)
 		}
-		if err := c.kickSubManager.Unsubscribe(ctx, channelplatformsmodel.ChannelPlatform{
+		if err := c.kickSubManager.Unsubscribe(ctx, channelplatformentity.ChannelPlatform{
 			ID:                bindingID,
 			Platform:          platformentity.PlatformKick,
 			UserID:            userID,

@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/twitch"
 )
@@ -15,7 +14,7 @@ func (c *TwitchActions) AddModerator(ctx context.Context, broadcasterID, userID 
 	if err != nil {
 		return fmt.Errorf("cannot get channel by twitch id: %w", err)
 	}
-	twitchBinding, found := channelbinding.Find(channel, platform.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platform.PlatformTwitch)
 	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" {
 		return fmt.Errorf("channel has no enabled Twitch binding for broadcaster %s", broadcasterID)
 	}
@@ -54,7 +53,7 @@ func (c *TwitchActions) RemoveModerator(ctx context.Context, broadcasterID, user
 	if err != nil {
 		return fmt.Errorf("cannot get channel by twitch id: %w", err)
 	}
-	twitchBinding, found := channelbinding.Find(channel, platform.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platform.PlatformTwitch)
 	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" {
 		return fmt.Errorf("channel has no enabled Twitch binding for broadcaster %s", broadcasterID)
 	}

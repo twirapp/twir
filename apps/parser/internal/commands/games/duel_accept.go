@@ -8,7 +8,6 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -77,7 +76,7 @@ var DuelAccept = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
-		twitchBinding, ok := channelbinding.Find(dbChannel, platform.PlatformTwitch)
+		twitchBinding, ok := dbChannel.Binding(platform.PlatformTwitch)
 		if !ok {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetDbChannel),
