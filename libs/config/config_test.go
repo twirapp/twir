@@ -26,7 +26,6 @@ func TestNewWithEnvPath_LoadsVKVideoConfiguration(t *testing.T) {
 	t.Setenv("VK_VIDEO_ENABLED", "true")
 	t.Setenv("VK_VIDEO_CLIENT_ID", "vk-client-id")
 	t.Setenv("VK_VIDEO_CLIENT_SECRET", "vk-client-secret")
-	t.Setenv("VK_VIDEO_SERVICE_TOKEN", "vk-service-token")
 	t.Setenv("VK_VIDEO_CALLBACK_URL", "https://twir.example.test/auth/vk/callback")
 	t.Setenv("VK_VIDEO_WEBHOOK_SECRET", "vk-webhook-secret")
 	t.Setenv("VK_VIDEO_API_BASE_URL", "https://id.example.test")
@@ -40,7 +39,6 @@ func TestNewWithEnvPath_LoadsVKVideoConfiguration(t *testing.T) {
 		"VKVideoEnabled":       true,
 		"VKVideoClientID":      "vk-client-id",
 		"VKVideoClientSecret":  "vk-client-secret",
-		"VKVideoServiceToken":  "vk-service-token",
 		"VKVideoCallbackURL":   "https://twir.example.test/auth/vk/callback",
 		"VKVideoWebhookSecret": "vk-webhook-secret",
 		"VKVideoAPIBaseURL":    "https://id.example.test",
