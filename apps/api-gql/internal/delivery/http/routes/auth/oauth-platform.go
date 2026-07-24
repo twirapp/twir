@@ -123,6 +123,14 @@ func (a *Auth) completePlatformAuth(
 	}
 
 	err = a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
+		bindingConfig := input.BindingConfig
+		if input.Platform == platformentity.PlatformVKVideoLive {
+			var configErr error
+			bindingConfig, configErr = a.vkVideoBotBindingConfig(txCtx)
+			if configErr != nil {
+				return fmt.Errorf("get VK Video bot binding configuration: %w", configErr)
+			}
+		}
 		if input.TargetChannelID != nil {
 			channel, getChannelErr := a.channelsRepo.GetByID(txCtx, *input.TargetChannelID)
 			if getChannelErr != nil {
@@ -162,7 +170,7 @@ func (a *Auth) completePlatformAuth(
 			input.Platform,
 			platformUser.ID,
 			input.PlatformUser.ID,
-			input.BindingConfig,
+			bindingConfig,
 		)
 		if linkErr != nil {
 			return fmt.Errorf("link platform to channel: %w", linkErr)

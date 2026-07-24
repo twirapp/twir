@@ -131,7 +131,7 @@ func TestPlatformCapabilities(t *testing.T) {
 				CapabilityEventsReward,
 			},
 		},
-		{platform: PlatformVKVideoLive, want: Capabilities{}},
+		{platform: PlatformVKVideoLive, want: Capabilities{CapabilityChatWrite}},
 		{platform: "unknown", want: Capabilities{}},
 	}
 

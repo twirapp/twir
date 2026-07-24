@@ -123,6 +123,15 @@ func (s *Service) Connect(ctx context.Context, channelID uuid.UUID, platform pla
 	if s.oauth == nil {
 		return "", fmt.Errorf("platform OAuth service is not configured")
 	}
+	if platform == platformentity.PlatformVKVideoLive {
+		configured, err := s.oauth.VKVideoBotConfigured(ctx)
+		if err != nil {
+			return "", fmt.Errorf("check VK Video bot setup: %w", err)
+		}
+		if !configured {
+			return "", authroutes.ErrVKVideoBotNotConfigured
+		}
+	}
 
 	return s.oauth.StartPlatformAuthForChannel(ctx, channelID, platform)
 }

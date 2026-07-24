@@ -155,6 +155,15 @@ func (c *Config) GetVkCallbackUrl() string {
 	return u.JoinPath("login", "vk").String()
 }
 
+func (c *Config) GetVkVideoBotCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("api", "auth", "vk-video", "bot-callback").String()
+}
+
 func (c *Config) GetKickCallbackUrl() string {
 	u, err := url.Parse(c.SiteBaseUrl)
 	if err != nil {

@@ -87,6 +87,10 @@ type channelBindingUpdater interface {
 	) (channelplatformentity.ChannelPlatform, error)
 }
 
+type channelCacheInvalidator interface {
+	Invalidate(ctx context.Context, key string) error
+}
+
 type usersLookup interface {
 	GetByID(ctx context.Context, id uuid.UUID) (usersmodel.User, error)
 }
@@ -99,7 +103,7 @@ type Service struct {
 	config                  config.Config
 	logger                  *slog.Logger
 	twirBus                 *buscore.Bus
-	channelsCache           *generic_cacher.GenericCacher[channelentity.Channel]
+	channelsCache           channelCacheInvalidator
 	channelPlatformsRepo    channelBindingUpdater
 	channelService          channelLookup
 	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
@@ -437,7 +441,7 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 		return nil, fmt.Errorf("channel not found")
 	}
 
-	statuses := make([]entity.BotStatus, 0, 2)
+	statuses := make([]entity.BotStatus, 0, 3)
 
 	twitchBinding, twitchBotConfig, hasTwitchBinding, err := channel.TwitchBinding()
 	if err != nil {
@@ -454,6 +458,10 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 
 	if kickBinding, hasKickBinding := channel.Binding(platformentity.PlatformKick); hasKickBinding {
 		statuses = append(statuses, c.getKickBotStatus(ctx, channel, kickBinding))
+	}
+
+	if vkVideoLiveBinding, hasVKVideoLiveBinding := channel.Binding(platformentity.PlatformVKVideoLive); hasVKVideoLiveBinding {
+		statuses = append(statuses, c.getVKVideoLiveBotStatus(ctx, channel, vkVideoLiveBinding))
 	}
 
 	if len(statuses) == 0 {
@@ -482,6 +490,26 @@ func (c *Service) getKickBotStatus(
 		ChannelName: c.getChannelName(ctx, &binding.UserID),
 		Enabled:     binding.Enabled,
 		IsMod:       true,
+	}
+
+	if binding.BotUserID != nil {
+		result.BotID = binding.BotUserID.String()
+		result.BotName = c.getChannelName(ctx, binding.BotUserID)
+	}
+
+	return result
+}
+
+func (c *Service) getVKVideoLiveBotStatus(
+	ctx context.Context,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
+) entity.BotStatus {
+	result := entity.BotStatus{
+		DashboardID: channel.ID.String(),
+		Platform:    platformentity.PlatformVKVideoLive.String(),
+		ChannelName: c.getChannelName(ctx, &binding.UserID),
+		Enabled:     binding.Enabled,
 	}
 
 	if binding.BotUserID != nil {
@@ -643,6 +671,8 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 			targetPlatform = "twitch"
 		} else if _, found := channel.Binding(platformentity.PlatformKick); found {
 			targetPlatform = "kick"
+		} else if _, found := channel.Binding(platformentity.PlatformVKVideoLive); found {
+			targetPlatform = platformentity.PlatformVKVideoLive.String()
 		} else {
 			return false, fmt.Errorf("channel has no connected platform")
 		}
@@ -651,6 +681,25 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 	isEnabled := action == BotJoinLeaveActionJoin
 
 	switch targetPlatform {
+	case platformentity.PlatformVKVideoLive.String():
+		binding, found := channel.Binding(platformentity.PlatformVKVideoLive)
+		if !found || binding.PlatformChannelID == "" {
+			return false, fmt.Errorf("VK Video Live channel id not found")
+		}
+		if binding.BotUserID == nil {
+			return false, fmt.Errorf("VK Video Live bot user id not found")
+		}
+
+		if _, err = c.channelPlatformsRepo.Patch(
+			ctx,
+			binding.ID,
+			channelplatforms.PatchInput{Enabled: &isEnabled},
+		); err != nil {
+			return false, fmt.Errorf("update VK Video Live binding enabled state: %w", err)
+		}
+
+		c.channelsCache.Invalidate(ctx, channelID)
+		return true, nil
 	case "kick":
 		binding, found := channel.Binding(platformentity.PlatformKick)
 		if !found || binding.PlatformChannelID == "" {

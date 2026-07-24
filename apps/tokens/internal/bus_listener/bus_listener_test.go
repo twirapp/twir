@@ -2,9 +2,11 @@ package bus_listener
 
 import (
 	"context"
+	"errors"
 	"io"
 	"log/slog"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -15,12 +17,14 @@ import (
 	"github.com/twirapp/twir/libs/crypto"
 	kickbotentity "github.com/twirapp/twir/libs/entities/kick_bot"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	vkvideobotentity "github.com/twirapp/twir/libs/entities/vk_video_bot"
 	"github.com/twirapp/twir/libs/integrations/vk"
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 	tokenmodel "github.com/twirapp/twir/libs/repositories/tokens/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
 )
 
 func TestRequestBotToken_DefaultsToTwitchWhenPlatformEmpty(t *testing.T) {
@@ -163,6 +167,163 @@ func TestRequestBotToken_KickRefreshesDefaultBot(t *testing.T) {
 	}
 }
 
+func TestRequestBotToken_VKVideoLiveReturnsFreshSingletonToken(t *testing.T) {
+	t.Parallel()
+
+	impl, repository, refresher, runner := newVKVideoBotTokenTestImplementation(t, 3600, "new-refresh")
+
+	response, err := impl.RequestBotToken(
+		context.Background(),
+		buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive, BotId: "ignored"},
+	)
+	if err != nil {
+		t.Fatalf("request VK Video Live bot token: %v", err)
+	}
+	if response.AccessToken != "old-access" {
+		t.Fatalf("access token = %q, want old-access", response.AccessToken)
+	}
+	if !reflect.DeepEqual(response.Scopes, []string{"chat:write"}) {
+		t.Fatalf("scopes = %#v, want chat:write", response.Scopes)
+	}
+	if response.ExpiresIn != 3600 {
+		t.Fatalf("expires in = %d, want 3600", response.ExpiresIn)
+	}
+	if repository.getCalls != 1 || repository.updateCalls != 0 {
+		t.Fatalf("repository calls = get:%d update:%d, want get:1 update:0", repository.getCalls, repository.updateCalls)
+	}
+	if refresher.calls != 0 {
+		t.Fatalf("refresh calls = %d, want 0", refresher.calls)
+	}
+	if runner.doCalls != 1 || !repository.callsWithinTransaction {
+		t.Fatalf("VK singleton access must be performed in one transaction")
+	}
+}
+
+func TestRequestBotToken_VKVideoLiveRefreshesAndPersistsRotatedRefreshToken(t *testing.T) {
+	t.Parallel()
+
+	impl, repository, refresher, _ := newVKVideoBotTokenTestImplementation(t, 1, "rotated-refresh")
+
+	response, err := impl.RequestBotToken(
+		context.Background(),
+		buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive},
+	)
+	if err != nil {
+		t.Fatalf("request VK Video Live bot token: %v", err)
+	}
+	if response.AccessToken != "new-access" {
+		t.Fatalf("access token = %q, want new-access", response.AccessToken)
+	}
+	if refresher.calls != 1 || refresher.refreshToken != "old-refresh" {
+		t.Fatalf("unexpected refresh invocation: %#v", refresher)
+	}
+	if repository.updateCalls != 1 {
+		t.Fatalf("update calls = %d, want 1", repository.updateCalls)
+	}
+	persistedRefreshToken, err := crypto.Decrypt(repository.updated.EncryptedRefreshToken, impl.config.TokensCipherKey)
+	if err != nil {
+		t.Fatalf("decrypt persisted refresh token: %v", err)
+	}
+	if persistedRefreshToken != "rotated-refresh" {
+		t.Fatalf("persisted refresh token = %q, want rotated-refresh", persistedRefreshToken)
+	}
+}
+
+func TestRequestBotToken_VKVideoLivePreservesRefreshTokenWhenProviderOmitsIt(t *testing.T) {
+	t.Parallel()
+
+	impl, repository, _, _ := newVKVideoBotTokenTestImplementation(t, 1, "")
+
+	if _, err := impl.RequestBotToken(
+		context.Background(),
+		buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive},
+	); err != nil {
+		t.Fatalf("request VK Video Live bot token: %v", err)
+	}
+
+	persistedRefreshToken, err := crypto.Decrypt(repository.updated.EncryptedRefreshToken, impl.config.TokensCipherKey)
+	if err != nil {
+		t.Fatalf("decrypt persisted refresh token: %v", err)
+	}
+	if persistedRefreshToken != "old-refresh" {
+		t.Fatalf("persisted refresh token = %q, want old-refresh", persistedRefreshToken)
+	}
+}
+
+func TestRequestBotToken_VKVideoLiveReportsMissingSingleton(t *testing.T) {
+	t.Parallel()
+
+	impl, repository, _, _ := newVKVideoBotTokenTestImplementation(t, 3600, "new-refresh")
+	repository.getErr = vkvideobotsrepository.ErrNotFound
+
+	_, err := impl.RequestBotToken(
+		context.Background(),
+		buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive},
+	)
+	if !errors.Is(err, vkvideobotsrepository.ErrNotFound) {
+		t.Fatalf("error = %v, want wrapped ErrNotFound", err)
+	}
+	if strings.Contains(err.Error(), "old-access") || strings.Contains(err.Error(), "old-refresh") {
+		t.Fatalf("missing singleton error must not contain token data: %v", err)
+	}
+}
+
+func TestRequestBotToken_VKVideoLiveBoundsEncryptionFailures(t *testing.T) {
+	t.Parallel()
+
+	impl, _, refresher, _ := newVKVideoBotTokenTestImplementation(t, 1, "new-refresh")
+	refresher.onRefresh = func() {
+		impl.config.TokensCipherKey = "invalid"
+	}
+
+	_, err := impl.RequestBotToken(
+		context.Background(),
+		buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive},
+	)
+	if err == nil {
+		t.Fatal("expected encryption error")
+	}
+	if strings.Contains(err.Error(), "new-access") || strings.Contains(err.Error(), "old-refresh") {
+		t.Fatalf("encryption error must not contain token data: %v", err)
+	}
+}
+
+func TestRequestBotToken_VKVideoLiveSerializesRefreshBeforeSingletonReplacement(t *testing.T) {
+	t.Parallel()
+
+	impl, repository, refresher, runner := newVKVideoBotTokenTestImplementation(t, 1, "new-refresh")
+	replacement := repository.bot
+	replacement.EncryptedAccessToken = mustEncrypt(t, "replacement-access", impl.config.TokensCipherKey)
+	replacement.EncryptedRefreshToken = mustEncrypt(t, "replacement-refresh", impl.config.TokensCipherKey)
+	replacement.VKUserID = uuid.New()
+	refresher.onRefresh = func() {
+		runner.afterDo = func() {
+			repository.bot = replacement
+		}
+	}
+
+	response, err := impl.RequestBotToken(
+		context.Background(),
+		buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive},
+	)
+	if err != nil {
+		t.Fatalf("request VK Video Live bot token: %v", err)
+	}
+	if response.AccessToken != "new-access" {
+		t.Fatalf("access token = %q, want new-access", response.AccessToken)
+	}
+	if !repository.callsWithinTransaction {
+		t.Fatal("singleton get and update must remain inside the transaction")
+	}
+	persistedAccessToken, err := crypto.Decrypt(repository.bot.EncryptedAccessToken, impl.config.TokensCipherKey)
+	if err != nil {
+		t.Fatalf("decrypt replacement access token: %v", err)
+	}
+	if persistedAccessToken != "replacement-access" {
+		t.Fatalf("stale refresh overwrote replacement with %q", persistedAccessToken)
+	}
+}
+
 func TestRequestUserToken_VKRefreshesAndPersistsRotatedTokens(t *testing.T) {
 	impl, repo, refresher := newVKTokenTestImplementation(t, "new-refresh")
 
@@ -270,6 +431,65 @@ func newVKTokenTestImplementation(t *testing.T, refreshToken string) (*tokensImp
 	}, repo, refresher
 }
 
+func newVKVideoBotTokenTestImplementation(
+	t *testing.T,
+	expiresIn int,
+	refreshedRefreshToken string,
+) (*tokensImpl, *fakeVKVideoBotsRepository, *fakeVKTokenRefresher, *fakeTransactionRunner) {
+	t.Helper()
+
+	const cipherKey = "pnyfwfiulmnqlhkvixaeligpprcnlyke"
+	repository := &fakeVKVideoBotsRepository{
+		callsWithinTransaction: true,
+		bot: vkvideobotentity.VKVideoBot{
+			ID:                    uuid.New(),
+			EncryptedAccessToken:  mustEncrypt(t, "old-access", cipherKey),
+			EncryptedRefreshToken: mustEncrypt(t, "old-refresh", cipherKey),
+			Scopes:                []string{"chat:write"},
+			ExpiresIn:             expiresIn,
+			ObtainmentTimestamp:   time.Now().UTC().Add(-time.Hour),
+			VKUserID:              uuid.New(),
+		},
+	}
+	if expiresIn > 1 {
+		repository.bot.ObtainmentTimestamp = time.Now().UTC()
+	}
+	runner := &fakeTransactionRunner{}
+	repository.transactionRunner = runner
+	refresher := &fakeVKTokenRefresher{
+		response: &vk.OAuthToken{
+			AccessToken:  "new-access",
+			RefreshToken: refreshedRefreshToken,
+			ExpiresIn:    7200,
+			Scopes:       []string{"chat:write", "channel:read"},
+		},
+	}
+
+	return &tokensImpl{
+		config:          cfg.Config{TokensCipherKey: cipherKey},
+		log:             slog.New(slog.NewTextHandler(io.Discard, nil)),
+		vkVideoBotsRepo: repository,
+		newMutex: func(string) lockableMutex {
+			return fakeMutex{}
+		},
+		newVKBotTokenRefresher: func() (vkTokenRefresher, error) {
+			return refresher, nil
+		},
+		transactionRunner: runner,
+	}, repository, refresher, runner
+}
+
+func mustEncrypt(t *testing.T, value, key string) string {
+	t.Helper()
+
+	encryptedValue, err := crypto.Encrypt(value, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return encryptedValue
+}
+
 type fakeMutex struct{}
 
 func (fakeMutex) Lock() error           { return nil }
@@ -287,11 +507,15 @@ type fakeVKTokenRefresher struct {
 	refreshToken string
 	response     *vk.OAuthToken
 	err          error
+	onRefresh    func()
 }
 
 func (f *fakeVKTokenRefresher) RefreshToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error) {
 	f.calls++
 	f.refreshToken = refreshToken
+	if f.onRefresh != nil {
+		f.onRefresh()
+	}
 	return f.response, f.err
 }
 
@@ -358,6 +582,76 @@ type fakeKickBotsRepository struct {
 	getDefaultCalls int
 	updateCalls     int
 	updated         kickbotsrepository.UpdateTokenInput
+}
+
+type fakeTransactionRunner struct {
+	active  bool
+	doCalls int
+	afterDo func()
+}
+
+func (f *fakeTransactionRunner) Do(ctx context.Context, callback func(context.Context) error) error {
+	f.doCalls++
+	f.active = true
+	err := callback(ctx)
+	f.active = false
+	if f.afterDo != nil {
+		f.afterDo()
+	}
+
+	return err
+}
+
+type fakeVKVideoBotsRepository struct {
+	bot                    vkvideobotentity.VKVideoBot
+	getErr                 error
+	updateErr              error
+	getCalls               int
+	updateCalls            int
+	updated                vkvideobotsrepository.UpdateInput
+	callsWithinTransaction bool
+	transactionRunner      *fakeTransactionRunner
+}
+
+func (f *fakeVKVideoBotsRepository) Get(context.Context) (vkvideobotentity.VKVideoBot, error) {
+	f.getCalls++
+	f.callsWithinTransaction = f.callsWithinTransaction && f.transactionRunner.active
+	if f.getErr != nil {
+		return vkvideobotentity.Nil, f.getErr
+	}
+
+	return f.bot, nil
+}
+
+func (f *fakeVKVideoBotsRepository) Lock(context.Context) error {
+	return nil
+}
+
+func (f *fakeVKVideoBotsRepository) Upsert(
+	context.Context,
+	vkvideobotsrepository.UpsertInput,
+) (vkvideobotentity.VKVideoBot, error) {
+	panic("unexpected call")
+}
+
+func (f *fakeVKVideoBotsRepository) Update(
+	_ context.Context,
+	input vkvideobotsrepository.UpdateInput,
+) (vkvideobotentity.VKVideoBot, error) {
+	f.updateCalls++
+	f.callsWithinTransaction = f.callsWithinTransaction && f.transactionRunner.active
+	f.updated = input
+	if f.updateErr != nil {
+		return vkvideobotentity.Nil, f.updateErr
+	}
+
+	f.bot.EncryptedAccessToken = input.EncryptedAccessToken
+	f.bot.EncryptedRefreshToken = input.EncryptedRefreshToken
+	f.bot.Scopes = input.Scopes
+	f.bot.ExpiresIn = input.ExpiresIn
+	f.bot.ObtainmentTimestamp = input.ObtainmentTimestamp
+	f.bot.VKUserID = input.VKUserID
+	return f.bot, nil
 }
 
 type fakeUsersRepository struct {
@@ -431,3 +725,4 @@ func (f *fakeKickBotsRepository) UpdateToken(ctx context.Context, id uuid.UUID, 
 var _ tokensrepository.Repository = (*fakeTokensRepository)(nil)
 var _ kickbotsrepository.Repository = (*fakeKickBotsRepository)(nil)
 var _ usersrepository.Repository = (*fakeUsersRepository)(nil)
+var _ vkvideobotsrepository.Repository = (*fakeVKVideoBotsRepository)(nil)
