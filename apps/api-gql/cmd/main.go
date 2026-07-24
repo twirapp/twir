@@ -726,7 +726,7 @@ func newPlatformRegistry(
 	kickProvider *kickplatform.Provider,
 ) (*platform.Registry, error) {
 	return platform.NewFeatureGatedRegistry(
-		config.VKVideoEnabled,
+		config.IsVkVideoEnabled(),
 		[]platform.PlatformProvider{twitchProvider, kickProvider},
 		func() (platform.PlatformProvider, error) {
 			provider, err := vkvideo.New(vkvideo.Opts{Config: config})

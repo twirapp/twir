@@ -67,7 +67,7 @@ type kickTokenRefresher interface {
 }
 
 type vkTokenRefresher interface {
-	RefreshToken(ctx context.Context, input vk.IDRefreshTokenInput) (*vk.IDToken, error)
+	RefreshToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error)
 }
 
 type tokensImpl struct {
@@ -171,11 +171,12 @@ func NewTokens(opts Opts) error {
 			})
 		},
 		newVKTokenRefresher: func() (vkTokenRefresher, error) {
-			return vk.NewIDClient(vk.IDClientOpts{
+			return vk.NewOAuthClient(vk.OAuthClientOpts{
 				ClientID:     opts.Config.VKVideoClientID,
-				ServiceToken: opts.Config.VKVideoServiceToken,
-				RedirectURL:  opts.Config.VKVideoCallbackURL,
+				ClientSecret: opts.Config.VKVideoClientSecret,
+				RedirectURL:  opts.Config.GetVkCallbackUrl(),
 				APIBaseURL:   opts.Config.VKVideoAPIBaseURL,
+				AuthBaseURL:  opts.Config.VKVideoAuthBaseURL,
 			})
 		},
 		spotifyTokenURL:  "https://accounts.spotify.com/api/token",
@@ -348,19 +349,7 @@ func (c *tokensImpl) RequestUserToken(
 			refreshedExpiresIn = kickTokens.ExpiresIn
 			refreshedScopes = kickTokens.Scopes
 		case platformentity.PlatformVKVideoLive:
-			if token.DeviceID == nil || *token.DeviceID == "" {
-				return tokens.TokenResponse{}, errors.New("VK refresh requires a stored device ID")
-			}
-
-			decryptedDeviceID, decryptErr := crypto.Decrypt(*token.DeviceID, c.config.TokensCipherKey)
-			if decryptErr != nil {
-				return tokens.TokenResponse{}, fmt.Errorf("decrypt VK device ID: %w", decryptErr)
-			}
-			if decryptedDeviceID == "" {
-				return tokens.TokenResponse{}, errors.New("VK refresh requires a stored device ID")
-			}
-
-			vkTokens, refreshErr := c.refreshVKToken(ctx, decryptedRefreshToken, decryptedDeviceID)
+			vkTokens, refreshErr := c.refreshVKToken(ctx, decryptedRefreshToken)
 			if refreshErr != nil {
 				return tokens.TokenResponse{}, fmt.Errorf("VK refresh token: %w", refreshErr)
 			}
@@ -471,16 +460,13 @@ func (c *tokensImpl) refreshKickToken(ctx context.Context, refreshToken string) 
 	}, nil
 }
 
-func (c *tokensImpl) refreshVKToken(ctx context.Context, refreshToken, deviceID string) (*vk.IDToken, error) {
+func (c *tokensImpl) refreshVKToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error) {
 	client, err := c.newVKTokenRefresher()
 	if err != nil {
-		return nil, fmt.Errorf("create VK ID client: %w", err)
+		return nil, fmt.Errorf("create VK Video OAuth client: %w", err)
 	}
 
-	return client.RefreshToken(ctx, vk.IDRefreshTokenInput{
-		RefreshToken: refreshToken,
-		DeviceID:     deviceID,
-	})
+	return client.RefreshToken(ctx, refreshToken)
 }
 
 func (c *tokensImpl) RequestBotToken(

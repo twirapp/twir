@@ -2,6 +2,7 @@ package vkvideo
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,59 +19,105 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
-func TestProviderBuildsVKIDAuthorizationURL(t *testing.T) {
+func TestProviderBuildsDevAPIAuthorizationURL(t *testing.T) {
 	provider := newTestProvider(t, roundTripFunc(func(*http.Request) (*http.Response, error) {
 		t.Fatal("authorization URL must not make an HTTP request")
 		return nil, nil
 	}))
 
-	url := provider.GetAuthURL("state-value", "pkce-challenge")
-	if !strings.Contains(url, "response_type=code") || !strings.Contains(url, "scope=vkid.personal_info") {
-		t.Fatalf("unexpected VK ID authorization URL: %s", url)
+	rawURL := provider.GetAuthURL("state-value", "ignored-pkce-challenge")
+	if !strings.HasPrefix(rawURL, "https://auth.example.test/app/oauth2/authorize?") {
+		t.Fatalf("unexpected VK Video authorization URL: %s", rawURL)
+	}
+	if !strings.Contains(rawURL, "response_type=code") || !strings.Contains(rawURL, "scope=user_info") {
+		t.Fatalf("unexpected VK Video authorization URL: %s", rawURL)
+	}
+	if strings.Contains(rawURL, "code_challenge") {
+		t.Fatalf("VK Video DevAPI authorization must not use PKCE: %s", rawURL)
 	}
 }
 
-func TestProviderExchangeCodeMapsTokensAndDeviceID(t *testing.T) {
+func TestProviderExchangeCodeUsesBasicAuthAndMapsTokens(t *testing.T) {
 	provider := newTestProvider(t, roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		if req.URL.Path != "/oauth2/auth" {
+		if req.URL.Path != "/oauth/server/token" {
+			t.Errorf("unexpected endpoint: %s", req.URL)
+		}
+		wantAuth := "Basic " + base64.StdEncoding.EncodeToString([]byte("client-id:client-secret"))
+		if auth := req.Header.Get("Authorization"); auth != wantAuth {
+			t.Errorf("authorization header = %q, want %q", auth, wantAuth)
+		}
+		if err := req.ParseForm(); err != nil {
+			t.Fatalf("parse request form: %v", err)
+		}
+		if got := req.PostForm.Get("code"); got != "authorization-code" {
+			t.Errorf("code = %q, want authorization-code", got)
+		}
+		if got := req.PostForm.Get("grant_type"); got != "authorization_code" {
+			t.Errorf("grant_type = %q, want authorization_code", got)
+		}
+
+		return providerResponse(http.StatusOK, `{"access_token":"access-token","refresh_token":"refresh-token","expires_in":3600,"token_type":"Bearer"}`), nil
+	}))
+
+	tokens, err := provider.ExchangeCode(context.Background(), appplatform.ExchangeCodeInput{
+		Code: "authorization-code",
+	})
+	if err != nil {
+		t.Fatalf("exchange VK Video code: %v", err)
+	}
+	if tokens.AccessToken != "access-token" || tokens.RefreshToken != "refresh-token" || tokens.ExpiresIn != 3600 {
+		t.Fatalf("unexpected platform tokens: %#v", tokens)
+	}
+	if tokens.DeviceID != "" {
+		t.Fatalf("VK Video DevAPI tokens must not carry a device ID: %#v", tokens)
+	}
+}
+
+func TestProviderRefreshTokenSendsRefreshGrant(t *testing.T) {
+	provider := newTestProvider(t, roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		if req.URL.Path != "/oauth/server/token" {
 			t.Errorf("unexpected endpoint: %s", req.URL)
 		}
 		if err := req.ParseForm(); err != nil {
 			t.Fatalf("parse request form: %v", err)
 		}
-		if got := req.PostForm.Get("device_id"); got != "device-id" {
-			t.Errorf("device_id = %q, want device-id", got)
+		if got := req.PostForm.Get("grant_type"); got != "refresh_token" {
+			t.Errorf("grant_type = %q, want refresh_token", got)
+		}
+		if got := req.PostForm.Get("refresh_token"); got != "refresh-token" {
+			t.Errorf("refresh_token = %q, want refresh-token", got)
 		}
 
-		return providerResponse(http.StatusOK, `{"access_token":"access-token","refresh_token":"refresh-token","expires_in":3600,"scope":"vkid.personal_info"}`), nil
+		return providerResponse(http.StatusOK, `{"access_token":"new-access-token","refresh_token":"new-refresh-token","expires_in":7200,"token_type":"Bearer"}`), nil
 	}))
 
-	tokens, err := provider.ExchangeCode(context.Background(), appplatform.ExchangeCodeInput{
-		Code:         "authorization-code",
-		CodeVerifier: "pkce-verifier",
-		DeviceID:     "device-id",
+	tokens, err := provider.RefreshToken(context.Background(), appplatform.RefreshTokenInput{
+		RefreshToken: "refresh-token",
 	})
 	if err != nil {
-		t.Fatalf("exchange VK ID code: %v", err)
+		t.Fatalf("refresh VK Video token: %v", err)
 	}
-	if tokens.AccessToken != "access-token" || tokens.RefreshToken != "refresh-token" || tokens.ExpiresIn != 3600 || tokens.DeviceID != "device-id" {
+	if tokens.AccessToken != "new-access-token" || tokens.RefreshToken != "new-refresh-token" || tokens.ExpiresIn != 7200 {
 		t.Fatalf("unexpected platform tokens: %#v", tokens)
 	}
 }
 
-func TestProviderGetUserMapsVKIDProfileWithoutLogin(t *testing.T) {
+func TestProviderGetUserMapsDevAPIProfile(t *testing.T) {
 	provider := newTestProvider(t, roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		if req.URL.Path != "/oauth2/user_info" {
+		if req.URL.Path != "/v1/current_user" {
 			t.Errorf("unexpected endpoint: %s", req.URL)
 		}
-		return providerResponse(http.StatusOK, `{"user":{"user_id":"123","first_name":"Ada","last_name":"Lovelace","avatar":"https://cdn.example.test/avatar.jpg"}}`), nil
+		if auth := req.Header.Get("Authorization"); auth != "Bearer access-token" {
+			t.Errorf("authorization header = %q, want Bearer access-token", auth)
+		}
+		return providerResponse(http.StatusOK, `{"data":{"user":{"id":123,"nick":"ada","avatar_url":"https://cdn.example.test/avatar.jpg"}}}`), nil
 	}))
 
 	user, err := provider.GetUser(context.Background(), "access-token")
 	if err != nil {
-		t.Fatalf("get VK ID user: %v", err)
+		t.Fatalf("get VK Video user: %v", err)
 	}
-	if user.ID != "123" || user.Login != "" || user.DisplayName != "Ada Lovelace" || user.Avatar != "https://cdn.example.test/avatar.jpg" {
+	if user.ID != "123" || user.Login != "ada" || user.DisplayName != "ada" || user.Avatar != "https://cdn.example.test/avatar.jpg" {
 		t.Fatalf("unexpected platform user: %#v", user)
 	}
 }
@@ -78,15 +125,16 @@ func TestProviderGetUserMapsVKIDProfileWithoutLogin(t *testing.T) {
 func newTestProvider(t *testing.T, transport http.RoundTripper) *Provider {
 	t.Helper()
 
-	client, err := vk.NewIDClient(vk.IDClientOpts{
+	client, err := vk.NewOAuthClient(vk.OAuthClientOpts{
 		ClientID:     "client-id",
-		ServiceToken: "service-token",
+		ClientSecret: "client-secret",
 		RedirectURL:  "https://twir.example.test/auth/vk/callback",
-		APIBaseURL:   "https://id.example.test",
+		APIBaseURL:   "https://api.example.test",
+		AuthBaseURL:  "https://auth.example.test",
 		HTTPClient:   &http.Client{Transport: transport},
 	})
 	if err != nil {
-		t.Fatalf("create VK ID client: %v", err)
+		t.Fatalf("create VK Video OAuth client: %v", err)
 	}
 
 	return &Provider{client: client}

@@ -537,17 +537,6 @@ export interface KickAuthorizeResponse {
   authorize_url: string;
 }
 
-export interface KickCodeBody {
-  /**
-   * A URL to the JSON Schema for this object.
-   * @format uri
-   */
-  $schema?: string;
-  /** @minLength 1 */
-  code: string;
-  state: string;
-}
-
 export interface KickCommandDtoResponse {
   text: string;
 }
@@ -661,6 +650,18 @@ export interface PasteBinOutputDto {
   expire_at: string | null;
   id: string;
   owner_user_id: string | null;
+}
+
+export interface PlatformCodeBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  /** @minLength 1 */
+  code: string;
+  device_id: string;
+  state: string;
 }
 
 export interface PresetDto {
@@ -911,6 +912,31 @@ export enum ScheduledVipOutputDtoRemoveTypeEnum {
 export enum StreamPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
+  VkVideoLive = "vk_video_live",
+}
+
+export enum AuthPlatformAuthorizeParamsPlatformEnum {
+  Twitch = "twitch",
+  Kick = "kick",
+  VkVideoLive = "vk_video_live",
+}
+
+export enum AuthPlatformAuthorizeParamsEnum {
+  Twitch = "twitch",
+  Kick = "kick",
+  VkVideoLive = "vk_video_live",
+}
+
+export enum AuthPlatformCodeParamsPlatformEnum {
+  Twitch = "twitch",
+  Kick = "kick",
+  VkVideoLive = "vk_video_live",
+}
+
+export enum AuthPlatformCodeParamsEnum {
+  Twitch = "twitch",
+  Kick = "kick",
+  VkVideoLive = "vk_video_live",
 }
 
 /** @default "views" */
@@ -928,11 +954,13 @@ export enum ShortUrlGetStatisticsParamsIntervalEnum {
 export enum PublicV2ChannelCommandsByPlatformIdParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
+  VkVideoLive = "vk_video_live",
 }
 
 export enum PublicV2ChannelCommandsByPlatformIdParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
+  VkVideoLive = "vk_video_live",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1237,9 +1265,54 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonAuthResponseDto` OK
      * @response `default` `ErrorModel` Error
      */
-    authKickCode: (data: KickCodeBody, params: RequestParams = {}) =>
+    authKickCode: (data: PlatformCodeBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonAuthResponseDto, any>({
         path: `/auth/kick/code`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthPlatformAuthorize
+     * @summary Get platform OAuth authorize URL
+     * @request GET:/auth/{platform}/authorize
+     * @response `200` `KickAuthorizeResponse` OK
+     * @response `default` `ErrorModel` Error
+     */
+    authPlatformAuthorize: (
+      platform: AuthPlatformAuthorizeParamsEnum,
+      query?: {
+        redirect_to?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<KickAuthorizeResponse, any>({
+        path: `/auth/${platform}/authorize`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthPlatformCode
+     * @summary Platform OAuth code exchange
+     * @request POST:/auth/{platform}/code
+     * @response `200` `BaseOutputBodyJsonAuthResponseDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    authPlatformCode: (platform: AuthPlatformCodeParamsEnum, data: PlatformCodeBody, params: RequestParams = {}) =>
+      this.http.request<BaseOutputBodyJsonAuthResponseDto, any>({
+        path: `/auth/${platform}/code`,
         method: "POST",
         body: data,
         type: ContentType.Json,
