@@ -1,5 +1,3 @@
-import { ogEnMessages } from '../utils/og-en-messages'
-
 interface UseAppSeoOptions {
 	titleKey: string
 	descriptionKey: string
@@ -20,10 +18,5 @@ export function useAppSeo(options: UseAppSeoOptions) {
 		twitterCard: 'summary_large_image',
 		twitterTitle: title,
 		twitterDescription: description,
-	})
-
-	defineOgImage('Twir', {
-		title: ogEnMessages[options.titleKey] ?? t(options.titleKey),
-		description: ogEnMessages[options.descriptionKey] ?? t(options.descriptionKey),
 	})
 }

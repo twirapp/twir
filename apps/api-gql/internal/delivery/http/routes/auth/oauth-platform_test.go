@@ -1035,7 +1035,7 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 	}
 	state := parsedURL.Query().Get("state")
 	attempt, ok := sessions.attempts[state]
-	if !ok || attempt.TargetChannelID == nil || *attempt.TargetChannelID != selectedDashboardID || attempt.InitiatorUserID == nil || *attempt.InitiatorUserID != collaboratorID || attempt.ExpiresAt.IsZero() || attempt.RedirectTo != "/dashboard/bot-settings" {
+	if !ok || attempt.TargetChannelID == nil || *attempt.TargetChannelID != selectedDashboardID || attempt.InitiatorUserID == nil || *attempt.InitiatorUserID != collaboratorID || attempt.ExpiresAt.IsZero() || attempt.RedirectTo != "/dashboard/platforms" {
 		t.Fatalf("stored OAuth attempt = %+v, want selected dashboard %s", attempt, selectedDashboardID)
 	}
 
@@ -1419,7 +1419,7 @@ func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProvide
 		attempts: map[string]authsessions.OAuthAttempt{
 			state: {
 				Platform:        platformentity.PlatformKick,
-				RedirectTo:      "/dashboard/bot-settings",
+				RedirectTo:      "/dashboard/platforms",
 				CodeVerifier:    "stored-pkce-verifier",
 				TargetChannelID: &targetChannelID,
 				InitiatorUserID: &initiatorUserID,

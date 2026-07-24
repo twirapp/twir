@@ -21,7 +21,7 @@ import { Switch } from '@/components/ui/switch'
 const props = withDefaults(
 	defineProps<{
 		platform: Platform
-		presentation: { label: string; icon: string }
+		presentation: { label: string; icon: string; iconClass?: string }
 		capabilities: { name: string }[]
 		binding: ChannelPlatformBinding | null
 		busy?: boolean
@@ -61,7 +61,8 @@ function setEnabled(enabled: boolean) {
 		<CardHeader class="flex flex-row items-start gap-3">
 			<Icon
 				:name="presentation.icon"
-				class="size-5 shrink-0 text-muted-foreground"
+				class="size-5 shrink-0"
+				:class="presentation.iconClass"
 			/>
 			<div class="flex min-w-0 flex-1 flex-col gap-1">
 				<CardTitle>{{ presentation.label }}</CardTitle>

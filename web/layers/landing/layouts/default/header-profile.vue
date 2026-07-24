@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { UserStoreKey } from '~/stores/user'
-import KickIcon from '~~/layers/landing/components/kick-icon.vue'
 
 const userStore = useAuth()
 
@@ -18,14 +17,14 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 			@click="() => userStore.login()"
 		>
 			Twitch
-			<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
+			<Icon name="simple-icons:twitch" class="w-5 h-5 text-white" />
 		</button>
 		<button
 			class="flex flex-row px-4 py-2 items-center gap-2 bg-[#27272a] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 cursor-pointer hover:bg-[#27272a]/80 transition-shadow"
 			@click="() => userStore.loginWithKick()"
 		>
 			Kick
-			<KickIcon class="text-[#53FC18]" />
+			<Icon name="simple-icons:kick" class="w-5 h-5 text-[#53FC18]" />
 		</button>
 	</div>
 
@@ -43,7 +42,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 			<span class="max-[600px]:hidden truncate">
 				{{ userStore.userWithoutDashboards?.twitchProfile?.login ?? userStore.userWithoutDashboards?.kickProfile?.displayName ?? '' }}
 			</span>
-				<KickIcon v-if="isKickUser" class="w-4 h-4 text-[#53FC18] shrink-0" />
+				<Icon v-if="isKickUser" name="simple-icons:kick" class="w-4 h-4 text-[#53FC18] shrink-0" />
 				<Icon name="lucide:chevron-down" class="w-4 h-4 shrink-0" />
 			</div>
 		</UiDropdownMenuTrigger>

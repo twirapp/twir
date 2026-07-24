@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL } from '@twir/brand'
-import KickIcon from '~~/layers/landing/components/kick-icon.vue'
 import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
 
 import { UserStoreKey } from '~/stores/user'
@@ -87,7 +86,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 								@click="userStore.loginWithKick()"
 							>
 								Start with Kick
-								<KickIcon class="text-[#53FC18]" />
+								<Icon name="simple-icons:kick" class="h-5 w-5 text-[#53FC18]" />
 							</button>
 						</template>
 					</div>

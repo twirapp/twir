@@ -2,6 +2,12 @@
 import { DISCORD_INVITE_URL, GITHUB_ORG_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
 import 'vue-sonner/style.css'
 import { Toaster } from '@/components/ui/sonner'
+import { ogEnMessages } from './utils/og-en-messages'
+
+interface OgImageRoute {
+	readonly titleKey: string
+	readonly descriptionKey: string
+}
 
 const description =
 	'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.'
@@ -12,6 +18,35 @@ const keywords =
 const metaImg = '/meta.webp'
 
 useColorMode()
+
+const ogImageRoutes: Readonly<Record<string, OgImageRoute>> = Object.freeze({
+	index: {
+		titleKey: 'landing.meta.title',
+		descriptionKey: 'landing.meta.description',
+	},
+	compare: {
+		titleKey: 'compare.meta.title',
+		descriptionKey: 'compare.meta.description',
+	},
+	terms: {
+		titleKey: 'terms.meta.title',
+		descriptionKey: 'terms.meta.description',
+	},
+})
+
+const route = useRoute()
+const routeBaseName = useRouteBaseName()(route)
+const ogImageRoute = routeBaseName ? ogImageRoutes[routeBaseName] : undefined
+const { t } = useI18n()
+
+if (ogImageRoute) {
+	defineOgImage('Twir', {
+		title: ogEnMessages[ogImageRoute.titleKey] ?? t(ogImageRoute.titleKey),
+		description: ogEnMessages[ogImageRoute.descriptionKey] ?? t(ogImageRoute.descriptionKey),
+	})
+} else {
+	defineOgImage('Twir', undefined, { url: metaImg })
+}
 
 const i18nHead = useLocaleHead({ seo: true })
 useHead(() => ({

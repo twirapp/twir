@@ -28,10 +28,9 @@ import { developers, socialLinkLabels } from './team-data.js'
 							target="_blank"
 							:aria-label="socialLinkLabels[name]"
 						>
-							<SvgoSocialTwitch
+							<Icon
 								v-if="name === 'twitch'"
-								:fontControlled="false"
-								:filled="true"
+								name="simple-icons:twitch"
 								class="w-5 h-5 text-[#ADB0B8]"
 							/>
 							<SvgoSocialTelegram
