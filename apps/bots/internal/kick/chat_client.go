@@ -14,8 +14,8 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 type botTokenRequester interface {
@@ -40,7 +40,7 @@ func NewChatClient(twirBus *buscore.Bus, config cfg.Config) *ChatClient {
 
 func (c *ChatClient) SendMessage(
 	ctx context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 	text string,
 	replyToMessageID string,
 ) error {

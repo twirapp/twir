@@ -6,11 +6,10 @@ import (
 	"time"
 
 	"github.com/alitto/pond/v2"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"go.uber.org/atomic"
 	"go.uber.org/fx"
 )
@@ -96,10 +95,10 @@ func (c *Pool) setSize(ctx context.Context) {
 	)
 }
 
-func countEnabledTwitchChannels(channels []channelsmodel.Channel) int {
+func countEnabledTwitchChannels(channels []channelentity.Channel) int {
 	count := 0
 	for _, channel := range channels {
-		binding, ok := channelbinding.Find(channel, platform.PlatformTwitch)
+		binding, ok := channel.Binding(platform.PlatformTwitch)
 		if ok && binding.Enabled {
 			count++
 		}

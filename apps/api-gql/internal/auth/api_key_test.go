@@ -9,10 +9,10 @@ import (
 	"github.com/google/uuid"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepo "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -40,8 +40,8 @@ func TestGetAuthenticatedUserByApiKeyResolvesChannelOwnerFromBindings(t *testing
 				ApiKey:     "owner-api-key",
 			}
 			channels := &apiKeyChannelsRepository{
-				channel: channelsmodel.Channel{
-					Bindings: []channelplatformsmodel.ChannelPlatform{{
+				channel: channelentity.Channel{
+					Bindings: []channelplatformentity.ChannelPlatform{{
 						Platform: tt.platform,
 						UserID:   ownerID,
 					}},
@@ -85,8 +85,8 @@ func TestGetAuthenticatedUserByApiKeyPreservesBindingOwnershipPriority(t *testin
 	kickOwnerID := uuid.New()
 	vkOwnerID := uuid.New()
 	channels := &apiKeyChannelsRepository{
-		channel: channelsmodel.Channel{
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+		channel: channelentity.Channel{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platform.PlatformKick, UserID: kickOwnerID},
 				{Platform: platform.PlatformVKVideoLive, UserID: vkOwnerID},
 				{Platform: platform.PlatformTwitch, UserID: twitchOwnerID},
@@ -121,7 +121,7 @@ func TestGetAuthenticatedUserByApiKeyFallsBackToUserKeyWhenChannelOwnershipCanno
 	}{
 		{
 			name:     "channel has no bindings",
-			channels: &apiKeyChannelsRepository{channel: channelsmodel.Channel{}},
+			channels: &apiKeyChannelsRepository{channel: channelentity.Channel{}},
 			users: &apiKeyUsersRepository{userByAPIKey: usersmodel.User{
 				ID: uuid.New(),
 			}},
@@ -135,7 +135,7 @@ func TestGetAuthenticatedUserByApiKeyFallsBackToUserKeyWhenChannelOwnershipCanno
 		},
 		{
 			name: "binding owner lookup fails",
-			channels: &apiKeyChannelsRepository{channel: channelsmodel.Channel{Bindings: []channelplatformsmodel.ChannelPlatform{{
+			channels: &apiKeyChannelsRepository{channel: channelentity.Channel{Bindings: []channelplatformentity.ChannelPlatform{{
 				Platform: platform.PlatformTwitch,
 				UserID:   uuid.New(),
 			}}}},
@@ -170,7 +170,7 @@ func TestGetAuthenticatedUserByApiKeyFallsBackWhenBindingOwnerIsNilWithoutError(
 	bindingOwnerID := uuid.New()
 	fallbackUserID := uuid.New()
 	channels := &apiKeyChannelsRepository{
-		channel: channelsmodel.Channel{Bindings: []channelplatformsmodel.ChannelPlatform{{
+		channel: channelentity.Channel{Bindings: []channelplatformentity.ChannelPlatform{{
 			Platform: platform.PlatformTwitch,
 			UserID:   bindingOwnerID,
 		}}},
@@ -264,7 +264,7 @@ func newAPIKeyAuthForTest(
 }
 
 type apiKeyChannelsRepository struct {
-	channel        channelsmodel.Channel
+	channel        channelentity.Channel
 	getByAPIKeyErr error
 	apiKeyLookups  []string
 	contexts       []context.Context
@@ -273,46 +273,46 @@ type apiKeyChannelsRepository struct {
 func (r *apiKeyChannelsRepository) GetByApiKey(
 	ctx context.Context,
 	apiKey string,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	r.contexts = append(r.contexts, ctx)
 	r.apiKeyLookups = append(r.apiKeyLookups, apiKey)
 	if r.getByAPIKeyErr != nil {
-		return channelsmodel.Nil, r.getByAPIKeyErr
+		return channelentity.Nil, r.getByAPIKeyErr
 	}
 
 	return r.channel, nil
 }
 
-func (*apiKeyChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelsmodel.Channel, error) {
+func (*apiKeyChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelentity.Channel, error) {
 	return nil, nil
 }
 
-func (*apiKeyChannelsRepository) GetAllByBindingPlatform(context.Context, platform.Platform) ([]channelsmodel.Channel, error) {
+func (*apiKeyChannelsRepository) GetAllByBindingPlatform(context.Context, platform.Platform) ([]channelentity.Channel, error) {
 	return nil, nil
 }
 
-func (*apiKeyChannelsRepository) GetByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (*apiKeyChannelsRepository) GetByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (*apiKeyChannelsRepository) GetByBindingUserID(
 	context.Context,
 	platform.Platform,
 	uuid.UUID,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (*apiKeyChannelsRepository) GetByPlatformChannelID(
 	context.Context,
 	platform.Platform,
 	string,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
-func (*apiKeyChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (*apiKeyChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (*apiKeyChannelsRepository) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
@@ -323,12 +323,12 @@ func (*apiKeyChannelsRepository) Update(
 	context.Context,
 	uuid.UUID,
 	channelsrepo.UpdateInput,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
-func (*apiKeyChannelsRepository) Create(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (*apiKeyChannelsRepository) Create(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 type apiKeyUsersRepository struct {

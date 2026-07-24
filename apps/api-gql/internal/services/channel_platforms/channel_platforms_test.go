@@ -1,23 +1,26 @@
 package channel_platforms
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"reflect"
-	"strings"
 	"testing"
 
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/google/uuid"
+	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
-	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsrepo "github.com/twirapp/twir/libs/repositories/channel_platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
+	usersrepo "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
 func TestListIncludesRegisteredBindingsProfilesAndCapabilities(t *testing.T) {
@@ -28,14 +31,14 @@ func TestListIncludesRegisteredBindingsProfilesAndCapabilities(t *testing.T) {
 	kickUserID := uuid.New()
 	vkUserID := uuid.New()
 	service := &Service{
-		channels: fakeChannelReader{channel: channelsmodel.Channel{
+		channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: twitchUserID, PlatformChannelID: "twitch-channel", Enabled: true},
 				{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: kickUserID, PlatformChannelID: "kick-channel", Enabled: false},
 				{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformVKVideoLive, UserID: vkUserID, PlatformChannelID: "vk-channel", Enabled: true},
 			},
-		}},
+		}}),
 		users: fakeUserLookup{users: map[uuid.UUID]usersmodel.User{
 			twitchUserID: {ID: twitchUserID, PlatformID: "twitch-user", Login: "twitch-login", DisplayName: "Twitch Name", Avatar: "https://example.com/twitch.png"},
 			kickUserID:   {ID: kickUserID, PlatformID: "kick-user", Login: "kick-login", DisplayName: "Kick Name"},
@@ -72,12 +75,12 @@ func TestListOmitsBindingsForUnavailablePlatforms(t *testing.T) {
 	channelID := uuid.New()
 	vkUserID := uuid.New()
 	service := &Service{
-		channels: fakeChannelReader{channel: channelsmodel.Channel{
+		channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{{
+			Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformVKVideoLive, UserID: vkUserID, PlatformChannelID: "vk-channel", Enabled: true,
 			}},
-		}},
+		}}),
 		users:    fakeUserLookup{users: map[uuid.UUID]usersmodel.User{vkUserID: {ID: vkUserID}}},
 		registry: testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 	}
@@ -111,34 +114,24 @@ func TestOptionsReturnsRegisteredPlatformsInDomainOrder(t *testing.T) {
 	}
 }
 
-func TestBindingOperationsUseGenericDependencies(t *testing.T) {
+func TestBindingOperationsUseRepositoryDependencies(t *testing.T) {
 	t.Parallel()
 
 	channelID := uuid.New()
 	userID := uuid.New()
-	binding := channelplatformsmodel.ChannelPlatform{
+	binding := channelplatformentity.ChannelPlatform{
 		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: userID, PlatformChannelID: "kick-channel", Enabled: true,
 	}
 	repository := &fakeBindingRepository{binding: binding}
-	oauth := &fakeOAuthStarter{url: "https://provider.example/authorize"}
 	service := &Service{
-		channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+		channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{
 			binding,
 			{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel"},
-		}}},
+		}}}),
 		users:        fakeUserLookup{users: map[uuid.UUID]usersmodel.User{userID: {ID: userID, PlatformID: "kick-user"}}},
 		bindings:     repository,
-		oauth:        oauth,
 		registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 		transactions: &disconnectTransactionRunner{},
-	}
-
-	url, err := service.Connect(context.Background(), channelID, platformentity.PlatformKick)
-	if err != nil {
-		t.Fatalf("Connect() error = %v", err)
-	}
-	if url != oauth.url || oauth.channelID != channelID || oauth.platform != platformentity.PlatformKick {
-		t.Fatalf("Connect() = %q, starter = %#v", url, oauth)
 	}
 
 	updated, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, false)
@@ -162,7 +155,7 @@ func TestSetEnabledUsesTransactionContext(t *testing.T) {
 
 	channelID := uuid.New()
 	userID := uuid.New()
-	binding := channelplatformsmodel.ChannelPlatform{
+	binding := channelplatformentity.ChannelPlatform{
 		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: userID, PlatformChannelID: "kick-channel", Enabled: true,
 	}
 	service := &Service{
@@ -181,29 +174,59 @@ func TestSetEnabledUsesTransactionContext(t *testing.T) {
 	}
 }
 
-func TestServiceExposesEventSubPublisher(t *testing.T) {
-	serviceType := reflect.TypeOf(Service{})
-	field, found := serviceType.FieldByName("eventSub")
-	if !found {
-		t.Fatal("channel platform service is missing eventSub")
+func TestServiceUsesRequiredDirectDependencies(t *testing.T) {
+	serviceType := reflect.TypeFor[Service]()
+	want := map[string]reflect.Type{
+		"channels":     reflect.TypeFor[*channelservice.ChannelService](),
+		"users":        reflect.TypeFor[usersrepo.Repository](),
+		"bindings":     reflect.TypeFor[channelplatformsrepo.Repository](),
+		"oauth":        reflect.TypeFor[*authroutes.Auth](),
+		"transactions": reflect.TypeFor[trm.Manager](),
+		"bus":          reflect.TypeFor[*buscore.Bus](),
 	}
-	if field.Type.Kind() != reflect.Interface {
-		t.Fatalf("eventSub type = %s, want interface", field.Type)
-	}
-	for _, method := range []string{"Subscribe", "Unsubscribe"} {
-		if _, found := field.Type.MethodByName(method); !found {
-			t.Fatalf("eventSub publisher is missing %s", method)
+
+	for fieldName, wantType := range want {
+		field, found := serviceType.FieldByName(fieldName)
+		if !found {
+			t.Fatalf("channel platform service is missing %s dependency", fieldName)
+		}
+		if field.Type != wantType {
+			t.Fatalf("%s dependency type = %s, want %s", fieldName, field.Type, wantType)
 		}
 	}
 }
 
-func TestSetEnabledPublishesLifecycleAfterCommit(t *testing.T) {
+func TestNewFxWiresDirectDependencies(t *testing.T) {
+	channels := newTestChannelService(fakeChannelReader{})
+	users := fakeUserLookup{}
+	bindings := &fakeBindingRepository{}
+	auth := &authroutes.Auth{}
+	registry := testRegistry(platformentity.PlatformTwitch)
+	transactions := &disconnectTransactionRunner{}
+	bus := &buscore.Bus{}
+
+	service := NewFx(Opts{
+		ChannelService:       channels,
+		UsersRepository:      users,
+		ChannelPlatformsRepo: bindings,
+		Auth:                 auth,
+		PlatformRegistry:     registry,
+		TrmManager:           transactions,
+		TwirBus:              bus,
+	})
+
+	if service.channels != channels || !reflect.DeepEqual(service.users, users) || service.bindings != bindings || service.oauth != auth || service.registry != registry || service.transactions != transactions || service.bus != bus {
+		t.Fatalf("NewFx() did not retain direct dependencies: %#v", service)
+	}
+}
+
+func TestSetEnabledCompletesWhenEventSubIsUnavailable(t *testing.T) {
 	t.Parallel()
 
 	for _, enabled := range []bool{false, true} {
 		t.Run(fmt.Sprintf("enabled_%t", enabled), func(t *testing.T) {
 			channelID := uuid.New()
-			binding := channelplatformsmodel.ChannelPlatform{
+			binding := channelplatformentity.ChannelPlatform{
 				ID:                uuid.New(),
 				ChannelID:         channelID,
 				Platform:          platformentity.PlatformKick,
@@ -212,13 +235,12 @@ func TestSetEnabledPublishesLifecycleAfterCommit(t *testing.T) {
 				Enabled:           !enabled,
 			}
 			transaction := &lifecycleTransactionRunner{}
-			publisher := &recordingEventSubPublisher{committed: &transaction.committed}
 			service := &Service{
 				bindings:     &fakeBindingRepository{binding: binding},
 				users:        fakeUserLookup{users: map[uuid.UUID]usersmodel.User{binding.UserID: {ID: binding.UserID}}},
 				registry:     testRegistry(platformentity.PlatformKick),
 				transactions: transaction,
-				eventSub:     publisher,
+				bus:          &buscore.Bus{},
 			}
 
 			updated, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, enabled)
@@ -229,33 +251,13 @@ func TestSetEnabledPublishesLifecycleAfterCommit(t *testing.T) {
 				t.Fatalf("updated binding = %+v, committed = %t", updated.Binding, transaction.committed)
 			}
 
-			if enabled {
-				want := eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID.String(), Platform: platformentity.PlatformKick}
-				if !reflect.DeepEqual(publisher.subscribeRequests, []eventsub.EventsubSubscribeToAllEventsRequest{want}) || len(publisher.unsubscribeRequests) != 0 {
-					t.Fatalf("subscribe = %#v, unsubscribe = %#v", publisher.subscribeRequests, publisher.unsubscribeRequests)
-				}
-				return
-			}
-
-			want := eventsub.EventsubUnsubscribeRequest{
-				ChannelID: channelID.String(),
-				Platform:  platformentity.PlatformKick,
-				Binding: &eventsub.EventsubBindingSnapshot{
-					ID:                binding.ID.String(),
-					UserID:            binding.UserID.String(),
-					PlatformChannelID: binding.PlatformChannelID,
-				},
-			}
-			if !reflect.DeepEqual(publisher.unsubscribeRequests, []eventsub.EventsubUnsubscribeRequest{want}) || len(publisher.subscribeRequests) != 0 {
-				t.Fatalf("unsubscribe = %#v, subscribe = %#v", publisher.unsubscribeRequests, publisher.subscribeRequests)
-			}
 		})
 	}
 }
 
-func TestDisconnectPublishesBindingSnapshotAfterCommit(t *testing.T) {
+func TestDisconnectCompletesWhenEventSubIsUnavailable(t *testing.T) {
 	channelID := uuid.New()
-	binding := channelplatformsmodel.ChannelPlatform{
+	binding := channelplatformentity.ChannelPlatform{
 		ID:                uuid.New(),
 		ChannelID:         channelID,
 		Platform:          platformentity.PlatformKick,
@@ -264,40 +266,30 @@ func TestDisconnectPublishesBindingSnapshotAfterCommit(t *testing.T) {
 		Enabled:           true,
 	}
 	transaction := &lifecycleTransactionRunner{}
-	publisher := &recordingEventSubPublisher{committed: &transaction.committed}
 	repository := &fakeBindingRepository{binding: binding}
 	service := &Service{
-		channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+		channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{
 			binding,
 			{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
-		}}},
+		}}}),
 		bindings:     repository,
 		registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 		transactions: transaction,
-		eventSub:     publisher,
+		bus:          &buscore.Bus{},
 	}
 
 	if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformKick); err != nil {
 		t.Fatalf("disconnect: %v", err)
 	}
-	want := eventsub.EventsubUnsubscribeRequest{
-		ChannelID: channelID.String(),
-		Platform:  platformentity.PlatformKick,
-		Binding: &eventsub.EventsubBindingSnapshot{
-			ID:                binding.ID.String(),
-			UserID:            binding.UserID.String(),
-			PlatformChannelID: binding.PlatformChannelID,
-		},
-	}
-	if repository.deletedID != binding.ID || !transaction.committed || !reflect.DeepEqual(publisher.unsubscribeRequests, []eventsub.EventsubUnsubscribeRequest{want}) {
-		t.Fatalf("deleted = %s, committed = %t, unsubscribe = %#v", repository.deletedID, transaction.committed, publisher.unsubscribeRequests)
+	if repository.deletedID != binding.ID || !transaction.committed {
+		t.Fatalf("deleted = %s, committed = %t", repository.deletedID, transaction.committed)
 	}
 }
 
-func TestBindingLifecycleDoesNotPublishWhenTransactionFails(t *testing.T) {
+func TestBindingLifecycleReturnsTransactionFailure(t *testing.T) {
 	commitErr := errors.New("commit failed")
 	channelID := uuid.New()
-	binding := channelplatformsmodel.ChannelPlatform{
+	binding := channelplatformentity.ChannelPlatform{
 		ID:                uuid.New(),
 		ChannelID:         channelID,
 		Platform:          platformentity.PlatformKick,
@@ -308,110 +300,56 @@ func TestBindingLifecycleDoesNotPublishWhenTransactionFails(t *testing.T) {
 
 	t.Run("set enabled", func(t *testing.T) {
 		transaction := &lifecycleTransactionRunner{commitErr: commitErr}
-		publisher := &recordingEventSubPublisher{committed: &transaction.committed}
 		service := &Service{
 			bindings:     &fakeBindingRepository{binding: binding},
 			registry:     testRegistry(platformentity.PlatformKick),
 			transactions: transaction,
-			eventSub:     publisher,
+			bus:          &buscore.Bus{},
 		}
 		if _, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, false); !errors.Is(err, commitErr) {
 			t.Fatalf("set enabled error = %v, want %v", err, commitErr)
-		}
-		if len(publisher.subscribeRequests) != 0 || len(publisher.unsubscribeRequests) != 0 {
-			t.Fatalf("published requests = subscribe %#v unsubscribe %#v", publisher.subscribeRequests, publisher.unsubscribeRequests)
 		}
 	})
 
 	t.Run("disconnect", func(t *testing.T) {
 		transaction := &lifecycleTransactionRunner{commitErr: commitErr}
-		publisher := &recordingEventSubPublisher{committed: &transaction.committed}
 		service := &Service{
-			channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+			channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{
 				binding,
 				{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
-			}}},
+			}}}),
 			bindings:     &fakeBindingRepository{binding: binding},
 			registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 			transactions: transaction,
-			eventSub:     publisher,
+			bus:          &buscore.Bus{},
 		}
 		if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformKick); !errors.Is(err, commitErr) {
 			t.Fatalf("disconnect error = %v, want %v", err, commitErr)
 		}
-		if len(publisher.subscribeRequests) != 0 || len(publisher.unsubscribeRequests) != 0 {
-			t.Fatalf("published requests = subscribe %#v unsubscribe %#v", publisher.subscribeRequests, publisher.unsubscribeRequests)
-		}
 	})
 }
 
-func TestSetEnabledSucceedsAndLogsPostCommitPublishErrors(t *testing.T) {
+func TestSetEnabledSucceedsWhenEventSubIsUnavailable(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range []struct {
-		name           string
-		enabled        bool
-		subscribeErr   error
-		unsubscribeErr error
-	}{
-		{name: "subscribe", enabled: true, subscribeErr: errors.New("subscribe publish failed")},
-		{name: "unsubscribe", enabled: false, unsubscribeErr: errors.New("unsubscribe publish failed")},
-	} {
-		t.Run(test.name, func(t *testing.T) {
-			channelID := uuid.New()
-			userID := uuid.New()
-			binding := channelplatformsmodel.ChannelPlatform{
-				ID:                uuid.New(),
-				ChannelID:         channelID,
-				Platform:          platformentity.PlatformKick,
-				UserID:            userID,
-				PlatformChannelID: "kick-channel",
-				Enabled:           !test.enabled,
-			}
-			repository := &fakeBindingRepository{binding: binding}
-			transaction := &lifecycleTransactionRunner{}
-			publisher := &recordingEventSubPublisher{
-				committed:      &transaction.committed,
-				subscribeErr:   test.subscribeErr,
-				unsubscribeErr: test.unsubscribeErr,
-			}
-			var logs bytes.Buffer
-			service := &Service{
-				bindings:     repository,
-				users:        fakeUserLookup{users: map[uuid.UUID]usersmodel.User{userID: {ID: userID}}},
-				registry:     testRegistry(platformentity.PlatformKick),
-				transactions: transaction,
-				eventSub:     publisher,
-				logger:       slog.New(slog.NewJSONHandler(&logs, nil)),
-			}
+	channelID := uuid.New()
+	userID := uuid.New()
+	binding := channelplatformentity.ChannelPlatform{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: userID, Enabled: false}
+	repository := &fakeBindingRepository{binding: binding}
+	service := &Service{
+		bindings:     repository,
+		users:        fakeUserLookup{users: map[uuid.UUID]usersmodel.User{userID: {ID: userID}}},
+		registry:     testRegistry(platformentity.PlatformKick),
+		transactions: &lifecycleTransactionRunner{},
+		bus:          &buscore.Bus{},
+	}
 
-			updated, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, test.enabled)
-			if err != nil {
-				t.Fatalf("SetEnabled() error = %v", err)
-			}
-			if !transaction.committed || updated.Binding.Enabled != test.enabled || repository.patch.Enabled == nil || *repository.patch.Enabled != test.enabled {
-				t.Fatalf("updated = %#v, patch = %#v, committed = %t", updated, repository.patch, transaction.committed)
-			}
-
-			if test.enabled {
-				if len(publisher.subscribeRequests) != 1 || len(publisher.unsubscribeRequests) != 0 {
-					t.Fatalf("subscribe = %#v, unsubscribe = %#v", publisher.subscribeRequests, publisher.unsubscribeRequests)
-				}
-			} else if len(publisher.unsubscribeRequests) != 1 || len(publisher.subscribeRequests) != 0 {
-				t.Fatalf("unsubscribe = %#v, subscribe = %#v", publisher.unsubscribeRequests, publisher.subscribeRequests)
-			}
-
-			for _, want := range []string{
-				`"level":"ERROR"`,
-				fmt.Sprintf(`"msg":"cannot publish eventsub %s"`, test.name),
-				fmt.Sprintf(`"channel_id":%q`, channelID.String()),
-				fmt.Sprintf(`"platform":%q`, binding.Platform.String()),
-			} {
-				if !strings.Contains(logs.String(), want) {
-					t.Fatalf("log = %q, want %q", logs.String(), want)
-				}
-			}
-		})
+	updated, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, true)
+	if err != nil {
+		t.Fatalf("SetEnabled() error = %v", err)
+	}
+	if !updated.Binding.Enabled || repository.patch.Enabled == nil || !*repository.patch.Enabled {
+		t.Fatalf("updated = %#v, patch = %#v", updated, repository.patch)
 	}
 }
 
@@ -419,15 +357,15 @@ func TestDisconnectRejectsLastAvailableBindingWhenDisabledPlatformIsHidden(t *te
 	t.Parallel()
 
 	channelID := uuid.New()
-	twitchBinding := channelplatformsmodel.ChannelPlatform{
+	twitchBinding := channelplatformentity.ChannelPlatform{
 		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true,
 	}
 	repository := &fakeBindingRepository{binding: twitchBinding}
 	service := &Service{
-		channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+		channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{
 			twitchBinding,
 			{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformVKVideoLive, UserID: uuid.New(), PlatformChannelID: "vk-channel", Enabled: false},
-		}}},
+		}}}),
 		bindings:     repository,
 		registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 		transactions: &disconnectTransactionRunner{},
@@ -447,7 +385,7 @@ func TestBindingOperationsRejectUnavailablePlatform(t *testing.T) {
 
 	channelID := uuid.New()
 	service := &Service{
-		channels: fakeChannelReader{channel: channelsmodel.Channel{ID: channelID}},
+		channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{ID: channelID}}),
 		registry: testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 	}
 
@@ -466,19 +404,19 @@ func TestDisconnectLocksBindingsBeforeReloadAndDelete(t *testing.T) {
 	t.Parallel()
 
 	channelID := uuid.New()
-	twitchBinding := channelplatformsmodel.ChannelPlatform{
+	twitchBinding := channelplatformentity.ChannelPlatform{
 		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true,
 	}
 	events := make([]string, 0, 4)
 	repository := &orderedDisconnectBindingRepository{binding: twitchBinding, events: &events}
 	service := &Service{
-		channels: orderedDisconnectChannelReader{
-			channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+		channels: newTestChannelService(orderedDisconnectChannelReader{
+			channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{
 				twitchBinding,
 				{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: uuid.New(), PlatformChannelID: "kick-channel", Enabled: true},
 			}},
 			events: &events,
-		},
+		}),
 		bindings:     repository,
 		registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 		transactions: &disconnectTransactionRunner{},
@@ -501,7 +439,7 @@ func TestDisconnectStopsWhenBindingLockFails(t *testing.T) {
 	events := make([]string, 0, 4)
 	repository := &orderedDisconnectBindingRepository{lockErr: lockErr, events: &events}
 	service := &Service{
-		channels:     orderedDisconnectChannelReader{events: &events},
+		channels:     newTestChannelService(orderedDisconnectChannelReader{events: &events}),
 		bindings:     repository,
 		registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
 		transactions: &disconnectTransactionRunner{},
@@ -520,24 +458,22 @@ func TestDisconnectUsesTransactionContextForLockReloadAndDelete(t *testing.T) {
 	t.Parallel()
 
 	channelID := uuid.New()
-	twitchBinding := channelplatformsmodel.ChannelPlatform{
+	twitchBinding := channelplatformentity.ChannelPlatform{
 		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true,
 	}
 	events := make([]string, 0, 4)
-	service := New(
-		transactionAwareChannelReader{
-			channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{
+	service := &Service{
+		channels: newTestChannelService(transactionAwareChannelReader{
+			channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{
 				twitchBinding,
 				{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: uuid.New(), PlatformChannelID: "kick-channel", Enabled: true},
 			}},
 			events: &events,
-		},
-		nil,
-		&transactionAwareBindingRepository{binding: twitchBinding, events: &events},
-		nil,
-		testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
-		&disconnectTransactionRunner{},
-	)
+		}),
+		bindings:     &transactionAwareBindingRepository{binding: twitchBinding, events: &events},
+		registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+		transactions: &disconnectTransactionRunner{},
+	}
 
 	if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformTwitch); err != nil {
 		t.Fatalf("Disconnect() error = %v", err)
@@ -551,19 +487,17 @@ func TestDisconnectSerializedOperationsKeepOneAvailableBinding(t *testing.T) {
 	t.Parallel()
 
 	channelID := uuid.New()
-	state := &serializedDisconnectState{channelID: channelID, bindings: []channelplatformsmodel.ChannelPlatform{
+	state := &serializedDisconnectState{channelID: channelID, bindings: []channelplatformentity.ChannelPlatform{
 		{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
 		{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: uuid.New(), PlatformChannelID: "kick-channel", Enabled: true},
 	}}
 	repository := &serializedDisconnectBindingRepository{state: state}
-	service := New(
-		serializedDisconnectChannelReader{state: state},
-		nil,
-		repository,
-		nil,
-		testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
-		&disconnectTransactionRunner{},
-	)
+	service := &Service{
+		channels:     newTestChannelService(serializedDisconnectChannelReader{state: state}),
+		bindings:     repository,
+		registry:     testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+		transactions: &disconnectTransactionRunner{},
+	}
 
 	if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformTwitch); err != nil {
 		t.Fatalf("first Disconnect() error = %v", err)
@@ -576,26 +510,33 @@ func TestDisconnectSerializedOperationsKeepOneAvailableBinding(t *testing.T) {
 	}
 }
 
+func newTestChannelService(repository channelsrepo.Repository) *channelservice.ChannelService {
+	return channelservice.NewChannelService(repository, nil, config.Config{}, nil, nil)
+}
+
 type fakeChannelReader struct {
-	channel channelsmodel.Channel
+	channelsrepo.Repository
+	channel channelentity.Channel
 	err     error
 }
 
 type orderedDisconnectChannelReader struct {
-	channel channelsmodel.Channel
+	channelsrepo.Repository
+	channel channelentity.Channel
 	events  *[]string
 }
 
-func (r orderedDisconnectChannelReader) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+func (r orderedDisconnectChannelReader) GetByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	*r.events = append(*r.events, "read")
 	return r.channel, nil
 }
 
-func (f fakeChannelReader) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+func (f fakeChannelReader) GetByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return f.channel, f.err
 }
 
 type fakeUserLookup struct {
+	usersrepo.Repository
 	users map[uuid.UUID]usersmodel.User
 }
 
@@ -608,7 +549,8 @@ func (f fakeUserLookup) GetByID(_ context.Context, id uuid.UUID) (usersmodel.Use
 }
 
 type fakeBindingRepository struct {
-	binding   channelplatformsmodel.ChannelPlatform
+	channelplatformsrepo.Repository
+	binding   channelplatformentity.ChannelPlatform
 	patch     channelplatformsrepo.PatchInput
 	deletedID uuid.UUID
 }
@@ -631,44 +573,28 @@ func (r *lifecycleTransactionRunner) Do(ctx context.Context, fn func(context.Con
 	return nil
 }
 
-type recordingEventSubPublisher struct {
-	committed           *bool
-	subscribeErr        error
-	unsubscribeErr      error
-	subscribeRequests   []eventsub.EventsubSubscribeToAllEventsRequest
-	unsubscribeRequests []eventsub.EventsubUnsubscribeRequest
-}
-
-func (p *recordingEventSubPublisher) Subscribe(_ context.Context, request eventsub.EventsubSubscribeToAllEventsRequest) error {
-	if p.committed != nil && !*p.committed {
-		return errors.New("subscribe published before transaction commit")
-	}
-	p.subscribeRequests = append(p.subscribeRequests, request)
-	return p.subscribeErr
-}
-
-func (p *recordingEventSubPublisher) Unsubscribe(_ context.Context, request eventsub.EventsubUnsubscribeRequest) error {
-	if p.committed != nil && !*p.committed {
-		return errors.New("unsubscribe published before transaction commit")
-	}
-	p.unsubscribeRequests = append(p.unsubscribeRequests, request)
-	return p.unsubscribeErr
+func (r *lifecycleTransactionRunner) DoWithSettings(
+	ctx context.Context,
+	_ trm.Settings,
+	fn func(context.Context) error,
+) error {
+	return r.Do(ctx, fn)
 }
 
 type transactionAwareSetEnabledBindingRepository struct {
 	fakeBindingRepository
 }
 
-func (r *transactionAwareSetEnabledBindingRepository) GetByChannelAndPlatform(ctx context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *transactionAwareSetEnabledBindingRepository) GetByChannelAndPlatform(ctx context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 	if ctx.Value(lifecycleTransactionContextKey{}) != true {
-		return channelplatformsmodel.Nil, errors.New("binding lookup did not receive transaction context")
+		return channelplatformentity.Nil, errors.New("binding lookup did not receive transaction context")
 	}
 	return r.binding, nil
 }
 
-func (r *transactionAwareSetEnabledBindingRepository) Patch(ctx context.Context, _ uuid.UUID, input channelplatformsrepo.PatchInput) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *transactionAwareSetEnabledBindingRepository) Patch(ctx context.Context, _ uuid.UUID, input channelplatformsrepo.PatchInput) (channelplatformentity.ChannelPlatform, error) {
 	if ctx.Value(lifecycleTransactionContextKey{}) != true {
-		return channelplatformsmodel.Nil, errors.New("binding patch did not receive transaction context")
+		return channelplatformentity.Nil, errors.New("binding patch did not receive transaction context")
 	}
 	r.patch = input
 	updated := r.binding
@@ -683,7 +609,8 @@ func (*fakeBindingRepository) LockByChannelID(context.Context, uuid.UUID) error 
 }
 
 type orderedDisconnectBindingRepository struct {
-	binding channelplatformsmodel.ChannelPlatform
+	channelplatformsrepo.Repository
+	binding channelplatformentity.ChannelPlatform
 	lockErr error
 	events  *[]string
 }
@@ -693,12 +620,12 @@ func (r *orderedDisconnectBindingRepository) LockByChannelID(context.Context, uu
 	return r.lockErr
 }
 
-func (r *orderedDisconnectBindingRepository) GetByChannelAndPlatform(_ context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *orderedDisconnectBindingRepository) GetByChannelAndPlatform(_ context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 	*r.events = append(*r.events, "get")
 	return r.binding, nil
 }
 
-func (r *orderedDisconnectBindingRepository) Patch(context.Context, uuid.UUID, channelplatformsrepo.PatchInput) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *orderedDisconnectBindingRepository) Patch(context.Context, uuid.UUID, channelplatformsrepo.PatchInput) (channelplatformentity.ChannelPlatform, error) {
 	return r.binding, nil
 }
 
@@ -715,21 +642,31 @@ func (*disconnectTransactionRunner) Do(ctx context.Context, fn func(context.Cont
 	return fn(context.WithValue(ctx, disconnectTransactionContextKey{}, true))
 }
 
+func (r *disconnectTransactionRunner) DoWithSettings(
+	ctx context.Context,
+	_ trm.Settings,
+	fn func(context.Context) error,
+) error {
+	return r.Do(ctx, fn)
+}
+
 type transactionAwareChannelReader struct {
-	channel channelsmodel.Channel
+	channelsrepo.Repository
+	channel channelentity.Channel
 	events  *[]string
 }
 
-func (r transactionAwareChannelReader) GetChannelByID(ctx context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
+func (r transactionAwareChannelReader) GetByID(ctx context.Context, _ uuid.UUID) (channelentity.Channel, error) {
 	if ctx.Value(disconnectTransactionContextKey{}) != true {
-		return channelsmodel.Nil, errors.New("channel reload did not receive transaction context")
+		return channelentity.Nil, errors.New("channel reload did not receive transaction context")
 	}
 	*r.events = append(*r.events, "read")
 	return r.channel, nil
 }
 
 type transactionAwareBindingRepository struct {
-	binding channelplatformsmodel.ChannelPlatform
+	channelplatformsrepo.Repository
+	binding channelplatformentity.ChannelPlatform
 	events  *[]string
 }
 
@@ -741,15 +678,15 @@ func (r *transactionAwareBindingRepository) LockByChannelID(ctx context.Context,
 	return nil
 }
 
-func (r *transactionAwareBindingRepository) GetByChannelAndPlatform(ctx context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *transactionAwareBindingRepository) GetByChannelAndPlatform(ctx context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 	if ctx.Value(disconnectTransactionContextKey{}) != true {
-		return channelplatformsmodel.Nil, errors.New("binding reload did not receive transaction context")
+		return channelplatformentity.Nil, errors.New("binding reload did not receive transaction context")
 	}
 	*r.events = append(*r.events, "get")
 	return r.binding, nil
 }
 
-func (r *transactionAwareBindingRepository) Patch(context.Context, uuid.UUID, channelplatformsrepo.PatchInput) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *transactionAwareBindingRepository) Patch(context.Context, uuid.UUID, channelplatformsrepo.PatchInput) (channelplatformentity.ChannelPlatform, error) {
 	return r.binding, nil
 }
 
@@ -763,19 +700,21 @@ func (r *transactionAwareBindingRepository) Delete(ctx context.Context, _ uuid.U
 
 type serializedDisconnectState struct {
 	channelID uuid.UUID
-	bindings  []channelplatformsmodel.ChannelPlatform
+	bindings  []channelplatformentity.ChannelPlatform
 }
 
 type serializedDisconnectChannelReader struct {
+	channelsrepo.Repository
 	state *serializedDisconnectState
 }
 
-func (r serializedDisconnectChannelReader) GetChannelByID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
-	bindings := append([]channelplatformsmodel.ChannelPlatform(nil), r.state.bindings...)
-	return channelsmodel.Channel{ID: r.state.channelID, Bindings: bindings}, nil
+func (r serializedDisconnectChannelReader) GetByID(_ context.Context, _ uuid.UUID) (channelentity.Channel, error) {
+	bindings := append([]channelplatformentity.ChannelPlatform(nil), r.state.bindings...)
+	return channelentity.Channel{ID: r.state.channelID, Bindings: bindings}, nil
 }
 
 type serializedDisconnectBindingRepository struct {
+	channelplatformsrepo.Repository
 	state       *serializedDisconnectState
 	lockCalls   int
 	deleteCalls int
@@ -786,17 +725,17 @@ func (r *serializedDisconnectBindingRepository) LockByChannelID(context.Context,
 	return nil
 }
 
-func (r *serializedDisconnectBindingRepository) GetByChannelAndPlatform(_ context.Context, _ uuid.UUID, platform platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+func (r *serializedDisconnectBindingRepository) GetByChannelAndPlatform(_ context.Context, _ uuid.UUID, platform platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 	for _, binding := range r.state.bindings {
 		if binding.Platform == platform {
 			return binding, nil
 		}
 	}
-	return channelplatformsmodel.Nil, channelplatformsrepo.ErrNotFound
+	return channelplatformentity.Nil, channelplatformsrepo.ErrNotFound
 }
 
-func (r *serializedDisconnectBindingRepository) Patch(context.Context, uuid.UUID, channelplatformsrepo.PatchInput) (channelplatformsmodel.ChannelPlatform, error) {
-	return channelplatformsmodel.Nil, errors.New("unexpected Patch call")
+func (r *serializedDisconnectBindingRepository) Patch(context.Context, uuid.UUID, channelplatformsrepo.PatchInput) (channelplatformentity.ChannelPlatform, error) {
+	return channelplatformentity.Nil, errors.New("unexpected Patch call")
 }
 
 func (r *serializedDisconnectBindingRepository) Delete(_ context.Context, id uuid.UUID) error {
@@ -810,11 +749,11 @@ func (r *serializedDisconnectBindingRepository) Delete(_ context.Context, id uui
 	return channelplatformsrepo.ErrNotFound
 }
 
-func (f *fakeBindingRepository) GetByChannelAndPlatform(_ context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
+func (f *fakeBindingRepository) GetByChannelAndPlatform(_ context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
 	return f.binding, nil
 }
 
-func (f *fakeBindingRepository) Patch(_ context.Context, _ uuid.UUID, input channelplatformsrepo.PatchInput) (channelplatformsmodel.ChannelPlatform, error) {
+func (f *fakeBindingRepository) Patch(_ context.Context, _ uuid.UUID, input channelplatformsrepo.PatchInput) (channelplatformentity.ChannelPlatform, error) {
 	f.patch = input
 	updated := f.binding
 	if input.Enabled != nil {
@@ -844,8 +783,8 @@ type testPlatformProvider struct {
 	platform platformentity.Platform
 }
 
-func (p testPlatformProvider) Name() string {
-	return p.platform.String()
+func (p testPlatformProvider) Platform() platformentity.Platform {
+	return p.platform
 }
 
 func (testPlatformProvider) GetAuthURL(string, string) string {

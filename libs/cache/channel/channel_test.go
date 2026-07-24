@@ -6,15 +6,15 @@ import (
 
 	"github.com/google/uuid"
 	kvinmemory "github.com/twirapp/kv/stores/inmemory"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestNewByTwitchUserIDUsesTwitchPlatformChannelLookup(t *testing.T) {
 	channelID := uuid.New()
 	repository := &fakeChannelsRepository{
-		channel: channelsmodel.Channel{ID: channelID},
+		channel: channelentity.Channel{ID: channelID},
 	}
 	cacher := NewByTwitchUserID(repository, kvinmemory.New())
 
@@ -42,7 +42,7 @@ func TestNewByTwitchUserIDUsesTwitchPlatformChannelLookup(t *testing.T) {
 }
 
 type fakeChannelsRepository struct {
-	channel                channelsmodel.Channel
+	channel                channelentity.Channel
 	platformChannelLookups []platformChannelLookup
 }
 
@@ -55,7 +55,7 @@ func (f *fakeChannelsRepository) GetByPlatformChannelID(
 	_ context.Context,
 	p platform.Platform,
 	platformChannelID string,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	f.platformChannelLookups = append(
 		f.platformChannelLookups,
 		platformChannelLookup{platform: p, platformChannelID: platformChannelID},
@@ -64,32 +64,32 @@ func (f *fakeChannelsRepository) GetByPlatformChannelID(
 	return f.channel, nil
 }
 
-func (f *fakeChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelsmodel.Channel, error) {
+func (f *fakeChannelsRepository) GetMany(context.Context, channelsrepo.GetManyInput) ([]channelentity.Channel, error) {
 	return nil, nil
 }
 
-func (f *fakeChannelsRepository) GetAllByBindingPlatform(context.Context, platform.Platform) ([]channelsmodel.Channel, error) {
+func (f *fakeChannelsRepository) GetAllByBindingPlatform(context.Context, platform.Platform) ([]channelentity.Channel, error) {
 	return nil, nil
 }
 
-func (f *fakeChannelsRepository) GetByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (f *fakeChannelsRepository) GetByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
-func (f *fakeChannelsRepository) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (f *fakeChannelsRepository) GetByApiKey(context.Context, string) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (f *fakeChannelsRepository) GetByBindingUserID(
 	context.Context,
 	platform.Platform,
 	uuid.UUID,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
-func (f *fakeChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (f *fakeChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (f *fakeChannelsRepository) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
@@ -100,10 +100,10 @@ func (f *fakeChannelsRepository) Update(
 	context.Context,
 	uuid.UUID,
 	channelsrepo.UpdateInput,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
-func (f *fakeChannelsRepository) Create(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (f *fakeChannelsRepository) Create(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }

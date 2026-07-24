@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -18,7 +18,7 @@ func TestChannelPlatformBindingToGraphQLMapsProfileEnabledStateAndCapabilities(t
 	bindingID := uuid.New()
 	userID := uuid.New()
 	got, err := ChannelPlatformBindingToGraphQL(
-		channelplatformsmodel.ChannelPlatform{
+		channelplatformentity.ChannelPlatform{
 			ID:                bindingID,
 			Platform:          platformentity.PlatformTwitch,
 			UserID:            userID,
@@ -89,9 +89,9 @@ func TestMapChannelModelToGqlPublicUserMapsProfilesFromBindings(t *testing.T) {
 
 	twitchUserID := uuid.New()
 	kickUserID := uuid.New()
-	channel := channelsmodel.Channel{
+	channel := channelentity.Channel{
 		ID: uuid.New(),
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{Platform: platformentity.PlatformTwitch, UserID: twitchUserID},
 			{Platform: platformentity.PlatformKick, UserID: kickUserID},
 		},

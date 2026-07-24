@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/kvizyx/twitchy/eventsub"
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	platform "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -141,13 +140,12 @@ func (c *Handler) disableTwitchBindingForBannedBot(
 		return
 	}
 
-	twitchBinding, ok := channelbinding.Find(channel, platform.PlatformTwitch)
-	if !ok {
-		return
-	}
-	botConfig, err := channelbinding.ParseTwitchBotConfig(twitchBinding)
+	twitchBinding, botConfig, ok, err := channel.TwitchBinding()
 	if err != nil {
 		c.logger.Error("failed to parse Twitch bot config", logger.Error(err))
+		return
+	}
+	if !ok {
 		return
 	}
 	if bannedUserID != botConfig.BotID {

@@ -11,16 +11,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 type twitchChannelLookupStub struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
-func (s twitchChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+func (s twitchChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return s.channel, nil
 }
 
@@ -61,8 +61,8 @@ func newTwitchServiceTestClient(t *testing.T, transport http.RoundTripper) *heli
 	return client
 }
 
-func mixedTwitchBindings(ownerID uuid.UUID) []channelplatformsmodel.ChannelPlatform {
-	return []channelplatformsmodel.ChannelPlatform{
+func mixedTwitchBindings(ownerID uuid.UUID) []channelplatformentity.ChannelPlatform {
+	return []channelplatformentity.ChannelPlatform{
 		{
 			Platform:          platform.PlatformVKVideoLive,
 			UserID:            uuid.New(),
@@ -90,7 +90,7 @@ func TestGetChannelChatBadgesUsesSelectedTwitchBinding(t *testing.T) {
 	transport := &twitchCaptureTransport{}
 	appClientCalls := 0
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{
 			Bindings: mixedTwitchBindings(ownerID),
 		}},
 		newAppClient: func(context.Context) (*helix.Client, error) {
@@ -115,7 +115,7 @@ func TestGetChannelChatBadgesUsesSelectedTwitchBinding(t *testing.T) {
 
 func TestGetChannelChatBadgesSkipsMissingTwitchBinding(t *testing.T) {
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{
 			Bindings: mixedTwitchBindings(uuid.Nil)[:2],
 		}},
 		newAppClient: func(context.Context) (*helix.Client, error) {
@@ -140,7 +140,7 @@ func TestGetChannelChatBadgesUsesEmptySelectedTwitchProviderID(t *testing.T) {
 	transport := &twitchCaptureTransport{}
 	appClientCalls := 0
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{Bindings: bindings}},
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{Bindings: bindings}},
 		newAppClient: func(context.Context) (*helix.Client, error) {
 			appClientCalls++
 			return newTwitchServiceTestClient(t, transport), nil
@@ -162,7 +162,7 @@ func TestSetChannelInformationUsesSelectedTwitchBinding(t *testing.T) {
 	var clientOwnerID uuid.UUID
 	categoryID := "game-id"
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{
 			Bindings: mixedTwitchBindings(ownerID),
 		}},
 		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
@@ -191,7 +191,7 @@ func TestSetChannelInformationUsesSelectedTwitchBinding(t *testing.T) {
 func TestSetChannelInformationRejectsMissingTwitchBinding(t *testing.T) {
 	categoryID := "game-id"
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{
 			Bindings: mixedTwitchBindings(uuid.Nil)[:2],
 		}},
 		newUserClient: func(context.Context, uuid.UUID) (*helix.Client, error) {
@@ -217,7 +217,7 @@ func TestSetChannelInformationUsesEmptySelectedTwitchProviderID(t *testing.T) {
 	var clientOwnerID uuid.UUID
 	categoryID := "game-id"
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{Bindings: bindings}},
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{Bindings: bindings}},
 		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
 			clientOwnerID = userID
 			return newTwitchServiceTestClient(t, transport), nil
@@ -244,7 +244,7 @@ func TestGetRewardsByChannelIDUsesSelectedTwitchBinding(t *testing.T) {
 	transport := &twitchCaptureTransport{}
 	var clientOwnerID uuid.UUID
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{
 			Bindings: mixedTwitchBindings(ownerID),
 		}},
 		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
@@ -273,7 +273,7 @@ func TestGetRewardsByChannelIDUsesSelectedTwitchBinding(t *testing.T) {
 
 func TestGetRewardsByChannelIDSkipsMissingTwitchBinding(t *testing.T) {
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{
 			Bindings: mixedTwitchBindings(uuid.Nil)[:2],
 		}},
 		newUserClient: func(context.Context, uuid.UUID) (*helix.Client, error) {
@@ -298,7 +298,7 @@ func TestGetRewardsByChannelIDUsesEmptySelectedTwitchProviderID(t *testing.T) {
 	transport := &twitchCaptureTransport{}
 	var clientOwnerID uuid.UUID
 	service := &Service{
-		channelService: twitchChannelLookupStub{channel: channelsmodel.Channel{Bindings: bindings}},
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{Bindings: bindings}},
 		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
 			clientOwnerID = userID
 			return newTwitchServiceTestClient(t, transport), nil

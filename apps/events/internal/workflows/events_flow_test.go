@@ -6,15 +6,15 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/events/internal/shared"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestGetEventChannelBindingsSelectsEventAndTwitchBindingsByPlatform(t *testing.T) {
 	twitchUserID := uuid.New()
-	channel := channelsmodel.Channel{
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+	channel := channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{
 				Platform:          platform.PlatformTwitch,
 				PlatformChannelID: "twitch-channel",

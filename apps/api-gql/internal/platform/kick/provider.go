@@ -47,8 +47,8 @@ func New(opts Opts) *Provider {
 	}
 }
 
-func (p *Provider) Name() string {
-	return platformentity.PlatformKick.String()
+func (p *Provider) Platform() platformentity.Platform {
+	return platformentity.PlatformKick
 }
 
 func (p *Provider) GetAuthURL(state, codeChallenge string) string {

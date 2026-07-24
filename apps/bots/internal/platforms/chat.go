@@ -8,9 +8,9 @@ import (
 	kickchat "github.com/twirapp/twir/apps/bots/internal/kick"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 type ChatOptions struct {
@@ -22,7 +22,7 @@ type ChatOptions struct {
 
 type ChatAdapter interface {
 	platformsregistry.Provider
-	SendMessage(context.Context, channelplatformsmodel.ChannelPlatform, string, string, ChatOptions) error
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, string, string, ChatOptions) error
 }
 
 func newRegistry(adapters ...ChatAdapter) *platformsregistry.Registry[ChatAdapter] {
@@ -47,7 +47,7 @@ func NewChatRegistry(
 func Dispatch(
 	ctx context.Context,
 	registry *platformsregistry.Registry[ChatAdapter],
-	bindings []channelplatformsmodel.ChannelPlatform,
+	bindings []channelplatformentity.ChannelPlatform,
 	requestedPlatforms []platform.Platform,
 	message string,
 	replyID string,
@@ -112,7 +112,7 @@ func Dispatch(
 }
 
 type twitchMessageSender interface {
-	SendMessage(context.Context, channelplatformsmodel.ChannelPlatform, twitchactions.SendMessageOpts) error
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, twitchactions.SendMessageOpts) error
 }
 
 type twitchChatAdapter struct {
@@ -136,7 +136,7 @@ func (a twitchChatAdapter) Capabilities() platform.Capabilities {
 
 func (a twitchChatAdapter) SendMessage(
 	ctx context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 	message string,
 	replyID string,
 	options ChatOptions,
@@ -156,7 +156,7 @@ func (a twitchChatAdapter) SendMessage(
 }
 
 type kickMessageSender interface {
-	SendMessage(context.Context, channelplatformsmodel.ChannelPlatform, string, string) error
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, string, string) error
 }
 
 type kickChatAdapter struct {
@@ -180,7 +180,7 @@ func (a kickChatAdapter) Capabilities() platform.Capabilities {
 
 func (a kickChatAdapter) SendMessage(
 	ctx context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 	message string,
 	replyID string,
 	_ ChatOptions,

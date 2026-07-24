@@ -7,16 +7,16 @@ import (
 
 	"github.com/google/uuid"
 	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/channels_giveaways"
 	"github.com/twirapp/twir/libs/entities/channels_giveaways_settings"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestSendWinnerMessagePublishesSelectedTwitchNATSRequest(t *testing.T) {
 	channelID := uuid.New()
-	twitchBinding := channelplatformsmodel.ChannelPlatform{
+	twitchBinding := channelplatformentity.ChannelPlatform{
 		ChannelID:         channelID,
 		Platform:          platform.PlatformTwitch,
 		PlatformChannelID: "",
@@ -27,9 +27,9 @@ func TestSendWinnerMessagePublishesSelectedTwitchNATSRequest(t *testing.T) {
 		giveawaysSettingsRepository: giveawayTestSettingsRepository{
 			settings: channels_giveaways_settings.Settings{WinnerMessage: "winner {winner}"},
 		},
-		channelService: giveawayTestChannelLookup{channel: channelsmodel.Channel{
+		channelService: giveawayTestChannelLookup{channel: channelentity.Channel{
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{
 					ChannelID:         uuid.New(),
 					Platform:          platform.PlatformVKVideoLive,
@@ -79,9 +79,9 @@ func TestSendWinnerMessageRejectsMissingTwitchBinding(t *testing.T) {
 		giveawaysSettingsRepository: giveawayTestSettingsRepository{
 			settings: channels_giveaways_settings.Settings{WinnerMessage: "winner"},
 		},
-		channelService: giveawayTestChannelLookup{channel: channelsmodel.Channel{
+		channelService: giveawayTestChannelLookup{channel: channelentity.Channel{
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platform.PlatformVKVideoLive},
 				{Platform: platform.PlatformKick},
 			},
@@ -113,13 +113,13 @@ func (giveawayTestSettingsRepository) Update(
 }
 
 type giveawayTestChannelLookup struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
 func (r giveawayTestChannelLookup) GetChannelByID(
 	context.Context,
 	uuid.UUID,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	return r.channel, nil
 }
 

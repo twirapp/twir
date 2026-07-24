@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbusmodel "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -162,7 +161,7 @@ func (c *Service) TryAddParticipant(
 				c.logger.Error("cannot get channel for follow duration check", logger.Error(chErr))
 				return nil
 			}
-			twitchBinding, found := channelbinding.Find(ch, platform.PlatformTwitch)
+			twitchBinding, found := ch.Binding(platform.PlatformTwitch)
 			if !found || !twitchBinding.Enabled || twitchBinding.UserID == uuid.Nil ||
 				twitchBinding.PlatformChannelID == "" {
 				return nil
@@ -277,7 +276,7 @@ func (c *Service) chooseWinner(
 			if chErr != nil {
 				return giveawaysbusmodel.ChooseWinnerResponse{}, fmt.Errorf("cannot get channel: %w", chErr)
 			}
-			twitchBinding, found := channelbinding.Find(ch, platform.PlatformTwitch)
+			twitchBinding, found := ch.Binding(platform.PlatformTwitch)
 			if found && twitchBinding.Enabled && twitchBinding.UserID != uuid.Nil &&
 				twitchBinding.PlatformChannelID != "" {
 				twitchBindingUserID = twitchBinding.UserID

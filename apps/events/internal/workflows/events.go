@@ -14,8 +14,8 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -36,7 +36,7 @@ type EventsWorkflowOpts struct {
 	Hydrator                          *hydrator.Hydrator
 	Logger                            *slog.Logger
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
-	ChannelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsCache                     *generic_cacher.GenericCacher[channelentity.Channel]
 	ChannelService                    *channelservice.ChannelService
 	StreamsRepo                       streamsrepository.Repository
 }
@@ -74,7 +74,7 @@ type EventWorkflow struct {
 	redis                             *redis.Client
 	hydrator                          *hydrator.Hydrator
 	channelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
-	channelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsCache                     *generic_cacher.GenericCacher[channelentity.Channel]
 	channelService                    *channelservice.ChannelService
 	streamsRepo                       streamsrepository.Repository
 }

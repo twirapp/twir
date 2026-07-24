@@ -10,10 +10,10 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -22,19 +22,19 @@ import (
 func TestTryTickLockedDoesNotAdvanceOfflineIntervalWithoutEligibleTarget(t *testing.T) {
 	ctx := context.Background()
 	channelID := uuid.New()
-	channelCache := generic_cacher.New[channelmodel.Channel](
-		generic_cacher.Opts[channelmodel.Channel]{
+	channelCache := generic_cacher.New[channelentity.Channel](
+		generic_cacher.Opts[channelentity.Channel]{
 			KV:        kvinmemory.New(),
 			KeyPrefix: "timer-test-channel:",
-			LoadFn: func(context.Context, string) (channelmodel.Channel, error) {
-				return channelmodel.Nil, nil
+			LoadFn: func(context.Context, string) (channelentity.Channel, error) {
+				return channelentity.Nil, nil
 			},
 		},
 	)
 
-	ineligibleChannel := channelmodel.Channel{
+	ineligibleChannel := channelentity.Channel{
 		ID: channelID,
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{
 				Platform:          platform.PlatformTwitch,
 				PlatformChannelID: "twitch-channel",
@@ -77,7 +77,7 @@ func TestTryTickLockedDoesNotAdvanceOfflineIntervalWithoutEligibleTarget(t *test
 	}
 
 	eligibleChannel := ineligibleChannel
-	eligibleChannel.Bindings = append([]channelplatformsmodel.ChannelPlatform(nil), ineligibleChannel.Bindings...)
+	eligibleChannel.Bindings = append([]channelplatformentity.ChannelPlatform(nil), ineligibleChannel.Bindings...)
 	eligibleChannel.Bindings[0].Enabled = true
 	if err := channelCache.SetValue(ctx, channelID.String(), eligibleChannel); err != nil {
 		t.Fatalf("set eligible channel cache value: %v", err)

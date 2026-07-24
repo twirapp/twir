@@ -16,9 +16,9 @@ import (
 	kvinmemory "github.com/twirapp/kv/stores/inmemory"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	genericcacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
@@ -29,7 +29,7 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 	)
 
 	twitchUserID := uuid.New()
-	validTwitchBinding := channelplatformsmodel.ChannelPlatform{
+	validTwitchBinding := channelplatformentity.ChannelPlatform{
 		Platform:          platform.PlatformTwitch,
 		PlatformChannelID: broadcasterID,
 		UserID:            twitchUserID,
@@ -41,7 +41,7 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		binding     channelplatformsmodel.ChannelPlatform
+		binding     channelplatformentity.ChannelPlatform
 		wantErr     bool
 		wantAPICall bool
 	}{
@@ -52,7 +52,7 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 		},
 		{
 			name: "rejects disabled binding",
-			binding: channelplatformsmodel.ChannelPlatform{
+			binding: channelplatformentity.ChannelPlatform{
 				Platform:          platform.PlatformTwitch,
 				PlatformChannelID: broadcasterID,
 				UserID:            twitchUserID,
@@ -63,7 +63,7 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 		},
 		{
 			name: "rejects missing bot config",
-			binding: channelplatformsmodel.ChannelPlatform{
+			binding: channelplatformentity.ChannelPlatform{
 				Platform:          platform.PlatformTwitch,
 				PlatformChannelID: broadcasterID,
 				UserID:            twitchUserID,
@@ -72,7 +72,7 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 		},
 		{
 			name: "rejects malformed bot config",
-			binding: channelplatformsmodel.ChannelPlatform{
+			binding: channelplatformentity.ChannelPlatform{
 				Platform:          platform.PlatformTwitch,
 				PlatformChannelID: broadcasterID,
 				UserID:            twitchUserID,
@@ -83,7 +83,7 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 		},
 		{
 			name: "rejects non moderator bot config",
-			binding: channelplatformsmodel.ChannelPlatform{
+			binding: channelplatformentity.ChannelPlatform{
 				Platform:          platform.PlatformTwitch,
 				PlatformChannelID: broadcasterID,
 				UserID:            twitchUserID,
@@ -93,7 +93,7 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 		},
 		{
 			name: "rejects banned bot config",
-			binding: channelplatformsmodel.ChannelPlatform{
+			binding: channelplatformentity.ChannelPlatform{
 				Platform:          platform.PlatformTwitch,
 				PlatformChannelID: broadcasterID,
 				UserID:            twitchUserID,
@@ -111,8 +111,8 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 			var botClientIDs []string
 
 			actions := &TwitchActions{
-				channelsByTwitchIDCache: newBanTestChannelCache(channelsmodel.Channel{
-					Bindings: []channelplatformsmodel.ChannelPlatform{
+				channelsByTwitchIDCache: newBanTestChannelCache(channelentity.Channel{
+					Bindings: []channelplatformentity.ChannelPlatform{
 						{
 							Platform:          platform.PlatformKick,
 							PlatformChannelID: "kick-channel",
@@ -179,13 +179,13 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 	}
 }
 
-func newBanTestChannelCache(channel channelsmodel.Channel) *channelcache.TwitchUserIDCacher {
+func newBanTestChannelCache(channel channelentity.Channel) *channelcache.TwitchUserIDCacher {
 	return &channelcache.TwitchUserIDCacher{
 		GenericCacher: genericcacher.New(
-			genericcacher.Opts[channelsmodel.Channel]{
+			genericcacher.Opts[channelentity.Channel]{
 				KV:        kvinmemory.New(),
 				KeyPrefix: "test:twitch-ban:",
-				LoadFn: func(context.Context, string) (channelsmodel.Channel, error) {
+				LoadFn: func(context.Context, string) (channelentity.Channel, error) {
 					return channel, nil
 				},
 				Ttl: time.Minute,

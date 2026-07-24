@@ -11,9 +11,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usermodel "github.com/twirapp/twir/libs/repositories/users/model"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel/model"
@@ -139,9 +140,9 @@ func mapUserWithChannelProjection(
 		return model.Nil, fmt.Errorf("unmarshal channel platform binding: %w", err)
 	}
 
-	result.Channel = &channelmodel.Channel{
+	result.Channel = &channelentity.Channel{
 		ID:       uuid.UUID(channelID.Bytes),
-		Bindings: []channelplatformsmodel.ChannelPlatform{binding},
+		Bindings: []channelplatformentity.ChannelPlatform{mapBindingToEntity(binding)},
 	}
 
 	return result, nil

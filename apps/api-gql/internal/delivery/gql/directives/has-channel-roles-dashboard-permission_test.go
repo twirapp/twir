@@ -8,10 +8,10 @@ import (
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
@@ -24,7 +24,7 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 	tests := []struct {
 		name            string
 		legacyChannel   model.Channels
-		normalized      channelsmodel.Channel
+		normalized      channelentity.Channel
 		roles           []model.ChannelRole
 		permission      *gqlmodel.ChannelRolePermissionEnum
 		wantAccess      bool
@@ -32,7 +32,7 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 	}{
 		{
 			name: "allows normalized VK-only owner",
-			normalized: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: ownerID,
 			}}},
 			permission: &requestedPermission,
@@ -41,7 +41,7 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 		{
 			name:          "denies stale legacy owner with a remaining binding",
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			normalized: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: otherUserID,
 			}}},
 			permission:      &requestedPermission,
@@ -49,7 +49,7 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 		},
 		{
 			name:       "allows assigned role with requested permission",
-			normalized: channelsmodel.Channel{ID: dashboardID},
+			normalized: channelentity.Channel{ID: dashboardID},
 			roles: []model.ChannelRole{{
 				Users:       []*model.ChannelRoleUser{{UserID: ownerID.String()}},
 				Permissions: pq.StringArray{"VIEW_COMMANDS"},
@@ -60,7 +60,7 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 		},
 		{
 			name:       "allows assigned role with dashboard permission",
-			normalized: channelsmodel.Channel{ID: dashboardID},
+			normalized: channelentity.Channel{ID: dashboardID},
 			roles: []model.ChannelRole{{
 				Users:       []*model.ChannelRoleUser{{UserID: ownerID.String()}},
 				Permissions: pq.StringArray{"CAN_ACCESS_DASHBOARD"},
@@ -71,7 +71,7 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 		},
 		{
 			name:       "denies nonmember role permission",
-			normalized: channelsmodel.Channel{ID: dashboardID},
+			normalized: channelentity.Channel{ID: dashboardID},
 			roles: []model.ChannelRole{{
 				Users:       []*model.ChannelRoleUser{{UserID: otherUserID.String()}},
 				Permissions: pq.StringArray{"VIEW_COMMANDS"},
@@ -82,13 +82,13 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 		{
 			name:          "allows zero-binding legacy owner",
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			normalized:    channelsmodel.Channel{ID: dashboardID},
+			normalized:    channelentity.Channel{ID: dashboardID},
 			permission:    &requestedPermission,
 			wantAccess:    true,
 		},
 		{
 			name:       "allows assigned role with nil permission",
-			normalized: channelsmodel.Channel{ID: dashboardID},
+			normalized: channelentity.Channel{ID: dashboardID},
 			roles: []model.ChannelRole{{
 				Users:       []*model.ChannelRoleUser{{UserID: ownerID.String()}},
 				Permissions: pq.StringArray{"VIEW_COMMANDS"},

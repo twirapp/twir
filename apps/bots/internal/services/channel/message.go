@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	botplatforms "github.com/twirapp/twir/apps/bots/internal/platforms"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
@@ -141,7 +140,7 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 		return deleteMessageChannel{}, false, err
 	}
 
-	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+	twitchBinding, botConfig, found, err := channel.TwitchBinding()
 	if err != nil {
 		return deleteMessageChannel{}, false, fmt.Errorf("parse Twitch bot config: %w", err)
 	}

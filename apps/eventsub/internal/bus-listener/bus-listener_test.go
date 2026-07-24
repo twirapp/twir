@@ -13,11 +13,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	channelsmodel "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformsmodel "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestBusListenerUsesNarrowDependencies(t *testing.T) {

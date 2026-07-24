@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -65,19 +65,19 @@ func TestResolveDashboardPlatformFallsBackOnlyAfterZeroBindingLookup(t *testing.
 		{
 			name:    "zero binding Twitch legacy channel",
 			channel: model.Channels{ID: channelID.String(), TwitchUserID: &twitchUserID},
-			reader:  resolverDashboardPlatformReader{channel: channelsmodel.Channel{ID: channelID}},
+			reader:  resolverDashboardPlatformReader{channel: channelentity.Channel{ID: channelID}},
 			want:    "twitch",
 		},
 		{
 			name:    "zero binding Kick legacy channel",
 			channel: model.Channels{ID: channelID.String(), KickUserID: &kickUserID},
-			reader:  resolverDashboardPlatformReader{channel: channelsmodel.Channel{ID: channelID}},
+			reader:  resolverDashboardPlatformReader{channel: channelentity.Channel{ID: channelID}},
 			want:    "kick",
 		},
 		{
 			name:    "normalized owner overrides legacy platform",
 			channel: model.Channels{ID: channelID.String(), TwitchUserID: &twitchUserID},
-			reader: resolverDashboardPlatformReader{channel: channelsmodel.Channel{ID: channelID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			reader: resolverDashboardPlatformReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{{
 				Platform: platformentity.PlatformVKVideoLive, UserID: uuid.MustParse(userID),
 			}}}},
 			want: "vk_video_live",
@@ -106,11 +106,11 @@ func TestResolveDashboardPlatformFallsBackOnlyAfterZeroBindingLookup(t *testing.
 }
 
 type resolverDashboardPlatformReader struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 	err     error
 }
 
-func (r resolverDashboardPlatformReader) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+func (r resolverDashboardPlatformReader) GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return r.channel, r.err
 }
 

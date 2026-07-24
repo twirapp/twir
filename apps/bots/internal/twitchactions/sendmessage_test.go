@@ -3,14 +3,14 @@ package twitchactions
 import (
 	"testing"
 
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 func TestActiveTwitchBindingUsesNormalizedState(t *testing.T) {
 	t.Parallel()
 
-	config, active, err := activeTwitchBinding(channelplatformsmodel.ChannelPlatform{
+	config, active, err := activeTwitchBinding(channelplatformentity.ChannelPlatform{
 		Platform:          platform.PlatformTwitch,
 		PlatformChannelID: "broadcaster-id",
 		Enabled:           true,
@@ -30,7 +30,7 @@ func TestActiveTwitchBindingUsesNormalizedState(t *testing.T) {
 func TestActiveTwitchBindingSkipsDisabledBinding(t *testing.T) {
 	t.Parallel()
 
-	_, active, err := activeTwitchBinding(channelplatformsmodel.ChannelPlatform{
+	_, active, err := activeTwitchBinding(channelplatformentity.ChannelPlatform{
 		Platform:          platform.PlatformTwitch,
 		PlatformChannelID: "broadcaster-id",
 		Enabled:           false,

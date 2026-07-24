@@ -13,7 +13,6 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
-	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	seventv "github.com/twirapp/twir/apps/parser/internal/commands/7tv"
 	"github.com/twirapp/twir/apps/parser/internal/commands/categories_aliases"
@@ -279,7 +278,7 @@ func (c *Commands) ParseCommandResponses(
 		result.SkipToxicityCheck = cmd.SkipToxicityCheck
 	}
 
-	parseCtxChannel, ok := channelbinding.NewParseContextChannel(
+	parseCtxChannel, ok := types.NewParseContextChannel(
 		requestData.Channel,
 		plat,
 		requestData.BroadcasterUserLogin,

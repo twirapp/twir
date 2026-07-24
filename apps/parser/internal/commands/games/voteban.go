@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -115,7 +114,7 @@ var Voteban = &types.DefaultCommand{
 				Err: err,
 			}
 		}
-		twitchBinding, twitchBotConfig, ok, err := channelbinding.FindTwitch(dbChannel)
+		twitchBinding, twitchBotConfig, ok, err := dbChannel.TwitchBinding()
 		if err != nil || !ok {
 			if err == nil {
 				err = errors.New("channel has no Twitch binding")

@@ -6,16 +6,16 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 type EventTransport interface {
 	Platform() platform.Platform
 	Capabilities() platform.Capabilities
-	Subscribe(context.Context, channelplatformsmodel.ChannelPlatform) error
-	Unsubscribe(context.Context, channelplatformsmodel.ChannelPlatform) error
+	Subscribe(context.Context, channelplatformentity.ChannelPlatform) error
+	Unsubscribe(context.Context, channelplatformentity.ChannelPlatform) error
 	SetCallbackBaseURL(string)
 }
 
@@ -35,7 +35,7 @@ func NewKickRegistry(kickSubManager *kick.SubscriptionManager) *platformsregistr
 func SubscribeAll(
 	ctx context.Context,
 	registry *platformsregistry.Registry[EventTransport],
-	bindings []channelplatformsmodel.ChannelPlatform,
+	bindings []channelplatformentity.ChannelPlatform,
 ) error {
 	var subscribeErrors []error
 	for _, binding := range bindings {
@@ -64,7 +64,7 @@ func SubscribeAll(
 func UnsubscribeAll(
 	ctx context.Context,
 	registry *platformsregistry.Registry[EventTransport],
-	bindings []channelplatformsmodel.ChannelPlatform,
+	bindings []channelplatformentity.ChannelPlatform,
 ) error {
 	var unsubscribeErrors []error
 	for _, binding := range bindings {

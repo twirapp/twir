@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
@@ -32,7 +31,7 @@ func (c *Service) GetRewardsByChannelID(
 		return CustomRewardsResult{}, nil
 	}
 
-	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if !found || twitchBinding.UserID == uuid.Nil {
 		return CustomRewardsResult{}, nil
 	}

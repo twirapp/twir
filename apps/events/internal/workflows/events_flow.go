@@ -9,11 +9,10 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/twirapp/twir/apps/events/internal/channelbinding"
 	"github.com/twirapp/twir/apps/events/internal/shared"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
@@ -425,9 +424,9 @@ func (c *EventWorkflow) Flow(
 }
 
 type eventChannelBindings struct {
-	event           channelplatformsmodel.ChannelPlatform
-	twitch          channelplatformsmodel.ChannelPlatform
-	twitchBotConfig channelbinding.TwitchBotConfig
+	event           channelplatformentity.ChannelPlatform
+	twitch          channelplatformentity.ChannelPlatform
+	twitchBotConfig channelplatformentity.TwitchBotConfig
 	hasTwitch       bool
 }
 
@@ -442,23 +441,21 @@ func (b eventChannelBindings) applyTo(data shared.EventData) shared.EventData {
 }
 
 func getEventChannelBindings(
-	channel channelmodel.Channel,
+	channel channelentity.Channel,
 	eventPlatform platformentity.Platform,
 ) (eventChannelBindings, error) {
-	eventBinding, ok := channelbinding.Find(channel, eventPlatform)
+	eventBinding, ok := channel.Binding(eventPlatform)
 	if !ok {
 		return eventChannelBindings{}, fmt.Errorf("channel binding not found for platform %q", eventPlatform)
 	}
 
 	result := eventChannelBindings{event: eventBinding}
-	twitchBinding, ok := channelbinding.Find(channel, platformentity.PlatformTwitch)
-	if !ok {
-		return result, nil
-	}
-
-	twitchBotConfig, err := channelbinding.ParseTwitchBotConfig(twitchBinding)
+	twitchBinding, twitchBotConfig, ok, err := channel.TwitchBinding()
 	if err != nil {
 		return eventChannelBindings{}, fmt.Errorf("parse Twitch bot config: %w", err)
+	}
+	if !ok {
+		return result, nil
 	}
 
 	result.twitch = twitchBinding

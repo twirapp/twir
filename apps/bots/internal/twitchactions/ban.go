@@ -10,7 +10,6 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
 	kvoptions "github.com/twirapp/kv/options"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -52,7 +51,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 	if err != nil {
 		return fmt.Errorf("cannot get channel by twitch id: %w", err)
 	}
-	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+	twitchBinding, botConfig, found, err := channel.TwitchBinding()
 	if err != nil {
 		return fmt.Errorf("cannot parse Twitch bot config: %w", err)
 	}

@@ -3,13 +3,13 @@ package mappers
 import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"github.com/twirapp/twir/libs/repositories/channels/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func MapChannelModelToGqlPublicUser(
-	c model.Channel,
+	c channelentity.Channel,
 	profiles map[uuid.UUID]usersmodel.User,
 ) *gqlmodel.TwirPublicUser {
 	u := &gqlmodel.TwirPublicUser{

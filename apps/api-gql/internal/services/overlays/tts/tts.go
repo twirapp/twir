@@ -16,8 +16,8 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/api"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
 	ttsmodel "github.com/twirapp/twir/libs/repositories/overlays_tts/model"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -105,7 +105,7 @@ type apiKeyUserLookup interface {
 }
 
 type bindingUserChannelLookup interface {
-	GetChannelByBindingUserID(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByBindingUserID(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error)
 }
 
 func (s *Service) ResolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {

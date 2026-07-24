@@ -685,7 +685,7 @@ func main() {
 			),
 			twir_stats.New,
 			resolvers.New,
-			func(service *channelplatformservice.Service) channelplatformservice.Operations { return service },
+			func(service *channelplatformservice.Service) resolvers.ChannelPlatformBindingsService { return service },
 			func(sessions *auth.Auth) resolvers.SelectedDashboardGetter { return sessions },
 			func(sessions *auth.Auth) resolvers.CurrentPlatformGetter { return sessions },
 			directives.New,

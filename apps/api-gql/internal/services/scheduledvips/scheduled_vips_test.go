@@ -11,20 +11,20 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type scheduledVipChannelLookupStub struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
-func (s scheduledVipChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+func (s scheduledVipChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return s.channel, nil
 }
 
@@ -103,8 +103,8 @@ func newScheduledVipTestClient(t *testing.T, transport http.RoundTripper) *helix
 	return client
 }
 
-func scheduledVipBindings(ownerID uuid.UUID, twitchChannelID string) []channelplatformsmodel.ChannelPlatform {
-	return []channelplatformsmodel.ChannelPlatform{
+func scheduledVipBindings(ownerID uuid.UUID, twitchChannelID string) []channelplatformentity.ChannelPlatform {
+	return []channelplatformentity.ChannelPlatform{
 		{
 			Platform:          platform.PlatformVKVideoLive,
 			UserID:            uuid.New(),
@@ -140,7 +140,7 @@ func TestRemoveUsesSelectedTwitchBinding(t *testing.T) {
 	var clientOwnerID uuid.UUID
 	service := &Service{
 		repo: repository,
-		channelService: scheduledVipChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: scheduledVipChannelLookupStub{channel: channelentity.Channel{
 			Bindings: scheduledVipBindings(ownerID, "twitch-channel"),
 		}},
 		usersRepo: scheduledVipUsersRepositoryStub{user: usersmodel.User{
@@ -189,7 +189,7 @@ func TestRemoveDeletesWhenSelectedTwitchBindingHasEmptyProviderID(t *testing.T) 
 	transport := &scheduledVipCaptureTransport{}
 	service := &Service{
 		repo: repository,
-		channelService: scheduledVipChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: scheduledVipChannelLookupStub{channel: channelentity.Channel{
 			Bindings: scheduledVipBindings(ownerID, ""),
 		}},
 		usersRepo: scheduledVipUsersRepositoryStub{user: usersmodel.User{
@@ -227,7 +227,7 @@ func TestRemoveRejectsMissingTwitchBindingWithoutDeleting(t *testing.T) {
 	clientCalls := 0
 	service := &Service{
 		repo: repository,
-		channelService: scheduledVipChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: scheduledVipChannelLookupStub{channel: channelentity.Channel{
 			Bindings: scheduledVipBindings(uuid.New(), "twitch-channel")[:2],
 		}},
 		newUserClient: func(uuid.UUID) (*helix.Client, error) {
@@ -260,7 +260,7 @@ func TestCreateWithTwitchVipKeepsLegacyEmptyProviderIDBehavior(t *testing.T) {
 	var clientOwnerID uuid.UUID
 	service := &Service{
 		repo: repository,
-		channelService: scheduledVipChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: scheduledVipChannelLookupStub{channel: channelentity.Channel{
 			Bindings: scheduledVipBindings(ownerID, ""),
 		}},
 		usersRepo: scheduledVipUsersRepositoryStub{user: usersmodel.User{ID: targetUserID}},
@@ -297,7 +297,7 @@ func TestCreateWithTwitchVipUsesSelectedTwitchBinding(t *testing.T) {
 	var clientOwnerID uuid.UUID
 	service := &Service{
 		repo: repository,
-		channelService: scheduledVipChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: scheduledVipChannelLookupStub{channel: channelentity.Channel{
 			Bindings: scheduledVipBindings(ownerID, "twitch-channel"),
 		}},
 		usersRepo: scheduledVipUsersRepositoryStub{user: usersmodel.User{ID: targetUserID}},

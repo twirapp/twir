@@ -9,7 +9,6 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -53,7 +52,7 @@ var MakeClip = &types.DefaultCommand{
 				Err: err,
 			}
 		}
-		twitchBinding, twitchBotConfig, ok, err := channelbinding.FindTwitch(channel)
+		twitchBinding, twitchBotConfig, ok, err := channel.TwitchBinding()
 		if err != nil || !ok {
 			if err == nil {
 				err = errors.New("channel has no Twitch binding")

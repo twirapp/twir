@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"testing"
 
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestGetTimerSendTargetsUsesBindingsByPlatform(t *testing.T) {
-	channel := channelmodel.Channel{
-		Bindings: []channelplatformsmodel.ChannelPlatform{
+	channel := channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{
 			{
 				Platform:          platformentity.PlatformKick,
 				PlatformChannelID: "kick-channel",
@@ -39,14 +39,14 @@ func TestGetTimerSendTargetsUsesBindingsByPlatform(t *testing.T) {
 func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 	tests := []struct {
 		name           string
-		channel        channelmodel.Channel
+		channel        channelentity.Channel
 		timerPlatforms []platformentity.Platform
 		want           []timerSendTarget
 	}{
 		{
 			name: "restricts targets to configured platforms",
-			channel: channelmodel.Channel{
-				Bindings: []channelplatformsmodel.ChannelPlatform{
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
 					{
 						Platform:          platformentity.PlatformTwitch,
 						PlatformChannelID: "twitch-channel",
@@ -67,8 +67,8 @@ func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 		},
 		{
 			name: "skips disabled bindings",
-			channel: channelmodel.Channel{
-				Bindings: []channelplatformsmodel.ChannelPlatform{
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
 					{
 						Platform:          platformentity.PlatformTwitch,
 						PlatformChannelID: "twitch-channel",
@@ -88,8 +88,8 @@ func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 		},
 		{
 			name: "skips twitch binding without moderator state",
-			channel: channelmodel.Channel{
-				Bindings: []channelplatformsmodel.ChannelPlatform{
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
 					{
 						Platform:          platformentity.PlatformTwitch,
 						PlatformChannelID: "twitch-channel",
@@ -102,8 +102,8 @@ func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 		},
 		{
 			name: "skips malformed twitch configuration without blocking kick",
-			channel: channelmodel.Channel{
-				Bindings: []channelplatformsmodel.ChannelPlatform{
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
 					{
 						Platform:          platformentity.PlatformTwitch,
 						PlatformChannelID: "twitch-channel",
@@ -123,8 +123,8 @@ func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 		},
 		{
 			name: "skips bindings without a provider channel id",
-			channel: channelmodel.Channel{
-				Bindings: []channelplatformsmodel.ChannelPlatform{
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
 					{
 						Platform: platformentity.PlatformKick,
 						Enabled:  true,
@@ -135,8 +135,8 @@ func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 		},
 		{
 			name: "skips unsupported bindings",
-			channel: channelmodel.Channel{
-				Bindings: []channelplatformsmodel.ChannelPlatform{
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
 					{
 						Platform:          platformentity.PlatformVKVideoLive,
 						PlatformChannelID: "vk-channel",
@@ -158,19 +158,19 @@ func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 func TestHasSupportedTimerBinding(t *testing.T) {
 	tests := []struct {
 		name     string
-		bindings []channelplatformsmodel.ChannelPlatform
+		bindings []channelplatformentity.ChannelPlatform
 		want     bool
 	}{
 		{
 			name: "recognizes a disabled supported binding for initialization",
-			bindings: []channelplatformsmodel.ChannelPlatform{
+			bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platformentity.PlatformTwitch, PlatformChannelID: "twitch-channel"},
 			},
 			want: true,
 		},
 		{
 			name: "recognizes a supported binding after an unsupported binding",
-			bindings: []channelplatformsmodel.ChannelPlatform{
+			bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel", Enabled: true},
 				{Platform: platformentity.PlatformKick, PlatformChannelID: "kick-channel"},
 			},
@@ -178,7 +178,7 @@ func TestHasSupportedTimerBinding(t *testing.T) {
 		},
 		{
 			name: "ignores unsupported bindings",
-			bindings: []channelplatformsmodel.ChannelPlatform{
+			bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel", Enabled: true},
 			},
 			want: false,
@@ -187,7 +187,7 @@ func TestHasSupportedTimerBinding(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			channel := channelmodel.Channel{Bindings: tt.bindings}
+			channel := channelentity.Channel{Bindings: tt.bindings}
 			if got := hasSupportedTimerBinding(channel); got != tt.want {
 				t.Fatalf("hasSupportedTimerBinding() = %t, want %t", got, tt.want)
 			}

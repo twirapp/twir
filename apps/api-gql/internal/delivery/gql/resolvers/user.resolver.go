@@ -13,7 +13,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -182,7 +181,7 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}
@@ -201,7 +200,7 @@ func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashb
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	kickBinding, found := channelbinding.Find(channel, platformentity.PlatformKick)
+	kickBinding, found := channel.Binding(platformentity.PlatformKick)
 	if channel.IsNil() || !found {
 		return nil, nil
 	}
@@ -448,7 +447,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 	if parsedDashboardID, parseErr := uuid.Parse(dashboardId); parseErr == nil {
 		channel, channelErr := r.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
 		if channelErr == nil && !channel.IsNil() {
-			twitchBinding, twitchConfig, found, configErr := channelbinding.FindTwitch(channel)
+			twitchBinding, twitchConfig, found, configErr := channel.TwitchBinding()
 			if configErr != nil {
 				return nil, fmt.Errorf("parse Twitch channel binding configuration: %w", configErr)
 			}

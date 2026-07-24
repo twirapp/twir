@@ -9,13 +9,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 var ErrFriendlyFire = errors.New("friendly fire")
@@ -23,7 +22,7 @@ var ErrFriendlyFire = errors.New("friendly fire")
 func (s *Service) getChannelByIDOrTwitchID(
 	ctx context.Context,
 	id string,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	if parsed, err := uuid.Parse(id); err == nil {
 		return s.channelService.GetChannelByID(ctx, parsed)
 	}
@@ -35,8 +34,8 @@ type twitchBanTarget struct {
 	botID         string
 }
 
-func getTwitchBanTarget(channel channelsmodel.Channel) (twitchBanTarget, bool, error) {
-	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+func getTwitchBanTarget(channel channelentity.Channel) (twitchBanTarget, bool, error) {
+	twitchBinding, botConfig, found, err := channel.TwitchBinding()
 	if err != nil {
 		return twitchBanTarget{}, false, fmt.Errorf("parse Twitch bot config: %w", err)
 	}

@@ -10,9 +10,9 @@ import (
 	kvoptions "github.com/twirapp/kv/options"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
@@ -45,12 +45,12 @@ func createStreamsCacheKey(channelId uuid.UUID) string {
 	return "twir:cache:channels:streams:" + channelId.String()
 }
 
-func (c *ChannelService) GetChannelByID(ctx context.Context, id uuid.UUID) (channelsmodel.Channel, error) {
+func (c *ChannelService) GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error) {
 	return c.repo.GetByID(ctx, id)
 }
 
 // GetChannelByApiKey resolves a channel and its platform bindings from a channel API key.
-func (c *ChannelService) GetChannelByApiKey(ctx context.Context, apiKey string) (channelsmodel.Channel, error) {
+func (c *ChannelService) GetChannelByApiKey(ctx context.Context, apiKey string) (channelentity.Channel, error) {
 	return c.repo.GetByApiKey(ctx, apiKey)
 }
 
@@ -59,7 +59,7 @@ func (c *ChannelService) GetChannelByBindingUserID(
 	ctx context.Context,
 	p platform.Platform,
 	userID uuid.UUID,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	return c.repo.GetByBindingUserID(ctx, p, userID)
 }
 
@@ -68,7 +68,7 @@ func (c *ChannelService) GetChannelByPlatformChannelID(
 	ctx context.Context,
 	p platform.Platform,
 	platformChannelID string,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	return c.repo.GetByPlatformChannelID(ctx, p, platformChannelID)
 }
 
@@ -144,13 +144,13 @@ type GetBySlugOpts struct {
 	Platform *platform.Platform
 }
 
-func (c *ChannelService) GetBySlug(ctx context.Context, opts GetBySlugOpts) (channelsmodel.Channel, error) {
+func (c *ChannelService) GetBySlug(ctx context.Context, opts GetBySlugOpts) (channelentity.Channel, error) {
 	channel, err := c.repo.GetBySlug(
 		ctx,
 		channelsrepo.GetBySlugInput{Slug: opts.Slug, Platform: opts.Platform},
 	)
 	if err != nil {
-		return channelsmodel.Channel{}, err
+		return channelentity.Channel{}, err
 	}
 
 	return channel, nil

@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	"github.com/twirapp/twir/libs/repositories/channel_platforms/model"
@@ -68,7 +69,7 @@ const patchQuery = `
 func (r *Pgx) Create(
 	ctx context.Context,
 	input channelplatforms.CreateInput,
-) (model.ChannelPlatform, error) {
+) (channelplatformentity.ChannelPlatform, error) {
 	query := `
 		INSERT INTO channel_platforms (
 			channel_id,
@@ -94,22 +95,22 @@ func (r *Pgx) Create(
 		input.BotConfig,
 	)
 	if err != nil {
-		return model.Nil, fmt.Errorf("create channel platform binding: %w", err)
+		return channelplatformentity.Nil, fmt.Errorf("create channel platform binding: %w", err)
 	}
 
 	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
 	if err != nil {
-		return model.Nil, fmt.Errorf("collect created channel platform binding: %w", err)
+		return channelplatformentity.Nil, fmt.Errorf("collect created channel platform binding: %w", err)
 	}
 
-	return binding, nil
+	return mapBindingToEntity(binding), nil
 }
 
 func (r *Pgx) GetByChannelAndPlatform(
 	ctx context.Context,
 	channelID uuid.UUID,
 	platform platform.Platform,
-) (model.ChannelPlatform, error) {
+) (channelplatformentity.ChannelPlatform, error) {
 	return r.getOne(
 		ctx,
 		`
@@ -126,7 +127,7 @@ func (r *Pgx) GetByPlatformChannelID(
 	ctx context.Context,
 	platform platform.Platform,
 	platformChannelID string,
-) (model.ChannelPlatform, error) {
+) (channelplatformentity.ChannelPlatform, error) {
 	return r.getOne(
 		ctx,
 		`
@@ -142,7 +143,7 @@ func (r *Pgx) GetByPlatformChannelID(
 func (r *Pgx) ListByChannelID(
 	ctx context.Context,
 	channelID uuid.UUID,
-) ([]model.ChannelPlatform, error) {
+) ([]channelplatformentity.ChannelPlatform, error) {
 	query := `
 		SELECT ` + selectColumns + `
 		FROM channel_platforms
@@ -159,7 +160,7 @@ func (r *Pgx) ListByChannelID(
 		return nil, fmt.Errorf("collect channel platform bindings: %w", err)
 	}
 
-	return bindings, nil
+	return mapBindingsToEntities(bindings), nil
 }
 
 func (r *Pgx) LockByChannelID(ctx context.Context, channelID uuid.UUID) error {
@@ -195,7 +196,7 @@ func (r *Pgx) Update(
 	ctx context.Context,
 	id uuid.UUID,
 	input channelplatforms.UpdateInput,
-) (model.ChannelPlatform, error) {
+) (channelplatformentity.ChannelPlatform, error) {
 	query := `
 		UPDATE channel_platforms
 		SET
@@ -219,27 +220,27 @@ func (r *Pgx) Update(
 		input.BotConfig,
 	)
 	if err != nil {
-		return model.Nil, fmt.Errorf("update channel platform binding: %w", err)
+		return channelplatformentity.Nil, fmt.Errorf("update channel platform binding: %w", err)
 	}
 
 	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Nil, channelplatforms.ErrNotFound
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		}
-		return model.Nil, fmt.Errorf("collect updated channel platform binding: %w", err)
+		return channelplatformentity.Nil, fmt.Errorf("collect updated channel platform binding: %w", err)
 	}
 
-	return binding, nil
+	return mapBindingToEntity(binding), nil
 }
 
 func (r *Pgx) Patch(
 	ctx context.Context,
 	id uuid.UUID,
 	input channelplatforms.PatchInput,
-) (model.ChannelPlatform, error) {
+) (channelplatformentity.ChannelPlatform, error) {
 	if err := input.Validate(); err != nil {
-		return model.Nil, err
+		return channelplatformentity.Nil, err
 	}
 
 	var enabled any
@@ -254,18 +255,18 @@ func (r *Pgx) Patch(
 
 	rows, err := r.connection(ctx).Query(ctx, patchQuery, id, enabled, botConfigPatch)
 	if err != nil {
-		return model.Nil, fmt.Errorf("patch channel platform binding: %w", err)
+		return channelplatformentity.Nil, fmt.Errorf("patch channel platform binding: %w", err)
 	}
 
 	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Nil, channelplatforms.ErrNotFound
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		}
-		return model.Nil, fmt.Errorf("collect patched channel platform binding: %w", err)
+		return channelplatformentity.Nil, fmt.Errorf("collect patched channel platform binding: %w", err)
 	}
 
-	return binding, nil
+	return mapBindingToEntity(binding), nil
 }
 
 func (r *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
@@ -288,21 +289,21 @@ func (r *Pgx) getOne(
 	ctx context.Context,
 	query string,
 	args ...any,
-) (model.ChannelPlatform, error) {
+) (channelplatformentity.ChannelPlatform, error) {
 	rows, err := r.connection(ctx).Query(ctx, query, args...)
 	if err != nil {
-		return model.Nil, fmt.Errorf("query channel platform binding: %w", err)
+		return channelplatformentity.Nil, fmt.Errorf("query channel platform binding: %w", err)
 	}
 
 	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Nil, channelplatforms.ErrNotFound
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
 		}
-		return model.Nil, fmt.Errorf("collect channel platform binding: %w", err)
+		return channelplatformentity.Nil, fmt.Errorf("collect channel platform binding: %w", err)
 	}
 
-	return binding, nil
+	return mapBindingToEntity(binding), nil
 }
 
 func (r *Pgx) connection(ctx context.Context) database {

@@ -3,13 +3,13 @@ package mappers
 import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func ChannelPlatformBindingToGraphQL(
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 	profile usersmodel.User,
 	capabilities platformentity.Capabilities,
 ) (gqlmodel.ChannelPlatformBinding, error) {

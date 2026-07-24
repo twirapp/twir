@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -73,7 +72,7 @@ func resolveChannelProfile(ctx context.Context, r *Resolver, channelID string) (
 	var platform string
 
 	for _, candidate := range platformentity.All() {
-		binding, found := channelbinding.Find(channel, candidate)
+		binding, found := channel.Binding(candidate)
 		if !found {
 			continue
 		}

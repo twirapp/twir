@@ -1,6 +1,10 @@
 package platform
 
-import "context"
+import (
+	"context"
+
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
+)
 
 type PlatformTokens struct {
 	AccessToken  string
@@ -29,7 +33,7 @@ type PlatformUser struct {
 }
 
 type PlatformProvider interface {
-	Name() string
+	Platform() platformentity.Platform
 	GetAuthURL(state, codeChallenge string) string
 	ExchangeCode(ctx context.Context, input ExchangeCodeInput) (*PlatformTokens, error)
 	RefreshToken(ctx context.Context, input RefreshTokenInput) (*PlatformTokens, error)
