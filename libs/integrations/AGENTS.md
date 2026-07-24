@@ -4,18 +4,19 @@ Third-party API integrations.
 
 ## OVERVIEW
 
-Clients for external services (7TV, Spotify, Discord, etc.). Handles API authentication, rate limiting, and error handling.
+Clients for external streaming/creator services. Handles API authentication, rate limiting, and error handling.
 
 ## STRUCTURE
 
 ```
 libs/integrations/
-├── seventv/                 # 7TV integration
-│   └── api/
-│       └── generated.go    # Generated GraphQL client
+├── seventv/                 # 7TV (genqlient-generated GraphQL client in api/generated.go)
 ├── spotify/                 # Spotify API
-├── discord/                 # Discord API
-├── Makefile                # genqlient generation
+├── lastfm/                  # LastFM API
+├── streamelements/          # StreamElements API
+├── valorant/                # Valorant (HenrikDev) API
+├── vk/                      # VK API
+├── Makefile                 # genqlient generation
 ├── go.mod
 └── ...
 ```
