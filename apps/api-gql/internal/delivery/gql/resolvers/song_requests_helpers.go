@@ -1,19 +1,18 @@
 package resolvers
 
 import (
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
-func mapChannelByAPIKeyResult(channel channelsmodel.Channel) *gqlmodel.ChannelByAPIKeyResult {
+func mapChannelByAPIKeyResult(channel channelentity.Channel) *gqlmodel.ChannelByAPIKeyResult {
 	result := &gqlmodel.ChannelByAPIKeyResult{ID: channel.ID}
-	if twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch); found {
+	if twitchBinding, found := channel.Binding(platformentity.PlatformTwitch); found {
 		userID := twitchBinding.UserID
 		result.TwitchUserID = &userID
 	}
-	if kickBinding, found := channelbinding.Find(channel, platformentity.PlatformKick); found {
+	if kickBinding, found := channel.Binding(platformentity.PlatformKick); found {
 		userID := kickBinding.UserID
 		result.KickUserID = &userID
 	}

@@ -6,12 +6,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
-	"github.com/twirapp/twir/libs/repositories/channels/model"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 )
 
-func (c *TwitchActions) timeoutFromMessage(ctx context.Context, channel model.Channel, opts SendMessageOpts) error {
-	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+func (c *TwitchActions) timeoutFromMessage(ctx context.Context, channel channelentity.Channel, opts SendMessageOpts) error {
+	twitchBinding, botConfig, found, err := channel.TwitchBinding()
 	if err != nil {
 		return fmt.Errorf("cannot parse Twitch bot config: %w", err)
 	}

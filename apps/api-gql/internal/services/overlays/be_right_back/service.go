@@ -9,8 +9,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back/model"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -92,7 +92,7 @@ type apiKeyUserLookup interface {
 }
 
 type bindingUserChannelLookup interface {
-	GetChannelByBindingUserID(context.Context, platformentity.Platform, uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByBindingUserID(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error)
 }
 
 func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {

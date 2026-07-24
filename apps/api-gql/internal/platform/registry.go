@@ -17,7 +17,7 @@ func NewRegistry(providers []PlatformProvider) *Registry {
 			continue
 		}
 
-		registry.providers[platformentity.Platform(provider.Name())] = provider
+		registry.providers[provider.Platform()] = provider
 	}
 
 	return registry

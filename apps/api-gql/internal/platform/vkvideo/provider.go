@@ -39,8 +39,8 @@ func New(opts Opts) (*Provider, error) {
 	return &Provider{client: client}, nil
 }
 
-func (p *Provider) Name() string {
-	return platformentity.PlatformVKVideoLive.String()
+func (p *Provider) Platform() platformentity.Platform {
+	return platformentity.PlatformVKVideoLive
 }
 
 func (p *Provider) GetAuthURL(state, _ string) string {

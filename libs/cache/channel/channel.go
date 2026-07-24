@@ -8,23 +8,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func New(
 	repo channelsrepository.Repository,
 	kv kv.KV,
-) *generic_cacher.GenericCacher[channelmodel.Channel] {
-	return generic_cacher.New[channelmodel.Channel](
-		generic_cacher.Opts[channelmodel.Channel]{
+) *generic_cacher.GenericCacher[channelentity.Channel] {
+	return generic_cacher.New[channelentity.Channel](
+		generic_cacher.Opts[channelentity.Channel]{
 			KV:        kv,
 			KeyPrefix: "cache:twir:channel:",
-			LoadFn: func(ctx context.Context, key string) (channelmodel.Channel, error) {
+			LoadFn: func(ctx context.Context, key string) (channelentity.Channel, error) {
 				parsed, err := uuid.Parse(key)
 				if err != nil {
-					return channelmodel.Nil, fmt.Errorf("invalid channel id: %w", err)
+					return channelentity.Nil, fmt.Errorf("invalid channel id: %w", err)
 				}
 				return repo.GetByID(ctx, parsed)
 			},
@@ -34,7 +34,7 @@ func New(
 }
 
 type TwitchUserIDCacher struct {
-	*generic_cacher.GenericCacher[channelmodel.Channel]
+	*generic_cacher.GenericCacher[channelentity.Channel]
 }
 
 func NewByTwitchUserID(
@@ -42,11 +42,11 @@ func NewByTwitchUserID(
 	kv kv.KV,
 ) *TwitchUserIDCacher {
 	return &TwitchUserIDCacher{
-		GenericCacher: generic_cacher.New[channelmodel.Channel](
-			generic_cacher.Opts[channelmodel.Channel]{
+		GenericCacher: generic_cacher.New[channelentity.Channel](
+			generic_cacher.Opts[channelentity.Channel]{
 				KV:        kv,
 				KeyPrefix: "cache:twir:channel_by_twitch_uid:",
-				LoadFn: func(ctx context.Context, platformChannelID string) (channelmodel.Channel, error) {
+				LoadFn: func(ctx context.Context, platformChannelID string) (channelentity.Channel, error) {
 					return channelsRepo.GetByPlatformChannelID(
 						ctx,
 						platform.PlatformTwitch,

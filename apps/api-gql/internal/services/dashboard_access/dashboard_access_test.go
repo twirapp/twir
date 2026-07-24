@@ -6,10 +6,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestCanAccessUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
@@ -22,26 +22,26 @@ func TestCanAccessUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		channel       channelsmodel.Channel
+		channel       channelentity.Channel
 		legacyChannel model.Channels
 		want          bool
 	}{
 		{
 			name: "allows a normalized binding owner",
-			channel: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			channel: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: ownerID,
 			}}},
 			want: true,
 		},
 		{
 			name:          "allows a legacy owner when no bindings exist",
-			channel:       channelsmodel.Channel{ID: dashboardID},
+			channel:       channelentity.Channel{ID: dashboardID},
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
 			want:          true,
 		},
 		{
 			name: "denies stale legacy ownership when bindings exist",
-			channel: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			channel: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: otherUserID,
 			}}},
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
@@ -82,26 +82,26 @@ func TestIsOwnerUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		channel       channelsmodel.Channel
+		channel       channelentity.Channel
 		legacyChannel model.Channels
 		want          bool
 	}{
 		{
 			name: "allows a normalized VK binding owner",
-			channel: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			channel: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: ownerID,
 			}}},
 			want: true,
 		},
 		{
 			name:          "allows a legacy owner when no bindings exist",
-			channel:       channelsmodel.Channel{ID: dashboardID},
+			channel:       channelentity.Channel{ID: dashboardID},
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
 			want:          true,
 		},
 		{
 			name: "denies stale legacy ownership when a binding remains",
-			channel: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			channel: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: otherUserID,
 			}}},
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
@@ -198,7 +198,7 @@ func TestCanAccessAllowsDashboardPermissionForRole(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service := New(
-				testChannelReader{channel: channelsmodel.Channel{ID: dashboardID}},
+				testChannelReader{channel: channelentity.Channel{ID: dashboardID}},
 				&testStore{roles: tt.roles, stat: tt.userStats},
 			)
 
@@ -236,12 +236,12 @@ func TestCanAccessAllowsBotAdminWithoutDependencies(t *testing.T) {
 }
 
 type testChannelReader struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
-func (r testChannelReader) GetChannelByID(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+func (r testChannelReader) GetChannelByID(_ context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
 	if channelID != r.channel.ID {
-		return channelsmodel.Nil, context.Canceled
+		return channelentity.Nil, context.Canceled
 	}
 
 	return r.channel, nil

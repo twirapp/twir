@@ -8,7 +8,6 @@ import (
 	"log/slog"
 
 	"github.com/kvizyx/twitchy/eventsub"
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
@@ -40,7 +39,7 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 		}
 	} else {
 		twitchEnabled := false
-		twitchBinding, hasTwitchBinding := channelbinding.Find(channel, platform.PlatformTwitch)
+		twitchBinding, hasTwitchBinding := channel.Binding(platform.PlatformTwitch)
 		if hasTwitchBinding {
 			if _, updateErr := c.channelPlatformsRepo.Patch(ctx, twitchBinding.ID, channelplatforms.PatchInput{
 				Enabled:        &twitchEnabled,

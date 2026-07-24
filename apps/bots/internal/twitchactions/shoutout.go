@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -19,7 +18,7 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 	if err != nil {
 		return fmt.Errorf("cannot get channel: %w", err)
 	}
-	twitchBinding, botConfig, found, err := channelbinding.FindTwitch(channel)
+	twitchBinding, botConfig, found, err := channel.TwitchBinding()
 	if err != nil {
 		return fmt.Errorf("cannot parse Twitch bot config: %w", err)
 	}

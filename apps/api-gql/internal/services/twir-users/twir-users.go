@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
@@ -51,7 +50,7 @@ func (c *Service) modelToEntity(m userswithchannelmodel.UserWithChannel) (entity
 	}
 
 	e.Channel = &entity.Channel{ID: m.Channel.ID}
-	binding, found := apiChannelbinding.Find(*m.Channel, m.User.Platform)
+	binding, found := m.Channel.Binding(m.User.Platform)
 	if !found {
 		return e, nil
 	}
@@ -65,7 +64,7 @@ func (c *Service) modelToEntity(m userswithchannelmodel.UserWithChannel) (entity
 		return e, nil
 	}
 
-	_, botConfig, _, err := apiChannelbinding.FindTwitch(*m.Channel)
+	_, botConfig, _, err := m.Channel.TwitchBinding()
 	if err != nil {
 		return entity.UserWithChannel{}, fmt.Errorf("parse Twitch channel bot config: %w", err)
 	}

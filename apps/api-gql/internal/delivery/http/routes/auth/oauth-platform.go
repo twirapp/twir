@@ -15,12 +15,12 @@ import (
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/crypto"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelplatformsrepo "github.com/twirapp/twir/libs/repositories/channel_platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 	usersrepo "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
@@ -64,7 +64,7 @@ type completePlatformAuthInput struct {
 type completePlatformAuthResult struct {
 	SessionUserID   uuid.UUID
 	PlatformUserID  uuid.UUID
-	Channel         channelsmodel.Channel
+	Channel         channelentity.Channel
 	CreatedUser     bool
 	CreatedChannel  bool
 	UsedLiveSession bool
@@ -286,48 +286,48 @@ func (a *Auth) getOrCreatePlatformUser(
 func (a *Auth) getOrCreateChannelForUser(
 	ctx context.Context,
 	user usersmodel.User,
-) (channelsmodel.Channel, bool, error) {
+) (channelentity.Channel, bool, error) {
 	channel, err := a.channelsRepo.GetByBindingUserID(ctx, user.Platform, user.ID)
 	if err == nil {
 		return channel, false, nil
 	}
 	if !errors.Is(err, channelsrepo.ErrNotFound) {
-		return channelsmodel.Nil, false, err
+		return channelentity.Nil, false, err
 	}
 	bindingConfig, err := a.platformBindingConfig(ctx, user.Platform)
 	if err != nil {
-		return channelsmodel.Nil, false, fmt.Errorf("get %s binding configuration: %w", user.Platform, err)
+		return channelentity.Nil, false, fmt.Errorf("get %s binding configuration: %w", user.Platform, err)
 	}
 
 	channel, err = a.createChannel(ctx)
 	if err != nil {
-		return channelsmodel.Nil, false, err
+		return channelentity.Nil, false, err
 	}
 
 	channel, err = a.linkPlatformToChannel(ctx, channel, user.Platform, user.ID, user.PlatformID, bindingConfig)
 	if err != nil {
-		return channelsmodel.Nil, false, err
+		return channelentity.Nil, false, err
 	}
 
 	return channel, true, nil
 }
 
-func (a *Auth) createChannel(ctx context.Context) (channelsmodel.Channel, error) {
+func (a *Auth) createChannel(ctx context.Context) (channelentity.Channel, error) {
 	if a.botsRepo == nil {
-		return channelsmodel.Nil, fmt.Errorf("bots repository is not configured")
+		return channelentity.Nil, fmt.Errorf("bots repository is not configured")
 	}
 
 	defaultBot, err := a.botsRepo.GetDefault(ctx)
 	if err != nil {
-		return channelsmodel.Nil, fmt.Errorf("get default bot: %w", err)
+		return channelentity.Nil, fmt.Errorf("get default bot: %w", err)
 	}
 	if defaultBot.ID == "" {
-		return channelsmodel.Nil, fmt.Errorf("default bot not found")
+		return channelentity.Nil, fmt.Errorf("default bot not found")
 	}
 
 	channel, err := a.channelsRepo.Create(ctx, channelsrepo.CreateInput{BotID: defaultBot.ID})
 	if err != nil {
-		return channelsmodel.Nil, fmt.Errorf("create channel: %w", err)
+		return channelentity.Nil, fmt.Errorf("create channel: %w", err)
 	}
 
 	return channel, nil
@@ -335,30 +335,30 @@ func (a *Auth) createChannel(ctx context.Context) (channelsmodel.Channel, error)
 
 func (a *Auth) linkPlatformToChannel(
 	ctx context.Context,
-	channel channelsmodel.Channel,
+	channel channelentity.Channel,
 	platform platformentity.Platform,
 	platformUserID uuid.UUID,
 	platformChannelID string,
 	bindingConfig platformBindingConfig,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	binding, err := a.channelPlatformsRepo.GetByChannelAndPlatform(ctx, channel.ID, platform)
 	if err == nil {
 		if binding.UserID != platformUserID || binding.PlatformChannelID != platformChannelID {
-			return channelsmodel.Nil, errPlatformConflict
+			return channelentity.Nil, errPlatformConflict
 		}
 
 		return channel, nil
 	}
 	if !errors.Is(err, channelplatformsrepo.ErrNotFound) {
-		return channelsmodel.Nil, err
+		return channelentity.Nil, err
 	}
 
 	existingPlatformChannel, err := a.channelsRepo.GetByBindingUserID(ctx, platform, platformUserID)
 	if err != nil && !errors.Is(err, channelsrepo.ErrNotFound) {
-		return channelsmodel.Nil, err
+		return channelentity.Nil, err
 	}
 	if err == nil && existingPlatformChannel.ID != channel.ID {
-		return channelsmodel.Nil, errPlatformConflict
+		return channelentity.Nil, errPlatformConflict
 	}
 
 	if len(bindingConfig.BotConfig) == 0 {
@@ -375,14 +375,14 @@ func (a *Auth) linkPlatformToChannel(
 	})
 	if err != nil {
 		if isUniqueViolation(err) {
-			return channelsmodel.Nil, errPlatformConflict
+			return channelentity.Nil, errPlatformConflict
 		}
-		return channelsmodel.Nil, err
+		return channelentity.Nil, err
 	}
 
 	updatedChannel := channel
 	updatedChannel.Bindings = append(
-		append([]channelplatformsmodel.ChannelPlatform(nil), channel.Bindings...),
+		append([]channelplatformentity.ChannelPlatform(nil), channel.Bindings...),
 		createdBinding,
 	)
 

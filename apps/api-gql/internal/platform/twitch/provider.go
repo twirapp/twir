@@ -29,8 +29,8 @@ func New(opts Opts) *Provider {
 	return &Provider{config: opts.Config}
 }
 
-func (p *Provider) Name() string {
-	return platformentity.PlatformTwitch.String()
+func (p *Provider) Platform() platformentity.Platform {
+	return platformentity.PlatformTwitch
 }
 
 func (p *Provider) newClient() (*helix.Client, error) {

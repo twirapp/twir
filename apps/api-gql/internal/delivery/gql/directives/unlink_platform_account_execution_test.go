@@ -16,10 +16,10 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 func TestUnlinkPlatformAccountGraphQLRequiresManageBotSettings(t *testing.T) {
@@ -122,9 +122,9 @@ func newUnlinkPlatformAccountGraphQLServer(
 			dashboardID: dashboardID.String(),
 		},
 		dashboardAccess: dashboardaccess.New(
-			selectedDashboardDirectiveChannelReader{channel: channelsmodel.Channel{
+			selectedDashboardDirectiveChannelReader{channel: channelentity.Channel{
 				ID: dashboardID,
-				Bindings: []channelplatformsmodel.ChannelPlatform{{
+				Bindings: []channelplatformentity.ChannelPlatform{{
 					ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: ownerID, PlatformChannelID: "owner-channel", Enabled: true,
 				}},
 			}},

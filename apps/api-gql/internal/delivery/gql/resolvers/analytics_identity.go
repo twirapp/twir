@@ -5,9 +5,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 )
 
@@ -40,13 +39,13 @@ func resolveSelectedDashboardAnalyticsIdentity(ctx context.Context, deps Deps) (
 	return currentPlatform, platformChannelID, nil
 }
 
-func resolvePlatformChannelID(currentPlatform string, channel channelsmodel.Channel) (string, error) {
+func resolvePlatformChannelID(currentPlatform string, channel channelentity.Channel) (string, error) {
 	platform := platformentity.Platform(currentPlatform)
 	if !platform.IsValid() {
 		return "", fmt.Errorf("unsupported platform: %s", currentPlatform)
 	}
 
-	binding, found := channelbinding.Find(channel, platform)
+	binding, found := channel.Binding(platform)
 	if !found || binding.PlatformChannelID == "" {
 		return "", fmt.Errorf("%s platform channel id not found", currentPlatform)
 	}

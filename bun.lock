@@ -273,6 +273,7 @@
         "@graphql-codegen/client-preset": "catalog:",
         "@graphql-typed-document-node/core": "catalog:",
         "@iconify-json/lucide": "1.2.80",
+        "@iconify-json/tabler": "1.2.37",
         "@intlify/unplugin-vue-i18n": "11.2.3",
         "@nuxt/icon": "2.3.1",
         "@nuxt/test-utils": "4.0.3",
@@ -680,6 +681,8 @@
     "@iconify-json/carbon": ["@iconify-json/carbon@1.2.24", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-b7u/eTWE3xFa7UXlRJBSEm6At1y6+F0P3imBEip5/8QeRzouxVjBf80Y2xnu1GYsFo9MYlHA0bZfxxMd5givfw=="],
 
     "@iconify-json/lucide": ["@iconify-json/lucide@1.2.80", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-DwAHO+xJEJpOV5y2Q0DIoR3Au9UPk+J6an6KRO281QAxsz/+YpeySGSyZzUEK9tMrSAohkQamqlHx6lPDB8BEg=="],
+
+    "@iconify-json/tabler": ["@iconify-json/tabler@1.2.37", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-tXc0jGhrxec6eTKxMI9We/r3cEItyU5dG8ngDOEKsL36a6+/xwk4sR7PIZROVajzxmvyUBsn659adDIfcswiUw=="],
 
     "@iconify/collections": ["@iconify/collections@1.0.710", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-v8Si3U8z1Fpz526gEb5W5LxXMm/Ds6uvdMzcjeugyFLaqcuCsL1xgj1sjggofVXn3P36ZYeI804HRsBrmt5W3g=="],
 

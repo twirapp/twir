@@ -10,7 +10,6 @@ import (
 	"slices"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_redemptions_history"
@@ -38,7 +37,7 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
-	twitchBinding, found := channelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if channel.IsNil() || !found || twitchBinding.PlatformChannelID == "" {
 		return nil, nil
 	}

@@ -15,10 +15,10 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -33,7 +33,7 @@ func TestDeleteMessageUsesSelectedTwitchBinding(t *testing.T) {
 	)
 
 	channelUserID := uuid.New()
-	validTwitchBinding := channelplatformsmodel.ChannelPlatform{
+	validTwitchBinding := channelplatformentity.ChannelPlatform{
 		Platform:          platform.PlatformTwitch,
 		PlatformChannelID: selectedChannelID,
 		UserID:            channelUserID,
@@ -45,13 +45,13 @@ func TestDeleteMessageUsesSelectedTwitchBinding(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		bindings   []channelplatformsmodel.ChannelPlatform
+		bindings   []channelplatformentity.ChannelPlatform
 		wantErr    bool
 		wantDelete bool
 	}{
 		{
 			name: "uses selected Twitch binding when Kick comes first",
-			bindings: []channelplatformsmodel.ChannelPlatform{
+			bindings: []channelplatformentity.ChannelPlatform{
 				{
 					Platform:          platform.PlatformKick,
 					PlatformChannelID: "kick-channel",
@@ -64,7 +64,7 @@ func TestDeleteMessageUsesSelectedTwitchBinding(t *testing.T) {
 		},
 		{
 			name: "skips missing Twitch binding",
-			bindings: []channelplatformsmodel.ChannelPlatform{
+			bindings: []channelplatformentity.ChannelPlatform{
 				{
 					Platform:          platform.PlatformKick,
 					PlatformChannelID: "kick-channel",
@@ -75,7 +75,7 @@ func TestDeleteMessageUsesSelectedTwitchBinding(t *testing.T) {
 		},
 		{
 			name: "skips missing Twitch bot config",
-			bindings: []channelplatformsmodel.ChannelPlatform{
+			bindings: []channelplatformentity.ChannelPlatform{
 				{
 					Platform:          platform.PlatformTwitch,
 					PlatformChannelID: selectedChannelID,
@@ -86,7 +86,7 @@ func TestDeleteMessageUsesSelectedTwitchBinding(t *testing.T) {
 		},
 		{
 			name: "returns error for malformed Twitch bot config",
-			bindings: []channelplatformsmodel.ChannelPlatform{
+			bindings: []channelplatformentity.ChannelPlatform{
 				{
 					Platform:          platform.PlatformTwitch,
 					PlatformChannelID: selectedChannelID,
@@ -105,7 +105,7 @@ func TestDeleteMessageUsesSelectedTwitchBinding(t *testing.T) {
 				user: usersmodel.User{ID: channelUserID},
 			}
 			channelsRepo := &deleteMessageChannelsRepository{
-				channel: channelsmodel.Channel{Bindings: tt.bindings},
+				channel: channelentity.Channel{Bindings: tt.bindings},
 			}
 			actions := &deleteMessageTwitchActions{}
 			pool := &workers.Pool{Pool: pond.NewPool(1)}
@@ -244,7 +244,7 @@ func (*deleteMessageUsersRepository) Create(
 }
 
 type deleteMessageChannelsRepository struct {
-	channel  channelsmodel.Channel
+	channel  channelentity.Channel
 	err      error
 	platform platform.Platform
 	userID   uuid.UUID
@@ -254,7 +254,7 @@ func (r *deleteMessageChannelsRepository) GetByBindingUserID(
 	_ context.Context,
 	p platform.Platform,
 	userID uuid.UUID,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	r.platform = p
 	r.userID = userID
 	return r.channel, r.err
@@ -263,38 +263,38 @@ func (r *deleteMessageChannelsRepository) GetByBindingUserID(
 func (*deleteMessageChannelsRepository) GetMany(
 	context.Context,
 	channelsrepository.GetManyInput,
-) ([]channelsmodel.Channel, error) {
+) ([]channelentity.Channel, error) {
 	return nil, nil
 }
 
 func (*deleteMessageChannelsRepository) GetAllByBindingPlatform(
 	context.Context,
 	platform.Platform,
-) ([]channelsmodel.Channel, error) {
+) ([]channelentity.Channel, error) {
 	return nil, nil
 }
 
-func (*deleteMessageChannelsRepository) GetByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (*deleteMessageChannelsRepository) GetByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
-func (*deleteMessageChannelsRepository) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (*deleteMessageChannelsRepository) GetByApiKey(context.Context, string) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (*deleteMessageChannelsRepository) GetByPlatformChannelID(
 	context.Context,
 	platform.Platform,
 	string,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (*deleteMessageChannelsRepository) GetBySlug(
 	context.Context,
 	channelsrepository.GetBySlugInput,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (*deleteMessageChannelsRepository) GetCount(context.Context, channelsrepository.GetCountInput) (int, error) {
@@ -305,13 +305,13 @@ func (*deleteMessageChannelsRepository) Update(
 	context.Context,
 	uuid.UUID,
 	channelsrepository.UpdateInput,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }
 
 func (*deleteMessageChannelsRepository) Create(
 	context.Context,
 	channelsrepository.CreateInput,
-) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
 }

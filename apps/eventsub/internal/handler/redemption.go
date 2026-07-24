@@ -11,7 +11,6 @@ import (
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
@@ -146,7 +145,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 
 		// youtube song requests
 
-		if binding, found := channelbinding.Find(channel, platform.PlatformTwitch); found {
+		if binding, found := channel.Binding(platform.PlatformTwitch); found {
 			go func(channelBindingID string) {
 				e := c.handleYoutubeSongRequests(ctxWithoutCancel, &event, channelBindingID)
 				if e != nil {

@@ -12,9 +12,9 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/timers"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
@@ -26,7 +26,7 @@ type Opts struct {
 
 	Repository        timers.Repository
 	Logger            *slog.Logger
-	ChannelCachedRepo *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelCachedRepo *generic_cacher.GenericCacher[channelentity.Channel]
 	Redis             *redis.Client
 	TwirBus           *buscore.Bus
 	Config            cfg.Config
@@ -74,7 +74,7 @@ type Manager struct {
 	repository        timers.Repository
 	logger            *slog.Logger
 	stopChan          chan struct{}
-	channelCachedRepo *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelCachedRepo *generic_cacher.GenericCacher[channelentity.Channel]
 	redis             *redis.Client
 	twirBus           *buscore.Bus
 	config            cfg.Config
@@ -106,7 +106,7 @@ func (c *Manager) initialize(ctx context.Context) error {
 		return fmt.Errorf("cannot get channels: %w", err)
 	}
 
-	channelsByID := make(map[string]channelmodel.Channel, len(channels))
+	channelsByID := make(map[string]channelentity.Channel, len(channels))
 	for _, ch := range channels {
 		channelsByID[ch.ID.String()] = ch
 	}

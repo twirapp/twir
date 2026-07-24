@@ -15,9 +15,9 @@ import (
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
@@ -222,7 +222,7 @@ func (m *SubscriptionManager) unsubscribe(
 
 func (m *SubscriptionManager) Subscribe(
 	ctx context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 ) error {
 	kickChannelID := binding.UserID
 	kickChannelIDStr := kickChannelID.String()
@@ -306,7 +306,7 @@ func (m *SubscriptionManager) Subscribe(
 
 func (m *SubscriptionManager) Unsubscribe(
 	ctx context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 ) error {
 	kickChannelID := binding.UserID
 	kickChannelIDStr := kickChannelID.String()

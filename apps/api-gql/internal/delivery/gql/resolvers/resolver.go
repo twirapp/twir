@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
@@ -83,6 +84,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channels_giveaways_settings "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
@@ -117,7 +119,7 @@ type Deps struct {
 	ChannelsRepository             channelsrepository.Repository
 	UsersRepository                usersrepository.Repository
 	ChannelService                 *channelservice.ChannelService
-	ChannelPlatformBindingsService channelplatformservice.Operations
+	ChannelPlatformBindingsService ChannelPlatformBindingsService
 	ChannelPlatformDashboard       SelectedDashboardGetter
 	CurrentPlatform                CurrentPlatformGetter
 
@@ -201,6 +203,14 @@ type Deps struct {
 	StreamlabsIntegrationService          *streamlabs_integration.Service
 	ChannelsSecretService                 *channels_secret.Service
 	ChannelsStorageService                *channels_storage.Service
+}
+
+type ChannelPlatformBindingsService interface {
+	List(context.Context, uuid.UUID) ([]channelplatformservice.Binding, error)
+	Options() []channelplatformservice.Option
+	Connect(context.Context, uuid.UUID, platformentity.Platform) (string, error)
+	Disconnect(context.Context, uuid.UUID, platformentity.Platform) error
+	SetEnabled(context.Context, uuid.UUID, platformentity.Platform, bool) (channelplatformservice.Binding, error)
 }
 
 type SelectedDashboardGetter interface {

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -37,7 +37,7 @@ type Subject struct {
 }
 
 type ChannelReader interface {
-	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error)
 }
 
 type Store interface {

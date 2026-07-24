@@ -5,7 +5,6 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/bots/internal/channelbinding"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
@@ -99,7 +98,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg enrichedChatMe
 	}
 
 	if res.Data.Text != "" {
-		binding, found := channelbinding.Find(msg.EnrichedData.DbChannel, platform.PlatformTwitch)
+		binding, found := msg.EnrichedData.DbChannel.Binding(platform.PlatformTwitch)
 		if found {
 			c.twitchActions.SendMessage(
 				ctx,

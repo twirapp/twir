@@ -12,11 +12,11 @@ import (
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	deprecatedmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
@@ -41,7 +41,7 @@ type Handler struct {
 	scheduledVipsRepo            scheduledvipsrepository.Repository
 	channelPlatformsRepo         channelplatforms.Repository
 	channelsRepo                 channelsrepository.Repository
-	channelsCache                *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsCache                *generic_cacher.GenericCacher[channelentity.Channel]
 	channelsInfoHistoryRepo      channelsinfohistory.Repository
 	streamsrepository            streams.Repository
 	redemptionsHistoryRepository channelsredemptionshistory.Repository
@@ -75,7 +75,7 @@ type Opts struct {
 	ChannelPlatformsRepository          channelplatforms.Repository
 	ChannelsRepository                  channelsrepository.Repository
 	ScheduledVipsRepo                   scheduledvipsrepository.Repository
-	ChannelsRepo                        *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsRepo                        *generic_cacher.GenericCacher[channelentity.Channel]
 	ChannelsInfoHistoryRepo             channelsinfohistory.Repository
 	StreamsRepository                   streams.Repository
 	RedemptionsHistoryRepository        channelsredemptionshistory.Repository

@@ -11,19 +11,19 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 type usersChannelLookupStub struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
-func (s usersChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
+func (s usersChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return s.channel, nil
 }
 
@@ -73,8 +73,8 @@ func newUsersServiceTestClient(t *testing.T, transport http.RoundTripper) *helix
 	return client
 }
 
-func usersMixedTwitchBindings(ownerID uuid.UUID) []channelplatformsmodel.ChannelPlatform {
-	return []channelplatformsmodel.ChannelPlatform{
+func usersMixedTwitchBindings(ownerID uuid.UUID) []channelplatformentity.ChannelPlatform {
+	return []channelplatformentity.ChannelPlatform{
 		{
 			Platform:          platform.PlatformVKVideoLive,
 			UserID:            uuid.New(),
@@ -103,7 +103,7 @@ func TestGetChannelUserInfoUsesSelectedTwitchBinding(t *testing.T) {
 	transport := &usersCaptureTransport{}
 	var clientOwnerID uuid.UUID
 	service := &Service{
-		channelService: usersChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: usersChannelLookupStub{channel: channelentity.Channel{
 			Bindings: usersMixedTwitchBindings(ownerID),
 		}},
 		usersRepository: usersRepositoryStub{user: usersmodel.User{
@@ -149,7 +149,7 @@ func TestGetChannelUserInfoRejectsMissingTwitchBinding(t *testing.T) {
 	loaderCalls := 0
 	clientCalls := 0
 	service := &Service{
-		channelService: usersChannelLookupStub{channel: channelsmodel.Channel{
+		channelService: usersChannelLookupStub{channel: channelentity.Channel{
 			Bindings: usersMixedTwitchBindings(uuid.New())[:2],
 		}},
 		loadChannelUserInfo: func(context.Context, ChannelUserInfoInput) (deprecatedgormmodel.Users, error) {
@@ -187,7 +187,7 @@ func TestGetChannelUserInfoUsesEmptySelectedTwitchProviderID(t *testing.T) {
 	loaderCalls := 0
 	var clientOwnerID uuid.UUID
 	service := &Service{
-		channelService: usersChannelLookupStub{channel: channelsmodel.Channel{Bindings: bindings}},
+		channelService: usersChannelLookupStub{channel: channelentity.Channel{Bindings: bindings}},
 		usersRepository: usersRepositoryStub{user: usersmodel.User{
 			ID:         userID,
 			PlatformID: "viewer-platform-user",

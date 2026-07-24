@@ -8,8 +8,8 @@ import (
 
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 type testChatAdapter struct {
@@ -27,7 +27,7 @@ func (a testChatAdapter) Capabilities() platform.Capabilities {
 
 func (testChatAdapter) SendMessage(
 	context.Context,
-	channelplatformsmodel.ChannelPlatform,
+	channelplatformentity.ChannelPlatform,
 	string,
 	string,
 	ChatOptions,
@@ -57,13 +57,13 @@ func TestNewRegistryRegistersChatAdapters(t *testing.T) {
 }
 
 type fakeTwitchSender struct {
-	binding channelplatformsmodel.ChannelPlatform
+	binding channelplatformentity.ChannelPlatform
 	opts    twitchactions.SendMessageOpts
 }
 
 func (s *fakeTwitchSender) SendMessage(
 	_ context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 	opts twitchactions.SendMessageOpts,
 ) error {
 	s.binding = binding
@@ -76,7 +76,7 @@ func TestTwitchChatAdapterForwardsMessageOptions(t *testing.T) {
 
 	sender := &fakeTwitchSender{}
 	adapter := NewTwitchChatAdapter(sender)
-	binding := channelplatformsmodel.ChannelPlatform{Platform: platform.PlatformTwitch}
+	binding := channelplatformentity.ChannelPlatform{Platform: platform.PlatformTwitch}
 
 	err := adapter.SendMessage(
 		context.Background(),
@@ -106,14 +106,14 @@ func TestTwitchChatAdapterForwardsMessageOptions(t *testing.T) {
 }
 
 type fakeKickSender struct {
-	binding channelplatformsmodel.ChannelPlatform
+	binding channelplatformentity.ChannelPlatform
 	message string
 	replyID string
 }
 
 func (s *fakeKickSender) SendMessage(
 	_ context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 	message string,
 	replyID string,
 ) error {
@@ -128,7 +128,7 @@ func TestKickChatAdapterForwardsMessage(t *testing.T) {
 
 	sender := &fakeKickSender{}
 	adapter := NewKickChatAdapter(sender)
-	binding := channelplatformsmodel.ChannelPlatform{Platform: platform.PlatformKick}
+	binding := channelplatformentity.ChannelPlatform{Platform: platform.PlatformKick}
 
 	err := adapter.SendMessage(context.Background(), binding, "hello", "reply-id", ChatOptions{})
 	if err != nil {
@@ -160,7 +160,7 @@ func TestNewChatRegistryRegistersTwitchAndKick(t *testing.T) {
 type recordingChatAdapter struct {
 	platform     platform.Platform
 	capabilities platform.Capabilities
-	bindings     []channelplatformsmodel.ChannelPlatform
+	bindings     []channelplatformentity.ChannelPlatform
 	messages     []string
 	replies      []string
 	err          error
@@ -176,7 +176,7 @@ func (a *recordingChatAdapter) Capabilities() platform.Capabilities {
 
 func (a *recordingChatAdapter) SendMessage(
 	_ context.Context,
-	binding channelplatformsmodel.ChannelPlatform,
+	binding channelplatformentity.ChannelPlatform,
 	message string,
 	replyID string,
 	_ ChatOptions,
@@ -202,7 +202,7 @@ func TestDispatchDispatchesEnabledBindingsWithoutPlatformFilter(t *testing.T) {
 	err := Dispatch(
 		context.Background(),
 		newRegistry(twitch, kick),
-		[]channelplatformsmodel.ChannelPlatform{
+		[]channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformKick, PlatformChannelID: "kick-channel", Enabled: true},
 			{Platform: platform.PlatformTwitch, PlatformChannelID: "twitch-channel", Enabled: true},
 			{Platform: platform.PlatformTwitch, PlatformChannelID: "disabled-channel", Enabled: false},
@@ -241,7 +241,7 @@ func TestDispatchSkipsBindingsWithoutChatWriteWhenNoPlatformRequested(t *testing
 	err := Dispatch(
 		context.Background(),
 		newRegistry(twitch, unsupported),
-		[]channelplatformsmodel.ChannelPlatform{
+		[]channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformVKVideoLive, Enabled: true},
 			{Platform: platform.PlatformTwitch, Enabled: true},
 		},
@@ -276,7 +276,7 @@ func TestDispatchReturnsUnsupportedCapabilityForExplicitSelection(t *testing.T) 
 	err := Dispatch(
 		context.Background(),
 		newRegistry(twitch, unsupported),
-		[]channelplatformsmodel.ChannelPlatform{
+		[]channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformTwitch, Enabled: true},
 			{Platform: platform.PlatformVKVideoLive, Enabled: true},
 		},
@@ -313,7 +313,7 @@ func TestDispatchReturnsUnsupportedCapabilityForExplicitPlatformWithoutBinding(t
 	err := Dispatch(
 		context.Background(),
 		newRegistry(twitch),
-		[]channelplatformsmodel.ChannelPlatform{
+		[]channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformTwitch, Enabled: true},
 		},
 		[]platform.Platform{platform.PlatformVKVideoLive},
@@ -352,7 +352,7 @@ func TestDispatchContinuesAfterBindingFailure(t *testing.T) {
 	err := Dispatch(
 		context.Background(),
 		newRegistry(twitch, kick),
-		[]channelplatformsmodel.ChannelPlatform{
+		[]channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformTwitch, Enabled: true},
 			{Platform: platform.PlatformKick, Enabled: true},
 		},
@@ -388,7 +388,7 @@ func TestDispatchAggregatesErrorsFromEachBinding(t *testing.T) {
 	err := Dispatch(
 		context.Background(),
 		newRegistry(twitch, kick),
-		[]channelplatformsmodel.ChannelPlatform{
+		[]channelplatformentity.ChannelPlatform{
 			{Platform: platform.PlatformTwitch, Enabled: true},
 			{Platform: platform.PlatformKick, Enabled: true},
 		},

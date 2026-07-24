@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/cacher"
-	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/commands"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
@@ -202,7 +201,7 @@ func (c *CommandsBus) Subscribe() error {
 				return parser.ParseVariablesInTextResponse{}, err
 			}
 
-			channel, ok := channelbinding.NewParseContextChannel(
+			channel, ok := types.NewParseContextChannel(
 				channelModel,
 				platformSource,
 				data.ChannelName,

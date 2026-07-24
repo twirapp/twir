@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -144,7 +143,7 @@ func (c *cacher) getDbChannel(ctx context.Context) (*dbChannelInfo, error) {
 		return nil, err
 	}
 
-	twitchBinding, twitchBotConfig, ok, err := channelbinding.FindTwitch(ch)
+	twitchBinding, twitchBotConfig, ok, err := ch.TwitchBinding()
 	if err != nil {
 		return nil, err
 	}

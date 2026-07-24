@@ -7,10 +7,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
@@ -180,8 +179,8 @@ func getTop(
 	return stats, false
 }
 
-func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelmodel.Channel) (squirrel.SelectBuilder, error) {
-	_, twitchBotConfig, hasTwitchBinding, err := channelbinding.FindTwitch(channel)
+func applyTopChannelBotFilters(qb squirrel.SelectBuilder, channel channelentity.Channel) (squirrel.SelectBuilder, error) {
+	_, twitchBotConfig, hasTwitchBinding, err := channel.TwitchBinding()
 	if err != nil {
 		return qb, err
 	}

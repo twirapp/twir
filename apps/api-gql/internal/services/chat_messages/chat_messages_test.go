@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
@@ -22,10 +22,10 @@ func TestHandleChannelBanEventUsesSelectedEventPlatformBinding(t *testing.T) {
 		platformChannelID,
 	)
 	router := &chatMessagesTestWsRouter{}
-	lookup := &chatMessagesTestChannelLookup{channels: map[uuid.UUID]channelsmodel.Channel{
+	lookup := &chatMessagesTestChannelLookup{channels: map[uuid.UUID]channelentity.Channel{
 		channelID: {
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{
 					Platform:          platformentity.PlatformVKVideoLive,
 					PlatformChannelID: "vk-channel",
@@ -90,16 +90,16 @@ func TestHandleChannelBanEventSkipsMissingEventPlatformBinding(t *testing.T) {
 		"wrong-kick-channel",
 	)
 	router := &chatMessagesTestWsRouter{}
-	lookup := &chatMessagesTestChannelLookup{channels: map[uuid.UUID]channelsmodel.Channel{
+	lookup := &chatMessagesTestChannelLookup{channels: map[uuid.UUID]channelentity.Channel{
 		channelID: {
 			ID: channelID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: wrongProviderChannelID},
 			},
 		},
 		wrongProviderID: {
 			ID: wrongProviderID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platformentity.PlatformKick, PlatformChannelID: "wrong-kick-channel"},
 			},
 		},
@@ -131,18 +131,18 @@ func TestHandleChannelBanEventSkipsMissingEventPlatformBinding(t *testing.T) {
 }
 
 type chatMessagesTestChannelLookup struct {
-	channels   map[uuid.UUID]channelsmodel.Channel
+	channels   map[uuid.UUID]channelentity.Channel
 	channelIDs []uuid.UUID
 }
 
 func (r *chatMessagesTestChannelLookup) GetChannelByID(
 	_ context.Context,
 	channelID uuid.UUID,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	r.channelIDs = append(r.channelIDs, channelID)
 	channel, ok := r.channels[channelID]
 	if !ok {
-		return channelsmodel.Nil, nil
+		return channelentity.Nil, nil
 	}
 
 	return channel, nil

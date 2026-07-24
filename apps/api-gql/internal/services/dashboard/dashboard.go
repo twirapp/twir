@@ -11,20 +11,19 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -46,7 +45,7 @@ type Opts struct {
 	Config                     config.Config
 	Logger                     *slog.Logger
 	TwirBus                    *buscore.Bus
-	ChannelsCache              *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsCache              *generic_cacher.GenericCacher[channelentity.Channel]
 	ChannelPlatformsRepository channelplatforms.Repository
 	ChannelService             *channelservice.ChannelService
 	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
@@ -77,7 +76,7 @@ type currentPlatformResolver interface {
 }
 
 type channelLookup interface {
-	GetChannelByID(ctx context.Context, id uuid.UUID) (channelmodel.Channel, error)
+	GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error)
 }
 
 type channelBindingUpdater interface {
@@ -85,7 +84,7 @@ type channelBindingUpdater interface {
 		ctx context.Context,
 		id uuid.UUID,
 		input channelplatforms.PatchInput,
-	) (channelplatformsmodel.ChannelPlatform, error)
+	) (channelplatformentity.ChannelPlatform, error)
 }
 
 type usersLookup interface {
@@ -100,7 +99,7 @@ type Service struct {
 	config                  config.Config
 	logger                  *slog.Logger
 	twirBus                 *buscore.Bus
-	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsCache           *generic_cacher.GenericCacher[channelentity.Channel]
 	channelPlatformsRepo    channelBindingUpdater
 	channelService          channelLookup
 	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
@@ -108,12 +107,12 @@ type Service struct {
 	usersRepo               usersLookup
 }
 
-func (c *Service) resolveAnalyticsIdentity(ctx context.Context, channel channelmodel.Channel) (string, string) {
+func (c *Service) resolveAnalyticsIdentity(ctx context.Context, channel channelentity.Channel) (string, string) {
 	currentPlatform, err := c.authService.GetCurrentPlatform(ctx)
 	if err == nil {
 		platform := platformentity.Platform(currentPlatform)
 		if platform == platformentity.PlatformKick || platform == platformentity.PlatformTwitch {
-			if binding, found := apiChannelbinding.Find(channel, platform); found && binding.PlatformChannelID != "" {
+			if binding, found := channel.Binding(platform); found && binding.PlatformChannelID != "" {
 				return currentPlatform, binding.PlatformChannelID
 			}
 		}
@@ -123,7 +122,7 @@ func (c *Service) resolveAnalyticsIdentity(ctx context.Context, channel channelm
 		platformentity.PlatformTwitch,
 		platformentity.PlatformKick,
 	} {
-		if binding, found := apiChannelbinding.Find(channel, platform); found && binding.PlatformChannelID != "" {
+		if binding, found := channel.Binding(platform); found && binding.PlatformChannelID != "" {
 			return platform.String(), binding.PlatformChannelID
 		}
 	}
@@ -160,7 +159,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	result := entity.DashboardStats{}
 	analyticsPlatform, analyticsPlatformChannelID := c.resolveAnalyticsIdentity(ctx, channel)
 
-	twitchBinding, hasTwitchBinding := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, hasTwitchBinding := channel.Binding(platformentity.PlatformTwitch)
 	if !hasTwitchBinding || twitchBinding.PlatformChannelID == "" {
 		if !stream.IsNil() {
 			result.StreamViewers = &stream.ViewerCount
@@ -440,7 +439,7 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 
 	statuses := make([]entity.BotStatus, 0, 2)
 
-	twitchBinding, twitchBotConfig, hasTwitchBinding, err := apiChannelbinding.FindTwitch(channel)
+	twitchBinding, twitchBotConfig, hasTwitchBinding, err := channel.TwitchBinding()
 	if err != nil {
 		return nil, fmt.Errorf("parse Twitch channel bot config: %w", err)
 	}
@@ -453,7 +452,7 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 		statuses = append(statuses, status)
 	}
 
-	if kickBinding, hasKickBinding := apiChannelbinding.Find(channel, platformentity.PlatformKick); hasKickBinding {
+	if kickBinding, hasKickBinding := channel.Binding(platformentity.PlatformKick); hasKickBinding {
 		statuses = append(statuses, c.getKickBotStatus(ctx, channel, kickBinding))
 	}
 
@@ -474,8 +473,8 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 
 func (c *Service) getKickBotStatus(
 	ctx context.Context,
-	channel channelmodel.Channel,
-	binding channelplatformsmodel.ChannelPlatform,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
 ) entity.BotStatus {
 	result := entity.BotStatus{
 		DashboardID: channel.ID.String(),
@@ -513,9 +512,9 @@ func (c *Service) getChannelName(ctx context.Context, userID *uuid.UUID) string 
 
 func (c *Service) getBasicTwitchBotStatus(
 	ctx context.Context,
-	channel channelmodel.Channel,
-	binding channelplatformsmodel.ChannelPlatform,
-	botConfig apiChannelbinding.TwitchBotConfig,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
+	botConfig channelplatformentity.TwitchBotConfig,
 ) entity.BotStatus {
 	return entity.BotStatus{
 		DashboardID: channel.ID.String(),
@@ -530,9 +529,9 @@ func (c *Service) getBasicTwitchBotStatus(
 
 func (c *Service) getTwitchBotStatus(
 	ctx context.Context,
-	channel channelmodel.Channel,
-	binding channelplatformsmodel.ChannelPlatform,
-	botConfig apiChannelbinding.TwitchBotConfig,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
+	botConfig channelplatformentity.TwitchBotConfig,
 ) (entity.BotStatus, error) {
 	result := c.getBasicTwitchBotStatus(ctx, channel, binding, botConfig)
 
@@ -640,9 +639,9 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 
 	targetPlatform := platform
 	if targetPlatform == "" {
-		if _, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch); found {
+		if _, found := channel.Binding(platformentity.PlatformTwitch); found {
 			targetPlatform = "twitch"
-		} else if _, found := apiChannelbinding.Find(channel, platformentity.PlatformKick); found {
+		} else if _, found := channel.Binding(platformentity.PlatformKick); found {
 			targetPlatform = "kick"
 		} else {
 			return false, fmt.Errorf("channel has no connected platform")
@@ -653,7 +652,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 
 	switch targetPlatform {
 	case "kick":
-		binding, found := apiChannelbinding.Find(channel, platformentity.PlatformKick)
+		binding, found := channel.Binding(platformentity.PlatformKick)
 		if !found || binding.PlatformChannelID == "" {
 			return false, fmt.Errorf("kick channel id not found")
 		}
@@ -682,7 +681,7 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		c.channelsCache.Invalidate(ctx, channelID)
 		return true, nil
 	case "twitch":
-		binding, botConfig, found, bindingErr := apiChannelbinding.FindTwitch(channel)
+		binding, botConfig, found, bindingErr := channel.TwitchBinding()
 		if bindingErr != nil {
 			return false, fmt.Errorf("parse Twitch channel bot config: %w", bindingErr)
 		}

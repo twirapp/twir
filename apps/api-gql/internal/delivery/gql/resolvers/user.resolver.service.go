@@ -7,13 +7,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"gorm.io/gorm"
 )
 
 type dashboardPlatformReader interface {
-	GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error)
 }
 
 func (r *authenticatedUserResolver) getDashboardPlatform(
@@ -75,24 +75,24 @@ func ownedDashboardsQuery(db *gorm.DB, ctx context.Context, userID string) *gorm
 	)
 }
 
-func (r *authenticatedUserResolver) getAuthenticatedUserChannel(ctx context.Context) (channelsmodel.Channel, error) {
+func (r *authenticatedUserResolver) getAuthenticatedUserChannel(ctx context.Context) (channelentity.Channel, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return channelsmodel.Nil, fmt.Errorf("get selected dashboard: %w", err)
+		return channelentity.Nil, fmt.Errorf("get selected dashboard: %w", err)
 	}
 
 	if dashboardID == "" {
-		return channelsmodel.Nil, nil
+		return channelentity.Nil, nil
 	}
 
 	parsedDashboardID, err := uuid.Parse(dashboardID)
 	if err != nil {
-		return channelsmodel.Nil, fmt.Errorf("parse selected dashboard id: %w", err)
+		return channelentity.Nil, fmt.Errorf("parse selected dashboard id: %w", err)
 	}
 
 	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
 	if err != nil {
-		return channelsmodel.Nil, fmt.Errorf("get selected dashboard channel: %w", err)
+		return channelentity.Nil, fmt.Errorf("get selected dashboard channel: %w", err)
 	}
 
 	return channel, nil

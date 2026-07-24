@@ -14,7 +14,6 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -80,7 +79,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			botUserIDs = append(botUserIDs, binding.BotUserID.String())
 		}
 	}
-	_, twitchBotConfig, hasTwitchBinding, err := channelbinding.FindTwitch(channel)
+	_, twitchBotConfig, hasTwitchBinding, err := channel.TwitchBinding()
 	if err != nil {
 		return nil, gqlerrors.HandleError(fmt.Errorf("parse Twitch binding configuration: %w", err))
 	}

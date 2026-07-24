@@ -1,19 +1,18 @@
-package channelbinding
+package handler
 
 import (
 	"encoding/json"
 	"testing"
 
 	"github.com/google/uuid"
+	channelsmodel "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformsmodel "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
-func TestFindSelectsRequestedPlatformBindingRegardlessOfOrder(t *testing.T) {
+func TestChannelBindingSelectsRequestedPlatformRegardlessOfOrder(t *testing.T) {
 	twitchUserID := uuid.New()
 	kickUserID := uuid.New()
-
 	channel := channelsmodel.Channel{
 		Bindings: []channelplatformsmodel.ChannelPlatform{
 			{
@@ -29,7 +28,7 @@ func TestFindSelectsRequestedPlatformBindingRegardlessOfOrder(t *testing.T) {
 		},
 	}
 
-	binding, ok := Find(channel, platform.PlatformTwitch)
+	binding, ok := channel.Binding(platform.PlatformTwitch)
 	if !ok {
 		t.Fatal("expected Twitch binding")
 	}
@@ -41,10 +40,10 @@ func TestFindSelectsRequestedPlatformBindingRegardlessOfOrder(t *testing.T) {
 	}
 }
 
-func TestParseTwitchBotConfig(t *testing.T) {
-	config, err := ParseTwitchBotConfig(channelplatformsmodel.ChannelPlatform{
+func TestChannelPlatformParsesTwitchBotConfig(t *testing.T) {
+	config, err := (channelplatformsmodel.ChannelPlatform{
 		BotConfig: json.RawMessage(`{"bot_id":"bot-123","is_bot_mod":true,"is_twitch_banned":true}`),
-	})
+	}).ParseTwitchBotConfig()
 	if err != nil {
 		t.Fatalf("ParseTwitchBotConfig returned error: %v", err)
 	}

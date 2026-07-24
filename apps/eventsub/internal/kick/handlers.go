@@ -18,18 +18,17 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/twirapp/twir/apps/eventsub/internal/channelbinding"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
@@ -817,7 +816,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	}
 
 	var (
-		channel channelsmodel.Channel
+		channel channelentity.Channel
 		stream  *streamsmodel.Stream
 	)
 
@@ -848,7 +847,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	if err := errwg.Wait(); err != nil {
 		return nil, err
 	}
-	binding, bindingFound := channelbinding.Find(channel, platform.PlatformKick)
+	binding, bindingFound := channel.Binding(platform.PlatformKick)
 	if !bindingFound {
 		return nil, fmt.Errorf("find kick channel binding")
 	}
@@ -955,10 +954,10 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 }
 
 func (h *Handlers) shouldIgnoreBotSelfMessage(
-	channel channelsmodel.Channel,
+	channel channelentity.Channel,
 	senderUser usersmodel.User,
 ) bool {
-	binding, ok := channelbinding.Find(channel, platform.PlatformKick)
+	binding, ok := channel.Binding(platform.PlatformKick)
 	return ok && binding.BotUserID != nil && *binding.BotUserID == senderUser.ID
 }
 

@@ -7,10 +7,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"gorm.io/gorm"
 )
 
@@ -22,21 +22,21 @@ func TestCommunityResetStatsUsesNormalizedOwnerCheck(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		normalized    channelsmodel.Channel
+		normalized    channelentity.Channel
 		legacyChannel model.Channels
 		wantSuccess   bool
 		wantUpdates   int
 	}{
 		{
 			name: "denies stale legacy owner without an update",
-			normalized: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: otherUserID,
 			}}},
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
 		},
 		{
 			name: "allows normalized owner",
-			normalized: channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{{
+			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: ownerID,
 			}}},
 			wantSuccess: true,
@@ -44,7 +44,7 @@ func TestCommunityResetStatsUsesNormalizedOwnerCheck(t *testing.T) {
 		},
 		{
 			name:          "allows zero-binding legacy owner",
-			normalized:    channelsmodel.Channel{ID: dashboardID},
+			normalized:    channelentity.Channel{ID: dashboardID},
 			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
 			wantSuccess:   true,
 			wantUpdates:   1,
@@ -98,12 +98,12 @@ func TestCommunityResetStatsUsesNormalizedOwnerCheck(t *testing.T) {
 }
 
 type communityResetStatsChannelReader struct {
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 }
 
-func (r communityResetStatsChannelReader) GetChannelByID(_ context.Context, channelID uuid.UUID) (channelsmodel.Channel, error) {
+func (r communityResetStatsChannelReader) GetChannelByID(_ context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
 	if channelID != r.channel.ID {
-		return channelsmodel.Nil, context.Canceled
+		return channelentity.Nil, context.Canceled
 	}
 
 	return r.channel, nil

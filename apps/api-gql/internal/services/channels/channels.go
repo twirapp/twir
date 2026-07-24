@@ -2,15 +2,14 @@ package channels
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	"github.com/twirapp/twir/libs/repositories/channels/model"
 	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -41,34 +40,23 @@ type Service struct {
 
 var ErrNotFound = fmt.Errorf("channel not found")
 
-func (c *Service) mapToEntity(m model.Channel, p platformentity.Platform) (entity.Channel, error) {
+func (c *Service) mapToEntity(m channelentity.Channel, p platformentity.Platform) (entity.Channel, error) {
 	result := entity.Channel{ID: m.ID}
 
-	for _, binding := range m.Bindings {
-		if binding.Platform != p {
-			continue
-		}
-
-		result.IsEnabled = binding.Enabled
-		if len(binding.BotConfig) == 0 {
-			return result, nil
-		}
-
-		var botConfig struct {
-			BotID          string `json:"bot_id"`
-			IsBotMod       bool   `json:"is_bot_mod"`
-			IsTwitchBanned bool   `json:"is_twitch_banned"`
-		}
-		if err := json.Unmarshal(binding.BotConfig, &botConfig); err != nil {
-			return entity.ChannelNil, fmt.Errorf("unmarshal %s channel bot config: %w", p, err)
-		}
-
-		result.BotID = botConfig.BotID
-		result.IsBotMod = botConfig.IsBotMod
-		result.IsTwitchBanned = botConfig.IsTwitchBanned
+	binding, found := m.Binding(p)
+	if !found {
 		return result, nil
 	}
 
+	result.IsEnabled = binding.Enabled
+	botConfig, err := binding.ParseTwitchBotConfig()
+	if err != nil {
+		return entity.ChannelNil, fmt.Errorf("unmarshal %s channel bot config: %w", p, err)
+	}
+
+	result.BotID = botConfig.BotID
+	result.IsBotMod = botConfig.IsBotMod
+	result.IsTwitchBanned = botConfig.IsTwitchBanned
 	return result, nil
 }
 
@@ -135,7 +123,7 @@ func (c *Service) ResolveApiKeyChannelIdentityByAnyPlatformUUID(ctx context.Cont
 		return nil, err
 	}
 
-	var channel model.Channel
+	var channel channelentity.Channel
 
 	channel, err = c.channelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
 	if err != nil {
@@ -166,7 +154,7 @@ func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 	ctx context.Context,
 	apiKey string,
 ) (ApiKeyChannelIdentity, error) {
-	var channel model.Channel
+	var channel channelentity.Channel
 	foundedChannel, err := c.channelsRepository.GetByApiKey(ctx, apiKey)
 	if err != nil && !errors.Is(err, channels.ErrNotFound) {
 		return ApiKeyChannelIdentity{}, err
@@ -215,7 +203,7 @@ func (c *Service) GetPlatformIdentities(ctx context.Context, channelID uuid.UUID
 	return c.mapChannelPlatformIdentities(channel), nil
 }
 
-func (c *Service) mapChannelPlatformIdentities(channel model.Channel) []ChannelPlatformIdentity {
+func (c *Service) mapChannelPlatformIdentities(channel channelentity.Channel) []ChannelPlatformIdentity {
 	identities := make([]ChannelPlatformIdentity, 0, len(channel.Bindings))
 	for _, binding := range channel.Bindings {
 		if binding.PlatformChannelID == "" {

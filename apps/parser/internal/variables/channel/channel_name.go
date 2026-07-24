@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/parser/internal/channelbinding"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/libs/entities/platform"
 )
@@ -26,7 +25,7 @@ var TwitchName = &types.Variable{
 			return nil, err
 		}
 
-		binding, ok := channelbinding.Find(ch, platform.PlatformTwitch)
+		binding, ok := ch.Binding(platform.PlatformTwitch)
 		if !ok || binding.UserID == uuid.Nil {
 			return &types.VariableHandlerResult{Result: ""}, nil
 		}
@@ -61,7 +60,7 @@ var KickName = &types.Variable{
 			return nil, err
 		}
 
-		binding, ok := channelbinding.Find(ch, platform.PlatformKick)
+		binding, ok := ch.Binding(platform.PlatformKick)
 		if !ok || binding.UserID == uuid.Nil {
 			return &types.VariableHandlerResult{Result: ""}, nil
 		}

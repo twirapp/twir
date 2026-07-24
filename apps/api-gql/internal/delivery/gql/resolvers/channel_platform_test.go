@@ -2,17 +2,15 @@ package resolvers
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsrepo "github.com/twirapp/twir/libs/repositories/channel_platforms"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -25,9 +23,9 @@ func TestChannelPlatformBindingsReturnsProfilesEnabledStateAndCapabilities(t *te
 	vkUserID := uuid.New()
 	resolver := newChannelPlatformTestResolver(
 		dashboardID,
-		channelsmodel.Channel{
+		channelentity.Channel{
 			ID: dashboardID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: twitchUserID, PlatformChannelID: "twitch-channel", Enabled: true},
 				{ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: kickUserID, PlatformChannelID: "kick-channel", Enabled: false},
 				{ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: vkUserID, PlatformChannelID: "vk-channel", Enabled: true},
@@ -71,9 +69,9 @@ func TestChannelPlatformBindingsOmitsVKWhenFeatureIsDisabled(t *testing.T) {
 	vkUserID := uuid.New()
 	resolver := newChannelPlatformTestResolver(
 		dashboardID,
-		channelsmodel.Channel{
+		channelentity.Channel{
 			ID: dashboardID,
-			Bindings: []channelplatformsmodel.ChannelPlatform{
+			Bindings: []channelplatformentity.ChannelPlatform{
 				{ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: twitchUserID, PlatformChannelID: "twitch-channel", Enabled: true},
 				{ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: vkUserID, PlatformChannelID: "vk-channel", Enabled: true},
 			},
@@ -99,7 +97,7 @@ func TestChannelPlatformOptionsReturnRegisteredPlatformsInDomainOrder(t *testing
 
 	resolver := newChannelPlatformTestResolver(
 		uuid.New(),
-		channelsmodel.Channel{},
+		channelentity.Channel{},
 		nil,
 		testResolverPlatformRegistry(
 			platformentity.PlatformVKVideoLive,
@@ -124,21 +122,19 @@ func TestChannelPlatformBindingMutationsUseGenericOperations(t *testing.T) {
 
 	dashboardID := uuid.New()
 	kickUserID := uuid.New()
-	kickBinding := channelplatformsmodel.ChannelPlatform{
+	kickBinding := channelplatformentity.ChannelPlatform{
 		ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: kickUserID, PlatformChannelID: "kick-channel", Enabled: true,
 	}
-	repository := &resolverBindingRepository{binding: kickBinding}
-	oauth := &resolverOAuthStarter{url: "https://provider.example/authorize"}
+	operations := &resolverChannelPlatformBindingsService{binding: kickBinding, connectURL: "https://provider.example/authorize"}
 	resolver := newChannelPlatformTestResolverWithDependencies(
 		dashboardID,
-		channelsmodel.Channel{ID: dashboardID, Bindings: []channelplatformsmodel.ChannelPlatform{
+		channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{
 			kickBinding,
 			{ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
 		}},
 		map[uuid.UUID]usersmodel.User{kickUserID: {ID: kickUserID, PlatformID: "kick-user", DisplayName: "Kick Name"}},
 		testResolverPlatformRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
-		repository,
-		oauth,
+		operations,
 	)
 
 	mutation := &mutationResolver{resolver}
@@ -146,30 +142,30 @@ func TestChannelPlatformBindingMutationsUseGenericOperations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ChannelPlatformConnect() error = %v", err)
 	}
-	if url != oauth.url || oauth.channelID != dashboardID || oauth.platform != platformentity.PlatformKick {
-		t.Fatalf("ChannelPlatformConnect() = %q, oauth = %#v", url, oauth)
+	if url != operations.connectURL || operations.channelID != dashboardID || operations.platform != platformentity.PlatformKick {
+		t.Fatalf("ChannelPlatformConnect() = %q, operations = %#v", url, operations)
 	}
 
 	updated, err := mutation.ChannelPlatformSetEnabled(context.Background(), gqlmodel.PlatformKick, false)
 	if err != nil {
 		t.Fatalf("ChannelPlatformSetEnabled() error = %v", err)
 	}
-	if updated == nil || updated.Enabled || repository.patch.Enabled == nil || *repository.patch.Enabled {
-		t.Fatalf("ChannelPlatformSetEnabled() = %#v, patch = %#v", updated, repository.patch)
+	if updated == nil || updated.Enabled || operations.binding.Enabled {
+		t.Fatalf("ChannelPlatformSetEnabled() = %#v, binding = %#v", updated, operations.binding)
 	}
 
 	disconnected, err := mutation.ChannelPlatformDisconnect(context.Background(), gqlmodel.PlatformKick)
 	if err != nil {
 		t.Fatalf("ChannelPlatformDisconnect() error = %v", err)
 	}
-	if !disconnected || repository.deletedID != kickBinding.ID {
-		t.Fatalf("ChannelPlatformDisconnect() = %t, deleted = %s", disconnected, repository.deletedID)
+	if !disconnected || operations.deletedID != kickBinding.ID {
+		t.Fatalf("ChannelPlatformDisconnect() = %t, deleted = %s", disconnected, operations.deletedID)
 	}
 }
 
 func newChannelPlatformTestResolver(
 	dashboardID uuid.UUID,
-	channel channelsmodel.Channel,
+	channel channelentity.Channel,
 	users map[uuid.UUID]usersmodel.User,
 	registry *appplatform.Registry,
 ) *Resolver {
@@ -178,92 +174,84 @@ func newChannelPlatformTestResolver(
 		channel,
 		users,
 		registry,
-		&resolverBindingRepository{},
-		&resolverOAuthStarter{url: "https://provider.example/authorize"},
+		nil,
 	)
 }
 
 func newChannelPlatformTestResolverWithDependencies(
 	dashboardID uuid.UUID,
-	channel channelsmodel.Channel,
+	channel channelentity.Channel,
 	users map[uuid.UUID]usersmodel.User,
 	registry *appplatform.Registry,
-	bindings *resolverBindingRepository,
-	oauth *resolverOAuthStarter,
+	operations *resolverChannelPlatformBindingsService,
 ) *Resolver {
-	service := channelplatformservice.New(
-		resolverChannelReader{channel: channel},
-		resolverUserLookup{users: users},
-		bindings,
-		oauth,
-		registry,
-		resolverTransactionRunner{},
-	)
+	if operations == nil {
+		operations = &resolverChannelPlatformBindingsService{connectURL: "https://provider.example/authorize"}
+	}
+	operations.channel = channel
+	operations.users = users
+	operations.registry = registry
 
 	return &Resolver{deps: Deps{
-		ChannelPlatformBindingsService: service,
+		ChannelPlatformBindingsService: operations,
 		ChannelPlatformDashboard:       resolverDashboardGetter{dashboardID: dashboardID.String()},
 	}}
 }
 
-type resolverChannelReader struct {
-	channel channelsmodel.Channel
+type resolverChannelPlatformBindingsService struct {
+	channel    channelentity.Channel
+	users      map[uuid.UUID]usersmodel.User
+	registry   *appplatform.Registry
+	binding    channelplatformentity.ChannelPlatform
+	connectURL string
+	channelID  uuid.UUID
+	platform   platformentity.Platform
+	deletedID  uuid.UUID
 }
 
-func (r resolverChannelReader) GetChannelByID(context.Context, uuid.UUID) (channelsmodel.Channel, error) {
-	return r.channel, nil
-}
-
-type resolverUserLookup struct {
-	users map[uuid.UUID]usersmodel.User
-}
-
-func (r resolverUserLookup) GetByID(_ context.Context, id uuid.UUID) (usersmodel.User, error) {
-	user, ok := r.users[id]
-	if !ok {
-		return usersmodel.Nil, errors.New("user not found")
+func (s *resolverChannelPlatformBindingsService) List(_ context.Context, channelID uuid.UUID) ([]channelplatformservice.Binding, error) {
+	if s.channel.ID != channelID {
+		return nil, nil
 	}
-	return user, nil
+
+	bindings := make([]channelplatformservice.Binding, 0, len(s.channel.Bindings))
+	for _, binding := range s.channel.Bindings {
+		provider, ok := s.registry.Get(binding.Platform)
+		if !ok || provider == nil {
+			continue
+		}
+		bindings = append(bindings, channelplatformservice.Binding{Binding: binding, Profile: s.users[binding.UserID], Capabilities: binding.Platform.Capabilities()})
+	}
+
+	return bindings, nil
 }
 
-type resolverBindingRepository struct {
-	binding   channelplatformsmodel.ChannelPlatform
-	patch     channelplatformsrepo.PatchInput
-	deletedID uuid.UUID
+func (s *resolverChannelPlatformBindingsService) Options() []channelplatformservice.Option {
+	options := make([]channelplatformservice.Option, 0)
+	for _, platform := range platformentity.All() {
+		provider, ok := s.registry.Get(platform)
+		if ok && provider != nil {
+			options = append(options, channelplatformservice.Option{Platform: platform, Capabilities: platform.Capabilities()})
+		}
+	}
+
+	return options
 }
 
-func (*resolverBindingRepository) LockByChannelID(context.Context, uuid.UUID) error {
+func (s *resolverChannelPlatformBindingsService) Connect(_ context.Context, channelID uuid.UUID, platform platformentity.Platform) (string, error) {
+	s.channelID = channelID
+	s.platform = platform
+	return s.connectURL, nil
+}
+
+func (s *resolverChannelPlatformBindingsService) Disconnect(_ context.Context, _ uuid.UUID, _ platformentity.Platform) error {
+	s.deletedID = s.binding.ID
 	return nil
 }
 
-func (r *resolverBindingRepository) GetByChannelAndPlatform(_ context.Context, _ uuid.UUID, _ platformentity.Platform) (channelplatformsmodel.ChannelPlatform, error) {
-	return r.binding, nil
-}
-
-func (r *resolverBindingRepository) Patch(_ context.Context, _ uuid.UUID, input channelplatformsrepo.PatchInput) (channelplatformsmodel.ChannelPlatform, error) {
-	r.patch = input
-	updated := r.binding
-	if input.Enabled != nil {
-		updated.Enabled = *input.Enabled
-	}
-	return updated, nil
-}
-
-func (r *resolverBindingRepository) Delete(_ context.Context, id uuid.UUID) error {
-	r.deletedID = id
-	return nil
-}
-
-type resolverOAuthStarter struct {
-	url       string
-	channelID uuid.UUID
-	platform  platformentity.Platform
-}
-
-func (r *resolverOAuthStarter) StartPlatformAuthForChannel(_ context.Context, channelID uuid.UUID, platform platformentity.Platform) (string, error) {
-	r.channelID = channelID
-	r.platform = platform
-	return r.url, nil
+func (s *resolverChannelPlatformBindingsService) SetEnabled(_ context.Context, _ uuid.UUID, _ platformentity.Platform, enabled bool) (channelplatformservice.Binding, error) {
+	s.binding.Enabled = enabled
+	return channelplatformservice.Binding{Binding: s.binding, Profile: s.users[s.binding.UserID], Capabilities: s.binding.Platform.Capabilities()}, nil
 }
 
 type resolverDashboardGetter struct {
@@ -284,8 +272,8 @@ type resolverPlatformProvider struct {
 	platform platformentity.Platform
 }
 
-func (p resolverPlatformProvider) Name() string {
-	return p.platform.String()
+func (p resolverPlatformProvider) Platform() platformentity.Platform {
+	return p.platform
 }
 
 func (resolverPlatformProvider) GetAuthURL(string, string) string {

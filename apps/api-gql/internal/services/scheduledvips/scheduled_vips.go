@@ -9,13 +9,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	apiChannelbinding "github.com/twirapp/twir/apps/api-gql/internal/channelbinding"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"github.com/twirapp/twir/libs/logger"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
@@ -57,7 +56,7 @@ type Service struct {
 }
 
 type channelLookup interface {
-	GetChannelByID(ctx context.Context, id uuid.UUID) (channelsmodel.Channel, error)
+	GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error)
 }
 
 type twitchUserClientFactory func(uuid.UUID) (*helix.Client, error)
@@ -143,7 +142,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
-	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if !found || twitchBinding.UserID == uuid.Nil {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
@@ -233,7 +232,7 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
-	twitchBinding, found := apiChannelbinding.Find(channel, platformentity.PlatformTwitch)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
 	if !found || twitchBinding.UserID == uuid.Nil {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}

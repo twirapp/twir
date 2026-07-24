@@ -12,8 +12,8 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelplatformsmodel "github.com/twirapp/twir/libs/repositories/channel_platforms/model"
 )
 
 func TestSplitMessage_UsesByteLimit(t *testing.T) {
@@ -155,8 +155,8 @@ func TestSendMessage_IncludesReplyToWhenProvided(t *testing.T) {
 	require.Contains(t, transport.body, `"reply_to_message_id":"opaque-reply-id-123"`)
 }
 
-func kickBinding(platformChannelID string) channelplatformsmodel.ChannelPlatform {
-	return channelplatformsmodel.ChannelPlatform{
+func kickBinding(platformChannelID string) channelplatformentity.ChannelPlatform {
+	return channelplatformentity.ChannelPlatform{
 		Platform:          platformentity.PlatformKick,
 		PlatformChannelID: platformChannelID,
 		Enabled:           true,
