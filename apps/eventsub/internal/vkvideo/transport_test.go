@@ -77,6 +77,10 @@ func TestTransportAuthenticatesBindingUserAndDeduplicatesPublications(t *testing
 		t.Fatalf("chat messages = %d, want one deduplicated message", len(got))
 	} else if got[0].Platform != string(platform.PlatformVKVideoLive) || got[0].MessageID != "123456789" || got[0].Text != "hello world" || !got[0].IsModerator {
 		t.Fatalf("normalized message = %#v", got[0])
+	} else if _, err := uuid.Parse(got[0].ID); err != nil {
+		t.Fatalf("normalized message ID = %q, want UUID: %v", got[0].ID, err)
+	} else if got[0].ID == got[0].MessageID {
+		t.Fatalf("normalized message ID = provider message ID %q", got[0].ID)
 	}
 
 	if err := transport.Unsubscribe(context.Background(), binding); err != nil {

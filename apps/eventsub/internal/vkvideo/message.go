@@ -9,6 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/google/uuid"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
@@ -182,7 +183,7 @@ func normalizeChatMessage(
 				},
 			}},
 		},
-		ID:                publication.ID,
+		ID:                uuid.NewString(),
 		BroadcasterUserId: binding.PlatformChannelID,
 		ChatterUserId:     publication.Author.ID,
 		ChatterUserName:   publication.Author.Name,
