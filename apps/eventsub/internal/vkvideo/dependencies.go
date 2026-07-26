@@ -7,13 +7,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/vk"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 )
 
 const (
@@ -31,9 +31,8 @@ type webSocketTokenProvider interface {
 	SubscriptionToken(context.Context, uuid.UUID, string) (string, error)
 }
 
-type userStore interface {
-	GetByPlatformID(context.Context, platformentity.Platform, string) (usersmodel.User, error)
-	Create(context.Context, usersrepository.CreateInput) (usersmodel.User, error)
+type chatUserEnsurer interface {
+	UnsureUser(context.Context, user_creator.CreateUserInput) (*usersmodel.User, *usersstatsmodel.UserStat, error)
 }
 
 type messagePublisher interface {
