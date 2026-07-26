@@ -48,6 +48,12 @@ echo "twir" | docker secret create twir_postgres_password -
 echo "super-secret-webhook-token" | docker secret create twir_deploy_webhook_token -
 ```
 
+### Anubis secret
+
+```bash
+printf %s "$(openssl rand -hex 32)" | docker secret create twir_anubis_ed25519_key -
+```
+
 ## First deploy
 
 For the first deploy, choose the image tag that already exists in the registry and export it before deploying.
