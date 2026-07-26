@@ -16,17 +16,22 @@ func (t *Transport) startBinding(
 	owned *ownedConnection,
 ) error {
 	tokenContext := context.WithoutCancel(ctx)
+	channel, err := t.tokens.DiscoverChatChannel(tokenContext, binding.UserID)
+	if err != nil {
+		return fmt.Errorf("discover VK Video chat channel: %w", err)
+	}
+
 	connection, err := t.newConnection(RealtimeClientConfig{
-		Channel:       "channel-chat:" + binding.PlatformChannelID,
+		Channel:       channel,
 		QueueCapacity: 128,
 		BindingID:     binding.ID,
 		Logger:        t.logger,
 		Tokens: TokenCallbacks{
 			Connection: func() (string, error) {
-				return t.tokens.GetUserToken(tokenContext, binding.UserID)
+				return t.tokens.ConnectionToken(tokenContext, binding.UserID)
 			},
-			Subscription: func(string) (string, error) {
-				return t.tokens.GetUserToken(tokenContext, binding.UserID)
+			Subscription: func(channel string) (string, error) {
+				return t.tokens.SubscriptionToken(tokenContext, binding.UserID, channel)
 			},
 		},
 	})
