@@ -653,8 +653,6 @@ services:
       ED25519_PRIVATE_KEY_HEX_FILE: /run/secrets/twir_anubis_ed25519_key
       COOKIE_DOMAIN: twir.app
       COOKIE_SAME_SITE: Lax
-      # The site ships no own robots.txt; let Anubis serve one disallowing AI scrapers.
-      SERVE_ROBOTS_TXT: "true"
     secrets:
       - twir_anubis_ed25519_key
     configs:
