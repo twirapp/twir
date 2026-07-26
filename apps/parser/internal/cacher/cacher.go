@@ -144,23 +144,20 @@ func (c *cacher) getDbChannel(ctx context.Context) (*dbChannelInfo, error) {
 		return nil, err
 	}
 
+	channel := &dbChannelInfo{
+		ChannelID: ch.ID.String(),
+	}
+
 	twitchBinding, twitchBotConfig, ok, err := ch.TwitchBinding()
 	if err != nil {
 		return nil, err
 	}
-	if !ok {
-		return nil, errors.New("channel has no Twitch binding")
-	}
+	if ok {
+		if twitchBinding.UserID != uuid.Nil {
+			channel.BroadcasterUserID = twitchBinding.UserID.String()
+		}
 
-	var broadcasterUserID string
-	if twitchBinding.UserID != uuid.Nil {
-		broadcasterUserID = twitchBinding.UserID.String()
-	}
-
-	channel := &dbChannelInfo{
-		ChannelID:         ch.ID.String(),
-		BroadcasterUserID: broadcasterUserID,
-		BotID:             twitchBotConfig.BotID,
+		channel.BotID = twitchBotConfig.BotID
 	}
 
 	c.cache.dbChannel = channel
