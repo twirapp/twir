@@ -20,6 +20,9 @@ type BotSetupProvider struct {
 	config cfg.Config
 }
 
+// POST /v1/chat/message/send requires user authorization with this permission.
+const vkVideoBotChatSendScope = "chat:message:send"
+
 func NewBotSetupProvider(opts BotSetupProviderOpts) *BotSetupProvider {
 	return &BotSetupProvider{config: opts.Config}
 }
@@ -30,7 +33,7 @@ func (p *BotSetupProvider) GetBotSetupAuthURL(state string) (string, error) {
 		return "", err
 	}
 
-	return client.AuthorizationURL(state, nil)
+	return client.AuthorizationURL(state, []string{vkVideoBotChatSendScope})
 }
 
 func (p *BotSetupProvider) ExchangeBotSetupCode(
