@@ -23,12 +23,18 @@ func TestGetTimerSendTargetsUsesBindingsByPlatform(t *testing.T) {
 				Enabled:           true,
 				BotConfig:         json.RawMessage(`{"is_bot_mod":true}`),
 			},
+			{
+				Platform:          platformentity.PlatformVKVideoLive,
+				PlatformChannelID: "vk-channel",
+				Enabled:           true,
+			},
 		},
 	}
 
 	want := []timerSendTarget{
 		{platform: platformentity.PlatformTwitch, channelID: "twitch-channel"},
 		{platform: platformentity.PlatformKick, channelID: "kick-channel"},
+		{platform: platformentity.PlatformVKVideoLive, channelID: "vk-channel"},
 	}
 
 	for _, timerPlatforms := range [][]platformentity.Platform{nil, {}} {
@@ -134,12 +140,40 @@ func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 			want: []timerSendTarget{},
 		},
 		{
-			name: "skips unsupported bindings",
+			name: "includes enabled VK binding with chat.write",
 			channel: channelentity.Channel{
 				Bindings: []channelplatformentity.ChannelPlatform{
 					{
 						Platform:          platformentity.PlatformVKVideoLive,
 						PlatformChannelID: "vk-channel",
+						Enabled:           true,
+					},
+				},
+			},
+			want: []timerSendTarget{
+				{platform: platformentity.PlatformVKVideoLive, channelID: "vk-channel"},
+			},
+		},
+		{
+			name: "skips disabled VK binding",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.PlatformVKVideoLive,
+						PlatformChannelID: "vk-channel",
+						Enabled:           false,
+					},
+				},
+			},
+			want: []timerSendTarget{},
+		},
+		{
+			name: "skips binding without chat.write",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.Platform("unsupported"),
+						PlatformChannelID: "unsupported-channel",
 						Enabled:           true,
 					},
 				},
@@ -169,17 +203,16 @@ func TestHasSupportedTimerBinding(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "recognizes a supported binding after an unsupported binding",
+			name: "recognizes a VK binding",
 			bindings: []channelplatformentity.ChannelPlatform{
-				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel", Enabled: true},
-				{Platform: platformentity.PlatformKick, PlatformChannelID: "kick-channel"},
+				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel"},
 			},
 			want: true,
 		},
 		{
 			name: "ignores unsupported bindings",
 			bindings: []channelplatformentity.ChannelPlatform{
-				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel", Enabled: true},
+				{Platform: platformentity.Platform("unsupported"), PlatformChannelID: "unsupported-channel", Enabled: true},
 			},
 			want: false,
 		},
