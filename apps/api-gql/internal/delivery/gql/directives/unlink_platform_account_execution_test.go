@@ -22,7 +22,7 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
-func TestUnlinkPlatformAccountGraphQLRequiresManageBotSettings(t *testing.T) {
+func TestUnlinkPlatformAccountGraphQLRequiresOwnerOrBotAdmin(t *testing.T) {
 	t.Parallel()
 
 	dashboardID := uuid.New()
@@ -30,48 +30,58 @@ func TestUnlinkPlatformAccountGraphQLRequiresManageBotSettings(t *testing.T) {
 	managerID := uuid.New()
 	viewerID := uuid.New()
 	unauthorizedUserID := uuid.New()
+	botAdminID := uuid.New()
 
 	tests := []struct {
 		name                string
-		userID              uuid.UUID
+		user                model.Users
 		roles               []model.ChannelRole
 		wantError           string
 		wantDisconnectCalls int
+		wantBindingPresent  bool
 	}{
 		{
-			name:      "denies stale selected dashboard before disconnecting",
-			userID:    unauthorizedUserID,
-			wantError: "user does not have access to selected dashboard",
+			name:               "denies stale selected dashboard before disconnecting",
+			user:               model.Users{ID: unauthorizedUserID.String()},
+			wantError:          "user does not have access to selected dashboard",
+			wantBindingPresent: true,
 		},
 		{
-			name:   "denies selected-dashboard view collaborator before disconnecting",
-			userID: viewerID,
+			name: "denies selected-dashboard view collaborator before disconnecting",
+			user: model.Users{ID: viewerID.String()},
 			roles: []model.ChannelRole{{
 				Users:       []*model.ChannelRoleUser{{UserID: viewerID.String()}},
 				Permissions: pq.StringArray{"VIEW_BOT_SETTINGS"},
 			}},
-			wantError: "user has no permission to access this resource",
+			wantError:          "user has no permission to access this resource",
+			wantBindingPresent: true,
 		},
 		{
-			name:   "allows selected-dashboard manager to unlink",
-			userID: managerID,
+			name: "denies selected-dashboard manager from unlinking",
+			user: model.Users{ID: managerID.String()},
 			roles: []model.ChannelRole{{
 				Users:       []*model.ChannelRoleUser{{UserID: managerID.String()}},
 				Permissions: pq.StringArray{"MANAGE_BOT_SETTINGS"},
 			}},
-			wantDisconnectCalls: 1,
+			wantError:          "only the channel owner or a bot admin can manage platform identities",
+			wantBindingPresent: true,
 		},
 		{
 			name:                "allows normalized binding owner to unlink",
-			userID:              ownerID,
+			user:                model.Users{ID: ownerID.String()},
+			wantDisconnectCalls: 1,
+		},
+		{
+			name:                "allows bot admin to unlink",
+			user:                model.Users{ID: botAdminID.String(), IsBotAdmin: true},
 			wantDisconnectCalls: 1,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			operations := &unlinkPlatformAccountOperations{}
-			server := newUnlinkPlatformAccountGraphQLServer(t, dashboardID, ownerID, tt.userID, tt.roles, operations)
+			operations := &unlinkPlatformAccountOperations{bindingPresent: true}
+			server := newUnlinkPlatformAccountGraphQLServer(t, dashboardID, ownerID, tt.user, tt.roles, operations)
 
 			response := executeUnlinkPlatformAccount(t, server)
 			if tt.wantError != "" {
@@ -90,6 +100,9 @@ func TestUnlinkPlatformAccountGraphQLRequiresManageBotSettings(t *testing.T) {
 			if operations.disconnectCalls != tt.wantDisconnectCalls {
 				t.Fatalf("Disconnect() calls = %d, want %d", operations.disconnectCalls, tt.wantDisconnectCalls)
 			}
+			if operations.bindingPresent != tt.wantBindingPresent {
+				t.Fatalf("binding present = %t, want %t", operations.bindingPresent, tt.wantBindingPresent)
+			}
 			if tt.wantDisconnectCalls != 0 && (operations.dashboardID != dashboardID || operations.platform != platformentity.PlatformKick) {
 				t.Fatalf("Disconnect() = (%s, %s), want (%s, %s)", operations.dashboardID, operations.platform, dashboardID, platformentity.PlatformKick)
 			}
@@ -101,16 +114,28 @@ func newUnlinkPlatformAccountGraphQLServer(
 	t *testing.T,
 	dashboardID uuid.UUID,
 	ownerID uuid.UUID,
-	userID uuid.UUID,
+	user model.Users,
 	roles []model.ChannelRole,
 	operations *unlinkPlatformAccountOperations,
 ) *handler.Server {
 	t.Helper()
+	sessionUser := &user
+	dashboardAccess := dashboardaccess.New(
+		selectedDashboardDirectiveChannelReader{channel: channelentity.Channel{
+			ID: dashboardID,
+			Bindings: []channelplatformentity.ChannelPlatform{{
+				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: ownerID, PlatformChannelID: "owner-channel", Enabled: true,
+			}},
+		}},
+		&selectedDashboardDirectiveStore{roles: roles},
+	)
 
 	resolver, err := resolvers.New(resolvers.Deps{
 		ChannelPlatformBindingsService: operations,
 		ChannelPlatformDashboard:       unlinkPlatformAccountDashboard{dashboardID: dashboardID},
 		CurrentPlatform:                unlinkPlatformAccountCurrentPlatform{},
+		Sessions:                       channelPlatformBindingExecutionSession{user: sessionUser},
+		DashboardAccess:                dashboardAccess,
 	})
 	if err != nil {
 		t.Fatalf("create resolver: %v", err)
@@ -118,18 +143,10 @@ func newUnlinkPlatformAccountGraphQLServer(
 
 	directive := &Directives{
 		sessions: &selectedDashboardDirectiveSession{
-			user:        &model.Users{ID: userID.String()},
+			user:        sessionUser,
 			dashboardID: dashboardID.String(),
 		},
-		dashboardAccess: dashboardaccess.New(
-			selectedDashboardDirectiveChannelReader{channel: channelentity.Channel{
-				ID: dashboardID,
-				Bindings: []channelplatformentity.ChannelPlatform{{
-					ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: ownerID, PlatformChannelID: "owner-channel", Enabled: true,
-				}},
-			}},
-			&selectedDashboardDirectiveStore{roles: roles},
-		),
+		dashboardAccess: dashboardAccess,
 	}
 
 	server := handler.New(graph.NewExecutableSchema(graph.Config{
@@ -195,6 +212,7 @@ type unlinkPlatformAccountOperations struct {
 	disconnectCalls int
 	dashboardID     uuid.UUID
 	platform        platformentity.Platform
+	bindingPresent  bool
 }
 
 func (*unlinkPlatformAccountOperations) List(context.Context, uuid.UUID) ([]channelplatformservice.Binding, error) {
@@ -213,6 +231,7 @@ func (o *unlinkPlatformAccountOperations) Disconnect(_ context.Context, dashboar
 	o.disconnectCalls++
 	o.dashboardID = dashboardID
 	o.platform = platform
+	o.bindingPresent = false
 	return nil
 }
 
