@@ -15,8 +15,11 @@ func TestVKClientPreflight_selectsExactActiveChannel(t *testing.T) {
 		}
 
 		switch request.URL.Path {
-		case "/v1/channels/active":
-			_, _ = writer.Write([]byte(`{"data":[{"channel":{"url":"https://live.vkvideo.ru/other","web_socket_channels":{"chat":"chat-other"}},"stream":{"id":"stream-other"}},{"channel":{"url":"https://live.vkvideo.ru/exact","web_socket_channels":{"chat":"chat-exact"}},"stream":{"id":"stream-exact"}}]}`))
+		case "/v1/channel":
+			if got := request.URL.Query().Get("channel_url"); got != "https://live.vkvideo.ru/exact" {
+				t.Errorf("channel URL = %q, want exact channel URL", got)
+			}
+			_, _ = writer.Write([]byte(`{"data":{"channel":{"url":"https://live.vkvideo.ru/exact","web_socket_channels":{"chat":"chat-exact"}},"stream":{"id":"stream-exact"}}}`))
 		case "/v1/websocket/token":
 			_, _ = writer.Write([]byte(`{"data":{"token":"synthetic-connection-token"}}`))
 		case "/v1/websocket/subscription_token":

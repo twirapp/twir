@@ -15,19 +15,25 @@ type botTokenRequester interface {
 	Request(context.Context, buscoretokens.GetBotTokenRequest) (*buscore.QueueResponse[buscoretokens.TokenResponse], error)
 }
 
+type ownerTokenRequester interface {
+	Request(context.Context, buscoretokens.GetUserTokenRequest) (*buscore.QueueResponse[buscoretokens.TokenResponse], error)
+}
+
 type videoChatSender interface {
 	SendTextMessage(context.Context, vkintegrations.SendTextMessageInput) error
 }
 
 type ChatClient struct {
-	requestBotToken botTokenRequester
-	videoChat       videoChatSender
+	requestOwnerToken ownerTokenRequester
+	requestBotToken   botTokenRequester
+	videoChat         videoChatSender
 }
 
 func NewChatClient(twirBus *buscore.Bus, videoChat *vkintegrations.VideoChatClient) *ChatClient {
 	return &ChatClient{
-		requestBotToken: twirBus.Tokens.RequestBotToken,
-		videoChat:       videoChat,
+		requestOwnerToken: twirBus.Tokens.RequestUserToken,
+		requestBotToken:   twirBus.Tokens.RequestBotToken,
+		videoChat:         videoChat,
 	}
 }
 
@@ -40,7 +46,15 @@ func (c *ChatClient) SendMessage(
 		return nil
 	}
 
-	tokenResponse, err := c.requestBotToken.Request(
+	ownerTokenResponse, err := c.requestOwnerToken.Request(
+		ctx,
+		buscoretokens.GetUserTokenRequest{UserId: binding.UserID},
+	)
+	if err != nil {
+		return fmt.Errorf("request VK Video Live binding owner token: %w", err)
+	}
+
+	botTokenResponse, err := c.requestBotToken.Request(
 		ctx,
 		buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive},
 	)
@@ -49,9 +63,9 @@ func (c *ChatClient) SendMessage(
 	}
 
 	if err := c.videoChat.SendTextMessage(ctx, vkintegrations.SendTextMessageInput{
-		AccessToken: tokenResponse.Data.AccessToken,
-		OwnerID:     binding.PlatformChannelID,
-		Content:     text,
+		OwnerAccessToken: ownerTokenResponse.Data.AccessToken,
+		BotAccessToken:   botTokenResponse.Data.AccessToken,
+		Content:          text,
 	}); err != nil {
 		return fmt.Errorf("send VK Video Live chat message: %w", err)
 	}

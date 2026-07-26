@@ -16,15 +16,22 @@ import (
 func TestChatClientSendsTextWithGlobalVKVideoToken(t *testing.T) {
 	// Given
 	botUserID := uuid.New()
-	requester := &fakeBotTokenRequester{
+	ownerID := uuid.New()
+	ownerRequester := &fakeUserTokenRequester{
+		response: &buscore.QueueResponse[buscoretokens.TokenResponse]{
+			Data: buscoretokens.TokenResponse{AccessToken: "vk-video-owner-token"},
+		},
+	}
+	botRequester := &fakeBotTokenRequester{
 		response: &buscore.QueueResponse[buscoretokens.TokenResponse]{
 			Data: buscoretokens.TokenResponse{AccessToken: "vk-video-bot-token"},
 		},
 	}
 	videoChat := &fakeVideoChatClient{}
-	client := &ChatClient{requestBotToken: requester, videoChat: videoChat}
+	client := &ChatClient{requestOwnerToken: ownerRequester, requestBotToken: botRequester, videoChat: videoChat}
 	binding := channelplatformentity.ChannelPlatform{
 		Platform:          platformentity.PlatformVKVideoLive,
+		UserID:            ownerID,
 		PlatformChannelID: "provider-channel-42",
 		BotUserID:         &botUserID,
 	}
@@ -34,20 +41,23 @@ func TestChatClientSendsTextWithGlobalVKVideoToken(t *testing.T) {
 
 	// Then
 	require.NoError(t, err)
-	require.Equal(t, 1, requester.calls)
-	require.Equal(t, buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive}, requester.request)
+	require.Equal(t, 1, ownerRequester.calls)
+	require.Equal(t, buscoretokens.GetUserTokenRequest{UserId: ownerID}, ownerRequester.request)
+	require.Equal(t, 1, botRequester.calls)
+	require.Equal(t, buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformVKVideoLive}, botRequester.request)
 	require.Equal(t, []vkintegrations.SendTextMessageInput{{
-		AccessToken: "vk-video-bot-token",
-		OwnerID:     "provider-channel-42",
-		Content:     "hello from bot",
+		OwnerAccessToken: "vk-video-owner-token",
+		BotAccessToken:   "vk-video-bot-token",
+		Content:          "hello from bot",
 	}}, videoChat.inputs)
 }
 
 func TestChatClientSkipsSendWhenBindingHasNoBotUser(t *testing.T) {
 	// Given
-	requester := &fakeBotTokenRequester{}
+	ownerRequester := &fakeUserTokenRequester{}
+	botRequester := &fakeBotTokenRequester{}
 	videoChat := &fakeVideoChatClient{}
-	client := &ChatClient{requestBotToken: requester, videoChat: videoChat}
+	client := &ChatClient{requestOwnerToken: ownerRequester, requestBotToken: botRequester, videoChat: videoChat}
 	binding := channelplatformentity.ChannelPlatform{
 		Platform:          platformentity.PlatformVKVideoLive,
 		PlatformChannelID: "provider-channel-42",
@@ -58,7 +68,8 @@ func TestChatClientSkipsSendWhenBindingHasNoBotUser(t *testing.T) {
 
 	// Then
 	require.NoError(t, err)
-	require.Zero(t, requester.calls)
+	require.Zero(t, ownerRequester.calls)
+	require.Zero(t, botRequester.calls)
 	require.Empty(t, videoChat.inputs)
 }
 
@@ -67,6 +78,22 @@ type fakeBotTokenRequester struct {
 	request  buscoretokens.GetBotTokenRequest
 	response *buscore.QueueResponse[buscoretokens.TokenResponse]
 	err      error
+}
+
+type fakeUserTokenRequester struct {
+	calls    int
+	request  buscoretokens.GetUserTokenRequest
+	response *buscore.QueueResponse[buscoretokens.TokenResponse]
+	err      error
+}
+
+func (f *fakeUserTokenRequester) Request(
+	_ context.Context,
+	request buscoretokens.GetUserTokenRequest,
+) (*buscore.QueueResponse[buscoretokens.TokenResponse], error) {
+	f.calls++
+	f.request = request
+	return f.response, f.err
 }
 
 func (f *fakeBotTokenRequester) Request(

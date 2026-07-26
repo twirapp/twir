@@ -21,8 +21,8 @@ type vkRequest struct {
 	accessToken string
 }
 
-type activeChannelsResponse struct {
-	Data []activeChannel `json:"data"`
+type channelResponse struct {
+	Data activeChannel `json:"data"`
 }
 
 type activeChannel struct {
@@ -67,18 +67,22 @@ func NewVKClient(httpClient *http.Client, baseURL string) (*VKClient, error) {
 }
 
 func (client *VKClient) Preflight(ctx context.Context, channelURL, accessToken string) (PreflightResult, error) {
-	channelsBody, err := client.get(ctx, vkRequest{path: "/v1/channels/active", accessToken: accessToken})
+	channelBody, err := client.get(ctx, vkRequest{
+		path:        "/v1/channel",
+		query:       url.Values{"channel_url": []string{channelURL}},
+		accessToken: accessToken,
+	})
 	if err != nil {
-		return PreflightResult{}, fmt.Errorf("get active VK Video channels: %w", err)
+		return PreflightResult{}, fmt.Errorf("get VK Video channel: %w", err)
 	}
 
-	var activeChannels activeChannelsResponse
-	if err := json.Unmarshal(channelsBody, &activeChannels); err != nil {
-		return PreflightResult{}, fmt.Errorf("decode active VK Video channels: %w", err)
+	var channel channelResponse
+	if err := json.Unmarshal(channelBody, &channel); err != nil {
+		return PreflightResult{}, fmt.Errorf("decode VK Video channel: %w", err)
 	}
 
-	selected, found := selectChannel(activeChannels.Data, channelURL)
-	if !found {
+	selected := channel.Data
+	if selected.Channel.URL != channelURL || selected.Channel.WebSocketChannels.Chat == "" || selected.Stream.ID == "" {
 		return PreflightResult{}, fmt.Errorf("active VK Video channel was not found")
 	}
 
@@ -153,16 +157,6 @@ func (client *VKClient) get(ctx context.Context, request vkRequest) ([]byte, err
 	}
 
 	return body, nil
-}
-
-func selectChannel(channels []activeChannel, channelURL string) (activeChannel, bool) {
-	for _, channel := range channels {
-		if channel.Channel.URL == channelURL && channel.Channel.WebSocketChannels.Chat != "" && channel.Stream.ID != "" {
-			return channel, true
-		}
-	}
-
-	return activeChannel{}, false
 }
 
 func selectSubscriptionToken(tokens []channelToken, chatChannel string) (string, bool) {
