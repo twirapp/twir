@@ -151,7 +151,7 @@ func (c *MessageHandler) chatMessageCountEmotes(
 	ctx context.Context,
 	message generic.ChatMessage,
 ) (map[string]int, error) {
-	if message.Message == nil || chatMessagePlatform(message) != platform.PlatformTwitch {
+	if message.Message == nil {
 		return nil, nil
 	}
 
@@ -187,7 +187,7 @@ func (c *MessageHandler) chatMessageCountEmotes(
 			response, err := c.twirBus.EmotesCacher.GetChannelEmotes.Request(
 				ctx,
 				emotes_cacher.GetChannelEmotesRequest{
-					Platform:  platform.PlatformTwitch,
+					Platform:  chatMessagePlatform(message),
 					ChannelID: message.PlatformChannelID,
 				},
 			)
