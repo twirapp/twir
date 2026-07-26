@@ -113,15 +113,13 @@ function isTopLevelActive(path?: string): boolean {
 					as-child
 					:tooltip="item.name"
 					:is-active="isTopLevelActive(item.path)"
-					:class="
-						item.accent
-							? 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15 hover:text-primary data-[active=true]:border-transparent'
-							: undefined
-					"
 					@click="goToRoute"
 				>
 					<RouterLink :to="localePath(item.path!)">
-						<Icon :name="item.icon" />
+						<Icon
+							:name="item.icon"
+							:class="item.accent ? 'text-amber-400' : undefined"
+						/>
 						<span>{{ item.name }}</span>
 						<Badge
 							v-if="item.isNew"
