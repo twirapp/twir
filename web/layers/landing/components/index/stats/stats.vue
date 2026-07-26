@@ -13,10 +13,17 @@ function formatNumber(value?: number | bigint) {
 	return formatter.format(value ?? 0)
 }
 
-const stats = [
+const totalChannels = computed(
+	() =>
+		(statsStore.stats?.twitchChannels ?? 0) +
+		(statsStore.stats?.kickChannels ?? 0) +
+		(statsStore.stats?.vkChannels ?? 0),
+)
+
+const stats = computed(() => [
 	{
 		key: 'Active Channels',
-		value: formatNumber(statsStore.stats?.channels),
+		value: formatNumber(totalChannels.value),
 		isChannels: true,
 	},
 	{
@@ -39,7 +46,7 @@ const stats = [
 		key: 'Commands Processed',
 		value: formatNumber(statsStore.stats?.usedCommands),
 	},
-]
+])
 </script>
 
 <template>
@@ -65,6 +72,10 @@ const stats = [
 				<div class="flex items-center gap-1.5" title="Kick Channels">
 					<Icon name="simple-icons:kick" class="w-4 h-4 text-[#53FC18]" />
 					<span>{{ formatNumber(statsStore.stats?.kickChannels) }}</span>
+				</div>
+				<div class="flex items-center gap-1.5" title="VK Video Live Channels">
+					<Icon name="simple-icons:vk" class="w-4 h-4 text-[#0077FF]" />
+					<span>{{ formatNumber(statsStore.stats?.vkChannels) }}</span>
 				</div>
 			</div>
 		</div>

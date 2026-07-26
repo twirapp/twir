@@ -6,6 +6,7 @@ type TwirStats {
 	channels: Int!
 	twitchChannels: Int!
 	kickChannels: Int!
+	vkChannels: Int!
 	createdCommands: Int!
 	viewers: Int!
 	messages: Int!
