@@ -79,7 +79,7 @@ func TestGetByIDQueryUsesNormalizedBindingProjection(t *testing.T) {
 		"LEFT JOIN LATERAL",
 		"FROM channel_platforms cp",
 		"cp.user_id = u.id",
-		"cp.platform = u.platform",
+		"cp.platform = u.platform::text",
 		"LIMIT 1",
 	} {
 		if !strings.Contains(getByIDQuery, fragment) {
@@ -120,7 +120,7 @@ func TestBuildGetManyQueryUsesNormalizedBindingProjection(t *testing.T) {
 		"LEFT JOIN LATERAL",
 		"FROM channel_platforms cp",
 		"cp.user_id = u.id",
-		"cp.platform = u.platform",
+		"cp.platform = u.platform::text",
 		"jsonb_build_object",
 	} {
 		if !strings.Contains(query, fragment) {
@@ -169,7 +169,7 @@ func TestBuildGetManyCountQueryUsesSelectedBindingForEnabledFilter(t *testing.T)
 		"LEFT JOIN LATERAL",
 		"FROM channel_platforms cp",
 		"cp.user_id = u.id",
-		"cp.platform = u.platform",
+		"cp.platform = u.platform::text",
 		"ORDER BY cp.channel_id",
 		"LIMIT 1",
 		"cb.enabled",
@@ -206,7 +206,7 @@ func TestBuildGetManyAndCountQueriesUseSameSelectedBindingForMultipleMatchingBin
 			"LEFT JOIN LATERAL",
 			"FROM channel_platforms cp",
 			"cp.user_id = u.id",
-			"cp.platform = u.platform",
+			"cp.platform = u.platform::text",
 			"ORDER BY cp.channel_id",
 			"LIMIT 1",
 			"cb.enabled",

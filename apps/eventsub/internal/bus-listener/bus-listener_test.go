@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	channelsmodel "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformsmodel "github.com/twirapp/twir/libs/entities/channel_platform"
@@ -22,7 +23,7 @@ import (
 
 func TestBusListenerUsesNarrowDependencies(t *testing.T) {
 	listenerType := reflect.TypeOf(BusListener{})
-	for _, name := range []string{"eventSubClient", "kickSubManager", "channelService"} {
+	for _, name := range []string{"eventSubClient", "channelService"} {
 		field, found := listenerType.FieldByName(name)
 		if !found || field.Type.Kind() != reflect.Interface {
 			t.Fatalf("BusListener field %s is not an interface dependency", name)
@@ -33,6 +34,7 @@ func TestBusListenerUsesNarrowDependencies(t *testing.T) {
 type recordingEventSubManager struct {
 	unsubscribedChannels []string
 	unsubscribeErr       error
+	subscribeNeededCalls int
 }
 
 func (m *recordingEventSubManager) UnsubscribeChannel(_ context.Context, channelID string) error {
@@ -40,7 +42,8 @@ func (m *recordingEventSubManager) UnsubscribeChannel(_ context.Context, channel
 	return m.unsubscribeErr
 }
 
-func (*recordingEventSubManager) SubscribeToNeededEvents(context.Context, []model.EventsubTopic, string, string) error {
+func (m *recordingEventSubManager) SubscribeToNeededEvents(context.Context, []model.EventsubTopic, string, string) error {
+	m.subscribeNeededCalls++
 	return nil
 }
 
@@ -53,6 +56,51 @@ type recordingKickSubscriptionManager struct {
 	unsubscribeErr error
 }
 
+var _ eventplatforms.EventTransport = (*recordingKickSubscriptionManager)(nil)
+
+func (*recordingKickSubscriptionManager) Platform() platform.Platform {
+	return platform.PlatformKick
+}
+
+func (*recordingKickSubscriptionManager) Capabilities() platform.Capabilities {
+	return platform.Capabilities{}
+}
+
+type recordingEventTransport struct {
+	platform       platform.Platform
+	subscribed     []channelplatformsmodel.ChannelPlatform
+	unsubscribed   []channelplatformsmodel.ChannelPlatform
+	unsubscribeErr error
+}
+
+var _ eventplatforms.EventTransport = (*recordingEventTransport)(nil)
+
+func (t *recordingEventTransport) Platform() platform.Platform {
+	return t.platform
+}
+
+func (*recordingEventTransport) Capabilities() platform.Capabilities {
+	return platform.Capabilities{}
+}
+
+func (t *recordingEventTransport) Subscribe(
+	_ context.Context,
+	binding channelplatformsmodel.ChannelPlatform,
+) error {
+	t.subscribed = append(t.subscribed, binding)
+	return nil
+}
+
+func (t *recordingEventTransport) Unsubscribe(
+	_ context.Context,
+	binding channelplatformsmodel.ChannelPlatform,
+) error {
+	t.unsubscribed = append(t.unsubscribed, binding)
+	return t.unsubscribeErr
+}
+
+func (*recordingEventTransport) SetCallbackBaseURL(string) {}
+
 func (*recordingKickSubscriptionManager) Subscribe(context.Context, channelplatformsmodel.ChannelPlatform) error {
 	return nil
 }
@@ -61,6 +109,8 @@ func (m *recordingKickSubscriptionManager) Unsubscribe(_ context.Context, bindin
 	m.unsubscribed = append(m.unsubscribed, binding)
 	return m.unsubscribeErr
 }
+
+func (*recordingKickSubscriptionManager) SetCallbackBaseURL(string) {}
 
 const invalidSnapshotChannelID = "not-a-channel-id"
 
@@ -75,12 +125,16 @@ func (r *failingUnsubscribeChannelReader) GetChannelByID(context.Context, uuid.U
 
 func newSnapshotUnsubscribeListener(
 	twitch eventSubManager,
-	kick kickSubscriptionManager,
+	transport eventplatforms.EventTransport,
 ) (*BusListener, *failingUnsubscribeChannelReader) {
 	reader := &failingUnsubscribeChannelReader{}
+	transports := eventplatforms.NewRegistry()
+	if transport != nil {
+		transports.Register(transport)
+	}
 	return &BusListener{
 		eventSubClient: twitch,
-		kickSubManager: kick,
+		transports:     transports,
 		channelService: reader,
 		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
 	}, reader
@@ -295,7 +349,7 @@ func TestUnsubscribeWithoutSnapshotWithEmptyPlatformUnsubscribesAllBindings(t *t
 	}}
 	listener := &BusListener{
 		eventSubClient: twitch,
-		kickSubManager: kick,
+		transports:     eventplatforms.NewRegistry(kick),
 		channelService: reader,
 		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
 	}
@@ -323,7 +377,7 @@ func TestUnsubscribeWithoutSnapshotWithKickPlatformUnsubscribesOnlyKickBinding(t
 	}}
 	listener := &BusListener{
 		eventSubClient: twitch,
-		kickSubManager: kick,
+		transports:     eventplatforms.NewRegistry(kick),
 		channelService: reader,
 		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
 	}
@@ -338,6 +392,71 @@ func TestUnsubscribeWithoutSnapshotWithKickPlatformUnsubscribesOnlyKickBinding(t
 		!reflect.DeepEqual(kick.unsubscribed, []channelplatformsmodel.ChannelPlatform{kickBinding}) {
 		t.Fatalf("reader calls = %d, twitch calls = %#v, kick bindings = %#v", reader.calls, twitch.unsubscribedChannels, kick.unsubscribed)
 	}
+}
+
+func TestSubscribeToAllEventsRoutesVKBindingToRegisteredTransport(t *testing.T) {
+	channelID := uuid.New()
+	vkBinding := unsubscribeTestBinding(channelID, platform.PlatformVKVideoLive, "vk-channel")
+	vkBinding.Enabled = true
+	twitchBinding := unsubscribeTestBinding(channelID, platform.PlatformTwitch, "twitch-channel")
+	twitchBinding.Enabled = true
+	twitch := &recordingEventSubManager{}
+	vkTransport := &recordingEventTransport{platform: platform.PlatformVKVideoLive}
+	listener := &BusListener{
+		eventSubClient: twitch,
+		transports:     eventplatforms.NewRegistry(vkTransport),
+		channelService: &unsubscribeChannelReader{channel: channelsmodel.Channel{
+			ID:       channelID,
+			Bindings: []channelplatformsmodel.ChannelPlatform{twitchBinding, vkBinding},
+		}},
+		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}
+
+	_, err := listener.subscribeToAllEvents(context.Background(), eventsub.EventsubSubscribeToAllEventsRequest{
+		ChannelID: channelID.String(),
+		Platform:  platform.PlatformVKVideoLive,
+	})
+	if err != nil {
+		t.Fatalf("subscribe to all events: %v", err)
+	}
+	if !reflect.DeepEqual(vkTransport.subscribed, []channelplatformsmodel.ChannelPlatform{vkBinding}) {
+		t.Fatalf("VK transport subscriptions = %#v", vkTransport.subscribed)
+	}
+	if twitch.subscribeNeededCalls != 0 {
+		t.Fatalf("Twitch subscriptions = %d, want 0", twitch.subscribeNeededCalls)
+	}
+}
+
+func TestUnsubscribeRoutesDisabledVKSnapshotToRegisteredTransport(t *testing.T) {
+	bindingID := uuid.New()
+	userID := uuid.New()
+	vkTransport := &recordingEventTransport{platform: platform.PlatformVKVideoLive}
+	reader := &failingUnsubscribeChannelReader{}
+	listener := &BusListener{
+		transports:     eventplatforms.NewRegistry(vkTransport),
+		channelService: reader,
+		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}
+
+	_, err := listener.unsubscribe(context.Background(), eventsub.EventsubUnsubscribeRequest{
+		ChannelID: invalidSnapshotChannelID,
+		Platform:  platform.PlatformVKVideoLive,
+		Binding: &eventsub.EventsubBindingSnapshot{
+			ID:                bindingID.String(),
+			UserID:            userID.String(),
+			PlatformChannelID: "vk-channel",
+		},
+	})
+	if err != nil {
+		t.Fatalf("unsubscribe snapshot: %v", err)
+	}
+	if len(vkTransport.unsubscribed) != 1 ||
+		vkTransport.unsubscribed[0].ID != bindingID ||
+		vkTransport.unsubscribed[0].UserID != userID ||
+		vkTransport.unsubscribed[0].Enabled {
+		t.Fatalf("VK transport unsubscriptions = %#v", vkTransport.unsubscribed)
+	}
+	assertNoUnsubscribeChannelLookup(t, reader)
 }
 
 type reinitChannelsRepo struct {

@@ -190,6 +190,10 @@ func (r *handlerStatusBindingsRepo) LockByChannelID(context.Context, uuid.UUID) 
 	return nil
 }
 
+func (r *handlerStatusBindingsRepo) AssignVKVideoLiveBot(context.Context, uuid.UUID) ([]uuid.UUID, error) {
+	return nil, nil
+}
+
 func (r *handlerStatusBindingsRepo) Update(
 	context.Context,
 	uuid.UUID,

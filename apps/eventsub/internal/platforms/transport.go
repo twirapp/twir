@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
+	cfg "github.com/twirapp/twir/libs/config"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
@@ -30,6 +31,24 @@ func NewRegistry(transports ...EventTransport) *platformsregistry.Registry[Event
 
 func NewKickRegistry(kickSubManager *kick.SubscriptionManager) *platformsregistry.Registry[EventTransport] {
 	return NewRegistry(kickSubManager)
+}
+
+func NewVKVideoRegistry(
+	config cfg.Config,
+	kickTransport EventTransport,
+	newVKVideoTransport func() (EventTransport, error),
+) (*platformsregistry.Registry[EventTransport], error) {
+	registry := NewRegistry(kickTransport)
+	if !config.IsVkVideoEnabled() {
+		return registry, nil
+	}
+
+	vkVideoTransport, err := newVKVideoTransport()
+	if err != nil {
+		return nil, fmt.Errorf("create VK Video EventSub transport: %w", err)
+	}
+	registry.Register(vkVideoTransport)
+	return registry, nil
 }
 
 func SubscribeAll(

@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
+	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
@@ -18,6 +18,7 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	platformsregistry "github.com/twirapp/twir/libs/platforms"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
@@ -32,18 +33,13 @@ type eventSubManager interface {
 	SubscribeToEvent(context.Context, string, string, string) error
 }
 
-type kickSubscriptionManager interface {
-	Subscribe(context.Context, channelplatformentity.ChannelPlatform) error
-	Unsubscribe(context.Context, channelplatformentity.ChannelPlatform) error
-}
-
 type channelReader interface {
 	GetChannelByID(context.Context, uuid.UUID) (channelentity.Channel, error)
 }
 
 type BusListener struct {
 	eventSubClient eventSubManager
-	kickSubManager kickSubscriptionManager
+	transports     *platformsregistry.Registry[eventplatforms.EventTransport]
 	gorm           *gorm.DB
 	bus            *buscore.Bus
 	logger         *slog.Logger
@@ -57,7 +53,7 @@ type Opts struct {
 	Lc fx.Lifecycle
 
 	Manager        *manager.Manager
-	KickSubManager *kick.SubscriptionManager
+	Transports     *platformsregistry.Registry[eventplatforms.EventTransport]
 	Gorm           *gorm.DB
 	Bus            *buscore.Bus
 	Logger         *slog.Logger
@@ -69,7 +65,7 @@ type Opts struct {
 func New(opts Opts) (*BusListener, error) {
 	impl := &BusListener{
 		eventSubClient: opts.Manager,
-		kickSubManager: opts.KickSubManager,
+		transports:     opts.Transports,
 		gorm:           opts.Gorm,
 		bus:            opts.Bus,
 		logger:         opts.Logger,
@@ -172,11 +168,6 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 	hasTwitchBinding = hasTwitchBinding &&
 		twitchBinding.UserID != uuid.Nil &&
 		twitchBinding.PlatformChannelID != ""
-	kickBinding, hasKickBinding := channel.Binding(platformentity.PlatformKick)
-	hasKickBinding = hasKickBinding &&
-		kickBinding.UserID != uuid.Nil &&
-		kickBinding.PlatformChannelID != ""
-
 	var twitchBotID string
 	if (platform == "" || platform == platformentity.PlatformTwitch) && hasTwitchBinding {
 		botConfig, configErr := twitchBinding.ParseTwitchBotConfig()
@@ -200,15 +191,6 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 		)
 		return struct{}{}, nil
 	}
-	if platform == platformentity.PlatformKick && (!hasKickBinding || !kickBinding.Enabled) {
-		c.logger.Warn(
-			"channel bot is not enabled for platform",
-			slog.String("channel_id", channelID),
-			slog.String("platform", platformLabel),
-		)
-		return struct{}{}, nil
-	}
-
 	// Unsubscribe first (idempotent) to prevent race condition where
 	// a separate Unsubscribe bus message arrives after we subscribe.
 	if (platform == "" || platform == platformentity.PlatformTwitch) && hasTwitchBinding {
@@ -220,36 +202,18 @@ func (c *BusListener) subscribeToAllEventsByChannelID(
 
 	hasActiveSubscription := false
 
-	if (platform == "" || platform == platformentity.PlatformKick) && hasKickBinding && kickBinding.Enabled {
-		if kickBinding.BotUserID == nil {
-			c.logger.Warn(
-				"channel has kick user but no kick bot assigned, skipping kick eventsub subscription",
+	transportBindings := c.registeredNonTwitchBindings(channel.Bindings, platform, true)
+	if len(transportBindings) > 0 {
+		if err := eventplatforms.SubscribeAll(ctx, c.transports, transportBindings); err != nil {
+			c.logger.Error(
+				"error subscribing to platform events",
+				logger.Error(err),
 				slog.String("channel_id", channelID),
 				slog.String("platform", platformLabel),
-				slog.String("kick_user_id", kickBinding.UserID.String()),
 			)
-		} else {
-			kickUserIDStr := kickBinding.UserID.String()
-			if err := c.kickSubManager.Subscribe(ctx, kickBinding); err != nil {
-				c.logger.Error(
-					"error subscribing to kick events",
-					logger.Error(err),
-					slog.String("channel_id", channelID),
-					slog.String("platform", platformLabel),
-					slog.String("kick_user_id", kickUserIDStr),
-				)
-				return struct{}{}, err
-			}
-
-			c.logger.Info(
-				"subscribed to kick events",
-				slog.String("channel_id", channelID),
-				slog.String("platform", platformLabel),
-				slog.String("kick_user_id", kickUserIDStr),
-				slog.String("kick_bot_user_id", kickBinding.BotUserID.String()),
-			)
-			hasActiveSubscription = true
+			return struct{}{}, err
 		}
+		hasActiveSubscription = true
 	}
 
 	if (platform == "" || platform == platformentity.PlatformTwitch) && hasTwitchBinding && twitchBinding.Enabled {
@@ -455,24 +419,15 @@ func (c *BusListener) unsubscribe(ctx context.Context, msg eventsub.EventsubUnsu
 		}
 	}
 
-	kickBinding, hasKickBinding := channel.Binding(platformentity.PlatformKick)
-	if (msg.Platform == "" || msg.Platform == platformentity.PlatformKick) && hasKickBinding {
-		kickUserIDStr := kickBinding.UserID.String()
-		if err := c.kickSubManager.Unsubscribe(ctx, kickBinding); err != nil {
-			c.logger.Error(
-				"error unsubscribing from kick events",
-				logger.Error(err),
-				slog.String("channel_id", msg.ChannelID),
-				slog.String("kick_user_id", kickUserIDStr),
-			)
-			return struct{}{}, err
-		}
-
-		c.logger.Info(
-			"unsubscribed from kick events",
+	transportBindings := c.registeredNonTwitchBindings(channel.Bindings, msg.Platform, false)
+	if err := eventplatforms.UnsubscribeAll(ctx, c.transports, transportBindings); err != nil {
+		c.logger.Error(
+			"error unsubscribing from platform events",
+			logger.Error(err),
 			slog.String("channel_id", msg.ChannelID),
-			slog.String("kick_user_id", kickUserIDStr),
+			slog.String("platform", msg.Platform.String()),
 		)
+		return struct{}{}, err
 	}
 
 	return struct{}{}, nil
@@ -491,22 +446,67 @@ func (c *BusListener) unsubscribeSnapshot(
 			return struct{}{}, fmt.Errorf("unsubscribe Twitch channel: %w", err)
 		}
 	case platformentity.PlatformKick:
-		bindingID, err := uuid.Parse(msg.Binding.ID)
-		if err != nil {
-			return struct{}{}, fmt.Errorf("parse Kick binding ID: %w", err)
+		return c.unsubscribeTransportSnapshot(ctx, msg, "Kick")
+	default:
+		return c.unsubscribeTransportSnapshot(ctx, msg, msg.Platform.String())
+	}
+
+	return struct{}{}, nil
+}
+
+func (c *BusListener) registeredNonTwitchBindings(
+	bindings []channelplatformentity.ChannelPlatform,
+	requestedPlatform platformentity.Platform,
+	onlyEnabled bool,
+) []channelplatformentity.ChannelPlatform {
+	if c.transports == nil {
+		return nil
+	}
+
+	matchedBindings := make([]channelplatformentity.ChannelPlatform, 0, len(bindings))
+	for _, binding := range bindings {
+		if binding.Platform == platformentity.PlatformTwitch ||
+			(requestedPlatform != "" && binding.Platform != requestedPlatform) ||
+			(onlyEnabled && !binding.Enabled) {
+			continue
 		}
-		userID, err := uuid.Parse(msg.Binding.UserID)
-		if err != nil {
-			return struct{}{}, fmt.Errorf("parse Kick binding user ID: %w", err)
+		if _, ok := c.transports.Get(binding.Platform); ok {
+			matchedBindings = append(matchedBindings, binding)
 		}
-		if err := c.kickSubManager.Unsubscribe(ctx, channelplatformentity.ChannelPlatform{
-			ID:                bindingID,
-			Platform:          platformentity.PlatformKick,
-			UserID:            userID,
-			PlatformChannelID: msg.Binding.PlatformChannelID,
-		}); err != nil {
-			return struct{}{}, fmt.Errorf("unsubscribe Kick channel: %w", err)
-		}
+	}
+
+	return matchedBindings
+}
+
+func (c *BusListener) unsubscribeTransportSnapshot(
+	ctx context.Context,
+	msg eventsub.EventsubUnsubscribeRequest,
+	platformLabel string,
+) (struct{}, error) {
+	if c.transports == nil {
+		return struct{}{}, nil
+	}
+
+	transport, ok := c.transports.Get(msg.Platform)
+	if !ok {
+		return struct{}{}, nil
+	}
+
+	bindingID, err := uuid.Parse(msg.Binding.ID)
+	if err != nil {
+		return struct{}{}, fmt.Errorf("parse %s binding ID: %w", platformLabel, err)
+	}
+	userID, err := uuid.Parse(msg.Binding.UserID)
+	if err != nil {
+		return struct{}{}, fmt.Errorf("parse %s binding user ID: %w", platformLabel, err)
+	}
+	if err := transport.Unsubscribe(ctx, channelplatformentity.ChannelPlatform{
+		ID:                bindingID,
+		Platform:          msg.Platform,
+		UserID:            userID,
+		PlatformChannelID: msg.Binding.PlatformChannelID,
+	}); err != nil {
+		return struct{}{}, fmt.Errorf("unsubscribe %s channel: %w", platformLabel, err)
 	}
 
 	return struct{}{}, nil

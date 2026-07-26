@@ -84,7 +84,7 @@ const ownerBindingLateral = `LATERAL (
 		cp.updated_at
 	FROM channel_platforms cp
 	WHERE cp.user_id = u.id
-		AND cp.platform = u.platform
+		AND cp.platform = u.platform::text
 	ORDER BY cp.channel_id
 	LIMIT 1
 ) cb ON TRUE`

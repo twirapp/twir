@@ -19,6 +19,11 @@ func TestNewWithEnvPath_ValidatesVKVideoConfigurationOnlyWhenEnabled(t *testing.
 	if _, err := NewWithEnvPath(envPath); err == nil {
 		t.Fatal("VK Video credentials without webhook secret must fail")
 	}
+
+	t.Setenv("VK_VIDEO_WEBHOOK_SECRET", "vk-webhook-secret")
+	if _, err := NewWithEnvPath(envPath); err != nil {
+		t.Fatalf("VK Video credentials with webhook secret returned an error: %v", err)
+	}
 }
 
 func TestNewWithEnvPath_LoadsVKVideoConfiguration(t *testing.T) {

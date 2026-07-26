@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"reflect"
 	"testing"
 
 	"github.com/google/uuid"
@@ -183,7 +184,7 @@ func TestSubscribeAllPlatformsUsesRegisteredTransportPlatform(t *testing.T) {
 	if len(transport.subscribed) != 1 || transport.subscribed[0].UserID != twitchUserID {
 		t.Errorf("transport subscriptions = %v, want [%s]", transport.subscribed, twitchUserID)
 	}
-	if len(repo.platforms) != 1 || repo.platforms[0] != platform.PlatformTwitch {
-		t.Errorf("binding platform lookups = %v, want [%s]", repo.platforms, platform.PlatformTwitch)
+	if !reflect.DeepEqual(repo.platforms, []platform.Platform{platform.PlatformTwitch, platform.PlatformVKVideoLive}) {
+		t.Errorf("binding platform lookups = %v, want [%s %s]", repo.platforms, platform.PlatformTwitch, platform.PlatformVKVideoLive)
 	}
 }
