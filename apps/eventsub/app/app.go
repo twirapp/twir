@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	goredis "github.com/redis/go-redis/v9"
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
@@ -11,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
+	"github.com/twirapp/twir/apps/eventsub/internal/vkvideo"
 	"github.com/twirapp/twir/apps/eventsub/internal/webhook"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -25,6 +27,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/otel"
+	platformsregistry "github.com/twirapp/twir/libs/platforms"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 	channelplatformsrepository "github.com/twirapp/twir/libs/repositories/channel_platforms"
@@ -144,7 +147,23 @@ var App = fx.Options(
 		handler.New,
 		httpserver.New,
 		kick.New,
-		eventplatforms.NewKickRegistry,
+		func(
+			config cfg.Config,
+			kickTransport *kick.SubscriptionManager,
+			logger *slog.Logger,
+			redisClient *goredis.Client,
+			bus *buscore.Bus,
+			users usersrepository.Repository,
+		) (*platformsregistry.Registry[eventplatforms.EventTransport], error) {
+			return eventplatforms.NewVKVideoRegistry(config, kickTransport, func() (eventplatforms.EventTransport, error) {
+				return vkvideo.New(vkvideo.Opts{
+					Logger: logger,
+					Redis:  redisClient,
+					Bus:    bus,
+					Users:  users,
+				})
+			})
+		},
 		kick.NewHandlers,
 		kick.NewResubscribeJob,
 		webhook.NewManager,
