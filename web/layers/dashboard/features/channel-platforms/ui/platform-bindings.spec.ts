@@ -2,6 +2,8 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import PlatformBindings from './platform-bindings.vue'
+
 const channelPlatforms = vi.hoisted(() => ({
 	useChannelPlatforms: vi.fn(),
 }))
@@ -13,8 +15,6 @@ const sonner = vi.hoisted(() => ({
 
 vi.mock('../composables/use-channel-platforms.js', () => channelPlatforms)
 vi.mock('vue-sonner', () => sonner)
-
-import PlatformBindings from './platform-bindings.vue'
 
 function deferred() {
 	let resolve!: () => void

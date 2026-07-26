@@ -4,8 +4,8 @@ import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
 
 import {
-	vkVideoBotSetupBroadcastChannelName,
 	useMutationVKVideoBotSetupComplete,
+	vkVideoBotSetupBroadcastChannelName,
 } from '~~/layers/dashboard/api/admin/actions'
 import Alert from '@/components/ui/alert/Alert.vue'
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue'
