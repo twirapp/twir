@@ -15,11 +15,12 @@ func getTimerSendTargets(
 	channel channelentity.Channel,
 	timerPlatforms []platformentity.Platform,
 ) []timerSendTarget {
-	targets := make([]timerSendTarget, 0, 2)
+	targets := make([]timerSendTarget, 0, 3)
 
 	for _, p := range []platformentity.Platform{
 		platformentity.PlatformTwitch,
 		platformentity.PlatformKick,
+		platformentity.PlatformVKVideoLive,
 	} {
 		if !platformentity.ShouldExecute(timerPlatforms, p) {
 			continue
@@ -47,6 +48,7 @@ func hasSupportedTimerBinding(channel channelentity.Channel) bool {
 	for _, p := range []platformentity.Platform{
 		platformentity.PlatformTwitch,
 		platformentity.PlatformKick,
+		platformentity.PlatformVKVideoLive,
 	} {
 		if _, ok := channel.Binding(p); ok {
 			return true
