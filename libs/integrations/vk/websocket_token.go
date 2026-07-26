@@ -49,7 +49,7 @@ func (c *WebSocketTokenClient) DiscoverChatChannel(
 	}
 	currentUserRequest.Header.Set("Authorization", "Bearer "+string(accessToken))
 
-	var currentUserResponse discoverChatChannelCurrentUserResponse
+	var currentUserResponse currentUserResponse
 	if err := c.videoChatClient.do(currentUserRequest, &currentUserResponse); err != nil {
 		return "", err
 	}
@@ -180,14 +180,6 @@ type webSocketSubscriptionTokenResponse struct {
 type webSocketChannelToken struct {
 	Channel WebSocketChannel           `json:"channel"`
 	Token   WebSocketSubscriptionToken `json:"token"`
-}
-
-type discoverChatChannelCurrentUserResponse struct {
-	Data struct {
-		Channel struct {
-			URL string `json:"url"`
-		} `json:"channel"`
-	} `json:"data"`
 }
 
 type discoverChatChannelRequest struct {
