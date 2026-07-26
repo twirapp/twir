@@ -511,7 +511,7 @@ func (c *MessageHandler) moderationOneManSpam(
 		if err := c.redis.HSet(
 			deferCtx,
 			redisKey,
-			msg.ID,
+			msg.MessageID,
 			msg.Message.Text,
 		).Err(); err != nil {
 			c.logger.Error("cannot set one man spam to redis", logger.Error(err))
@@ -522,7 +522,7 @@ func (c *MessageHandler) moderationOneManSpam(
 			deferCtx,
 			redisKey,
 			time.Duration(settings.OneManSpamMessageMemorySeconds)*time.Second,
-			msg.ID,
+			msg.MessageID,
 		).Err(); err != nil {
 			c.logger.Error("cannot expire one man spam redis key", logger.Error(err))
 			return
