@@ -66,11 +66,13 @@ status_codes:
   CHALLENGE: 200
   DENY: 200
 
-# In-memory store: fine for short-lived challenges. If we ever switch to a
-# persistent backend (bbolt), ED25519_PRIVATE_KEY_HEX_FILE is already wired.
+# Shared state (issued challenges) for all Anubis replicas lives in the
+# stack's Redis, so a challenge created by one replica validates on another.
+# Logical db 1 is reserved for Anubis; applications use db 0.
 store:
-  backend: memory
-  parameters: {}
+  backend: valkey
+  parameters:
+    url: "redis://redis:6379/1"
 
 # Weight thresholds deciding when to challenge and how hard.
 # Any explicit CHALLENGE action in bot rules takes precedence over these.
