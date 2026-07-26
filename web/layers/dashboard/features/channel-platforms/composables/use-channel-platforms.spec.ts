@@ -2,14 +2,13 @@ import { ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { Platform } from '~/gql/graphql.js'
+import { useChannelPlatforms } from './use-channel-platforms.js'
 
 const api = vi.hoisted(() => ({
 	useChannelPlatformsApi: vi.fn(),
 }))
 
 vi.mock('../api.js', () => api)
-
-import { useChannelPlatforms } from './use-channel-platforms.js'
 
 function createQuery() {
 	return {

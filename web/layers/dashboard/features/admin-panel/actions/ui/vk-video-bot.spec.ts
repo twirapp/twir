@@ -2,6 +2,10 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { nextTick, ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import HeaderBotStatus from '~~/layers/dashboard/layout/header/header-bot-status.vue'
+import SetupVKVideoBot from './setup-vk-video-bot.vue'
+import VKVideoBotCallback from './vk-video-bot-callback.vue'
+
 const adminActions = vi.hoisted(() => ({
 	vkVideoBotSetupBroadcastChannelName: 'vk_video_bot_setup',
 	useMutationVKVideoBotSetupComplete: vi.fn(),
@@ -29,10 +33,6 @@ vi.mock('~~/layers/dashboard/api/admin/actions', () => adminActions)
 vi.mock('~~/layers/dashboard/api/dashboard', () => dashboard)
 vi.mock('vue-sonner', () => sonner)
 vi.mock('vue-router', () => ({ useRoute: () => route }))
-
-import HeaderBotStatus from '~~/layers/dashboard/layout/header/header-bot-status.vue'
-import SetupVKVideoBot from './setup-vk-video-bot.vue'
-import VKVideoBotCallback from './vk-video-bot-callback.vue'
 
 const componentStubs = {
 	ActionConfirm: {

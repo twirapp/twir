@@ -2,9 +2,9 @@
 import { toast } from 'vue-sonner'
 
 import {
-	vkVideoBotSetupBroadcastChannelName,
 	useMutationVKVideoBotSetupLink,
 	useMutationVKVideoBotSetupStatus,
+	vkVideoBotSetupBroadcastChannelName,
 } from '~~/layers/dashboard/api/admin/actions'
 import ActionConfirm from '@/components/ui/action-confirm/ActionConfirm.vue'
 import Button from '@/components/ui/button/Button.vue'
