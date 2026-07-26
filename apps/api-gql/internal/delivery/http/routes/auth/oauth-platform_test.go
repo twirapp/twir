@@ -1016,9 +1016,9 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 		registry:    appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
 		transaction: transaction,
 	})
-	authHandler.dashboardAccess = dashboardAccessFunc(func(_ context.Context, subject dashboardaccess.Subject, channelID uuid.UUID, permission string) (bool, error) {
-		if subject.ID != collaboratorID.String() || channelID != selectedDashboardID || permission != "MANAGE_BOT_SETTINGS" {
-			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
+	authHandler.dashboardAccess = dashboardOwnerAccessFunc(func(_ context.Context, ownerID string, channelID uuid.UUID) (bool, error) {
+		if ownerID != collaboratorID.String() || channelID != selectedDashboardID {
+			t.Fatalf("dashboard owner request = %q, %s", ownerID, channelID)
 		}
 
 		return true, nil
@@ -1051,6 +1051,89 @@ func TestStartPlatformAuthForChannelLinksProviderToAuthorizedSelectedDashboard(t
 	}
 	if len(createdBindings) != 1 || createdBindings[0].ChannelID != selectedDashboardID {
 		t.Fatalf("created bindings = %#v, want provider linked to selected dashboard %s", createdBindings, selectedDashboardID)
+	}
+}
+
+func TestCompletePlatformAuthAllowsBotAdminToBindTargetPlatform(t *testing.T) {
+	botAdminID := uuid.New()
+	targetChannelID := uuid.New()
+	providerUserID := uuid.New()
+	createdBindings := make([]channelplatforms.CreateInput, 0, 1)
+	provider := &oauthPlatformProvider{
+		platform: platformentity.PlatformKick,
+		getAuthURLFunc: func(state, _ string) string {
+			return "https://id.example.test/authorize?state=" + url.QueryEscape(state)
+		},
+		exchangeCodeFunc: func(context.Context, appplatform.ExchangeCodeInput) (*appplatform.PlatformTokens, error) {
+			return testPlatformTokens(), nil
+		},
+		getUserFunc: func(context.Context, string) (*appplatform.PlatformUser, error) {
+			return &appplatform.PlatformUser{ID: "provider-kick"}, nil
+		},
+	}
+
+	authHandler := newOAuthFlowTestAuth(oauthFlowTestAuthOpts{
+		sessions: &fakeOAuthSession{internalUserID: botAdminID},
+		users: &oauthUsersRepository{
+			getByIDFunc: func(_ context.Context, userID uuid.UUID) (usersmodel.User, error) {
+				if userID != botAdminID {
+					t.Fatalf("session user ID = %s, want %s", userID, botAdminID)
+				}
+				return usersmodel.User{ID: botAdminID, IsBotAdmin: true}, nil
+			},
+			getByPlatformIDFunc: func(_ context.Context, platform platformentity.Platform, platformID string) (usersmodel.User, error) {
+				if platform != platformentity.PlatformKick || platformID != "provider-kick" {
+					t.Fatalf("provider user lookup = (%s, %q)", platform, platformID)
+				}
+				return usersmodel.User{ID: providerUserID, Platform: platform, PlatformID: platformID}, nil
+			},
+		},
+		channels: &oauthChannelsRepository{
+			getByIDFunc: func(_ context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
+				if channelID != targetChannelID {
+					t.Fatalf("target channel ID = %s, want %s", channelID, targetChannelID)
+				}
+				return channelentity.Channel{ID: targetChannelID}, nil
+			},
+			getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error) {
+				return channelentity.Nil, channelsrepo.ErrNotFound
+			},
+		},
+		bindings: &oauthChannelPlatformsRepository{
+			getByChannelAndPlatformFunc: func(context.Context, uuid.UUID, platformentity.Platform) (channelplatformentity.ChannelPlatform, error) {
+				return channelplatformentity.Nil, channelplatforms.ErrNotFound
+			},
+			createFunc: func(_ context.Context, input channelplatforms.CreateInput) (channelplatformentity.ChannelPlatform, error) {
+				createdBindings = append(createdBindings, input)
+				return channelplatformentity.ChannelPlatform{ID: uuid.New(), ChannelID: input.ChannelID, Platform: input.Platform, UserID: input.UserID, PlatformChannelID: input.PlatformChannelID, Enabled: input.Enabled, BotConfig: input.BotConfig}, nil
+			},
+		},
+		tokens:   newCreateTokenRepository(providerUserID),
+		registry: appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
+	})
+	authHandler.dashboardAccess = dashboardAccessFunc(func(context.Context, dashboardaccess.Subject, uuid.UUID, string) (bool, error) {
+		return false, nil
+	})
+
+	authorizeURL, err := authHandler.StartPlatformAuthForChannel(context.Background(), targetChannelID, platformentity.PlatformKick)
+	if err != nil {
+		t.Fatalf("StartPlatformAuthForChannel() error = %v", err)
+	}
+	parsedURL, err := url.Parse(authorizeURL)
+	if err != nil {
+		t.Fatalf("parse authorization URL: %v", err)
+	}
+
+	_, err = authHandler.completePlatformCode(context.Background(), platformCodeInput{
+		Platform: platformentity.PlatformKick,
+		Code:     "authorization-code",
+		State:    parsedURL.Query().Get("state"),
+	})
+	if err != nil {
+		t.Fatalf("completePlatformCode() error = %v", err)
+	}
+	if len(createdBindings) != 1 || createdBindings[0].ChannelID != targetChannelID {
+		t.Fatalf("created bindings = %#v, want one binding for %s", createdBindings, targetChannelID)
 	}
 }
 
@@ -1327,7 +1410,7 @@ func TestCompletePlatformCodeRejectsChangedTargetedInitiatorBeforeLocalAuth(t *t
 		registry:    appplatform.NewRegistry([]appplatform.PlatformProvider{provider}),
 		transaction: transaction,
 	})
-	authHandler.dashboardAccess = dashboardAccessFunc(func(context.Context, dashboardaccess.Subject, uuid.UUID, string) (bool, error) {
+	authHandler.dashboardAccess = dashboardOwnerAccessFunc(func(context.Context, string, uuid.UUID) (bool, error) {
 		accessCalls++
 		return true, nil
 	})
@@ -1397,12 +1480,12 @@ func TestCompletePlatformAuthRejectsUnauthorizedTargetDashboard(t *testing.T) {
 	if !errors.Is(err, errAuthForbidden) {
 		t.Fatalf("completePlatformAuth() error = %v, want errAuthForbidden", err)
 	}
-	if accessCalls != 1 {
-		t.Fatalf("dashboard access calls = %d, want 1", accessCalls)
+	if accessCalls != 0 {
+		t.Fatalf("dashboard access calls = %d, want 0", accessCalls)
 	}
 }
 
-func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProviderWork(t *testing.T) {
+func TestCompletePlatformCodeRejectsRevokedTargetedIdentityAuthorityBeforeProviderWork(t *testing.T) {
 	const state = "targeted-oauth-state"
 
 	initiatorUserID := uuid.New()
@@ -1498,7 +1581,7 @@ func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProvide
 		if subject.ID != initiatorUserID.String() || channelID != targetChannelID || permission != "MANAGE_BOT_SETTINGS" {
 			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
 		}
-		return false, nil
+		return true, nil
 	})
 
 	output, err := authHandler.handlePlatformCode(context.Background(), platformCodeInput{
@@ -1513,8 +1596,8 @@ func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProvide
 	if err == nil || !strings.Contains(err.Error(), "Forbidden") {
 		t.Fatalf("handlePlatformCode() error = %v, want forbidden error", err)
 	}
-	if accessCalls != 1 {
-		t.Fatalf("dashboard access calls = %d, want 1", accessCalls)
+	if accessCalls != 0 {
+		t.Fatalf("dashboard access calls = %d, want 0", accessCalls)
 	}
 	if sessions.setOAuthAttemptCalls != 0 {
 		t.Fatalf("callback OAuth attempt writes = %d, want 0", sessions.setOAuthAttemptCalls)
@@ -1530,7 +1613,7 @@ func TestCompletePlatformCodeRejectsRevokedTargetedManagePermissionBeforeProvide
 	}
 }
 
-func TestStartPlatformAuthForChannelRejectsUserWithoutManageBotSettings(t *testing.T) {
+func TestStartPlatformAuthForChannelRejectsUserWithoutTargetedIdentityAuthority(t *testing.T) {
 	ctx := context.Background()
 	userID := uuid.New()
 	targetChannelID := uuid.New()
@@ -1550,7 +1633,7 @@ func TestStartPlatformAuthForChannelRejectsUserWithoutManageBotSettings(t *testi
 		if subject.ID != userID.String() || channelID != targetChannelID || permission != "MANAGE_BOT_SETTINGS" {
 			t.Fatalf("dashboard access request = %+v, %s, %q", subject, channelID, permission)
 		}
-		return false, nil
+		return true, nil
 	})
 
 	_, err := authHandler.StartPlatformAuthForChannel(ctx, targetChannelID, platformentity.PlatformKick)
@@ -1846,6 +1929,20 @@ func (f dashboardAccessFunc) CanAccess(
 	permission string,
 ) (bool, error) {
 	return f(ctx, subject, channelID, permission)
+}
+
+func (dashboardAccessFunc) IsOwner(context.Context, string, uuid.UUID) (bool, error) {
+	return false, nil
+}
+
+type dashboardOwnerAccessFunc func(context.Context, string, uuid.UUID) (bool, error)
+
+func (dashboardOwnerAccessFunc) CanAccess(context.Context, dashboardaccess.Subject, uuid.UUID, string) (bool, error) {
+	return true, nil
+}
+
+func (f dashboardOwnerAccessFunc) IsOwner(ctx context.Context, userID string, channelID uuid.UUID) (bool, error) {
+	return f(ctx, userID, channelID)
 }
 
 func (p *oauthEventSubPublisher) Publish(_ context.Context, input buscoreeventsub.EventsubSubscribeToAllEventsRequest) error {

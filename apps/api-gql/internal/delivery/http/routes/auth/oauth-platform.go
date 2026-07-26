@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
-	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/crypto"
@@ -218,15 +217,15 @@ func (a *Auth) authorizeTargetDashboard(
 	if a.dashboardAccess == nil {
 		return fmt.Errorf("dashboard access service is not configured")
 	}
-
-	hasAccess, err := a.dashboardAccess.CanAccess(ctx, dashboardaccess.Subject{
-		ID:         user.ID.String(),
-		IsBotAdmin: user.IsBotAdmin,
-	}, channelID, manageBotSettingsPermission)
-	if err != nil {
-		return fmt.Errorf("check target dashboard access: %w", err)
+	if user.IsBotAdmin {
+		return nil
 	}
-	if !hasAccess {
+
+	isOwner, err := a.dashboardAccess.IsOwner(ctx, user.ID.String(), channelID)
+	if err != nil {
+		return fmt.Errorf("check target dashboard ownership: %w", err)
+	}
+	if !isOwner {
 		return errAuthForbidden
 	}
 
