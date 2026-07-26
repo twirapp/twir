@@ -168,6 +168,68 @@ func TestTransportTreatsLeaseContentionAsNoOp(t *testing.T) {
 	}
 }
 
+func TestTransportShutdownReleasesAllBindings(t *testing.T) {
+	// Given
+	firstBinding := testBinding()
+	secondBinding := testBinding()
+	connections := map[uuid.UUID]*recordingConnection{
+		firstBinding.ID:  {closed: make(chan struct{})},
+		secondBinding.ID: {closed: make(chan struct{})},
+	}
+	transport := newTransport(transportDependencies{
+		ownership:    newTestOwnership(t, newMemoryLockStore(), newManualTicker()),
+		tokens:       &recordingTokenProvider{},
+		users:        &recordingUserStore{user: usersmodel.User{ID: uuid.New()}},
+		chatMessages: &recordingPublisher{},
+		commands:     &recordingPublisher{},
+		deduplicator: &memoryDeduplicator{claimed: make(map[string]struct{})},
+		newConnection: func(config RealtimeClientConfig) (realtimeConnection, error) {
+			connection := connections[config.BindingID]
+			connection.channel = config.Channel
+			connection.tokens = config.Tokens
+			return connection, nil
+		},
+	})
+	if err := transport.Subscribe(context.Background(), firstBinding); err != nil {
+		t.Fatalf("subscribe first binding: %v", err)
+	}
+	if err := transport.Subscribe(context.Background(), secondBinding); err != nil {
+		t.Fatalf("subscribe second binding: %v", err)
+	}
+
+	// When
+	if err := transport.Shutdown(context.Background()); err != nil {
+		t.Fatalf("shutdown transport: %v", err)
+	}
+
+	// Then
+	for bindingID, connection := range connections {
+		select {
+		case <-connection.closed:
+		default:
+			t.Fatalf("connection for binding %s was not closed", bindingID)
+		}
+	}
+	transport.mu.Lock()
+	bindings := len(transport.bindings)
+	transport.mu.Unlock()
+	if bindings != 0 {
+		t.Fatalf("active bindings after shutdown = %d, want 0", bindings)
+	}
+	if err := transport.Subscribe(context.Background(), firstBinding); err != nil {
+		t.Fatalf("resubscribe first binding: %v", err)
+	}
+	if err := transport.Subscribe(context.Background(), secondBinding); err != nil {
+		t.Fatalf("resubscribe second binding: %v", err)
+	}
+	if err := transport.Unsubscribe(context.Background(), firstBinding); err != nil {
+		t.Fatalf("unsubscribe first binding: %v", err)
+	}
+	if err := transport.Unsubscribe(context.Background(), secondBinding); err != nil {
+		t.Fatalf("unsubscribe second binding: %v", err)
+	}
+}
+
 func testBinding() channelplatformentity.ChannelPlatform {
 	return channelplatformentity.ChannelPlatform{
 		ID:                uuid.New(),

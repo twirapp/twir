@@ -10,13 +10,14 @@ import (
 )
 
 func (t *Transport) startBinding(
-	ctx context.Context,
 	binding channelplatformentity.ChannelPlatform,
 	lease *Lease,
 	owned *ownedConnection,
 ) error {
-	tokenContext := context.WithoutCancel(ctx)
-	channel, err := t.tokens.DiscoverChatChannel(tokenContext, binding.UserID)
+	startupCtx, cancel := context.WithTimeout(lease.Context(), leaseExpiry)
+	defer cancel()
+
+	channel, err := t.tokens.DiscoverChatChannel(startupCtx, binding.UserID)
 	if err != nil {
 		return fmt.Errorf("discover VK Video chat channel: %w", err)
 	}
@@ -27,11 +28,12 @@ func (t *Transport) startBinding(
 		BindingID:     binding.ID,
 		Logger:        t.logger,
 		Tokens: TokenCallbacks{
-			Connection: func() (string, error) {
-				return t.tokens.ConnectionToken(tokenContext, binding.UserID)
+			Context: lease.Context(),
+			Connection: func(ctx context.Context) (string, error) {
+				return t.tokens.ConnectionToken(ctx, binding.UserID)
 			},
-			Subscription: func(channel string) (string, error) {
-				return t.tokens.SubscriptionToken(tokenContext, binding.UserID, channel)
+			Subscription: func(ctx context.Context, channel string) (string, error) {
+				return t.tokens.SubscriptionToken(ctx, binding.UserID, channel)
 			},
 		},
 	})
@@ -40,7 +42,7 @@ func (t *Transport) startBinding(
 	}
 	owned.Set(connection)
 
-	if err := connection.Connect(); err != nil {
+	if err := connection.Connect(startupCtx); err != nil {
 		return fmt.Errorf("connect VK Video realtime connection: %w", err)
 	}
 	if err := lease.Context().Err(); err != nil {

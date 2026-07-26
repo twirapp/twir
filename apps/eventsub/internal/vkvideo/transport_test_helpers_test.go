@@ -54,15 +54,17 @@ func newTestTransportWithUsers(
 }
 
 type recordingTokenProvider struct {
-	mu          sync.Mutex
-	userIDs     []uuid.UUID
-	discoverErr error
+	mu                sync.Mutex
+	userIDs           []uuid.UUID
+	discoverErr       error
+	userTokenContexts []context.Context
 }
 
-func (p *recordingTokenProvider) GetUserToken(_ context.Context, userID uuid.UUID) (string, error) {
+func (p *recordingTokenProvider) GetUserToken(ctx context.Context, userID uuid.UUID) (string, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.userIDs = append(p.userIDs, userID)
+	p.userTokenContexts = append(p.userTokenContexts, ctx)
 	return "fixture-access-token", nil
 }
 
@@ -90,26 +92,43 @@ func (p *recordingTokenProvider) UserIDs() []uuid.UUID {
 	return append([]uuid.UUID(nil), p.userIDs...)
 }
 
+func (p *recordingTokenProvider) UserTokenContexts() []context.Context {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return append([]context.Context(nil), p.userTokenContexts...)
+}
+
 type recordingConnection struct {
+	mu                sync.Mutex
 	created           bool
 	channel           string
 	tokens            TokenCallbacks
+	connectErr        error
+	connectCalls      int
 	connectionToken   string
 	subscriptionToken string
 	publications      chan []byte
 	closed            chan struct{}
 }
 
-func (c *recordingConnection) Connect() error {
+func (c *recordingConnection) Connect(ctx context.Context) error {
+	c.mu.Lock()
+	c.connectCalls++
+	connectErr := c.connectErr
+	c.mu.Unlock()
+	if connectErr != nil {
+		return connectErr
+	}
+
 	if c.tokens.Connection == nil || c.tokens.Subscription == nil {
 		return nil
 	}
 
-	connectionToken, err := c.tokens.Connection()
+	connectionToken, err := c.tokens.Connection(ctx)
 	if err != nil {
 		return err
 	}
-	subscriptionToken, err := c.tokens.Subscription(c.channel)
+	subscriptionToken, err := c.tokens.Subscription(ctx, c.channel)
 	if err != nil {
 		return err
 	}

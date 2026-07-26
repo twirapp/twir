@@ -65,7 +65,8 @@ func (o *Ownership) Acquire(
 		return nil, fmt.Errorf("acquire lease %q: %w", key, err)
 	}
 
-	leaseCtx, cancel := context.WithCancelCause(ctx)
+	// Bus request handlers are short-lived; lease lifetime is controlled by Release or renewal loss.
+	leaseCtx, cancel := context.WithCancelCause(context.WithoutCancel(ctx))
 	lease := &Lease{
 		ctx:                leaseCtx,
 		cancel:             cancel,

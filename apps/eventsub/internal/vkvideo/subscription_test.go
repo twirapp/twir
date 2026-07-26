@@ -63,7 +63,7 @@ func TestTransportProvidesDevAPIWebSocketTokensToCentrifugo(t *testing.T) {
 	)
 
 	// When
-	err = transport.Subscribe(context.Background(), binding)
+	err = transport.Subscribe(t.Context(), binding)
 
 	// Then
 	if err != nil {
@@ -84,6 +84,33 @@ func TestTransportProvidesDevAPIWebSocketTokensToCentrifugo(t *testing.T) {
 	if got := oauthTokens.UserIDs(); len(got) != 3 || got[0] != binding.UserID || got[1] != binding.UserID || got[2] != binding.UserID {
 		t.Errorf("OAuth token user IDs = %v, want binding user three times", got)
 	}
+	userTokenContexts := oauthTokens.UserTokenContexts()
+	if len(userTokenContexts) != 3 {
+		t.Errorf("user token callback contexts = %d, want 3", len(userTokenContexts))
+	} else {
+		for _, callback := range []struct {
+			name  string
+			index int
+		}{
+			{name: "connection", index: 1},
+			{name: "subscription", index: 2},
+		} {
+			callbackContext := userTokenContexts[callback.index]
+			if callbackContext == nil {
+				t.Errorf("%s token callback context is nil", callback.name)
+			} else if callbackContext.Done() == nil {
+				t.Errorf("%s token callback context is not cancellable", callback.name)
+			}
+		}
+	}
+	reconnectTokenContext := connection.tokens.Context
+	if reconnectTokenContext == nil {
+		t.Error("reconnect token callback context is nil")
+	} else if reconnectTokenContext.Done() == nil {
+		t.Error("reconnect token callback context is not cancellable")
+	} else if reconnectTokenContext.Err() != nil {
+		t.Errorf("reconnect token callback context ended before unsubscribe: %v", reconnectTokenContext.Err())
+	}
 	wantRequests := []string{
 		"GET /v1/current_user",
 		"POST /v1/channels",
@@ -96,6 +123,13 @@ func TestTransportProvidesDevAPIWebSocketTokensToCentrifugo(t *testing.T) {
 
 	if err := transport.Unsubscribe(context.Background(), binding); err != nil {
 		t.Fatalf("unsubscribe: %v", err)
+	}
+	if reconnectTokenContext != nil {
+		select {
+		case <-reconnectTokenContext.Done():
+		default:
+			t.Error("reconnect token callback context was not canceled after unsubscribe")
+		}
 	}
 }
 
@@ -121,5 +155,55 @@ func TestTransportDoesNotCreateConnectionWhenChatChannelDiscoveryFails(t *testin
 	}
 	if connection.created {
 		t.Error("connection was created after discovery failure")
+	}
+}
+
+func TestTransportReleasesLeaseWhenConnectionStartupFails(t *testing.T) {
+	// Given
+	startupErr := errors.New("connection startup failed")
+	binding := testBinding()
+	connection := &recordingConnection{connectErr: startupErr}
+	transport := newTestTransport(
+		t,
+		&recordingTokenProvider{},
+		&recordingPublisher{},
+		&recordingPublisher{},
+		connection,
+		usersmodel.User{},
+	)
+	t.Cleanup(func() {
+		if err := transport.Unsubscribe(context.Background(), binding); err != nil {
+			t.Errorf("cleanup unsubscribe: %v", err)
+		}
+	})
+
+	// When
+	err := transport.Subscribe(context.Background(), binding)
+
+	// Then
+	if !errors.Is(err, startupErr) {
+		t.Fatalf("subscribe error = %v, want startup error", err)
+	}
+	transport.mu.Lock()
+	_, exists := transport.bindings[binding.ID]
+	transport.mu.Unlock()
+	if exists {
+		t.Error("transport binding exists after connection startup failure")
+	}
+	if connection.closed == nil {
+		t.Fatal("connection was not closed before subscribe returned")
+	}
+	select {
+	case <-connection.closed:
+	default:
+		t.Fatal("connection was not closed before subscribe returned")
+	}
+
+	connection.connectErr = nil
+	if err := transport.Subscribe(context.Background(), binding); err != nil {
+		t.Fatalf("subscribe after startup failure: %v", err)
+	}
+	if connection.connectCalls != 2 {
+		t.Errorf("connection connect calls = %d, want 2", connection.connectCalls)
 	}
 }
