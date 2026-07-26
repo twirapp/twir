@@ -155,7 +155,7 @@ var App = fx.Options(
 			logger *slog.Logger,
 			redisClient *goredis.Client,
 			bus *buscore.Bus,
-			users usersrepository.Repository,
+			userCreator *user_creator.UserCreatorService,
 			lc fx.Lifecycle,
 		) (*platformsregistry.Registry[eventplatforms.EventTransport], error) {
 			return eventplatforms.NewVKVideoRegistry(config, kickTransport, func() (eventplatforms.EventTransport, error) {
@@ -170,7 +170,7 @@ var App = fx.Options(
 					Logger:               logger,
 					Redis:                redisClient,
 					Bus:                  bus,
-					Users:                users,
+					UserCreator:          userCreator,
 					WebSocketTokenClient: webSocketTokenClient,
 					Lc:                   lc,
 				})

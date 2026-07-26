@@ -12,11 +12,11 @@ import (
 	redsyncgoredis "github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/vk"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
 
@@ -31,7 +31,7 @@ type Opts struct {
 	Logger               *slog.Logger
 	Redis                *redis.Client
 	Bus                  *buscore.Bus
-	Users                usersrepository.Repository
+	UserCreator          *user_creator.UserCreatorService
 	WebSocketTokenClient *vk.WebSocketTokenClient
 	Lc                   fx.Lifecycle
 }
@@ -40,7 +40,7 @@ type Transport struct {
 	logger        *slog.Logger
 	ownership     *Ownership
 	tokens        webSocketTokenProvider
-	users         userStore
+	userCreator   chatUserEnsurer
 	chatMessages  messagePublisher
 	commands      messagePublisher
 	deduplicator  messageDeduplicator
@@ -54,7 +54,7 @@ type transportDependencies struct {
 	logger        *slog.Logger
 	ownership     *Ownership
 	tokens        webSocketTokenProvider
-	users         userStore
+	userCreator   chatUserEnsurer
 	chatMessages  messagePublisher
 	commands      messagePublisher
 	deduplicator  messageDeduplicator
@@ -75,7 +75,7 @@ func New(opts Opts) (*Transport, error) {
 		logger:        opts.Logger,
 		ownership:     ownership,
 		tokens:        devAPIWebSocketTokenProvider{oauthTokens: oauthTokens, client: opts.WebSocketTokenClient},
-		users:         opts.Users,
+		userCreator:   opts.UserCreator,
 		chatMessages:  opts.Bus.ChatMessages,
 		commands:      opts.Bus.Parser.ProcessMessageAsCommand,
 		deduplicator:  redisDeduplicator{redis: opts.Redis},
@@ -97,7 +97,7 @@ func newTransport(deps transportDependencies) *Transport {
 		logger:        deps.logger,
 		ownership:     deps.ownership,
 		tokens:        deps.tokens,
-		users:         deps.users,
+		userCreator:   deps.userCreator,
 		chatMessages:  deps.chatMessages,
 		commands:      deps.commands,
 		deduplicator:  deps.deduplicator,

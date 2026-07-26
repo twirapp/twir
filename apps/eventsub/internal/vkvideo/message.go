@@ -8,10 +8,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -125,11 +125,11 @@ func (t *Transport) handlePublication(
 		return nil
 	}
 
-	sender, err := t.resolveUser(ctx, publication.Author)
+	sender, err := t.resolveUser(ctx, binding, publication.Author)
 	if err != nil {
 		return err
 	}
-	if binding.BotUserID != nil && *binding.BotUserID == sender.ID {
+	if binding.BotUserID != nil && *binding.BotUserID == sender.ID && *binding.BotUserID != binding.UserID {
 		return nil
 	}
 
@@ -144,26 +144,31 @@ func (t *Transport) handlePublication(
 	return nil
 }
 
-func (t *Transport) resolveUser(ctx context.Context, author chatAuthor) (usersmodel.User, error) {
-	user, err := t.users.GetByPlatformID(ctx, platformentity.PlatformVKVideoLive, author.ID)
-	if err == nil {
-		return user, nil
+func (t *Transport) resolveUser(
+	ctx context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	author chatAuthor,
+) (usersmodel.User, error) {
+	displayName := author.DisplayName
+	if displayName == "" {
+		displayName = author.Nick
 	}
-	if !errors.Is(err, usersmodel.ErrNotFound) {
-		return usersmodel.User{}, fmt.Errorf("get VK Video chat user: %w", err)
-	}
-
-	user, err = t.users.Create(ctx, usersrepository.CreateInput{
-		Platform:    platformentity.PlatformVKVideoLive,
-		PlatformID:  author.ID,
-		Login:       author.Nick,
-		DisplayName: author.DisplayName,
-		Avatar:      author.AvatarURL,
+	channelID := binding.ChannelID.String()
+	user, _, err := t.userCreator.UnsureUser(ctx, user_creator.CreateUserInput{
+		UserID:            author.ID,
+		PlatformID:        author.ID,
+		Platform:          platformentity.PlatformVKVideoLive,
+		Login:             author.Nick,
+		DisplayName:       displayName,
+		ChannelID:         &channelID,
+		ShouldUpdateStats: false,
+		IsBroadcaster:     author.IsOwner,
+		IsModerator:       author.IsChatModerator || author.IsChannelModerator,
 	})
 	if err != nil {
-		return usersmodel.User{}, fmt.Errorf("create VK Video chat user: %w", err)
+		return usersmodel.User{}, fmt.Errorf("ensure VK Video chat user: %w", err)
 	}
-	return user, nil
+	return *user, nil
 }
 
 func normalizeChatMessage(

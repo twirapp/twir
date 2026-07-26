@@ -2,16 +2,15 @@ package vkvideo
 
 import (
 	"context"
-	"errors"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
 	"github.com/twirapp/twir/libs/bus-core/generic"
-	"github.com/twirapp/twir/libs/entities/platform"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 )
 
 func newTestTransport(
@@ -23,22 +22,22 @@ func newTestTransport(
 	user usersmodel.User,
 ) *Transport {
 	t.Helper()
-	return newTestTransportWithUsers(t, tokens, chatMessages, commands, connection, &recordingUserStore{user: user})
+	return newTestTransportWithUserCreator(t, tokens, chatMessages, commands, connection, &recordingChatUserEnsurer{user: &user})
 }
 
-func newTestTransportWithUsers(
+func newTestTransportWithUserCreator(
 	t *testing.T,
 	tokens webSocketTokenProvider,
 	chatMessages messagePublisher,
 	commands messagePublisher,
 	connection realtimeConnection,
-	users userStore,
+	userCreator chatUserEnsurer,
 ) *Transport {
 	t.Helper()
 	return newTransport(transportDependencies{
 		ownership:    newTestOwnership(t, newMemoryLockStore(), newManualTicker()),
 		tokens:       tokens,
-		users:        users,
+		userCreator:  userCreator,
 		chatMessages: chatMessages,
 		commands:     commands,
 		deduplicator: &memoryDeduplicator{claimed: make(map[string]struct{})},
@@ -179,19 +178,32 @@ func (p *recordingPublisher) Messages() []generic.ChatMessage {
 	return append([]generic.ChatMessage(nil), p.messages...)
 }
 
-type recordingUserStore struct {
-	user        usersmodel.User
-	lookupCalls int
-	err         error
+type recordingChatUserEnsurer struct {
+	mu     sync.Mutex
+	user   *usersmodel.User
+	inputs []user_creator.CreateUserInput
 }
 
-func (s *recordingUserStore) GetByPlatformID(context.Context, platform.Platform, string) (usersmodel.User, error) {
-	s.lookupCalls++
-	return s.user, s.err
+func (e *recordingChatUserEnsurer) UnsureUser(
+	_ context.Context,
+	input user_creator.CreateUserInput,
+) (*usersmodel.User, *usersstatsmodel.UserStat, error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.inputs = append(e.inputs, input)
+	return e.user, nil, nil
 }
 
-func (*recordingUserStore) Create(context.Context, usersrepository.CreateInput) (usersmodel.User, error) {
-	return usersmodel.User{}, errors.New("unexpected user creation")
+func (e *recordingChatUserEnsurer) Calls() int {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	return len(e.inputs)
+}
+
+func (e *recordingChatUserEnsurer) Input() user_creator.CreateUserInput {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	return e.inputs[0]
 }
 
 type memoryDeduplicator struct {
