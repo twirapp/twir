@@ -3,17 +3,16 @@ package vkvideo
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 	"time"
 
+	"github.com/go-redsync/redsync/v4"
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/bus-core/generic"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -63,11 +62,11 @@ func TestTransportAuthenticatesBindingUserAndDeduplicatesPublications(t *testing
 	if err := transport.Subscribe(context.Background(), binding); err != nil {
 		t.Fatalf("subscribe: %v", err)
 	}
-	if connection.channel != "channel-chat:"+binding.PlatformChannelID {
+	if connection.channel != "recorded-chat-channel" {
 		t.Fatalf("subscription channel = %q", connection.channel)
 	}
-	if got := tokens.UserIDs(); len(got) != 2 || got[0] != binding.UserID || got[1] != binding.UserID {
-		t.Fatalf("token user IDs = %v, want broadcaster binding user twice", got)
+	if got := tokens.UserIDs(); len(got) != 3 || got[0] != binding.UserID || got[1] != binding.UserID || got[2] != binding.UserID {
+		t.Fatalf("token user IDs = %v, want broadcaster binding user three times", got)
 	}
 
 	connection.publications <- publication
@@ -109,6 +108,66 @@ func TestTransportSuppressesResolvedGlobalBot(t *testing.T) {
 	}
 }
 
+func TestTransportTreatsLeaseContentionAsNoOp(t *testing.T) {
+	unrelatedErr := errors.New("boom")
+	tests := []struct {
+		name       string
+		acquireErr error
+		wantErr    error
+	}{
+		{name: "wrapped err taken", acquireErr: fmt.Errorf("acquire lock: %w", &redsync.ErrTaken{Nodes: []int{0}})},
+		{name: "err failed", acquireErr: fmt.Errorf("acquire lock: %w", redsync.ErrFailed)},
+		{name: "unrelated error", acquireErr: unrelatedErr, wantErr: unrelatedErr},
+	}
+
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			acquiredConnections := 0
+			ownership, err := newOwnership(
+				LeaseConfig{Expiry: time.Minute, RenewInterval: 20 * time.Second},
+				wrappedErrorMutexFactory{err: testCase.acquireErr},
+				manualTickerFactory{ticker: newManualTicker()},
+			)
+			if err != nil {
+				t.Fatalf("create ownership: %v", err)
+			}
+
+			transport := newTransport(transportDependencies{
+				ownership:    ownership,
+				tokens:       &recordingTokenProvider{},
+				users:        &recordingUserStore{user: usersmodel.User{ID: uuid.New()}},
+				chatMessages: &recordingPublisher{},
+				commands:     &recordingPublisher{},
+				deduplicator: &memoryDeduplicator{claimed: make(map[string]struct{})},
+				newConnection: func(RealtimeClientConfig) (realtimeConnection, error) {
+					acquiredConnections++
+					return &recordingConnection{}, nil
+				},
+			})
+
+			err = transport.Subscribe(context.Background(), testBinding())
+			if testCase.wantErr == nil {
+				if err != nil {
+					t.Fatalf("subscribe: %v", err)
+				}
+				if acquiredConnections != 0 {
+					t.Fatalf("new connections = %d, want 0", acquiredConnections)
+				}
+				return
+			}
+
+			if !errors.Is(err, testCase.wantErr) {
+				t.Fatalf("subscribe error = %v, want %v", err, testCase.wantErr)
+			}
+			if acquiredConnections != 0 {
+				t.Fatalf("new connections = %d, want 0", acquiredConnections)
+			}
+		})
+	}
+}
+
 func testBinding() channelplatformentity.ChannelPlatform {
 	return channelplatformentity.ChannelPlatform{
 		ID:                uuid.New(),
@@ -120,160 +179,26 @@ func testBinding() channelplatformentity.ChannelPlatform {
 	}
 }
 
-func newTestTransport(
-	t *testing.T,
-	tokens tokenProvider,
-	chatMessages messagePublisher,
-	commands messagePublisher,
-	connection realtimeConnection,
-	user usersmodel.User,
-) *Transport {
-	t.Helper()
-	return newTestTransportWithUsers(t, tokens, chatMessages, commands, connection, &recordingUserStore{user: user})
+type wrappedErrorMutexFactory struct {
+	err error
 }
 
-func newTestTransportWithUsers(
-	t *testing.T,
-	tokens tokenProvider,
-	chatMessages messagePublisher,
-	commands messagePublisher,
-	connection realtimeConnection,
-	users userStore,
-) *Transport {
-	t.Helper()
-	return newTransport(transportDependencies{
-		ownership:    newTestOwnership(t, newMemoryLockStore(), newManualTicker()),
-		tokens:       tokens,
-		users:        users,
-		chatMessages: chatMessages,
-		commands:     commands,
-		deduplicator: &memoryDeduplicator{claimed: make(map[string]struct{})},
-		newConnection: func(config RealtimeClientConfig) (realtimeConnection, error) {
-			if recorded, ok := connection.(*recordingConnection); ok {
-				recorded.channel = config.Channel
-				recorded.tokens = config.Tokens
-			}
-			return connection, nil
-		},
-	})
+func (f wrappedErrorMutexFactory) NewMutex(string, time.Duration) leaseMutex {
+	return wrappedErrorMutex{err: f.err}
 }
 
-type recordingTokenProvider struct {
-	mu      sync.Mutex
-	userIDs []uuid.UUID
+type wrappedErrorMutex struct {
+	err error
 }
 
-func (p *recordingTokenProvider) GetUserToken(_ context.Context, userID uuid.UUID) (string, error) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	p.userIDs = append(p.userIDs, userID)
-	return "fixture-access-token", nil
+func (m wrappedErrorMutex) TryLockContext(context.Context) error {
+	return m.err
 }
 
-func (p *recordingTokenProvider) UserIDs() []uuid.UUID {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	return append([]uuid.UUID(nil), p.userIDs...)
+func (wrappedErrorMutex) ExtendContext(context.Context) (bool, error) {
+	return false, nil
 }
 
-type recordingConnection struct {
-	channel      string
-	tokens       TokenCallbacks
-	publications chan []byte
-	closed       chan struct{}
-}
-
-func (c *recordingConnection) Connect() error {
-	if c.tokens.Connection == nil || c.tokens.Subscription == nil {
-		return nil
-	}
-	if _, err := c.tokens.Connection(); err != nil {
-		return err
-	}
-	_, err := c.tokens.Subscription(c.channel)
-	return err
-}
-
-func (c *recordingConnection) Receive(ctx context.Context) ([]byte, error) {
-	if c.publications == nil {
-		<-ctx.Done()
-		return nil, ctx.Err()
-	}
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	case publication := <-c.publications:
-		return publication, nil
-	}
-}
-
-func (c *recordingConnection) Close() {
-	if c.closed == nil {
-		c.closed = make(chan struct{})
-	}
-	select {
-	case <-c.closed:
-	default:
-		close(c.closed)
-	}
-}
-
-type recordingPublisher struct {
-	mu       sync.Mutex
-	messages []generic.ChatMessage
-}
-
-func (p *recordingPublisher) Publish(_ context.Context, message generic.ChatMessage) error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	p.messages = append(p.messages, message)
-	return nil
-}
-
-func (p *recordingPublisher) Messages() []generic.ChatMessage {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	return append([]generic.ChatMessage(nil), p.messages...)
-}
-
-type recordingUserStore struct {
-	user        usersmodel.User
-	lookupCalls int
-	err         error
-}
-
-func (s *recordingUserStore) GetByPlatformID(context.Context, platform.Platform, string) (usersmodel.User, error) {
-	s.lookupCalls++
-	return s.user, s.err
-}
-
-func (*recordingUserStore) Create(context.Context, usersrepository.CreateInput) (usersmodel.User, error) {
-	return usersmodel.User{}, errors.New("unexpected user creation")
-}
-
-type memoryDeduplicator struct {
-	mu      sync.Mutex
-	claimed map[string]struct{}
-}
-
-func (d *memoryDeduplicator) Claim(_ context.Context, id string) (bool, error) {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-	if _, exists := d.claimed[id]; exists {
-		return false, nil
-	}
-	d.claimed[id] = struct{}{}
-	return true, nil
-}
-
-func waitForMessageCount(t *testing.T, publisher *recordingPublisher, want int) {
-	t.Helper()
-	deadline := time.Now().Add(time.Second)
-	for time.Now().Before(deadline) {
-		if len(publisher.Messages()) >= want {
-			return
-		}
-		time.Sleep(time.Millisecond)
-	}
-	t.Fatalf("published messages = %d, want at least %d", len(publisher.Messages()), want)
+func (wrappedErrorMutex) UnlockContext(context.Context) (bool, error) {
+	return false, nil
 }

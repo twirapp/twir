@@ -15,6 +15,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/integrations/vk"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
@@ -27,16 +28,17 @@ const (
 type Opts struct {
 	fx.In
 
-	Logger *slog.Logger
-	Redis  *redis.Client
-	Bus    *buscore.Bus
-	Users  usersrepository.Repository
+	Logger               *slog.Logger
+	Redis                *redis.Client
+	Bus                  *buscore.Bus
+	Users                usersrepository.Repository
+	WebSocketTokenClient *vk.WebSocketTokenClient
 }
 
 type Transport struct {
 	logger        *slog.Logger
 	ownership     *Ownership
-	tokens        tokenProvider
+	tokens        webSocketTokenProvider
 	users         userStore
 	chatMessages  messagePublisher
 	commands      messagePublisher
@@ -50,7 +52,7 @@ type Transport struct {
 type transportDependencies struct {
 	logger        *slog.Logger
 	ownership     *Ownership
-	tokens        tokenProvider
+	tokens        webSocketTokenProvider
 	users         userStore
 	chatMessages  messagePublisher
 	commands      messagePublisher
@@ -67,10 +69,11 @@ func New(opts Opts) (*Transport, error) {
 		return nil, fmt.Errorf("create VK Video ownership: %w", err)
 	}
 
+	oauthTokens := busTokenProvider{request: opts.Bus.Tokens.RequestUserToken}
 	return newTransport(transportDependencies{
 		logger:        opts.Logger,
 		ownership:     ownership,
-		tokens:        busTokenProvider{request: opts.Bus.Tokens.RequestUserToken},
+		tokens:        devAPIWebSocketTokenProvider{oauthTokens: oauthTokens, client: opts.WebSocketTokenClient},
 		users:         opts.Users,
 		chatMessages:  opts.Bus.ChatMessages,
 		commands:      opts.Bus.Parser.ProcessMessageAsCommand,
@@ -119,6 +122,10 @@ func (t *Transport) Subscribe(ctx context.Context, binding channelplatformentity
 	lease, err := t.ownership.Acquire(ctx, binding.ID.String(), owned.Close)
 	if err != nil {
 		if errors.Is(err, redsync.ErrFailed) {
+			return nil
+		}
+		var errTaken *redsync.ErrTaken
+		if errors.As(err, &errTaken) {
 			return nil
 		}
 		return fmt.Errorf("acquire VK Video chat lease: %w", err)
