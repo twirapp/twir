@@ -1091,6 +1091,11 @@ func (c *EventsGrpcImplementation) GreetingSended(
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
 	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -1099,6 +1104,7 @@ func (c *EventsGrpcImplementation) GreetingSended(
 				model.EventTypeGreetingSended,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
+					ChannelDBID:     channelDBID.String(),
 					Platform:        eventPlatform,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,

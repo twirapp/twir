@@ -133,8 +133,10 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg enrichedChatMe
 		ctx,
 		events.GreetingSendedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: msg.BroadcasterUserId,
+				ChannelDBID:       msg.EnrichedData.DbChannel.ID,
+				ChannelPlatformID: msg.PlatformChannelID,
 				ChannelName:       msg.BroadcasterUserLogin,
+				Platform:          platform.Platform(msg.Platform),
 			},
 			UserID:          msg.ChatterUserId,
 			UserName:        msg.ChatterUserLogin,
