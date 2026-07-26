@@ -23,6 +23,9 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 		c.services.Logger.Sugar().Error(err)
 		return nil
 	}
+	if dbChannel.BotID == "" {
+		return nil
+	}
 
 	twitchClient, err := twitch.NewBotClientWithContext(
 		ctx,
