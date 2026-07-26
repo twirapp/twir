@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	cfg "github.com/twirapp/twir/libs/config"
 	channelplatformsmodel "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 )
@@ -131,5 +132,44 @@ func TestSubscribeAllContinuesAfterBindingFailure(t *testing.T) {
 	}
 	if len(transport.subscribed) != 2 || transport.subscribed[1].ID != followingBinding.ID {
 		t.Errorf("transport subscriptions = %#v, want failed and following bindings", transport.subscribed)
+	}
+}
+
+func TestNewVKVideoRegistrySkipsTransportConstructionWhenDisabled(t *testing.T) {
+	kick := &recordingTransport{platform: platform.PlatformKick}
+	called := false
+
+	registry, err := NewVKVideoRegistry(cfg.Config{}, kick, func() (EventTransport, error) {
+		called = true
+		return &recordingTransport{platform: platform.PlatformVKVideoLive}, nil
+	})
+	if err != nil {
+		t.Fatalf("create registry: %v", err)
+	}
+	if called {
+		t.Fatal("VK Video transport factory was called while disabled")
+	}
+	if _, ok := registry.Get(platform.PlatformKick); !ok {
+		t.Fatal("Kick transport was not registered")
+	}
+	if _, ok := registry.Get(platform.PlatformVKVideoLive); ok {
+		t.Fatal("VK Video transport was registered while disabled")
+	}
+}
+
+func TestNewVKVideoRegistryConstructsAndRegistersTransportWhenEnabled(t *testing.T) {
+	vkVideo := &recordingTransport{platform: platform.PlatformVKVideoLive}
+
+	registry, err := NewVKVideoRegistry(
+		cfg.Config{VKVideoClientID: "fixture-id", VKVideoClientSecret: "fixture-secret"},
+		&recordingTransport{platform: platform.PlatformKick},
+		func() (EventTransport, error) { return vkVideo, nil },
+	)
+	if err != nil {
+		t.Fatalf("create registry: %v", err)
+	}
+	registered, ok := registry.Get(platform.PlatformVKVideoLive)
+	if !ok || registered != vkVideo {
+		t.Fatalf("VK Video transport = %#v, want fixture transport", registered)
 	}
 }

@@ -103,17 +103,18 @@ func (m *Manager) start(ctx context.Context) error {
 	m.logger.InfoContext(
 		ctx,
 		"webhook manager: starting",
-		slog.String("callback_base_url", callbackBaseURL),
 		slog.Bool("is_development", m.config.IsDevelopment()),
 		slog.Int("platforms_count", len(transports)),
 	)
+
+	m.logVKStartup(ctx)
 
 	for _, transport := range transports {
 		transport.SetCallbackBaseURL(callbackBaseURL)
 	}
 
 	if m.config.IsDevelopment() {
-		m.logKickWebhookInstructions(ctx, callbackBaseURL)
+		m.logKickWebhookInstructions(ctx)
 		if err := m.unsubscribeAllPlatforms(ctx); err != nil {
 			m.logger.ErrorContext(ctx, "webhook manager: unsubscribe all failed", logger.Error(err))
 		}
@@ -128,20 +129,17 @@ func (m *Manager) start(ctx context.Context) error {
 	return nil
 }
 
-func (m *Manager) logKickWebhookInstructions(ctx context.Context, callbackBaseURL string) {
-	webhookURL := callbackBaseURL + "/webhook/kick"
+func (m *Manager) logKickWebhookInstructions(ctx context.Context) {
 	m.logger.WarnContext(ctx,
 		"============================================================\n"+
 			"KICK WEBHOOK SETUP REQUIRED IF YOU WANT TO RECEIVE EVENTS\n"+
 			"============================================================\n"+
-			"1. Go to https://kick.com/settings/developer\n"+
-			"2. Open your app settings\n"+
-			"3. Enable 'Webhooks' toggle\n"+
-			"4. Set Webhook URL to: "+webhookURL+"\n"+
-			"5. Save changes\n"+
-			"6. Restart eventsub if needed\n"+
+			"1. Open your app settings\n"+
+			"2. Enable 'Webhooks' toggle\n"+
+			"3. Set the webhook endpoint for this service\n"+
+			"4. Save changes\n"+
+			"5. Restart eventsub if needed\n"+
 			"============================================================",
-		slog.String("webhook_url", webhookURL),
 	)
 }
 
@@ -160,6 +158,10 @@ func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
 				logger.Error(err),
 			)
 		}
+	}
+
+	if err := m.logVKUnsubscribeSummary(ctx); err != nil {
+		return err
 	}
 
 	return nil
@@ -194,6 +196,10 @@ func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
 			slog.String("platform", transport.Platform().String()),
 			slog.Int("bindings_count", len(bindings)),
 		)
+	}
+
+	if err := m.logVKSubscribeSummary(ctx); err != nil {
+		return err
 	}
 
 	return nil

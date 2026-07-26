@@ -1,0 +1,28 @@
+{
+  "type": "message",
+  "data": {
+    "id": "fixture-message-1",
+    "createdAt": "2026-01-02T03:04:05Z",
+    "author": {
+      "id": "fixture-author-1",
+      "nick": "fixture_user",
+      "name": "Fixture Name",
+      "displayName": "Fixture Display",
+      "avatarUrl": "",
+      "isOwner": false,
+      "isChatModerator": true,
+      "isChannelModerator": false
+    },
+    "data": [
+      {
+        "content": "[\"hello \",\"unstyled\",[]]"
+      },
+      {
+        "content": "[\"world\",\"unstyled\",[]]"
+      },
+      {
+        "type": "BLOCK_END"
+      }
+    ]
+  }
+}

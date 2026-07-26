@@ -201,7 +201,6 @@ func (c *Config) validateVKVideo() error {
 			return fmt.Errorf("%s is required when VK_VIDEO_ENABLED is true", name)
 		}
 	}
-
 	return nil
 }
 
