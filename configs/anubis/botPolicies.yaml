@@ -1,0 +1,115 @@
+# Anubis bot policy for the public site (twir.app / cf.twir.app).
+# Based on the upstream default policy (data/botPolicies.yaml in
+# https://github.com/TecharoHQ/anubis) with two changes:
+#   - Thoth-only (paid) geoip/asn WEIGH rules removed
+#   - Open Graph passthrough enabled, so social/messenger link previews
+#     keep working without solving proof-of-work
+bots:
+  # Pathological bots to deny
+  - import: (data)/bots/_deny-pathological.yaml
+  - import: (data)/bots/aggressive-brazilian-scrapers.yaml
+
+  # Aggressively block AI/LLM related bots/agents by default.
+  # Consider replacing with a more selective policy if this is too strict:
+  # - import: (data)/meta/ai-block-moderate.yaml
+  # - import: (data)/meta/ai-block-permissive.yaml
+  - import: (data)/meta/ai-block-aggressive.yaml
+
+  # Search engine crawlers to allow, defaults to:
+  #   - Google (so they don't try to bypass Anubis)
+  #   - Apple
+  #   - Bing
+  #   - DuckDuckGo
+  #   - Qwant
+  #   - The Internet Archive
+  #   - Kagi
+  #   - Marginalia
+  #   - Mojeek
+  - import: (data)/crawlers/_allow-good.yaml
+
+  # Challenge Firefox AI previews
+  - import: (data)/clients/x-firefox-ai.yaml
+
+  # x.ai has a scraper that is killing gitlab instances
+  - import: (data)/crawlers/xai.yaml
+
+  # Allow common "keeping the internet working" routes (well-known, favicon, robots.txt)
+  - import: (data)/common/keep-internet-working.yaml
+
+  # Generic catchall rule
+  - name: generic-browser
+    user_agent_regex: >-
+      Mozilla|Opera
+    action: WEIGH
+    weight:
+      adjust: 10
+
+dnsbl: false
+
+# Honeypot configuration
+honeypot:
+  enabled: true
+  implementation: naive
+
+# Open Graph passthrough, see:
+# https://anubis.techaro.lol/docs/admin/configuration/open-graph/
+openGraph:
+  enabled: true
+  considerHost: true
+  ttl: 24h
+
+# By default, send HTTP 200 back to clients that either get issued a challenge
+# or a denial. This seems weird, but this is load-bearing due to the fact that
+# the most aggressive scraper bots seem to really, really, want an HTTP 200 and
+# will stop sending requests once they get it.
+status_codes:
+  CHALLENGE: 200
+  DENY: 200
+
+# In-memory store: fine for short-lived challenges. If we ever switch to a
+# persistent backend (bbolt), ED25519_PRIVATE_KEY_HEX_FILE is already wired.
+store:
+  backend: memory
+  parameters: {}
+
+# Weight thresholds deciding when to challenge and how hard.
+# Any explicit CHALLENGE action in bot rules takes precedence over these.
+thresholds:
+  - name: minimal-suspicion
+    expression: weight <= 0
+    action: ALLOW
+  - name: mild-suspicion
+    expression:
+      all:
+        - weight > 0
+        - weight < 10
+    action: CHALLENGE
+    challenge:
+      # https://anubis.techaro.lol/docs/admin/configuration/challenges/metarefresh
+      algorithm: metarefresh
+      difficulty: 1
+  - name: moderate-suspicion
+    expression:
+      all:
+        - weight >= 10
+        - weight < 20
+    action: CHALLENGE
+    challenge:
+      # https://anubis.techaro.lol/docs/admin/configuration/challenges/proof-of-work
+      algorithm: fast
+      difficulty: 2
+  - name: mild-proof-of-work
+    expression:
+      all:
+        - weight >= 20
+        - weight < 30
+    action: CHALLENGE
+    challenge:
+      algorithm: fast
+      difficulty: 4
+  - name: extreme-suspicion
+    expression: weight >= 30
+    action: CHALLENGE
+    challenge:
+      algorithm: fast
+      difficulty: 6
