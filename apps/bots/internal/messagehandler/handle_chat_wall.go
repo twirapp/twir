@@ -93,7 +93,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg enrichedChatMes
 		alreadyHandled, err := c.redis.SIsMember(
 			ctx,
 			fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.EnrichedData.DbChannel.ID.String()),
-			msg.ID,
+			msg.MessageID,
 		).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
 			return err
@@ -109,7 +109,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg enrichedChatMes
 				twitchactions.DeleteMessageOpts{
 					BroadcasterID: msg.BroadcasterUserId,
 					ModeratorID:   msg.EnrichedData.BotPlatformID,
-					MessageID:     msg.ID,
+					MessageID:     msg.MessageID,
 				},
 			); err != nil {
 				return err
@@ -150,7 +150,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg enrichedChatMes
 				if err := p.SAdd(
 					ctx,
 					fmt.Sprintf(redis_keys.NukeRedisPrefix, msg.EnrichedData.DbChannel.ID.String()),
-					msg.ID,
+					msg.MessageID,
 				).Err(); err != nil {
 					return err
 				}
