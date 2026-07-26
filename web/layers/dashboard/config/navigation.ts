@@ -6,6 +6,7 @@ export interface NavigationItem {
 	path: string
 	disabled?: boolean
 	isNew?: boolean
+	accent?: boolean
 	openStateKey?: string
 	child?: NavigationItem[]
 	translationKey?: string // i18n key for translation
@@ -27,6 +28,7 @@ export const baseNavigationItems: Array<Partial<NavigationItem>> = [
 		name: 'Platforms',
 		icon: 'lucide:layers',
 		path: '/dashboard/platforms',
+		accent: true,
 	},
 	{
 		name: 'Modules',
