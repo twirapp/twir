@@ -242,6 +242,7 @@ func TestFlowAppliesTwitchBanGateBeforeSelectingOperations(t *testing.T) {
 			if err := env.GetWorkflowError(); err != nil {
 				t.Fatalf("Flow returned error: %v", err)
 			}
+			env.AssertExpectations(t)
 		})
 	}
 }
