@@ -6,7 +6,7 @@ import (
 )
 
 type realtimeConnection interface {
-	Connect() error
+	Connect(context.Context) error
 	Receive(context.Context) ([]byte, error)
 	Close()
 }
@@ -66,8 +66,8 @@ func newCentrifugoConnection(config RealtimeClientConfig) (realtimeConnection, e
 	return centrifugoConnection{client: client}, nil
 }
 
-func (c centrifugoConnection) Connect() error {
-	return c.client.Connect()
+func (c centrifugoConnection) Connect(ctx context.Context) error {
+	return c.client.Connect(ctx)
 }
 
 func (c centrifugoConnection) Receive(ctx context.Context) ([]byte, error) {

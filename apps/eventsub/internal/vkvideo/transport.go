@@ -33,6 +33,7 @@ type Opts struct {
 	Bus                  *buscore.Bus
 	Users                usersrepository.Repository
 	WebSocketTokenClient *vk.WebSocketTokenClient
+	Lc                   fx.Lifecycle
 }
 
 type Transport struct {
@@ -70,7 +71,7 @@ func New(opts Opts) (*Transport, error) {
 	}
 
 	oauthTokens := busTokenProvider{request: opts.Bus.Tokens.RequestUserToken}
-	return newTransport(transportDependencies{
+	transport := newTransport(transportDependencies{
 		logger:        opts.Logger,
 		ownership:     ownership,
 		tokens:        devAPIWebSocketTokenProvider{oauthTokens: oauthTokens, client: opts.WebSocketTokenClient},
@@ -79,7 +80,16 @@ func New(opts Opts) (*Transport, error) {
 		commands:      opts.Bus.Parser.ProcessMessageAsCommand,
 		deduplicator:  redisDeduplicator{redis: opts.Redis},
 		newConnection: newCentrifugoConnection,
-	}), nil
+	})
+	opts.Lc.Append(fx.Hook{
+		OnStop: func(ctx context.Context) error {
+			shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), leaseExpiry)
+			defer cancel()
+			return transport.Shutdown(shutdownCtx)
+		},
+	})
+
+	return transport, nil
 }
 
 func newTransport(deps transportDependencies) *Transport {
@@ -131,8 +141,10 @@ func (t *Transport) Subscribe(ctx context.Context, binding channelplatformentity
 		return fmt.Errorf("acquire VK Video chat lease: %w", err)
 	}
 
-	if err := t.startBinding(ctx, binding, lease, owned); err != nil {
-		_ = lease.Release(context.WithoutCancel(ctx))
+	if err := t.startBinding(binding, lease, owned); err != nil {
+		releaseCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), leaseExpiry)
+		defer cancel()
+		_ = lease.Release(releaseCtx)
 		return err
 	}
 
@@ -155,4 +167,20 @@ func (t *Transport) Unsubscribe(ctx context.Context, binding channelplatformenti
 	}
 
 	return nil
+}
+
+func (t *Transport) Shutdown(ctx context.Context) error {
+	t.mu.Lock()
+	bindings := t.bindings
+	t.bindings = make(map[uuid.UUID]*activeBinding)
+	t.mu.Unlock()
+
+	var errs []error
+	for bindingID, active := range bindings {
+		if err := active.lease.Release(ctx); err != nil && !errors.Is(err, ErrLeaseLost) {
+			errs = append(errs, fmt.Errorf("release VK Video chat lease for binding %s: %w", bindingID, err))
+		}
+	}
+
+	return errors.Join(errs...)
 }

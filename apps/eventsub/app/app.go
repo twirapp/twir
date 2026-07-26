@@ -156,6 +156,7 @@ var App = fx.Options(
 			redisClient *goredis.Client,
 			bus *buscore.Bus,
 			users usersrepository.Repository,
+			lc fx.Lifecycle,
 		) (*platformsregistry.Registry[eventplatforms.EventTransport], error) {
 			return eventplatforms.NewVKVideoRegistry(config, kickTransport, func() (eventplatforms.EventTransport, error) {
 				webSocketTokenClient, err := vk.NewWebSocketTokenClient(vk.VideoChatClientOpts{
@@ -171,6 +172,7 @@ var App = fx.Options(
 					Bus:                  bus,
 					Users:                users,
 					WebSocketTokenClient: webSocketTokenClient,
+					Lc:                   lc,
 				})
 			})
 		},

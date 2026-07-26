@@ -19,6 +19,8 @@ type WebSocketConnectionToken string
 
 type WebSocketSubscriptionToken string
 
+var ErrWebSocketSubscriptionChannelTokenMissing = errors.New("vk video websocket subscription token is missing for requested channel")
+
 type WebSocketTokenClient struct {
 	videoChatClient *VideoChatClient
 }
@@ -160,7 +162,7 @@ func (c *WebSocketTokenClient) SubscriptionToken(
 		return channelToken.Token, nil
 	}
 
-	return "", errors.New("VK Video WebSocket subscription token response is missing requested channel token")
+	return "", fmt.Errorf("VK Video WebSocket subscription token response: %w", ErrWebSocketSubscriptionChannelTokenMissing)
 }
 
 type webSocketConnectionTokenResponse struct {

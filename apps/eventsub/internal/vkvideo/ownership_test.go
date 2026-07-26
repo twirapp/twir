@@ -113,13 +113,12 @@ func TestLeaseRenewalLossFencesBeforeCloseCallback(t *testing.T) {
 	}
 }
 
-func TestLeaseCancellationStopsRenewal(t *testing.T) {
+func TestLeaseReleaseStopsRenewal(t *testing.T) {
 	// Given
 	store := newMemoryLockStore()
 	ticker := newManualTicker()
 	ownership := newTestOwnership(t, store, ticker)
-	ctx, cancel := context.WithCancel(context.Background())
-	lease, err := ownership.Acquire(ctx, "binding-1", func() {})
+	lease, err := ownership.Acquire(context.Background(), "binding-1", func() {})
 	if err != nil {
 		t.Fatalf("acquire lease: %v", err)
 	}
@@ -127,16 +126,60 @@ func TestLeaseCancellationStopsRenewal(t *testing.T) {
 	store.waitForExtension(t)
 
 	// When
-	cancel()
-	lease.Wait()
+	if err := lease.Release(context.Background()); err != nil {
+		t.Fatalf("release lease: %v", err)
+	}
 	ticker.tick()
 
 	// Then
 	if got := store.extensionCount(); got != 1 {
-		t.Fatalf("extension count after cancellation = %d, want 1", got)
+		t.Fatalf("extension count after release = %d, want 1", got)
 	}
+}
+
+func TestLeaseSurvivesCallerContextCancellation(t *testing.T) {
+	// Given
+	store := newMemoryLockStore()
+	ownership := newTestOwnership(t, store, newManualTicker())
+	callerCtx, cancel := context.WithCancel(context.Background())
+	closed := make(chan struct{})
+	lease, err := ownership.Acquire(callerCtx, "binding-1", func() {
+		close(closed)
+	})
+	if err != nil {
+		t.Fatalf("acquire lease: %v", err)
+	}
+
+	// When
+	cancel()
+
+	// Then
+	select {
+	case <-lease.Context().Done():
+		t.Fatal("lease context was canceled with its caller context")
+	default:
+	}
+	select {
+	case <-closed:
+		t.Fatal("owned resource was closed with its caller context")
+	default:
+	}
+
 	if err := lease.Release(context.Background()); err != nil {
-		t.Fatalf("release cancelled lease: %v", err)
+		t.Fatalf("release lease: %v", err)
+	}
+	select {
+	case <-closed:
+	case <-time.After(time.Second):
+		t.Fatal("owned resource was not closed on release")
+	}
+
+	successor, err := ownership.Acquire(context.Background(), "binding-1", func() {})
+	if err != nil {
+		t.Fatalf("reacquire released lease: %v", err)
+	}
+	if err := successor.Release(context.Background()); err != nil {
+		t.Fatalf("release successor lease: %v", err)
 	}
 }
 
