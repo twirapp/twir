@@ -74,7 +74,13 @@ func Dispatch(
 					continue
 				}
 				if binding.Enabled {
-					if err := adapter.SendMessage(ctx, binding, message, replyID, options); err != nil {
+					targetReplyID := replyID
+					targetOptions := options
+					if !adapter.Capabilities().Supports(platform.CapabilityChatReply) {
+						targetReplyID = ""
+					}
+
+					if err := adapter.SendMessage(ctx, binding, message, targetReplyID, targetOptions); err != nil {
 						dispatchErrors = append(dispatchErrors, fmt.Errorf(
 							"send chat message to %q binding %q: %w",
 							binding.Platform,
@@ -101,7 +107,13 @@ func Dispatch(
 			continue
 		}
 
-		if err := adapter.SendMessage(ctx, binding, message, replyID, options); err != nil {
+		targetReplyID := replyID
+		targetOptions := options
+		if !adapter.Capabilities().Supports(platform.CapabilityChatReply) {
+			targetReplyID = ""
+		}
+
+		if err := adapter.SendMessage(ctx, binding, message, targetReplyID, targetOptions); err != nil {
 			dispatchErrors = append(dispatchErrors, fmt.Errorf(
 				"send chat message to %q binding %q: %w",
 				binding.Platform,
