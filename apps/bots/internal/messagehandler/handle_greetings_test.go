@@ -66,13 +66,34 @@ func (k *greetingCacheKV) Delete(_ context.Context, key string) error {
 	return nil
 }
 
+type greetingEventQueue struct {
+	chatMessageEmoteQueue[events.GreetingSendedMessage, struct{}]
+	published []events.GreetingSendedMessage
+}
+
+func (q *greetingEventQueue) Publish(_ context.Context, message events.GreetingSendedMessage) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	q.published = append(q.published, message)
+	return nil
+}
+
+func (q *greetingEventQueue) publishedSnapshot() []events.GreetingSendedMessage {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	return append([]events.GreetingSendedMessage(nil), q.published...)
+}
+
 type greetingFixture struct {
-	handler    *MessageHandler
-	message    enrichedChatMessage
-	repository *greetingRepositoryRecorder
-	cache      *greetingCacheKV
-	parser     *chatMessageEmoteQueue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
-	sender     *chatMessageEmoteQueue[botsbus.SendMessageRequest, struct{}]
+	handler        *MessageHandler
+	message        enrichedChatMessage
+	repository     *greetingRepositoryRecorder
+	cache          *greetingCacheKV
+	parser         *chatMessageEmoteQueue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
+	sender         *chatMessageEmoteQueue[botsbus.SendMessageRequest, struct{}]
+	greetingEvents *greetingEventQueue
 }
 
 type greetingFixtureInput struct {
@@ -91,10 +112,11 @@ func newGreetingFixture(t *testing.T, input greetingFixtureInput) greetingFixtur
 		response: &buscore.QueueResponse[parser.ParseVariablesInTextResponse]{Data: parser.ParseVariablesInTextResponse{Text: "parsed greeting"}},
 	}
 	sendQueue := &chatMessageEmoteQueue[botsbus.SendMessageRequest, struct{}]{response: &buscore.QueueResponse[struct{}]{}}
+	greetingEvents := &greetingEventQueue{}
 	bus := buscore.NewNatsBus(nil)
 	bus.Parser.ParseVariablesInText = parserQueue
 	bus.Bots.SendMessage = sendQueue
-	bus.Events.GreetingSended = &chatMessageEmoteQueue[events.GreetingSendedMessage, struct{}]{}
+	bus.Events.GreetingSended = greetingEvents
 
 	return greetingFixture{
 		handler: &MessageHandler{
@@ -112,12 +134,12 @@ func newGreetingFixture(t *testing.T, input greetingFixtureInput) greetingFixtur
 			twirBus: bus,
 		},
 		message: enrichedChatMessage{ChatMessage: generic.ChatMessage{
-			Platform: string(input.source), MessageID: "provider-message-id", BroadcasterUserId: "broadcaster-id", ChatterUserId: "chatter-id",
+			Platform: string(input.source), MessageID: "provider-message-id", PlatformChannelID: "platform-channel-id", BroadcasterUserId: "broadcaster-id", ChatterUserId: "chatter-id",
 			Message: &generic.ChatMessageMessage{Text: "message"},
 		}, EnrichedData: chatMessageEnrichedData{
 			DbChannel: channelentity.Channel{ID: channelID}, DbUser: &usersmodel.User{ID: userID}, ChannelStream: &streamsmodel.Stream{},
 		}},
-		repository: repository, cache: cache, parser: parserQueue, sender: sendQueue,
+		repository: repository, cache: cache, parser: parserQueue, sender: sendQueue, greetingEvents: greetingEvents,
 	}
 }
 
@@ -181,6 +203,20 @@ func TestHandleGreetingsDispatchesThroughSourcePlatform(t *testing.T) {
 			require.Equal(t, []string{"greetings:" + fixture.message.EnrichedData.DbChannel.ID.String()}, fixture.cache.deletes)
 		})
 	}
+}
+
+func TestHandleGreetingsPublishesCanonicalKickIdentity(t *testing.T) {
+	fixture := newGreetingFixture(t, greetingFixtureInput{source: platform.PlatformKick})
+
+	err := fixture.handler.handleGreetings(context.Background(), fixture.message)
+
+	require.NoError(t, err)
+	published := fixture.greetingEvents.publishedSnapshot()
+	require.Len(t, published, 1)
+	event := published[0]
+	require.Equal(t, platform.PlatformKick, event.BaseInfo.Platform)
+	require.Equal(t, fixture.message.EnrichedData.DbChannel.ID, event.BaseInfo.ChannelDBID)
+	require.Equal(t, fixture.message.PlatformChannelID, event.BaseInfo.ChannelPlatformID)
 }
 
 func TestHandleGreetingsLeavesGreetingUnprocessedWhenDeliveryFails(t *testing.T) {
