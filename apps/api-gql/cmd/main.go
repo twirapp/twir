@@ -695,6 +695,7 @@ func main() {
 			func(service *channelplatformservice.Service) resolvers.ChannelPlatformBindingsService { return service },
 			func(sessions *auth.Auth) resolvers.SelectedDashboardGetter { return sessions },
 			func(sessions *auth.Auth) resolvers.CurrentPlatformGetter { return sessions },
+			func(sessions *auth.Auth) resolvers.SessionReader { return sessions },
 			directives.New,
 			middlewares.New,
 			server.New,
