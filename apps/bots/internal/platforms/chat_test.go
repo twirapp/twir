@@ -166,6 +166,7 @@ type recordingChatAdapter struct {
 	bindings     []channelplatformentity.ChannelPlatform
 	messages     []string
 	replies      []string
+	options      []ChatOptions
 	err          error
 }
 
@@ -182,11 +183,12 @@ func (a *recordingChatAdapter) SendMessage(
 	binding channelplatformentity.ChannelPlatform,
 	message string,
 	replyID string,
-	_ ChatOptions,
+	options ChatOptions,
 ) error {
 	a.bindings = append(a.bindings, binding)
 	a.messages = append(a.messages, message)
 	a.replies = append(a.replies, replyID)
+	a.options = append(a.options, options)
 	return a.err
 }
 
@@ -194,12 +196,18 @@ func TestDispatchDispatchesEnabledBindingsWithoutPlatformFilter(t *testing.T) {
 	t.Parallel()
 
 	twitch := &recordingChatAdapter{
-		platform:     platform.PlatformTwitch,
-		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+		platform: platform.PlatformTwitch,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
 	}
 	kick := &recordingChatAdapter{
-		platform:     platform.PlatformKick,
-		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+		platform: platform.PlatformKick,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
 	}
 
 	err := Dispatch(
@@ -233,8 +241,11 @@ func TestDispatchSkipsBindingsWithoutChatWriteWhenNoPlatformRequested(t *testing
 	t.Parallel()
 
 	twitch := &recordingChatAdapter{
-		platform:     platform.PlatformTwitch,
-		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+		platform: platform.PlatformTwitch,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
 	}
 	unsupported := &recordingChatAdapter{
 		platform:     platform.PlatformVKVideoLive,
@@ -250,7 +261,7 @@ func TestDispatchSkipsBindingsWithoutChatWriteWhenNoPlatformRequested(t *testing
 		},
 		nil,
 		"hello",
-		"",
+		"reply-id",
 		ChatOptions{},
 	)
 	if err != nil {
@@ -261,6 +272,98 @@ func TestDispatchSkipsBindingsWithoutChatWriteWhenNoPlatformRequested(t *testing
 	}
 	if len(twitch.bindings) != 1 {
 		t.Errorf("expected one Twitch dispatch, got %#v", twitch.bindings)
+	}
+	if twitch.replies[0] != "reply-id" {
+		t.Errorf("expected Twitch reply ID, got %#v", twitch.replies)
+	}
+}
+
+func TestDispatchPreservesReplyForExplicitChatReplySelection(t *testing.T) {
+	t.Parallel()
+
+	twitch := &recordingChatAdapter{
+		platform: platform.PlatformTwitch,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(twitch),
+		[]channelplatformentity.ChannelPlatform{{Platform: platform.PlatformTwitch, Enabled: true}},
+		[]platform.Platform{platform.PlatformTwitch},
+		"hello",
+		"reply-id",
+		ChatOptions{},
+	)
+	if err != nil {
+		t.Fatalf("Dispatch() error = %v", err)
+	}
+	if len(twitch.replies) != 1 || twitch.replies[0] != "reply-id" {
+		t.Errorf("expected explicit Twitch reply ID, got %#v", twitch.replies)
+	}
+}
+
+func TestDispatchBroadcastFallsBackToPlainMessageWithoutReplyCapability(t *testing.T) {
+	t.Parallel()
+
+	vk := &recordingChatAdapter{
+		platform:     platform.PlatformVKVideoLive,
+		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+	}
+	twitch := &recordingChatAdapter{
+		platform: platform.PlatformTwitch,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
+	}
+	options := ChatOptions{
+		IsAnnounce:        true,
+		SkipToxicityCheck: true,
+		SkipRateLimits:    true,
+		AnnounceColor:     bots.AnnounceColorBlue,
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(vk, twitch),
+		[]channelplatformentity.ChannelPlatform{
+			{Platform: platform.PlatformVKVideoLive, Enabled: true},
+			{Platform: platform.PlatformTwitch, Enabled: true},
+		},
+		nil,
+		"hello",
+		"reply-id",
+		options,
+	)
+	if err != nil {
+		t.Fatalf("Dispatch() error = %v", err)
+	}
+	if len(vk.messages) != 1 || vk.messages[0] != "hello" {
+		t.Errorf("unexpected VK messages: %#v", vk.messages)
+	}
+	if len(vk.replies) != 1 || vk.replies[0] != "" {
+		t.Errorf("expected VK reply ID to be cleared, got %#v", vk.replies)
+	}
+	if len(twitch.replies) != 1 || twitch.replies[0] != "reply-id" {
+		t.Errorf("expected Twitch reply ID after VK fallback, got %#v", twitch.replies)
+	}
+	if !reflect.DeepEqual(options, ChatOptions{
+		IsAnnounce:        true,
+		SkipToxicityCheck: true,
+		SkipRateLimits:    true,
+		AnnounceColor:     bots.AnnounceColorBlue,
+	}) {
+		t.Errorf("Dispatch mutated input options: %#v", options)
+	}
+	if len(vk.options) != 1 || !reflect.DeepEqual(vk.options[0], options) {
+		t.Errorf("VK options changed during reply fallback: %#v", vk.options)
+	}
+	if len(twitch.options) != 1 || !reflect.DeepEqual(twitch.options[0], options) {
+		t.Errorf("Twitch options changed after VK fallback: %#v", twitch.options)
 	}
 }
 
