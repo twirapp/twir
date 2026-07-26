@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/lib/pq"
-	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -46,20 +46,6 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg enrichedChatMe
 		return nil
 	}
 
-	if _, err := c.greetingsRepository.Update(
-		ctx,
-		greeting.ID,
-		greetings.UpdateInput{
-			Processed: lo.ToPtr(true),
-		},
-	); err != nil {
-		return err
-	}
-
-	if err = c.greetingsCache.Invalidate(ctx, msg.EnrichedData.DbChannel.ID.String()); err != nil {
-		return err
-	}
-
 	mentions := make(
 		[]generic.ChatMessageMessageFragmentMention,
 		0,
@@ -97,21 +83,43 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg enrichedChatMe
 		return err
 	}
 
-	if res.Data.Text != "" {
-		binding, found := msg.EnrichedData.DbChannel.Binding(platform.PlatformTwitch)
-		if found {
-			c.twitchActions.SendMessage(
-				ctx,
-				binding,
-				twitchactions.SendMessageOpts{
-					Message:              res.Data.Text,
-					ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageID).Else(""),
-				},
-			)
-		}
+	if res.Data.Text == "" {
+		return nil
 	}
 
-	if greeting.WithShoutOut {
+	var replyTo string
+	if greeting.IsReply {
+		replyTo = msg.MessageID
+	}
+
+	if _, err = c.twirBus.Bots.SendMessage.Request(
+		ctx,
+		botsbus.SendMessageRequest{
+			ChannelID: msg.EnrichedData.DbChannel.ID,
+			Platforms: []platform.Platform{platformSource},
+			Message:   res.Data.Text,
+			ReplyTo:   replyTo,
+		},
+	); err != nil {
+		return err
+	}
+
+	processed := true
+	if _, err = c.greetingsRepository.Update(
+		ctx,
+		greeting.ID,
+		greetings.UpdateInput{
+			Processed: &processed,
+		},
+	); err != nil {
+		return err
+	}
+
+	if err = c.greetingsCache.Invalidate(ctx, msg.EnrichedData.DbChannel.ID.String()); err != nil {
+		return err
+	}
+
+	if greeting.WithShoutOut && platformSource == platform.PlatformTwitch {
 		c.twitchActions.ShoutOut(
 			ctx,
 			twitchactions.ShoutOutInput{
