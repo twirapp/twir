@@ -94,6 +94,7 @@ func TestWebSocketTokenClientRejectsMissingTokensWithoutLeakingSecrets(t *testin
 		name     string
 		response string
 		request  func(*WebSocketTokenClient) error
+		wantErr  error
 	}{
 		{
 			name:     "connection token is missing",
@@ -126,6 +127,7 @@ func TestWebSocketTokenClientRejectsMissingTokensWithoutLeakingSecrets(t *testin
 				_, err := client.SubscriptionToken(context.Background(), OAuthAccessToken(accessToken), WebSocketChannel(channel))
 				return err
 			},
+			wantErr: ErrWebSocketSubscriptionChannelTokenMissing,
 		},
 	}
 
@@ -148,6 +150,9 @@ func TestWebSocketTokenClientRejectsMissingTokensWithoutLeakingSecrets(t *testin
 			// Then
 			if err == nil {
 				t.Fatal("expected invalid token response to fail")
+			}
+			if test.wantErr != nil && !errors.Is(err, test.wantErr) {
+				t.Fatalf("token error = %v, want %v", err, test.wantErr)
 			}
 			assertWebSocketTokenErrorIsSafe(t, err, accessToken, channel, test.response)
 		})
