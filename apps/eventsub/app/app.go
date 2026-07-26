@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	goredis "github.com/redis/go-redis/v9"
@@ -26,6 +27,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/integrations/vk"
 	"github.com/twirapp/twir/libs/otel"
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
@@ -156,11 +158,19 @@ var App = fx.Options(
 			users usersrepository.Repository,
 		) (*platformsregistry.Registry[eventplatforms.EventTransport], error) {
 			return eventplatforms.NewVKVideoRegistry(config, kickTransport, func() (eventplatforms.EventTransport, error) {
+				webSocketTokenClient, err := vk.NewWebSocketTokenClient(vk.VideoChatClientOpts{
+					APIBaseURL: config.VKVideoDevAPIBaseURL,
+				})
+				if err != nil {
+					return nil, fmt.Errorf("create VK Video WebSocket token client: %w", err)
+				}
+
 				return vkvideo.New(vkvideo.Opts{
-					Logger: logger,
-					Redis:  redisClient,
-					Bus:    bus,
-					Users:  users,
+					Logger:               logger,
+					Redis:                redisClient,
+					Bus:                  bus,
+					Users:                users,
+					WebSocketTokenClient: webSocketTokenClient,
 				})
 			})
 		},
