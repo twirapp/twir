@@ -30,17 +30,16 @@ type ActiveStream struct {
 }
 
 type SendTextMessageInput struct {
-	AccessToken string
-	OwnerID     string
-	Content     string
+	OwnerAccessToken string
+	BotAccessToken   string
+	Content          string
 }
 
 func NewVideoChatClient(opts VideoChatClientOpts) (*VideoChatClient, error) {
-	apiBaseURL := opts.APIBaseURL
-	if apiBaseURL == "" {
-		apiBaseURL = defaultOAuthDevAPIBaseURL
+	if strings.TrimSpace(opts.APIBaseURL) == "" {
+		return nil, errors.New("VK Video chat API base URL is required")
 	}
-	if err := validateBaseURL(apiBaseURL); err != nil {
+	if err := validateBaseURL(opts.APIBaseURL); err != nil {
 		return nil, fmt.Errorf("invalid VK Video chat API base URL: %w", err)
 	}
 
@@ -50,51 +49,70 @@ func NewVideoChatClient(opts VideoChatClientOpts) (*VideoChatClient, error) {
 	}
 
 	return &VideoChatClient{
-		apiBaseURL: strings.TrimRight(apiBaseURL, "/"),
+		apiBaseURL: strings.TrimRight(opts.APIBaseURL, "/"),
 		httpClient: httpClient,
 	}, nil
 }
 
 func (c *VideoChatClient) ResolveActiveStream(
 	ctx context.Context,
-	accessToken string,
-	ownerID string,
+	ownerAccessToken string,
+	botAccessToken string,
 ) (*ActiveStream, error) {
-	endpoint, err := url.JoinPath(c.apiBaseURL, "v1", "channels", "active")
+	currentUserEndpoint, err := url.JoinPath(c.apiBaseURL, "v1", "current_user")
 	if err != nil {
-		return nil, fmt.Errorf("build VK Video active channels endpoint: %w", err)
+		return nil, fmt.Errorf("build VK Video current user endpoint: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	currentUserRequest, err := http.NewRequestWithContext(ctx, http.MethodGet, currentUserEndpoint, nil)
 	if err != nil {
-		return nil, fmt.Errorf("create VK Video active channels request: %w", err)
+		return nil, fmt.Errorf("create VK Video current user request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+accessToken)
+	currentUserRequest.Header.Set("Authorization", "Bearer "+ownerAccessToken)
 
-	var response activeChannelsResponse
-	if err := c.do(req, &response); err != nil {
+	var currentUser currentUserResponse
+	if err := c.do(currentUserRequest, &currentUser); err != nil {
 		return nil, err
 	}
-
-	for _, channel := range response.Data.Channels {
-		if string(channel.Owner.ID) != ownerID {
-			continue
-		}
-		if channel.Channel.URL == "" || channel.Stream.ID == "" {
-			continue
-		}
-
-		return &ActiveStream{
-			ChannelURL: channel.Channel.URL,
-			ID:         channel.Stream.ID,
-		}, nil
+	channelURL := strings.TrimSpace(currentUser.Data.Channel.URL)
+	if channelURL == "" {
+		return nil, errors.New("VK Video current user response is missing channel URL")
 	}
 
-	return nil, ErrActiveStreamNotFound
+	channelEndpoint, err := url.JoinPath(c.apiBaseURL, "v1", "channel")
+	if err != nil {
+		return nil, fmt.Errorf("build VK Video channel endpoint: %w", err)
+	}
+	channelRequestURL, err := url.Parse(channelEndpoint)
+	if err != nil {
+		return nil, fmt.Errorf("parse VK Video channel URL: %w", err)
+	}
+	query := channelRequestURL.Query()
+	query.Set("channel_url", channelURL)
+	channelRequestURL.RawQuery = query.Encode()
+
+	channelRequest, err := http.NewRequestWithContext(ctx, http.MethodGet, channelRequestURL.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("create VK Video channel request: %w", err)
+	}
+	channelRequest.Header.Set("Authorization", "Bearer "+botAccessToken)
+
+	var channel channelResponse
+	if err := c.do(channelRequest, &channel); err != nil {
+		return nil, err
+	}
+	if channel.Data.Stream == nil || strings.TrimSpace(channel.Data.Stream.ID) == "" {
+		return nil, ErrActiveStreamNotFound
+	}
+
+	return &ActiveStream{ChannelURL: channelURL, ID: channel.Data.Stream.ID}, nil
 }
 
 func (c *VideoChatClient) SendTextMessage(ctx context.Context, input SendTextMessageInput) error {
-	stream, err := c.ResolveActiveStream(ctx, input.AccessToken, input.OwnerID)
+	stream, err := c.ResolveActiveStream(ctx, input.OwnerAccessToken, input.BotAccessToken)
+	if errors.Is(err, ErrActiveStreamNotFound) {
+		return nil
+	}
 	if err != nil {
 		return fmt.Errorf("resolve VK Video active stream: %w", err)
 	}
@@ -124,7 +142,7 @@ func (c *VideoChatClient) SendTextMessage(ctx context.Context, input SendTextMes
 	if err != nil {
 		return fmt.Errorf("create VK Video chat send request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+input.AccessToken)
+	req.Header.Set("Authorization", "Bearer "+input.BotAccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	return c.do(req, nil)
@@ -157,22 +175,22 @@ func (c *VideoChatClient) do(req *http.Request, target any) error {
 	return nil
 }
 
-type activeChannelsResponse struct {
+type currentUserResponse struct {
 	Data struct {
-		Channels []activeChannel `json:"channels"`
+		Channel struct {
+			URL string `json:"url"`
+		} `json:"channel"`
 	} `json:"data"`
 }
 
-type activeChannel struct {
-	Channel struct {
-		URL string `json:"url"`
-	} `json:"channel"`
-	Owner struct {
-		ID flexString `json:"id"`
-	} `json:"owner"`
-	Stream struct {
-		ID string `json:"id"`
-	} `json:"stream"`
+type channelResponse struct {
+	Data struct {
+		Stream *channelStream `json:"stream"`
+	} `json:"data"`
+}
+
+type channelStream struct {
+	ID string `json:"id"`
 }
 
 type chatMessageRequest struct {
