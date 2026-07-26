@@ -84,6 +84,50 @@ func TestTransportAuthenticatesBindingUserAndDeduplicatesPublications(t *testing
 	}
 }
 
+func TestTransportPublishesResolvedGlobalBotWhenSharedWithBroadcaster(t *testing.T) {
+	binding := testBinding()
+	sharedUserID := uuid.New()
+	binding.UserID = sharedUserID
+	binding.BotUserID = &sharedUserID
+	publication := []byte(`{
+		"type": "message",
+		"data": {
+			"id": "fixture-message-me",
+			"createdAt": "2026-01-02T03:04:05Z",
+			"author": {
+				"id": "shared-author",
+				"nick": "shared_user",
+				"name": "Shared Name",
+				"displayName": "Shared Display",
+				"avatarUrl": "",
+				"isOwner": true,
+				"isChatModerator": false,
+				"isChannelModerator": false
+			},
+			"data": [
+				{"content": "[\"!me\",\"unstyled\",[]]"}
+			]
+		}
+	}`)
+	ensurer := &recordingChatUserEnsurer{user: &usersmodel.User{ID: sharedUserID}}
+	chatMessages := &recordingPublisher{}
+	commands := &recordingPublisher{}
+	transport := newTestTransportWithUserCreator(t, &recordingTokenProvider{}, chatMessages, commands, &recordingConnection{}, ensurer)
+
+	if err := transport.handlePublication(context.Background(), binding, publication); err != nil {
+		t.Fatalf("handle publication: %v", err)
+	}
+
+	if got := chatMessages.Messages(); len(got) != 1 {
+		t.Fatalf("chat messages = %d, want 1", len(got))
+	}
+	if got := commands.Messages(); len(got) != 1 {
+		t.Fatalf("commands = %d, want 1", len(got))
+	} else if got[0].Text != "!me" || got[0].UserID != sharedUserID.String() || !got[0].IsBroadcaster {
+		t.Fatalf("command message = %#v, want !me from shared broadcaster", got[0])
+	}
+}
+
 func TestTransportSuppressesResolvedGlobalBot(t *testing.T) {
 	publication, err := os.ReadFile(filepath.Join("testdata", "public_chat_message.json"))
 	if err != nil {
@@ -92,16 +136,16 @@ func TestTransportSuppressesResolvedGlobalBot(t *testing.T) {
 	binding := testBinding()
 	botID := uuid.New()
 	binding.BotUserID = &botID
-	users := &recordingUserStore{user: usersmodel.User{ID: botID}}
+	ensurer := &recordingChatUserEnsurer{user: &usersmodel.User{ID: botID}}
 	chatMessages := &recordingPublisher{}
 	commands := &recordingPublisher{}
-	transport := newTestTransportWithUsers(t, &recordingTokenProvider{}, chatMessages, commands, &recordingConnection{}, users)
+	transport := newTestTransportWithUserCreator(t, &recordingTokenProvider{}, chatMessages, commands, &recordingConnection{}, ensurer)
 
 	if err := transport.handlePublication(context.Background(), binding, publication); err != nil {
 		t.Fatalf("handle publication: %v", err)
 	}
-	if users.lookupCalls != 1 {
-		t.Fatalf("sender resolution calls = %d, want 1", users.lookupCalls)
+	if ensurer.Calls() != 1 {
+		t.Fatalf("UnsureUser calls = %d, want 1", ensurer.Calls())
 	}
 	if len(chatMessages.Messages()) != 0 || len(commands.Messages()) != 0 {
 		t.Fatalf("bot publication was published: chat=%d commands=%d", len(chatMessages.Messages()), len(commands.Messages()))
@@ -137,7 +181,7 @@ func TestTransportTreatsLeaseContentionAsNoOp(t *testing.T) {
 			transport := newTransport(transportDependencies{
 				ownership:    ownership,
 				tokens:       &recordingTokenProvider{},
-				users:        &recordingUserStore{user: usersmodel.User{ID: uuid.New()}},
+				userCreator:  &recordingChatUserEnsurer{user: &usersmodel.User{ID: uuid.New()}},
 				chatMessages: &recordingPublisher{},
 				commands:     &recordingPublisher{},
 				deduplicator: &memoryDeduplicator{claimed: make(map[string]struct{})},
@@ -179,7 +223,7 @@ func TestTransportShutdownReleasesAllBindings(t *testing.T) {
 	transport := newTransport(transportDependencies{
 		ownership:    newTestOwnership(t, newMemoryLockStore(), newManualTicker()),
 		tokens:       &recordingTokenProvider{},
-		users:        &recordingUserStore{user: usersmodel.User{ID: uuid.New()}},
+		userCreator:  &recordingChatUserEnsurer{user: &usersmodel.User{ID: uuid.New()}},
 		chatMessages: &recordingPublisher{},
 		commands:     &recordingPublisher{},
 		deduplicator: &memoryDeduplicator{claimed: make(map[string]struct{})},
