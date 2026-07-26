@@ -78,7 +78,7 @@ type Auth struct {
 }
 
 type dashboardAccessChecker interface {
-	CanAccess(context.Context, dashboardaccess.Subject, uuid.UUID, string) (bool, error)
+	IsOwner(context.Context, string, uuid.UUID) (bool, error)
 }
 
 type sessionStore interface {

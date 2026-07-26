@@ -44,6 +44,26 @@ func (r *mutationResolver) ChannelPlatformDisconnect(ctx context.Context, platfo
 	if err != nil {
 		return false, err
 	}
+	if r.deps.Sessions == nil {
+		return false, fmt.Errorf("sessions service is not configured")
+	}
+	if r.deps.DashboardAccess == nil {
+		return false, fmt.Errorf("dashboard access service is not configured")
+	}
+
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return false, fmt.Errorf("get authenticated user: %w", err)
+	}
+	if !user.IsBotAdmin {
+		isOwner, ownerErr := r.deps.DashboardAccess.IsOwner(ctx, user.ID, dashboardID)
+		if ownerErr != nil {
+			return false, fmt.Errorf("check dashboard ownership: %w", ownerErr)
+		}
+		if !isOwner {
+			return false, fmt.Errorf("only the channel owner or a bot admin can manage platform identities")
+		}
+	}
 	if r.deps.ChannelPlatformBindingsService == nil {
 		return false, fmt.Errorf("channel platform binding service is not configured")
 	}
