@@ -65,7 +65,7 @@ func TestChannelPlatformOptionsGraphQLRequiresViewBotSettings(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			operations := &channelPlatformBindingExecutionOperations{}
-			server := newChannelPlatformBindingExecutionServer(t, dashboardID, ownerID, tt.userID, tt.roles, operations)
+			server := newChannelPlatformBindingExecutionServer(t, dashboardID, ownerID, model.Users{ID: tt.userID.String()}, tt.roles, operations)
 
 			response := executeChannelPlatformBindingGraphQL(t, server, `{ channelPlatformOptions { platform capabilities { name } } }`)
 			if tt.wantError != "" {
@@ -125,7 +125,7 @@ func TestChannelPlatformConnectGraphQLRequiresManageBotSettings(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			operations := &channelPlatformBindingExecutionOperations{}
-			server := newChannelPlatformBindingExecutionServer(t, dashboardID, ownerID, tt.userID, tt.roles, operations)
+			server := newChannelPlatformBindingExecutionServer(t, dashboardID, ownerID, model.Users{ID: tt.userID.String()}, tt.roles, operations)
 
 			response := executeChannelPlatformBindingGraphQL(t, server, `mutation { channelPlatformConnect(platform: KICK) }`)
 			if tt.wantError != "" {
@@ -142,11 +142,74 @@ func TestChannelPlatformConnectGraphQLRequiresManageBotSettings(t *testing.T) {
 	}
 }
 
+func TestChannelPlatformDisconnectGraphQLRequiresOwnerOrBotAdmin(t *testing.T) {
+	t.Parallel()
+
+	dashboardID := uuid.New()
+	ownerID := uuid.New()
+	managerID := uuid.New()
+	botAdminID := uuid.New()
+
+	tests := []struct {
+		name                 string
+		user                 model.Users
+		roles                []model.ChannelRole
+		wantError            string
+		wantDisconnectCalls  int
+		wantRemainingBinding int
+	}{
+		{
+			name: "denies assigned manage bot settings role",
+			user: model.Users{ID: managerID.String()},
+			roles: []model.ChannelRole{{
+				Users:       []*model.ChannelRoleUser{{UserID: managerID.String()}},
+				Permissions: pq.StringArray{"MANAGE_BOT_SETTINGS"},
+			}},
+			wantError:            "only the channel owner or a bot admin can manage platform identities",
+			wantRemainingBinding: 2,
+		},
+		{
+			name:                 "allows normalized binding owner",
+			user:                 model.Users{ID: ownerID.String()},
+			wantDisconnectCalls:  1,
+			wantRemainingBinding: 1,
+		},
+		{
+			name:                 "allows bot admin",
+			user:                 model.Users{ID: botAdminID.String(), IsBotAdmin: true},
+			wantDisconnectCalls:  1,
+			wantRemainingBinding: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operations := &channelPlatformBindingExecutionOperations{bindingCount: 2}
+			server := newChannelPlatformBindingExecutionServer(t, dashboardID, ownerID, tt.user, tt.roles, operations)
+
+			response := executeChannelPlatformBindingGraphQL(t, server, `mutation { channelPlatformDisconnect(platform: KICK) }`)
+			if tt.wantError != "" {
+				if len(response.Errors) != 1 || response.Errors[0].Message != tt.wantError {
+					t.Fatalf("GraphQL errors = %#v, want %q", response.Errors, tt.wantError)
+				}
+			} else if len(response.Errors) != 0 {
+				t.Fatalf("GraphQL errors = %#v, want none", response.Errors)
+			}
+			if operations.disconnectCalls != tt.wantDisconnectCalls {
+				t.Fatalf("Disconnect() calls = %d, want %d", operations.disconnectCalls, tt.wantDisconnectCalls)
+			}
+			if operations.bindingCount != tt.wantRemainingBinding {
+				t.Fatalf("remaining bindings = %d, want %d", operations.bindingCount, tt.wantRemainingBinding)
+			}
+		})
+	}
+}
+
 func newChannelPlatformBindingExecutionServer(
 	t *testing.T,
 	dashboardID uuid.UUID,
 	ownerID uuid.UUID,
-	userID uuid.UUID,
+	user model.Users,
 	roles []model.ChannelRole,
 	operations *channelPlatformBindingExecutionOperations,
 ) *handler.Server {
@@ -155,6 +218,16 @@ func newChannelPlatformBindingExecutionServer(
 	resolver, err := resolvers.New(resolvers.Deps{
 		ChannelPlatformBindingsService: operations,
 		ChannelPlatformDashboard:       channelPlatformBindingExecutionDashboard{dashboardID: dashboardID},
+		Sessions:                       channelPlatformBindingExecutionSession{user: &user},
+		DashboardAccess: dashboardaccess.New(
+			selectedDashboardDirectiveChannelReader{channel: channelentity.Channel{
+				ID: dashboardID,
+				Bindings: []channelplatformentity.ChannelPlatform{{
+					ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: ownerID, PlatformChannelID: "owner-channel", Enabled: true,
+				}},
+			}},
+			&selectedDashboardDirectiveStore{roles: roles},
+		),
 	})
 	if err != nil {
 		t.Fatalf("create resolver: %v", err)
@@ -162,7 +235,7 @@ func newChannelPlatformBindingExecutionServer(
 
 	directive := &Directives{
 		sessions: &selectedDashboardDirectiveSession{
-			user:        &model.Users{ID: userID.String()},
+			user:        &user,
 			dashboardID: dashboardID.String(),
 		},
 		dashboardAccess: dashboardaccess.New(
@@ -227,8 +300,10 @@ func (d channelPlatformBindingExecutionDashboard) GetSelectedDashboard(context.C
 }
 
 type channelPlatformBindingExecutionOperations struct {
-	optionsCalls int
-	connectCalls int
+	optionsCalls    int
+	connectCalls    int
+	disconnectCalls int
+	bindingCount    int
 }
 
 func (*channelPlatformBindingExecutionOperations) List(context.Context, uuid.UUID) ([]channelplatformservice.Binding, error) {
@@ -248,10 +323,36 @@ func (o *channelPlatformBindingExecutionOperations) Connect(context.Context, uui
 	return "https://provider.example/authorize", nil
 }
 
-func (*channelPlatformBindingExecutionOperations) Disconnect(context.Context, uuid.UUID, platformentity.Platform) error {
+func (o *channelPlatformBindingExecutionOperations) Disconnect(context.Context, uuid.UUID, platformentity.Platform) error {
+	o.disconnectCalls++
+	o.bindingCount--
 	return nil
 }
 
 func (*channelPlatformBindingExecutionOperations) SetEnabled(context.Context, uuid.UUID, platformentity.Platform, bool) (channelplatformservice.Binding, error) {
 	return channelplatformservice.Binding{}, nil
+}
+
+type channelPlatformBindingExecutionSession struct {
+	user *model.Users
+}
+
+func (s channelPlatformBindingExecutionSession) GetAuthenticatedUserModel(context.Context) (*model.Users, error) {
+	return s.user, nil
+}
+
+func (channelPlatformBindingExecutionSession) GetCurrentPlatform(context.Context) (string, error) {
+	return "", context.Canceled
+}
+
+func (channelPlatformBindingExecutionSession) GetSelectedDashboard(context.Context) (string, error) {
+	return "", context.Canceled
+}
+
+func (channelPlatformBindingExecutionSession) SetSessionSelectedDashboard(context.Context, string) error {
+	return nil
+}
+
+func (channelPlatformBindingExecutionSession) SessionLogout(context.Context) error {
+	return nil
 }

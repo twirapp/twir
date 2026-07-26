@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/twirapp/kv"
-	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
@@ -85,7 +84,7 @@ import (
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	model "github.com/twirapp/twir/libs/gomodels"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channels_giveaways_settings "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
@@ -123,12 +122,12 @@ type Deps struct {
 	ChannelPlatformDashboard       SelectedDashboardGetter
 	CurrentPlatform                CurrentPlatformGetter
 
-	Sessions                         *auth.Auth
+	Sessions                         SessionReader
 	Auth                             *authroutes.Auth
 	Gorm                             *gorm.DB
 	CachedTwitchClient               *twitchcahe.CachedTwitchClient
 	CachedCommandsClient             *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedgormmodel.ChannelSongRequestsSettings]
+	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[model.ChannelSongRequestsSettings]
 	Minio                            *minio.Client
 	TwirBus                          *bus_core.Bus
 	KV                               kv.KV
@@ -219,6 +218,14 @@ type SelectedDashboardGetter interface {
 
 type CurrentPlatformGetter interface {
 	GetCurrentPlatform(context.Context) (string, error)
+}
+
+type SessionReader interface {
+	GetAuthenticatedUserModel(context.Context) (*model.Users, error)
+	GetCurrentPlatform(context.Context) (string, error)
+	GetSelectedDashboard(context.Context) (string, error)
+	SetSessionSelectedDashboard(context.Context, string) error
+	SessionLogout(context.Context) error
 }
 
 type Resolver struct {

@@ -8,9 +8,11 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	model "github.com/twirapp/twir/libs/gomodels"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -192,10 +194,19 @@ func newChannelPlatformTestResolverWithDependencies(
 	operations.channel = channel
 	operations.users = users
 	operations.registry = registry
+	var sessionUser *model.Users
+	if len(channel.Bindings) > 0 {
+		sessionUser = &model.Users{ID: channel.Bindings[0].UserID.String()}
+	}
 
 	return &Resolver{deps: Deps{
 		ChannelPlatformBindingsService: operations,
 		ChannelPlatformDashboard:       resolverDashboardGetter{dashboardID: dashboardID.String()},
+		Sessions:                       resolverChannelPlatformSession{user: sessionUser},
+		DashboardAccess: dashboardaccess.New(
+			communityResetStatsChannelReader{channel: channel},
+			&communityResetStatsStore{},
+		),
 	}}
 }
 
@@ -261,6 +272,34 @@ type resolverDashboardGetter struct {
 
 func (r resolverDashboardGetter) GetSelectedDashboard(context.Context) (string, error) {
 	return r.dashboardID, nil
+}
+
+type resolverChannelPlatformSession struct {
+	user *model.Users
+}
+
+func (s resolverChannelPlatformSession) GetAuthenticatedUserModel(context.Context) (*model.Users, error) {
+	if s.user == nil {
+		return nil, context.Canceled
+	}
+
+	return s.user, nil
+}
+
+func (resolverChannelPlatformSession) GetCurrentPlatform(context.Context) (string, error) {
+	return "", context.Canceled
+}
+
+func (resolverChannelPlatformSession) GetSelectedDashboard(context.Context) (string, error) {
+	return "", context.Canceled
+}
+
+func (resolverChannelPlatformSession) SetSessionSelectedDashboard(context.Context, string) error {
+	return nil
+}
+
+func (resolverChannelPlatformSession) SessionLogout(context.Context) error {
+	return nil
 }
 
 type resolverTransactionRunner struct{}
