@@ -29,7 +29,7 @@ func TestParseChatPublicationNormalizesOnlyObservedMessageShape(t *testing.T) {
 	if !isChatMessage {
 		t.Fatal("publication was not recognized as a chat message")
 	}
-	if message.ID != "fixture-message-1" || message.Text != "hello world" {
+	if message.ID != "123456789" || message.Text != "hello world" {
 		t.Fatalf("message = %#v, want fixture id and normalized text", message)
 	}
 	if !message.Author.IsChatModerator || message.Author.IsOwner || message.Author.IsChannelModerator {
@@ -75,7 +75,7 @@ func TestTransportAuthenticatesBindingUserAndDeduplicatesPublications(t *testing
 	waitForMessageCount(t, commands, 1)
 	if got := chatMessages.Messages(); len(got) != 1 {
 		t.Fatalf("chat messages = %d, want one deduplicated message", len(got))
-	} else if got[0].Platform != string(platform.PlatformVKVideoLive) || got[0].MessageID != "fixture-message-1" || got[0].Text != "hello world" || !got[0].IsModerator {
+	} else if got[0].Platform != string(platform.PlatformVKVideoLive) || got[0].MessageID != "123456789" || got[0].Text != "hello world" || !got[0].IsModerator {
 		t.Fatalf("normalized message = %#v", got[0])
 	}
 
@@ -90,23 +90,19 @@ func TestTransportPublishesResolvedGlobalBotWhenSharedWithBroadcaster(t *testing
 	binding.UserID = sharedUserID
 	binding.BotUserID = &sharedUserID
 	publication := []byte(`{
-		"type": "message",
+		"type": "channel_chat_message_send",
 		"data": {
-			"id": "fixture-message-me",
-			"createdAt": "2026-01-02T03:04:05Z",
-			"author": {
-				"id": "shared-author",
-				"nick": "shared_user",
-				"name": "Shared Name",
-				"displayName": "Shared Display",
-				"avatarUrl": "",
-				"isOwner": true,
-				"isChatModerator": false,
-				"isChannelModerator": false
-			},
-			"data": [
-				{"content": "[\"!me\",\"unstyled\",[]]"}
-			]
+			"chat_message": {
+				"id": 987654321,
+				"created_at": 1785097380,
+				"author": {
+					"id": 35461580,
+					"nick": "shared_user",
+					"is_owner": true,
+					"is_moderator": false
+				},
+				"parts": [{"text": {"content": "!me"}}]
+			}
 		}
 	}`)
 	ensurer := &recordingChatUserEnsurer{user: &usersmodel.User{ID: sharedUserID}}

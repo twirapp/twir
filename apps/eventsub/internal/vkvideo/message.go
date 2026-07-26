@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -36,15 +37,29 @@ type chatAuthor struct {
 type publicationEnvelope struct {
 	Type string `json:"type"`
 	Data struct {
-		ID        string         `json:"id"`
-		CreatedAt string         `json:"createdAt"`
-		Author    chatAuthor     `json:"author"`
-		Data      []chatFragment `json:"data"`
+		ChatMessage *apiChatMessage `json:"chat_message"`
 	} `json:"data"`
 }
 
-type chatFragment struct {
-	Type    string `json:"type"`
+type apiChatMessage struct {
+	ID        int64                `json:"id"`
+	CreatedAt int64                `json:"created_at"`
+	Author    apiChatAuthor        `json:"author"`
+	Parts     []apiChatMessagePart `json:"parts"`
+}
+
+type apiChatAuthor struct {
+	ID          int64  `json:"id"`
+	Nick        string `json:"nick"`
+	IsOwner     bool   `json:"is_owner"`
+	IsModerator bool   `json:"is_moderator"`
+}
+
+type apiChatMessagePart struct {
+	Text *apiChatTextPart `json:"text"`
+}
+
+type apiChatTextPart struct {
 	Content string `json:"content"`
 }
 
@@ -53,58 +68,36 @@ func parseChatPublication(payload []byte) (chatPublication, bool, error) {
 	if err := json.Unmarshal(payload, &envelope); err != nil {
 		return chatPublication{}, false, fmt.Errorf("decode Centrifugo publication: %w", err)
 	}
-	if envelope.Type != "message" {
+	if envelope.Type != "channel_chat_message_send" {
 		return chatPublication{}, false, nil
 	}
-	if envelope.Data.ID == "" {
-		return chatPublication{}, false, errors.New("VK Video chat message id is empty")
+	if envelope.Data.ChatMessage == nil {
+		return chatPublication{}, false, errors.New("VK Video chat publication does not contain a message")
 	}
 
+	message := envelope.Data.ChatMessage
 	var text strings.Builder
-	for _, fragment := range envelope.Data.Data {
-		if fragment.Type == "BLOCK_END" || fragment.Content == "" {
+	for _, part := range message.Parts {
+		if part.Text == nil {
 			continue
 		}
-		fragmentText, err := decodeTextFragment(fragment.Content)
-		if err != nil {
-			return chatPublication{}, false, err
-		}
-		text.WriteString(fragmentText)
+		text.WriteString(part.Text.Content)
 	}
 
 	return chatPublication{
-		ID:        envelope.Data.ID,
-		CreatedAt: envelope.Data.CreatedAt,
-		Author:    envelope.Data.Author,
-		Text:      text.String(),
+		ID:        strconv.FormatInt(message.ID, 10),
+		CreatedAt: strconv.FormatInt(message.CreatedAt, 10),
+		Author: chatAuthor{
+			ID:                 strconv.FormatInt(message.Author.ID, 10),
+			Nick:               message.Author.Nick,
+			Name:               message.Author.Nick,
+			DisplayName:        message.Author.Nick,
+			IsOwner:            message.Author.IsOwner,
+			IsChatModerator:    message.Author.IsModerator,
+			IsChannelModerator: false,
+		},
+		Text: text.String(),
 	}, true, nil
-}
-
-func decodeTextFragment(content string) (string, error) {
-	var parts []json.RawMessage
-	if err := json.Unmarshal([]byte(content), &parts); err != nil {
-		return "", fmt.Errorf("decode VK Video chat text fragment: %w", err)
-	}
-	if len(parts) != 3 {
-		return "", errors.New("VK Video chat text fragment has unexpected shape")
-	}
-
-	var text, style string
-	var attributes []json.RawMessage
-	if err := json.Unmarshal(parts[0], &text); err != nil {
-		return "", fmt.Errorf("decode VK Video chat text: %w", err)
-	}
-	if err := json.Unmarshal(parts[1], &style); err != nil {
-		return "", fmt.Errorf("decode VK Video chat text style: %w", err)
-	}
-	if err := json.Unmarshal(parts[2], &attributes); err != nil {
-		return "", fmt.Errorf("decode VK Video chat text attributes: %w", err)
-	}
-	if style != "unstyled" || len(attributes) != 0 {
-		return "", errors.New("VK Video chat text fragment has unsupported formatting")
-	}
-
-	return text, nil
 }
 
 func (t *Transport) handlePublication(

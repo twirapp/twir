@@ -41,11 +41,11 @@ func TestTransportEnsuresChatUserStatsWithVKIdentity(t *testing.T) {
 		t.Fatalf("UnsureUser calls = %d, want 1", ensurer.Calls())
 	}
 	got := ensurer.Input()
-	if got.UserID != "fixture-author-1" {
-		t.Fatalf("UserID = %q, want fixture-author-1", got.UserID)
+	if got.UserID != "35461580" {
+		t.Fatalf("UserID = %q, want 35461580", got.UserID)
 	}
-	if got.PlatformID != "fixture-author-1" {
-		t.Fatalf("PlatformID = %q, want fixture-author-1", got.PlatformID)
+	if got.PlatformID != "35461580" {
+		t.Fatalf("PlatformID = %q, want 35461580", got.PlatformID)
 	}
 	if got.Platform != platform.PlatformVKVideoLive {
 		t.Fatalf("Platform = %q, want %q", got.Platform, platform.PlatformVKVideoLive)
@@ -53,8 +53,8 @@ func TestTransportEnsuresChatUserStatsWithVKIdentity(t *testing.T) {
 	if got.Login != "fixture_user" {
 		t.Fatalf("Login = %q, want fixture_user", got.Login)
 	}
-	if got.DisplayName != "Fixture Display" {
-		t.Fatalf("DisplayName = %q, want Fixture Display", got.DisplayName)
+	if got.DisplayName != "fixture_user" {
+		t.Fatalf("DisplayName = %q, want fixture_user", got.DisplayName)
 	}
 	if got.ChannelID == nil || *got.ChannelID != binding.ChannelID.String() {
 		t.Fatalf("ChannelID = %v, want %s", got.ChannelID, binding.ChannelID.String())
