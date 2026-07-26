@@ -52,6 +52,7 @@ type Stats struct {
 	Channels        int
 	TwitchChannels  int
 	KickChannels    int
+	VkChannels      int
 	CreatedCommands int
 	Viewers         int
 	Messages        int
@@ -153,6 +154,17 @@ func (c *TwirStats) cacheCounts() {
 				Distinct("cp.channel_id").
 				Count(&count)
 			c.cachedResponse.KickChannels = int(count)
+		},
+	)
+
+	wg.Go(
+		func() {
+			var count int64
+			platform := platformentity.PlatformVKVideoLive
+			visibleChannelBindingsQuery(c.gorm, context.Background(), &platform).
+				Distinct("cp.channel_id").
+				Count(&count)
+			c.cachedResponse.VkChannels = int(count)
 		},
 	)
 
