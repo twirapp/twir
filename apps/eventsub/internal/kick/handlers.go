@@ -1096,7 +1096,8 @@ func (h *Handlers) handleSubscriptionNew(r *http.Request, body []byte) ([]slog.A
 	if err := h.eventsSubscribe.Publish(
 		ctx, events.SubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: channelID,
+				ChannelDBID:       channelUUID,
+				ChannelPlatformID: broadcasterUserID,
 				ChannelName:       kickChannelName(payload.Broadcaster),
 				Platform:          platform.PlatformKick,
 			},
@@ -1162,7 +1163,8 @@ func (h *Handlers) handleSubscriptionRenewal(r *http.Request, body []byte) ([]sl
 	if err := h.eventsReSubscribe.Publish(
 		ctx, events.ReSubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: channelID,
+				ChannelDBID:       channelUUID,
+				ChannelPlatformID: broadcasterUserID,
 				ChannelName:       kickChannelName(payload.Broadcaster),
 				Platform:          platform.PlatformKick,
 			},
@@ -1238,7 +1240,8 @@ func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog
 		if err := h.eventsSubGift.Publish(
 			ctx, events.SubGiftMessage{
 				BaseInfo: events.BaseInfo{
-					ChannelPlatformID: channelID,
+					ChannelDBID:       channelUUID,
+					ChannelPlatformID: broadcasterUserID,
 					ChannelName:       kickChannelName(payload.Broadcaster),
 					Platform:          platform.PlatformKick,
 				},
@@ -1335,7 +1338,8 @@ func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) (
 		ctx, events.RedemptionCreatedMessage{
 			ID: payload.Reward.ID,
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: channelID,
+				ChannelDBID:       channelUUID,
+				ChannelPlatformID: broadcasterUserID,
 				ChannelName:       kickChannelName(kickUser{Username: payload.Broadcaster.Username, ChannelSlug: payload.Broadcaster.ChannelSlug}),
 				Platform:          platform.PlatformKick,
 			},
@@ -1399,7 +1403,8 @@ func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.
 	if err := h.eventsChannelBan.Publish(
 		ctx, events.ChannelBanMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: channelID,
+				ChannelDBID:       channelUUID,
+				ChannelPlatformID: broadcasterUserID,
 				ChannelName:       kickChannelName(payload.Broadcaster),
 				Platform:          platform.PlatformKick,
 			},
