@@ -892,6 +892,151 @@ func TestHandleChannelFollow(t *testing.T) {
 	}
 }
 
+func TestKickEventPublishersUseCanonicalChannelIdentity(t *testing.T) {
+	redemptionPayload := kickRewardRedemptionPayload{Status: "pending"}
+	redemptionPayload.ID = "redemption-1004"
+	redemptionPayload.Reward.ID = "reward-1004"
+	redemptionPayload.Reward.Title = "Reward"
+	redemptionPayload.Reward.Cost = 100
+	redemptionPayload.Redeemer.UserID = 1006
+	redemptionPayload.Redeemer.Username = "redeemer1006"
+	redemptionPayload.Broadcaster.UserID = 1004
+	redemptionPayload.Broadcaster.Username = "broadcaster1004"
+
+	tests := []struct {
+		name       string
+		eventType  string
+		messageID  string
+		providerID string
+		payload    any
+	}{
+		{
+			name:       "subscribe",
+			eventType:  "channel.subscription.new",
+			messageID:  "kick-subscribe-identity-001",
+			providerID: "1001",
+			payload: kickSubscriptionPayload{
+				Broadcaster: kickUser{UserID: 1001, Username: "broadcaster1001"},
+				Subscriber:  kickUser{UserID: 1002, Username: "subscriber1002"},
+				Duration:    1,
+			},
+		},
+		{
+			name:       "resubscribe",
+			eventType:  "channel.subscription.renewal",
+			messageID:  "kick-resubscribe-identity-001",
+			providerID: "1002",
+			payload: kickSubscriptionPayload{
+				Broadcaster: kickUser{UserID: 1002, Username: "broadcaster1002"},
+				Subscriber:  kickUser{UserID: 1003, Username: "subscriber1003"},
+				Duration:    3,
+			},
+		},
+		{
+			name:       "subgift",
+			eventType:  "channel.subscription.gifts",
+			messageID:  "kick-subgift-identity-001",
+			providerID: "1003",
+			payload: kickSubscriptionGiftsPayload{
+				Broadcaster: kickUser{UserID: 1003, Username: "broadcaster1003"},
+				Gifter:      kickUser{UserID: 1004, Username: "gifter1004"},
+				Giftees:     []kickUser{{UserID: 1005, Username: "giftee1005"}},
+			},
+		},
+		{
+			name:       "redemption",
+			eventType:  "channel.reward.redemption.updated",
+			messageID:  "kick-redemption-identity-001",
+			providerID: "1004",
+			payload:    redemptionPayload,
+		},
+		{
+			name:       "ban",
+			eventType:  "moderation.banned",
+			messageID:  "kick-ban-identity-001",
+			providerID: "1005",
+			payload: kickModerationBannedPayload{
+				Broadcaster: kickUser{UserID: 1005, Username: "broadcaster1005"},
+				Moderator:   kickUser{UserID: 1006, Username: "moderator1006"},
+				BannedUser:  kickUser{UserID: 1007, Username: "banned1007"},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Given
+			channelUUID := uuid.New()
+			kickUserUUID := uuid.New()
+			subscribeQueue := &mockQueue[events.SubscribeMessage, struct{}]{}
+			resubscribeQueue := &mockQueue[events.ReSubscribeMessage, struct{}]{}
+			subgiftQueue := &mockQueue[events.SubGiftMessage, struct{}]{}
+			redemptionQueue := &mockQueue[events.RedemptionCreatedMessage, struct{}]{}
+			banQueue := &mockQueue[events.ChannelBanMessage, struct{}]{}
+			h, redisMock := buildTestHandlers(
+				t,
+				&mockQueue[generic.ChatMessage, struct{}]{},
+				&mockQueue[generic.ChatMessage, struct{}]{},
+				&mockQueue[events.FollowMessage, struct{}]{},
+				&mockQueue[kickbus.KickStreamOnline, struct{}]{},
+				&mockQueue[kickbus.KickStreamOffline, struct{}]{},
+				&mockUsersRepo{user: usersmodel.User{ID: kickUserUUID, PlatformID: tt.providerID}},
+				&mockChannelsRepo{channel: newKickChannel(channelUUID, kickUserUUID)},
+			)
+			h.eventsSubscribe = subscribeQueue
+			h.eventsReSubscribe = resubscribeQueue
+			h.eventsSubGift = subgiftQueue
+			h.eventsRedemptionCreated = redemptionQueue
+			h.eventsChannelBan = banQueue
+
+			redisMock.ExpectSetNX(
+				idempotencyKeyPrefix+tt.messageID,
+				idempotencyStatusProcessing,
+				idempotencyProcessingTTL,
+			).SetVal(true)
+			redisMock.ExpectSet(
+				idempotencyKeyPrefix+tt.messageID,
+				idempotencyStatusProcessed,
+				idempotencyTTL,
+			).SetVal("OK")
+
+			// When
+			req := makeRequest(t, tt.messageID, tt.eventType, tt.payload)
+			w := httptest.NewRecorder()
+			h.HandleWebhook(w, req)
+
+			// Then
+			if w.Code != http.StatusOK {
+				t.Fatalf("expected 200, got %d", w.Code)
+			}
+			var baseInfo events.BaseInfo
+			switch tt.eventType {
+			case "channel.subscription.new":
+				baseInfo = subscribeQueue.FirstPublished().BaseInfo
+			case "channel.subscription.renewal":
+				baseInfo = resubscribeQueue.FirstPublished().BaseInfo
+			case "channel.subscription.gifts":
+				baseInfo = subgiftQueue.FirstPublished().BaseInfo
+			case "channel.reward.redemption.updated":
+				baseInfo = redemptionQueue.FirstPublished().BaseInfo
+			case "moderation.banned":
+				baseInfo = banQueue.FirstPublished().BaseInfo
+			default:
+				t.Fatalf("unexpected event type %q", tt.eventType)
+			}
+			if baseInfo.ChannelDBID != channelUUID {
+				t.Errorf("channel DB ID = %s, want %s", baseInfo.ChannelDBID, channelUUID)
+			}
+			if baseInfo.ChannelPlatformID != tt.providerID {
+				t.Errorf("channel platform ID = %q, want %q", baseInfo.ChannelPlatformID, tt.providerID)
+			}
+			if err := redisMock.ExpectationsWereMet(); err != nil {
+				t.Errorf("redis expectations not met: %v", err)
+			}
+		})
+	}
+}
+
 func TestHandleSubscriptionNew(t *testing.T) {
 	subscribeQueue := &mockQueue[events.SubscribeMessage, struct{}]{}
 	h, redisMock := buildKickEventHandler(t, "901", subscribeQueue, nil, nil, nil)
