@@ -634,10 +634,32 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-  web:
-    image: registry.twir.app/twirapp/web:${TWIR_IMAGE_TAG:-latest}
+  # Anubis (https://anubis.techaro.lol) sits between Traefik and the public site:
+  #   Traefik -> anubis (proof-of-work anti-bot challenge) -> web
+  # Only the public catch-all routers go through it. /api, /s/, /overlays and /socket
+  # keep their priority-20 routes straight to the backing services: API clients,
+  # OBS browser sources and websockets cannot solve proof-of-work.
+  #
+  # Required one-time setup on the swarm manager:
+  #   printf %s "$(openssl rand -hex 32)" | docker secret create twir_anubis_ed25519_key -
+  # All replicas must share the same key, otherwise a pass-cookie issued by one
+  # replica is rejected by another and clients loop on the challenge page.
+  anubis:
+    image: ghcr.io/techarohq/anubis:v1.26.0
+    environment:
+      BIND: ":8923"
+      TARGET: http://web:3000
+      POLICY_FNAME: /etc/anubis/botPolicies.yaml
+      ED25519_PRIVATE_KEY_HEX_FILE: /run/secrets/twir_anubis_ed25519_key
+      COOKIE_DOMAIN: twir.app
+      COOKIE_SAME_SITE: Lax
+      # The site ships no own robots.txt; let Anubis serve one disallowing AI scrapers.
+      SERVE_ROBOTS_TXT: "true"
     secrets:
-      - twir_doppler_token
+      - twir_anubis_ed25519_key
+    configs:
+      - source: anubis_bot_policies
+        target: /etc/anubis/botPolicies.yaml
     networks:
       - twir
       - traefik-public
@@ -657,7 +679,36 @@ services:
         - "traefik.http.routers.cf-web.service=twir-web"
         - "traefik.http.routers.cf-web.middlewares=gzip,rate-limit"
         - "traefik.http.routers.cf-web.priority=10"
-        - "traefik.http.services.twir-web.loadbalancer.server.port=3000"
+        - "traefik.http.services.twir-web.loadbalancer.server.port=8923"
+      update_config:
+        order: start-first
+        parallelism: 1
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+      mode: replicated
+      replicas: 3
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
+
+  # Intentionally has no Traefik labels: public traffic reaches the site through `anubis`.
+  web:
+    image: registry.twir.app/twirapp/web:${TWIR_IMAGE_TAG:-latest}
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
       update_config:
         order: start-first
         parallelism: 2
@@ -948,6 +999,9 @@ configs:
   clickhouse_config:
     file: ./configs/clickhouse-config.xml
 
+  anubis_bot_policies:
+    file: ./configs/anubis/botPolicies.yaml
+
   pgdog_users_config:
     file: ./configs/pgdog/users.toml
   pgdog_config:
@@ -982,4 +1036,6 @@ secrets:
   twir_postgres_password:
     external: true
   twir_deploy_webhook_token:
+    external: true
+  twir_anubis_ed25519_key:
     external: true
