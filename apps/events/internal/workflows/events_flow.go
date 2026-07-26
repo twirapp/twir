@@ -58,7 +58,8 @@ func (c *EventWorkflow) Flow(
 		return err
 	}
 
-	streamPlatform := data.Platform
+	eventPlatform := data.Platform
+	streamPlatform := eventPlatform
 	if streamPlatform == "" {
 		streamPlatform = platformentity.PlatformTwitch
 	}
@@ -100,7 +101,7 @@ func (c *EventWorkflow) Flow(
 			continue
 		}
 
-		if !bindings.event.Enabled || bindings.twitchBotConfig.IsTwitchBanned {
+		if !bindings.event.Enabled || isTwitchBannedEvent(eventPlatform, bindings.twitchBotConfig.IsTwitchBanned) {
 			continue
 		}
 
@@ -421,6 +422,10 @@ func (c *EventWorkflow) Flow(
 	}
 
 	return nil
+}
+
+func isTwitchBannedEvent(eventPlatform platformentity.Platform, isTwitchBanned bool) bool {
+	return eventPlatform == platformentity.PlatformTwitch && isTwitchBanned
 }
 
 type eventChannelBindings struct {

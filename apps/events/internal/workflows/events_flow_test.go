@@ -72,3 +72,41 @@ func TestGetEventChannelBindingsSelectsEventAndTwitchBindingsByPlatform(t *testi
 		t.Errorf("Twitch user ID = %q, want %q", data.ChannelTwitchUserID, twitchUserID)
 	}
 }
+
+func TestIsTwitchBannedEventScopesBanStateToTwitch(t *testing.T) {
+	tests := []struct {
+		name           string
+		eventPlatform  platform.Platform
+		wantSuppressed bool
+	}{
+		{
+			name:           "Twitch event is suppressed",
+			eventPlatform:  platform.PlatformTwitch,
+			wantSuppressed: true,
+		},
+		{
+			name:           "Kick event flows",
+			eventPlatform:  platform.PlatformKick,
+			wantSuppressed: false,
+		},
+		{
+			name:           "VK event flows",
+			eventPlatform:  platform.PlatformVKVideoLive,
+			wantSuppressed: false,
+		},
+		{
+			name:           "platform-neutral event flows",
+			eventPlatform:  "",
+			wantSuppressed: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			isTwitchBanned := true
+			if got := isTwitchBannedEvent(test.eventPlatform, isTwitchBanned); got != test.wantSuppressed {
+				t.Errorf("isTwitchBannedEvent(%q, true) = %t, want %t", test.eventPlatform, got, test.wantSuppressed)
+			}
+		})
+	}
+}
