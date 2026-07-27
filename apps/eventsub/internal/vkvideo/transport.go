@@ -122,10 +122,15 @@ func (t *Transport) Subscribe(ctx context.Context, binding channelplatformentity
 	}
 
 	t.mu.Lock()
-	_, exists := t.bindings[binding.ID]
+	active, exists := t.bindings[binding.ID]
 	t.mu.Unlock()
 	if exists {
-		return nil
+		if vkVideoBindingSnapshotsEqual(active.binding, binding) {
+			return nil
+		}
+		if err := t.Unsubscribe(ctx, binding); err != nil {
+			return fmt.Errorf("restart VK Video chat binding: %w", err)
+		}
 	}
 
 	owned := &ownedConnection{}
@@ -149,6 +154,16 @@ func (t *Transport) Subscribe(ctx context.Context, binding channelplatformentity
 	}
 
 	return nil
+}
+
+func vkVideoBindingSnapshotsEqual(a, b channelplatformentity.ChannelPlatform) bool {
+	if a.Platform != b.Platform || a.UserID != b.UserID || a.PlatformChannelID != b.PlatformChannelID {
+		return false
+	}
+	if a.BotUserID == nil || b.BotUserID == nil {
+		return a.BotUserID == b.BotUserID
+	}
+	return *a.BotUserID == *b.BotUserID
 }
 
 func (t *Transport) Unsubscribe(ctx context.Context, binding channelplatformentity.ChannelPlatform) error {
