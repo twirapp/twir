@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/variables/keywords"
 	"github.com/twirapp/twir/apps/parser/internal/variables/mentions"
 	"github.com/twirapp/twir/apps/parser/internal/variables/platform"
+	"github.com/twirapp/twir/apps/parser/internal/variables/quote"
 	"github.com/twirapp/twir/apps/parser/internal/variables/random"
 	"github.com/twirapp/twir/apps/parser/internal/variables/repeat"
 	"github.com/twirapp/twir/apps/parser/internal/variables/request"
@@ -79,6 +80,7 @@ func New(opts *Opts) *Variables {
 			faceit.TrendSimple,
 			faceit.GainLose,
 			keywords.Counter,
+			quote.Quote,
 			random.Number,
 			random.OnlineUser,
 			random.Phrase,
@@ -219,6 +221,16 @@ func (c *Variables) ParseVariablesInText(
 		params := v[3]
 
 		variable, ok := c.Store[all]
+		if !ok && params == "" {
+			variableName, variableParams, hasParams := strings.Cut(all, " ")
+			if hasParams {
+				variable, ok = c.Store[variableName]
+				if ok {
+					all = variableName
+					params = variableParams
+				}
+			}
+		}
 
 		if !ok {
 			continue

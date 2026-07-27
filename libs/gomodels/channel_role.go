@@ -51,6 +51,8 @@ const (
 
 	RolePermissionViewKeywords   RolePermissionEnum = "VIEW_KEYWORDS"
 	RolePermissionManageKeywords RolePermissionEnum = "MANAGE_KEYWORDS"
+	RolePermissionViewQuotes     RolePermissionEnum = "VIEW_QUOTES"
+	RolePermissionManageQuotes   RolePermissionEnum = "MANAGE_QUOTES"
 
 	RolePermissionViewTimers   RolePermissionEnum = "VIEW_TIMERS"
 	RolePermissionManageTimers RolePermissionEnum = "MANAGE_TIMERS"

@@ -78,6 +78,8 @@ import (
 	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
 	overlays_tts_repository "github.com/twirapp/twir/libs/repositories/overlays_tts"
 	overlays_tts_pgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
+	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
+	quotesrepositorypgx "github.com/twirapp/twir/libs/repositories/quotes/pgx"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	sentmessagesrepository "github.com/twirapp/twir/libs/repositories/sentmessages"
@@ -103,6 +105,10 @@ var App = fx.Module(
 		fx.Annotate(
 			keywordsrepositorypgx.NewFx,
 			fx.As(new(keywordsrepository.Repository)),
+		),
+		fx.Annotate(
+			quotesrepositorypgx.NewFx,
+			fx.As(new(quotesrepository.Repository)),
 		),
 		fx.Annotate(
 			greetingsrepositorypgx.NewFx,

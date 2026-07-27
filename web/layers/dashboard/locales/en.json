@@ -81,6 +81,7 @@
     "timers": "Timers",
     "roles": "Permissions",
     "keywords": "Keywords",
+    "quotes": "Quotes",
     "variables": "Variables",
     "greetings": "Greetings",
     "alerts": "Alerts",
@@ -961,6 +962,22 @@
       "triggerLong": "Trigger Text is too long!",
       "responseLong": "Response Text is too long!"
     }
+  },
+  "quotes": {
+    "title": "Quotes",
+    "create": "Create quote",
+    "edit": "Edit quote",
+    "text": "Quote",
+    "number": "Number",
+    "creator": "Creator",
+    "game": "Game",
+    "createdAt": "Created at",
+    "deleteConfirmation": "Are you sure you want to delete this quote?",
+    "created": "Quote created",
+    "updated": "Quote updated",
+    "deleted": "Quote deleted",
+    "errorOnSave": "Unable to save quote",
+    "errorOnDelete": "Unable to delete quote"
   },
   "variables": {
     "title": "Variables",
