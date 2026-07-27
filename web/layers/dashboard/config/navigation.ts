@@ -145,6 +145,11 @@ export const baseNavigationItems: Array<Partial<NavigationItem>> = [
 		path: '/dashboard/keywords',
 	},
 	{
+		translationKey: 'sidebar.quotes',
+		icon: 'lucide:message-square-quote',
+		path: '/dashboard/quotes',
+	},
+	{
 		translationKey: 'sidebar.variables',
 		icon: 'lucide:variable',
 		path: '/dashboard/variables',

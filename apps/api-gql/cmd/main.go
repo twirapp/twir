@@ -78,6 +78,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/obs_websocket_module"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
@@ -115,6 +116,7 @@ import (
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
+	quotescacher "github.com/twirapp/twir/libs/cache/quotes"
 	rolescache "github.com/twirapp/twir/libs/cache/roles"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -166,6 +168,8 @@ import (
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
 	overlaysdudesrepository "github.com/twirapp/twir/libs/repositories/overlays_dudes"
 	overlaysdudesrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_dudes/pgx"
+	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
+	quotesrepositorypgx "github.com/twirapp/twir/libs/repositories/quotes/pgx"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
@@ -325,6 +329,10 @@ func main() {
 			fx.Annotate(
 				keywordsrepositorypgx.NewFx,
 				fx.As(new(keywordsrepository.Repository)),
+			),
+			fx.Annotate(
+				quotesrepositorypgx.NewFx,
+				fx.As(new(quotesrepository.Repository)),
 			),
 			fx.Annotate(
 				channelsrepositorypgx.NewFx,
@@ -595,6 +603,7 @@ func main() {
 			variables.New,
 			timers.New,
 			keywords.New,
+			quotes.New,
 			audit_logs.New,
 			admin_actions.New,
 			badges.New,
@@ -674,6 +683,7 @@ func main() {
 			greetingscache.New,
 			commandscache.New,
 			keywordscacher.New,
+			quotescacher.New,
 			giveawayscache.New,
 			chatalertscache.New,
 			channelalertscache.New,

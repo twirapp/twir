@@ -1,3 +1,1 @@
-{
-    "languageName": "日本語"
-}
+{"languageName":"日本語","quotes":{"title":"引用","create":"引用を作成","edit":"引用を編集","text":"引用","number":"番号","creator":"作成者","game":"ゲーム","createdAt":"作成日","deleteConfirmation":"この引用を削除してもよろしいですか？","created":"引用を作成しました","updated":"引用を更新しました","deleted":"引用を削除しました","errorOnSave":"引用を保存できませんでした","errorOnDelete":"引用を削除できませんでした"}}

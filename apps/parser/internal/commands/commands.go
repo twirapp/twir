@@ -30,6 +30,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/commands/permit"
 	"github.com/twirapp/twir/apps/parser/internal/commands/predictions"
 	"github.com/twirapp/twir/apps/parser/internal/commands/prefix"
+	"github.com/twirapp/twir/apps/parser/internal/commands/quotes"
 	"github.com/twirapp/twir/apps/parser/internal/commands/shorturl"
 	"github.com/twirapp/twir/apps/parser/internal/commands/shoutout"
 	"github.com/twirapp/twir/apps/parser/internal/commands/song"
@@ -86,6 +87,10 @@ func New(opts *Opts) *Commands {
 			manage.DelCommand,
 			manage.EditCommand,
 			manage.RemoveAliaseCommand,
+			quotes.Quote,
+			quotes.AddQuote,
+			quotes.RemoveQuote,
+			quotes.ListQuotes,
 			nuke.Command,
 			permit.Command,
 			shoutout.ShoutOut,

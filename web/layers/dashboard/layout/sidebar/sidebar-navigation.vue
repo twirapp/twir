@@ -29,6 +29,7 @@ const canViewSongRequests = useUserAccessFlagChecker(ChannelRolePermissionEnum.V
 const canViewCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewCommands)
 const canViewTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewTimers)
 const canViewKeywords = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewKeywords)
+const canViewQuotes = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewQuotes)
 const canViewVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewVariables)
 const canViewGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGreetings)
 const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAlerts)
@@ -55,6 +56,7 @@ const permissionMap: Record<string, boolean> = {
 	'/dashboard/commands': canViewCommands.value,
 	'/dashboard/timers': canViewTimers.value,
 	'/dashboard/keywords': canViewKeywords.value,
+	'/dashboard/quotes': canViewQuotes.value,
 	'/dashboard/variables': canViewVariables.value,
 	'/dashboard/greetings': canViewGreetings.value,
 	'/dashboard/alerts': canViewAlerts.value,

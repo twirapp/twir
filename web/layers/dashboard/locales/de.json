@@ -79,6 +79,7 @@
     "timers": "Alarme",
     "roles": "Berechtigungen",
     "keywords": "Schlagwörter",
+    "quotes": "Zitate",
     "variables": "Variablen",
     "greetings": "Begrüßung",
     "alerts": "Warnungen",
@@ -788,6 +789,22 @@
       "triggerLong": "Auslösetext ist zu lang!",
       "responseLong": "Antwort-Text ist zu lang!"
     }
+  },
+  "quotes": {
+    "title": "Zitate",
+    "create": "Zitat erstellen",
+    "edit": "Zitat bearbeiten",
+    "text": "Zitat",
+    "number": "Nummer",
+    "creator": "Ersteller",
+    "game": "Spiel",
+    "createdAt": "Erstellt am",
+    "deleteConfirmation": "Möchtest du dieses Zitat wirklich löschen?",
+    "created": "Zitat erstellt",
+    "updated": "Zitat aktualisiert",
+    "deleted": "Zitat gelöscht",
+    "errorOnSave": "Zitat konnte nicht gespeichert werden",
+    "errorOnDelete": "Zitat konnte nicht gelöscht werden"
   },
   "variables": {
     "title": "Variablen",

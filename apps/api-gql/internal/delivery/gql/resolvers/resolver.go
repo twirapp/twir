@@ -55,6 +55,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
@@ -140,6 +141,7 @@ type Deps struct {
 	VariablesService                      *variables.Service
 	TimersService                         *timers.Service
 	KeywordsService                       *keywords.Service
+	QuotesService                         *quotes.Service
 	AuditLogsService                      *audit_logs.Service
 	AdminActionsService                   *admin_actions.Service
 	BadgesService                         *badges.Service

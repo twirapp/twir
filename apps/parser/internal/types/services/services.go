@@ -33,6 +33,8 @@ import (
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	faceitintegration "github.com/twirapp/twir/libs/repositories/faceit_integration"
 	"github.com/twirapp/twir/libs/repositories/overlays_tts"
+	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
+	quotesmodel "github.com/twirapp/twir/libs/repositories/quotes/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/userswithstats"
@@ -88,4 +90,6 @@ type Services struct {
 	FaceitRepo                 faceitintegration.Repository
 	I18n                       *i18n.I18n
 	UsersWithStatsRepository   userswithstats.Repository
+	QuotesRepo                 quotesrepository.Repository
+	QuotesCacher               *generic_cacher.GenericCacher[[]quotesmodel.Quote]
 }
