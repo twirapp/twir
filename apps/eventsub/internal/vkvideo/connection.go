@@ -3,6 +3,8 @@ package vkvideo
 import (
 	"context"
 	"sync"
+
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 )
 
 type realtimeConnection interface {
@@ -16,6 +18,7 @@ type realtimeConnectionFactory func(RealtimeClientConfig) (realtimeConnection, e
 type activeBinding struct {
 	lease      *Lease
 	connection *ownedConnection
+	binding    channelplatformentity.ChannelPlatform
 }
 
 type ownedConnection struct {

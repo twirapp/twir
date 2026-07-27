@@ -30,6 +30,7 @@ type vkVideoBotSetupFixture struct {
 	users       *vkVideoBotUsersRepositoryFake
 	transaction *vkVideoBotTransactionFake
 	kv          *vkVideoBotKVFake
+	publisher   *oauthEventSubPublisher
 }
 
 func newVKVideoBotSetupFixture(admin usersmodel.User) *vkVideoBotSetupFixture {
@@ -44,6 +45,7 @@ func newVKVideoBotSetupFixture(admin usersmodel.User) *vkVideoBotSetupFixture {
 	bindings := &vkVideoBotBindingRepositoryFake{}
 	transaction := &vkVideoBotTransactionFake{}
 	kvStore := &vkVideoBotKVFake{values: make(map[string][]byte)}
+	publisher := &oauthEventSubPublisher{}
 
 	return &vkVideoBotSetupFixture{
 		auth: &Auth{
@@ -55,8 +57,9 @@ func newVKVideoBotSetupFixture(admin usersmodel.User) *vkVideoBotSetupFixture {
 			channelPlatformsRepo: bindings,
 			transactionRunner:    transaction,
 			kv:                   kvStore,
+			eventSubPublisher:    publisher,
 		},
-		sessions: sessions, provider: provider, bots: bots, bindings: bindings, users: users, transaction: transaction, kv: kvStore,
+		sessions: sessions, provider: provider, bots: bots, bindings: bindings, users: users, transaction: transaction, kv: kvStore, publisher: publisher,
 	}
 }
 
@@ -151,13 +154,17 @@ func (*vkVideoBotRepositoryFake) Update(context.Context, vkvideobotsrepo.UpdateI
 
 type vkVideoBotBindingRepositoryFake struct {
 	channelplatformsrepo.Repository
-	assignedUserID uuid.UUID
-	assignCalls    int
+	assignedUserID   uuid.UUID
+	assignCalls      int
+	assignChannelIDs []uuid.UUID
 }
 
 func (r *vkVideoBotBindingRepositoryFake) AssignVKVideoLiveBot(_ context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
 	r.assignCalls++
 	r.assignedUserID = userID
+	if r.assignChannelIDs != nil {
+		return r.assignChannelIDs, nil
+	}
 	return []uuid.UUID{uuid.New()}, nil
 }
 

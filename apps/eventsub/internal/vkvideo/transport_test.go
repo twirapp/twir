@@ -343,3 +343,56 @@ func (wrappedErrorMutex) ExtendContext(context.Context) (bool, error) {
 func (wrappedErrorMutex) UnlockContext(context.Context) (bool, error) {
 	return false, nil
 }
+
+func TestTransportRestartsBindingWhenBotSnapshotChanges(t *testing.T) {
+	oldBotID := uuid.New()
+	newBotID := uuid.New()
+	binding := testBinding()
+	binding.BotUserID = &oldBotID
+
+	firstConnection := &recordingConnection{closed: make(chan struct{})}
+	secondConnection := &recordingConnection{closed: make(chan struct{})}
+	connections := []*recordingConnection{firstConnection, secondConnection}
+	createdConnections := 0
+	transport := newTransport(transportDependencies{
+		ownership:    newTestOwnership(t, newMemoryLockStore(), newManualTicker()),
+		tokens:       &recordingTokenProvider{},
+		userCreator:  &recordingChatUserEnsurer{user: &usersmodel.User{ID: uuid.New()}},
+		chatMessages: &recordingPublisher{},
+		commands:     &recordingPublisher{},
+		deduplicator: &memoryDeduplicator{claimed: make(map[string]struct{})},
+		newConnection: func(RealtimeClientConfig) (realtimeConnection, error) {
+			connection := connections[createdConnections]
+			createdConnections++
+			return connection, nil
+		},
+	})
+
+	if err := transport.Subscribe(context.Background(), binding); err != nil {
+		t.Fatalf("subscribe: %v", err)
+	}
+	if firstConnection.connectCalls != 1 || createdConnections != 1 {
+		t.Fatalf("initial subscribe: connects = %d, created = %d, want 1 and 1", firstConnection.connectCalls, createdConnections)
+	}
+
+	updated := binding
+	updated.BotUserID = &newBotID
+	if err := transport.Subscribe(context.Background(), updated); err != nil {
+		t.Fatalf("resubscribe with new bot: %v", err)
+	}
+	select {
+	case <-firstConnection.closed:
+	default:
+		t.Fatal("stale connection was not closed")
+	}
+	if secondConnection.connectCalls != 1 || createdConnections != 2 {
+		t.Fatalf("restart: connects = %d, created = %d, want 1 and 2", secondConnection.connectCalls, createdConnections)
+	}
+
+	if err := transport.Subscribe(context.Background(), updated); err != nil {
+		t.Fatalf("idempotent resubscribe: %v", err)
+	}
+	if secondConnection.connectCalls != 1 || createdConnections != 2 {
+		t.Fatalf("same snapshot restarted the binding: connects = %d, created = %d", secondConnection.connectCalls, createdConnections)
+	}
+}

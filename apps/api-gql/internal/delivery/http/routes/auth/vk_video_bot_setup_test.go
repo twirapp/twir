@@ -121,6 +121,37 @@ func TestVKVideoBotSetupCreatesOrReplacesSingletonAndBackfillsBindings(t *testin
 	}
 }
 
+func TestVKVideoBotSetupPublishesReassignmentForAffectedChannels(t *testing.T) {
+	// Given
+	admin := usersmodel.User{ID: uuid.New(), IsBotAdmin: true}
+	fixture := newVKVideoBotSetupFixture(admin)
+	channelIDs := []uuid.UUID{uuid.New(), uuid.New()}
+	fixture.bindings.assignChannelIDs = channelIDs
+	state := startVKVideoBotSetup(t, fixture)
+
+	// When
+	if err := fixture.auth.CompleteVKVideoBotSetup(context.Background(), "code", state); err != nil {
+		t.Fatalf("complete setup: %v", err)
+	}
+
+	// Then
+	if len(fixture.publisher.requests) != len(channelIDs) {
+		t.Fatalf("published %d requests, want %d", len(fixture.publisher.requests), len(channelIDs))
+	}
+	published := make(map[string]bool, len(channelIDs))
+	for _, request := range fixture.publisher.requests {
+		if request.Platform != platformentity.PlatformVKVideoLive {
+			t.Fatalf("published platform = %s, want %s", request.Platform, platformentity.PlatformVKVideoLive)
+		}
+		published[request.ChannelID] = true
+	}
+	for _, channelID := range channelIDs {
+		if !published[channelID.String()] {
+			t.Fatalf("channel %s was not published for reconciliation", channelID)
+		}
+	}
+}
+
 func TestVKVideoBotBindingConfigRequiresAndUsesTheSingleton(t *testing.T) {
 	// Given
 	admin := usersmodel.User{ID: uuid.New(), IsBotAdmin: true}

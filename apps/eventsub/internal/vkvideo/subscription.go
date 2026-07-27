@@ -49,7 +49,7 @@ func (t *Transport) startBinding(
 		return fmt.Errorf("VK Video chat lease ended before connection started: %w", err)
 	}
 
-	active := &activeBinding{lease: lease, connection: owned}
+	active := &activeBinding{lease: lease, connection: owned, binding: binding}
 	t.mu.Lock()
 	t.bindings[binding.ID] = active
 	t.mu.Unlock()

@@ -7,13 +7,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	kvoptions "github.com/twirapp/kv/options"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
+	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/crypto"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/logger"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	vkvideobotsrepo "github.com/twirapp/twir/libs/repositories/vk_video_bots"
 )
@@ -95,7 +98,8 @@ func (a *Auth) CompleteVKVideoBotSetup(ctx context.Context, code, state string) 
 		return fmt.Errorf("encrypt VK Video bot refresh token: %w", err)
 	}
 
-	return a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
+	var reassignedChannelIDs []uuid.UUID
+	if err := a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
 		if err := a.vkVideoBotsRepo.Lock(txCtx); err != nil {
 			return fmt.Errorf("lock VK Video bot singleton: %w", err)
 		}
@@ -109,12 +113,33 @@ func (a *Auth) CompleteVKVideoBotSetup(ctx context.Context, code, state string) 
 		}); err != nil {
 			return fmt.Errorf("upsert VK Video bot singleton: %w", err)
 		}
-		if _, err := a.channelPlatformsRepo.AssignVKVideoLiveBot(txCtx, internalUser.ID); err != nil {
+		channelIDs, err := a.channelPlatformsRepo.AssignVKVideoLiveBot(txCtx, internalUser.ID)
+		if err != nil {
 			return fmt.Errorf("assign VK Video bot to bindings: %w", err)
 		}
+		reassignedChannelIDs = channelIDs
 
 		return nil
-	})
+	}); err != nil {
+		return err
+	}
+
+	a.publishVKVideoBotReassignment(ctx, reassignedChannelIDs)
+	return nil
+}
+
+func (a *Auth) publishVKVideoBotReassignment(ctx context.Context, channelIDs []uuid.UUID) {
+	if a.eventSubPublisher == nil {
+		return
+	}
+	for _, channelID := range channelIDs {
+		if err := a.eventSubPublisher.Publish(ctx, buscoreeventsub.EventsubSubscribeToAllEventsRequest{
+			ChannelID: channelID.String(),
+			Platform:  platformentity.PlatformVKVideoLive,
+		}); err != nil && a.logger != nil {
+			a.logger.ErrorContext(ctx, "cannot publish VK Video bot reassignment", logger.Error(err), slog.String("channel_id", channelID.String()))
+		}
+	}
 }
 
 func (a *Auth) VKVideoBotConfigured(ctx context.Context) (bool, error) {
