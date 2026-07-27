@@ -12,6 +12,7 @@ import (
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
@@ -181,8 +182,9 @@ func TestServiceUsesRequiredDirectDependencies(t *testing.T) {
 		"users":        reflect.TypeFor[usersrepo.Repository](),
 		"bindings":     reflect.TypeFor[channelplatformsrepo.Repository](),
 		"oauth":        reflect.TypeFor[*authroutes.Auth](),
-		"transactions": reflect.TypeFor[trm.Manager](),
-		"bus":          reflect.TypeFor[*buscore.Bus](),
+		"transactions":  reflect.TypeFor[trm.Manager](),
+		"bus":           reflect.TypeFor[*buscore.Bus](),
+		"channelsCache": reflect.TypeFor[channelCacheInvalidator](),
 	}
 
 	for fieldName, wantType := range want {
@@ -204,6 +206,7 @@ func TestNewFxWiresDirectDependencies(t *testing.T) {
 	registry := testRegistry(platformentity.PlatformTwitch)
 	transactions := &disconnectTransactionRunner{}
 	bus := &buscore.Bus{}
+	channelsCache := generic_cacher.New[channelentity.Channel](generic_cacher.Opts[channelentity.Channel]{})
 
 	service := NewFx(Opts{
 		ChannelService:       channels,
@@ -213,9 +216,10 @@ func TestNewFxWiresDirectDependencies(t *testing.T) {
 		PlatformRegistry:     registry,
 		TrmManager:           transactions,
 		TwirBus:              bus,
+		ChannelsCache:        channelsCache,
 	})
 
-	if service.channels != channels || !reflect.DeepEqual(service.users, users) || service.bindings != bindings || service.oauth != auth || service.registry != registry || service.transactions != transactions || service.bus != bus {
+	if service.channels != channels || !reflect.DeepEqual(service.users, users) || service.bindings != bindings || service.oauth != auth || service.registry != registry || service.transactions != transactions || service.bus != bus || service.channelsCache != channelsCache {
 		t.Fatalf("NewFx() did not retain direct dependencies: %#v", service)
 	}
 }
@@ -809,4 +813,138 @@ func testRegistry(platforms ...platformentity.Platform) *appplatform.Registry {
 		providers = append(providers, testPlatformProvider{platform: platform})
 	}
 	return appplatform.NewRegistry(providers)
+}
+
+type fakeChannelCacheInvalidator struct {
+	keys []string
+	err  error
+}
+
+func (f *fakeChannelCacheInvalidator) Invalidate(_ context.Context, key string) error {
+	f.keys = append(f.keys, key)
+	return f.err
+}
+
+func TestSetEnabledInvalidatesChannelCacheAfterCommit(t *testing.T) {
+	t.Parallel()
+
+	channelID := uuid.New()
+	userID := uuid.New()
+	binding := channelplatformentity.ChannelPlatform{
+		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: userID, Enabled: false,
+	}
+	cache := &fakeChannelCacheInvalidator{}
+	service := &Service{
+		bindings:      &fakeBindingRepository{binding: binding},
+		users:         fakeUserLookup{users: map[uuid.UUID]usersmodel.User{userID: {ID: userID}}},
+		registry:      testRegistry(platformentity.PlatformKick),
+		transactions:  &lifecycleTransactionRunner{},
+		bus:           &buscore.Bus{},
+		channelsCache: cache,
+	}
+
+	if _, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, true); err != nil {
+		t.Fatalf("SetEnabled() error = %v", err)
+	}
+	if len(cache.keys) != 1 || cache.keys[0] != channelID.String() {
+		t.Fatalf("invalidated keys = %v, want [%s]", cache.keys, channelID)
+	}
+}
+
+func TestDisconnectInvalidatesChannelCacheAfterCommit(t *testing.T) {
+	t.Parallel()
+
+	channelID := uuid.New()
+	binding := channelplatformentity.ChannelPlatform{
+		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: uuid.New(), PlatformChannelID: "kick-channel", Enabled: true,
+	}
+	cache := &fakeChannelCacheInvalidator{}
+	service := &Service{
+		channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{
+			binding,
+			{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
+		}}}),
+		bindings:      &fakeBindingRepository{binding: binding},
+		registry:      testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+		transactions:  &lifecycleTransactionRunner{},
+		bus:           &buscore.Bus{},
+		channelsCache: cache,
+	}
+
+	if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformKick); err != nil {
+		t.Fatalf("Disconnect() error = %v", err)
+	}
+	if len(cache.keys) != 1 || cache.keys[0] != channelID.String() {
+		t.Fatalf("invalidated keys = %v, want [%s]", cache.keys, channelID)
+	}
+}
+
+func TestBindingLifecycleSkipsCacheInvalidationOnTransactionFailure(t *testing.T) {
+	t.Parallel()
+
+	commitErr := errors.New("commit failed")
+	channelID := uuid.New()
+	binding := channelplatformentity.ChannelPlatform{
+		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: uuid.New(), PlatformChannelID: "kick-channel", Enabled: true,
+	}
+
+	t.Run("set enabled", func(t *testing.T) {
+		cache := &fakeChannelCacheInvalidator{}
+		service := &Service{
+			bindings:      &fakeBindingRepository{binding: binding},
+			registry:      testRegistry(platformentity.PlatformKick),
+			transactions:  &lifecycleTransactionRunner{commitErr: commitErr},
+			bus:           &buscore.Bus{},
+			channelsCache: cache,
+		}
+		if _, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, false); !errors.Is(err, commitErr) {
+			t.Fatalf("set enabled error = %v, want %v", err, commitErr)
+		}
+		if len(cache.keys) != 0 {
+			t.Fatalf("invalidated keys = %v, want none", cache.keys)
+		}
+	})
+
+	t.Run("disconnect", func(t *testing.T) {
+		cache := &fakeChannelCacheInvalidator{}
+		service := &Service{
+			channels: newTestChannelService(fakeChannelReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{
+				binding,
+				{ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
+			}}}),
+			bindings:      &fakeBindingRepository{binding: binding},
+			registry:      testRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+			transactions:  &lifecycleTransactionRunner{commitErr: commitErr},
+			bus:           &buscore.Bus{},
+			channelsCache: cache,
+		}
+		if err := service.Disconnect(context.Background(), channelID, platformentity.PlatformKick); !errors.Is(err, commitErr) {
+			t.Fatalf("disconnect error = %v, want %v", err, commitErr)
+		}
+		if len(cache.keys) != 0 {
+			t.Fatalf("invalidated keys = %v, want none", cache.keys)
+		}
+	})
+}
+
+func TestSetEnabledSucceedsWhenCacheInvalidationFails(t *testing.T) {
+	t.Parallel()
+
+	channelID := uuid.New()
+	userID := uuid.New()
+	binding := channelplatformentity.ChannelPlatform{
+		ID: uuid.New(), ChannelID: channelID, Platform: platformentity.PlatformKick, UserID: userID, Enabled: false,
+	}
+	service := &Service{
+		bindings:      &fakeBindingRepository{binding: binding},
+		users:         fakeUserLookup{users: map[uuid.UUID]usersmodel.User{userID: {ID: userID}}},
+		registry:      testRegistry(platformentity.PlatformKick),
+		transactions:  &lifecycleTransactionRunner{},
+		bus:           &buscore.Bus{},
+		channelsCache: &fakeChannelCacheInvalidator{err: errors.New("cache unavailable")},
+	}
+
+	if _, err := service.SetEnabled(context.Background(), channelID, platformentity.PlatformKick, true); err != nil {
+		t.Fatalf("SetEnabled() error = %v, want nil despite invalidation failure", err)
+	}
 }

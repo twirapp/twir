@@ -12,6 +12,8 @@ import (
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
@@ -37,31 +39,38 @@ type Opts struct {
 	PlatformRegistry     *appplatform.Registry
 	TrmManager           trm.Manager
 	TwirBus              *buscore.Bus
+	ChannelsCache        *generic_cacher.GenericCacher[channelentity.Channel]
 	Logger               *slog.Logger
 }
 
 func NewFx(opts Opts) *Service {
 	return &Service{
-		channels:     opts.ChannelService,
-		users:        opts.UsersRepository,
-		bindings:     opts.ChannelPlatformsRepo,
-		oauth:        opts.Auth,
-		registry:     opts.PlatformRegistry,
-		transactions: opts.TrmManager,
-		bus:          opts.TwirBus,
-		logger:       opts.Logger,
+		channels:      opts.ChannelService,
+		users:         opts.UsersRepository,
+		bindings:      opts.ChannelPlatformsRepo,
+		oauth:         opts.Auth,
+		registry:      opts.PlatformRegistry,
+		transactions:  opts.TrmManager,
+		bus:           opts.TwirBus,
+		channelsCache: opts.ChannelsCache,
+		logger:        opts.Logger,
 	}
 }
 
+type channelCacheInvalidator interface {
+	Invalidate(ctx context.Context, key string) error
+}
+
 type Service struct {
-	channels     *channelservice.ChannelService
-	users        usersrepo.Repository
-	bindings     channelplatformsrepo.Repository
-	oauth        *authroutes.Auth
-	registry     *appplatform.Registry
-	transactions trm.Manager
-	bus          *buscore.Bus
-	logger       *slog.Logger
+	channels      *channelservice.ChannelService
+	users         usersrepo.Repository
+	bindings      channelplatformsrepo.Repository
+	oauth         *authroutes.Auth
+	registry      *appplatform.Registry
+	transactions  trm.Manager
+	bus           *buscore.Bus
+	channelsCache channelCacheInvalidator
+	logger        *slog.Logger
 }
 
 type Binding struct {
@@ -178,6 +187,7 @@ func (s *Service) Disconnect(ctx context.Context, channelID uuid.UUID, platform 
 		return err
 	}
 
+	s.invalidateChannelCache(ctx, channelID)
 	s.publishBindingUnsubscribe(ctx, channelID, binding)
 	return nil
 }
@@ -211,8 +221,18 @@ func (s *Service) SetEnabled(
 		return Binding{}, err
 	}
 
+	s.invalidateChannelCache(ctx, channelID)
 	s.publishBindingLifecycle(ctx, channelID, updated)
 	return s.withProfile(ctx, updated)
+}
+
+func (s *Service) invalidateChannelCache(ctx context.Context, channelID uuid.UUID) {
+	if s.channelsCache == nil {
+		return
+	}
+	if err := s.channelsCache.Invalidate(ctx, channelID.String()); err != nil && s.logger != nil {
+		s.logger.ErrorContext(ctx, "cannot invalidate channel cache", logger.Error(err), slog.String("channel_id", channelID.String()))
+	}
 }
 
 func (s *Service) publishBindingLifecycle(
