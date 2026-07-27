@@ -18,7 +18,7 @@ import (
 var RemoveQuote = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "quote remove",
-		Aliases:     pq.StringArray{"quote rem", "quote delete", "quote del", "quote -"},
+		Aliases:     []string{"quote rem", "quote delete", "quote del", "quote -"},
 		Description: null.StringFrom("Remove a quote"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MANAGE",

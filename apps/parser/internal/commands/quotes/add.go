@@ -21,7 +21,7 @@ const quoteTextArgName = "text"
 var AddQuote = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "quote add",
-		Aliases:     pq.StringArray{"quote +"},
+		Aliases:     []string{"quote +"},
 		Description: null.StringFrom("Add a quote"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MANAGE",
