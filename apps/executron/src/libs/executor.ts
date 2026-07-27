@@ -95,17 +95,25 @@ export async function executeCode(
 		console.log(`[executron] Creating fetchCapability...`)
 		const fetchCapability = await realm.createCapability(
 			() => ({
-				startFetch(id: unknown, url: unknown, method: unknown, body: unknown) {
-					const numId = Number(id)
-					const controller = new AbortController()
-					pendingFetchControllers.set(numId, controller)
+			startFetch(id: unknown, url: unknown, optionsJson: unknown) {
+				const numId = Number(id)
+				const controller = new AbortController()
+				pendingFetchControllers.set(numId, controller)
 
-					const opts: RequestInit = {}
-					if (method) opts.method = String(method)
-					if (body) opts.body = String(body)
-					opts.signal = controller.signal
+				const opts: RequestInit = {}
+				if (optionsJson) {
+					try {
+						const parsed = JSON.parse(String(optionsJson)) as RequestInit
+						if (parsed && typeof parsed === 'object') {
+							Object.assign(opts, parsed)
+						}
+					} catch (err: any) {
+						console.error(`[executron] Fetch #${numId}: failed to parse options:`, err.message)
+					}
+				}
+				opts.signal = controller.signal
 
-					console.log(`[executron] Fetch #${numId}: ${method || 'GET'} ${url}`)
+				console.log(`[executron] Fetch #${numId}: ${opts.method || 'GET'} ${url}`)
 					const fetchStart = Date.now()
 
 					void hostFetch(String(url), opts).then(
@@ -333,28 +341,64 @@ export async function executeCode(
 				}
 			};
 
-			function fetch(url, options) {
-				const signal = options?.signal;
-				if (signal?.aborted) {
-					return Promise.reject(new DOMException('The operation was aborted.', 'AbortError'));
+		function __serializeFetchHeaders(headers) {
+			if (!headers) return undefined;
+
+			const out = {};
+			if (Array.isArray(headers)) {
+				for (const pair of headers) {
+					if (pair && pair.length >= 2) out[String(pair[0])] = String(pair[1]);
+				}
+			} else if (typeof headers.forEach === 'function') {
+				headers.forEach((value, key) => { out[String(key)] = String(value); });
+			} else if (typeof headers === 'object') {
+				for (const key of Object.keys(headers)) out[String(key)] = String(headers[key]);
+			}
+			return out;
+		}
+
+		function __serializeFetchOptions(options) {
+			if (!options) return null;
+
+			const out = {};
+			if (options.method) out.method = String(options.method);
+			if (options.body != null) {
+				out.body = typeof options.body === 'string' ? options.body : String(options.body);
+			}
+
+			const headers = __serializeFetchHeaders(options.headers);
+			if (headers) out.headers = headers;
+
+			const passthrough = ['mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy', 'integrity', 'keepalive', 'priority', 'duplex'];
+			for (const key of passthrough) {
+				if (options[key] !== undefined) out[key] = options[key];
+			}
+
+			return JSON.stringify(out);
+		}
+
+		function fetch(url, options) {
+			const signal = options?.signal;
+			if (signal?.aborted) {
+				return Promise.reject(new DOMException('The operation was aborted.', 'AbortError'));
+			}
+
+			return new Promise((resolve, reject) => {
+				const id = __nextFetchId++;
+				__fetchResolvers.set(id, { resolve, reject });
+
+				if (signal) {
+					const onAbort = () => {
+						__fetchResolvers.delete(id);
+						abortFetch(id);
+						reject(new DOMException('The operation was aborted.', 'AbortError'));
+					};
+					signal.addEventListener('abort', onAbort);
 				}
 
-				return new Promise((resolve, reject) => {
-					const id = __nextFetchId++;
-					__fetchResolvers.set(id, { resolve, reject });
-
-					if (signal) {
-						const onAbort = () => {
-							__fetchResolvers.delete(id);
-							abortFetch(id);
-							reject(new DOMException('The operation was aborted.', 'AbortError'));
-						};
-						signal.addEventListener('abort', onAbort);
-					}
-
-					startFetch(id, url, options?.method || null, options?.body || null);
-				});
-			}
+				startFetch(id, url, __serializeFetchOptions(options));
+			});
+		}
 
 			globalThis.fetch = fetch;
 
