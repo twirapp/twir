@@ -14,7 +14,8 @@ var ListQuotes = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "quotes list",
 		Description: null.StringFrom("Link to the public quotes page"),
-		Module:      "MANAGE",
+		Module:      "QUOTES",
+		Visible:     true,
 		IsReply:     true,
 	},
 	SkipToxicityCheck: true,

@@ -21,7 +21,8 @@ var RemoveQuote = &types.DefaultCommand{
 		Aliases:     []string{"quote rem", "quote delete", "quote del", "quote -"},
 		Description: null.StringFrom("Remove a quote"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
-		Module:      "MANAGE",
+		Module:      "QUOTES",
+		Visible:     true,
 		IsReply:     true,
 	},
 	Args: []command_arguments.Arg{

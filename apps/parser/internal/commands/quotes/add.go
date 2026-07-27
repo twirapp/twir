@@ -24,7 +24,8 @@ var AddQuote = &types.DefaultCommand{
 		Aliases:     []string{"quote +"},
 		Description: null.StringFrom("Add a quote"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
-		Module:      "MANAGE",
+		Module:      "QUOTES",
+		Visible:     true,
 		IsReply:     true,
 	},
 	Args: []command_arguments.Arg{
