@@ -172,9 +172,12 @@ func (c *NowPlayingFetcher) Fetch(ctx context.Context) (*Track, error) {
 func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	redisKey := fmt.Sprintf("overlays:nowplaying:%s", c.channelId)
 
-	cachedTrack := &Track{}
-	err := c.kv.Get(ctx, redisKey).Scan(cachedTrack)
+	cachedData, err := c.kv.Get(ctx, redisKey).Bytes()
 	if err == nil {
+		cachedTrack := &Track{}
+		if err := cachedTrack.UnmarshalBinary(cachedData); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal cached now playing track: %w", err)
+		}
 		cachedTrack.advanceProgress(time.Now())
 		cachedTrack.fromCache = true
 		return cachedTrack, nil
