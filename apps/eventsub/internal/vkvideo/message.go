@@ -58,9 +58,14 @@ type apiChatAuthor struct {
 
 type apiChatMessagePart struct {
 	Text *apiChatTextPart `json:"text"`
+	Link *apiChatLinkPart `json:"link"`
 }
 
 type apiChatTextPart struct {
+	Content string `json:"content"`
+}
+
+type apiChatLinkPart struct {
 	Content string `json:"content"`
 }
 
@@ -79,10 +84,12 @@ func parseChatPublication(payload []byte) (chatPublication, bool, error) {
 	message := envelope.Data.ChatMessage
 	var text strings.Builder
 	for _, part := range message.Parts {
-		if part.Text == nil {
-			continue
+		switch {
+		case part.Text != nil:
+			text.WriteString(part.Text.Content)
+		case part.Link != nil:
+			text.WriteString(part.Link.Content)
 		}
-		text.WriteString(part.Text.Content)
 	}
 
 	return chatPublication{

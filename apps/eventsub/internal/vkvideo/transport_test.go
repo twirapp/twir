@@ -37,6 +37,41 @@ func TestParseChatPublicationNormalizesOnlyObservedMessageShape(t *testing.T) {
 	}
 }
 
+func TestParseChatPublicationIncludesLinkPartContent(t *testing.T) {
+	publication := []byte(`{
+		"type": "channel_chat_message_send",
+		"data": {
+			"chat_message": {
+				"id": 627867254,
+				"created_at": 1785110751,
+				"author": {
+					"id": 35461641,
+					"nick": "fixture_user",
+					"is_owner": true,
+					"is_moderator": false
+				},
+				"parts": [
+					{"text": {"content": "!sr "}},
+					{"link": {"url": "https://www.youtube.com/watch?v=64m0TmiHbcE", "content": "https://www.youtube.com/watch?v=64m0TmiHbcE"}},
+					{"text": {"content": "\n"}}
+				]
+			}
+		}
+	}`)
+
+	message, isChatMessage, err := parseChatPublication(publication)
+	if err != nil {
+		t.Fatalf("parse publication: %v", err)
+	}
+	if !isChatMessage {
+		t.Fatal("publication was not recognized as a chat message")
+	}
+	want := "!sr https://www.youtube.com/watch?v=64m0TmiHbcE\n"
+	if message.Text != want {
+		t.Fatalf("message text = %q, want %q", message.Text, want)
+	}
+}
+
 func TestParseChatPublicationIgnoresNonMessageTypes(t *testing.T) {
 	message, isChatMessage, err := parseChatPublication([]byte(`{"type":"reaction","data":{}}`))
 	if err != nil {
