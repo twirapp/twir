@@ -24,7 +24,8 @@ var Quote = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "quote",
 		Description: null.StringFrom("Show a quote"),
-		Module:      "MANAGE",
+		Module:      "QUOTES",
+		Visible:     true,
 		IsReply:     true,
 	},
 	Args: []command_arguments.Arg{
