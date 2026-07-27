@@ -111,8 +111,8 @@ func (c *ChannelService) IsChannelOnline(ctx context.Context, channelID uuid.UUI
 		return false, err
 	}
 
-	if err == nil {
-		return exists, nil
+	if err == nil && exists {
+		return true, nil
 	}
 
 	streams, err := c.streamsrepo.GetListByChannelID(ctx, channelID)
