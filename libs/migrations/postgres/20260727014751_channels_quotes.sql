@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE channels_quotes (
 	id UUID PRIMARY KEY DEFAULT uuidv7(),
-	channel_id TEXT NOT NULL REFERENCES channels ON UPDATE CASCADE ON DELETE RESTRICT,
+	channel_id UUID NOT NULL REFERENCES channels ON UPDATE CASCADE ON DELETE RESTRICT,
 	number INTEGER NOT NULL,
 	text TEXT NOT NULL,
 	creator_id TEXT,
