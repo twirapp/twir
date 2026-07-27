@@ -13,20 +13,12 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 				channelBySlug(channelName: $userName, platform: $platform) {
 					id
 					hideOnLandingPage
-					kickProfile {
-						id
-						slug
-						displayName
-						followersCount
-						isLive
-						profilePicture
-					}
-					twitchProfile {
-						id
-						login
-						displayName
-						profileImageUrl
-						description
+					profile {
+						platform
+						platformUserId
+						platformLogin
+						platformDisplayName
+						platformAvatar
 					}
 				}
 			}
@@ -37,7 +29,9 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 			},
 			get platform() {
 				const platform = String(router.currentRoute.value.params.platform ?? '').toUpperCase()
-				return platform === 'TWITCH' || platform === 'KICK' ? (platform as Platform) : undefined
+				return platform === 'TWITCH' || platform === 'KICK' || platform === 'VK_VIDEO_LIVE'
+					? (platform as Platform)
+					: undefined
 			},
 		},
 		pause: true,
