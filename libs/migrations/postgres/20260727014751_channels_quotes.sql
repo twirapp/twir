@@ -2,19 +2,19 @@
 -- +goose StatementBegin
 CREATE TABLE channels_quotes (
 	id UUID PRIMARY KEY DEFAULT uuidv7(),
-	"channelId" TEXT NOT NULL REFERENCES channels ON UPDATE CASCADE ON DELETE RESTRICT,
+	channel_id TEXT NOT NULL REFERENCES channels ON UPDATE CASCADE ON DELETE RESTRICT,
 	number INTEGER NOT NULL,
 	text TEXT NOT NULL,
-	"creatorId" TEXT,
-	"creatorName" TEXT,
-	"gameId" TEXT,
-	"gameName" TEXT,
-	"createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-	"updatedAt" TIMESTAMP NOT NULL DEFAULT now()
+	creator_id TEXT,
+	creator_name TEXT,
+	game_id TEXT,
+	game_name TEXT,
+	created_at TIMESTAMP NOT NULL DEFAULT now(),
+	updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
 CREATE UNIQUE INDEX channels_quotes_channel_id_number_key
-	ON channels_quotes ("channelId", number);
+	ON channels_quotes (channel_id, number);
 -- +goose StatementEnd
 
 -- +goose Down

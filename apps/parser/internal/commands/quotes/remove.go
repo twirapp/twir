@@ -2,7 +2,9 @@ package quotes
 
 import (
 	"context"
+	"errors"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
@@ -10,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
+	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
 )
 
 var RemoveQuote = &types.DefaultCommand{
@@ -40,20 +43,27 @@ var RemoveQuote = &types.DefaultCommand{
 			return result, nil
 		}
 
-		deleteResult := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Where(`"channelId" = ? AND number = ?`, parseCtx.Channel.DBChannelID, number).
-			Delete(&model.ChannelsQuotes{})
-		if deleteResult.Error != nil {
+		channelUUID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Errors.CannotRemove),
-				Err:     deleteResult.Error,
+				Err:     err,
 			}
 		}
-		if deleteResult.RowsAffected == 0 {
+
+		err = parseCtx.Services.QuotesRepo.DeleteByChannelIDAndNumber(ctx, channelUUID, number)
+		if errors.Is(err, quotesrepository.ErrQuoteNotFound) {
 			result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Errors.NotFound)}
 			return result, nil
 		}
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Errors.CannotRemove),
+				Err:     err,
+			}
+		}
+
+		_ = parseCtx.Services.QuotesCacher.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Remove.Removed)}
 		return result, nil

@@ -3,17 +3,17 @@ package quotes
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
-	"gorm.io/gorm"
+	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
 )
 
 const quoteTextArgName = "text"
@@ -46,50 +46,34 @@ var AddQuote = &types.DefaultCommand{
 			return result, nil
 		}
 
-		now := time.Now()
-		quoteID, err := uuid.NewV7()
+		channelUUID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Errors.CannotAdd),
 				Err:     err,
 			}
 		}
-		quote := model.ChannelsQuotes{
-			ID:          quoteID.String(),
-			ChannelID:   parseCtx.Channel.DBChannelID,
+
+		createInput := quotesrepository.CreateInput{
+			ChannelID:   channelUUID,
 			Text:        text,
-			CreatorID:   null.StringFrom(parseCtx.Sender.ID),
-			CreatorName: null.StringFrom(parseCtx.Sender.DisplayName),
-			CreatedAt:   now,
-			UpdatedAt:   now,
+			CreatorID:   lo.ToPtr(parseCtx.Sender.ID),
+			CreatorName: lo.ToPtr(parseCtx.Sender.DisplayName),
 		}
 		if parseCtx.ChannelStream != nil {
-			quote.GameID = null.StringFrom(parseCtx.ChannelStream.GameId)
-			quote.GameName = null.StringFrom(parseCtx.ChannelStream.GameName)
+			createInput.GameID = lo.ToPtr(parseCtx.ChannelStream.GameId)
+			createInput.GameName = lo.ToPtr(parseCtx.ChannelStream.GameName)
 		}
 
-		err = parseCtx.Services.Gorm.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-			if err := tx.Exec("SELECT pg_advisory_xact_lock(hashtext(?))", quote.ChannelID).Error; err != nil {
-				return err
-			}
-
-			if err := tx.
-				Model(&model.ChannelsQuotes{}).
-				Where(`"channelId" = ?`, quote.ChannelID).
-				Select("COALESCE(MAX(number), 0) + 1").
-				Scan(&quote.Number).
-				Error; err != nil {
-				return err
-			}
-
-			return tx.Create(&quote).Error
-		})
+		quote, err := parseCtx.Services.QuotesRepo.Create(ctx, createInput)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Errors.CannotAdd),
 				Err:     err,
 			}
 		}
+
+		_ = parseCtx.Services.QuotesCacher.Invalidate(ctx, parseCtx.Channel.DBChannelID)
 
 		result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Add.Added.SetVars(
 			locales.KeysCommandsQuotesAddAddedVars{Number: quote.Number},

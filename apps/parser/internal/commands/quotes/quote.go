@@ -7,13 +7,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/jackc/pgx/v5"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
-	"gorm.io/gorm"
+	quotesmodel "github.com/twirapp/twir/libs/repositories/quotes/model"
 )
 
 const quoteIDArgName = "id"
@@ -33,8 +35,16 @@ var Quote = &types.DefaultCommand{
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
 		result := &types.CommandsHandlerResult{}
-		quote := model.ChannelsQuotes{}
-		db := parseCtx.Services.Gorm.WithContext(ctx).Where(`"channelId" = ?`, parseCtx.Channel.DBChannelID)
+
+		channelUUID, err := uuid.Parse(parseCtx.Channel.DBChannelID)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Errors.CannotGet),
+				Err:     err,
+			}
+		}
+
+		var quote quotesmodel.Quote
 
 		if parseCtx.ArgsParser.IsExists(quoteIDArgName) {
 			number, ok := parseQuoteNumber(parseCtx.ArgsParser.Get(quoteIDArgName).String())
@@ -43,8 +53,8 @@ var Quote = &types.DefaultCommand{
 				return result, nil
 			}
 
-			err := db.Where("number = ?", number).First(&quote).Error
-			if errors.Is(err, gorm.ErrRecordNotFound) {
+			quote, err = parseCtx.Services.QuotesRepo.GetByChannelIDAndNumber(ctx, channelUUID, number)
+			if errors.Is(err, pgx.ErrNoRows) {
 				result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Errors.NotFound)}
 				return result, nil
 			}
@@ -55,8 +65,8 @@ var Quote = &types.DefaultCommand{
 				}
 			}
 		} else {
-			err := db.Order("RANDOM()").First(&quote).Error
-			if errors.Is(err, gorm.ErrRecordNotFound) {
+			quote, err = parseCtx.Services.QuotesRepo.GetRandomByChannelID(ctx, channelUUID)
+			if errors.Is(err, pgx.ErrNoRows) {
 				result.Result = []string{i18n.GetCtx(ctx, locales.Translations.Commands.Quotes.Errors.RandomEmpty)}
 				return result, nil
 			}

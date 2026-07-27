@@ -33,6 +33,7 @@ import (
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	quotescache "github.com/twirapp/twir/libs/cache/quotes"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -54,6 +55,7 @@ import (
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	faceitintegrationpostgres "github.com/twirapp/twir/libs/repositories/faceit_integration/datasource/postgres"
 	overlaysttspgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
+	quotespgx "github.com/twirapp/twir/libs/repositories/quotes/pgx"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
@@ -269,6 +271,8 @@ func main() {
 	vkRepo := vkintegrationpostgres.NewFx(pgxconn)
 	faceitRepo := faceitintegrationpostgres.New(pgxconn)
 	usersWithStatsRepository := userswithstatspostgres.NewFx(pgxconn)
+	quotesRepo := quotespgx.New(quotespgx.Opts{PgxPool: pgxconn})
+	quotesCacher := quotescache.New(quotesRepo, bus)
 
 	cachedTwitchClient, err := twitch.New(*config, bus, redisClient)
 	if err != nil {
@@ -339,6 +343,8 @@ func main() {
 		FaceitRepo:                 faceitRepo,
 		I18n:                       translationService,
 		UsersWithStatsRepository:   usersWithStatsRepository,
+		QuotesRepo:                 quotesRepo,
+		QuotesCacher:               quotesCacher,
 	}
 
 	variablesService := variables.New(
