@@ -98,7 +98,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		isPlatformsRequested[requestedPlatform] = true
 	}
 
-	// Search: Twitch via API, Kick via DB ILIKE
+	// Search: Twitch via API, Kick and VK via DB ILIKE
 	var searchUserUUIDs []string
 	if opts.Search.IsSet() && opts.Search.Value() != nil && *opts.Search.Value() != "" {
 		searchTerm := strings.TrimSpace(*opts.Search.Value())
@@ -132,22 +132,30 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			}
 		}
 
-		if isPlatformsRequested[platformentity.PlatformKick] {
+		dbSearchPlatforms := []platformentity.Platform{
+			platformentity.PlatformKick,
+			platformentity.PlatformVKVideoLive,
+		}
+		for _, dbPlatform := range dbSearchPlatforms {
+			if !isPlatformsRequested[dbPlatform] {
+				continue
+			}
+
 			searchQuery := "%" + searchTerm + "%"
-			var kickUUIDs []string
+			var platformUUIDs []string
 			err = r.deps.Gorm.WithContext(ctx).
 				Model(&model.Users{}).
 				Where(
 					`platform = ? AND (login ILIKE ? OR display_name ILIKE ? OR platform_id ILIKE ?)`,
-					platformentity.PlatformKick.String(),
+					dbPlatform.String(),
 					searchQuery, searchQuery, searchQuery,
 				).
-				Pluck("id", &kickUUIDs).Error
+				Pluck("id", &platformUUIDs).Error
 			if err != nil {
 				return nil, gqlerrors.HandleError(err)
 			}
 
-			searchUserUUIDs = append(searchUserUUIDs, kickUUIDs...)
+			searchUserUUIDs = append(searchUserUUIDs, platformUUIDs...)
 		}
 
 		// No results from either platform → return empty

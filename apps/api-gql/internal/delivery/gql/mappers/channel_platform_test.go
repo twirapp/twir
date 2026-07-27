@@ -104,7 +104,7 @@ func TestMapChannelModelToGqlPublicUserMapsProfilesFromBindings(t *testing.T) {
 		kickUserID: {
 			ID: kickUserID, PlatformID: "kick-user", Login: "kick-login", DisplayName: "Kick Name", Avatar: "https://example.com/kick.png",
 		},
-	})
+	}, nil)
 
 	if got.ID != channel.ID || got.TwitchProfile == nil || got.KickProfile == nil {
 		t.Fatalf("public user = %#v, want Twitch and Kick profiles", got)
@@ -114,5 +114,45 @@ func TestMapChannelModelToGqlPublicUserMapsProfilesFromBindings(t *testing.T) {
 	}
 	if got.KickProfile.ID != "kick-user" || got.KickProfile.DisplayName != "Kick Name" || got.KickProfile.ProfilePicture == nil || *got.KickProfile.ProfilePicture != "https://example.com/kick.png" {
 		t.Fatalf("Kick profile = %#v", got.KickProfile)
+	}
+	if got.Profile == nil || got.Profile.Platform != platformentity.PlatformTwitch.String() || got.Profile.PlatformLogin != "twitch-login" || got.Profile.PlatformDisplayName != "Twitch Name" {
+		t.Fatalf("neutral profile = %#v, want first binding profile", got.Profile)
+	}
+}
+
+func TestMapChannelModelToGqlPublicUserSelectsRequestedPlatformProfile(t *testing.T) {
+	t.Parallel()
+
+	twitchUserID := uuid.New()
+	vkUserID := uuid.New()
+	channel := channelentity.Channel{
+		ID: uuid.New(),
+		Bindings: []channelplatformentity.ChannelPlatform{
+			{Platform: platformentity.PlatformTwitch, UserID: twitchUserID},
+			{Platform: platformentity.PlatformVKVideoLive, UserID: vkUserID},
+		},
+	}
+	requested := platformentity.PlatformVKVideoLive
+
+	got := MapChannelModelToGqlPublicUser(channel, map[uuid.UUID]usersmodel.User{
+		twitchUserID: {
+			ID: twitchUserID, PlatformID: "twitch-user", Login: "twitch-login", DisplayName: "Twitch Name", Avatar: "https://example.com/twitch.png",
+		},
+		vkUserID: {
+			ID: vkUserID, PlatformID: "vk-user", Login: "vk-login", DisplayName: "", Avatar: "https://example.com/vk.png",
+		},
+	}, &requested)
+
+	if got.Profile == nil {
+		t.Fatal("neutral profile is nil, want VK profile")
+	}
+	if got.Profile.Platform != platformentity.PlatformVKVideoLive.String() || got.Profile.PlatformUserID != "vk-user" {
+		t.Fatalf("neutral profile = %#v, want VK binding", got.Profile)
+	}
+	if got.Profile.PlatformDisplayName != "vk-login" {
+		t.Fatalf("display name = %q, want login fallback", got.Profile.PlatformDisplayName)
+	}
+	if got.Profile.PlatformAvatar == nil || *got.Profile.PlatformAvatar != "https://example.com/vk.png" {
+		t.Fatalf("avatar = %#v", got.Profile.PlatformAvatar)
 	}
 }

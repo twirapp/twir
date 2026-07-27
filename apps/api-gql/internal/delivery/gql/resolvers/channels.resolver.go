@@ -133,7 +133,7 @@ func (r *queryResolver) ChannelBySlug(ctx context.Context, channelName string, p
 		profiles[binding.UserID] = profile
 	}
 
-	return mappers.MapChannelModelToGqlPublicUser(ch, profiles), nil
+	return mappers.MapChannelModelToGqlPublicUser(ch, profiles, plat), nil
 }
 
 // ChannelPlatformBindings is the resolver for the channelPlatformBindings field.

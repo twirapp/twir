@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -223,6 +224,41 @@ func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashb
 		IsLive:         false,
 		FollowersCount: 0,
 	}, nil
+}
+
+// Profile is the resolver for the profile field.
+func (r *dashboardResolver) Profile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.LinkedAccount, error) {
+	channelID, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	if channel.IsNil() || len(channel.Bindings) == 0 {
+		return nil, nil
+	}
+
+	selected := channel.Bindings[0]
+	for _, binding := range channel.Bindings {
+		if binding.Platform.String() == obj.Platform {
+			selected = binding
+			break
+		}
+	}
+
+	profile, err := r.deps.UsersRepository.GetByID(ctx, selected.UserID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get dashboard platform profile: %w", err)
+	}
+
+	account := mappers.PlatformProfileToLinkedAccount(selected.Platform, profile)
+	return &account, nil
 }
 
 // Plan is the resolver for the plan field.

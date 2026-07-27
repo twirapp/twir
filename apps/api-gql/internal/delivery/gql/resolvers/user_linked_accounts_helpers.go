@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 )
 
@@ -23,16 +24,10 @@ func (r *authenticatedUserResolver) linkedAccountsForChannel(ctx context.Context
 
 	accounts := make([]gqlmodel.LinkedAccount, 0, len(bindings))
 	for _, binding := range bindings {
-		account := gqlmodel.LinkedAccount{
-			Platform:       binding.Binding.Platform.String(),
-			PlatformUserID: binding.Profile.PlatformID,
-			PlatformLogin:  binding.Profile.Login,
-		}
-		if binding.Profile.Avatar != "" {
-			account.PlatformAvatar = &binding.Profile.Avatar
-		}
-
-		accounts = append(accounts, account)
+		accounts = append(
+			accounts,
+			mappers.PlatformProfileToLinkedAccount(binding.Binding.Platform, binding.Profile),
+		)
 	}
 
 	return accounts, nil
