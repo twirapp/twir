@@ -15,17 +15,12 @@ export const userProfileWithoutDashboards = createRequest(
 				botId
 				apiKey
 				currentPlatform
-				twitchProfile {
-					description
-					displayName
-					login
-					profileImageUrl
-				}
-				kickProfile {
-					id
-					slug
-					displayName
-					profilePicture
+				linkedAccounts {
+					platform
+					platformUserId
+					platformLogin
+					platformDisplayName
+					platformAvatar
 				}
 			}
 		}
@@ -52,6 +47,17 @@ export const useAuth = defineStore('auth-store', () => {
 	})
 
 	const userWithoutDashboards = computed(() => data.value?.authenticatedUser)
+
+	const currentAccount = computed(() => {
+		const user = userWithoutDashboards.value
+		if (!user) return null
+
+		return (
+			user.linkedAccounts.find(
+				(account) => account.platform === user.currentPlatform.toLowerCase()
+			) ?? null
+		)
+	})
 
 	watch(
 		userWithoutDashboards,
@@ -131,6 +137,7 @@ export const useAuth = defineStore('auth-store', () => {
 
 	return {
 		userWithoutDashboards,
+		currentAccount,
 		isLoading: fetching,
 
 		getUserDataWithoutDashboards,

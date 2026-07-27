@@ -45,12 +45,12 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 				class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 			>
 				<img
-					:src="userStore.userWithoutDashboards.twitchProfile.profileImageUrl"
+					:src="userStore.currentAccount?.platformAvatar ?? ''"
 					class="w-8 h-8 rounded-full"
 				/>
 				<div class="grid flex-1 text-left text-sm leading-tight">
 					<span class="truncate font-semibold">{{
-						userStore.userWithoutDashboards.twitchProfile.displayName
+						userStore.currentAccount?.platformDisplayName ?? userStore.currentAccount?.platformLogin ?? ''
 					}}</span>
 					<span class="truncate text-xs">Logged as</span>
 				</div>

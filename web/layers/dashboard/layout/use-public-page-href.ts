@@ -11,7 +11,7 @@ export function usePublicPageHref() {
 
 	return computed(() => {
 		const dashboard = selectedDashboard.value
-		const selectedDashboardLogin = dashboard?.kickProfile?.slug ?? dashboard?.twitchProfile?.login
+		const selectedDashboardLogin = dashboard?.profile?.platformLogin
 		if (!selectedDashboardLogin) {
 			return null
 		}

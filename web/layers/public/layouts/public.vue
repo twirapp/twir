@@ -7,33 +7,28 @@ import { useStreamerProfile } from '~~/layers/public/api/use-streamer-profile'
 const streamerProfile = useStreamerProfile()
 await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
 
+const platformUrls: Record<string, { url: (login: string) => string; label: string }> = {
+	twitch: { url: (login) => `https://twitch.tv/${login}`, label: 'Twitch' },
+	kick: { url: (login) => `https://kick.com/${login}`, label: 'Kick' },
+	vk_video_live: { url: (login) => `https://live.vkvideo.ru/${login}`, label: 'VK Video Live' },
+}
+
 const profile = computed(() => {
-	const channel = streamerProfile.profile?.channelBySlug
-	if (!channel) return null
+	const account = streamerProfile.profile?.channelBySlug?.profile
+	if (!account) return null
 
-	if (channel.kickProfile) {
-		return {
-			avatar: channel.kickProfile.profilePicture,
-			description: undefined,
-			displayName: channel.kickProfile.displayName,
-			login: channel.kickProfile.slug,
-			url: `https://kick.com/${channel.kickProfile.slug}`,
-			platform: 'Kick',
-		}
+	const platform = platformUrls[account.platform] ?? {
+		url: () => '',
+		label: account.platform,
 	}
 
-	if (channel.twitchProfile) {
-		return {
-			avatar: channel.twitchProfile.profileImageUrl,
-			description: channel.twitchProfile.description,
-			displayName: channel.twitchProfile.displayName,
-			login: channel.twitchProfile.login,
-			url: `https://twitch.tv/${channel.twitchProfile.login}`,
-			platform: 'Twitch',
-		}
+	return {
+		avatar: account.platformAvatar ?? undefined,
+		displayName: account.platformDisplayName,
+		login: account.platformLogin,
+		url: platform.url(account.platformLogin),
+		platform: platform.label,
 	}
-
-	return null
 })
 </script>
 
@@ -77,12 +72,9 @@ const profile = computed(() => {
 								/>
 								<div class="flex flex-col gap-2">
 									<span class="text-4xl">{{ profile?.displayName }}</span>
-									<span class="text-sm text-muted-foreground break-all">
-										{{
-											streamerProfile.publicProfile?.userPublicSettings.description ||
-											profile?.description
-										}}
-									</span>
+								<span class="text-sm text-muted-foreground break-all">
+									{{ streamerProfile.publicProfile?.userPublicSettings.description }}
+								</span>
 								</div>
 							</div>
 							<div class="flex flex-col gap-2 flex-none">

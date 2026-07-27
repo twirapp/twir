@@ -36,6 +36,7 @@ const communityUsersTable = useCommunityUsersTable()
 const platformOptions = [
 	{ label: 'Twitch', value: Platform.Twitch },
 	{ label: 'Kick', value: Platform.Kick },
+	{ label: 'VK Video Live', value: Platform.VkVideoLive },
 ]
 
 function togglePlatform(platform: Platform) {

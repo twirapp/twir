@@ -3,8 +3,8 @@ import { UserStoreKey } from '~/stores/user'
 
 const userStore = useAuth()
 
-const isKickUser = computed(() => {
-	return userStore.userWithoutDashboards?.currentPlatform === 'KICK'
+const currentPlatform = computed(() => {
+	return userStore.userWithoutDashboards?.currentPlatform.toLowerCase() ?? ''
 })
 
 await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())])
@@ -35,14 +35,15 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 		>
 			<div class="flex items-center gap-3 min-w-0">
 			<img
-				:src="userStore.userWithoutDashboards.twitchProfile?.profileImageUrl ?? userStore.userWithoutDashboards.kickProfile?.profilePicture ?? ''"
-				:alt="userStore.userWithoutDashboards.twitchProfile?.displayName ?? userStore.userWithoutDashboards.kickProfile?.displayName ?? ''"
+				:src="userStore.currentAccount?.platformAvatar ?? ''"
+				:alt="userStore.currentAccount?.platformDisplayName ?? ''"
 				class="w-8 h-8 rounded-full shrink-0"
 			/>
 			<span class="max-[600px]:hidden truncate">
-				{{ userStore.userWithoutDashboards?.twitchProfile?.login ?? userStore.userWithoutDashboards?.kickProfile?.displayName ?? '' }}
+				{{ userStore.currentAccount?.platformDisplayName ?? userStore.currentAccount?.platformLogin ?? '' }}
 			</span>
-				<Icon v-if="isKickUser" name="simple-icons:kick" class="w-4 h-4 text-[#53FC18] shrink-0" />
+				<Icon v-if="currentPlatform === 'kick'" name="simple-icons:kick" class="w-4 h-4 text-[#53FC18] shrink-0" />
+				<Icon v-else-if="currentPlatform === 'vk_video_live'" name="simple-icons:vk" class="w-4 h-4 text-[#0077FF] shrink-0" />
 				<Icon name="lucide:chevron-down" class="w-4 h-4 shrink-0" />
 			</div>
 		</UiDropdownMenuTrigger>
