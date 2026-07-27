@@ -9,15 +9,19 @@ const { data: profile } = useProfile()
 const requestUrl = useRequestURL()
 
 const selectedDashboardTwitchUser = computed(() => {
-	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
-		?.twitchProfile
+	const dashboard = profile.value?.availableDashboards.find(
+		(d) => d.id === profile.value?.selectedDashboardId,
+	)
+	if (dashboard?.profile?.platform.toLowerCase() !== 'twitch') return undefined
+
+	return dashboard.profile
 })
 
 const streamUrl = computed(() => {
 	if (!selectedDashboardTwitchUser.value) return
 
 	const user = selectedDashboardTwitchUser.value
-	const url = `https://player.twitch.tv/?channel=${user.login}&parent=${requestUrl.host}&autoplay=false`
+	const url = `https://player.twitch.tv/?channel=${user.platformLogin}&parent=${requestUrl.host}&autoplay=false`
 
 	return url
 })
