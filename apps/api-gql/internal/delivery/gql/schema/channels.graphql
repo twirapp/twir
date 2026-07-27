@@ -46,7 +46,5 @@ type ChannelPlatformOption {
 type TwirPublicUser {
 	id: UUID!
 	hideOnLandingPage: Boolean!
-	twitchProfile: TwirUserTwitchInfo
-	kickProfile: KickProfile
 	profile: LinkedAccount
 }

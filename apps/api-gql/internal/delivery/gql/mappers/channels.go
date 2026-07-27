@@ -36,38 +36,7 @@ func MapChannelModelToGqlPublicUser(
 	u := &gqlmodel.TwirPublicUser{
 		ID:                c.ID,
 		HideOnLandingPage: false,
-		TwitchProfile:     nil,
-		KickProfile:       nil,
 		Profile:           nil,
-	}
-
-	for _, binding := range c.Bindings {
-		profile, ok := profiles[binding.UserID]
-		if !ok {
-			continue
-		}
-
-		switch binding.Platform {
-		case platformentity.PlatformTwitch:
-			u.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
-				ID:              profile.PlatformID,
-				Login:           profile.Login,
-				DisplayName:     profile.DisplayName,
-				ProfileImageURL: profile.Avatar,
-				Description:     "",
-				NotFound:        false,
-			}
-		case platformentity.PlatformKick:
-			kickProfile := &gqlmodel.KickProfile{
-				ID:          profile.PlatformID,
-				Slug:        profile.Login,
-				DisplayName: profile.DisplayName,
-			}
-			if profile.Avatar != "" {
-				kickProfile.ProfilePicture = &profile.Avatar
-			}
-			u.KickProfile = kickProfile
-		}
 	}
 
 	var selected *channelplatformentity.ChannelPlatform
