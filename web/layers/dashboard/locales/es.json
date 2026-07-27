@@ -79,6 +79,7 @@
     "timers": "Temporizadores",
     "roles": "Permisos",
     "keywords": "Palabras clave",
+    "quotes": "Citas",
     "variables": "Variables",
     "greetings": "Saludos",
     "alerts": "Alertas",
@@ -788,6 +789,22 @@
       "triggerLong": "¡El nombre del temporizador es demasiado largo!",
       "responseLong": "¡El texto de respuesta es demasiado largo!"
     }
+  },
+  "quotes": {
+    "title": "Citas",
+    "create": "Crear cita",
+    "edit": "Editar cita",
+    "text": "Cita",
+    "number": "Número",
+    "creator": "Creador",
+    "game": "Juego",
+    "createdAt": "Creado el",
+    "deleteConfirmation": "¿Seguro que quieres eliminar esta cita?",
+    "created": "Cita creada",
+    "updated": "Cita actualizada",
+    "deleted": "Cita eliminada",
+    "errorOnSave": "No se pudo guardar la cita",
+    "errorOnDelete": "No se pudo eliminar la cita"
   },
   "variables": {
     "title": "Variables",

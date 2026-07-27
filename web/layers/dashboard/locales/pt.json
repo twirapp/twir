@@ -79,6 +79,7 @@
     "timers": "Temporizadores",
     "roles": "Permissões",
     "keywords": "Palavras-chave",
+    "quotes": "Citações",
     "variables": "Variáveis",
     "greetings": "Saudações",
     "alerts": "Alertas",
@@ -788,6 +789,22 @@
       "triggerLong": "O Texto de Gatilho é muito longo!",
       "responseLong": "O Texto de Resposta é muito longo!"
     }
+  },
+  "quotes": {
+    "title": "Citações",
+    "create": "Criar citação",
+    "edit": "Editar citação",
+    "text": "Citação",
+    "number": "Número",
+    "creator": "Criador",
+    "game": "Jogo",
+    "createdAt": "Criado em",
+    "deleteConfirmation": "Tem certeza de que deseja excluir esta citação?",
+    "created": "Citação criada",
+    "updated": "Citação atualizada",
+    "deleted": "Citação excluída",
+    "errorOnSave": "Não foi possível salvar a citação",
+    "errorOnDelete": "Não foi possível excluir a citação"
   },
   "variables": {
     "title": "Variáveis",
