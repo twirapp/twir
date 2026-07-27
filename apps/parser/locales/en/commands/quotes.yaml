@@ -1,0 +1,13 @@
+errors:
+  random_empty: No quotes have been added yet
+  not_found: Quote not found
+  empty_text: Quote text cannot be empty
+  cannot_get: Cannot get quote
+  cannot_add: Cannot add quote
+  cannot_remove: Cannot remove quote
+
+add:
+  added: 'Quote added #{number}'
+
+remove:
+  removed: Quote removed
