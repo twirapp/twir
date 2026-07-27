@@ -106,14 +106,8 @@ func TestMapChannelModelToGqlPublicUserMapsProfilesFromBindings(t *testing.T) {
 		},
 	}, nil)
 
-	if got.ID != channel.ID || got.TwitchProfile == nil || got.KickProfile == nil {
-		t.Fatalf("public user = %#v, want Twitch and Kick profiles", got)
-	}
-	if got.TwitchProfile.ID != "twitch-user" || got.TwitchProfile.DisplayName != "Twitch Name" {
-		t.Fatalf("Twitch profile = %#v", got.TwitchProfile)
-	}
-	if got.KickProfile.ID != "kick-user" || got.KickProfile.DisplayName != "Kick Name" || got.KickProfile.ProfilePicture == nil || *got.KickProfile.ProfilePicture != "https://example.com/kick.png" {
-		t.Fatalf("Kick profile = %#v", got.KickProfile)
+	if got.ID != channel.ID {
+		t.Fatalf("public user id = %#v, want %#v", got.ID, channel.ID)
 	}
 	if got.Profile == nil || got.Profile.Platform != platformentity.PlatformTwitch.String() || got.Profile.PlatformLogin != "twitch-login" || got.Profile.PlatformDisplayName != "Twitch Name" {
 		t.Fatalf("neutral profile = %#v, want first binding profile", got.Profile)

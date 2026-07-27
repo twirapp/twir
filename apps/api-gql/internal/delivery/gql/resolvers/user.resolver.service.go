@@ -172,12 +172,11 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			}
 
 			dashboard := gqlmodel.Dashboard{
-				ID:          role.Role.Channel.ID,
-				Platform:    platform,
-				Flags:       append(existing.Flags, flags...),
-				APIKey:      existing.APIKey,
-				PlanID:      role.Role.Channel.PlanID,
-				KickProfile: existing.KickProfile,
+				ID:       role.Role.Channel.ID,
+				Platform: platform,
+				Flags:    append(existing.Flags, flags...),
+				APIKey:   existing.APIKey,
+				PlanID:   role.Role.Channel.PlanID,
 			}
 
 			dashboardsEntities[role.Role.Channel.ID] = dashboard
@@ -240,12 +239,11 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			}
 
 			dashboard := gqlmodel.Dashboard{
-				ID:          role.ChannelID,
-				Platform:    platform,
-				Flags:       append(existing.Flags, flags...),
-				APIKey:      existing.APIKey,
-				PlanID:      existing.PlanID,
-				KickProfile: existing.KickProfile,
+				ID:       role.ChannelID,
+				Platform: platform,
+				Flags:    append(existing.Flags, flags...),
+				APIKey:   existing.APIKey,
+				PlanID:   existing.PlanID,
 			}
 
 			dashboardsEntities[role.ChannelID] = dashboard
