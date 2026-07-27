@@ -91,6 +91,7 @@ func New(opts *Opts) *Commands {
 			quotes.Quote,
 			quotes.AddQuote,
 			quotes.RemoveQuote,
+			quotes.ListQuotes,
 			nuke.Command,
 			permit.Command,
 			shoutout.ShoutOut,

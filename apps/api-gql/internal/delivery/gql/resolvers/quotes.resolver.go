@@ -124,3 +124,18 @@ func (r *queryResolver) Quotes(ctx context.Context) ([]gqlmodel.Quote, error) {
 
 	return converted, nil
 }
+
+// QuotesPublic is the resolver for the quotesPublic field.
+func (r *queryResolver) QuotesPublic(ctx context.Context, channelID string) ([]gqlmodel.Quote, error) {
+	channelQuotes, err := r.deps.QuotesService.GetAllByChannelID(ctx, channelID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	converted := make([]gqlmodel.Quote, 0, len(channelQuotes))
+	for _, quote := range channelQuotes {
+		converted = append(converted, mappers.QuotesFrom(quote))
+	}
+
+	return converted, nil
+}

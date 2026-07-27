@@ -14,6 +14,11 @@ const routes = computed(() => {
 			to: `/p/${currentRoute.params.platform}/${currentRoute.params.channelName}/songs-requests`,
 		},
 		{
+			name: 'Quotes',
+			icon: 'lucide:message-square-quote',
+			to: `/p/${currentRoute.params.platform}/${currentRoute.params.channelName}/quotes`,
+		},
+		{
 			name: 'TTS Profiles',
 			icon: 'lucide:square-activity',
 			to: `/p/${currentRoute.params.platform}/${currentRoute.params.channelName}/tts`,

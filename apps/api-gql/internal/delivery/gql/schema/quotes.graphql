@@ -1,5 +1,6 @@
 extend type Query {
 	quotes: [Quote!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_QUOTES)
+	quotesPublic(channelId: String!): [Quote!]!
 }
 
 extend type Mutation {
