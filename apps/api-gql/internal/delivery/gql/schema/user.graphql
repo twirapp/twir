@@ -30,6 +30,7 @@ type LinkedAccount {
 	platform: String!
 	platformUserId: String!
 	platformLogin: String!
+	platformDisplayName: String!
 	platformAvatar: String
 }
 
@@ -58,6 +59,7 @@ type Dashboard {
 	flags: [ChannelRolePermissionEnum!]!
 	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
 	kickProfile: KickProfile @goField(forceResolver: true)
+	profile: LinkedAccount @goField(forceResolver: true)
 	apiKey: String!
 	planId: String
 	plan: Plan @goField(forceResolver: true)

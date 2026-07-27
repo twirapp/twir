@@ -48,4 +48,5 @@ type TwirPublicUser {
 	hideOnLandingPage: Boolean!
 	twitchProfile: TwirUserTwitchInfo
 	kickProfile: KickProfile
+	profile: LinkedAccount
 }
