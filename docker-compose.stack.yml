@@ -116,22 +116,22 @@ services:
         - "traefik.http.routers.twir-nats.service=twir-nats"
         - "traefik.http.services.twir-nats.loadbalancer.server.port=8222"
 
-#  otel-collector:
-#    image: otel/opentelemetry-collector-contrib:0.121.0
-#    user: "0:0"
-#    volumes:
-#      - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
-#      - /var/run/docker.sock:/var/run/docker.sock:ro
-#      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-#    networks:
-#      - twir
-#    deploy:
-#      mode: global
-#      restart_policy:
-#        condition: any
-#        delay: 3s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
+  #  otel-collector:
+  #    image: otel/opentelemetry-collector-contrib:0.121.0
+  #    user: "0:0"
+  #    volumes:
+  #      - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
+  #      - /var/run/docker.sock:/var/run/docker.sock:ro
+  #      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #    networks:
+  #      - twir
+  #    deploy:
+  #      mode: global
+  #      restart_policy:
+  #        condition: any
+  #        delay: 3s
+  #        max_attempts: 30
+  #      endpoint_mode: dnsrr
 
   postgres:
     image: postgres:18.1
@@ -175,7 +175,7 @@ services:
           - node.labels.databases == true
 
   pgdog:
-    image: ghcr.io/pgdogdev/pgdog:v0.1.34
+    image: ghcr.io/pgdogdev/pgdog:v0.1.50
     entrypoint:
       [
         "/bin/sh",
@@ -201,38 +201,6 @@ services:
         order: stop-first
       mode: replicated
       replicas: 3
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-
-  pgbouncer:
-    image: bitnamilegacy/pgbouncer:1.23.1
-    secrets:
-      - twir_postgres_user
-      - twir_postgres_password
-      - twir_postgres_db
-    environment:
-      - POSTGRESQL_HOST=postgres
-      - POSTGRESQL_USERNAME_FILE=/run/secrets/twir_postgres_user
-      - POSTGRESQL_PASSWORD_FILE=/run/secrets/twir_postgres_password
-      - POSTGRESQL_DATABASE_FILE=/run/secrets/twir_postgres_db
-
-      - PGBOUNCER_AUTH_USER=twir
-      - PGBOUNCER_DATABASE=twir
-      - PGBOUNCER_DEFAULT_POOL_SIZE=19
-      - PGBOUNCER_MIN_POOL_SIZE=10
-      - PGBOUNCER_MAX_CLIENT_CONN=4000
-      - PGBOUNCER_POOL_MODE=transaction
-    networks:
-      - twir
-    deploy:
-      update_config:
-        parallelism: 2
-        order: start-first
-      mode: replicated
-      replicas: 5
       restart_policy:
         condition: any
         delay: 30s

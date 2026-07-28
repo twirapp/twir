@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -90,7 +91,7 @@ func (s *Service) GetMany(ctx context.Context, input GetManyInput) (
 					}
 
 					for _, dbUser := range dbUsers {
-						if !dbUser.Platform.IsTwitch() {
+						if dbUser.Platform != platformentity.PlatformTwitch {
 							continue
 						}
 
