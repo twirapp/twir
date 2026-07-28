@@ -5,6 +5,8 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/libs/bus-core/generic"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
@@ -30,6 +32,41 @@ type ParseContextChannel struct {
 	Name         string
 	TwitchUserID uuid.UUID // Internal UUID for token lookup via NewUserClientWithContext
 	DBChannelID  string    // Internal DB UUID (channels.id) for Postgres queries
+}
+
+func NewParseContextChannel(
+	channel channelentity.Channel,
+	p platform.Platform,
+	name string,
+	bindingID string,
+) (*ParseContextChannel, bool) {
+	var (
+		binding channelplatformentity.ChannelPlatform
+		ok      bool
+	)
+	if bindingID == "" {
+		binding, ok = channel.Binding(p)
+	} else {
+		parsedBindingID, err := uuid.Parse(bindingID)
+		if err != nil {
+			return nil, false
+		}
+		binding, ok = channel.BindingByID(parsedBindingID)
+	}
+	if !ok {
+		return nil, false
+	}
+
+	parseContextChannel := &ParseContextChannel{
+		ID:          binding.PlatformChannelID,
+		Name:        name,
+		DBChannelID: channel.ID.String(),
+	}
+	if twitchBinding, found := channel.Binding(platform.PlatformTwitch); found {
+		parseContextChannel.TwitchUserID = twitchBinding.UserID
+	}
+
+	return parseContextChannel, true
 }
 
 type ParseContextEmotePosition struct {

@@ -11,6 +11,7 @@ import (
 	"github.com/samber/lo"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -116,22 +117,17 @@ func (s *scheduledVips) process(ctx context.Context) {
 				)
 				continue
 			}
-			if channel.TwitchPlatformID == nil {
-				s.logger.Warn("channel has no twitch platform id", slog.String("channel_id", vip.ChannelID))
+			twitchBinding, ok := channel.Binding(platformentity.PlatformTwitch)
+			if !ok || twitchBinding.PlatformChannelID == "" {
+				s.logger.Warn("channel has no Twitch binding", slog.String("channel_id", vip.ChannelID))
 				continue
 			}
 
-			channelPlatformIDs[vip.ChannelID] = *channel.TwitchPlatformID
-
-			ownerUser, err := s.usersRepo.GetByID(ctx, *channel.TwitchUserID)
-			if err != nil {
-				s.logger.Error("failed to get owner user by id", slog.String("channel_id", vip.ChannelID), logger.Error(err))
-				continue
-			}
+			channelPlatformIDs[vip.ChannelID] = twitchBinding.PlatformChannelID
 
 			twitchClient, err := twitch.NewUserClientWithContext(
 				ctx,
-				ownerUser.ID,
+				twitchBinding.UserID,
 				s.config,
 				s.twirBus,
 			)

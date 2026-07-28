@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -11,6 +12,7 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
@@ -99,10 +101,10 @@ func (c *Handler) updateUserModStatus(
 		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(
+	channel, err := c.channelService.GetChannelByBindingUserID(
 		ctx,
-		broadcasterUser.ID,
 		platform.PlatformTwitch,
+		broadcasterUser.ID,
 	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
@@ -139,7 +141,7 @@ func (c *Handler) updateBotStatus(
 		return
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return
@@ -149,12 +151,18 @@ func (c *Handler) updateBotStatus(
 		return
 	}
 
-	channel, err = c.channelsRepo.Update(
-		ctx,
-		channel.ID,
-		channelsrepository.UpdateInput{IsBotMod: &newStatus},
-	)
-	if err != nil {
+	twitchBinding, hasTwitchBinding := channel.Binding(platform.PlatformTwitch)
+	if !hasTwitchBinding {
+		return
+	}
+
+	botConfigPatch := json.RawMessage(`{"is_bot_mod":false}`)
+	if newStatus {
+		botConfigPatch = json.RawMessage(`{"is_bot_mod":true}`)
+	}
+	if _, err = c.channelPlatformsRepo.Patch(ctx, twitchBinding.ID, channelplatforms.PatchInput{
+		BotConfigPatch: botConfigPatch,
+	}); err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}

@@ -5,28 +5,22 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/google/uuid"
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
-	"github.com/twirapp/twir/apps/eventsub/internal/kick"
+	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	platformsregistry "github.com/twirapp/twir/libs/platforms"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
 )
 
-type Platform interface {
-	Name() string
-	SubscribeAll(ctx context.Context, channelID uuid.UUID) error
-	UnsubscribeAll(ctx context.Context, channelID uuid.UUID) error
-	SetCallbackBaseURL(baseURL string)
-}
-
 type Manager struct {
 	config       cfg.Config
 	logger       *slog.Logger
-	kickSubMgr   *kick.SubscriptionManager
 	channelsRepo channels.Repository
-	platforms    []Platform
+	transports   *platformsregistry.Registry[eventplatforms.EventTransport]
 }
 
 type Opts struct {
@@ -36,8 +30,8 @@ type Opts struct {
 
 	Config       cfg.Config
 	Logger       *slog.Logger
-	KickSubMgr   *kick.SubscriptionManager
 	ChannelsRepo channels.Repository
+	Transports   *platformsregistry.Registry[eventplatforms.EventTransport]
 	Server       *httpserver.Server
 }
 
@@ -45,11 +39,9 @@ func NewManager(opts Opts) *Manager {
 	m := &Manager{
 		config:       opts.Config,
 		logger:       opts.Logger,
-		kickSubMgr:   opts.KickSubMgr,
 		channelsRepo: opts.ChannelsRepo,
+		transports:   opts.Transports,
 	}
-
-	m.platforms = []Platform{m.kickSubMgr}
 
 	opts.Lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
@@ -63,26 +55,66 @@ func NewManager(opts Opts) *Manager {
 	return m
 }
 
+func (m *Manager) registeredTransports() []eventplatforms.EventTransport {
+	if m.transports == nil {
+		return nil
+	}
+
+	transports := make([]eventplatforms.EventTransport, 0, len(platformentity.All()))
+	for _, platform := range platformentity.All() {
+		transport, ok := m.transports.Get(platform)
+		if ok {
+			transports = append(transports, transport)
+		}
+	}
+
+	return transports
+}
+
+func (m *Manager) bindingsForPlatform(
+	ctx context.Context,
+	platform platformentity.Platform,
+) ([]channelplatformentity.ChannelPlatform, error) {
+	channels, err := m.channelsRepo.GetAllByBindingPlatform(ctx, platform)
+	if err != nil {
+		return nil, fmt.Errorf("list %s channels: %w", platform, err)
+	}
+
+	bindings := make([]channelplatformentity.ChannelPlatform, 0, len(channels))
+	for _, channel := range channels {
+		binding, ok := channel.Binding(platform)
+		if !ok {
+			continue
+		}
+
+		bindings = append(bindings, binding)
+	}
+
+	return bindings, nil
+}
+
 func (m *Manager) start(ctx context.Context) error {
 	callbackBaseURL := m.config.SiteBaseUrl
 	if m.config.EventSubCallbackBaseUrl != "" {
 		callbackBaseURL = m.config.EventSubCallbackBaseUrl
 	}
 
+	transports := m.registeredTransports()
 	m.logger.InfoContext(
 		ctx,
 		"webhook manager: starting",
-		slog.String("callback_base_url", callbackBaseURL),
 		slog.Bool("is_development", m.config.IsDevelopment()),
-		slog.Int("platforms_count", len(m.platforms)),
+		slog.Int("platforms_count", len(transports)),
 	)
 
-	for _, p := range m.platforms {
-		p.SetCallbackBaseURL(callbackBaseURL)
+	m.logVKStartup(ctx)
+
+	for _, transport := range transports {
+		transport.SetCallbackBaseURL(callbackBaseURL)
 	}
 
 	if m.config.IsDevelopment() {
-		m.logKickWebhookInstructions(ctx, callbackBaseURL)
+		m.logKickWebhookInstructions(ctx)
 		if err := m.unsubscribeAllPlatforms(ctx); err != nil {
 			m.logger.ErrorContext(ctx, "webhook manager: unsubscribe all failed", logger.Error(err))
 		}
@@ -97,95 +129,78 @@ func (m *Manager) start(ctx context.Context) error {
 	return nil
 }
 
-func (m *Manager) logKickWebhookInstructions(ctx context.Context, callbackBaseURL string) {
-	webhookURL := callbackBaseURL + "/webhook/kick"
+func (m *Manager) logKickWebhookInstructions(ctx context.Context) {
 	m.logger.WarnContext(ctx,
 		"============================================================\n"+
 			"KICK WEBHOOK SETUP REQUIRED IF YOU WANT TO RECEIVE EVENTS\n"+
 			"============================================================\n"+
-			"1. Go to https://kick.com/settings/developer\n"+
-			"2. Open your app settings\n"+
-			"3. Enable 'Webhooks' toggle\n"+
-			"4. Set Webhook URL to: "+webhookURL+"\n"+
-			"5. Save changes\n"+
-			"6. Restart eventsub if needed\n"+
+			"1. Open your app settings\n"+
+			"2. Enable 'Webhooks' toggle\n"+
+			"3. Set the webhook endpoint for this service\n"+
+			"4. Save changes\n"+
+			"5. Restart eventsub if needed\n"+
 			"============================================================",
-		slog.String("webhook_url", webhookURL),
 	)
 }
 
 func (m *Manager) unsubscribeAllPlatforms(ctx context.Context) error {
-	hasKick := true
-	kickChannels, err := m.channelsRepo.GetMany(ctx, channels.GetManyInput{
-		HasKickUserID: &hasKick,
-	})
-	if err != nil {
-		return fmt.Errorf("list kick channels: %w", err)
-	}
-
-	for _, ch := range kickChannels {
-		if ch.KickUserID == nil {
-			continue
+	for _, transport := range m.registeredTransports() {
+		bindings, err := m.bindingsForPlatform(ctx, transport.Platform())
+		if err != nil {
+			return err
 		}
 
-		if err := m.kickSubMgr.UnsubscribeAll(ctx, *ch.KickUserID); err != nil {
+		if err := eventplatforms.UnsubscribeAll(ctx, m.transports, bindings); err != nil {
 			m.logger.WarnContext(
 				ctx,
-				"webhook manager: failed to unsubscribe kick",
-				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", ch.KickUserID.String()),
+				"webhook manager: failed to unsubscribe transport bindings",
+				slog.String("platform", transport.Platform().String()),
 				logger.Error(err),
 			)
 		}
+	}
+
+	if err := m.logVKUnsubscribeSummary(ctx); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (m *Manager) subscribeAllPlatforms(ctx context.Context) error {
-	hasKick := true
-	kickChannels, err := m.channelsRepo.GetMany(ctx, channels.GetManyInput{
-		HasKickUserID: &hasKick,
-	})
-	if err != nil {
-		return fmt.Errorf("list kick channels: %w", err)
-	}
-
-	m.logger.InfoContext(
-		ctx,
-		"webhook manager: subscribing to kick events",
-		slog.Int("channels_count", len(kickChannels)),
-	)
-
-	for _, ch := range kickChannels {
-		if ch.KickUserID == nil || !ch.KickBotEnabled {
-			continue
-		}
-
-		if err := m.kickSubMgr.SubscribeAll(ctx, *ch.KickUserID); err != nil {
-			m.logger.ErrorContext(
-				ctx,
-				"webhook manager: failed to subscribe kick",
-				slog.String("channel_id", ch.ID.String()),
-				slog.String("kick_user_id", ch.KickUserID.String()),
-				logger.Error(err),
-			)
-			continue
+	for _, transport := range m.registeredTransports() {
+		bindings, err := m.bindingsForPlatform(ctx, transport.Platform())
+		if err != nil {
+			return err
 		}
 
 		m.logger.InfoContext(
 			ctx,
-			"webhook manager: subscribed kick eventsub",
-			slog.String("channel_id", ch.ID.String()),
-			slog.String("kick_user_id", ch.KickUserID.String()),
+			"webhook manager: subscribing to platform events",
+			slog.String("platform", transport.Platform().String()),
+			slog.Int("bindings_count", len(bindings)),
+		)
+
+		if err := eventplatforms.SubscribeAll(ctx, m.transports, bindings); err != nil {
+			m.logger.ErrorContext(
+				ctx,
+				"webhook manager: failed to subscribe transport bindings",
+				slog.String("platform", transport.Platform().String()),
+				logger.Error(err),
+			)
+		}
+
+		m.logger.InfoContext(
+			ctx,
+			"webhook manager: finished subscribing to platform events",
+			slog.String("platform", transport.Platform().String()),
+			slog.Int("bindings_count", len(bindings)),
 		)
 	}
 
-	m.logger.InfoContext(
-		ctx,
-		"webhook manager: finished subscribing to kick events",
-		slog.Int("channels_count", len(kickChannels)),
-	)
+	if err := m.logVKSubscribeSummary(ctx); err != nil {
+		return err
+	}
 
 	return nil
 }

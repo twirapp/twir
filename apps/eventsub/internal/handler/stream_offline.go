@@ -32,10 +32,10 @@ func (c *Handler) HandleStreamOffline(
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	channel, err := c.channelService.GetChannelByPlatformUserID(
+	channel, err := c.channelService.GetChannelByPlatformChannelID(
 		ctx,
-		event.BroadcasterUserId,
 		platform.PlatformTwitch,
+		event.BroadcasterUserId,
 	)
 	if err != nil {
 		c.logger.Error(
@@ -106,7 +106,7 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 		return fmt.Errorf("failed to get user by platform id: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
 	if err != nil {
 		return fmt.Errorf("failed to get channel by broadcaster user: %w", err)
 	}

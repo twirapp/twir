@@ -65,9 +65,7 @@ export default defineNuxtConfig({
 		defaultLocale: 'en',
 	},
 
-	extends: [
-		'./layers/widgets',
-	],
+	extends: ['./layers/widgets'],
 
 	routeRules: {
 		'/dashboard': { ssr: false },
@@ -123,11 +121,11 @@ export default defineNuxtConfig({
 		clientBundle: {
 			includeCustomCollections: true,
 		},
-		customCollections: [
-			{
-				prefix: 'twir-overlays',
-				dir: resolve('./layers/dashboard/assets/overlays'),
-			},
+	customCollections: [
+		{
+			prefix: 'twir-overlays',
+			dir: resolve('./layers/dashboard/assets/overlays'),
+		},
 			{
 				prefix: 'twir-integrations',
 				dir: resolve('./layers/dashboard/assets/integrations'),
@@ -180,6 +178,7 @@ export default defineNuxtConfig({
 				'@unhead/schema-org/vue',
 				'@tanstack/vue-virtual',
 				'tinycolor2',
+				'date-fns',
 			],
 		},
 		server: {

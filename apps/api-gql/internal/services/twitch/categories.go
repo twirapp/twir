@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -97,22 +98,22 @@ func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInf
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	if channel.IsNil() {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		*channel.TwitchUserID,
-		s.config,
-		s.twirBus,
-	)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
+	if !found || twitchBinding.UserID == uuid.Nil {
+		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
+	twitchClient, err := s.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client for user %s: %w", input.ChannelID, err)
 	}
 
 	params := &helix.EditChannelInformationParams{
-		BroadcasterID: *channel.TwitchPlatformID,
+		BroadcasterID: twitchBinding.PlatformChannelID,
 	}
 
 	if input.CategoryID != nil {

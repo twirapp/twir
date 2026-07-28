@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/libs/entities/platform"
 )
 
 var TwitchName = &types.Variable{
@@ -24,11 +25,12 @@ var TwitchName = &types.Variable{
 			return nil, err
 		}
 
-		if !ch.TwitchConnected() {
+		binding, ok := ch.Binding(platform.PlatformTwitch)
+		if !ok || binding.UserID == uuid.Nil {
 			return &types.VariableHandlerResult{Result: ""}, nil
 		}
 
-		user, err := parseCtx.Services.UsersRepo.GetByID(ctx, *ch.TwitchUserID)
+		user, err := parseCtx.Services.UsersRepo.GetByID(ctx, binding.UserID)
 		if err != nil {
 			return nil, err
 		}
@@ -58,11 +60,12 @@ var KickName = &types.Variable{
 			return nil, err
 		}
 
-		if !ch.KickConnected() {
+		binding, ok := ch.Binding(platform.PlatformKick)
+		if !ok || binding.UserID == uuid.Nil {
 			return &types.VariableHandlerResult{Result: ""}, nil
 		}
 
-		user, err := parseCtx.Services.UsersRepo.GetByID(ctx, *ch.KickUserID)
+		user, err := parseCtx.Services.UsersRepo.GetByID(ctx, binding.UserID)
 		if err != nil {
 			return nil, err
 		}

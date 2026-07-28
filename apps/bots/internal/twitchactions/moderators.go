@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -13,13 +14,17 @@ func (c *TwitchActions) AddModerator(ctx context.Context, broadcasterID, userID 
 	if err != nil {
 		return fmt.Errorf("cannot get channel by twitch id: %w", err)
 	}
-	if channel.TwitchUserID == nil {
-		return fmt.Errorf("channel has no twitch user id for broadcaster %s", broadcasterID)
+	twitchBinding, found := channel.Binding(platform.PlatformTwitch)
+	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" {
+		return fmt.Errorf("channel has no enabled Twitch binding for broadcaster %s", broadcasterID)
+	}
+	if twitchBinding.PlatformChannelID != broadcasterID {
+		return fmt.Errorf("Twitch binding channel id does not match broadcaster %s", broadcasterID)
 	}
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchUserID,
+		twitchBinding.UserID,
 		c.config,
 		c.twirBus,
 	)
@@ -29,7 +34,7 @@ func (c *TwitchActions) AddModerator(ctx context.Context, broadcasterID, userID 
 
 	resp, err := twitchClient.AddChannelModerator(
 		&helix.AddChannelModeratorParams{
-			BroadcasterID: broadcasterID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        userID,
 		},
 	)
@@ -48,13 +53,17 @@ func (c *TwitchActions) RemoveModerator(ctx context.Context, broadcasterID, user
 	if err != nil {
 		return fmt.Errorf("cannot get channel by twitch id: %w", err)
 	}
-	if channel.TwitchUserID == nil {
-		return fmt.Errorf("channel has no twitch user id for broadcaster %s", broadcasterID)
+	twitchBinding, found := channel.Binding(platform.PlatformTwitch)
+	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" {
+		return fmt.Errorf("channel has no enabled Twitch binding for broadcaster %s", broadcasterID)
+	}
+	if twitchBinding.PlatformChannelID != broadcasterID {
+		return fmt.Errorf("Twitch binding channel id does not match broadcaster %s", broadcasterID)
 	}
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchUserID,
+		twitchBinding.UserID,
 		c.config,
 		c.twirBus,
 	)
@@ -64,7 +73,7 @@ func (c *TwitchActions) RemoveModerator(ctx context.Context, broadcasterID, user
 
 	resp, err := twitchClient.RemoveChannelModerator(
 		&helix.RemoveChannelModeratorParams{
-			BroadcasterID: broadcasterID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        userID,
 		},
 	)

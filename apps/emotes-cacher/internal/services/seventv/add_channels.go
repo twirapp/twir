@@ -7,13 +7,12 @@ import (
 	"sync"
 
 	"github.com/avast/retry-go/v4"
-	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	dispatchtypes "github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/dispatch_types"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	seventvapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/repositories/channels/model"
+	"gorm.io/gorm"
 )
 
 func (c *Service) AddChannels(ctx context.Context, channelsIDs ...string) error {
@@ -106,6 +105,23 @@ type channelWithEmoteSet struct {
 
 type channelsWithEmotesSetsIds map[string][]channelWithEmoteSet
 
+type channelBindingData struct {
+	Platform   platformentity.Platform `gorm:"column:platform"`
+	PlatformID string                  `gorm:"column:platform_channel_id"`
+}
+
+func buildChannelBindingsQuery(db *gorm.DB, ctx context.Context, channelID string) *gorm.DB {
+	return db.
+		WithContext(ctx).
+		Table("channel_platforms AS cp").
+		Select("cp.platform", "cp.platform_channel_id").
+		Where("cp.channel_id = ?", channelID).
+		Where("cp.platform IN ?", []platformentity.Platform{
+			platformentity.PlatformTwitch,
+			platformentity.PlatformKick,
+		})
+}
+
 func (c *Service) getChannelsWithEmotesSets(
 	ctx context.Context,
 	channelsIDs ...string,
@@ -130,59 +146,32 @@ func (c *Service) getChannelsWithEmotesSets(
 
 			retry.Do(
 				func() error {
-					var channelModel model.Channel
-
-					if err := c.gorm.WithContext(ctx).
-						Model(&model.Channel{}).
-						Select("twitch_user_id", "kick_user_id").
-						Where("id = ?", channel).
-						Scan(&channelModel).Error; err != nil {
+					var bindings []channelBindingData
+					if err := buildChannelBindingsQuery(c.gorm, ctx, channel).
+						Scan(&bindings).Error; err != nil {
 						return fmt.Errorf("failed to fetch channel %s: %w", channel, err)
 					}
 
-					var platforms []platformentity.Platform
-					if channelModel.TwitchUserID != nil {
-						platforms = append(platforms, platformentity.PlatformTwitch)
-					}
-					if channelModel.KickUserID != nil {
-						platforms = append(platforms, platformentity.PlatformKick)
-					}
-
-					if len(platforms) == 0 {
+					if len(bindings) == 0 {
 						return fmt.Errorf("channel %s has no connected platform", channel)
 					}
 
-					for _, platform := range platforms {
-						var userID uuid.UUID
-						switch platform {
-						case platformentity.PlatformKick:
-							userID = *channelModel.KickUserID
-						case platformentity.PlatformTwitch:
-							userID = *channelModel.TwitchUserID
-						default:
-							return fmt.Errorf("unsupported platform %q for channel %s", platform, channel)
-						}
-
-						platformUser, err := c.usersRepo.GetByID(ctx, userID)
-						if err != nil {
-							return fmt.Errorf(
-								"failed to fetch user for channel %s platform %s: %w",
-								channel, platform, err,
-							)
-						}
-
+					for _, binding := range bindings {
 						var profile any
-						switch platform {
+						var err error
+						switch binding.Platform {
 						case platformentity.PlatformKick:
-							profile, err = c.sevenTvApiClient.GetProfileByKickId(ctx, platformUser.PlatformID)
+							profile, err = c.sevenTvApiClient.GetProfileByKickId(ctx, binding.PlatformID)
 						case platformentity.PlatformTwitch:
-							profile, err = c.sevenTvApiClient.GetProfileByTwitchId(ctx, platformUser.PlatformID)
+							profile, err = c.sevenTvApiClient.GetProfileByTwitchId(ctx, binding.PlatformID)
+						default:
+							return fmt.Errorf("unsupported platform %q for channel %s", binding.Platform, channel)
 						}
 
 						if err != nil {
 							return fmt.Errorf(
 								"failed to fetch 7TV profile for channel %s platform %s: %w",
-								channel, platform, err,
+								channel, binding.Platform, err,
 							)
 						}
 
@@ -209,13 +198,13 @@ func (c *Service) getChannelsWithEmotesSets(
 							channelsWithEmoteSets[channel],
 							channelWithEmoteSet{
 								EmoteSetID: activeEmoteSetID,
-								Platform:   string(platform),
+								Platform:   string(binding.Platform),
 							},
 						)
 						if activeEmoteSetID != "" {
 							c.emoteSetToChannelID[activeEmoteSetID] = emotes_store.ChannelKey{
-								Platform: platform,
-								ID:       platformUser.PlatformID,
+								Platform: binding.Platform,
+								ID:       binding.PlatformID,
 							}
 						}
 						mu.Unlock()

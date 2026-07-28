@@ -1,13 +1,12 @@
 package middlewares
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/enums/dashboard_permissions"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"gorm.io/gorm"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 )
 
 func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_permissions.ChannelRolePermissionEnum) func(
@@ -42,8 +41,8 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 			return
 		}
 
-		var channel model.Channels
-		if err := c.gorm.WithContext(ctx).Where("id = ?::uuid", dashboardId).First(&channel).Error; err != nil {
+		dashboardUUID, err := uuid.Parse(dashboardId)
+		if err != nil {
 			huma.WriteErr(
 				c.huma,
 				hc,
@@ -54,83 +53,21 @@ func (c *Middlewares) HasChannelRolesDashboardPermission(permission dashboard_pe
 			return
 		}
 
-		if channel.IsOwner(user.ID) || user.IsBotAdmin {
+		if c.dashboardAccess == nil {
+			huma.WriteErr(c.huma, hc, http.StatusInternalServerError, "Cannot check dashboard access", nil)
+			return
+		}
+		hasAccess, err := c.dashboardAccess.CanAccess(ctx, dashboardaccess.Subject{
+			ID:         user.ID,
+			IsBotAdmin: user.IsBotAdmin,
+		}, dashboardUUID, permission.String())
+		if err != nil {
+			huma.WriteErr(c.huma, hc, http.StatusInternalServerError, "Cannot check dashboard access", err)
+			return
+		}
+		if hasAccess {
 			next(hc)
 			return
-		}
-
-		var channelRoles []model.ChannelRole
-		if err := c.gorm.
-			WithContext(ctx).
-			Where(`"channelId" = ?::uuid`, dashboardId).
-			Preload("Users", `user_id = ?`, user.ID).
-			Find(&channelRoles).
-			Error; err != nil {
-			huma.WriteErr(
-				c.huma,
-				hc,
-				http.StatusInternalServerError,
-				"Cannot get channel roles",
-				err,
-			)
-
-			return
-		}
-
-		var userStat model.UsersStats
-		if err := c.gorm.
-			WithContext(ctx).
-			Where(`user_id = ? AND channel_id = ?::uuid`, user.ID, dashboardId).
-			First(&userStat).
-			Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			huma.WriteErr(
-				c.huma,
-				hc,
-				http.StatusInternalServerError,
-				"Cannot get user stats",
-				err,
-			)
-
-			return
-		}
-
-		roleToStats := map[model.ChannelRoleEnum]bool{
-			model.ChannelRoleTypeModerator:  userStat.IsMod,
-			model.ChannelRoleTypeVip:        userStat.IsVip,
-			model.ChannelRoleTypeSubscriber: userStat.IsSubscriber,
-		}
-
-		for i, role := range channelRoles {
-			if roleToStats[role.Type] {
-				channelRoles[i].Users = append(
-					role.Users,
-					&model.ChannelRoleUser{
-						ID:     "", // not needed
-						UserID: user.ID,
-						RoleID: role.ID,
-					},
-				)
-			}
-		}
-
-		for _, role := range channelRoles {
-			// we do not check does role.Users contains request author user
-			// because we are doing preload by user id
-			if len(role.Users) == 0 || len(role.Permissions) == 0 {
-				continue
-			}
-
-			for _, perm := range role.Permissions {
-				if perm == dashboard_permissions.ChannelRolePermissionEnumCanAccessDashboard.String() {
-					next(hc)
-					return
-				}
-
-				if permission.String() == perm {
-					next(hc)
-					return
-				}
-			}
 		}
 
 		huma.WriteErr(

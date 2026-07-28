@@ -101,7 +101,7 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) generic.Ch
 		}
 	}
 
-	return generic.ChatMessage{
+	message := generic.ChatMessage{
 		ID:                   event.MessageId,
 		BroadcasterUserId:    event.BroadcasterUserId,
 		BroadcasterUserName:  event.BroadcasterUserName,
@@ -129,6 +129,13 @@ func EventSubChatMessageToBus(event eventsub.ChannelChatMessageEvent) generic.Ch
 		Reply:                       reply,
 		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardId,
 	}
+
+	message.IsBroadcaster = message.IsChatterBroadcaster()
+	message.IsModerator = message.IsChatterModerator()
+	message.IsVip = message.IsChatterVip()
+	message.IsSubscriber = message.IsChatterSubscriber()
+
+	return message
 }
 
 func EventSubChatNotificationAnnouncementToBus(
@@ -211,7 +218,7 @@ func EventSubChatNotificationAnnouncementToBus(
 		announceColor = event.Announcement.Color
 	}
 
-	return generic.ChatMessage{
+	message := generic.ChatMessage{
 		ID:                   event.MessageId,
 		BroadcasterUserId:    event.BroadcasterUserId,
 		BroadcasterUserName:  event.BroadcasterUserName,
@@ -237,6 +244,13 @@ func EventSubChatNotificationAnnouncementToBus(
 		Badges:            badges,
 		MessageType:       "announcement",
 	}
+
+	message.IsBroadcaster = message.IsChatterBroadcaster()
+	message.IsModerator = message.IsChatterModerator()
+	message.IsVip = message.IsChatterVip()
+	message.IsSubscriber = message.IsChatterSubscriber()
+
+	return message
 }
 
 func convertFragmentTypeToEnumValue(t string) generic.FragmentType {

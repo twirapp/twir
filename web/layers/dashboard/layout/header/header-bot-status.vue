@@ -11,8 +11,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
-import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'
 import CircleSvg from '~~/layers/dashboard/assets/images/circle.svg'
 
 const { botStatuses, executeSubscription } = useBotStatuses()
@@ -64,6 +62,7 @@ function statusKey(status: { dashboardId: string; platform: string }) {
 function formatPlatformName(platform: string) {
 	if (platform === 'kick') return 'Kick'
 	if (platform === 'twitch') return 'Twitch'
+	if (platform === 'vk_video_live') return 'VK Video Live'
 	return platform || 'Bot'
 }
 
@@ -113,11 +112,13 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 				/>
 				<div class="flex items-center gap-1">
 					<template v-for="status in sortedBotStatuses" :key="statusKey(status)">
-						<KickIcon v-if="status.platform === 'kick'" class="size-4 text-[#53FC18]" />
-						<TwitchIcon
+						<Icon v-if="status.platform === 'kick'" name="simple-icons:kick" class="size-4 text-[#53FC18]" />
+						<Icon
 							v-else-if="status.platform === 'twitch'"
+							name="simple-icons:twitch"
 							class="size-4 text-[#9146FF]"
 						/>
+						<Icon v-else-if="status.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4" />
 					</template>
 				</div>
 				<span class="max-w-44 truncate">{{ statusSummary }}</span>
@@ -136,11 +137,13 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 					@click="changeChatState(status)"
 				>
 				<div class="flex size-7 items-center justify-center rounded-md border border-border bg-background">
-					<KickIcon v-if="status.platform === 'kick'" class="size-4 text-[#53FC18]" />
-					<TwitchIcon
+					<Icon v-if="status.platform === 'kick'" name="simple-icons:kick" class="size-4 text-[#53FC18]" />
+					<Icon
 						v-else-if="status.platform === 'twitch'"
+						name="simple-icons:twitch"
 						class="size-4 text-[#9146FF]"
 					/>
+					<Icon v-else-if="status.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4" />
 				</div>
 				<div class="min-w-0 flex-1">
 					<p class="truncate text-sm font-medium">

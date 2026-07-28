@@ -45,44 +45,7 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		return false, gqlerrors.HandleError(err)
 	}
 
-	var channel model.Channels
-	if err := r.deps.Gorm.WithContext(ctx).Where(
-		"id = ?",
-		dashboardId,
-	).First(&channel).Error; err != nil {
-		return false, gqlerrors.HandleError(err)
-	}
-
-	if !channel.IsOwner(user.ID) {
-		return false, fmt.Errorf("you cannot reset stats for this user")
-	}
-
-	var field string
-
-	switch typeArg {
-	case gqlmodel.CommunityUsersResetTypeMessages:
-		field = "messages"
-	case gqlmodel.CommunityUsersResetTypeWatched:
-		field = "watched"
-	case gqlmodel.CommunityUsersResetTypeUsedChannelsPoints:
-		field = "usedChannelPoints"
-	case gqlmodel.CommunityUsersResetTypeUsedEmotes:
-		field = "emotes"
-	}
-
-	if field == "" {
-		return false, fmt.Errorf("unknown reset typeArg: %s", typeArg)
-	}
-
-	err = r.deps.Gorm.WithContext(ctx).
-		Model(&model.UsersStats{}).
-		Where(`channel_id = ?`, dashboardId).
-		Update(field, 0).Error
-	if err != nil {
-		return false, gqlerrors.HandleError(err)
-	}
-
-	return true, nil
+	return r.resetCommunityStats(ctx, user.ID, dashboardId, typeArg)
 }
 
 // CommunityUsers is the resolver for the communityUsers field.
@@ -108,6 +71,19 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		return nil, gqlerrors.HandleError(err)
 	}
 
+	boundUserIDs := make([]string, 0, len(channel.Bindings))
+	botUserIDs := make([]string, 0, len(channel.Bindings))
+	for _, binding := range channel.Bindings {
+		boundUserIDs = append(boundUserIDs, binding.UserID.String())
+		if binding.BotUserID != nil {
+			botUserIDs = append(botUserIDs, binding.BotUserID.String())
+		}
+	}
+	_, twitchBotConfig, hasTwitchBinding, err := channel.TwitchBinding()
+	if err != nil {
+		return nil, gqlerrors.HandleError(fmt.Errorf("parse Twitch binding configuration: %w", err))
+	}
+
 	// Determine which platforms are requested
 	requestedPlatforms := platformentity.All()
 	if opts.Platforms.IsSet() && len(opts.Platforms.Value()) > 0 {
@@ -122,7 +98,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		isPlatformsRequested[requestedPlatform] = true
 	}
 
-	// Search: Twitch via API, Kick via DB ILIKE
+	// Search: Twitch via API, Kick and VK via DB ILIKE
 	var searchUserUUIDs []string
 	if opts.Search.IsSet() && opts.Search.Value() != nil && *opts.Search.Value() != "" {
 		searchTerm := strings.TrimSpace(*opts.Search.Value())
@@ -156,22 +132,30 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 			}
 		}
 
-		if isPlatformsRequested[platformentity.PlatformKick] {
+		dbSearchPlatforms := []platformentity.Platform{
+			platformentity.PlatformKick,
+			platformentity.PlatformVKVideoLive,
+		}
+		for _, dbPlatform := range dbSearchPlatforms {
+			if !isPlatformsRequested[dbPlatform] {
+				continue
+			}
+
 			searchQuery := "%" + searchTerm + "%"
-			var kickUUIDs []string
+			var platformUUIDs []string
 			err = r.deps.Gorm.WithContext(ctx).
 				Model(&model.Users{}).
 				Where(
 					`platform = ? AND (login ILIKE ? OR display_name ILIKE ? OR platform_id ILIKE ?)`,
-					platformentity.PlatformKick.String(),
+					dbPlatform.String(),
 					searchQuery, searchQuery, searchQuery,
 				).
-				Pluck("id", &kickUUIDs).Error
+				Pluck("id", &platformUUIDs).Error
 			if err != nil {
 				return nil, gqlerrors.HandleError(err)
 			}
 
-			searchUserUUIDs = append(searchUserUUIDs, kickUUIDs...)
+			searchUserUUIDs = append(searchUserUUIDs, platformUUIDs...)
 		}
 
 		// No results from either platform → return empty
@@ -198,20 +182,17 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		)`,
 		)
 
-		if channel.TwitchUserID != nil {
-			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.TwitchUserID.String()))
+		for _, userID := range boundUserIDs {
+			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, userID))
 		}
-		if channel.KickUserID != nil {
-			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.KickUserID.String()))
+		for _, botUserID := range botUserIDs {
+			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, botUserID))
 		}
-		if channel.KickBotID != nil {
-			b = b.Where(squirrel.Expr(`users_stats.user_id <> ?::uuid`, channel.KickBotID.String()))
-		}
-		if channel.BotID != "" {
+		if hasTwitchBinding && twitchBotConfig.BotID != "" {
 			b = b.Where(
 				`users_stats.user_id != (
 				SELECT id FROM users WHERE platform_id = ? AND platform = 'twitch' LIMIT 1
-			)`, channel.BotID,
+			)`, twitchBotConfig.BotID,
 			)
 		}
 

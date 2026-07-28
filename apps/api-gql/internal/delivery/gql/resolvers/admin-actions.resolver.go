@@ -14,7 +14,7 @@ import (
 	kvoptions "github.com/twirapp/kv/options"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
+	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 )
 
@@ -81,7 +81,7 @@ func (r *mutationResolver) KickBotSetupLink(ctx context.Context) (string, error)
 		return "", fmt.Errorf("cannot generate state: %w", err)
 	}
 
-	codeVerifier, err := kickplatform.GenerateCodeVerifier()
+	codeVerifier, codeChallenge, err := appplatform.GeneratePKCE()
 	if err != nil {
 		return "", fmt.Errorf("cannot generate code verifier: %w", err)
 	}
@@ -100,6 +100,34 @@ func (r *mutationResolver) KickBotSetupLink(ctx context.Context) (string, error)
 		return "", fmt.Errorf("cannot store setup state: %w", err)
 	}
 
-	codeChallenge := kickplatform.GenerateCodeChallenge(codeVerifier)
 	return r.deps.KickProvider.GetBotSetupAuthURL(state, codeChallenge), nil
+}
+
+// VkVideoBotSetupLink is the resolver for the vkVideoBotSetupLink field.
+func (r *mutationResolver) VkVideoBotSetupLink(ctx context.Context) (string, error) {
+	url, err := r.deps.Auth.StartVKVideoBotSetup(ctx)
+	if err != nil {
+		return "", gqlerrors.HandleError(err)
+	}
+
+	return url, nil
+}
+
+// VkVideoBotSetupStatus is the resolver for the vkVideoBotSetupStatus field.
+func (r *mutationResolver) VkVideoBotSetupStatus(ctx context.Context) (bool, error) {
+	configured, err := r.deps.Auth.VKVideoBotConfigured(ctx)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	return configured, nil
+}
+
+// VkVideoBotSetupComplete is the resolver for the vkVideoBotSetupComplete field.
+func (r *mutationResolver) VkVideoBotSetupComplete(ctx context.Context, code string, state string) (bool, error) {
+	if err := r.deps.Auth.CompleteVKVideoBotSetup(ctx, code, state); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	return true, nil
 }

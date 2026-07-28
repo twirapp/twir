@@ -13,4 +13,5 @@ type Token struct {
 	ExpiresIn           int
 	ObtainmentTimestamp time.Time
 	Scopes              []string
+	DeviceID            *string
 }

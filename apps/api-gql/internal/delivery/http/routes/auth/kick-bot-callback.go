@@ -13,9 +13,10 @@ import (
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/crypto"
+	kickbotentity "github.com/twirapp/twir/libs/entities/kick_bot"
 	"github.com/twirapp/twir/libs/entities/platform"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	channelplatformsrepo "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	kickbotsrepo "github.com/twirapp/twir/libs/repositories/kick_bots"
 	usersrepo "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
@@ -116,7 +117,7 @@ func (a *Auth) handleKickBotCallback(
 			return nil, huma.Error500InternalServerError("Cannot create kick bot", createErr)
 		}
 
-		affectedChannelIDs, repairErr := a.assignDefaultKickBotToChannels(ctx, createdBot.ID)
+		affectedChannelIDs, repairErr := a.assignDefaultKickBotToChannels(ctx, createdBot)
 		if repairErr != nil {
 			a.logger.ErrorContext(ctx, "kick bot callback: failed to backfill channels with default kick bot", logger.Error(repairErr))
 		} else {
@@ -135,7 +136,7 @@ func (a *Auth) handleKickBotCallback(
 			return nil, huma.Error500InternalServerError("Cannot update kick bot token", err)
 		}
 
-		affectedChannelIDs, repairErr := a.assignDefaultKickBotToChannels(ctx, existingBot.ID)
+		affectedChannelIDs, repairErr := a.assignDefaultKickBotToChannels(ctx, existingBot)
 		if repairErr != nil {
 			a.logger.ErrorContext(ctx, "kick bot callback: failed to backfill channels with default kick bot", logger.Error(repairErr))
 		} else {
@@ -148,33 +149,92 @@ func (a *Auth) handleKickBotCallback(
 	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: "/dashboard/admin-panel"}), nil
 }
 
-func (a *Auth) assignDefaultKickBotToChannels(ctx context.Context, kickBotID uuid.UUID) ([]string, error) {
-	var channelIDs []string
-	if err := a.gorm.WithContext(ctx).
-		Model(&model.Channels{}).
-		Where("kick_user_id IS NOT NULL").
-		Where("kick_bot_id IS NULL").
-		Pluck("id", &channelIDs).Error; err != nil {
+func (a *Auth) assignDefaultKickBotToChannels(ctx context.Context, kickBot kickbotentity.KickBot) ([]string, error) {
+	affectedChannelIDs := make([]string, 0)
+	if a.transactionRunner == nil {
+		return nil, fmt.Errorf("auth transaction runner is not configured")
+	}
+
+	err := a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
+		channels, listErr := a.channelsRepo.GetAllByBindingPlatform(txCtx, platform.PlatformKick)
+		if listErr != nil {
+			return fmt.Errorf("list Kick channel bindings: %w", listErr)
+		}
+
+		for _, channel := range channels {
+			for _, binding := range channel.Bindings {
+				if binding.Platform != platform.PlatformKick {
+					continue
+				}
+
+				botConfig, needsDefaultBot, configErr := kickBotConfigWithDefault(binding.BotConfig, kickBot.ID)
+				if configErr != nil {
+					return fmt.Errorf("prepare Kick binding %s bot configuration: %w", binding.ID, configErr)
+				}
+				if !needsDefaultBot {
+					continue
+				}
+
+				botUserID := kickBot.KickUserID
+				_, updateErr := a.channelPlatformsRepo.Update(txCtx, binding.ID, channelplatformsrepo.UpdateInput{
+					UserID:            binding.UserID,
+					PlatformChannelID: binding.PlatformChannelID,
+					Enabled:           binding.Enabled,
+					BotUserID:         &botUserID,
+					BotConfig:         botConfig,
+				})
+				if updateErr != nil {
+					return fmt.Errorf("update Kick binding %s: %w", binding.ID, updateErr)
+				}
+
+				affectedChannelIDs = append(affectedChannelIDs, channel.ID.String())
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
 
-	if len(channelIDs) == 0 {
-		return nil, nil
+	return affectedChannelIDs, nil
+}
+
+func kickBotConfigWithDefault(botConfig json.RawMessage, kickBotID uuid.UUID) (json.RawMessage, bool, error) {
+	config := make(map[string]json.RawMessage)
+	if len(botConfig) > 0 {
+		if err := json.Unmarshal(botConfig, &config); err != nil {
+			return nil, false, err
+		}
 	}
 
-	if err := a.gorm.WithContext(ctx).
-		Model(&model.Channels{}).
-		Where("id IN ?", channelIDs).
-		Updates(map[string]any{"kick_bot_id": kickBotID}).Error; err != nil {
-		return nil, err
+	if rawKickBotID, ok := config["kick_bot_id"]; ok {
+		var existingKickBotID string
+		if err := json.Unmarshal(rawKickBotID, &existingKickBotID); err == nil && existingKickBotID != "" {
+			return botConfig, false, nil
+		}
 	}
 
-	return channelIDs, nil
+	encodedKickBotID, err := json.Marshal(kickBotID.String())
+	if err != nil {
+		return nil, false, fmt.Errorf("encode kick bot ID: %w", err)
+	}
+	config["kick_bot_id"] = encodedKickBotID
+
+	updatedConfig, err := json.Marshal(config)
+	if err != nil {
+		return nil, false, fmt.Errorf("encode Kick binding configuration: %w", err)
+	}
+
+	return updatedConfig, true, nil
 }
 
 func (a *Auth) publishKickChannelResubscribe(ctx context.Context, channelIDs []string) {
 	for _, channelID := range channelIDs {
-		if err := a.bus.EventSub.SubscribeToAllEvents.Publish(
+		if a.eventSubPublisher == nil {
+			return
+		}
+		if err := a.eventSubPublisher.Publish(
 			ctx,
 			buscoreeventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platform.PlatformKick},
 		); err != nil {

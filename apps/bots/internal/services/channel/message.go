@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
+	botplatforms "github.com/twirapp/twir/apps/bots/internal/platforms"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -41,7 +42,6 @@ func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) 
 				return ErrNoChannelId
 			}
 
-			req.Platforms = platformsForRequest(req.Platforms)
 			platformsSliceAttribute := make([]string, len(req.Platforms))
 			for i, p := range req.Platforms {
 				platformsSliceAttribute[i] = p.String()
@@ -53,77 +53,28 @@ func (s *Service) SendMessage(ctx context.Context, req bots.SendMessageRequest) 
 				return err
 			}
 
-			for _, p := range req.Platforms {
-				switch p {
-				case platform.PlatformKick:
-					if channel.KickPlatformID == nil {
-						s.logger.Error(
-							"invalid channel id",
-							slog.String("channel_id", req.ChannelID.String()),
-							slog.String("platform", p.String()),
-						)
-						continue
-					}
-
-					err = s.sendKickMessage(ctx, req, *channel.KickPlatformID)
-				case platform.PlatformTwitch:
-					if channel.TwitchPlatformID == nil {
-						s.logger.Error(
-							"invalid channel id",
-							slog.String("channel_id", req.ChannelID.String()),
-							slog.String("platform", p.String()),
-						)
-						continue
-					}
-
-					err = s.twitchActions.SendMessage(
-						ctx,
-						twitchactions.SendMessageOpts{
-							BroadcasterID:        *channel.TwitchPlatformID,
-							SenderID:             "",
-							Message:              req.Message,
-							ReplyParentMessageID: req.ReplyTo,
-							IsAnnounce:           req.IsAnnounce,
-							SkipToxicityCheck:    req.SkipToxicityCheck,
-							SkipRateLimits:       req.SkipRateLimits,
-							AnnounceColor:        req.AnnounceColor,
-						},
-					)
-				default:
-					return fmt.Errorf("unknown platform: %s", p)
-				}
-
-				if err != nil {
-					s.logger.Error("cannot send message", logger.Error(err), slog.String("platform", p.String()))
-					return err
-				}
+			err = botplatforms.Dispatch(
+				ctx,
+				s.chatRegistry,
+				channel.Bindings,
+				req.Platforms,
+				req.Message,
+				req.ReplyTo,
+				botplatforms.ChatOptions{
+					IsAnnounce:        req.IsAnnounce,
+					SkipToxicityCheck: req.SkipToxicityCheck,
+					SkipRateLimits:    req.SkipRateLimits,
+					AnnounceColor:     req.AnnounceColor,
+				},
+			)
+			if err != nil {
+				s.logger.Error("cannot send message", logger.Error(err))
+				return err
 			}
 
 			return nil
 		},
 	).Wait()
-}
-
-func platformsForRequest(platforms []platform.Platform) []platform.Platform {
-	if len(platforms) == 0 {
-		return platform.All()
-	}
-
-	return platforms
-}
-
-func (s *Service) sendKickMessage(ctx context.Context, req bots.SendMessageRequest, platformChannelID string) error {
-	kickChannelID := platformChannelID
-
-	if kickChannelID == "" {
-		return fmt.Errorf("kick channel id is not provided")
-	}
-
-	if s.kickChatClient == nil {
-		return fmt.Errorf("kick chat client is not configured")
-	}
-
-	return s.kickChatClient.SendMessage(ctx, kickChannelID, req.Message, req.ReplyTo)
 }
 
 func (s *Service) DeleteMessage(ctx context.Context, req bots.DeleteMessageRequest) error {
@@ -180,7 +131,7 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 		return deleteMessageChannel{}, false, err
 	}
 
-	channel, err := s.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	channel, err := s.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return deleteMessageChannel{}, false, nil
@@ -189,8 +140,16 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 		return deleteMessageChannel{}, false, err
 	}
 
+	twitchBinding, botConfig, found, err := channel.TwitchBinding()
+	if err != nil {
+		return deleteMessageChannel{}, false, fmt.Errorf("parse Twitch bot config: %w", err)
+	}
+	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" || botConfig.BotID == "" {
+		return deleteMessageChannel{}, false, nil
+	}
+
 	return deleteMessageChannel{
-		BotID:         channel.BotID,
-		BroadcasterID: twitchUserID,
+		BotID:         botConfig.BotID,
+		BroadcasterID: twitchBinding.PlatformChannelID,
 	}, true, nil
 }

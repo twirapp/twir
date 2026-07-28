@@ -1,35 +1,58 @@
 package mappers
 
 import (
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/libs/repositories/channels/model"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
-func MapChannelModelToGqlPublicUser(c model.Channel) *gqlmodel.TwirPublicUser {
+func PlatformProfileToLinkedAccount(platform platformentity.Platform, profile usersmodel.User) gqlmodel.LinkedAccount {
+	displayName := profile.DisplayName
+	if displayName == "" {
+		displayName = profile.Login
+	}
+
+	account := gqlmodel.LinkedAccount{
+		Platform:            platform.String(),
+		PlatformUserID:      profile.PlatformID,
+		PlatformLogin:       profile.Login,
+		PlatformDisplayName: displayName,
+	}
+	if profile.Avatar != "" {
+		account.PlatformAvatar = &profile.Avatar
+	}
+
+	return account
+}
+
+func MapChannelModelToGqlPublicUser(
+	c channelentity.Channel,
+	profiles map[uuid.UUID]usersmodel.User,
+	requested *platformentity.Platform,
+) *gqlmodel.TwirPublicUser {
 	u := &gqlmodel.TwirPublicUser{
 		ID:                c.ID,
 		HideOnLandingPage: false,
-		TwitchProfile:     nil,
-		KickProfile:       nil,
+		Profile:           nil,
 	}
 
-	if c.TwitchUser != nil {
-		u.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
-			ID:              c.TwitchUser.PlatformID,
-			Login:           c.TwitchUser.Login,
-			DisplayName:     c.TwitchUser.DisplayName,
-			ProfileImageURL: c.TwitchUser.Avatar,
-			Description:     "",
-			NotFound:        false,
+	var selected *channelplatformentity.ChannelPlatform
+	for i := range c.Bindings {
+		if requested != nil && c.Bindings[i].Platform == *requested {
+			selected = &c.Bindings[i]
+			break
 		}
 	}
-
-	if c.KickUser != nil {
-		u.KickProfile = &gqlmodel.KickProfile{
-			ID:             c.KickUser.PlatformID,
-			Slug:           c.KickUser.Login,
-			DisplayName:    c.KickUser.DisplayName,
-			ProfilePicture: &c.KickUser.Avatar,
+	if selected == nil && len(c.Bindings) > 0 {
+		selected = &c.Bindings[0]
+	}
+	if selected != nil {
+		if profile, ok := profiles[selected.UserID]; ok {
+			account := PlatformProfileToLinkedAccount(selected.Platform, profile)
+			u.Profile = &account
 		}
 	}
 

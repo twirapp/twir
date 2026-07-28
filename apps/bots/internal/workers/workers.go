@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/alitto/pond/v2"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/atomic"
@@ -74,16 +76,13 @@ const (
 )
 
 func (c *Pool) setSize(ctx context.Context) {
-	channelsCount, err := c.channelsRepository.GetCount(
-		ctx, channelsrepository.GetCountInput{
-			OnlyTwitchEnabled: true,
-		},
-	)
+	channels, err := c.channelsRepository.GetAllByBindingPlatform(ctx, platform.PlatformTwitch)
 	if err != nil {
-		c.logger.Error("cannot get channels count", logger.Error(err))
+		c.logger.Error("cannot get Twitch channels", logger.Error(err))
 		return
 	}
 
+	channelsCount := countEnabledTwitchChannels(channels)
 	newSize := channelsCount * proposedMessageHandlers * proposedTwitchActions
 	if c.lastSize.Swap(int64(newSize)) == int64(newSize) {
 		return
@@ -94,4 +93,16 @@ func (c *Pool) setSize(ctx context.Context) {
 		"workers pool resized",
 		slog.Int("size", newSize),
 	)
+}
+
+func countEnabledTwitchChannels(channels []channelentity.Channel) int {
+	count := 0
+	for _, channel := range channels {
+		binding, ok := channel.Binding(platform.PlatformTwitch)
+		if ok && binding.Enabled {
+			count++
+		}
+	}
+
+	return count
 }

@@ -4,6 +4,9 @@ extend type Mutation {
 	rescheduleTimers: Boolean! @isAuthenticated @isAdmin
 	eventsubInitChannels: Boolean! @isAuthenticated @isAdmin
 	kickBotSetupLink: String! @isAuthenticated @isAdmin
+	vkVideoBotSetupLink: String! @isAuthenticated @isAdmin
+	vkVideoBotSetupStatus: Boolean! @isAuthenticated @isAdmin
+	vkVideoBotSetupComplete(code: String!, state: String!): Boolean! @isAuthenticated @isAdmin
 }
 
 input EventsubSubscribeInput {

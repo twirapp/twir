@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { LandingStatsStoreKey } from '~/stores/landing-stats'
-import KickIcon from '~~/layers/landing/components/kick-icon.vue'
 
 const formatter = Intl.NumberFormat('en-US', {
 	notation: 'compact',
@@ -14,10 +13,17 @@ function formatNumber(value?: number | bigint) {
 	return formatter.format(value ?? 0)
 }
 
-const stats = [
+const totalChannels = computed(
+	() =>
+		(statsStore.stats?.twitchChannels ?? 0) +
+		(statsStore.stats?.kickChannels ?? 0) +
+		(statsStore.stats?.vkChannels ?? 0),
+)
+
+const stats = computed(() => [
 	{
 		key: 'Active Channels',
-		value: formatNumber(statsStore.stats?.channels),
+		value: formatNumber(totalChannels.value),
 		isChannels: true,
 	},
 	{
@@ -40,7 +46,7 @@ const stats = [
 		key: 'Commands Processed',
 		value: formatNumber(statsStore.stats?.usedCommands),
 	},
-]
+])
 </script>
 
 <template>
@@ -60,12 +66,16 @@ const stats = [
 			</span>
 			<div v-if="stat.isChannels" class="flex gap-4 mt-2 text-[#ADB0B8] text-sm md:text-base font-medium">
 				<div class="flex items-center gap-1.5" title="Twitch Channels">
-					<SvgoSocialTwitch class="w-4 h-4 text-[#9146FF]" />
+					<Icon name="simple-icons:twitch" class="w-4 h-4 text-[#9146FF]" />
 					<span>{{ formatNumber(statsStore.stats?.twitchChannels) }}</span>
 				</div>
 				<div class="flex items-center gap-1.5" title="Kick Channels">
-					<KickIcon class="w-4 h-4 text-[#53FC18]" />
+					<Icon name="simple-icons:kick" class="w-4 h-4 text-[#53FC18]" />
 					<span>{{ formatNumber(statsStore.stats?.kickChannels) }}</span>
+				</div>
+				<div class="flex items-center gap-1.5" title="VK Video Live Channels">
+					<Icon name="simple-icons:vk" class="w-4 h-4 text-[#0077FF]" />
+					<span>{{ formatNumber(statsStore.stats?.vkChannels) }}</span>
 				</div>
 			</div>
 		</div>

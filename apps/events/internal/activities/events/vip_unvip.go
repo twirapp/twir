@@ -26,7 +26,7 @@ func (c *Activity) VipOrUnvip(
 		return fmt.Errorf("input is required for vip/unvip operation")
 	}
 
-	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbChannel, dbChannelErr := c.getTwitchChannelDbEntity(ctx, data)
 	if dbChannelErr != nil {
 		return dbChannelErr
 	}
@@ -69,7 +69,7 @@ func (c *Activity) VipOrUnvip(
 	var vips []helix.ChannelVips
 	errWg.Go(
 		func() error {
-			v, err := c.getChannelVips(twitchClient, data.ChannelID)
+			v, err := c.getChannelVips(twitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -82,7 +82,7 @@ func (c *Activity) VipOrUnvip(
 	var mods []helix.Moderator
 	errWg.Go(
 		func() error {
-			m, err := c.getChannelMods(twitchClient, data.ChannelID)
+			m, err := c.getChannelMods(twitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -96,7 +96,7 @@ func (c *Activity) VipOrUnvip(
 		return err
 	}
 
-	if user.ID == dbChannel.BotID || user.ID == dbChannel.ID {
+	if user.ID == dbChannel.BotID || user.ID == dbChannel.BroadcasterUserID {
 		return errors.New("cannot vip/unvip bot")
 	}
 
@@ -127,7 +127,7 @@ func (c *Activity) VipOrUnvip(
 
 		resp, err := twitchClient.AddChannelVip(
 			&helix.AddChannelVipParams{
-				BroadcasterID: data.ChannelID,
+				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
@@ -143,7 +143,7 @@ func (c *Activity) VipOrUnvip(
 		}
 		resp, err := twitchClient.RemoveChannelVip(
 			&helix.RemoveChannelVipParams{
-				BroadcasterID: data.ChannelID,
+				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
@@ -175,7 +175,7 @@ func (c *Activity) UnvipRandom(
 		return twitchClientErr
 	}
 
-	vips, vipsErr := c.getChannelVips(twitchClient, data.ChannelID)
+	vips, vipsErr := c.getChannelVips(twitchClient, twitchBroadcasterID(data))
 	if vipsErr != nil {
 		return vipsErr
 	}
@@ -192,7 +192,7 @@ func (c *Activity) UnvipRandom(
 		}
 	}
 
-	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbChannel, dbChannelErr := c.getTwitchChannelDbEntity(ctx, data)
 	if dbChannelErr != nil {
 		return dbChannelErr
 	}
@@ -209,7 +209,7 @@ func (c *Activity) UnvipRandom(
 
 	removeReq, err := twitchClient.RemoveChannelVip(
 		&helix.RemoveChannelVipParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: twitchBroadcasterID(data),
 			UserID:        randomVip.UserID,
 		},
 	)

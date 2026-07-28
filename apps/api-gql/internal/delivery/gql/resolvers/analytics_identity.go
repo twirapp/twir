@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 )
 
@@ -38,21 +39,18 @@ func resolveSelectedDashboardAnalyticsIdentity(ctx context.Context, deps Deps) (
 	return currentPlatform, platformChannelID, nil
 }
 
-func resolvePlatformChannelID(currentPlatform string, channel channelsmodel.Channel) (string, error) {
-	switch currentPlatform {
-	case "kick":
-		if channel.KickPlatformID == nil || *channel.KickPlatformID == "" {
-			return "", fmt.Errorf("kick platform channel id not found")
-		}
-		return *channel.KickPlatformID, nil
-	case "twitch":
-		if channel.TwitchPlatformID == nil || *channel.TwitchPlatformID == "" {
-			return "", fmt.Errorf("twitch platform channel id not found")
-		}
-		return *channel.TwitchPlatformID, nil
-	default:
+func resolvePlatformChannelID(currentPlatform string, channel channelentity.Channel) (string, error) {
+	platform := platformentity.Platform(currentPlatform)
+	if !platform.IsValid() {
 		return "", fmt.Errorf("unsupported platform: %s", currentPlatform)
 	}
+
+	binding, found := channel.Binding(platform)
+	if !found || binding.PlatformChannelID == "" {
+		return "", fmt.Errorf("%s platform channel id not found", currentPlatform)
+	}
+
+	return binding.PlatformChannelID, nil
 }
 
 func resolveSelectedDashboardChatMessageTargets(
@@ -80,21 +78,21 @@ func resolveSelectedDashboardChatMessageTargets(
 		allowedPlatforms[platform] = struct{}{}
 	}
 
-	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, 2)
-	if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
-		if len(allowedPlatforms) == 0 {
-			targets = append(targets, chatmessagesrepo.PlatformChannelIdentity{Platform: "twitch", PlatformChannelID: *channel.TwitchPlatformID})
-		} else if _, ok := allowedPlatforms["twitch"]; ok {
-			targets = append(targets, chatmessagesrepo.PlatformChannelIdentity{Platform: "twitch", PlatformChannelID: *channel.TwitchPlatformID})
+	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, len(channel.Bindings))
+	for _, binding := range channel.Bindings {
+		if binding.PlatformChannelID == "" {
+			continue
 		}
-	}
+		if len(allowedPlatforms) > 0 {
+			if _, ok := allowedPlatforms[binding.Platform.String()]; !ok {
+				continue
+			}
+		}
 
-	if channel.KickPlatformID != nil && *channel.KickPlatformID != "" {
-		if len(allowedPlatforms) == 0 {
-			targets = append(targets, chatmessagesrepo.PlatformChannelIdentity{Platform: "kick", PlatformChannelID: *channel.KickPlatformID})
-		} else if _, ok := allowedPlatforms["kick"]; ok {
-			targets = append(targets, chatmessagesrepo.PlatformChannelIdentity{Platform: "kick", PlatformChannelID: *channel.KickPlatformID})
-		}
+		targets = append(targets, chatmessagesrepo.PlatformChannelIdentity{
+			Platform:          binding.Platform.String(),
+			PlatformChannelID: binding.PlatformChannelID,
+		})
 	}
 
 	if len(targets) == 0 {

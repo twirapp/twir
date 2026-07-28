@@ -66,10 +66,10 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 			continue
 		}
 
-		channel, err := c.channelService.GetChannelByConnectedUser(
+		channel, err := c.channelService.GetChannelByBindingUserID(
 			ctx,
-			broadcasterUser.ID,
 			platform.PlatformTwitch,
+			broadcasterUser.ID,
 		)
 		if err != nil {
 			c.logger.Error("cannot resolve channel by broadcaster user", logger.Error(err))
@@ -145,12 +145,19 @@ func (c *Handler) handleChannelPointsRewardRedemptionAddBatched(
 
 		// youtube song requests
 
-		go func() {
-			e := c.handleYoutubeSongRequests(ctxWithoutCancel, &event)
-			if e != nil {
-				c.logger.Error(e.Error(), slog.Any("e", err))
-			}
-		}()
+		if binding, found := channel.Binding(platform.PlatformTwitch); found {
+			go func(channelBindingID string) {
+				e := c.handleYoutubeSongRequests(ctxWithoutCancel, &event, channelBindingID)
+				if e != nil {
+					c.logger.Error(e.Error(), slog.Any("e", err))
+				}
+			}(binding.ID.String())
+		} else {
+			c.logger.Error(
+				"cannot resolve Twitch binding for redemption song request",
+				slog.String("channel_id", channel.ID.String()),
+			)
+		}
 
 		go func() {
 			e := c.handleAlerts(ctxWithoutCancel, &event)
@@ -259,10 +266,10 @@ func (c *Handler) HandleChannelPointsRewardRedemptionUpdate(
 		return
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(
+	channel, err := c.channelService.GetChannelByBindingUserID(
 		ctx,
-		broadcasterUser.ID,
 		platform.PlatformTwitch,
+		broadcasterUser.ID,
 	)
 	if err != nil {
 		if !errors.Is(err, channelsrepository.ErrNotFound) {
@@ -311,10 +318,10 @@ func (c *Handler) countUserChannelPoints(
 		return fmt.Errorf("cannot resolve broadcaster user: %w", err)
 	}
 
-	channel, err := c.channelService.GetChannelByConnectedUser(
+	channel, err := c.channelService.GetChannelByBindingUserID(
 		ctx,
-		broadcasterUser.ID,
 		platform.PlatformTwitch,
+		broadcasterUser.ID,
 	)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
@@ -361,6 +368,7 @@ func (c *Handler) countUserChannelPoints(
 func (c *Handler) handleYoutubeSongRequests(
 	ctx context.Context,
 	event *eventsub.ChannelPointsCustomRewardRedemptionAddEvent,
+	channelBindingID string,
 ) error {
 	if event.UserInput == "" {
 		return nil
@@ -398,26 +406,37 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
+	chatUser, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, event.UserId)
+	if err != nil {
+		return fmt.Errorf("get redemption user: %w", err)
+	}
+
+	message := generic.ChatMessage{
+		ID:                   event.Id,
+		BroadcasterUserId:    event.BroadcasterUserId,
+		BroadcasterUserName:  event.BroadcasterUserName,
+		BroadcasterUserLogin: event.BroadcasterUserLogin,
+		ChatterUserId:        event.UserId,
+		ChatterUserName:      event.UserName,
+		ChatterUserLogin:     event.UserLogin,
+		MessageID:            event.Id,
+		Platform:             string(platform.PlatformTwitch),
+		PlatformChannelID:    event.BroadcasterUserId,
+		ChannelID:            channelID.String(),
+		ChannelBindingID:     channelBindingID,
+		UserID:               chatUser.ID.String(),
+		SenderID:             event.UserId,
+		SenderLogin:          event.UserLogin,
+		SenderDisplayName:    event.UserName,
+		Message: &generic.ChatMessageMessage{
+			Text: fmt.Sprintf("!%s %s", foundCommand.Name, event.UserInput),
+		},
+	}
+	message.IsBroadcaster = message.IsChatterBroadcaster()
+
 	res, err := c.twirBus.Parser.GetCommandResponse.Request(
 		ctx,
-		generic.ChatMessage{
-			BroadcasterUserId:    event.BroadcasterUserId,
-			BroadcasterUserName:  event.BroadcasterUserName,
-			BroadcasterUserLogin: event.BroadcasterUserLogin,
-			ChatterUserId:        event.UserId,
-			ChatterUserName:      event.UserName,
-			ChatterUserLogin:     event.UserLogin,
-			MessageID:            event.Id,
-			PlatformChannelID:    event.BroadcasterUserId,
-			ChannelID:            event.BroadcasterUserId,
-			UserID:               event.UserId,
-			SenderID:             event.UserId,
-			SenderLogin:          event.UserLogin,
-			SenderDisplayName:    event.UserName,
-			Message: &generic.ChatMessageMessage{
-				Text: fmt.Sprintf("!%s %s", foundCommand.Name, event.UserInput),
-			},
-		},
+		message,
 	)
 	if err != nil {
 		return err

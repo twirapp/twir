@@ -11,6 +11,7 @@ const code = url.searchParams.get('code')
 const state = url.searchParams.get('state')
 const error = ref(url.searchParams.get('error'))
 const loading = ref(true)
+const api = useOapi()
 
 onMounted(async () => {
 	if (import.meta.server) return
@@ -25,16 +26,12 @@ onMounted(async () => {
 	}
 
 	try {
-		const res = await $fetch<{ data: { redirect_to: string } }>(
-			`${window.location.origin}/api/auth/kick/code`,
-			{
-				method: 'POST',
-				body: { code, state },
-				credentials: 'include',
-			}
-		)
+		const res = await api.auth.authKickCode({
+			code,
+			state,
+		})
 
-		window.location.replace(res.data.redirect_to)
+		window.location.replace(res.data.data.redirect_to)
 	} catch (requestError) {
 		console.error(requestError)
 		error.value = 'Internal error happened, please contact devs in discord'
@@ -60,7 +57,7 @@ onMounted(async () => {
 				custom
 			>
 				<UiButton
-					:href="href"
+					:href="href!"
 					variant="primary"
 					role="link"
 					@click="navigate"

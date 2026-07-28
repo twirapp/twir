@@ -1,8 +1,9 @@
 package manager
 
 import (
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
 type timerSendTarget struct {
@@ -11,28 +12,53 @@ type timerSendTarget struct {
 }
 
 func getTimerSendTargets(
-	channel channelmodel.Channel,
+	channel channelentity.Channel,
 	timerPlatforms []platformentity.Platform,
 ) []timerSendTarget {
-	targets := make([]timerSendTarget, 0, 2)
+	targets := make([]timerSendTarget, 0, 3)
 
-	if channel.TwitchBotJoined() &&
-		channel.TwitchPlatformID != nil &&
-		platformentity.ShouldExecute(timerPlatforms, platformentity.PlatformTwitch) {
-		targets = append(targets, timerSendTarget{
-			platform:  platformentity.PlatformTwitch,
-			channelID: *channel.TwitchPlatformID,
-		})
-	}
+	for _, p := range []platformentity.Platform{
+		platformentity.PlatformTwitch,
+		platformentity.PlatformKick,
+		platformentity.PlatformVKVideoLive,
+	} {
+		if !platformentity.ShouldExecute(timerPlatforms, p) {
+			continue
+		}
 
-	if channel.KickBotJoined() &&
-		channel.KickPlatformID != nil &&
-		platformentity.ShouldExecute(timerPlatforms, platformentity.PlatformKick) {
+		binding, ok := channel.Binding(p)
+		if !ok || !binding.Enabled || binding.PlatformChannelID == "" {
+			continue
+		}
+
+		if p == platformentity.PlatformTwitch && !isTwitchTimerBotMod(binding) {
+			continue
+		}
+
 		targets = append(targets, timerSendTarget{
-			platform:  platformentity.PlatformKick,
-			channelID: *channel.KickPlatformID,
+			platform:  p,
+			channelID: binding.PlatformChannelID,
 		})
 	}
 
 	return targets
+}
+
+func hasSupportedTimerBinding(channel channelentity.Channel) bool {
+	for _, p := range []platformentity.Platform{
+		platformentity.PlatformTwitch,
+		platformentity.PlatformKick,
+		platformentity.PlatformVKVideoLive,
+	} {
+		if _, ok := channel.Binding(p); ok {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isTwitchTimerBotMod(binding channelplatformentity.ChannelPlatform) bool {
+	config, err := binding.ParseTwitchBotConfig()
+	return err == nil && config.IsBotMod
 }

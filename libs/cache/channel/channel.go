@@ -8,25 +8,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/kv"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
 func New(
 	repo channelsrepository.Repository,
 	kv kv.KV,
-) *generic_cacher.GenericCacher[channelmodel.Channel] {
-	return generic_cacher.New[channelmodel.Channel](
-		generic_cacher.Opts[channelmodel.Channel]{
+) *generic_cacher.GenericCacher[channelentity.Channel] {
+	return generic_cacher.New[channelentity.Channel](
+		generic_cacher.Opts[channelentity.Channel]{
 			KV:        kv,
 			KeyPrefix: "cache:twir:channel:",
-			LoadFn: func(ctx context.Context, key string) (channelmodel.Channel, error) {
+			LoadFn: func(ctx context.Context, key string) (channelentity.Channel, error) {
 				parsed, err := uuid.Parse(key)
 				if err != nil {
-					return channelmodel.Nil, fmt.Errorf("invalid channel id: %w", err)
+					return channelentity.Nil, fmt.Errorf("invalid channel id: %w", err)
 				}
 				return repo.GetByID(ctx, parsed)
 			},
@@ -36,30 +34,25 @@ func New(
 }
 
 type TwitchUserIDCacher struct {
-	*generic_cacher.GenericCacher[channelmodel.Channel]
+	*generic_cacher.GenericCacher[channelentity.Channel]
 }
 
 func NewByTwitchUserID(
 	channelsRepo channelsrepository.Repository,
-	usersRepo usersrepository.Repository,
 	kv kv.KV,
 ) *TwitchUserIDCacher {
 	return &TwitchUserIDCacher{
-		GenericCacher: generic_cacher.New[channelmodel.Channel](
-			generic_cacher.Opts[channelmodel.Channel]{
+		GenericCacher: generic_cacher.New[channelentity.Channel](
+			generic_cacher.Opts[channelentity.Channel]{
 				KV:        kv,
 				KeyPrefix: "cache:twir:channel_by_twitch_uid:",
-				LoadFn: func(ctx context.Context, twitchUserID string) (channelmodel.Channel, error) {
-					user, err := usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchUserID)
-					if err != nil {
-						return channelmodel.Nil, fmt.Errorf("find user by twitch id %s: %w", twitchUserID, err)
-					}
-					if user.IsNil() {
-						return channelmodel.Nil, usersmodel.ErrNotFound
-					}
-
-				return channelsRepo.GetByTwitchUserID(ctx, user.ID)
-			},
+				LoadFn: func(ctx context.Context, platformChannelID string) (channelentity.Channel, error) {
+					return channelsRepo.GetByPlatformChannelID(
+						ctx,
+						platform.PlatformTwitch,
+						platformChannelID,
+					)
+				},
 				Ttl: 24 * time.Hour,
 			},
 		),

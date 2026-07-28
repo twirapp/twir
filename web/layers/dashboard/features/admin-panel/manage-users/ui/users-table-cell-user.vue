@@ -35,6 +35,13 @@ const platformMeta = computed(() => {
 		}
 	}
 
+	if (props.platform === Platform.VkVideoLive) {
+		return {
+			label: 'VK Video Live',
+			className: 'border-[#0077FF]/30 bg-[#0077FF]/10 text-[#0077FF]',
+		}
+	}
+
 	return null
 })
 </script>

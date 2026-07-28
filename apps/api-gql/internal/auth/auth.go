@@ -14,22 +14,22 @@ import (
 	"github.com/redis/go-redis/v9"
 	model "github.com/twirapp/twir/libs/gomodels"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
 )
 
 type Opts struct {
 	fx.In
 
-	Redis     *redis.Client
-	Gorm      *gorm.DB
-	UsersRepo usersrepository.Repository
+	Redis          *redis.Client
+	UsersRepo      usersrepository.Repository
+	ChannelService *channelservice.ChannelService
 }
 
 type Auth struct {
 	sessionManager *scs.SessionManager
-	gorm           *gorm.DB
 	usersRepo      usersrepository.Repository
+	channelService *channelservice.ChannelService
 }
 
 func NewSessions(opts Opts) *Auth {
@@ -37,16 +37,22 @@ func NewSessions(opts Opts) *Auth {
 	sessionManager.Lifetime = 24 * time.Hour * 31
 	sessionManager.Store = goredisstore.New(opts.Redis)
 
+	registerSessionTypes()
+
+	return &Auth{
+		sessionManager: sessionManager,
+		usersRepo:      opts.UsersRepo,
+		channelService: opts.ChannelService,
+	}
+}
+
+func registerSessionTypes() {
 	gob.Register(model.Users{})
 	gob.Register(helix.User{})
 	gob.Register(uuid.UUID{})
 	gob.Register(KickSessionUser{})
-
-	return &Auth{
-		sessionManager: sessionManager,
-		gorm:           opts.Gorm,
-		usersRepo:      opts.UsersRepo,
-	}
+	gob.Register(OAuthAttempt{})
+	gob.Register(map[string]OAuthAttempt{})
 }
 
 const SESSION_KEY = "__session__"

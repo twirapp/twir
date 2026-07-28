@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/lib/pq"
-	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	botsbus "github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -20,7 +20,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMessage) error {
+func (c *MessageHandler) handleGreetings(ctx context.Context, msg enrichedChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))
@@ -36,7 +36,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMe
 
 	var greeting *greetingsmodel.Greeting
 	for _, g := range allGreetings {
-		if g.UserID.String() == msg.EnrichedData.DbUser.ID && g.Enabled && !g.Processed {
+		if g.UserID == msg.EnrichedData.DbUser.ID && g.Enabled && !g.Processed {
 			greeting = &g
 			break
 		}
@@ -44,20 +44,6 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMe
 
 	if greeting == nil {
 		return nil
-	}
-
-	if _, err := c.greetingsRepository.Update(
-		ctx,
-		greeting.ID,
-		greetings.UpdateInput{
-			Processed: lo.ToPtr(true),
-		},
-	); err != nil {
-		return err
-	}
-
-	if err = c.greetingsCache.Invalidate(ctx, msg.EnrichedData.DbChannel.ID.String()); err != nil {
-		return err
 	}
 
 	mentions := make(
@@ -97,18 +83,43 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMe
 		return err
 	}
 
-	if res.Data.Text != "" {
-		c.twitchActions.SendMessage(
-			ctx, twitchactions.SendMessageOpts{
-				BroadcasterID:        msg.BroadcasterUserId,
-				SenderID:             msg.EnrichedData.DbChannel.BotID,
-				Message:              res.Data.Text,
-				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageID).Else(""),
-			},
-		)
+	if res.Data.Text == "" {
+		return nil
 	}
 
-	if greeting.WithShoutOut {
+	var replyTo string
+	if greeting.IsReply {
+		replyTo = msg.MessageID
+	}
+
+	if _, err = c.twirBus.Bots.SendMessage.Request(
+		ctx,
+		botsbus.SendMessageRequest{
+			ChannelID: msg.EnrichedData.DbChannel.ID,
+			Platforms: []platform.Platform{platformSource},
+			Message:   res.Data.Text,
+			ReplyTo:   replyTo,
+		},
+	); err != nil {
+		return err
+	}
+
+	processed := true
+	if _, err = c.greetingsRepository.Update(
+		ctx,
+		greeting.ID,
+		greetings.UpdateInput{
+			Processed: &processed,
+		},
+	); err != nil {
+		return err
+	}
+
+	if err = c.greetingsCache.Invalidate(ctx, msg.EnrichedData.DbChannel.ID.String()); err != nil {
+		return err
+	}
+
+	if greeting.WithShoutOut && platformSource == platform.PlatformTwitch {
 		c.twitchActions.ShoutOut(
 			ctx,
 			twitchactions.ShoutOutInput{
@@ -122,8 +133,10 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg generic.ChatMe
 		ctx,
 		events.GreetingSendedMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: msg.BroadcasterUserId,
+				ChannelDBID:       msg.EnrichedData.DbChannel.ID,
+				ChannelPlatformID: msg.PlatformChannelID,
 				ChannelName:       msg.BroadcasterUserLogin,
+				Platform:          platform.Platform(msg.Platform),
 			},
 			UserID:          msg.ChatterUserId,
 			UserName:        msg.ChatterUserLogin,

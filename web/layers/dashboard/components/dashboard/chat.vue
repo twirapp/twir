@@ -14,8 +14,12 @@ const requestUrl = useRequestURL()
 
 const openFrankerFaceZ = ref(false)
 const selectedDashboardTwitchUser = computed(() => {
-	return profile.value?.availableDashboards.find((d) => d.id === profile.value?.selectedDashboardId)
-		?.twitchProfile
+	const dashboard = profile.value?.availableDashboards.find(
+		(d) => d.id === profile.value?.selectedDashboardId,
+	)
+	if (dashboard?.profile?.platform.toLowerCase() !== 'twitch') return undefined
+
+	return dashboard.profile
 })
 
 const chatUrl = computed(() => {
@@ -23,7 +27,7 @@ const chatUrl = computed(() => {
 
 	const user = selectedDashboardTwitchUser.value
 
-	let url = `https://www.twitch.tv/embed/${user.login}/chat?parent=${requestUrl.host}`
+	let url = `https://www.twitch.tv/embed/${user.platformLogin}/chat?parent=${requestUrl.host}`
 
 	if (chatTheme.value === 'dark') {
 		url += '&darkpopout'

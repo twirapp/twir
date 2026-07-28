@@ -65,11 +65,7 @@ const selectedDashboardApiKey = computed(() => {
 })
 
 const selectedDashboardChannelName = computed(() => {
-	if (selectedDashboard.value?.platform === 'kick') {
-		return selectedDashboard.value.kickProfile?.slug ?? ''
-	}
-
-	return selectedDashboard.value?.twitchProfile?.login ?? ''
+	return selectedDashboard.value?.profile?.platformLogin ?? ''
 })
 
 const selectedDashboardChannelId = computed(() => {

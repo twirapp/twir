@@ -2,6 +2,7 @@ package dashboard
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -16,16 +17,17 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
-	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
@@ -36,20 +38,19 @@ import (
 type Opts struct {
 	fx.In
 
-	Gorm                    *gorm.DB
-	CachedTwitchClient      *twitchcache.CachedTwitchClient
-	AuthService             *auth.Auth
-	KV                      kv.KV
-	Config                  config.Config
-	Logger                  *slog.Logger
-	TwirBus                 *buscore.Bus
-	ChannelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
-	ChannelsRepo            channelsrepository.Repository
-	ChannelService          *channelservice.ChannelService
-	ChannelEmotesUsagesRepo channelsemotesusagesrepository.Repository
-	StreamsRepository       streams.Repository
-	UsersRepo               usersrepository.Repository
-	KickBotsRepo            kickbotsrepository.Repository
+	Gorm                       *gorm.DB
+	CachedTwitchClient         *twitchcache.CachedTwitchClient
+	AuthService                *auth.Auth
+	KV                         kv.KV
+	Config                     config.Config
+	Logger                     *slog.Logger
+	TwirBus                    *buscore.Bus
+	ChannelsCache              *generic_cacher.GenericCacher[channelentity.Channel]
+	ChannelPlatformsRepository channelplatforms.Repository
+	ChannelService             *channelservice.ChannelService
+	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
+	StreamsRepository          streams.Repository
+	UsersRepo                  usersrepository.Repository
 }
 
 func New(opts Opts) *Service {
@@ -62,53 +63,72 @@ func New(opts Opts) *Service {
 		logger:                  opts.Logger,
 		twirBus:                 opts.TwirBus,
 		channelsCache:           opts.ChannelsCache,
-		channelsRepo:            opts.ChannelsRepo,
+		channelPlatformsRepo:    opts.ChannelPlatformsRepository,
 		channelService:          opts.ChannelService,
 		channelEmotesUsagesRepo: opts.ChannelEmotesUsagesRepo,
 		streamsRepository:       opts.StreamsRepository,
 		usersRepo:               opts.UsersRepo,
-		kickBotsRepo:            opts.KickBotsRepo,
 	}
+}
+
+type currentPlatformResolver interface {
+	GetCurrentPlatform(ctx context.Context) (string, error)
+}
+
+type channelLookup interface {
+	GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error)
+}
+
+type channelBindingUpdater interface {
+	Patch(
+		ctx context.Context,
+		id uuid.UUID,
+		input channelplatforms.PatchInput,
+	) (channelplatformentity.ChannelPlatform, error)
+}
+
+type channelCacheInvalidator interface {
+	Invalidate(ctx context.Context, key string) error
+}
+
+type usersLookup interface {
+	GetByID(ctx context.Context, id uuid.UUID) (usersmodel.User, error)
 }
 
 type Service struct {
 	gorm                    *gorm.DB
 	cachedTwitchClient      *twitchcache.CachedTwitchClient
-	authService             *auth.Auth
+	authService             currentPlatformResolver
 	kv                      kv.KV
 	config                  config.Config
 	logger                  *slog.Logger
 	twirBus                 *buscore.Bus
-	channelsCache           *generic_cacher.GenericCacher[channelmodel.Channel]
-	channelsRepo            channelsrepository.Repository
-	channelService          *channelservice.ChannelService
+	channelsCache           channelCacheInvalidator
+	channelPlatformsRepo    channelBindingUpdater
+	channelService          channelLookup
 	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
 	streamsRepository       streams.Repository
-	usersRepo               usersrepository.Repository
-	kickBotsRepo            kickbotsrepository.Repository
+	usersRepo               usersLookup
 }
 
-func (c *Service) resolveAnalyticsIdentity(ctx context.Context, channel channelmodel.Channel) (string, string) {
+func (c *Service) resolveAnalyticsIdentity(ctx context.Context, channel channelentity.Channel) (string, string) {
 	currentPlatform, err := c.authService.GetCurrentPlatform(ctx)
 	if err == nil {
-		switch currentPlatform {
-		case string(platformentity.PlatformKick):
-			if channel.KickPlatformID != nil && *channel.KickPlatformID != "" {
-				return currentPlatform, *channel.KickPlatformID
-			}
-		case string(platformentity.PlatformTwitch):
-			if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
-				return currentPlatform, *channel.TwitchPlatformID
+		platform := platformentity.Platform(currentPlatform)
+		if platform == platformentity.PlatformKick || platform == platformentity.PlatformTwitch {
+			if binding, found := channel.Binding(platform); found && binding.PlatformChannelID != "" {
+				return currentPlatform, binding.PlatformChannelID
 			}
 		}
 	}
 
-	if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
-		return string(platformentity.PlatformTwitch), *channel.TwitchPlatformID
-	}
-
-	if channel.KickPlatformID != nil && *channel.KickPlatformID != "" {
-		return string(platformentity.PlatformKick), *channel.KickPlatformID
+	for _, platform := range []platformentity.Platform{
+		platformentity.PlatformTwitch,
+		platformentity.PlatformKick,
+	} {
+		if binding, found := channel.Binding(platform); found && binding.PlatformChannelID != "" {
+			return platform.String(), binding.PlatformChannelID
+		}
 	}
 
 	return "", ""
@@ -143,7 +163,8 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	result := entity.DashboardStats{}
 	analyticsPlatform, analyticsPlatformChannelID := c.resolveAnalyticsIdentity(ctx, channel)
 
-	if !channel.TwitchConnected() {
+	twitchBinding, hasTwitchBinding := channel.Binding(platformentity.PlatformTwitch)
+	if !hasTwitchBinding || twitchBinding.PlatformChannelID == "" {
 		if !stream.IsNil() {
 			result.StreamViewers = &stream.ViewerCount
 			result.StreamCategoryID = stream.GameId
@@ -204,7 +225,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return &result, nil
 	}
 
-	twitchPlatformID := *channel.TwitchPlatformID
+	twitchPlatformID := twitchBinding.PlatformChannelID
 	if !stream.IsNil() {
 		result.StreamViewers = &stream.ViewerCount
 		result.StreamCategoryID = stream.GameId
@@ -215,7 +236,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 
 	channelTwitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
-		*channel.TwitchUserID,
+		twitchBinding.UserID,
 		c.config,
 		c.twirBus,
 	)
@@ -296,7 +317,7 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	wg.Go(func() {
 		subs, err := c.cachedTwitchClient.GetChannelSubscribersCountByChannelId(
 			ctx,
-			*channel.TwitchUserID,
+			twitchBinding.UserID,
 			twitchPlatformID,
 		)
 		if err != nil {
@@ -420,59 +441,82 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 		return nil, fmt.Errorf("channel not found")
 	}
 
-	statuses := make([]entity.BotStatus, 0, 2)
+	statuses := make([]entity.BotStatus, 0, 3)
 
-	if channel.TwitchConnected() {
-		status, err := c.getTwitchBotStatus(ctx, channel)
+	twitchBinding, twitchBotConfig, hasTwitchBinding, err := channel.TwitchBinding()
+	if err != nil {
+		return nil, fmt.Errorf("parse Twitch channel bot config: %w", err)
+	}
+	if hasTwitchBinding {
+		status, err := c.getTwitchBotStatus(ctx, channel, twitchBinding, twitchBotConfig)
 		if err != nil {
 			c.logger.Error("cannot get twitch bot status", logger.Error(err), slog.String("channelId", channel.ID.String()))
-			status = c.getBasicTwitchBotStatus(ctx, channel)
+			status = c.getBasicTwitchBotStatus(ctx, channel, twitchBinding, twitchBotConfig)
 		}
 		statuses = append(statuses, status)
 	}
 
-	if channel.KickConnected() {
-		statuses = append(statuses, c.getKickBotStatus(ctx, channel))
+	if kickBinding, hasKickBinding := channel.Binding(platformentity.PlatformKick); hasKickBinding {
+		statuses = append(statuses, c.getKickBotStatus(ctx, channel, kickBinding))
+	}
+
+	if vkVideoLiveBinding, hasVKVideoLiveBinding := channel.Binding(platformentity.PlatformVKVideoLive); hasVKVideoLiveBinding {
+		statuses = append(statuses, c.getVKVideoLiveBotStatus(ctx, channel, vkVideoLiveBinding))
 	}
 
 	if len(statuses) == 0 {
+		anyBindingEnabled := false
+		for _, binding := range channel.Bindings {
+			anyBindingEnabled = anyBindingEnabled || binding.Enabled
+		}
+
 		statuses = append(statuses, entity.BotStatus{
 			DashboardID: channel.ID.String(),
-			Enabled:     channel.AnyBotJoined(),
-			IsMod:       channel.IsBotMod,
-			BotID:       channel.BotID,
+			Enabled:     anyBindingEnabled,
 		})
 	}
 
 	return statuses, nil
 }
 
-func (c *Service) getKickBotStatus(ctx context.Context, channel channelmodel.Channel) entity.BotStatus {
+func (c *Service) getKickBotStatus(
+	ctx context.Context,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
+) entity.BotStatus {
 	result := entity.BotStatus{
 		DashboardID: channel.ID.String(),
-		Platform:    "kick",
-		ChannelName: c.getChannelName(ctx, channel.KickUserID),
-		Enabled:     channel.KickBotJoined(),
+		Platform:    platformentity.PlatformKick.String(),
+		ChannelName: c.getChannelName(ctx, &binding.UserID),
+		Enabled:     binding.Enabled,
 		IsMod:       true,
-		BotID:       channel.BotID,
 	}
 
-	bot, err := c.kickBotsRepo.GetDefault(ctx)
-	if err != nil {
-		c.logger.Error("cannot get default kick bot", logger.Error(err))
-		return result
+	if binding.BotUserID != nil {
+		result.BotID = binding.BotUserID.String()
+		result.BotName = c.getChannelName(ctx, binding.BotUserID)
 	}
 
-	if channel.KickBotID == nil {
-		if _, updateErr := c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{KickBotID: &bot.ID}); updateErr != nil {
-			c.logger.Error("cannot repair kick bot assignment", logger.Error(updateErr), slog.String("channelId", channel.ID.String()))
-		} else {
-			channel.KickBotID = &bot.ID
-		}
+	return result
+}
+
+func (c *Service) getVKVideoLiveBotStatus(
+	ctx context.Context,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
+) entity.BotStatus {
+	result := entity.BotStatus{
+		DashboardID: channel.ID.String(),
+		Platform:    platformentity.PlatformVKVideoLive.String(),
+		ChannelName: c.getChannelName(ctx, &binding.UserID),
+		Enabled:     binding.Enabled,
 	}
 
-	result.BotName = bot.KickUserLogin
-	result.BotID = bot.KickUserID.String()
+	if binding.BotUserID != nil {
+		result.BotID = binding.BotUserID.String()
+		result.BotName = c.getChannelName(ctx, binding.BotUserID)
+	}
+
 	return result
 }
 
@@ -494,24 +538,38 @@ func (c *Service) getChannelName(ctx context.Context, userID *uuid.UUID) string 
 	return user.DisplayName
 }
 
-func (c *Service) getBasicTwitchBotStatus(ctx context.Context, channel channelmodel.Channel) entity.BotStatus {
+func (c *Service) getBasicTwitchBotStatus(
+	ctx context.Context,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
+	botConfig channelplatformentity.TwitchBotConfig,
+) entity.BotStatus {
 	return entity.BotStatus{
 		DashboardID: channel.ID.String(),
-		Platform:    "twitch",
-		ChannelName: c.getChannelName(ctx, channel.TwitchUserID),
-		Enabled:     channel.TwitchBotJoined(),
-		IsMod:       channel.IsBotMod,
-		BotID:       channel.BotID,
+		Platform:    platformentity.PlatformTwitch.String(),
+		ChannelName: c.getChannelName(ctx, &binding.UserID),
+		Enabled:     binding.Enabled,
+		IsMod:       botConfig.IsBotMod,
+		BotID:       botConfig.BotID,
 		BotName:     "TwirBot",
 	}
 }
 
-func (c *Service) getTwitchBotStatus(ctx context.Context, channel channelmodel.Channel) (entity.BotStatus, error) {
-	result := c.getBasicTwitchBotStatus(ctx, channel)
+func (c *Service) getTwitchBotStatus(
+	ctx context.Context,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
+	botConfig channelplatformentity.TwitchBotConfig,
+) (entity.BotStatus, error) {
+	result := c.getBasicTwitchBotStatus(ctx, channel, binding, botConfig)
 
-	twitchPlatformID := *channel.TwitchPlatformID
+	if binding.PlatformChannelID == "" || botConfig.BotID == "" {
+		return result, nil
+	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, *channel.TwitchUserID, c.config, c.twirBus)
+	twitchPlatformID := binding.PlatformChannelID
+
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, binding.UserID, c.config, c.twirBus)
 	if err != nil {
 		return entity.BotStatus{}, err
 	}
@@ -520,7 +578,7 @@ func (c *Service) getTwitchBotStatus(ctx context.Context, channel channelmodel.C
 
 	errgrp.Go(
 		func() error {
-			if twitchPlatformID == channel.BotID {
+			if twitchPlatformID == botConfig.BotID {
 				result.IsMod = true
 				return nil
 			}
@@ -528,7 +586,7 @@ func (c *Service) getTwitchBotStatus(ctx context.Context, channel channelmodel.C
 			mods, err := twitchClient.GetModerators(
 				&helix.GetModeratorsParams{
 					BroadcasterID: twitchPlatformID,
-					UserIDs:       []string{channel.BotID},
+					UserIDs:       []string{botConfig.BotID},
 				},
 			)
 			if err != nil {
@@ -550,7 +608,7 @@ func (c *Service) getTwitchBotStatus(ctx context.Context, channel channelmodel.C
 		func() error {
 			infoReq, err := twitchClient.GetUsers(
 				&helix.UsersParams{
-					IDs: []string{channel.BotID},
+					IDs: []string{botConfig.BotID},
 				},
 			)
 			if err != nil {
@@ -570,8 +628,18 @@ func (c *Service) getTwitchBotStatus(ctx context.Context, channel channelmodel.C
 		return entity.BotStatus{}, fmt.Errorf("cannot get bot info: %w", err)
 	}
 
-	if _, err := c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{IsBotMod: &result.IsMod}); err != nil {
-		c.logger.Error("cannot update channel", logger.Error(err), slog.String("channelId", channel.ID.String()))
+	botConfigPatch, err := json.Marshal(struct {
+		IsBotMod bool `json:"is_bot_mod"`
+	}{IsBotMod: result.IsMod})
+	if err != nil {
+		return entity.BotStatus{}, fmt.Errorf("marshal Twitch bot config patch: %w", err)
+	}
+	if _, err := c.channelPlatformsRepo.Patch(
+		ctx,
+		binding.ID,
+		channelplatforms.PatchInput{BotConfigPatch: botConfigPatch},
+	); err != nil {
+		c.logger.Error("cannot update Twitch binding", logger.Error(err), slog.String("channelId", channel.ID.String()))
 	}
 
 	return result, nil
@@ -599,12 +667,13 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 
 	targetPlatform := platform
 	if targetPlatform == "" {
-		switch {
-		case channel.TwitchConnected():
+		if _, found := channel.Binding(platformentity.PlatformTwitch); found {
 			targetPlatform = "twitch"
-		case channel.KickConnected():
+		} else if _, found := channel.Binding(platformentity.PlatformKick); found {
 			targetPlatform = "kick"
-		default:
+		} else if _, found := channel.Binding(platformentity.PlatformVKVideoLive); found {
+			targetPlatform = platformentity.PlatformVKVideoLive.String()
+		} else {
 			return false, fmt.Errorf("channel has no connected platform")
 		}
 	}
@@ -612,18 +681,38 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 	isEnabled := action == BotJoinLeaveActionJoin
 
 	switch targetPlatform {
+	case platformentity.PlatformVKVideoLive.String():
+		binding, found := channel.Binding(platformentity.PlatformVKVideoLive)
+		if !found || binding.PlatformChannelID == "" {
+			return false, fmt.Errorf("VK Video Live channel id not found")
+		}
+		if binding.BotUserID == nil {
+			return false, fmt.Errorf("VK Video Live bot user id not found")
+		}
+
+		if _, err = c.channelPlatformsRepo.Patch(
+			ctx,
+			binding.ID,
+			channelplatforms.PatchInput{Enabled: &isEnabled},
+		); err != nil {
+			return false, fmt.Errorf("update VK Video Live binding enabled state: %w", err)
+		}
+
+		c.channelsCache.Invalidate(ctx, channelID)
+		return true, nil
 	case "kick":
-		if !channel.KickConnected() {
+		binding, found := channel.Binding(platformentity.PlatformKick)
+		if !found || binding.PlatformChannelID == "" {
 			return false, fmt.Errorf("kick channel id not found")
 		}
 
-		overallEnabled := channel.TwitchBotJoined() || isEnabled
-		_, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
-			IsEnabled:      &overallEnabled,
-			KickBotEnabled: &isEnabled,
-		})
+		_, err = c.channelPlatformsRepo.Patch(
+			ctx,
+			binding.ID,
+			channelplatforms.PatchInput{Enabled: &isEnabled},
+		)
 		if err != nil {
-			return false, fmt.Errorf("update kick channel enabled state: %w", err)
+			return false, fmt.Errorf("update Kick binding enabled state: %w", err)
 		}
 
 		if isEnabled {
@@ -641,97 +730,94 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		c.channelsCache.Invalidate(ctx, channelID)
 		return true, nil
 	case "twitch":
-		if !channel.TwitchConnected() {
+		binding, botConfig, found, bindingErr := channel.TwitchBinding()
+		if bindingErr != nil {
+			return false, fmt.Errorf("parse Twitch channel bot config: %w", bindingErr)
+		}
+		if !found || binding.PlatformChannelID == "" {
 			return false, fmt.Errorf("twitch channel id not found")
 		}
+		if botConfig.BotID == "" {
+			return false, fmt.Errorf("twitch bot id not found")
+		}
+
+		if _, err = c.channelPlatformsRepo.Patch(
+			ctx,
+			binding.ID,
+			channelplatforms.PatchInput{Enabled: &isEnabled},
+		); err != nil {
+			return false, fmt.Errorf("update Twitch binding enabled state: %w", err)
+		}
+
+		twitchPlatformID := binding.PlatformChannelID
+		twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+		if err != nil {
+			return false, err
+		}
+
+		twitchUsers, err := twitchClient.GetUsers(
+			&helix.UsersParams{IDs: []string{twitchPlatformID}},
+		)
+		if err != nil || twitchUsers.ErrorMessage != "" || len(twitchUsers.Data.Users) == 0 {
+			return false, fmt.Errorf("user not found on twitch")
+		}
+
+		if isEnabled {
+			c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+				ctx,
+				eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
+			)
+		} else {
+			c.twirBus.EventSub.Unsubscribe.Publish(
+				ctx,
+				eventsub.EventsubUnsubscribeRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
+			)
+		}
+
+		broadcasterClient, err := twitch.NewUserClientWithContext(
+			ctx,
+			binding.UserID,
+			c.config,
+			c.twirBus,
+		)
+		if err != nil {
+			return false, err
+		}
+
+		if action == BotJoinLeaveActionJoin {
+			unbanResp, err := broadcasterClient.UnbanUser(
+				&helix.UnbanUserParams{
+					BroadcasterID: twitchPlatformID,
+					ModeratorID:   twitchPlatformID,
+					UserID:        botConfig.BotID,
+				},
+			)
+			if err != nil {
+				return false, err
+			}
+
+			if unbanResp.ErrorMessage != "" && unbanResp.StatusCode != 400 {
+				return false, fmt.Errorf("cannot unban user: %s", unbanResp.ErrorMessage)
+			}
+
+			addModResp, err := broadcasterClient.AddChannelModerator(
+				&helix.AddChannelModeratorParams{
+					BroadcasterID: twitchPlatformID,
+					UserID:        botConfig.BotID,
+				},
+			)
+			if err != nil {
+				return false, err
+			}
+
+			if addModResp.ErrorMessage != "" && unbanResp.StatusCode != 400 {
+				return false, fmt.Errorf("cannot add channel moderator: %s", addModResp.ErrorMessage)
+			}
+		}
+
+		c.channelsCache.Invalidate(ctx, channelID)
+		return true, nil
 	default:
 		return false, fmt.Errorf("unsupported platform: %s", targetPlatform)
 	}
-
-	overallEnabled := channel.KickBotJoined() || isEnabled
-	_, err = c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
-		IsEnabled:        &overallEnabled,
-		TwitchBotEnabled: &isEnabled,
-	})
-	if err != nil {
-		return false, fmt.Errorf("update twitch channel enabled state: %w", err)
-	}
-
-	channel.IsEnabled = overallEnabled
-	channel.TwitchBotEnabled = isEnabled
-
-	twitchPlatformID := *channel.TwitchPlatformID
-
-	if action == BotJoinLeaveActionJoin {
-		channel.IsEnabled = true
-	}
-
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
-	if err != nil {
-		return false, err
-	}
-
-	twitchUsers, err := twitchClient.GetUsers(
-		&helix.UsersParams{IDs: []string{twitchPlatformID}},
-	)
-	if err != nil || twitchUsers.ErrorMessage != "" || len(twitchUsers.Data.Users) == 0 {
-		return false, fmt.Errorf("user not found on twitch")
-	}
-
-	if channel.TwitchBotJoined() {
-		c.twirBus.EventSub.SubscribeToAllEvents.Publish(
-			ctx,
-			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
-		)
-	} else {
-		c.twirBus.EventSub.Unsubscribe.Publish(
-			ctx,
-			eventsub.EventsubUnsubscribeRequest{ChannelID: channelID, Platform: platformentity.PlatformTwitch},
-		)
-	}
-
-	broadcasterClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		*channel.TwitchUserID,
-		c.config,
-		c.twirBus,
-	)
-	if err != nil {
-		return false, err
-	}
-
-	if action == BotJoinLeaveActionJoin {
-		unbanResp, err := broadcasterClient.UnbanUser(
-			&helix.UnbanUserParams{
-				BroadcasterID: twitchPlatformID,
-				ModeratorID:   twitchPlatformID,
-				UserID:        channel.BotID,
-			},
-		)
-		if err != nil {
-			return false, err
-		}
-
-		if unbanResp.ErrorMessage != "" && unbanResp.StatusCode != 400 {
-			return false, fmt.Errorf("cannot unban user: %s", unbanResp.ErrorMessage)
-		}
-
-		addModResp, err := broadcasterClient.AddChannelModerator(
-			&helix.AddChannelModeratorParams{
-				BroadcasterID: twitchPlatformID,
-				UserID:        channel.BotID,
-			},
-		)
-		if err != nil {
-			return false, err
-		}
-
-		if addModResp.ErrorMessage != "" && unbanResp.StatusCode != 400 {
-			return false, fmt.Errorf("cannot add channel moderator: %s", addModResp.ErrorMessage)
-		}
-	}
-
-	c.channelsCache.Invalidate(ctx, channelID)
-
-	return true, nil
 }

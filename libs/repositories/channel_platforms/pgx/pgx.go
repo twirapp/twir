@@ -1,0 +1,315 @@
+package pgx
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	"github.com/twirapp/twir/libs/entities/platform"
+	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
+	"github.com/twirapp/twir/libs/repositories/channel_platforms/model"
+)
+
+type Opts struct {
+	PgxPool *pgxpool.Pool
+}
+
+func New(opts Opts) *Pgx {
+	return &Pgx{
+		pool:            opts.PgxPool,
+		transactionPool: opts.PgxPool,
+		getter:          trmpgx.DefaultCtxGetter,
+	}
+}
+
+func NewFx(pool *pgxpool.Pool) *Pgx {
+	return New(Opts{PgxPool: pool})
+}
+
+var _ channelplatforms.Repository = (*Pgx)(nil)
+
+type database interface {
+	Query(ctx context.Context, sql string, arguments ...any) (pgx.Rows, error)
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
+}
+
+type Pgx struct {
+	pool            database
+	transactionPool *pgxpool.Pool
+	getter          *trmpgx.CtxGetter
+}
+
+const selectColumns = `
+	id,
+	channel_id,
+	platform,
+	user_id,
+	platform_channel_id,
+	enabled,
+	bot_user_id,
+	bot_config,
+	created_at,
+	updated_at`
+
+const patchQuery = `
+	UPDATE channel_platforms
+	SET
+		enabled = COALESCE($2::boolean, enabled),
+		bot_config = COALESCE(bot_config, '{}'::jsonb) || COALESCE($3::jsonb, '{}'::jsonb),
+		updated_at = NOW()
+	WHERE id = $1
+	RETURNING ` + selectColumns
+
+func (r *Pgx) Create(
+	ctx context.Context,
+	input channelplatforms.CreateInput,
+) (channelplatformentity.ChannelPlatform, error) {
+	query := `
+		INSERT INTO channel_platforms (
+			channel_id,
+			platform,
+			user_id,
+			platform_channel_id,
+			enabled,
+			bot_user_id,
+			bot_config
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING ` + selectColumns
+
+	rows, err := r.connection(ctx).Query(
+		ctx,
+		query,
+		input.ChannelID,
+		input.Platform,
+		input.UserID,
+		input.PlatformChannelID,
+		input.Enabled,
+		input.BotUserID,
+		input.BotConfig,
+	)
+	if err != nil {
+		return channelplatformentity.Nil, fmt.Errorf("create channel platform binding: %w", err)
+	}
+
+	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
+	if err != nil {
+		return channelplatformentity.Nil, fmt.Errorf("collect created channel platform binding: %w", err)
+	}
+
+	return mapBindingToEntity(binding), nil
+}
+
+func (r *Pgx) GetByChannelAndPlatform(
+	ctx context.Context,
+	channelID uuid.UUID,
+	platform platform.Platform,
+) (channelplatformentity.ChannelPlatform, error) {
+	return r.getOne(
+		ctx,
+		`
+			SELECT `+selectColumns+`
+			FROM channel_platforms
+			WHERE channel_id = $1 AND platform = $2
+			LIMIT 1`,
+		channelID,
+		platform,
+	)
+}
+
+func (r *Pgx) GetByPlatformChannelID(
+	ctx context.Context,
+	platform platform.Platform,
+	platformChannelID string,
+) (channelplatformentity.ChannelPlatform, error) {
+	return r.getOne(
+		ctx,
+		`
+			SELECT `+selectColumns+`
+			FROM channel_platforms
+			WHERE platform = $1 AND platform_channel_id = $2
+			LIMIT 1`,
+		platform,
+		platformChannelID,
+	)
+}
+
+func (r *Pgx) ListByChannelID(
+	ctx context.Context,
+	channelID uuid.UUID,
+) ([]channelplatformentity.ChannelPlatform, error) {
+	query := `
+		SELECT ` + selectColumns + `
+		FROM channel_platforms
+		WHERE channel_id = $1
+		ORDER BY platform`
+
+	rows, err := r.connection(ctx).Query(ctx, query, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("list channel platform bindings: %w", err)
+	}
+
+	bindings, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.ChannelPlatform])
+	if err != nil {
+		return nil, fmt.Errorf("collect channel platform bindings: %w", err)
+	}
+
+	return mapBindingsToEntities(bindings), nil
+}
+
+func (r *Pgx) LockByChannelID(ctx context.Context, channelID uuid.UUID) error {
+	rows, err := r.connection(ctx).Query(
+		ctx,
+		`
+			SELECT id
+			FROM channel_platforms
+			WHERE channel_id = $1
+			ORDER BY id
+			FOR UPDATE`,
+		channelID,
+	)
+	if err != nil {
+		return fmt.Errorf("lock channel platform bindings: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return fmt.Errorf("scan locked channel platform binding: %w", err)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("iterate locked channel platform bindings: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Pgx) Update(
+	ctx context.Context,
+	id uuid.UUID,
+	input channelplatforms.UpdateInput,
+) (channelplatformentity.ChannelPlatform, error) {
+	query := `
+		UPDATE channel_platforms
+		SET
+			user_id = $2,
+			platform_channel_id = $3,
+			enabled = $4,
+			bot_user_id = $5,
+			bot_config = $6,
+			updated_at = NOW()
+		WHERE id = $1
+		RETURNING ` + selectColumns
+
+	rows, err := r.connection(ctx).Query(
+		ctx,
+		query,
+		id,
+		input.UserID,
+		input.PlatformChannelID,
+		input.Enabled,
+		input.BotUserID,
+		input.BotConfig,
+	)
+	if err != nil {
+		return channelplatformentity.Nil, fmt.Errorf("update channel platform binding: %w", err)
+	}
+
+	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
+		}
+		return channelplatformentity.Nil, fmt.Errorf("collect updated channel platform binding: %w", err)
+	}
+
+	return mapBindingToEntity(binding), nil
+}
+
+func (r *Pgx) Patch(
+	ctx context.Context,
+	id uuid.UUID,
+	input channelplatforms.PatchInput,
+) (channelplatformentity.ChannelPlatform, error) {
+	if err := input.Validate(); err != nil {
+		return channelplatformentity.Nil, err
+	}
+
+	var enabled any
+	if input.Enabled != nil {
+		enabled = *input.Enabled
+	}
+
+	var botConfigPatch any
+	if len(input.BotConfigPatch) > 0 {
+		botConfigPatch = input.BotConfigPatch
+	}
+
+	rows, err := r.connection(ctx).Query(ctx, patchQuery, id, enabled, botConfigPatch)
+	if err != nil {
+		return channelplatformentity.Nil, fmt.Errorf("patch channel platform binding: %w", err)
+	}
+
+	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
+		}
+		return channelplatformentity.Nil, fmt.Errorf("collect patched channel platform binding: %w", err)
+	}
+
+	return mapBindingToEntity(binding), nil
+}
+
+func (r *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
+	commandTag, err := r.connection(ctx).Exec(
+		ctx,
+		`DELETE FROM channel_platforms WHERE id = $1`,
+		id,
+	)
+	if err != nil {
+		return fmt.Errorf("delete channel platform binding: %w", err)
+	}
+	if commandTag.RowsAffected() == 0 {
+		return channelplatforms.ErrNotFound
+	}
+
+	return nil
+}
+
+func (r *Pgx) getOne(
+	ctx context.Context,
+	query string,
+	args ...any,
+) (channelplatformentity.ChannelPlatform, error) {
+	rows, err := r.connection(ctx).Query(ctx, query, args...)
+	if err != nil {
+		return channelplatformentity.Nil, fmt.Errorf("query channel platform binding: %w", err)
+	}
+
+	binding, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChannelPlatform])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return channelplatformentity.Nil, channelplatforms.ErrNotFound
+		}
+		return channelplatformentity.Nil, fmt.Errorf("collect channel platform binding: %w", err)
+	}
+
+	return mapBindingToEntity(binding), nil
+}
+
+func (r *Pgx) connection(ctx context.Context) database {
+	if r.transactionPool != nil {
+		return r.getter.DefaultTrOrDB(ctx, r.transactionPool)
+	}
+
+	return r.pool
+}

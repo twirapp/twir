@@ -17,9 +17,10 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelsmodel "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformsmodel "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channels "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -30,39 +31,35 @@ type mockChannelsRepoWebhook struct {
 	err     error
 }
 
-func (m *mockChannelsRepoWebhook) GetByKickUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
-	return m.channel, m.err
-}
-
 func (m *mockChannelsRepoWebhook) GetMany(_ context.Context, _ channels.GetManyInput) ([]channelsmodel.Channel, error) {
 	return nil, nil
 }
 
+func (m *mockChannelsRepoWebhook) GetAllByBindingPlatform(_ context.Context, _ platform.Platform) ([]channelsmodel.Channel, error) {
+	return nil, nil
+}
+
 func (m *mockChannelsRepoWebhook) GetByID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+	return m.channel, m.err
 }
 
-func (m *mockChannelsRepoWebhook) GetByTwitchUserID(_ context.Context, _ uuid.UUID) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (m *mockChannelsRepoWebhook) GetByBindingUserID(_ context.Context, _ platform.Platform, _ uuid.UUID) (channelsmodel.Channel, error) {
+	return m.channel, m.err
 }
 
-func (m *mockChannelsRepoWebhook) GetByTwitchPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
+func (m *mockChannelsRepoWebhook) GetByPlatformChannelID(_ context.Context, _ platform.Platform, _ string) (channelsmodel.Channel, error) {
+	return m.channel, m.err
 }
 
-func (m *mockChannelsRepoWebhook) GetByKickPlatformID(_ context.Context, _ string) (channelsmodel.Channel, error) {
-	return channelsmodel.Nil, nil
-}
-
-func (m *mockChannelsRepoWebhook) GetCount(_ context.Context, _ channels.GetCountInput) (int, error) {
-	return 0, nil
+func (m *mockChannelsRepoWebhook) GetBySlug(_ context.Context, _ channels.GetBySlugInput) (channelsmodel.Channel, error) {
+	return m.channel, m.err
 }
 
 func (m *mockChannelsRepoWebhook) Update(_ context.Context, _ uuid.UUID, _ channels.UpdateInput) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 
-func (m *mockChannelsRepoWebhook) Create(_ context.Context, _ channels.CreateInput) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepoWebhook) Create(_ context.Context) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 
@@ -112,6 +109,7 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 
 	channelID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
 	kickUserID := "103507661"
+	bindingID := uuid.New()
 
 	usersRepo := &mockUsersRepoWebhook{
 		user: usersmodel.User{
@@ -123,17 +121,29 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 	channelsRepo := &mockChannelsRepoWebhook{
 		channel: channelsmodel.Channel{
 			ID: channelID,
+			Bindings: []channelplatformsmodel.ChannelPlatform{
+				{
+					ID:                bindingID,
+					ChannelID:         channelID,
+					Platform:          platform.PlatformKick,
+					UserID:            channelID,
+					PlatformChannelID: kickUserID,
+					Enabled:           true,
+				},
+			},
 		},
 	}
+	chatMessages := &mockQueue[generic.ChatMessage, struct{}]{}
+	processMessageAsCommand := &mockQueue[generic.ChatMessage, struct{}]{}
 
 	handlers := &Handlers{
 		logger:                  slog.Default(),
 		redis:                   redisClient,
 		channelsRepo:            channelsRepo,
 		usersRepo:               usersRepo,
-		channelService:          channelservice.NewChannelService(channelsRepo, buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
-		chatMessages:            &mockQueue[generic.ChatMessage, struct{}]{},
-		processMessageAsCommand: &mockQueue[generic.ChatMessage, struct{}]{},
+		channelService:          channelservice.NewChannelService(channelsRepo, &buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
+		chatMessages:            chatMessages,
+		processMessageAsCommand: processMessageAsCommand,
 	}
 
 	payload := kickChatMessagePayload{
@@ -171,6 +181,18 @@ func TestWebhookHandler_ChatMessage(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
 	}
+	if chatMessages.PublishedCount() != 1 {
+		t.Fatalf("chat messages published = %d, want 1", chatMessages.PublishedCount())
+	}
+	if message := chatMessages.FirstPublished(); message.ChannelBindingID != bindingID.String() {
+		t.Fatalf("chat message binding ID = %q, want %q", message.ChannelBindingID, bindingID)
+	}
+	if processMessageAsCommand.PublishedCount() != 1 {
+		t.Fatalf("parser messages published = %d, want 1", processMessageAsCommand.PublishedCount())
+	}
+	if message := processMessageAsCommand.FirstPublished(); message.ChannelBindingID != bindingID.String() {
+		t.Fatalf("parser message binding ID = %q, want %q", message.ChannelBindingID, bindingID)
+	}
 
 	if err := redisMock.ExpectationsWereMet(); err != nil {
 		t.Fatalf("redis expectations not met: %v", err)
@@ -201,7 +223,7 @@ func TestWebhookHandler_LivestreamStatus(t *testing.T) {
 		redis:          redisClient,
 		channelsRepo:   channelsRepo,
 		usersRepo:      usersRepo,
-		channelService: channelservice.NewChannelService(channelsRepo, buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
+		channelService: channelservice.NewChannelService(channelsRepo, &buscore.Bus{}, cfg.Config{}, kvinmemory.New(), nil),
 		streamOnline:   &mockQueue[kickbus.KickStreamOnline, struct{}]{},
 		streamOffline:  &mockQueue[kickbus.KickStreamOffline, struct{}]{},
 	}

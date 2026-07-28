@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"log/slog"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
+	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 )
 
@@ -30,22 +32,21 @@ func (c *Handler) HandleUserAuthorizationRevoke(
 		return
 	}
 
-	channel, channelErr := c.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformTwitch)
+	channel, channelErr := c.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
 	if channelErr != nil {
 		if !errors.Is(channelErr, channelsrepository.ErrNotFound) {
 			c.logger.Error("failed to get channel", logger.Error(channelErr))
 		}
 	} else {
-		isBotMod := false
 		twitchEnabled := false
-		overallEnabled := channel.KickBotJoined()
-
-		if _, updateErr := c.channelsRepo.Update(ctx, channel.ID, channelsrepository.UpdateInput{
-			IsBotMod:         &isBotMod,
-			IsEnabled:        &overallEnabled,
-			TwitchBotEnabled: &twitchEnabled,
-		}); updateErr != nil {
-			c.logger.Error("failed to update channel", logger.Error(updateErr))
+		twitchBinding, hasTwitchBinding := channel.Binding(platform.PlatformTwitch)
+		if hasTwitchBinding {
+			if _, updateErr := c.channelPlatformsRepo.Patch(ctx, twitchBinding.ID, channelplatforms.PatchInput{
+				Enabled:        &twitchEnabled,
+				BotConfigPatch: json.RawMessage(`{"is_bot_mod":false}`),
+			}); updateErr != nil {
+				c.logger.Error("failed to update Twitch binding", logger.Error(updateErr))
+			}
 		}
 	}
 

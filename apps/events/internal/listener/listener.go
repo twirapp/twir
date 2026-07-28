@@ -318,14 +318,9 @@ func (c *EventsGrpcImplementation) resolveInternalChannelID(
 	plat platform.Platform,
 	platformChannelID string,
 ) (uuid.UUID, error) {
-	user, err := c.usersRepo.GetByPlatformID(ctx, plat, platformChannelID)
+	channel, err := c.channelService.GetChannelByPlatformChannelID(ctx, plat, platformChannelID)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("resolve user by platform id: %w", err)
-	}
-
-	channel, err := c.channelService.GetChannelByConnectedUser(ctx, user.ID, plat)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("resolve channel by user id: %w", err)
+		return uuid.Nil, fmt.Errorf("resolve channel by platform channel id: %w", err)
 	}
 
 	return channel.ID, nil
@@ -650,6 +645,7 @@ func (c *EventsGrpcImplementation) CommandUsed(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					CommandName:     msg.CommandName,
@@ -690,6 +686,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					UserID:          msg.UserID,
@@ -737,6 +734,7 @@ func (c *EventsGrpcImplementation) Raided(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					RaidViewers:     msg.Viewers,
@@ -785,6 +783,7 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 				shared.EventData{
 					ChannelID:         msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:       channelDBID.String(),
+					Platform:          eventPlatform,
 					OldStreamCategory: msg.OldCategory,
 					NewStreamCategory: msg.NewCategory,
 					OldStreamTitle:    msg.OldTitle,
@@ -824,6 +823,7 @@ func (c *EventsGrpcImplementation) StreamOnline(
 				shared.EventData{
 					ChannelID:      msg.ChannelID,
 					ChannelDBID:    channelDBID.String(),
+					Platform:       platform.PlatformTwitch,
 					StreamTitle:    msg.Title,
 					StreamCategory: msg.CategoryName,
 				},
@@ -872,6 +872,7 @@ func (c *EventsGrpcImplementation) StreamOffline(
 				shared.EventData{
 					ChannelID:   msg.ChannelID,
 					ChannelDBID: channelDBID.String(),
+					Platform:    platform.PlatformTwitch,
 				},
 			)
 			if err != nil {
@@ -955,6 +956,7 @@ func (c *EventsGrpcImplementation) ChatClear(
 				shared.EventData{
 					ChannelID:   msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID: channelDBID.String(),
+					Platform:    eventPlatform,
 				},
 			)
 			if err != nil {
@@ -999,6 +1001,7 @@ func (c *EventsGrpcImplementation) Donate(
 				shared.EventData{
 					ChannelID:      msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:    channelDBID.String(),
+					Platform:       eventPlatform,
 					UserName:       msg.UserName,
 					DonateAmount:   msg.Amount,
 					DonateCurrency: msg.Currency,
@@ -1087,6 +1090,12 @@ func (c *EventsGrpcImplementation) GreetingSended(
 	msg events.GreetingSendedMessage,
 ) (struct{}, error) {
 	wg := utils.NewGoroutinesGroup()
+	eventPlatform := normalizeEventPlatform(msg.BaseInfo.Platform)
+	channelDBID, err := c.resolveChannelDBID(ctx, eventPlatform, &msg.BaseInfo)
+	if err != nil {
+		c.logger.Error("resolve channel db id", logger.Error(err))
+		return struct{}{}, nil
+	}
 
 	wg.Go(
 		func() {
@@ -1095,6 +1104,8 @@ func (c *EventsGrpcImplementation) GreetingSended(
 				model.EventTypeGreetingSended,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
+					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					UserID:          msg.UserID,
@@ -1132,6 +1143,7 @@ func (c *EventsGrpcImplementation) PollBegin(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					PollTitle:       msg.Info.Title,
@@ -1181,6 +1193,7 @@ func (c *EventsGrpcImplementation) PollProgress(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserDisplayName: msg.UserDisplayName,
 					PollTitle:       msg.Info.Title,
 					PollOptionsNames: strings.Join(
@@ -1237,6 +1250,7 @@ func (c *EventsGrpcImplementation) PollEnd(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserDisplayName: msg.UserDisplayName,
 					PollTitle:       msg.Info.Title,
 					PollOptionsNames: strings.Join(
@@ -1283,6 +1297,7 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
@@ -1331,6 +1346,7 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
 					PredictionOptionsNames: strings.Join(
@@ -1380,6 +1396,7 @@ func (c *EventsGrpcImplementation) PredictionLock(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
 					PredictionOptionsNames: strings.Join(
@@ -1435,6 +1452,7 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelPlatformID,
 					ChannelDBID:     channelDBID.String(),
+					Platform:        eventPlatform,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
 					PredictionOptionsNames: strings.Join(
@@ -1645,6 +1663,7 @@ func (c *EventsGrpcImplementation) ChannelMessageDelete(
 		shared.EventData{
 			ChannelID:       msg.BaseInfo.ChannelPlatformID,
 			ChannelDBID:     channelDBID.String(),
+			Platform:        eventPlatform,
 			UserName:        msg.UserLogin,
 			UserDisplayName: msg.UserName,
 			ChatMessageId:   msg.MessageId,

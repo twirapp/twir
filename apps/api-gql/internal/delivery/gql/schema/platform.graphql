@@ -1,4 +1,9 @@
 enum Platform {
 	TWITCH
 	KICK
+	VK_VIDEO_LIVE
+}
+
+type PlatformCapability {
+	name: String!
 }

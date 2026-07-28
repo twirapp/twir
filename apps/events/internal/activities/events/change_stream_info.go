@@ -47,7 +47,7 @@ func (c *Activity) ChangeCategory(
 
 	editReq, err := twitchClient.EditChannelInformation(
 		&helix.EditChannelInformationParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: twitchBroadcasterID(data),
 			GameID:        category.ID,
 		},
 	)
@@ -92,7 +92,7 @@ func (c *Activity) ChangeTitle(
 
 	req, err := twitchClient.EditChannelInformation(
 		&helix.EditChannelInformationParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: twitchBroadcasterID(data),
 			Title:         hydratedTitle,
 		},
 	)

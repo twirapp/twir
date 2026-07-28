@@ -9,7 +9,6 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
@@ -61,7 +60,7 @@ func (c *Activity) ModOrUnmod(
 
 	errWg.Go(
 		func() error {
-			m, err := c.getChannelMods(twitchClient, data.ChannelID)
+			m, err := c.getChannelMods(twitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -70,11 +69,11 @@ func (c *Activity) ModOrUnmod(
 		},
 	)
 
-	var dbChannel deprecatedgormmodel.Channels
+	var dbChannel channelRuntimeInfo
 
 	errWg.Go(
 		func() error {
-			ch, err := c.getChannelDbEntity(ctx, data.ChannelID)
+			ch, err := c.getTwitchChannelDbEntity(ctx, data)
 			if err != nil {
 				return err
 			}
@@ -87,7 +86,7 @@ func (c *Activity) ModOrUnmod(
 		return err
 	}
 
-	if user.ID == dbChannel.BotID || user.ID == dbChannel.ID {
+	if user.ID == dbChannel.BotID || user.ID == dbChannel.BroadcasterUserID {
 		return errors.New("cannot mod/unmod bot")
 	}
 
@@ -106,7 +105,7 @@ func (c *Activity) ModOrUnmod(
 
 		resp, err := twitchClient.AddChannelModerator(
 			&helix.AddChannelModeratorParams{
-				BroadcasterID: data.ChannelID,
+				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
@@ -123,7 +122,7 @@ func (c *Activity) ModOrUnmod(
 
 		resp, err := twitchClient.RemoveChannelModerator(
 			&helix.RemoveChannelModeratorParams{
-				BroadcasterID: data.ChannelID,
+				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
@@ -145,7 +144,7 @@ func (c *Activity) UnmodRandom(
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
-	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
+	dbChannel, dbChannelErr := c.getTwitchChannelDbEntity(ctx, data)
 	if dbChannelErr != nil {
 		return dbChannelErr
 	}
@@ -155,7 +154,7 @@ func (c *Activity) UnmodRandom(
 		return twitchClientErr
 	}
 
-	mods, modsErr := c.getChannelMods(twitchClient, data.ChannelID)
+	mods, modsErr := c.getChannelMods(twitchClient, twitchBroadcasterID(data))
 	if modsErr != nil {
 		return modsErr
 	}
@@ -170,7 +169,7 @@ func (c *Activity) UnmodRandom(
 
 	removeReq, err := twitchClient.RemoveChannelModerator(
 		&helix.RemoveChannelModeratorParams{
-			BroadcasterID: data.ChannelID,
+			BroadcasterID: twitchBroadcasterID(data),
 			UserID:        randomMod.UserID,
 		},
 	)

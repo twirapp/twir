@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type CustomRewardsResult struct {
@@ -27,18 +27,23 @@ func (c *Service) GetRewardsByChannelID(
 	if err != nil {
 		return CustomRewardsResult{}, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	if channel.IsNil() {
 		return CustomRewardsResult{}, nil
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, *channel.TwitchUserID, c.config, c.twirBus)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
+	if !found || twitchBinding.UserID == uuid.Nil {
+		return CustomRewardsResult{}, nil
+	}
+
+	twitchClient, err := c.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
 		return CustomRewardsResult{}, fmt.Errorf("failed to create twitch client: %w", err)
 	}
 
 	rewards, err := twitchClient.GetCustomRewards(
 		&helix.GetCustomRewardsParams{
-			BroadcasterID: *channel.TwitchPlatformID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 		},
 	)
 	if err != nil {

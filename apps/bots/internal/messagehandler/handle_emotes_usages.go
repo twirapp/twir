@@ -3,7 +3,6 @@ package messagehandler
 import (
 	"context"
 
-	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/logger"
 	channelsemotesusages "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"github.com/twirapp/twir/libs/utils"
@@ -11,7 +10,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []generic.ChatMessage) {
+func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []enrichedChatMessage) {
 	var createEmoteUsageInputs []channelsemotesusages.ChannelEmoteUsageInput
 
 	for _, msg := range data {
@@ -36,7 +35,7 @@ func (c *MessageHandler) handleEmotesUsagesBatched(ctx context.Context, data []g
 	}
 }
 
-func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg generic.ChatMessage) error {
+func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg enrichedChatMessage) error {
 	span := trace.SpanFromContext(ctx)
 	defer span.End()
 	span.SetAttributes(attribute.String("function.name", utils.GetFuncName()))

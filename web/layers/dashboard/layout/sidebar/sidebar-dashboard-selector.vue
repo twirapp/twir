@@ -17,8 +17,6 @@ import {
 } from '@/components/ui/sidebar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
-import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'
 
 const { t } = useI18n()
 const { open: sidebarOpen } = useSidebar()
@@ -58,34 +56,10 @@ const search = ref('')
 const { contains } = useFilter({ sensitivity: 'base' })
 
 function getDashboardProfile(dashboard: NonNullable<typeof profile.value>['availableDashboards'][number]) {
-	if (dashboard.platform === 'kick' && dashboard.kickProfile) {
-		return {
-			name: dashboard.kickProfile.displayName ?? dashboard.kickProfile.slug ?? '',
-			login: dashboard.kickProfile.slug ?? '',
-			avatar: dashboard.kickProfile.profilePicture ?? '',
-		}
-	}
-
-	if (dashboard.twitchProfile) {
-		return {
-			name: dashboard.twitchProfile.displayName ?? '',
-			login: dashboard.twitchProfile.login ?? '',
-			avatar: dashboard.twitchProfile.profileImageUrl ?? '',
-		}
-	}
-
-	if (dashboard.kickProfile) {
-		return {
-			name: dashboard.kickProfile.displayName ?? dashboard.kickProfile.slug ?? '',
-			login: dashboard.kickProfile.slug ?? '',
-			avatar: dashboard.kickProfile.profilePicture ?? '',
-		}
-	}
-
 	return {
-		name: '',
-		login: '',
-		avatar: '',
+		name: dashboard.profile?.platformDisplayName ?? dashboard.profile?.platformLogin ?? '',
+		login: dashboard.profile?.platformLogin ?? '',
+		avatar: dashboard.profile?.platformAvatar ?? '',
 	}
 }
 
@@ -137,8 +111,9 @@ const {
 						<span class="truncate font-semibold">{{ getDashboardName(currentDashboard) }}</span>
 						<span class="truncate text-xs flex items-center gap-1">
 							{{ t(`dashboard.header.managingUser`) }}
-							<KickIcon v-if="currentDashboard.platform === 'kick'" class="text-[#53FC18]" />
-							<TwitchIcon v-else-if="currentDashboard.platform === 'twitch'" class="text-[#9146FF]" />
+							<Icon v-if="currentDashboard.platform === 'kick'" name="simple-icons:kick" class="size-4 text-[#53FC18]" />
+							<Icon v-else-if="currentDashboard.platform === 'twitch'" name="simple-icons:twitch" class="size-4 text-[#9146FF]" />
+							<Icon v-else-if="currentDashboard.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4 text-[#0077FF]" />
 						</span>
 					</div>
 						<Icon name="lucide:chevrons-up-down" class="ml-auto" />
@@ -172,13 +147,20 @@ const {
 									</AvatarFallback>
 								</Avatar>
 								<span class="truncate">{{ getDashboardLogin(option.data) }}</span>
-								<KickIcon
+								<Icon
 									v-if="option.data.platform === 'kick'"
-									class="text-[#53FC18] ml-auto"
+									name="simple-icons:kick"
+									class="size-4 text-[#53FC18] ml-auto"
 								/>
-								<TwitchIcon
+								<Icon
 									v-else-if="option.data.platform === 'twitch'"
-									class="text-[#9146FF] ml-auto"
+									name="simple-icons:twitch"
+									class="size-4 text-[#9146FF] ml-auto"
+								/>
+								<Icon
+									v-else-if="option.data.platform === 'vk_video_live'"
+									name="simple-icons:vk"
+									class="size-4 text-[#0077FF] ml-auto"
 								/>
 							</Button>
 						</div>

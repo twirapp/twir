@@ -1,6 +1,7 @@
 package cfg
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -100,6 +101,13 @@ type Config struct {
 	VKClientSecret   string `required:"false" envconfig:"VK_CLIENT_SECRET"`
 	VkAppAccessToken string `required:"false" envconfig:"VK_APP_ACCESS_TOKEN"`
 
+	VKVideoClientID      string `required:"false" envconfig:"VK_VIDEO_CLIENT_ID"`
+	VKVideoClientSecret  string `required:"false" envconfig:"VK_VIDEO_CLIENT_SECRET"`
+	VKVideoWebhookSecret string `required:"false" envconfig:"VK_VIDEO_WEBHOOK_SECRET"`
+	VKVideoAPIBaseURL    string `required:"false" default:"https://api.live.vkvideo.ru" envconfig:"VK_VIDEO_API_BASE_URL"`
+	VKVideoAuthBaseURL   string `required:"false" default:"https://auth.live.vkvideo.ru" envconfig:"VK_VIDEO_AUTH_BASE_URL"`
+	VKVideoDevAPIBaseURL string `required:"false" default:"https://apidev.live.vkvideo.ru" envconfig:"VK_VIDEO_DEVAPI_BASE_URL"`
+
 	FaceitClientId     string `required:"false" envconfig:"FACEIT_CLIENT_ID"`
 	FaceitClientSecret string `required:"false" envconfig:"FACEIT_CLIENT_SECRET"`
 	FaceitApiKey       string `required:"false" envconfig:"FACEIT_API_KEY"`
@@ -125,6 +133,10 @@ func (c *Config) IsDevelopment() bool {
 	return c.AppEnv == "development"
 }
 
+func (c *Config) IsVkVideoEnabled() bool {
+	return c.VKVideoClientID != "" && c.VKVideoClientSecret != ""
+}
+
 func (c *Config) GetTwitchCallbackUrl() string {
 	u, err := url.Parse(c.SiteBaseUrl)
 	if err != nil {
@@ -132,6 +144,24 @@ func (c *Config) GetTwitchCallbackUrl() string {
 	}
 
 	return u.JoinPath("login").String()
+}
+
+func (c *Config) GetVkCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("login", "vk").String()
+}
+
+func (c *Config) GetVkVideoBotCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("api", "auth", "vk-video", "bot-callback").String()
 }
 
 func (c *Config) GetKickCallbackUrl() string {
@@ -150,8 +180,28 @@ func NewWithEnvPath(envPath string) (*Config, error) {
 	if err := envconfig.Process("", &newCfg); err != nil {
 		return nil, err
 	}
+	if err := newCfg.validateVKVideo(); err != nil {
+		return nil, err
+	}
 
 	return &newCfg, nil
+}
+
+func (c *Config) validateVKVideo() error {
+	if !c.IsVkVideoEnabled() {
+		return nil
+	}
+
+	for name, value := range map[string]string{
+		"VK_VIDEO_CLIENT_ID":      c.VKVideoClientID,
+		"VK_VIDEO_CLIENT_SECRET":  c.VKVideoClientSecret,
+		"VK_VIDEO_WEBHOOK_SECRET": c.VKVideoWebhookSecret,
+	} {
+		if strings.TrimSpace(value) == "" {
+			return fmt.Errorf("%s is required when VK_VIDEO_ENABLED is true", name)
+		}
+	}
+	return nil
 }
 
 func New() (*Config, error) {

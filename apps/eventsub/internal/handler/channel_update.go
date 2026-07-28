@@ -18,10 +18,10 @@ func (c *Handler) HandleChannelUpdate(
 	event eventsub.ChannelUpdateEvent,
 	meta eventsub.WebsocketNotificationMetadata,
 ) {
-	channel, err := c.channelService.GetChannelByPlatformUserID(
+	channel, err := c.channelService.GetChannelByPlatformChannelID(
 		ctx,
-		event.BroadcasterUserId,
 		platformentity.PlatformTwitch,
+		event.BroadcasterUserId,
 	)
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
