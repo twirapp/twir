@@ -512,10 +512,6 @@ func (r *reinitChannelsRepo) GetBySlug(
 	return channelsmodel.Nil, nil
 }
 
-func (r *reinitChannelsRepo) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
-	return 0, nil
-}
-
 func (r *reinitChannelsRepo) Update(
 	context.Context,
 	uuid.UUID,
@@ -526,7 +522,6 @@ func (r *reinitChannelsRepo) Update(
 
 func (r *reinitChannelsRepo) Create(
 	context.Context,
-	channelsrepo.CreateInput,
 ) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }

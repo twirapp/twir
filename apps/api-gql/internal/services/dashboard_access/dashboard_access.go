@@ -41,7 +41,6 @@ type ChannelReader interface {
 }
 
 type Store interface {
-	GetLegacyChannel(context.Context, uuid.UUID) (model.Channels, error)
 	GetRoles(context.Context, uuid.UUID, string) ([]model.ChannelRole, error)
 	GetUserStat(context.Context, string, uuid.UUID) (model.UsersStats, error)
 }
@@ -89,22 +88,14 @@ func (s *Service) IsOwner(ctx context.Context, userID string, channelID uuid.UUI
 	if err != nil {
 		return false, fmt.Errorf("get channel: %w", err)
 	}
-	if len(channel.Bindings) > 0 {
-		for _, binding := range channel.Bindings {
-			if binding.UserID.String() == userID {
-				return true, nil
-			}
+
+	for _, binding := range channel.Bindings {
+		if binding.UserID.String() == userID {
+			return true, nil
 		}
-
-		return false, nil
 	}
 
-	legacyChannel, err := s.store.GetLegacyChannel(ctx, channelID)
-	if err != nil {
-		return false, fmt.Errorf("get legacy channel: %w", err)
-	}
-
-	return legacyChannel.IsOwner(userID), nil
+	return false, nil
 }
 
 func rolesAllowAccess(
@@ -154,15 +145,6 @@ func rolesAllowAccess(
 
 type gormStore struct {
 	gorm *gorm.DB
-}
-
-func (s *gormStore) GetLegacyChannel(ctx context.Context, channelID uuid.UUID) (model.Channels, error) {
-	var channel model.Channels
-	if err := s.gorm.WithContext(ctx).Where("id = ?", channelID).First(&channel).Error; err != nil {
-		return model.Channels{}, err
-	}
-
-	return channel, nil
 }
 
 func (s *gormStore) GetRoles(ctx context.Context, channelID uuid.UUID, userID string) ([]model.ChannelRole, error) {

@@ -197,15 +197,11 @@ func newKickChannel(channelID, userID uuid.UUID) channelsmodel.Channel {
 	}
 }
 
-func (m *mockChannelsRepo) GetCount(_ context.Context, _ channelsrepository.GetCountInput) (int, error) {
-	return 0, nil
-}
-
 func (m *mockChannelsRepo) Update(_ context.Context, _ uuid.UUID, _ channelsrepository.UpdateInput) (channelsmodel.Channel, error) {
 	return m.channel, m.err
 }
 
-func (m *mockChannelsRepo) Create(_ context.Context, _ channelsrepository.CreateInput) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepo) Create(_ context.Context) (channelsmodel.Channel, error) {
 	return m.channel, m.err
 }
 

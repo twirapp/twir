@@ -126,8 +126,8 @@ func TestDualBoundKickEventKeepsEventIDAndResolvesTwitchRuntime(t *testing.T) {
 	if repo.lookupPlatformChannelID != "twitch-channel" {
 		t.Errorf("runtime lookup channel ID = %q, want %q", repo.lookupPlatformChannelID, "twitch-channel")
 	}
-	if runtimeChannel.ID != "twitch-channel" {
-		t.Errorf("runtime broadcaster ID = %q, want %q", runtimeChannel.ID, "twitch-channel")
+	if runtimeChannel.BroadcasterUserID != "twitch-channel" {
+		t.Errorf("runtime broadcaster ID = %q, want %q", runtimeChannel.BroadcasterUserID, "twitch-channel")
 	}
 }
 

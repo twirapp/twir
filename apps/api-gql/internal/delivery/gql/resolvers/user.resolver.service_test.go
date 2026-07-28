@@ -16,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestOwnedDashboardsQueryIncludesZeroBindingLegacyOwners(t *testing.T) {
+func TestOwnedDashboardsQueryUsesOwnershipBindings(t *testing.T) {
 	t.Parallel()
 
 	const userID = "a8ff9a5f-b450-44eb-ba6c-5047888e3af7"
@@ -32,72 +32,73 @@ func TestOwnedDashboardsQueryIncludesZeroBindingLegacyOwners(t *testing.T) {
 		"FROM channel_platforms AS cp_owner",
 		"cp_owner.channel_id = channels.id",
 		"cp_owner.user_id = $1::uuid",
-		"NOT EXISTS (",
-		"FROM channel_platforms AS cp_existing",
-		"cp_existing.channel_id = channels.id",
-		"channels.twitch_user_id = $2::uuid",
-		"channels.kick_user_id = $3::uuid",
 	} {
 		if !strings.Contains(query, fragment) {
 			t.Fatalf("query does not contain %q: %s", fragment, query)
 		}
 	}
 
-	if want := []any{userID, userID, userID}; !reflect.DeepEqual(statement.Vars, want) {
+	for _, absent := range []string{"twitch_user_id", "kick_user_id", "NOT EXISTS"} {
+		if strings.Contains(query, absent) {
+			t.Fatalf("query must not contain %q: %s", absent, query)
+		}
+	}
+
+	if want := []any{userID}; !reflect.DeepEqual(statement.Vars, want) {
 		t.Fatalf("query vars = %#v, want %#v", statement.Vars, want)
 	}
 }
 
-func TestResolveDashboardPlatformFallsBackOnlyAfterZeroBindingLookup(t *testing.T) {
+func TestResolveDashboardPlatform(t *testing.T) {
 	t.Parallel()
 
 	channelID := uuid.New()
 	userID := uuid.NewString()
-	twitchUserID := userID
-	kickUserID := userID
 
 	tests := []struct {
-		name    string
-		channel model.Channels
-		reader  resolverDashboardPlatformReader
-		want    string
+		name      string
+		channelID string
+		reader    resolverDashboardPlatformReader
+		want      string
 	}{
 		{
-			name:    "zero binding Twitch legacy channel",
-			channel: model.Channels{ID: channelID.String(), TwitchUserID: &twitchUserID},
-			reader:  resolverDashboardPlatformReader{channel: channelentity.Channel{ID: channelID}},
-			want:    "twitch",
+			name:      "zero binding channel has no platform",
+			channelID: channelID.String(),
+			reader:    resolverDashboardPlatformReader{channel: channelentity.Channel{ID: channelID}},
+			want:      "",
 		},
 		{
-			name:    "zero binding Kick legacy channel",
-			channel: model.Channels{ID: channelID.String(), KickUserID: &kickUserID},
-			reader:  resolverDashboardPlatformReader{channel: channelentity.Channel{ID: channelID}},
-			want:    "kick",
-		},
-		{
-			name:    "normalized owner overrides legacy platform",
-			channel: model.Channels{ID: channelID.String(), TwitchUserID: &twitchUserID},
+			name:      "binding owner gets binding platform",
+			channelID: channelID.String(),
 			reader: resolverDashboardPlatformReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{{
 				Platform: platformentity.PlatformVKVideoLive, UserID: uuid.MustParse(userID),
 			}}}},
 			want: "vk_video_live",
 		},
 		{
-			name:    "invalid channel ID does not use legacy platform",
-			channel: model.Channels{ID: "not-a-uuid", TwitchUserID: &twitchUserID},
-			want:    "",
+			name:      "non-owner gets first binding platform",
+			channelID: channelID.String(),
+			reader: resolverDashboardPlatformReader{channel: channelentity.Channel{ID: channelID, Bindings: []channelplatformentity.ChannelPlatform{{
+				Platform: platformentity.PlatformVKVideoLive, UserID: uuid.New(),
+			}}}},
+			want: "vk_video_live",
 		},
 		{
-			name:    "normalized lookup error does not use legacy platform",
-			channel: model.Channels{ID: channelID.String(), TwitchUserID: &twitchUserID},
-			reader:  resolverDashboardPlatformReader{err: errors.New("lookup failed")},
-			want:    "",
+			name:      "invalid channel ID resolves to empty platform",
+			channelID: "not-a-uuid",
+			want:      "",
+		},
+		{
+			name:      "normalized lookup error resolves to empty platform",
+			channelID: channelID.String(),
+			reader:    resolverDashboardPlatformReader{err: errors.New("lookup failed")},
+			want:      "",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := resolveDashboardPlatform(context.Background(), tt.reader, tt.channel, userID)
+			got := resolveDashboardPlatform(context.Background(), tt.reader, tt.channelID, userID)
 			if got != tt.want {
 				t.Fatalf("resolveDashboardPlatform() = %q, want %q", got, tt.want)
 			}

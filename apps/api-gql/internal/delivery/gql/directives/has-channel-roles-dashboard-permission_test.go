@@ -18,12 +18,10 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 	dashboardID := uuid.New()
 	ownerID := uuid.New()
 	otherUserID := uuid.New()
-	legacyOwnerID := ownerID.String()
 	requestedPermission := gqlmodel.ChannelRolePermissionEnum("VIEW_COMMANDS")
 
 	tests := []struct {
 		name            string
-		legacyChannel   model.Channels
 		normalized      channelentity.Channel
 		roles           []model.ChannelRole
 		permission      *gqlmodel.ChannelRolePermissionEnum
@@ -39,8 +37,7 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 			wantAccess: true,
 		},
 		{
-			name:          "denies stale legacy owner with a remaining binding",
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
+			name: "denies non-owner when binding belongs to another user",
 			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: otherUserID,
 			}}},
@@ -80,11 +77,10 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 			wantRoleLookups: 1,
 		},
 		{
-			name:          "allows zero-binding legacy owner",
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			normalized:    channelentity.Channel{ID: dashboardID},
-			permission:    &requestedPermission,
-			wantAccess:    true,
+			name:            "denies owner without bindings after role lookup",
+			normalized:      channelentity.Channel{ID: dashboardID},
+			permission:      &requestedPermission,
+			wantRoleLookups: 1,
 		},
 		{
 			name:       "allows assigned role with nil permission",
@@ -101,8 +97,7 @@ func TestHasChannelRolesDashboardPermissionUsesDashboardAccess(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &selectedDashboardDirectiveStore{
-				channel: tt.legacyChannel,
-				roles:   tt.roles,
+				roles: tt.roles,
 			}
 			directive := &Directives{
 				sessions: &selectedDashboardDirectiveSession{

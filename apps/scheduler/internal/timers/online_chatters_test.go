@@ -98,11 +98,8 @@ func TestTwitchChannelRowToChannelKeepsOwner(t *testing.T) {
 		channel: row.toChannel(),
 	}
 
-	if stream.channel.User == nil {
-		t.Fatal("channel owner must be attached to the Twitch stream")
-	}
-	if stream.channel.User.ID != row.UserID {
-		t.Fatalf("owner ID = %q, want %q", stream.channel.User.ID, row.UserID)
+	if stream.channel.UserID != row.UserID {
+		t.Fatalf("owner ID = %q, want %q", stream.channel.UserID, row.UserID)
 	}
 	if (&onlineUsers{}).shouldSkipStream(stream) {
 		t.Fatal("an enabled Twitch channel with an unbanned owner must be processed")

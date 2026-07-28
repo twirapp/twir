@@ -319,7 +319,6 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("id = ?", sessionUser.ID).
-		Preload("Channel").
 		First(&user).Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
@@ -333,8 +332,15 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		SelectedDashboardID: dashboardId,
 	}
 
-	if user.Channel != nil {
-		authedUser.PlanID = user.Channel.PlanID
+	var ownedChannel model.Channels
+	if channelErr := r.deps.Gorm.
+		WithContext(ctx).
+		Joins("JOIN channel_platforms cp ON cp.channel_id = channels.id").
+		Where("cp.user_id = ?::uuid", sessionUser.ID).
+		Take(&ownedChannel).Error; channelErr == nil {
+		authedUser.PlanID = ownedChannel.PlanID
+	} else if !errors.Is(channelErr, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("failed to get user channel: %w", channelErr)
 	}
 
 	if parsedDashboardID, parseErr := uuid.Parse(dashboardId); parseErr == nil {

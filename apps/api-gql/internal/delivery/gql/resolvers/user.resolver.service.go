@@ -18,19 +18,19 @@ type dashboardPlatformReader interface {
 
 func (r *authenticatedUserResolver) getDashboardPlatform(
 	ctx context.Context,
-	channel model.Channels,
+	channelID string,
 	userID string,
 ) string {
-	return resolveDashboardPlatform(ctx, r.deps.ChannelService, channel, userID)
+	return resolveDashboardPlatform(ctx, r.deps.ChannelService, channelID, userID)
 }
 
 func resolveDashboardPlatform(
 	ctx context.Context,
 	reader dashboardPlatformReader,
-	channel model.Channels,
+	channelID string,
 	userID string,
 ) string {
-	parsedChannelID, err := uuid.Parse(channel.ID)
+	parsedChannelID, err := uuid.Parse(channelID)
 	if err != nil {
 		return ""
 	}
@@ -46,7 +46,7 @@ func resolveDashboardPlatform(
 		}
 	}
 	if len(normalizedChannel.Bindings) == 0 {
-		return channel.Platform()
+		return ""
 	}
 
 	return normalizedChannel.Bindings[0].Platform.String()
@@ -59,18 +59,7 @@ func ownedDashboardsQuery(db *gorm.DB, ctx context.Context, userID string) *gorm
 			FROM channel_platforms AS cp_owner
 			WHERE cp_owner.channel_id = channels.id
 				AND cp_owner.user_id = ?::uuid
-		) OR (
-			NOT EXISTS (
-				SELECT 1
-				FROM channel_platforms AS cp_existing
-				WHERE cp_existing.channel_id = channels.id
-			) AND (
-				channels.twitch_user_id = ?::uuid
-				OR channels.kick_user_id = ?::uuid
-			)
 		)`,
-		userID,
-		userID,
 		userID,
 	)
 }
@@ -113,7 +102,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		for _, channel := range channels {
 			dashboard := gqlmodel.Dashboard{
 				ID:       channel.ID,
-				Platform: r.getDashboardPlatform(ctx, channel, obj.ID),
+				Platform: r.getDashboardPlatform(ctx, channel.ID, obj.ID),
 				Flags: []gqlmodel.ChannelRolePermissionEnum{
 					gqlmodel.ChannelRolePermissionEnumCanAccessDashboard,
 				},
@@ -132,7 +121,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		for _, channel := range ownChannels {
 			dashboard := gqlmodel.Dashboard{
 				ID:       channel.ID,
-				Platform: r.getDashboardPlatform(ctx, channel, obj.ID),
+				Platform: r.getDashboardPlatform(ctx, channel.ID, obj.ID),
 				Flags:    []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
 				APIKey:   obj.APIKey,
 				PlanID:   channel.PlanID,
@@ -168,7 +157,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			existing := dashboardsEntities[role.Role.Channel.ID]
 			platform := existing.Platform
 			if platform == "" {
-				platform = r.getDashboardPlatform(ctx, *role.Role.Channel, obj.ID)
+				platform = r.getDashboardPlatform(ctx, role.Role.Channel.ID, obj.ID)
 			}
 
 			dashboard := gqlmodel.Dashboard{
@@ -235,7 +224,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			existing := dashboardsEntities[role.ChannelID]
 			platform := existing.Platform
 			if platform == "" {
-				platform = r.getDashboardPlatform(ctx, *role.Channel, obj.ID)
+				platform = r.getDashboardPlatform(ctx, role.Channel.ID, obj.ID)
 			}
 
 			dashboard := gqlmodel.Dashboard{

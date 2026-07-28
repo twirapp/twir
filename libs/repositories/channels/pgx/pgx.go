@@ -78,158 +78,22 @@ WHERE EXISTS (
 ORDER BY c.id`
 
 const createChannelQuery = `
-INSERT INTO channels ("botId")
-VALUES ($1)
+INSERT INTO channels DEFAULT VALUES
 RETURNING id`
 
-const updateChannelAndBindingsQuery = `
-WITH input AS (
-	SELECT
-		$1::uuid AS channel_id,
-		$2::boolean AS is_enabled,
-		$3::boolean AS is_bot_mod,
-		$4::uuid AS twitch_user_id,
-		$5::uuid AS kick_user_id,
-		$6::boolean AS twitch_bot_enabled,
-		$7::boolean AS kick_bot_enabled,
-		$8::uuid AS kick_bot_id
-),
-updated_channel AS (
-	UPDATE channels c
-	SET
-		"isEnabled" = COALESCE(i.is_enabled, c."isEnabled"),
-		"isBotMod" = COALESCE(i.is_bot_mod, c."isBotMod"),
-		twitch_user_id = COALESCE(i.twitch_user_id, c.twitch_user_id),
-		kick_user_id = COALESCE(i.kick_user_id, c.kick_user_id),
-		twitch_bot_enabled = COALESCE(i.twitch_bot_enabled, c.twitch_bot_enabled),
-		kick_bot_enabled = COALESCE(i.kick_bot_enabled, c.kick_bot_enabled),
-		kick_bot_id = COALESCE(i.kick_bot_id, c.kick_bot_id)
-	FROM input i
-	WHERE c.id = i.channel_id
-		AND (
-			COALESCE(i.twitch_user_id, c.twitch_user_id) IS NULL
-			OR EXISTS (
-				SELECT 1
-				FROM users u
-				WHERE u.id = COALESCE(i.twitch_user_id, c.twitch_user_id)
-					AND u.platform = 'twitch'
-			)
-		)
-		AND (
-			COALESCE(i.kick_user_id, c.kick_user_id) IS NULL
-			OR EXISTS (
-				SELECT 1
-				FROM users u
-				WHERE u.id = COALESCE(i.kick_user_id, c.kick_user_id)
-					AND u.platform = 'kick'
-			)
-		)
-		AND (
-			COALESCE(i.twitch_user_id, c.twitch_user_id) IS NOT NULL
-			OR (
-				COALESCE(i.twitch_bot_enabled, c.twitch_bot_enabled) = false
-				AND COALESCE(i.is_bot_mod, c."isBotMod") = false
-				AND c."isTwitchBanned" = false
-			)
-		)
-		AND (
-			COALESCE(i.kick_user_id, c.kick_user_id) IS NOT NULL
-			OR (
-				COALESCE(i.kick_bot_enabled, c.kick_bot_enabled) = false
-				AND COALESCE(i.kick_bot_id, c.kick_bot_id) IS NULL
-			)
-		)
-	RETURNING
-		c.id,
-		c.twitch_user_id,
-		c.twitch_bot_enabled,
-		c.kick_user_id,
-		c.kick_bot_enabled,
-		c."botId",
-		c."isBotMod",
-		c."isTwitchBanned",
-		c.kick_bot_id
-),
-twitch_binding AS (
-	INSERT INTO channel_platforms (
-		channel_id,
-		platform,
-		user_id,
-		platform_channel_id,
-		enabled,
-		bot_user_id,
-		bot_config
-	)
-	SELECT
-		c.id,
-		'twitch',
-		c.twitch_user_id,
-		u.platform_id,
-		c.twitch_bot_enabled,
-		NULL,
-		jsonb_build_object(
-			'bot_id', c."botId",
-			'is_bot_mod', c."isBotMod",
-			'is_twitch_banned', c."isTwitchBanned"
-		)
-	FROM updated_channel c
-	JOIN users u ON u.id = c.twitch_user_id AND u.platform = 'twitch'
-	WHERE c.twitch_user_id IS NOT NULL
-	ON CONFLICT (channel_id, platform) DO UPDATE
-	SET
-		user_id = EXCLUDED.user_id,
-		platform_channel_id = EXCLUDED.platform_channel_id,
-		enabled = EXCLUDED.enabled,
-		bot_user_id = EXCLUDED.bot_user_id,
-		bot_config = EXCLUDED.bot_config,
-		updated_at = NOW()
-	RETURNING channel_id
-),
-kick_binding AS (
-	INSERT INTO channel_platforms (
-		channel_id,
-		platform,
-		user_id,
-		platform_channel_id,
-		enabled,
-		bot_user_id,
-		bot_config
-	)
-	SELECT
-		c.id,
-		'kick',
-		c.kick_user_id,
-		u.platform_id,
-		c.kick_bot_enabled,
-		kb.kick_user_id,
-		jsonb_strip_nulls(jsonb_build_object('kick_bot_id', c.kick_bot_id))
-	FROM updated_channel c
-	JOIN users u ON u.id = c.kick_user_id AND u.platform = 'kick'
-	LEFT JOIN kick_bots kb ON kb.id = c.kick_bot_id
-	WHERE c.kick_user_id IS NOT NULL
-	ON CONFLICT (channel_id, platform) DO UPDATE
-	SET
-		user_id = EXCLUDED.user_id,
-		platform_channel_id = EXCLUDED.platform_channel_id,
-		enabled = EXCLUDED.enabled,
-		bot_user_id = EXCLUDED.bot_user_id,
-		bot_config = EXCLUDED.bot_config,
-		updated_at = NOW()
-	RETURNING channel_id
-)
-SELECT id FROM updated_channel`
+const updateChannelQuery = `
+UPDATE channels
+SET "isEnabled" = COALESCE($2, "isEnabled")
+WHERE id = $1
+RETURNING id`
 
 func (c *Pgx) GetByApiKey(ctx context.Context, apiKey string) (channelentity.Channel, error) {
 	return c.getOne(ctx, selectQuery+` WHERE c.api_key = $1`, apiKey)
 }
 
-func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (channelentity.Channel, error) {
+func (c *Pgx) Create(ctx context.Context) (channelentity.Channel, error) {
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	row := conn.QueryRow(
-		ctx,
-		createChannelQuery,
-		input.BotID,
-	)
+	row := conn.QueryRow(ctx, createChannelQuery)
 
 	var channelId uuid.UUID
 	if err := row.Scan(&channelId); err != nil {
@@ -237,23 +101,6 @@ func (c *Pgx) Create(ctx context.Context, input channels.CreateInput) (channelen
 	}
 
 	return c.GetByID(ctx, channelId)
-}
-
-func (c *Pgx) GetCount(ctx context.Context, input channels.GetCountInput) (int, error) {
-	query := `SELECT COUNT(*) FROM channels`
-	if input.OnlyTwitchEnabled {
-		query += ` WHERE twitch_bot_enabled = true`
-	} else if input.OnlyEnabled {
-		query += ` WHERE "isEnabled" = true`
-	}
-
-	var count int
-	err := c.getter.DefaultTrOrDB(ctx, c.pool).QueryRow(ctx, query).Scan(&count)
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
 }
 
 func (c *Pgx) GetByID(ctx context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
@@ -318,15 +165,9 @@ func (c *Pgx) GetByPlatformChannelID(
 func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.UpdateInput) (channelentity.Channel, error) {
 	row := c.getter.DefaultTrOrDB(ctx, c.pool).QueryRow(
 		ctx,
-		updateChannelAndBindingsQuery,
+		updateChannelQuery,
 		channelID,
 		valueOrNil(input.IsEnabled),
-		valueOrNil(input.IsBotMod),
-		valueOrNil(input.TwitchUserID),
-		valueOrNil(input.KickUserID),
-		valueOrNil(input.TwitchBotEnabled),
-		valueOrNil(input.KickBotEnabled),
-		valueOrNil(input.KickBotID),
 	)
 
 	var channelId uuid.UUID
@@ -354,15 +195,6 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]chann
 	if input.Enabled != nil {
 		where = append(where, `c."isEnabled" = $`+strconv.Itoa(len(args)+1))
 		args = append(args, *input.Enabled)
-	}
-
-	if input.TwitchBotEnabled != nil {
-		where = append(where, `c.twitch_bot_enabled = $`+strconv.Itoa(len(args)+1))
-		args = append(args, *input.TwitchBotEnabled)
-	}
-
-	if input.AnyBotEnabled != nil && *input.AnyBotEnabled {
-		where = append(where, `(c.twitch_bot_enabled OR c.kick_bot_enabled)`)
 	}
 
 	if len(where) > 0 {

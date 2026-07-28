@@ -297,10 +297,6 @@ func (*deleteMessageChannelsRepository) GetBySlug(
 	return channelentity.Nil, nil
 }
 
-func (*deleteMessageChannelsRepository) GetCount(context.Context, channelsrepository.GetCountInput) (int, error) {
-	return 0, nil
-}
-
 func (*deleteMessageChannelsRepository) Update(
 	context.Context,
 	uuid.UUID,
@@ -311,7 +307,6 @@ func (*deleteMessageChannelsRepository) Update(
 
 func (*deleteMessageChannelsRepository) Create(
 	context.Context,
-	channelsrepository.CreateInput,
 ) (channelentity.Channel, error) {
 	return channelentity.Nil, nil
 }

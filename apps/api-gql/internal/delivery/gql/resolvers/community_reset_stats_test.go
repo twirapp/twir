@@ -18,21 +18,18 @@ func TestCommunityResetStatsUsesNormalizedOwnerCheck(t *testing.T) {
 	dashboardID := uuid.New()
 	ownerID := uuid.New()
 	otherUserID := uuid.New()
-	legacyOwnerID := ownerID.String()
 
 	tests := []struct {
-		name          string
-		normalized    channelentity.Channel
-		legacyChannel model.Channels
-		wantSuccess   bool
-		wantUpdates   int
+		name        string
+		normalized  channelentity.Channel
+		wantSuccess bool
+		wantUpdates int
 	}{
 		{
-			name: "denies stale legacy owner without an update",
+			name: "denies non-owner when binding belongs to another user",
 			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: otherUserID,
 			}}},
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
 		},
 		{
 			name: "allows normalized owner",
@@ -43,11 +40,8 @@ func TestCommunityResetStatsUsesNormalizedOwnerCheck(t *testing.T) {
 			wantUpdates: 1,
 		},
 		{
-			name:          "allows zero-binding legacy owner",
-			normalized:    channelentity.Channel{ID: dashboardID},
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			wantSuccess:   true,
-			wantUpdates:   1,
+			name:       "denies owner without bindings",
+			normalized: channelentity.Channel{ID: dashboardID},
 		},
 	}
 
@@ -65,7 +59,7 @@ func TestCommunityResetStatsUsesNormalizedOwnerCheck(t *testing.T) {
 				Gorm: db,
 				DashboardAccess: dashboardaccess.New(
 					communityResetStatsChannelReader{channel: tt.normalized},
-					&communityResetStatsStore{legacyChannel: tt.legacyChannel},
+					&communityResetStatsStore{},
 				),
 			}}}
 
@@ -109,13 +103,7 @@ func (r communityResetStatsChannelReader) GetChannelByID(_ context.Context, chan
 	return r.channel, nil
 }
 
-type communityResetStatsStore struct {
-	legacyChannel model.Channels
-}
-
-func (s *communityResetStatsStore) GetLegacyChannel(context.Context, uuid.UUID) (model.Channels, error) {
-	return s.legacyChannel, nil
-}
+type communityResetStatsStore struct{}
 
 func (*communityResetStatsStore) GetRoles(context.Context, uuid.UUID, string) ([]model.ChannelRole, error) {
 	return nil, nil

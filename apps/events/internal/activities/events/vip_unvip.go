@@ -96,7 +96,7 @@ func (c *Activity) VipOrUnvip(
 		return err
 	}
 
-	if user.ID == dbChannel.BotID || user.ID == dbChannel.ID {
+	if user.ID == dbChannel.BotID || user.ID == dbChannel.BroadcasterUserID {
 		return errors.New("cannot vip/unvip bot")
 	}
 

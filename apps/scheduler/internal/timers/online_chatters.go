@@ -15,7 +15,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
@@ -53,14 +52,19 @@ type twitchChannelRow struct {
 	IsBanned   bool   `gorm:"column:is_banned"`
 }
 
-func (r twitchChannelRow) toChannel() *model.Channels {
-	return &model.Channels{
+type onlineChannel struct {
+	ID        string
+	IsEnabled bool
+	UserID    string
+	IsBanned  bool
+}
+
+func (r twitchChannelRow) toChannel() *onlineChannel {
+	return &onlineChannel{
 		ID:        r.ChannelID,
 		IsEnabled: r.IsEnabled,
-		User: &model.Users{
-			ID:       r.UserID,
-			IsBanned: r.IsBanned,
-		},
+		UserID:    r.UserID,
+		IsBanned:  r.IsBanned,
 	}
 }
 
@@ -175,7 +179,7 @@ func (c *onlineUsers) updateOnlineUsers(ctx context.Context) {
 
 type onlineStream struct {
 	stream  streamsmodel.Stream
-	channel *model.Channels
+	channel *onlineChannel
 }
 
 func (c *onlineUsers) getStreams(
@@ -207,7 +211,7 @@ func (c *onlineUsers) getStreams(
 		return nil, fmt.Errorf("lookup channels by platform id: %w", err)
 	}
 
-	channelByPlatform := make(map[string]*model.Channels, len(rows))
+	channelByPlatform := make(map[string]*onlineChannel, len(rows))
 	for _, r := range rows {
 		channelByPlatform[r.PlatformID] = r.toChannel()
 	}
@@ -226,14 +230,14 @@ func (c *onlineUsers) getStreams(
 }
 
 func (c *onlineUsers) shouldSkipStream(stream onlineStream) bool {
-	return stream.channel == nil || stream.channel.User == nil || (!stream.channel.IsEnabled || stream.channel.User.IsBanned)
+	return stream.channel == nil || !stream.channel.IsEnabled || stream.channel.IsBanned
 }
 
 func (c *onlineUsers) updateStreamUsers(
 	ctx context.Context,
 	stream onlineStream,
 ) error {
-	twitchUserID, err := uuid.Parse(stream.channel.User.ID)
+	twitchUserID, err := uuid.Parse(stream.channel.UserID)
 	if err != nil {
 		return fmt.Errorf("parse twitch user id: %w", err)
 	}

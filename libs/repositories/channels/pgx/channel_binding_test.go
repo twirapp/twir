@@ -28,6 +28,7 @@ func TestCreateChannelQueryDoesNotWriteProviderLinkage(t *testing.T) {
 		"twitch_bot_enabled",
 		"kick_bot_enabled",
 		"kick_bot_id",
+		"botId",
 		"channel_platforms",
 	} {
 		if strings.Contains(createChannelQuery, legacyColumn) {
@@ -35,16 +36,35 @@ func TestCreateChannelQueryDoesNotWriteProviderLinkage(t *testing.T) {
 		}
 	}
 
-	if !strings.Contains(createChannelQuery, `INSERT INTO channels ("botId")`) {
+	if !strings.Contains(createChannelQuery, `INSERT INTO channels DEFAULT VALUES`) {
 		t.Fatalf("generic channel creation query = %q, want independent channel insert", createChannelQuery)
 	}
 }
 
-func TestUpdateChannelAndBindingsQueryIsAtomic(t *testing.T) {
-	assertAtomicChannelBindingQuery(t, updateChannelAndBindingsQuery, "UPDATE channels", "updated_channel")
+func TestUpdateChannelQueryOnlyTouchesIsEnabled(t *testing.T) {
+	for _, fragment := range []string{
+		"UPDATE channels",
+		`SET "isEnabled" = COALESCE($2, "isEnabled")`,
+		"WHERE id = $1",
+		"RETURNING id",
+	} {
+		if !strings.Contains(updateChannelQuery, fragment) {
+			t.Fatalf("update channel query does not contain %q", fragment)
+		}
+	}
 
-	if got := strings.Count(updateChannelAndBindingsQuery, "ON CONFLICT (channel_id, platform) DO UPDATE"); got != 2 {
-		t.Fatalf("update binding upserts = %d, want 2", got)
+	for _, legacyColumn := range []string{
+		"twitch_user_id",
+		"kick_user_id",
+		"twitch_bot_enabled",
+		"kick_bot_enabled",
+		"kick_bot_id",
+		"botId",
+		"channel_platforms",
+	} {
+		if strings.Contains(updateChannelQuery, legacyColumn) {
+			t.Fatalf("update channel query writes legacy provider linkage %q", legacyColumn)
+		}
 	}
 }
 
@@ -63,25 +83,6 @@ func TestGetAllByBindingPlatformQueryIsComplete(t *testing.T) {
 
 	if strings.Contains(strings.ToUpper(getAllByBindingPlatformQuery), "LIMIT") {
 		t.Fatal("platform binding query must not apply a result limit")
-	}
-}
-
-func assertAtomicChannelBindingQuery(t *testing.T, query, channelMutation, channelCTE string) {
-	t.Helper()
-
-	for _, fragment := range []string{
-		"WITH",
-		channelMutation,
-		"INSERT INTO channel_platforms",
-		"SELECT id FROM " + channelCTE,
-	} {
-		if !strings.Contains(query, fragment) {
-			t.Fatalf("query does not contain %q", fragment)
-		}
-	}
-
-	if got := strings.Count(query, "INSERT INTO channel_platforms"); got != 2 {
-		t.Fatalf("binding inserts = %d, want 2", got)
 	}
 }
 

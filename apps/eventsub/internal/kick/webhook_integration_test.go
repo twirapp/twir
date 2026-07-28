@@ -55,15 +55,11 @@ func (m *mockChannelsRepoWebhook) GetBySlug(_ context.Context, _ channels.GetByS
 	return m.channel, m.err
 }
 
-func (m *mockChannelsRepoWebhook) GetCount(_ context.Context, _ channels.GetCountInput) (int, error) {
-	return 0, nil
-}
-
 func (m *mockChannelsRepoWebhook) Update(_ context.Context, _ uuid.UUID, _ channels.UpdateInput) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 
-func (m *mockChannelsRepoWebhook) Create(_ context.Context, _ channels.CreateInput) (channelsmodel.Channel, error) {
+func (m *mockChannelsRepoWebhook) Create(_ context.Context) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 

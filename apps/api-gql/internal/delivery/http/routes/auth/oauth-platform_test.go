@@ -316,10 +316,7 @@ func TestCompletePlatformAuthCreatesMissingTwitchBindingWithTwitchConfigWhenLink
 		},
 	}
 	channels := &oauthChannelsRepository{
-		createFunc: func(_ context.Context, input channelsrepo.CreateInput) (channelentity.Channel, error) {
-			if input.BotID != "default-bot" {
-				t.Fatalf("channel BotID = %q, want default-bot", input.BotID)
-			}
+		createFunc: func(_ context.Context) (channelentity.Channel, error) {
 			return channelentity.Channel{ID: channelID}, nil
 		},
 		getByBindingUserIDFunc: func(_ context.Context, platform platformentity.Platform, userID uuid.UUID) (channelentity.Channel, error) {
@@ -407,11 +404,7 @@ func TestCompletePlatformAuthCreatesVKOnlyChannel(t *testing.T) {
 		},
 	}
 	channels := &oauthChannelsRepository{
-		createFunc: func(_ context.Context, input channelsrepo.CreateInput) (channelentity.Channel, error) {
-			if input.BotID != "default-bot" {
-				t.Fatalf("channel BotID = %q, want default-bot", input.BotID)
-			}
-
+		createFunc: func(_ context.Context) (channelentity.Channel, error) {
 			return channelentity.Channel{ID: channelID}, nil
 		},
 		getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error) {
@@ -703,10 +696,10 @@ func TestCompletePlatformAuthReusesExistingBindingForLoggedOutUser(t *testing.T)
 				},
 			}
 			channels := &oauthChannelsRepository{
-				createFunc: func(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error) {
-					t.Fatal("logged-out reauthentication must not create a channel")
-					return channelentity.Nil, nil
-				},
+			createFunc: func(context.Context) (channelentity.Channel, error) {
+				t.Fatal("logged-out reauthentication must not create a channel")
+				return channelentity.Nil, nil
+			},
 				getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, gotUserID uuid.UUID) (channelentity.Channel, error) {
 					if gotPlatform != platform || gotUserID != platformUserID {
 						t.Fatalf("channel binding lookup = (%s, %s), want (%s, %s)", gotPlatform, gotUserID, platform, platformUserID)
@@ -812,7 +805,7 @@ func TestPlatformCodeCarriesVKCallbackDeviceIDThroughExchangeAndPersistence(t *t
 		sessions: sessions,
 		users:    users,
 		channels: &oauthChannelsRepository{
-			createFunc: func(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error) {
+			createFunc: func(context.Context) (channelentity.Channel, error) {
 				return channelentity.Channel{ID: channelID}, nil
 			},
 			getByBindingUserIDFunc: func(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error) {
@@ -2000,20 +1993,20 @@ func (r *oauthBotsRepository) GetDefault(context.Context) (botsmodel.Bot, error)
 }
 
 type oauthChannelsRepository struct {
-	createFunc                  func(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error)
+	createFunc                  func(context.Context) (channelentity.Channel, error)
 	getByIDFunc                 func(context.Context, uuid.UUID) (channelentity.Channel, error)
 	getByBindingUserIDFunc      func(context.Context, platformentity.Platform, uuid.UUID) (channelentity.Channel, error)
 	getAllByBindingPlatformFunc func(context.Context, platformentity.Platform) ([]channelentity.Channel, error)
 	createCalls                 int
 }
 
-func (r *oauthChannelsRepository) Create(ctx context.Context, input channelsrepo.CreateInput) (channelentity.Channel, error) {
+func (r *oauthChannelsRepository) Create(ctx context.Context) (channelentity.Channel, error) {
 	r.createCalls++
 	if r.createFunc == nil {
 		return channelentity.Nil, errors.New("unexpected Create call")
 	}
 
-	return r.createFunc(ctx, input)
+	return r.createFunc(ctx)
 }
 
 func (r *oauthChannelsRepository) GetByBindingUserID(ctx context.Context, p platformentity.Platform, userID uuid.UUID) (channelentity.Channel, error) {
@@ -2054,10 +2047,6 @@ func (*oauthChannelsRepository) GetByPlatformChannelID(context.Context, platform
 
 func (*oauthChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelentity.Channel, error) {
 	return channelentity.Nil, errors.New("unexpected GetBySlug call")
-}
-
-func (*oauthChannelsRepository) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
-	return 0, errors.New("unexpected GetCount call")
 }
 
 func (*oauthChannelsRepository) Update(context.Context, uuid.UUID, channelsrepo.UpdateInput) (channelentity.Channel, error) {

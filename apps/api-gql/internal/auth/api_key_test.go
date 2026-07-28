@@ -315,10 +315,6 @@ func (*apiKeyChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySl
 	return channelentity.Nil, nil
 }
 
-func (*apiKeyChannelsRepository) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
-	return 0, nil
-}
-
 func (*apiKeyChannelsRepository) Update(
 	context.Context,
 	uuid.UUID,
@@ -327,7 +323,7 @@ func (*apiKeyChannelsRepository) Update(
 	return channelentity.Nil, nil
 }
 
-func (*apiKeyChannelsRepository) Create(context.Context, channelsrepo.CreateInput) (channelentity.Channel, error) {
+func (*apiKeyChannelsRepository) Create(context.Context) (channelentity.Channel, error) {
 	return channelentity.Nil, nil
 }
 

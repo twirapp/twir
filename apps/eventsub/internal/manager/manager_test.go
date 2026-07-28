@@ -50,15 +50,11 @@ func (f *fakeChannelsRepo) GetBySlug(context.Context, channelsrepo.GetBySlugInpu
 	return f.channel, f.err
 }
 
-func (f *fakeChannelsRepo) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
-	return 0, nil
-}
-
 func (f *fakeChannelsRepo) Update(context.Context, uuid.UUID, channelsrepo.UpdateInput) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 
-func (f *fakeChannelsRepo) Create(context.Context, channelsrepo.CreateInput) (channelsmodel.Channel, error) {
+func (f *fakeChannelsRepo) Create(context.Context) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 

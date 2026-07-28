@@ -70,10 +70,6 @@ func (r *handlerStatusChannelsRepo) GetBySlug(
 	return r.channel, nil
 }
 
-func (r *handlerStatusChannelsRepo) GetCount(context.Context, channelsrepo.GetCountInput) (int, error) {
-	return 0, nil
-}
-
 func (r *handlerStatusChannelsRepo) Update(
 	context.Context,
 	uuid.UUID,
@@ -85,7 +81,6 @@ func (r *handlerStatusChannelsRepo) Update(
 
 func (r *handlerStatusChannelsRepo) Create(
 	context.Context,
-	channelsrepo.CreateInput,
 ) (channelsmodel.Channel, error) {
 	return r.channel, nil
 }

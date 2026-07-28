@@ -320,19 +320,7 @@ func (a *Auth) getOrCreateChannelForUser(
 }
 
 func (a *Auth) createChannel(ctx context.Context) (channelentity.Channel, error) {
-	if a.botsRepo == nil {
-		return channelentity.Nil, fmt.Errorf("bots repository is not configured")
-	}
-
-	defaultBot, err := a.botsRepo.GetDefault(ctx)
-	if err != nil {
-		return channelentity.Nil, fmt.Errorf("get default bot: %w", err)
-	}
-	if defaultBot.ID == "" {
-		return channelentity.Nil, fmt.Errorf("default bot not found")
-	}
-
-	channel, err := a.channelsRepo.Create(ctx, channelsrepo.CreateInput{BotID: defaultBot.ID})
+	channel, err := a.channelsRepo.Create(ctx)
 	if err != nil {
 		return channelentity.Nil, fmt.Errorf("create channel: %w", err)
 	}

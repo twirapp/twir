@@ -15,7 +15,6 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channel_platforms"
 	"github.com/twirapp/twir/libs/repositories/channel_platforms/model"
-	"github.com/twirapp/twir/libs/repositories/channels"
 	channelspgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	"github.com/twirapp/twir/libs/repositories/users"
 	userspgx "github.com/twirapp/twir/libs/repositories/users/pgx"
@@ -238,9 +237,7 @@ func createTestUser(t *testing.T, ctx context.Context, pool *pgxpool.Pool) uuid.
 func createTestChannel(t *testing.T, ctx context.Context, pool *pgxpool.Pool, userID uuid.UUID) uuid.UUID {
 	t.Helper()
 
-	channel, err := channelspgx.New(channelspgx.Opts{PgxPool: pool}).Create(ctx, channels.CreateInput{
-		BotID: "channel-platform-test-" + uuid.NewString(),
-	})
+	channel, err := channelspgx.New(channelspgx.Opts{PgxPool: pool}).Create(ctx)
 	if err != nil {
 		t.Fatalf("create test channel: %v", err)
 	}

@@ -12,19 +12,17 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
-func TestCanAccessUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
+func TestCanAccessUsesNormalizedOwnership(t *testing.T) {
 	t.Parallel()
 
 	dashboardID := uuid.New()
 	ownerID := uuid.New()
 	otherUserID := uuid.New()
-	legacyOwnerID := ownerID.String()
 
 	tests := []struct {
-		name          string
-		channel       channelentity.Channel
-		legacyChannel model.Channels
-		want          bool
+		name    string
+		channel channelentity.Channel
+		want    bool
 	}{
 		{
 			name: "allows a normalized binding owner",
@@ -34,18 +32,16 @@ func TestCanAccessUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
 			want: true,
 		},
 		{
-			name:          "allows a legacy owner when no bindings exist",
-			channel:       channelentity.Channel{ID: dashboardID},
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			want:          true,
+			name:    "denies access when no bindings or roles exist",
+			channel: channelentity.Channel{ID: dashboardID},
+			want:    false,
 		},
 		{
-			name: "denies stale legacy ownership when bindings exist",
+			name: "denies non-owner when binding belongs to another user",
 			channel: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: otherUserID,
 			}}},
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			want:          false,
+			want: false,
 		},
 	}
 
@@ -53,7 +49,7 @@ func TestCanAccessUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			service := New(
 				testChannelReader{channel: tt.channel},
-				&testStore{channel: tt.legacyChannel},
+				&testStore{},
 			)
 
 			got, err := service.CanAccess(
@@ -72,19 +68,17 @@ func TestCanAccessUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
 	}
 }
 
-func TestIsOwnerUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
+func TestIsOwnerUsesNormalizedOwnership(t *testing.T) {
 	t.Parallel()
 
 	dashboardID := uuid.New()
 	ownerID := uuid.New()
 	otherUserID := uuid.New()
-	legacyOwnerID := ownerID.String()
 
 	tests := []struct {
-		name          string
-		channel       channelentity.Channel
-		legacyChannel model.Channels
-		want          bool
+		name    string
+		channel channelentity.Channel
+		want    bool
 	}{
 		{
 			name: "allows a normalized VK binding owner",
@@ -94,18 +88,16 @@ func TestIsOwnerUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
 			want: true,
 		},
 		{
-			name:          "allows a legacy owner when no bindings exist",
-			channel:       channelentity.Channel{ID: dashboardID},
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			want:          true,
+			name:    "denies ownership when no bindings exist",
+			channel: channelentity.Channel{ID: dashboardID},
+			want:    false,
 		},
 		{
-			name: "denies stale legacy ownership when a binding remains",
+			name: "denies non-owner when binding belongs to another user",
 			channel: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: otherUserID,
 			}}},
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			want:          false,
+			want: false,
 		},
 	}
 
@@ -113,7 +105,7 @@ func TestIsOwnerUsesNormalizedOwnershipAndLegacyFallback(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			service := New(
 				testChannelReader{channel: tt.channel},
-				&testStore{channel: tt.legacyChannel},
+				&testStore{},
 			)
 
 			got, err := service.IsOwner(context.Background(), ownerID.String(), dashboardID)
@@ -248,13 +240,8 @@ func (r testChannelReader) GetChannelByID(_ context.Context, channelID uuid.UUID
 }
 
 type testStore struct {
-	channel model.Channels
-	roles   []model.ChannelRole
-	stat    model.UsersStats
-}
-
-func (s *testStore) GetLegacyChannel(context.Context, uuid.UUID) (model.Channels, error) {
-	return s.channel, nil
+	roles []model.ChannelRole
+	stat  model.UsersStats
 }
 
 func (s *testStore) GetRoles(context.Context, uuid.UUID, string) ([]model.ChannelRole, error) {

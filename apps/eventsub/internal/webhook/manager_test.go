@@ -57,15 +57,11 @@ func (r *bulkChannelsRepo) GetBySlug(context.Context, channels.GetBySlugInput) (
 	return channelsmodel.Nil, nil
 }
 
-func (r *bulkChannelsRepo) GetCount(context.Context, channels.GetCountInput) (int, error) {
-	return 0, nil
-}
-
 func (r *bulkChannelsRepo) Update(context.Context, uuid.UUID, channels.UpdateInput) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 
-func (r *bulkChannelsRepo) Create(context.Context, channels.CreateInput) (channelsmodel.Channel, error) {
+func (r *bulkChannelsRepo) Create(context.Context) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
 

@@ -12,7 +12,6 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
-	model "github.com/twirapp/twir/libs/gomodels"
 	channels "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.temporal.io/sdk/activity"
@@ -161,27 +160,19 @@ func (c *Activity) getChannelVips(client *helix.Client, twitchPlatformID string)
 }
 
 func (c *Activity) getChannelDbEntity(ctx context.Context, channelId string) (
-	model.Channels,
+	channelRuntimeInfo,
 	error,
 ) {
-	channelInfo, err := c.getChannelRuntimeInfo(ctx, channelId)
-	if err != nil {
-		return model.Channels{}, err
-	}
-
-	return model.Channels{
-		ID:    channelInfo.BroadcasterUserID,
-		BotID: channelInfo.BotID,
-	}, nil
+	return c.getChannelRuntimeInfo(ctx, channelId)
 }
 
 func (c *Activity) getTwitchChannelDbEntity(ctx context.Context, data shared.EventData) (
-	model.Channels,
+	channelRuntimeInfo,
 	error,
 ) {
 	broadcasterID := twitchBroadcasterID(data)
 	if broadcasterID == "" {
-		return model.Channels{}, errors.New("twitch broadcaster id is empty")
+		return channelRuntimeInfo{}, errors.New("twitch broadcaster id is empty")
 	}
 
 	return c.getChannelDbEntity(ctx, broadcasterID)

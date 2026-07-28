@@ -19,39 +19,18 @@ type Repository interface {
 	// GetByPlatformChannelID resolves a channel from a platform-scoped provider channel ID.
 	GetByPlatformChannelID(ctx context.Context, p platform.Platform, platformChannelID string) (channelentity.Channel, error)
 	GetBySlug(ctx context.Context, opts GetBySlugInput) (channelentity.Channel, error)
-	GetCount(ctx context.Context, input GetCountInput) (int, error)
 	Update(ctx context.Context, channelID uuid.UUID, input UpdateInput) (channelentity.Channel, error)
-	Create(ctx context.Context, input CreateInput) (channelentity.Channel, error)
-}
-
-type CreateInput struct {
-	BotID string
+	Create(ctx context.Context) (channelentity.Channel, error)
 }
 
 type UpdateInput struct {
-	IsEnabled        *bool
-	IsBotMod         *bool
-	TwitchUserID     *uuid.UUID
-	KickUserID       *uuid.UUID
-	TwitchBotEnabled *bool
-	KickBotEnabled   *bool
-	KickBotID        *uuid.UUID
+	IsEnabled *bool
 }
 
 type GetManyInput struct {
-	Enabled          *bool
-	TwitchBotEnabled *bool
-	KickBotEnabled   *bool
-	AnyBotEnabled    *bool
-	HasKickUserID    *bool
-	HasTwitchUserID  *bool
-	PerPage          int
-	Page             int
-}
-
-type GetCountInput struct {
-	OnlyEnabled       bool
-	OnlyTwitchEnabled bool
+	Enabled *bool
+	PerPage int
+	Page    int
 }
 
 type GetBySlugInput struct {

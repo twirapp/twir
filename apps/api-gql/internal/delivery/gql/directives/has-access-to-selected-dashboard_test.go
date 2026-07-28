@@ -18,11 +18,9 @@ func TestHasAccessToSelectedDashboardUsesNormalizedBindingOwnership(t *testing.T
 	dashboardID := uuid.New()
 	ownerID := uuid.New()
 	otherUserID := uuid.New()
-	legacyOwnerID := ownerID.String()
 
 	tests := []struct {
 		name           string
-		legacyChannel  model.Channels
 		normalized     channelentity.Channel
 		wantAccess     bool
 		wantRoleLookup bool
@@ -35,14 +33,12 @@ func TestHasAccessToSelectedDashboardUsesNormalizedBindingOwnership(t *testing.T
 			wantAccess: true,
 		},
 		{
-			name:          "legacy owner without normalized bindings",
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
-			normalized:    channelentity.Channel{ID: dashboardID},
-			wantAccess:    true,
+			name:           "user without bindings denied after role lookup",
+			normalized:     channelentity.Channel{ID: dashboardID},
+			wantRoleLookup: true,
 		},
 		{
-			name:          "stale legacy owner denied when normalized binding belongs to another user",
-			legacyChannel: model.Channels{TwitchUserID: &legacyOwnerID},
+			name: "non-owner denied when normalized binding belongs to another user",
 			normalized: channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{{
 				ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformVKVideoLive, UserID: otherUserID, PlatformChannelID: "vk-channel", Enabled: true,
 			}}},
@@ -52,7 +48,7 @@ func TestHasAccessToSelectedDashboardUsesNormalizedBindingOwnership(t *testing.T
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := &selectedDashboardDirectiveStore{channel: tt.legacyChannel}
+			store := &selectedDashboardDirectiveStore{}
 			directive := &Directives{
 				sessions: &selectedDashboardDirectiveSession{
 					user:        &model.Users{ID: ownerID.String()},
@@ -120,14 +116,9 @@ func (r selectedDashboardDirectiveChannelReader) GetChannelByID(_ context.Contex
 }
 
 type selectedDashboardDirectiveStore struct {
-	channel     model.Channels
 	roles       []model.ChannelRole
 	stat        model.UsersStats
 	roleLookups int
-}
-
-func (s *selectedDashboardDirectiveStore) GetLegacyChannel(context.Context, uuid.UUID) (model.Channels, error) {
-	return s.channel, nil
 }
 
 func (s *selectedDashboardDirectiveStore) GetRoles(context.Context, uuid.UUID, string) ([]model.ChannelRole, error) {

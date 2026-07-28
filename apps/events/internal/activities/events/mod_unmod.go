@@ -9,7 +9,6 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
@@ -70,7 +69,7 @@ func (c *Activity) ModOrUnmod(
 		},
 	)
 
-	var dbChannel deprecatedgormmodel.Channels
+	var dbChannel channelRuntimeInfo
 
 	errWg.Go(
 		func() error {
@@ -87,7 +86,7 @@ func (c *Activity) ModOrUnmod(
 		return err
 	}
 
-	if user.ID == dbChannel.BotID || user.ID == dbChannel.ID {
+	if user.ID == dbChannel.BotID || user.ID == dbChannel.BroadcasterUserID {
 		return errors.New("cannot mod/unmod bot")
 	}
 

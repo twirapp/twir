@@ -56,7 +56,7 @@ func (c *Activity) Ban(
 	if twitchClientError != nil {
 		return twitchClientError
 	}
-	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.ID)
+	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.BroadcasterUserID)
 	if twitchBotClientError != nil {
 		return twitchBotClientError
 	}
@@ -91,7 +91,7 @@ func (c *Activity) Ban(
 		return err
 	}
 
-	if targetUser.ID == dbChannel.BotID || targetUser.ID == dbChannel.ID {
+	if targetUser.ID == dbChannel.BotID || targetUser.ID == dbChannel.BroadcasterUserID {
 		return errors.New("cannot ban bot or channel owner")
 	}
 
@@ -156,7 +156,7 @@ func (c *Activity) Unban(
 	if twitchClientError != nil {
 		return twitchClientError
 	}
-	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.ID)
+	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.BroadcasterUserID)
 	if twitchBotClientError != nil {
 		return twitchBotClientError
 	}
@@ -199,7 +199,7 @@ func (c *Activity) BanRandom(
 	if twitchClientError != nil {
 		return twitchClientError
 	}
-	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.ID)
+	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.BroadcasterUserID)
 	if twitchBotClientError != nil {
 		return twitchBotClientError
 	}
@@ -214,7 +214,7 @@ func (c *Activity) BanRandom(
 	for _, mod := range mods {
 		excludedForBanUsers = append(excludedForBanUsers, mod.UserID)
 	}
-	excludedForBanUsers = append(excludedForBanUsers, dbChannel.ID, dbChannel.BotID)
+	excludedForBanUsers = append(excludedForBanUsers, dbChannel.BroadcasterUserID, dbChannel.BotID)
 
 	randomOnlineUser := &deprecatedgormmodel.UsersOnline{}
 	err = c.db.
