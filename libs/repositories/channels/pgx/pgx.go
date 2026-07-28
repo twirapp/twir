@@ -44,6 +44,7 @@ const selectQuery = `
 SELECT
 	c."id",
 	c.api_key,
+	c.plan_id,
 	COALESCE(
 		(
 			SELECT jsonb_agg(
@@ -254,7 +255,7 @@ func (c *Pgx) GetBySlug(ctx context.Context, opts channels.GetBySlugInput) (chan
 func scanChannel(row pgx.CollectableRow) (model.Channel, error) {
 	var channel model.Channel
 	var bindingsJSON []byte
-	if err := row.Scan(&channel.ID, &channel.ApiKey, &bindingsJSON); err != nil {
+	if err := row.Scan(&channel.ID, &channel.ApiKey, &channel.PlanID, &bindingsJSON); err != nil {
 		return model.Nil, err
 	}
 	if err := json.Unmarshal(bindingsJSON, &channel.Bindings); err != nil {

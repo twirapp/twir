@@ -8,6 +8,7 @@ import (
 type Channel struct {
 	ID       uuid.UUID
 	ApiKey   *string `db:"api_key"`
+	PlanID   *string `db:"plan_id"`
 	Bindings []channelplatformsmodel.ChannelPlatform
 
 	isNil bool

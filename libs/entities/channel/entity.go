@@ -9,6 +9,7 @@ import (
 type Channel struct {
 	ID       uuid.UUID
 	ApiKey   *string
+	PlanID   *string
 	Bindings []channelplatform.ChannelPlatform
 
 	isNil bool

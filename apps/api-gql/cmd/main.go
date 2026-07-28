@@ -130,6 +130,8 @@ import (
 	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
 	channelplatformsrepository "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelplatformsrepositorypgx "github.com/twirapp/twir/libs/repositories/channel_platforms/pgx"
+	channelpublicsettingsrepo "github.com/twirapp/twir/libs/repositories/channel_public_settings"
+	channelpublicsettingspgx "github.com/twirapp/twir/libs/repositories/channel_public_settings/datasource/postgres"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
@@ -341,6 +343,10 @@ func main() {
 			fx.Annotate(
 				channelplatformsrepositorypgx.NewFx,
 				fx.As(new(channelplatformsrepository.Repository)),
+			),
+			fx.Annotate(
+				channelpublicsettingspgx.NewFx,
+				fx.As(new(channelpublicsettingsrepo.Repository)),
 			),
 			fx.Annotate(
 				badgesrepositorypgx.NewFx,

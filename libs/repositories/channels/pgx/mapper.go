@@ -39,6 +39,7 @@ func mapChannelToEntity(m model.Channel) channelentity.Channel {
 	return channelentity.Channel{
 		ID:       m.ID,
 		ApiKey:   m.ApiKey,
+		PlanID:   m.PlanID,
 		Bindings: bindings,
 	}
 }

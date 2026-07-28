@@ -86,6 +86,7 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channelpublicsettingsrepo "github.com/twirapp/twir/libs/repositories/channel_public_settings"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channels_giveaways_settings "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
@@ -111,17 +112,18 @@ type Deps struct {
 	AuditRecorder audit.Recorder
 	WsRouter      wsrouter.WsRouter
 
-	SpotifyRepository              channelsintegrationsspotify.Repository
-	LastfmRepository               channelsintegrationslastfm.Repository
-	VKIntegrationRepository        vkintegrationrepo.Repository
-	PlansRepository                plansrepository.Repository
-	GiveawaysSettingsRepository    channels_giveaways_settings.Repository
-	ChannelsRepository             channelsrepository.Repository
-	UsersRepository                usersrepository.Repository
-	ChannelService                 *channelservice.ChannelService
-	ChannelPlatformBindingsService ChannelPlatformBindingsService
-	ChannelPlatformDashboard       SelectedDashboardGetter
-	CurrentPlatform                CurrentPlatformGetter
+	SpotifyRepository               channelsintegrationsspotify.Repository
+	LastfmRepository                channelsintegrationslastfm.Repository
+	VKIntegrationRepository         vkintegrationrepo.Repository
+	PlansRepository                 plansrepository.Repository
+	GiveawaysSettingsRepository     channels_giveaways_settings.Repository
+	ChannelsRepository              channelsrepository.Repository
+	UsersRepository                 usersrepository.Repository
+	ChannelPublicSettingsRepository channelpublicsettingsrepo.Repository
+	ChannelService                  *channelservice.ChannelService
+	ChannelPlatformBindingsService  ChannelPlatformBindingsService
+	ChannelPlatformDashboard        SelectedDashboardGetter
+	CurrentPlatform                 CurrentPlatformGetter
 
 	Sessions                         SessionReader
 	Auth                             *authroutes.Auth

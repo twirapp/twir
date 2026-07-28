@@ -11,7 +11,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/guregu/null"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
@@ -19,11 +18,12 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	channelpublicsettingsentity "github.com/twirapp/twir/libs/entities/channel_public_settings"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	model "github.com/twirapp/twir/libs/gomodels"
+	channelpublicsettingsrepo "github.com/twirapp/twir/libs/repositories/channel_public_settings"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
-	"gorm.io/gorm"
 )
 
 // AvailableDashboards is the resolver for the availableDashboards field.
@@ -125,21 +125,22 @@ func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, 
 		return false, gqlerrors.HandleError(err)
 	}
 
-	entity := &model.Users{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where("id = ?", user.ID).
-		First(entity).Error; err != nil {
-		return false, fmt.Errorf("failed to get user: %w", err)
+	if !opts.HideOnLandingPage.IsSet() {
+		return true, nil
 	}
 
-	if opts.HideOnLandingPage.IsSet() {
-		entity.HideOnLandingPage = *opts.HideOnLandingPage.Value()
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return false, fmt.Errorf("parse user id: %w", err)
 	}
 
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Save(entity).Error; err != nil {
+	if _, err := r.deps.UsersRepository.Update(
+		ctx,
+		userUUID,
+		usersrepository.UpdateInput{
+			HideOnLandingPage: opts.HideOnLandingPage.Value(),
+		},
+	); err != nil {
 		return false, fmt.Errorf("failed to save user: %w", err)
 	}
 
@@ -153,23 +154,23 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 		return "", gqlerrors.HandleError(err)
 	}
 
-	entity := &model.Users{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where("id = ?", user.ID).
-		First(entity).Error; err != nil {
-		return "", fmt.Errorf("failed to get user: %w", err)
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return "", fmt.Errorf("parse user id: %w", err)
 	}
 
-	entity.ApiKey = uuid.NewString()
-
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Save(entity).Error; err != nil {
+	newAPIKey := uuid.NewString()
+	if _, err := r.deps.UsersRepository.Update(
+		ctx,
+		userUUID,
+		usersrepository.UpdateInput{
+			ApiKey: &newAPIKey,
+		},
+	); err != nil {
 		return "", fmt.Errorf("failed to save user: %w", err)
 	}
 
-	return entity.ApiKey, nil
+	return newAPIKey, nil
 }
 
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
@@ -183,61 +184,37 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 		return false, fmt.Errorf("selected dashboard is not set")
 	}
 
-	currentSettings := &model.ChannelPublicSettings{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where(
-			"channel_id = ?",
-			dashboardID,
-		).
-		Preload("SocialLinks").
-		// init default settings
-		FirstOrInit(
-			currentSettings,
-			&model.ChannelPublicSettings{
-				ChannelID: dashboardID,
-			},
-		).
-		Error; err != nil {
-		return false, fmt.Errorf("failed to get public settings: %w", err)
+	channelUUID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return false, fmt.Errorf("parse dashboard id: %w", err)
 	}
 
-	txErr := r.deps.Gorm.WithContext(ctx).Transaction(
-		func(tx *gorm.DB) error {
-			if opts.Description.IsSet() {
-				currentSettings.Description = null.StringFromPtr(opts.Description.Value())
-			}
+	input := channelpublicsettingsrepo.UpsertInput{
+		ChannelID:      channelUUID,
+		Description:    opts.Description.Value(),
+		DescriptionSet: opts.Description.IsSet(),
+		SocialLinksSet: opts.SocialLinks.IsSet(),
+	}
 
-			if opts.SocialLinks.IsSet() {
-				if err := tx.
-					Where("settings_id = ?", currentSettings.ID).
-					Delete(&model.ChannelPublicSettingsSocialLink{}).
-					Error; err != nil {
-					return gqlerrors.HandleError(err)
-				}
+	if opts.SocialLinks.IsSet() {
+		input.SocialLinks = make(
+			[]channelpublicsettingsrepo.SocialLinkInput,
+			0,
+			len(opts.SocialLinks.Value()),
+		)
+		for _, link := range opts.SocialLinks.Value() {
+			input.SocialLinks = append(
+				input.SocialLinks,
+				channelpublicsettingsrepo.SocialLinkInput{
+					Title: link.Title,
+					Href:  link.Href,
+				},
+			)
+		}
+	}
 
-				links := make([]model.ChannelPublicSettingsSocialLink, 0, len(opts.SocialLinks.Value()))
-				for _, link := range opts.SocialLinks.Value() {
-					links = append(
-						links,
-						model.ChannelPublicSettingsSocialLink{
-							ID:         uuid.New(),
-							SettingsID: currentSettings.ID,
-							Title:      link.Title,
-							Href:       link.Href,
-						},
-					)
-				}
-
-				currentSettings.SocialLinks = links
-			}
-
-			return tx.Save(currentSettings).Error
-		},
-	)
-
-	if txErr != nil {
-		return false, fmt.Errorf("failed to update public settings: %w", txErr)
+	if err := r.deps.ChannelPublicSettingsRepository.Upsert(ctx, input); err != nil {
+		return false, fmt.Errorf("failed to update public settings: %w", err)
 	}
 
 	return true, nil
@@ -315,16 +292,18 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	user := model.Users{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where("id = ?", sessionUser.ID).
-		First(&user).Error; err != nil {
+	userUUID, err := uuid.Parse(sessionUser.ID)
+	if err != nil {
+		return nil, fmt.Errorf("parse user id: %w", err)
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, userUUID)
+	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	authedUser := &gqlmodel.AuthenticatedUser{
-		ID:                  user.ID,
+		ID:                  user.ID.String(),
 		IsBotAdmin:          user.IsBotAdmin,
 		IsBanned:            user.IsBanned,
 		HideOnLandingPage:   user.HideOnLandingPage,
@@ -332,14 +311,10 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		SelectedDashboardID: dashboardId,
 	}
 
-	var ownedChannel model.Channels
-	if channelErr := r.deps.Gorm.
-		WithContext(ctx).
-		Joins("JOIN channel_platforms cp ON cp.channel_id = channels.id").
-		Where("cp.user_id = ?::uuid", sessionUser.ID).
-		Take(&ownedChannel).Error; channelErr == nil {
+	ownedChannel, channelErr := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+	if channelErr == nil && !ownedChannel.IsNil() {
 		authedUser.PlanID = ownedChannel.PlanID
-	} else if !errors.Is(channelErr, gorm.ErrRecordNotFound) {
+	} else if channelErr != nil && !errors.Is(channelErr, channelsrepository.ErrNotFound) {
 		return nil, fmt.Errorf("failed to get user channel: %w", channelErr)
 	}
 
@@ -407,31 +382,35 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 		return nil, fmt.Errorf("id for fetch not setted in request or session")
 	}
 
-	entity := &model.ChannelPublicSettings{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where(
-			"channel_id = ?",
-			idForFetch,
-		).
-		Preload("SocialLinks").
-		Find(entity).Error; err != nil {
-		return nil, gqlerrors.HandleError(err)
+	channelUUID, err := uuid.Parse(idForFetch)
+	if err != nil {
+		return nil, fmt.Errorf("parse channel id: %w", err)
 	}
 
 	settings := &gqlmodel.PublicSettings{
 		ChannelID:   channelID,
-		Description: entity.Description.Ptr(),
-		SocialLinks: lo.Map(
-			entity.SocialLinks,
-			func(item model.ChannelPublicSettingsSocialLink, _ int) gqlmodel.SocialLink {
-				return gqlmodel.SocialLink{
-					Title: item.Title,
-					Href:  item.Href,
-				}
-			},
-		),
+		Description: nil,
+		SocialLinks: []gqlmodel.SocialLink{},
 	}
+
+	entity, err := r.deps.ChannelPublicSettingsRepository.GetByChannelID(ctx, channelUUID)
+	if err != nil {
+		if !errors.Is(err, channelpublicsettingsrepo.ErrNotFound) {
+			return nil, gqlerrors.HandleError(err)
+		}
+		return settings, nil
+	}
+
+	settings.Description = entity.Description
+	settings.SocialLinks = lo.Map(
+		entity.SocialLinks,
+		func(item channelpublicsettingsentity.SocialLink, _ int) gqlmodel.SocialLink {
+			return gqlmodel.SocialLink{
+				Title: item.Title,
+				Href:  item.Href,
+			}
+		},
+	)
 
 	return settings, nil
 }
@@ -496,4 +475,3 @@ func (r *Resolver) Dashboard() graph.DashboardResolver { return &dashboardResolv
 type authenticatedUserResolver struct{ *Resolver }
 type channelUserInfoResolver struct{ *Resolver }
 type dashboardResolver struct{ *Resolver }
-

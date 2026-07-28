@@ -25,7 +25,9 @@ const {
 const { fragmentsToChunks } = useFragmentsToChunks()
 
 const thirdPartyEmotesSettings = computed(() => ({
-	channelId: neededData.value?.authenticatedUser.twitchProfile?.id ?? '',
+	channelId: neededData.value?.authenticatedUser.linkedAccounts.find(
+		(account) => account.platform === 'twitch',
+	)?.platformUserId ?? '',
 	emotes: {
 		ffz: true,
 		bttv: true,

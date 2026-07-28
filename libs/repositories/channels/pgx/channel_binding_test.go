@@ -89,6 +89,7 @@ func TestGetAllByBindingPlatformQueryIsComplete(t *testing.T) {
 type channelRowFixture struct {
 	id       uuid.UUID
 	apiKey   *string
+	planID   *string
 	bindings []byte
 }
 
@@ -121,8 +122,8 @@ func (r *channelRowsFixture) Next() bool {
 }
 
 func (r *channelRowsFixture) Scan(dest ...any) error {
-	if len(dest) != 3 {
-		return fmt.Errorf("scan destinations = %d, want 3", len(dest))
+	if len(dest) != 4 {
+		return fmt.Errorf("scan destinations = %d, want 4", len(dest))
 	}
 
 	row := r.rows[r.index-1]
@@ -134,13 +135,18 @@ func (r *channelRowsFixture) Scan(dest ...any) error {
 	if !ok {
 		return fmt.Errorf("API key destination = %T, want **string", dest[1])
 	}
-	bindings, ok := dest[2].(*[]byte)
+	planID, ok := dest[2].(**string)
 	if !ok {
-		return fmt.Errorf("bindings destination = %T, want *[]byte", dest[2])
+		return fmt.Errorf("plan ID destination = %T, want **string", dest[2])
+	}
+	bindings, ok := dest[3].(*[]byte)
+	if !ok {
+		return fmt.Errorf("bindings destination = %T, want *[]byte", dest[3])
 	}
 
 	*channelID = row.id
 	*apiKey = row.apiKey
+	*planID = row.planID
 	*bindings = append((*bindings)[:0], row.bindings...)
 	return nil
 }
