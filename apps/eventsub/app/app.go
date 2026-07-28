@@ -156,6 +156,7 @@ var App = fx.Options(
 			redisClient *goredis.Client,
 			bus *buscore.Bus,
 			userCreator *user_creator.UserCreatorService,
+			channelsRepo channelsrepository.Repository,
 			lc fx.Lifecycle,
 		) (*platformsregistry.Registry[eventplatforms.EventTransport], error) {
 			return eventplatforms.NewVKVideoRegistry(config, kickTransport, func() (eventplatforms.EventTransport, error) {
@@ -172,6 +173,7 @@ var App = fx.Options(
 					Bus:                  bus,
 					UserCreator:          userCreator,
 					WebSocketTokenClient: webSocketTokenClient,
+					ChannelsRepo:         channelsRepo,
 					Lc:                   lc,
 				})
 			})

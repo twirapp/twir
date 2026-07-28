@@ -2,6 +2,7 @@ package vkvideo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -127,6 +128,10 @@ type bindingsProvider func(context.Context) ([]channelplatformentity.ChannelPlat
 
 func newDatabaseBindingsProvider(repo channels.Repository) bindingsProvider {
 	return func(ctx context.Context) ([]channelplatformentity.ChannelPlatform, error) {
+		if repo == nil {
+			return nil, errors.New("channels repository is not configured")
+		}
+
 		channelList, err := repo.GetAllByBindingPlatform(ctx, platformentity.PlatformVKVideoLive)
 		if err != nil {
 			return nil, fmt.Errorf("list VK Video Live channels: %w", err)
