@@ -48,6 +48,14 @@ type Transport struct {
 
 	mu       sync.Mutex
 	bindings map[uuid.UUID]*activeBinding
+	desired  map[uuid.UUID]*desiredBinding
+}
+
+// desiredBinding is a binding the transport keeps trying to subscribe to
+// until it becomes active or is explicitly unsubscribed.
+type desiredBinding struct {
+	binding          channelplatformentity.ChannelPlatform
+	contentionLogged bool
 }
 
 type transportDependencies struct {
@@ -81,8 +89,11 @@ func New(opts Opts) (*Transport, error) {
 		deduplicator:  redisDeduplicator{redis: opts.Redis},
 		newConnection: newCentrifugoConnection,
 	})
+	reconcileCtx, stopReconcile := context.WithCancel(context.Background())
+	go transport.reconcileLoop(reconcileCtx)
 	opts.Lc.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
+			stopReconcile()
 			shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), leaseExpiry)
 			defer cancel()
 			return transport.Shutdown(shutdownCtx)
@@ -103,6 +114,7 @@ func newTransport(deps transportDependencies) *Transport {
 		deduplicator:  deps.deduplicator,
 		newConnection: deps.newConnection,
 		bindings:      make(map[uuid.UUID]*activeBinding),
+		desired:       make(map[uuid.UUID]*desiredBinding),
 	}
 }
 
@@ -122,13 +134,20 @@ func (t *Transport) Subscribe(ctx context.Context, binding channelplatformentity
 	}
 
 	t.mu.Lock()
+	desired, known := t.desired[binding.ID]
+	if !known {
+		desired = &desiredBinding{}
+	}
+	desired.binding = binding
+	t.desired[binding.ID] = desired
 	active, exists := t.bindings[binding.ID]
 	t.mu.Unlock()
+
 	if exists {
 		if vkVideoBindingSnapshotsEqual(active.binding, binding) {
 			return nil
 		}
-		if err := t.Unsubscribe(ctx, binding); err != nil {
+		if err := t.unsubscribe(ctx, binding, false); err != nil {
 			return fmt.Errorf("restart VK Video chat binding: %w", err)
 		}
 	}
@@ -136,11 +155,8 @@ func (t *Transport) Subscribe(ctx context.Context, binding channelplatformentity
 	owned := &ownedConnection{}
 	lease, err := t.ownership.Acquire(ctx, binding.ID.String(), owned.Close)
 	if err != nil {
-		if errors.Is(err, redsync.ErrFailed) {
-			return nil
-		}
-		var errTaken *redsync.ErrTaken
-		if errors.As(err, &errTaken) {
+		if isLeaseContended(err) {
+			t.logLeaseContended(ctx, binding.ID)
 			return nil
 		}
 		return fmt.Errorf("acquire VK Video chat lease: %w", err)
@@ -153,7 +169,19 @@ func (t *Transport) Subscribe(ctx context.Context, binding channelplatformentity
 		return err
 	}
 
+	t.mu.Lock()
+	desired.contentionLogged = false
+	t.mu.Unlock()
+
 	return nil
+}
+
+func isLeaseContended(err error) bool {
+	if errors.Is(err, redsync.ErrFailed) {
+		return true
+	}
+	var errTaken *redsync.ErrTaken
+	return errors.As(err, &errTaken)
 }
 
 func vkVideoBindingSnapshotsEqual(a, b channelplatformentity.ChannelPlatform) bool {
@@ -167,7 +195,18 @@ func vkVideoBindingSnapshotsEqual(a, b channelplatformentity.ChannelPlatform) bo
 }
 
 func (t *Transport) Unsubscribe(ctx context.Context, binding channelplatformentity.ChannelPlatform) error {
+	return t.unsubscribe(ctx, binding, true)
+}
+
+func (t *Transport) unsubscribe(
+	ctx context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	forget bool,
+) error {
 	t.mu.Lock()
+	if forget {
+		delete(t.desired, binding.ID)
+	}
 	active, exists := t.bindings[binding.ID]
 	if exists {
 		delete(t.bindings, binding.ID)
@@ -188,6 +227,7 @@ func (t *Transport) Shutdown(ctx context.Context) error {
 	t.mu.Lock()
 	bindings := t.bindings
 	t.bindings = make(map[uuid.UUID]*activeBinding)
+	t.desired = make(map[uuid.UUID]*desiredBinding)
 	t.mu.Unlock()
 
 	var errs []error
@@ -198,4 +238,64 @@ func (t *Transport) Shutdown(ctx context.Context) error {
 	}
 
 	return errors.Join(errs...)
+}
+
+// reconcileLoop retries subscriptions for desired bindings that are not
+// active yet, e.g. when the chat lease was still held by a previous
+// (already stopped) eventsub instance at startup.
+func (t *Transport) reconcileLoop(ctx context.Context) {
+	ticker := time.NewTicker(leaseRenewInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			t.reconcilePending(ctx)
+		}
+	}
+}
+
+func (t *Transport) reconcilePending(ctx context.Context) {
+	t.mu.Lock()
+	pending := make([]channelplatformentity.ChannelPlatform, 0, len(t.desired))
+	for id, desired := range t.desired {
+		if _, active := t.bindings[id]; !active {
+			pending = append(pending, desired.binding)
+		}
+	}
+	t.mu.Unlock()
+
+	for _, binding := range pending {
+		if err := t.Subscribe(ctx, binding); err != nil && t.logger != nil {
+			t.logger.WarnContext(
+				ctx,
+				"VK Video chat binding reconcile failed",
+				slog.String("binding_id", binding.ID.String()),
+				slog.Any("error", err),
+			)
+		}
+	}
+}
+
+func (t *Transport) logLeaseContended(ctx context.Context, bindingID uuid.UUID) {
+	if t.logger == nil {
+		return
+	}
+
+	t.mu.Lock()
+	desired, known := t.desired[bindingID]
+	alreadyLogged := known && desired.contentionLogged
+	if known {
+		desired.contentionLogged = true
+	}
+	t.mu.Unlock()
+
+	message := "VK Video chat binding is owned by another instance, will retry in background"
+	if alreadyLogged {
+		t.logger.DebugContext(ctx, message, slog.String("binding_id", bindingID.String()))
+		return
+	}
+	t.logger.InfoContext(ctx, message, slog.String("binding_id", bindingID.String()))
 }

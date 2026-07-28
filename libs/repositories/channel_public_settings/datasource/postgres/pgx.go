@@ -3,7 +3,9 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,7 +19,8 @@ type Opts struct {
 
 func New(opts Opts) *Pgx {
 	return &Pgx{
-		pool: opts.PgxPool,
+		pool:   opts.PgxPool,
+		getter: trmpgx.DefaultCtxGetter,
 	}
 }
 
@@ -28,73 +31,108 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 var _ channelpublicsettingsrepo.Repository = (*Pgx)(nil)
 
 type Pgx struct {
-	pool *pgxpool.Pool
+	pool   *pgxpool.Pool
+	getter *trmpgx.CtxGetter
+}
+
+type settingsModel struct {
+	ID          uuid.UUID
+	ChannelID   uuid.UUID
+	Description *string
+}
+
+type socialLinkModel struct {
+	ID    uuid.UUID
+	Title string
+	Href  string
 }
 
 func (c *Pgx) GetByChannelID(
 	ctx context.Context,
 	channelID uuid.UUID,
 ) (channelpublicsettings.ChannelPublicSettings, error) {
-	settings := channelpublicsettings.ChannelPublicSettings{}
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 
-	err := c.pool.QueryRow(
+	settingsRows, err := conn.Query(
 		ctx,
 		`
 SELECT id, channel_id, description
 FROM channels_public_settings
 WHERE channel_id = $1
-LIMIT 1;
+LIMIT 1
 `,
 		channelID,
-	).Scan(&settings.ID, &settings.ChannelID, &settings.Description)
+	)
+	if err != nil {
+		return channelpublicsettings.Nil, fmt.Errorf(
+			"failed to query channel_public_settings: %w",
+			err,
+		)
+	}
+
+	settings, err := pgx.CollectExactlyOneRow(
+		settingsRows,
+		pgx.RowToStructByName[settingsModel],
+	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return channelpublicsettings.Nil, channelpublicsettingsrepo.ErrNotFound
 		}
-		return channelpublicsettings.Nil, err
+		return channelpublicsettings.Nil, fmt.Errorf(
+			"failed to collect channel_public_settings: %w",
+			err,
+		)
 	}
 
-	rows, err := c.pool.Query(
+	linksRows, err := conn.Query(
 		ctx,
 		`
 SELECT id, title, href
 FROM channels_public_settings_links
 WHERE settings_id = $1
-ORDER BY id;
+ORDER BY id
 `,
 		settings.ID,
 	)
 	if err != nil {
-		return channelpublicsettings.Nil, err
-	}
-	defer rows.Close()
-
-	settings.SocialLinks = make([]channelpublicsettings.SocialLink, 0)
-	for rows.Next() {
-		var link channelpublicsettings.SocialLink
-		if err := rows.Scan(&link.ID, &link.Title, &link.Href); err != nil {
-			return channelpublicsettings.Nil, err
-		}
-		settings.SocialLinks = append(settings.SocialLinks, link)
-	}
-	if err := rows.Err(); err != nil {
-		return channelpublicsettings.Nil, err
+		return channelpublicsettings.Nil, fmt.Errorf(
+			"failed to query channel_public_settings_links: %w",
+			err,
+		)
 	}
 
-	return settings, nil
+	linksModels, err := pgx.CollectRows(
+		linksRows,
+		pgx.RowToStructByName[socialLinkModel],
+	)
+	if err != nil {
+		return channelpublicsettings.Nil, fmt.Errorf(
+			"failed to collect channel_public_settings_links: %w",
+			err,
+		)
+	}
+
+	socialLinks := make([]channelpublicsettings.SocialLink, 0, len(linksModels))
+	for _, link := range linksModels {
+		socialLinks = append(socialLinks, channelpublicsettings.SocialLink{
+			ID:    link.ID,
+			Title: link.Title,
+			Href:  link.Href,
+		})
+	}
+
+	return channelpublicsettings.ChannelPublicSettings{
+		ID:          settings.ID,
+		ChannelID:   settings.ChannelID,
+		Description: settings.Description,
+		SocialLinks: socialLinks,
+	}, nil
 }
 
 func (c *Pgx) Upsert(ctx context.Context, input channelpublicsettingsrepo.UpsertInput) error {
-	tx, err := c.pool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 
-	var settingsID uuid.UUID
-	err = tx.QueryRow(
-		ctx,
-		`
+	query := `
 INSERT INTO channels_public_settings (id, channel_id, description)
 VALUES (uuidv7(), $1, $2)
 ON CONFLICT (channel_id) DO UPDATE
@@ -102,40 +140,44 @@ SET description = CASE
 	WHEN $3::boolean THEN $2
 	ELSE channels_public_settings.description
 END
-RETURNING id;
-`,
+RETURNING id
+`
+
+	var settingsID uuid.UUID
+	err := conn.QueryRow(
+		ctx,
+		query,
 		input.ChannelID,
 		input.Description,
 		input.DescriptionSet,
 	).Scan(&settingsID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to upsert channel_public_settings: %w", err)
 	}
 
 	if input.SocialLinksSet {
-		if _, err := tx.Exec(
+		_, err = conn.Exec(
 			ctx,
-			`DELETE FROM channels_public_settings_links WHERE settings_id = $1;`,
+			`DELETE FROM channels_public_settings_links WHERE settings_id = $1`,
 			settingsID,
-		); err != nil {
-			return err
+		)
+		if err != nil {
+			return fmt.Errorf("failed to delete old social links: %w", err)
 		}
 
 		for _, link := range input.SocialLinks {
-			if _, err := tx.Exec(
+			_, err = conn.Exec(
 				ctx,
-				`
-INSERT INTO channels_public_settings_links (id, settings_id, title, href)
-VALUES (uuidv7(), $1, $2, $3);
-`,
+				`INSERT INTO channels_public_settings_links (id, settings_id, title, href) VALUES (uuidv7(), $1, $2, $3)`,
 				settingsID,
 				link.Title,
 				link.Href,
-			); err != nil {
-				return err
+			)
+			if err != nil {
+				return fmt.Errorf("failed to insert social link: %w", err)
 			}
 		}
 	}
 
-	return tx.Commit(ctx)
+	return nil
 }
