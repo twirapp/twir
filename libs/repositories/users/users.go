@@ -23,6 +23,7 @@ type GetManyInput struct {
 	Page       int
 	PerPage    int
 	IDs        []uuid.UUID
+	Platform   *platform.Platform
 	IsBotAdmin *bool
 	IsBanned   *bool
 }

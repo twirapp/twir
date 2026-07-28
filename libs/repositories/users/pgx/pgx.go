@@ -177,6 +177,10 @@ func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]mod
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"id": input.IDs})
 	}
 
+	if input.Platform != nil {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"platform": *input.Platform})
+	}
+
 	if input.IsBotAdmin != nil {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{`"isBotAdmin"`: input.IsBotAdmin})
 	}

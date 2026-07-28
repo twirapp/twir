@@ -25,6 +25,7 @@ type BadgeUser struct {
 
 type BadgeWithUsers struct {
 	Badge
+	// Users contains Twitch platform IDs of badge holders (not internal UUIDs).
 	Users []string
 }
 
