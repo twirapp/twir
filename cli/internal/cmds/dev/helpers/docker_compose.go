@@ -19,11 +19,9 @@ func EnsureDockerComposeRunning(ctx context.Context) error {
 	pterm.Info.Println("Starting docker compose services...")
 
 	upCmd := exec.CommandContext(ctx, "docker", "compose", "-f", composeFile, "up", "-d", "--build")
-	output, err := upCmd.CombinedOutput()
-
+	err := upCmd.Run()
 	if err != nil {
 		pterm.Error.Printfln("Failed to start docker compose: %v", err)
-		pterm.Error.Printfln("Output: %s", string(output))
 		return fmt.Errorf("failed to start docker compose: %w", err)
 	}
 

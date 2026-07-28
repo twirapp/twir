@@ -11,6 +11,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	"github.com/twirapp/twir/libs/logger"
@@ -46,11 +47,26 @@ func New(opts Opts) *Service {
 
 type Service struct {
 	repo           scheduledvipsrepository.Repository
-	channelService *channelservice.ChannelService
+	channelService channelLookup
 	usersRepo      usersrepository.Repository
 	config         config.Config
 	bus            *buscore.Bus
 	logger         *slog.Logger
+	newUserClient  twitchUserClientFactory
+}
+
+type channelLookup interface {
+	GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error)
+}
+
+type twitchUserClientFactory func(uuid.UUID) (*helix.Client, error)
+
+func (c *Service) createUserClient(userID uuid.UUID) (*helix.Client, error) {
+	if c.newUserClient != nil {
+		return c.newUserClient(userID)
+	}
+
+	return twitch.NewUserClient(userID, c.config, c.bus)
 }
 
 func (c *Service) GetUserByPlatformID(ctx context.Context, platformUserID string) (usersmodel.User, error) {
@@ -122,7 +138,12 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	if channel.IsNil() {
+		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
+	if !found || twitchBinding.UserID == uuid.Nil {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
@@ -136,11 +157,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return fmt.Errorf("get vip user: %w", err)
 	}
 
-	twitchClient, err := twitch.NewUserClient(
-		*channel.TwitchUserID,
-		c.config,
-		c.bus,
-	)
+	twitchClient, err := c.createUserClient(twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client: %w", err)
 	}
@@ -156,7 +173,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 
 	vipResp, err := twitchClient.RemoveChannelVip(
 		&helix.RemoveChannelVipParams{
-			BroadcasterID: *channel.TwitchPlatformID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        vipUser.PlatformID,
 		},
 	)
@@ -211,7 +228,12 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	if channel.IsNil() {
+		return fmt.Errorf("channel not found or twitch not connected")
+	}
+
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
+	if !found || twitchBinding.UserID == uuid.Nil {
 		return fmt.Errorf("channel not found or twitch not connected")
 	}
 
@@ -220,18 +242,14 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 		return fmt.Errorf("cannot get user by platform id: %w", err)
 	}
 
-	twitchClient, err := twitch.NewUserClient(
-		*channel.TwitchUserID,
-		c.config,
-		c.bus,
-	)
+	twitchClient, err := c.createUserClient(twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client: %w", err)
 	}
 
 	vipResp, err := twitchClient.AddChannelVip(
 		&helix.AddChannelVipParams{
-			BroadcasterID: *channel.TwitchPlatformID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        input.UserID,
 		},
 	)

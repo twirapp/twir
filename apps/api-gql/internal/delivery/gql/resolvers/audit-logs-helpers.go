@@ -71,13 +71,17 @@ func resolveChannelProfile(ctx context.Context, r *Resolver, channelID string) (
 	var userID string
 	var platform string
 
-	if channel.TwitchUserID != nil {
-		userID = channel.TwitchUserID.String()
-		platform = "twitch"
-	} else if channel.KickUserID != nil {
-		userID = channel.KickUserID.String()
-		platform = "kick"
-	} else {
+	for _, candidate := range platformentity.All() {
+		binding, found := channel.Binding(candidate)
+		if !found {
+			continue
+		}
+
+		userID = binding.UserID.String()
+		platform = candidate.String()
+		break
+	}
+	if userID == "" {
 		return nil, "", nil
 	}
 

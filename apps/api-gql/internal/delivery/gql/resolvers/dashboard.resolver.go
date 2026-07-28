@@ -30,6 +30,10 @@ func (r *mutationResolver) BotJoinLeave(ctx context.Context, action gqlmodel.Bot
 		targetDashboardID = selectedDashboardID
 	}
 
+	if err := ensureBotJoinLeaveAccess(ctx, r.deps.Sessions, r.deps.DashboardAccess, targetDashboardID); err != nil {
+		return false, err
+	}
+
 	var convertedAction string
 	if action == gqlmodel.BotJoinLeaveActionJoin {
 		convertedAction = dashboard.BotJoinLeaveActionJoin

@@ -14,11 +14,10 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
@@ -37,10 +36,9 @@ type EventsWorkflowOpts struct {
 	Hydrator                          *hydrator.Hydrator
 	Logger                            *slog.Logger
 	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
-	ChannelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
+	ChannelsCache                     *generic_cacher.GenericCacher[channelentity.Channel]
 	ChannelService                    *channelservice.ChannelService
 	StreamsRepo                       streamsrepository.Repository
-	UsersRepo                         usersrepository.Repository
 }
 
 func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
@@ -65,7 +63,6 @@ func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 		channelsCache:                     opts.ChannelsCache,
 		channelService:                    opts.ChannelService,
 		streamsRepo:                       opts.StreamsRepo,
-		usersRepo:                         opts.UsersRepo,
 	}, nil
 }
 
@@ -77,10 +74,9 @@ type EventWorkflow struct {
 	redis                             *redis.Client
 	hydrator                          *hydrator.Hydrator
 	channelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
-	channelsCache                     *generic_cacher.GenericCacher[channelmodel.Channel]
+	channelsCache                     *generic_cacher.GenericCacher[channelentity.Channel]
 	channelService                    *channelservice.ChannelService
 	streamsRepo                       streamsrepository.Repository
-	usersRepo                         usersrepository.Repository
 }
 
 func (c *EventWorkflow) Execute(
@@ -94,14 +90,9 @@ func (c *EventWorkflow) Execute(
 			plat = platform.PlatformTwitch
 		}
 
-		user, err := c.usersRepo.GetByPlatformID(ctx, plat, data.ChannelID)
-		if err != nil {
-			return fmt.Errorf("resolve user by platform id: %w", err)
-		}
-
-		channel, channelErr := c.channelService.GetChannelByConnectedUser(ctx, user.ID, plat)
+		channel, channelErr := c.channelService.GetChannelByPlatformChannelID(ctx, plat, data.ChannelID)
 		if channelErr != nil {
-			return fmt.Errorf("resolve channel: %w", channelErr)
+			return fmt.Errorf("resolve channel by platform channel id: %w", channelErr)
 		}
 
 		data.ChannelDBID = channel.ID.String()
@@ -111,7 +102,7 @@ func (c *EventWorkflow) Execute(
 	if err != nil {
 		return err
 	}
-	if channel == channelmodel.Nil {
+	if channel.IsNil() {
 		return errors.New("channel not found")
 	}
 

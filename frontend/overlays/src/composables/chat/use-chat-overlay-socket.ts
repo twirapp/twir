@@ -18,16 +18,11 @@ export const useChatOverlaySocket = createGlobalState(() => {
 			query ChatOverlayWithAdditionalData {
 				authenticatedUser {
 					id
-					twitchProfile {
-						id
-						login
-						displayName
-						profileImageUrl
-					}
-					kickProfile {
-						id
-						slug
-						displayName
+					linkedAccounts {
+						platform
+						platformUserId
+						platformLogin
+						platformDisplayName
 					}
 				}
 				twitchGetGlobalBadges {
@@ -148,17 +143,18 @@ export const useChatOverlaySocket = createGlobalState(() => {
 	const chatLibSettings = computed<Settings | null>(() => {
 		if (!overlaySettings.value || !neededData.value) return null
 
-		const twitchProfile = neededData.value.authenticatedUser.twitchProfile
-		const kickProfile = neededData.value.authenticatedUser.kickProfile
+		const accounts = neededData.value.authenticatedUser.linkedAccounts
+		const twitchProfile = accounts.find((account) => account.platform === 'twitch')
+		const kickProfile = accounts.find((account) => account.platform === 'kick')
 		if (!twitchProfile && !kickProfile) return null
 
 		return {
 			...overlaySettings.value,
 			channelBadges: neededData.value.twitchGetChannelBadges.badges,
 			globalBadges: neededData.value.twitchGetGlobalBadges.badges,
-			channelId: twitchProfile?.id ?? kickProfile?.id ?? '',
-			channelName: twitchProfile?.login ?? kickProfile?.slug ?? '',
-			channelDisplayName: twitchProfile?.displayName ?? kickProfile?.displayName ?? '',
+			channelId: twitchProfile?.platformUserId ?? kickProfile?.platformUserId ?? '',
+			channelName: twitchProfile?.platformLogin ?? kickProfile?.platformLogin ?? '',
+			channelDisplayName: twitchProfile?.platformDisplayName ?? kickProfile?.platformDisplayName ?? '',
 		}
 	})
 

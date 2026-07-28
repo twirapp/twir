@@ -30,7 +30,8 @@ func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.
 	}
 
 	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedID)
-	if err != nil || channel.IsNil() || !channel.TwitchConnected() {
+	twitchBinding, hasTwitchBinding := channel.Binding(platform.PlatformTwitch)
+	if err != nil || channel.IsNil() || !hasTwitchBinding || twitchBinding.PlatformChannelID == "" {
 		dbUser, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
 		if err != nil {
 			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
@@ -39,14 +40,22 @@ func (r *beRightBackOverlayResolver) Channel(ctx context.Context, obj *gqlmodel.
 		if err != nil {
 			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
 		}
-		twitchChannel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, parsedUserID, platform.PlatformTwitch)
-		if err != nil || twitchChannel.IsNil() || !twitchChannel.TwitchConnected() {
+		user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+		if err != nil {
 			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
 		}
-		return dataloader.GetHelixUserById(ctx, *twitchChannel.TwitchPlatformID)
+		twitchChannel, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+		if err != nil || twitchChannel.IsNil() {
+			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
+		}
+		twitchBinding, hasTwitchBinding := twitchChannel.Binding(platform.PlatformTwitch)
+		if !hasTwitchBinding || twitchBinding.PlatformChannelID == "" {
+			return &gqlmodel.TwirUserTwitchInfo{ID: obj.ChannelID, NotFound: true}, nil
+		}
+		return dataloader.GetHelixUserById(ctx, twitchBinding.PlatformChannelID)
 	}
 
-	return dataloader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
+	return dataloader.GetHelixUserById(ctx, twitchBinding.PlatformChannelID)
 }
 
 // OverlaysBeRightBackUpdate is the resolver for the overlaysBeRightBackUpdate field.

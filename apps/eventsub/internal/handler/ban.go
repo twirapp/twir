@@ -12,6 +12,7 @@ import (
 	platform "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/logger"
+	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	"github.com/twirapp/twir/libs/repositories/channels_events_list/model"
@@ -35,57 +36,7 @@ func (c *Handler) handleModerateActionBan(
 		reason = event.Timeout.Reason
 	}
 
-	go func() {
-		user, err := c.usersRepo.GetByPlatformID(
-			ctx,
-			platform.PlatformTwitch,
-			event.BroadcasterUserID,
-		)
-		if err != nil {
-			if errors.Is(err, usersmodel.ErrNotFound) {
-				c.logger.Error("cannot find user for broadcaster", logger.Error(err))
-			} else {
-				c.logger.Error("cannot resolve broadcaster user", logger.Error(err))
-			}
-			return
-		}
-
-		channel, err := c.channelService.GetChannelByConnectedUser(
-			ctx,
-			user.ID,
-			platform.PlatformTwitch,
-		)
-		if err != nil {
-			if errors.Is(err, channelsrepository.ErrNotFound) {
-				return
-			}
-
-			c.logger.Error("failed to get channel", logger.Error(err))
-			return
-		}
-
-		if userId != channel.BotID {
-			return
-		}
-
-		isEnabled := false
-		overallEnabled := channel.KickBotJoined()
-
-		channel, err = c.channelsRepo.Update(
-			ctx, channel.ID, channelsrepository.UpdateInput{
-				IsEnabled:        &overallEnabled,
-				TwitchBotEnabled: &isEnabled,
-			},
-		)
-		if err != nil {
-			c.logger.Error("failed to disable channel", logger.Error(err))
-			return
-		}
-
-		if err := c.channelsCache.Invalidate(ctx, channel.ID.String()); err != nil {
-			c.logger.Error("failed to invalidate channel cache", logger.Error(err))
-		}
-	}()
+	go c.disableTwitchBindingForBannedBot(ctx, event.BroadcasterUserID, userId)
 
 	var endsAt string
 	if event.Ban != nil {
@@ -162,6 +113,58 @@ func (c *Handler) handleModerateActionBan(
 			UserName:        userLogin,
 		},
 	)
+}
+
+func (c *Handler) disableTwitchBindingForBannedBot(
+	ctx context.Context,
+	broadcasterUserID string,
+	bannedUserID string,
+) {
+	user, err := c.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, broadcasterUserID)
+	if err != nil {
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			c.logger.Error("cannot find user for broadcaster", logger.Error(err))
+		} else {
+			c.logger.Error("cannot resolve broadcaster user", logger.Error(err))
+		}
+		return
+	}
+
+	channel, err := c.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
+	if err != nil {
+		if errors.Is(err, channelsrepository.ErrNotFound) {
+			return
+		}
+
+		c.logger.Error("failed to get channel", logger.Error(err))
+		return
+	}
+
+	twitchBinding, botConfig, ok, err := channel.TwitchBinding()
+	if err != nil {
+		c.logger.Error("failed to parse Twitch bot config", logger.Error(err))
+		return
+	}
+	if !ok {
+		return
+	}
+	if bannedUserID != botConfig.BotID {
+		return
+	}
+
+	isEnabled := false
+	if _, err := c.channelPlatformsRepo.Patch(
+		ctx,
+		twitchBinding.ID,
+		channelplatforms.PatchInput{Enabled: &isEnabled},
+	); err != nil {
+		c.logger.Error("failed to disable Twitch binding", logger.Error(err))
+		return
+	}
+
+	if err := c.channelsCache.Invalidate(ctx, channel.ID.String()); err != nil {
+		c.logger.Error("failed to invalidate channel cache", logger.Error(err))
+	}
 }
 
 func (c *Handler) handleModerateActionUnBan(

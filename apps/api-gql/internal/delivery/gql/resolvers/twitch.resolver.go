@@ -198,7 +198,8 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 	parsedID, err := uuid.Parse(userId)
 	if err == nil {
 		channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedID)
-		if err == nil && !channel.IsNil() && channel.TwitchConnected() {
+		_, hasTwitchBinding := channel.Binding(platform.PlatformTwitch)
+		if err == nil && !channel.IsNil() && hasTwitchBinding {
 			// Selected channel has Twitch — use it directly
 		} else {
 			// Channel not found or doesn't have Twitch — find user's Twitch channel
@@ -212,8 +213,13 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
 			}
 
-			twitchChannel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, parsedUserID, platform.PlatformTwitch)
-			if err != nil || twitchChannel.IsNil() || !twitchChannel.TwitchConnected() {
+			user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
+			if err != nil {
+				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
+			}
+			twitchChannel, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+			_, hasTwitchBinding := twitchChannel.Binding(platform.PlatformTwitch)
+			if err != nil || twitchChannel.IsNil() || !hasTwitchBinding {
 				return &gqlmodel.TwirTwitchChannelBadgeResponse{Badges: []gqlmodel.TwitchBadge{}}, nil
 			}
 

@@ -3,8 +3,6 @@ import type { DropdownMenuContentProps } from 'reka-ui'
 
 import { computed } from 'vue'
 import { useLogout, useProfile } from '~~/layers/dashboard/api/auth'
-import KickIcon from '~~/layers/dashboard/components/kick-icon.vue'
-import TwitchIcon from '~~/layers/dashboard/components/twitch-icon.vue'
 import { useTheme } from '~~/layers/dashboard/composables/use-theme.js'
 import { AVAILABLE_LOCALES } from '~~/layers/dashboard/config/i18n-locales.js'
 
@@ -64,12 +62,14 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 						v-for="account in linkedAccounts"
 						:key="account.platform"
 					>
-						<KickIcon
+						<Icon
 							v-if="account.platform === 'kick'"
+							name="simple-icons:kick"
 							class="size-4 text-[#53FC18]"
 						/>
-						<TwitchIcon
+						<Icon
 							v-else-if="account.platform === 'twitch'"
+							name="simple-icons:twitch"
 							class="size-4 text-[#9146FF]"
 						/>
 					</template>

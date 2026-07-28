@@ -15,7 +15,6 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
@@ -53,15 +52,33 @@ type twitchChannelRow struct {
 	IsBanned   bool   `gorm:"column:is_banned"`
 }
 
-func (r twitchChannelRow) toChannel() *model.Channels {
-	return &model.Channels{
+type onlineChannel struct {
+	ID        string
+	IsEnabled bool
+	UserID    string
+	IsBanned  bool
+}
+
+func (r twitchChannelRow) toChannel() *onlineChannel {
+	return &onlineChannel{
 		ID:        r.ChannelID,
 		IsEnabled: r.IsEnabled,
-		User: &model.Users{
-			ID:       r.UserID,
-			IsBanned: r.IsBanned,
-		},
+		UserID:    r.UserID,
+		IsBanned:  r.IsBanned,
 	}
+}
+
+const onlineTwitchChannelRowsQuery = `
+	SELECT c.id AS channel_id, cp.platform_channel_id AS platform_id, cp.user_id AS user_id, c."isEnabled" AS is_enabled, u.is_banned
+	FROM channel_platforms cp
+	JOIN channels c ON c.id = cp.channel_id
+	JOIN users u ON u.id = cp.user_id AND u.platform = 'twitch'
+	WHERE cp.platform = 'twitch'
+		AND cp.platform_channel_id IN ?
+`
+
+func buildOnlineTwitchChannelRowsQuery(db *gorm.DB, ctx context.Context, platformIDs []string) *gorm.DB {
+	return db.WithContext(ctx).Raw(onlineTwitchChannelRowsQuery, platformIDs)
 }
 
 func appendUniqueChatters(
@@ -162,7 +179,7 @@ func (c *onlineUsers) updateOnlineUsers(ctx context.Context) {
 
 type onlineStream struct {
 	stream  streamsmodel.Stream
-	channel *model.Channels
+	channel *onlineChannel
 }
 
 func (c *onlineUsers) getStreams(
@@ -189,17 +206,12 @@ func (c *onlineUsers) getStreams(
 	}
 
 	var rows []twitchChannelRow
-	err = c.db.WithContext(ctx).Raw(`
-		SELECT c.id AS channel_id, u.platform_id, u.id AS user_id, c."isEnabled" AS is_enabled, u.is_banned
-		FROM channels c
-		JOIN users u ON u.id = c.twitch_user_id AND u.platform = 'twitch'
-		WHERE u.platform_id IN ?
-	`, platformIDs).Scan(&rows).Error
+	err = buildOnlineTwitchChannelRowsQuery(c.db, ctx, platformIDs).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("lookup channels by platform id: %w", err)
 	}
 
-	channelByPlatform := make(map[string]*model.Channels, len(rows))
+	channelByPlatform := make(map[string]*onlineChannel, len(rows))
 	for _, r := range rows {
 		channelByPlatform[r.PlatformID] = r.toChannel()
 	}
@@ -218,14 +230,14 @@ func (c *onlineUsers) getStreams(
 }
 
 func (c *onlineUsers) shouldSkipStream(stream onlineStream) bool {
-	return stream.channel == nil || stream.channel.User == nil || (!stream.channel.IsEnabled || stream.channel.User.IsBanned)
+	return stream.channel == nil || !stream.channel.IsEnabled || stream.channel.IsBanned
 }
 
 func (c *onlineUsers) updateStreamUsers(
 	ctx context.Context,
 	stream onlineStream,
 ) error {
-	twitchUserID, err := uuid.Parse(stream.channel.User.ID)
+	twitchUserID, err := uuid.Parse(stream.channel.UserID)
 	if err != nil {
 		return fmt.Errorf("parse twitch user id: %w", err)
 	}

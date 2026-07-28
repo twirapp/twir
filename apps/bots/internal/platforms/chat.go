@@ -1,0 +1,234 @@
+package platforms
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	kickchat "github.com/twirapp/twir/apps/bots/internal/kick"
+	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	vkchat "github.com/twirapp/twir/apps/bots/internal/vk"
+	"github.com/twirapp/twir/libs/bus-core/bots"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	"github.com/twirapp/twir/libs/entities/platform"
+	platformsregistry "github.com/twirapp/twir/libs/platforms"
+)
+
+type ChatOptions struct {
+	IsAnnounce        bool
+	SkipToxicityCheck bool
+	SkipRateLimits    bool
+	AnnounceColor     bots.AnnounceColor
+}
+
+type ChatAdapter interface {
+	platformsregistry.Provider
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, string, string, ChatOptions) error
+}
+
+func newRegistry(adapters ...ChatAdapter) *platformsregistry.Registry[ChatAdapter] {
+	registry := platformsregistry.New[ChatAdapter]()
+	for _, adapter := range adapters {
+		registry.Register(adapter)
+	}
+
+	return registry
+}
+
+func NewChatRegistry(
+	twitchActions *twitchactions.TwitchActions,
+	kickClient *kickchat.ChatClient,
+	vkClient *vkchat.ChatClient,
+) *platformsregistry.Registry[ChatAdapter] {
+	return newRegistry(
+		NewTwitchChatAdapter(twitchActions),
+		NewKickChatAdapter(kickClient),
+		NewVKVideoLiveChatAdapter(vkClient),
+	)
+}
+
+func Dispatch(
+	ctx context.Context,
+	registry *platformsregistry.Registry[ChatAdapter],
+	bindings []channelplatformentity.ChannelPlatform,
+	requestedPlatforms []platform.Platform,
+	message string,
+	replyID string,
+	options ChatOptions,
+) error {
+	var dispatchErrors []error
+	if len(requestedPlatforms) > 0 {
+		for _, requestedPlatform := range requestedPlatforms {
+			adapter, err := registry.Require(requestedPlatform, platform.CapabilityChatWrite)
+			if err != nil {
+				dispatchErrors = append(dispatchErrors, fmt.Errorf(
+					"dispatch chat message to platform %q: %w",
+					requestedPlatform,
+					err,
+				))
+				continue
+			}
+
+			for _, binding := range bindings {
+				if binding.Platform != requestedPlatform {
+					continue
+				}
+				if binding.Enabled {
+					targetReplyID := replyID
+					targetOptions := options
+					if !adapter.Capabilities().Supports(platform.CapabilityChatReply) {
+						targetReplyID = ""
+					}
+
+					if err := adapter.SendMessage(ctx, binding, message, targetReplyID, targetOptions); err != nil {
+						dispatchErrors = append(dispatchErrors, fmt.Errorf(
+							"send chat message to %q binding %q: %w",
+							binding.Platform,
+							binding.PlatformChannelID,
+							err,
+						))
+					}
+				}
+
+				break
+			}
+		}
+
+		return errors.Join(dispatchErrors...)
+	}
+
+	for _, binding := range bindings {
+		if !binding.Enabled {
+			continue
+		}
+
+		adapter, err := registry.Require(binding.Platform, platform.CapabilityChatWrite)
+		if err != nil {
+			continue
+		}
+
+		targetReplyID := replyID
+		targetOptions := options
+		if !adapter.Capabilities().Supports(platform.CapabilityChatReply) {
+			targetReplyID = ""
+		}
+
+		if err := adapter.SendMessage(ctx, binding, message, targetReplyID, targetOptions); err != nil {
+			dispatchErrors = append(dispatchErrors, fmt.Errorf(
+				"send chat message to %q binding %q: %w",
+				binding.Platform,
+				binding.PlatformChannelID,
+				err,
+			))
+		}
+	}
+
+	return errors.Join(dispatchErrors...)
+}
+
+type twitchMessageSender interface {
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, twitchactions.SendMessageOpts) error
+}
+
+type twitchChatAdapter struct {
+	sender twitchMessageSender
+}
+
+func NewTwitchChatAdapter(sender twitchMessageSender) ChatAdapter {
+	return twitchChatAdapter{sender: sender}
+}
+
+func (a twitchChatAdapter) Platform() platform.Platform {
+	return platform.PlatformTwitch
+}
+
+func (a twitchChatAdapter) Capabilities() platform.Capabilities {
+	return platform.Capabilities{
+		platform.CapabilityChatWrite,
+		platform.CapabilityChatReply,
+	}
+}
+
+func (a twitchChatAdapter) SendMessage(
+	ctx context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	message string,
+	replyID string,
+	options ChatOptions,
+) error {
+	return a.sender.SendMessage(
+		ctx,
+		binding,
+		twitchactions.SendMessageOpts{
+			Message:              message,
+			ReplyParentMessageID: replyID,
+			IsAnnounce:           options.IsAnnounce,
+			SkipToxicityCheck:    options.SkipToxicityCheck,
+			SkipRateLimits:       options.SkipRateLimits,
+			AnnounceColor:        options.AnnounceColor,
+		},
+	)
+}
+
+type kickMessageSender interface {
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, string, string) error
+}
+
+type kickChatAdapter struct {
+	sender kickMessageSender
+}
+
+func NewKickChatAdapter(sender kickMessageSender) ChatAdapter {
+	return kickChatAdapter{sender: sender}
+}
+
+func (a kickChatAdapter) Platform() platform.Platform {
+	return platform.PlatformKick
+}
+
+func (a kickChatAdapter) Capabilities() platform.Capabilities {
+	return platform.Capabilities{
+		platform.CapabilityChatWrite,
+		platform.CapabilityChatReply,
+	}
+}
+
+func (a kickChatAdapter) SendMessage(
+	ctx context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	message string,
+	replyID string,
+	_ ChatOptions,
+) error {
+	return a.sender.SendMessage(ctx, binding, message, replyID)
+}
+
+type vkVideoLiveMessageSender interface {
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, string) error
+}
+
+type vkVideoLiveChatAdapter struct {
+	sender vkVideoLiveMessageSender
+}
+
+func NewVKVideoLiveChatAdapter(sender vkVideoLiveMessageSender) ChatAdapter {
+	return vkVideoLiveChatAdapter{sender: sender}
+}
+
+func (a vkVideoLiveChatAdapter) Platform() platform.Platform {
+	return platform.PlatformVKVideoLive
+}
+
+func (a vkVideoLiveChatAdapter) Capabilities() platform.Capabilities {
+	return platform.Capabilities{platform.CapabilityChatWrite}
+}
+
+func (a vkVideoLiveChatAdapter) SendMessage(
+	ctx context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	message string,
+	_ string,
+	_ ChatOptions,
+) error {
+	return a.sender.SendMessage(ctx, binding, message)
+}

@@ -1,98 +1,51 @@
 package resolvers
 
 import (
+	"context"
 	"errors"
 	"testing"
 
 	"github.com/google/uuid"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
-func TestUnlinkPlatformUpdates_AllowsSecondaryTwitchUnlink(t *testing.T) {
+func TestUnlinkPlatformAccountRejectsCurrentPlatform(t *testing.T) {
 	t.Parallel()
 
-	channel := channelsmodel.Channel{
-		TwitchUserID:     uuidPtr(uuid.New()),
-		TwitchPlatformID: stringPtr("twitch-user"),
-		KickUserID:       uuidPtr(uuid.New()),
-		KickPlatformID:   stringPtr("kick-user"),
-		KickBotID:        uuidPtr(uuid.New()),
+	dashboardID := uuid.New()
+	kickBinding := channelplatformentity.ChannelPlatform{
+		ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformKick, UserID: uuid.New(), PlatformChannelID: "kick-channel", Enabled: true,
 	}
+	operations := &resolverChannelPlatformBindingsService{binding: kickBinding}
+	resolver := newChannelPlatformTestResolverWithDependencies(
+		dashboardID,
+		channelentity.Channel{ID: dashboardID, Bindings: []channelplatformentity.ChannelPlatform{
+			kickBinding,
+			{ID: uuid.New(), ChannelID: dashboardID, Platform: platformentity.PlatformTwitch, UserID: uuid.New(), PlatformChannelID: "twitch-channel", Enabled: true},
+		}},
+		map[uuid.UUID]usersmodel.User{},
+		testResolverPlatformRegistry(platformentity.PlatformTwitch, platformentity.PlatformKick),
+		operations,
+	)
+	resolver.deps.CurrentPlatform = resolverCurrentPlatformGetter{platform: platformentity.PlatformKick.String()}
 
-	updates, err := unlinkPlatformUpdates(channel, platformentity.PlatformKick, platformentity.PlatformTwitch)
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if len(updates) != 1 {
-		t.Fatalf("expected one update, got %d", len(updates))
-	}
-
-	if value, ok := updates["twitch_user_id"]; !ok || value != nil {
-		t.Fatalf("expected twitch_user_id to be cleared, got %#v", updates)
-	}
-}
-
-func TestUnlinkPlatformUpdates_AllowsSecondaryKickUnlinkAndClearsKickBot(t *testing.T) {
-	t.Parallel()
-
-	channel := channelsmodel.Channel{
-		TwitchUserID:     uuidPtr(uuid.New()),
-		TwitchPlatformID: stringPtr("twitch-user"),
-		KickUserID:       uuidPtr(uuid.New()),
-		KickPlatformID:   stringPtr("kick-user"),
-		KickBotID:        uuidPtr(uuid.New()),
-	}
-
-	updates, err := unlinkPlatformUpdates(channel, platformentity.PlatformTwitch, platformentity.PlatformKick)
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	if value, ok := updates["kick_user_id"]; !ok || value != nil {
-		t.Fatalf("expected kick_user_id to be cleared, got %#v", updates)
-	}
-
-	if value, ok := updates["kick_bot_id"]; !ok || value != nil {
-		t.Fatalf("expected kick_bot_id to be cleared, got %#v", updates)
-	}
-}
-
-func TestUnlinkPlatformUpdates_BlocksCurrentPlatform(t *testing.T) {
-	t.Parallel()
-
-	channel := channelsmodel.Channel{
-		TwitchUserID:     uuidPtr(uuid.New()),
-		TwitchPlatformID: stringPtr("twitch-user"),
-		KickUserID:       uuidPtr(uuid.New()),
-		KickPlatformID:   stringPtr("kick-user"),
-	}
-
-	_, err := unlinkPlatformUpdates(channel, platformentity.PlatformKick, platformentity.PlatformKick)
+	_, err := (&mutationResolver{resolver}).UnlinkPlatformAccount(context.Background(), platformentity.PlatformKick.String())
 	if !errors.Is(err, errCannotUnlinkCurrentPlatform) {
-		t.Fatalf("expected current-platform error, got %v", err)
+		t.Fatalf("UnlinkPlatformAccount() error = %v, want errCannotUnlinkCurrentPlatform", err)
+	}
+	if operations.deletedID != uuid.Nil {
+		t.Fatalf("UnlinkPlatformAccount() deleted current platform binding %s", operations.deletedID)
 	}
 }
 
-func TestUnlinkPlatformUpdates_BlocksLastPlatform(t *testing.T) {
-	t.Parallel()
-
-	channel := channelsmodel.Channel{
-		KickUserID:     uuidPtr(uuid.New()),
-		KickPlatformID: stringPtr("kick-user"),
-	}
-
-	_, err := unlinkPlatformUpdates(channel, platformentity.PlatformTwitch, platformentity.PlatformKick)
-	if !errors.Is(err, errCannotUnlinkLastPlatform) {
-		t.Fatalf("expected last-platform error, got %v", err)
-	}
+type resolverCurrentPlatformGetter struct {
+	platform string
+	err      error
 }
 
-func uuidPtr(id uuid.UUID) *uuid.UUID {
-	return &id
-}
-
-func stringPtr(value string) *string {
-	return &value
+func (r resolverCurrentPlatformGetter) GetCurrentPlatform(context.Context) (string, error) {
+	return r.platform, r.err
 }

@@ -98,8 +98,18 @@ var Duel = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
+		twitchBinding, twitchBotConfig, ok, err := dbChannel.TwitchBinding()
+		if err != nil || !ok {
+			if err == nil {
+				err = errors.New("channel has no Twitch binding")
+			}
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetDbChannel),
+				Err:     err,
+			}
+		}
 
-		_, err = handler.createHelixClient()
+		_, err = handler.createHelixClient(twitchBinding.UserID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.BroadcasterClient),
@@ -119,7 +129,8 @@ var Duel = &types.DefaultCommand{
 			ctx,
 			parseCtx.Sender.ID,
 			targetUser.ID,
-			dbChannel,
+			twitchBinding.PlatformChannelID,
+			twitchBotConfig.BotID,
 		); err != nil {
 			var e *targetValidateError
 			if errors.As(err, &e) {
@@ -133,7 +144,7 @@ var Duel = &types.DefaultCommand{
 			}
 		}
 
-		moderators, err := handler.getChannelModerators()
+		moderators, err := handler.getChannelModerators(twitchBinding.PlatformChannelID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetModerators),

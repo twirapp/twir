@@ -14,6 +14,7 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
@@ -37,7 +38,13 @@ func NewChatClient(twirBus *buscore.Bus, config cfg.Config) *ChatClient {
 	}
 }
 
-func (c *ChatClient) SendMessage(ctx context.Context, broadcasterKickID string, text string, replyToMessageID string) error {
+func (c *ChatClient) SendMessage(
+	ctx context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	text string,
+	replyToMessageID string,
+) error {
+	broadcasterKickID := binding.PlatformChannelID
 	broadcasterUserID, err := strconv.Atoi(broadcasterKickID)
 	if err != nil {
 		return fmt.Errorf("parse broadcaster kick id: %w", err)

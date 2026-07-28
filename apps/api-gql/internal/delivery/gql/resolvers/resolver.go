@@ -5,16 +5,18 @@ import (
 	"log/slog"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/twirapp/kv"
-	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
 	channelsservice "github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
@@ -34,6 +36,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	dashboard_widgets "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widgets"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/discord_integration"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
@@ -52,6 +55,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
@@ -80,7 +84,9 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
-	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	model "github.com/twirapp/twir/libs/gomodels"
+	channelpublicsettingsrepo "github.com/twirapp/twir/libs/repositories/channel_public_settings"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channels_giveaways_settings "github.com/twirapp/twir/libs/repositories/channels_giveaways_settings"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
@@ -106,20 +112,25 @@ type Deps struct {
 	AuditRecorder audit.Recorder
 	WsRouter      wsrouter.WsRouter
 
-	SpotifyRepository           channelsintegrationsspotify.Repository
-	LastfmRepository            channelsintegrationslastfm.Repository
-	VKIntegrationRepository     vkintegrationrepo.Repository
-	PlansRepository             plansrepository.Repository
-	GiveawaysSettingsRepository channels_giveaways_settings.Repository
-	ChannelsRepository          channelsrepository.Repository
-	UsersRepository             usersrepository.Repository
-	ChannelService              *channelservice.ChannelService
+	SpotifyRepository               channelsintegrationsspotify.Repository
+	LastfmRepository                channelsintegrationslastfm.Repository
+	VKIntegrationRepository         vkintegrationrepo.Repository
+	PlansRepository                 plansrepository.Repository
+	GiveawaysSettingsRepository     channels_giveaways_settings.Repository
+	ChannelsRepository              channelsrepository.Repository
+	UsersRepository                 usersrepository.Repository
+	ChannelPublicSettingsRepository channelpublicsettingsrepo.Repository
+	ChannelService                  *channelservice.ChannelService
+	ChannelPlatformBindingsService  ChannelPlatformBindingsService
+	ChannelPlatformDashboard        SelectedDashboardGetter
+	CurrentPlatform                 CurrentPlatformGetter
 
-	Sessions                         *auth.Auth
+	Sessions                         SessionReader
+	Auth                             *authroutes.Auth
 	Gorm                             *gorm.DB
 	CachedTwitchClient               *twitchcahe.CachedTwitchClient
 	CachedCommandsClient             *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedgormmodel.ChannelSongRequestsSettings]
+	ChannelSongRequestsSettingsCache *generic_cacher.GenericCacher[model.ChannelSongRequestsSettings]
 	Minio                            *minio.Client
 	TwirBus                          *bus_core.Bus
 	KV                               kv.KV
@@ -128,9 +139,11 @@ type Deps struct {
 
 	DashboardWidgetEventsService          *dashboard_widget_events.Service
 	DashboardWidgetsService               *dashboard_widgets.Service
+	DashboardAccess                       *dashboardaccess.Service
 	VariablesService                      *variables.Service
 	TimersService                         *timers.Service
 	KeywordsService                       *keywords.Service
+	QuotesService                         *quotes.Service
 	AuditLogsService                      *audit_logs.Service
 	AdminActionsService                   *admin_actions.Service
 	BadgesService                         *badges.Service
@@ -193,6 +206,30 @@ type Deps struct {
 	StreamlabsIntegrationService          *streamlabs_integration.Service
 	ChannelsSecretService                 *channels_secret.Service
 	ChannelsStorageService                *channels_storage.Service
+}
+
+type ChannelPlatformBindingsService interface {
+	List(context.Context, uuid.UUID) ([]channelplatformservice.Binding, error)
+	Options() []channelplatformservice.Option
+	Connect(context.Context, uuid.UUID, platformentity.Platform) (string, error)
+	Disconnect(context.Context, uuid.UUID, platformentity.Platform) error
+	SetEnabled(context.Context, uuid.UUID, platformentity.Platform, bool) (channelplatformservice.Binding, error)
+}
+
+type SelectedDashboardGetter interface {
+	GetSelectedDashboard(context.Context) (string, error)
+}
+
+type CurrentPlatformGetter interface {
+	GetCurrentPlatform(context.Context) (string, error)
+}
+
+type SessionReader interface {
+	GetAuthenticatedUserModel(context.Context) (*model.Users, error)
+	GetCurrentPlatform(context.Context) (string, error)
+	GetSelectedDashboard(context.Context) (string, error)
+	SetSessionSelectedDashboard(context.Context, string) error
+	SessionLogout(context.Context) error
 }
 
 type Resolver struct {

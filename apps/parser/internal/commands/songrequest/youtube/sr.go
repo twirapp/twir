@@ -81,7 +81,7 @@ var SrCommand = &types.DefaultCommand{
 		}
 
 		if moduleSettings.AcceptOnlyWhenOnline {
-			channelUUID, err := googleuuid.Parse(parseCtx.Channel.ID)
+			channelUUID, err := googleuuid.Parse(parseCtx.Channel.DBChannelID)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),

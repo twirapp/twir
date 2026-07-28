@@ -29,6 +29,7 @@ const canViewSongRequests = useUserAccessFlagChecker(ChannelRolePermissionEnum.V
 const canViewCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewCommands)
 const canViewTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewTimers)
 const canViewKeywords = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewKeywords)
+const canViewQuotes = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewQuotes)
 const canViewVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewVariables)
 const canViewGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGreetings)
 const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAlerts)
@@ -55,6 +56,7 @@ const permissionMap: Record<string, boolean> = {
 	'/dashboard/commands': canViewCommands.value,
 	'/dashboard/timers': canViewTimers.value,
 	'/dashboard/keywords': canViewKeywords.value,
+	'/dashboard/quotes': canViewQuotes.value,
 	'/dashboard/variables': canViewVariables.value,
 	'/dashboard/greetings': canViewGreetings.value,
 	'/dashboard/alerts': canViewAlerts.value,
@@ -74,6 +76,7 @@ const links = computed(() => {
 			disabled: !hasPermission,
 			path: item.path,
 			isNew: item.isNew,
+			accent: item.accent,
 			openStateKey: item.openStateKey,
 			child: item.child?.map((c) => ({
 				name: c.translationKey ? t(c.translationKey) : c.name || '',
@@ -90,6 +93,14 @@ function goToRoute() {
 		sidebar.setOpenMobile(false)
 	}
 }
+
+function isTopLevelActive(path?: string): boolean {
+	if (!path) return false
+	const target = localePath(path)
+	if (currentRoute.path === target) return true
+	// '/dashboard' must stay exact-match-only, otherwise it would always be active
+	return path !== '/dashboard' && currentRoute.path.startsWith(`${target}/`)
+}
 </script>
 
 <template>
@@ -103,11 +114,14 @@ function goToRoute() {
 					v-if="!item.child"
 					as-child
 					:tooltip="item.name"
-					:variant="currentRoute.path === localePath(item.path) ? 'active' : 'default'"
+					:is-active="isTopLevelActive(item.path)"
 					@click="goToRoute"
 				>
 					<RouterLink :to="localePath(item.path!)">
-						<Icon :name="item.icon" />
+						<Icon
+							:name="item.icon"
+							:class="item.accent ? 'text-amber-400' : undefined"
+						/>
 						<span>{{ item.name }}</span>
 						<Badge
 							v-if="item.isNew"
@@ -127,9 +141,7 @@ function goToRoute() {
 						<CollapsibleTrigger as-child>
 							<SidebarMenuButton
 								:tooltip="item.name"
-								:variant="
-									item.path && currentRoute.path.startsWith(localePath(item.path)) ? 'active' : 'default'
-								"
+								:is-active="!!item.path && currentRoute.path.startsWith(localePath(item.path))"
 							>
 								<Icon :name="item.icon" />
 								<span>{{ item.name }}</span>
@@ -153,11 +165,9 @@ function goToRoute() {
 								>
 									<SidebarMenuButton
 										as-child
-									:variant="
-										currentRoute.path === localePath(child.path) || currentRoute.fullPath === localePath(child.path)
-											? 'active'
-											: 'default'
-									"
+										:is-active="
+											currentRoute.path === localePath(child.path) || currentRoute.fullPath === localePath(child.path)
+										"
 										@click="goToRoute"
 									>
 										<RouterLink :to="localePath(child.path!)">

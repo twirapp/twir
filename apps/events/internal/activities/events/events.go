@@ -73,6 +73,7 @@ type Activity struct {
 	ttsCache            *generic_cacher.GenericCacher[modules.TTSSettings]
 	logger              *slog.Logger
 	usersRepo           usersrepository.Repository
+	newTwitchBotClient  twitchBotClientFactory
 }
 
 type channelRuntimeInfo struct {
@@ -80,4 +81,6 @@ type channelRuntimeInfo struct {
 	BroadcasterUserID string
 	TwitchPlatformID  string
 	BotID             string
+	IsBotMod          bool
+	IsTwitchBanned    bool
 }

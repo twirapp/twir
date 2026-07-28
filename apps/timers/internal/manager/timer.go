@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,6 +15,8 @@ func (t TimerID) String() string {
 }
 
 type Timer struct {
+	tickMu sync.Mutex
+
 	id     TimerID
 	ticker *time.Ticker
 	dbRow  timersentity.Timer
@@ -24,4 +27,11 @@ type Timer struct {
 	lastTriggerOfflineNumber int
 	currentResponseIndex     int
 	offlineMessageNumber     int
+}
+
+func (t *Timer) withTickLock(fn func()) {
+	t.tickMu.Lock()
+	defer t.tickMu.Unlock()
+
+	fn()
 }

@@ -8,6 +8,7 @@ export function useLandingStats() {
 					channels
 					twitchChannels
 					kickChannels
+					vkChannels
 					createdCommands
 					messages
 					usedCommands

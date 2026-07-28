@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/scorfly/gokick"
@@ -18,6 +19,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/crypto"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/integrations/vk"
 	channelsintegrationsrepository "github.com/twirapp/twir/libs/repositories/channels_integrations"
 	channelsintegrationsspotifyrepository "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
@@ -28,6 +30,7 @@ import (
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 )
 
@@ -54,6 +57,8 @@ type Opts struct {
 	SpotifyIntegrationsRepo channelsintegrationsspotifyrepository.Repository
 	TokensRepository        tokensrepository.Repository
 	UsersRepository         usersrepository.Repository
+	VKVideoBotsRepo         vkvideobotsrepository.Repository
+	TrManager               trm.Manager
 }
 
 type lockableMutex interface {
@@ -63,6 +68,14 @@ type lockableMutex interface {
 
 type kickTokenRefresher interface {
 	RefreshToken(ctx context.Context, refreshToken string) (gokick.TokenResponse, error)
+}
+
+type vkTokenRefresher interface {
+	RefreshToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error)
+}
+
+type transactionRunner interface {
+	Do(context.Context, func(context.Context) error) error
 }
 
 type tokensImpl struct {
@@ -81,8 +94,12 @@ type tokensImpl struct {
 	spotifyIntegrationsRepo channelsintegrationsspotifyrepository.Repository
 	tokensRepository        tokensrepository.Repository
 	usersRepository         usersrepository.Repository
+	vkVideoBotsRepo         vkvideobotsrepository.Repository
+	transactionRunner       transactionRunner
 	newMutex                func(name string) lockableMutex
 	newKickTokenRefresher   func() (kickTokenRefresher, error)
+	newVKTokenRefresher     func() (vkTokenRefresher, error)
+	newVKBotTokenRefresher  func() (vkTokenRefresher, error)
 	spotifyTokenURL         string
 	nightbotTokenURL        string
 }
@@ -154,6 +171,8 @@ func NewTokens(opts Opts) error {
 		spotifyIntegrationsRepo: opts.SpotifyIntegrationsRepo,
 		tokensRepository:        opts.TokensRepository,
 		usersRepository:         opts.UsersRepository,
+		vkVideoBotsRepo:         opts.VKVideoBotsRepo,
+		transactionRunner:       opts.TrManager,
 		newMutex: func(name string) lockableMutex {
 			return opts.Redsync.NewMutex(name)
 		},
@@ -162,6 +181,26 @@ func NewTokens(opts Opts) error {
 				HTTPClient:   httpClient,
 				ClientID:     opts.Config.KickClientId,
 				ClientSecret: opts.Config.KickClientSecret,
+			})
+		},
+		newVKTokenRefresher: func() (vkTokenRefresher, error) {
+			return vk.NewOAuthClient(vk.OAuthClientOpts{
+				ClientID:      opts.Config.VKVideoClientID,
+				ClientSecret:  opts.Config.VKVideoClientSecret,
+				RedirectURL:   opts.Config.GetVkCallbackUrl(),
+				APIBaseURL:    opts.Config.VKVideoAPIBaseURL,
+				AuthBaseURL:   opts.Config.VKVideoAuthBaseURL,
+				DevAPIBaseURL: opts.Config.VKVideoDevAPIBaseURL,
+			})
+		},
+		newVKBotTokenRefresher: func() (vkTokenRefresher, error) {
+			return vk.NewOAuthClient(vk.OAuthClientOpts{
+				ClientID:      opts.Config.VKVideoClientID,
+				ClientSecret:  opts.Config.VKVideoClientSecret,
+				RedirectURL:   opts.Config.GetVkVideoBotCallbackUrl(),
+				APIBaseURL:    opts.Config.VKVideoAPIBaseURL,
+				AuthBaseURL:   opts.Config.VKVideoAuthBaseURL,
+				DevAPIBaseURL: opts.Config.VKVideoDevAPIBaseURL,
 			})
 		},
 		spotifyTokenURL:  "https://accounts.spotify.com/api/token",
@@ -289,7 +328,7 @@ func (c *tokensImpl) RequestUserToken(
 	ctx context.Context,
 	data tokens.GetUserTokenRequest,
 ) (tokens.TokenResponse, error) {
-	mu := c.redSync.NewMutex("tokens-users-lock-" + data.UserId.String())
+	mu := c.newMutex("tokens-users-lock-" + data.UserId.String())
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -333,6 +372,18 @@ func (c *tokensImpl) RequestUserToken(
 			refreshedRefreshToken = kickTokens.RefreshToken
 			refreshedExpiresIn = kickTokens.ExpiresIn
 			refreshedScopes = kickTokens.Scopes
+		case platformentity.PlatformVKVideoLive:
+			vkTokens, refreshErr := c.refreshVKToken(ctx, decryptedRefreshToken)
+			if refreshErr != nil {
+				return tokens.TokenResponse{}, fmt.Errorf("VK refresh token: %w", refreshErr)
+			}
+			if vkTokens.RefreshToken == "" {
+				vkTokens.RefreshToken = decryptedRefreshToken
+			}
+			refreshedAccessToken = vkTokens.AccessToken
+			refreshedRefreshToken = vkTokens.RefreshToken
+			refreshedExpiresIn = vkTokens.ExpiresIn
+			refreshedScopes = vkTokens.Scopes
 		default:
 			newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 			if err != nil {
@@ -433,6 +484,15 @@ func (c *tokensImpl) refreshKickToken(ctx context.Context, refreshToken string) 
 	}, nil
 }
 
+func (c *tokensImpl) refreshVKToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error) {
+	client, err := c.newVKTokenRefresher()
+	if err != nil {
+		return nil, fmt.Errorf("create VK Video OAuth client: %w", err)
+	}
+
+	return client.RefreshToken(ctx, refreshToken)
+}
+
 func (c *tokensImpl) RequestBotToken(
 	ctx context.Context,
 	data tokens.GetBotTokenRequest,
@@ -444,6 +504,9 @@ func (c *tokensImpl) RequestBotToken(
 
 	if platform == platformentity.PlatformKick {
 		return c.requestKickBotToken(ctx)
+	}
+	if platform == platformentity.PlatformVKVideoLive {
+		return c.requestVKVideoBotToken(ctx)
 	}
 
 	mu := c.newMutex("tokens-bots-lock-" + data.BotId)
@@ -517,6 +580,93 @@ func (c *tokensImpl) RequestBotToken(
 		Scopes:      token.Scopes,
 		ExpiresIn:   int32(token.ExpiresIn),
 	}, nil
+}
+
+func (c *tokensImpl) requestVKVideoBotToken(ctx context.Context) (tokens.TokenResponse, error) {
+	mu := c.newMutex("tokens-vk-video-bot-lock")
+	if err := mu.Lock(); err != nil {
+		return tokens.TokenResponse{}, fmt.Errorf("lock VK Video bot token: %w", err)
+	}
+	defer mu.Unlock()
+
+	var response tokens.TokenResponse
+	err := c.transactionRunner.Do(ctx, func(txCtx context.Context) error {
+		bot, err := c.vkVideoBotsRepo.Get(txCtx)
+		if err != nil {
+			return fmt.Errorf("get VK Video bot singleton: %w", err)
+		}
+
+		if isTokenExpired(bot.ExpiresIn, bot.ObtainmentTimestamp) {
+			if bot.EncryptedRefreshToken == "" {
+				return errors.New("VK Video bot refresh token is missing")
+			}
+
+			refreshToken, err := crypto.Decrypt(bot.EncryptedRefreshToken, c.config.TokensCipherKey)
+			if err != nil {
+				return fmt.Errorf("decrypt VK Video bot refresh token: %w", err)
+			}
+			if refreshToken == "" {
+				return errors.New("VK Video bot refresh token is missing")
+			}
+
+			refreshedToken, err := c.refreshVKVideoBotToken(txCtx, refreshToken)
+			if err != nil {
+				return errors.New("refresh VK Video bot token failed")
+			}
+			if refreshedToken.RefreshToken == "" {
+				refreshedToken.RefreshToken = refreshToken
+			}
+
+			encryptedAccessToken, err := crypto.Encrypt(refreshedToken.AccessToken, c.config.TokensCipherKey)
+			if err != nil {
+				return fmt.Errorf("encrypt VK Video bot access token: %w", err)
+			}
+			encryptedRefreshToken, err := crypto.Encrypt(refreshedToken.RefreshToken, c.config.TokensCipherKey)
+			if err != nil {
+				return fmt.Errorf("encrypt VK Video bot refresh token: %w", err)
+			}
+
+			bot, err = c.vkVideoBotsRepo.Update(txCtx, vkvideobotsrepository.UpdateInput{
+				EncryptedAccessToken:  encryptedAccessToken,
+				EncryptedRefreshToken: encryptedRefreshToken,
+				Scopes:                refreshedToken.Scopes,
+				ExpiresIn:             refreshedToken.ExpiresIn,
+				ObtainmentTimestamp:   time.Now().UTC(),
+				VKUserID:              bot.VKUserID,
+			})
+			if err != nil {
+				return fmt.Errorf("persist VK Video bot token: %w", err)
+			}
+
+			c.log.Info("VK Video bot token refreshed", slog.String("vk_video_bot_id", bot.ID.String()))
+		}
+
+		accessToken, err := crypto.Decrypt(bot.EncryptedAccessToken, c.config.TokensCipherKey)
+		if err != nil {
+			return fmt.Errorf("decrypt VK Video bot access token: %w", err)
+		}
+
+		response = tokens.TokenResponse{
+			AccessToken: accessToken,
+			Scopes:      bot.Scopes,
+			ExpiresIn:   int32(bot.ExpiresIn),
+		}
+		return nil
+	})
+	if err != nil {
+		return tokens.TokenResponse{}, err
+	}
+
+	return response, nil
+}
+
+func (c *tokensImpl) refreshVKVideoBotToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error) {
+	client, err := c.newVKBotTokenRefresher()
+	if err != nil {
+		return nil, fmt.Errorf("create VK Video bot OAuth client: %w", err)
+	}
+
+	return client.RefreshToken(ctx, refreshToken)
 }
 
 func (c *tokensImpl) requestKickBotToken(ctx context.Context) (tokens.TokenResponse, error) {

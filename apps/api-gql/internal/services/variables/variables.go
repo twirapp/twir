@@ -94,7 +94,8 @@ func (c *Service) EvaluateScript(
 	}
 
 	if testAsUserName != nil && *testAsUserName != "" {
-		if channel.TwitchPlatformID == nil {
+		twitchBinding, found := channel.Binding(platform.PlatformTwitch)
+		if !found {
 			return "", fmt.Errorf("channel has no twitch platform ID")
 		}
 
@@ -103,7 +104,7 @@ func (c *Service) EvaluateScript(
 
 		wg.Go(
 			func() error {
-				u, err := c.cachedTwitchClient.GetUserById(ctx, *channel.TwitchPlatformID)
+				u, err := c.cachedTwitchClient.GetUserById(ctx, twitchBinding.PlatformChannelID)
 				if err != nil {
 					return fmt.Errorf("cannot get channel user: %w", err)
 				}

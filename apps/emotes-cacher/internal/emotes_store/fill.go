@@ -12,12 +12,26 @@ import (
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	"gorm.io/gorm"
 )
 
 type startupChannelData struct {
-	ID               string  `gorm:"column:id"`
-	TwitchPlatformID *string `gorm:"column:twitch_platform_id"`
-	KickPlatformID   *string `gorm:"column:kick_platform_id"`
+	ID         string            `gorm:"column:id"`
+	Platform   platform.Platform `gorm:"column:platform"`
+	PlatformID string            `gorm:"column:platform_id"`
+}
+
+func buildStartupChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
+	return db.
+		WithContext(ctx).
+		Table("channel_platforms AS cp").
+		Select("cp.channel_id AS id", "cp.platform", "cp.platform_channel_id AS platform_id").
+		Joins("JOIN channels c ON c.id = cp.channel_id").
+		Where(`c."isEnabled" = ?`, true).
+		Where("cp.platform IN ?", []platform.Platform{
+			platform.PlatformTwitch,
+			platform.PlatformKick,
+		})
 }
 
 func (c *EmotesStore) fillChannels() {
@@ -27,12 +41,7 @@ func (c *EmotesStore) fillChannels() {
 	)
 	for {
 		var channelsData []startupChannelData
-		if err := c.gorm.
-			Table("channels c").
-			Select("c.id", "tu.platform_id as twitch_platform_id", "ku.platform_id as kick_platform_id").
-			Joins("LEFT JOIN users tu ON tu.id = c.twitch_user_id").
-			Joins("LEFT JOIN users ku ON ku.id = c.kick_user_id").
-			Where(`c."isEnabled" = true`).
+		if err := buildStartupChannelsQuery(c.gorm, context.Background()).
 			Offset(int(page * size)).
 			Limit(int(size)).
 			Scan(&channelsData).Error; err != nil {
@@ -53,49 +62,33 @@ func (c *EmotesStore) fillChannels() {
 			go func(channelData startupChannelData) {
 				defer wg.Done()
 				channelID := channelData.ID
+				if channelData.Platform != platform.PlatformTwitch && channelData.Platform != platform.PlatformKick {
+					return
+				}
 
 				c.logger.Debug("fetching emotes for channel", slog.String("channel_id", channelID))
-				if channelData.TwitchPlatformID != nil {
-					twitchKey := ChannelKey{Platform: platform.PlatformTwitch, ID: *channelData.TwitchPlatformID}
+				channelKey := ChannelKey{Platform: channelData.Platform, ID: channelData.PlatformID}
 
-					sevenTvEmotes, err := seventvfetcher.GetChannelSevenTvEmotes(ctx, platform.PlatformTwitch, *channelData.TwitchPlatformID)
-					if err == nil {
-						result := make([]emote.Emote, 0)
-						for _, e := range sevenTvEmotes {
-							result = append(result, e)
-						}
-						c.AddEmotes(twitchKey, emotes_cacher.ServiceNameSevenTV, result...)
-					} else {
-						c.logger.Debug("failed to fetch 7tv emotes", slog.String("channel_id", channelID), logger.Error(err))
+				sevenTvEmotes, err := seventvfetcher.GetChannelSevenTvEmotes(ctx, channelData.Platform, channelData.PlatformID)
+				if err == nil {
+					result := make([]emote.Emote, 0)
+					for _, e := range sevenTvEmotes {
+						result = append(result, e)
 					}
+					c.AddEmotes(channelKey, emotes_cacher.ServiceNameSevenTV, result...)
+				} else {
+					c.logger.Debug("failed to fetch 7tv emotes", slog.String("channel_id", channelID), logger.Error(err))
 				}
 
-				if channelData.KickPlatformID != nil {
-					kickKey := ChannelKey{Platform: platform.PlatformKick, ID: *channelData.KickPlatformID}
-
-					sevenTvEmotes, err := seventvfetcher.GetChannelSevenTvEmotes(ctx, platform.PlatformKick, *channelData.KickPlatformID)
-					if err == nil {
-						result := make([]emote.Emote, 0)
-						for _, e := range sevenTvEmotes {
-							result = append(result, e)
-						}
-						c.AddEmotes(kickKey, emotes_cacher.ServiceNameSevenTV, result...)
-					} else {
-						c.logger.Debug("failed to fetch 7tv emotes", slog.String("channel_id", channelID), logger.Error(err))
-					}
-				}
-
-				if channelData.TwitchPlatformID != nil {
-					twitchKey := ChannelKey{Platform: platform.PlatformTwitch, ID: *channelData.TwitchPlatformID}
-
-					bttvEmotes, err := bttvfetcher.GetChannelBttvEmotes(ctx, *channelData.TwitchPlatformID)
+				if channelData.Platform == platform.PlatformTwitch {
+					bttvEmotes, err := bttvfetcher.GetChannelBttvEmotes(ctx, channelData.PlatformID)
 					if err == nil {
 						result := make([]emote.Emote, 0)
 						for _, e := range bttvEmotes {
 							result = append(result, e)
 						}
 						c.AddEmotes(
-							twitchKey,
+							channelKey,
 							emotes_cacher.ServiceNameBTTV,
 							result...,
 						)
@@ -103,14 +96,14 @@ func (c *EmotesStore) fillChannels() {
 						c.logger.Debug("failed to fetch bttv emotes", slog.String("channel_id", channelID))
 					}
 
-					ffzEmotes, err := ffzfetcher.GetChannelFfzEmotes(ctx, *channelData.TwitchPlatformID)
+					ffzEmotes, err := ffzfetcher.GetChannelFfzEmotes(ctx, channelData.PlatformID)
 					if err == nil {
 						result := make([]emote.Emote, 0)
 						for _, e := range ffzEmotes {
 							result = append(result, e)
 						}
 						c.AddEmotes(
-							twitchKey,
+							channelKey,
 							emotes_cacher.ServiceNameFFZ,
 							result...,
 						)

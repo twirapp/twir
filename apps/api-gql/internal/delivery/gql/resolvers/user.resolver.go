@@ -7,139 +7,28 @@ package resolvers
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"net/url"
 
 	"github.com/google/uuid"
-	"github.com/guregu/null"
-	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
-	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
+	channelpublicsettingsentity "github.com/twirapp/twir/libs/entities/channel_public_settings"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	model "github.com/twirapp/twir/libs/gomodels"
+	channelpublicsettingsrepo "github.com/twirapp/twir/libs/repositories/channel_public_settings"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
-	"gorm.io/gorm"
 )
-
-// TwitchProfile is the resolver for the twitchProfile field.
-func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
-	parsedUserID, err := uuid.Parse(obj.ID)
-	if err != nil {
-		return nil, nil
-	}
-
-	user, err := r.deps.UsersRepository.GetByID(ctx, parsedUserID)
-	if err != nil {
-		if errors.Is(err, usersmodel.ErrNotFound) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("get user: %w", err)
-	}
-
-	if user.Platform != platformentity.PlatformTwitch {
-		channel, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByAnyPlatformUUID(
-			ctx,
-			parsedUserID,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("resolve channel identity: %w", err)
-		}
-
-		var twitchIdentity *chatmessagesrepo.PlatformChannelIdentity
-		for _, i := range channel.ChatTargets {
-			if i.Platform == "twitch" {
-				twitchIdentity = &i
-				break
-			}
-		}
-
-		if twitchIdentity == nil {
-			return nil, nil
-		}
-
-		return data_loader.GetHelixUserById(ctx, twitchIdentity.PlatformChannelID)
-	}
-
-	return data_loader.GetHelixUserById(ctx, user.PlatformID)
-}
 
 // AvailableDashboards is the resolver for the availableDashboards field.
 func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj *gqlmodel.AuthenticatedUser) ([]gqlmodel.Dashboard, error) {
 	return r.getAvailableDashboards(ctx, obj)
-}
-
-// KickProfile is the resolver for the kickProfile field.
-func (r *authenticatedUserResolver) KickProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.KickProfile, error) {
-	parsedUserID, err := uuid.Parse(obj.ID)
-	if err != nil {
-		return nil, nil
-	}
-
-	var user usersmodel.User
-	user, err = r.deps.UsersRepository.GetByID(ctx, parsedUserID)
-	if err != nil {
-		if errors.Is(err, usersmodel.ErrNotFound) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("get user: %w", err)
-	}
-
-	if user.Platform != platformentity.PlatformKick {
-		channel, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByAnyPlatformUUID(
-			ctx,
-			parsedUserID,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("resolve channel identity: %w", err)
-		}
-
-		var identity *chatmessagesrepo.PlatformChannelIdentity
-		for _, i := range channel.ChatTargets {
-			if i.Platform == "kick" {
-				identity = &i
-				break
-			}
-		}
-
-		if identity == nil {
-			return nil, nil
-		}
-
-		user, err = r.deps.UsersRepository.GetByPlatformID(
-			ctx,
-			platformentity.PlatformKick,
-			identity.PlatformChannelID,
-		)
-		if err != nil {
-			if errors.Is(err, usersmodel.ErrNotFound) {
-				return nil, nil
-			}
-			return nil, fmt.Errorf("get user: %w", err)
-		}
-	}
-
-	var profilePicture *string
-	if user.Avatar != "" {
-		profilePicture = &user.Avatar
-	}
-
-	return &gqlmodel.KickProfile{
-		ID:             user.PlatformID,
-		Slug:           user.Login,
-		DisplayName:    user.DisplayName,
-		ProfilePicture: profilePicture,
-		IsLive:         false,
-		FollowersCount: 0,
-	}, nil
 }
 
 // LinkedAccounts is the resolver for the linkedAccounts field.
@@ -148,46 +37,7 @@ func (r *authenticatedUserResolver) LinkedAccounts(ctx context.Context, obj *gql
 	if err != nil {
 		return nil, fmt.Errorf("get authenticated user channel: %w", err)
 	}
-
-	accounts := make([]gqlmodel.LinkedAccount, 0, 2)
-
-	if channel.TwitchUserID != nil {
-		twitchUser, err := r.deps.UsersRepository.GetByID(ctx, *channel.TwitchUserID)
-		if err != nil {
-			return nil, fmt.Errorf("get linked twitch user: %w", err)
-		}
-
-		account := gqlmodel.LinkedAccount{
-			Platform:       string(platformentity.PlatformTwitch),
-			PlatformUserID: twitchUser.PlatformID,
-			PlatformLogin:  twitchUser.Login,
-		}
-		if twitchUser.Avatar != "" {
-			account.PlatformAvatar = &twitchUser.Avatar
-		}
-
-		accounts = append(accounts, account)
-	}
-
-	if channel.KickUserID != nil {
-		kickUser, err := r.deps.UsersRepository.GetByID(ctx, *channel.KickUserID)
-		if err != nil {
-			return nil, fmt.Errorf("get linked kick user: %w", err)
-		}
-
-		account := gqlmodel.LinkedAccount{
-			Platform:       string(platformentity.PlatformKick),
-			PlatformUserID: kickUser.PlatformID,
-			PlatformLogin:  kickUser.Login,
-		}
-		if kickUser.Avatar != "" {
-			account.PlatformAvatar = &kickUser.Avatar
-		}
-
-		accounts = append(accounts, account)
-	}
-
-	return accounts, nil
+	return r.linkedAccountsForChannel(ctx, channel)
 }
 
 // CurrentPlatform is the resolver for the currentPlatform field.
@@ -213,8 +63,8 @@ func (r *channelUserInfoResolver) TwitchProfile(ctx context.Context, obj *gqlmod
 	return data_loader.GetHelixUserById(ctx, user.PlatformID)
 }
 
-// TwitchProfile is the resolver for the twitchProfile field.
-func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.TwirUserTwitchInfo, error) {
+// Profile is the resolver for the profile field.
+func (r *dashboardResolver) Profile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.LinkedAccount, error) {
 	channelID, err := uuid.Parse(obj.ID)
 	if err != nil {
 		return nil, fmt.Errorf("invalid channel id: %w", err)
@@ -224,51 +74,28 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || channel.TwitchUserID == nil {
+	if channel.IsNil() || len(channel.Bindings) == 0 {
 		return nil, nil
 	}
 
-	return data_loader.GetHelixUserById(ctx, *channel.TwitchPlatformID)
-}
+	selected := channel.Bindings[0]
+	for _, binding := range channel.Bindings {
+		if binding.Platform.String() == obj.Platform {
+			selected = binding
+			break
+		}
+	}
 
-// KickProfile is the resolver for the kickProfile field.
-func (r *dashboardResolver) KickProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.KickProfile, error) {
-	channelID, err := uuid.Parse(obj.ID)
+	profile, err := r.deps.UsersRepository.GetByID(ctx, selected.UserID)
 	if err != nil {
-		return nil, fmt.Errorf("invalid channel id: %w", err)
+		if errors.Is(err, usersmodel.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get dashboard platform profile: %w", err)
 	}
 
-	channel, err := r.deps.ChannelService.GetChannelByID(ctx, channelID)
-	if err != nil {
-		return nil, fmt.Errorf("get channel: %w", err)
-	}
-	if channel.IsNil() || channel.KickUserID == nil {
-		return nil, nil
-	}
-
-	currentUserID, err := r.deps.Sessions.GetInternalUserID(ctx)
-	if err != nil || *channel.KickUserID != currentUserID {
-		return nil, nil
-	}
-
-	kickUser, err := r.deps.Sessions.GetSessionKickUser(ctx)
-	if err != nil {
-		return nil, nil
-	}
-
-	var profilePicture *string
-	if kickUser.Avatar != "" {
-		profilePicture = &kickUser.Avatar
-	}
-
-	return &gqlmodel.KickProfile{
-		ID:             kickUser.ID,
-		Slug:           kickUser.Login,
-		DisplayName:    kickUser.Login,
-		ProfilePicture: profilePicture,
-		IsLive:         false,
-		FollowersCount: 0,
-	}, nil
+	account := mappers.PlatformProfileToLinkedAccount(selected.Platform, profile)
+	return &account, nil
 }
 
 // Plan is the resolver for the plan field.
@@ -298,21 +125,22 @@ func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, 
 		return false, gqlerrors.HandleError(err)
 	}
 
-	entity := &model.Users{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where("id = ?", user.ID).
-		First(entity).Error; err != nil {
-		return false, fmt.Errorf("failed to get user: %w", err)
+	if !opts.HideOnLandingPage.IsSet() {
+		return true, nil
 	}
 
-	if opts.HideOnLandingPage.IsSet() {
-		entity.HideOnLandingPage = *opts.HideOnLandingPage.Value()
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return false, fmt.Errorf("parse user id: %w", err)
 	}
 
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Save(entity).Error; err != nil {
+	if _, err := r.deps.UsersRepository.Update(
+		ctx,
+		userUUID,
+		usersrepository.UpdateInput{
+			HideOnLandingPage: opts.HideOnLandingPage.Value(),
+		},
+	); err != nil {
 		return false, fmt.Errorf("failed to save user: %w", err)
 	}
 
@@ -326,23 +154,23 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 		return "", gqlerrors.HandleError(err)
 	}
 
-	entity := &model.Users{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where("id = ?", user.ID).
-		First(entity).Error; err != nil {
-		return "", fmt.Errorf("failed to get user: %w", err)
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return "", fmt.Errorf("parse user id: %w", err)
 	}
 
-	entity.ApiKey = uuid.NewString()
-
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Save(entity).Error; err != nil {
+	newAPIKey := uuid.NewString()
+	if _, err := r.deps.UsersRepository.Update(
+		ctx,
+		userUUID,
+		usersrepository.UpdateInput{
+			ApiKey: &newAPIKey,
+		},
+	); err != nil {
 		return "", fmt.Errorf("failed to save user: %w", err)
 	}
 
-	return entity.ApiKey, nil
+	return newAPIKey, nil
 }
 
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
@@ -356,61 +184,37 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 		return false, fmt.Errorf("selected dashboard is not set")
 	}
 
-	currentSettings := &model.ChannelPublicSettings{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where(
-			"channel_id = ?",
-			dashboardID,
-		).
-		Preload("SocialLinks").
-		// init default settings
-		FirstOrInit(
-			currentSettings,
-			&model.ChannelPublicSettings{
-				ChannelID: dashboardID,
-			},
-		).
-		Error; err != nil {
-		return false, fmt.Errorf("failed to get public settings: %w", err)
+	channelUUID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return false, fmt.Errorf("parse dashboard id: %w", err)
 	}
 
-	txErr := r.deps.Gorm.WithContext(ctx).Transaction(
-		func(tx *gorm.DB) error {
-			if opts.Description.IsSet() {
-				currentSettings.Description = null.StringFromPtr(opts.Description.Value())
-			}
+	input := channelpublicsettingsrepo.UpsertInput{
+		ChannelID:      channelUUID,
+		Description:    opts.Description.Value(),
+		DescriptionSet: opts.Description.IsSet(),
+		SocialLinksSet: opts.SocialLinks.IsSet(),
+	}
 
-			if opts.SocialLinks.IsSet() {
-				if err := tx.
-					Where("settings_id = ?", currentSettings.ID).
-					Delete(&model.ChannelPublicSettingsSocialLink{}).
-					Error; err != nil {
-					return gqlerrors.HandleError(err)
-				}
+	if opts.SocialLinks.IsSet() {
+		input.SocialLinks = make(
+			[]channelpublicsettingsrepo.SocialLinkInput,
+			0,
+			len(opts.SocialLinks.Value()),
+		)
+		for _, link := range opts.SocialLinks.Value() {
+			input.SocialLinks = append(
+				input.SocialLinks,
+				channelpublicsettingsrepo.SocialLinkInput{
+					Title: link.Title,
+					Href:  link.Href,
+				},
+			)
+		}
+	}
 
-				links := make([]model.ChannelPublicSettingsSocialLink, 0, len(opts.SocialLinks.Value()))
-				for _, link := range opts.SocialLinks.Value() {
-					links = append(
-						links,
-						model.ChannelPublicSettingsSocialLink{
-							ID:         uuid.New(),
-							SettingsID: currentSettings.ID,
-							Title:      link.Title,
-							Href:       link.Href,
-						},
-					)
-				}
-
-				currentSettings.SocialLinks = links
-			}
-
-			return tx.Save(currentSettings).Error
-		},
-	)
-
-	if txErr != nil {
-		return false, fmt.Errorf("failed to update public settings: %w", txErr)
+	if err := r.deps.ChannelPublicSettingsRepository.Upsert(ctx, input); err != nil {
+		return false, fmt.Errorf("failed to update public settings: %w", err)
 	}
 
 	return true, nil
@@ -427,30 +231,50 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // UnlinkPlatformAccount is the resolver for the unlinkPlatformAccount field.
 func (r *mutationResolver) UnlinkPlatformAccount(ctx context.Context, platform string) (bool, error) {
-	channel, err := (&authenticatedUserResolver{r.Resolver}).getAuthenticatedUserChannel(ctx)
-	if err != nil {
-		return false, fmt.Errorf("get authenticated user channel: %w", err)
+	entityPlatform := platformentity.Platform(platform)
+	if !entityPlatform.IsValid() {
+		return false, fmt.Errorf("unsupported platform: %s", platform)
 	}
-
-	currentPlatform, err := r.deps.Sessions.GetCurrentPlatform(ctx)
+	if r.deps.CurrentPlatform == nil {
+		return false, fmt.Errorf("current platform session is not configured")
+	}
+	currentPlatform, err := r.deps.CurrentPlatform.GetCurrentPlatform(ctx)
 	if err != nil {
 		return false, fmt.Errorf("get current platform: %w", err)
 	}
-
-	updates, err := unlinkPlatformUpdates(
-		channel,
-		platformentity.Platform(currentPlatform),
-		platformentity.Platform(platform),
-	)
+	if currentPlatform == entityPlatform.String() {
+		return false, errCannotUnlinkCurrentPlatform
+	}
+	dashboardID, err := r.selectedChannelPlatformDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
+	if r.deps.Sessions == nil {
+		return false, fmt.Errorf("sessions service is not configured")
+	}
+	if r.deps.DashboardAccess == nil {
+		return false, fmt.Errorf("dashboard access service is not configured")
+	}
 
-	if err := r.deps.Gorm.WithContext(ctx).Model(&model.Channels{}).Where(
-		"id = ?",
-		channel.ID,
-	).Updates(updates).Error; err != nil {
-		return false, fmt.Errorf("unlink platform account: %w", err)
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return false, fmt.Errorf("get authenticated user: %w", err)
+	}
+	if !user.IsBotAdmin {
+		isOwner, ownerErr := r.deps.DashboardAccess.IsOwner(ctx, user.ID, dashboardID)
+		if ownerErr != nil {
+			return false, fmt.Errorf("check dashboard ownership: %w", ownerErr)
+		}
+		if !isOwner {
+			return false, fmt.Errorf("only the channel owner or a bot admin can manage platform identities")
+		}
+	}
+	if r.deps.ChannelPlatformBindingsService == nil {
+		return false, fmt.Errorf("channel platform binding service is not configured")
+	}
+
+	if err := r.deps.ChannelPlatformBindingsService.Disconnect(ctx, dashboardID, entityPlatform); err != nil {
+		return false, err
 	}
 
 	return true, nil
@@ -468,17 +292,18 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	user := model.Users{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where("id = ?", sessionUser.ID).
-		Preload("Channel").
-		First(&user).Error; err != nil {
+	userUUID, err := uuid.Parse(sessionUser.ID)
+	if err != nil {
+		return nil, fmt.Errorf("parse user id: %w", err)
+	}
+
+	user, err := r.deps.UsersRepository.GetByID(ctx, userUUID)
+	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	authedUser := &gqlmodel.AuthenticatedUser{
-		ID:                  user.ID,
+		ID:                  user.ID.String(),
 		IsBotAdmin:          user.IsBotAdmin,
 		IsBanned:            user.IsBanned,
 		HideOnLandingPage:   user.HideOnLandingPage,
@@ -486,11 +311,31 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		SelectedDashboardID: dashboardId,
 	}
 
-	if user.Channel != nil {
-		authedUser.IsEnabled = &user.Channel.IsEnabled
-		authedUser.IsBotModerator = &user.Channel.IsBotMod
-		authedUser.BotID = &user.Channel.BotID
-		authedUser.PlanID = user.Channel.PlanID
+	ownedChannel, channelErr := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+	if channelErr == nil && !ownedChannel.IsNil() {
+		authedUser.PlanID = ownedChannel.PlanID
+	} else if channelErr != nil && !errors.Is(channelErr, channelsrepository.ErrNotFound) {
+		return nil, fmt.Errorf("failed to get user channel: %w", channelErr)
+	}
+
+	if parsedDashboardID, parseErr := uuid.Parse(dashboardId); parseErr == nil {
+		channel, channelErr := r.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
+		if channelErr == nil && !channel.IsNil() {
+			twitchBinding, twitchConfig, found, configErr := channel.TwitchBinding()
+			if configErr != nil {
+				return nil, fmt.Errorf("parse Twitch channel binding configuration: %w", configErr)
+			}
+			if found {
+				enabled := twitchBinding.Enabled
+				authedUser.IsEnabled = &enabled
+				isBotModerator := twitchConfig.IsBotMod
+				authedUser.IsBotModerator = &isBotModerator
+				if twitchConfig.BotID != "" {
+					botID := twitchConfig.BotID
+					authedUser.BotID = &botID
+				}
+			}
+		}
 	}
 
 	return authedUser, nil
@@ -509,7 +354,7 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 		}
 
 		if err == nil {
-			channel, err := r.deps.ChannelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
+			channel, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
 			if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
 				return nil, fmt.Errorf("get channel by twitch user id: %w", err)
 			}
@@ -537,112 +382,51 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 		return nil, fmt.Errorf("id for fetch not setted in request or session")
 	}
 
-	entity := &model.ChannelPublicSettings{}
-	if err := r.deps.Gorm.
-		WithContext(ctx).
-		Where(
-			"channel_id = ?",
-			idForFetch,
-		).
-		Preload("SocialLinks").
-		Find(entity).Error; err != nil {
-		return nil, gqlerrors.HandleError(err)
+	channelUUID, err := uuid.Parse(idForFetch)
+	if err != nil {
+		return nil, fmt.Errorf("parse channel id: %w", err)
 	}
 
 	settings := &gqlmodel.PublicSettings{
 		ChannelID:   channelID,
-		Description: entity.Description.Ptr(),
-		SocialLinks: lo.Map(
-			entity.SocialLinks,
-			func(item model.ChannelPublicSettingsSocialLink, _ int) gqlmodel.SocialLink {
-				return gqlmodel.SocialLink{
-					Title: item.Title,
-					Href:  item.Href,
-				}
-			},
-		),
+		Description: nil,
+		SocialLinks: []gqlmodel.SocialLink{},
 	}
+
+	entity, err := r.deps.ChannelPublicSettingsRepository.GetByChannelID(ctx, channelUUID)
+	if err != nil {
+		if !errors.Is(err, channelpublicsettingsrepo.ErrNotFound) {
+			return nil, gqlerrors.HandleError(err)
+		}
+		return settings, nil
+	}
+
+	settings.Description = entity.Description
+	settings.SocialLinks = lo.Map(
+		entity.SocialLinks,
+		func(item channelpublicsettingsentity.SocialLink, _ int) gqlmodel.SocialLink {
+			return gqlmodel.SocialLink{
+				Title: item.Title,
+				Href:  item.Href,
+			}
+		},
+	)
 
 	return settings, nil
 }
 
 // AuthLink is the resolver for the authLink field.
 func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string, error) {
-	baseUrl, err := gincontext.GetBaseUrlFromContext(ctx, r.deps.Config.SiteBaseUrl)
-	if err != nil {
-		return "", gqlerrors.HandleError(err)
-	}
-
 	if redirectTo == "" {
 		return "", fmt.Errorf("incorrect auth link %s", redirectTo)
 	}
 
-	u, err := url.Parse(baseUrl)
+	authorizeURL, err := r.deps.Auth.StartTwitchAuth(ctx, redirectTo)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse base url: %w", err)
+		return "", gqlerrors.HandleError(err)
 	}
 
-	twitchClient, err := helix.NewClientWithContext(
-		ctx, &helix.Options{
-			ClientID:    r.deps.Config.TwitchClientId,
-			RedirectURI: u.JoinPath("login").String(),
-		},
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to create twitch client: %w", err)
-	}
-
-	state := base64.StdEncoding.EncodeToString([]byte(redirectTo))
-
-	if r.deps.Config.TwitchMockEnabled {
-		siteURL, err := url.Parse(r.deps.Config.SiteBaseUrl)
-		if err != nil {
-			return "", fmt.Errorf("failed to parse site base url: %w", err)
-		}
-		mockAuthUrl := fmt.Sprintf(
-			"%s/oauth2/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=&state=%s",
-			r.deps.Config.TwitchMockAuthUrl,
-			r.deps.Config.TwitchClientId,
-			url.QueryEscape(siteURL.JoinPath("login").String()),
-			url.QueryEscape(state),
-		)
-		return mockAuthUrl, nil
-	}
-
-	twitchScopes := []string{
-		"moderation:read",
-		"channel:manage:broadcast",
-		"channel:read:redemptions",
-		"channel:manage:redemptions",
-		"moderator:read:chatters",
-		"moderator:manage:shoutouts",
-		"moderator:manage:banned_users",
-		"channel:read:vips",
-		"channel:manage:vips",
-		"channel:manage:moderators",
-		"moderator:read:followers",
-		"moderator:manage:chat_settings",
-		"channel:read:polls",
-		"channel:manage:polls",
-		"channel:read:predictions",
-		"channel:manage:predictions",
-		"channel:read:subscriptions",
-		"channel:moderate",
-		"user:read:follows",
-		"channel:bot",
-		"channel:manage:raids",
-	}
-
-	url := twitchClient.GetAuthorizationURL(
-		&helix.AuthorizationURLParams{
-			ResponseType: "code",
-			Scopes:       twitchScopes,
-			State:        state,
-			ForceVerify:  false,
-		},
-	)
-
-	return url, nil
+	return authorizeURL, nil
 }
 
 // ChannelUserInfo is the resolver for the channelUserInfo field.

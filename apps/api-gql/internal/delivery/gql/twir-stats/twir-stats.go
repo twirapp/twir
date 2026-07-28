@@ -8,6 +8,7 @@ import (
 
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
@@ -51,6 +52,7 @@ type Stats struct {
 	Channels        int
 	TwitchChannels  int
 	KickChannels    int
+	VkChannels      int
 	CreatedCommands int
 	Viewers         int
 	Messages        int
@@ -91,6 +93,27 @@ func (c *TwirStats) GetCachedData() *Stats {
 	return c.cachedResponse
 }
 
+func visibleChannelBindingsQuery(
+	db *gorm.DB,
+	ctx context.Context,
+	platform *platformentity.Platform,
+) *gorm.DB {
+	query := db.WithContext(ctx).
+		Table("channel_platforms AS cp").
+		Joins("JOIN users AS u ON u.id = cp.user_id").
+		Where("cp.enabled = ? AND u.is_banned = ?", true, false).
+		Where(
+			"NOT (cp.platform = ? AND cp.bot_config @> ?::jsonb)",
+			platformentity.PlatformTwitch,
+			`{"is_twitch_banned":true}`,
+		)
+	if platform != nil {
+		query = query.Where("cp.platform = ?", *platform)
+	}
+
+	return query
+}
+
 func (c *TwirStats) cacheCounts() {
 	var wg sync.WaitGroup
 
@@ -105,12 +128,9 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Model(&model.Channels{}).Where(
-				`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ?`,
-				true,
-				false,
-				false,
-			).Joins("User").Count(&count)
+			visibleChannelBindingsQuery(c.gorm, context.Background(), nil).
+				Distinct("cp.channel_id").
+				Count(&count)
 			c.cachedResponse.Channels = int(count)
 		},
 	)
@@ -118,12 +138,10 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Model(&model.Channels{}).Where(
-				`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ? AND "channels"."twitch_user_id" IS NOT NULL`,
-				true,
-				false,
-				false,
-			).Joins("User").Count(&count)
+			platform := platformentity.PlatformTwitch
+			visibleChannelBindingsQuery(c.gorm, context.Background(), &platform).
+				Distinct("cp.channel_id").
+				Count(&count)
 			c.cachedResponse.TwitchChannels = int(count)
 		},
 	)
@@ -131,14 +149,22 @@ func (c *TwirStats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.gorm.Model(&model.Channels{}).Joins(
-				`LEFT JOIN users ON users.id = channels.kick_user_id`,
-			).Where(
-				`"channels"."isEnabled" = ? AND "channels"."kick_user_id" IS NOT NULL AND "users"."is_banned" = ?`,
-				true,
-				false,
-			).Count(&count)
+			platform := platformentity.PlatformKick
+			visibleChannelBindingsQuery(c.gorm, context.Background(), &platform).
+				Distinct("cp.channel_id").
+				Count(&count)
 			c.cachedResponse.KickChannels = int(count)
+		},
+	)
+
+	wg.Go(
+		func() {
+			var count int64
+			platform := platformentity.PlatformVKVideoLive
+			visibleChannelBindingsQuery(c.gorm, context.Background(), &platform).
+				Distinct("cp.channel_id").
+				Count(&count)
+			c.cachedResponse.VkChannels = int(count)
 		},
 	)
 

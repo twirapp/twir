@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -22,18 +23,23 @@ func (c *Service) GetChannelChatBadges(ctx context.Context, channelID string) (
 	if err != nil {
 		return nil, fmt.Errorf("get channel: %w", err)
 	}
-	if channel.IsNil() || !channel.TwitchConnected() {
+	if channel.IsNil() {
 		return nil, nil
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+	twitchBinding, found := channel.Binding(platformentity.PlatformTwitch)
+	if !found || twitchBinding.UserID == uuid.Nil {
+		return nil, nil
+	}
+
+	twitchClient, err := c.createAppClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := twitchClient.GetChannelChatBadges(
 		&helix.GetChatBadgeParams{
-			BroadcasterID: *channel.TwitchPlatformID,
+			BroadcasterID: twitchBinding.PlatformChannelID,
 		},
 	)
 	if err != nil {

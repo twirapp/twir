@@ -1,111 +1,243 @@
 package manager
 
 import (
+	"encoding/json"
 	"testing"
 
-	"github.com/google/uuid"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 )
 
-func TestGetTimerSendTargets(t *testing.T) {
-	twitchUserID := uuid.New()
-	kickUserID := uuid.New()
-	twitchPlatformID := "123"
-	kickPlatformID := "kick-channel"
-
-	baseChannel := channelmodel.Channel{
-		TwitchUserID:     &twitchUserID,
-		TwitchPlatformID: &twitchPlatformID,
-		TwitchBotEnabled: true,
-		KickUserID:       &kickUserID,
-		KickPlatformID:   &kickPlatformID,
-		KickBotEnabled:   true,
+func TestGetTimerSendTargetsUsesBindingsByPlatform(t *testing.T) {
+	channel := channelentity.Channel{
+		Bindings: []channelplatformentity.ChannelPlatform{
+			{
+				Platform:          platformentity.PlatformKick,
+				PlatformChannelID: "kick-channel",
+				Enabled:           true,
+			},
+			{
+				Platform:          platformentity.PlatformTwitch,
+				PlatformChannelID: "twitch-channel",
+				Enabled:           true,
+				BotConfig:         json.RawMessage(`{"is_bot_mod":true}`),
+			},
+			{
+				Platform:          platformentity.PlatformVKVideoLive,
+				PlatformChannelID: "vk-channel",
+				Enabled:           true,
+			},
+		},
 	}
 
+	want := []timerSendTarget{
+		{platform: platformentity.PlatformTwitch, channelID: "twitch-channel"},
+		{platform: platformentity.PlatformKick, channelID: "kick-channel"},
+		{platform: platformentity.PlatformVKVideoLive, channelID: "vk-channel"},
+	}
+
+	for _, timerPlatforms := range [][]platformentity.Platform{nil, {}} {
+		assertTimerSendTargets(t, getTimerSendTargets(channel, timerPlatforms), want)
+	}
+}
+
+func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 	tests := []struct {
 		name           string
-		channel        channelmodel.Channel
+		channel        channelentity.Channel
 		timerPlatforms []platformentity.Platform
 		want           []timerSendTarget
 	}{
 		{
-			name:           "empty platforms sends to all joined platforms",
-			channel:        baseChannel,
-			timerPlatforms: nil,
-			want: []timerSendTarget{
-				{platform: platformentity.PlatformTwitch, channelID: twitchPlatformID},
-				{platform: platformentity.PlatformKick, channelID: kickPlatformID},
-			},
-		},
-		{
-			name:           "empty slice platforms sends to all joined platforms",
-			channel:        baseChannel,
-			timerPlatforms: []platformentity.Platform{},
-			want: []timerSendTarget{
-				{platform: platformentity.PlatformTwitch, channelID: twitchPlatformID},
-				{platform: platformentity.PlatformKick, channelID: kickPlatformID},
-			},
-		},
-		{
-			name:           "explicit twitch only",
-			channel:        baseChannel,
-			timerPlatforms: []platformentity.Platform{platformentity.PlatformTwitch},
-			want: []timerSendTarget{
-				{platform: platformentity.PlatformTwitch, channelID: twitchPlatformID},
-			},
-		},
-		{
-			name:           "explicit kick only",
-			channel:        baseChannel,
-			timerPlatforms: []platformentity.Platform{platformentity.PlatformKick},
-			want: []timerSendTarget{
-				{platform: platformentity.PlatformKick, channelID: kickPlatformID},
-			},
-		},
-		{
-			name: "skips platforms where bot is not joined",
-			channel: channelmodel.Channel{
-				TwitchUserID:     &twitchUserID,
-				TwitchPlatformID: &twitchPlatformID,
-				TwitchBotEnabled: true,
-				KickUserID:       &kickUserID,
-				KickPlatformID:   &kickPlatformID,
-				KickBotEnabled:   false,
-			},
-			timerPlatforms: nil,
-			want: []timerSendTarget{
-				{platform: platformentity.PlatformTwitch, channelID: twitchPlatformID},
-			},
-		},
-		{
-			name: "returns no targets when selected platform is not joined",
-			channel: channelmodel.Channel{
-				TwitchUserID:     &twitchUserID,
-				TwitchPlatformID: &twitchPlatformID,
-				TwitchBotEnabled: false,
-				KickUserID:       &kickUserID,
-				KickPlatformID:   &kickPlatformID,
-				KickBotEnabled:   false,
+			name: "restricts targets to configured platforms",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.PlatformTwitch,
+						PlatformChannelID: "twitch-channel",
+						Enabled:           true,
+						BotConfig:         json.RawMessage(`{"is_bot_mod":true}`),
+					},
+					{
+						Platform:          platformentity.PlatformKick,
+						PlatformChannelID: "kick-channel",
+						Enabled:           true,
+					},
+				},
 			},
 			timerPlatforms: []platformentity.Platform{platformentity.PlatformKick},
-			want:           []timerSendTarget{},
+			want: []timerSendTarget{
+				{platform: platformentity.PlatformKick, channelID: "kick-channel"},
+			},
+		},
+		{
+			name: "skips disabled bindings",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.PlatformTwitch,
+						PlatformChannelID: "twitch-channel",
+						Enabled:           false,
+						BotConfig:         json.RawMessage(`{"is_bot_mod":true}`),
+					},
+					{
+						Platform:          platformentity.PlatformKick,
+						PlatformChannelID: "kick-channel",
+						Enabled:           true,
+					},
+				},
+			},
+			want: []timerSendTarget{
+				{platform: platformentity.PlatformKick, channelID: "kick-channel"},
+			},
+		},
+		{
+			name: "skips twitch binding without moderator state",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.PlatformTwitch,
+						PlatformChannelID: "twitch-channel",
+						Enabled:           true,
+						BotConfig:         json.RawMessage(`{"is_bot_mod":false}`),
+					},
+				},
+			},
+			want: []timerSendTarget{},
+		},
+		{
+			name: "skips malformed twitch configuration without blocking kick",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.PlatformTwitch,
+						PlatformChannelID: "twitch-channel",
+						Enabled:           true,
+						BotConfig:         json.RawMessage(`{"is_bot_mod":`),
+					},
+					{
+						Platform:          platformentity.PlatformKick,
+						PlatformChannelID: "kick-channel",
+						Enabled:           true,
+					},
+				},
+			},
+			want: []timerSendTarget{
+				{platform: platformentity.PlatformKick, channelID: "kick-channel"},
+			},
+		},
+		{
+			name: "skips bindings without a provider channel id",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform: platformentity.PlatformKick,
+						Enabled:  true,
+					},
+				},
+			},
+			want: []timerSendTarget{},
+		},
+		{
+			name: "includes enabled VK binding with chat.write",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.PlatformVKVideoLive,
+						PlatformChannelID: "vk-channel",
+						Enabled:           true,
+					},
+				},
+			},
+			want: []timerSendTarget{
+				{platform: platformentity.PlatformVKVideoLive, channelID: "vk-channel"},
+			},
+		},
+		{
+			name: "skips disabled VK binding",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.PlatformVKVideoLive,
+						PlatformChannelID: "vk-channel",
+						Enabled:           false,
+					},
+				},
+			},
+			want: []timerSendTarget{},
+		},
+		{
+			name: "skips binding without chat.write",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{
+					{
+						Platform:          platformentity.Platform("unsupported"),
+						PlatformChannelID: "unsupported-channel",
+						Enabled:           true,
+					},
+				},
+			},
+			want: []timerSendTarget{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := getTimerSendTargets(tt.channel, tt.timerPlatforms)
+			assertTimerSendTargets(t, getTimerSendTargets(tt.channel, tt.timerPlatforms), tt.want)
+		})
+	}
+}
 
-			if len(got) != len(tt.want) {
-				t.Fatalf("expected %d targets, got %d", len(tt.want), len(got))
-			}
+func TestHasSupportedTimerBinding(t *testing.T) {
+	tests := []struct {
+		name     string
+		bindings []channelplatformentity.ChannelPlatform
+		want     bool
+	}{
+		{
+			name: "recognizes a disabled supported binding for initialization",
+			bindings: []channelplatformentity.ChannelPlatform{
+				{Platform: platformentity.PlatformTwitch, PlatformChannelID: "twitch-channel"},
+			},
+			want: true,
+		},
+		{
+			name: "recognizes a VK binding",
+			bindings: []channelplatformentity.ChannelPlatform{
+				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel"},
+			},
+			want: true,
+		},
+		{
+			name: "ignores unsupported bindings",
+			bindings: []channelplatformentity.ChannelPlatform{
+				{Platform: platformentity.Platform("unsupported"), PlatformChannelID: "unsupported-channel", Enabled: true},
+			},
+			want: false,
+		},
+	}
 
-			for i := range tt.want {
-				if got[i] != tt.want[i] {
-					t.Fatalf("expected target %+v at index %d, got %+v", tt.want[i], i, got[i])
-				}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			channel := channelentity.Channel{Bindings: tt.bindings}
+			if got := hasSupportedTimerBinding(channel); got != tt.want {
+				t.Fatalf("hasSupportedTimerBinding() = %t, want %t", got, tt.want)
 			}
 		})
+	}
+}
+
+func assertTimerSendTargets(t *testing.T, got, want []timerSendTarget) {
+	t.Helper()
+
+	if len(got) != len(want) {
+		t.Fatalf("expected %d targets, got %d", len(want), len(got))
+	}
+
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("expected target %+v at index %d, got %+v", want[i], i, got[i])
+		}
 	}
 }

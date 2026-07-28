@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
@@ -29,6 +30,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	twitchplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/twitch"
+	"github.com/twirapp/twir/apps/api-gql/internal/platform/vkvideo"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
@@ -38,6 +40,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	channelplatformservice "github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_emotes_usages"
@@ -58,6 +61,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	dashboard_widgets "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widgets"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/discord_integration"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
@@ -74,6 +78,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/obs_websocket_module"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	pastebinsservice "github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
@@ -111,6 +116,7 @@ import (
 	giveawayscache "github.com/twirapp/twir/libs/cache/giveaways"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
+	quotescacher "github.com/twirapp/twir/libs/cache/quotes"
 	rolescache "github.com/twirapp/twir/libs/cache/roles"
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -122,6 +128,10 @@ import (
 	badgesrepositorypgx "github.com/twirapp/twir/libs/repositories/badges/pgx"
 	badgesusersrepository "github.com/twirapp/twir/libs/repositories/badges_users"
 	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
+	channelplatformsrepository "github.com/twirapp/twir/libs/repositories/channel_platforms"
+	channelplatformsrepositorypgx "github.com/twirapp/twir/libs/repositories/channel_platforms/pgx"
+	channelpublicsettingsrepo "github.com/twirapp/twir/libs/repositories/channel_public_settings"
+	channelpublicsettingspgx "github.com/twirapp/twir/libs/repositories/channel_public_settings/datasource/postgres"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
@@ -160,6 +170,8 @@ import (
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
 	overlaysdudesrepository "github.com/twirapp/twir/libs/repositories/overlays_dudes"
 	overlaysdudesrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_dudes/pgx"
+	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
+	quotesrepositorypgx "github.com/twirapp/twir/libs/repositories/quotes/pgx"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
@@ -207,6 +219,8 @@ import (
 
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
+	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
 
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallpostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
@@ -319,8 +333,20 @@ func main() {
 				fx.As(new(keywordsrepository.Repository)),
 			),
 			fx.Annotate(
+				quotesrepositorypgx.NewFx,
+				fx.As(new(quotesrepository.Repository)),
+			),
+			fx.Annotate(
 				channelsrepositorypgx.NewFx,
 				fx.As(new(channelsrepository.Repository)),
+			),
+			fx.Annotate(
+				channelplatformsrepositorypgx.NewFx,
+				fx.As(new(channelplatformsrepository.Repository)),
+			),
+			fx.Annotate(
+				channelpublicsettingspgx.NewFx,
+				fx.As(new(channelpublicsettingsrepo.Repository)),
 			),
 			fx.Annotate(
 				badgesrepositorypgx.NewFx,
@@ -397,6 +423,10 @@ func main() {
 			fx.Annotate(
 				kickbotsrepositorypgx.NewFx,
 				fx.As(new(kickbotsrepository.Repository)),
+			),
+			fx.Annotate(
+				vkvideobotsrepositorypgx.NewFx,
+				fx.As(new(vkvideobotsrepository.Repository)),
 			),
 			fx.Annotate(
 				chatwallpostgres.NewFx,
@@ -566,11 +596,10 @@ func main() {
 		// services
 		fx.Provide(
 			kickplatform.New,
+			twitchplatform.New,
+			vkvideo.NewBotSetupProvider,
+			newPlatformRegistry,
 			channelservice.NewChannelService,
-			fx.Annotate(
-				twitchplatform.New,
-				fx.As(new(platform.PlatformProvider)),
-			),
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
 				return valorantintegration.NewHenrikApiClient(c.Valorant.HenrikApiKey)
 			},
@@ -580,6 +609,7 @@ func main() {
 			variables.New,
 			timers.New,
 			keywords.New,
+			quotes.New,
 			audit_logs.New,
 			admin_actions.New,
 			badges.New,
@@ -598,6 +628,8 @@ func main() {
 			roles_with_roles_users.New,
 			twitch.New,
 			channels.New,
+			channelplatformservice.NewFx,
+			dashboardaccess.NewFx,
 			chat_messages.New,
 			channels_commands_prefix.New,
 			channels_emotes_usages.New,
@@ -649,6 +681,7 @@ func main() {
 			app.NewHuma,
 			dataloader.New,
 			auth.NewSessions,
+			authroutes.New,
 			minio.New,
 			twitchcache.New,
 			channelcache.New,
@@ -656,6 +689,7 @@ func main() {
 			greetingscache.New,
 			commandscache.New,
 			keywordscacher.New,
+			quotescacher.New,
 			giveawayscache.New,
 			chatalertscache.New,
 			channelalertscache.New,
@@ -674,6 +708,10 @@ func main() {
 			),
 			twir_stats.New,
 			resolvers.New,
+			func(service *channelplatformservice.Service) resolvers.ChannelPlatformBindingsService { return service },
+			func(sessions *auth.Auth) resolvers.SelectedDashboardGetter { return sessions },
+			func(sessions *auth.Auth) resolvers.CurrentPlatformGetter { return sessions },
+			func(sessions *auth.Auth) resolvers.SessionReader { return sessions },
 			directives.New,
 			middlewares.New,
 			server.New,
@@ -688,12 +726,13 @@ func main() {
 		scheduledvipsroutes.FxModule,
 		// huma routes end
 		fx.Invoke(
+			func(*platform.Registry) {},
 			gql.New,
 			publicroutes.New,
 			v2publicroutes.New,
 			http_webhooks.New,
 			httpbase.RegisterRoutes,
-			authroutes.New,
+			func(*authroutes.Auth) {},
 			channelsfilesroute.New,
 			song_requests.NewBridge,
 			valorant.New,
@@ -703,4 +742,23 @@ func main() {
 			},
 		),
 	).Run()
+}
+
+func newPlatformRegistry(
+	config cfg.Config,
+	twitchProvider *twitchplatform.Provider,
+	kickProvider *kickplatform.Provider,
+) (*platform.Registry, error) {
+	return platform.NewFeatureGatedRegistry(
+		config.IsVkVideoEnabled(),
+		[]platform.PlatformProvider{twitchProvider, kickProvider},
+		func() (platform.PlatformProvider, error) {
+			provider, err := vkvideo.New(vkvideo.Opts{Config: config})
+			if err != nil {
+				return nil, fmt.Errorf("create VK Video platform provider: %w", err)
+			}
+
+			return provider, nil
+		},
+	)
 }

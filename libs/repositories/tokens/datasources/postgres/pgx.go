@@ -39,7 +39,7 @@ type Pgx struct {
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (*tokenmodel.Token, error) {
 	query := `
-SELECT id, "accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes
+SELECT id, "accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes, "deviceID"
 FROM tokens
 WHERE id = $1
 `
@@ -63,7 +63,7 @@ WHERE id = $1
 
 func (c *Pgx) GetByUserID(ctx context.Context, userID uuid.UUID) (*tokenmodel.Token, error) {
 	query := `
-SELECT token.id, "accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes
+SELECT token.id, "accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes, "deviceID"
 FROM users
 JOIN tokens AS token ON users."tokenId" = token.id
 WHERE users.id = $1
@@ -88,7 +88,7 @@ WHERE users.id = $1
 
 func (c *Pgx) GetByBotID(ctx context.Context, botID string) (*tokenmodel.Token, error) {
 	query := `
-SELECT token.id, "accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes
+SELECT token.id, "accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes, "deviceID"
 FROM bots
 JOIN tokens AS token ON bots."tokenId" = token.id
 WHERE bots.id = $1
@@ -116,8 +116,8 @@ func (c *Pgx) CreateUserToken(ctx context.Context, input tokens.CreateInput) (
 	error,
 ) {
 	query := `
-INSERT INTO tokens ("accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO tokens ("accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", scopes, "deviceID")
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 `
 
@@ -130,6 +130,7 @@ RETURNING id
 		input.ExpiresIn,
 		input.ObtainmentTimestamp,
 		input.Scopes,
+		input.DeviceID,
 	).Scan(&id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user token: %w", err)
@@ -168,6 +169,10 @@ func (c *Pgx) UpdateTokenByID(
 
 	if len(input.Scopes) > 0 {
 		updateBuilder = updateBuilder.Set("scopes", input.Scopes)
+	}
+
+	if input.DeviceID != nil {
+		updateBuilder = updateBuilder.Set(`"deviceID"`, *input.DeviceID)
 	}
 
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})

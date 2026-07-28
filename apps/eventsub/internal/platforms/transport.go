@@ -1,0 +1,106 @@
+package platforms
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/twirapp/twir/apps/eventsub/internal/kick"
+	cfg "github.com/twirapp/twir/libs/config"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	"github.com/twirapp/twir/libs/entities/platform"
+	platformsregistry "github.com/twirapp/twir/libs/platforms"
+)
+
+type EventTransport interface {
+	Platform() platform.Platform
+	Capabilities() platform.Capabilities
+	Subscribe(context.Context, channelplatformentity.ChannelPlatform) error
+	Unsubscribe(context.Context, channelplatformentity.ChannelPlatform) error
+	SetCallbackBaseURL(string)
+}
+
+func NewRegistry(transports ...EventTransport) *platformsregistry.Registry[EventTransport] {
+	registry := platformsregistry.New[EventTransport]()
+	for _, transport := range transports {
+		registry.Register(transport)
+	}
+
+	return registry
+}
+
+func NewKickRegistry(kickSubManager *kick.SubscriptionManager) *platformsregistry.Registry[EventTransport] {
+	return NewRegistry(kickSubManager)
+}
+
+func NewVKVideoRegistry(
+	config cfg.Config,
+	kickTransport EventTransport,
+	newVKVideoTransport func() (EventTransport, error),
+) (*platformsregistry.Registry[EventTransport], error) {
+	registry := NewRegistry(kickTransport)
+	if !config.IsVkVideoEnabled() {
+		return registry, nil
+	}
+
+	vkVideoTransport, err := newVKVideoTransport()
+	if err != nil {
+		return nil, fmt.Errorf("create VK Video EventSub transport: %w", err)
+	}
+	registry.Register(vkVideoTransport)
+	return registry, nil
+}
+
+func SubscribeAll(
+	ctx context.Context,
+	registry *platformsregistry.Registry[EventTransport],
+	bindings []channelplatformentity.ChannelPlatform,
+) error {
+	var subscribeErrors []error
+	for _, binding := range bindings {
+		if !binding.Enabled {
+			continue
+		}
+
+		transport, ok := registry.Get(binding.Platform)
+		if !ok {
+			continue
+		}
+
+		if err := transport.Subscribe(ctx, binding); err != nil {
+			subscribeErrors = append(subscribeErrors, fmt.Errorf(
+				"subscribe %q binding %q: %w",
+				binding.Platform,
+				binding.ID,
+				err,
+			))
+		}
+	}
+
+	return errors.Join(subscribeErrors...)
+}
+
+func UnsubscribeAll(
+	ctx context.Context,
+	registry *platformsregistry.Registry[EventTransport],
+	bindings []channelplatformentity.ChannelPlatform,
+) error {
+	var unsubscribeErrors []error
+	for _, binding := range bindings {
+		transport, ok := registry.Get(binding.Platform)
+		if !ok {
+			continue
+		}
+
+		if err := transport.Unsubscribe(ctx, binding); err != nil {
+			unsubscribeErrors = append(unsubscribeErrors, fmt.Errorf(
+				"unsubscribe %q binding %q: %w",
+				binding.Platform,
+				binding.ID,
+				err,
+			))
+		}
+	}
+
+	return errors.Join(unsubscribeErrors...)
+}

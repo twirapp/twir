@@ -11,10 +11,9 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/operations"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	config "github.com/twirapp/twir/libs/config"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/repositories/channels/model"
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -27,7 +26,6 @@ type Opts struct {
 	Config      config.Config
 	Logger      *slog.Logger
 	EmotesStore *emotes_store.EmotesStore
-	UsersRepo   usersrepository.Repository
 }
 
 func New(opts Opts) error {
@@ -37,7 +35,6 @@ func New(opts Opts) error {
 		sevenTvApiClient:     seventv.NewClient(opts.Config.SevenTvToken),
 		logger:               opts.Logger,
 		emotesStore:          opts.EmotesStore,
-		usersRepo:            opts.UsersRepo,
 		registeredChannelIDs: make(map[string]bool),
 		emoteSetToChannelID:  make(map[string]emotes_store.ChannelKey),
 	}
@@ -67,7 +64,6 @@ type Service struct {
 	sockets []*socketInstance
 
 	gorm                 *gorm.DB
-	usersRepo            usersrepository.Repository
 	sevenTvApiClient     seventv.Client
 	registeredChannelIDs map[string]bool
 	emoteSetToChannelID  map[string]emotes_store.ChannelKey
@@ -77,16 +73,31 @@ type Service struct {
 
 func (c *Service) start(ctx context.Context) error {
 	var channels []string
-	if err := c.gorm.
-		WithContext(ctx).
-		Model(&model.Channel{}).
-		Select("id").
-		Where(`twitch_bot_enabled = true OR kick_bot_enabled = true`).
+	if err := buildStartupChannelsQuery(c.gorm, ctx).
 		Find(&channels).Error; err != nil {
 		return err
 	}
 
 	return c.AddChannels(ctx, channels...)
+}
+
+func buildStartupChannelsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
+	return db.
+		WithContext(ctx).
+		Table("channels AS c").
+		Select("c.id").
+		Where(
+			`EXISTS (
+				SELECT 1
+				FROM channel_platforms cp
+				WHERE cp.channel_id = c.id
+					AND cp.platform IN (?, ?)
+					AND cp.enabled = ?
+			)`,
+			platformentity.PlatformTwitch,
+			platformentity.PlatformKick,
+			true,
+		)
 }
 
 func (c *Service) stop() error {

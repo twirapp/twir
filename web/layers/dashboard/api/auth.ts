@@ -16,24 +16,11 @@ export const profileQuery = graphql(`
 			hideOnLandingPage
 			botId
 			apiKey
-			twitchProfile {
-				description
-				displayName
-				login
-				profileImageUrl
-			}
-			kickProfile {
-				id
-				slug
-				displayName
-				profilePicture
-				isLive
-				followersCount
-			}
 			linkedAccounts {
 				platform
 				platformUserId
 				platformLogin
+				platformDisplayName
 				platformAvatar
 			}
 			currentPlatform
@@ -42,16 +29,12 @@ export const profileQuery = graphql(`
 				id
 				platform
 				flags
-				twitchProfile {
-					login
-					displayName
-					profileImageUrl
-				}
-				kickProfile {
-					id
-					slug
-					displayName
-					profilePicture
+				profile {
+					platform
+					platformUserId
+					platformLogin
+					platformDisplayName
+					platformAvatar
 				}
 				apiKey
 				plan {
@@ -91,18 +74,15 @@ export const useProfile = createGlobalState(() => {
 		const user = response.value?.authenticatedUser
 		if (!user) return null
 
-		const isKick = user.currentPlatform === 'kick'
+		const currentAccount = user.linkedAccounts.find(
+			(account) => account.platform === user.currentPlatform.toLowerCase()
+		)
 
 		return {
 			id: user.id,
-			avatar: isKick
-				? (user.kickProfile?.profilePicture ?? '')
-				: (user.twitchProfile?.profileImageUrl ?? ''),
-			login: isKick ? (user.kickProfile?.slug ?? '') : (user.twitchProfile?.login ?? ''),
-			displayName: isKick
-				? (user.kickProfile?.displayName ?? '')
-				: (user.twitchProfile?.displayName ?? ''),
-			kickProfile: user.kickProfile,
+			avatar: currentAccount?.platformAvatar ?? '',
+			login: currentAccount?.platformLogin ?? '',
+			displayName: currentAccount?.platformDisplayName ?? '',
 			linkedAccounts: user.linkedAccounts,
 			currentPlatform: user.currentPlatform,
 			apiKey: user.apiKey,
@@ -289,6 +269,9 @@ export const PERMISSIONS_FLAGS: Flag[] = [
 	{ perm: ChannelRolePermissionEnum.ViewKeywords, description: 'Can view keywords' },
 	{ perm: ChannelRolePermissionEnum.ManageKeywords, description: 'Can manage keywords' },
 	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewQuotes, description: 'Can view quotes' },
+	{ perm: ChannelRolePermissionEnum.ManageQuotes, description: 'Can manage quotes' },
+	'delimiter',
 	{ perm: ChannelRolePermissionEnum.ViewTimers, description: 'Can view timers' },
 	{ perm: ChannelRolePermissionEnum.ManageTimers, description: 'Can manage timers' },
 	'delimiter',
@@ -349,7 +332,7 @@ export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {
 		if (!dashboard) return false
 
 		if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true
-		return dashboard.flags.includes(flag)
+		return dashboard.flags.some((dashboardFlag) => dashboardFlag === flag)
 	})
 }
 
@@ -366,5 +349,5 @@ export async function userAccessFlagChecker(flag: ChannelRolePermissionEnum) {
 	if (!dashboard) return false
 
 	if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true
-	return dashboard.flags.includes(flag)
+	return dashboard.flags.some((dashboardFlag) => dashboardFlag === flag)
 }

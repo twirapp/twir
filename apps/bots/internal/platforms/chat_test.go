@@ -1,0 +1,512 @@
+package platforms
+
+import (
+	"context"
+	"errors"
+	"reflect"
+	"testing"
+
+	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	"github.com/twirapp/twir/libs/bus-core/bots"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	"github.com/twirapp/twir/libs/entities/platform"
+)
+
+type testChatAdapter struct {
+	platform     platform.Platform
+	capabilities platform.Capabilities
+}
+
+func (a testChatAdapter) Platform() platform.Platform {
+	return a.platform
+}
+
+func (a testChatAdapter) Capabilities() platform.Capabilities {
+	return a.capabilities
+}
+
+func (testChatAdapter) SendMessage(
+	context.Context,
+	channelplatformentity.ChannelPlatform,
+	string,
+	string,
+	ChatOptions,
+) error {
+	return nil
+}
+
+func TestNewRegistryRegistersChatAdapters(t *testing.T) {
+	t.Parallel()
+
+	registry := newRegistry(
+		testChatAdapter{
+			platform:     platform.PlatformTwitch,
+			capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+		},
+		testChatAdapter{
+			platform:     platform.PlatformKick,
+			capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+		},
+	)
+
+	for _, current := range []platform.Platform{platform.PlatformTwitch, platform.PlatformKick} {
+		if _, err := registry.Require(current, platform.CapabilityChatWrite); err != nil {
+			t.Errorf("expected %s chat adapter: %v", current, err)
+		}
+	}
+}
+
+type fakeTwitchSender struct {
+	binding channelplatformentity.ChannelPlatform
+	opts    twitchactions.SendMessageOpts
+}
+
+func (s *fakeTwitchSender) SendMessage(
+	_ context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	opts twitchactions.SendMessageOpts,
+) error {
+	s.binding = binding
+	s.opts = opts
+	return nil
+}
+
+func TestTwitchChatAdapterForwardsMessageOptions(t *testing.T) {
+	t.Parallel()
+
+	sender := &fakeTwitchSender{}
+	adapter := NewTwitchChatAdapter(sender)
+	binding := channelplatformentity.ChannelPlatform{Platform: platform.PlatformTwitch}
+
+	err := adapter.SendMessage(
+		context.Background(),
+		binding,
+		"hello",
+		"reply-id",
+		ChatOptions{
+			IsAnnounce:        true,
+			SkipToxicityCheck: true,
+			SkipRateLimits:    true,
+			AnnounceColor:     bots.AnnounceColorBlue,
+		},
+	)
+	if err != nil {
+		t.Fatalf("SendMessage() error = %v", err)
+	}
+	if !reflect.DeepEqual(sender.binding, binding) {
+		t.Errorf("expected binding %#v, got %#v", binding, sender.binding)
+	}
+	if sender.opts.Message != "hello" || sender.opts.ReplyParentMessageID != "reply-id" {
+		t.Errorf("unexpected message options: %#v", sender.opts)
+	}
+	if !sender.opts.IsAnnounce || !sender.opts.SkipToxicityCheck || !sender.opts.SkipRateLimits ||
+		sender.opts.AnnounceColor != bots.AnnounceColorBlue {
+		t.Errorf("chat options were not forwarded: %#v", sender.opts)
+	}
+}
+
+type fakeKickSender struct {
+	binding channelplatformentity.ChannelPlatform
+	message string
+	replyID string
+}
+
+func (s *fakeKickSender) SendMessage(
+	_ context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	message string,
+	replyID string,
+) error {
+	s.binding = binding
+	s.message = message
+	s.replyID = replyID
+	return nil
+}
+
+func TestKickChatAdapterForwardsMessage(t *testing.T) {
+	t.Parallel()
+
+	sender := &fakeKickSender{}
+	adapter := NewKickChatAdapter(sender)
+	binding := channelplatformentity.ChannelPlatform{Platform: platform.PlatformKick}
+
+	err := adapter.SendMessage(context.Background(), binding, "hello", "reply-id", ChatOptions{})
+	if err != nil {
+		t.Fatalf("SendMessage() error = %v", err)
+	}
+	if !reflect.DeepEqual(sender.binding, binding) {
+		t.Errorf("expected binding %#v, got %#v", binding, sender.binding)
+	}
+	if sender.message != "hello" || sender.replyID != "reply-id" {
+		t.Errorf("unexpected forwarded Kick message: %#v", sender)
+	}
+}
+
+func TestNewChatRegistryRegistersChatWriteAdapters(t *testing.T) {
+	t.Parallel()
+
+	registry := NewChatRegistry(nil, nil, nil)
+
+	for _, current := range []platform.Platform{platform.PlatformTwitch, platform.PlatformKick, platform.PlatformVKVideoLive} {
+		if _, err := registry.Require(current, platform.CapabilityChatWrite); err != nil {
+			t.Errorf("expected %s chat.write adapter: %v", current, err)
+		}
+	}
+
+	for _, current := range []platform.Platform{platform.PlatformTwitch, platform.PlatformKick} {
+		if _, err := registry.Require(current, platform.CapabilityChatReply); err != nil {
+			t.Errorf("expected %s chat.reply adapter: %v", current, err)
+		}
+	}
+}
+
+type recordingChatAdapter struct {
+	platform     platform.Platform
+	capabilities platform.Capabilities
+	bindings     []channelplatformentity.ChannelPlatform
+	messages     []string
+	replies      []string
+	options      []ChatOptions
+	err          error
+}
+
+func (a *recordingChatAdapter) Platform() platform.Platform {
+	return a.platform
+}
+
+func (a *recordingChatAdapter) Capabilities() platform.Capabilities {
+	return a.capabilities
+}
+
+func (a *recordingChatAdapter) SendMessage(
+	_ context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	message string,
+	replyID string,
+	options ChatOptions,
+) error {
+	a.bindings = append(a.bindings, binding)
+	a.messages = append(a.messages, message)
+	a.replies = append(a.replies, replyID)
+	a.options = append(a.options, options)
+	return a.err
+}
+
+func TestDispatchDispatchesEnabledBindingsWithoutPlatformFilter(t *testing.T) {
+	t.Parallel()
+
+	twitch := &recordingChatAdapter{
+		platform: platform.PlatformTwitch,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
+	}
+	kick := &recordingChatAdapter{
+		platform: platform.PlatformKick,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(twitch, kick),
+		[]channelplatformentity.ChannelPlatform{
+			{Platform: platform.PlatformKick, PlatformChannelID: "kick-channel", Enabled: true},
+			{Platform: platform.PlatformTwitch, PlatformChannelID: "twitch-channel", Enabled: true},
+			{Platform: platform.PlatformTwitch, PlatformChannelID: "disabled-channel", Enabled: false},
+		},
+		nil,
+		"hello",
+		"reply-id",
+		ChatOptions{},
+	)
+	if err != nil {
+		t.Fatalf("Dispatch() error = %v", err)
+	}
+	if len(twitch.bindings) != 1 || twitch.bindings[0].PlatformChannelID != "twitch-channel" {
+		t.Errorf("unexpected Twitch dispatches: %#v", twitch.bindings)
+	}
+	if len(kick.bindings) != 1 || kick.bindings[0].PlatformChannelID != "kick-channel" {
+		t.Errorf("unexpected Kick dispatches: %#v", kick.bindings)
+	}
+	if twitch.messages[0] != "hello" || twitch.replies[0] != "reply-id" {
+		t.Errorf("unexpected Twitch message: %#v %#v", twitch.messages, twitch.replies)
+	}
+}
+
+func TestDispatchSkipsBindingsWithoutChatWriteWhenNoPlatformRequested(t *testing.T) {
+	t.Parallel()
+
+	twitch := &recordingChatAdapter{
+		platform: platform.PlatformTwitch,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
+	}
+	unsupported := &recordingChatAdapter{
+		platform:     platform.PlatformVKVideoLive,
+		capabilities: platform.Capabilities{platform.CapabilityChatRead},
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(twitch, unsupported),
+		[]channelplatformentity.ChannelPlatform{
+			{Platform: platform.PlatformVKVideoLive, Enabled: true},
+			{Platform: platform.PlatformTwitch, Enabled: true},
+		},
+		nil,
+		"hello",
+		"reply-id",
+		ChatOptions{},
+	)
+	if err != nil {
+		t.Fatalf("Dispatch() error = %v", err)
+	}
+	if len(unsupported.bindings) != 0 {
+		t.Errorf("unsupported adapter received bindings: %#v", unsupported.bindings)
+	}
+	if len(twitch.bindings) != 1 {
+		t.Errorf("expected one Twitch dispatch, got %#v", twitch.bindings)
+	}
+	if twitch.replies[0] != "reply-id" {
+		t.Errorf("expected Twitch reply ID, got %#v", twitch.replies)
+	}
+}
+
+func TestDispatchPreservesReplyForExplicitChatReplySelection(t *testing.T) {
+	t.Parallel()
+
+	twitch := &recordingChatAdapter{
+		platform: platform.PlatformTwitch,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(twitch),
+		[]channelplatformentity.ChannelPlatform{{Platform: platform.PlatformTwitch, Enabled: true}},
+		[]platform.Platform{platform.PlatformTwitch},
+		"hello",
+		"reply-id",
+		ChatOptions{},
+	)
+	if err != nil {
+		t.Fatalf("Dispatch() error = %v", err)
+	}
+	if len(twitch.replies) != 1 || twitch.replies[0] != "reply-id" {
+		t.Errorf("expected explicit Twitch reply ID, got %#v", twitch.replies)
+	}
+}
+
+func TestDispatchBroadcastFallsBackToPlainMessageWithoutReplyCapability(t *testing.T) {
+	t.Parallel()
+
+	vk := &recordingChatAdapter{
+		platform:     platform.PlatformVKVideoLive,
+		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+	}
+	twitch := &recordingChatAdapter{
+		platform: platform.PlatformTwitch,
+		capabilities: platform.Capabilities{
+			platform.CapabilityChatWrite,
+			platform.CapabilityChatReply,
+		},
+	}
+	options := ChatOptions{
+		IsAnnounce:        true,
+		SkipToxicityCheck: true,
+		SkipRateLimits:    true,
+		AnnounceColor:     bots.AnnounceColorBlue,
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(vk, twitch),
+		[]channelplatformentity.ChannelPlatform{
+			{Platform: platform.PlatformVKVideoLive, Enabled: true},
+			{Platform: platform.PlatformTwitch, Enabled: true},
+		},
+		nil,
+		"hello",
+		"reply-id",
+		options,
+	)
+	if err != nil {
+		t.Fatalf("Dispatch() error = %v", err)
+	}
+	if len(vk.messages) != 1 || vk.messages[0] != "hello" {
+		t.Errorf("unexpected VK messages: %#v", vk.messages)
+	}
+	if len(vk.replies) != 1 || vk.replies[0] != "" {
+		t.Errorf("expected VK reply ID to be cleared, got %#v", vk.replies)
+	}
+	if len(twitch.replies) != 1 || twitch.replies[0] != "reply-id" {
+		t.Errorf("expected Twitch reply ID after VK fallback, got %#v", twitch.replies)
+	}
+	if !reflect.DeepEqual(options, ChatOptions{
+		IsAnnounce:        true,
+		SkipToxicityCheck: true,
+		SkipRateLimits:    true,
+		AnnounceColor:     bots.AnnounceColorBlue,
+	}) {
+		t.Errorf("Dispatch mutated input options: %#v", options)
+	}
+	if len(vk.options) != 1 || !reflect.DeepEqual(vk.options[0], options) {
+		t.Errorf("VK options changed during reply fallback: %#v", vk.options)
+	}
+	if len(twitch.options) != 1 || !reflect.DeepEqual(twitch.options[0], options) {
+		t.Errorf("Twitch options changed after VK fallback: %#v", twitch.options)
+	}
+}
+
+func TestDispatchReturnsUnsupportedCapabilityForExplicitSelection(t *testing.T) {
+	t.Parallel()
+
+	twitch := &recordingChatAdapter{
+		platform:     platform.PlatformTwitch,
+		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+	}
+	unsupported := &recordingChatAdapter{
+		platform:     platform.PlatformVKVideoLive,
+		capabilities: platform.Capabilities{platform.CapabilityChatRead},
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(twitch, unsupported),
+		[]channelplatformentity.ChannelPlatform{
+			{Platform: platform.PlatformTwitch, Enabled: true},
+			{Platform: platform.PlatformVKVideoLive, Enabled: true},
+		},
+		[]platform.Platform{platform.PlatformVKVideoLive},
+		"hello",
+		"",
+		ChatOptions{},
+	)
+
+	var unsupportedErr platform.ErrUnsupportedCapability
+	if !errors.As(err, &unsupportedErr) {
+		t.Fatalf("expected ErrUnsupportedCapability, got %v", err)
+	}
+	if unsupportedErr.Platform != platform.PlatformVKVideoLive ||
+		unsupportedErr.Capability != platform.CapabilityChatWrite {
+		t.Errorf("unexpected unsupported capability error: %#v", unsupportedErr)
+	}
+	if len(twitch.bindings) != 0 {
+		t.Errorf("explicit VK selection dispatched Twitch bindings: %#v", twitch.bindings)
+	}
+	if len(unsupported.bindings) != 0 {
+		t.Errorf("unsupported adapter received bindings: %#v", unsupported.bindings)
+	}
+}
+
+func TestDispatchReturnsUnsupportedCapabilityForExplicitPlatformWithoutBinding(t *testing.T) {
+	t.Parallel()
+
+	twitch := &recordingChatAdapter{
+		platform:     platform.PlatformTwitch,
+		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(twitch),
+		[]channelplatformentity.ChannelPlatform{
+			{Platform: platform.PlatformTwitch, Enabled: true},
+		},
+		[]platform.Platform{platform.PlatformVKVideoLive},
+		"hello",
+		"",
+		ChatOptions{},
+	)
+
+	var unsupportedErr platform.ErrUnsupportedCapability
+	if !errors.As(err, &unsupportedErr) {
+		t.Fatalf("expected ErrUnsupportedCapability, got %v", err)
+	}
+	if unsupportedErr.Platform != platform.PlatformVKVideoLive ||
+		unsupportedErr.Capability != platform.CapabilityChatWrite {
+		t.Errorf("unexpected unsupported capability error: %#v", unsupportedErr)
+	}
+	if len(twitch.bindings) != 0 {
+		t.Errorf("explicit VK selection dispatched Twitch bindings: %#v", twitch.bindings)
+	}
+}
+
+func TestDispatchContinuesAfterBindingFailure(t *testing.T) {
+	t.Parallel()
+
+	twitchErr := errors.New("Twitch send failed")
+	twitch := &recordingChatAdapter{
+		platform:     platform.PlatformTwitch,
+		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+		err:          twitchErr,
+	}
+	kick := &recordingChatAdapter{
+		platform:     platform.PlatformKick,
+		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(twitch, kick),
+		[]channelplatformentity.ChannelPlatform{
+			{Platform: platform.PlatformTwitch, Enabled: true},
+			{Platform: platform.PlatformKick, Enabled: true},
+		},
+		nil,
+		"hello",
+		"",
+		ChatOptions{},
+	)
+	if !errors.Is(err, twitchErr) {
+		t.Fatalf("expected Twitch error, got %v", err)
+	}
+	if len(kick.bindings) != 1 {
+		t.Errorf("expected Kick dispatch after Twitch failure, got %#v", kick.bindings)
+	}
+}
+
+func TestDispatchAggregatesErrorsFromEachBinding(t *testing.T) {
+	t.Parallel()
+
+	twitchErr := errors.New("Twitch send failed")
+	kickErr := errors.New("Kick send failed")
+	twitch := &recordingChatAdapter{
+		platform:     platform.PlatformTwitch,
+		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+		err:          twitchErr,
+	}
+	kick := &recordingChatAdapter{
+		platform:     platform.PlatformKick,
+		capabilities: platform.Capabilities{platform.CapabilityChatWrite},
+		err:          kickErr,
+	}
+
+	err := Dispatch(
+		context.Background(),
+		newRegistry(twitch, kick),
+		[]channelplatformentity.ChannelPlatform{
+			{Platform: platform.PlatformTwitch, Enabled: true},
+			{Platform: platform.PlatformKick, Enabled: true},
+		},
+		nil,
+		"hello",
+		"",
+		ChatOptions{},
+	)
+	if !errors.Is(err, twitchErr) || !errors.Is(err, kickErr) {
+		t.Fatalf("expected both binding errors, got %v", err)
+	}
+	if len(twitch.bindings) != 1 || len(kick.bindings) != 1 {
+		t.Errorf("expected both adapters to be called, got Twitch=%#v Kick=%#v", twitch.bindings, kick.bindings)
+	}
+}

@@ -24,25 +24,20 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
-	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	channelseventslist "github.com/twirapp/twir/libs/repositories/channels_events_list"
 	channelseventslistmodel "github.com/twirapp/twir/libs/repositories/channels_events_list/model"
 	channelsinfohistory "github.com/twirapp/twir/libs/repositories/channels_info_history"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
-	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	streams "github.com/twirapp/twir/libs/repositories/streams"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
-	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -187,14 +182,12 @@ type Handlers struct {
 	streamOffline           bus_core.Queue[kickbus.KickStreamOffline, struct{}]
 	channelsRepo            channelsrepository.Repository
 	usersRepo               usersrepository.Repository
-	kickBotsRepo            kickbotsrepository.Repository
 	eventsListRepo          channelseventslist.Repository
 	channelsInfoHistoryRepo channelsinfohistory.Repository
 	redemptionsHistoryRepo  channelsredemptionshistory.Repository
 	streamsRepo             streamsrepository.Repository
 	channelService          *channelservice.ChannelService
 	userCreatorService      *user_creator.UserCreatorService
-	prefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	channelEmotes           bus_core.Queue[emotes_cacher.GetChannelEmotesRequest, emotes_cacher.Response]
 	globalEmotes            bus_core.Queue[emotes_cacher.GetGlobalEmotesRequest, emotes_cacher.Response]
 }
@@ -207,14 +200,12 @@ type HandlersOpts struct {
 	Bus                     *bus_core.Bus
 	ChannelsRepo            channelsrepository.Repository
 	UsersRepo               usersrepository.Repository
-	KickBotsRepo            kickbotsrepository.Repository
 	EventsListRepo          channelseventslist.Repository
 	ChannelsInfoHistoryRepo channelsinfohistory.Repository
 	RedemptionsHistoryRepo  channelsredemptionshistory.Repository
 	StreamsRepo             streamsrepository.Repository
 	ChannelService          *channelservice.ChannelService
 	UserCreatorService      *user_creator.UserCreatorService
-	PrefixCache             *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 }
 
 func NewHandlers(opts HandlersOpts) *Handlers {
@@ -233,14 +224,12 @@ func NewHandlers(opts HandlersOpts) *Handlers {
 		streamOffline:           opts.Bus.KickStreamOffline,
 		channelsRepo:            opts.ChannelsRepo,
 		usersRepo:               opts.UsersRepo,
-		kickBotsRepo:            opts.KickBotsRepo,
 		eventsListRepo:          opts.EventsListRepo,
 		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
 		redemptionsHistoryRepo:  opts.RedemptionsHistoryRepo,
 		streamsRepo:             opts.StreamsRepo,
 		channelService:          opts.ChannelService,
 		userCreatorService:      opts.UserCreatorService,
-		prefixCache:             opts.PrefixCache,
 		channelEmotes:           opts.Bus.EmotesCacher.GetChannelEmotes,
 		globalEmotes:            opts.Bus.EmotesCacher.GetGlobalEmotes,
 	}
@@ -827,9 +816,8 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 	}
 
 	var (
-		channel        channelsmodel.Channel
-		stream         *streamsmodel.Stream
-		commandsPrefix string
+		channel channelentity.Channel
+		stream  *streamsmodel.Stream
 	)
 
 	var errwg errgroup.Group
@@ -856,19 +844,12 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		},
 	)
 
-	errwg.Go(
-		func() error {
-			var err error
-			commandsPrefix, err = h.getChannelCommandPrefix(ctx, channelID)
-			if err != nil {
-				return fmt.Errorf("get channel command prefix: %w", err)
-			}
-			return nil
-		},
-	)
-
 	if err := errwg.Wait(); err != nil {
 		return nil, err
+	}
+	binding, bindingFound := channel.Binding(platform.PlatformKick)
+	if !bindingFound {
+		return nil, fmt.Errorf("find kick channel binding")
 	}
 
 	senderUser, err := h.usersRepo.GetByPlatformID(ctx, platform.PlatformKick, senderPlatformID)
@@ -903,13 +884,12 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		slog.Bool("is_subscriber", isSubscriber),
 	}
 
-	if h.shouldIgnoreBotSelfMessage(ctx, channel, senderUser, payload.Sender.Username) {
+	if h.shouldIgnoreBotSelfMessage(channel, senderUser) {
 		return append(eventAttrs, slog.Bool("ignored_self_message", true)), nil
 	}
 
-	senderStats := &usersstatsmodel.UserStat{}
 	if h.userCreatorService != nil {
-		_, senderStats, err = h.userCreatorService.UnsureUser(
+		_, _, err = h.userCreatorService.UnsureUser(
 			ctx,
 			user_creator.CreateUserInput{
 				UserID:            senderUser.ID.String(),
@@ -928,9 +908,6 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		if err != nil {
 			return nil, fmt.Errorf("ensure sender user stats: %w", err)
 		}
-		if senderStats == nil {
-			senderStats = &usersstatsmodel.UserStat{}
-		}
 	}
 
 	genericMsg := generic.ChatMessage{
@@ -948,6 +925,7 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		ChatterUserLogin:     payload.Sender.Username,
 		MessageType:          "text",
 		ChannelID:            channelID,
+		ChannelBindingID:     binding.ID.String(),
 		UserID:               senderUser.ID.String(),
 		PlatformChannelID:    broadcasterUserID,
 		SenderID:             senderPlatformID,
@@ -956,41 +934,12 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 		MessageID:            payload.MessageID,
 		Text:                 normalizedText,
 		Badges:               badges,
+		IsBroadcaster:        isBroadcaster,
+		IsModerator:          isModerator,
+		IsVip:                isVip,
+		IsSubscriber:         isSubscriber,
 		Color:                color,
 		Emotes:               parsedEmotes,
-		EnrichedData: generic.ChatMessageEnrichedData{
-			ChannelCommandPrefix: commandsPrefix,
-			DbChannel:            channel,
-			ChannelStream:        stream,
-			DbUser: &generic.DbUser{
-				ID:                senderUser.ID.String(),
-				TokenID:           senderUser.TokenID.Ptr(),
-				IsBotAdmin:        senderUser.IsBotAdmin,
-				ApiKey:            senderUser.ApiKey,
-				IsBanned:          senderUser.IsBanned,
-				HideOnLandingPage: senderUser.HideOnLandingPage,
-				CreatedAt:         senderUser.CreatedAt,
-			},
-			DbUserChannelStat: &generic.DbUserChannelStat{
-				ID:                senderStats.ID,
-				UserID:            senderStats.UserID.String(),
-				ChannelID:         senderStats.ChannelID.String(),
-				Messages:          senderStats.Messages,
-				Watched:           senderStats.Watched,
-				UsedChannelPoints: senderStats.UsedChannelPoints,
-				IsMod:             senderStats.IsMod,
-				IsVip:             senderStats.IsVip,
-				IsSubscriber:      senderStats.IsSubscriber,
-				Reputation:        senderStats.Reputation,
-				Emotes:            senderStats.Emotes,
-				CreatedAt:         senderStats.CreatedAt,
-				UpdatedAt:         senderStats.UpdatedAt,
-			},
-			IsChatterBroadcaster: isBroadcaster,
-			IsChatterModerator:   isModerator,
-			IsChatterVip:         isVip,
-			IsChatterSubscriber:  isSubscriber,
-		},
 	}
 
 	if err := h.chatMessages.Publish(ctx, genericMsg); err != nil {
@@ -1005,32 +954,11 @@ func (h *Handlers) handleChatMessage(r *http.Request, body []byte) ([]slog.Attr,
 }
 
 func (h *Handlers) shouldIgnoreBotSelfMessage(
-	ctx context.Context,
-	channel channelsmodel.Channel,
+	channel channelentity.Channel,
 	senderUser usersmodel.User,
-	senderUsername string,
 ) bool {
-	if h.kickBotsRepo == nil || channel.KickBotID == nil {
-		return false
-	}
-
-	bot, err := h.kickBotsRepo.GetByID(ctx, *channel.KickBotID)
-	if err != nil {
-		if errors.Is(err, kickbotsrepository.ErrNotFound) {
-			return false
-		}
-
-		h.logger.DebugContext(
-			ctx, "kick: failed to resolve assigned bot for self-message guard",
-			slog.String("channel_id", channel.ID.String()),
-			slog.String("kick_bot_id", channel.KickBotID.String()),
-			slog.String("sender_username", senderUsername),
-			logger.Error(err),
-		)
-		return false
-	}
-
-	return bot.KickUserID.String() == senderUser.ID.String()
+	binding, ok := channel.Binding(platform.PlatformKick)
+	return ok && binding.BotUserID != nil && *binding.BotUserID == senderUser.ID
 }
 
 func (h *Handlers) handleChannelFollow(r *http.Request, body []byte) ([]slog.Attr, error) {
@@ -1168,7 +1096,8 @@ func (h *Handlers) handleSubscriptionNew(r *http.Request, body []byte) ([]slog.A
 	if err := h.eventsSubscribe.Publish(
 		ctx, events.SubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: channelID,
+				ChannelDBID:       channelUUID,
+				ChannelPlatformID: broadcasterUserID,
 				ChannelName:       kickChannelName(payload.Broadcaster),
 				Platform:          platform.PlatformKick,
 			},
@@ -1234,7 +1163,8 @@ func (h *Handlers) handleSubscriptionRenewal(r *http.Request, body []byte) ([]sl
 	if err := h.eventsReSubscribe.Publish(
 		ctx, events.ReSubscribeMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: channelID,
+				ChannelDBID:       channelUUID,
+				ChannelPlatformID: broadcasterUserID,
 				ChannelName:       kickChannelName(payload.Broadcaster),
 				Platform:          platform.PlatformKick,
 			},
@@ -1310,7 +1240,8 @@ func (h *Handlers) handleSubscriptionGifts(r *http.Request, body []byte) ([]slog
 		if err := h.eventsSubGift.Publish(
 			ctx, events.SubGiftMessage{
 				BaseInfo: events.BaseInfo{
-					ChannelPlatformID: channelID,
+					ChannelDBID:       channelUUID,
+					ChannelPlatformID: broadcasterUserID,
 					ChannelName:       kickChannelName(payload.Broadcaster),
 					Platform:          platform.PlatformKick,
 				},
@@ -1407,7 +1338,8 @@ func (h *Handlers) handleRewardRedemptionUpdated(r *http.Request, body []byte) (
 		ctx, events.RedemptionCreatedMessage{
 			ID: payload.Reward.ID,
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: channelID,
+				ChannelDBID:       channelUUID,
+				ChannelPlatformID: broadcasterUserID,
 				ChannelName:       kickChannelName(kickUser{Username: payload.Broadcaster.Username, ChannelSlug: payload.Broadcaster.ChannelSlug}),
 				Platform:          platform.PlatformKick,
 			},
@@ -1471,7 +1403,8 @@ func (h *Handlers) handleModerationBanned(r *http.Request, body []byte) ([]slog.
 	if err := h.eventsChannelBan.Publish(
 		ctx, events.ChannelBanMessage{
 			BaseInfo: events.BaseInfo{
-				ChannelPlatformID: channelID,
+				ChannelDBID:       channelUUID,
+				ChannelPlatformID: broadcasterUserID,
 				ChannelName:       kickChannelName(payload.Broadcaster),
 				Platform:          platform.PlatformKick,
 			},
@@ -1638,7 +1571,7 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.U
 		return uuid.Nil, uuid.Nil, fmt.Errorf("get user by platform id: %w", err)
 	}
 
-	channel, err := h.channelService.GetChannelByConnectedUser(ctx, user.ID, platform.PlatformKick)
+	channel, err := h.channelService.GetChannelByBindingUserID(ctx, platform.PlatformKick, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
 			return uuid.Nil, uuid.Nil, fmt.Errorf(
@@ -1652,45 +1585,6 @@ func (h *Handlers) resolveIDs(r *http.Request, broadcasterUserID string) (uuid.U
 	}
 
 	return channel.ID, user.ID, nil
-}
-
-func (h *Handlers) getChannelCommandPrefix(ctx context.Context, channelId string) (
-	string,
-	error,
-) {
-	commandsPrefix := "!"
-	if h.prefixCache == nil {
-		return commandsPrefix, nil
-	}
-
-	fetchedCommandsPrefix, err := h.prefixCache.Get(ctx, channelId)
-	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
-		return "", err
-	}
-
-	if fetchedCommandsPrefix != channelscommandsprefixmodel.Nil {
-		commandsPrefix = fetchedCommandsPrefix.Prefix
-	} else {
-		prefixCtx := context.WithoutCancel(ctx)
-
-		go func() {
-			if err := h.prefixCache.SetValue(
-				prefixCtx,
-				channelId,
-				channelscommandsprefixmodel.ChannelsCommandsPrefix{
-					ID:        uuid.New(),
-					ChannelID: channelId,
-					Prefix:    commandsPrefix,
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
-			); err != nil {
-				h.logger.Error("cannot set default command prefix", logger.Error(err))
-			}
-		}()
-	}
-
-	return commandsPrefix, nil
 }
 
 func (h *Handlers) getChannelStream(

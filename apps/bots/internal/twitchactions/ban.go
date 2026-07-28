@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
 	kvoptions "github.com/twirapp/kv/options"
@@ -25,32 +26,57 @@ type BanOpts struct {
 	AddModAfterBan bool
 }
 
+type twitchUserClientFactory func(context.Context, uuid.UUID) (*helix.Client, error)
+
+type twitchBotClientFactory func(context.Context, string) (*helix.Client, error)
+
+func (c *TwitchActions) createUserClient(ctx context.Context, userID uuid.UUID) (*helix.Client, error) {
+	if c.newUserClient != nil {
+		return c.newUserClient(ctx, userID)
+	}
+
+	return twitch.NewUserClientWithContext(ctx, userID, c.config, c.twirBus)
+}
+
+func (c *TwitchActions) createBotClient(ctx context.Context, botID string) (*helix.Client, error) {
+	if c.newBotClient != nil {
+		return c.newBotClient(ctx, botID)
+	}
+
+	return twitch.NewBotClientWithContext(ctx, botID, c.config, c.twirBus)
+}
+
 func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 	channel, err := c.channelsByTwitchIDCache.Get(ctx, opts.BroadcasterID)
 	if err != nil {
 		return fmt.Errorf("cannot get channel by twitch id: %w", err)
 	}
-	if channel.TwitchUserID == nil {
-		return fmt.Errorf("channel has no twitch user id for broadcaster %s", opts.BroadcasterID)
+	twitchBinding, botConfig, found, err := channel.TwitchBinding()
+	if err != nil {
+		return fmt.Errorf("cannot parse Twitch bot config: %w", err)
 	}
-	twitchUserID := *channel.TwitchUserID
+	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" {
+		return fmt.Errorf("channel has no enabled Twitch binding for broadcaster %s", opts.BroadcasterID)
+	}
+	if twitchBinding.PlatformChannelID != opts.BroadcasterID {
+		return fmt.Errorf("Twitch binding channel id does not match broadcaster %s", opts.BroadcasterID)
+	}
+	if !botConfig.IsBotMod || botConfig.IsTwitchBanned {
+		return nil
+	}
+	if botConfig.BotID == "" {
+		return fmt.Errorf("channel has no Twitch bot id for broadcaster %s", opts.BroadcasterID)
+	}
 
-	broadcasterHelixClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		twitchUserID,
-		c.config,
-		c.twirBus,
-	)
+	twitchUserID := twitchBinding.UserID
+	moderatorID := botConfig.BotID
+
+	broadcasterHelixClient, err := c.createUserClient(ctx, twitchUserID)
 	if err != nil {
 		return fmt.Errorf("cannot create helix client: %w", err)
 	}
 
-	botHelixClient, err := twitch.NewBotClientWithContext(
-		ctx,
-		opts.ModeratorID,
-		c.config,
-		c.twirBus,
-	)
+	botHelixClient, err := c.createBotClient(ctx, moderatorID)
 	if err != nil {
 		c.logger.Error("cannot create helix client", logger.Error(err))
 		return fmt.Errorf("cannot create helix client: %w", err)
@@ -99,7 +125,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 	resp, err := botHelixClient.BanUser(
 		&helix.BanUserParams{
 			BroadcasterID: opts.BroadcasterID,
-			ModeratorId:   opts.ModeratorID,
+			ModeratorId:   moderatorID,
 			Body: helix.BanUserRequestBody{
 				Duration: opts.Duration,
 				Reason:   opts.Reason,

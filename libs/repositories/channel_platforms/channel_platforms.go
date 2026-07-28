@@ -1,0 +1,68 @@
+package channel_platforms
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+
+	"github.com/google/uuid"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	"github.com/twirapp/twir/libs/entities/platform"
+)
+
+var (
+	ErrNotFound              = errors.New("channel platform binding not found")
+	ErrInvalidBotConfigPatch = errors.New("channel platform bot config patch must be a JSON object")
+)
+
+type Repository interface {
+	Create(ctx context.Context, input CreateInput) (channelplatformentity.ChannelPlatform, error)
+	GetByChannelAndPlatform(ctx context.Context, channelID uuid.UUID, platform platform.Platform) (channelplatformentity.ChannelPlatform, error)
+	GetByPlatformChannelID(ctx context.Context, platform platform.Platform, platformChannelID string) (channelplatformentity.ChannelPlatform, error)
+	ListByChannelID(ctx context.Context, channelID uuid.UUID) ([]channelplatformentity.ChannelPlatform, error)
+	LockByChannelID(ctx context.Context, channelID uuid.UUID) error
+	AssignVKVideoLiveBot(ctx context.Context, botUserID uuid.UUID) ([]uuid.UUID, error)
+	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (channelplatformentity.ChannelPlatform, error)
+	Patch(ctx context.Context, id uuid.UUID, input PatchInput) (channelplatformentity.ChannelPlatform, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+type CreateInput struct {
+	ChannelID         uuid.UUID
+	Platform          platform.Platform
+	UserID            uuid.UUID
+	PlatformChannelID string
+	Enabled           bool
+	BotUserID         *uuid.UUID
+	BotConfig         json.RawMessage
+}
+
+type UpdateInput struct {
+	UserID            uuid.UUID
+	PlatformChannelID string
+	Enabled           bool
+	BotUserID         *uuid.UUID
+	BotConfig         json.RawMessage
+}
+
+type PatchInput struct {
+	Enabled        *bool
+	BotConfigPatch json.RawMessage
+}
+
+func (i PatchInput) Validate() error {
+	if len(i.BotConfigPatch) == 0 {
+		return nil
+	}
+
+	var patch map[string]json.RawMessage
+	if err := json.Unmarshal(i.BotConfigPatch, &patch); err != nil {
+		return fmt.Errorf("%w: %w", ErrInvalidBotConfigPatch, err)
+	}
+	if patch == nil {
+		return ErrInvalidBotConfigPatch
+	}
+
+	return nil
+}

@@ -56,6 +56,7 @@ var tableToGqlModel = map[string]gqlmodel.AuditLogSystem{
 	"channels_games_voteban":          gqlmodel.AuditLogSystemChannelGamesVoteban,
 	"channels_greetings":              gqlmodel.AuditLogSystemChannelGreeting,
 	"channels_keywords":               gqlmodel.AuditLogSystemChannelKeyword,
+	"channels_quotes":                 gqlmodel.AuditLogSystemChannelQuote,
 	"channels_moderation_settings":    gqlmodel.AuditLogSystemChannelModerationSetting,
 	"channels_overlays_chat":          gqlmodel.AuditLogSystemChannelOverlayChat,
 	"channels_overlays_dudes":         gqlmodel.AuditLogSystemChannelOverlayDudes,

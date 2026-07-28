@@ -12,7 +12,7 @@ func (c *PubSubHandlers) streamsOffline(
 	ctx context.Context,
 	data twitch.StreamOfflineMessage,
 ) (struct{}, error) {
-	channel, found, err := c.findTwitchChannelByPlatformUserID(ctx, data.ChannelID)
+	channel, found, err := c.findTwitchChannelByPlatformChannelID(ctx, data.ChannelID)
 	if err != nil {
 		c.logger.Error("cannot find channel", slog.String("channelId", data.ChannelID))
 		return struct{}{}, err

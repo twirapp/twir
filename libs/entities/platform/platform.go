@@ -10,22 +10,53 @@ import (
 
 type Platform string
 
+type Capability string
+
+type Capabilities []Capability
+
 const (
-	PlatformTwitch Platform = "twitch"
-	PlatformKick   Platform = "kick"
+	PlatformTwitch      Platform = "twitch"
+	PlatformKick        Platform = "kick"
+	PlatformVKVideoLive Platform = "vk_video_live"
 )
 
-func (p Platform) IsTwitch() bool {
-	return p == PlatformTwitch
-}
+const (
+	CapabilityChatRead         Capability = "chat.read"
+	CapabilityChatWrite        Capability = "chat.write"
+	CapabilityChatReply        Capability = "chat.reply"
+	CapabilityModerationDelete Capability = "moderation.delete"
+	CapabilityStreamsRead      Capability = "streams.read"
+	CapabilityEventsFollow     Capability = "events.follow"
+	CapabilityEventsRaid       Capability = "events.raid"
+	CapabilityEventsReward     Capability = "events.reward"
+)
 
-func (p Platform) IsKick() bool {
-	return p == PlatformKick
+var capabilitiesByPlatform = map[Platform]Capabilities{
+	PlatformTwitch: {
+		CapabilityChatRead,
+		CapabilityChatWrite,
+		CapabilityChatReply,
+		CapabilityModerationDelete,
+		CapabilityStreamsRead,
+		CapabilityEventsFollow,
+		CapabilityEventsRaid,
+		CapabilityEventsReward,
+	},
+	PlatformKick: {
+		CapabilityChatWrite,
+		CapabilityChatReply,
+		CapabilityStreamsRead,
+		CapabilityEventsFollow,
+		CapabilityEventsReward,
+	},
+	PlatformVKVideoLive: {
+		CapabilityChatWrite,
+	},
 }
 
 func (p Platform) IsValid() bool {
 	switch p {
-	case PlatformTwitch, PlatformKick:
+	case PlatformTwitch, PlatformKick, PlatformVKVideoLive:
 		return true
 	}
 	return false
@@ -37,11 +68,29 @@ func (Platform) Schema(r huma.Registry) *huma.Schema {
 		Enum: []any{
 			string(PlatformTwitch),
 			string(PlatformKick),
+			string(PlatformVKVideoLive),
 		},
 	}
 }
 
 func (p Platform) String() string { return string(p) }
+
+func (p Platform) Capabilities() Capabilities {
+	return slices.Clone(capabilitiesByPlatform[p])
+}
+
+func (c Capabilities) Supports(capability Capability) bool {
+	return slices.Contains(c, capability)
+}
+
+type ErrUnsupportedCapability struct {
+	Platform   Platform
+	Capability Capability
+}
+
+func (e ErrUnsupportedCapability) Error() string {
+	return fmt.Sprintf("platform %q does not support capability %q", e.Platform, e.Capability)
+}
 
 func (p *Platform) Scan(src any) error {
 	switch v := src.(type) {
@@ -73,5 +122,6 @@ func All() []Platform {
 	return []Platform{
 		PlatformTwitch,
 		PlatformKick,
+		PlatformVKVideoLive,
 	}
 }

@@ -2,6 +2,7 @@ package bus_listener
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -67,6 +68,11 @@ func (c *server) onRemoveTimerFromQueue(
 }
 
 func (c *server) onChatMessage(ctx context.Context, m generic.ChatMessage) (struct{}, error) {
-	c.manager.OnChatMessage(m.EnrichedData.DbChannel.ID)
+	channelID, err := uuid.Parse(m.ChannelID)
+	if err != nil {
+		return struct{}{}, fmt.Errorf("parse message channel id: %w", err)
+	}
+
+	c.manager.OnChatMessage(channelID)
 	return struct{}{}, nil
 }

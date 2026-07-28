@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
@@ -22,12 +23,14 @@ type Provider struct {
 	config cfg.Config
 }
 
+var _ platform.PlatformProvider = (*Provider)(nil)
+
 func New(opts Opts) *Provider {
 	return &Provider{config: opts.Config}
 }
 
-func (p *Provider) Name() string {
-	return platformentity.PlatformTwitch.String()
+func (p *Provider) Platform() platformentity.Platform {
+	return platformentity.PlatformTwitch
 }
 
 func (p *Provider) newClient() (*helix.Client, error) {
@@ -47,6 +50,24 @@ func (p *Provider) newClient() (*helix.Client, error) {
 }
 
 func (p *Provider) GetAuthURL(state, _ string) string {
+	if p.config.TwitchMockEnabled {
+		mockAuthURL, err := url.Parse(p.config.TwitchMockAuthUrl)
+		if err != nil {
+			return ""
+		}
+
+		mockAuthURL = mockAuthURL.JoinPath("oauth2", "authorize")
+		query := mockAuthURL.Query()
+		query.Set("response_type", "code")
+		query.Set("client_id", p.config.TwitchClientId)
+		query.Set("redirect_uri", p.config.GetTwitchCallbackUrl())
+		query.Set("scope", "")
+		query.Set("state", state)
+		mockAuthURL.RawQuery = query.Encode()
+
+		return mockAuthURL.String()
+	}
+
 	client, err := p.newClient()
 	if err != nil {
 		return ""
@@ -56,62 +77,38 @@ func (p *Provider) GetAuthURL(state, _ string) string {
 		ResponseType: "code",
 		State:        state,
 		Scopes: []string{
-			"bits:read",
-			"channel:bot",
-			"channel:manage:broadcast",
-			"channel:manage:moderators",
-			"channel:manage:polls",
-			"channel:manage:predictions",
-			"channel:manage:raids",
-			"channel:manage:redemptions",
-			"channel:manage:schedule",
-			"channel:manage:videos",
-			"channel:manage:vips",
-			"channel:moderate",
-			"channel:read:goals",
-			"channel:read:hype_train",
-			"channel:read:polls",
-			"channel:read:predictions",
-			"channel:read:redemptions",
-			"channel:read:subscriptions",
-			"channel:read:vips",
-			"chat:edit",
-			"chat:read",
-			"clips:edit",
 			"moderation:read",
-			"moderator:manage:announcements",
-			"moderator:manage:automod",
-			"moderator:manage:banned_users",
-			"moderator:manage:blocked_terms",
-			"moderator:manage:chat_messages",
-			"moderator:manage:chat_settings",
-			"moderator:manage:shield_mode",
-			"moderator:manage:shoutouts",
-			"moderator:manage:warnings",
+			"channel:manage:broadcast",
+			"channel:read:redemptions",
+			"channel:manage:redemptions",
 			"moderator:read:chatters",
+			"moderator:manage:shoutouts",
+			"moderator:manage:banned_users",
+			"channel:read:vips",
+			"channel:manage:vips",
+			"channel:manage:moderators",
 			"moderator:read:followers",
-			"moderator:read:shield_mode",
-			"moderator:read:shoutouts",
-			"user:bot",
-			"user:manage:blocked_users",
-			"user:read:broadcast",
-			"user:read:chat",
-			"user:read:email",
+			"moderator:manage:chat_settings",
+			"channel:read:polls",
+			"channel:manage:polls",
+			"channel:read:predictions",
+			"channel:manage:predictions",
+			"channel:read:subscriptions",
+			"channel:moderate",
 			"user:read:follows",
-			"user:read:subscriptions",
-			"user:write:chat",
-			"whispers:read",
+			"channel:bot",
+			"channel:manage:raids",
 		},
 	})
 }
 
-func (p *Provider) ExchangeCode(ctx context.Context, code, _ string) (*platform.PlatformTokens, error) {
+func (p *Provider) ExchangeCode(ctx context.Context, input platform.ExchangeCodeInput) (*platform.PlatformTokens, error) {
 	client, err := p.newClient()
 	if err != nil {
 		return nil, fmt.Errorf("create helix client: %w", err)
 	}
 
-	resp, err := client.RequestUserAccessToken(code)
+	resp, err := client.RequestUserAccessToken(input.Code)
 	if err != nil {
 		return nil, fmt.Errorf("request user access token: %w", err)
 	}
@@ -128,13 +125,13 @@ func (p *Provider) ExchangeCode(ctx context.Context, code, _ string) (*platform.
 	}, nil
 }
 
-func (p *Provider) RefreshToken(ctx context.Context, refreshToken string) (*platform.PlatformTokens, error) {
+func (p *Provider) RefreshToken(ctx context.Context, input platform.RefreshTokenInput) (*platform.PlatformTokens, error) {
 	client, err := p.newClient()
 	if err != nil {
 		return nil, fmt.Errorf("create helix client: %w", err)
 	}
 
-	resp, err := client.RefreshUserAccessToken(refreshToken)
+	resp, err := client.RefreshUserAccessToken(input.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("refresh user access token: %w", err)
 	}

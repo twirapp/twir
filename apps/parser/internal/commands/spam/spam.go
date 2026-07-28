@@ -2,11 +2,12 @@ package spam
 
 import (
 	"context"
+	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -19,6 +20,12 @@ const (
 	spamMessageArgName = "message_or_command"
 )
 
+var repeatVariableRegexp = regexp.MustCompile(`\$\(repeat(?:\.[^)|]+)?(?:\|[^)]*)?\)`)
+
+func stripRepeatVariable(text string) string {
+	return repeatVariableRegexp.ReplaceAllString(text, "")
+}
+
 var Command = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:               "spam",
@@ -30,8 +37,8 @@ var Command = &types.DefaultCommand{
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name: spamCountArgName,
-			Min:  lo.ToPtr(1),
-			Max:  lo.ToPtr(20),
+			Min:  new(1),
+			Max:  new(20),
 		},
 		command_arguments.VariadicString{
 			Name: spamMessageArgName,
@@ -47,7 +54,10 @@ var Command = &types.DefaultCommand{
 		text := parseCtx.ArgsParser.Get(spamMessageArgName).String()
 
 		var commandsPrefix string
-		commandPrefixEntity, _ := parseCtx.Services.CommandsPrefixCache.Get(ctx, parseCtx.Channel.DBChannelID)
+		commandPrefixEntity, _ := parseCtx.Services.CommandsPrefixCache.Get(
+			ctx,
+			parseCtx.Channel.DBChannelID,
+		)
 		if commandPrefixEntity != channelscommandsprefixmodel.Nil {
 			commandsPrefix = commandPrefixEntity.Prefix
 		} else {
@@ -56,7 +66,7 @@ var Command = &types.DefaultCommand{
 
 		// if not command
 		if !strings.HasPrefix(text, commandsPrefix) {
-			for i := 0; i < count; i++ {
+			for range count {
 				result.Result = append(result.Result, text)
 			}
 
@@ -76,11 +86,8 @@ var Command = &types.DefaultCommand{
 				break
 			}
 
-			for _, alias := range cmd.Aliases {
-				if alias == strings.TrimPrefix(text, commandsPrefix) {
-					foundCmd = &cmd
-					break
-				}
+			if slices.Contains(cmd.Aliases, strings.TrimPrefix(text, commandsPrefix)) {
+				foundCmd = &cmd
 			}
 		}
 
@@ -88,13 +95,13 @@ var Command = &types.DefaultCommand{
 			return nil, nil
 		}
 
-		for i := 0; i < count; i++ {
+		for range count {
 			for _, r := range foundCmd.Responses {
 				if r.Text == nil || *r.Text == "" {
 					continue
 				}
 
-				result.Result = append(result.Result, *r.Text)
+				result.Result = append(result.Result, stripRepeatVariable(*r.Text))
 			}
 		}
 

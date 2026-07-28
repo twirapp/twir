@@ -2,14 +2,18 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
+	goredis "github.com/redis/go-redis/v9"
 	bus_listener "github.com/twirapp/twir/apps/eventsub/internal/bus-listener"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	"github.com/twirapp/twir/apps/eventsub/internal/kick"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
+	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
+	"github.com/twirapp/twir/apps/eventsub/internal/vkvideo"
 	"github.com/twirapp/twir/apps/eventsub/internal/webhook"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -23,9 +27,13 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/integrations/vk"
 	"github.com/twirapp/twir/libs/otel"
+	platformsregistry "github.com/twirapp/twir/libs/platforms"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
+	channelplatformsrepository "github.com/twirapp/twir/libs/repositories/channel_platforms"
+	channelplatformsrepositorypgx "github.com/twirapp/twir/libs/repositories/channel_platforms/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -67,6 +75,10 @@ var App = fx.Options(
 		fx.Annotate(
 			channelsrepositorypgx.NewFx,
 			fx.As(new(channelsrepository.Repository)),
+		),
+		fx.Annotate(
+			channelplatformsrepositorypgx.NewFx,
+			fx.As(new(channelplatformsrepository.Repository)),
 		),
 		fx.Annotate(
 			channelscommandsprefixpgx.NewFx,
@@ -137,6 +149,35 @@ var App = fx.Options(
 		handler.New,
 		httpserver.New,
 		kick.New,
+		func(
+			config cfg.Config,
+			kickTransport *kick.SubscriptionManager,
+			logger *slog.Logger,
+			redisClient *goredis.Client,
+			bus *buscore.Bus,
+			userCreator *user_creator.UserCreatorService,
+			channelsRepo channelsrepository.Repository,
+			lc fx.Lifecycle,
+		) (*platformsregistry.Registry[eventplatforms.EventTransport], error) {
+			return eventplatforms.NewVKVideoRegistry(config, kickTransport, func() (eventplatforms.EventTransport, error) {
+				webSocketTokenClient, err := vk.NewWebSocketTokenClient(vk.VideoChatClientOpts{
+					APIBaseURL: config.VKVideoDevAPIBaseURL,
+				})
+				if err != nil {
+					return nil, fmt.Errorf("create VK Video WebSocket token client: %w", err)
+				}
+
+				return vkvideo.New(vkvideo.Opts{
+					Logger:               logger,
+					Redis:                redisClient,
+					Bus:                  bus,
+					UserCreator:          userCreator,
+					WebSocketTokenClient: webSocketTokenClient,
+					ChannelsRepo:         channelsRepo,
+					Lc:                   lc,
+				})
+			})
+		},
 		kick.NewHandlers,
 		kick.NewResubscribeJob,
 		webhook.NewManager,

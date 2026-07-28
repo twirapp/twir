@@ -32,5 +32,6 @@ export function useCommands() {
 				channelId: currentStreamerId.value ?? '',
 			}
 		},
+		pause: computed(() => !currentStreamerId.value),
 	})
 }

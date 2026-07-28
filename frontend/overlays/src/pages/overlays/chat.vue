@@ -25,7 +25,9 @@ const {
 const { fragmentsToChunks } = useFragmentsToChunks()
 
 const thirdPartyEmotesSettings = computed(() => ({
-	channelId: neededData.value?.authenticatedUser.twitchProfile?.id ?? '',
+	channelId: neededData.value?.authenticatedUser.linkedAccounts.find(
+		(account) => account.platform === 'twitch',
+	)?.platformUserId ?? '',
 	emotes: {
 		ffz: true,
 		bttv: true,
@@ -88,6 +90,7 @@ watch(chatMessages, (v) => {
 
 	const platform = event.platform as MessagePlatform
 	const isKick = platform === 'kick'
+	const hasNoBadges = isKick || platform === 'vk_video_live'
 
 	const badges: Record<string, string> = {}
 	const kickBadges: Array<{ type: string; text: string }> = []
@@ -107,7 +110,7 @@ watch(chatMessages, (v) => {
 		sender: event.userName,
 		senderColor: event.userColor || undefined,
 		senderDisplayName: event.userDisplayName,
-		badges: isKick ? undefined : badges,
+		badges: hasNoBadges ? undefined : badges,
 		kickBadges: isKick ? kickBadges : undefined,
 		isItalic: false,
 		isAnnounce: event.messageType === 'announcement',

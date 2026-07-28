@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	"github.com/twirapp/twir/libs/repositories/channels/model"
 	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -40,14 +40,24 @@ type Service struct {
 
 var ErrNotFound = fmt.Errorf("channel not found")
 
-func (c *Service) mapToEntity(m model.Channel) entity.Channel {
-	return entity.Channel{
-		ID:             m.ID,
-		IsEnabled:      m.IsEnabled,
-		IsTwitchBanned: m.IsTwitchBanned,
-		IsBotMod:       m.IsBotMod,
-		BotID:          m.BotID,
+func (c *Service) mapToEntity(m channelentity.Channel, p platformentity.Platform) (entity.Channel, error) {
+	result := entity.Channel{ID: m.ID}
+
+	binding, found := m.Binding(p)
+	if !found {
+		return result, nil
 	}
+
+	result.IsEnabled = binding.Enabled
+	botConfig, err := binding.ParseTwitchBotConfig()
+	if err != nil {
+		return entity.ChannelNil, fmt.Errorf("unmarshal %s channel bot config: %w", p, err)
+	}
+
+	result.BotID = botConfig.BotID
+	result.IsBotMod = botConfig.IsBotMod
+	result.IsTwitchBanned = botConfig.IsTwitchBanned
+	return result, nil
 }
 
 func (c *Service) GetByID(ctx context.Context, channelID uuid.UUID) (entity.Channel, error) {
@@ -60,11 +70,15 @@ func (c *Service) GetByID(ctx context.Context, channelID uuid.UUID) (entity.Chan
 		return entity.ChannelNil, err
 	}
 
-	return c.mapToEntity(channel), nil
+	return c.mapToEntity(channel, platformentity.PlatformTwitch)
 }
 
 func (c *Service) GetByTwitchPlatformID(ctx context.Context, twitchPlatformID string) (entity.Channel, error) {
-	channel, err := c.channelService.GetChannelByPlatformUserID(ctx, twitchPlatformID, platformentity.PlatformTwitch)
+	channel, err := c.channelService.GetChannelByPlatformChannelID(
+		ctx,
+		platformentity.PlatformTwitch,
+		twitchPlatformID,
+	)
 	if err != nil {
 		if err == channels.ErrNotFound {
 			return entity.ChannelNil, ErrNotFound
@@ -73,11 +87,15 @@ func (c *Service) GetByTwitchPlatformID(ctx context.Context, twitchPlatformID st
 		return entity.ChannelNil, err
 	}
 
-	return c.mapToEntity(channel), nil
+	return c.mapToEntity(channel, platformentity.PlatformTwitch)
 }
 
 func (c *Service) GetByKickPlatformID(ctx context.Context, kickPlatformID string) (entity.Channel, error) {
-	channel, err := c.channelService.GetChannelByPlatformUserID(ctx, kickPlatformID, platformentity.PlatformKick)
+	channel, err := c.channelService.GetChannelByPlatformChannelID(
+		ctx,
+		platformentity.PlatformKick,
+		kickPlatformID,
+	)
 	if err != nil {
 		if err == channels.ErrNotFound {
 			return entity.ChannelNil, ErrNotFound
@@ -86,7 +104,7 @@ func (c *Service) GetByKickPlatformID(ctx context.Context, kickPlatformID string
 		return entity.ChannelNil, err
 	}
 
-	return c.mapToEntity(channel), nil
+	return c.mapToEntity(channel, platformentity.PlatformKick)
 }
 
 type ApiKeyChannelIdentity struct {
@@ -105,19 +123,11 @@ func (c *Service) ResolveApiKeyChannelIdentityByAnyPlatformUUID(ctx context.Cont
 		return nil, err
 	}
 
-	var channel model.Channel
+	var channel channelentity.Channel
 
-	switch user.Platform {
-	case platformentity.PlatformKick:
-		channel, err = c.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformKick)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get kick channel: %w", err)
-		}
-	default:
-		channel, err = c.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get twitch channel: %w", err)
-		}
+	channel, err = c.channelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get %s channel: %w", user.Platform, err)
 	}
 
 	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, 2)
@@ -144,7 +154,7 @@ func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 	ctx context.Context,
 	apiKey string,
 ) (ApiKeyChannelIdentity, error) {
-	var channel model.Channel
+	var channel channelentity.Channel
 	foundedChannel, err := c.channelsRepository.GetByApiKey(ctx, apiKey)
 	if err != nil && !errors.Is(err, channels.ErrNotFound) {
 		return ApiKeyChannelIdentity{}, err
@@ -158,17 +168,9 @@ func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get user: %w", err)
 		}
 
-		switch user.Platform {
-		case platformentity.PlatformKick:
-			channel, err = c.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformKick)
-			if err != nil {
-				return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get kick channel: %w", err)
-			}
-		default:
-			channel, err = c.channelService.GetChannelByConnectedUser(ctx, user.ID, platformentity.PlatformTwitch)
-			if err != nil {
-				return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get twitch channel: %w", err)
-			}
+		channel, err = c.channelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
+		if err != nil {
+			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get %s channel: %w", user.Platform, err)
 		}
 	}
 
@@ -201,22 +203,17 @@ func (c *Service) GetPlatformIdentities(ctx context.Context, channelID uuid.UUID
 	return c.mapChannelPlatformIdentities(channel), nil
 }
 
-func (c *Service) mapChannelPlatformIdentities(channel model.Channel) []ChannelPlatformIdentity {
-	identities := make([]ChannelPlatformIdentity, 0, 2)
-	if channel.TwitchPlatformID != nil && *channel.TwitchPlatformID != "" {
-		identities = append(
-			identities, ChannelPlatformIdentity{
-				Platform: platformentity.PlatformTwitch,
-				ID:       *channel.TwitchPlatformID,
-			},
-		)
-	}
+func (c *Service) mapChannelPlatformIdentities(channel channelentity.Channel) []ChannelPlatformIdentity {
+	identities := make([]ChannelPlatformIdentity, 0, len(channel.Bindings))
+	for _, binding := range channel.Bindings {
+		if binding.PlatformChannelID == "" {
+			continue
+		}
 
-	if channel.KickPlatformID != nil && *channel.KickPlatformID != "" {
 		identities = append(
 			identities, ChannelPlatformIdentity{
-				Platform: platformentity.PlatformKick,
-				ID:       *channel.KickPlatformID,
+				Platform: binding.Platform,
+				ID:       binding.PlatformChannelID,
 			},
 		)
 	}

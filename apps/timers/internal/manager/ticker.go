@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
@@ -20,6 +19,12 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
+	t.withTickLock(func() {
+		c.tryTickLocked(id, t)
+	})
+}
+
+func (c *Manager) tryTickLocked(id TimerID, t *Timer) {
 	ctx := context.Background()
 
 	channel, err := c.channelCachedRepo.Get(ctx, t.dbRow.ChannelID.String())
@@ -33,7 +38,8 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	if !channel.IsBotMod || !channel.IsEnabled {
+	targets := getTimerSendTargets(channel, t.dbRow.Platforms)
+	if len(targets) == 0 {
 		return
 	}
 
@@ -131,11 +137,6 @@ func (c *Manager) tryTick(id TimerID) {
 		return
 	}
 
-	targets := getTimerSendTargets(channel, t.dbRow.Platforms)
-	if len(targets) == 0 {
-		return
-	}
-
 	var response timersentity.Response
 	for index, r := range t.dbRow.Responses {
 		if index == t.currentResponseIndex {
@@ -146,14 +147,6 @@ func (c *Manager) tryTick(id TimerID) {
 
 	wasSent := false
 	for _, target := range targets {
-		if !channel.KickConnected() && target.platform == platform.PlatformKick {
-			continue
-		}
-
-		if !channel.TwitchConnected() && target.platform == platform.PlatformTwitch {
-			continue
-		}
-
 		err = c.sendMessage(
 			ctx,
 			channel.ID,

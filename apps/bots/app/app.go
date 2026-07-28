@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/apps/bots/internal/moderationhelpers"
+	botplatforms "github.com/twirapp/twir/apps/bots/internal/platforms"
 	"github.com/twirapp/twir/apps/bots/internal/services/channel"
 	chattranslationsservice "github.com/twirapp/twir/apps/bots/internal/services/chat_translations"
 	"github.com/twirapp/twir/apps/bots/internal/services/giveaways"
@@ -25,6 +26,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/ytsr"
 	stream_handlers "github.com/twirapp/twir/apps/bots/internal/stream-handlers"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
+	vkchat "github.com/twirapp/twir/apps/bots/internal/vk"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	"github.com/twirapp/twir/apps/bots/pkg/tlds"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -78,6 +80,8 @@ import (
 	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
 	overlays_tts_repository "github.com/twirapp/twir/libs/repositories/overlays_tts"
 	overlays_tts_pgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
+	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
+	quotesrepositorypgx "github.com/twirapp/twir/libs/repositories/quotes/pgx"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	sentmessagesrepository "github.com/twirapp/twir/libs/repositories/sentmessages"
@@ -90,6 +94,8 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	usersstatsrepository "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsrepositorypostgres "github.com/twirapp/twir/libs/repositories/users_stats/datasources/postgres"
+	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 
 	"go.uber.org/fx"
@@ -103,6 +109,10 @@ var App = fx.Module(
 		fx.Annotate(
 			keywordsrepositorypgx.NewFx,
 			fx.As(new(keywordsrepository.Repository)),
+		),
+		fx.Annotate(
+			quotesrepositorypgx.NewFx,
+			fx.As(new(quotesrepository.Repository)),
 		),
 		fx.Annotate(
 			greetingsrepositorypgx.NewFx,
@@ -188,6 +198,10 @@ var App = fx.Module(
 			kickbotsrepositorypgx.NewFx,
 			fx.As(new(kickbotsrepository.Repository)),
 		),
+		fx.Annotate(
+			vkvideobotsrepositorypgx.NewFx,
+			fx.As(new(vkvideobotsrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -217,6 +231,9 @@ var App = fx.Module(
 		channelcache.NewByTwitchUserID,
 		twitchactions.New,
 		kickchat.NewChatClient,
+		newVKVideoChatClient,
+		vkchat.NewChatClient,
+		botplatforms.NewChatRegistry,
 		channelsmoderationsettingscache.New,
 		channelsgamesvotebancache.New,
 		moderationhelpers.New,

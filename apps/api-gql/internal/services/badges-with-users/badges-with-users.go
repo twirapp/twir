@@ -6,9 +6,11 @@ import (
 	"slices"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
@@ -18,18 +20,21 @@ type Opts struct {
 
 	BadgesService      *badges.Service
 	BadgesUsersService *badges_users.Service
+	UsersRepository    usersrepository.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		badgesService:      opts.BadgesService,
 		badgesUsersService: opts.BadgesUsersService,
+		usersRepository:    opts.UsersRepository,
 	}
 }
 
 type Service struct {
 	badgesService      *badges.Service
 	badgesUsersService *badges_users.Service
+	usersRepository    usersrepository.Repository
 }
 
 type GetManyInput struct {
@@ -67,12 +72,31 @@ func (s *Service) GetMany(ctx context.Context, input GetManyInput) (
 					return err
 				}
 
-				userIds := make([]string, 0, len(users))
+				userIDs := make([]uuid.UUID, 0, len(users))
 				for _, user := range users {
-					userIds = append(userIds, user.UserID.String())
+					userIDs = append(userIDs, user.UserID)
 				}
 
-				badge.Users = userIds
+				if len(userIDs) > 0 {
+					dbUsers, err := s.usersRepository.GetManyByIDS(
+						wgCtx,
+						usersrepository.GetManyInput{
+							IDs:     userIDs,
+							PerPage: len(userIDs),
+						},
+					)
+					if err != nil {
+						return err
+					}
+
+					for _, dbUser := range dbUsers {
+						if !dbUser.Platform.IsTwitch() {
+							continue
+						}
+
+						badge.Users = append(badge.Users, dbUser.PlatformID)
+					}
+				}
 
 				mu.Lock()
 				defer mu.Unlock()

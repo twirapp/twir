@@ -3,7 +3,6 @@ package channelservice
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,9 +10,9 @@ import (
 	kvoptions "github.com/twirapp/kv/options"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
@@ -46,38 +45,31 @@ func createStreamsCacheKey(channelId uuid.UUID) string {
 	return "twir:cache:channels:streams:" + channelId.String()
 }
 
-func (c *ChannelService) GetChannelByID(ctx context.Context, id uuid.UUID) (channelsmodel.Channel, error) {
+func (c *ChannelService) GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error) {
 	return c.repo.GetByID(ctx, id)
 }
 
-func (c *ChannelService) GetChannelByConnectedUser(
-	ctx context.Context,
-	userID uuid.UUID,
-	p platform.Platform,
-) (channelsmodel.Channel, error) {
-	switch p {
-	case platform.PlatformTwitch:
-		return c.repo.GetByTwitchUserID(ctx, userID)
-	case platform.PlatformKick:
-		return c.repo.GetByKickUserID(ctx, userID)
-	default:
-		return channelsmodel.Nil, fmt.Errorf("unknown platform: %s", p)
-	}
+// GetChannelByApiKey resolves a channel and its platform bindings from a channel API key.
+func (c *ChannelService) GetChannelByApiKey(ctx context.Context, apiKey string) (channelentity.Channel, error) {
+	return c.repo.GetByApiKey(ctx, apiKey)
 }
 
-func (c *ChannelService) GetChannelByPlatformUserID(
+// GetChannelByBindingUserID resolves a channel from a platform-scoped linked user ID.
+func (c *ChannelService) GetChannelByBindingUserID(
 	ctx context.Context,
-	platformUserID string,
 	p platform.Platform,
-) (channelsmodel.Channel, error) {
-	switch p {
-	case platform.PlatformTwitch:
-		return c.repo.GetByTwitchPlatformID(ctx, platformUserID)
-	case platform.PlatformKick:
-		return c.repo.GetByKickPlatformID(ctx, platformUserID)
-	default:
-		return channelsmodel.Nil, fmt.Errorf("unknown platform: %s", p)
-	}
+	userID uuid.UUID,
+) (channelentity.Channel, error) {
+	return c.repo.GetByBindingUserID(ctx, p, userID)
+}
+
+// GetChannelByPlatformChannelID resolves a channel from a platform-scoped provider channel ID.
+func (c *ChannelService) GetChannelByPlatformChannelID(
+	ctx context.Context,
+	p platform.Platform,
+	platformChannelID string,
+) (channelentity.Channel, error) {
+	return c.repo.GetByPlatformChannelID(ctx, p, platformChannelID)
 }
 
 type ChannelStreamWithChatLines struct {
@@ -119,8 +111,8 @@ func (c *ChannelService) IsChannelOnline(ctx context.Context, channelID uuid.UUI
 		return false, err
 	}
 
-	if err == nil {
-		return exists, nil
+	if err == nil && exists {
+		return true, nil
 	}
 
 	streams, err := c.streamsrepo.GetListByChannelID(ctx, channelID)
@@ -145,4 +137,21 @@ func (c *ChannelService) IsChannelOnline(ctx context.Context, channelID uuid.UUI
 
 func (c *ChannelService) InvalidateOnlineCache(ctx context.Context, channelID uuid.UUID) error {
 	return c.cache.Delete(ctx, createStreamsCacheKey(channelID))
+}
+
+type GetBySlugOpts struct {
+	Slug     string
+	Platform *platform.Platform
+}
+
+func (c *ChannelService) GetBySlug(ctx context.Context, opts GetBySlugOpts) (channelentity.Channel, error) {
+	channel, err := c.repo.GetBySlug(
+		ctx,
+		channelsrepo.GetBySlugInput{Slug: opts.Slug, Platform: opts.Platform},
+	)
+	if err != nil {
+		return channelentity.Channel{}, err
+	}
+
+	return channel, nil
 }
