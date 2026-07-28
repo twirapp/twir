@@ -11,7 +11,10 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/vk"
+	"github.com/twirapp/twir/libs/repositories/channels"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 )
@@ -118,4 +121,26 @@ func (d redisDeduplicator) Claim(ctx context.Context, id string) (bool, error) {
 		return false, fmt.Errorf("claim VK Video message id: %w", err)
 	}
 	return claimed, nil
+}
+
+type bindingsProvider func(context.Context) ([]channelplatformentity.ChannelPlatform, error)
+
+func newDatabaseBindingsProvider(repo channels.Repository) bindingsProvider {
+	return func(ctx context.Context) ([]channelplatformentity.ChannelPlatform, error) {
+		channelList, err := repo.GetAllByBindingPlatform(ctx, platformentity.PlatformVKVideoLive)
+		if err != nil {
+			return nil, fmt.Errorf("list VK Video Live channels: %w", err)
+		}
+
+		bindings := make([]channelplatformentity.ChannelPlatform, 0, len(channelList))
+		for _, channel := range channelList {
+			binding, ok := channel.Binding(platformentity.PlatformVKVideoLive)
+			if !ok || !binding.Enabled {
+				continue
+			}
+			bindings = append(bindings, binding)
+		}
+
+		return bindings, nil
+	}
 }

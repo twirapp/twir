@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 )
 
@@ -29,6 +30,9 @@ func TestReconcileSubscribesAfterStaleLeaseExpires(t *testing.T) {
 			createdConnections++
 			return &recordingConnection{}, nil
 		},
+		databaseBindings: func(context.Context) ([]channelplatformentity.ChannelPlatform, error) {
+			return []channelplatformentity.ChannelPlatform{binding}, nil
+		},
 	})
 
 	if err := transport.Subscribe(context.Background(), binding); err != nil {
@@ -40,7 +44,7 @@ func TestReconcileSubscribesAfterStaleLeaseExpires(t *testing.T) {
 
 	// When
 	lockStore.expire(binding.ID.String())
-	transport.reconcilePending(context.Background())
+	transport.reconcileWithDatabase(context.Background())
 
 	// Then
 	if createdConnections != 1 {
@@ -51,7 +55,8 @@ func TestReconcileSubscribesAfterStaleLeaseExpires(t *testing.T) {
 func TestReconcileDoesNotResurrectUnsubscribedBinding(t *testing.T) {
 	// Given
 	binding := testBinding()
-	createdConnections := 0
+	databaseBindings := []channelplatformentity.ChannelPlatform{binding}
+	connection := &recordingConnection{closed: make(chan struct{})}
 	transport := newTransport(transportDependencies{
 		ownership:    newTestOwnership(t, newMemoryLockStore(), newManualTicker()),
 		tokens:       &recordingTokenProvider{},
@@ -60,23 +65,31 @@ func TestReconcileDoesNotResurrectUnsubscribedBinding(t *testing.T) {
 		commands:     &recordingPublisher{},
 		deduplicator: &memoryDeduplicator{claimed: make(map[string]struct{})},
 		newConnection: func(RealtimeClientConfig) (realtimeConnection, error) {
-			createdConnections++
-			return &recordingConnection{}, nil
+			return connection, nil
+		},
+		databaseBindings: func(context.Context) ([]channelplatformentity.ChannelPlatform, error) {
+			return databaseBindings, nil
 		},
 	})
 
 	if err := transport.Subscribe(context.Background(), binding); err != nil {
 		t.Fatalf("subscribe: %v", err)
 	}
-	if err := transport.Unsubscribe(context.Background(), binding); err != nil {
-		t.Fatalf("unsubscribe: %v", err)
-	}
 
 	// When
-	transport.reconcilePending(context.Background())
+	databaseBindings = nil
+	transport.reconcileWithDatabase(context.Background())
 
 	// Then
-	if createdConnections != 1 {
-		t.Fatalf("connections after reconcile = %d, want 1 (no resurrection)", createdConnections)
+	select {
+	case <-connection.closed:
+	default:
+		t.Fatal("connection was not closed for binding removed from database")
+	}
+	transport.mu.Lock()
+	activeCount := len(transport.bindings)
+	transport.mu.Unlock()
+	if activeCount != 0 {
+		t.Fatalf("active bindings after reconcile = %d, want 0", activeCount)
 	}
 }
