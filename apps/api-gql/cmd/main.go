@@ -473,7 +473,7 @@ func main() {
 				fx.As(new(channelsgiveawaysrepository.Repository)),
 			),
 			fx.Annotate(
-				channelsgiveawayssettingsrepositorypgx.New,
+				channelsgiveawayssettingsrepositorypgx.NewFx,
 				fx.As(new(channelsgiveawayssettingsrepository.Repository)),
 			),
 			fx.Annotate(
