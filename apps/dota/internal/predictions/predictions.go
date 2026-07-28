@@ -18,9 +18,10 @@ import (
 	"github.com/twirapp/twir/apps/dota/internal/match"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
 	"github.com/twirapp/twir/libs/twitch"
@@ -173,7 +174,29 @@ type settingsRepository interface {
 }
 
 type channelRepository interface {
-	GetByID(ctx context.Context, channelID uuid.UUID) (channelsmodel.Channel, error)
+	GetByID(ctx context.Context, channelID uuid.UUID) (channelentity.Channel, error)
+}
+
+type twitchPredictionTarget struct {
+	userID        uuid.UUID
+	broadcasterID string
+}
+
+func twitchPredictionTargetFromChannel(channel channelentity.Channel) (twitchPredictionTarget, bool) {
+	binding, found := channel.Binding(platform.PlatformTwitch)
+	if !found || binding.UserID == uuid.Nil {
+		return twitchPredictionTarget{}, false
+	}
+
+	broadcasterID := strings.TrimSpace(binding.PlatformChannelID)
+	if broadcasterID == "" {
+		return twitchPredictionTarget{}, false
+	}
+
+	return twitchPredictionTarget{
+		userID:        binding.UserID,
+		broadcasterID: broadcasterID,
+	}, true
 }
 
 type predictionClient interface {
@@ -344,8 +367,8 @@ func (p *Predictions) createPrediction(ctx context.Context, channelID uuid.UUID,
 	if err != nil {
 		return fmt.Errorf("get channel: %w", err)
 	}
-	if !channel.TwitchConnected() || channel.TwitchUserID == nil || channel.TwitchPlatformID == nil ||
-		strings.TrimSpace(*channel.TwitchPlatformID) == "" {
+	target, validTarget := twitchPredictionTargetFromChannel(channel)
+	if !validTarget {
 		return nil
 	}
 
@@ -366,13 +389,13 @@ func (p *Predictions) createPrediction(ctx context.Context, channelID uuid.UUID,
 		return nil
 	}
 
-	client, err := p.clients.New(ctx, *channel.TwitchUserID)
+	client, err := p.clients.New(ctx, target.userID)
 	if err != nil {
 		return p.creationFailed(ctx, key, intent.Token, fmt.Errorf("create Twitch client: %w", err))
 	}
 
 	response, err := client.CreatePrediction(&helix.CreatePredictionParams{
-		BroadcasterID:    strings.TrimSpace(*channel.TwitchPlatformID),
+		BroadcasterID:    target.broadcasterID,
 		Title:            title,
 		PredictionWindow: window,
 		Outcomes: []helix.PredictionChoiceParam{
@@ -447,16 +470,16 @@ func (p *Predictions) recoverPendingPrediction(
 	if err != nil {
 		return true, fmt.Errorf("get channel for pending prediction: %w", err)
 	}
-	if !channel.TwitchConnected() || channel.TwitchUserID == nil || channel.TwitchPlatformID == nil ||
-		strings.TrimSpace(*channel.TwitchPlatformID) == "" {
+	target, validTarget := twitchPredictionTargetFromChannel(channel)
+	if !validTarget {
 		return true, errors.New("pending prediction channel is not connected to Twitch")
 	}
 
-	client, err := p.clients.New(ctx, *channel.TwitchUserID)
+	client, err := p.clients.New(ctx, target.userID)
 	if err != nil {
 		return true, fmt.Errorf("create Twitch client for pending prediction: %w", err)
 	}
-	broadcasterID := strings.TrimSpace(*channel.TwitchPlatformID)
+	broadcasterID := target.broadcasterID
 	response, err := client.GetPredictions(&helix.PredictionsParams{
 		BroadcasterID: broadcasterID,
 		First:         "100",
@@ -531,16 +554,16 @@ func (p *Predictions) finishPrediction(
 	if err != nil {
 		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("get channel for stored prediction: %w", err))
 	}
-	if !channel.TwitchConnected() || channel.TwitchUserID == nil || channel.TwitchPlatformID == nil ||
-		strings.TrimSpace(*channel.TwitchPlatformID) == "" {
+	target, validTarget := twitchPredictionTargetFromChannel(channel)
+	if !validTarget {
 		return p.terminalFailed(ctx, key, token, heartbeat, errors.New("stored prediction channel is not connected to Twitch"))
 	}
 
-	client, err := p.clients.New(operationCtx, *channel.TwitchUserID)
+	client, err := p.clients.New(operationCtx, target.userID)
 	if err != nil {
 		return p.terminalFailed(ctx, key, token, heartbeat, fmt.Errorf("create Twitch client for stored prediction: %w", err))
 	}
-	broadcasterID := strings.TrimSpace(*channel.TwitchPlatformID)
+	broadcasterID := target.broadcasterID
 	response, err := client.GetPredictions(&helix.PredictionsParams{
 		BroadcasterID: broadcasterID,
 		ID:            record.PredictionID,

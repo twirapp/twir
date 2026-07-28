@@ -17,7 +17,9 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/stretchr/testify/require"
 	"github.com/twirapp/twir/apps/dota/internal/match"
-	channelsmodel "github.com/twirapp/twir/libs/repositories/channels/model"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelplatform "github.com/twirapp/twir/libs/entities/channel_platform"
+	"github.com/twirapp/twir/libs/entities/platform"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
 )
@@ -91,7 +93,7 @@ func (r *fakeSettingsRepository) Settlements() int {
 
 type fakeChannelsRepository struct {
 	mu      sync.Mutex
-	channel channelsmodel.Channel
+	channel channelentity.Channel
 	err     error
 	calls   int
 }
@@ -99,12 +101,12 @@ type fakeChannelsRepository struct {
 func (r *fakeChannelsRepository) GetByID(
 	_ context.Context,
 	_ uuid.UUID,
-) (channelsmodel.Channel, error) {
+) (channelentity.Channel, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.calls++
 	if r.err != nil {
-		return channelsmodel.Nil, r.err
+		return channelentity.Nil, r.err
 	}
 	return r.channel, nil
 }
@@ -658,10 +660,16 @@ func newFixtureWithTerminalLease(t *testing.T, terminalLease terminalLease) *fix
 			WindowSeconds: 300,
 		},
 	}}
-	channels := &fakeChannelsRepository{channel: channelsmodel.Channel{
-		ID:               channelID,
-		TwitchUserID:     &twitchUser,
-		TwitchPlatformID: &broadcaster,
+	channels := &fakeChannelsRepository{channel: channelentity.Channel{
+		ID: channelID,
+		Bindings: []channelplatform.ChannelPlatform{{
+			ID:                uuid.New(),
+			ChannelID:         channelID,
+			Platform:          platform.PlatformTwitch,
+			UserID:            twitchUser,
+			PlatformChannelID: broadcaster,
+			Enabled:           true,
+		}},
 	}}
 	clients := &fakeClientFactory{client: client}
 	store := newFakePredictionStore()
@@ -753,6 +761,69 @@ func TestCreateCreatesAndStoresPrediction(t *testing.T) {
 		YesOutcomeID: "yes-outcome",
 		NoOutcomeID:  "no-outcome",
 	}, record)
+}
+
+func TestCreateUsesTwitchBindingIdentity(t *testing.T) {
+	f := newFixture(t)
+	f.channels.channel.Bindings = append([]channelplatform.ChannelPlatform{{
+		ID:                uuid.New(),
+		ChannelID:         f.channelID,
+		Platform:          platform.PlatformVKVideoLive,
+		UserID:            uuid.New(),
+		PlatformChannelID: "vk-channel",
+		Enabled:           true,
+	}}, f.channels.channel.Bindings...)
+
+	err := f.predictions.Create(context.Background(), createAction(f, 902))
+
+	require.NoError(t, err)
+	require.Equal(t, []uuid.UUID{f.twitchUser}, f.clients.userIDs)
+	createCalls := f.client.CreateCalls()
+	require.Len(t, createCalls, 1)
+	require.Equal(t, f.broadcaster, createCalls[0].BroadcasterID)
+}
+
+func TestCreateUsesDisabledTwitchBindingForPredictions(t *testing.T) {
+	f := newFixture(t)
+	f.channels.channel.Bindings[0].Enabled = false
+
+	err := f.predictions.Create(context.Background(), createAction(f, 903))
+
+	require.NoError(t, err)
+	require.Len(t, f.client.CreateCalls(), 1)
+}
+
+func TestCreateSkipsInvalidTwitchBindingIdentity(t *testing.T) {
+	tests := []struct {
+		name      string
+		configure func(*fixture)
+	}{
+		{
+			name: "missing linked user",
+			configure: func(f *fixture) {
+				f.channels.channel.Bindings[0].UserID = uuid.Nil
+			},
+		},
+		{
+			name: "blank broadcaster ID",
+			configure: func(f *fixture) {
+				f.channels.channel.Bindings[0].PlatformChannelID = " \t"
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFixture(t)
+			tt.configure(f)
+
+			err := f.predictions.Create(context.Background(), createAction(f, 904))
+
+			require.NoError(t, err)
+			require.Empty(t, f.client.CreateCalls())
+			require.Empty(t, f.store.reserveCalls)
+		})
+	}
 }
 
 func TestResolveSettlesOnceAndReturnsSettingsOnReplay(t *testing.T) {
@@ -1256,9 +1327,9 @@ func TestCreateSkipsIneligibleInputs(t *testing.T) {
 			},
 		},
 		{
-			name: "disconnected channel",
+			name: "channel without Twitch binding",
 			configure: func(f *fixture, _ *match.LifecycleAction) {
-				f.channels.channel = channelsmodel.Channel{}
+				f.channels.channel = channelentity.Channel{ID: f.channelID}
 			},
 		},
 	}
