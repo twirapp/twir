@@ -3,6 +3,9 @@ package dota2
 import (
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
+	"github.com/twirapp/twir/apps/parser/internal/types"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 )
 
@@ -155,4 +158,21 @@ func TestJoinNotablePlayers(t *testing.T) {
 			t.Fatalf("joinNotablePlayers(%q) = %q, want %q", tt.players, got, tt.want)
 		}
 	}
+}
+
+func TestBuildGetDataRequestUsesLogicalChannelAndTwitchBindingUser(t *testing.T) {
+	logicalChannelID := uuid.NewString()
+	twitchUserID := uuid.New()
+	parseCtx := &types.ParseContext{Channel: &types.ParseContextChannel{
+		ID:           "vk-platform-channel",
+		Name:         "streamer",
+		TwitchUserID: twitchUserID,
+		DBChannelID:  logicalChannelID,
+	}}
+
+	request := buildGetDataRequest(parseCtx)
+
+	require.Equal(t, logicalChannelID, request.ChannelID)
+	require.Equal(t, twitchUserID.String(), request.TwitchUserID)
+	require.NotEqual(t, parseCtx.Channel.ID, request.TwitchUserID)
 }

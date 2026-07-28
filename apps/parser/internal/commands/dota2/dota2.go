@@ -156,11 +156,15 @@ func getDotaData(
 	return requestDotaData(
 		ctx,
 		parseCtx.Services.Bus.Dota.GetData.Request,
-		busdota.GetDataRequest{
-			ChannelID:    parseCtx.Channel.DBChannelID,
-			TwitchUserID: parseCtx.Channel.ID,
-		},
+		buildGetDataRequest(parseCtx),
 	)
+}
+
+func buildGetDataRequest(parseCtx *types.ParseContext) busdota.GetDataRequest {
+	return busdota.GetDataRequest{
+		ChannelID:    parseCtx.Channel.DBChannelID,
+		TwitchUserID: parseCtx.Channel.TwitchUserID.String(),
+	}
 }
 
 func requestDotaData(
