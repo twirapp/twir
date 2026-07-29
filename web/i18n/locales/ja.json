@@ -24,8 +24,8 @@
   "languageName": "日本語",
   "landing": {
     "meta": {
-      "title": "Twir — Twitch・Kick 対応チャットボット",
-      "description": "大規模チャンネルのチャット管理を助ける、パワフルで便利な Twitch ボット。コマンド、タイマー、モデレーション、ソングリクエスト、ギブアウェイ、オーバーレイなど — 無料でオープンソース。"
+      "title": "Twir — Twitch・Kick・VK 対応チャットボット",
+      "description": "大規模チャンネルのチャット管理を助ける、パワフルで便利な Twitch・Kick・VK Video Live 対応ボット。コマンド、タイマー、モデレーション、ソングリクエスト、ギブアウェイ、オーバーレイなど — 無料でオープンソース。"
     },
     "compareLink": "Twir を他のボットと比較する",
     "faq": {
@@ -37,15 +37,15 @@
       },
       "q2": {
         "question": "チャンネルに Twir を追加するには？",
-        "answer": "Twitch または Kick アカウントでログインし、ダッシュボードで「ボットを追加」を押すだけ。1 分以内に Twir がチャットに参加します。ダウンロードやインストールは不要です。"
+        "answer": "Twitch、Kick、または VK アカウントでログインし、ダッシュボードで「ボットを追加」を押すだけ。1 分以内に Twir がチャットに参加します。ダウンロードやインストールは不要です。"
       },
       "q3": {
         "question": "Nightbot や StreamElements から移行できますか？",
         "answer": "はい。Twir には Nightbot、StreamElements、Streamlabs からコマンドや設定を数クリックで移行できるインポートツールがあります。"
       },
       "q4": {
-        "question": "Kick でも使えますか？",
-        "answer": "はい、Twir は Twitch と Kick の両方に対応しています。Kick チャンネルを接続し、同じダッシュボードから管理できます。"
+        "question": "Kick と VK でも使えますか？",
+        "answer": "はい、Twir は Twitch、Kick、VK Video Live に対応しています。チャンネルを接続し、同じダッシュボードから管理できます。"
       },
       "q5": {
         "question": "Twir はオープンソースですか？",
@@ -126,7 +126,7 @@
     },
     "values": {
       "platforms": {
-        "twir": "Twitch, Kick",
+        "twir": "Twitch, Kick, VK Video Live",
         "nightbot": "Twitch, YouTube",
         "streamelements": "Twitch, YouTube, Kick",
         "moobot": "Twitch",
@@ -159,8 +159,8 @@
         "answer": "はい。比較表のすべての機能 — オーバーレイ、ギブアウェイ、ソングリクエストを含め — 無料です。Twir はストリーマーによるストリーマーのためのオープンソースプロジェクトです。"
       },
       "q4": {
-        "question": "Twir は Kick に対応していますか？",
-        "answer": "はい。Twir は Twitch と Kick の両方を 1 つのダッシュボードから管理できます。"
+        "question": "Twir は Kick と VK に対応していますか？",
+        "answer": "はい。Twir は Twitch、Kick、VK Video Live に対応しており、1 つのダッシュボードからすべてのチャンネルを管理できます。"
       }
     },
     "disclaimer": "Nightbot、StreamElements、Moobot、Fossabot は各社の商標です。Twir はこれらと提携・承認されているわけではありません。機能データは公開情報に基づいており、変更される場合があります。"

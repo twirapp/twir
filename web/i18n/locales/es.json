@@ -1381,8 +1381,8 @@
   },
   "landing": {
     "meta": {
-      "title": "Twir — bot de chat para Twitch y Kick",
-      "description": "Bot de Twitch potente y útil que ayuda a gestionar el chat en canales grandes. Comandos, temporizadores, moderación, peticiones de canciones, sorteos, overlays y más — gratis y de código abierto."
+      "title": "Twir — bot de chat para Twitch, Kick y VK",
+      "description": "Bot potente y útil para Twitch, Kick y VK Video Live que ayuda a gestionar el chat en canales grandes. Comandos, temporizadores, moderación, peticiones de canciones, sorteos, overlays y más — gratis y de código abierto."
     },
     "compareLink": "Comparar Twir con otros bots",
     "faq": {
@@ -1394,15 +1394,15 @@
       },
       "q2": {
         "question": "¿Cómo añado Twir a mi canal?",
-        "answer": "Inicia sesión con tu cuenta de Twitch o Kick, pulsa «Añadir bot» en el panel y Twir se unirá a tu chat en menos de un minuto. Sin descargas ni instalación."
+        "answer": "Inicia sesión con tu cuenta de Twitch, Kick o VK, pulsa «Añadir bot» en el panel y Twir se unirá a tu chat en menos de un minuto. Sin descargas ni instalación."
       },
       "q3": {
         "question": "¿Puedo migrar desde Nightbot o StreamElements?",
         "answer": "Sí. Twir tiene una herramienta de importación que traslada tus comandos y ajustes desde Nightbot, StreamElements y Streamlabs en pocos clics."
       },
       "q4": {
-        "question": "¿Twir funciona en Kick?",
-        "answer": "Sí, Twir es compatible tanto con Twitch como con Kick. Puedes conectar tu canal de Kick y gestionarlo desde el mismo panel."
+        "question": "¿Twir funciona en Kick y VK?",
+        "answer": "Sí, Twir es compatible con Twitch, Kick y VK Video Live. Puedes conectar tus canales y gestionarlos desde el mismo panel."
       },
       "q5": {
         "question": "¿Twir es de código abierto?",
@@ -1483,7 +1483,7 @@
     },
     "values": {
       "platforms": {
-        "twir": "Twitch, Kick",
+        "twir": "Twitch, Kick, VK Video Live",
         "nightbot": "Twitch, YouTube",
         "streamelements": "Twitch, YouTube, Kick",
         "moobot": "Twitch",
@@ -1516,8 +1516,8 @@
         "answer": "Sí. Todas las funciones de la tabla comparativa son gratis, incluidos overlays, sorteos y peticiones de canciones. Twir es de código abierto y está desarrollado por streamers para streamers."
       },
       "q4": {
-        "question": "¿Twir es compatible con Kick?",
-        "answer": "Sí. Twir funciona con Twitch y Kick desde un solo panel, para que gestiones ambos canales en un mismo lugar."
+        "question": "¿Twir es compatible con Kick y VK?",
+        "answer": "Sí. Twir funciona con Twitch, Kick y VK Video Live desde un solo panel, para que gestiones todos tus canales en un mismo lugar."
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot y Fossabot son marcas de sus respectivos propietarios. Twir no está afiliado a ellos ni cuenta con su respaldo. Los datos de funciones se basan en información pública y pueden cambiar con el tiempo."
