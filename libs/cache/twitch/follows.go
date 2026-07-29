@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/kvizyx/twitchy/helix"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -46,33 +45,41 @@ func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
 		return followers, nil
 	}
 
-	twitchClient, err := twitch.NewUserClient(twitchUserID, c.config, c.twirBus)
+	twitchClient, err := c.createUserClient(ctx, twitchUserID)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create twitch client: %w", err)
 	}
 
-	followsReq, err := twitchClient.GetChannelFollows(
-		&helix.GetChannelFollowsParams{
+	first := 100
+	pager, err := twitchClient.Channels.GetChannelFollowersPager(
+		helix.GetChannelFollowersRequest{
 			BroadcasterID: twitchPlatformID,
+			First:         &first,
 		},
+		helix.WithPageLimit(10000),
 	)
 	if err != nil {
 		return 0, err
 	}
-	if followsReq.ErrorMessage != "" {
-		return 0, fmt.Errorf("cannot get channels followers: %s", followsReq.ErrorMessage)
+
+	followers := 0
+	for pager.Next(ctx) {
+		followers += len(pager.Page().Data)
+	}
+	if err := pager.Err(); err != nil {
+		return 0, err
 	}
 
 	if err := c.redis.Set(
 		ctx,
 		buildChannelFollowersCountCacheKeyForId(twitchPlatformID),
-		followsReq.Data.Total,
+		followers,
 		channelFollowersCountCacheDuration,
 	).Err(); err != nil {
 		return 0, err
 	}
 
-	return followsReq.Data.Total, nil
+	return followers, nil
 }
 
 // GetUserFollowDuration returns the duration a user has been following a channel
@@ -96,31 +103,27 @@ func (c *CachedTwitchClient) GetUserFollowDuration(
 		attribute.String("twitch.channelPlatformID", channelPlatformID),
 	)
 
-	twitchClient, err := twitch.NewUserClient(twitchUserID, c.config, c.twirBus)
+	twitchClient, err := c.createUserClient(ctx, twitchUserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create twitch client: %w", err)
 	}
 
-	// Use GetUsersFollows to check if a specific user is following
-	followsReq, err := twitchClient.GetUsersFollows(
-		&helix.UsersFollowsParams{
-			FromID: followerPlatformID,
-			ToID:   channelPlatformID,
+	followsReq, err := twitchClient.Channels.GetFollowedChannels(
+		ctx, helix.GetFollowedChannelsRequest{
+			UserID:        followerPlatformID,
+			BroadcasterID: &channelPlatformID,
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	if followsReq.ErrorMessage != "" {
-		return nil, fmt.Errorf("cannot get user follow: %s", followsReq.ErrorMessage)
-	}
 
 	// User is not following
-	if len(followsReq.Data.Follows) == 0 {
+	if len(followsReq.Data) == 0 {
 		return nil, nil
 	}
 
-	followedAt := followsReq.Data.Follows[0].FollowedAt
+	followedAt := followsReq.Data[0].FollowedAt.Time
 	duration := time.Since(followedAt)
 
 	return &duration, nil

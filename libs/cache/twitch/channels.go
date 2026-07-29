@@ -3,10 +3,9 @@ package twitch
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -22,7 +21,7 @@ func (c *CachedTwitchClient) SearchChannels(
 	ctx context.Context,
 	searchString string,
 ) (
-	[]helix.Channel,
+	[]helix.SearchChannel,
 	error,
 ) {
 	if searchString == "" {
@@ -40,7 +39,7 @@ func (c *CachedTwitchClient) SearchChannels(
 		ctx,
 		buildChannelsSearchCacheKeyForId(searchString),
 	).Bytes(); len(bytes) > 0 {
-		var channels []helix.Channel
+		var channels []helix.SearchChannel
 		if err := json.Unmarshal(bytes, &channels); err != nil {
 			return nil, err
 		}
@@ -48,19 +47,16 @@ func (c *CachedTwitchClient) SearchChannels(
 		return channels, nil
 	}
 
-	twitchSearchUsersReq, err := c.client.SearchChannels(
-		&helix.SearchChannelsParams{
-			Channel: searchString,
+	twitchSearchUsersReq, err := c.client.Search.SearchChannels(
+		ctx, helix.SearchChannelsRequest{
+			Query: searchString,
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	if twitchSearchUsersReq.ErrorMessage != "" {
-		return nil, fmt.Errorf(twitchSearchUsersReq.ErrorMessage)
-	}
 
-	channelsBytes, err := json.Marshal(twitchSearchUsersReq.Data.Channels)
+	channelsBytes, err := json.Marshal(twitchSearchUsersReq.Data)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +70,7 @@ func (c *CachedTwitchClient) SearchChannels(
 		return nil, err
 	}
 
-	return twitchSearchUsersReq.Data.Channels, nil
+	return twitchSearchUsersReq.Data, nil
 }
 
 const channelsByIdCacheKey = "cache:twir:twitch:channels:byId:"
@@ -107,23 +103,20 @@ func (c *CachedTwitchClient) GetChannelInformationById(
 		return &channel, nil
 	}
 
-	twitchGetChannelReq, err := c.client.GetChannelInformation(
-		&helix.GetChannelInformationParams{
+	twitchGetChannelReq, err := c.client.Channels.GetChannelInformation(
+		ctx, helix.GetChannelInformationRequest{
 			BroadcasterIDs: []string{channelId},
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	if twitchGetChannelReq.ErrorMessage != "" {
-		return nil, err
-	}
 
-	if len(twitchGetChannelReq.Data.Channels) == 0 {
+	if len(twitchGetChannelReq.Data) == 0 {
 		return nil, nil
 	}
 
-	channelBytes, err := json.Marshal(twitchGetChannelReq.Data.Channels[0])
+	channelBytes, err := json.Marshal(twitchGetChannelReq.Data[0])
 	if err != nil {
 		return nil, err
 	}
@@ -137,5 +130,5 @@ func (c *CachedTwitchClient) GetChannelInformationById(
 		return nil, err
 	}
 
-	return &twitchGetChannelReq.Data.Channels[0], nil
+	return &twitchGetChannelReq.Data[0], nil
 }

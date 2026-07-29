@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -54,20 +54,17 @@ func (c *CachedTwitchClient) GetUserById(ctx context.Context, id string) (*Twitc
 		return &helixUser, nil
 	}
 
-	twitchReq, err := c.client.GetUsers(&helix.UsersParams{IDs: []string{id}})
+	twitchReq, err := c.client.Users.GetUsers(ctx, helix.GetUsersRequest{IDs: []string{id}})
 	if err != nil {
 		return nil, err
 	}
-	if twitchReq.ErrorMessage != "" {
-		return nil, fmt.Errorf("cannot get twitch user: %s", twitchReq.ErrorMessage)
-	}
 
-	if len(twitchReq.Data.Users) == 0 {
+	if len(twitchReq.Data) == 0 {
 		return nil, fmt.Errorf("user not found")
 	}
 
 	user := TwitchUser{
-		User:     twitchReq.Data.Users[0],
+		User:     twitchReq.Data[0],
 		NotFound: false,
 	}
 
@@ -129,17 +126,14 @@ func (c *CachedTwitchClient) GetUsersByIds(ctx context.Context, ids []string) (
 
 		twitchWg.Go(
 			func() error {
-				twitchReq, err := c.client.GetUsers(&helix.UsersParams{IDs: chunk})
+				twitchReq, err := c.client.Users.GetUsers(ctx, helix.GetUsersRequest{IDs: chunk})
 				if err != nil {
 					return err
-				}
-				if twitchReq.ErrorMessage != "" {
-					return fmt.Errorf("cannot get twitch user: %s", twitchReq.ErrorMessage)
 				}
 
 				resultedUsersMutex.Lock()
 
-				for _, user := range twitchReq.Data.Users {
+				for _, user := range twitchReq.Data {
 					resultedUsers = append(
 						resultedUsers, TwitchUser{
 							User:     user,
@@ -240,17 +234,14 @@ func (c *CachedTwitchClient) GetUsersByNames(ctx context.Context, names []string
 
 		twitchWg.Go(
 			func() error {
-				twitchReq, err := c.client.GetUsers(&helix.UsersParams{Logins: chunk})
+				twitchReq, err := c.client.Users.GetUsers(ctx, helix.GetUsersRequest{Logins: chunk})
 				if err != nil {
 					return err
-				}
-				if twitchReq.ErrorMessage != "" {
-					return fmt.Errorf("cannot get twitch user: %s", twitchReq.ErrorMessage)
 				}
 
 				resultedUsersMutex.Lock()
 
-				for _, user := range twitchReq.Data.Users {
+				for _, user := range twitchReq.Data {
 					resultedUsers = append(
 						resultedUsers, TwitchUser{
 							User:     user,
@@ -327,20 +318,17 @@ func (c *CachedTwitchClient) GetUserByName(ctx context.Context, name string) (*T
 		return &helixUser, nil
 	}
 
-	twitchReq, err := c.client.GetUsers(&helix.UsersParams{Logins: []string{name}})
+	twitchReq, err := c.client.Users.GetUsers(ctx, helix.GetUsersRequest{Logins: []string{name}})
 	if err != nil {
 		return nil, err
 	}
-	if twitchReq.ErrorMessage != "" {
-		return nil, fmt.Errorf("cannot get twitch user: %s", twitchReq.ErrorMessage)
-	}
 
-	if len(twitchReq.Data.Users) == 0 {
+	if len(twitchReq.Data) == 0 {
 		return nil, fmt.Errorf("user not found")
 	}
 
 	user := TwitchUser{
-		User:     twitchReq.Data.Users[0],
+		User:     twitchReq.Data[0],
 		NotFound: false,
 	}
 

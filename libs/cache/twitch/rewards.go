@@ -2,14 +2,15 @@ package twitch
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/kvizyx/twitchy/helix"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -28,7 +29,7 @@ func (c *CachedTwitchClient) GetChannelRewards(
 	twitchUserID uuid.UUID,
 	twitchPlatformID string,
 ) (
-	[]helix.ChannelCustomReward,
+	[]helix.CustomReward,
 	error,
 ) {
 	if twitchUserID == uuid.Nil || twitchPlatformID == "" {
@@ -44,7 +45,7 @@ func (c *CachedTwitchClient) GetChannelRewards(
 	)
 
 	if bytes, _ := c.redis.Get(ctx, BuildRewardsCacheKeyForId(twitchPlatformID)).Bytes(); len(bytes) > 0 {
-		var rewards []helix.ChannelCustomReward
+		var rewards []helix.CustomReward
 		if err := json.Unmarshal(bytes, &rewards); err != nil {
 			return nil, err
 		}
@@ -52,40 +53,38 @@ func (c *CachedTwitchClient) GetChannelRewards(
 		return rewards, nil
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, twitchUserID, c.config, c.twirBus)
+	twitchClient, err := c.createUserClient(ctx, twitchUserID)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"failed to create twitch client for broadcaster #%s: %w", twitchPlatformID, err,
 		)
 	}
 
-	rewards, err := twitchClient.GetCustomRewards(
-		&helix.GetCustomRewardsParams{
+	rewards, err := twitchClient.ChannelPoints.GetCustomReward(
+		ctx, helix.GetCustomRewardRequest{
 			BroadcasterID: twitchPlatformID,
 		},
 	)
 	if err != nil {
+		var authErr *helix.AuthError
+		if errors.As(err, &authErr) && authErr.StatusCode() == http.StatusForbidden && strings.Contains(err.Error(), "The broadcaster must have partner or affiliate status.") {
+			return []helix.CustomReward{}, nil
+		}
+
 		return nil, fmt.Errorf(
 			"failed to get rewards for broadcaster #%s: %w", twitchPlatformID, err,
 		)
 	}
-	if rewards.ErrorMessage != "" {
-		if rewards.StatusCode == http.StatusForbidden {
-			return []helix.ChannelCustomReward{}, nil
-		}
 
-		return nil, fmt.Errorf(
-			"failed to get rewards for broadcaster #%s: %s", twitchPlatformID, rewards.ErrorMessage,
-		)
-	}
-
-	list := rewards.Data.ChannelCustomRewards
+	list := rewards.Data
 
 	for i, reward := range list {
-		if reward.Image.Url1x == "" {
-			list[i].Image.Url1x = reward.DefaultImage.Url1x
-			list[i].Image.Url2x = reward.DefaultImage.Url2x
-			list[i].Image.Url4x = reward.DefaultImage.Url4x
+		if reward.Image == nil || reward.Image.URL1x == "" {
+			list[i].Image = &helix.CustomRewardImage{
+				URL1x: reward.DefaultImage.URL1x,
+				URL2x: reward.DefaultImage.URL2x,
+				URL4x: reward.DefaultImage.URL4x,
+			}
 		}
 	}
 
@@ -103,5 +102,5 @@ func (c *CachedTwitchClient) GetChannelRewards(
 		return nil, err
 	}
 
-	return rewards.Data.ChannelCustomRewards, nil
+	return list, nil
 }
