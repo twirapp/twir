@@ -33,7 +33,7 @@ export const useOverlayInstantSaveGlobal = createGlobalState(() => {
 		)
 	})
 
-	const apiKey = computed(() => selectedDashboard.value?.apiKey ?? '')
+	const apiKey = computed(() => selectedDashboard.value?.apiKey || profile.value?.apiKey || '')
 
 	return {
 		apiKey,
@@ -42,6 +42,7 @@ export const useOverlayInstantSaveGlobal = createGlobalState(() => {
 
 export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 	const { apiKey } = useOverlayInstantSaveGlobal()
+	const requestUrl = useRequestURL()
 
 	const currentOverlayId = computed(() => toValue(overlayId))
 	const isEnabled = ref(false)
@@ -50,7 +51,6 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 	const wsUrl = computed(() => {
 		if (!currentOverlayId.value || !apiKey.value) return null
 
-		const requestUrl = useRequestURL()
 		const wsProtocol = requestUrl.protocol === 'https:' ? 'wss:' : 'ws:'
 		return `${wsProtocol}//${requestUrl.host}/socket/overlays/registry/overlays?apiKey=${apiKey.value}`
 	})
