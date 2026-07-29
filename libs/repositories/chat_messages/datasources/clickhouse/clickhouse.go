@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	twirclickhouse "github.com/twirapp/twir/libs/baseapp/clickhouse"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
@@ -24,6 +25,13 @@ func NewFx(client *twirclickhouse.ClickhouseClient) *Clickhouse {
 	return New(Opts{Client: client})
 }
 
+func normalizeRowID(id string) string {
+	if _, err := uuid.Parse(id); err != nil {
+		return uuid.NewString()
+	}
+	return id
+}
+
 var _ chat_messages.Repository = (*Clickhouse)(nil)
 var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Question)
 
@@ -40,7 +48,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 	err := c.client.Exec(
 		ctx,
 		query,
-		input.ID,
+		normalizeRowID(input.ID),
 		input.Platform,
 		input.PlatformChannelID,
 		input.UserID,
@@ -87,7 +95,7 @@ func (c *Clickhouse) createBatch(ctx context.Context, input []chat_messages.Crea
 
 	for _, i := range input {
 		err := batch.Append(
-			i.ID,
+			normalizeRowID(i.ID),
 			i.Platform,
 			i.PlatformChannelID,
 			i.UserID,
