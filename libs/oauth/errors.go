@@ -11,4 +11,5 @@ var (
 	ErrRefresh           = errors.New("oauth: refresh failed")
 	ErrCommit            = errors.New("oauth: commit failed")
 	ErrCoordinator       = errors.New("oauth: coordinator failed")
+	ErrAppTokenNotFound  = errors.New("oauth: app token not found")
 )

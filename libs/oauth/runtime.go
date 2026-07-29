@@ -13,6 +13,7 @@ type RuntimeOptions struct {
 	Skew     time.Duration
 	Observer Observer
 }
+
 type RefreshRuntime struct {
 	store     Store
 	refresher Refresher
@@ -20,84 +21,198 @@ type RefreshRuntime struct {
 	clock     Clock
 	skew      time.Duration
 	observer  Observer
-	closed    chan struct{}
+
+	mu        sync.Mutex
+	closed    bool
+	nextID    uint64
+	active    map[uint64]context.CancelCauseFunc
+	activeWg  sync.WaitGroup
 	closeOnce sync.Once
 }
 
 func NewRefreshRuntime(store Store, refresher Refresher, locker Locker, options RuntimeOptions) (*RefreshRuntime, error) {
-	if store == nil || refresher == nil || locker == nil || options.Skew < 0 {
+	if isNil(store) || isNil(refresher) || isNil(locker) || options.Skew < 0 {
 		return nil, fmt.Errorf("%w: dependencies and skew", ErrInvalidOption)
 	}
 	clock := options.Clock
-	if clock == nil {
+	if isNil(clock) {
 		clock = systemClock{}
 	}
-	return &RefreshRuntime{store: store, refresher: refresher, locker: locker, clock: clock, skew: options.Skew, observer: options.Observer, closed: make(chan struct{})}, nil
+	observer := options.Observer
+	if isNil(observer) {
+		observer = nil
+	}
+	return &RefreshRuntime{
+		store: store, refresher: refresher, locker: locker,
+		clock: clock, skew: options.Skew, observer: observer,
+		active: make(map[uint64]context.CancelCauseFunc),
+	}, nil
 }
 
-func (r *RefreshRuntime) Close() error {
-	r.closeOnce.Do(func() { close(r.closed) })
+// Close cancels all in-flight operations, waits for their release and observer
+// callbacks to settle, and prevents new work. Concurrent calls are idempotent.
+func (runtime *RefreshRuntime) Close() error {
+	runtime.closeOnce.Do(func() {
+		runtime.mu.Lock()
+		runtime.closed = true
+		cancellations := make([]context.CancelCauseFunc, 0, len(runtime.active))
+		for _, cancel := range runtime.active {
+			cancellations = append(cancellations, cancel)
+		}
+		runtime.mu.Unlock()
+		for _, cancel := range cancellations {
+			cancel(ErrClosed)
+		}
+		runtime.activeWg.Wait()
+	})
 	return nil
 }
 
-func (r *RefreshRuntime) Refresh(ctx context.Context, key CredentialKey) (credential Credential, err error) {
+func (runtime *RefreshRuntime) Refresh(ctx context.Context, key CredentialKey) (credential Credential, err error) {
+	if isNil(ctx) {
+		return Credential{}, fmt.Errorf("%w: nil context", ErrInvalidOption)
+	}
 	if err := key.Validate(); err != nil {
 		return Credential{}, err
 	}
-	select {
-	case <-r.closed:
-		return Credential{}, ErrClosed
-	default:
+	operationContext, finish, err := runtime.begin(ctx)
+	if err != nil {
+		return Credential{}, err
 	}
-	started := r.clock.Now()
+	defer finish()
+	started := runtime.clock.Now()
+	defer func() { runtime.observe(ctx, key, started, err) }()
+
+	lease, err := runtime.locker.Acquire(operationContext, key)
+	if err != nil {
+		return Credential{}, joinContextCause(fmt.Errorf("%w: acquire: %w", ErrCoordinator, err), operationContext)
+	}
+	if isNil(lease) {
+		return Credential{}, errors.Join(ErrCoordinator, ErrInvalidOption)
+	}
 	defer func() {
-		if r.observer != nil {
-			event := Event{Provider: key.Provider, CredentialID: key.ID, Operation: "refresh", Duration: r.clock.Now().Sub(started)}
-			if err != nil {
-				event.ErrorClass = fmt.Sprintf("%T", err)
-			}
-			r.observer.Observe(ctx, event)
+		if releaseErr := releaseLease(ctx, lease); releaseErr != nil {
+			credential = Credential{}
+			err = errors.Join(err, releaseErr)
 		}
 	}()
-	lease, err := r.locker.Acquire(ctx, key)
+	leaseContext := lease.Context()
+	workContext, stopWork, err := combinedLeaseContext(operationContext, leaseContext)
 	if err != nil {
-		return Credential{}, fmt.Errorf("%w: acquire: %w", ErrCoordinator, err)
+		return Credential{}, errors.Join(ErrCoordinator, err)
 	}
-	defer func() {
-		releaseCtx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-		err = errors.Join(err, lease.Release(releaseCtx))
-	}()
-	credential, err = r.store.Load(lease.Context(), key)
+	defer stopWork()
+
+	if err := checkLease(lease, workContext); err != nil {
+		return Credential{}, err
+	}
+	loaded, err := runtime.store.Load(workContext, key)
 	if err != nil {
-		return Credential{}, fmt.Errorf("%w: %w", ErrLoad, err)
+		return Credential{}, joinContextCause(fmt.Errorf("%w: %w", ErrLoad, err), operationContext, workContext)
 	}
-	if !credential.Expired(r.clock.Now(), r.skew) {
-		return credential, nil
+	loaded = cloneCredential(loaded)
+	if loaded.Key() != key {
+		return Credential{}, errors.Join(ErrLoad, fmt.Errorf("%w: loaded credential key mismatch", ErrInvalidCredential))
 	}
-	result, err := r.refresher.Refresh(lease.Context(), credential)
+	if err := loaded.Validate(); err != nil {
+		return Credential{}, errors.Join(ErrLoad, err)
+	}
+	if err := checkLease(lease, workContext); err != nil {
+		return Credential{}, err
+	}
+	if !loaded.Expired(runtime.clock.Now(), runtime.skew) {
+		return cloneCredential(loaded), nil
+	}
+	if err := checkLease(lease, workContext); err != nil {
+		return Credential{}, err
+	}
+	result, err := runtime.refresher.Refresh(workContext, cloneCredential(loaded))
 	if err != nil {
-		return Credential{}, fmt.Errorf("%w: %w", ErrRefresh, err)
+		return Credential{}, joinContextCause(fmt.Errorf("%w: %w", ErrRefresh, err), operationContext, workContext)
 	}
-	select {
-	case <-lease.Context().Done():
-		return Credential{}, errors.Join(ErrLeaseLost, lease.Context().Err())
-	default:
+	result = cloneRefreshResult(result)
+	if err := checkLease(lease, workContext); err != nil {
+		return Credential{}, err
 	}
-	credential.AccessToken, credential.ExpiresIn, credential.ObtainedAt = result.AccessToken, result.ExpiresIn, r.clock.Now()
+	if err := result.Validate(); err != nil {
+		return Credential{}, errors.Join(ErrRefresh, err)
+	}
+
+	rotated := cloneCredential(loaded)
+	rotated.AccessToken = result.AccessToken
+	rotated.ExpiresIn = result.ExpiresIn
+	rotated.ObtainedAt = runtime.clock.Now()
 	if result.RefreshToken != nil {
-		credential.RefreshToken = *result.RefreshToken
+		rotated.RefreshToken = *result.RefreshToken
 	}
 	if result.Scopes != nil {
-		credential.Scopes = append([]string(nil), result.Scopes...)
+		rotated.Scopes = cloneRefreshResult(result).Scopes
 	}
-	if err = r.store.Commit(lease.Context(), credential); err != nil {
-		return Credential{}, fmt.Errorf("%w: %w", ErrCommit, err)
+	if err := rotated.Validate(); err != nil {
+		return Credential{}, errors.Join(ErrRefresh, err)
 	}
-	select {
-	case <-lease.Context().Done():
-		return Credential{}, errors.Join(ErrLeaseLost, lease.Context().Err())
+	if err := checkLease(lease, workContext); err != nil {
+		return Credential{}, err
+	}
+	if err := runtime.store.Commit(workContext, cloneCredential(rotated)); err != nil {
+		return Credential{}, joinContextCause(fmt.Errorf("%w: %w", ErrCommit, err), operationContext, workContext)
+	}
+	if err := checkLease(lease, workContext); err != nil {
+		return Credential{}, err
+	}
+	return cloneCredential(rotated), nil
+}
+
+func (runtime *RefreshRuntime) begin(parent context.Context) (context.Context, func(), error) {
+	runtime.mu.Lock()
+	if runtime.closed {
+		runtime.mu.Unlock()
+		return nil, func() {}, ErrClosed
+	}
+	operationContext, cancel := context.WithCancelCause(parent)
+	runtime.nextID++
+	id := runtime.nextID
+	runtime.active[id] = cancel
+	runtime.activeWg.Add(1)
+	runtime.mu.Unlock()
+	return operationContext, func() {
+		cancel(context.Canceled)
+		runtime.mu.Lock()
+		delete(runtime.active, id)
+		runtime.mu.Unlock()
+		runtime.activeWg.Done()
+	}, nil
+}
+
+func (runtime *RefreshRuntime) observe(ctx context.Context, key CredentialKey, started time.Time, operationErr error) {
+	if runtime.observer == nil {
+		return
+	}
+	event := Event{Provider: key.Provider, CredentialID: key.ID, Operation: "refresh", Duration: runtime.clock.Now().Sub(started)}
+	if operationErr != nil {
+		event.ErrorClass = errorClass(operationErr)
+	}
+	defer func() { _ = recover() }()
+	_ = runtime.observer.Observe(ctx, event)
+}
+
+func errorClass(err error) string {
+	switch {
+	case errors.Is(err, ErrClosed):
+		return "closed"
+	case errors.Is(err, ErrLeaseLost):
+		return "lease_lost"
+	case errors.Is(err, ErrLoad):
+		return "load"
+	case errors.Is(err, ErrRefresh):
+		return "refresh"
+	case errors.Is(err, ErrCommit):
+		return "commit"
+	case errors.Is(err, ErrCoordinator):
+		return "coordinator"
+	case errors.Is(err, ErrInvalidCredential):
+		return "invalid_credential"
 	default:
+		return "other"
 	}
-	return credential, nil
 }

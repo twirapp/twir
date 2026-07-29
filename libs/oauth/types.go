@@ -63,6 +63,14 @@ type RefreshResult struct {
 	Scopes       []string
 	ExpiresIn    time.Duration
 }
+
+func (r RefreshResult) Validate() error {
+	if r.AccessToken == "" || r.ExpiresIn <= 0 {
+		return fmt.Errorf("%w: refreshed access token and positive expiry are required", ErrInvalidCredential)
+	}
+	return nil
+}
+
 type Locker interface {
 	Acquire(context.Context, CredentialKey) (Lease, error)
 }
@@ -76,7 +84,12 @@ type systemClock struct{}
 
 func (systemClock) Now() time.Time { return time.Now() }
 
-type Observer interface{ Observe(context.Context, Event) }
+// Observer receives sanitized lifecycle metadata synchronously. Observer errors
+// and panics are isolated from credential operations; implementations must return
+// promptly and honor the supplied context.
+type Observer interface {
+	Observe(context.Context, Event) error
+}
 type Event struct {
 	Provider     Provider
 	CredentialID CredentialID
