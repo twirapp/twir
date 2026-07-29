@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -10,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -142,7 +141,7 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 		ctx,
 		user.ID,
 		c.config,
-		c.twirBus,
+		nil,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create twitch client: %w", err)
@@ -180,22 +179,15 @@ func (c *Handler) handleStreamOfflineScheduledVips(
 				return
 			}
 
-			resp, err := twitchClient.RemoveChannelVip(
-				&helix.RemoveChannelVipParams{
+			_, err = twitchClient.Moderation.RemoveChannelVIP(
+				ctx,
+				helix.RemoveChannelVIPRequest{
 					BroadcasterID: event.BroadcasterUserId,
 					UserID:        vipUser.PlatformID,
 				},
 			)
 			if err != nil {
 				c.logger.Error("failed to remove vip", logger.Error(err))
-				return
-			}
-
-			if resp.ErrorMessage != "" {
-				c.logger.Error(
-					"failed to remove vip",
-					logger.Error(errors.New(resp.ErrorMessage)),
-				)
 				return
 			}
 

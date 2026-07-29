@@ -1,38 +1,21 @@
 package manager
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"log/slog"
-	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/kvizyx/twitchy/eventsub"
-	"github.com/twirapp/twir/libs/bus-core/tokens"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/libs/logger"
 	twitchconduits "github.com/twirapp/twir/libs/repositories/twitch_conduits"
 )
 
-type conduitsResponse struct {
-	Data []conduitsResponseConduit `json:"data"`
-}
-
 type conduitsResponseConduit struct {
 	Id         string `json:"id"`
 	ShardCount int    `json:"shard_count"`
-}
-
-type createConduitRequest struct {
-	ShardCount int `json:"shard_count"`
-}
-
-type createConduitResponse struct {
-	Data []conduitsResponseConduit `json:"data"`
 }
 
 func (c *Manager) createConduit() error {
@@ -78,36 +61,13 @@ func (c *Manager) ensureConduit(ctx context.Context) (*conduitsResponseConduit, 
 	}
 	defer mu.Unlock()
 
-	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch})
+	twitchClient, err := c.newAppTwitchClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.apiBaseUrl+"/helix/eventsub/conduits", nil)
+	conduits, err := twitchClient.Conduits.GetConduits(ctx, helix.GetConduitsRequest{})
 	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Client-id", c.config.TwitchClientId)
-	req.Header.Set("Authorization", "Bearer "+appToken.Data.AccessToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("cannot get conduits: %s", string(body))
-	}
-
-	var conduits conduitsResponse
-	if err := json.Unmarshal(body, &conduits); err != nil {
 		return nil, err
 	}
 
@@ -133,7 +93,10 @@ func (c *Manager) ensureConduit(ctx context.Context) (*conduitsResponseConduit, 
 			return nil, fmt.Errorf("failed to create conduit in db: %w", err)
 		}
 	} else {
-		currentConduit = &conduits.Data[0]
+		currentConduit = &conduitsResponseConduit{
+			Id:         conduits.Data[0].ID,
+			ShardCount: conduits.Data[0].ShardCount,
+		}
 
 		dbCurrentConduit, err := c.conduitsRepository.GetOne(ctx)
 		if err != nil {
@@ -160,7 +123,7 @@ func (c *Manager) ensureConduit(ctx context.Context) (*conduitsResponseConduit, 
 }
 
 func (c *Manager) twitchCreateConduit(ctx context.Context) (*conduitsResponseConduit, error) {
-	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch})
+	twitchClient, err := c.newAppTwitchClient(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -170,48 +133,18 @@ func (c *Manager) twitchCreateConduit(ctx context.Context) (*conduitsResponseCon
 		shardCount = 1
 	}
 
-	createReq := createConduitRequest{
-		ShardCount: shardCount,
-	}
-
-	bodyBytes, err := json.Marshal(createReq)
+	createResp, err := twitchClient.Conduits.CreateConduits(ctx, helix.CreateConduitsRequest{ShardCount: shardCount})
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal create conduit request: %w", err)
+		return nil, fmt.Errorf("create conduit: %w", err)
 	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.apiBaseUrl+"/helix/eventsub/conduits", bytes.NewBuffer(bodyBytes))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Client-id", c.config.TwitchClientId)
-	req.Header.Set("Authorization", "Bearer "+appToken.Data.AccessToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create conduit: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("cannot create conduit: %s", string(body))
-	}
-
-	var createResp createConduitResponse
-	if err := json.Unmarshal(body, &createResp); err != nil {
-		return nil, err
-	}
-
 	if len(createResp.Data) == 0 {
 		return nil, fmt.Errorf("no conduit created")
 	}
 
-	return &createResp.Data[0], nil
+	return &conduitsResponseConduit{
+		Id:         createResp.Data[0].ID,
+		ShardCount: createResp.Data[0].ShardCount,
+	}, nil
 }
 
 func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
@@ -237,50 +170,23 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 		shardId = parsed - 1 // REPLICA is 1-based, but shardId is 0-based
 	}
 
-	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, tokens.GetAppTokenRequest{Platform: platformentity.PlatformTwitch})
+	twitchClient, err := c.newAppTwitchClient(ctx)
 	if err != nil {
 		return err
 	}
 
-	updateReq := map[string]any{
-		"conduit_id": c.currentConduit.Id,
-		"shards": []map[string]any{
-			{
-				"id": shardId,
-				"transport": map[string]any{
-					"method":     "websocket",
-					"session_id": c.wsCurrentSessionId,
-				},
+	_, err = twitchClient.Conduits.UpdateConduitShards(ctx, helix.UpdateConduitShardsRequest{
+		ConduitID: c.currentConduit.Id,
+		Shards: []helix.UpdateConduitShard{{
+			ID: strconv.Itoa(shardId),
+			Transport: helix.ConduitShardTransport{
+				Method:    "websocket",
+				SessionID: *c.wsCurrentSessionId,
 			},
-		},
-	}
-
-	bodyBytes, err := json.Marshal(updateReq)
+		}},
+	})
 	if err != nil {
-		return fmt.Errorf("failed to marshal update conduit shard request: %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, c.apiBaseUrl+"/helix/eventsub/conduits/shards", bytes.NewBuffer(bodyBytes))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Client-id", c.config.TwitchClientId)
-	req.Header.Set("Authorization", "Bearer "+appToken.Data.AccessToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("failed to update conduit shard: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("cannot update conduit shard: %s", string(body))
+		return fmt.Errorf("update conduit shard: %w", err)
 	}
 
 	c.logger.Info(
@@ -289,7 +195,6 @@ func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 		slog.Int("shard_id", shardId),
 		slog.String("session_id", *c.wsCurrentSessionId),
 		slog.String("current_replica_id", currentReplicaId),
-		slog.String("response", string(body)),
 	)
 
 	return nil

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/kvizyx/twitchy/eventsub"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
@@ -47,24 +47,20 @@ func (c *Handler) HandleStreamOnline(
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, nil)
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
 		return
 	}
 
-	streamsReq, err := twitchClient.GetStreams(
-		&helix.StreamsParams{
-			UserIDs: []string{event.BroadcasterUserId},
+	streamsReq, err := twitchClient.Streams.GetStreams(
+		ctx,
+		helix.GetStreamsRequest{
+			UserID: []string{event.BroadcasterUserId},
 		},
 	)
 	if err != nil {
 		c.logger.Error(err.Error(), logger.Error(err))
-		return
-	}
-
-	if streamsReq.ErrorMessage != "" {
-		c.logger.Error(streamsReq.ErrorMessage)
 		return
 	}
 
@@ -74,7 +70,7 @@ func (c *Handler) HandleStreamOnline(
 			break
 		}
 
-		if len(streamsReq.Data.Streams) == 0 {
+		if len(streamsReq.Data) == 0 {
 			c.logger.Error(
 				"stream online event received but GetStreams returned no streams",
 				slog.String("channelId", event.BroadcasterUserId),
@@ -85,7 +81,7 @@ func (c *Handler) HandleStreamOnline(
 			continue
 		}
 
-		stream := streamsReq.Data.Streams[0]
+		stream := streamsReq.Data[0]
 
 		err = c.streamsrepository.Save(
 			ctx,
@@ -98,10 +94,10 @@ func (c *Handler) HandleStreamOnline(
 				GameId:       stream.GameID,
 				GameName:     stream.GameName,
 				CommunityIds: nil,
-				Type:         stream.Type,
+				Type:         string(stream.Type),
 				Title:        stream.Title,
 				ViewerCount:  stream.ViewerCount,
-				StartedAt:    stream.StartedAt,
+				StartedAt:    stream.StartedAt.Time,
 				Language:     stream.Language,
 				ThumbnailUrl: stream.ThumbnailURL,
 				TagIds:       stream.TagIDs,
@@ -135,7 +131,7 @@ func (c *Handler) HandleStreamOnline(
 				CategoryID:   stream.GameID,
 				Title:        stream.Title,
 				Viewers:      stream.ViewerCount,
-				StartedAt:    stream.StartedAt,
+				StartedAt:    stream.StartedAt.Time,
 			},
 		)
 

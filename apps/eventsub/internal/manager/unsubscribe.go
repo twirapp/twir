@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net/http"
 	"strings"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/twitch"
 )
 
 func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) error {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+	twitchClient, err := c.newAppTwitchClient(ctx)
 	if err != nil {
 		return err
 	}
@@ -23,26 +23,20 @@ func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) erro
 	var subscriptionIDsToRemove []string
 	var scannedSubscriptions int
 	for {
-		existedSubsRes, err := twitchClient.GetEventSubSubscriptions(
-			&helix.EventSubSubscriptionsParams{
-				After: cursor,
+		existedSubsRes, err := twitchClient.EventSub.GetEventSubSubscriptions(
+			ctx,
+			helix.GetEventSubSubscriptionsRequest{
+				After:           cursor,
+				TransportMethod: helix.EventSubTransportConduit,
 			},
 		)
 		if err != nil {
 			return err
 		}
 
-		if existedSubsRes == nil {
-			return nil
-		}
+		scannedSubscriptions += len(existedSubsRes.Data.Subscriptions)
 
-		if existedSubsRes.ErrorMessage != "" {
-			return errors.New(existedSubsRes.ErrorMessage)
-		}
-
-		scannedSubscriptions += len(existedSubsRes.Data.EventSubSubscriptions)
-
-		for _, sub := range existedSubsRes.Data.EventSubSubscriptions {
+		for _, sub := range existedSubsRes.Data.Subscriptions {
 			if !shouldUnsubscribeChannelSubscription(channelID, sub) {
 				continue
 			}
@@ -50,7 +44,7 @@ func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) erro
 			subscriptionIDsToRemove = append(subscriptionIDsToRemove, sub.ID)
 		}
 
-		cursor = existedSubsRes.Data.Pagination.Cursor
+		cursor = existedSubsRes.Pagination.Cursor()
 		if cursor == "" {
 			break
 		}
@@ -67,8 +61,11 @@ func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) erro
 	notFoundCount := 0
 
 	for _, subscriptionID := range subscriptionIDsToRemove {
-		res, err := twitchClient.RemoveEventSubSubscription(subscriptionID)
-		if isSubscriptionNotFound(err, res) {
+		_, err := twitchClient.EventSub.DeleteEventSubSubscription(ctx, helix.DeleteEventSubSubscriptionRequest{
+			ID:              subscriptionID,
+			TransportMethod: helix.EventSubTransportConduit,
+		})
+		if isSubscriptionNotFound(err) {
 			notFoundCount++
 			c.logger.Info(
 				"unsubscribe twitch subscriptions: subscription already absent",
@@ -80,15 +77,6 @@ func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) erro
 
 		if err != nil {
 			c.logger.Warn("failed to remove subscription", logger.Error(err), slog.String("subscription_id", subscriptionID))
-			continue
-		}
-
-		if res != nil && res.ErrorMessage != "" {
-			c.logger.Warn(
-				"failed to remove subscription",
-				slog.String("subscription_id", subscriptionID),
-				slog.String("error", res.ErrorMessage),
-			)
 			continue
 		}
 
@@ -109,21 +97,22 @@ func (c *Manager) UnsubscribeChannel(ctx context.Context, channelID string) erro
 func shouldUnsubscribeChannelSubscription(channelID string, sub helix.EventSubSubscription) bool {
 	condition := sub.Condition
 
-	return condition.BroadcasterUserID == channelID ||
-		condition.UserID == channelID ||
-		condition.ModeratorUserID == channelID ||
-		condition.ToBroadcasterUserID == channelID ||
-		condition.FromBroadcasterUserID == channelID
+	return condition["broadcaster_user_id"] == channelID ||
+		condition["user_id"] == channelID ||
+		condition["moderator_user_id"] == channelID ||
+		condition["to_broadcaster_user_id"] == channelID ||
+		condition["from_broadcaster_user_id"] == channelID
 }
 
-func isSubscriptionNotFound(err error, res *helix.RemoveEventSubSubscriptionParamsResponse) bool {
-	if err != nil && strings.Contains(strings.ToLower(err.Error()), "not found") {
-		return true
-	}
-
-	if res == nil {
+func isSubscriptionNotFound(err error) bool {
+	if err == nil {
 		return false
 	}
 
-	return res.StatusCode == 404 || strings.Contains(strings.ToLower(res.ErrorMessage), "not found")
+	var apiErr *helix.APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode() == http.StatusNotFound {
+		return true
+	}
+
+	return strings.Contains(strings.ToLower(err.Error()), "not found")
 }
