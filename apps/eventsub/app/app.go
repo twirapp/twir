@@ -28,6 +28,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/integrations/vk"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
+	oauthvkvideo "github.com/twirapp/twir/libs/oauth/vkvideo"
 	"github.com/twirapp/twir/libs/otel"
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
@@ -69,6 +71,7 @@ import (
 var App = fx.Options(
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "eventsub"}),
 	fx.Provide(
+		newKickAppTokenSource,
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
@@ -157,6 +160,7 @@ var App = fx.Options(
 			bus *buscore.Bus,
 			userCreator *user_creator.UserCreatorService,
 			channelsRepo channelsrepository.Repository,
+			userTokenSource oauthvkvideo.UserTokenSource,
 			lc fx.Lifecycle,
 		) (*platformsregistry.Registry[eventplatforms.EventTransport], error) {
 			return eventplatforms.NewVKVideoRegistry(config, kickTransport, func() (eventplatforms.EventTransport, error) {
@@ -174,6 +178,7 @@ var App = fx.Options(
 					UserCreator:          userCreator,
 					WebSocketTokenClient: webSocketTokenClient,
 					ChannelsRepo:         channelsRepo,
+					UserTokenSource:      userTokenSource,
 					Lc:                   lc,
 				})
 			})
@@ -199,3 +204,7 @@ var App = fx.Options(
 		},
 	),
 )
+
+func newKickAppTokenSource(config cfg.Config, redis *goredis.Client) (kickoauth.AppTokenSource, error) {
+	return kickoauth.NewAppTokenSource(kickoauth.SourceOptions{ClientID: config.KickClientId, ClientSecret: config.KickClientSecret, Redis: redis})
+}

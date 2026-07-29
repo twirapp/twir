@@ -11,10 +11,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/oauth"
 )
 
 type twitchChannelLookupStub struct {
@@ -233,11 +233,11 @@ func TestSetStreamInformationRoutesKickToKickUpdater(t *testing.T) {
 			Platform: platform.PlatformKick,
 			UserID:   kickOwnerID,
 		}}}},
-		requestKickUserToken: func(_ context.Context, userID uuid.UUID) (buscoretokens.TokenResponse, error) {
+		requestKickUserToken: func(_ context.Context, userID uuid.UUID) (oauth.Credential, error) {
 			if userID != kickOwnerID {
 				t.Fatalf("Kick token owner ID = %s, want %s", userID, kickOwnerID)
 			}
-			return buscoretokens.TokenResponse{AccessToken: "kick-token", Scopes: []string{"channel:write"}}, nil
+			return oauth.Credential{AccessToken: "kick-token", Scopes: []string{"channel:write"}}, nil
 		},
 		updateKickStreamInformation: func(_ context.Context, token string, gotTitle, gotCategoryID *string) error {
 			updatedToken = token
@@ -270,8 +270,8 @@ func TestSetStreamInformationRejectsKickTokenWithoutWriteScope(t *testing.T) {
 			Platform: platform.PlatformKick,
 			UserID:   kickOwnerID,
 		}}}},
-		requestKickUserToken: func(context.Context, uuid.UUID) (buscoretokens.TokenResponse, error) {
-			return buscoretokens.TokenResponse{AccessToken: "kick-token", Scopes: []string{"channel:read"}}, nil
+		requestKickUserToken: func(context.Context, uuid.UUID) (oauth.Credential, error) {
+			return oauth.Credential{AccessToken: "kick-token", Scopes: []string{"channel:read"}}, nil
 		},
 		updateKickStreamInformation: func(context.Context, string, *string, *string) error {
 			t.Fatal("Kick updater must not run without channel:write")

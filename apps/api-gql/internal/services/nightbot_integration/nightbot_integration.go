@@ -18,7 +18,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
+	channeloauth "github.com/twirapp/twir/libs/oauth/channel_integrations"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
@@ -41,6 +41,7 @@ type Opts struct {
 	Logger                  *slog.Logger
 	TrManager               trm.Manager
 	TwirBus                 *buscore.Bus
+	ChannelIntegrationTokens channeloauth.Provider
 	IntegrationsRepository  integrations.Repository
 	ChannelIntegrationsRepo channelsintegrations.Repository
 	RolesRepository         roles.Repository
@@ -57,6 +58,7 @@ func New(opts Opts) (*Service, error) {
 		logger:                  opts.Logger,
 		trManager:               opts.TrManager,
 		twirBus:                 opts.TwirBus,
+		channelIntegrationTokens: opts.ChannelIntegrationTokens,
 		integrationsRepo:        opts.IntegrationsRepository,
 		channelIntegrationsRepo: opts.ChannelIntegrationsRepo,
 		rolesRepository:         opts.RolesRepository,
@@ -82,6 +84,7 @@ type Service struct {
 	logger                  *slog.Logger
 	trManager               trm.Manager
 	twirBus                 *buscore.Bus
+	channelIntegrationTokens channeloauth.Provider
 	integrationsRepo        integrations.Repository
 	channelIntegrationsRepo channelsintegrations.Repository
 	rolesRepository         roles.Repository
@@ -370,17 +373,11 @@ func (s *Service) ImportCommands(
 
 	accessToken := *channelIntegration.AccessToken
 	if channelIntegration.RefreshToken != nil {
-		tokenResp, err := s.twirBus.Tokens.RequestChannelIntegrationToken.Request(
-			ctx,
-			buscoretokens.GetChannelIntegrationTokenRequest{
-				ChannelID: channelID,
-				Service:   integrationsmodel.ServiceNightbot,
-			},
-		)
+		tokenResp, err := s.channelIntegrationTokens.Token(ctx, integrationsmodel.ServiceNightbot, channelID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get nightbot token: %w", err)
 		}
-		accessToken = tokenResp.Data.AccessToken
+		accessToken = tokenResp.AccessToken
 	}
 
 	httpReq, err := http.NewRequestWithContext(
@@ -614,17 +611,11 @@ func (s *Service) ImportTimers(
 
 	accessToken := *channelIntegration.AccessToken
 	if channelIntegration.RefreshToken != nil {
-		tokenResp, err := s.twirBus.Tokens.RequestChannelIntegrationToken.Request(
-			ctx,
-			buscoretokens.GetChannelIntegrationTokenRequest{
-				ChannelID: channelID,
-				Service:   integrationsmodel.ServiceNightbot,
-			},
-		)
+		tokenResp, err := s.channelIntegrationTokens.Token(ctx, integrationsmodel.ServiceNightbot, channelID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get nightbot token: %w", err)
 		}
-		accessToken = tokenResp.Data.AccessToken
+		accessToken = tokenResp.AccessToken
 	}
 
 	httpReq, err := http.NewRequestWithContext(

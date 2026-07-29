@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/scorfly/gokick"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
+	"github.com/twirapp/twir/libs/oauth"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
@@ -19,7 +19,7 @@ type SetStreamInformationInput struct {
 	Title      *string
 }
 
-type kickUserTokenRequester func(context.Context, uuid.UUID) (buscoretokens.TokenResponse, error)
+type kickUserTokenRequester func(context.Context, uuid.UUID) (oauth.Credential, error)
 type kickStreamInformationUpdater func(context.Context, string, *string, *string) error
 
 func (s *Service) SetStreamInformation(ctx context.Context, input SetStreamInformationInput) error {
@@ -91,16 +91,8 @@ func (s *Service) setKickStreamInformation(ctx context.Context, input SetStreamI
 func (s *Service) defaultKickUserTokenRequester(
 	ctx context.Context,
 	userID uuid.UUID,
-) (buscoretokens.TokenResponse, error) {
-	response, err := s.twirBus.Tokens.RequestUserToken.Request(
-		ctx,
-		buscoretokens.GetUserTokenRequest{UserId: userID},
-	)
-	if err != nil {
-		return buscoretokens.TokenResponse{}, err
-	}
-
-	return response.Data, nil
+) (oauth.Credential, error) {
+	return s.kickUserTokens.Token(ctx, userID)
 }
 
 func (s *Service) defaultKickStreamInformationUpdater(
@@ -134,15 +126,12 @@ func (s *Service) SearchKickCategories(ctx context.Context, query string) ([]gok
 		return nil, fmt.Errorf("Kick provider is not configured")
 	}
 
-	response, err := s.twirBus.Tokens.RequestAppToken.Request(
-		ctx,
-		buscoretokens.GetAppTokenRequest{Platform: platformentity.PlatformKick},
-	)
+	response, err := s.kickAppTokens.Token(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("request Kick app token: %w", err)
 	}
 
-	categories, err := s.kickProvider.SearchCategories(ctx, response.Data.AccessToken, query)
+	categories, err := s.kickProvider.SearchCategories(ctx, response.AccessToken, query)
 	if err != nil {
 		return nil, fmt.Errorf("search Kick categories: %w", err)
 	}

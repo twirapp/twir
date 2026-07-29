@@ -23,8 +23,8 @@ require (
 	github.com/prometheus/client_golang v1.23.2
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0
-	github.com/scorfly/gokick v1.17.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/scorfly/gokick v1.17.0
 	github.com/tidwall/gjson v1.18.0
 	github.com/valyala/fasttemplate v1.2.2
 	github.com/xhit/go-str2duration/v2 v2.1.0
@@ -83,6 +83,9 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/golang/mock v1.7.0-rc.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/twirapp/twir/libs/oauth v0.0.0-20260729152333-cf880c991f4f
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/twirapp/twir/libs/oauth => ../../libs/oauth

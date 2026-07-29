@@ -11,30 +11,24 @@ import (
 	"time"
 
 	"github.com/scorfly/gokick"
-	buscore "github.com/twirapp/twir/libs/bus-core"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 )
-
-type botTokenRequester interface {
-	Request(ctx context.Context, data buscoretokens.GetBotTokenRequest) (*buscore.QueueResponse[buscoretokens.TokenResponse], error)
-}
 
 type ChatClient struct {
 	config          cfg.Config
 	httpClient      *http.Client
 	logger          *slog.Logger
-	requestBotToken botTokenRequester
+	botTokens       kickoauth.DefaultBotTokenSource
 }
 
-func NewChatClient(twirBus *buscore.Bus, config cfg.Config) *ChatClient {
+func NewChatClient(botTokens kickoauth.DefaultBotTokenSource, config cfg.Config) *ChatClient {
 	return &ChatClient{
 		config:          config,
 		httpClient:      &http.Client{Timeout: 10 * time.Second},
 		logger:          slog.Default(),
-		requestBotToken: twirBus.Tokens.RequestBotToken,
+		botTokens:       botTokens,
 	}
 }
 
@@ -67,13 +61,13 @@ func (c *ChatClient) sendMessagePart(
 	text string,
 	replyToMessageID string,
 ) error {
-	tokenResp, err := c.requestBotToken.Request(ctx, buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformKick})
+	token, err := c.botTokens.Token(ctx)
 	if err != nil {
 		return fmt.Errorf("request kick bot token: %w", err)
 	}
 
 	kickClient, err := gokick.NewClient(&gokick.ClientOptions{
-		UserAccessToken: tokenResp.Data.AccessToken,
+		UserAccessToken: token.AccessToken,
 		HTTPClient:      c.httpClient,
 		ClientID:        c.config.KickClientId,
 		ClientSecret:    c.config.KickClientSecret,
@@ -107,7 +101,7 @@ func (c *ChatClient) sendMessagePart(
 					"kick chat forbidden",
 					slog.String("broadcaster_kick_id", broadcasterKickID),
 					slog.Int("broadcaster_user_id", broadcasterUserID),
-					slog.Any("bot_scopes", tokenResp.Data.Scopes),
+					slog.Any("bot_scopes", token.Scopes),
 					slog.Int("status_code", apiErr.Code()),
 					slog.Any("error", err),
 				)

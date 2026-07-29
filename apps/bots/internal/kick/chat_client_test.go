@@ -9,11 +9,10 @@ import (
 	"unicode/utf8"
 
 	"github.com/stretchr/testify/require"
-	buscore "github.com/twirapp/twir/libs/bus-core"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/oauth"
 )
 
 func TestSplitMessage_UsesByteLimit(t *testing.T) {
@@ -37,11 +36,7 @@ func TestSplitMessage_PreservesUTF8Boundaries(t *testing.T) {
 func TestSendMessage_RequestsKickTokenFromBus(t *testing.T) {
 	t.Parallel()
 
-	requester := &fakeBotTokenRequester{
-		resp: &buscore.QueueResponse[buscoretokens.TokenResponse]{
-			Data: buscoretokens.TokenResponse{AccessToken: "kick-access-token"},
-		},
-	}
+	requester := &fakeBotTokenSource{token: oauth.Credential{AccessToken: "kick-access-token"}}
 	transport := &captureTransport{}
 
 	client := &ChatClient{
@@ -49,42 +44,25 @@ func TestSendMessage_RequestsKickTokenFromBus(t *testing.T) {
 		httpClient: &http.Client{
 			Transport: transport,
 		},
-		requestBotToken: requester,
+		botTokens: requester,
 	}
 
 	err := client.SendMessage(context.Background(), kickBinding("42"), "hello", "")
 	require.NoError(t, err)
 	require.Equal(t, 1, requester.calls)
-	require.Equal(t, platformentity.PlatformKick, requester.req.Platform)
 	require.Equal(t, "Bearer kick-access-token", transport.authorization)
 }
 
-type fakeBotTokenRequester struct {
+type fakeBotTokenSource struct {
 	calls int
-	req   buscoretokens.GetBotTokenRequest
-	resp  *buscore.QueueResponse[buscoretokens.TokenResponse]
+	token oauth.Credential
 	err   error
 }
 
-func (f *fakeBotTokenRequester) Publish(ctx context.Context, data buscoretokens.GetBotTokenRequest) error {
-	panic("unexpected call")
-}
-
-func (f *fakeBotTokenRequester) Request(ctx context.Context, data buscoretokens.GetBotTokenRequest) (*buscore.QueueResponse[buscoretokens.TokenResponse], error) {
+func (f *fakeBotTokenSource) Token(context.Context) (oauth.Credential, error) {
 	f.calls++
-	f.req = data
-	return f.resp, f.err
+	return f.token, f.err
 }
-
-func (f *fakeBotTokenRequester) SubscribeGroup(queueGroup string, data buscore.QueueSubscribeCallback[buscoretokens.GetBotTokenRequest, buscoretokens.TokenResponse]) error {
-	panic("unexpected call")
-}
-
-func (f *fakeBotTokenRequester) Subscribe(data buscore.QueueSubscribeCallback[buscoretokens.GetBotTokenRequest, buscoretokens.TokenResponse]) error {
-	panic("unexpected call")
-}
-
-func (f *fakeBotTokenRequester) Unsubscribe() {}
 
 type captureTransport struct {
 	authorization string
@@ -110,11 +88,7 @@ func (t *captureTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 func TestSendMessage_OmitsReplyToWhenEmpty(t *testing.T) {
 	t.Parallel()
 
-	requester := &fakeBotTokenRequester{
-		resp: &buscore.QueueResponse[buscoretokens.TokenResponse]{
-			Data: buscoretokens.TokenResponse{AccessToken: "kick-access-token"},
-		},
-	}
+	requester := &fakeBotTokenSource{token: oauth.Credential{AccessToken: "kick-access-token"}}
 	transport := &captureTransport{}
 
 	client := &ChatClient{
@@ -122,7 +96,7 @@ func TestSendMessage_OmitsReplyToWhenEmpty(t *testing.T) {
 		httpClient: &http.Client{
 			Transport: transport,
 		},
-		requestBotToken: requester,
+		botTokens: requester,
 	}
 
 	err := client.SendMessage(context.Background(), kickBinding("42"), "hello", "")
@@ -134,11 +108,7 @@ func TestSendMessage_OmitsReplyToWhenEmpty(t *testing.T) {
 func TestSendMessage_IncludesReplyToWhenProvided(t *testing.T) {
 	t.Parallel()
 
-	requester := &fakeBotTokenRequester{
-		resp: &buscore.QueueResponse[buscoretokens.TokenResponse]{
-			Data: buscoretokens.TokenResponse{AccessToken: "kick-access-token"},
-		},
-	}
+	requester := &fakeBotTokenSource{token: oauth.Credential{AccessToken: "kick-access-token"}}
 	transport := &captureTransport{}
 
 	client := &ChatClient{
@@ -146,7 +116,7 @@ func TestSendMessage_IncludesReplyToWhenProvided(t *testing.T) {
 		httpClient: &http.Client{
 			Transport: transport,
 		},
-		requestBotToken: requester,
+		botTokens: requester,
 	}
 
 	replyToMessageID := "opaque-reply-id-123"

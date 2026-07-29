@@ -10,6 +10,7 @@ import (
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchclient "github.com/twirapp/twir/libs/twitch"
@@ -25,6 +26,8 @@ type Opts struct {
 	UsersRepository    users.Repository
 	ChannelService     *channelservice.ChannelService
 	KickProvider       *kickplatform.Provider
+	KickAppTokens      kickoauth.AppTokenSource
+	KickUserTokens     kickoauth.UserTokenSource
 }
 
 func New(opts Opts) *Service {
@@ -35,6 +38,8 @@ func New(opts Opts) *Service {
 		usersRepository:    opts.UsersRepository,
 		channelService:     opts.ChannelService,
 		kickProvider:       opts.KickProvider,
+		kickAppTokens:      opts.KickAppTokens,
+		kickUserTokens:     opts.KickUserTokens,
 	}
 }
 
@@ -45,6 +50,8 @@ type Service struct {
 	usersRepository             users.Repository
 	channelService              channelLookup
 	kickProvider                *kickplatform.Provider
+	kickAppTokens               kickoauth.AppTokenSource
+	kickUserTokens              kickoauth.UserTokenSource
 	newAppClient                twitchAppClientFactory
 	newUserClient               twitchUserClientFactory
 	requestKickUserToken        kickUserTokenRequester

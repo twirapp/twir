@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	goredis "github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
@@ -102,6 +103,9 @@ import (
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/webhook_notifications"
 	"github.com/twirapp/twir/libs/baseapp"
+	channeloauth "github.com/twirapp/twir/libs/oauth/channel_integrations"
+	nightbotoauth "github.com/twirapp/twir/libs/oauth/nightbot"
+	spotifyoauth "github.com/twirapp/twir/libs/oauth/spotify"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
@@ -121,6 +125,7 @@ import (
 	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	cfg "github.com/twirapp/twir/libs/config"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	valorantintegration "github.com/twirapp/twir/libs/integrations/valorant"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
@@ -287,6 +292,7 @@ import (
 	channelsintegrationsdiscordrepository "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
 	channelsintegrationsdiscordpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/datasource/postgres"
 
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/fx"
 
 	commandshttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/commands"
@@ -595,6 +601,8 @@ func main() {
 		),
 		// services
 		fx.Provide(
+			newKickAppTokenSource,
+			newKickUserTokenSource,
 			kickplatform.New,
 			twitchplatform.New,
 			vkvideo.NewBotSetupProvider,
@@ -673,6 +681,11 @@ func main() {
 			vkintegration.New,
 			faceitintegration.New,
 			channelsoverlaysservice.New,
+		),
+		fx.Provide(
+			newSpotifyChannelIntegrationTokenSource,
+			newNightbotChannelIntegrationTokenSource,
+			newChannelIntegrationTokenProvider,
 		),
 		// app itself
 		fx.Provide(
@@ -761,4 +774,43 @@ func newPlatformRegistry(
 			return provider, nil
 		},
 	)
+}
+
+func newSpotifyChannelIntegrationTokenSource(
+	redisClient *redis.Client,
+	channelIntegrations channelsintegrationsspotify.Repository,
+	integrationSettings integrationsrepository.Repository,
+) (spotifyoauth.TokenSource, error) {
+	return spotifyoauth.NewTokenSource(
+		spotifyoauth.SourceOptions{Redis: redisClient}, channelIntegrations, integrationSettings,
+	)
+}
+
+func newNightbotChannelIntegrationTokenSource(
+	redisClient *redis.Client,
+	channelIntegrations channelsintegrationsrepository.Repository,
+	integrationSettings integrationsrepository.Repository,
+) (nightbotoauth.TokenSource, error) {
+	return nightbotoauth.NewTokenSource(
+		nightbotoauth.SourceOptions{Redis: redisClient}, channelIntegrations, integrationSettings,
+	)
+}
+
+func newChannelIntegrationTokenProvider(
+	spotifySource spotifyoauth.TokenSource,
+	nightbotSource nightbotoauth.TokenSource,
+) channeloauth.Provider {
+	return channeloauth.New(spotifySource, nightbotSource)
+}
+
+func newKickAppTokenSource(config cfg.Config, redis *goredis.Client) (kickoauth.AppTokenSource, error) {
+	return kickoauth.NewAppTokenSource(kickoauth.SourceOptions{
+		ClientID: config.KickClientId, ClientSecret: config.KickClientSecret, Redis: redis,
+	})
+}
+
+func newKickUserTokenSource(config cfg.Config, redis *goredis.Client, repository tokensrepository.Repository) (kickoauth.UserTokenSource, error) {
+	return kickoauth.NewUserTokenSource(kickoauth.SourceOptions{
+		ClientID: config.KickClientId, ClientSecret: config.KickClientSecret, CipherKey: config.TokensCipherKey, Redis: redis,
+	}, repository)
 }

@@ -741,7 +741,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 			LastfmRepository:  r.deps.LastfmRepository,
 			VKRepository:      r.deps.VKIntegrationRepository,
 			Config:            r.deps.Config,
-			TwirBus:           r.deps.TwirBus,
+		ChannelIntegrationTokens: r.deps.ChannelIntegrationTokens,
 		},
 	)
 	if err != nil {

@@ -13,11 +13,11 @@ import (
 	"github.com/scorfly/gokick"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
-	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 )
@@ -56,6 +56,7 @@ type SubscriptionManager struct {
 	redis           *goredis.Client
 	logger          *slog.Logger
 	usersRepo       usersrepository.Repository
+	appTokens       kickoauth.AppTokenSource
 	twirBus         *buscore.Bus
 	callbackBaseURL string
 }
@@ -68,6 +69,7 @@ type Opts struct {
 	Logger    *slog.Logger
 	TwirBus   *buscore.Bus
 	UsersRepo usersrepository.Repository
+	AppTokens kickoauth.AppTokenSource
 }
 
 func New(opts Opts) *SubscriptionManager {
@@ -77,6 +79,7 @@ func New(opts Opts) *SubscriptionManager {
 		logger:    opts.Logger,
 		twirBus:   opts.TwirBus,
 		usersRepo: opts.UsersRepo,
+		appTokens: opts.AppTokens,
 	}
 }
 
@@ -129,15 +132,12 @@ func (m *SubscriptionManager) getWebhookCallbackURL() string {
 }
 
 func (m *SubscriptionManager) getAppAccessToken(ctx context.Context) (string, error) {
-	resp, err := m.twirBus.Tokens.RequestAppToken.Request(
-		ctx,
-		bustokens.GetAppTokenRequest{Platform: platformentity.PlatformKick},
-	)
+	resp, err := m.appTokens.Token(ctx)
 	if err != nil {
 		return "", fmt.Errorf("request kick app token: %w", err)
 	}
 
-	return resp.Data.AccessToken, nil
+	return resp.AccessToken, nil
 }
 
 func (m *SubscriptionManager) subscribe(

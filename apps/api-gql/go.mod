@@ -145,6 +145,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/tinylib/msgp v1.5.0 // indirect
+	github.com/twirapp/twir/libs/oauth v0.0.0-20260729152333-cf880c991f4f
 	github.com/twirapp/twir/libs/sentry v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
@@ -187,3 +188,5 @@ require (
 )
 
 replace github.com/twirapp/twir/libs/wsrouter => ../../libs/wsrouter
+
+replace github.com/twirapp/twir/libs/oauth => ../../libs/oauth

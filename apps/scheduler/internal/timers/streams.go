@@ -10,11 +10,11 @@ import (
 
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	buskick "github.com/twirapp/twir/libs/bus-core/kick"
-	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -41,6 +41,7 @@ type StreamOpts struct {
 
 	StreamsRepo    streamsrepository.Repository
 	ChannelService *channelservice.ChannelService
+	KickAppTokens  kickoauth.AppTokenSource
 }
 
 type streams struct {
@@ -51,6 +52,7 @@ type streams struct {
 
 	streamsRepo    streamsrepository.Repository
 	channelService *channelservice.ChannelService
+	kickAppTokens  kickoauth.AppTokenSource
 }
 
 func NewStreams(opts StreamOpts) {
@@ -69,6 +71,7 @@ func NewStreams(opts StreamOpts) {
 		twirBus:        opts.TwirBus,
 		streamsRepo:    opts.StreamsRepo,
 		channelService: opts.ChannelService,
+		kickAppTokens:  opts.KickAppTokens,
 	}
 
 	opts.Lc.Append(
@@ -349,12 +352,12 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []strea
 		return nil
 	}
 
-	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, bustokens.GetAppTokenRequest{Platform: platformentity.PlatformKick})
+	appToken, err := c.kickAppTokens.Token(ctx)
 	if err != nil {
 		return fmt.Errorf("request kick app token: %w", err)
 	}
 
-	kickClient, err := gokick.NewClient(&gokick.ClientOptions{AppAccessToken: appToken.Data.AccessToken})
+	kickClient, err := gokick.NewClient(&gokick.ClientOptions{AppAccessToken: appToken.AccessToken})
 	if err != nil {
 		return fmt.Errorf("create kick client: %w", err)
 	}

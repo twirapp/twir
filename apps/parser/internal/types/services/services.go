@@ -15,6 +15,8 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/i18n"
+	spotifyoauth "github.com/twirapp/twir/libs/oauth/spotify"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelscategoriesaliases "github.com/twirapp/twir/libs/repositories/channels_categories_aliases"
@@ -73,6 +75,7 @@ type Services struct {
 	TTSRepository              overlays_tts.Repository
 	TTSService                 *ttsservice.Service
 	SpotifyRepo                channelsintegrationsspotify.Repository
+	SpotifyTokens              spotifyoauth.TokenSource
 	UsersRepo                  users.Repository
 	CategoriesAliasesRepo      channelscategoriesaliases.Repository
 	ScheduledVipsRepo          scheduledvipsrepository.Repository
@@ -92,4 +95,5 @@ type Services struct {
 	UsersWithStatsRepository   userswithstats.Repository
 	QuotesRepo                 quotesrepository.Repository
 	QuotesCacher               *generic_cacher.GenericCacher[[]quotesmodel.Quote]
+	KickAppTokens              kickoauth.AppTokenSource
 }

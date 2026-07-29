@@ -17,6 +17,7 @@ import (
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/vk"
+	oauthvkvideo "github.com/twirapp/twir/libs/oauth/vkvideo"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
 )
@@ -35,6 +36,7 @@ type Opts struct {
 	UserCreator          *user_creator.UserCreatorService
 	WebSocketTokenClient *vk.WebSocketTokenClient
 	ChannelsRepo         channels.Repository
+	UserTokenSource      oauthvkvideo.UserTokenSource
 	Lc                   fx.Lifecycle
 }
 
@@ -75,7 +77,7 @@ func New(opts Opts) (*Transport, error) {
 		return nil, fmt.Errorf("create VK Video ownership: %w", err)
 	}
 
-	oauthTokens := busTokenProvider{request: opts.Bus.Tokens.RequestUserToken}
+	oauthTokens := runtimeTokenProvider{source: opts.UserTokenSource}
 	transport := newTransport(transportDependencies{
 		logger:           opts.Logger,
 		ownership:        ownership,

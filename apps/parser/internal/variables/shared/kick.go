@@ -9,8 +9,6 @@ import (
 
 	"github.com/scorfly/gokick"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 var (
@@ -18,15 +16,12 @@ var (
 	kickAPIBaseURL  string
 	kickAuthBaseURL string
 	kickAppTokenRequester = func(ctx context.Context, parseCtx *types.VariableParseContext) (string, error) {
-		resp, err := parseCtx.Services.Bus.Tokens.RequestAppToken.Request(
-			ctx,
-			bustokens.GetAppTokenRequest{Platform: platformentity.PlatformKick},
-		)
+		resp, err := parseCtx.Services.KickAppTokens.Token(ctx)
 		if err != nil {
 			return "", fmt.Errorf("request kick app token: %w", err)
 		}
 
-		return resp.Data.AccessToken, nil
+		return resp.AccessToken, nil
 	}
 )
 
