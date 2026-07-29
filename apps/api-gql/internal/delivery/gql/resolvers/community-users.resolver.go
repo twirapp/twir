@@ -135,6 +135,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		dbSearchPlatforms := []platformentity.Platform{
 			platformentity.PlatformKick,
 			platformentity.PlatformVKVideoLive,
+			platformentity.PlatformYouTube,
 		}
 		for _, dbPlatform := range dbSearchPlatforms {
 			if !isPlatformsRequested[dbPlatform] {
