@@ -26,10 +26,11 @@ client := twitch.NewClient(token)
 
 ## DEPENDENCIES
 
-- tokens service (OAuth tokens)
+- twitchy v0.3.0 coordinated OAuth registry
+- PostgreSQL token repository and Redis refresh coordination
 
 ## NOTES
 
 - Helix API wrapper
 - IRC connection management
-- Token refresh handling
+- Encrypted credential loading and coordinated token refresh handling
