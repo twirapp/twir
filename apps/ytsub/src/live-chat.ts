@@ -11,6 +11,7 @@ import {
 } from './message.ts'
 
 import type { ChannelBinding, YoutubeTextChatMessage } from './message.ts'
+import type { BindingOwnershipManager } from './locks.ts'
 import type { RetryScheduler } from './live-chat-scheduler.ts'
 
 const RETRY_BASE_MS = 1_000
@@ -50,6 +51,7 @@ export interface LiveChatManagerOptions {
 		message: YoutubeTextChatMessage
 	) => Promise<ChannelBinding>
 	readonly retryScheduler?: RetryScheduler
+	readonly ownership?: BindingOwnershipManager
 }
 
 interface ActiveSession {
@@ -76,12 +78,19 @@ export class LiveChatManager {
 	#closed = false
 	#reconciling = false
 	#pendingReconcile: readonly ChannelBinding[] | null = null
+	readonly #removeOwnershipListener: (() => void) | undefined
 
 	constructor(
 		private readonly source: LiveChatSource,
 		private readonly bus: Bus,
 		private readonly options: LiveChatManagerOptions
-	) {}
+	) {
+		this.#removeOwnershipListener = options.ownership?.onLostOwnership((bindingId) => {
+			void this.#handleOwnershipLoss(bindingId).catch((error: unknown) => {
+				logAsyncError('youtube.ownership-loss.failed', error, bindingId)
+			})
+		})
+	}
 
 	async subscribe(binding: ChannelBinding): Promise<void> {
 		if (this.#closed) {
@@ -93,6 +102,9 @@ export class LiveChatManager {
 			await this.#start(binding, this.#generation(binding.id))
 			return
 		}
+		if (!existing && this.options.ownership && !(await this.options.ownership.tryAcquire(binding.id))) {
+			return
+		}
 
 		const generation = this.#nextGeneration(binding.id)
 		this.#attempts.delete(binding.id)
@@ -101,7 +113,15 @@ export class LiveChatManager {
 		await this.#start(binding, generation)
 	}
 
-	unsubscribe(bindingId: string): void {
+	async unsubscribe(bindingId: string): Promise<void> {
+		if (!this.#bindings.has(bindingId)) {
+			return
+		}
+		this.#forgetBinding(bindingId)
+		await this.options.ownership?.release(bindingId)
+	}
+
+	#forgetBinding(bindingId: string): void {
 		this.#nextGeneration(bindingId)
 		this.#bindings.delete(bindingId)
 		this.#attempts.delete(bindingId)
@@ -120,7 +140,7 @@ export class LiveChatManager {
 				const desired = new Map(current.map((binding) => [binding.id, binding]))
 				for (const bindingId of [...this.#bindings.keys()]) {
 					if (!desired.has(bindingId)) {
-						this.unsubscribe(bindingId)
+						await this.unsubscribe(bindingId)
 					}
 				}
 				for (const binding of current) {
@@ -137,17 +157,17 @@ export class LiveChatManager {
 		}
 	}
 
-	close(): void {
+	async close(): Promise<void> {
 		if (this.#closed) {
 			return
 		}
 		this.#closed = true
-		for (const bindingId of this.#bindings.keys()) {
-			this.#nextGeneration(bindingId)
-			this.#stopSession(bindingId)
+		for (const bindingId of [...this.#bindings.keys()]) {
+			this.#forgetBinding(bindingId)
 		}
-		this.#bindings.clear()
 		this.#attempts.clear()
+		this.#removeOwnershipListener?.()
+		await this.options.ownership?.close()
 	}
 
 	async #start(binding: ChannelBinding, generation: number): Promise<void> {
@@ -308,5 +328,12 @@ export class LiveChatManager {
 		const generation = this.#generation(bindingId) + 1
 		this.#generations.set(bindingId, generation)
 		return generation
+	}
+
+	async #handleOwnershipLoss(bindingId: string): Promise<void> {
+		if (!this.#bindings.has(bindingId)) {
+			return
+		}
+		this.#forgetBinding(bindingId)
 	}
 }

@@ -6,11 +6,62 @@ import {
 	type LiveChatSession,
 	type LiveChatSource,
 } from './live-chat.ts'
+import { RedisBindingOwnership, type RedisClient } from './locks.ts'
 import { shouldIgnoreYoutubeBotMessage } from './message.ts'
 
 import type { RetryScheduler } from './live-chat-scheduler.ts'
 import type { ChannelBinding } from './message.ts'
 import type { Helpers } from 'youtubei.js'
+
+class FakeRedis implements RedisClient {
+	readonly values = new Map<string, string>()
+
+	async set(key: string, value: string, ...options: readonly string[]): Promise<string | null> {
+		if (options.includes('NX') && this.values.has(key)) {
+			return null
+		}
+		if (options.includes('XX') && !this.values.has(key)) {
+			return null
+		}
+		this.values.set(key, value)
+		return 'OK'
+	}
+
+	async get(key: string): Promise<string | null> {
+		return this.values.get(key) ?? null
+	}
+
+	async del(...keys: readonly string[]): Promise<number> {
+		let deleted = 0
+		for (const key of keys) {
+			if (this.values.delete(key)) {
+				deleted += 1
+			}
+		}
+		return deleted
+	}
+
+	async send(command: string, args: readonly string[]): Promise<unknown> {
+		if (command !== 'EVAL') {
+			throw new Error(`Unexpected Redis command: ${command}`)
+		}
+		const key = args[2]
+		const expectedReplicaId = args[3]
+		if (key === undefined || expectedReplicaId === undefined) {
+			throw new Error('Missing EVAL key arguments')
+		}
+		if (this.values.get(key) !== expectedReplicaId) {
+			return 0
+		}
+		if (args.length === 5) {
+			return 1
+		}
+		this.values.delete(key)
+		return 1
+	}
+
+	close(): void {}
+}
 
 class FakeLiveChat implements LiveChatSession {
 	startCalls = 0
@@ -324,4 +375,52 @@ test('LiveChatManager coalesces reconcile snapshots that arrive while one is in 
 	await secondReconcile
 
 	expect(settled.startCalls).toBe(1)
+})
+
+test('LiveChatManager stops a session after its Redis ownership is lost', async () => {
+	const redis = new FakeRedis()
+	const ownership = new RedisBindingOwnership(redis, { replicaId: 'replica-1' })
+	const liveChat = new FakeLiveChat()
+	const source: LiveChatSource = {
+		resolve: async () => ({ session: liveChat, broadcasterName: 'Broadcaster' }),
+	}
+	const manager = new LiveChatManager(source, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+		ownership,
+	})
+
+	await manager.subscribe(binding())
+	redis.values.set('ytsub:lock:binding-1', 'replica-2')
+	await ownership.renew()
+	await flushMicrotasks()
+
+	expect(liveChat.stopCalls).toBe(1)
+	await manager.close()
+})
+
+test('LiveChatManager acquires a released binding during a later reconcile', async () => {
+	const redis = new FakeRedis()
+	const firstOwnership = new RedisBindingOwnership(redis, { replicaId: 'replica-1' })
+	const secondOwnership = new RedisBindingOwnership(redis, { replicaId: 'replica-2' })
+	const firstSession = new FakeLiveChat()
+	const secondSession = new FakeLiveChat()
+	const first = new LiveChatManager({ resolve: async () => ({ session: firstSession, broadcasterName: 'First' }) }, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+		ownership: firstOwnership,
+	})
+	const second = new LiveChatManager({ resolve: async () => ({ session: secondSession, broadcasterName: 'Second' }) }, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+		ownership: secondOwnership,
+	})
+	const channelBinding = binding()
+
+	await first.subscribe(channelBinding)
+	await second.reconcile([channelBinding])
+	expect(secondSession.startCalls).toBe(0)
+
+	await first.unsubscribe(channelBinding.id)
+	await second.reconcile([channelBinding])
+
+	expect(secondSession.startCalls).toBe(1)
+	await second.close()
 })

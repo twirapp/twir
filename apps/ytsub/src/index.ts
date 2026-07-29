@@ -1,9 +1,11 @@
 import { newBus } from '@twir/bus-core'
+import { config } from '@twir/config'
 import { connect } from 'nats'
 import { Innertube } from 'youtubei.js'
 
 import { closeDatabase, ensureYoutubeChatter, getYoutubeBinding, listYoutubeBindings } from './db.ts'
 import { LiveChatManager } from './live-chat.ts'
+import { RedisBindingOwnership } from './locks.ts'
 
 import type { LiveChatSource } from './live-chat.ts'
 
@@ -46,7 +48,11 @@ const liveChatSource: LiveChatSource = {
 		}
 	},
 }
-const liveChats = new LiveChatManager(liveChatSource, bus, { ensureChatter: ensureYoutubeChatter })
+const ownership = new RedisBindingOwnership(new Bun.RedisClient(config.REDIS_URL))
+const liveChats = new LiveChatManager(liveChatSource, bus, {
+	ensureChatter: ensureYoutubeChatter,
+	ownership,
+})
 
 async function subscribeChannel(channelId: string): Promise<void> {
 	const binding = await getYoutubeBinding(channelId)
@@ -68,12 +74,12 @@ await bus.EventSub.Unsubscribe.subscribeGroup('ytsub', async (request) => {
 		return {}
 	}
 	if (request.Binding) {
-		liveChats.unsubscribe(request.Binding.ID)
+		await liveChats.unsubscribe(request.Binding.ID)
 		return {}
 	}
 	const binding = await getYoutubeBinding(request.ChannelID)
 	if (binding) {
-		liveChats.unsubscribe(binding.id)
+		await liveChats.unsubscribe(binding.id)
 	}
 	return {}
 })
@@ -100,7 +106,7 @@ function shutdown(): Promise<void> {
 	shutdownPromise = (async (): Promise<void> => {
 		clearInterval(reconcileTimer)
 		try {
-			liveChats.close()
+			await liveChats.close()
 			await nc.drain()
 		} catch (error) {
 			const drainError = error instanceof Error ? error : new Error('NATS drain failed')
