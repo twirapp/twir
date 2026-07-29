@@ -16,7 +16,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	genericcacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -161,12 +160,6 @@ func (f *greetingFixture) installTwitchActions(t *testing.T, calls *int) {
 	}))
 	t.Cleanup(server.Close)
 	userID := uuid.New()
-	f.handler.twirBus.Tokens.RequestUserToken = &chatMessageEmoteQueue[
-		buscoretokens.GetUserTokenRequest,
-		buscoretokens.TokenResponse,
-	]{response: &buscore.QueueResponse[buscoretokens.TokenResponse]{
-		Data: buscoretokens.TokenResponse{AccessToken: "test-token"},
-	}}
 	f.handler.twitchActions = twitchactions.New(twitchactions.Opts{
 		Config: cfg.Config{TwitchMockEnabled: true, TwitchMockApiUrl: server.URL, TwitchClientId: "test-client"}, TwirBus: f.handler.twirBus,
 		NewUserClientFactory: func(context.Context, uuid.UUID) (*helix.Client, error) {

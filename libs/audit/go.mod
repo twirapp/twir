@@ -3,12 +3,12 @@ module github.com/twirapp/twir/libs/audit
 go 1.26.0
 
 require (
-	github.com/goccy/go-json v0.10.5
+	github.com/goccy/go-json v0.10.6
 	github.com/google/uuid v1.6.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/samber/lo v1.52.0
 	go.uber.org/fx v1.24.0
-	golang.org/x/sync v0.19.0
+	golang.org/x/sync v0.22.0
 )
 
 require (
@@ -18,6 +18,6 @@ require (
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect
-	golang.org/x/sys v0.41.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/text v0.40.0 // indirect
 )

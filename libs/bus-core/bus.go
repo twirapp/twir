@@ -20,7 +20,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
-	"github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
@@ -42,7 +41,6 @@ type Bus struct {
 	RedemptionAdd     Queue[twitch.ActivatedRedemption, struct{}]
 	Events            *eventsBus
 	YTSRSearch        Queue[ytsr.SearchRequest, ytsr.SearchResponse]
-	Tokens            *tokensBus
 	Integrations      *integrationsBus
 	Api               *apiBus
 	CacheInvalidator  Queue[cache_invalidator.InvalidateRequest, struct{}]
@@ -502,32 +500,6 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			1*time.Minute,
 			JsonEncoder,
 		),
-		Tokens: &tokensBus{
-			RequestAppToken: NewNatsQueue[tokens.GetAppTokenRequest, tokens.TokenResponse](
-				nc,
-				tokens.RequestAppTokenSubject,
-				1*time.Minute,
-				JsonEncoder,
-			),
-			RequestUserToken: NewNatsQueue[tokens.GetUserTokenRequest, tokens.TokenResponse](
-				nc,
-				tokens.RequestUserTokenSubject,
-				1*time.Minute,
-				JsonEncoder,
-			),
-			RequestBotToken: NewNatsQueue[tokens.GetBotTokenRequest, tokens.TokenResponse](
-				nc,
-				tokens.RequestBotTokenSubject,
-				1*time.Minute,
-				JsonEncoder,
-			),
-			RequestChannelIntegrationToken: NewNatsQueue[tokens.GetChannelIntegrationTokenRequest, tokens.TokenResponse](
-				nc,
-				tokens.RequestChannelIntegrationTokenSubject,
-				1*time.Minute,
-				JsonEncoder,
-			),
-		},
 		Integrations: &integrationsBus{
 			Add: NewNatsQueue[integrations.Request, struct{}](
 				nc,

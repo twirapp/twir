@@ -159,9 +159,6 @@ jobs:
           - name: timers
             path: apps/timers
             runtime: go
-          - name: tokens
-            path: apps/tokens
-            runtime: go
           - name: websockets
             path: apps/websockets
             runtime: go

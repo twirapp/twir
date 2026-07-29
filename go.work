@@ -9,7 +9,6 @@ use (
 	./apps/parser
 	./apps/scheduler
 	./apps/timers
-	./apps/tokens
 	./apps/twitch-mock
 	./apps/websockets
 	./cli

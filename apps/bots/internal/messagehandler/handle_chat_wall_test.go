@@ -12,7 +12,6 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	genericcacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
@@ -32,12 +31,6 @@ func TestHandleChatWall_UsesProviderMessageIDForDeleteAndDedup(t *testing.T) {
 
 	redisClient, _ := newMessageIDRedisClient(t)
 	bus := buscore.NewNatsBus(nil)
-	bus.Tokens.RequestBotToken = &chatMessageEmoteQueue[
-		buscoretokens.GetBotTokenRequest,
-		buscoretokens.TokenResponse,
-	]{response: &buscore.QueueResponse[buscoretokens.TokenResponse]{
-		Data: buscoretokens.TokenResponse{AccessToken: "test-token"},
-	}}
 	channelID := uuid.New()
 	handler := &MessageHandler{
 		redis: redisClient,

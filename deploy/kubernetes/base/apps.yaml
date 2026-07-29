@@ -598,47 +598,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tokens
-  namespace: twir
-  labels:
-    app.kubernetes.io/name: tokens
-spec:
-  replicas: 4
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0
-      maxSurge: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: tokens
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: tokens
-    spec:
-      serviceAccountName: twir-workloads
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: twir.app/database
-                    operator: DoesNotExist
-      containers:
-        - name: tokens
-          image: registry.twir.app/twirapp/tokens:latest
-          env:
-            - name: DOPPLER_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: twir-secrets
-                  key: TWIR_DOPPLER_TOKEN
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: emotes-cacher
   namespace: twir
   labels:
