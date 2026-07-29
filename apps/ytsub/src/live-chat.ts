@@ -273,6 +273,8 @@ export class LiveChatManager {
 		}
 		const message = normalizeYoutubeTextMessage(chatterBinding, broadcasterName, sourceMessage)
 
+		console.info(`received YouTube live chat message ${message.message_id} from ${message.sender_display_name} in ${binding.platformChannelId}`)
+
 		await this.bus.ChatMessages.publish(message)
 		if (!this.#isCurrentSession(binding, generation, session)) {
 			return
