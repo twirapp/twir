@@ -145,9 +145,14 @@ func TestKickChatAdapterForwardsMessage(t *testing.T) {
 func TestNewChatRegistryRegistersChatWriteAdapters(t *testing.T) {
 	t.Parallel()
 
-	registry := NewChatRegistry(nil, nil, nil)
+	registry := NewChatRegistry(nil, nil, nil, nil)
 
-	for _, current := range []platform.Platform{platform.PlatformTwitch, platform.PlatformKick, platform.PlatformVKVideoLive} {
+	for _, current := range []platform.Platform{
+		platform.PlatformTwitch,
+		platform.PlatformKick,
+		platform.PlatformVKVideoLive,
+		platform.PlatformYouTube,
+	} {
 		if _, err := registry.Require(current, platform.CapabilityChatWrite); err != nil {
 			t.Errorf("expected %s chat.write adapter: %v", current, err)
 		}

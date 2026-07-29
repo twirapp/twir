@@ -8,6 +8,7 @@ import (
 	kickchat "github.com/twirapp/twir/apps/bots/internal/kick"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	vkchat "github.com/twirapp/twir/apps/bots/internal/vk"
+	youtubechat "github.com/twirapp/twir/apps/bots/internal/youtube"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -39,11 +40,13 @@ func NewChatRegistry(
 	twitchActions *twitchactions.TwitchActions,
 	kickClient *kickchat.ChatClient,
 	vkClient *vkchat.ChatClient,
+	youtubeClient *youtubechat.ChatClient,
 ) *platformsregistry.Registry[ChatAdapter] {
 	return newRegistry(
 		NewTwitchChatAdapter(twitchActions),
 		NewKickChatAdapter(kickClient),
 		NewVKVideoLiveChatAdapter(vkClient),
+		NewYouTubeChatAdapter(youtubeClient),
 	)
 }
 
@@ -224,6 +227,36 @@ func (a vkVideoLiveChatAdapter) Capabilities() platform.Capabilities {
 }
 
 func (a vkVideoLiveChatAdapter) SendMessage(
+	ctx context.Context,
+	binding channelplatformentity.ChannelPlatform,
+	message string,
+	_ string,
+	_ ChatOptions,
+) error {
+	return a.sender.SendMessage(ctx, binding, message)
+}
+
+type youtubeMessageSender interface {
+	SendMessage(context.Context, channelplatformentity.ChannelPlatform, string) error
+}
+
+type youtubeChatAdapter struct {
+	sender youtubeMessageSender
+}
+
+func NewYouTubeChatAdapter(sender youtubeMessageSender) ChatAdapter {
+	return youtubeChatAdapter{sender: sender}
+}
+
+func (a youtubeChatAdapter) Platform() platform.Platform {
+	return platform.PlatformYouTube
+}
+
+func (a youtubeChatAdapter) Capabilities() platform.Capabilities {
+	return platform.Capabilities{platform.CapabilityChatWrite}
+}
+
+func (a youtubeChatAdapter) SendMessage(
 	ctx context.Context,
 	binding channelplatformentity.ChannelPlatform,
 	message string,
