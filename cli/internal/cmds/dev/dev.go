@@ -25,7 +25,7 @@ type app struct {
 }
 
 func CreateDevCommand() *cli.Command {
-	var cmd = &cli.Command{
+	cmd := &cli.Command{
 		Name:  "dev",
 		Usage: "start project in dev mode",
 		Subcommands: []*cli.Command{
@@ -110,7 +110,13 @@ func CreateDevCommand() *cli.Command {
 				return err
 			}
 
-			if err := golangApps.Start(c.Context); err != nil {
+		if err := nodejsApps.Start(); err != nil {
+			pterm.Error.Println(err)
+			return err
+		}
+		defer nodejsApps.Stop()
+
+		if err := golangApps.Start(c.Context); err != nil {
 				pterm.Error.Println(err)
 				return err
 			}
@@ -121,12 +127,6 @@ func CreateDevCommand() *cli.Command {
 				return err
 			}
 			defer frontendApps.Stop()
-
-			if err := nodejsApps.Start(); err != nil {
-				pterm.Error.Println(err)
-				return err
-			}
-			defer nodejsApps.Stop()
 
 			exitSignal := make(chan os.Signal, 1)
 			signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
