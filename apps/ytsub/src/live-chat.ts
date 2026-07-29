@@ -1,12 +1,17 @@
 import { YTNodes } from 'youtubei.js'
 
-import type { ChatMessageBadge } from '@twir/bus-core'
-import type { Helpers, Innertube, YT } from 'youtubei.js'
+import type { Helpers } from 'youtubei.js'
 
-import { ensureYoutubeChatter } from './db.ts'
-import { normalizeYoutubeTextMessage } from './message.ts'
+import { defaultRetryScheduler } from './live-chat-scheduler.ts'
+import {
+	areYoutubeBindingsEqual,
+	normalizeYoutubeTextMessage,
+	shouldIgnoreYoutubeBotMessage,
+	toYoutubeTextChatMessage,
+} from './message.ts'
 
 import type { ChannelBinding, YoutubeTextChatMessage } from './message.ts'
+import type { RetryScheduler } from './live-chat-scheduler.ts'
 
 const RETRY_BASE_MS = 1_000
 const RETRY_MAX_MS = 120_000
@@ -22,84 +27,181 @@ type Bus = {
 	}
 }
 
+export interface LiveChatSession {
+	onStart(listener: () => void): void
+	onChatUpdate(listener: (action: Helpers.YTNode) => void): void
+	onError(listener: (error: Error) => void): void
+	onEnd(listener: () => void): void
+	selectLiveChat(): void
+	start(): void
+	stop(): void
+}
+
+export interface LiveChatSource {
+	resolve(binding: ChannelBinding): Promise<{
+		readonly session: LiveChatSession
+		readonly broadcasterName: string
+	}>
+}
+
+export interface LiveChatManagerOptions {
+	readonly ensureChatter: (
+		binding: ChannelBinding,
+		message: YoutubeTextChatMessage
+	) => Promise<ChannelBinding>
+	readonly retryScheduler?: RetryScheduler
+}
+
+interface ActiveSession {
+	readonly generation: number
+	readonly session: LiveChatSession
+}
+
+interface StartingSession {
+	readonly generation: number
+	readonly promise: Promise<void>
+}
+
+function logAsyncError(event: string, error: unknown, bindingId: string): void {
+	console.error(event, { bindingId, error })
+}
+
 export class LiveChatManager {
 	readonly #bindings = new Map<string, ChannelBinding>()
-	readonly #sessions = new Map<string, YT.LiveChat>()
-	readonly #retryTimers = new Map<string, ReturnType<typeof setTimeout>>()
-	readonly #starting = new Set<string>()
+	readonly #sessions = new Map<string, ActiveSession>()
+	readonly #retryTimers = new Map<string, () => void>()
+	readonly #starting = new Map<string, StartingSession>()
 	readonly #attempts = new Map<string, number>()
+	readonly #generations = new Map<string, number>()
+	#closed = false
 
 	constructor(
-		private readonly yt: Innertube,
-		private readonly bus: Bus
+		private readonly source: LiveChatSource,
+		private readonly bus: Bus,
+		private readonly options: LiveChatManagerOptions
 	) {}
 
 	async subscribe(binding: ChannelBinding): Promise<void> {
-		const existing = this.#bindings.get(binding.id)
-		if (existing?.platformChannelId !== binding.platformChannelId) {
-			this.#stopSession(binding.id)
+		if (this.#closed) {
+			return
 		}
+
+		const existing = this.#bindings.get(binding.id)
+		if (existing && areYoutubeBindingsEqual(existing, binding)) {
+			await this.#start(binding, this.#generation(binding.id))
+			return
+		}
+
+		const generation = this.#nextGeneration(binding.id)
+		this.#attempts.delete(binding.id)
+		this.#stopSession(binding.id)
 		this.#bindings.set(binding.id, binding)
-		await this.#start(binding)
+		await this.#start(binding, generation)
 	}
 
 	unsubscribe(bindingId: string): void {
+		this.#nextGeneration(bindingId)
 		this.#bindings.delete(bindingId)
 		this.#attempts.delete(bindingId)
 		this.#stopSession(bindingId)
 	}
 
-	async reconcile(): Promise<void> {
-		await Promise.all([...this.#bindings.values()].map((binding) => this.#start(binding)))
+	async reconcile(bindings: readonly ChannelBinding[]): Promise<void> {
+		const desired = new Map(bindings.map((binding) => [binding.id, binding]))
+		for (const binding of bindings) {
+			await this.subscribe(binding)
+		}
+		for (const bindingId of this.#bindings.keys()) {
+			if (!desired.has(bindingId)) {
+				this.unsubscribe(bindingId)
+			}
+		}
 	}
 
 	close(): void {
+		if (this.#closed) {
+			return
+		}
+		this.#closed = true
 		for (const bindingId of this.#bindings.keys()) {
+			this.#nextGeneration(bindingId)
 			this.#stopSession(bindingId)
 		}
 		this.#bindings.clear()
+		this.#attempts.clear()
 	}
 
-	async #start(binding: ChannelBinding): Promise<void> {
-		if (this.#sessions.has(binding.id) || this.#starting.has(binding.id)) {
+	async #start(binding: ChannelBinding, generation: number): Promise<void> {
+		if (!this.#isCurrent(binding, generation)
+			|| this.#sessions.has(binding.id)
+			|| this.#retryTimers.has(binding.id)) {
 			return
 		}
-		this.#starting.add(binding.id)
+		const starting = this.#starting.get(binding.id)
+		if (starting?.generation === generation) {
+			await starting.promise
+			return
+		}
 
+		const promise = this.#startSession(binding, generation)
+		this.#starting.set(binding.id, { generation, promise })
 		try {
-			const endpoint = await this.yt.resolveURL(
-				`https://www.youtube.com/channel/${binding.platformChannelId}/live`
-			)
-			const info = await this.yt.getInfo(endpoint)
-			const liveChat = info.getLiveChat()
-			const broadcasterName = info.basic_info.channel?.name ?? info.basic_info.author ?? binding.platformChannelId
+			await promise
+		} finally {
+			if (this.#starting.get(binding.id)?.generation === generation) {
+				this.#starting.delete(binding.id)
+			}
+		}
+	}
 
-			liveChat.on('chat-update', (action) => {
-				void this.#handleChatUpdate(binding, broadcasterName, action)
+	async #startSession(binding: ChannelBinding, generation: number): Promise<void> {
+		try {
+			const resolved = await this.source.resolve(binding)
+			if (!this.#isCurrent(binding, generation)) {
+				resolved.session.stop()
+				return
+			}
+
+			resolved.session.onStart(() => {
+				if (this.#isCurrent(binding, generation)) {
+					resolved.session.selectLiveChat()
+				}
 			})
-			liveChat.on('error', (error) => this.#finishWithRetry(binding, liveChat, error))
-			liveChat.on('end', () => this.#finishWithRetry(binding, liveChat, new Error('live chat ended')))
+			resolved.session.onChatUpdate((action) => {
+				void this.#handleChatUpdate(binding, generation, resolved.broadcasterName, action)
+					.catch((error: unknown) => logAsyncError('youtube.chat-update.failed', error, binding.id))
+			})
+			resolved.session.onError((error) => {
+				this.#finishWithRetry(binding, generation, resolved.session, error)
+			})
+			resolved.session.onEnd(() => {
+				this.#finishWithRetry(binding, generation, resolved.session, new Error('live chat ended'))
+			})
+			if (!this.#isCurrent(binding, generation)) {
+				resolved.session.stop()
+				return
+			}
 
-			this.#sessions.set(binding.id, liveChat)
-			this.#attempts.delete(binding.id)
-			liveChat.start()
+			this.#sessions.set(binding.id, { generation, session: resolved.session })
+			resolved.session.start()
 			console.info(`started YouTube live chat for ${binding.platformChannelId}`)
 		} catch (error) {
-			if (error instanceof Error) {
-				this.#scheduleRetry(binding, error)
-			} else {
-				this.#scheduleRetry(binding, new Error('YouTube live chat startup failed'))
+			if (this.#isCurrent(binding, generation)) {
+				this.#stopSession(binding.id, generation)
+				this.#scheduleRetry(binding, generation, error instanceof Error ? error : new Error('YouTube live chat startup failed'))
 			}
-		} finally {
-			this.#starting.delete(binding.id)
 		}
 	}
 
 	async #handleChatUpdate(
 		binding: ChannelBinding,
+		generation: number,
 		broadcasterName: string,
 		action: Helpers.YTNode
 	): Promise<void> {
+		if (!this.#isCurrent(binding, generation)) {
+			return
+		}
 		if (!action.is(YTNodes.AddChatItemAction)) {
 			console.debug(`ignored YouTube live chat action ${action.type}`)
 			return
@@ -109,75 +211,79 @@ export class LiveChatManager {
 			return
 		}
 
-		const sourceMessage = this.#toTextMessage(action.item)
-		const chatterBinding = await ensureYoutubeChatter(binding, sourceMessage)
+		const sourceMessage = toYoutubeTextChatMessage(action.item)
+		if (shouldIgnoreYoutubeBotMessage(binding, sourceMessage.author.id)) {
+			return
+		}
+		const chatterBinding = await this.options.ensureChatter(binding, sourceMessage)
+		if (!this.#isCurrent(binding, generation)) {
+			return
+		}
 		const message = normalizeYoutubeTextMessage(chatterBinding, broadcasterName, sourceMessage)
 
 		await this.bus.ChatMessages.publish(message)
-		await this.bus.Parser.ProcessMessageAsCommand.publish(message)
-	}
-
-	#toTextMessage(item: YTNodes.LiveChatTextMessage): YoutubeTextChatMessage {
-		const badges = item.author.badges.flatMap((badge): ChatMessageBadge[] => {
-			if (!badge.is(YTNodes.LiveChatAuthorBadge)) {
-				return []
-			}
-			return [{
-				id: badge.icon_type,
-				set_id: badge.style ?? '',
-				text: badge.label ?? badge.tooltip ?? '',
-			}]
-		})
-
-		return {
-			id: item.id,
-			text: item.message.toString(),
-			author: {
-				id: item.author.id,
-				name: item.author.name,
-				isModerator: item.author.is_moderator ?? false,
-				badges,
-			},
-		}
-	}
-
-	#finishWithRetry(binding: ChannelBinding, liveChat: YT.LiveChat, error: Error): void {
-		if (this.#sessions.get(binding.id) !== liveChat) {
+		if (!this.#isCurrent(binding, generation)) {
 			return
 		}
-		liveChat.stop()
-		this.#sessions.delete(binding.id)
-		this.#scheduleRetry(binding, error)
+		await this.bus.Parser.ProcessMessageAsCommand.publish(message)
+		if (this.#isCurrent(binding, generation)) {
+			this.#attempts.delete(binding.id)
+		}
 	}
 
-	#scheduleRetry(binding: ChannelBinding, error: Error): void {
-		if (!this.#bindings.has(binding.id) || this.#retryTimers.has(binding.id)) {
+	#finishWithRetry(binding: ChannelBinding, generation: number, session: LiveChatSession, error: Error): void {
+		const active = this.#sessions.get(binding.id)
+		if (!this.#isCurrent(binding, generation) || active?.generation !== generation || active.session !== session) {
+			return
+		}
+		this.#stopSession(binding.id, generation)
+		this.#scheduleRetry(binding, generation, error)
+	}
+
+	#scheduleRetry(binding: ChannelBinding, generation: number, error: Error): void {
+		if (!this.#isCurrent(binding, generation) || this.#retryTimers.has(binding.id)) {
 			return
 		}
 		const attempt = (this.#attempts.get(binding.id) ?? 0) + 1
 		this.#attempts.set(binding.id, attempt)
 		const delay = Math.min(RETRY_BASE_MS * 2 ** (attempt - 1), RETRY_MAX_MS)
 		console.warn(`YouTube live chat unavailable for ${binding.platformChannelId}; retrying in ${delay}ms`, error)
-		const timer = setTimeout(() => {
+		const cancel = (this.options.retryScheduler ?? defaultRetryScheduler).schedule(delay, () => {
 			this.#retryTimers.delete(binding.id)
-			const activeBinding = this.#bindings.get(binding.id)
-			if (activeBinding) {
-				void this.#start(activeBinding)
-			}
-		}, delay)
-		this.#retryTimers.set(binding.id, timer)
+			void this.#start(binding, generation)
+				.catch((retryError: unknown) => logAsyncError('youtube.retry-start.failed', retryError, binding.id))
+		})
+		this.#retryTimers.set(binding.id, cancel)
 	}
 
-	#stopSession(bindingId: string): void {
-		const retryTimer = this.#retryTimers.get(bindingId)
-		if (retryTimer) {
-			clearTimeout(retryTimer)
-			this.#retryTimers.delete(bindingId)
+	#stopSession(bindingId: string, generation?: number): void {
+		if (generation === undefined || this.#generation(bindingId) === generation) {
+			const cancelRetry = this.#retryTimers.get(bindingId)
+			if (cancelRetry) {
+				cancelRetry()
+				this.#retryTimers.delete(bindingId)
+			}
 		}
-		const liveChat = this.#sessions.get(bindingId)
-		if (liveChat) {
-			liveChat.stop()
+		const active = this.#sessions.get(bindingId)
+		if (active && (generation === undefined || active.generation === generation)) {
+			active.session.stop()
 			this.#sessions.delete(bindingId)
 		}
+	}
+
+	#isCurrent(binding: ChannelBinding, generation: number): boolean {
+		return !this.#closed
+			&& this.#generation(binding.id) === generation
+			&& this.#bindings.get(binding.id) === binding
+	}
+
+	#generation(bindingId: string): number {
+		return this.#generations.get(bindingId) ?? 0
+	}
+
+	#nextGeneration(bindingId: string): number {
+		const generation = this.#generation(bindingId) + 1
+		this.#generations.set(bindingId, generation)
+		return generation
 	}
 }

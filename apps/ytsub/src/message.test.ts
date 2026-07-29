@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 
-import { normalizeYoutubeTextMessage } from './message.ts'
+import { isYoutubeSubscriberBadge, normalizeYoutubeTextMessage } from './message.ts'
 
 test('normalizeYoutubeTextMessage emits the generic Go chat schema for text chat', () => {
 	const message = normalizeYoutubeTextMessage(
@@ -8,6 +8,7 @@ test('normalizeYoutubeTextMessage emits the generic Go chat schema for text chat
 			id: 'binding-1',
 			channelId: 'channel-1',
 			platformChannelId: 'UCbroadcaster',
+			botPlatformId: null,
 			userId: 'viewer-user-1',
 			enabled: true,
 		},
@@ -54,4 +55,37 @@ test('normalizeYoutubeTextMessage emits the generic Go chat schema for text chat
 		is_subscriber: false,
 		color: '',
 	})
+})
+
+test('isYoutubeSubscriberBadge identifies membership badges without treating channel roles as subscriptions', () => {
+	expect(isYoutubeSubscriberBadge({ id: 'owner', set_id: 'owner', text: 'Owner' })).toBe(false)
+	expect(isYoutubeSubscriberBadge({ id: 'moderator', set_id: 'moderator', text: 'Moderator' })).toBe(false)
+	expect(isYoutubeSubscriberBadge({ id: 'member', set_id: 'member', text: 'Member' })).toBe(true)
+	expect(isYoutubeSubscriberBadge({ id: '', set_id: '', text: '' })).toBe(false)
+})
+
+test('normalizeYoutubeTextMessage marks members as subscribers', () => {
+	const message = normalizeYoutubeTextMessage(
+		{
+			id: 'binding-1',
+			channelId: 'channel-1',
+			platformChannelId: 'UCbroadcaster',
+			botPlatformId: null,
+			userId: 'viewer-user-1',
+			enabled: true,
+		},
+		'Broadcaster',
+		{
+			id: 'message-1',
+			text: 'hello',
+			author: {
+				id: 'UCmember',
+				name: 'Member',
+				isModerator: false,
+				badges: [{ id: 'member', set_id: 'member', text: 'Member' }],
+			},
+		}
+	)
+
+	expect(message.is_subscriber).toBe(true)
 })

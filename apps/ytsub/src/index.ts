@@ -2,8 +2,10 @@ import { newBus } from '@twir/bus-core'
 import { connect } from 'nats'
 import { Innertube } from 'youtubei.js'
 
-import { closeDatabase, getYoutubeBinding, listYoutubeBindings } from './db.ts'
+import { closeDatabase, ensureYoutubeChatter, getYoutubeBinding, listYoutubeBindings } from './db.ts'
 import { LiveChatManager } from './live-chat.ts'
+
+import type { LiveChatSource } from './live-chat.ts'
 
 const RECONCILE_INTERVAL_MS = Number.parseInt(Bun.env.YTSUB_RECONCILE_INTERVAL_MS ?? '120000', 10)
 const NATS_URL = Bun.env.NODE_ENV === 'production' ? 'nats://nats:4222' : 'nats://127.0.0.1:4222'
@@ -11,7 +13,40 @@ const NATS_URL = Bun.env.NODE_ENV === 'production' ? 'nats://nats:4222' : 'nats:
 const yt = await Innertube.create()
 const nc = await connect({ servers: NATS_URL })
 const bus = newBus(nc)
-const liveChats = new LiveChatManager(yt, bus)
+const liveChatSource: LiveChatSource = {
+	async resolve(binding) {
+		const endpoint = await yt.resolveURL(`https://www.youtube.com/channel/${binding.platformChannelId}/live`)
+		const info = await yt.getInfo(endpoint)
+		const liveChat = info.getLiveChat()
+		return {
+			broadcasterName: info.basic_info.channel?.name ?? info.basic_info.author ?? binding.platformChannelId,
+			session: {
+				onStart(listener): void {
+					liveChat.on('start', listener)
+				},
+				onChatUpdate(listener): void {
+					liveChat.on('chat-update', listener)
+				},
+				onError(listener): void {
+					liveChat.on('error', listener)
+				},
+				onEnd(listener): void {
+					liveChat.on('end', listener)
+				},
+				selectLiveChat(): void {
+					liveChat.applyFilter('LIVE_CHAT')
+				},
+				start(): void {
+					liveChat.start()
+				},
+				stop(): void {
+					liveChat.stop()
+				},
+			},
+		}
+	},
+}
+const liveChats = new LiveChatManager(liveChatSource, bus, { ensureChatter: ensureYoutubeChatter })
 
 async function subscribeChannel(channelId: string): Promise<void> {
 	const binding = await getYoutubeBinding(channelId)
@@ -21,16 +56,14 @@ async function subscribeChannel(channelId: string): Promise<void> {
 	await liveChats.subscribe(binding)
 }
 
-await Promise.all((await listYoutubeBindings()).map((binding) => liveChats.subscribe(binding)))
-
-void bus.EventSub.SubscribeToAllEvents.subscribeGroup('ytsub', async (request) => {
+await bus.EventSub.SubscribeToAllEvents.subscribeGroup('ytsub', async (request) => {
 	if (request.Platform === '' || request.Platform === 'youtube') {
 		await subscribeChannel(request.ChannelID)
 	}
 	return {}
 })
 
-void bus.EventSub.Unsubscribe.subscribeGroup('ytsub', async (request) => {
+await bus.EventSub.Unsubscribe.subscribeGroup('ytsub', async (request) => {
 	if (request.Platform !== '' && request.Platform !== 'youtube') {
 		return {}
 	}
@@ -45,20 +78,54 @@ void bus.EventSub.Unsubscribe.subscribeGroup('ytsub', async (request) => {
 	return {}
 })
 
-const reconcile = (): void => {
-	void liveChats.reconcile()
+async function reconcile(): Promise<void> {
+	const bindings = await listYoutubeBindings()
+	await liveChats.reconcile(bindings)
 }
 
-const reconcileTimer = setInterval(reconcile, RECONCILE_INTERVAL_MS)
+await reconcile()
 
-async function shutdown(): Promise<void> {
-	clearInterval(reconcileTimer)
-	liveChats.close()
-	await nc.drain()
-	await closeDatabase()
+const reconcileTimer = setInterval(() => {
+	void reconcile().catch((error: unknown) => {
+		console.error('youtube.reconcile.failed', { error })
+	})
+}, RECONCILE_INTERVAL_MS)
+
+let shutdownPromise: Promise<void> | undefined
+
+function shutdown(): Promise<void> {
+	if (shutdownPromise) {
+		return shutdownPromise
+	}
+	shutdownPromise = (async (): Promise<void> => {
+		clearInterval(reconcileTimer)
+		try {
+			liveChats.close()
+			await nc.drain()
+		} catch (error) {
+			const drainError = error instanceof Error ? error : new Error('NATS drain failed')
+			console.error('youtube.shutdown.drain.failed', { error: drainError })
+		} finally {
+			try {
+				await closeDatabase()
+			} catch (error) {
+				const closeError = error instanceof Error ? error : new Error('Database close failed')
+				console.error('youtube.shutdown.database-close.failed', { error: closeError })
+			}
+		}
+	})()
+	return shutdownPromise
 }
 
-process.once('SIGINT', () => void shutdown())
-process.once('SIGTERM', () => void shutdown())
+process.once('SIGINT', () => {
+	void shutdown().catch((error: unknown) => {
+		console.error('youtube.shutdown.failed', { error })
+	})
+})
+process.once('SIGTERM', () => {
+	void shutdown().catch((error: unknown) => {
+		console.error('youtube.shutdown.failed', { error })
+	})
+})
 
 console.info('YouTube live chat subscriber started')
