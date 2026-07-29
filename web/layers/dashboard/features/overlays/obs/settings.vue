@@ -43,7 +43,7 @@ async function handleSave() {
 						class="bg-green-600 hover:bg-green-600"
 					>
 						<Icon
-							name="lucide:check-circle2"
+							name="lucide:check-circle-2"
 							class="mr-1 h-3 w-3"
 						/>
 						{{ t('overlays.obs.connected') }}
@@ -53,7 +53,7 @@ async function handleSave() {
 						variant="destructive"
 					>
 						<Icon
-							name="lucide:xcircle"
+							name="lucide:x-circle"
 							class="mr-1 h-3 w-3"
 						/>
 						{{ t('overlays.obs.notConnected') }}

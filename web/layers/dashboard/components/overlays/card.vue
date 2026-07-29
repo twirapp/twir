@@ -15,6 +15,7 @@ const props = withDefaults(
 		overlayPath?: string
 		icon: string
 		iconStroke?: number
+		iconFill?: string
 		showSettings?: boolean
 		copyDisabled?: boolean
 		showCopy?: boolean
@@ -43,6 +44,7 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 		:title="title"
 		:icon="icon"
 		:icon-stroke="iconStroke"
+		:icon-fill="iconFill"
 		class="h-full"
 	>
 		<template #content>

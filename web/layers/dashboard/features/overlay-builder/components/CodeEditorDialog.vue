@@ -299,7 +299,7 @@ onUnmounted(() => {
 		>
 			<DialogHeader class="px-6 pt-6 pb-4 border-b">
 				<DialogTitle class="flex items-center gap-2">
-					<Icon name="lucide:code2" class="h-5 w-5" />
+					<Icon name="lucide:code-xml" class="h-5 w-5" />
 					<span>Edit HTML Layer</span>
 					<span v-if="layerName" class="text-muted-foreground font-normal">
 						- {{ layerName }}

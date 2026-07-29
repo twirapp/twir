@@ -158,7 +158,7 @@ const columns = computed(() => {
 					class="ml-auto flex h-9"
 				>
 					<Icon
-						name="lucide:settings2"
+						name="lucide:settings-2"
 						class="mr-2 h-4 w-4"
 					/>
 					{{ t('sharedTexts.view') }}

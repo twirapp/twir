@@ -178,7 +178,7 @@ const hasOverlays = computed(() => {
 					@click="handleDeleteClick(currentTab)"
 				>
 					<Icon
-						name="lucide:trash2"
+						name="lucide:trash"
 						class="mr-2 h-4 w-4"
 					/>
 					{{ t('sharedButtons.delete') || 'Delete' }}

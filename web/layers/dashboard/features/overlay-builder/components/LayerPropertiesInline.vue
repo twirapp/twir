@@ -230,7 +230,7 @@ const localPollInterval = computed({
 			<div class="flex items-center justify-between">
 				<h4 class="text-xs font-medium">HTML Settings</h4>
 				<Button variant="outline" size="sm" class="h-7 text-xs" @click="emit('openCodeEditor')">
-					<Icon name="lucide:code2" class="h-3 w-3 mr-1.5" />
+					<Icon name="lucide:code-xml" class="h-3 w-3 mr-1.5" />
 					Code
 				</Button>
 			</div>

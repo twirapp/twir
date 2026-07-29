@@ -159,7 +159,7 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 						<span v-if="status.botName" class="truncate">via {{ status.botName }}</span>
 					</p>
 				</div>
-					<Icon name="lucide:loader2" v-if="isStatusPending(status)" class="size-4 animate-spin text-muted-foreground" />
+					<Icon name="lucide:loader-2" v-if="isStatusPending(status)" class="size-4 animate-spin text-muted-foreground" />
 					<Icon name="lucide:log-out" v-else-if="status.enabled" class="size-4 text-red-500" />
 					<Icon name="lucide:log-in" v-else class="size-4 text-green-500" />
 				</DropdownMenuItem>

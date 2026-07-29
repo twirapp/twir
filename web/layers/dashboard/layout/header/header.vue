@@ -283,7 +283,7 @@ function onDragEnd() {
 				@click="toggleEditMode"
 			>
 				<Icon
-					name="lucide:edit3"
+					name="lucide:edit-3"
 					:size="14"
 				/>
 				<span>{{ isEditMode ? t('sharedButtons.close') : t('sharedButtons.edit') }}</span>

@@ -85,7 +85,7 @@ const computedAccept = computed(() => {
 			>
 				<template v-if="!loading">
 					<Icon
-						name="lucide:upload-icon"
+						name="lucide:upload"
 						class="size-4"
 					/>
 					Upload File

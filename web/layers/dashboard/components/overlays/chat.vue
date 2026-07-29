@@ -10,7 +10,8 @@ const localePath = useLocalePath()
 
 <template>
 	<Card
-		:icon="'tabler:icon-message'"
+		:icon="'tabler:message'"
+		icon-fill="#61e8bb"
 		:icon-stroke="1"
 		title="Chat"
 		:description="t('overlays.chat.description')"

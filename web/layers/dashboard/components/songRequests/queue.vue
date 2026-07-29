@@ -123,7 +123,7 @@ function formatRelativeTime(dateStr: string) {
 					@click="showConfirmClear = true"
 				>
 					<Icon
-						name="lucide:trash2"
+						name="lucide:trash"
 						class="size-4"
 					/>
 				</Button>

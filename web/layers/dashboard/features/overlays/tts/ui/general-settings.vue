@@ -217,7 +217,7 @@ async function playPreview() {
 								@click="playPreview"
 							>
 								<Icon
-									name="lucide:volume2"
+									name="lucide:volume-2"
 									class="h-4 w-4"
 								/>
 							</Button>
