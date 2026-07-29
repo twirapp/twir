@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -75,8 +75,9 @@ var List = &types.DefaultCommand{
 			categoriesIds[i] = category.CategoryID
 		}
 
-		gamesRequest, err := twitchClient.GetGames(
-			&helix.GamesParams{
+		gamesRequest, err := twitchClient.Games.GetGames(
+			ctx,
+			helix.GetGamesRequest{
 				IDs: categoriesIds,
 			},
 		)
@@ -89,16 +90,6 @@ var List = &types.DefaultCommand{
 				Err: err,
 			}
 		}
-		if gamesRequest.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(
-					ctx,
-					locales.Translations.Commands.CategoriesAliases.Errors.GameCannotToGet,
-				),
-				Err: fmt.Errorf(gamesRequest.ErrorMessage),
-			}
-		}
-
 		aliases := make([]createdAliase, 0, len(categories))
 		for idx, category := range categories {
 			aliases = append(
@@ -107,7 +98,7 @@ var List = &types.DefaultCommand{
 				},
 			)
 
-			for _, game := range gamesRequest.Data.Games {
+			for _, game := range gamesRequest.Data {
 				if game.ID == category.CategoryID {
 					aliases[idx].twitchCategory = &game
 					break

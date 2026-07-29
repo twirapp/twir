@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
@@ -57,7 +57,8 @@ var SetExpire = &types.DefaultCommand{
 			}
 		}
 
-		channelTwitchClient, err := twitch.NewUserClient(
+		channelTwitchClient, err := twitch.NewUserClientWithContext(
+			ctx,
 			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
@@ -149,8 +150,9 @@ var SetExpire = &types.DefaultCommand{
 		}
 
 		// ignore error
-		channelTwitchClient.AddChannelVip(
-			&helix.AddChannelVipParams{
+		_, _ = channelTwitchClient.Moderation.AddChannelVIP(
+			ctx,
+			helix.AddChannelVIPRequest{
 				BroadcasterID: parseCtx.Channel.ID,
 				UserID:        user.UserID,
 			},

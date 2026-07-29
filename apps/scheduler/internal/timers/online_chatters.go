@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
@@ -270,27 +270,25 @@ func (c *onlineUsers) getChannelChatters(
 	chatterIndices := make(map[string]int)
 
 	for {
-		req, err := twitchClient.GetChannelChatChatters(
-			&helix.GetChatChattersParams{
+		first := 1000
+		req, err := twitchClient.Chat.GetChatters(
+			ctx,
+			helix.GetChattersRequest{
 				BroadcasterID: broadcasterID,
 				ModeratorID:   broadcasterID,
-				After:         cursor,
-				First:         "1000",
+				After:         &cursor,
+				First:         &first,
 			},
 		)
 		if err != nil {
 			return nil, fmt.Errorf("cannot get channel chat chatters: %w", err)
 		}
-		if req.ErrorMessage != "" {
-			return nil, fmt.Errorf("cannot get channel chat chatters: %s", req.ErrorMessage)
-		}
-
-		chatters = appendUniqueChatters(chatters, chatterIndices, req.Data.Chatters)
-		if req.Data.Pagination.Cursor == "" {
+		chatters = appendUniqueChatters(chatters, chatterIndices, req.Data)
+		if req.Pagination.Cursor() == "" {
 			return chatters, nil
 		}
 
-		cursor = req.Data.Pagination.Cursor
+		cursor = req.Pagination.Cursor()
 	}
 }
 

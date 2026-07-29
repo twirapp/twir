@@ -2,11 +2,10 @@ package predictions
 
 import (
 	"context"
-	"errors"
 
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -40,8 +39,9 @@ var Lock = &types.DefaultCommand{
 			}
 		}
 
-		currentPredictionReq, err := twitchClient.GetPredictions(
-			&helix.PredictionsParams{
+		currentPredictionReq, err := twitchClient.Predictions.GetPredictions(
+			ctx,
+			helix.GetPredictionsRequest{
 				BroadcasterID: parseCtx.Channel.ID,
 			},
 		)
@@ -51,19 +51,8 @@ var Lock = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
-		if currentPredictionReq.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(
-					ctx,
-					locales.Translations.Commands.Predictions.Errors.CannotGetCurrentVar.
-						SetVars(locales.KeysCommandsPredictionsErrorsCannotGetCurrentVarVars{Reason: currentPredictionReq.ErrorMessage}),
-				),
-				Err: errors.New(currentPredictionReq.ErrorMessage),
-			}
-		}
-
 		var currentRunedPrediction *helix.Prediction
-		for _, prediction := range currentPredictionReq.Data.Predictions {
+		for _, prediction := range currentPredictionReq.Data {
 			if prediction.Status == "LOCKED" || prediction.Status == "ACTIVE" {
 				currentRunedPrediction = &prediction
 				break
@@ -76,28 +65,18 @@ var Lock = &types.DefaultCommand{
 			}
 		}
 
-		cancelResp, err := twitchClient.EndPrediction(
-			&helix.EndPredictionParams{
+		_, err = twitchClient.Predictions.EndPrediction(
+			ctx,
+			helix.EndPredictionRequest{
 				BroadcasterID: parseCtx.Channel.ID,
 				ID:            currentRunedPrediction.ID,
-				Status:        "LOCKED",
+				Status:        helix.PredictionStatusLocked,
 			},
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Predictions.Errors.CannotCancel),
 				Err:     err,
-			}
-		}
-
-		if cancelResp.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(
-					ctx,
-					locales.Translations.Commands.Predictions.Errors.CannotCancelVar.
-						SetVars(locales.KeysCommandsPredictionsErrorsCannotCancelVarVars{Reason: cancelResp.ErrorMessage}),
-				),
-				Err: errors.New(cancelResp.ErrorMessage),
 			}
 		}
 

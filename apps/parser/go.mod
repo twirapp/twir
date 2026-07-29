@@ -15,11 +15,11 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/jmoiron/sqlx v1.4.0
+	github.com/kvizyx/twitchy v0.3.0
 	github.com/lib/pq v1.10.9
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/mazznoer/csscolorparser v0.1.6
 	github.com/nats-io/nats.go v1.48.0
-	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0

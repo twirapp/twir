@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -37,7 +37,7 @@ type cache struct {
 	dbUserStats *model.UsersStats
 	dbChannel   *dbChannelInfo
 
-	twitchUserFollows       map[string]*helix.ChannelFollow
+	twitchUserFollows       map[string]*helix.ChannelFollower
 	twitchChannel           *helix.ChannelInformation
 	cachedTwitchUsersById   map[string]*helix.User
 	cachedTwitchUsersByName map[string]*helix.User
@@ -87,7 +87,7 @@ func NewCacher(opts *CacherOpts) types.DataCacher {
 		parseCtxText:    opts.ParseCtxText,
 		locks:           &locks{},
 		cache: &cache{
-			twitchUserFollows:       make(map[string]*helix.ChannelFollow),
+			twitchUserFollows:       make(map[string]*helix.ChannelFollower),
 			cachedTwitchUsersById:   make(map[string]*helix.User),
 			cachedTwitchUsersByName: make(map[string]*helix.User),
 		},

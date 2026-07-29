@@ -5,16 +5,14 @@ import (
 	"fmt"
 
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
-
-	"github.com/nicklaw5/helix/v2"
 )
 
 const (
@@ -64,8 +62,9 @@ var SetCommand = &types.DefaultCommand{
 		}
 
 		if !parseCtx.ArgsParser.IsExists(gameArgName) {
-			channelInfo, err := twitchClient.GetChannelInformation(
-				&helix.GetChannelInformationParams{
+			channelInfo, err := twitchClient.Channels.GetChannelInformation(
+				ctx,
+				helix.GetChannelInformationRequest{
 					BroadcasterIDs: []string{parseCtx.Channel.ID},
 				},
 			)
@@ -78,7 +77,7 @@ var SetCommand = &types.DefaultCommand{
 					Err: err,
 				}
 			}
-			if len(channelInfo.Data.Channels) == 0 {
+			if len(channelInfo.Data) == 0 {
 				return nil, &types.CommandHandlerError{
 					Message: i18n.GetCtx(
 						ctx,
@@ -93,7 +92,7 @@ var SetCommand = &types.DefaultCommand{
 				}
 			}
 
-			result.Result = append(result.Result, channelInfo.Data.Channels[0].GameName)
+			result.Result = append(result.Result, channelInfo.Data[0].GameName)
 			return result, nil
 		}
 
@@ -115,10 +114,12 @@ var SetCommand = &types.DefaultCommand{
 
 		for _, categoryAlias := range categoryAliases {
 			if categoryAlias.Alias == categoryArg {
-				changeResponse, err := twitchClient.EditChannelInformation(
-					&helix.EditChannelInformationParams{
+				gameID := categoryAlias.CategoryID
+				_, err := twitchClient.Channels.ModifyChannelInformation(
+					ctx,
+					helix.ModifyChannelInformationRequest{
 						BroadcasterID: parseCtx.Channel.ID,
-						GameID:        categoryAlias.CategoryID,
+						GameID:        &gameID,
 					},
 				)
 				if err != nil {
@@ -130,19 +131,9 @@ var SetCommand = &types.DefaultCommand{
 						Err: err,
 					}
 				}
-				if changeResponse.ErrorMessage != "" {
-					return nil, &types.CommandHandlerError{
-						Message: i18n.GetCtx(
-							ctx,
-							locales.Translations.Commands.Channel.Errors.CategoryCannotChangeError.
-								SetVars(locales.KeysCommandsChannelErrorsCategoryCannotChangeErrorVars{ErrorMessage: changeResponse.ErrorMessage}),
-						),
-						Err: fmt.Errorf(changeResponse.ErrorMessage),
-					}
-				}
-
-				categoryRequest, err := twitchClient.GetGames(
-					&helix.GamesParams{
+				categoryRequest, err := twitchClient.Games.GetGames(
+					ctx,
+					helix.GetGamesRequest{
 						IDs: []string{categoryAlias.CategoryID},
 					},
 				)
@@ -155,18 +146,7 @@ var SetCommand = &types.DefaultCommand{
 						Err: err,
 					}
 				}
-				if categoryRequest.ErrorMessage != "" {
-					return nil, &types.CommandHandlerError{
-						Message: i18n.GetCtx(
-							ctx,
-							locales.Translations.Commands.Channel.Errors.CategoryCannotGetError.
-								SetVars(locales.KeysCommandsChannelErrorsCategoryCannotGetErrorVars{ErrorMessage: categoryRequest.ErrorMessage}),
-						),
-						Err: fmt.Errorf(categoryRequest.ErrorMessage),
-					}
-				}
-
-				if len(categoryRequest.Data.Games) == 0 {
+				if len(categoryRequest.Data) == 0 {
 					return nil, &types.CommandHandlerError{
 						Message: i18n.GetCtx(
 							ctx,
@@ -186,7 +166,7 @@ var SetCommand = &types.DefaultCommand{
 					i18n.GetCtx(
 						ctx,
 						locales.Translations.Commands.Channel.Add.CategoryChange.
-							SetVars(locales.KeysCommandsChannelAddCategoryChangeVars{CategoryName: categoryRequest.Data.Games[0].Name}),
+							SetVars(locales.KeysCommandsChannelAddCategoryChangeVars{CategoryName: categoryRequest.Data[0].Name}),
 					),
 				)
 				return result, nil
@@ -204,22 +184,19 @@ var SetCommand = &types.DefaultCommand{
 			}
 		}
 
-		changeResponse, err := twitchClient.EditChannelInformation(
-			&helix.EditChannelInformationParams{
+		categoryID := category.ID
+		_, err = twitchClient.Channels.ModifyChannelInformation(
+			ctx,
+			helix.ModifyChannelInformationRequest{
 				BroadcasterID: parseCtx.Channel.ID,
-				GameID:        category.ID,
+				GameID:        &categoryID,
 			},
 		)
 
-		if err != nil || changeResponse.StatusCode != 204 {
+		if err != nil {
 			result.Result = append(
 				result.Result,
-				lo.If(changeResponse.ErrorMessage != "", changeResponse.ErrorMessage).Else(
-					i18n.GetCtx(
-						ctx,
-						locales.Translations.Errors.Generic.Internal,
-					),
-				),
+				i18n.GetCtx(ctx, locales.Translations.Errors.Generic.Internal),
 			)
 			return result, nil
 		}

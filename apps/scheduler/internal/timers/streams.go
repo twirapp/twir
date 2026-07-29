@@ -22,7 +22,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/scorfly/gokick"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -174,20 +174,21 @@ func (c *streams) processStreams(ctx context.Context) error {
 	for _, chunk := range chunks {
 		go func(chunk []string) {
 			defer wg.Done()
-			streams, err := twitchClient.GetStreams(
-				&helix.StreamsParams{
-					UserIDs: chunk,
+			streams, err := twitchClient.Streams.GetStreams(
+				ctx,
+				helix.GetStreamsRequest{
+					UserID: chunk,
 				},
 			)
 
-			if err != nil || streams.ErrorMessage != "" {
+			if err != nil {
 				c.logger.Error("cannot get streams", logger.Error(err))
 				return
 			}
 
 			for _, userId := range chunk {
 				twitchStream, twitchStreamExists := lo.Find(
-					streams.Data.Streams, func(stream helix.Stream) bool {
+					streams.Data, func(stream helix.Stream) bool {
 						return stream.UserID == userId
 					},
 				)
@@ -223,10 +224,10 @@ func (c *streams) processStreams(ctx context.Context) error {
 							GameId:       twitchStream.GameID,
 							GameName:     twitchStream.GameName,
 							CommunityIds: nil,
-							Type:         twitchStream.Type,
+							Type:         string(twitchStream.Type),
 							Title:        twitchStream.Title,
 							ViewerCount:  twitchStream.ViewerCount,
-							StartedAt:    twitchStream.StartedAt,
+							StartedAt:    twitchStream.StartedAt.Time,
 							Language:     twitchStream.Language,
 							ThumbnailUrl: twitchStream.ThumbnailURL,
 							TagIds:       nil,
@@ -253,7 +254,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 								CategoryID:   twitchStream.GameID,
 								Title:        twitchStream.Title,
 								Viewers:      twitchStream.ViewerCount,
-								StartedAt:    twitchStream.StartedAt,
+								StartedAt:    twitchStream.StartedAt.Time,
 							},
 						)
 					}

@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -66,11 +66,11 @@ var MakeClip = &types.DefaultCommand{
 			}
 		}
 
-		twitchClient, err := twitch.NewBotClientWithContext(
+		twitchClient, err := twitch.NewChannelBotClientWithContext(
 			ctx,
 			twitchBotConfig.BotID,
+			twitchBinding.PlatformChannelID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -82,8 +82,9 @@ var MakeClip = &types.DefaultCommand{
 			}
 		}
 
-		resp, err := twitchClient.CreateClip(
-			&helix.CreateClipParams{
+		resp, err := twitchClient.Clips.CreateClip(
+			ctx,
+			helix.CreateClipRequest{
 				BroadcasterID: twitchBinding.PlatformChannelID,
 			},
 		)
@@ -96,17 +97,7 @@ var MakeClip = &types.DefaultCommand{
 				Err: err,
 			}
 		}
-		if resp.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(
-					ctx,
-					locales.Translations.Commands.Clip.CannotCreateClip,
-				),
-				Err: errors.New(resp.ErrorMessage),
-			}
-		}
-
-		if len(resp.Data.ClipEditURLs) == 0 {
+		if len(resp.Data) == 0 {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,
@@ -116,13 +107,14 @@ var MakeClip = &types.DefaultCommand{
 			}
 		}
 
-		clipId := resp.Data.ClipEditURLs[0].ID
+		clipId := resp.Data[0].ID
 
 		var url string
 
 		for i := 0; i < 20; i++ {
-			clip, err := twitchClient.GetClips(
-				&helix.ClipsParams{
+			clip, err := twitchClient.Clips.GetClips(
+				ctx,
+				helix.GetClipsRequest{
 					IDs: []string{clipId},
 				},
 			)
@@ -136,8 +128,8 @@ var MakeClip = &types.DefaultCommand{
 				}
 			}
 
-			if len(clip.Data.Clips) > 0 {
-				url = clip.Data.Clips[0].URL
+			if len(clip.Data) > 0 {
+				url = clip.Data[0].URL
 				break
 			}
 

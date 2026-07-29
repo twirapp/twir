@@ -2,15 +2,13 @@ package cacher
 
 import (
 	"context"
-	"fmt"
-
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
 // GetFollowAge implements types.VariablesCacher
-func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.ChannelFollow {
+func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.ChannelFollower {
 	c.locks.twitchFollow.Lock()
 	defer c.locks.twitchFollow.Unlock()
 
@@ -27,32 +25,29 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 		return nil
 	}
 
-	twitchClient, err := twitch.NewBotClientWithContext(
+	twitchClient, err := twitch.NewChannelBotClientWithContext(
 		ctx,
 		dbChannel.BotID,
+		c.parseCtxChannel.ID,
 		*c.services.Config,
-		c.services.Bus,
 	)
 	if err != nil {
 		return nil
 	}
 
-	follow, err := twitchClient.GetChannelFollows(
-		&helix.GetChannelFollowsParams{
+	follow, err := twitchClient.Channels.GetChannelFollowers(
+		ctx,
+		helix.GetChannelFollowersRequest{
 			BroadcasterID: c.parseCtxChannel.ID,
-			UserID:        userID,
-			First:         0,
-			After:         "",
+			UserID:        &userID,
 		},
 	)
-
-	if follow.ErrorMessage != "" {
-		fmt.Println(follow.ErrorMessage)
+	if err != nil {
 		return nil
 	}
 
-	if err == nil && len(follow.Data.Channels) != 0 {
-		c.cache.twitchUserFollows[userID] = &follow.Data.Channels[0]
+	if len(follow.Data) != 0 {
+		c.cache.twitchUserFollows[userID] = &follow.Data[0]
 	}
 
 	return c.cache.twitchUserFollows[userID]
@@ -105,14 +100,15 @@ func (c *cacher) GetTwitchChannel(ctx context.Context) *helix.ChannelInformation
 		return nil
 	}
 
-	channel, err := twitchClient.GetChannelInformation(
-		&helix.GetChannelInformationParams{
+	channel, err := twitchClient.Channels.GetChannelInformation(
+		ctx,
+		helix.GetChannelInformationRequest{
 			BroadcasterIDs: []string{c.parseCtxChannel.ID},
 		},
 	)
 
-	if err == nil && len(channel.Data.Channels) != 0 {
-		c.cache.twitchChannel = &channel.Data.Channels[0]
+	if err == nil && len(channel.Data) != 0 {
+		c.cache.twitchChannel = &channel.Data[0]
 	}
 
 	return c.cache.twitchChannel
@@ -147,26 +143,23 @@ func (c *cacher) GetTwitchUserById(ctx context.Context, userId string) (*helix.U
 		return nil, err
 	}
 
-	users, err := twitchClient.GetUsers(
-		&helix.UsersParams{
+	users, err := twitchClient.Users.GetUsers(
+		ctx,
+		helix.GetUsersRequest{
 			IDs: []string{userId},
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	if users.ErrorMessage != "" {
-		return nil, fmt.Errorf(users.ErrorMessage)
-	}
-
-	if len(users.Data.Users) == 0 {
+	if len(users.Data) == 0 {
 		return nil, nil
 	}
 
-	c.cache.cachedTwitchUsersById[userId] = &users.Data.Users[0]
-	c.cache.cachedTwitchUsersByName[users.Data.Users[0].Login] = &users.Data.Users[0]
+	c.cache.cachedTwitchUsersById[userId] = &users.Data[0]
+	c.cache.cachedTwitchUsersByName[users.Data[0].Login] = &users.Data[0]
 
-	return &users.Data.Users[0], nil
+	return &users.Data[0], nil
 }
 
 func (c *cacher) GetTwitchUserByName(ctx context.Context, userName string) (*helix.User, error) {
@@ -186,24 +179,21 @@ func (c *cacher) GetTwitchUserByName(ctx context.Context, userName string) (*hel
 		return nil, err
 	}
 
-	users, err := twitchClient.GetUsers(
-		&helix.UsersParams{
+	users, err := twitchClient.Users.GetUsers(
+		ctx,
+		helix.GetUsersRequest{
 			Logins: []string{userName},
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	if users.ErrorMessage != "" {
-		return nil, fmt.Errorf(users.ErrorMessage)
-	}
-
-	if len(users.Data.Users) == 0 {
+	if len(users.Data) == 0 {
 		return nil, nil
 	}
 
-	c.cache.cachedTwitchUsersByName[userName] = &users.Data.Users[0]
-	c.cache.cachedTwitchUsersById[users.Data.Users[0].ID] = &users.Data.Users[0]
+	c.cache.cachedTwitchUsersByName[userName] = &users.Data[0]
+	c.cache.cachedTwitchUsersById[users.Data[0].ID] = &users.Data[0]
 
-	return &users.Data.Users[0], nil
+	return &users.Data[0], nil
 }

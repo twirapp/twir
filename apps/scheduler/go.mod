@@ -5,8 +5,8 @@ go 1.26.0
 require (
 	github.com/google/uuid v1.6.0
 	github.com/guregu/null v4.0.0+incompatible
+	github.com/kvizyx/twitchy v0.3.0
 	github.com/lib/pq v1.10.9
-	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/samber/lo v1.52.0
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f

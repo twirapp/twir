@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )
 

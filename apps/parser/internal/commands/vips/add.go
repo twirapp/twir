@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
@@ -78,7 +78,8 @@ var Add = &types.DefaultCommand{
 			}
 		}
 
-		twitchClient, err := twitch.NewUserClient(
+		twitchClient, err := twitch.NewUserClientWithContext(
+			ctx,
 			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
@@ -142,8 +143,9 @@ var Add = &types.DefaultCommand{
 		trErr := parseCtx.Services.TrmManager.Do(
 			ctx,
 			func(trCtx context.Context) error {
-				vipResp, err := twitchClient.AddChannelVip(
-					&helix.AddChannelVipParams{
+				_, err := twitchClient.Moderation.AddChannelVIP(
+					trCtx,
+					helix.AddChannelVIPRequest{
 						BroadcasterID: parseCtx.Channel.ID,
 						UserID:        user.UserID,
 					},
@@ -154,12 +156,6 @@ var Add = &types.DefaultCommand{
 						Err:     err,
 					}
 				}
-				if vipResp.ErrorMessage != "" {
-					return &types.CommandHandlerError{
-						Message: vipResp.ErrorMessage,
-					}
-				}
-
 				if unvipType == nil {
 					return nil
 				}

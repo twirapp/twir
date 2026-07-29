@@ -46,7 +46,7 @@ var FollowSince = &types.Variable{
 		} else {
 			follow := parseCtx.Cacher.GetTwitchUserFollow(ctx, user.ID)
 			if follow != nil {
-				followedAt = &follow.Followed.Time
+				followedAt = &follow.FollowedAt.Time
 			}
 		}
 

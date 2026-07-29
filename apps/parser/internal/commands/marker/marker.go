@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -72,11 +72,11 @@ var Marker = &types.DefaultCommand{
 			}
 		}
 
-		twitchClient, err := twitch.NewBotClientWithContext(
+		twitchClient, err := twitch.NewChannelBotClientWithContext(
 			ctx,
 			twitchBotConfig.BotID,
+			twitchBinding.PlatformChannelID,
 			*parseCtx.Services.Config,
-			parseCtx.Services.Bus,
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
@@ -88,17 +88,17 @@ var Marker = &types.DefaultCommand{
 			}
 		}
 
-		params := helix.CreateStreamMarkerParams{
-			UserID:      twitchBinding.PlatformChannelID,
-			Description: "",
+		params := helix.CreateStreamMarkerRequest{
+			UserID: twitchBinding.PlatformChannelID,
 		}
 
 		description := parseCtx.ArgsParser.Get("markerDescription")
 		if description != nil {
-			params.Description = description.String()
+			markerDescription := description.String()
+			params.Description = &markerDescription
 		}
 
-		resp, err := twitchClient.CreateStreamMarker(&params)
+		resp, err := twitchClient.Streams.CreateStreamMarker(ctx, params)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
@@ -108,27 +108,7 @@ var Marker = &types.DefaultCommand{
 				Err: err,
 			}
 		}
-		if resp.StatusCode == 403 {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(
-					ctx,
-					locales.Translations.Commands.Marker.Errors.CannotCreateMarker.SetVars(locales.KeysCommandsMarkerErrorsCannotCreateMarkerVars{Reason: "insufficient permissions"}),
-				),
-				Err: errors.New("insufficient permissions"),
-			}
-		}
-
-		if resp.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(
-					ctx,
-					locales.Translations.Commands.Marker.Errors.CannotCreateMarker.SetVars(locales.KeysCommandsMarkerErrorsCannotCreateMarkerVars{Reason: resp.ErrorMessage}),
-				),
-				Err: err,
-			}
-		}
-
-		if len(resp.Data.CreateStreamMarkers) == 0 {
+		if len(resp.Data) == 0 {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(
 					ctx,

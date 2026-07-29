@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/bots"
@@ -41,8 +41,9 @@ func (c *duelHandler) getChannelSettings(ctx context.Context) (
 	return entity, nil
 }
 
-func (c *duelHandler) createHelixClient(twitchUserID uuid.UUID) (*helix.Client, error) {
-	client, err := twitch.NewUserClient(
+func (c *duelHandler) createHelixClient(ctx context.Context, twitchUserID uuid.UUID) (*helix.Client, error) {
+	client, err := twitch.NewUserClientWithContext(
+		ctx,
 		twitchUserID,
 		*c.parseCtx.Services.Config,
 		c.parseCtx.Services.Bus,
@@ -56,7 +57,7 @@ func (c *duelHandler) createHelixClient(twitchUserID uuid.UUID) (*helix.Client, 
 	return client, nil
 }
 
-func (c *duelHandler) getTwitchTargetUser() (helix.User, error) {
+func (c *duelHandler) getTwitchTargetUser(ctx context.Context) (helix.User, error) {
 	targetUserName := strings.Replace(
 		c.parseCtx.ArgsParser.Get(duelTargetArgName).String(),
 		"@",
@@ -64,22 +65,18 @@ func (c *duelHandler) getTwitchTargetUser() (helix.User, error) {
 		1,
 	)
 
-	userRequest, err := c.helixClient.GetUsers(&helix.UsersParams{Logins: []string{targetUserName}})
+	userRequest, err := c.helixClient.Users.GetUsers(ctx, helix.GetUsersRequest{Logins: []string{targetUserName}})
 	if err != nil {
 		return helix.User{}, fmt.Errorf(i18n.Get(
 			locales.Translations.Errors.Generic.CannotGetUser.
 				SetVars(locales.KeysErrorsGenericCannotGetUserVars{Reason: err.Error()}),
 		))
 	}
-	if userRequest.ErrorMessage != "" {
-		return helix.User{}, errors.New(userRequest.ErrorMessage)
-	}
-
-	if len(userRequest.Data.Users) == 0 {
+	if len(userRequest.Data) == 0 {
 		return helix.User{}, errors.New(i18n.Get(locales.Translations.Errors.Generic.UserNotFound))
 	}
 
-	return userRequest.Data.Users[0], nil
+	return userRequest.Data[0], nil
 }
 
 func (c *duelHandler) getDbChannel(ctx context.Context) (channelentity.Channel, error) {
@@ -172,9 +169,10 @@ func (c *duelHandler) validateParticipants(
 	return nil
 }
 
-func (c *duelHandler) getChannelModerators(twitchChannelID string) ([]helix.Moderator, error) {
-	moderatorsRequest, err := c.helixClient.GetModerators(
-		&helix.GetModeratorsParams{
+func (c *duelHandler) getChannelModerators(ctx context.Context, twitchChannelID string) ([]helix.Moderator, error) {
+	moderatorsRequest, err := c.helixClient.Moderation.GetModerators(
+		ctx,
+		helix.GetModeratorsRequest{
 			BroadcasterID: twitchChannelID,
 		},
 	)
@@ -184,11 +182,7 @@ func (c *duelHandler) getChannelModerators(twitchChannelID string) ([]helix.Mode
 				SetVars(locales.KeysErrorsGenericCannotGetModeratorsVars{Reason: err.Error()}),
 		))
 	}
-	if moderatorsRequest.ErrorMessage != "" {
-		return nil, errors.New(moderatorsRequest.ErrorMessage)
-	}
-
-	return moderatorsRequest.Data.Moderators, nil
+	return moderatorsRequest.Data, nil
 }
 
 func (c *duelHandler) saveDuelData(

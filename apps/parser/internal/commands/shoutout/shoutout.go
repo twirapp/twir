@@ -2,17 +2,15 @@ package shoutout
 
 import (
 	"context"
-	"errors"
 
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
-	"github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 
 	"github.com/samber/lo"
 
@@ -43,12 +41,13 @@ var ShoutOut = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		token, err := parseCtx.Services.Bus.Tokens.RequestUserToken.Request(
-			ctx,
-			tokens.GetUserTokenRequest{
-				UserId: parseCtx.Channel.TwitchUserID,
-			},
-		)
+		var token model.Tokens
+		err := parseCtx.Services.Gorm.
+			Table("users").
+			Select("tokens.scopes").
+			Joins(`JOIN tokens ON users."tokenId" = tokens.id`).
+			Where("users.id = ?", parseCtx.Channel.TwitchUserID).
+			First(&token).Error
 		if err != nil {
 			result.Result = append(
 				result.Result,
@@ -60,12 +59,7 @@ var ShoutOut = &types.DefaultCommand{
 			return result, nil
 		}
 
-		_, ok := lo.Find(
-			token.Data.Scopes, func(item string) bool {
-				return item == "moderator:manage:shoutouts"
-			},
-		)
-		if !ok {
+		if !hasShoutoutScope(token.Scopes) {
 			result.Result = append(
 				result.Result,
 				i18n.GetCtx(
@@ -104,17 +98,21 @@ var ShoutOut = &types.DefaultCommand{
 
 		user := parseCtx.Mentions[0]
 
-		go twitchClient.SendShoutout(
-			&helix.SendShoutoutParams{
-				FromBroadcasterID: parseCtx.Channel.ID,
-				ToBroadcasterID:   user.UserID,
-				ModeratorID:       parseCtx.Channel.ID,
-			},
-		)
+		go func() {
+			_, _ = twitchClient.Chat.SendShoutout(
+				ctx,
+				helix.SendShoutoutRequest{
+					FromBroadcasterID: parseCtx.Channel.ID,
+					ToBroadcasterID:   user.UserID,
+					ModeratorID:       parseCtx.Channel.ID,
+				},
+			)
+		}()
 
-		streamsReq, err := twitchClient.GetStreams(
-			&helix.StreamsParams{
-				UserIDs: []string{user.UserID},
+		streamsReq, err := twitchClient.Streams.GetStreams(
+			ctx,
+			helix.GetStreamsRequest{
+				UserID: []string{user.UserID},
 			},
 		)
 		if err != nil {
@@ -126,18 +124,8 @@ var ShoutOut = &types.DefaultCommand{
 				Err: err,
 			}
 		}
-		if streamsReq.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(
-					ctx,
-					locales.Translations.Errors.Generic.CannotGetStream.SetVars(locales.KeysErrorsGenericCannotGetStreamVars{Reason: streamsReq.ErrorMessage}),
-				),
-				Err: errors.New(streamsReq.ErrorMessage),
-			}
-		}
-
-		if len(streamsReq.Data.Streams) != 0 {
-			stream := streamsReq.Data.Streams[0]
+		if len(streamsReq.Data) != 0 {
+			stream := streamsReq.Data[0]
 
 			result.Result = append(
 				result.Result,
@@ -155,8 +143,9 @@ var ShoutOut = &types.DefaultCommand{
 			)
 			return result, nil
 		} else {
-			channelReq, err := twitchClient.GetChannelInformation(
-				&helix.GetChannelInformationParams{
+			channelReq, err := twitchClient.Channels.GetChannelInformation(
+				ctx,
+				helix.GetChannelInformationRequest{
 					BroadcasterIDs: []string{user.UserID},
 				},
 			)
@@ -169,17 +158,7 @@ var ShoutOut = &types.DefaultCommand{
 					Err: err,
 				}
 			}
-			if channelReq.ErrorMessage != "" {
-				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(
-						ctx,
-						locales.Translations.Errors.Generic.CannotFindChannelTwitch.SetVars(locales.KeysErrorsGenericCannotFindChannelTwitchVars{Reason: channelReq.ErrorMessage}),
-					),
-					Err: errors.New(channelReq.ErrorMessage),
-				}
-			}
-
-			if len(channelReq.Data.Channels) == 0 {
+			if len(channelReq.Data) == 0 {
 				result.Result = append(
 					result.Result,
 					i18n.GetCtx(
@@ -189,7 +168,7 @@ var ShoutOut = &types.DefaultCommand{
 				)
 				return result, nil
 			}
-			channel := channelReq.Data.Channels[0]
+			channel := channelReq.Data[0]
 			result.Result = append(
 				result.Result,
 				i18n.GetCtx(
@@ -206,4 +185,8 @@ var ShoutOut = &types.DefaultCommand{
 			return result, nil
 		}
 	},
+}
+
+func hasShoutoutScope(scopes []string) bool {
+	return lo.Contains(scopes, "moderator:manage:shoutouts")
 }
