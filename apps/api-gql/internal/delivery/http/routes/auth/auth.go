@@ -298,5 +298,5 @@ func (a *Auth) completeYouTubeBotCallback(ctx context.Context, code, state strin
 		return nil, huma.Error400BadRequest("Cannot complete YouTube bot setup", err)
 	}
 
-	return &youtubeBotCallbackOutput{Status: http.StatusFound, Location: "/dashboard/admin-panel"}, nil
+	return &youtubeBotCallbackOutput{Status: http.StatusFound, Location: "/dashboard/admin"}, nil
 }

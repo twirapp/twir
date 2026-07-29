@@ -103,8 +103,8 @@ func TestYouTubeBotCallbackRedirectsToAdminPanelAfterSetup(t *testing.T) {
 	if response.Code != http.StatusFound {
 		t.Fatalf("status = %d, want %d", response.Code, http.StatusFound)
 	}
-	if location := response.Header().Get("Location"); location != "/dashboard/admin-panel" {
-		t.Fatalf("Location = %q, want %q", location, "/dashboard/admin-panel")
+	if location := response.Header().Get("Location"); location != "/dashboard/admin" {
+		t.Fatalf("Location = %q, want %q", location, "/dashboard/admin")
 	}
 }
 

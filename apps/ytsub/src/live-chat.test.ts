@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test'
+import { YTNodes } from 'youtubei.js'
 
 import {
 	LiveChatManager,
@@ -9,19 +10,23 @@ import { shouldIgnoreYoutubeBotMessage } from './message.ts'
 
 import type { RetryScheduler } from './live-chat-scheduler.ts'
 import type { ChannelBinding } from './message.ts'
+import type { Helpers } from 'youtubei.js'
 
 class FakeLiveChat implements LiveChatSession {
 	startCalls = 0
 	stopCalls = 0
 	selectLiveChatCalls = 0
 	#startListener: (() => void) | undefined
+	#chatUpdateListener: ((action: Helpers.YTNode) => void) | undefined
 	#errorListener: ((error: Error) => void) | undefined
 
 	onStart(listener: () => void): void {
 		this.#startListener = listener
 	}
 
-	onChatUpdate(): void {}
+	onChatUpdate(listener: (action: Helpers.YTNode) => void): void {
+		this.#chatUpdateListener = listener
+	}
 
 	onError(listener: (error: Error) => void): void {
 		this.#errorListener = listener
@@ -44,6 +49,10 @@ class FakeLiveChat implements LiveChatSession {
 
 	emitError(error: Error): void {
 		this.#errorListener?.(error)
+	}
+
+	emitChatUpdate(action: Helpers.YTNode): void {
+		this.#chatUpdateListener?.(action)
 	}
 }
 
@@ -199,4 +208,93 @@ test('shouldIgnoreYoutubeBotMessage suppresses bot replies but keeps broadcaster
 	expect(shouldIgnoreYoutubeBotMessage(binding(), 'UCbot')).toBe(true)
 	expect(shouldIgnoreYoutubeBotMessage(binding('UCbot'), 'UCbot')).toBe(false)
 	expect(shouldIgnoreYoutubeBotMessage(binding(), 'UCviewer')).toBe(false)
+})
+
+function chatUpdateAction(authorId = 'UCviewer'): Helpers.YTNode {
+	const item = {
+		is: (node: unknown) => node === YTNodes.LiveChatTextMessage,
+		id: 'message-1',
+		message: { toString: () => 'hello' },
+		author: { id: authorId, name: 'viewer', badges: [] },
+	}
+
+	return {
+		is: (node: unknown) => node === YTNodes.AddChatItemAction,
+		item,
+	} as unknown as Helpers.YTNode
+}
+
+function flushMicrotasks(): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, 0))
+}
+
+test('LiveChatManager drops chat updates from a session replaced after an error', async () => {
+	const stale = new FakeLiveChat()
+	const replacement = new FakeLiveChat()
+	const scheduler = new FakeRetryScheduler()
+	const results = [
+		Promise.resolve({ session: stale, broadcasterName: 'Broadcaster' }),
+		Promise.resolve({ session: replacement, broadcasterName: 'Broadcaster' }),
+	]
+	const source: LiveChatSource = {
+		resolve(): Promise<{ readonly session: LiveChatSession; readonly broadcasterName: string }> {
+			const result = results.shift()
+			if (!result) {
+				throw new Error('Unexpected live chat resolution')
+			}
+			return result
+		},
+	}
+	const published: unknown[] = []
+	const fakeBus = {
+		ChatMessages: { publish: async (message: unknown): Promise<void> => { published.push(message) } },
+		Parser: { ProcessMessageAsCommand: { publish: async (): Promise<void> => {} } },
+	}
+	const manager = new LiveChatManager(source, fakeBus, {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+		retryScheduler: scheduler,
+	})
+
+	await manager.subscribe(binding())
+	stale.emitError(new Error('stale session failed'))
+	scheduler.runNext()
+	await flushMicrotasks()
+
+	stale.emitChatUpdate(chatUpdateAction())
+	await flushMicrotasks()
+	expect(published).toHaveLength(0)
+
+	replacement.emitChatUpdate(chatUpdateAction())
+	await flushMicrotasks()
+	expect(published).toHaveLength(1)
+})
+
+test('LiveChatManager reconcile stops removed sessions even when an addition hangs', async () => {
+	const removed = new FakeLiveChat()
+	const hanging = deferred<{ readonly session: LiveChatSession; readonly broadcasterName: string }>()
+	const results = [
+		Promise.resolve({ session: removed, broadcasterName: 'Removed' }),
+		hanging.promise,
+	]
+	const source: LiveChatSource = {
+		resolve(): Promise<{ readonly session: LiveChatSession; readonly broadcasterName: string }> {
+			const result = results.shift()
+			if (!result) {
+				throw new Error('Unexpected live chat resolution')
+			}
+			return result
+		},
+	}
+	const manager = new LiveChatManager(source, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+	})
+
+	await manager.subscribe(binding('UCremoved'))
+	const reconcilePromise = manager.reconcile([{ ...binding('UCadded'), id: 'binding-2' }])
+	await flushMicrotasks()
+
+	expect(removed.stopCalls).toBe(1)
+
+	hanging.resolve({ session: new FakeLiveChat(), broadcasterName: 'Added' })
+	await reconcilePromise
 })

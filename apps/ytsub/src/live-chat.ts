@@ -74,6 +74,7 @@ export class LiveChatManager {
 	readonly #attempts = new Map<string, number>()
 	readonly #generations = new Map<string, number>()
 	#closed = false
+	#reconciling = false
 
 	constructor(
 		private readonly source: LiveChatSource,
@@ -107,14 +108,22 @@ export class LiveChatManager {
 	}
 
 	async reconcile(bindings: readonly ChannelBinding[]): Promise<void> {
-		const desired = new Map(bindings.map((binding) => [binding.id, binding]))
-		for (const binding of bindings) {
-			await this.subscribe(binding)
+		if (this.#reconciling) {
+			return
 		}
-		for (const bindingId of this.#bindings.keys()) {
-			if (!desired.has(bindingId)) {
-				this.unsubscribe(bindingId)
+		this.#reconciling = true
+		try {
+			const desired = new Map(bindings.map((binding) => [binding.id, binding]))
+			for (const bindingId of [...this.#bindings.keys()]) {
+				if (!desired.has(bindingId)) {
+					this.unsubscribe(bindingId)
+				}
 			}
+			for (const binding of bindings) {
+				await this.subscribe(binding)
+			}
+		} finally {
+			this.#reconciling = false
 		}
 	}
 
@@ -168,7 +177,7 @@ export class LiveChatManager {
 				}
 			})
 			resolved.session.onChatUpdate((action) => {
-				void this.#handleChatUpdate(binding, generation, resolved.broadcasterName, action)
+				void this.#handleChatUpdate(binding, generation, resolved.session, resolved.broadcasterName, action)
 					.catch((error: unknown) => logAsyncError('youtube.chat-update.failed', error, binding.id))
 			})
 			resolved.session.onError((error) => {
@@ -196,12 +205,14 @@ export class LiveChatManager {
 	async #handleChatUpdate(
 		binding: ChannelBinding,
 		generation: number,
+		session: LiveChatSession,
 		broadcasterName: string,
 		action: Helpers.YTNode
 	): Promise<void> {
-		if (!this.#isCurrent(binding, generation)) {
+		if (!this.#isCurrentSession(binding, generation, session)) {
 			return
 		}
+		this.#attempts.delete(binding.id)
 		if (!action.is(YTNodes.AddChatItemAction)) {
 			console.debug(`ignored YouTube live chat action ${action.type}`)
 			return
@@ -216,19 +227,16 @@ export class LiveChatManager {
 			return
 		}
 		const chatterBinding = await this.options.ensureChatter(binding, sourceMessage)
-		if (!this.#isCurrent(binding, generation)) {
+		if (!this.#isCurrentSession(binding, generation, session)) {
 			return
 		}
 		const message = normalizeYoutubeTextMessage(chatterBinding, broadcasterName, sourceMessage)
 
 		await this.bus.ChatMessages.publish(message)
-		if (!this.#isCurrent(binding, generation)) {
+		if (!this.#isCurrentSession(binding, generation, session)) {
 			return
 		}
 		await this.bus.Parser.ProcessMessageAsCommand.publish(message)
-		if (this.#isCurrent(binding, generation)) {
-			this.#attempts.delete(binding.id)
-		}
 	}
 
 	#finishWithRetry(binding: ChannelBinding, generation: number, session: LiveChatSession, error: Error): void {
@@ -275,6 +283,11 @@ export class LiveChatManager {
 		return !this.#closed
 			&& this.#generation(binding.id) === generation
 			&& this.#bindings.get(binding.id) === binding
+	}
+
+	#isCurrentSession(binding: ChannelBinding, generation: number, session: LiveChatSession): boolean {
+		return this.#isCurrent(binding, generation)
+			&& this.#sessions.get(binding.id)?.session === session
 	}
 
 	#generation(bindingId: string): number {

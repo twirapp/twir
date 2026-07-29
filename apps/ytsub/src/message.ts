@@ -45,6 +45,7 @@ export function isYoutubeSubscriberBadge(badge: ChatMessageBadge): boolean {
 		|| badgeId === 'sponsorship_star'
 		|| badgeSetId === 'member'
 		|| badgeSetId === 'sponsor'
+		|| badgeSetId === 'badge_style_type_member'
 		|| badgeSetId === 'badge_style_type_members_only'
 }
 
