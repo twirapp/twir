@@ -393,6 +393,47 @@ func TestGetBotStatusesDoesNotExposeUsableVKVideoLiveBotWithoutBotUserID(t *test
 	}
 }
 
+func TestGetBotStatusesMapsYouTubeBindingIdentity(t *testing.T) {
+	// Given
+	channelID := uuid.New()
+	youtubeOwnerID := uuid.New()
+	youtubeBotUserID := uuid.New()
+	service := &Service{
+		channelService: dashboardChannelLookupStub{channel: channelentity.Channel{
+			ID: channelID,
+			Bindings: []channelplatformentity.ChannelPlatform{{
+				Platform:          platform.PlatformYouTube,
+				UserID:            youtubeOwnerID,
+				PlatformChannelID: "youtube-channel",
+				Enabled:           true,
+				BotUserID:         &youtubeBotUserID,
+			}},
+		}},
+		usersRepo: dashboardUsersLookupStub{users: map[uuid.UUID]usersmodel.User{
+			youtubeOwnerID:   {ID: youtubeOwnerID, Login: "youtube-owner"},
+			youtubeBotUserID: {ID: youtubeBotUserID, Login: "youtube-bot"},
+		}},
+	}
+
+	// When
+	statuses, err := service.GetBotStatuses(context.Background(), channelID.String())
+
+	// Then
+	if err != nil {
+		t.Fatalf("get bot statuses: %v", err)
+	}
+	if len(statuses) != 1 {
+		t.Fatalf("statuses = %d, want 1", len(statuses))
+	}
+	status := statuses[0]
+	if status.Platform != platform.PlatformYouTube.String() || status.ChannelName != "youtube-owner" {
+		t.Fatalf("YouTube status = %#v, want binding owner identity", status)
+	}
+	if !status.Enabled || status.BotID != youtubeBotUserID.String() || status.BotName != "youtube-bot" {
+		t.Fatalf("YouTube status = %#v, want enabled binding and bot identity", status)
+	}
+}
+
 func TestGetBasicTwitchBotStatusUsesTwitchBindingConfig(t *testing.T) {
 	twitchOwnerID := uuid.New()
 	channel := channelentity.Channel{
@@ -516,6 +557,45 @@ func TestBotJoinLeaveRejectsVKVideoLiveBindingWithoutBotUserID(t *testing.T) {
 	}
 	if len(updater.patches) != 0 {
 		t.Fatalf("patches = %d, want 0", len(updater.patches))
+	}
+}
+
+func TestBotJoinLeaveUpdatesYouTubeBinding(t *testing.T) {
+	// Given
+	channelID := uuid.New()
+	bindingID := uuid.New()
+	botUserID := uuid.New()
+	updater := &dashboardBindingUpdaterStub{}
+	cache := &dashboardCacheInvalidatorStub{}
+	service := &Service{
+		channelService: dashboardChannelLookupStub{channel: channelentity.Channel{
+			ID: channelID,
+			Bindings: []channelplatformentity.ChannelPlatform{{
+				ID:                bindingID,
+				Platform:          platform.PlatformYouTube,
+				PlatformChannelID: "youtube-channel",
+				BotUserID:         &botUserID,
+			}},
+		}},
+		channelPlatformsRepo: updater,
+		channelsCache:        cache,
+	}
+
+	// When
+	success, err := service.BotJoinLeave(context.Background(), channelID.String(), BotJoinLeaveActionJoin, platform.PlatformYouTube.String())
+
+	// Then
+	if err != nil {
+		t.Fatalf("bot join: %v", err)
+	}
+	if !success {
+		t.Fatal("bot join = false, want true")
+	}
+	if len(updater.patches) != 1 || updater.patches[0].id != bindingID || updater.patches[0].input.Enabled == nil || !*updater.patches[0].input.Enabled {
+		t.Fatalf("patches = %#v, want YouTube binding enabled", updater.patches)
+	}
+	if len(cache.keys) != 1 || cache.keys[0] != channelID.String() {
+		t.Fatalf("cache invalidations = %#v, want [%q]", cache.keys, channelID.String())
 	}
 }
 

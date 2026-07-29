@@ -424,6 +424,9 @@ func (c *tokensImpl) RequestUserToken(
 			}
 			scope, _ := youtubeTokens.Extra("scope").(string)
 			refreshedScopes = strings.Fields(scope)
+			if len(refreshedScopes) == 0 {
+				refreshedScopes = token.Scopes
+			}
 		default:
 			newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 			if err != nil {
@@ -762,9 +765,13 @@ func (c *tokensImpl) requestYouTubeBotToken(ctx context.Context) (tokens.TokenRe
 				expiresIn = 0
 			}
 			scope, _ := refreshedToken.Extra("scope").(string)
+			scopes := strings.Fields(scope)
+			if len(scopes) == 0 {
+				scopes = bot.Scopes
+			}
 			bot, err = c.youtubeBotsRepo.Update(txCtx, youtubebotsrepository.UpdateInput{
 				EncryptedAccessToken: encryptedAccessToken, EncryptedRefreshToken: encryptedRefreshToken,
-				Scopes: strings.Fields(scope), ExpiresIn: expiresIn, ObtainmentTimestamp: time.Now().UTC(), YouTubeUserID: bot.YouTubeUserID,
+				Scopes: scopes, ExpiresIn: expiresIn, ObtainmentTimestamp: time.Now().UTC(), YouTubeUserID: bot.YouTubeUserID,
 			})
 			if err != nil {
 				return fmt.Errorf("persist YouTube bot token: %w", err)

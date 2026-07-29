@@ -7,13 +7,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	kvoptions "github.com/twirapp/kv/options"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
+	buscoreeventsub "github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/crypto"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/logger"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	youtubebotsrepo "github.com/twirapp/twir/libs/repositories/youtube_bots"
 )
@@ -72,7 +75,7 @@ func (a *Auth) CompleteYouTubeBotSetup(ctx context.Context, code, state string) 
 	if err != nil || admin.ID != setupState.AdminUserID {
 		return ErrYouTubeBotSetupStateInvalid
 	}
-	if a.youtubeBotProvider == nil || a.youtubeBotsRepo == nil || a.transactionRunner == nil {
+	if a.youtubeBotProvider == nil || a.youtubeBotsRepo == nil || a.channelPlatformsRepo == nil || a.transactionRunner == nil {
 		return fmt.Errorf("YouTube bot setup is not configured")
 	}
 
@@ -93,7 +96,8 @@ func (a *Auth) CompleteYouTubeBotSetup(ctx context.Context, code, state string) 
 		return fmt.Errorf("encrypt YouTube bot refresh token: %w", err)
 	}
 
-	return a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
+	var reassignedChannelIDs []uuid.UUID
+	if err := a.transactionRunner.Do(ctx, func(txCtx context.Context) error {
 		if err := a.youtubeBotsRepo.Lock(txCtx); err != nil {
 			return fmt.Errorf("lock YouTube bot singleton: %w", err)
 		}
@@ -104,9 +108,33 @@ func (a *Auth) CompleteYouTubeBotSetup(ctx context.Context, code, state string) 
 		if _, err := a.youtubeBotsRepo.Upsert(txCtx, youtubebotsrepo.UpsertInput{EncryptedAccessToken: accessToken, EncryptedRefreshToken: refreshToken, Scopes: tokens.Scopes, ExpiresIn: tokens.ExpiresIn, ObtainmentTimestamp: time.Now().UTC(), YouTubeUserID: internalUser.ID}); err != nil {
 			return fmt.Errorf("upsert YouTube bot singleton: %w", err)
 		}
+		channelIDs, err := a.channelPlatformsRepo.AssignYouTubeBot(txCtx, internalUser.ID)
+		if err != nil {
+			return fmt.Errorf("assign YouTube bot to bindings: %w", err)
+		}
+		reassignedChannelIDs = channelIDs
 
 		return nil
-	})
+	}); err != nil {
+		return err
+	}
+
+	a.publishYouTubeBotReassignment(ctx, reassignedChannelIDs)
+	return nil
+}
+
+func (a *Auth) publishYouTubeBotReassignment(ctx context.Context, channelIDs []uuid.UUID) {
+	if a.eventSubPublisher == nil {
+		return
+	}
+	for _, channelID := range channelIDs {
+		if err := a.eventSubPublisher.Publish(ctx, buscoreeventsub.EventsubSubscribeToAllEventsRequest{
+			ChannelID: channelID.String(),
+			Platform:  platformentity.PlatformYouTube,
+		}); err != nil && a.logger != nil {
+			a.logger.ErrorContext(ctx, "cannot publish YouTube bot reassignment", logger.Error(err), slog.String("channel_id", channelID.String()))
+		}
+	}
 }
 
 func (a *Auth) YouTubeBotConfigured(ctx context.Context) (bool, error) {

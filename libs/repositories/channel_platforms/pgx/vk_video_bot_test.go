@@ -70,6 +70,50 @@ func TestAssignVKVideoLiveBotUpdatesOnlyVKBindingsWithoutTheBot(t *testing.T) {
 	}
 }
 
+func TestAssignYouTubeBotUpdatesOnlyYouTubeBindingsWithoutTheBot(t *testing.T) {
+	// Given
+	botUserID := uuid.New()
+	affectedChannelIDs := []uuid.UUID{uuid.New(), uuid.New()}
+	executor := &vkVideoBotAssignmentExecutor{
+		queryFn: func(_ context.Context, query string, args ...any) (pgx.Rows, error) {
+			lowerQuery := strings.Join(strings.Fields(strings.ToLower(query)), " ")
+			for _, fragment := range []string{
+				"update channel_platforms",
+				"set bot_user_id = $1",
+				"where platform = $2",
+				"bot_user_id is distinct from $1",
+				"returning channel_id",
+			} {
+				if !strings.Contains(lowerQuery, fragment) {
+					t.Fatalf("assignment query missing %q: %s", fragment, query)
+				}
+			}
+			if len(args) != 2 || args[0] != botUserID || args[1] != platform.PlatformYouTube {
+				t.Fatalf("assignment args = %#v, want bot user ID and YouTube platform", args)
+			}
+
+			return &vkVideoBotAssignmentRows{channelIDs: affectedChannelIDs}, nil
+		},
+	}
+	repository := &Pgx{pool: executor}
+
+	// When
+	updatedChannelIDs, err := repository.AssignYouTubeBot(context.Background(), botUserID)
+
+	// Then
+	if err != nil {
+		t.Fatalf("assign YouTube bot: %v", err)
+	}
+	if len(updatedChannelIDs) != len(affectedChannelIDs) {
+		t.Fatalf("updated channel ID count = %d, want %d", len(updatedChannelIDs), len(affectedChannelIDs))
+	}
+	for index, channelID := range affectedChannelIDs {
+		if updatedChannelIDs[index] != channelID {
+			t.Fatalf("updatedChannelIDs[%d] = %s, want %s", index, updatedChannelIDs[index], channelID)
+		}
+	}
+}
+
 type vkVideoBotAssignmentExecutor struct {
 	queryFn func(context.Context, string, ...any) (pgx.Rows, error)
 }

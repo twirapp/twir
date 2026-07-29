@@ -18,6 +18,7 @@ import (
 	kickbotentity "github.com/twirapp/twir/libs/entities/kick_bot"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	vkvideobotentity "github.com/twirapp/twir/libs/entities/vk_video_bot"
+	youtubebotentity "github.com/twirapp/twir/libs/entities/youtube_bot"
 	"github.com/twirapp/twir/libs/integrations/vk"
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
@@ -25,6 +26,8 @@ import (
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	youtubebotsrepository "github.com/twirapp/twir/libs/repositories/youtube_bots"
+	"golang.org/x/oauth2"
 )
 
 func TestRequestBotToken_DefaultsToTwitchWhenPlatformEmpty(t *testing.T) {
@@ -378,6 +381,38 @@ func TestRequestUserToken_VKRefreshesWithoutStoredDeviceID(t *testing.T) {
 	}
 }
 
+func TestRequestUserToken_YouTubePreservesScopesWhenProviderOmitsThem(t *testing.T) {
+	// Given
+	impl, repository := newYouTubeUserTokenTestImplementation(t)
+
+	// When
+	_, err := impl.RequestUserToken(context.Background(), buscoretokens.GetUserTokenRequest{UserId: uuid.New()})
+
+	// Then
+	if err != nil {
+		t.Fatalf("request YouTube user token: %v", err)
+	}
+	if !reflect.DeepEqual(repository.lastUpdate.Scopes, []string{"youtube.read", "youtube.write"}) {
+		t.Fatalf("persisted scopes = %#v, want existing scopes", repository.lastUpdate.Scopes)
+	}
+}
+
+func TestRequestBotToken_YouTubePreservesScopesWhenProviderOmitsThem(t *testing.T) {
+	// Given
+	impl, repository := newYouTubeBotTokenTestImplementation(t)
+
+	// When
+	_, err := impl.RequestBotToken(context.Background(), buscoretokens.GetBotTokenRequest{Platform: platformentity.PlatformYouTube})
+
+	// Then
+	if err != nil {
+		t.Fatalf("request YouTube bot token: %v", err)
+	}
+	if !reflect.DeepEqual(repository.updated.Scopes, []string{"youtube.read", "youtube.write"}) {
+		t.Fatalf("persisted scopes = %#v, want existing scopes", repository.updated.Scopes)
+	}
+}
+
 func newVKTokenTestImplementation(t *testing.T, refreshToken string) (*tokensImpl, *fakeTokensRepository, *fakeVKTokenRefresher) {
 	t.Helper()
 
@@ -479,6 +514,63 @@ func newVKVideoBotTokenTestImplementation(
 	}, repository, refresher, runner
 }
 
+func newYouTubeUserTokenTestImplementation(t *testing.T) (*tokensImpl, *fakeTokensRepository) {
+	t.Helper()
+
+	const cipherKey = "pnyfwfiulmnqlhkvixaeligpprcnlyke"
+	repository := &fakeTokensRepository{userToken: &tokenmodel.Token{
+		ID:                  uuid.New(),
+		AccessToken:         mustEncrypt(t, "old-access", cipherKey),
+		RefreshToken:        mustEncrypt(t, "old-refresh", cipherKey),
+		ExpiresIn:           1,
+		ObtainmentTimestamp: time.Now().UTC().Add(-time.Hour),
+		Scopes:              []string{"youtube.read", "youtube.write"},
+	}}
+	refresher := &fakeYouTubeTokenRefresher{response: &oauth2.Token{AccessToken: "new-access", RefreshToken: "new-refresh", Expiry: time.Now().Add(time.Hour)}}
+
+	return &tokensImpl{
+		config:           cfg.Config{TokensCipherKey: cipherKey},
+		log:              slog.New(slog.NewTextHandler(io.Discard, nil)),
+		tokensRepository: repository,
+		usersRepository:  &fakeUsersRepository{user: usersmodel.User{Platform: platformentity.PlatformYouTube}},
+		newMutex: func(string) lockableMutex {
+			return fakeMutex{}
+		},
+		newYouTubeTokenRefresher: func() youtubeTokenRefresher {
+			return refresher
+		},
+	}, repository
+}
+
+func newYouTubeBotTokenTestImplementation(t *testing.T) (*tokensImpl, *fakeYouTubeBotsRepository) {
+	t.Helper()
+
+	const cipherKey = "pnyfwfiulmnqlhkvixaeligpprcnlyke"
+	runner := &fakeTransactionRunner{}
+	repository := &fakeYouTubeBotsRepository{
+		transactionRunner: runner,
+		bot: youtubebotentity.YouTubeBot{
+			ID:                    uuid.New(),
+			EncryptedAccessToken:  mustEncrypt(t, "old-access", cipherKey),
+			EncryptedRefreshToken: mustEncrypt(t, "old-refresh", cipherKey),
+			Scopes:                []string{"youtube.read", "youtube.write"},
+			ExpiresIn:             1,
+			ObtainmentTimestamp:   time.Now().UTC().Add(-time.Hour),
+			YouTubeUserID:         uuid.New(),
+		},
+	}
+	refresher := &fakeYouTubeTokenRefresher{response: &oauth2.Token{AccessToken: "new-access", RefreshToken: "new-refresh", Expiry: time.Now().Add(time.Hour)}}
+
+	return &tokensImpl{
+		config:                   cfg.Config{TokensCipherKey: cipherKey},
+		log:                      slog.New(slog.NewTextHandler(io.Discard, nil)),
+		youtubeBotsRepo:          repository,
+		transactionRunner:        runner,
+		newMutex:                 func(string) lockableMutex { return fakeMutex{} },
+		newYouTubeTokenRefresher: func() youtubeTokenRefresher { return refresher },
+	}, repository
+}
+
 func mustEncrypt(t *testing.T, value, key string) string {
 	t.Helper()
 
@@ -508,6 +600,15 @@ type fakeVKTokenRefresher struct {
 	response     *vk.OAuthToken
 	err          error
 	onRefresh    func()
+}
+
+type fakeYouTubeTokenRefresher struct {
+	response *oauth2.Token
+	err      error
+}
+
+func (f *fakeYouTubeTokenRefresher) RefreshToken(context.Context, string) (*oauth2.Token, error) {
+	return f.response, f.err
 }
 
 func (f *fakeVKTokenRefresher) RefreshToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error) {
@@ -611,6 +712,33 @@ type fakeVKVideoBotsRepository struct {
 	updated                vkvideobotsrepository.UpdateInput
 	callsWithinTransaction bool
 	transactionRunner      *fakeTransactionRunner
+}
+
+type fakeYouTubeBotsRepository struct {
+	bot               youtubebotentity.YouTubeBot
+	updated           youtubebotsrepository.UpdateInput
+	transactionRunner *fakeTransactionRunner
+}
+
+func (f *fakeYouTubeBotsRepository) Get(context.Context) (youtubebotentity.YouTubeBot, error) {
+	return f.bot, nil
+}
+
+func (*fakeYouTubeBotsRepository) Lock(context.Context) error { return nil }
+
+func (*fakeYouTubeBotsRepository) Upsert(context.Context, youtubebotsrepository.UpsertInput) (youtubebotentity.YouTubeBot, error) {
+	panic("unexpected call")
+}
+
+func (f *fakeYouTubeBotsRepository) Update(_ context.Context, input youtubebotsrepository.UpdateInput) (youtubebotentity.YouTubeBot, error) {
+	f.updated = input
+	f.bot.EncryptedAccessToken = input.EncryptedAccessToken
+	f.bot.EncryptedRefreshToken = input.EncryptedRefreshToken
+	f.bot.Scopes = input.Scopes
+	f.bot.ExpiresIn = input.ExpiresIn
+	f.bot.ObtainmentTimestamp = input.ObtainmentTimestamp
+	f.bot.YouTubeUserID = input.YouTubeUserID
+	return f.bot, nil
 }
 
 func (f *fakeVKVideoBotsRepository) Get(context.Context) (vkvideobotentity.VKVideoBot, error) {
@@ -726,3 +854,4 @@ var _ tokensrepository.Repository = (*fakeTokensRepository)(nil)
 var _ kickbotsrepository.Repository = (*fakeKickBotsRepository)(nil)
 var _ usersrepository.Repository = (*fakeUsersRepository)(nil)
 var _ vkvideobotsrepository.Repository = (*fakeVKVideoBotsRepository)(nil)
+var _ youtubebotsrepository.Repository = (*fakeYouTubeBotsRepository)(nil)

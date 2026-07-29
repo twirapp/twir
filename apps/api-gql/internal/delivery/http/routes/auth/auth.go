@@ -84,6 +84,11 @@ type Auth struct {
 	postPlatformAuthHooks  map[platformentity.Platform]postPlatformAuthHook
 }
 
+type youtubeBotCallbackOutput struct {
+	Status   int
+	Location string `header:"Location"`
+}
+
 type dashboardAccessChecker interface {
 	IsOwner(context.Context, string, uuid.UUID) (bool, error)
 }
@@ -280,14 +285,18 @@ func New(opts Opts) *Auth {
 		func(ctx context.Context, i *struct {
 			Code  string `query:"code"`
 			State string `query:"state"`
-		}) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
-			if err := p.CompleteYouTubeBotSetup(ctx, i.Code, i.State); err != nil {
-				return nil, huma.Error400BadRequest("Cannot complete YouTube bot setup", err)
-			}
-
-			return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: p.config.GetYouTubeBotCallbackUrl()}), nil
+		}) (*youtubeBotCallbackOutput, error) {
+			return p.completeYouTubeBotCallback(ctx, i.Code, i.State)
 		},
 	)
 
 	return p
+}
+
+func (a *Auth) completeYouTubeBotCallback(ctx context.Context, code, state string) (*youtubeBotCallbackOutput, error) {
+	if err := a.CompleteYouTubeBotSetup(ctx, code, state); err != nil {
+		return nil, huma.Error400BadRequest("Cannot complete YouTube bot setup", err)
+	}
+
+	return &youtubeBotCallbackOutput{Status: http.StatusFound, Location: "/dashboard/admin-panel"}, nil
 }

@@ -23,6 +23,7 @@ type Repository interface {
 	ListByChannelID(ctx context.Context, channelID uuid.UUID) ([]channelplatformentity.ChannelPlatform, error)
 	LockByChannelID(ctx context.Context, channelID uuid.UUID) error
 	AssignVKVideoLiveBot(ctx context.Context, botUserID uuid.UUID) ([]uuid.UUID, error)
+	AssignYouTubeBot(ctx context.Context, botUserID uuid.UUID) ([]uuid.UUID, error)
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (channelplatformentity.ChannelPlatform, error)
 	Patch(ctx context.Context, id uuid.UUID, input PatchInput) (channelplatformentity.ChannelPlatform, error)
 	Delete(ctx context.Context, id uuid.UUID) error

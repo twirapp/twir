@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -98,6 +99,39 @@ func TestChatClient_SendMessage_postsOfficialLiveChatMessage(t *testing.T) {
 	require.Equal(t, "live-chat-42", cache.sets[0].value)
 }
 
+func TestChatClient_SendMessageInvalidatesCachedLiveChatIDWhenInsertIsRejected(t *testing.T) {
+	for _, statusCode := range []int{http.StatusForbidden, http.StatusNotFound} {
+		t.Run(http.StatusText(statusCode), func(t *testing.T) {
+			// Given
+			cache := newFakeLiveChatCache()
+			binding := channelplatformentity.ChannelPlatform{ChannelID: uuid.New(), PlatformChannelID: "youtube-channel"}
+			cacheKey := liveChatIDCachePrefix + binding.ChannelID.String()
+			cache.values[cacheKey] = "stale-live-chat"
+			server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+				require.Equal(t, "/liveChat/messages", request.URL.Path)
+				writer.WriteHeader(statusCode)
+			}))
+			defer server.Close()
+			client := &ChatClient{
+				apiBaseURL:       server.URL,
+				httpClient:       server.Client(),
+				logger:           slog.New(slog.NewTextHandler(io.Discard, nil)),
+				liveChatIDCache:  cache,
+				requestBotToken:  &fakeBotTokenRequester{response: &buscore.QueueResponse[buscoretokens.TokenResponse]{Data: buscoretokens.TokenResponse{AccessToken: "bot-access-token"}}},
+				requestUserToken: &fakeUserTokenRequester{},
+			}
+
+			// When
+			err := client.SendMessage(context.Background(), binding, "hello")
+
+			// Then
+			require.Error(t, err)
+			require.Equal(t, []string{cacheKey}, cache.deletes)
+			require.NotContains(t, cache.values, cacheKey)
+		})
+	}
+}
+
 type fakeUserTokenRequester struct {
 	request  buscoretokens.GetUserTokenRequest
 	response *buscore.QueueResponse[buscoretokens.TokenResponse]
@@ -127,8 +161,9 @@ func (f *fakeBotTokenRequester) Request(
 }
 
 type fakeLiveChatCache struct {
-	values map[string]string
-	sets   []fakeLiveChatCacheSet
+	values  map[string]string
+	sets    []fakeLiveChatCacheSet
+	deletes []string
 }
 
 type fakeLiveChatCacheSet struct {
@@ -162,6 +197,12 @@ func (f *fakeLiveChatCache) Set(
 
 	f.values[key] = stringValue
 	f.sets = append(f.sets, fakeLiveChatCacheSet{key: key, value: stringValue})
+	return nil
+}
+
+func (f *fakeLiveChatCache) Delete(_ context.Context, key string) error {
+	delete(f.values, key)
+	f.deletes = append(f.deletes, key)
 	return nil
 }
 

@@ -41,6 +41,7 @@ type userTokenRequester interface {
 type liveChatIDCache interface {
 	Get(context.Context, string) kv.Valuer
 	Set(context.Context, string, any, ...kvoptions.Option) error
+	Delete(context.Context, string) error
 }
 
 type ChatClient struct {
@@ -222,7 +223,8 @@ func (c *ChatClient) sendMessagePart(
 			slog.Int("status_code", response.StatusCode),
 		)
 		return nil
-	case http.StatusForbidden:
+	case http.StatusForbidden, http.StatusNotFound:
+		c.invalidateLiveChatID(ctx, binding.ChannelID.String())
 		c.logger.WarnContext(
 			ctx,
 			"youtube live chat forbidden; chat may be disabled or bot is not allowed",
@@ -242,6 +244,18 @@ func (c *ChatClient) cacheLiveChatID(ctx context.Context, key, liveChatID string
 		c.logger.WarnContext(
 			ctx,
 			"youtube live chat cache write failed",
+			slog.String("key", key),
+			slog.Any("error", err),
+		)
+	}
+}
+
+func (c *ChatClient) invalidateLiveChatID(ctx context.Context, channelID string) {
+	key := liveChatIDCachePrefix + channelID
+	if err := c.liveChatIDCache.Delete(ctx, key); err != nil {
+		c.logger.WarnContext(
+			ctx,
+			"youtube live chat cache invalidation failed",
 			slog.String("key", key),
 			slog.Any("error", err),
 		)
