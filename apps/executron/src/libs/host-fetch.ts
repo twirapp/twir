@@ -1,6 +1,6 @@
 import { config } from '@twir/config'
 
-import { validateUrl, type ValidationResult } from './url-validation'
+import { type ValidationResult, validateUrl } from './url-validation'
 
 const FETCH_TIMEOUT_MS = 10000
 const MAX_BODY_SIZE = 1_048_576 // 1MB
