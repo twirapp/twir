@@ -79,6 +79,7 @@
     "timers": "Časovače",
     "roles": "Oprávnenia",
     "keywords": "Kľúčové slová",
+    "quotes": "Citáty",
     "variables": "Premenné",
     "greetings": "Pozdrav",
     "alerts": "Alerty",
@@ -211,6 +212,22 @@
         "label": "Vyber upozornenie, ktoré sa spustí pri použití príkazu."
       }
     }
+  },
+  "quotes": {
+    "title": "Citáty",
+    "create": "Vytvoriť citát",
+    "edit": "Upraviť citát",
+    "text": "Citát",
+    "number": "Číslo",
+    "creator": "Autor",
+    "game": "Hra",
+    "createdAt": "Vytvorené",
+    "deleteConfirmation": "Naozaj chcete tento citát odstrániť?",
+    "created": "Citát vytvorený",
+    "updated": "Citát aktualizovaný",
+    "deleted": "Citát odstránený",
+    "errorOnSave": "Citát sa nepodarilo uložiť",
+    "errorOnDelete": "Citát sa nepodarilo odstrániť"
   },
   "dashboard": {
     "header": {
