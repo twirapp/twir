@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LoginDropdown from '~~/layers/landing/components/login-dropdown.vue'
+
 import { UserStoreKey } from '~/stores/user'
 
 const userStore = useAuth()
@@ -12,20 +14,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 
 <template>
 	<div v-if="!userStore.userWithoutDashboards" class="flex flex-row items-center gap-2">
-		<button
-			class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
-			@click="() => userStore.login()"
-		>
-			Twitch
-			<Icon name="simple-icons:twitch" class="w-5 h-5 text-white" />
-		</button>
-		<button
-			class="flex flex-row px-4 py-2 items-center gap-2 bg-[#27272a] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 cursor-pointer hover:bg-[#27272a]/80 transition-shadow"
-			@click="() => userStore.loginWithKick()"
-		>
-			Kick
-			<Icon name="simple-icons:kick" class="w-5 h-5 text-[#53FC18]" />
-		</button>
+		<LoginDropdown />
 	</div>
 
 	<UiDropdownMenu v-else-if="userStore.userWithoutDashboards">

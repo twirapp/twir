@@ -1,3 +1,4 @@
+import { AuthPlatformAuthorizeParamsEnum } from '@twir/api/openapi'
 import { createRequest } from '@urql/vue'
 
 import { graphql } from '~/gql/gql.js'
@@ -135,6 +136,21 @@ export const useAuth = defineStore('auth-store', () => {
 		}
 	}
 
+	async function loginWithVk() {
+		const api = useOapi()
+		try {
+			const res = await api.auth.authPlatformAuthorize(
+				AuthPlatformAuthorizeParamsEnum.VkVideoLive,
+				{ redirect_to: redirectTo.value }
+			)
+			if (res.data && res.data.authorize_url) {
+				window.location.replace(res.data.authorize_url)
+			}
+		} catch (err) {
+			console.error('VK login failed:', err)
+		}
+	}
+
 	return {
 		userWithoutDashboards,
 		currentAccount,
@@ -144,6 +160,7 @@ export const useAuth = defineStore('auth-store', () => {
 		logout,
 		login,
 		loginWithKick,
+		loginWithVk,
 	}
 })
 

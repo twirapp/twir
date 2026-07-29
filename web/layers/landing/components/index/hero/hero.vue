@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL } from '@twir/brand'
 import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
+import LoginDropdown from '~~/layers/landing/components/login-dropdown.vue'
 
 import { UserStoreKey } from '~/stores/user'
 
@@ -73,22 +74,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 							</UiButton>
 						</NuxtLink>
 
-						<template v-else>
-							<UiButton
-								as="button"
-								variant="primary"
-								@click="userStore.login()"
-							>
-								Start with Twitch
-							</UiButton>
-							<button
-								class="xs:py-4 inline-flex items-center justify-center gap-2 rounded-lg bg-[#27272a] px-7 py-3 text-center text-base font-semibold whitespace-nowrap text-white transition-[background,box-shadow] hover:bg-[#27272a]/80 focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 focus-visible:outline-none sm:text-lg"
-								@click="userStore.loginWithKick()"
-							>
-								Start with Kick
-								<Icon name="simple-icons:kick" class="h-5 w-5 text-[#53FC18]" />
-							</button>
-						</template>
+						<LoginDropdown v-else variant="hero" />
 					</div>
 				</div>
 
