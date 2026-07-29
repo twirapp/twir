@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/twitch"
@@ -45,18 +45,14 @@ func (c *Activity) ChangeCategory(
 		return err
 	}
 
-	editReq, err := twitchClient.EditChannelInformation(
-		&helix.EditChannelInformationParams{
+	_, err = twitchClient.Channels.ModifyChannelInformation(
+		ctx, helix.ModifyChannelInformationRequest{
 			BroadcasterID: twitchBroadcasterID(data),
-			GameID:        category.ID,
+			GameID:        &category.ID,
 		},
 	)
 	if err != nil {
 		return err
-	}
-
-	if editReq.ErrorMessage != "" {
-		return errors.New(editReq.ErrorMessage)
 	}
 
 	return nil
@@ -90,18 +86,14 @@ func (c *Activity) ChangeTitle(
 		return twitchClientErr
 	}
 
-	req, err := twitchClient.EditChannelInformation(
-		&helix.EditChannelInformationParams{
+	_, err = twitchClient.Channels.ModifyChannelInformation(
+		ctx, helix.ModifyChannelInformationRequest{
 			BroadcasterID: twitchBroadcasterID(data),
-			Title:         hydratedTitle,
+			Title:         &hydratedTitle,
 		},
 	)
 	if err != nil {
 		return err
-	}
-
-	if req.ErrorMessage != "" {
-		return errors.New(req.ErrorMessage)
 	}
 
 	return nil

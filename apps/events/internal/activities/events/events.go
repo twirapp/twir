@@ -73,7 +73,9 @@ type Activity struct {
 	ttsCache            *generic_cacher.GenericCacher[modules.TTSSettings]
 	logger              *slog.Logger
 	usersRepo           usersrepository.Repository
+	newTwitchUserClient twitchUserClientFactory
 	newTwitchBotClient  twitchBotClientFactory
+	newChannelBotClient twitchChannelBotClientFactory
 }
 
 type channelRuntimeInfo struct {

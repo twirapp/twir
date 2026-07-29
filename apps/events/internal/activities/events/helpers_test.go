@@ -3,10 +3,11 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -15,6 +16,7 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
+	"github.com/twirapp/twir/libs/twitch"
 )
 
 type runtimeChannelRepositoryFake struct {
@@ -186,6 +188,74 @@ func TestGetEventTwitchBotApiClientUsesTwitchBindingBotID(t *testing.T) {
 	}
 	if repo.lookupPlatformChannelID != "twitch-channel" {
 		t.Errorf("runtime lookup channel ID = %q, want %q", repo.lookupPlatformChannelID, "twitch-channel")
+	}
+}
+
+func TestGetHelixChannelApiClientUsesBroadcasterIdentity(t *testing.T) {
+	// Given
+	broadcasterID := uuid.New()
+	var selectedUserID uuid.UUID
+	activity := Activity{
+		newTwitchUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
+			selectedUserID = userID
+			return &helix.Client{}, nil
+		},
+	}
+
+	// When
+	client, err := activity.getHelixChannelApiClient(context.Background(), broadcasterID.String())
+
+	// Then
+	if err != nil {
+		t.Fatalf("getHelixChannelApiClient returned error: %v", err)
+	}
+	if client == nil {
+		t.Fatal("getHelixChannelApiClient returned nil client")
+	}
+	if selectedUserID != broadcasterID {
+		t.Errorf("selected user ID = %q, want %q", selectedUserID, broadcasterID)
+	}
+}
+
+func TestGetHelixChannelBotApiClientUsesExactChannelRoute(t *testing.T) {
+	// Given
+	var route [2]string
+	activity := Activity{
+		newChannelBotClient: func(_ context.Context, botID string, channelID string) (*helix.Client, error) {
+			route = [2]string{botID, channelID}
+			return &helix.Client{}, nil
+		},
+	}
+
+	// When
+	client, err := activity.getHelixChannelBotApiClient(context.Background(), "bot", "channel")
+
+	// Then
+	if err != nil {
+		t.Fatalf("getHelixChannelBotApiClient returned error: %v", err)
+	}
+	if client == nil {
+		t.Fatal("getHelixChannelBotApiClient returned nil client")
+	}
+	if route != [2]string{"bot", "channel"} {
+		t.Errorf("channel bot route = %q, want %q", route, [2]string{"bot", "channel"})
+	}
+}
+
+func TestGetHelixChannelBotApiClientPreservesMissingChannelBotError(t *testing.T) {
+	// Given
+	activity := Activity{
+		newChannelBotClient: func(context.Context, string, string) (*helix.Client, error) {
+			return nil, twitch.ErrChannelBotNotRegistered
+		},
+	}
+
+	// When
+	_, err := activity.getHelixChannelBotApiClient(context.Background(), "bot", "channel")
+
+	// Then
+	if !errors.Is(err, twitch.ErrChannelBotNotRegistered) {
+		t.Errorf("channel bot error = %v, want ErrChannelBotNotRegistered", err)
 	}
 }
 

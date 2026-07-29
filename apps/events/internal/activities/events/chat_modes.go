@@ -2,9 +2,8 @@ package events
 
 import (
 	"context"
-	"errors"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -23,13 +22,17 @@ func (c *Activity) SwitchEmoteOnly(
 		return dbEntityErr
 	}
 
-	twitchClient, twitchClientErr := c.getHelixBotApiClient(ctx, dbEntity.BotID)
+	twitchClient, twitchClientErr := c.getHelixChannelBotApiClient(
+		ctx,
+		dbEntity.BotID,
+		dbEntity.BroadcasterUserID,
+	)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
 
-	resp, err := twitchClient.UpdateChatSettings(
-		&helix.UpdateChatSettingsParams{
+	_, err := twitchClient.Chat.UpdateChatSettings(
+		ctx, helix.UpdateChatSettingsRequest{
 			BroadcasterID: twitchBroadcasterID(data),
 			ModeratorID:   dbEntity.BotID,
 			EmoteMode: lo.ToPtr(
@@ -42,10 +45,6 @@ func (c *Activity) SwitchEmoteOnly(
 	if err != nil {
 		return err
 	}
-	if resp.ErrorMessage != "" {
-		return errors.New(resp.ErrorMessage)
-	}
-
 	return nil
 }
 
@@ -61,13 +60,17 @@ func (c *Activity) SwitchSubMode(
 		return dbEntityErr
 	}
 
-	twitchClient, twitchClientErr := c.getHelixBotApiClient(ctx, dbEntity.BotID)
+	twitchClient, twitchClientErr := c.getHelixChannelBotApiClient(
+		ctx,
+		dbEntity.BotID,
+		dbEntity.BroadcasterUserID,
+	)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
 
-	resp, err := twitchClient.UpdateChatSettings(
-		&helix.UpdateChatSettingsParams{
+	_, err := twitchClient.Chat.UpdateChatSettings(
+		ctx, helix.UpdateChatSettingsRequest{
 			BroadcasterID: twitchBroadcasterID(data),
 			ModeratorID:   dbEntity.BotID,
 			SubscriberMode: lo.ToPtr(
@@ -80,9 +83,5 @@ func (c *Activity) SwitchSubMode(
 	if err != nil {
 		return err
 	}
-	if resp.ErrorMessage != "" {
-		return errors.New(resp.ErrorMessage)
-	}
-
 	return nil
 }

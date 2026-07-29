@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -57,7 +57,7 @@ func (c *Activity) VipOrUnvip(
 
 	errWg.Go(
 		func() error {
-			u, err := c.getHelixUserByLogin(twitchClient, hydratedName)
+			u, err := c.getHelixUserByLogin(ctx, twitchClient, hydratedName)
 			if err != nil {
 				return err
 			}
@@ -66,10 +66,10 @@ func (c *Activity) VipOrUnvip(
 		},
 	)
 
-	var vips []helix.ChannelVips
+	var vips []helix.VIP
 	errWg.Go(
 		func() error {
-			v, err := c.getChannelVips(twitchClient, twitchBroadcasterID(data))
+			v, err := c.getChannelVips(ctx, twitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -82,7 +82,7 @@ func (c *Activity) VipOrUnvip(
 	var mods []helix.Moderator
 	errWg.Go(
 		func() error {
-			m, err := c.getChannelMods(twitchClient, twitchBroadcasterID(data))
+			m, err := c.getChannelMods(ctx, twitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -125,33 +125,27 @@ func (c *Activity) VipOrUnvip(
 			return nil
 		}
 
-		resp, err := twitchClient.AddChannelVip(
-			&helix.AddChannelVipParams{
+		_, err := twitchClient.Moderation.AddChannelVIP(
+			ctx, helix.AddChannelVIPRequest{
 				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
 		if err != nil {
 			return err
-		}
-		if resp.ErrorMessage != "" {
-			return errors.New(resp.ErrorMessage)
 		}
 	} else {
 		if !isVip {
 			return nil
 		}
-		resp, err := twitchClient.RemoveChannelVip(
-			&helix.RemoveChannelVipParams{
+		_, err := twitchClient.Moderation.RemoveChannelVIP(
+			ctx, helix.RemoveChannelVIPRequest{
 				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
 		if err != nil {
 			return err
-		}
-		if resp.ErrorMessage != "" {
-			return errors.New(resp.ErrorMessage)
 		}
 	}
 
@@ -175,7 +169,7 @@ func (c *Activity) UnvipRandom(
 		return twitchClientErr
 	}
 
-	vips, vipsErr := c.getChannelVips(twitchClient, twitchBroadcasterID(data))
+	vips, vipsErr := c.getChannelVips(ctx, twitchClient, twitchBroadcasterID(data))
 	if vipsErr != nil {
 		return vipsErr
 	}
@@ -201,14 +195,14 @@ func (c *Activity) UnvipRandom(
 	randomVip := lo.Sample(
 		lo.Filter(
 			vips,
-			func(item helix.ChannelVips, index int) bool {
+			func(item helix.VIP, index int) bool {
 				return item.UserID != dbChannel.BotID
 			},
 		),
 	)
 
-	removeReq, err := twitchClient.RemoveChannelVip(
-		&helix.RemoveChannelVipParams{
+	_, err := twitchClient.Moderation.RemoveChannelVIP(
+		ctx, helix.RemoveChannelVIPRequest{
 			BroadcasterID: twitchBroadcasterID(data),
 			UserID:        randomVip.UserID,
 		},
@@ -216,10 +210,6 @@ func (c *Activity) UnvipRandom(
 	if err != nil {
 		return err
 	}
-	if removeReq.ErrorMessage != "" {
-		return errors.New(removeReq.ErrorMessage)
-	}
-
 	// if len(c.data.PrevOperation.UnvipedUserName) > 0 {
 	// 	c.data.PrevOperation.UnvipedUserName += ", " + randomVip.UserName
 	// } else {

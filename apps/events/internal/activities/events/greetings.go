@@ -33,7 +33,7 @@ func (c *Activity) CreateGreeting(
 		return twitchClientErr
 	}
 
-	user, userErr := c.getHelixUserById(twitchClient, data.UserID)
+	user, userErr := c.getHelixUserById(ctx, twitchClient, data.UserID)
 	if userErr != nil {
 		return userErr
 	}

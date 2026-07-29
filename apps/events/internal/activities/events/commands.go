@@ -39,7 +39,7 @@ func (c *Activity) CommandAllowOrRemoveUserPermission(
 		return fmt.Errorf("cannot get twitch client %w", twitchClientErr)
 	}
 
-	user, userErr := c.getHelixUserByLogin(twitchClient, hydratedName)
+	user, userErr := c.getHelixUserByLogin(ctx, twitchClient, hydratedName)
 	if userErr != nil {
 		return fmt.Errorf("cannot get user %w", userErr)
 	}
@@ -113,7 +113,7 @@ func (c *Activity) CommandDenyOrRemoveUserPermission(
 		return fmt.Errorf("cannot get twitch client %w", twitchClientErr)
 	}
 
-	user, userErr := c.getHelixUserByLogin(twitchClient, hydratedName)
+	user, userErr := c.getHelixUserByLogin(ctx, twitchClient, hydratedName)
 	if userErr != nil {
 		return userErr
 	}

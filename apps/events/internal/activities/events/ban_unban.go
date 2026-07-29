@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -20,6 +20,14 @@ func computeBanReason(reason *string) string {
 	}
 
 	return "banned from twirapp"
+}
+
+func banDuration(duration int) *int {
+	if duration == 0 {
+		return nil
+	}
+
+	return &duration
 }
 
 func (c *Activity) Ban(
@@ -52,7 +60,11 @@ func (c *Activity) Ban(
 	}
 
 	var errwg errgroup.Group
-	botTwitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
+	botTwitchClient, twitchClientError := c.getHelixChannelBotApiClient(
+		ctx,
+		dbChannel.BotID,
+		dbChannel.BroadcasterUserID,
+	)
 	if twitchClientError != nil {
 		return twitchClientError
 	}
@@ -65,7 +77,7 @@ func (c *Activity) Ban(
 
 	errwg.Go(
 		func() error {
-			u, err := c.getHelixUserByLogin(broadcasterTwitchClient, hydratedName)
+			u, err := c.getHelixUserByLogin(ctx, broadcasterTwitchClient, hydratedName)
 			if err != nil {
 				return err
 			}
@@ -78,7 +90,7 @@ func (c *Activity) Ban(
 
 	errwg.Go(
 		func() error {
-			m, err := c.getChannelMods(broadcasterTwitchClient, twitchBroadcasterID(data))
+			m, err := c.getChannelMods(ctx, broadcasterTwitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -101,14 +113,14 @@ func (c *Activity) Ban(
 		}
 	}
 
-	banReq, err := botTwitchClient.BanUser(
-		&helix.BanUserParams{
+	_, err = botTwitchClient.Moderation.BanUser(
+		ctx, helix.BanUserRequest{
 			BroadcasterID: twitchBroadcasterID(data),
-			ModeratorId:   dbChannel.BotID,
-			Body: helix.BanUserRequestBody{
-				Duration: operation.TimeoutTime,
+			ModeratorID:   dbChannel.BotID,
+			Data: helix.BanUserBody{
+				Duration: banDuration(operation.TimeoutTime),
 				Reason:   computeBanReason(operation.TimeoutMessage),
-				UserId:   targetUser.ID,
+				UserID:   targetUser.ID,
 			},
 		},
 	)
@@ -116,10 +128,6 @@ func (c *Activity) Ban(
 	if err != nil {
 		return fmt.Errorf("cannot ban targetUser: %w", err)
 	}
-	if banReq.ErrorMessage != "" {
-		return fmt.Errorf("cannot ban targetUser: %s", banReq.ErrorMessage)
-	}
-
 	return nil
 }
 
@@ -152,7 +160,11 @@ func (c *Activity) Unban(
 		return dbChannelErr
 	}
 
-	botTwitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
+	botTwitchClient, twitchClientError := c.getHelixChannelBotApiClient(
+		ctx,
+		dbChannel.BotID,
+		dbChannel.BroadcasterUserID,
+	)
 	if twitchClientError != nil {
 		return twitchClientError
 	}
@@ -161,13 +173,13 @@ func (c *Activity) Unban(
 		return twitchBotClientError
 	}
 
-	targetUser, userErr := c.getHelixUserByLogin(broadcasterTwitchClient, hydratedName)
+	targetUser, userErr := c.getHelixUserByLogin(ctx, broadcasterTwitchClient, hydratedName)
 	if userErr != nil {
 		return userErr
 	}
 
-	resp, err := botTwitchClient.UnbanUser(
-		&helix.UnbanUserParams{
+	_, err := botTwitchClient.Moderation.UnbanUser(
+		ctx, helix.UnbanUserRequest{
 			BroadcasterID: twitchBroadcasterID(data),
 			ModeratorID:   dbChannel.BotID,
 			UserID:        targetUser.ID,
@@ -176,10 +188,6 @@ func (c *Activity) Unban(
 	if err != nil {
 		return err
 	}
-	if resp.ErrorMessage != "" {
-		return errors.New(resp.ErrorMessage)
-	}
-
 	return nil
 }
 
@@ -195,7 +203,11 @@ func (c *Activity) BanRandom(
 		return err
 	}
 
-	botTwitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
+	botTwitchClient, twitchClientError := c.getHelixChannelBotApiClient(
+		ctx,
+		dbChannel.BotID,
+		dbChannel.BroadcasterUserID,
+	)
 	if twitchClientError != nil {
 		return twitchClientError
 	}
@@ -204,7 +216,7 @@ func (c *Activity) BanRandom(
 		return twitchBotClientError
 	}
 
-	mods, err := c.getChannelMods(broadcasterTwitchClient, twitchBroadcasterID(data))
+	mods, err := c.getChannelMods(ctx, broadcasterTwitchClient, twitchBroadcasterID(data))
 	if err != nil {
 		return err
 	}
@@ -226,7 +238,7 @@ func (c *Activity) BanRandom(
 		return err
 	}
 
-	if randomOnlineUser == nil || !randomOnlineUser.UserId.Valid {
+	if !randomOnlineUser.UserId.Valid {
 		return errors.New("cannot get random user")
 	}
 
@@ -237,24 +249,20 @@ func (c *Activity) BanRandom(
 		timeoutTime = 600
 	}
 
-	banReq, err := botTwitchClient.BanUser(
-		&helix.BanUserParams{
+	_, err = botTwitchClient.Moderation.BanUser(
+		ctx, helix.BanUserRequest{
 			BroadcasterID: twitchBroadcasterID(data),
-			ModeratorId:   dbChannel.BotID,
-			Body: helix.BanUserRequestBody{
-				Duration: timeoutTime,
+			ModeratorID:   dbChannel.BotID,
+			Data: helix.BanUserBody{
+				Duration: banDuration(timeoutTime),
 				Reason:   computeBanReason(operation.TimeoutMessage),
-				UserId:   randomOnlineUser.UserId.String,
+				UserID:   randomOnlineUser.UserId.String,
 			},
 		},
 	)
 	if err != nil {
 		return err
 	}
-	if banReq.ErrorMessage != "" {
-		return errors.New(banReq.ErrorMessage)
-	}
-
 	// if len(c.data.PrevOperation.BannedUserName) > 0 {
 	// 	c.data.PrevOperation.BannedUserName += ", " + randomOnlineUser.UserName.String
 	// } else {
