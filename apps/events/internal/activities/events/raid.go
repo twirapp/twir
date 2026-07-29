@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
@@ -45,13 +45,13 @@ func (c *Activity) RaidChannel(
 		return twitchClientErr
 	}
 
-	user, userErr := c.getHelixUserByLogin(twitchClient, hydratedString)
+	user, userErr := c.getHelixUserByLogin(ctx, twitchClient, hydratedString)
 	if userErr != nil {
 		return userErr
 	}
 
-	raidReq, raidErr := twitchClient.StartRaid(
-		&helix.StartRaidParams{
+	_, raidErr := twitchClient.Raids.StartRaid(
+		ctx, helix.StartRaidRequest{
 			FromBroadcasterID: twitchBroadcasterID(data),
 			ToBroadcasterID:   user.ID,
 		},
@@ -60,9 +60,5 @@ func (c *Activity) RaidChannel(
 	if raidErr != nil {
 		return raidErr
 	}
-	if raidReq.ErrorMessage != "" {
-		return fmt.Errorf("cannot start raid: %s", raidReq.ErrorMessage)
-	}
-
 	return nil
 }

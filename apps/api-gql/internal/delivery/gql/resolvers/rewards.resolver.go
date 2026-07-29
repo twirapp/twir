@@ -49,11 +49,15 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 
 	var gqlRewards []gqlmodel.TwitchReward
 	for _, reward := range rewards {
+		image := reward.Image
+		if image == nil {
+			image = &reward.DefaultImage
+		}
 		imageUrls := append(
 			[]string{},
-			reward.Image.Url1x,
-			reward.Image.Url2x,
-			reward.Image.Url4x,
+			image.URL1x,
+			image.URL2x,
+			image.URL4x,
 		)
 
 		usedTimes, err := r.deps.ChannelsRedemptionsHistoryService.Count(

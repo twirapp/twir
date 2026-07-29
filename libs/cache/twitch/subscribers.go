@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/kvizyx/twitchy/helix"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -46,31 +45,33 @@ func (c *CachedTwitchClient) GetChannelSubscribersCountByChannelId(
 		return subscribers, nil
 	}
 
-	twitchClient, err := twitch.NewUserClient(twitchUserID, c.config, c.twirBus)
+	twitchClient, err := c.createUserClient(ctx, twitchUserID)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create twitch client: %w", err)
 	}
 
-	subscribersReq, err := twitchClient.GetSubscriptions(
-		&helix.SubscriptionsParams{
+	subscribersReq, err := twitchClient.Subscriptions.GetBroadcasterSubscriptions(
+		ctx, helix.GetBroadcasterSubscriptionsRequest{
 			BroadcasterID: twitchPlatformID,
 		},
 	)
 	if err != nil {
 		return 0, err
 	}
-	if subscribersReq.ErrorMessage != "" {
-		return 0, fmt.Errorf("cannot get channels subscribers: %s", subscribersReq.ErrorMessage)
+
+	subscribers := 0
+	if subscribersReq.Data.Total != nil {
+		subscribers = *subscribersReq.Data.Total
 	}
 
 	if err := c.redis.Set(
 		ctx,
 		buildChannelSubscribersCountCacheKeyForId(twitchPlatformID),
-		subscribersReq.Data.Total,
+		subscribers,
 		channelSubscribersCountCacheDuration,
 	).Err(); err != nil {
 		return 0, err
 	}
 
-	return subscribersReq.Data.Total, nil
+	return subscribers, nil
 }

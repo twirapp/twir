@@ -5,12 +5,12 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
-func (c *Service) SearchByName(ctx context.Context, query string) ([]helix.Channel, error) {
+func (c *Service) SearchByName(ctx context.Context, query string) ([]helix.SearchChannel, error) {
 	if query == "" {
 		return nil, nil
 	}
@@ -29,11 +29,11 @@ type SearchChannelsInput struct {
 }
 
 func (c *Service) SearchChannels(ctx context.Context, input SearchChannelsInput) (
-	[]helix.Channel,
+	[]helix.SearchChannel,
 	error,
 ) {
 	if input.Query == "" {
-		return []helix.Channel{}, nil
+		return []helix.SearchChannel{}, nil
 	}
 
 	channels, err := c.cachedTwitchClient.SearchChannels(ctx, input.Query)
@@ -70,7 +70,7 @@ func (c *Service) SearchChannels(ctx context.Context, input SearchChannelsInput)
 		}
 
 		channels = lo.Filter(
-			channels, func(channel helix.Channel, _ int) bool {
+			channels, func(channel helix.SearchChannel, _ int) bool {
 				return lo.Contains(existingPlatformIds, channel.ID)
 			},
 		)

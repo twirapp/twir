@@ -2,10 +2,8 @@ package twitchactions
 
 import (
 	"context"
-	"errors"
 
-	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/kvizyx/twitchy/helix"
 )
 
 type DeleteMessageOpts struct {
@@ -15,13 +13,14 @@ type DeleteMessageOpts struct {
 }
 
 func (c *TwitchActions) DeleteMessage(ctx context.Context, opts DeleteMessageOpts) error {
-	twitchClient, err := twitch.NewBotClientWithContext(ctx, opts.ModeratorID, c.config, c.twirBus)
+	twitchClient, err := c.createChannelBotClient(ctx, opts.ModeratorID, opts.BroadcasterID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := twitchClient.DeleteChatMessage(
-		&helix.DeleteChatMessageParams{
+	_, err = twitchClient.Moderation.DeleteChatMessages(
+		ctx,
+		helix.DeleteChatMessagesRequest{
 			BroadcasterID: opts.BroadcasterID,
 			ModeratorID:   opts.ModeratorID,
 			MessageID:     opts.MessageID,
@@ -29,10 +28,6 @@ func (c *TwitchActions) DeleteMessage(ctx context.Context, opts DeleteMessageOpt
 	)
 	if err != nil {
 		return err
-	}
-
-	if resp.ErrorMessage != "" {
-		return errors.New(resp.ErrorMessage)
 	}
 
 	return nil

@@ -3,10 +3,13 @@ package app
 import (
 	"log/slog"
 
+	goredis "github.com/redis/go-redis/v9"
 	bus_listener "github.com/twirapp/twir/apps/scheduler/internal/bus-listener"
 	"github.com/twirapp/twir/apps/scheduler/internal/services"
 	"github.com/twirapp/twir/apps/scheduler/internal/timers"
 	"github.com/twirapp/twir/libs/baseapp"
+	cfg "github.com/twirapp/twir/libs/config"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	"github.com/twirapp/twir/libs/otel"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
@@ -29,6 +32,7 @@ var App = fx.Module(
 	service,
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
 	fx.Provide(
+		newKickAppTokenSource,
 		services.NewRoles,
 		services.NewCommands,
 		fx.Annotate(
@@ -67,3 +71,7 @@ var App = fx.Module(
 		},
 	),
 )
+
+func newKickAppTokenSource(config cfg.Config, redis *goredis.Client) (kickoauth.AppTokenSource, error) {
+	return kickoauth.NewAppTokenSource(kickoauth.SourceOptions{ClientID: config.KickClientId, ClientSecret: config.KickClientSecret, Redis: redis})
+}

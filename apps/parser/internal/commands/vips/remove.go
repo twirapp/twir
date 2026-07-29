@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -39,7 +39,8 @@ var Remove = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		twitchClient, err := twitch.NewUserClient(
+		twitchClient, err := twitch.NewUserClientWithContext(
+			ctx,
 			parseCtx.Channel.TwitchUserID,
 			*parseCtx.Services.Config,
 			parseCtx.Services.Bus,
@@ -65,8 +66,9 @@ var Remove = &types.DefaultCommand{
 
 		user := parseCtx.Mentions[0]
 
-		vipResp, err := twitchClient.RemoveChannelVip(
-			&helix.RemoveChannelVipParams{
+		_, err = twitchClient.Moderation.RemoveChannelVIP(
+			ctx,
+			helix.RemoveChannelVIPRequest{
 				BroadcasterID: parseCtx.Channel.ID,
 				UserID:        user.UserID,
 			},
@@ -77,12 +79,6 @@ var Remove = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
-		if vipResp.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: vipResp.ErrorMessage,
-			}
-		}
-
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				i18n.GetCtx(

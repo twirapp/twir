@@ -2,10 +2,8 @@ package twitchactions
 
 import (
 	"context"
-	"errors"
 
-	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/kvizyx/twitchy/helix"
 )
 
 type WarnUserOpts struct {
@@ -16,16 +14,17 @@ type WarnUserOpts struct {
 }
 
 func (c *TwitchActions) WarnUser(ctx context.Context, opts WarnUserOpts) error {
-	twitchClient, err := twitch.NewBotClientWithContext(ctx, opts.ModeratorID, c.config, c.twirBus)
+	twitchClient, err := c.createChannelBotClient(ctx, opts.ModeratorID, opts.BroadcasterID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := twitchClient.SendModeratorWarnMessage(
-		&helix.SendModeratorWarnChatMessageParams{
+	_, err = twitchClient.Moderation.WarnChatUser(
+		ctx,
+		helix.WarnChatUserRequest{
 			BroadcasterID: opts.BroadcasterID,
 			ModeratorID:   opts.ModeratorID,
-			Body: helix.SendModeratorWarnMessageRequestBody{
+			Data: helix.WarnChatUserBody{
 				UserID: opts.UserID,
 				Reason: opts.Reason,
 			},
@@ -33,10 +32,6 @@ func (c *TwitchActions) WarnUser(ctx context.Context, opts WarnUserOpts) error {
 	)
 	if err != nil {
 		return err
-	}
-
-	if resp.ErrorMessage != "" {
-		return errors.New(resp.ErrorMessage)
 	}
 
 	return nil

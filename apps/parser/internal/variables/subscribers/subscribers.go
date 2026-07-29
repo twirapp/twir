@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/variables/shared"
@@ -42,22 +42,18 @@ var LatestSubscriberUsername = &types.Variable{
 			return result, nil
 		}
 
-		subscribers, err := twitchClient.GetSubscriptions(
-			&helix.SubscriptionsParams{
+		first := "1"
+		subscribers, err := twitchClient.Subscriptions.GetBroadcasterSubscriptions(
+			ctx,
+			helix.GetBroadcasterSubscriptionsRequest{
 				BroadcasterID: parseCtx.Channel.ID,
-				First:         1,
+				First:         &first,
 			},
 		)
 		if err != nil {
 			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Subscribers.Errors.GetSubscribers), zap.Error(err))
 			return result, nil
 		}
-		if subscribers.ErrorMessage != "" {
-			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Subscribers.Errors.GetSubscribers), zap.Error(err))
-			result.Result = subscribers.ErrorMessage
-			return result, nil
-		}
-
 		if len(subscribers.Data.Subscriptions) == 0 {
 			return result, nil
 		}
@@ -90,8 +86,9 @@ var Count = &types.Variable{
 				return result, nil
 			}
 
-			subscribers, err := twitchClient.GetSubscriptions(
-				&helix.SubscriptionsParams{
+			subscribers, err := twitchClient.Subscriptions.GetBroadcasterSubscriptions(
+				ctx,
+				helix.GetBroadcasterSubscriptionsRequest{
 					BroadcasterID: parseCtx.Channel.ID,
 				},
 			)
@@ -99,13 +96,7 @@ var Count = &types.Variable{
 				parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Subscribers.Errors.GetSubscribers), zap.Error(err))
 				return result, nil
 			}
-			if subscribers.ErrorMessage != "" {
-				parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Subscribers.Errors.GetSubscribers), zap.Error(err))
-				result.Result = subscribers.ErrorMessage
-				return result, nil
-			}
-
-			result.Result = fmt.Sprint(subscribers.Data.Total)
+			result.Result = fmt.Sprint(lo.FromPtr(subscribers.Data.Total))
 			return result, nil
 		},
 		shared.PlatformKick: func(

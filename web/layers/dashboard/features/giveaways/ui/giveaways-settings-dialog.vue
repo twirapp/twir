@@ -2,7 +2,6 @@
 
 import { useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
-;
 import { z } from 'zod';
 
 import {Alert, AlertDescription} from '@/components/ui/alert';

@@ -10,11 +10,11 @@ import (
 
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	buskick "github.com/twirapp/twir/libs/bus-core/kick"
-	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -22,7 +22,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/scorfly/gokick"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -41,6 +41,7 @@ type StreamOpts struct {
 
 	StreamsRepo    streamsrepository.Repository
 	ChannelService *channelservice.ChannelService
+	KickAppTokens  kickoauth.AppTokenSource
 }
 
 type streams struct {
@@ -51,6 +52,7 @@ type streams struct {
 
 	streamsRepo    streamsrepository.Repository
 	channelService *channelservice.ChannelService
+	kickAppTokens  kickoauth.AppTokenSource
 }
 
 func NewStreams(opts StreamOpts) {
@@ -69,6 +71,7 @@ func NewStreams(opts StreamOpts) {
 		twirBus:        opts.TwirBus,
 		streamsRepo:    opts.StreamsRepo,
 		channelService: opts.ChannelService,
+		kickAppTokens:  opts.KickAppTokens,
 	}
 
 	opts.Lc.Append(
@@ -171,20 +174,21 @@ func (c *streams) processStreams(ctx context.Context) error {
 	for _, chunk := range chunks {
 		go func(chunk []string) {
 			defer wg.Done()
-			streams, err := twitchClient.GetStreams(
-				&helix.StreamsParams{
-					UserIDs: chunk,
+			streams, err := twitchClient.Streams.GetStreams(
+				ctx,
+				helix.GetStreamsRequest{
+					UserID: chunk,
 				},
 			)
 
-			if err != nil || streams.ErrorMessage != "" {
+			if err != nil {
 				c.logger.Error("cannot get streams", logger.Error(err))
 				return
 			}
 
 			for _, userId := range chunk {
 				twitchStream, twitchStreamExists := lo.Find(
-					streams.Data.Streams, func(stream helix.Stream) bool {
+					streams.Data, func(stream helix.Stream) bool {
 						return stream.UserID == userId
 					},
 				)
@@ -220,10 +224,10 @@ func (c *streams) processStreams(ctx context.Context) error {
 							GameId:       twitchStream.GameID,
 							GameName:     twitchStream.GameName,
 							CommunityIds: nil,
-							Type:         twitchStream.Type,
+							Type:         string(twitchStream.Type),
 							Title:        twitchStream.Title,
 							ViewerCount:  twitchStream.ViewerCount,
-							StartedAt:    twitchStream.StartedAt,
+							StartedAt:    twitchStream.StartedAt.Time,
 							Language:     twitchStream.Language,
 							ThumbnailUrl: twitchStream.ThumbnailURL,
 							TagIds:       nil,
@@ -250,7 +254,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 								CategoryID:   twitchStream.GameID,
 								Title:        twitchStream.Title,
 								Viewers:      twitchStream.ViewerCount,
-								StartedAt:    twitchStream.StartedAt,
+								StartedAt:    twitchStream.StartedAt.Time,
 							},
 						)
 					}
@@ -349,12 +353,12 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []strea
 		return nil
 	}
 
-	appToken, err := c.twirBus.Tokens.RequestAppToken.Request(ctx, bustokens.GetAppTokenRequest{Platform: platformentity.PlatformKick})
+	appToken, err := c.kickAppTokens.Token(ctx)
 	if err != nil {
 		return fmt.Errorf("request kick app token: %w", err)
 	}
 
-	kickClient, err := gokick.NewClient(&gokick.ClientOptions{AppAccessToken: appToken.Data.AccessToken})
+	kickClient, err := gokick.NewClient(&gokick.ClientOptions{AppAccessToken: appToken.AccessToken})
 	if err != nil {
 		return fmt.Errorf("create kick client: %w", err)
 	}

@@ -6,6 +6,7 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	goredis "github.com/redis/go-redis/v9"
 	bus_listener "github.com/twirapp/twir/apps/bots/internal/bus-listener"
 	discordbushandler "github.com/twirapp/twir/apps/bots/internal/discord/bus_handler"
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
@@ -26,7 +27,6 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/ytsr"
 	stream_handlers "github.com/twirapp/twir/apps/bots/internal/stream-handlers"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
-	vkchat "github.com/twirapp/twir/apps/bots/internal/vk"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
 	"github.com/twirapp/twir/apps/bots/pkg/tlds"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -47,6 +47,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
@@ -104,6 +105,7 @@ import (
 var App = fx.Module(
 	"bots",
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "bots"}),
+	vkVideoOAuthModule,
 	// repositories
 	fx.Provide(
 		fx.Annotate(
@@ -204,6 +206,7 @@ var App = fx.Module(
 		),
 	),
 	fx.Provide(
+		newKickBotTokenSource,
 		tlds.New,
 		channelservice.NewChannelService,
 		func(config cfg.Config) websockets.WebsocketClient {
@@ -232,7 +235,6 @@ var App = fx.Module(
 		twitchactions.New,
 		kickchat.NewChatClient,
 		newVKVideoChatClient,
-		vkchat.NewChatClient,
 		botplatforms.NewChatRegistry,
 		channelsmoderationsettingscache.New,
 		channelsgamesvotebancache.New,
@@ -267,3 +269,7 @@ var App = fx.Module(
 		},
 	),
 )
+
+func newKickBotTokenSource(config cfg.Config, redis *goredis.Client, repository kickbotsrepository.Repository) (kickoauth.DefaultBotTokenSource, error) {
+	return kickoauth.NewDefaultBotTokenSource(kickoauth.SourceOptions{ClientID: config.KickClientId, ClientSecret: config.KickClientSecret, CipherKey: config.TokensCipherKey, Redis: redis}, repository)
+}

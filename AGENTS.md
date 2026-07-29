@@ -13,7 +13,6 @@
 > - [`apps/parser/AGENTS.md`](apps/parser/AGENTS.md) — Command parser
 > - [`apps/scheduler/AGENTS.md`](apps/scheduler/AGENTS.md) — Task scheduler
 > - [`apps/timers/AGENTS.md`](apps/timers/AGENTS.md) — Chat timers
-> - [`apps/tokens/AGENTS.md`](apps/tokens/AGENTS.md) — OAuth tokens
 > - [`apps/websockets/AGENTS.md`](apps/websockets/AGENTS.md) — WebSocket server
 > - [`apps/executron/AGENTS.md`](apps/executron/AGENTS.md) — Sandboxed JS execution (Bun/TS)
 > - [`apps/twitch-mock/AGENTS.md`](apps/twitch-mock/AGENTS.md) — Local Twitch API mock (dev only)

@@ -1,18 +1,30 @@
 package twitch
 
 import (
-	"github.com/nicklaw5/helix/v2"
+	"context"
+
+	"github.com/google/uuid"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/redis/go-redis/v9"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 )
 
 type CachedTwitchClient struct {
-	config  cfg.Config
-	redis   *redis.Client
-	client  *helix.Client
-	twirBus *buscore.Bus
+	config        cfg.Config
+	redis         *redis.Client
+	client        *helix.Client
+	twirBus       *buscore.Bus
+	newUserClient func(context.Context, uuid.UUID) (*helix.Client, error)
+}
+
+func (c *CachedTwitchClient) createUserClient(ctx context.Context, userID uuid.UUID) (*helix.Client, error) {
+	if c.newUserClient != nil {
+		return c.newUserClient(ctx, userID)
+	}
+
+	return twitchlib.NewUserClientWithContext(ctx, userID, c.config, c.twirBus)
 }
 
 func New(

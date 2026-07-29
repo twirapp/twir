@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/twitch"
 )
@@ -32,17 +32,15 @@ func (c *TwitchActions) AddModerator(ctx context.Context, broadcasterID, userID 
 		return err
 	}
 
-	resp, err := twitchClient.AddChannelModerator(
-		&helix.AddChannelModeratorParams{
+	_, err = twitchClient.Moderation.AddChannelModerator(
+		ctx,
+		helix.AddChannelModeratorRequest{
 			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        userID,
 		},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to add moderator: %w", err)
-	}
-	if resp.ErrorMessage != "" {
-		return fmt.Errorf("failed to add moderator: %s", resp.ErrorMessage)
 	}
 
 	return nil
@@ -71,17 +69,15 @@ func (c *TwitchActions) RemoveModerator(ctx context.Context, broadcasterID, user
 		return err
 	}
 
-	resp, err := twitchClient.RemoveChannelModerator(
-		&helix.RemoveChannelModeratorParams{
+	_, err = twitchClient.Moderation.RemoveChannelModerator(
+		ctx,
+		helix.RemoveChannelModeratorRequest{
 			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        userID,
 		},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to remove moderator: %w", err)
-	}
-	if resp.ErrorMessage != "" {
-		return fmt.Errorf("failed to remove moderator: %s", resp.ErrorMessage)
 	}
 
 	return nil

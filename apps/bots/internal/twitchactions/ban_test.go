@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/stretchr/testify/require"
 	kvinmemory "github.com/twirapp/kv/stores/inmemory"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
@@ -106,9 +106,9 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			transport := &banCaptureTransport{}
-			client := newBanTestHelixClient(t, transport)
+			client := newBanTestHelixClient(t, transport, botID)
 			var userClientIDs []uuid.UUID
-			var botClientIDs []string
+			var channelBotRoutes [][2]string
 
 			actions := &TwitchActions{
 				channelsByTwitchIDCache: newBanTestChannelCache(channelentity.Channel{
@@ -126,8 +126,8 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 					userClientIDs = append(userClientIDs, userID)
 					return client, nil
 				},
-				newBotClient: func(_ context.Context, gotBotID string) (*helix.Client, error) {
-					botClientIDs = append(botClientIDs, gotBotID)
+				newChannelBotClient: func(_ context.Context, gotBotID string, gotChannelID string) (*helix.Client, error) {
+					channelBotRoutes = append(channelBotRoutes, [2]string{gotBotID, gotChannelID})
 					return client, nil
 				},
 			}
@@ -151,13 +151,13 @@ func TestBanUsesSelectedTwitchBindingSafety(t *testing.T) {
 
 			if !tt.wantAPICall {
 				require.Empty(t, userClientIDs)
-				require.Empty(t, botClientIDs)
+				require.Empty(t, channelBotRoutes)
 				require.Zero(t, transport.calls)
 				return
 			}
 
 			require.Equal(t, []uuid.UUID{twitchUserID}, userClientIDs)
-			require.Equal(t, []string{botID}, botClientIDs)
+			require.Equal(t, [][2]string{{botID, broadcasterID}}, channelBotRoutes)
 			require.Equal(t, 1, transport.calls)
 			require.Equal(t, http.MethodPost, transport.method)
 			require.Equal(t, "/helix/moderation/bans", transport.path)
@@ -194,16 +194,18 @@ func newBanTestChannelCache(channel channelentity.Channel) *channelcache.TwitchU
 	}
 }
 
-func newBanTestHelixClient(t *testing.T, transport http.RoundTripper) *helix.Client {
+func newBanTestHelixClient(t *testing.T, transport http.RoundTripper, userID string) *helix.Client {
 	t.Helper()
 
-	client, err := helix.NewClient(
-		&helix.Options{
-			ClientID: "test-client",
-			HTTPClient: &http.Client{
-				Transport: transport,
-			},
-		},
+	client, err := helix.New(
+		helix.WithHTTPClient(&http.Client{Transport: transport}),
+		helix.WithStaticToken(helix.Credential{
+			AccessToken: "test-token",
+			ClientID:    "test-client",
+			TokenClass:  helix.TokenClassUser,
+			UserID:      userID,
+			Scopes:      []helix.AuthorizationScope{helix.ScopeModeratorManageBannedUsers},
+		}),
 	)
 	require.NoError(t, err)
 

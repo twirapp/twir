@@ -151,7 +151,7 @@ func (c *MessagesUpdater) updateSingleMessage(
 	stream streamsmodel.Stream,
 	integration discordmodel.ChannelIntegrationDiscord,
 ) error {
-	twitchUser, err := c.getTwitchUser(stream.UserId)
+	twitchUser, err := c.getTwitchUser(ctx, stream.UserId)
 	if err != nil {
 		return err
 	}

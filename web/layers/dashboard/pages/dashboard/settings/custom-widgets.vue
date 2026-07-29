@@ -10,6 +10,7 @@ import {
 } from '~~/layers/dashboard/api/dashboard-widgets-layout.js'
 
 import { Button } from '@/components/ui/button'
+import ActionConfirm from '@/components/ui/action-confirm'
 import {
 	Dialog,
 	DialogContent,
@@ -38,6 +39,7 @@ const customWidgets = computed(() => {
 })
 
 const isDialogOpen = ref(false)
+const widgetPendingDeletion = ref<{ id: string; name: string } | null>(null)
 
 const formSchema = z.object({
 	name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -71,12 +73,12 @@ const onSubmit = handleSubmit(async (values) => {
 	}
 })
 
-async function deleteWidget(id: string, name: string) {
-	if (!confirm(`Are you sure you want to delete widget "${name}"?`)) {
+async function deleteWidget() {
+	if (!widgetPendingDeletion.value) {
 		return
 	}
 
-	const result = await deleteMutation.executeMutation({ widgetId: id })
+	const result = await deleteMutation.executeMutation({ widgetId: widgetPendingDeletion.value.id })
 
 	if (result.error) {
 		toast.error('Failed to delete widget', {
@@ -128,7 +130,7 @@ async function deleteWidget(id: string, name: string) {
 						<Button
 							variant="destructive"
 							size="icon"
-							@click="deleteWidget(widget.id, widget.name)"
+							@click="widgetPendingDeletion = { id: widget.id, name: widget.name }"
 							:disabled="deleteMutation.fetching.value"
 						>
 							<Icon
@@ -227,4 +229,11 @@ async function deleteWidget(id: string, name: string) {
 			</form>
 		</DialogContent>
 	</Dialog>
+
+	<ActionConfirm
+		:open="widgetPendingDeletion !== null"
+		:confirm-text="`Are you sure you want to delete widget &quot;${widgetPendingDeletion?.name}&quot;?`"
+		@update:open="widgetPendingDeletion = null"
+		@confirm="deleteWidget"
+	/>
 </template>

@@ -109,7 +109,7 @@ var Duel = &types.DefaultCommand{
 			}
 		}
 
-		_, err = handler.createHelixClient(twitchBinding.UserID)
+		_, err = handler.createHelixClient(ctx, twitchBinding.UserID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.BroadcasterClient),
@@ -117,7 +117,7 @@ var Duel = &types.DefaultCommand{
 			}
 		}
 
-		targetUser, err := handler.getTwitchTargetUser()
+		targetUser, err := handler.getTwitchTargetUser(ctx)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotFindUserTwitch),
@@ -144,7 +144,7 @@ var Duel = &types.DefaultCommand{
 			}
 		}
 
-		moderators, err := handler.getChannelModerators(twitchBinding.PlatformChannelID)
+		moderators, err := handler.getChannelModerators(ctx, twitchBinding.PlatformChannelID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetModerators),

@@ -5,14 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"net/http"
-	"strings"
 	"sync"
 
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/google/uuid"
 	"github.com/kvizyx/twitchy/eventsub"
+	"github.com/kvizyx/twitchy/helix"
 	goredislib "github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -41,9 +40,10 @@ type Manager struct {
 	eventsub           eventsub.EventSub
 	handler            *handler.Handler
 
-	httpClient *http.Client
-	apiBaseUrl string
-	wsOpts     []eventsub.WebsocketOption
+	wsOpts []eventsub.WebsocketOption
+
+	newAppTwitchClient func(context.Context) (*helix.Client, error)
+	newBotTwitchClient func(context.Context, string) (*helix.Client, error)
 
 	wsCurrentSessionId *string
 	currentConduit     *conduitsResponseConduit
@@ -65,19 +65,10 @@ type Opts struct {
 }
 
 func NewManager(opts Opts) (*Manager, error) {
-	var httpClient *http.Client
-	var apiBaseUrl string
 	var wsOpts []eventsub.WebsocketOption
 
 	if opts.Config.TwitchMockEnabled {
-		httpClient = &http.Client{
-			Transport: twitchlib.NewMockRoundTripper(http.DefaultTransport, opts.Config),
-		}
-		apiBaseUrl = strings.TrimSuffix(opts.Config.TwitchMockApiUrl, "/helix")
 		wsOpts = append(wsOpts, eventsub.WebsocketWithServerURL(opts.Config.TwitchMockWsUrl))
-	} else {
-		httpClient = http.DefaultClient
-		apiBaseUrl = "https://api.twitch.tv"
 	}
 
 	manager := &Manager{
@@ -91,9 +82,13 @@ func NewManager(opts Opts) (*Manager, error) {
 		redSync:            redsync.New(goredis.NewPool(opts.Redis)),
 		eventsub:           eventsub.New(),
 		handler:            opts.Handler,
-		httpClient:         httpClient,
-		apiBaseUrl:         apiBaseUrl,
 		wsOpts:             wsOpts,
+		newAppTwitchClient: func(ctx context.Context) (*helix.Client, error) {
+			return twitchlib.NewAppClientWithContext(ctx, opts.Config, nil)
+		},
+		newBotTwitchClient: func(ctx context.Context, botID string) (*helix.Client, error) {
+			return twitchlib.NewBotClientWithContext(ctx, botID, opts.Config, nil)
+		},
 		wsCurrentSessionId: nil,
 		currentConduit:     nil,
 	}

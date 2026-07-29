@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	genericcacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
@@ -25,18 +25,12 @@ func TestHandleChatWall_UsesProviderMessageIDForDeleteAndDedup(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		deletedMessageIDs = append(deletedMessageIDs, request.URL.Query().Get("message_id"))
 		writer.Header().Set("Content-Type", "application/json")
-		_, _ = writer.Write([]byte(`{"data":[]}`))
+		writer.WriteHeader(http.StatusNoContent)
 	}))
 	t.Cleanup(server.Close)
 
 	redisClient, _ := newMessageIDRedisClient(t)
 	bus := buscore.NewNatsBus(nil)
-	bus.Tokens.RequestBotToken = &chatMessageEmoteQueue[
-		buscoretokens.GetBotTokenRequest,
-		buscoretokens.TokenResponse,
-	]{response: &buscore.QueueResponse[buscoretokens.TokenResponse]{
-		Data: buscoretokens.TokenResponse{AccessToken: "test-token"},
-	}}
 	channelID := uuid.New()
 	handler := &MessageHandler{
 		redis: redisClient,
@@ -48,6 +42,18 @@ func TestHandleChatWall_UsesProviderMessageIDForDeleteAndDedup(t *testing.T) {
 			},
 			TwirBus: bus,
 			Redis:   redisClient,
+			NewChannelBotClientFactory: func(_ context.Context, botID string, _ string) (*helix.Client, error) {
+				return helix.New(
+					helix.WithHTTPClient(server.Client()),
+					helix.WithBaseURL(server.URL),
+					helix.WithStaticToken(helix.Credential{
+						AccessToken: "test-token",
+						TokenClass:  helix.TokenClassUser,
+						UserID:      botID,
+						Scopes:      []helix.AuthorizationScope{"moderator:manage:chat_messages"},
+					}),
+				)
+			},
 		}),
 		chatWallCacher: genericcacher.New(genericcacher.Opts[[]chatwallmodel.ChatWall]{
 			KV: messageIDCache{},

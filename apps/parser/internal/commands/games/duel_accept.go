@@ -84,7 +84,7 @@ var DuelAccept = &types.DefaultCommand{
 			}
 		}
 
-		_, err = handler.createHelixClient(twitchBinding.UserID)
+		_, err = handler.createHelixClient(ctx, twitchBinding.UserID)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.BroadcasterClient),

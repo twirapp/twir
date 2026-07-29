@@ -8,7 +8,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -17,7 +17,9 @@ import (
 	"go.temporal.io/sdk/activity"
 )
 
+type twitchUserClientFactory func(context.Context, uuid.UUID) (*helix.Client, error)
 type twitchBotClientFactory func(context.Context, string) (*helix.Client, error)
+type twitchChannelBotClientFactory func(context.Context, string, string) (*helix.Client, error)
 
 func (c *Activity) getWorkflowExecutionState(ctx context.Context) (
 	shared.EventsWorkflowExecutionState,
@@ -79,6 +81,10 @@ func (c *Activity) getHelixChannelApiClient(ctx context.Context, twitchUserID st
 		parsedUserID = user.ID
 	}
 
+	if c.newTwitchUserClient != nil {
+		return c.newTwitchUserClient(ctx, parsedUserID)
+	}
+
 	return twitch.NewUserClientWithContext(ctx, parsedUserID, c.cfg, c.bus)
 }
 
@@ -93,70 +99,54 @@ func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
 	return twitch.NewBotClientWithContext(ctx, botID, c.cfg, c.bus)
 }
 
+func (c *Activity) getHelixChannelBotApiClient(ctx context.Context, botID string, channelID string) (
+	*helix.Client,
+	error,
+) {
+	if c.newChannelBotClient != nil {
+		return c.newChannelBotClient(ctx, botID, channelID)
+	}
+
+	return twitch.NewChannelBotClientWithContext(ctx, botID, channelID, c.cfg)
+}
+
 // should be used with broadcaster channel client, otherwise it will return error
-func (c *Activity) getChannelMods(client *helix.Client, twitchPlatformID string) (
+func (c *Activity) getChannelMods(ctx context.Context, client *helix.Client, twitchPlatformID string) (
 	[]helix.Moderator,
 	error,
 ) {
-	var cursor string
-	var moderators []helix.Moderator
-
-	for {
-		modsReq, err := client.GetModerators(
-			&helix.GetModeratorsParams{
-				BroadcasterID: twitchPlatformID,
-				After:         cursor,
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-		if modsReq.ErrorMessage != "" {
-			return nil, errors.New(modsReq.ErrorMessage)
-		}
-
-		moderators = append(moderators, modsReq.Data.Moderators...)
-
-		if modsReq.Data.Pagination.Cursor == "" {
-			break
-		}
-
-		cursor = modsReq.Data.Pagination.Cursor
+	pager, err := client.Moderation.GetModeratorsPager(
+		helix.GetModeratorsRequest{BroadcasterID: twitchPlatformID},
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	return moderators, nil
+	var moderators []helix.Moderator
+	for pager.Next(ctx) {
+		moderators = append(moderators, pager.Page().Data...)
+	}
+
+	return moderators, pager.Err()
 }
 
-func (c *Activity) getChannelVips(client *helix.Client, twitchPlatformID string) (
-	[]helix.ChannelVips,
+func (c *Activity) getChannelVips(ctx context.Context, client *helix.Client, twitchPlatformID string) (
+	[]helix.VIP,
 	error,
 ) {
-	var cursor string
-	var vips []helix.ChannelVips
-
-	for {
-		vipsReq, err := client.GetChannelVips(
-			&helix.GetChannelVipsParams{
-				BroadcasterID: twitchPlatformID,
-				After:         cursor,
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-		if vipsReq.ErrorMessage != "" {
-			return nil, errors.New(vipsReq.ErrorMessage)
-		}
-
-		vips = append(vips, vipsReq.Data.ChannelsVips...)
-		cursor = vipsReq.Data.Pagination.Cursor
-
-		if vipsReq.Data.Pagination.Cursor == "" {
-			break
-		}
+	pager, err := client.Moderation.GetVIPsPager(
+		helix.GetVIPsRequest{BroadcasterID: twitchPlatformID},
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	return vips, nil
+	var vips []helix.VIP
+	for pager.Next(ctx) {
+		vips = append(vips, pager.Page().Data...)
+	}
+
+	return vips, pager.Err()
 }
 
 func (c *Activity) getChannelDbEntity(ctx context.Context, channelId string) (
@@ -265,42 +255,36 @@ func (c *Activity) getChannelRuntimeInfoByTwitchBroadcasterID(
 	return getTwitchChannelRuntimeInfo(channel)
 }
 
-func (c *Activity) getHelixUserByLogin(client *helix.Client, userLogin string) (helix.User, error) {
-	user, err := client.GetUsers(
-		&helix.UsersParams{
+func (c *Activity) getHelixUserByLogin(ctx context.Context, client *helix.Client, userLogin string) (helix.User, error) {
+	user, err := client.Users.GetUsers(
+		ctx, helix.GetUsersRequest{
 			Logins: []string{userLogin},
 		},
 	)
 	if err != nil {
 		return helix.User{}, err
 	}
-	if user.ErrorMessage != "" {
-		return helix.User{}, errors.New(user.ErrorMessage)
-	}
 
-	if len(user.Data.Users) == 0 {
+	if len(user.Data) == 0 {
 		return helix.User{}, errors.New("user not found")
 	}
 
-	return user.Data.Users[0], nil
+	return user.Data[0], nil
 }
 
-func (c *Activity) getHelixUserById(client *helix.Client, userId string) (helix.User, error) {
-	user, err := client.GetUsers(
-		&helix.UsersParams{
+func (c *Activity) getHelixUserById(ctx context.Context, client *helix.Client, userId string) (helix.User, error) {
+	user, err := client.Users.GetUsers(
+		ctx, helix.GetUsersRequest{
 			IDs: []string{userId},
 		},
 	)
 	if err != nil {
 		return helix.User{}, err
 	}
-	if user.ErrorMessage != "" {
-		return helix.User{}, errors.New(user.ErrorMessage)
-	}
 
-	if len(user.Data.Users) == 0 {
+	if len(user.Data) == 0 {
 		return helix.User{}, errors.New("user not found")
 	}
 
-	return user.Data.Users[0], nil
+	return user.Data[0], nil
 }

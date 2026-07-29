@@ -74,7 +74,7 @@ var FirstFollowers = &types.DefaultCommand{
 					return
 				}
 
-				filteredFollowers[idx].FollowedAt = follow.Followed.Time
+				filteredFollowers[idx].FollowedAt = follow.FollowedAt.Time
 			}()
 		}
 

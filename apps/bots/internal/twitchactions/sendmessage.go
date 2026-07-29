@@ -10,8 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/aidenwallis/go-ratelimiting/redis"
-	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
@@ -123,20 +122,13 @@ func (c *TwitchActions) SendMessage(
 	}
 
 	var twitchClient *helix.Client
-	var twitchClientErr error
-	if !opts.IsAnnounce {
-		twitchClient, twitchClientErr = twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+	if opts.IsAnnounce {
+		twitchClient, err = c.createChannelBotClient(ctx, opts.SenderID, opts.BroadcasterID)
 	} else {
-		twitchClient, twitchClientErr = twitch.NewBotClientWithContext(
-			ctx,
-			opts.SenderID,
-			c.config,
-			c.twirBus,
-		)
+		twitchClient, err = twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
 	}
-
-	if twitchClientErr != nil {
-		return twitchClientErr
+	if err != nil {
+		return fmt.Errorf("create Twitch client: %w", err)
 	}
 
 	text := strings.ReplaceAll(opts.Message, "\n", " ")
@@ -159,9 +151,6 @@ func (c *TwitchActions) SendMessage(
 			return nil
 		}
 
-		var msgErr error
-		var errorMessage string
-
 		message := part
 		isToxic := !opts.SkipToxicityCheck && toxicity[i]
 		if isToxic {
@@ -180,26 +169,27 @@ func (c *TwitchActions) SendMessage(
 		}
 
 		if !opts.IsAnnounce {
-			resp, err := twitchClient.SendChatMessage(
-				&helix.SendChatMessageParams{
+			resp, err := twitchClient.Chat.SendChatMessage(
+				ctx,
+				helix.SendChatMessageRequest{
 					BroadcasterID:        opts.BroadcasterID,
 					SenderID:             opts.SenderID,
 					Message:              validateResponseSlashes(message),
 					ReplyParentMessageID: opts.ReplyParentMessageID,
 				},
 			)
-			msgErr = err
-			if resp == nil {
-				return fmt.Errorf("cannot send message with unknown reason: %w", err)
+			if err != nil {
+				return fmt.Errorf("send chat message: %w", err)
 			}
 
 			var rateLimitGroup slog.Attr
-			if resp != nil {
+			rateLimit := resp.Meta.RateLimit()
+			if rateLimit.Valid() {
 				rateLimitGroup = slog.Group(
 					"rate_limit",
-					slog.Int("limit", resp.GetRateLimit()),
-					slog.Int("remaining", resp.GetRateLimitRemaining()),
-					slog.Int("reset", resp.GetRateLimitReset()),
+					slog.Int("limit", rateLimit.Limit()),
+					slog.Int("remaining", rateLimit.Remaining()),
+					slog.Int64("reset", rateLimit.Reset().Unix()),
 				)
 			}
 
@@ -212,12 +202,12 @@ func (c *TwitchActions) SendMessage(
 				rateLimitGroup,
 			)
 
-			for _, m := range resp.Data.Messages {
-				if m.DropReasons.Data.Message != "" {
+			for _, m := range resp.Data {
+				if m.DropReason != nil && m.DropReason.Message != "" {
 					c.logger.Warn(
 						"Message drop",
-						slog.String("drop_reason", m.DropReasons.Data.Message),
-						slog.String("code", m.DropReasons.Data.Code),
+						slog.String("drop_reason", m.DropReason.Message),
+						slog.String("code", m.DropReason.Code),
 					)
 					continue
 				}
@@ -240,10 +230,6 @@ func (c *TwitchActions) SendMessage(
 					}
 				}()
 			}
-
-			if resp != nil {
-				errorMessage = resp.ErrorMessage
-			}
 		} else {
 			var color bots.AnnounceColor
 			if opts.AnnounceColor == bots.AnnounceColorRandom {
@@ -252,41 +238,18 @@ func (c *TwitchActions) SendMessage(
 				color = opts.AnnounceColor
 			}
 
-			resp, err := twitchClient.SendChatAnnouncement(
-				&helix.SendChatAnnouncementParams{
+			_, err := twitchClient.Chat.SendChatAnnouncement(
+				ctx,
+				helix.SendChatAnnouncementRequest{
 					BroadcasterID: opts.BroadcasterID,
 					ModeratorID:   opts.SenderID,
 					Message:       validateResponseSlashes(message),
 					Color:         color.String(),
 				},
 			)
-			msgErr = err
-
-			if resp != nil {
-				errorMessage = resp.ErrorMessage
+			if err != nil {
+				return fmt.Errorf("send chat announcement: %w", err)
 			}
-
-			if resp != nil && resp.ErrorMessage != "" && err == nil {
-				err := c.sentMessagesRepository.Create(
-					ctx, sentmessages.CreateInput{
-						MessageTwitchID: uuid.NewString(),
-						Content:         part,
-						ChannelID:       opts.BroadcasterID,
-						SenderID:        opts.SenderID,
-					},
-				)
-				if err != nil {
-					c.logger.Warn("Cannot save message to db", logger.Error(err))
-				}
-			}
-		}
-
-		if msgErr != nil {
-			return err
-		}
-
-		if errorMessage != "" {
-			return fmt.Errorf("cannot send message: %s", errorMessage)
 		}
 	}
 

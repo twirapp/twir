@@ -5,9 +5,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"github.com/twirapp/twir/libs/twitch"
 )
 
 type SearchCategoriesInput struct {
@@ -24,32 +23,24 @@ type SetChannelInformationInput struct {
 	Title      *string
 }
 
-func (s *Service) SearchCategories(ctx context.Context, input SearchCategoriesInput) ([]helix.Category, error) {
+func (s *Service) SearchCategories(ctx context.Context, input SearchCategoriesInput) ([]helix.SearchCategory, error) {
 	if input.Query == "" {
-		return []helix.Category{}, nil
+		return []helix.SearchCategory{}, nil
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(
-		ctx,
-		s.config,
-		s.twirBus,
-	)
+	twitchClient, err := s.createAppClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create twitch client: %w", err)
 	}
 
-	resp, err := twitchClient.SearchCategories(&helix.SearchCategoriesParams{
+	resp, err := twitchClient.Search.SearchCategories(ctx, helix.SearchCategoriesRequest{
 		Query: input.Query,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("unexpected error when fetching categories: %w", err)
 	}
 
-	if resp.ErrorMessage != "" {
-		return nil, fmt.Errorf("cannot get categories: %s", resp.ErrorMessage)
-	}
-
-	return resp.Data.Categories, nil
+	return resp.Data, nil
 }
 
 func (s *Service) GetCategories(ctx context.Context, input GetCategoriesInput) ([]helix.Game, error) {
@@ -57,27 +48,19 @@ func (s *Service) GetCategories(ctx context.Context, input GetCategoriesInput) (
 		return []helix.Game{}, nil
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(
-		ctx,
-		s.config,
-		s.twirBus,
-	)
+	twitchClient, err := s.createAppClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create twitch client: %w", err)
 	}
 
-	resp, err := twitchClient.GetGames(&helix.GamesParams{
+	resp, err := twitchClient.Games.GetGames(ctx, helix.GetGamesRequest{
 		IDs: input.IDs,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cannot get categories: %w", err)
 	}
 
-	if resp.ErrorMessage != "" {
-		return nil, fmt.Errorf("cannot get categories: %s", resp.ErrorMessage)
-	}
-
-	return resp.Data.Games, nil
+	return resp.Data, nil
 }
 
 func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInformationInput) error {
@@ -112,25 +95,21 @@ func (s *Service) SetChannelInformation(ctx context.Context, input SetChannelInf
 		return fmt.Errorf("cannot create twitch client for user %s: %w", input.ChannelID, err)
 	}
 
-	params := &helix.EditChannelInformationParams{
+	params := helix.ModifyChannelInformationRequest{
 		BroadcasterID: twitchBinding.PlatformChannelID,
 	}
 
 	if input.CategoryID != nil {
-		params.GameID = *input.CategoryID
+		params.GameID = input.CategoryID
 	}
 
 	if input.Title != nil {
-		params.Title = *input.Title
+		params.Title = input.Title
 	}
 
-	resp, err := twitchClient.EditChannelInformation(params)
+	_, err = twitchClient.Channels.ModifyChannelInformation(ctx, params)
 	if err != nil {
 		return fmt.Errorf("cannot update channel information: %w", err)
-	}
-
-	if resp.ErrorMessage != "" {
-		return fmt.Errorf("cannot update channel information: %s", resp.ErrorMessage)
 	}
 
 	return nil

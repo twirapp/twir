@@ -170,7 +170,7 @@ If apps started before migrations completed and entered CrashLoopBackOff, restar
 ```bash
 kubectl -n twir rollout restart deploy/api-gql deploy/bots deploy/parser deploy/timers deploy/scheduler
 kubectl -n twir rollout restart deploy/integrations deploy/web deploy/dashboard deploy/overlays deploy/websockets
-kubectl -n twir rollout restart deploy/tokens deploy/emotes-cacher deploy/events deploy/language-processor deploy/toxicity-detector deploy/music-recognizer
+kubectl -n twir rollout restart deploy/emotes-cacher deploy/events deploy/language-processor deploy/toxicity-detector deploy/music-recognizer
 kubectl -n twir rollout restart statefulset/eventsub
 ```
 

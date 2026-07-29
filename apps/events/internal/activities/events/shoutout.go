@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"go.temporal.io/sdk/activity"
@@ -40,25 +40,22 @@ func (c *Activity) ShoutoutChannel(
 		return err
 	}
 
-	usersReq, err := twitchClient.GetUsers(
-		&helix.UsersParams{
+	usersReq, err := twitchClient.Users.GetUsers(
+		ctx, helix.GetUsersRequest{
 			Logins: []string{shoutoutTarget},
 		},
 	)
 	if err != nil {
 		return err
 	}
-	if usersReq.ErrorMessage != "" {
-		return fmt.Errorf("cannot get user: %s", usersReq.ErrorMessage)
-	}
-	if len(usersReq.Data.Users) == 0 {
+	if len(usersReq.Data) == 0 {
 		return fmt.Errorf("cannot find user with this name")
 	}
 
-	user := usersReq.Data.Users[0]
+	user := usersReq.Data[0]
 
-	result, err := twitchClient.SendShoutout(
-		&helix.SendShoutoutParams{
+	_, err = twitchClient.Chat.SendShoutout(
+		ctx, helix.SendShoutoutRequest{
 			FromBroadcasterID: twitchBroadcasterID(data),
 			ToBroadcasterID:   user.ID,
 			ModeratorID:       twitchBroadcasterID(data),
@@ -67,9 +64,5 @@ func (c *Activity) ShoutoutChannel(
 	if err != nil {
 		return err
 	}
-	if result.ErrorMessage != "" {
-		return fmt.Errorf("cannot send shoutout: %s", result.ErrorMessage)
-	}
-
 	return nil
 }

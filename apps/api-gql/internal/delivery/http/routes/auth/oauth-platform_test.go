@@ -13,7 +13,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2/humatest"
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"

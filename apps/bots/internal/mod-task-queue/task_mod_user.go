@@ -2,13 +2,12 @@ package mod_task_queue
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/goccy/go-json"
 	"github.com/hibiken/asynq"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/libs/twitch"
 )
 
@@ -31,8 +30,9 @@ func (p *RedisTaskProcessor) ProcessDistributeMod(
 		return err
 	}
 
-	checkModReq, err := twitchClient.GetModerators(
-		&helix.GetModeratorsParams{
+	checkModReq, err := twitchClient.Moderation.GetModerators(
+		ctx,
+		helix.GetModeratorsRequest{
 			BroadcasterID: payload.ChannelID,
 			UserIDs:       []string{payload.UserID},
 		},
@@ -40,11 +40,8 @@ func (p *RedisTaskProcessor) ProcessDistributeMod(
 	if err != nil {
 		return fmt.Errorf("failed to check existing moderator: %w", err)
 	}
-	if checkModReq.ErrorMessage != "" {
-		return errors.New(checkModReq.ErrorMessage)
-	}
 
-	if len(checkModReq.Data.Moderators) > 0 {
+	if len(checkModReq.Data) > 0 {
 		p.logger.Warn(
 			"user is already a moderator",
 			slog.String("channelId", payload.ChannelID),
@@ -53,8 +50,9 @@ func (p *RedisTaskProcessor) ProcessDistributeMod(
 		return nil
 	}
 
-	addModReq, err := twitchClient.AddChannelModerator(
-		&helix.AddChannelModeratorParams{
+	_, err = twitchClient.Moderation.AddChannelModerator(
+		ctx,
+		helix.AddChannelModeratorRequest{
 			BroadcasterID: payload.ChannelID,
 			UserID:        payload.UserID,
 		},
@@ -62,11 +60,8 @@ func (p *RedisTaskProcessor) ProcessDistributeMod(
 	if err != nil {
 		return fmt.Errorf("failed to add moderator: %w", err)
 	}
-	if addModReq.ErrorMessage != "" {
-		return errors.New(addModReq.ErrorMessage)
-	}
 
-	return err
+	return nil
 }
 
 func (d *ModTaskDistributor) DistributeModUser(

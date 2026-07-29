@@ -3,7 +3,7 @@ package types
 import (
 	"context"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	model "github.com/twirapp/twir/libs/gomodels"
 	seventvintegrationapi "github.com/twirapp/twir/libs/integrations/seventv/api"
 	"github.com/twirapp/twir/libs/twitch"
@@ -17,7 +17,7 @@ type DataCacher interface {
 	GetFaceitUserData(ctx context.Context) (*FaceitUser, error)
 	ComputeFaceitGainLoseEstimate(ctx context.Context) (*FaceitEstimateGainLose, error)
 
-	GetTwitchUserFollow(ctx context.Context, userId string) *helix.ChannelFollow
+	GetTwitchUserFollow(ctx context.Context, userId string) *helix.ChannelFollower
 	GetGbUserStats(ctx context.Context, userId string) *model.UsersStats
 	GetTwitchChannel(ctx context.Context) *helix.ChannelInformation
 	GetTwitchSenderUser(ctx context.Context) *helix.User

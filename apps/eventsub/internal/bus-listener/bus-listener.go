@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -278,7 +278,7 @@ func (c *BusListener) reinitChannels(
 ) (struct{}, error) {
 	ctx = context.WithoutCancel(ctx)
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.bus)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, nil)
 	if err != nil {
 		c.logger.Error("error creating Twitch app client", logger.Error(err))
 		return struct{}{}, err
@@ -287,38 +287,27 @@ func (c *BusListener) reinitChannels(
 	var i atomic.Int64
 	var cursor string
 	for {
-		subs, err := twitchClient.GetEventSubSubscriptions(
-			&helix.EventSubSubscriptionsParams{
-				After: cursor,
+		subs, err := twitchClient.EventSub.GetEventSubSubscriptions(
+			ctx,
+			helix.GetEventSubSubscriptionsRequest{
+				After:           cursor,
+				TransportMethod: helix.EventSubTransportConduit,
 			},
 		)
 		if err != nil {
 			c.logger.Error("error getting subscriptions from Twitch", logger.Error(err))
 			return struct{}{}, err
 		}
-		if subs.ErrorMessage != "" {
-			c.logger.Error("error in Twitch response", slog.String("error", subs.ErrorMessage))
-			return struct{}{}, fmt.Errorf("error getting subscriptions: %s", subs.ErrorMessage)
-		}
-
 		var wg sync.WaitGroup
 
-		for _, sub := range subs.Data.EventSubSubscriptions {
-			wg.Add(1)
-
-			go func() {
-				defer wg.Done()
-				resp, err := twitchClient.RemoveEventSubSubscription(sub.ID)
+		for _, sub := range subs.Data.Subscriptions {
+			wg.Go(func() {
+				_, err := twitchClient.EventSub.DeleteEventSubSubscription(ctx, helix.DeleteEventSubSubscriptionRequest{
+					ID:              sub.ID,
+					TransportMethod: helix.EventSubTransportConduit,
+				})
 				if err != nil {
 					c.logger.Error("error removing subscription", logger.Error(err), slog.String("subscription_id", sub.ID))
-					return
-				}
-				if resp.ErrorMessage != "" {
-					c.logger.Error(
-						"error in Twitch response while removing subscription",
-						slog.String("error", resp.ErrorMessage),
-						slog.String("subscription_id", sub.ID),
-					)
 					return
 				}
 
@@ -328,12 +317,12 @@ func (c *BusListener) reinitChannels(
 					slog.String("subscription_id", sub.ID),
 					slog.Int64("removed_count", i.Load()),
 				)
-			}()
+			})
 		}
 
 		wg.Wait()
 
-		cursor = subs.Data.Pagination.Cursor
+		cursor = subs.Pagination.Cursor()
 		if cursor == "" {
 			break
 		}

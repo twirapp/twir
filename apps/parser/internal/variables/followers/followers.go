@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
-	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/zap"
 )
 
@@ -61,33 +59,16 @@ var Count = &types.Variable{
 			return result, nil
 		}
 
-		twitchClient, err := twitch.NewUserClientWithContext(
+		followers, err := parseCtx.Services.CacheTwitchClient.GetChannelFollowersCountByChannelId(
 			ctx,
 			parseCtx.Channel.TwitchUserID,
-			*parseCtx.Services.Config,
-			parseCtx.Services.Bus,
-		)
-		if err != nil {
-			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotCreateTwitch), zap.Error(err))
-			return result, nil
-		}
-
-		followers, err := twitchClient.GetChannelFollows(
-			&helix.GetChannelFollowsParams{
-				BroadcasterID: parseCtx.Channel.ID,
-			},
+			parseCtx.Channel.ID,
 		)
 		if err != nil {
 			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Followers.Errors.GetFollowers), zap.Error(err))
 			return result, nil
 		}
-		if followers.ErrorMessage != "" {
-			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Followers.Errors.GetFollowers), zap.Error(err))
-			result.Result = followers.ErrorMessage
-			return result, nil
-		}
-
-		result.Result = fmt.Sprint(followers.Data.Total)
+		result.Result = fmt.Sprint(followers)
 		return result, nil
 	},
 }

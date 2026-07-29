@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -275,24 +275,18 @@ func (c *Service) GetChannelUserInfo(ctx context.Context, input ChannelUserInfoI
 		return entity.ChannelUserInfo{}, fmt.Errorf("cannot create channel twitch client: %w", err)
 	}
 
-	follows, err := channelTwitchClient.GetChannelFollows(
-		&helix.GetChannelFollowsParams{
+	followUserID := user.PlatformID
+	follows, err := channelTwitchClient.Channels.GetChannelFollowers(
+		ctx, helix.GetChannelFollowersRequest{
 			BroadcasterID: twitchBinding.PlatformChannelID,
-			UserID:        user.PlatformID,
+			UserID:        &followUserID,
 		},
 	)
 	if err != nil {
 		return entity.ChannelUserInfo{}, fmt.Errorf("cannot get channel follows: %w", err)
 	}
-	if follows.ErrorMessage != "" {
-		return entity.ChannelUserInfo{}, fmt.Errorf(
-			"cannot get channel follows: %s",
-			follows.ErrorMessage,
-		)
-	}
-
-	if len(follows.Data.Channels) != 0 {
-		info.FollowerSince = &follows.Data.Channels[0].Followed.Time
+	if len(follows.Data) != 0 {
+		info.FollowerSince = &follows.Data[0].FollowedAt.Time
 	}
 
 	return info, nil

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/stretchr/testify/require"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -15,7 +16,6 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/parser"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	genericcacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -160,14 +160,20 @@ func (f *greetingFixture) installTwitchActions(t *testing.T, calls *int) {
 	}))
 	t.Cleanup(server.Close)
 	userID := uuid.New()
-	f.handler.twirBus.Tokens.RequestUserToken = &chatMessageEmoteQueue[
-		buscoretokens.GetUserTokenRequest,
-		buscoretokens.TokenResponse,
-	]{response: &buscore.QueueResponse[buscoretokens.TokenResponse]{
-		Data: buscoretokens.TokenResponse{AccessToken: "test-token"},
-	}}
 	f.handler.twitchActions = twitchactions.New(twitchactions.Opts{
 		Config: cfg.Config{TwitchMockEnabled: true, TwitchMockApiUrl: server.URL, TwitchClientId: "test-client"}, TwirBus: f.handler.twirBus,
+		NewUserClientFactory: func(context.Context, uuid.UUID) (*helix.Client, error) {
+			return helix.New(
+				helix.WithHTTPClient(server.Client()),
+				helix.WithBaseURL(server.URL),
+				helix.WithStaticToken(helix.Credential{
+					AccessToken: "test-token",
+					TokenClass:  helix.TokenClassUser,
+					UserID:      f.message.BroadcasterUserId,
+					Scopes:      []helix.AuthorizationScope{"moderator:manage:shoutouts"},
+				}),
+			)
+		},
 		ChannelsByTwitchIDCache: &channelcache.TwitchUserIDCacher{GenericCacher: genericcacher.New(genericcacher.Opts[channelentity.Channel]{
 			KV: messageIDCache{}, LoadFn: func(context.Context, string) (channelentity.Channel, error) {
 				return channelentity.Channel{Bindings: []channelplatformentity.ChannelPlatform{{

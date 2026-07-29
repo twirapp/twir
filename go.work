@@ -9,7 +9,6 @@ use (
 	./apps/parser
 	./apps/scheduler
 	./apps/timers
-	./apps/tokens
 	./apps/twitch-mock
 	./apps/websockets
 	./cli
@@ -27,6 +26,7 @@ use (
 	./libs/integrations
 	./libs/logger
 	./libs/migrations
+	./libs/oauth
 	./libs/otel
 	./libs/platforms
 	./libs/pubsub

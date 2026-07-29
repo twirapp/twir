@@ -36,6 +36,9 @@ type Opts struct {
 	KV                      kv.KV
 	ModTaskDistributor      mod_task_queue.TaskDistributor
 	CachedTwitchClient      *twitch.CachedTwitchClient
+
+	NewUserClientFactory        twitchUserClientFactory        `optional:"true"`
+	NewChannelBotClientFactory  twitchChannelBotClientFactory  `optional:"true"`
 }
 
 func New(opts Opts) *TwitchActions {
@@ -53,6 +56,8 @@ func New(opts Opts) *TwitchActions {
 		kv:                      opts.KV,
 		modTaskDistributor:      opts.ModTaskDistributor,
 		cachedTwitchClient:      opts.CachedTwitchClient,
+		newUserClient:           opts.NewUserClientFactory,
+		newChannelBotClient:     opts.NewChannelBotClientFactory,
 	}
 
 	return actions
@@ -73,5 +78,5 @@ type TwitchActions struct {
 	modTaskDistributor      mod_task_queue.TaskDistributor
 	cachedTwitchClient      *twitch.CachedTwitchClient
 	newUserClient           twitchUserClientFactory
-	newBotClient            twitchBotClientFactory
+	newChannelBotClient     twitchChannelBotClientFactory
 }

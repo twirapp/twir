@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -50,23 +50,20 @@ func (c *CachedTwitchClient) GetGame(
 		return &game, nil
 	}
 
-	twitchGetGamesReq, err := c.client.GetGames(
-		&helix.GamesParams{
+	twitchGetGamesReq, err := c.client.Games.GetGames(
+		ctx, helix.GetGamesRequest{
 			IDs: []string{gameID},
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	if twitchGetGamesReq.ErrorMessage != "" {
-		return nil, fmt.Errorf(twitchGetGamesReq.ErrorMessage)
-	}
 
-	if len(twitchGetGamesReq.Data.Games) == 0 {
+	if len(twitchGetGamesReq.Data) == 0 {
 		return nil, nil
 	}
 
-	game := twitchGetGamesReq.Data.Games[0]
+	game := twitchGetGamesReq.Data[0]
 
 	gameBytes, err := json.Marshal(game)
 	if err != nil {
@@ -124,19 +121,16 @@ func (c *CachedTwitchClient) GetGames(
 	}
 
 	if len(gamesForRequest) > 0 {
-		twitchGetGamesReq, err := c.client.GetGames(
-			&helix.GamesParams{
+		twitchGetGamesReq, err := c.client.Games.GetGames(
+			ctx, helix.GetGamesRequest{
 				IDs: gamesForRequest,
 			},
 		)
 		if err != nil {
 			return nil, err
 		}
-		if twitchGetGamesReq.ErrorMessage != "" {
-			return nil, fmt.Errorf(twitchGetGamesReq.ErrorMessage)
-		}
 
-		for _, game := range twitchGetGamesReq.Data.Games {
+		for _, game := range twitchGetGamesReq.Data {
 			fetchedGames[game.ID] = game
 
 			gameBytes, err := json.Marshal(game)

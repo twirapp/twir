@@ -10,9 +10,8 @@ require (
 	github.com/goccy/go-json v0.10.5
 	github.com/google/uuid v1.6.0
 	github.com/kr/pretty v0.3.1
-	github.com/kvizyx/twitchy v0.1.7
+	github.com/kvizyx/twitchy v0.3.0
 	github.com/lib/pq v1.10.9
-	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0
 	github.com/twirapp/batch-processor v0.0.1
@@ -113,6 +112,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twirapp/kv v0.5.1 // indirect
 	github.com/twirapp/twir/libs/audit v0.0.0-20251127124349-67ad7fa0003f // indirect
+	github.com/twirapp/twir/libs/oauth v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/pubsub v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/sentry v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/types v0.0.0-20251127124349-67ad7fa0003f // indirect
@@ -152,3 +152,5 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )
+
+replace github.com/twirapp/twir/libs/oauth => ../../libs/oauth

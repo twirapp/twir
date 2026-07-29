@@ -10,8 +10,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
-	buscore "github.com/twirapp/twir/libs/bus-core"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
+	channeloauth "github.com/twirapp/twir/libs/oauth/channel_integrations"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
@@ -19,7 +18,6 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
-	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 	vkintegration "github.com/twirapp/twir/libs/repositories/vk_integration"
 )
 
@@ -31,7 +29,7 @@ type Opts struct {
 	LastfmRepository  channelsintegrationslastfm.Repository
 	VKRepository      vkintegration.Repository
 	Config            cfg.Config
-	TwirBus           *buscore.Bus
+	ChannelIntegrationTokens channeloauth.Provider
 	Kv                kv.KV
 	ChannelID         string
 }
@@ -40,7 +38,7 @@ type NowPlayingFetcher struct {
 	spotifyRepository channelsintegrationsspotify.Repository
 	logger            *slog.Logger
 	kv                kv.KV
-	twirBus           *buscore.Bus
+	channelIntegrationTokens channeloauth.Provider
 
 	channelId                 string
 	spotifyScopes             []string
@@ -109,7 +107,7 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		lastfmService:     lfmService,
 		vkService:         vkService,
 		logger:            opts.Logger,
-		twirBus:           opts.TwirBus,
+		channelIntegrationTokens: opts.ChannelIntegrationTokens,
 		spotifyScopes:     spotifyEntity.Scopes,
 	}
 
@@ -121,7 +119,7 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 }
 
 func (c *NowPlayingFetcher) maybeRefreshSpotifyService(ctx context.Context) {
-	if c.twirBus == nil || c.channelId == "" || len(c.spotifyScopes) == 0 {
+	if c.channelIntegrationTokens == nil || c.channelId == "" || len(c.spotifyScopes) == 0 {
 		return
 	}
 	if !c.lastSpotifyTokenRefreshAt.IsZero() && time.Since(c.lastSpotifyTokenRefreshAt) < spotifyTokenRefreshCooldown {
@@ -129,23 +127,17 @@ func (c *NowPlayingFetcher) maybeRefreshSpotifyService(ctx context.Context) {
 	}
 	c.lastSpotifyTokenRefreshAt = time.Now()
 
-	token, err := c.twirBus.Tokens.RequestChannelIntegrationToken.Request(
-		ctx,
-		buscoretokens.GetChannelIntegrationTokenRequest{
-			ChannelID: c.channelId,
-			Service:   integrationsmodel.ServiceSpotify,
-		},
-	)
+	token, err := c.channelIntegrationTokens.Token(ctx, "SPOTIFY", c.channelId)
 	if err != nil {
 		c.logger.Error(
-			"failed to get spotify token from tokens service",
+			"failed to get Spotify channel integration token",
 			logger.Error(err),
 			slog.String("channel_id", c.channelId),
 		)
 		return
 	}
 
-	c.spotifyService = spotify.NewStatic(token.Data.AccessToken, c.spotifyScopes)
+	c.spotifyService = spotify.NewStatic(token.AccessToken, c.spotifyScopes)
 }
 
 func (c *NowPlayingFetcher) Fetch(ctx context.Context) (*Track, error) {

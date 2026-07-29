@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -75,16 +75,12 @@ func (c *ChatAlerts) follow(
 			return err
 		}
 
-		followersReq, err := twitchClient.GetChannelFollows(
-			&helix.GetChannelFollowsParams{
-				BroadcasterID: platformChannelID,
-			},
-		)
+		followersCount, err := countChannelFollowers(ctx, twitchClient, platformChannelID)
 		if err != nil {
 			return err
 		}
 
-		text = strings.ReplaceAll(text, "{followers}", fmt.Sprint(followersReq.Data.Total))
+		text = strings.ReplaceAll(text, "{followers}", fmt.Sprint(followersCount))
 	} else {
 		text = strings.ReplaceAll(text, "{followers}", "0")
 	}
@@ -94,4 +90,25 @@ func (c *ChatAlerts) follow(
 	}
 
 	return c.sendMessage(ctx, channelID, eventPlatform, text)
+}
+
+func countChannelFollowers(ctx context.Context, client *helix.Client, broadcasterID string) (int64, error) {
+	first := 100
+	pager, err := client.Channels.GetChannelFollowersPager(
+		helix.GetChannelFollowersRequest{
+			BroadcasterID: broadcasterID,
+			First:         &first,
+		},
+		helix.WithPageLimit(10000),
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	var count int64
+	for pager.Next(ctx) {
+		count += int64(len(pager.Page().Data))
+	}
+
+	return count, pager.Err()
 }

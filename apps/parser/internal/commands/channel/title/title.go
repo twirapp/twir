@@ -5,9 +5,8 @@ import (
 	"fmt"
 
 	"github.com/guregu/null"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -60,8 +59,9 @@ var SetCommand = &types.DefaultCommand{
 		}
 
 		if !parseCtx.ArgsParser.IsExists(titleArgName) {
-			channelInfo, err := twitchClient.GetChannelInformation(
-				&helix.GetChannelInformationParams{
+			channelInfo, err := twitchClient.Channels.GetChannelInformation(
+				ctx,
+				helix.GetChannelInformationRequest{
 					BroadcasterIDs: []string{parseCtx.Channel.ID},
 				},
 			)
@@ -74,7 +74,7 @@ var SetCommand = &types.DefaultCommand{
 					Err: err,
 				}
 			}
-			if len(channelInfo.Data.Channels) == 0 {
+			if len(channelInfo.Data) == 0 {
 				return nil, &types.CommandHandlerError{
 					Message: i18n.GetCtx(
 						ctx,
@@ -89,23 +89,24 @@ var SetCommand = &types.DefaultCommand{
 				}
 			}
 
-			result.Result = append(result.Result, channelInfo.Data.Channels[0].Title)
+			result.Result = append(result.Result, channelInfo.Data[0].Title)
 			return result, nil
 		}
 
 		title := parseCtx.ArgsParser.Get(titleArgName).String()
 
-		req, err := twitchClient.EditChannelInformation(
-			&helix.EditChannelInformationParams{
+		_, err = twitchClient.Channels.ModifyChannelInformation(
+			ctx,
+			helix.ModifyChannelInformationRequest{
 				BroadcasterID: parseCtx.Channel.ID,
-				Title:         title,
+				Title:         &title,
 			},
 		)
 
-		if err != nil || req.StatusCode != 204 {
+		if err != nil {
 			result.Result = append(
 				result.Result,
-				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else(i18n.GetCtx(ctx, locales.Translations.Errors.Generic.Internal)),
+				i18n.GetCtx(ctx, locales.Translations.Errors.Generic.Internal),
 			)
 			return result, nil
 		}

@@ -719,27 +719,6 @@ services:
         constraints:
           - node.labels.databases != true
 
-  tokens:
-    image: registry.twir.app/twirapp/tokens:${TWIR_IMAGE_TAG:-latest}
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-    deploy:
-      update_config:
-        parallelism: 2
-        order: start-first
-      mode: replicated
-      replicas: 4
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.labels.databases != true
-
   emotes-cacher:
     image: registry.twir.app/twirapp/emotes-cacher:${TWIR_IMAGE_TAG:-latest}
     secrets:

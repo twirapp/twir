@@ -23,7 +23,7 @@ import (
 
 	model "github.com/twirapp/twir/libs/gomodels"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 
 	googleuuid "github.com/google/uuid"
 	uuid "github.com/satori/go.uuid"
@@ -455,20 +455,21 @@ func validate(
 
 	if settings.UserMinFollowTime != 0 {
 		neededDuration := time.Minute * time.Duration(settings.UserMinFollowTime)
-		followReq, err := twitchClient.GetUsersFollows(
-			&helix.UsersFollowsParams{
-				FromID: platformUserID,
-				ToID:   platformChannelID,
+		followReq, err := twitchClient.Channels.GetFollowedChannels(
+			ctx,
+			helix.GetFollowedChannelsRequest{
+				UserID:        platformUserID,
+				BroadcasterID: &platformChannelID,
 			},
 		)
 		if err != nil {
 			return errors.New(i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Validate.Errors.InternalError))
 		}
-		if followReq.Data.Total == 0 {
+		if len(followReq.Data) == 0 {
 			return errors.New(i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Validate.Errors.NeedFollow))
 		}
 
-		followDuration := time.Since(followReq.Data.Follows[0].FollowedAt)
+		followDuration := time.Since(followReq.Data[0].FollowedAt.Time)
 		if followDuration.Minutes() < neededDuration.Minutes() {
 			message := fasttemplate.ExecuteString(
 				settings.TranslationsUserMinFollow,

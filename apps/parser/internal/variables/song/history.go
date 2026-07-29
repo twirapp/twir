@@ -12,11 +12,9 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
-	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 	"go.uber.org/zap"
 )
 
@@ -67,17 +65,11 @@ var History = &types.Variable{
 		if err != nil {
 			parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.GetSpotifyEntity), zap.Error(err))
 		} else if spotifyEntity.AccessToken != "" {
-			spotifyToken, err := parseCtx.Services.Bus.Tokens.RequestChannelIntegrationToken.Request(
-				ctx,
-				buscoretokens.GetChannelIntegrationTokenRequest{
-					ChannelID: parseCtx.Channel.DBChannelID,
-					Service:   integrationsmodel.ServiceSpotify,
-				},
-			)
+			spotifyToken, err := parseCtx.Services.SpotifyTokens.Token(ctx, parseCtx.Channel.DBChannelID)
 			if err != nil {
 				parseCtx.Services.Logger.Error(i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.FailedGetSpotifyIntegration), zap.Error(err))
 			} else {
-				spotifyService = spotify.NewStatic(spotifyToken.Data.AccessToken, spotifyEntity.Scopes)
+				spotifyService = spotify.NewStatic(spotifyToken.AccessToken, spotifyEntity.Scopes)
 			}
 		}
 

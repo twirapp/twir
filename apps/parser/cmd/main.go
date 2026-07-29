@@ -40,6 +40,8 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/i18n"
+	spotifyoauth "github.com/twirapp/twir/libs/oauth/spotify"
+	kickoauth "github.com/twirapp/twir/libs/oauth/kick"
 	"github.com/twirapp/twir/libs/otel"
 	channelspgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	channelscategoriesaliasespgx "github.com/twirapp/twir/libs/repositories/channels_categories_aliases/datasource/postgres"
@@ -54,6 +56,7 @@ import (
 	chatmessagesrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/chat_messages/datasources/clickhouse"
 	commandswithgroupsandresponsespostgres "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 	faceitintegrationpostgres "github.com/twirapp/twir/libs/repositories/faceit_integration/datasource/postgres"
+	integrationspostgres "github.com/twirapp/twir/libs/repositories/integrations/datasource/postgres"
 	overlaysttspgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
 	quotespgx "github.com/twirapp/twir/libs/repositories/quotes/pgx"
 	scheduledvipsrepositorypgx "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
@@ -247,6 +250,15 @@ func main() {
 	ttsRepository := overlaysttspgx.NewFx(pgxconn)
 	ttsSettingsCacher := ttscache.NewTTSSettings(ttsRepository, kvStorageRedis)
 	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
+	integrationsRepo := integrationspostgres.NewFx(pgxconn)
+	spotifyTokens, err := spotifyoauth.NewTokenSource(
+		spotifyoauth.SourceOptions{Redis: redisClient},
+		spotifyRepo,
+		integrationsRepo,
+	)
+	if err != nil {
+		panic(fmt.Errorf("create Spotify token source: %w", err))
+	}
 	usersRepo := usersrepositorypgx.New(usersrepositorypgx.Opts{PgxPool: pgxconn})
 	channelsCategoriesAliasesRepo := channelscategoriesaliasespgx.New(channelscategoriesaliasespgx.Opts{PgxPool: pgxconn})
 	channelsRepo := channelspgx.New(channelspgx.Opts{PgxPool: pgxconn})
@@ -293,6 +305,13 @@ func main() {
 		},
 	)
 
+	kickAppTokens, err := kickoauth.NewAppTokenSource(kickoauth.SourceOptions{
+		ClientID: config.KickClientId, ClientSecret: config.KickClientSecret, Redis: redisClient,
+	})
+	if err != nil {
+		panic(fmt.Errorf("create Kick app token source: %w", err))
+	}
+
 	s := &services.Services{
 		Config:     config,
 		Logger:     logger,
@@ -320,6 +339,7 @@ func main() {
 		TTSRepository:            ttsRepository,
 		TTSService:               tts.New(ttsRepository, config),
 		SpotifyRepo:              spotifyRepo,
+		SpotifyTokens:            spotifyTokens,
 		UsersRepo:                usersRepo,
 		CategoriesAliasesRepo:    channelsCategoriesAliasesRepo,
 		ChannelsRepo:             channelsRepo,
@@ -345,6 +365,7 @@ func main() {
 		UsersWithStatsRepository:   usersWithStatsRepository,
 		QuotesRepo:                 quotesRepo,
 		QuotesCacher:               quotesCacher,
+		KickAppTokens:              kickAppTokens,
 	}
 
 	variablesService := variables.New(

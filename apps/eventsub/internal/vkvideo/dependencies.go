@@ -9,12 +9,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/vk"
+	oauthvkvideo "github.com/twirapp/twir/libs/oauth/vkvideo"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
@@ -47,18 +46,16 @@ type messageDeduplicator interface {
 	Claim(context.Context, string) (bool, error)
 }
 
-type busTokenProvider struct {
-	request interface {
-		Request(context.Context, buscoretokens.GetUserTokenRequest) (*buscore.QueueResponse[buscoretokens.TokenResponse], error)
-	}
+type runtimeTokenProvider struct {
+	source oauthvkvideo.UserTokenSource
 }
 
-func (p busTokenProvider) GetUserToken(ctx context.Context, userID uuid.UUID) (string, error) {
-	response, err := p.request.Request(ctx, buscoretokens.GetUserTokenRequest{UserId: userID})
+func (p runtimeTokenProvider) GetUserToken(ctx context.Context, userID uuid.UUID) (string, error) {
+	credential, err := p.source.Token(ctx, userID)
 	if err != nil {
-		return "", fmt.Errorf("request VK Video user token: %w", err)
+		return "", fmt.Errorf("load VK Video user token: %w", err)
 	}
-	return response.Data.AccessToken, nil
+	return credential.AccessToken, nil
 }
 
 type devAPIWebSocketTokenProvider struct {

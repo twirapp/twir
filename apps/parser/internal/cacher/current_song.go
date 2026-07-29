@@ -10,12 +10,10 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/types"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
-	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 	"go.uber.org/zap"
 )
 
@@ -63,17 +61,11 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		return nil
 	}
 	if spotifyEntity.AccessToken != "" {
-		spotifyToken, err := c.services.Bus.Tokens.RequestChannelIntegrationToken.Request(
-			ctx,
-			buscoretokens.GetChannelIntegrationTokenRequest{
-					ChannelID: c.parseCtxChannel.DBChannelID,
-				Service:   integrationsmodel.ServiceSpotify,
-			},
-		)
+		spotifyToken, err := c.services.SpotifyTokens.Token(ctx, c.parseCtxChannel.DBChannelID)
 		if err != nil {
 			c.services.Logger.Error("failed to get spotify integration", zap.Error(err))
 		} else {
-			spotifyService = spotify.NewStatic(spotifyToken.Data.AccessToken, spotifyEntity.Scopes)
+			spotifyService = spotify.NewStatic(spotifyToken.AccessToken, spotifyEntity.Scopes)
 		}
 	}
 

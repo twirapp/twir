@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -79,8 +79,9 @@ var SongRequesters = &types.Variable{
 			return result, nil
 		}
 
-		twitchUsers, err := twitchClient.GetUsers(
-			&helix.UsersParams{
+		twitchUsers, err := twitchClient.Users.GetUsers(
+			ctx,
+			helix.GetUsersRequest{
 				IDs: lo.Map(
 					dbEntities, func(item model.RequestedSong, _ int) string {
 						return item.OrderedById
@@ -96,7 +97,7 @@ var SongRequesters = &types.Variable{
 
 		for _, entity := range dbEntities {
 			user, ok := lo.Find(
-				twitchUsers.Data.Users, func(item helix.User) bool {
+				twitchUsers.Data, func(item helix.User) bool {
 					return item.ID == entity.OrderedById
 				},
 			)

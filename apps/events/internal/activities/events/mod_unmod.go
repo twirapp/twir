@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/repositories/events/model"
@@ -47,7 +47,7 @@ func (c *Activity) ModOrUnmod(
 	var user helix.User
 	errWg.Go(
 		func() error {
-			u, err := c.getHelixUserByLogin(twitchClient, hydratedName)
+			u, err := c.getHelixUserByLogin(ctx, twitchClient, hydratedName)
 			if err != nil {
 				return err
 			}
@@ -60,7 +60,7 @@ func (c *Activity) ModOrUnmod(
 
 	errWg.Go(
 		func() error {
-			m, err := c.getChannelMods(twitchClient, twitchBroadcasterID(data))
+			m, err := c.getChannelMods(ctx, twitchClient, twitchBroadcasterID(data))
 			if err != nil {
 				return err
 			}
@@ -103,34 +103,28 @@ func (c *Activity) ModOrUnmod(
 			return nil
 		}
 
-		resp, err := twitchClient.AddChannelModerator(
-			&helix.AddChannelModeratorParams{
+		_, err := twitchClient.Moderation.AddChannelModerator(
+			ctx, helix.AddChannelModeratorRequest{
 				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
 		if err != nil {
 			return err
-		}
-		if resp.ErrorMessage != "" {
-			return errors.New(resp.ErrorMessage)
 		}
 	} else {
 		if !isAlreadyMod {
 			return errors.New("not a mod")
 		}
 
-		resp, err := twitchClient.RemoveChannelModerator(
-			&helix.RemoveChannelModeratorParams{
+		_, err := twitchClient.Moderation.RemoveChannelModerator(
+			ctx, helix.RemoveChannelModeratorRequest{
 				BroadcasterID: twitchBroadcasterID(data),
 				UserID:        user.ID,
 			},
 		)
 		if err != nil {
 			return err
-		}
-		if resp.ErrorMessage != "" {
-			return errors.New(resp.ErrorMessage)
 		}
 	}
 
@@ -154,7 +148,7 @@ func (c *Activity) UnmodRandom(
 		return twitchClientErr
 	}
 
-	mods, modsErr := c.getChannelMods(twitchClient, twitchBroadcasterID(data))
+	mods, modsErr := c.getChannelMods(ctx, twitchClient, twitchBroadcasterID(data))
 	if modsErr != nil {
 		return modsErr
 	}
@@ -167,8 +161,8 @@ func (c *Activity) UnmodRandom(
 	)
 	randomMod := lo.Sample(filteredMods)
 
-	removeReq, err := twitchClient.RemoveChannelModerator(
-		&helix.RemoveChannelModeratorParams{
+	_, err := twitchClient.Moderation.RemoveChannelModerator(
+		ctx, helix.RemoveChannelModeratorRequest{
 			BroadcasterID: twitchBroadcasterID(data),
 			UserID:        randomMod.UserID,
 		},
@@ -176,10 +170,6 @@ func (c *Activity) UnmodRandom(
 	if err != nil {
 		return err
 	}
-	if removeReq.ErrorMessage != "" {
-		return errors.New(removeReq.ErrorMessage)
-	}
-
 	// if len(c.data.PrevOperation.UnmodedUserName) > 0 {
 	// 	c.data.PrevOperation.UnmodedUserName += ", " + randomMod.UserName
 	// } else {
