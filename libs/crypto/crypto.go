@@ -17,6 +17,8 @@ var (
 	ErrInvalidPKCS7Padding     = errors.New("invalid PKCS#7 padding")
 )
 
+const maxPKCS7BlockSize = 255
+
 func Encrypt(unencrypted, cipherKey string) (string, error) {
 	key := []byte(cipherKey)
 	plainText := []byte(unencrypted)
@@ -74,12 +76,15 @@ func Decrypt(encrypted, cipherKey string) (string, error) {
 }
 
 func Pad(buf []byte, size int) ([]byte, error) {
-	if size <= 0 {
-		return nil, ErrInvalidBlockSize
+	if err := validatePKCS7BlockSize(size); err != nil {
+		return nil, err
 	}
 
 	bufLen := len(buf)
 	padLen := size - bufLen%size
+	if bufLen > int(^uint(0)>>1)-padLen {
+		return nil, ErrInvalidBlockSize
+	}
 	padded := make([]byte, bufLen+padLen)
 	copy(padded, buf)
 	for i := range padLen {
@@ -89,8 +94,8 @@ func Pad(buf []byte, size int) ([]byte, error) {
 }
 
 func Unpad(padded []byte, size int) ([]byte, error) {
-	if size <= 0 {
-		return nil, ErrInvalidBlockSize
+	if err := validatePKCS7BlockSize(size); err != nil {
+		return nil, err
 	}
 	if len(padded) == 0 || len(padded)%size != 0 {
 		return nil, ErrInvalidPKCS7Padding
@@ -110,4 +115,12 @@ func Unpad(padded []byte, size int) ([]byte, error) {
 	buf := make([]byte, bufLen)
 	copy(buf, padded[:bufLen])
 	return buf, nil
+}
+
+func validatePKCS7BlockSize(size int) error {
+	if size <= 0 || size > maxPKCS7BlockSize {
+		return ErrInvalidBlockSize
+	}
+
+	return nil
 }
