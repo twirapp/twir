@@ -108,6 +108,9 @@ type Config struct {
 	VKVideoAuthBaseURL   string `required:"false" default:"https://auth.live.vkvideo.ru" envconfig:"VK_VIDEO_AUTH_BASE_URL"`
 	VKVideoDevAPIBaseURL string `required:"false" default:"https://apidev.live.vkvideo.ru" envconfig:"VK_VIDEO_DEVAPI_BASE_URL"`
 
+	YouTubeClientID     string `required:"false" envconfig:"YOUTUBE_CLIENT_ID"`
+	YouTubeClientSecret string `required:"false" envconfig:"YOUTUBE_CLIENT_SECRET"`
+
 	FaceitClientId     string `required:"false" envconfig:"FACEIT_CLIENT_ID"`
 	FaceitClientSecret string `required:"false" envconfig:"FACEIT_CLIENT_SECRET"`
 	FaceitApiKey       string `required:"false" envconfig:"FACEIT_API_KEY"`
@@ -135,6 +138,10 @@ func (c *Config) IsDevelopment() bool {
 
 func (c *Config) IsVkVideoEnabled() bool {
 	return c.VKVideoClientID != "" && c.VKVideoClientSecret != ""
+}
+
+func (c *Config) IsYouTubeEnabled() bool {
+	return c.YouTubeClientID != "" && c.YouTubeClientSecret != ""
 }
 
 func (c *Config) GetTwitchCallbackUrl() string {
@@ -171,6 +178,24 @@ func (c *Config) GetKickCallbackUrl() string {
 	}
 
 	return u.JoinPath("login", "kick").String()
+}
+
+func (c *Config) GetYouTubeCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("login", "youtube").String()
+}
+
+func (c *Config) GetYouTubeBotCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("api", "auth", "youtube", "bot-callback").String()
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

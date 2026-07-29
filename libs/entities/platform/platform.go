@@ -18,6 +18,7 @@ const (
 	PlatformTwitch      Platform = "twitch"
 	PlatformKick        Platform = "kick"
 	PlatformVKVideoLive Platform = "vk_video_live"
+	PlatformYouTube     Platform = "youtube"
 )
 
 const (
@@ -52,11 +53,16 @@ var capabilitiesByPlatform = map[Platform]Capabilities{
 	PlatformVKVideoLive: {
 		CapabilityChatWrite,
 	},
+	PlatformYouTube: {
+		CapabilityChatRead,
+		CapabilityChatWrite,
+		CapabilityStreamsRead,
+	},
 }
 
 func (p Platform) IsValid() bool {
 	switch p {
-	case PlatformTwitch, PlatformKick, PlatformVKVideoLive:
+	case PlatformTwitch, PlatformKick, PlatformVKVideoLive, PlatformYouTube:
 		return true
 	}
 	return false
@@ -69,6 +75,7 @@ func (Platform) Schema(r huma.Registry) *huma.Schema {
 			string(PlatformTwitch),
 			string(PlatformKick),
 			string(PlatformVKVideoLive),
+			string(PlatformYouTube),
 		},
 	}
 }
@@ -123,5 +130,6 @@ func All() []Platform {
 		PlatformTwitch,
 		PlatformKick,
 		PlatformVKVideoLive,
+		PlatformYouTube,
 	}
 }
