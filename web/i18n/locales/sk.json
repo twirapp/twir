@@ -1381,8 +1381,8 @@
   },
   "landing": {
     "meta": {
-      "title": "Twir — chatbot pre Twitch a Kick",
-      "description": "Výkonný a užitočný Twitch bot, ktorý pomáha spravovať chat na veľkých kanáloch. Príkazy, časovače, moderácia, song requesty, giveawaye, overlaye a viac — zadarmo a open source."
+      "title": "Twir — chatbot pre Twitch, Kick a VK",
+      "description": "Výkonný a užitočný bot pre Twitch, Kick a VK Video Live, ktorý pomáha spravovať chat na veľkých kanáloch. Príkazy, časovače, moderácia, song requesty, giveawaye, overlaye a viac — zadarmo a open source."
     },
     "compareLink": "Porovnať Twir s inými botmi",
     "faq": {
@@ -1394,15 +1394,15 @@
       },
       "q2": {
         "question": "Ako pridám Twir na svoj kanál?",
-        "answer": "Prihláste sa cez Twitch alebo Kick účet, kliknite na „Pridať bota“ v dashboarde a Twir sa pripojí k vášmu chatu do minúty. Bez sťahovania a inštalácie."
+        "answer": "Prihláste sa cez Twitch, Kick alebo VK účet, kliknite na „Pridať bota“ v dashboarde a Twir sa pripojí k vášmu chatu do minúty. Bez sťahovania a inštalácie."
       },
       "q3": {
         "question": "Môžem prejsť z Nightbotu alebo StreamElements?",
         "answer": "Áno. Twir má vstavaný importný nástroj, ktorý prenesie vaše príkazy a nastavenia z Nightbotu, StreamElements a Streamlabs na pár kliknutí."
       },
       "q4": {
-        "question": "Funguje Twir na Kicku?",
-        "answer": "Áno, Twir podporuje Twitch aj Kick. Svoj Kick kanál môžete pripojiť a spravovať ho z rovnakého dashboardu."
+        "question": "Funguje Twir na Kicku a VK?",
+        "answer": "Áno, Twir podporuje Twitch, Kick aj VK Video Live. Svoje kanály môžete pripojiť a spravovať ich z rovnakého dashboardu."
       },
       "q5": {
         "question": "Je Twir open source?",
@@ -1483,7 +1483,7 @@
     },
     "values": {
       "platforms": {
-        "twir": "Twitch, Kick",
+        "twir": "Twitch, Kick, VK Video Live",
         "nightbot": "Twitch, YouTube",
         "streamelements": "Twitch, YouTube, Kick",
         "moobot": "Twitch",
@@ -1516,8 +1516,8 @@
         "answer": "Áno. Každá funkcia v porovnávacej tabuľke je zadarmo, vrátane overlayov, giveawayov a song requestov. Twir je open source a vyvíjajú ho streameri pre streamerov."
       },
       "q4": {
-        "question": "Podporuje Twir Kick?",
-        "answer": "Áno. Twir funguje s Twitchom aj Kickom z jedného dashboardu, takže môžete spravovať oba kanály na jednom mieste."
+        "question": "Podporuje Twir Kick a VK?",
+        "answer": "Áno. Twir funguje s Twitchom, Kickom aj VK Video Live z jedného dashboardu, takže môžete spravovať všetky kanály na jednom mieste."
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot a Fossabot sú ochranné známky ich príslušných vlastníkov. Twir s nimi nie je spojený ani schválený. Údaje o funkciách vychádzajú z verejných informácií a môžu sa časom meniť."
