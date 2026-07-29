@@ -28,6 +28,12 @@ const platforms = [
 		iconClass: 'text-[#0077FF]',
 		login: () => userStore.loginWithVk(),
 	},
+	{
+		label: 'YouTube',
+		icon: 'simple-icons:youtube',
+		iconClass: 'text-[#FF0000]',
+		login: () => userStore.loginWithYoutube(),
+	},
 ]
 
 const triggerClass = computed(() => {

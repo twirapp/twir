@@ -17,7 +17,8 @@ const totalChannels = computed(
 	() =>
 		(statsStore.stats?.twitchChannels ?? 0) +
 		(statsStore.stats?.kickChannels ?? 0) +
-		(statsStore.stats?.vkChannels ?? 0),
+		(statsStore.stats?.vkChannels ?? 0) +
+		(statsStore.stats?.youtubeChannels ?? 0),
 )
 
 const stats = computed(() => [
@@ -76,6 +77,10 @@ const stats = computed(() => [
 				<div class="flex items-center gap-1.5" title="VK Video Live Channels">
 					<Icon name="simple-icons:vk" class="w-4 h-4 text-[#0077FF]" />
 					<span>{{ formatNumber(statsStore.stats?.vkChannels) }}</span>
+				</div>
+				<div class="flex items-center gap-1.5" title="YouTube Channels">
+					<Icon name="simple-icons:youtube" class="w-4 h-4 text-[#FF0000]" />
+					<span>{{ formatNumber(statsStore.stats?.youtubeChannels) }}</span>
 				</div>
 			</div>
 		</div>

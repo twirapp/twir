@@ -11,10 +11,10 @@ interface OgImageRoute {
 }
 
 const description =
-	'Powerful and useful chat bot for Twitch, Kick and VK Video Live that helps manage chat on big channels. Developed from streamers for streamers with love.'
+	'Powerful and useful chat bot for Twitch, Kick, VK Video Live and YouTube that helps manage chat on big channels. Developed from streamers for streamers with love.'
 const siteName = `Twir${import.meta.dev ? ' dev' : ''}`
 const keywords =
-	'twitch, twitch bot, twitch chat, twitch moderation, twitch moderation bot, kick, kick bot, kick chat bot, vk, vk video live, vk video live bot, vk live chat bot, chat bot, moderation bot, stream bot, chat commands, chat timers, giveaways, song requests'
+	'twitch, twitch bot, twitch chat, twitch moderation, twitch moderation bot, kick, kick bot, kick chat bot, vk, vk video live, vk video live bot, vk live chat bot, youtube, youtube bot, youtube chat bot, youtube live chat bot, chat bot, moderation bot, stream bot, chat commands, chat timers, giveaways, song requests'
 
 const metaImg = '/meta.webp'
 

@@ -913,30 +913,35 @@ export enum StreamPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformAuthorizeParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformAuthorizeParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformCodeParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformCodeParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 /** @default "views" */
@@ -955,12 +960,14 @@ export enum PublicV2ChannelCommandsByPlatformIdParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum PublicV2ChannelCommandsByPlatformIdParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export type QueryParamsType = Record<string | number, any>;
