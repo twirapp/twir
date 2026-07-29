@@ -31,7 +31,9 @@ import (
 	tokensrepository "github.com/twirapp/twir/libs/repositories/tokens"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	youtubebotsrepository "github.com/twirapp/twir/libs/repositories/youtube_bots"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
+	"golang.org/x/oauth2"
 )
 
 var appTokenScopes []string
@@ -58,6 +60,7 @@ type Opts struct {
 	TokensRepository        tokensrepository.Repository
 	UsersRepository         usersrepository.Repository
 	VKVideoBotsRepo         vkvideobotsrepository.Repository
+	YouTubeBotsRepo         youtubebotsrepository.Repository
 	TrManager               trm.Manager
 }
 
@@ -74,6 +77,18 @@ type vkTokenRefresher interface {
 	RefreshToken(ctx context.Context, refreshToken string) (*vk.OAuthToken, error)
 }
 
+type youtubeTokenRefresher interface {
+	RefreshToken(ctx context.Context, refreshToken string) (*oauth2.Token, error)
+}
+
+type googleTokenRefresher struct {
+	config oauth2.Config
+}
+
+func (r googleTokenRefresher) RefreshToken(ctx context.Context, refreshToken string) (*oauth2.Token, error) {
+	return r.config.TokenSource(ctx, &oauth2.Token{RefreshToken: refreshToken}).Token()
+}
+
 type transactionRunner interface {
 	Do(context.Context, func(context.Context) error) error
 }
@@ -84,24 +99,26 @@ type tokensImpl struct {
 	appAccessToken *appToken
 	kickAppToken   *appToken
 
-	config                  cfg.Config
-	log                     *slog.Logger
-	redSync                 *redsync.Redsync
-	twirBus                 *buscore.Bus
-	kickBotsRepo            kickbotsrepository.Repository
-	integrationsRepo        integrationsrepository.Repository
-	channelIntegrationsRepo channelsintegrationsrepository.Repository
-	spotifyIntegrationsRepo channelsintegrationsspotifyrepository.Repository
-	tokensRepository        tokensrepository.Repository
-	usersRepository         usersrepository.Repository
-	vkVideoBotsRepo         vkvideobotsrepository.Repository
-	transactionRunner       transactionRunner
-	newMutex                func(name string) lockableMutex
-	newKickTokenRefresher   func() (kickTokenRefresher, error)
-	newVKTokenRefresher     func() (vkTokenRefresher, error)
-	newVKBotTokenRefresher  func() (vkTokenRefresher, error)
-	spotifyTokenURL         string
-	nightbotTokenURL        string
+	config                   cfg.Config
+	log                      *slog.Logger
+	redSync                  *redsync.Redsync
+	twirBus                  *buscore.Bus
+	kickBotsRepo             kickbotsrepository.Repository
+	integrationsRepo         integrationsrepository.Repository
+	channelIntegrationsRepo  channelsintegrationsrepository.Repository
+	spotifyIntegrationsRepo  channelsintegrationsspotifyrepository.Repository
+	tokensRepository         tokensrepository.Repository
+	usersRepository          usersrepository.Repository
+	vkVideoBotsRepo          vkvideobotsrepository.Repository
+	youtubeBotsRepo          youtubebotsrepository.Repository
+	transactionRunner        transactionRunner
+	newMutex                 func(name string) lockableMutex
+	newKickTokenRefresher    func() (kickTokenRefresher, error)
+	newVKTokenRefresher      func() (vkTokenRefresher, error)
+	newVKBotTokenRefresher   func() (vkTokenRefresher, error)
+	newYouTubeTokenRefresher func() youtubeTokenRefresher
+	spotifyTokenURL          string
+	nightbotTokenURL         string
 }
 
 func rateLimitFunc(lastResponse *helix.Response) error {
@@ -172,6 +189,7 @@ func NewTokens(opts Opts) error {
 		tokensRepository:        opts.TokensRepository,
 		usersRepository:         opts.UsersRepository,
 		vkVideoBotsRepo:         opts.VKVideoBotsRepo,
+		youtubeBotsRepo:         opts.YouTubeBotsRepo,
 		transactionRunner:       opts.TrManager,
 		newMutex: func(name string) lockableMutex {
 			return opts.Redsync.NewMutex(name)
@@ -202,6 +220,12 @@ func NewTokens(opts Opts) error {
 				AuthBaseURL:   opts.Config.VKVideoAuthBaseURL,
 				DevAPIBaseURL: opts.Config.VKVideoDevAPIBaseURL,
 			})
+		},
+		newYouTubeTokenRefresher: func() youtubeTokenRefresher {
+			return googleTokenRefresher{config: oauth2.Config{
+				ClientID: opts.Config.YouTubeClientID, ClientSecret: opts.Config.YouTubeClientSecret,
+				Endpoint: oauth2.Endpoint{TokenURL: "https://oauth2.googleapis.com/token"},
+			}}
 		},
 		spotifyTokenURL:  "https://accounts.spotify.com/api/token",
 		nightbotTokenURL: "https://api.nightbot.tv/oauth2/token",
@@ -384,6 +408,22 @@ func (c *tokensImpl) RequestUserToken(
 			refreshedRefreshToken = vkTokens.RefreshToken
 			refreshedExpiresIn = vkTokens.ExpiresIn
 			refreshedScopes = vkTokens.Scopes
+		case platformentity.PlatformYouTube:
+			youtubeTokens, refreshErr := c.refreshYouTubeToken(ctx, decryptedRefreshToken)
+			if refreshErr != nil {
+				return tokens.TokenResponse{}, fmt.Errorf("YouTube refresh token: %w", refreshErr)
+			}
+			if youtubeTokens.RefreshToken == "" {
+				youtubeTokens.RefreshToken = decryptedRefreshToken
+			}
+			refreshedAccessToken = youtubeTokens.AccessToken
+			refreshedRefreshToken = youtubeTokens.RefreshToken
+			refreshedExpiresIn = int(time.Until(youtubeTokens.Expiry).Seconds())
+			if refreshedExpiresIn < 0 {
+				refreshedExpiresIn = 0
+			}
+			scope, _ := youtubeTokens.Extra("scope").(string)
+			refreshedScopes = strings.Fields(scope)
 		default:
 			newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 			if err != nil {
@@ -493,6 +533,10 @@ func (c *tokensImpl) refreshVKToken(ctx context.Context, refreshToken string) (*
 	return client.RefreshToken(ctx, refreshToken)
 }
 
+func (c *tokensImpl) refreshYouTubeToken(ctx context.Context, refreshToken string) (*oauth2.Token, error) {
+	return c.newYouTubeTokenRefresher().RefreshToken(ctx, refreshToken)
+}
+
 func (c *tokensImpl) RequestBotToken(
 	ctx context.Context,
 	data tokens.GetBotTokenRequest,
@@ -507,6 +551,9 @@ func (c *tokensImpl) RequestBotToken(
 	}
 	if platform == platformentity.PlatformVKVideoLive {
 		return c.requestVKVideoBotToken(ctx)
+	}
+	if platform == platformentity.PlatformYouTube {
+		return c.requestYouTubeBotToken(ctx)
 	}
 
 	mu := c.newMutex("tokens-bots-lock-" + data.BotId)
@@ -667,6 +714,76 @@ func (c *tokensImpl) refreshVKVideoBotToken(ctx context.Context, refreshToken st
 	}
 
 	return client.RefreshToken(ctx, refreshToken)
+}
+
+func (c *tokensImpl) requestYouTubeBotToken(ctx context.Context) (tokens.TokenResponse, error) {
+	mu := c.newMutex("tokens-youtube-bot-lock")
+	if err := mu.Lock(); err != nil {
+		return tokens.TokenResponse{}, fmt.Errorf("lock YouTube bot token: %w", err)
+	}
+	defer mu.Unlock()
+
+	var response tokens.TokenResponse
+	err := c.transactionRunner.Do(ctx, func(txCtx context.Context) error {
+		bot, err := c.youtubeBotsRepo.Get(txCtx)
+		if err != nil {
+			return fmt.Errorf("get YouTube bot singleton: %w", err)
+		}
+
+		if isTokenExpired(bot.ExpiresIn, bot.ObtainmentTimestamp) {
+			if bot.EncryptedRefreshToken == "" {
+				return errors.New("YouTube bot refresh token is missing")
+			}
+			refreshToken, err := crypto.Decrypt(bot.EncryptedRefreshToken, c.config.TokensCipherKey)
+			if err != nil {
+				return fmt.Errorf("decrypt YouTube bot refresh token: %w", err)
+			}
+			if refreshToken == "" {
+				return errors.New("YouTube bot refresh token is missing")
+			}
+
+			refreshedToken, err := c.refreshYouTubeToken(txCtx, refreshToken)
+			if err != nil {
+				return fmt.Errorf("refresh YouTube bot token: %w", err)
+			}
+			if refreshedToken.RefreshToken == "" {
+				refreshedToken.RefreshToken = refreshToken
+			}
+			encryptedAccessToken, err := crypto.Encrypt(refreshedToken.AccessToken, c.config.TokensCipherKey)
+			if err != nil {
+				return fmt.Errorf("encrypt YouTube bot access token: %w", err)
+			}
+			encryptedRefreshToken, err := crypto.Encrypt(refreshedToken.RefreshToken, c.config.TokensCipherKey)
+			if err != nil {
+				return fmt.Errorf("encrypt YouTube bot refresh token: %w", err)
+			}
+			expiresIn := int(time.Until(refreshedToken.Expiry).Seconds())
+			if expiresIn < 0 {
+				expiresIn = 0
+			}
+			scope, _ := refreshedToken.Extra("scope").(string)
+			bot, err = c.youtubeBotsRepo.Update(txCtx, youtubebotsrepository.UpdateInput{
+				EncryptedAccessToken: encryptedAccessToken, EncryptedRefreshToken: encryptedRefreshToken,
+				Scopes: strings.Fields(scope), ExpiresIn: expiresIn, ObtainmentTimestamp: time.Now().UTC(), YouTubeUserID: bot.YouTubeUserID,
+			})
+			if err != nil {
+				return fmt.Errorf("persist YouTube bot token: %w", err)
+			}
+			c.log.Info("YouTube bot token refreshed", slog.String("youtube_bot_id", bot.ID.String()))
+		}
+
+		accessToken, err := crypto.Decrypt(bot.EncryptedAccessToken, c.config.TokensCipherKey)
+		if err != nil {
+			return fmt.Errorf("decrypt YouTube bot access token: %w", err)
+		}
+		response = tokens.TokenResponse{AccessToken: accessToken, Scopes: bot.Scopes, ExpiresIn: int32(bot.ExpiresIn)}
+		return nil
+	})
+	if err != nil {
+		return tokens.TokenResponse{}, err
+	}
+
+	return response, nil
 }
 
 func (c *tokensImpl) requestKickBotToken(ctx context.Context) (tokens.TokenResponse, error) {

@@ -131,3 +131,32 @@ func (r *mutationResolver) VkVideoBotSetupComplete(ctx context.Context, code str
 
 	return true, nil
 }
+
+// YoutubeBotSetupLink is the resolver for the youtubeBotSetupLink field.
+func (r *mutationResolver) YoutubeBotSetupLink(ctx context.Context) (string, error) {
+	url, err := r.deps.Auth.StartYouTubeBotSetup(ctx)
+	if err != nil {
+		return "", gqlerrors.HandleError(err)
+	}
+
+	return url, nil
+}
+
+// YoutubeBotSetupStatus is the resolver for the youtubeBotSetupStatus field.
+func (r *mutationResolver) YoutubeBotSetupStatus(ctx context.Context) (bool, error) {
+	configured, err := r.deps.Auth.YouTubeBotConfigured(ctx)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	return configured, nil
+}
+
+// YoutubeBotSetupComplete is the resolver for the youtubeBotSetupComplete field.
+func (r *mutationResolver) YoutubeBotSetupComplete(ctx context.Context, code string, state string) (bool, error) {
+	if err := r.deps.Auth.CompleteYouTubeBotSetup(ctx, code, state); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	return true, nil
+}

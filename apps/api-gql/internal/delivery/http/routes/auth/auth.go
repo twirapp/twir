@@ -16,6 +16,7 @@ import (
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	vkvideo "github.com/twirapp/twir/apps/api-gql/internal/platform/vkvideo"
+	youtube "github.com/twirapp/twir/apps/api-gql/internal/platform/youtube"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
@@ -27,6 +28,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/tokens"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkvideobotsrepo "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	youtubebotsrepo "github.com/twirapp/twir/libs/repositories/youtube_bots"
 	"go.uber.org/fx"
 )
 
@@ -49,6 +51,8 @@ type Opts struct {
 	KickBotsRepo         kickbotsrepo.Repository
 	VKVideoBotProvider   *vkvideo.BotSetupProvider
 	VKVideoBotsRepo      vkvideobotsrepo.Repository
+	YouTubeBotProvider   *youtube.Provider
+	YouTubeBotsRepo      youtubebotsrepo.Repository
 	KV                   kv.KV
 	DashboardAccess      *dashboardaccess.Service
 }
@@ -69,8 +73,11 @@ type Auth struct {
 	kickBotsRepo           kickbotsrepo.Repository
 	vkVideoBotProvider     vkVideoBotSetupProvider
 	vkVideoBotsRepo        vkvideobotsrepo.Repository
+	youtubeBotProvider     youtubeBotSetupProvider
+	youtubeBotsRepo        youtubebotsrepo.Repository
 	kv                     kv.KV
 	vkVideoBotSetupStateMu sync.Mutex
+	youtubeBotSetupStateMu sync.Mutex
 	dashboardAccess        dashboardAccessChecker
 	eventSubPublisher      eventSubPublisher
 	bindingConfigResolvers map[platformentity.Platform]platformBindingConfigResolver
@@ -110,6 +117,8 @@ func New(opts Opts) *Auth {
 		kickBotsRepo:         opts.KickBotsRepo,
 		vkVideoBotProvider:   opts.VKVideoBotProvider,
 		vkVideoBotsRepo:      opts.VKVideoBotsRepo,
+		youtubeBotProvider:   opts.YouTubeBotProvider,
+		youtubeBotsRepo:      opts.YouTubeBotsRepo,
 		kv:                   opts.KV,
 		dashboardAccess:      opts.DashboardAccess,
 	}
@@ -120,6 +129,7 @@ func New(opts Opts) *Auth {
 		platformentity.PlatformTwitch:      p.twitchBindingConfig,
 		platformentity.PlatformKick:        p.kickBindingConfig,
 		platformentity.PlatformVKVideoLive: p.vkVideoBotBindingConfig,
+		platformentity.PlatformYouTube:     p.youtubeBotBindingConfig,
 	}
 	p.postPlatformAuthHooks = map[platformentity.Platform]postPlatformAuthHook{
 		platformentity.PlatformKick: p.updateKickBotTokenAfterAuth,
@@ -255,6 +265,27 @@ func New(opts Opts) *Auth {
 			}
 
 			return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: p.config.GetVkVideoBotCallbackUrl()}), nil
+		},
+	)
+
+	huma.Register(
+		opts.Huma,
+		huma.Operation{
+			OperationID: "auth-youtube-bot-callback",
+			Method:      http.MethodGet,
+			Path:        "/auth/youtube/bot-callback",
+			Tags:        []string{"Auth"},
+			Summary:     "YouTube bot setup callback",
+		},
+		func(ctx context.Context, i *struct {
+			Code  string `query:"code"`
+			State string `query:"state"`
+		}) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
+			if err := p.CompleteYouTubeBotSetup(ctx, i.Code, i.State); err != nil {
+				return nil, huma.Error400BadRequest("Cannot complete YouTube bot setup", err)
+			}
+
+			return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: p.config.GetYouTubeBotCallbackUrl()}), nil
 		},
 	)
 

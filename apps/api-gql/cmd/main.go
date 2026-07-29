@@ -31,6 +31,7 @@ import (
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	twitchplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/platform/vkvideo"
+	youtubeplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/youtube"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
@@ -221,6 +222,8 @@ import (
 	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
 	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
 	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
+	youtubebotsrepository "github.com/twirapp/twir/libs/repositories/youtube_bots"
+	youtubebotsrepositorypgx "github.com/twirapp/twir/libs/repositories/youtube_bots/datasource/postgres"
 
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallpostgres "github.com/twirapp/twir/libs/repositories/chat_wall/datasource/postgres"
@@ -429,6 +432,10 @@ func main() {
 				fx.As(new(vkvideobotsrepository.Repository)),
 			),
 			fx.Annotate(
+				youtubebotsrepositorypgx.NewFx,
+				fx.As(new(youtubebotsrepository.Repository)),
+			),
+			fx.Annotate(
 				chatwallpostgres.NewFx,
 				fx.As(new(chatwallrepository.Repository)),
 			),
@@ -598,6 +605,7 @@ func main() {
 			kickplatform.New,
 			twitchplatform.New,
 			vkvideo.NewBotSetupProvider,
+			youtubeplatform.New,
 			newPlatformRegistry,
 			channelservice.NewChannelService,
 			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
@@ -748,9 +756,11 @@ func newPlatformRegistry(
 	config cfg.Config,
 	twitchProvider *twitchplatform.Provider,
 	kickProvider *kickplatform.Provider,
+	youtubeProvider *youtubeplatform.Provider,
 ) (*platform.Registry, error) {
 	return platform.NewFeatureGatedRegistry(
 		config.IsVkVideoEnabled(),
+		config.IsYouTubeEnabled(),
 		[]platform.PlatformProvider{twitchProvider, kickProvider},
 		func() (platform.PlatformProvider, error) {
 			provider, err := vkvideo.New(vkvideo.Opts{Config: config})
@@ -759,6 +769,9 @@ func newPlatformRegistry(
 			}
 
 			return provider, nil
+		},
+		func() (platform.PlatformProvider, error) {
+			return youtubeProvider, nil
 		},
 	)
 }

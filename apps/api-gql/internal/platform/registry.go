@@ -25,19 +25,28 @@ func NewRegistry(providers []PlatformProvider) *Registry {
 
 func NewFeatureGatedRegistry(
 	vkVideoEnabled bool,
+	youtubeEnabled bool,
 	providers []PlatformProvider,
 	newVKVideoProvider func() (PlatformProvider, error),
+	newYouTubeProvider func() (PlatformProvider, error),
 ) (*Registry, error) {
-	if !vkVideoEnabled {
-		return NewRegistry(providers), nil
+	if vkVideoEnabled {
+		vkVideoProvider, err := newVKVideoProvider()
+		if err != nil {
+			return nil, fmt.Errorf("create VK Video provider: %w", err)
+		}
+		providers = append(providers, vkVideoProvider)
 	}
 
-	vkVideoProvider, err := newVKVideoProvider()
-	if err != nil {
-		return nil, fmt.Errorf("create VK Video provider: %w", err)
+	if youtubeEnabled {
+		youtubeProvider, err := newYouTubeProvider()
+		if err != nil {
+			return nil, fmt.Errorf("create YouTube provider: %w", err)
+		}
+		providers = append(providers, youtubeProvider)
 	}
 
-	return NewRegistry(append(providers, vkVideoProvider)), nil
+	return NewRegistry(providers), nil
 }
 
 func (r *Registry) Get(platform platformentity.Platform) (PlatformProvider, bool) {
