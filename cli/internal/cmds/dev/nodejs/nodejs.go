@@ -1,5 +1,10 @@
 package nodejs
 
+import (
+	"errors"
+	"sync"
+)
+
 var appsForStart = []twirApp{
 	{name: "integrations"},
 	{name: "executron"},
@@ -35,11 +40,16 @@ func (fa *NodejsApps) Start() error {
 }
 
 func (fa *NodejsApps) Stop() error {
-	for _, app := range fa.apps {
-		if err := app.stop(); err != nil {
-			return err
-		}
+	var wg sync.WaitGroup
+	stopErrors := make([]error, len(fa.apps))
+	for i, app := range fa.apps {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			stopErrors[i] = app.stop()
+		}()
 	}
+	wg.Wait()
 
-	return nil
+	return errors.Join(stopErrors...)
 }
