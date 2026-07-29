@@ -11,25 +11,41 @@ import {
 	getYoutubeBinding,
 	listYoutubeBindings,
 } from './db.ts'
-import { LiveChatManager } from './live-chat.ts'
+import { LiveChatManager, StreamOfflineError } from './live-chat.ts'
 import { RedisBindingOwnership } from './locks.ts'
 
 const RECONCILE_INTERVAL_MS = Number.parseInt(Bun.env.YTSUB_RECONCILE_INTERVAL_MS ?? '120000', 10)
 const NATS_URL = Bun.env.NODE_ENV === 'production' ? 'nats://nats:4222' : 'nats://127.0.0.1:4222'
+
+function isOfflineError(error: unknown): boolean {
+	if (!(error instanceof Error)) {
+		return false
+	}
+	const info = (error as { info?: { status?: string; reason?: string } }).info
+	const reason = (info?.reason ?? error.message).toLowerCase()
+	return reason.includes('unavailable')
+		|| reason.includes('offline')
+		|| reason.includes('not available')
+		|| reason.includes('not live')
+}
 
 const yt = await Innertube.create()
 const nc = await connect({ servers: NATS_URL })
 const bus = newBus(nc)
 const liveChatSource: LiveChatSource = {
 	async resolve(binding) {
-		const endpoint = await yt.resolveURL(
-			`https://www.youtube.com/channel/${binding.platformChannelId}/live`
-		)
-		const info = await yt.getInfo(endpoint)
-		const liveChat = info.getLiveChat()
-		return {
-			broadcasterName:
-				info.basic_info.channel?.name ?? info.basic_info.author ?? binding.platformChannelId,
+		try {
+			const endpoint = await yt.resolveURL(
+				`https://www.youtube.com/channel/${binding.platformChannelId}/live`
+			)
+			const info = await yt.getInfo(endpoint)
+			if (info.basic_info.is_live !== true) {
+				throw new StreamOfflineError(binding.platformChannelId)
+			}
+			const liveChat = info.getLiveChat()
+			return {
+				broadcasterName:
+					info.basic_info.channel?.name ?? info.basic_info.author ?? binding.platformChannelId,
 			session: {
 				onStart(listener): void {
 					liveChat.on('start', listener)
@@ -53,6 +69,12 @@ const liveChatSource: LiveChatSource = {
 					liveChat.stop()
 				},
 			},
+		}
+		} catch (error) {
+			if (error instanceof StreamOfflineError || isOfflineError(error)) {
+				throw new StreamOfflineError(binding.platformChannelId)
+			}
+			throw error
 		}
 	},
 }

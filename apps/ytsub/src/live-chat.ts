@@ -17,6 +17,13 @@ import type { RetryScheduler } from './live-chat-scheduler.ts'
 const RETRY_BASE_MS = 1_000
 const RETRY_MAX_MS = 120_000
 
+export class StreamOfflineError extends Error {
+	constructor(platformChannelId: string) {
+		super(`YouTube stream ${platformChannelId} is offline`)
+		this.name = 'StreamOfflineError'
+	}
+}
+
 type Bus = {
 	readonly ChatMessages: {
 		publish(message: ReturnType<typeof normalizeYoutubeTextMessage>): Promise<void>
@@ -214,7 +221,7 @@ export class LiveChatManager {
 				this.#finishWithRetry(binding, generation, resolved.session, error)
 			})
 			resolved.session.onEnd(() => {
-				this.#finishWithRetry(binding, generation, resolved.session, new Error('live chat ended'))
+				this.#finishWithRetry(binding, generation, resolved.session, new StreamOfflineError(binding.platformChannelId))
 			})
 			if (!this.#isCurrent(binding, generation)) {
 				resolved.session.stop()
@@ -227,7 +234,11 @@ export class LiveChatManager {
 		} catch (error) {
 			if (this.#isCurrent(binding, generation)) {
 				this.#stopSession(binding.id, generation)
-				this.#scheduleRetry(binding, generation, error instanceof Error ? error : new Error('YouTube live chat startup failed'))
+				if (error instanceof StreamOfflineError) {
+					this.#scheduleRetry(binding, generation, error, true)
+				} else {
+					this.#scheduleRetry(binding, generation, error instanceof Error ? error : new Error('YouTube live chat startup failed'), false)
+				}
 			}
 		}
 	}
@@ -275,17 +286,21 @@ export class LiveChatManager {
 			return
 		}
 		this.#stopSession(binding.id, generation)
-		this.#scheduleRetry(binding, generation, error)
+		this.#scheduleRetry(binding, generation, error, error instanceof StreamOfflineError)
 	}
 
-	#scheduleRetry(binding: ChannelBinding, generation: number, error: Error): void {
+	#scheduleRetry(binding: ChannelBinding, generation: number, error: Error, quiet = false): void {
 		if (!this.#isCurrent(binding, generation) || this.#retryTimers.has(binding.id)) {
 			return
 		}
 		const attempt = (this.#attempts.get(binding.id) ?? 0) + 1
 		this.#attempts.set(binding.id, attempt)
 		const delay = Math.min(RETRY_BASE_MS * 2 ** (attempt - 1), RETRY_MAX_MS)
-		console.warn(`YouTube live chat unavailable for ${binding.platformChannelId}; retrying in ${delay}ms`, error)
+		if (quiet) {
+			console.debug(`YouTube stream offline for ${binding.platformChannelId}; retrying in ${delay}ms`)
+		} else {
+			console.warn(`YouTube live chat unavailable for ${binding.platformChannelId}; retrying in ${delay}ms`, error)
+		}
 		const cancel = (this.options.retryScheduler ?? defaultRetryScheduler).schedule(delay, () => {
 			this.#retryTimers.delete(binding.id)
 			void this.#start(binding, generation)

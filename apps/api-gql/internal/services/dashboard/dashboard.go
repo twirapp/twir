@@ -3,6 +3,7 @@ package dashboard
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -485,7 +486,9 @@ func (c *Service) getPlatformStats(
 
 		parsedMessages, err := c.kv.Get(ctx, redis_keys.StreamParsedMessages(stream.ID)).Int()
 		if err != nil {
-			c.logger.Error("cannot get platform chat messages", logger.Error(err), slog.String("platform", binding.Platform.String()))
+			if !errors.Is(err, kv.ErrKeyNil) {
+				c.logger.Error("cannot get platform chat messages", logger.Error(err), slog.String("platform", binding.Platform.String()))
+			}
 		} else {
 			stats.ChatMessages = int(parsedMessages)
 		}
