@@ -16,6 +16,7 @@ func TestAll(t *testing.T) {
 		PlatformTwitch,
 		PlatformKick,
 		PlatformVKVideoLive,
+		PlatformYouTube,
 	}
 
 	if got := All(); !slices.Equal(got, want) {
@@ -32,6 +33,7 @@ func TestPlatformIsValid(t *testing.T) {
 		{name: "twitch", platform: PlatformTwitch, want: true},
 		{name: "kick", platform: PlatformKick, want: true},
 		{name: "VK Video Live", platform: PlatformVKVideoLive, want: true},
+		{name: "YouTube", platform: PlatformYouTube, want: true},
 		{name: "unknown", platform: "unknown", want: false},
 		{name: "empty", platform: "", want: false},
 	}
@@ -51,6 +53,7 @@ func TestPlatformSchema(t *testing.T) {
 		string(PlatformTwitch),
 		string(PlatformKick),
 		string(PlatformVKVideoLive),
+		string(PlatformYouTube),
 	}
 
 	if !slices.Equal(schema.Enum, want) {
@@ -132,6 +135,13 @@ func TestPlatformCapabilities(t *testing.T) {
 			},
 		},
 		{platform: PlatformVKVideoLive, want: Capabilities{CapabilityChatWrite}},
+		{
+			platform: PlatformYouTube,
+			want: Capabilities{
+				CapabilityChatRead,
+				CapabilityChatWrite,
+			},
+		},
 		{platform: "unknown", want: Capabilities{}},
 	}
 
