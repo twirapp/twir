@@ -77,6 +77,7 @@ type redisLease struct {
 	options       RedisLockerOptions
 	done          chan struct{}
 	once          sync.Once
+	releaseErr    error
 }
 
 func (l *redisLease) Context() context.Context { return l.ctx }
@@ -109,19 +110,22 @@ func (l *redisLease) Release(ctx context.Context) (err error) {
 		select {
 		case <-l.done:
 		case <-ctx.Done():
-			err = ctx.Err()
+			l.releaseErr = ctx.Err()
 			return
 		}
 		op, cancel := context.WithTimeout(ctx, l.options.Timeout)
 		defer cancel()
 		n, e := l.client.Eval(op, releaseScript, []string{l.key}, l.owner).Int()
 		if e != nil {
-			err = fmt.Errorf("%w: release: %w", ErrCoordinator, e)
+			l.releaseErr = fmt.Errorf("%w: release: %w", ErrCoordinator, e)
 			return
 		}
 		if n == 0 {
 			l.cancel(ErrLeaseLost)
+			l.releaseErr = ErrLeaseLost
+			return
 		}
+		l.cancel(context.Canceled)
 	})
-	return err
+	return l.releaseErr
 }

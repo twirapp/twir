@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -20,6 +21,7 @@ type RefreshRuntime struct {
 	skew      time.Duration
 	observer  Observer
 	closed    chan struct{}
+	closeOnce sync.Once
 }
 
 func NewRefreshRuntime(store Store, refresher Refresher, locker Locker, options RuntimeOptions) (*RefreshRuntime, error) {
@@ -34,13 +36,8 @@ func NewRefreshRuntime(store Store, refresher Refresher, locker Locker, options 
 }
 
 func (r *RefreshRuntime) Close() error {
-	select {
-	case <-r.closed:
-		return nil
-	default:
-		close(r.closed)
-		return nil
-	}
+	r.closeOnce.Do(func() { close(r.closed) })
+	return nil
 }
 
 func (r *RefreshRuntime) Refresh(ctx context.Context, key CredentialKey) (credential Credential, err error) {

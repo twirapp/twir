@@ -2,6 +2,8 @@ package oauth
 
 import (
 	"context"
+	"errors"
+	"sync"
 	"testing"
 	"time"
 )
@@ -27,6 +29,28 @@ func TestRefreshRuntimePreservesOmittedRefreshToken(t *testing.T) {
 	}
 	if credential.RefreshToken != "keep" {
 		t.Fatalf("refresh token = %q", credential.RefreshToken)
+	}
+}
+
+func TestRefreshRuntimeCloseIsConcurrentSafe(t *testing.T) {
+	runtime, err := NewRefreshRuntime(&memoryStore{}, refreshFunc(func(context.Context, Credential) (RefreshResult, error) { return RefreshResult{}, nil }), immediateLocker{}, RuntimeOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var group sync.WaitGroup
+	for range 16 {
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			if err := runtime.Close(); err != nil {
+				t.Error(err)
+			}
+		}()
+	}
+	group.Wait()
+	_, err = runtime.Refresh(context.Background(), CredentialKey{Provider: "kick", ID: "id"})
+	if !errors.Is(err, ErrClosed) {
+		t.Fatalf("error = %v", err)
 	}
 }
 
