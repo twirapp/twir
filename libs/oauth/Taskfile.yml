@@ -1,0 +1,9 @@
+version: "3"
+
+tasks:
+  test:
+    cmds:
+      - ./test-real-redis.sh go test -race -v ./... -count=10 -timeout=15m
+  stress:
+    cmds:
+      - ./test-real-redis.sh go test -race -v ./... -run 'Test(RedisLocker|RefreshRuntimeRealRedis|AppTokenSourceRealRedis)' -count=50 -timeout=15m
