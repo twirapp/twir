@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL } from '@twir/brand'
 import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
-import LoginDropdown from '~~/layers/landing/components/login-dropdown.vue'
 
 import { UserStoreKey } from '~/stores/user'
 

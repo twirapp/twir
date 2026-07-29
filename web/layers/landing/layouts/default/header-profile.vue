@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import LoginDropdown from '~~/layers/landing/components/login-dropdown.vue'
-
 import { UserStoreKey } from '~/stores/user'
 
 const userStore = useAuth()
