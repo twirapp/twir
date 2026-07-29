@@ -10,6 +10,7 @@ import {
 	useDashboardWidgetsDelete,
 	useDashboardWidgetsUpdateCustom,
 } from '@/api/dashboard-widgets-layout.js'
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import { CardContent } from '@/components/ui/card'
 import {
@@ -36,6 +37,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const isEditDialogOpen = ref(false)
+const isDeleteConfirmOpen = ref(false)
 const updateMutation = useDashboardWidgetsUpdateCustom()
 const deleteMutation = useDashboardWidgetsDelete()
 
@@ -83,10 +85,6 @@ const onSubmitEdit = handleSubmit(async (values) => {
 })
 
 const onDelete = async () => {
-	if (!confirm(`Are you sure you want to delete widget "${props.item.displayName}"?`)) {
-		return
-	}
-
 	const result = await deleteMutation.executeMutation({ widgetId: widgetId })
 
 	if (result.error) {
@@ -119,7 +117,7 @@ const onDelete = async () => {
 				<Button
 					size="sm"
 					variant="ghost"
-					@click="onDelete"
+					@click="isDeleteConfirmOpen = true"
 				>
 					<Icon
 						name="lucide:trash"
@@ -200,5 +198,11 @@ const onDelete = async () => {
 				</form>
 			</DialogContent>
 		</Dialog>
+
+		<ActionConfirm
+			v-model:open="isDeleteConfirmOpen"
+			:confirm-text="`Are you sure you want to delete widget &quot;${props.item.displayName}&quot;?`"
+			@confirm="onDelete"
+		/>
 	</div>
 </template>

@@ -49,7 +49,7 @@ async function handleCreate() {
 	}
 
 	try {
-		new RegExp(pattern)
+		RegExp(pattern)
 	} catch {
 		errorMessage.value = 'Invalid regex pattern'
 		return
