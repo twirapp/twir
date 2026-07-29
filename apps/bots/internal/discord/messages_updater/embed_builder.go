@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/diamondburned/arikawa/v3/discord"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	discordmodel "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/model"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 )

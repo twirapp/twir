@@ -32,7 +32,7 @@ func (c *MessagesUpdater) ProcessOffline(
 			continue
 		}
 
-		twitchUser, err := c.getTwitchUser(message.TwitchChannelID)
+		twitchUser, err := c.getTwitchUser(ctx, message.TwitchChannelID)
 		if err != nil {
 			return err
 		}

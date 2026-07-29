@@ -2,13 +2,12 @@ package twitchactions
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	kvoptions "github.com/twirapp/kv/options"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
 	"github.com/twirapp/twir/libs/logger"
@@ -28,7 +27,7 @@ type BanOpts struct {
 
 type twitchUserClientFactory func(context.Context, uuid.UUID) (*helix.Client, error)
 
-type twitchBotClientFactory func(context.Context, string) (*helix.Client, error)
+type twitchChannelBotClientFactory func(context.Context, string, string) (*helix.Client, error)
 
 func (c *TwitchActions) createUserClient(ctx context.Context, userID uuid.UUID) (*helix.Client, error) {
 	if c.newUserClient != nil {
@@ -38,12 +37,12 @@ func (c *TwitchActions) createUserClient(ctx context.Context, userID uuid.UUID) 
 	return twitch.NewUserClientWithContext(ctx, userID, c.config, c.twirBus)
 }
 
-func (c *TwitchActions) createBotClient(ctx context.Context, botID string) (*helix.Client, error) {
-	if c.newBotClient != nil {
-		return c.newBotClient(ctx, botID)
+func (c *TwitchActions) createChannelBotClient(ctx context.Context, botID string, channelID string) (*helix.Client, error) {
+	if c.newChannelBotClient != nil {
+		return c.newChannelBotClient(ctx, botID, channelID)
 	}
 
-	return twitch.NewBotClientWithContext(ctx, botID, c.config, c.twirBus)
+	return twitch.NewChannelBotClientWithContext(ctx, botID, channelID, c.config)
 }
 
 func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
@@ -76,7 +75,7 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 		return fmt.Errorf("cannot create helix client: %w", err)
 	}
 
-	botHelixClient, err := c.createBotClient(ctx, moderatorID)
+	botHelixClient, err := c.createChannelBotClient(ctx, moderatorID, opts.BroadcasterID)
 	if err != nil {
 		c.logger.Error("cannot create helix client", logger.Error(err))
 		return fmt.Errorf("cannot create helix client: %w", err)
@@ -108,8 +107,9 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 			)
 		}
 
-		removeModeratorResponse, err := broadcasterHelixClient.RemoveChannelModerator(
-			&helix.RemoveChannelModeratorParams{
+		_, err = broadcasterHelixClient.Moderation.RemoveChannelModerator(
+			ctx,
+			helix.RemoveChannelModeratorRequest{
 				BroadcasterID: opts.BroadcasterID,
 				UserID:        opts.UserID,
 			},
@@ -117,28 +117,22 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 		if err != nil {
 			return fmt.Errorf("cannot remove moderator: %w", err)
 		}
-		if removeModeratorResponse.ErrorMessage != "" {
-			return errors.New(removeModeratorResponse.ErrorMessage)
-		}
 	}
 
-	resp, err := botHelixClient.BanUser(
-		&helix.BanUserParams{
+	_, err = botHelixClient.Moderation.BanUser(
+		ctx,
+		helix.BanUserRequest{
 			BroadcasterID: opts.BroadcasterID,
-			ModeratorId:   moderatorID,
-			Body: helix.BanUserRequestBody{
-				Duration: opts.Duration,
+			ModeratorID:   moderatorID,
+			Data: helix.BanUserBody{
+				Duration: &opts.Duration,
 				Reason:   opts.Reason,
-				UserId:   opts.UserID,
+				UserID:   opts.UserID,
 			},
 		},
 	)
 	if err != nil {
-		return err
-	}
-
-	if resp.ErrorMessage != "" {
-		return errors.New(resp.ErrorMessage)
+		return fmt.Errorf("ban user: %w", err)
 	}
 
 	return nil

@@ -31,7 +31,7 @@ func (c *MessagesUpdater) ProcessOnline(
 		return nil
 	}
 
-	twitchUser, err := c.getTwitchUser(stream.UserId)
+	twitchUser, err := c.getTwitchUser(ctx, stream.UserId)
 	if err != nil {
 		return err
 	}

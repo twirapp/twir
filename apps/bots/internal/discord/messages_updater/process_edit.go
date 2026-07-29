@@ -36,7 +36,7 @@ func (c *MessagesUpdater) updateDiscordMessages(
 				continue
 			}
 
-			twitchUser, err := c.getTwitchUser(stream.UserId)
+			twitchUser, err := c.getTwitchUser(ctx, stream.UserId)
 			if err != nil {
 				c.logger.Error("Failed to get twitch user", logger.Error(err))
 				continue

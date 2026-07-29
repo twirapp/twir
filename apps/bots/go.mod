@@ -9,8 +9,8 @@ require (
 	github.com/goccy/go-json v0.10.5
 	github.com/google/uuid v1.6.0
 	github.com/hibiken/asynq v0.25.1
+	github.com/kvizyx/twitchy v0.3.0
 	github.com/lib/pq v1.10.9
-	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0

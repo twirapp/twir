@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nicklaw5/helix/v2"
-	"github.com/twirapp/twir/libs/twitch"
+	"github.com/kvizyx/twitchy/helix"
 )
 
 type ShoutOutInput struct {
@@ -30,18 +29,14 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 		return fmt.Errorf("Twitch binding channel id does not match broadcaster %s", input.BroadcasterID)
 	}
 
-	twitchClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		twitchBinding.UserID,
-		c.config,
-		c.twirBus,
-	)
+	twitchClient, err := c.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create broadcaster twitch client: %w", err)
 	}
 
-	resp, err := twitchClient.SendShoutout(
-		&helix.SendShoutoutParams{
+	_, err = twitchClient.Chat.SendShoutout(
+		ctx,
+		helix.SendShoutoutRequest{
 			FromBroadcasterID: twitchBinding.PlatformChannelID,
 			ToBroadcasterID:   input.TargetID,
 			ModeratorID:       twitchBinding.PlatformChannelID,
@@ -49,9 +44,6 @@ func (c *TwitchActions) ShoutOut(ctx context.Context, input ShoutOutInput) error
 	)
 	if err != nil {
 		return fmt.Errorf("cannot send shoutout: %w", err)
-	}
-	if resp.ErrorMessage != "" {
-		return fmt.Errorf("cannot send shoutout: %s", resp.ErrorMessage)
 	}
 
 	return nil
