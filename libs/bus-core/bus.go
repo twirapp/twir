@@ -96,7 +96,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				nc,
 				PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT,
 				30*time.Minute,
-				GobEncoder,
+				JsonEncoder,
 			),
 
 			GetBuiltInVariables: NewNatsQueue[struct{}, []parser.BuiltInVariable](
@@ -249,7 +249,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				nc,
 				eventsub.EventsubSubscribeAllSubject,
 				1*time.Minute,
-				GobEncoder,
+				JsonEncoder,
 			),
 			Subscribe: NewNatsQueue[eventsub.EventsubSubscribeRequest, struct{}](
 				nc,
@@ -267,7 +267,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				nc,
 				eventsub.EventsubUnsubscribeSubject,
 				1*time.Minute,
-				GobEncoder,
+				JsonEncoder,
 			),
 		},
 

@@ -148,6 +148,12 @@ services:
     networks:
       - twir-dev
 
+  ytsub:
+    image: twirapp/ytsub:latest
+    restart: unless-stopped
+    networks:
+      - twir-dev
+
   clickhouse:
     image: clickhouse/clickhouse-server:25.5-alpine
     restart: unless-stopped

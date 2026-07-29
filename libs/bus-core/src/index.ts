@@ -1,3 +1,5 @@
 export * from './bus.js'
 export * from './queue.js'
+export * from './eventsub/eventsub.js'
+export * from './generic/chat-message.js'
 export { IntegrationService } from './integrations/integrations.js'

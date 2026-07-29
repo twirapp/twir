@@ -572,6 +572,24 @@ services:
           cpus: "1.0"
           memory: 512M
 
+  ytsub:
+    image: registry.twir.app/twirapp/ytsub:${TWIR_IMAGE_TAG:-latest}
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
+
   warp-proxy:
     image: ghcr.io/mon-ius/docker-warp-socks
     cap_add:

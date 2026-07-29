@@ -171,6 +171,9 @@ jobs:
           - name: executron
             path: apps/executron
             runtime: js
+          - name: ytsub
+            path: apps/ytsub
+            runtime: js
     steps:
       - uses: actions/checkout@v4
 

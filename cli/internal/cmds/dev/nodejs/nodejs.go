@@ -3,6 +3,7 @@ package nodejs
 var appsForStart = []twirApp{
 	{name: "integrations"},
 	{name: "executron"},
+	{name: "ytsub"},
 }
 
 type NodejsApps struct {
