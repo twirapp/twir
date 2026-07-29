@@ -99,11 +99,16 @@ type UpdateInput struct {
 func (c *Service) modelToEntity(m model.User) entity.User {
 	return entity.User{
 		ID:                m.ID.String(),
+		Platform:          m.Platform,
+		PlatformID:        m.PlatformID,
 		TokenID:           m.TokenID.Ptr(),
 		IsBotAdmin:        m.IsBotAdmin,
 		ApiKey:            m.ApiKey,
 		IsBanned:          m.IsBanned,
 		HideOnLandingPage: m.HideOnLandingPage,
+		Login:             m.Login,
+		DisplayName:       m.DisplayName,
+		Avatar:            m.Avatar,
 	}
 }
 

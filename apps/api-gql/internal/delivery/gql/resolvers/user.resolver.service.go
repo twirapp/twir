@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -9,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	model "github.com/twirapp/twir/libs/gomodels"
+	channelsrepo "github.com/twirapp/twir/libs/repositories/channels"
 	"gorm.io/gorm"
 )
 
@@ -76,12 +78,31 @@ func (r *authenticatedUserResolver) getAuthenticatedUserChannel(ctx context.Cont
 
 	parsedDashboardID, err := uuid.Parse(dashboardID)
 	if err != nil {
-		return channelentity.Nil, fmt.Errorf("parse selected dashboard id: %w", err)
+		// Legacy sessions may hold a non-UUID dashboard id (e.g. a twitch channel id),
+		// in that case there is no channel to resolve.
+		return channelentity.Nil, nil
 	}
 
 	channel, err := r.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
-	if err != nil {
+	if err == nil {
+		return channel, nil
+	}
+
+	if !errors.Is(err, channelsrepo.ErrNotFound) {
 		return channelentity.Nil, fmt.Errorf("get selected dashboard channel: %w", err)
+	}
+
+	// When the request is authenticated by an API key, the selected dashboard
+	// holds an internal user ID instead of a channel ID, so resolve the channel
+	// through the user's platform binding.
+	user, userErr := r.deps.UsersService.GetByID(ctx, dashboardID)
+	if userErr != nil {
+		return channelentity.Nil, nil
+	}
+
+	channel, err = r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, parsedDashboardID)
+	if err != nil {
+		return channelentity.Nil, nil
 	}
 
 	return channel, nil
