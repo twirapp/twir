@@ -43,6 +43,21 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 						to the next level.
 					</p>
 
+					<div class="flex gap-4 pt-8 text-sm font-medium text-[#ADB0B8] md:text-base">
+						<div class="flex items-center gap-1.5">
+							<Icon name="simple-icons:twitch" class="h-4 w-4 text-[#9146FF]" />
+							<span>Twitch</span>
+						</div>
+						<div class="flex items-center gap-1.5">
+							<Icon name="simple-icons:kick" class="h-4 w-4 text-[#53FC18]" />
+							<span>Kick</span>
+						</div>
+						<div class="flex items-center gap-1.5">
+							<Icon name="simple-icons:vk" class="h-4 w-4 text-[#0077FF]" />
+							<span>VK Video Live</span>
+						</div>
+					</div>
+
 					<div class="inline-flex w-full flex-col gap-3 pt-[48px] lg:flex-row">
 						<NuxtLink
 							v-slot="{ navigate, href }"
