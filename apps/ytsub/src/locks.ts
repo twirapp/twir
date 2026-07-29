@@ -2,7 +2,7 @@ const LOCK_PREFIX = 'ytsub:lock:'
 const LOCK_TTL_MS = 30_000
 const RENEWAL_INTERVAL_MS = 10_000
 const RELEASE_IF_OWNER_SCRIPT = "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end"
-const RENEW_IF_OWNER_SCRIPT = "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('PSETEX', KEYS[1], ARGV[2], ARGV[1]) else return 0 end"
+const RENEW_IF_OWNER_SCRIPT = "if redis.call('GET', KEYS[1]) == ARGV[1] then redis.call('PSETEX', KEYS[1], ARGV[2], ARGV[1]) return 1 else return 0 end"
 
 export interface RedisClient {
 	set(key: string, value: string, ...options: readonly string[]): Promise<string | null>

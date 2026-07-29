@@ -3,11 +3,16 @@ import { config } from '@twir/config'
 import { connect } from 'nats'
 import { Innertube } from 'youtubei.js'
 
-import { closeDatabase, ensureYoutubeChatter, getYoutubeBinding, listYoutubeBindings } from './db.ts'
+import type { LiveChatSource } from './live-chat.ts'
+
+import {
+	closeDatabase,
+	ensureYoutubeChatter,
+	getYoutubeBinding,
+	listYoutubeBindings,
+} from './db.ts'
 import { LiveChatManager } from './live-chat.ts'
 import { RedisBindingOwnership } from './locks.ts'
-
-import type { LiveChatSource } from './live-chat.ts'
 
 const RECONCILE_INTERVAL_MS = Number.parseInt(Bun.env.YTSUB_RECONCILE_INTERVAL_MS ?? '120000', 10)
 const NATS_URL = Bun.env.NODE_ENV === 'production' ? 'nats://nats:4222' : 'nats://127.0.0.1:4222'
@@ -17,11 +22,14 @@ const nc = await connect({ servers: NATS_URL })
 const bus = newBus(nc)
 const liveChatSource: LiveChatSource = {
 	async resolve(binding) {
-		const endpoint = await yt.resolveURL(`https://www.youtube.com/channel/${binding.platformChannelId}/live`)
+		const endpoint = await yt.resolveURL(
+			`https://www.youtube.com/channel/${binding.platformChannelId}/live`
+		)
 		const info = await yt.getInfo(endpoint)
 		const liveChat = info.getLiveChat()
 		return {
-			broadcasterName: info.basic_info.channel?.name ?? info.basic_info.author ?? binding.platformChannelId,
+			broadcasterName:
+				info.basic_info.channel?.name ?? info.basic_info.author ?? binding.platformChannelId,
 			session: {
 				onStart(listener): void {
 					liveChat.on('start', listener)
@@ -62,14 +70,14 @@ async function subscribeChannel(channelId: string): Promise<void> {
 	await liveChats.subscribe(binding)
 }
 
-await bus.EventSub.SubscribeToAllEvents.subscribeGroup('ytsub', async (request) => {
+void bus.EventSub.SubscribeToAllEvents.subscribeGroup('ytsub', async (request) => {
 	if (request.Platform === '' || request.Platform === 'youtube') {
 		await subscribeChannel(request.ChannelID)
 	}
 	return {}
 })
 
-await bus.EventSub.Unsubscribe.subscribeGroup('ytsub', async (request) => {
+void bus.EventSub.Unsubscribe.subscribeGroup('ytsub', async (request) => {
 	if (request.Platform !== '' && request.Platform !== 'youtube') {
 		return {}
 	}

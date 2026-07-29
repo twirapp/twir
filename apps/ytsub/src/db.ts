@@ -1,9 +1,9 @@
 import { config } from '@twir/config'
 import { SQL } from 'bun'
 
-import { isYoutubeSubscriberBadge } from './message.ts'
-
 import type { ChannelBinding, YoutubeTextChatMessage } from './message.ts'
+
+import { isYoutubeSubscriberBadge } from './message.ts'
 
 const sql = new SQL(config.DATABASE_URL, {
 	prepare: true,
