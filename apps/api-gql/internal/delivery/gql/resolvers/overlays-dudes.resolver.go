@@ -7,6 +7,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -16,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 )
 
@@ -212,14 +214,32 @@ func (r *queryResolver) DudesGetAll(ctx context.Context) ([]gqlmodel.DudesOverla
 
 // DudesSettings is the resolver for the dudesSettings field.
 func (r *subscriptionResolver) DudesSettings(ctx context.Context, id uuid.UUID, apiKey string) (<-chan *gqlmodel.DudesSettingsSubscriptionData, error) {
-	user, err := r.deps.UsersService.GetByApiKey(ctx, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
+		ctx,
+		apiKey,
+	)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
 
 	channel := make(chan *gqlmodel.DudesSettingsSubscriptionData)
 
-	twitchChannel, err := r.deps.CachedTwitchClient.GetUserById(ctx, user.ID)
+	channelUUID, err := uuid.Parse(identity.InternalChannelID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	channelEntity, err := r.deps.ChannelService.GetChannelByID(ctx, channelUUID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	twitchBinding, found := channelEntity.Binding(platformentity.PlatformTwitch)
+	if !found || twitchBinding.PlatformChannelID == "" {
+		return nil, fmt.Errorf("twitch channel not found")
+	}
+
+	twitchChannel, err := r.deps.CachedTwitchClient.GetUserById(ctx, twitchBinding.PlatformChannelID)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
@@ -232,7 +252,7 @@ func (r *subscriptionResolver) DudesSettings(ctx context.Context, id uuid.UUID, 
 	go func() {
 		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
-				overlays_dudes.CreateDudesWsRouterKey(user.ID, id),
+				overlays_dudes.CreateDudesWsRouterKey(identity.InternalChannelID, id),
 			},
 		)
 		if err != nil {

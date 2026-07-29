@@ -219,7 +219,10 @@ func (r *queryResolver) ChannelOverlayByID(ctx context.Context, id uuid.UUID) (*
 
 // CustomOverlaySettings is the resolver for the customOverlaySettings field.
 func (r *subscriptionResolver) CustomOverlaySettings(ctx context.Context, id uuid.UUID, apiKey string) (<-chan *gqlmodel.ChannelOverlay, error) {
-	user, err := r.deps.UsersService.GetByApiKey(ctx, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
+		ctx,
+		apiKey,
+	)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
@@ -232,15 +235,15 @@ func (r *subscriptionResolver) CustomOverlaySettings(ctx context.Context, id uui
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	// Verify that the overlay belongs to the user's channel
-	if initialOverlay.ChannelID != user.ID {
+	// Verify that the overlay belongs to the resolved channel
+	if initialOverlay.ChannelID != identity.InternalChannelID {
 		return nil, fmt.Errorf("overlay not found")
 	}
 
 	go func() {
 		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
-				channels_overlays.CreateCustomOverlayWsRouterKey(user.ID, id),
+				channels_overlays.CreateCustomOverlayWsRouterKey(identity.InternalChannelID, id),
 			},
 		)
 		if err != nil {
