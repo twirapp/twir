@@ -14,6 +14,8 @@ import (
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/twirapp/twir/apps/websockets/types"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/channels"
+	"github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -31,9 +33,11 @@ type Alerts struct {
 type Opts struct {
 	fx.In
 
-	Gorm   *gorm.DB
-	Logger *slog.Logger
-	Redis  *redis.Client
+	Gorm               *gorm.DB
+	Logger             *slog.Logger
+	Redis              *redis.Client
+	ChannelsRepository channels.Repository
+	UsersRepository    users.Repository
 }
 
 func NewAlerts(opts Opts) *Alerts {
@@ -54,7 +58,7 @@ func NewAlerts(opts Opts) *Alerts {
 
 	alerts.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckUserByApiKey(opts.Gorm, session)
+			err := helpers.CheckChannelByApiKey(session, opts.ChannelsRepository, opts.UsersRepository)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
 					opts.Logger.Error("cannot check user by api key", logger.Error(err))

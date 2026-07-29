@@ -16,6 +16,8 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/channels"
+	"github.com/twirapp/twir/libs/repositories/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -34,11 +36,13 @@ type Dudes struct {
 type Opts struct {
 	fx.In
 
-	Gorm    *gorm.DB
-	Logger  *slog.Logger
-	Redis   *redis.Client
-	Config  config.Config
-	TwirBus *buscore.Bus
+	Gorm               *gorm.DB
+	Logger             *slog.Logger
+	Redis              *redis.Client
+	Config             config.Config
+	TwirBus            *buscore.Bus
+	ChannelsRepository channels.Repository
+	UsersRepository    users.Repository
 }
 
 func New(opts Opts) *Dudes {
@@ -61,7 +65,7 @@ func New(opts Opts) *Dudes {
 
 	dudes.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckUserByApiKey(opts.Gorm, session)
+			err := helpers.CheckChannelByApiKey(session, opts.ChannelsRepository, opts.UsersRepository)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
 					opts.Logger.Error("cannot check user by api key", logger.Error(err))

@@ -12,11 +12,15 @@ import (
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/twirapp/twir/libs/baseapp"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
+	"github.com/twirapp/twir/libs/otel"
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
+	"github.com/twirapp/twir/libs/repositories/channels"
+	channelspgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays"
 	channelsoverlayspgx "github.com/twirapp/twir/libs/repositories/channels_overlays/pgx"
-	"github.com/twirapp/twir/libs/otel"
+	"github.com/twirapp/twir/libs/repositories/users"
+	userspgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 
@@ -47,6 +51,14 @@ var App = fx.Module(
 		fx.Annotate(
 			channelsoverlayspgx.NewFx,
 			fx.As(new(channels_overlays.Repository)),
+		),
+		fx.Annotate(
+			channelspgx.NewFx,
+			fx.As(new(channels.Repository)),
+		),
+		fx.Annotate(
+			userspgx.NewFx,
+			fx.As(new(users.Repository)),
 		),
 		alerts.NewAlerts,
 		channelalertscache.New,

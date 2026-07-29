@@ -13,7 +13,9 @@ import (
 	"github.com/twirapp/twir/apps/websockets/types"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays"
+	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/wsrouter"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -39,6 +41,8 @@ type Opts struct {
 	Bus                        *buscore.Bus
 	WsRouter                   wsrouter.WsRouter
 	ChannelsOverlaysRepository channels_overlays.Repository
+	ChannelsRepository         channels.Repository
+	UsersRepository            users.Repository
 }
 
 func New(opts Opts) *Registry {
@@ -56,7 +60,7 @@ func New(opts Opts) *Registry {
 
 	overlaysRegistry.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckUserByApiKey(opts.Gorm, session)
+			err := helpers.CheckChannelByApiKey(session, opts.ChannelsRepository, opts.UsersRepository)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
 					opts.Logger.Error("cannot check user by api key", logger.Error(err))
