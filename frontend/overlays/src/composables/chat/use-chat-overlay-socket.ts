@@ -144,17 +144,20 @@ export const useChatOverlaySocket = createGlobalState(() => {
 		if (!overlaySettings.value || !neededData.value) return null
 
 		const accounts = neededData.value.authenticatedUser.linkedAccounts
-		const twitchProfile = accounts.find((account) => account.platform === 'twitch')
-		const kickProfile = accounts.find((account) => account.platform === 'kick')
-		if (!twitchProfile && !kickProfile) return null
+		const primaryAccount =
+			accounts.find((account) => account.platform === 'twitch') ??
+			accounts.find((account) => account.platform === 'kick') ??
+			accounts.find((account) => account.platform === 'vk_video_live') ??
+			accounts.find((account) => account.platform === 'youtube')
+		if (!primaryAccount) return null
 
 		return {
 			...overlaySettings.value,
 			channelBadges: neededData.value.twitchGetChannelBadges.badges,
 			globalBadges: neededData.value.twitchGetGlobalBadges.badges,
-			channelId: twitchProfile?.platformUserId ?? kickProfile?.platformUserId ?? '',
-			channelName: twitchProfile?.platformLogin ?? kickProfile?.platformLogin ?? '',
-			channelDisplayName: twitchProfile?.platformDisplayName ?? kickProfile?.platformDisplayName ?? '',
+			channelId: primaryAccount.platformUserId,
+			channelName: primaryAccount.platformLogin,
+			channelDisplayName: primaryAccount.platformDisplayName,
 		}
 	})
 
