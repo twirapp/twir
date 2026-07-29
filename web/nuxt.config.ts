@@ -61,7 +61,7 @@ export default defineNuxtConfig({
 		url: siteUrl,
 		name: 'Twir',
 		description:
-			'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.',
+			'Powerful and useful chat bot for Twitch, Kick and VK Video Live that helps manage chat on big channels. Developed from streamers for streamers with love.',
 		defaultLocale: 'en',
 	},
 
