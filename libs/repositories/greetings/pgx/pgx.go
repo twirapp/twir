@@ -42,7 +42,7 @@ func (c *Pgx) UpdateManyByChannelID(ctx context.Context, input greetings.UpdateM
 	updateBuilder := sq.
 		Update("channels_greetings").
 		Where(squirrel.Expr(`"channelId" = ?::uuid`, input.ChannelID)).
-		Suffix(`RETURNING id, "channelId", "userId", enabled, text, "isReply", processed, with_shoutout`)
+		Suffix(`RETURNING id, "channelId", user_id, enabled, text, "isReply", processed, with_shoutout`)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,
 		map[string]any{
@@ -77,7 +77,7 @@ func (c *Pgx) GetOneByChannelAndUserID(
 		Select(
 			"id",
 			`"channelId"`,
-			`"userId"`,
+			`user_id`,
 			"enabled",
 			"text",
 			`"isReply"`,
@@ -86,7 +86,7 @@ func (c *Pgx) GetOneByChannelAndUserID(
 		).
 		From("channels_greetings").
 		Where(squirrel.Expr(`"channelId" = ?::uuid`, input.ChannelID)).
-		Where(squirrel.Expr(`"userId" = ?`, input.UserID))
+		Where(squirrel.Expr(`user_id = ?`, input.UserID))
 
 	if input.Enabled != nil {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"enabled": *input.Enabled})
@@ -128,7 +128,7 @@ func (c *Pgx) GetManyByChannelID(
 		Select(
 			"id",
 			`"channelId"`,
-			`"userId"`,
+			`user_id`,
 			"enabled",
 			"text",
 			`"isReply"`,
@@ -167,7 +167,7 @@ func (c *Pgx) GetManyByChannelID(
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Greeting, error) {
 	query := `
-SELECT id, "channelId", "userId", enabled, text, "isReply", processed, with_shoutout
+SELECT id, "channelId", user_id, enabled, text, "isReply", processed, with_shoutout
 FROM channels_greetings
 WHERE id = $1
 `
@@ -192,9 +192,9 @@ WHERE id = $1
 
 func (c *Pgx) Create(ctx context.Context, input greetings.CreateInput) (model.Greeting, error) {
 	query := `
-INSERT INTO channels_greetings ("channelId", "userId", enabled, text, "isReply", processed, with_shoutout)
+INSERT INTO channels_greetings ("channelId", user_id, enabled, text, "isReply", processed, with_shoutout)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, "channelId", "userId", enabled, text, "isReply", processed, "with_shoutout"
+RETURNING id, "channelId", user_id, enabled, text, "isReply", processed, "with_shoutout"
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -228,11 +228,11 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input greetings.UpdateIn
 	updateBuilder := sq.
 		Update("channels_greetings").
 		Where(squirrel.Eq{"id": id}).
-		Suffix(`RETURNING id, "channelId", "userId", enabled, text, "isReply", processed, with_shoutout`)
+		Suffix(`RETURNING id, "channelId", user_id, enabled, text, "isReply", processed, with_shoutout`)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,
 		map[string]any{
-			`"userId"`:      input.UserID,
+			`user_id`:      input.UserID,
 			"enabled":       input.Enabled,
 			"text":          input.Text,
 			`"isReply"`:     input.IsReply,
