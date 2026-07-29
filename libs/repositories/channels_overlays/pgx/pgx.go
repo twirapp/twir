@@ -394,39 +394,29 @@ func (c *Pgx) upsertLayer(
 		return err
 	}
 
+	// Clients may generate ids for new layers on their side, so a plain UPDATE
+	// would silently drop them. A real upsert handles both cases.
+	layerID := uuid.New()
 	if layer.ID != nil {
-		// Update existing layer
-		layerQuery := `
-UPDATE channels_overlays_layers
-SET type = $1, settings = $2, pos_x = $3, pos_y = $4, width = $5, height = $6, rotation = $7, updated_at = $8, periodically_refetch_data = $9, locked = $10, visible = $11, opacity = $12
-WHERE id = $13 AND overlay_id = $14
-`
-		_, err = tx.Exec(
-			ctx,
-			layerQuery,
-			string(layer.Type),
-			settingsJSON,
-			layer.PosX,
-			layer.PosY,
-			layer.Width,
-			layer.Height,
-			layer.Rotation,
-			now,
-			layer.PeriodicallyRefetchData,
-			layer.Locked,
-			layer.Visible,
-			layer.Opacity,
-			*layer.ID,
-			overlayID,
-		)
-		return err
+		layerID = *layer.ID
 	}
 
-	// Insert new layer
-	layerID := uuid.New()
 	layerQuery := `
 INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+ON CONFLICT (id) DO UPDATE SET
+	type = EXCLUDED.type,
+	settings = EXCLUDED.settings,
+	pos_x = EXCLUDED.pos_x,
+	pos_y = EXCLUDED.pos_y,
+	width = EXCLUDED.width,
+	height = EXCLUDED.height,
+	rotation = EXCLUDED.rotation,
+	updated_at = EXCLUDED.updated_at,
+	periodically_refetch_data = EXCLUDED.periodically_refetch_data,
+	locked = EXCLUDED.locked,
+	visible = EXCLUDED.visible,
+	opacity = EXCLUDED.opacity
 `
 
 	_, err = tx.Exec(
