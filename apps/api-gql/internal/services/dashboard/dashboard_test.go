@@ -4,14 +4,23 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/kv"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
+	channelsemotesusages "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	channelsEmotesModel "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/model"
+	streammodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type dashboardCurrentPlatformStub struct {
@@ -41,7 +50,15 @@ type dashboardBindingPatch struct {
 }
 
 type dashboardBindingUpdaterStub struct {
-	patches []dashboardBindingPatch
+	patches  []dashboardBindingPatch
+	bindings []channelplatformentity.ChannelPlatform
+}
+
+func (s *dashboardBindingUpdaterStub) ListByChannelID(
+	context.Context,
+	uuid.UUID,
+) ([]channelplatformentity.ChannelPlatform, error) {
+	return s.bindings, nil
 }
 
 func (s *dashboardBindingUpdaterStub) Patch(
@@ -51,6 +68,159 @@ func (s *dashboardBindingUpdaterStub) Patch(
 ) (channelplatformentity.ChannelPlatform, error) {
 	s.patches = append(s.patches, dashboardBindingPatch{id: id, input: input})
 	return channelplatformentity.ChannelPlatform{ID: id}, nil
+}
+
+type dashboardStreamsRepositoryStub struct {
+	streams map[platform.Platform]streammodel.Stream
+}
+
+func (s dashboardStreamsRepositoryStub) GetByChannelID(
+	_ context.Context,
+	_ uuid.UUID,
+	platform platform.Platform,
+) (streammodel.Stream, error) {
+	stream, ok := s.streams[platform]
+	if !ok {
+		return streammodel.Nil, nil
+	}
+
+	return stream, nil
+}
+
+type dashboardEmotesUsageStub struct {
+	counts map[string]uint64
+}
+
+func (s dashboardEmotesUsageStub) Count(
+	_ context.Context,
+	input channelsemotesusages.CountInput,
+) (uint64, error) {
+	if input.Platform == nil {
+		return 0, nil
+	}
+
+	return s.counts[*input.Platform], nil
+}
+
+func (dashboardEmotesUsageStub) CreateMany(context.Context, []channelsemotesusages.ChannelEmoteUsageInput) error {
+	return nil
+}
+
+func (dashboardEmotesUsageStub) GetEmotesStatistics(context.Context, channelsemotesusages.GetEmotesStatisticsInput) ([]channelsEmotesModel.EmoteStatistic, error) {
+	return nil, nil
+}
+
+func (dashboardEmotesUsageStub) GetEmotesRanges(context.Context, string, string, []string, channelsemotesusages.EmoteStatisticRange) (map[string][]channelsEmotesModel.EmoteRange, error) {
+	return nil, nil
+}
+
+func (dashboardEmotesUsageStub) GetChannelEmoteUsageHistory(context.Context, channelsemotesusages.EmotesUsersTopOrHistoryInput) ([]channelsEmotesModel.EmoteUsage, uint64, error) {
+	return nil, 0, nil
+}
+
+func (dashboardEmotesUsageStub) GetChannelUsageTopUsers(context.Context, channelsemotesusages.EmotesUsersTopOrHistoryInput) ([]channelsEmotesModel.EmoteUsageTopUser, uint64, error) {
+	return nil, 0, nil
+}
+
+func (dashboardEmotesUsageStub) DeleteRowsByChannelID(context.Context, string, string) error {
+	return nil
+}
+
+func (dashboardEmotesUsageStub) GetUserMostUsedEmotes(context.Context, channelsemotesusages.UserMostUsedEmotesInput) ([]channelsEmotesModel.UserMostUsedEmote, error) {
+	return nil, nil
+}
+
+type dashboardKVStub struct {
+	values map[string]int64
+}
+
+func (s dashboardKVStub) Get(_ context.Context, key string) kv.Valuer {
+	return dashboardKVValue{value: s.values[key]}
+}
+
+type dashboardKVValue struct {
+	value int64
+}
+
+func (v dashboardKVValue) Int() (int64, error) {
+	return v.value, nil
+}
+
+func (dashboardKVValue) String() (string, error) {
+	return "", nil
+}
+
+func (dashboardKVValue) Bytes() ([]byte, error) {
+	return nil, nil
+}
+
+func (dashboardKVValue) Bool() (bool, error) {
+	return false, nil
+}
+
+func (dashboardKVValue) Float() (float64, error) {
+	return 0, nil
+}
+
+func (dashboardKVValue) Scan(any) error {
+	return nil
+}
+
+func (dashboardKVValue) Err() error {
+	return nil
+}
+
+func newDashboardStatsService(
+	channelID uuid.UUID,
+	bindings []channelplatformentity.ChannelPlatform,
+	streamRows map[platform.Platform]streammodel.Stream,
+	messageCounts map[string]int64,
+	emoteCounts map[string]uint64,
+) *Service {
+	db, err := gorm.Open(
+		postgres.Open("host=127.0.0.1 user=twir dbname=twir sslmode=disable"),
+		&gorm.Config{DisableAutomaticPing: true, DryRun: true},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	return &Service{
+		gorm:                 db,
+		channelService:       dashboardChannelLookupStub{channel: channelentity.Channel{ID: channelID, Bindings: bindings}},
+		channelPlatformsRepo: &dashboardBindingUpdaterStub{bindings: bindings},
+		streamsRepository:    dashboardStreamsRepositoryStub{streams: streamRows},
+		channelEmotesUsagesRepo: dashboardEmotesUsageStub{
+			counts: emoteCounts,
+		},
+		kv:     dashboardKVStub{values: messageCounts},
+		logger: slog.Default(),
+		authService: dashboardCurrentPlatformStub{
+			err: errors.New("no current platform"),
+		},
+	}
+}
+
+func liveDashboardStream(
+	channelID uuid.UUID,
+	platform platform.Platform,
+	streamID string,
+	viewerCount int,
+	title string,
+	categoryID string,
+	categoryName string,
+	startedAt time.Time,
+) streammodel.Stream {
+	return streammodel.Stream{
+		ID:          streamID,
+		ChannelID:   channelID,
+		Platform:    platform,
+		ViewerCount: viewerCount,
+		Title:       title,
+		GameId:      categoryID,
+		GameName:    categoryName,
+		StartedAt:   startedAt,
+	}
 }
 
 type dashboardCacheInvalidatorStub struct {
@@ -346,5 +516,193 @@ func TestBotJoinLeaveRejectsVKVideoLiveBindingWithoutBotUserID(t *testing.T) {
 	}
 	if len(updater.patches) != 0 {
 		t.Fatalf("patches = %d, want 0", len(updater.patches))
+	}
+}
+
+func TestGetDashboardStatsIncludesLiveStatsForEnabledTwitchAndKickBindings(t *testing.T) {
+	// Given
+	channelID := uuid.New()
+	twitchBinding := channelplatformentity.ChannelPlatform{
+		Platform: platform.PlatformTwitch,
+		Enabled:  true,
+	}
+	kickBinding := channelplatformentity.ChannelPlatform{
+		Platform:          platform.PlatformKick,
+		PlatformChannelID: "kick-channel",
+		Enabled:           true,
+	}
+	twitchStartedAt := time.Date(2026, 7, 29, 10, 0, 0, 0, time.UTC)
+	kickStartedAt := twitchStartedAt.Add(time.Hour)
+	service := newDashboardStatsService(
+		channelID,
+		[]channelplatformentity.ChannelPlatform{twitchBinding, kickBinding},
+		map[platform.Platform]streammodel.Stream{
+			platform.PlatformTwitch: liveDashboardStream(
+				channelID,
+				platform.PlatformTwitch,
+				"twitch-stream",
+				101,
+				"Twitch title",
+				"twitch-category-id",
+				"Twitch category",
+				twitchStartedAt,
+			),
+			platform.PlatformKick: liveDashboardStream(
+				channelID,
+				platform.PlatformKick,
+				"kick-stream",
+				202,
+				"Kick title",
+				"kick-category-id",
+				"Kick category",
+				kickStartedAt,
+			),
+		},
+		map[string]int64{
+			"stream:parsedMessages:twitch-stream": 11,
+			"stream:parsedMessages:kick-stream":   22,
+		},
+		map[string]uint64{
+			platform.PlatformTwitch.String(): 3,
+			platform.PlatformKick.String():   7,
+		},
+	)
+
+	// When
+	stats, err := service.GetDashboardStats(context.Background(), channelID.String())
+
+	// Then
+	if err != nil {
+		t.Fatalf("get dashboard stats: %v", err)
+	}
+	if len(stats.Platforms) != 2 {
+		t.Fatalf("platforms = %d, want 2", len(stats.Platforms))
+	}
+
+	for _, test := range []struct {
+		platform    platform.Platform
+		viewers     int
+		title       string
+		categoryID  string
+		category    string
+		startedAt   time.Time
+		chat        int
+		usedEmotes  int
+		canEditInfo bool
+	}{
+		{
+			platform:    platform.PlatformTwitch,
+			viewers:     101,
+			title:       "Twitch title",
+			categoryID:  "twitch-category-id",
+			category:    "Twitch category",
+			startedAt:   twitchStartedAt,
+			chat:        11,
+			usedEmotes:  3,
+			canEditInfo: true,
+		},
+		{
+			platform:    platform.PlatformKick,
+			viewers:     202,
+			title:       "Kick title",
+			categoryID:  "kick-category-id",
+			category:    "Kick category",
+			startedAt:   kickStartedAt,
+			chat:        22,
+			usedEmotes:  7,
+			canEditInfo: true,
+		},
+	} {
+		var got *entity.PlatformStats
+		for i := range stats.Platforms {
+			if stats.Platforms[i].Platform == test.platform {
+				got = &stats.Platforms[i]
+				break
+			}
+		}
+		if got == nil {
+			t.Fatalf("missing platform %s", test.platform)
+		}
+		if !got.IsLive || got.Viewers == nil || *got.Viewers != test.viewers {
+			t.Fatalf("%s viewers = %#v, want live %d", test.platform, got.Viewers, test.viewers)
+		}
+		if got.Title == nil || *got.Title != test.title || got.CategoryID == nil || *got.CategoryID != test.categoryID || got.CategoryName == nil || *got.CategoryName != test.category {
+			t.Fatalf("%s metadata = %#v, want live metadata", test.platform, got)
+		}
+		if got.StartedAt == nil || !got.StartedAt.Equal(test.startedAt) {
+			t.Fatalf("%s startedAt = %#v, want %s", test.platform, got.StartedAt, test.startedAt)
+		}
+		if got.ChatMessages != test.chat || got.UsedEmotes != test.usedEmotes || got.CanEditInfo != test.canEditInfo {
+			t.Fatalf("%s counters/editability = %#v, want chat=%d emotes=%d canEdit=%t", test.platform, got, test.chat, test.usedEmotes, test.canEditInfo)
+		}
+	}
+}
+
+func TestGetDashboardStatsIncludesOfflineVKBindingWithNullableStats(t *testing.T) {
+	// Given
+	channelID := uuid.New()
+	service := newDashboardStatsService(
+		channelID,
+		[]channelplatformentity.ChannelPlatform{{
+			Platform: platform.PlatformVKVideoLive,
+			Enabled:  true,
+		}},
+		nil,
+		nil,
+		nil,
+	)
+
+	// When
+	stats, err := service.GetDashboardStats(context.Background(), channelID.String())
+
+	// Then
+	if err != nil {
+		t.Fatalf("get dashboard stats: %v", err)
+	}
+	if len(stats.Platforms) != 1 {
+		t.Fatalf("platforms = %d, want 1", len(stats.Platforms))
+	}
+	got := stats.Platforms[0]
+	if got.Platform != platform.PlatformVKVideoLive || got.IsLive {
+		t.Fatalf("VK platform stats = %#v, want offline VK", got)
+	}
+	if got.Viewers != nil || got.Followers != nil || got.Title != nil || got.CategoryID != nil || got.CategoryName != nil || got.StartedAt != nil {
+		t.Fatalf("VK offline nullable fields = %#v, want nil", got)
+	}
+	if got.CanEditInfo || got.ChatMessages != 0 || got.UsedEmotes != 0 {
+		t.Fatalf("VK offline stats = %#v, want zero counters and no editing", got)
+	}
+}
+
+func TestGetDashboardStatsListsAllEnabledBindingsWhenNoStreamsExist(t *testing.T) {
+	// Given
+	channelID := uuid.New()
+	bindings := []channelplatformentity.ChannelPlatform{
+		{Platform: platform.PlatformTwitch, Enabled: true},
+		{Platform: platform.PlatformKick, Enabled: true},
+		{Platform: platform.PlatformVKVideoLive, Enabled: false},
+	}
+	service := newDashboardStatsService(channelID, bindings, nil, nil, nil)
+
+	// When
+	stats, err := service.GetDashboardStats(context.Background(), channelID.String())
+
+	// Then
+	if err != nil {
+		t.Fatalf("get dashboard stats: %v", err)
+	}
+	if len(stats.Platforms) != 2 {
+		t.Fatalf("platforms = %d, want enabled bindings only", len(stats.Platforms))
+	}
+	if stats.StreamCategoryID != "" || stats.StreamCategoryName != "" || stats.StreamViewers != nil || stats.StreamStartedAt != nil || stats.StreamTitle != "" || stats.StreamChatMessages != 0 || stats.Followers != 0 || stats.UsedEmotes != 0 || stats.RequestedSongs != 0 || stats.Subs != 0 {
+		t.Fatalf("top-level stats = %#v, want unchanged empty fallback", stats)
+	}
+	for _, got := range stats.Platforms {
+		if got.IsLive || got.Viewers != nil || got.ChatMessages != 0 || got.UsedEmotes != 0 {
+			t.Fatalf("offline platform stats = %#v, want offline zero values", got)
+		}
+		if got.Platform == platform.PlatformVKVideoLive && got.Followers != nil {
+			t.Fatalf("VK offline followers = %#v, want nil", got.Followers)
+		}
 	}
 }

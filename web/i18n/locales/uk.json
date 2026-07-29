@@ -242,6 +242,26 @@
       "viewers": "Глядачі",
       "requestedSongs": "Замовлено пісень"
     },
+    "statsLayouts": {
+      "label": "Макет статистики в шапці",
+      "rows": "Рядки",
+      "rowsDescription": "Значення за кожною платформою всередині віджетів",
+      "aggregate": "Агрегат",
+      "aggregateDescription": "Суми з деталізацією за платформами у спливному вікні",
+      "grid": "Сітка",
+      "gridDescription": "Лише картки платформ, без глобальних віджетів"
+    },
+    "platformStats": {
+      "platform": "Платформа",
+      "streamTitles": "Назви трансляцій",
+      "livePlatforms": "{live} в ефірі · платформ: {total}",
+      "breakdown": "Деталізація за платформами",
+      "live": "LIVE",
+      "offline": "Офлайн",
+      "noTitle": "Без назви",
+      "noCategory": "Без категорії",
+      "editUnavailable": "Редагування недоступне"
+    },
     "widgets": {
       "chat": {
         "title": "Чат"

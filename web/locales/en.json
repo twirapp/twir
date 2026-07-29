@@ -275,6 +275,26 @@
       "viewers": "Viewers",
       "requestedSongs": "Requested Songs"
     },
+    "statsLayouts": {
+      "label": "Header stats layout",
+      "rows": "Rows",
+      "rowsDescription": "Per-platform values inside each widget",
+      "aggregate": "Aggregate",
+      "aggregateDescription": "Totals with a per-platform breakdown popover",
+      "grid": "Grid",
+      "gridDescription": "Platform cards only, no global widgets"
+    },
+    "platformStats": {
+      "platform": "Platform",
+      "streamTitles": "Stream titles",
+      "livePlatforms": "{live} live · {total} platforms",
+      "breakdown": "Platforms breakdown",
+      "live": "LIVE",
+      "offline": "Offline",
+      "noTitle": "No title",
+      "noCategory": "No category",
+      "editUnavailable": "Editing unavailable"
+    },
     "widgets": {
       "chat": {
         "title": "Chat"

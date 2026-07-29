@@ -3,6 +3,28 @@
     "sidebar": {
         "quotes": "引用"
     },
+    "dashboard": {
+        "statsLayouts": {
+            "label": "ヘッダー統計レイアウト",
+            "rows": "行",
+            "rowsDescription": "各ウィジェット内にプラットフォーム別の値を表示",
+            "aggregate": "集計",
+            "aggregateDescription": "合計値とプラットフォーム別内訳のポップオーバー",
+            "grid": "グリッド",
+            "gridDescription": "プラットフォームカードのみ、グローバルウィジェットなし"
+        },
+        "platformStats": {
+            "platform": "プラットフォーム",
+            "streamTitles": "配信タイトル",
+            "livePlatforms": "{live} ライブ · {total} プラットフォーム",
+            "breakdown": "プラットフォーム別内訳",
+            "live": "LIVE",
+            "offline": "オフライン",
+            "noTitle": "タイトルなし",
+            "noCategory": "カテゴリなし",
+            "editUnavailable": "編集できません"
+        }
+    },
     "quotes": {
         "title": "引用",
         "create": "引用を作成",

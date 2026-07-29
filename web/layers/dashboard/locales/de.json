@@ -294,6 +294,26 @@
           "channel-chat-alerts": "Chat Alerts"
         }
       }
+    },
+    "statsLayouts": {
+      "label": "Layout der Header-Statistiken",
+      "rows": "Zeilen",
+      "rowsDescription": "Werte pro Plattform innerhalb der Widgets",
+      "aggregate": "Aggregiert",
+      "aggregateDescription": "Summen mit Aufschlüsselung pro Plattform im Popover",
+      "grid": "Raster",
+      "gridDescription": "Nur Plattform-Karten, keine globalen Widgets"
+    },
+    "platformStats": {
+      "platform": "Plattform",
+      "streamTitles": "Stream-Titel",
+      "livePlatforms": "{live} live · {total} Plattformen",
+      "breakdown": "Aufschlüsselung nach Plattform",
+      "live": "LIVE",
+      "offline": "Offline",
+      "noTitle": "Kein Titel",
+      "noCategory": "Keine Kategorie",
+      "editUnavailable": "Bearbeiten nicht verfügbar"
     }
   },
   "integrations": {

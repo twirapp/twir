@@ -4,7 +4,9 @@ import { computed, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { z } from 'zod'
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
-import { twitchSetChannelInformationMutation } from '~~/layers/dashboard/api/twitch'
+import { channelSetStreamInformationMutation } from '~~/layers/dashboard/api/kick.js'
+import { useChannelPlatformsApi } from '~~/layers/dashboard/features/channel-platforms/api.js'
+import KickCategorySelector from '~~/layers/dashboard/components/kick-category-selector.vue'
 import TwitchCategorySelector from '~~/layers/dashboard/components/twitch-category-selector.vue'
 
 import { Button } from '@/components/ui/button'
@@ -18,13 +20,16 @@ import {
 } from '@/components/ui/dialog'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
+import { ChannelRolePermissionEnum, Platform } from '~/gql/graphql.js'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
+	platform?: Platform
 	title?: string
 	categoryId?: string
 	categoryName?: string
-}>()
+}>(), {
+	platform: Platform.Twitch,
+})
 
 const open = defineModel<boolean>('open', { default: false })
 
@@ -76,16 +81,34 @@ const selectedDashboard = computed(() => {
 	)
 })
 
-const isTwitchDashboard = computed(() => selectedDashboard.value?.platform === 'twitch')
+const channelPlatformsApi = useChannelPlatformsApi()
+const { data: channelPlatforms } = channelPlatformsApi.useQuery()
 
-const informationUpdater = twitchSetChannelInformationMutation()
+const canEditPlatform = computed(() => {
+	switch (props.platform) {
+		case Platform.Twitch:
+			return selectedDashboard.value?.platform === 'twitch'
+		case Platform.Kick:
+			return channelPlatforms.value?.channelPlatformBindings.some(
+				(binding) => binding.platform === Platform.Kick && binding.userId === profile.value?.id
+			) ?? false
+		case Platform.VkVideoLive:
+			return false
+		default:
+			return false
+	}
+})
+
+const informationUpdater = channelSetStreamInformationMutation()
 
 const onSubmit = handleSubmit(async (formValues) => {
-	if (!isTwitchDashboard.value) {
+	if (!canEditPlatform.value) {
 		return
 	}
 
-	const mutationInput: { title?: string; categoryId?: string } = {}
+	const mutationInput: { platform: Platform; title?: string; categoryId?: string } = {
+		platform: props.platform,
+	}
 
 	if (userCanEditTitle.value) {
 		mutationInput.title = formValues.title
@@ -113,7 +136,7 @@ const userCanEditCategory = useUserAccessFlagChecker(
 	ChannelRolePermissionEnum.UpdateChannelCategory
 )
 const canSubmit = computed(() => {
-	return isTwitchDashboard.value && (userCanEditTitle.value || userCanEditCategory.value)
+	return canEditPlatform.value && (userCanEditTitle.value || userCanEditCategory.value)
 })
 </script>
 
@@ -142,7 +165,7 @@ const canSubmit = computed(() => {
 									<Input
 										id="title"
 										v-bind="componentField"
-										:disabled="!isTwitchDashboard || !userCanEditTitle"
+										:disabled="!canEditPlatform || !userCanEditTitle"
 										:placeholder="t('dashboard.statsWidgets.streamInfo.title')"
 									/>
 									<div class="flex justify-end">
@@ -169,9 +192,17 @@ const canSubmit = computed(() => {
 							</FormLabel>
 							<FormControl>
 								<TwitchCategorySelector
+									v-if="platform === Platform.Twitch"
 									id="category"
 									v-bind="componentField"
-									:disabled="!isTwitchDashboard || !userCanEditCategory"
+									:disabled="!canEditPlatform || !userCanEditCategory"
+								/>
+								<KickCategorySelector
+									v-else-if="platform === Platform.Kick"
+									id="category"
+									v-bind="componentField"
+									:category-name="categoryName"
+									:disabled="!canEditPlatform || !userCanEditCategory"
 								/>
 							</FormControl>
 							<FormMessage />

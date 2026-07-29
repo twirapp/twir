@@ -26,6 +26,7 @@ import (
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 	"github.com/twirapp/twir/libs/repositories/streams"
+	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -80,6 +81,10 @@ type channelLookup interface {
 }
 
 type channelBindingUpdater interface {
+	ListByChannelID(
+		ctx context.Context,
+		channelID uuid.UUID,
+	) ([]channelplatformentity.ChannelPlatform, error)
 	Patch(
 		ctx context.Context,
 		id uuid.UUID,
@@ -95,19 +100,31 @@ type usersLookup interface {
 	GetByID(ctx context.Context, id uuid.UUID) (usersmodel.User, error)
 }
 
+type channelEmotesUsagesCounter interface {
+	Count(ctx context.Context, input channelsemotesusagesrepository.CountInput) (uint64, error)
+}
+
+type streamLookup interface {
+	GetByChannelID(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform) (streamsmodel.Stream, error)
+}
+
+type parsedMessagesLookup interface {
+	Get(ctx context.Context, key string) kv.Valuer
+}
+
 type Service struct {
 	gorm                    *gorm.DB
 	cachedTwitchClient      *twitchcache.CachedTwitchClient
 	authService             currentPlatformResolver
-	kv                      kv.KV
+	kv                      parsedMessagesLookup
 	config                  config.Config
 	logger                  *slog.Logger
 	twirBus                 *buscore.Bus
 	channelsCache           channelCacheInvalidator
 	channelPlatformsRepo    channelBindingUpdater
 	channelService          channelLookup
-	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository
-	streamsRepository       streams.Repository
+	channelEmotesUsagesRepo channelEmotesUsagesCounter
+	streamsRepository       streamLookup
 	usersRepo               usersLookup
 }
 
@@ -160,7 +177,22 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		return nil, fmt.Errorf("get stream by channel id: %w", err)
 	}
 
-	result := entity.DashboardStats{}
+	bindings, err := c.channelPlatformsRepo.ListByChannelID(ctx, parsedID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel platform bindings: %w", err)
+	}
+
+	platformStats, err := c.getPlatformStats(ctx, parsedID, bindings, stream)
+	if err != nil {
+		return nil, err
+	}
+
+	result := entity.DashboardStats{Platforms: platformStats}
+	for i := range result.Platforms {
+		if result.Platforms[i].Platform == platformentity.PlatformTwitch {
+			result.Platforms[i].Followers = &result.Followers
+		}
+	}
 	analyticsPlatform, analyticsPlatformChannelID := c.resolveAnalyticsIdentity(ctx, channel)
 
 	twitchBinding, hasTwitchBinding := channel.Binding(platformentity.PlatformTwitch)
@@ -411,6 +443,72 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	result.RequestedSongs = int(requestedSongs)
 
 	return &result, nil
+}
+
+func (c *Service) getPlatformStats(
+	ctx context.Context,
+	channelID uuid.UUID,
+	bindings []channelplatformentity.ChannelPlatform,
+	twitchStream streamsmodel.Stream,
+) ([]entity.PlatformStats, error) {
+	platformStats := make([]entity.PlatformStats, 0, len(bindings))
+
+	for _, binding := range bindings {
+		if !binding.Enabled {
+			continue
+		}
+
+		stream := twitchStream
+		if binding.Platform != platformentity.PlatformTwitch {
+			var err error
+			stream, err = c.streamsRepository.GetByChannelID(ctx, channelID, binding.Platform)
+			if err != nil {
+				return nil, fmt.Errorf("get %s stream by channel id: %w", binding.Platform, err)
+			}
+		}
+
+		stats := entity.PlatformStats{
+			Platform:    binding.Platform,
+			CanEditInfo: binding.Platform == platformentity.PlatformTwitch || binding.Platform == platformentity.PlatformKick,
+		}
+		if stream.IsNil() {
+			platformStats = append(platformStats, stats)
+			continue
+		}
+
+		stats.IsLive = true
+		stats.Title = &stream.Title
+		stats.CategoryID = &stream.GameId
+		stats.CategoryName = &stream.GameName
+		stats.Viewers = &stream.ViewerCount
+		stats.StartedAt = &stream.StartedAt
+
+		parsedMessages, err := c.kv.Get(ctx, redis_keys.StreamParsedMessages(stream.ID)).Int()
+		if err != nil {
+			c.logger.Error("cannot get platform chat messages", logger.Error(err), slog.String("platform", binding.Platform.String()))
+		} else {
+			stats.ChatMessages = int(parsedMessages)
+		}
+
+		platformName := binding.Platform.String()
+		emotesInput := channelsemotesusagesrepository.CountInput{
+			Platform:  &platformName,
+			TimeAfter: &stream.StartedAt,
+		}
+		if binding.PlatformChannelID != "" {
+			platformChannelID := binding.PlatformChannelID
+			emotesInput.PlatformChannelID = &platformChannelID
+		}
+		emotesCount, err := c.channelEmotesUsagesRepo.Count(ctx, emotesInput)
+		if err != nil {
+			return nil, fmt.Errorf("get %s used emotes: %w", binding.Platform, err)
+		}
+		stats.UsedEmotes = int(emotesCount)
+
+		platformStats = append(platformStats, stats)
+	}
+
+	return platformStats, nil
 }
 
 func (c *Service) GetBotStatus(ctx context.Context, channelID string) (entity.BotStatus, error) {

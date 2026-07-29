@@ -258,6 +258,26 @@
       "viewers": "Diváci",
       "requestedSongs": "Vyžiadané piesne"
     },
+    "statsLayouts": {
+      "label": "Rozloženie štatistík hlavičky",
+      "rows": "Riadky",
+      "rowsDescription": "Hodnoty za každú platformu vo vnútri widgetov",
+      "aggregate": "Agregát",
+      "aggregateDescription": "Súčty s rozpisom podľa platforiem v popoveri",
+      "grid": "Mriežka",
+      "gridDescription": "Iba karty platforiem, bez globálnych widgetov"
+    },
+    "platformStats": {
+      "platform": "Platforma",
+      "streamTitles": "Názvy streamov",
+      "livePlatforms": "{live} naživo · {total} platforiem",
+      "breakdown": "Rozpis podľa platforiem",
+      "live": "NAŽIVO",
+      "offline": "Offline",
+      "noTitle": "Bez názvu",
+      "noCategory": "Bez kategórie",
+      "editUnavailable": "Úprava nie je dostupná"
+    },
     "widgets": {
       "chat": {
         "title": "Chat"

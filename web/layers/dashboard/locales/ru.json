@@ -297,6 +297,26 @@
           "channel-chat-alerts": "Оповещения в чате"
         }
       }
+    },
+    "statsLayouts": {
+      "label": "Макет статистики в шапке",
+      "rows": "Строки",
+      "rowsDescription": "Значения по каждой платформе внутри виджетов",
+      "aggregate": "Агрегат",
+      "aggregateDescription": "Суммы с детализацией по платформам в поповере",
+      "grid": "Сетка",
+      "gridDescription": "Только карточки платформ, без глобальных виджетов"
+    },
+    "platformStats": {
+      "platform": "Платформа",
+      "streamTitles": "Названия трансляций",
+      "livePlatforms": "{live} в эфире · платформ: {total}",
+      "breakdown": "Детализация по платформам",
+      "live": "LIVE",
+      "offline": "Офлайн",
+      "noTitle": "Без названия",
+      "noCategory": "Без категории",
+      "editUnavailable": "Редактирование недоступно"
     }
   },
   "integrations": {

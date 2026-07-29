@@ -241,6 +241,26 @@
       "viewers": "Espectadores",
       "requestedSongs": "Músicas solicitadas"
     },
+    "statsLayouts": {
+      "label": "Layout das estatísticas do cabeçalho",
+      "rows": "Linhas",
+      "rowsDescription": "Valores por plataforma dentro de cada widget",
+      "aggregate": "Agregado",
+      "aggregateDescription": "Totais com detalhamento por plataforma em um popover",
+      "grid": "Grade",
+      "gridDescription": "Apenas cartões de plataforma, sem widgets globais"
+    },
+    "platformStats": {
+      "platform": "Plataforma",
+      "streamTitles": "Títulos da transmissão",
+      "livePlatforms": "{live} ao vivo · {total} plataformas",
+      "breakdown": "Detalhamento por plataforma",
+      "live": "AO VIVO",
+      "offline": "Offline",
+      "noTitle": "Sem título",
+      "noCategory": "Sem categoria",
+      "editUnavailable": "Edição indisponível"
+    },
     "widgets": {
       "chat": {
         "title": "Chat"

@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
@@ -23,6 +24,7 @@ type Opts struct {
 	CachedTwitchClient *twitchcahe.CachedTwitchClient
 	UsersRepository    users.Repository
 	ChannelService     *channelservice.ChannelService
+	KickProvider       *kickplatform.Provider
 }
 
 func New(opts Opts) *Service {
@@ -32,17 +34,21 @@ func New(opts Opts) *Service {
 		cachedTwitchClient: opts.CachedTwitchClient,
 		usersRepository:    opts.UsersRepository,
 		channelService:     opts.ChannelService,
+		kickProvider:       opts.KickProvider,
 	}
 }
 
 type Service struct {
-	twirBus            *buscore.Bus
-	config             config.Config
-	cachedTwitchClient *twitchcahe.CachedTwitchClient
-	usersRepository    users.Repository
-	channelService     channelLookup
-	newAppClient       twitchAppClientFactory
-	newUserClient      twitchUserClientFactory
+	twirBus                     *buscore.Bus
+	config                      config.Config
+	cachedTwitchClient          *twitchcahe.CachedTwitchClient
+	usersRepository             users.Repository
+	channelService              channelLookup
+	kickProvider                *kickplatform.Provider
+	newAppClient                twitchAppClientFactory
+	newUserClient               twitchUserClientFactory
+	requestKickUserToken        kickUserTokenRequester
+	updateKickStreamInformation kickStreamInformationUpdater
 }
 
 type channelLookup interface {
