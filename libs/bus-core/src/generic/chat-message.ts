@@ -12,6 +12,15 @@ export interface ChatMessageFragment {
 		readonly end?: number
 	}
 	readonly type: number
+	readonly emote?: {
+		readonly id?: string
+		readonly url?: string
+	}
+}
+
+export interface ChatMessageEmote {
+	readonly id: string
+	readonly text: string
 }
 
 export interface ChatMessage {
@@ -43,4 +52,5 @@ export interface ChatMessage {
 	readonly is_vip: boolean
 	readonly is_subscriber: boolean
 	readonly color: string
+	readonly emotes?: readonly ChatMessageEmote[]
 }

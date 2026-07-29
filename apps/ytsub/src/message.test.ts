@@ -17,6 +17,7 @@ test('normalizeYoutubeTextMessage emits the generic Go chat schema for text chat
 		{
 			id: 'message-1',
 			text: 'hello 😀',
+			fragments: [{ text: 'hello 😀' }],
 			author: {
 				id: 'UCviewer',
 				name: 'Viewer',
@@ -55,6 +56,7 @@ test('normalizeYoutubeTextMessage emits the generic Go chat schema for text chat
 		is_vip: false,
 		is_subscriber: false,
 		color: '',
+		emotes: [],
 	})
 })
 
@@ -91,6 +93,36 @@ test('toYoutubeTextChatMessage maps custom-thumbnail membership badges to member
 	expect(message.author.badges.some(isYoutubeSubscriberBadge)).toBe(true)
 })
 
+test('toYoutubeTextChatMessage maps emoji runs to emote fragments with shortcuts and image urls', () => {
+	const item = {
+		id: 'message-1',
+		message: {
+			toString: () => 'hi :face-blue-smiling:',
+			runs: [
+				{ text: 'hi ' },
+				{
+					text: ':face-blue-smiling:',
+					emoji: {
+						emoji_id: 'UCchannel/emoji42',
+						shortcuts: [':face-blue-smiling:'],
+						image: [{ url: 'https://yt3.ggpht.com/emoji42.png' }],
+						is_custom: true,
+					},
+				},
+			],
+		},
+		author: { id: 'UCviewer', name: 'Viewer', badges: [] },
+	} as unknown as YTNodes.LiveChatTextMessage
+
+	const message = toYoutubeTextChatMessage(item)
+
+	expect(message.text).toBe('hi :face-blue-smiling:')
+	expect(message.fragments).toEqual([
+		{ text: 'hi ' },
+		{ text: ':face-blue-smiling:', emote: { id: 'UCchannel/emoji42', url: 'https://yt3.ggpht.com/emoji42.png' } },
+	])
+})
+
 test('normalizeYoutubeTextMessage marks members as subscribers', () => {
 	const message = normalizeYoutubeTextMessage(
 		{
@@ -105,6 +137,7 @@ test('normalizeYoutubeTextMessage marks members as subscribers', () => {
 		{
 			id: 'message-1',
 			text: 'hello',
+			fragments: [{ text: 'hello' }],
 			author: {
 				id: 'UCmember',
 				name: 'Member',
