@@ -27,6 +27,7 @@ use (
 	./libs/integrations
 	./libs/logger
 	./libs/migrations
+	./libs/oauth
 	./libs/otel
 	./libs/platforms
 	./libs/pubsub
