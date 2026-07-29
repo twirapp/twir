@@ -51,11 +51,11 @@ func TestChatClient_SendMessage_postsOfficialLiveChatMessage(t *testing.T) {
 		case "/liveBroadcasts":
 			require.Equal(t, http.MethodGet, request.Method)
 			require.Equal(t, "Bearer streamer-access-token", request.Header.Get("Authorization"))
-			require.Equal(t, "snippet", request.URL.Query().Get("part"))
+			require.Equal(t, "snippet,status", request.URL.Query().Get("part"))
 			require.Equal(t, "true", request.URL.Query().Get("mine"))
-			require.Equal(t, "active", request.URL.Query().Get("broadcastStatus"))
+			require.Equal(t, "all", request.URL.Query().Get("broadcastType"))
 			writer.Header().Set("Content-Type", "application/json")
-			_, err := writer.Write([]byte(`{"items":[{"snippet":{"liveChatId":"live-chat-42"}}]}`))
+			_, err := writer.Write([]byte(`{"items":[{"snippet":{"liveChatId":"live-chat-42"},"status":{"lifeCycleStatus":"live"}}]}`))
 			require.NoError(t, err)
 		case "/liveChat/messages":
 			require.Equal(t, http.MethodPost, request.Method)

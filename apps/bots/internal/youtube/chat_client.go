@@ -118,7 +118,7 @@ func (c *ChatClient) resolveLiveChatID(
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		c.endpoint("/liveBroadcasts?part=snippet&mine=true&broadcastStatus=active"),
+		c.endpoint("/liveBroadcasts?part=snippet,status&mine=true&broadcastType=all&maxResults=50"),
 		nil,
 	)
 	if err != nil {
@@ -159,12 +159,18 @@ func (c *ChatClient) resolveLiveChatID(
 		return "", fmt.Errorf("decode active YouTube live broadcasts response: %w", err)
 	}
 
-	if len(broadcastsResponse.Items) == 0 || broadcastsResponse.Items[0].Snippet.LiveChatID == "" {
+	liveChatID := ""
+	for _, broadcast := range broadcastsResponse.Items {
+		if broadcast.Status.LifeCycleStatus == "live" && broadcast.Snippet.LiveChatID != "" {
+			liveChatID = broadcast.Snippet.LiveChatID
+			break
+		}
+	}
+
+	if liveChatID == "" {
 		c.cacheLiveChatID(ctx, cacheKey, "", noActiveBroadcastCacheTTL)
 		return "", noActiveBroadcastError(binding)
 	}
-
-	liveChatID := broadcastsResponse.Items[0].Snippet.LiveChatID
 	c.cacheLiveChatID(ctx, cacheKey, liveChatID, liveChatIDCacheTTL)
 	return liveChatID, nil
 }

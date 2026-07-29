@@ -16,10 +16,15 @@ type liveBroadcastsResponse struct {
 
 type liveBroadcast struct {
 	Snippet liveBroadcastSnippet `json:"snippet"`
+	Status  liveBroadcastStatus  `json:"status"`
 }
 
 type liveBroadcastSnippet struct {
 	LiveChatID string `json:"liveChatId"`
+}
+
+type liveBroadcastStatus struct {
+	LifeCycleStatus string `json:"lifeCycleStatus"`
 }
 
 type liveChatMessageInsertRequest struct {
