@@ -10,7 +10,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/redis/go-redis/v9"
 	model "github.com/twirapp/twir/libs/gomodels"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -48,7 +48,7 @@ func NewSessions(opts Opts) *Auth {
 
 func registerSessionTypes() {
 	gob.Register(model.Users{})
-	gob.Register(helix.User{})
+	gob.RegisterName("github.com/nicklaw5/helix/v2.User", helix.User{})
 	gob.Register(uuid.UUID{})
 	gob.Register(KickSessionUser{})
 	gob.Register(OAuthAttempt{})

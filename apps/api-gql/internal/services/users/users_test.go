@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -60,12 +60,17 @@ func (t *usersCaptureTransport) RoundTrip(req *http.Request) (*http.Response, er
 func newUsersServiceTestClient(t *testing.T, transport http.RoundTripper) *helix.Client {
 	t.Helper()
 
-	client, err := helix.NewClient(&helix.Options{
-		ClientID: "test-client",
-		HTTPClient: &http.Client{
-			Transport: transport,
-		},
-	})
+	client, err := helix.New(
+		helix.WithBaseURL("https://api.twitch.test/helix"),
+		helix.WithHTTPClient(&http.Client{Transport: transport}),
+		helix.WithStaticToken(helix.Credential{
+			AccessToken: "test-token",
+			ClientID:    "test-client",
+			TokenClass:  helix.TokenClassUser,
+			UserID:      "viewer-platform-user",
+			Scopes:      []helix.AuthorizationScope{helix.ScopeModeratorReadFollowers},
+		}),
+	)
 	if err != nil {
 		t.Fatalf("new Helix client: %v", err)
 	}

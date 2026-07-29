@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -78,11 +79,17 @@ func (t *scheduledVipCaptureTransport) RoundTrip(req *http.Request) (*http.Respo
 	t.method = req.Method
 	t.path = req.URL.Path
 	t.query = req.URL.Query()
+	statusCode := http.StatusOK
+	body := `{"data":[]}`
+	if req.Method == http.MethodDelete || req.Method == http.MethodPost {
+		statusCode = http.StatusNoContent
+		body = ""
+	}
 
 	return &http.Response{
-		StatusCode: http.StatusOK,
+		StatusCode: statusCode,
 		Header:     make(http.Header),
-		Body:       io.NopCloser(strings.NewReader(`{"data":[]}`)),
+		Body:       io.NopCloser(strings.NewReader(body)),
 		Request:    req,
 	}, nil
 }
@@ -90,12 +97,17 @@ func (t *scheduledVipCaptureTransport) RoundTrip(req *http.Request) (*http.Respo
 func newScheduledVipTestClient(t *testing.T, transport http.RoundTripper) *helix.Client {
 	t.Helper()
 
-	client, err := helix.NewClient(&helix.Options{
-		ClientID: "test-client",
-		HTTPClient: &http.Client{
-			Transport: transport,
-		},
-	})
+	client, err := helix.New(
+		helix.WithBaseURL("https://api.twitch.test/helix"),
+		helix.WithHTTPClient(&http.Client{Transport: transport}),
+		helix.WithStaticToken(helix.Credential{
+			AccessToken: "test-token",
+			ClientID:    "test-client",
+			TokenClass:  helix.TokenClassUser,
+			UserID:      "twitch-channel",
+			Scopes:      []helix.AuthorizationScope{helix.ScopeChannelManageVIPs},
+		}),
+	)
 	if err != nil {
 		t.Fatalf("new Helix client: %v", err)
 	}
@@ -139,7 +151,8 @@ func TestRemoveUsesSelectedTwitchBinding(t *testing.T) {
 	transport := &scheduledVipCaptureTransport{}
 	var clientOwnerID uuid.UUID
 	service := &Service{
-		repo: repository,
+		repo:   repository,
+		logger: slog.Default(),
 		channelService: scheduledVipChannelLookupStub{channel: channelentity.Channel{
 			Bindings: scheduledVipBindings(ownerID, "twitch-channel"),
 		}},
@@ -147,7 +160,7 @@ func TestRemoveUsesSelectedTwitchBinding(t *testing.T) {
 			ID:         vipUserID,
 			PlatformID: "vip-platform-user",
 		}},
-		newUserClient: func(userID uuid.UUID) (*helix.Client, error) {
+		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
 			clientOwnerID = userID
 			return newScheduledVipTestClient(t, transport), nil
 		},
@@ -188,7 +201,8 @@ func TestRemoveDeletesWhenSelectedTwitchBindingHasEmptyProviderID(t *testing.T) 
 	}}
 	transport := &scheduledVipCaptureTransport{}
 	service := &Service{
-		repo: repository,
+		repo:   repository,
+		logger: slog.Default(),
 		channelService: scheduledVipChannelLookupStub{channel: channelentity.Channel{
 			Bindings: scheduledVipBindings(ownerID, ""),
 		}},
@@ -196,7 +210,7 @@ func TestRemoveDeletesWhenSelectedTwitchBindingHasEmptyProviderID(t *testing.T) 
 			ID:         vipUserID,
 			PlatformID: "vip-platform-user",
 		}},
-		newUserClient: func(uuid.UUID) (*helix.Client, error) {
+		newUserClient: func(context.Context, uuid.UUID) (*helix.Client, error) {
 			return newScheduledVipTestClient(t, transport), nil
 		},
 	}
@@ -210,8 +224,8 @@ func TestRemoveDeletesWhenSelectedTwitchBindingHasEmptyProviderID(t *testing.T) 
 	if len(repository.deleted) != 1 || repository.deleted[0] != vipID {
 		t.Fatalf("deleted IDs = %#v, want [%s]", repository.deleted, vipID)
 	}
-	if transport.calls != 1 {
-		t.Fatalf("HTTP calls = %d, want 1", transport.calls)
+	if transport.calls != 0 {
+		t.Fatalf("HTTP calls = %d, want 0", transport.calls)
 	}
 }
 
@@ -230,7 +244,7 @@ func TestRemoveRejectsMissingTwitchBindingWithoutDeleting(t *testing.T) {
 		channelService: scheduledVipChannelLookupStub{channel: channelentity.Channel{
 			Bindings: scheduledVipBindings(uuid.New(), "twitch-channel")[:2],
 		}},
-		newUserClient: func(uuid.UUID) (*helix.Client, error) {
+		newUserClient: func(context.Context, uuid.UUID) (*helix.Client, error) {
 			clientCalls++
 			return nil, nil
 		},
@@ -251,7 +265,7 @@ func TestRemoveRejectsMissingTwitchBindingWithoutDeleting(t *testing.T) {
 	}
 }
 
-func TestCreateWithTwitchVipKeepsLegacyEmptyProviderIDBehavior(t *testing.T) {
+func TestCreateWithTwitchVipRejectsEmptyProviderIDBeforeCreating(t *testing.T) {
 	channelID := uuid.New()
 	ownerID := uuid.New()
 	targetUserID := uuid.New()
@@ -264,7 +278,7 @@ func TestCreateWithTwitchVipKeepsLegacyEmptyProviderIDBehavior(t *testing.T) {
 			Bindings: scheduledVipBindings(ownerID, ""),
 		}},
 		usersRepo: scheduledVipUsersRepositoryStub{user: usersmodel.User{ID: targetUserID}},
-		newUserClient: func(userID uuid.UUID) (*helix.Client, error) {
+		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
 			clientOwnerID = userID
 			return newScheduledVipTestClient(t, transport), nil
 		},
@@ -274,17 +288,17 @@ func TestCreateWithTwitchVipKeepsLegacyEmptyProviderIDBehavior(t *testing.T) {
 		ChannelID: channelID.String(),
 		UserID:    "target-platform-user",
 	})
-	if err != nil {
-		t.Fatalf("create scheduled Twitch VIP: %v", err)
+	if err == nil {
+		t.Fatal("expected Twitchy authorization error")
 	}
 	if clientOwnerID != ownerID {
 		t.Fatalf("user client owner ID = %s, want %s", clientOwnerID, ownerID)
 	}
-	if transport.calls != 1 {
-		t.Fatalf("HTTP calls = %d, want 1", transport.calls)
+	if transport.calls != 0 {
+		t.Fatalf("HTTP calls = %d, want 0", transport.calls)
 	}
-	if len(repository.created) != 1 || repository.created[0].UserID != targetUserID.String() {
-		t.Fatalf("created scheduled VIPs = %#v, want target database user", repository.created)
+	if len(repository.created) != 0 {
+		t.Fatalf("created scheduled VIPs = %#v, want none", repository.created)
 	}
 }
 
@@ -301,7 +315,7 @@ func TestCreateWithTwitchVipUsesSelectedTwitchBinding(t *testing.T) {
 			Bindings: scheduledVipBindings(ownerID, "twitch-channel"),
 		}},
 		usersRepo: scheduledVipUsersRepositoryStub{user: usersmodel.User{ID: targetUserID}},
-		newUserClient: func(userID uuid.UUID) (*helix.Client, error) {
+		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
 			clientOwnerID = userID
 			return newScheduledVipTestClient(t, transport), nil
 		},

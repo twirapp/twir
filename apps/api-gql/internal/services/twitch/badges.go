@@ -5,13 +5,12 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"github.com/twirapp/twir/libs/twitch"
 )
 
 func (c *Service) GetChannelChatBadges(ctx context.Context, channelID string) (
-	[]helix.ChatBadge,
+	[]helix.ChatBadgeSet,
 	error,
 ) {
 	parsedID, err := uuid.Parse(channelID)
@@ -37,45 +36,29 @@ func (c *Service) GetChannelChatBadges(ctx context.Context, channelID string) (
 		return nil, err
 	}
 
-	resp, err := twitchClient.GetChannelChatBadges(
-		&helix.GetChatBadgeParams{
+	resp, err := twitchClient.Chat.GetChannelChatBadges(
+		ctx, helix.GetChannelChatBadgesRequest{
 			BroadcasterID: twitchBinding.PlatformChannelID,
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	if resp.ErrorMessage != "" {
-		return nil, fmt.Errorf(
-			"cannot get channel badges: %v %s",
-			resp.StatusCode,
-			resp.ErrorMessage,
-		)
-	}
-
-	return resp.Data.Badges, nil
+	return resp.Data, nil
 }
 
 func (c *Service) GetGlobalChatBadges(ctx context.Context) (
-	[]helix.ChatBadge,
+	[]helix.ChatBadgeSet,
 	error,
 ) {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+	twitchClient, err := c.createAppClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := twitchClient.GetGlobalChatBadges()
+	resp, err := twitchClient.Chat.GetGlobalChatBadges(ctx, helix.GetGlobalChatBadgesRequest{})
 	if err != nil {
 		return nil, err
 	}
-	if resp.ErrorMessage != "" {
-		return nil, fmt.Errorf(
-			"cannot get global badges: %v %s",
-			resp.StatusCode,
-			resp.ErrorMessage,
-		)
-	}
-
-	return resp.Data.Badges, nil
+	return resp.Data, nil
 }

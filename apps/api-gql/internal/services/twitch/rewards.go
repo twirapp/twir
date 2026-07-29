@@ -2,15 +2,17 @@ package twitch
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type CustomRewardsResult struct {
-	Rewards              []helix.ChannelCustomReward
+	Rewards              []helix.CustomReward
 	IsPartnerOrAffiliate bool
 }
 
@@ -41,26 +43,22 @@ func (c *Service) GetRewardsByChannelID(
 		return CustomRewardsResult{}, fmt.Errorf("failed to create twitch client: %w", err)
 	}
 
-	rewards, err := twitchClient.GetCustomRewards(
-		&helix.GetCustomRewardsParams{
+	rewards, err := twitchClient.ChannelPoints.GetCustomReward(
+		ctx, helix.GetCustomRewardRequest{
 			BroadcasterID: twitchBinding.PlatformChannelID,
 		},
 	)
 	if err != nil {
-		return CustomRewardsResult{}, fmt.Errorf("cannot get custom rewards: %w", err)
-	}
-	if rewards.ErrorMessage != "" {
-		if rewards.StatusCode == 403 && rewards.ErrorMessage == "The broadcaster must have partner or affiliate status." {
-			return CustomRewardsResult{
-				Rewards:              nil,
-				IsPartnerOrAffiliate: false,
-			}, nil
+		var authErr *helix.AuthError
+		if errors.As(err, &authErr) && authErr.StatusCode() == 403 && strings.Contains(err.Error(), "The broadcaster must have partner or affiliate status.") {
+			return CustomRewardsResult{IsPartnerOrAffiliate: false}, nil
 		}
-		return CustomRewardsResult{}, fmt.Errorf("cannot get custom rewards: %s", rewards.ErrorMessage)
+
+		return CustomRewardsResult{}, fmt.Errorf("cannot get custom rewards: %w", err)
 	}
 
 	return CustomRewardsResult{
-		Rewards:              rewards.Data.ChannelCustomRewards,
+		Rewards:              rewards.Data,
 		IsPartnerOrAffiliate: true,
 	}, nil
 }

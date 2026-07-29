@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -26,10 +26,12 @@ func (s twitchChannelLookupStub) GetChannelByID(context.Context, uuid.UUID) (cha
 }
 
 type twitchCaptureTransport struct {
-	calls  int
-	method string
-	path   string
-	query  url.Values
+	calls          int
+	method         string
+	path           string
+	query          url.Values
+	responseStatus int
+	responseBody   string
 }
 
 func (t *twitchCaptureTransport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -37,11 +39,21 @@ func (t *twitchCaptureTransport) RoundTrip(req *http.Request) (*http.Response, e
 	t.method = req.Method
 	t.path = req.URL.Path
 	t.query = req.URL.Query()
+	statusCode := http.StatusOK
+	body := `{"data":[]}`
+	if req.Method == http.MethodPatch {
+		statusCode = http.StatusNoContent
+		body = ""
+	}
+	if t.responseStatus != 0 {
+		statusCode = t.responseStatus
+		body = t.responseBody
+	}
 
 	return &http.Response{
-		StatusCode: http.StatusOK,
+		StatusCode: statusCode,
 		Header:     make(http.Header),
-		Body:       io.NopCloser(strings.NewReader(`{"data":[]}`)),
+		Body:       io.NopCloser(strings.NewReader(body)),
 		Request:    req,
 	}, nil
 }
@@ -49,12 +61,21 @@ func (t *twitchCaptureTransport) RoundTrip(req *http.Request) (*http.Response, e
 func newTwitchServiceTestClient(t *testing.T, transport http.RoundTripper) *helix.Client {
 	t.Helper()
 
-	client, err := helix.NewClient(&helix.Options{
-		ClientID: "test-client",
-		HTTPClient: &http.Client{
-			Transport: transport,
-		},
-	})
+	client, err := helix.New(
+		helix.WithBaseURL("https://api.twitch.test/helix"),
+		helix.WithHTTPClient(&http.Client{Transport: transport}),
+		helix.WithStaticToken(helix.Credential{
+			AccessToken: "test-token",
+			ClientID:    "test-client",
+			TokenClass:  helix.TokenClassUser,
+			UserID:      "twitch-channel",
+			Scopes: []helix.AuthorizationScope{
+				helix.ScopeChannelManageBroadcast,
+				helix.ScopeChannelReadRedemptions,
+				helix.ScopeChannelManageRedemptions,
+			},
+		}),
+	)
 	if err != nil {
 		t.Fatalf("new Helix client: %v", err)
 	}
@@ -429,5 +450,33 @@ func TestGetRewardsByChannelIDUsesEmptySelectedTwitchProviderID(t *testing.T) {
 	}
 	if transport.calls != 1 {
 		t.Fatalf("HTTP calls = %d, want 1", transport.calls)
+	}
+}
+
+func TestGetRewardsByChannelIDMapsPartnerStatusFromTwitchyAuthError(t *testing.T) {
+	// Given
+	ownerID := uuid.New()
+	transport := &twitchCaptureTransport{
+		responseStatus: http.StatusForbidden,
+		responseBody:   `{"error":"Forbidden","status":403,"message":"The broadcaster must have partner or affiliate status."}`,
+	}
+	service := &Service{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{
+			Bindings: mixedTwitchBindings(ownerID),
+		}},
+		newUserClient: func(context.Context, uuid.UUID) (*helix.Client, error) {
+			return newTwitchServiceTestClient(t, transport), nil
+		},
+	}
+
+	// When
+	result, err := service.GetRewardsByChannelID(context.Background(), uuid.NewString())
+
+	// Then
+	if err != nil {
+		t.Fatalf("get rewards: %v", err)
+	}
+	if result.IsPartnerOrAffiliate || result.Rewards != nil {
+		t.Fatalf("result = %#v, want not-partner empty rewards", result)
 	}
 }

@@ -3,12 +3,13 @@ package dashboard
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/kv"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -126,6 +127,28 @@ type Service struct {
 	channelEmotesUsagesRepo channelEmotesUsagesCounter
 	streamsRepository       streamLookup
 	usersRepo               usersLookup
+	newAppClient            twitchAppClientFactory
+	newUserClient           twitchUserClientFactory
+}
+
+type twitchAppClientFactory func(context.Context) (*helix.Client, error)
+
+type twitchUserClientFactory func(context.Context, uuid.UUID) (*helix.Client, error)
+
+func (c *Service) createAppClient(ctx context.Context) (*helix.Client, error) {
+	if c.newAppClient != nil {
+		return c.newAppClient(ctx)
+	}
+
+	return twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+}
+
+func (c *Service) createUserClient(ctx context.Context, userID uuid.UUID) (*helix.Client, error) {
+	if c.newUserClient != nil {
+		return c.newUserClient(ctx, userID)
+	}
+
+	return twitch.NewUserClientWithContext(ctx, userID, c.config, c.twirBus)
 }
 
 func (c *Service) resolveAnalyticsIdentity(ctx context.Context, channel channelentity.Channel) (string, string) {
@@ -266,33 +289,24 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 		result.StreamStartedAt = &stream.StartedAt
 	}
 
-	channelTwitchClient, err := twitch.NewUserClientWithContext(
-		ctx,
-		twitchBinding.UserID,
-		c.config,
-		c.twirBus,
-	)
+	channelTwitchClient, err := c.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
-		appClient, appClientErr := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+		appClient, appClientErr := c.createAppClient(ctx)
 		if appClientErr != nil {
 			c.logger.Error("cannot get fallback twitch app client", logger.Error(appClientErr))
 			return &result, nil
 		}
 
 		if stream.IsNil() {
-			channelInformation, infoErr := appClient.GetChannelInformation(&helix.GetChannelInformationParams{
+			channelInformation, infoErr := appClient.Channels.GetChannelInformation(ctx, helix.GetChannelInformationRequest{
 				BroadcasterIDs: []string{twitchPlatformID},
 			})
 			if infoErr != nil {
 				c.logger.Error("cannot get channel information with app client", logger.Error(infoErr))
 				return &result, nil
 			}
-			if channelInformation.ErrorMessage != "" {
-				c.logger.Error("cannot get channel information with app client", slog.String("error", channelInformation.ErrorMessage))
-				return &result, nil
-			}
-			if len(channelInformation.Data.Channels) > 0 {
-				c := channelInformation.Data.Channels[0]
+			if len(channelInformation.Data) > 0 {
+				c := channelInformation.Data[0]
 				result.StreamCategoryName = c.GameName
 				result.StreamTitle = c.Title
 				result.StreamCategoryID = c.GameID
@@ -303,17 +317,14 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	}
 
 	if stream.IsNil() {
-		channelInformation, err := channelTwitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
+		channelInformation, err := channelTwitchClient.Channels.GetChannelInformation(ctx, helix.GetChannelInformationRequest{
 			BroadcasterIDs: []string{twitchPlatformID},
 		})
 		if err != nil {
 			return nil, fmt.Errorf("get channel information: %w", err)
 		}
-		if channelInformation.ErrorMessage != "" {
-			return nil, fmt.Errorf("get channel information: %s", channelInformation.ErrorMessage)
-		}
-		if len(channelInformation.Data.Channels) > 0 {
-			c := channelInformation.Data.Channels[0]
+		if len(channelInformation.Data) > 0 {
+			c := channelInformation.Data[0]
 			result.StreamCategoryName = c.GameName
 			result.StreamTitle = c.Title
 			result.StreamCategoryID = c.GameID
@@ -329,21 +340,17 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
-		followers, err := channelTwitchClient.GetChannelFollows(
-			&helix.GetChannelFollowsParams{
-				BroadcasterID: twitchPlatformID,
-			},
+		followers, err := c.cachedTwitchClient.GetChannelFollowersCountByChannelId(
+			ctx,
+			twitchBinding.UserID,
+			twitchPlatformID,
 		)
 		if err != nil {
 			c.logger.Error("cannot get followers", logger.Error(err))
 			return
 		}
-		if followers.ErrorMessage != "" {
-			c.logger.Error("cannot get followers", slog.String("error", followers.ErrorMessage))
-			return
-		}
 
-		result.Followers = followers.Data.Total
+		result.Followers = followers
 	})
 
 	wg.Go(func() {
@@ -667,7 +674,7 @@ func (c *Service) getTwitchBotStatus(
 
 	twitchPlatformID := binding.PlatformChannelID
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, binding.UserID, c.config, c.twirBus)
+	twitchClient, err := c.createUserClient(ctx, binding.UserID)
 	if err != nil {
 		return entity.BotStatus{}, err
 	}
@@ -681,8 +688,8 @@ func (c *Service) getTwitchBotStatus(
 				return nil
 			}
 
-			mods, err := twitchClient.GetModerators(
-				&helix.GetModeratorsParams{
+			mods, err := twitchClient.Moderation.GetModerators(
+				ctx, helix.GetModeratorsRequest{
 					BroadcasterID: twitchPlatformID,
 					UserIDs:       []string{botConfig.BotID},
 				},
@@ -690,11 +697,7 @@ func (c *Service) getTwitchBotStatus(
 			if err != nil {
 				return err
 			}
-			if mods.ErrorMessage != "" {
-				return fmt.Errorf("cannot get moderators: %s", mods.ErrorMessage)
-			}
-
-			if len(mods.Data.Moderators) > 0 {
+			if len(mods.Data) > 0 {
 				result.IsMod = true
 			}
 
@@ -704,20 +707,20 @@ func (c *Service) getTwitchBotStatus(
 
 	errgrp.Go(
 		func() error {
-			infoReq, err := twitchClient.GetUsers(
-				&helix.UsersParams{
+			infoReq, err := twitchClient.Users.GetUsers(
+				ctx, helix.GetUsersRequest{
 					IDs: []string{botConfig.BotID},
 				},
 			)
 			if err != nil {
 				return err
 			}
-			if len(infoReq.Data.Users) == 0 {
-				return fmt.Errorf("cannot get user info: %s", infoReq.ErrorMessage)
+			if len(infoReq.Data) == 0 {
+				return fmt.Errorf("cannot get user info")
 			}
 
-			result.BotID = infoReq.Data.Users[0].ID
-			result.BotName = infoReq.Data.Users[0].Login
+			result.BotID = infoReq.Data[0].ID
+			result.BotName = infoReq.Data[0].Login
 			return nil
 		},
 	)
@@ -848,15 +851,15 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 		}
 
 		twitchPlatformID := binding.PlatformChannelID
-		twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.twirBus)
+		twitchClient, err := c.createAppClient(ctx)
 		if err != nil {
 			return false, err
 		}
 
-		twitchUsers, err := twitchClient.GetUsers(
-			&helix.UsersParams{IDs: []string{twitchPlatformID}},
+		twitchUsers, err := twitchClient.Users.GetUsers(
+			ctx, helix.GetUsersRequest{IDs: []string{twitchPlatformID}},
 		)
-		if err != nil || twitchUsers.ErrorMessage != "" || len(twitchUsers.Data.Users) == 0 {
+		if err != nil || len(twitchUsers.Data) == 0 {
 			return false, fmt.Errorf("user not found on twitch")
 		}
 
@@ -872,44 +875,32 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 			)
 		}
 
-		broadcasterClient, err := twitch.NewUserClientWithContext(
-			ctx,
-			binding.UserID,
-			c.config,
-			c.twirBus,
-		)
+		broadcasterClient, err := c.createUserClient(ctx, binding.UserID)
 		if err != nil {
 			return false, err
 		}
 
 		if action == BotJoinLeaveActionJoin {
-			unbanResp, err := broadcasterClient.UnbanUser(
-				&helix.UnbanUserParams{
+			_, err = broadcasterClient.Moderation.UnbanUser(
+				ctx, helix.UnbanUserRequest{
 					BroadcasterID: twitchPlatformID,
 					ModeratorID:   twitchPlatformID,
 					UserID:        botConfig.BotID,
 				},
 			)
-			if err != nil {
+			unbanBadRequest := twitchErrorHasStatus(err, 400)
+			if err != nil && !unbanBadRequest {
 				return false, err
 			}
 
-			if unbanResp.ErrorMessage != "" && unbanResp.StatusCode != 400 {
-				return false, fmt.Errorf("cannot unban user: %s", unbanResp.ErrorMessage)
-			}
-
-			addModResp, err := broadcasterClient.AddChannelModerator(
-				&helix.AddChannelModeratorParams{
+			_, err = broadcasterClient.Moderation.AddChannelModerator(
+				ctx, helix.AddChannelModeratorRequest{
 					BroadcasterID: twitchPlatformID,
 					UserID:        botConfig.BotID,
 				},
 			)
-			if err != nil {
+			if err != nil && !unbanBadRequest {
 				return false, err
-			}
-
-			if addModResp.ErrorMessage != "" && unbanResp.StatusCode != 400 {
-				return false, fmt.Errorf("cannot add channel moderator: %s", addModResp.ErrorMessage)
 			}
 		}
 
@@ -918,4 +909,14 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 	default:
 		return false, fmt.Errorf("unsupported platform: %s", targetPlatform)
 	}
+}
+
+func twitchErrorHasStatus(err error, status int) bool {
+	var apiErr *helix.APIError
+	if errors.As(err, &apiErr) {
+		return apiErr.StatusCode() == status
+	}
+
+	var authErr *helix.AuthError
+	return errors.As(err, &authErr) && authErr.StatusCode() == status
 }

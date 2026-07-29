@@ -6,7 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )

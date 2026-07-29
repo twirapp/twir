@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
 	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"

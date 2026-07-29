@@ -429,6 +429,22 @@ func (a *Auth) updateKickBotTokenAfterAuth(
 	return nil
 }
 
+func (a *Auth) registerTwitchUserAfterAuth(
+	ctx context.Context,
+	result completePlatformAuthResult,
+	_ *appplatform.PlatformUser,
+	_ *appplatform.PlatformTokens,
+) error {
+	if a.registerTwitchUser == nil {
+		return fmt.Errorf("Twitch broadcaster registrar is not configured")
+	}
+	if err := a.registerTwitchUser(ctx, result.PlatformUserID); err != nil {
+		return fmt.Errorf("register Twitch broadcaster: %w", err)
+	}
+
+	return nil
+}
+
 func (a *Auth) platformAuthHTTPError(err error) error {
 	switch {
 	case errors.Is(err, errAuthForbidden):

@@ -9,7 +9,7 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/kv"
 	sessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
@@ -27,6 +27,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/tokens"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkvideobotsrepo "github.com/twirapp/twir/libs/repositories/vk_video_bots"
+	twitch "github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 )
 
@@ -75,11 +76,14 @@ type Auth struct {
 	eventSubPublisher      eventSubPublisher
 	bindingConfigResolvers map[platformentity.Platform]platformBindingConfigResolver
 	postPlatformAuthHooks  map[platformentity.Platform]postPlatformAuthHook
+	registerTwitchUser     twitchBroadcasterRegistrar
 }
 
 type dashboardAccessChecker interface {
 	IsOwner(context.Context, string, uuid.UUID) (bool, error)
 }
+
+type twitchBroadcasterRegistrar func(context.Context, uuid.UUID) error
 
 type sessionStore interface {
 	GetInternalUserID(context.Context) (uuid.UUID, error)
@@ -112,6 +116,10 @@ func New(opts Opts) *Auth {
 		vkVideoBotsRepo:      opts.VKVideoBotsRepo,
 		kv:                   opts.KV,
 		dashboardAccess:      opts.DashboardAccess,
+		registerTwitchUser: func(ctx context.Context, userID uuid.UUID) error {
+			_, err := twitch.NewUserClientWithContext(ctx, userID, opts.Config, opts.Bus)
+			return err
+		},
 	}
 	if opts.Bus != nil && opts.Bus.EventSub != nil {
 		p.eventSubPublisher = opts.Bus.EventSub.SubscribeToAllEvents
@@ -122,7 +130,8 @@ func New(opts Opts) *Auth {
 		platformentity.PlatformVKVideoLive: p.vkVideoBotBindingConfig,
 	}
 	p.postPlatformAuthHooks = map[platformentity.Platform]postPlatformAuthHook{
-		platformentity.PlatformKick: p.updateKickBotTokenAfterAuth,
+		platformentity.PlatformKick:   p.updateKickBotTokenAfterAuth,
+		platformentity.PlatformTwitch: p.registerTwitchUserAfterAuth,
 	}
 
 	huma.Register(

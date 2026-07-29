@@ -2,13 +2,12 @@ package scheduledvips
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
@@ -59,14 +58,14 @@ type channelLookup interface {
 	GetChannelByID(ctx context.Context, id uuid.UUID) (channelentity.Channel, error)
 }
 
-type twitchUserClientFactory func(uuid.UUID) (*helix.Client, error)
+type twitchUserClientFactory func(context.Context, uuid.UUID) (*helix.Client, error)
 
-func (c *Service) createUserClient(userID uuid.UUID) (*helix.Client, error) {
+func (c *Service) createUserClient(ctx context.Context, userID uuid.UUID) (*helix.Client, error) {
 	if c.newUserClient != nil {
-		return c.newUserClient(userID)
+		return c.newUserClient(ctx, userID)
 	}
 
-	return twitch.NewUserClient(userID, c.config, c.bus)
+	return twitch.NewUserClientWithContext(ctx, userID, c.config, c.bus)
 }
 
 func (c *Service) GetUserByPlatformID(ctx context.Context, platformUserID string) (usersmodel.User, error) {
@@ -157,7 +156,7 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return fmt.Errorf("get vip user: %w", err)
 	}
 
-	twitchClient, err := c.createUserClient(twitchBinding.UserID)
+	twitchClient, err := c.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client: %w", err)
 	}
@@ -171,17 +170,14 @@ func (c *Service) Remove(ctx context.Context, input RemoveInput) error {
 		return nil
 	}
 
-	vipResp, err := twitchClient.RemoveChannelVip(
-		&helix.RemoveChannelVipParams{
+	_, err = twitchClient.Moderation.RemoveChannelVIP(
+		ctx, helix.RemoveChannelVIPRequest{
 			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        vipUser.PlatformID,
 		},
 	)
 	if err != nil {
 		c.logger.Error("Cannot remove VIP on Twitch", logger.Error(err))
-	}
-	if vipResp.ErrorMessage != "" {
-		c.logger.Error("Twitch error", logger.Error(errors.New(vipResp.ErrorMessage)))
 	}
 
 	return nil
@@ -242,13 +238,13 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 		return fmt.Errorf("cannot get user by platform id: %w", err)
 	}
 
-	twitchClient, err := c.createUserClient(twitchBinding.UserID)
+	twitchClient, err := c.createUserClient(ctx, twitchBinding.UserID)
 	if err != nil {
 		return fmt.Errorf("cannot create twitch client: %w", err)
 	}
 
-	vipResp, err := twitchClient.AddChannelVip(
-		&helix.AddChannelVipParams{
+	_, err = twitchClient.Moderation.AddChannelVIP(
+		ctx, helix.AddChannelVIPRequest{
 			BroadcasterID: twitchBinding.PlatformChannelID,
 			UserID:        input.UserID,
 		},
@@ -256,10 +252,6 @@ func (c *Service) CreateWithTwitchVip(ctx context.Context, input CreateWithTwitc
 	if err != nil {
 		return fmt.Errorf("cannot add vip on twitch: %w", err)
 	}
-	if vipResp.ErrorMessage != "" {
-		return fmt.Errorf("twitch error: %s", vipResp.ErrorMessage)
-	}
-
 	err = c.repo.Create(
 		ctx,
 		scheduledvipsrepository.CreateInput{

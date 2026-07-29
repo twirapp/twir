@@ -1,11 +1,21 @@
 package mappers
 
 import (
-	"github.com/nicklaw5/helix/v2"
+	"time"
+
+	"github.com/kvizyx/twitchy/helix"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
-func TwitchCustomRewardTo(reward helix.ChannelCustomReward) gqlmodel.TwirTwitchChannelReward {
+func TwitchCustomRewardTo(reward helix.CustomReward) gqlmodel.TwirTwitchChannelReward {
+	redemptionsRedeemedCurrentStream := 0
+	if reward.RedemptionsRedeemedCurrentStream != nil {
+		redemptionsRedeemedCurrentStream = *reward.RedemptionsRedeemedCurrentStream
+	}
+	cooldownExpiresAt := ""
+	if reward.CooldownExpiresAt != nil {
+		cooldownExpiresAt = reward.CooldownExpiresAt.Format(time.RFC3339Nano)
+	}
 	model := gqlmodel.TwirTwitchChannelReward{
 		ID:                  reward.ID,
 		BroadcasterName:     reward.BroadcasterName,
@@ -20,34 +30,34 @@ func TwitchCustomRewardTo(reward helix.ChannelCustomReward) gqlmodel.TwirTwitchC
 		IsUserInputRequired: reward.IsUserInputRequired,
 		MaxPerStreamSetting: &gqlmodel.TwirTwitchChannelRewardMaxPerStreamSetting{
 			IsEnabled:    reward.MaxPerStreamSetting.IsEnabled,
-			MaxPerStream: reward.MaxPerStreamSetting.MaxPerStream,
+			MaxPerStream: int(reward.MaxPerStreamSetting.MaxPerStream),
 		},
 		MaxPerUserPerStreamSetting: &gqlmodel.TwirTwitchChannelRewardMaxPerUserPerStreamSetting{
 			IsEnabled:           reward.MaxPerUserPerStreamSetting.IsEnabled,
-			MaxPerUserPerStream: reward.MaxPerUserPerStreamSetting.MaxPerUserPerStream,
+			MaxPerUserPerStream: int(reward.MaxPerUserPerStreamSetting.MaxPerUserPerStream),
 		},
 		GlobalCooldownSetting: &gqlmodel.TwirTwitchChannelRewardGlobalCooldownSetting{
 			IsEnabled:             reward.GlobalCooldownSetting.IsEnabled,
-			GlobalCooldownSeconds: reward.GlobalCooldownSetting.GlobalCooldownSeconds,
+			GlobalCooldownSeconds: int(reward.GlobalCooldownSetting.GlobalCooldownSeconds),
 		},
 		IsPaused:                          reward.IsPaused,
 		IsInStock:                         reward.IsInStock,
 		ShouldRedemptionsSkipRequestQueue: reward.ShouldRedemptionsSkipRequestQueue,
-		RedemptionsRedeemedCurrentStream:  reward.RedemptionsRedeemedCurrentStream,
-		CooldownExpiresAt:                 reward.CooldownExpiresAt,
+		RedemptionsRedeemedCurrentStream:  redemptionsRedeemedCurrentStream,
+		CooldownExpiresAt:                 cooldownExpiresAt,
 	}
 	var image *gqlmodel.TwirTwitchChannelRewardImage
-	if reward.Image.Url1x == "" {
+	if reward.Image == nil || reward.Image.URL1x == "" {
 		image = &gqlmodel.TwirTwitchChannelRewardImage{
-			URL1x: reward.DefaultImage.Url1x,
-			URL2x: reward.DefaultImage.Url2x,
-			URL4x: reward.DefaultImage.Url4x,
+			URL1x: reward.DefaultImage.URL1x,
+			URL2x: reward.DefaultImage.URL2x,
+			URL4x: reward.DefaultImage.URL4x,
 		}
 	} else {
 		image = &gqlmodel.TwirTwitchChannelRewardImage{
-			URL1x: reward.Image.Url1x,
-			URL2x: reward.Image.Url2x,
-			URL4x: reward.Image.Url4x,
+			URL1x: reward.Image.URL1x,
+			URL2x: reward.Image.URL2x,
+			URL4x: reward.Image.URL4x,
 		}
 	}
 	model.Image = image

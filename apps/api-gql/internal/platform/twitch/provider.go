@@ -5,13 +5,17 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/kvizyx/twitchy/helix"
+	twitchoauth "github.com/kvizyx/twitchy/oauth"
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"go.uber.org/fx"
 )
+
+const twitchOAuthBaseURL = "https://id.twitch.tv"
 
 type Opts struct {
 	fx.In
@@ -33,143 +37,110 @@ func (p *Provider) Platform() platformentity.Platform {
 	return platformentity.PlatformTwitch
 }
 
-func (p *Provider) newClient() (*helix.Client, error) {
-	httpClient := &http.Client{}
-	apiBaseURL := ""
+func (p *Provider) newClient() (*twitchoauth.Client, error) {
+	options := []twitchoauth.Option{twitchoauth.WithHTTPClient(&http.Client{})}
 	if p.config.TwitchMockEnabled {
-		apiBaseURL = p.config.TwitchMockApiUrl
+		options = append(options, twitchoauth.WithBaseURL(p.config.TwitchMockAuthUrl))
 	}
 
-	return helix.NewClient(&helix.Options{
-		ClientID:     p.config.TwitchClientId,
-		ClientSecret: p.config.TwitchClientSecret,
-		RedirectURI:  p.config.GetTwitchCallbackUrl(),
-		HTTPClient:   httpClient,
-		APIBaseURL:   apiBaseURL,
-	})
+	return twitchoauth.New(options...)
+}
+
+func (p *Provider) newHelixClient(accessToken string) (*helix.Client, error) {
+	options := []helix.Option{
+		helix.WithHTTPClient(&http.Client{}),
+		helix.WithStaticToken(helix.Credential{
+			AccessToken: accessToken,
+			ClientID:    p.config.TwitchClientId,
+			TokenClass:  helix.TokenClassUser,
+		}),
+	}
+	if p.config.TwitchMockEnabled {
+		options = append(options, helix.WithBaseURL(p.config.TwitchMockApiUrl))
+	}
+
+	return helix.New(options...)
 }
 
 func (p *Provider) GetAuthURL(state, _ string) string {
+	authBaseURL := twitchOAuthBaseURL
 	if p.config.TwitchMockEnabled {
-		mockAuthURL, err := url.Parse(p.config.TwitchMockAuthUrl)
-		if err != nil {
-			return ""
-		}
-
-		mockAuthURL = mockAuthURL.JoinPath("oauth2", "authorize")
-		query := mockAuthURL.Query()
-		query.Set("response_type", "code")
-		query.Set("client_id", p.config.TwitchClientId)
-		query.Set("redirect_uri", p.config.GetTwitchCallbackUrl())
-		query.Set("scope", "")
-		query.Set("state", state)
-		mockAuthURL.RawQuery = query.Encode()
-
-		return mockAuthURL.String()
+		authBaseURL = p.config.TwitchMockAuthUrl
 	}
 
-	client, err := p.newClient()
+	authorizeURL, err := url.Parse(authBaseURL)
 	if err != nil {
 		return ""
 	}
+	authorizeURL = authorizeURL.JoinPath("oauth2", "authorize")
+	query := authorizeURL.Query()
+	query.Set("response_type", "code")
+	query.Set("client_id", p.config.TwitchClientId)
+	query.Set("redirect_uri", p.config.GetTwitchCallbackUrl())
+	query.Set("state", state)
+	if p.config.TwitchMockEnabled {
+		query.Set("scope", "")
+	} else {
+		query.Set("scope", "moderation:read channel:manage:broadcast channel:read:redemptions channel:manage:redemptions moderator:read:chatters moderator:manage:shoutouts moderator:manage:banned_users channel:read:vips channel:manage:vips channel:manage:moderators moderator:read:followers moderator:manage:chat_settings channel:read:polls channel:manage:polls channel:read:predictions channel:manage:predictions channel:read:subscriptions channel:moderate user:read:follows channel:bot channel:manage:raids")
+	}
+	authorizeURL.RawQuery = query.Encode()
 
-	return client.GetAuthorizationURL(&helix.AuthorizationURLParams{
-		ResponseType: "code",
-		State:        state,
-		Scopes: []string{
-			"moderation:read",
-			"channel:manage:broadcast",
-			"channel:read:redemptions",
-			"channel:manage:redemptions",
-			"moderator:read:chatters",
-			"moderator:manage:shoutouts",
-			"moderator:manage:banned_users",
-			"channel:read:vips",
-			"channel:manage:vips",
-			"channel:manage:moderators",
-			"moderator:read:followers",
-			"moderator:manage:chat_settings",
-			"channel:read:polls",
-			"channel:manage:polls",
-			"channel:read:predictions",
-			"channel:manage:predictions",
-			"channel:read:subscriptions",
-			"channel:moderate",
-			"user:read:follows",
-			"channel:bot",
-			"channel:manage:raids",
-		},
-	})
+	return authorizeURL.String()
 }
 
 func (p *Provider) ExchangeCode(ctx context.Context, input platform.ExchangeCodeInput) (*platform.PlatformTokens, error) {
 	client, err := p.newClient()
 	if err != nil {
-		return nil, fmt.Errorf("create helix client: %w", err)
+		return nil, fmt.Errorf("create Twitch OAuth client: %w", err)
 	}
 
-	resp, err := client.RequestUserAccessToken(input.Code)
+	resp, err := client.ExchangeCode(ctx, twitchoauth.ExchangeCodeRequest{
+		ClientID:     p.config.TwitchClientId,
+		ClientSecret: p.config.TwitchClientSecret,
+		Code:         input.Code,
+		RedirectURI:  p.config.GetTwitchCallbackUrl(),
+	})
 	if err != nil {
-		return nil, fmt.Errorf("request user access token: %w", err)
+		return nil, fmt.Errorf("exchange Twitch authorization code: %w", err)
 	}
 
-	if resp.ErrorMessage != "" {
-		return nil, fmt.Errorf("twitch token exchange error: %s", resp.ErrorMessage)
-	}
-
-	return &platform.PlatformTokens{
-		AccessToken:  resp.Data.AccessToken,
-		RefreshToken: resp.Data.RefreshToken,
-		ExpiresIn:    resp.Data.ExpiresIn,
-		Scopes:       resp.Data.Scopes,
-	}, nil
+	return platformTokens(resp), nil
 }
 
 func (p *Provider) RefreshToken(ctx context.Context, input platform.RefreshTokenInput) (*platform.PlatformTokens, error) {
 	client, err := p.newClient()
 	if err != nil {
-		return nil, fmt.Errorf("create helix client: %w", err)
+		return nil, fmt.Errorf("create Twitch OAuth client: %w", err)
 	}
 
-	resp, err := client.RefreshUserAccessToken(input.RefreshToken)
+	resp, err := client.Refresh(ctx, twitchoauth.RefreshRequest{
+		ClientID:     p.config.TwitchClientId,
+		ClientSecret: p.config.TwitchClientSecret,
+		RefreshToken: input.RefreshToken,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("refresh user access token: %w", err)
+		return nil, fmt.Errorf("refresh Twitch user access token: %w", err)
 	}
 
-	if resp.ErrorMessage != "" {
-		return nil, fmt.Errorf("twitch token refresh error: %s", resp.ErrorMessage)
-	}
-
-	return &platform.PlatformTokens{
-		AccessToken:  resp.Data.AccessToken,
-		RefreshToken: resp.Data.RefreshToken,
-		ExpiresIn:    resp.Data.ExpiresIn,
-		Scopes:       resp.Data.Scopes,
-	}, nil
+	return platformTokens(resp), nil
 }
 
 func (p *Provider) GetUser(ctx context.Context, accessToken string) (*platform.PlatformUser, error) {
-	client, err := p.newClient()
+	client, err := p.newHelixClient(accessToken)
 	if err != nil {
 		return nil, fmt.Errorf("create helix client: %w", err)
 	}
 
-	client.SetUserAccessToken(accessToken)
-
-	resp, err := client.GetUsers(&helix.UsersParams{})
+	resp, err := client.Users.GetUsers(ctx, helix.GetUsersRequest{})
 	if err != nil {
 		return nil, fmt.Errorf("get twitch users: %w", err)
 	}
 
-	if resp.ErrorMessage != "" {
-		return nil, fmt.Errorf("twitch get users error: %s", resp.ErrorMessage)
-	}
-
-	if len(resp.Data.Users) == 0 {
+	if len(resp.Data) == 0 {
 		return nil, fmt.Errorf("twitch user not found")
 	}
 
-	u := resp.Data.Users[0]
+	u := resp.Data[0]
 
 	return &platform.PlatformUser{
 		ID:          u.ID,
@@ -177,4 +148,18 @@ func (p *Provider) GetUser(ctx context.Context, accessToken string) (*platform.P
 		DisplayName: u.DisplayName,
 		Avatar:      u.ProfileImageURL,
 	}, nil
+}
+
+func platformTokens(pair *twitchoauth.TokenPair) *platform.PlatformTokens {
+	scopes := make([]string, len(pair.Scopes))
+	for index, scope := range pair.Scopes {
+		scopes[index] = string(scope)
+	}
+
+	return &platform.PlatformTokens{
+		AccessToken:  pair.AccessToken,
+		RefreshToken: pair.RefreshToken,
+		ExpiresIn:    int(pair.ExpiresIn / time.Second),
+		Scopes:       scopes,
+	}
 }
