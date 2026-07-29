@@ -7,10 +7,11 @@ import { useStreamerProfile } from '~~/layers/public/api/use-streamer-profile'
 const streamerProfile = useStreamerProfile()
 await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
 
-const platformUrls: Record<string, { url: (login: string) => string; label: string }> = {
+const platformUrls: Record<string, { url: (login: string, userId: string) => string; label: string }> = {
 	twitch: { url: (login) => `https://twitch.tv/${login}`, label: 'Twitch' },
 	kick: { url: (login) => `https://kick.com/${login}`, label: 'Kick' },
 	vk_video_live: { url: (login) => `https://live.vkvideo.ru/${login}`, label: 'VK Video Live' },
+	youtube: { url: (_, userId) => `https://www.youtube.com/channel/${userId}`, label: 'YouTube' },
 }
 
 const profile = computed(() => {
@@ -26,7 +27,7 @@ const profile = computed(() => {
 		avatar: account.platformAvatar ?? undefined,
 		displayName: account.platformDisplayName,
 		login: account.platformLogin,
-		url: platform.url(account.platformLogin),
+		url: platform.url(account.platformLogin, account.platformUserId),
 		platform: platform.label,
 	}
 })

@@ -45,7 +45,7 @@ export interface ChatBadge {
 	versions: Array<BadgeVersion>
 }
 
-export type MessagePlatform = 'twitch' | 'kick' | 'vk_video_live'
+export type MessagePlatform = 'twitch' | 'kick' | 'vk_video_live' | 'youtube'
 
 export interface KickBadge {
 	type: string

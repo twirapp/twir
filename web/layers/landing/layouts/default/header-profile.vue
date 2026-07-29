@@ -31,6 +31,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 			</span>
 				<Icon v-if="currentPlatform === 'kick'" name="simple-icons:kick" class="w-4 h-4 text-[#53FC18] shrink-0" />
 				<Icon v-else-if="currentPlatform === 'vk_video_live'" name="simple-icons:vk" class="w-4 h-4 text-[#0077FF] shrink-0" />
+			<Icon v-else-if="currentPlatform === 'youtube'" name="simple-icons:youtube" class="w-4 h-4 text-[#FF0000] shrink-0" />
 				<Icon name="lucide:chevron-down" class="w-4 h-4 shrink-0" />
 			</div>
 		</UiDropdownMenuTrigger>
