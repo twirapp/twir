@@ -63,6 +63,7 @@ function formatPlatformName(platform: string) {
 	if (platform === 'kick') return 'Kick'
 	if (platform === 'twitch') return 'Twitch'
 	if (platform === 'vk_video_live') return 'VK Video Live'
+	if (platform === 'youtube') return 'YouTube'
 	return platform || 'Bot'
 }
 
@@ -119,6 +120,7 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 							class="size-4 text-[#9146FF]"
 						/>
 						<Icon v-else-if="status.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4" />
+						<Icon v-else-if="status.platform === 'youtube'" name="simple-icons:youtube" class="size-4 text-[#FF0000]" />
 					</template>
 				</div>
 				<span class="max-w-44 truncate">{{ statusSummary }}</span>
@@ -144,6 +146,7 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 						class="size-4 text-[#9146FF]"
 					/>
 					<Icon v-else-if="status.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4" />
+					<Icon v-else-if="status.platform === 'youtube'" name="simple-icons:youtube" class="size-4 text-[#FF0000]" />
 				</div>
 				<div class="min-w-0 flex-1">
 					<p class="truncate text-sm font-medium">

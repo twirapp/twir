@@ -24,6 +24,7 @@ const platformNames: Record<Platform, string> = {
 	[Platform.Twitch]: 'Twitch',
 	[Platform.Kick]: 'Kick',
 	[Platform.VkVideoLive]: 'VK',
+	[Platform.Youtube]: 'YouTube',
 }
 
 function compactValue(platform: DashboardPlatformStats): string | number {

@@ -72,6 +72,10 @@ export const useUsersTableFilters = createGlobalState(() => {
 					label: 'VK Video Live',
 					key: Platform.VkVideoLive,
 				},
+				{
+					label: 'YouTube',
+					key: Platform.Youtube,
+				},
 			],
 		},
 		{

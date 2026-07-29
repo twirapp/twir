@@ -22,6 +22,8 @@ const iconName = computed(() => {
 			return 'simple-icons:kick'
 		case Platform.VkVideoLive:
 			return 'simple-icons:vk'
+		case Platform.Youtube:
+			return 'simple-icons:youtube'
 	}
 })
 
@@ -33,6 +35,8 @@ const iconColor = computed(() => {
 			return 'text-[#53FC18]'
 		case Platform.VkVideoLive:
 			return 'text-[#0077FF]'
+		case Platform.Youtube:
+			return 'text-[#FF0000]'
 	}
 })
 </script>

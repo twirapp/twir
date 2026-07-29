@@ -94,6 +94,8 @@ const canEditPlatform = computed(() => {
 			) ?? false
 		case Platform.VkVideoLive:
 			return false
+		case Platform.Youtube:
+			return false
 		default:
 			return false
 	}

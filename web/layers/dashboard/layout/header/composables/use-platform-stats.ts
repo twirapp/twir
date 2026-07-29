@@ -12,7 +12,7 @@ import type { DashboardStatsSubscription } from '~/gql/graphql.js'
 export type DashboardStats = DashboardStatsSubscription['dashboardStats']
 export type DashboardPlatformStats = DashboardStats['platforms'][number]
 
-const platformSortOrder: Platform[] = [Platform.Twitch, Platform.Kick, Platform.VkVideoLive]
+const platformSortOrder: Platform[] = [Platform.Twitch, Platform.Kick, Platform.VkVideoLive, Platform.Youtube]
 
 export function formatStreamUptime(startedAt: string | Date | null | undefined, now: Date): string {
 	if (!startedAt) return '00:00:00'

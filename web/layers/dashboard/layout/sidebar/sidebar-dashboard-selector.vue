@@ -114,6 +114,7 @@ const {
 							<Icon v-if="currentDashboard.platform === 'kick'" name="simple-icons:kick" class="size-4 text-[#53FC18]" />
 							<Icon v-else-if="currentDashboard.platform === 'twitch'" name="simple-icons:twitch" class="size-4 text-[#9146FF]" />
 							<Icon v-else-if="currentDashboard.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4 text-[#0077FF]" />
+							<Icon v-else-if="currentDashboard.platform === 'youtube'" name="simple-icons:youtube" class="size-4 text-[#FF0000]" />
 						</span>
 					</div>
 						<Icon name="lucide:chevrons-up-down" class="ml-auto" />
@@ -161,6 +162,11 @@ const {
 									v-else-if="option.data.platform === 'vk_video_live'"
 									name="simple-icons:vk"
 									class="size-4 text-[#0077FF] ml-auto"
+								/>
+								<Icon
+									v-else-if="option.data.platform === 'youtube'"
+									name="simple-icons:youtube"
+									class="size-4 text-[#FF0000] ml-auto"
 								/>
 							</Button>
 						</div>
