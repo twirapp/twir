@@ -79,7 +79,7 @@ var Quote = &types.DefaultCommand{
 			}
 		}
 
-		result.Result = []string{fmt.Sprintf("#%d %s", quote.Number, quote.Text)}
+		result.Result = []string{fmt.Sprintf("#%d: %s", quote.Number, quote.Text)}
 		return result, nil
 	},
 }
