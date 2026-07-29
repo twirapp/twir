@@ -298,3 +298,30 @@ test('LiveChatManager reconcile stops removed sessions even when an addition han
 	hanging.resolve({ session: new FakeLiveChat(), broadcasterName: 'Added' })
 	await reconcilePromise
 })
+
+test('LiveChatManager coalesces reconcile snapshots that arrive while one is in flight', async () => {
+	const hanging = deferred<{ readonly session: LiveChatSession; readonly broadcasterName: string }>()
+	const settled = new FakeLiveChat()
+	const results = [hanging.promise, Promise.resolve({ session: settled, broadcasterName: 'Settled' })]
+	const source: LiveChatSource = {
+		resolve(): Promise<{ readonly session: LiveChatSession; readonly broadcasterName: string }> {
+			const result = results.shift()
+			if (!result) {
+				throw new Error('Unexpected live chat resolution')
+			}
+			return result
+		},
+	}
+	const manager = new LiveChatManager(source, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+	})
+
+	const firstReconcile = manager.reconcile([binding('UCfirst')])
+	const secondReconcile = manager.reconcile([{ ...binding('UCsecond'), id: 'binding-2' }])
+
+	hanging.resolve({ session: new FakeLiveChat(), broadcasterName: 'First' })
+	await firstReconcile
+	await secondReconcile
+
+	expect(settled.startCalls).toBe(1)
+})

@@ -75,6 +75,7 @@ export class LiveChatManager {
 	readonly #generations = new Map<string, number>()
 	#closed = false
 	#reconciling = false
+	#pendingReconcile: readonly ChannelBinding[] | null = null
 
 	constructor(
 		private readonly source: LiveChatSource,
@@ -109,18 +110,27 @@ export class LiveChatManager {
 
 	async reconcile(bindings: readonly ChannelBinding[]): Promise<void> {
 		if (this.#reconciling) {
+			this.#pendingReconcile = bindings
 			return
 		}
 		this.#reconciling = true
 		try {
-			const desired = new Map(bindings.map((binding) => [binding.id, binding]))
-			for (const bindingId of [...this.#bindings.keys()]) {
-				if (!desired.has(bindingId)) {
-					this.unsubscribe(bindingId)
+			let current = bindings
+			for (;;) {
+				const desired = new Map(current.map((binding) => [binding.id, binding]))
+				for (const bindingId of [...this.#bindings.keys()]) {
+					if (!desired.has(bindingId)) {
+						this.unsubscribe(bindingId)
+					}
 				}
-			}
-			for (const binding of bindings) {
-				await this.subscribe(binding)
+				for (const binding of current) {
+					await this.subscribe(binding)
+				}
+				if (this.#pendingReconcile === null) {
+					break
+				}
+				current = this.#pendingReconcile
+				this.#pendingReconcile = null
 			}
 		} finally {
 			this.#reconciling = false

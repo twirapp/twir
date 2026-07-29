@@ -55,7 +55,7 @@ export function toYoutubeTextChatMessage(item: YTNodes.LiveChatTextMessage): You
 			return []
 		}
 		return [{
-			id: badge.icon_type,
+			id: badge.icon_type ?? (badge.custom_thumbnail.length > 0 ? 'member' : ''),
 			set_id: badge.style ?? '',
 			text: badge.label ?? badge.tooltip ?? '',
 		}]

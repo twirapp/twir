@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test'
+import { YTNodes } from 'youtubei.js'
 
-import { isYoutubeSubscriberBadge, normalizeYoutubeTextMessage } from './message.ts'
+import { isYoutubeSubscriberBadge, normalizeYoutubeTextMessage, toYoutubeTextChatMessage } from './message.ts'
 
 test('normalizeYoutubeTextMessage emits the generic Go chat schema for text chat', () => {
 	const message = normalizeYoutubeTextMessage(
@@ -61,7 +62,33 @@ test('isYoutubeSubscriberBadge identifies membership badges without treating cha
 	expect(isYoutubeSubscriberBadge({ id: 'owner', set_id: 'owner', text: 'Owner' })).toBe(false)
 	expect(isYoutubeSubscriberBadge({ id: 'moderator', set_id: 'moderator', text: 'Moderator' })).toBe(false)
 	expect(isYoutubeSubscriberBadge({ id: 'member', set_id: 'member', text: 'Member' })).toBe(true)
+	expect(isYoutubeSubscriberBadge({ id: '', set_id: 'BADGE_STYLE_TYPE_MEMBER', text: '' })).toBe(true)
+	expect(isYoutubeSubscriberBadge({ id: 'verified', set_id: 'BADGE_STYLE_TYPE_VERIFIED', text: '' })).toBe(false)
 	expect(isYoutubeSubscriberBadge({ id: '', set_id: '', text: '' })).toBe(false)
+})
+
+test('toYoutubeTextChatMessage maps custom-thumbnail membership badges to member', () => {
+	const item = {
+		id: 'message-1',
+		message: { toString: () => 'hello' },
+		author: {
+			id: 'UCmember',
+			name: 'Member',
+			badges: [{
+				is: (node: unknown) => node === YTNodes.LiveChatAuthorBadge,
+				icon_type: undefined,
+				style: undefined,
+				label: undefined,
+				tooltip: 'Member',
+				custom_thumbnail: [{ url: 'https://example.com/member-badge.png' }],
+			}],
+		},
+	} as unknown as YTNodes.LiveChatTextMessage
+
+	const message = toYoutubeTextChatMessage(item)
+
+	expect(message.author.badges[0]?.id).toBe('member')
+	expect(message.author.badges.some(isYoutubeSubscriberBadge)).toBe(true)
 })
 
 test('normalizeYoutubeTextMessage marks members as subscribers', () => {
