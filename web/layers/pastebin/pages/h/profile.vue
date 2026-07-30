@@ -73,6 +73,13 @@ function handlePasteDeleted() {
 						Login with Kick
 						<Icon name="simple-icons:kick" class="w-5 h-5 text-black" />
 					</button>
+					<button
+						class="flex flex-row px-6 py-3 items-center gap-2 bg-[#FF0000] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FF0000]/50 cursor-pointer hover:bg-[#FF0000]/80 transition-all"
+						@click="() => userStore.loginWithYoutube()"
+					>
+						Login with YouTube
+						<Icon name="simple-icons:youtube" class="w-5 h-5 text-white" />
+					</button>
 				</div>
 			</div>
 

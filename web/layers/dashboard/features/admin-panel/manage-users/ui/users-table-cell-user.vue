@@ -42,6 +42,13 @@ const platformMeta = computed(() => {
 		}
 	}
 
+	if (props.platform === Platform.Youtube) {
+		return {
+			label: 'YouTube',
+			className: 'border-[#FF0000]/30 bg-[#FF0000]/10 text-[#FF0000]',
+		}
+	}
+
 	return null
 })
 </script>

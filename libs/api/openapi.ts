@@ -913,30 +913,35 @@ export enum StreamPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformAuthorizeParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformAuthorizeParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformCodeParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformCodeParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 /** @default "views" */
@@ -955,12 +960,14 @@ export enum PublicV2ChannelCommandsByPlatformIdParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum PublicV2ChannelCommandsByPlatformIdParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1009,7 +1016,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "https://twir.localhost/api";
+  public baseUrl: string = "https://twir.dev/api";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -1176,7 +1183,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Twir Api
  * @version 1.0.0
- * @baseUrl https://twir.localhost/api
+ * @baseUrl https://twir.dev/api
  */
 export class Api<SecurityDataType extends unknown> {
   http: HttpClient<SecurityDataType>;
@@ -1297,6 +1304,30 @@ export class Api<SecurityDataType extends unknown> {
         method: "GET",
         query: query,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthYoutubeBotCallback
+     * @summary YouTube bot setup callback
+     * @request GET:/auth/youtube/bot-callback
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    authYoutubeBotCallback: (
+      query?: {
+        code?: string;
+        state?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/auth/youtube/bot-callback`,
+        method: "GET",
+        query: query,
         ...params,
       }),
 

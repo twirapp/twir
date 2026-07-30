@@ -2065,6 +2065,10 @@ func (*oauthChannelPlatformsRepository) AssignVKVideoLiveBot(context.Context, uu
 	return nil, errors.New("unexpected AssignVKVideoLiveBot call")
 }
 
+func (*oauthChannelPlatformsRepository) AssignYouTubeBot(context.Context, uuid.UUID) ([]uuid.UUID, error) {
+	return nil, errors.New("unexpected AssignYouTubeBot call")
+}
+
 func (*oauthChannelPlatformsRepository) LockByChannelID(context.Context, uuid.UUID) error {
 	return nil
 }

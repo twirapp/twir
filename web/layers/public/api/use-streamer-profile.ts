@@ -29,7 +29,10 @@ export const useStreamerProfile = defineStore('streamer-profile', () => {
 			},
 			get platform() {
 				const platform = String(router.currentRoute.value.params.platform ?? '').toUpperCase()
-				return platform === 'TWITCH' || platform === 'KICK' || platform === 'VK_VIDEO_LIVE'
+				return platform === 'TWITCH' ||
+					platform === 'KICK' ||
+					platform === 'VK_VIDEO_LIVE' ||
+					platform === 'YOUTUBE'
 					? (platform as Platform)
 					: undefined
 			},

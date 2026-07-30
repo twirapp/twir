@@ -47,6 +47,8 @@ func dashboardPlatformToGql(platform platformentity.Platform) gqlmodel.Platform 
 		return gqlmodel.PlatformKick
 	case platformentity.PlatformVKVideoLive:
 		return gqlmodel.PlatformVkVideoLive
+	case platformentity.PlatformYouTube:
+		return gqlmodel.PlatformYoutube
 	default:
 		return gqlmodel.Platform(platform)
 	}

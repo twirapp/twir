@@ -151,6 +151,20 @@ export const useAuth = defineStore('auth-store', () => {
 		}
 	}
 
+	async function loginWithYoutube() {
+		const api = useOapi()
+		try {
+			const res = await api.auth.authPlatformAuthorize(AuthPlatformAuthorizeParamsEnum.Youtube, {
+				redirect_to: redirectTo.value,
+			})
+			if (res.data && res.data.authorize_url) {
+				window.location.replace(res.data.authorize_url)
+			}
+		} catch (err) {
+			console.error('YouTube login failed:', err)
+		}
+	}
+
 	return {
 		userWithoutDashboards,
 		currentAccount,
@@ -161,6 +175,7 @@ export const useAuth = defineStore('auth-store', () => {
 		login,
 		loginWithKick,
 		loginWithVk,
+		loginWithYoutube,
 	}
 })
 

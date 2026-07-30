@@ -34,6 +34,13 @@ const options = [
 		colorClass:
 			'data-[active=true]:border-[#0077FF] data-[active=true]:bg-[#0077FF]/10 data-[active=true]:text-[#0077FF]',
 	},
+	{
+		id: Platform.Youtube.toLowerCase(),
+		label: 'YouTube',
+		icon: 'simple-icons:youtube',
+		colorClass:
+			'data-[active=true]:border-[#FF0000] data-[active=true]:bg-[#FF0000]/10 data-[active=true]:text-[#FF0000]',
+	},
 ] as const
 
 const visibleOptions = computed(() => options.filter((opt) => !props.exclude.includes(opt.id)))

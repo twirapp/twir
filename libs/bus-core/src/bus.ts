@@ -1,5 +1,7 @@
 import * as Events from './events/events.js'
 import * as Executron from './executron/executron.js'
+import * as Eventsub from './eventsub/eventsub.js'
+import * as Generic from './generic/chat-message.js'
 import { Queue } from './queue.js'
 import * as Integrations from './integrations/integrations.js'
 
@@ -8,6 +10,23 @@ import { YTSRSearchRequest, YTSRSearchResponse, YTSRSearchSubject } from './ytsr
 
 export function newBus(nc: NatsConnection) {
 	return {
+		EventSub: {
+			SubscribeToAllEvents: new Queue<Eventsub.EventsubSubscribeToAllEventsRequest, Record<string, never>>(
+				nc,
+				Eventsub.EventsubSubscribeAllSubject
+			),
+			Unsubscribe: new Queue<Eventsub.EventsubUnsubscribeRequest, Record<string, never>>(
+				nc,
+				Eventsub.EventsubUnsubscribeSubject
+			),
+		},
+		ChatMessages: new Queue<Generic.ChatMessage, Record<string, never>>(nc, 'chat.messages'),
+		Parser: {
+			ProcessMessageAsCommand: new Queue<Generic.ChatMessage, Record<string, never>>(
+				nc,
+				'parser.process_message_as_command'
+			),
+		},
 		Events: {
 			Follow: new Queue<Events.FollowMessage, any>(nc, Events.FollowSubject),
 			Subscribe: new Queue<Events.SubscribeMessage, any>(nc, Events.SubscribeSubject),

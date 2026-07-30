@@ -27,6 +27,8 @@ import (
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
 	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
+	youtubebotsrepository "github.com/twirapp/twir/libs/repositories/youtube_bots"
+	youtubebotsrepositorypgx "github.com/twirapp/twir/libs/repositories/youtube_bots/datasource/postgres"
 )
 
 var App = fx.Module(
@@ -52,6 +54,10 @@ var App = fx.Module(
 		fx.Annotate(
 			vkvideobotsrepositorypgx.NewFx,
 			fx.As(new(vkvideobotsrepository.Repository)),
+		),
+		fx.Annotate(
+			youtubebotsrepositorypgx.NewFx,
+			fx.As(new(youtubebotsrepository.Repository)),
 		),
 		fx.Annotate(
 			channelsintegrationsrepositorypgx.NewFx,

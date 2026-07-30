@@ -56,6 +56,10 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 							<Icon name="simple-icons:vk" class="h-4 w-4 text-[#0077FF]" />
 							<span>VK Video Live</span>
 						</div>
+						<div class="flex items-center gap-1.5">
+							<Icon name="simple-icons:youtube" class="h-4 w-4 text-[#FF0000]" />
+							<span>YouTube</span>
+						</div>
 					</div>
 
 					<div class="inline-flex w-full flex-col gap-3 pt-[48px] lg:flex-row">

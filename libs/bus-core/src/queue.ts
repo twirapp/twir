@@ -28,20 +28,21 @@ export class Queue<Req, Res> {
 	async subscribeGroup(queue: string, callback: QueueSubscribeCallback<Req, Res>) {
 		this.#subscription = this.#nc.subscribe(this.subject, { queue })
 		for await (const msg of this.#subscription) {
-			if (!msg.reply) {
-				console.warn(`[bus] subscribeGroup(${queue}): received message without reply address on ${this.subject}, skipping`)
-				continue
-			}
-
 			try {
 				const response = await callback(codec.decode(msg.data) as Req)
-				this.#nc.publish(msg.reply, codec.encode(response))
+				if (msg.reply) {
+					this.#nc.publish(msg.reply, codec.encode(response))
+				}
 			} catch (err) {
-				console.error(`[bus] subscribeGroup(${queue}): callback error on ${this.subject}:`, err)
-				try {
-					this.#nc.publish(msg.reply, codec.encode({ error: String(err) } as Res))
-				} catch (publishErr) {
-					console.error(`[bus] subscribeGroup(${queue}): failed to send error reply:`, publishErr)
+				const callbackError = err instanceof Error ? err : new Error(String(err))
+				console.error(`[bus] subscribeGroup(${queue}): callback error on ${this.subject}:`, callbackError)
+				if (msg.reply) {
+					try {
+						this.#nc.publish(msg.reply, codec.encode({ error: callbackError.message }))
+					} catch (publishErr) {
+						const replyError = publishErr instanceof Error ? publishErr : new Error(String(publishErr))
+						console.error(`[bus] subscribeGroup(${queue}): failed to send error reply:`, replyError)
+					}
 				}
 			}
 		}

@@ -4,6 +4,8 @@ import { graphql } from '~/gql/gql.js'
 
 export const vkVideoBotSetupBroadcastChannelName = 'vk_video_bot_setup' as const
 
+export const youtubeBotSetupBroadcastChannelName = 'youtube_bot_setup' as const
+
 export function useMutationDropAllAuthSessions() {
 	return useMutation(graphql(`
 		mutation DropAllUserAuthSessions {
@@ -64,6 +66,30 @@ export function useMutationVKVideoBotSetupComplete() {
 	return useMutation(graphql(`
 		mutation VKVideoBotSetupComplete($code: String!, $state: String!) {
 			vkVideoBotSetupComplete(code: $code, state: $state)
+		}
+	`))
+}
+
+export function useMutationYouTubeBotSetupLink() {
+	return useMutation(graphql(`
+		mutation YouTubeBotSetupLink {
+			youtubeBotSetupLink
+		}
+	`))
+}
+
+export function useMutationYouTubeBotSetupStatus() {
+	return useMutation(graphql(`
+		mutation YouTubeBotSetupStatus {
+			youtubeBotSetupStatus
+		}
+	`))
+}
+
+export function useMutationYouTubeBotSetupComplete() {
+	return useMutation(graphql(`
+		mutation YouTubeBotSetupComplete($code: String!, $state: String!) {
+			youtubeBotSetupComplete(code: $code, state: $state)
 		}
 	`))
 }

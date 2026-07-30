@@ -90,7 +90,7 @@ watch(chatMessages, (v) => {
 
 	const platform = event.platform as MessagePlatform
 	const isKick = platform === 'kick'
-	const hasNoBadges = isKick || platform === 'vk_video_live'
+	const hasNoBadges = isKick || platform === 'vk_video_live' || platform === 'youtube'
 
 	const badges: Record<string, string> = {}
 	const kickBadges: Array<{ type: string; text: string }> = []

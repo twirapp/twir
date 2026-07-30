@@ -33,10 +33,15 @@ func TestNewFeatureGatedRegistryDoesNotCreateVKProviderWhileDisabled(t *testing.
 	created := 0
 	registry, err := NewFeatureGatedRegistry(
 		false,
+		false,
 		[]PlatformProvider{&fakeProvider{platform: platformentity.PlatformTwitch}},
 		func() (PlatformProvider, error) {
 			created++
 			return &fakeProvider{platform: platformentity.PlatformVKVideoLive}, nil
+		},
+		func() (PlatformProvider, error) {
+			created++
+			return &fakeProvider{platform: platformentity.PlatformYouTube}, nil
 		},
 	)
 	if err != nil {
@@ -54,9 +59,13 @@ func TestNewFeatureGatedRegistryRegistersVKProviderWhenEnabled(t *testing.T) {
 	vkProvider := &fakeProvider{platform: platformentity.PlatformVKVideoLive}
 	registry, err := NewFeatureGatedRegistry(
 		true,
+		false,
 		[]PlatformProvider{&fakeProvider{platform: platformentity.PlatformTwitch}},
 		func() (PlatformProvider, error) {
 			return vkProvider, nil
+		},
+		func() (PlatformProvider, error) {
+			return &fakeProvider{platform: platformentity.PlatformYouTube}, nil
 		},
 	)
 	if err != nil {
@@ -73,13 +82,36 @@ func TestNewFeatureGatedRegistryReturnsVKFactoryError(t *testing.T) {
 	wantErr := errors.New("invalid VK configuration")
 	_, err := NewFeatureGatedRegistry(
 		true,
+		false,
 		nil,
 		func() (PlatformProvider, error) {
 			return nil, wantErr
 		},
+		func() (PlatformProvider, error) {
+			return &fakeProvider{platform: platformentity.PlatformYouTube}, nil
+		},
 	)
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("expected VK provider factory error %v, got %v", wantErr, err)
+	}
+}
+
+func TestNewFeatureGatedRegistryRegistersYouTubeProviderWhenEnabled(t *testing.T) {
+	provider := &fakeProvider{platform: platformentity.PlatformYouTube}
+	registry, err := NewFeatureGatedRegistry(
+		false,
+		true,
+		[]PlatformProvider{&fakeProvider{platform: platformentity.PlatformTwitch}},
+		func() (PlatformProvider, error) {
+			return &fakeProvider{platform: platformentity.PlatformVKVideoLive}, nil
+		},
+		func() (PlatformProvider, error) { return provider, nil },
+	)
+	if err != nil {
+		t.Fatalf("create YouTube-enabled registry: %v", err)
+	}
+	if got, ok := registry.Get(platformentity.PlatformYouTube); !ok || got != provider {
+		t.Fatalf("YouTube was not registered: %#v, %t", got, ok)
 	}
 }
 

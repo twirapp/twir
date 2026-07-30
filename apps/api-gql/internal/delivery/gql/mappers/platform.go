@@ -37,6 +37,8 @@ func GraphQLPlatformToEntity(platform gqlmodel.Platform) (platformentity.Platfor
 		return platformentity.PlatformKick, nil
 	case gqlmodel.PlatformVkVideoLive:
 		return platformentity.PlatformVKVideoLive, nil
+	case gqlmodel.PlatformYoutube:
+		return platformentity.PlatformYouTube, nil
 	default:
 		return "", fmt.Errorf("unknown graphql platform: %s", platform)
 	}
@@ -68,6 +70,8 @@ func EntityPlatformToGraphQL(platform platformentity.Platform) (gqlmodel.Platfor
 		return gqlmodel.PlatformKick, nil
 	case platformentity.PlatformVKVideoLive:
 		return gqlmodel.PlatformVkVideoLive, nil
+	case platformentity.PlatformYouTube:
+		return gqlmodel.PlatformYoutube, nil
 	default:
 		return "", fmt.Errorf("unknown entity platform: %s", platform)
 	}

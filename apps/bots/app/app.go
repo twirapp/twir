@@ -28,6 +28,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	vkchat "github.com/twirapp/twir/apps/bots/internal/vk"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
+	youtubechat "github.com/twirapp/twir/apps/bots/internal/youtube"
 	"github.com/twirapp/twir/apps/bots/pkg/tlds"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -231,6 +232,7 @@ var App = fx.Module(
 		channelcache.NewByTwitchUserID,
 		twitchactions.New,
 		kickchat.NewChatClient,
+		youtubechat.NewChatClient,
 		newVKVideoChatClient,
 		vkchat.NewChatClient,
 		botplatforms.NewChatRegistry,

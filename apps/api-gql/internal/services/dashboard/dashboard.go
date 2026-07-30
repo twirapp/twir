@@ -3,6 +3,7 @@ package dashboard
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -485,7 +486,9 @@ func (c *Service) getPlatformStats(
 
 		parsedMessages, err := c.kv.Get(ctx, redis_keys.StreamParsedMessages(stream.ID)).Int()
 		if err != nil {
-			c.logger.Error("cannot get platform chat messages", logger.Error(err), slog.String("platform", binding.Platform.String()))
+			if !errors.Is(err, kv.ErrKeyNil) {
+				c.logger.Error("cannot get platform chat messages", logger.Error(err), slog.String("platform", binding.Platform.String()))
+			}
 		} else {
 			stats.ChatMessages = int(parsedMessages)
 		}
@@ -539,7 +542,7 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 		return nil, fmt.Errorf("channel not found")
 	}
 
-	statuses := make([]entity.BotStatus, 0, 3)
+	statuses := make([]entity.BotStatus, 0, 4)
 
 	twitchBinding, twitchBotConfig, hasTwitchBinding, err := channel.TwitchBinding()
 	if err != nil {
@@ -560,6 +563,10 @@ func (c *Service) GetBotStatuses(ctx context.Context, channelID string) ([]entit
 
 	if vkVideoLiveBinding, hasVKVideoLiveBinding := channel.Binding(platformentity.PlatformVKVideoLive); hasVKVideoLiveBinding {
 		statuses = append(statuses, c.getVKVideoLiveBotStatus(ctx, channel, vkVideoLiveBinding))
+	}
+
+	if youtubeBinding, hasYouTubeBinding := channel.Binding(platformentity.PlatformYouTube); hasYouTubeBinding {
+		statuses = append(statuses, c.getYouTubeBotStatus(ctx, channel, youtubeBinding))
 	}
 
 	if len(statuses) == 0 {
@@ -606,6 +613,26 @@ func (c *Service) getVKVideoLiveBotStatus(
 	result := entity.BotStatus{
 		DashboardID: channel.ID.String(),
 		Platform:    platformentity.PlatformVKVideoLive.String(),
+		ChannelName: c.getChannelName(ctx, &binding.UserID),
+		Enabled:     binding.Enabled,
+	}
+
+	if binding.BotUserID != nil {
+		result.BotID = binding.BotUserID.String()
+		result.BotName = c.getChannelName(ctx, binding.BotUserID)
+	}
+
+	return result
+}
+
+func (c *Service) getYouTubeBotStatus(
+	ctx context.Context,
+	channel channelentity.Channel,
+	binding channelplatformentity.ChannelPlatform,
+) entity.BotStatus {
+	result := entity.BotStatus{
+		DashboardID: channel.ID.String(),
+		Platform:    platformentity.PlatformYouTube.String(),
 		ChannelName: c.getChannelName(ctx, &binding.UserID),
 		Enabled:     binding.Enabled,
 	}
@@ -771,6 +798,8 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 			targetPlatform = "kick"
 		} else if _, found := channel.Binding(platformentity.PlatformVKVideoLive); found {
 			targetPlatform = platformentity.PlatformVKVideoLive.String()
+		} else if _, found := channel.Binding(platformentity.PlatformYouTube); found {
+			targetPlatform = platformentity.PlatformYouTube.String()
 		} else {
 			return false, fmt.Errorf("channel has no connected platform")
 		}
@@ -779,6 +808,39 @@ func (c *Service) BotJoinLeave(ctx context.Context, channelID, action, platform 
 	isEnabled := action == BotJoinLeaveActionJoin
 
 	switch targetPlatform {
+	case platformentity.PlatformYouTube.String():
+		binding, found := channel.Binding(platformentity.PlatformYouTube)
+		if !found || binding.PlatformChannelID == "" {
+			return false, fmt.Errorf("YouTube channel id not found")
+		}
+		if binding.BotUserID == nil {
+			return false, fmt.Errorf("YouTube bot user id not found")
+		}
+
+		if _, err = c.channelPlatformsRepo.Patch(
+			ctx,
+			binding.ID,
+			channelplatforms.PatchInput{Enabled: &isEnabled},
+		); err != nil {
+			return false, fmt.Errorf("update YouTube binding enabled state: %w", err)
+		}
+
+		if c.twirBus != nil && c.twirBus.EventSub != nil {
+			if isEnabled {
+				c.twirBus.EventSub.SubscribeToAllEvents.Publish(
+					ctx,
+					eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: channelID, Platform: platformentity.PlatformYouTube},
+				)
+			} else {
+				c.twirBus.EventSub.Unsubscribe.Publish(
+					ctx,
+					eventsub.EventsubUnsubscribeRequest{ChannelID: channelID, Platform: platformentity.PlatformYouTube},
+				)
+			}
+		}
+
+		c.channelsCache.Invalidate(ctx, channelID)
+		return true, nil
 	case platformentity.PlatformVKVideoLive.String():
 		binding, found := channel.Binding(platformentity.PlatformVKVideoLive)
 		if !found || binding.PlatformChannelID == "" {

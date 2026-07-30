@@ -141,6 +141,15 @@ func (s *Service) Connect(ctx context.Context, channelID uuid.UUID, platform pla
 			return "", authroutes.ErrVKVideoBotNotConfigured
 		}
 	}
+	if platform == platformentity.PlatformYouTube {
+		configured, err := s.oauth.YouTubeBotConfigured(ctx)
+		if err != nil {
+			return "", fmt.Errorf("check YouTube bot setup: %w", err)
+		}
+		if !configured {
+			return "", authroutes.ErrYouTubeBotNotConfigured
+		}
+	}
 
 	return s.oauth.StartPlatformAuthForChannel(ctx, channelID, platform)
 }

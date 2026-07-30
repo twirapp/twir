@@ -2,6 +2,7 @@ enum Platform {
 	TWITCH
 	KICK
 	VK_VIDEO_LIVE
+	YOUTUBE
 }
 
 type PlatformCapability {

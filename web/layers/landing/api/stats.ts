@@ -6,9 +6,10 @@ export function useLandingStats() {
 			query LandingStats {
 				twirStats {
 					channels
-					twitchChannels
-					kickChannels
-					vkChannels
+				twitchChannels
+				kickChannels
+				vkChannels
+				youtubeChannels
 					createdCommands
 					messages
 					usedCommands

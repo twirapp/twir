@@ -189,6 +189,10 @@ func (r *handlerStatusBindingsRepo) AssignVKVideoLiveBot(context.Context, uuid.U
 	return nil, nil
 }
 
+func (r *handlerStatusBindingsRepo) AssignYouTubeBot(context.Context, uuid.UUID) ([]uuid.UUID, error) {
+	return nil, nil
+}
+
 func (r *handlerStatusBindingsRepo) Update(
 	context.Context,
 	uuid.UUID,

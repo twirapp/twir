@@ -2,8 +2,10 @@ package golang
 
 import (
 	"context"
+	"errors"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/pterm/pterm"
 	"github.com/twirapp/twir/cli/internal/goapp"
@@ -134,12 +136,17 @@ func (c *GoApps) Stop() error {
 		c.libWatcher.Stop()
 	}
 
-	for _, app := range c.apps {
-		app.Watcher.Stop()
-		if err := app.Stop(); err != nil {
-			return err
-		}
+	var wg sync.WaitGroup
+	stopErrors := make([]error, len(c.apps))
+	for i, app := range c.apps {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			app.Watcher.Stop()
+			stopErrors[i] = app.Stop()
+		}()
 	}
+	wg.Wait()
 
-	return nil
+	return errors.Join(stopErrors...)
 }
