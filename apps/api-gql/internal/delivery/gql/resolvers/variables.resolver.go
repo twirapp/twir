@@ -180,7 +180,7 @@ func (r *queryResolver) VariablesBuiltIn(ctx context.Context) ([]gqlmodel.BuiltI
 				Visible:             v.Visible,
 				CanBeUsedInRegistry: v.CanBeUsedInRegistry,
 				Links:               links,
-				Platforms:           mappers.PlatformsToStrings(v.Platforms),
+				Platforms:           mappers.EntityPlatformsToGraphQL(v.Platforms),
 			},
 		)
 	}

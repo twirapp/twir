@@ -98,7 +98,7 @@ type DefaultCommandInfo {
   description: String!
   module: String!
   aliases: [String!]!
-  platforms: [String!]!
+  platforms: [Platform!]!
 }
 
 input CommandsCreateOpts {

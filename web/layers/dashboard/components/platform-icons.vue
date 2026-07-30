@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue'
 
+import { Platform } from '~/gql/graphql.js'
+
 const props = defineProps<{
-	platforms: string[]
+	platforms: Platform[]
 	class?: HTMLAttributes['class']
 }>()
 
 const platformOptions = [
-	{ id: 'twitch', label: 'Twitch', icon: 'simple-icons:twitch', colorClass: 'text-[#9146FF]' },
-	{ id: 'kick', label: 'Kick', icon: 'simple-icons:kick', colorClass: 'text-[#53FC18]' },
-	{ id: 'vk_video_live', label: 'VK Video Live', icon: 'simple-icons:vk', colorClass: 'text-[#0077FF]' },
-	{ id: 'youtube', label: 'YouTube', icon: 'simple-icons:youtube', colorClass: 'text-[#FF0000]' },
+	{ id: Platform.Twitch, label: 'Twitch', icon: 'simple-icons:twitch', colorClass: 'text-[#9146FF]' },
+	{ id: Platform.Kick, label: 'Kick', icon: 'simple-icons:kick', colorClass: 'text-[#53FC18]' },
+	{ id: Platform.VkVideoLive, label: 'VK Video Live', icon: 'simple-icons:vk', colorClass: 'text-[#0077FF]' },
+	{ id: Platform.Youtube, label: 'YouTube', icon: 'simple-icons:youtube', colorClass: 'text-[#FF0000]' },
 ] as const
 
 const visiblePlatforms = computed(() =>

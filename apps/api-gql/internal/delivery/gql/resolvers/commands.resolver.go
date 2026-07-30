@@ -395,7 +395,7 @@ func (r *queryResolver) CommandsDefault(ctx context.Context) ([]gqlmodel.Default
 				Description: command.Description,
 				Module:      command.Module,
 				Aliases:     append([]string{}, command.Aliases...),
-				Platforms:   mappers.PlatformsToStrings(command.Platforms),
+				Platforms:   mappers.EntityPlatformsToGraphQL(command.Platforms),
 			},
 		)
 	}

@@ -76,3 +76,17 @@ func EntityPlatformToGraphQL(platform platformentity.Platform) (gqlmodel.Platfor
 		return "", fmt.Errorf("unknown entity platform: %s", platform)
 	}
 }
+
+func EntityPlatformsToGraphQL(platforms []platformentity.Platform) []gqlmodel.Platform {
+	result := make([]gqlmodel.Platform, 0, len(platforms))
+	for _, p := range platforms {
+		mapped, err := EntityPlatformToGraphQL(p)
+		if err != nil {
+			continue
+		}
+
+		result = append(result, mapped)
+	}
+
+	return result
+}

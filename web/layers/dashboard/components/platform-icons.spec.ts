@@ -1,9 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { Platform } from '~/gql/graphql.js'
+
 import PlatformIcons from './platform-icons.vue'
 
-function mountIcons(platforms: string[]) {
+function mountIcons(platforms: Platform[]) {
 	return mount(PlatformIcons, {
 		props: { platforms },
 		global: {
@@ -27,9 +29,9 @@ describe('PlatformIcons', () => {
 		expect(wrapper.findAll('i')).toHaveLength(0)
 	})
 
-	it('renders one brand icon per known platform', () => {
+	it('renders one brand icon per platform', () => {
 		// Given an entry restricted to Twitch and Kick
-		const wrapper = mountIcons(['twitch', 'kick'])
+		const wrapper = mountIcons([Platform.Twitch, Platform.Kick])
 
 		// Then two icons render with the brand glyphs and tooltip labels
 		const icons = wrapper.findAll('i')
@@ -40,13 +42,16 @@ describe('PlatformIcons', () => {
 		expect(icons[1]!.attributes('title')).toBe('Kick')
 	})
 
-	it('silently ignores unknown platform strings', () => {
-		// Given a mix of a known and an unknown platform
-		const wrapper = mountIcons(['twitch', 'myspace'])
+	it('supports every platform of the enum', () => {
+		// Given an entry restricted to all four platforms
+		const wrapper = mountIcons([
+			Platform.Twitch,
+			Platform.Kick,
+			Platform.VkVideoLive,
+			Platform.Youtube,
+		])
 
-		// Then only the known platform renders an icon
-		const icons = wrapper.findAll('i')
-		expect(icons).toHaveLength(1)
-		expect(icons[0]!.attributes('data-icon')).toBe('simple-icons:twitch')
+		// Then all four brand icons render
+		expect(wrapper.findAll('i')).toHaveLength(4)
 	})
 })
