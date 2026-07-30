@@ -39,25 +39,38 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 					<p
 						class="max-w-xl pt-6 text-[min(18px,5vw)] leading-normal text-[#ADB0B8] lg:text-[20px]"
 					>
-						Our bot is the ultimate all-in-one solution for streamers looking to take their channel
-						to the next level.
+						Twir is a free, open-source chat bot for Twitch, Kick, VK Video Live and YouTube. It
+						helps streamers manage and grow their channels with custom commands, timers, chat
+						moderation, song requests, giveaways, alerts and overlays — all in one place.
 					</p>
 
 					<div class="flex gap-4 pt-8 text-sm font-medium text-[#ADB0B8] md:text-base">
 						<div class="flex items-center gap-1.5">
-							<Icon name="simple-icons:twitch" class="h-4 w-4 text-[#9146FF]" />
+							<Icon
+								name="simple-icons:twitch"
+								class="h-4 w-4 text-[#9146FF]"
+							/>
 							<span>Twitch</span>
 						</div>
 						<div class="flex items-center gap-1.5">
-							<Icon name="simple-icons:kick" class="h-4 w-4 text-[#53FC18]" />
+							<Icon
+								name="simple-icons:kick"
+								class="h-4 w-4 text-[#53FC18]"
+							/>
 							<span>Kick</span>
 						</div>
 						<div class="flex items-center gap-1.5">
-							<Icon name="simple-icons:vk" class="h-4 w-4 text-[#0077FF]" />
+							<Icon
+								name="simple-icons:vk"
+								class="h-4 w-4 text-[#0077FF]"
+							/>
 							<span>VK Video Live</span>
 						</div>
 						<div class="flex items-center gap-1.5">
-							<Icon name="simple-icons:youtube" class="h-4 w-4 text-[#FF0000]" />
+							<Icon
+								name="simple-icons:youtube"
+								class="h-4 w-4 text-[#FF0000]"
+							/>
 							<span>YouTube</span>
 						</div>
 					</div>
@@ -92,7 +105,10 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 							</UiButton>
 						</NuxtLink>
 
-						<LoginDropdown v-else variant="hero" />
+						<LoginDropdown
+							v-else
+							variant="hero"
+						/>
 					</div>
 				</div>
 
