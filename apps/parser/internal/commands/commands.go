@@ -101,6 +101,7 @@ func New(opts *Opts) *Commands {
 			stats.TopPoints,
 			stats.TopTime,
 			stats.Uptime,
+			stats.BotUptime,
 			stats.UserAge,
 			stats.UserFollowSince,
 			stats.UserFollowage,

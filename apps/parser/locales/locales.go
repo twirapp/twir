@@ -2,6 +2,376 @@ package locales
 
 import twiri18n "github.com/twirapp/twir/libs/i18n"
 
+type KeysServicesChatWallErrorsCreateChatWallWithPhraseVars struct {
+}
+type KeysServicesChatWallErrorsCreateChatWallWithPhrase struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) GetPath() string {
+	return "services.chat_wall.errors.create_chat_wall_with_phrase"
+}
+func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "create_chat_wall_with_phrase"}
+}
+func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) SetVars(vars KeysServicesChatWallErrorsCreateChatWallWithPhraseVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsCreateChatWallWithPhraseVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysServicesChatWallErrorsHandledMessagesToRedisVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsHandledMessagesToRedis struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsHandledMessagesToRedis) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsHandledMessagesToRedis) GetPath() string {
+	return "services.chat_wall.errors.handled_messages_to_redis"
+}
+func (k KeysServicesChatWallErrorsHandledMessagesToRedis) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "handled_messages_to_redis"}
+}
+func (k KeysServicesChatWallErrorsHandledMessagesToRedis) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsHandledMessagesToRedis) SetVars(vars KeysServicesChatWallErrorsHandledMessagesToRedisVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsHandledMessagesToRedisVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsGetChatWallsVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsGetChatWalls struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsGetChatWalls) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsGetChatWalls) GetPath() string {
+	return "services.chat_wall.errors.get_chat_walls"
+}
+func (k KeysServicesChatWallErrorsGetChatWalls) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "get_chat_walls"}
+}
+func (k KeysServicesChatWallErrorsGetChatWalls) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsGetChatWalls) SetVars(vars KeysServicesChatWallErrorsGetChatWallsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetChatWallsVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsUpdateChatWallsVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsUpdateChatWalls struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsUpdateChatWalls) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsUpdateChatWalls) GetPath() string {
+	return "services.chat_wall.errors.update_chat_walls"
+}
+func (k KeysServicesChatWallErrorsUpdateChatWalls) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "update_chat_walls"}
+}
+func (k KeysServicesChatWallErrorsUpdateChatWalls) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsUpdateChatWalls) SetVars(vars KeysServicesChatWallErrorsUpdateChatWallsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsUpdateChatWallsVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsPublishDeletedMessagesVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsPublishDeletedMessages struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsPublishDeletedMessages) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsPublishDeletedMessages) GetPath() string {
+	return "services.chat_wall.errors.publish_deleted_messages"
+}
+func (k KeysServicesChatWallErrorsPublishDeletedMessages) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "publish_deleted_messages"}
+}
+func (k KeysServicesChatWallErrorsPublishDeletedMessages) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsPublishDeletedMessages) SetVars(vars KeysServicesChatWallErrorsPublishDeletedMessagesVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsPublishDeletedMessagesVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsCreateChatLogsInDbVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsCreateChatLogsInDb struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsCreateChatLogsInDb) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsCreateChatLogsInDb) GetPath() string {
+	return "services.chat_wall.errors.create_chat_logs_in_db"
+}
+func (k KeysServicesChatWallErrorsCreateChatLogsInDb) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "create_chat_logs_in_db"}
+}
+func (k KeysServicesChatWallErrorsCreateChatLogsInDb) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsCreateChatLogsInDb) SetVars(vars KeysServicesChatWallErrorsCreateChatLogsInDbVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsCreateChatLogsInDbVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsChatWallNotFoundVars struct {
+}
+type KeysServicesChatWallErrorsChatWallNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsChatWallNotFound) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsChatWallNotFound) GetPath() string {
+	return "services.chat_wall.errors.chat_wall_not_found"
+}
+func (k KeysServicesChatWallErrorsChatWallNotFound) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "chat_wall_not_found"}
+}
+func (k KeysServicesChatWallErrorsChatWallNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsChatWallNotFound) SetVars(vars KeysServicesChatWallErrorsChatWallNotFoundVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsChatWallNotFoundVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysServicesChatWallErrorsGetCurrentChatWallsVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsGetCurrentChatWalls struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsGetCurrentChatWalls) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsGetCurrentChatWalls) GetPath() string {
+	return "services.chat_wall.errors.get_current_chat_walls"
+}
+func (k KeysServicesChatWallErrorsGetCurrentChatWalls) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "get_current_chat_walls"}
+}
+func (k KeysServicesChatWallErrorsGetCurrentChatWalls) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsGetCurrentChatWalls) SetVars(vars KeysServicesChatWallErrorsGetCurrentChatWallsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetCurrentChatWallsVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsGetChatWallSettingsVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsGetChatWallSettings struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsGetChatWallSettings) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsGetChatWallSettings) GetPath() string {
+	return "services.chat_wall.errors.get_chat_wall_settings"
+}
+func (k KeysServicesChatWallErrorsGetChatWallSettings) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "get_chat_wall_settings"}
+}
+func (k KeysServicesChatWallErrorsGetChatWallSettings) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsGetChatWallSettings) SetVars(vars KeysServicesChatWallErrorsGetChatWallSettingsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetChatWallSettingsVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsGetUsersStatsVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsGetUsersStats struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsGetUsersStats) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsGetUsersStats) GetPath() string {
+	return "services.chat_wall.errors.get_users_stats"
+}
+func (k KeysServicesChatWallErrorsGetUsersStats) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "get_users_stats"}
+}
+func (k KeysServicesChatWallErrorsGetUsersStats) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsGetUsersStats) SetVars(vars KeysServicesChatWallErrorsGetUsersStatsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetUsersStatsVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsPublishBanUsersVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsPublishBanUsers struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsPublishBanUsers) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsPublishBanUsers) GetPath() string {
+	return "services.chat_wall.errors.publish_ban_users"
+}
+func (k KeysServicesChatWallErrorsPublishBanUsers) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "publish_ban_users"}
+}
+func (k KeysServicesChatWallErrorsPublishBanUsers) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsPublishBanUsers) SetVars(vars KeysServicesChatWallErrorsPublishBanUsersVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsPublishBanUsersVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsGetAlreadyHandledVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsGetAlreadyHandled struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsGetAlreadyHandled) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsGetAlreadyHandled) GetPath() string {
+	return "services.chat_wall.errors.get_already_handled"
+}
+func (k KeysServicesChatWallErrorsGetAlreadyHandled) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "get_already_handled"}
+}
+func (k KeysServicesChatWallErrorsGetAlreadyHandled) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsGetAlreadyHandled) SetVars(vars KeysServicesChatWallErrorsGetAlreadyHandledVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetAlreadyHandledVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrorsCreateChatWallVars struct {
+	Reason any
+}
+type KeysServicesChatWallErrorsCreateChatWall struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallErrorsCreateChatWall) IsTranslationKey() {
+}
+func (k KeysServicesChatWallErrorsCreateChatWall) GetPath() string {
+	return "services.chat_wall.errors.create_chat_wall"
+}
+func (k KeysServicesChatWallErrorsCreateChatWall) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "errors", "create_chat_wall"}
+}
+func (k KeysServicesChatWallErrorsCreateChatWall) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallErrorsCreateChatWall) SetVars(vars KeysServicesChatWallErrorsCreateChatWallVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsCreateChatWallVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysServicesChatWallErrors struct {
+	CreateChatWallWithPhrase KeysServicesChatWallErrorsCreateChatWallWithPhrase
+	HandledMessagesToRedis   KeysServicesChatWallErrorsHandledMessagesToRedis
+	GetChatWalls             KeysServicesChatWallErrorsGetChatWalls
+	UpdateChatWalls          KeysServicesChatWallErrorsUpdateChatWalls
+	PublishDeletedMessages   KeysServicesChatWallErrorsPublishDeletedMessages
+	CreateChatLogsInDb       KeysServicesChatWallErrorsCreateChatLogsInDb
+	ChatWallNotFound         KeysServicesChatWallErrorsChatWallNotFound
+	GetCurrentChatWalls      KeysServicesChatWallErrorsGetCurrentChatWalls
+	GetChatWallSettings      KeysServicesChatWallErrorsGetChatWallSettings
+	GetUsersStats            KeysServicesChatWallErrorsGetUsersStats
+	PublishBanUsers          KeysServicesChatWallErrorsPublishBanUsers
+	GetAlreadyHandled        KeysServicesChatWallErrorsGetAlreadyHandled
+	CreateChatWall           KeysServicesChatWallErrorsCreateChatWall
+}
+type KeysServicesChatWallInfoBannedByTwirVars struct {
+	BanPhrase any
+}
+type KeysServicesChatWallInfoBannedByTwir struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesChatWallInfoBannedByTwir) IsTranslationKey() {
+}
+func (k KeysServicesChatWallInfoBannedByTwir) GetPath() string {
+	return "services.chat_wall.info.banned_by_twir"
+}
+func (k KeysServicesChatWallInfoBannedByTwir) GetPathSlice() []string {
+	return []string{"services", "chat_wall", "info", "banned_by_twir"}
+}
+func (k KeysServicesChatWallInfoBannedByTwir) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesChatWallInfoBannedByTwir) SetVars(vars KeysServicesChatWallInfoBannedByTwirVars) twiri18n.TranslationKey[KeysServicesChatWallInfoBannedByTwirVars] {
+	k.Vars = twiri18n.Vars{"banPhrase": vars.BanPhrase}
+	return k
+}
+
+type KeysServicesChatWallInfo struct {
+	BannedByTwir KeysServicesChatWallInfoBannedByTwir
+}
+type KeysServicesChatWall struct {
+	Errors KeysServicesChatWallErrors
+	Info   KeysServicesChatWallInfo
+}
+type KeysServicesShortenedurlsErrorsInvalidUrlVars struct {
+}
+type KeysServicesShortenedurlsErrorsInvalidUrl struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysServicesShortenedurlsErrorsInvalidUrl) IsTranslationKey() {
+}
+func (k KeysServicesShortenedurlsErrorsInvalidUrl) GetPath() string {
+	return "services.shortenedurls.errors.invalid_url"
+}
+func (k KeysServicesShortenedurlsErrorsInvalidUrl) GetPathSlice() []string {
+	return []string{"services", "shortenedurls", "errors", "invalid_url"}
+}
+func (k KeysServicesShortenedurlsErrorsInvalidUrl) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysServicesShortenedurlsErrorsInvalidUrl) SetVars(vars KeysServicesShortenedurlsErrorsInvalidUrlVars) twiri18n.TranslationKey[KeysServicesShortenedurlsErrorsInvalidUrlVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysServicesShortenedurlsErrors struct {
+	InvalidUrl KeysServicesShortenedurlsErrorsInvalidUrl
+}
+type KeysServicesShortenedurls struct {
+	Errors KeysServicesShortenedurlsErrors
+}
 type KeysServicesTtsInfoNotConfiguredVars struct {
 }
 type KeysServicesTtsInfoNotConfigured struct {
@@ -104,1034 +474,325 @@ type KeysServicesTts struct {
 	Info   KeysServicesTtsInfo
 	Errors KeysServicesTtsErrors
 }
-type KeysServicesChatWallErrorsUpdateChatWallsVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsUpdateChatWalls struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsUpdateChatWalls) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsUpdateChatWalls) GetPath() string {
-	return "services.chat_wall.errors.update_chat_walls"
-}
-func (k KeysServicesChatWallErrorsUpdateChatWalls) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "update_chat_walls"}
-}
-func (k KeysServicesChatWallErrorsUpdateChatWalls) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsUpdateChatWalls) SetVars(vars KeysServicesChatWallErrorsUpdateChatWallsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsUpdateChatWallsVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsPublishDeletedMessagesVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsPublishDeletedMessages struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsPublishDeletedMessages) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsPublishDeletedMessages) GetPath() string {
-	return "services.chat_wall.errors.publish_deleted_messages"
-}
-func (k KeysServicesChatWallErrorsPublishDeletedMessages) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "publish_deleted_messages"}
-}
-func (k KeysServicesChatWallErrorsPublishDeletedMessages) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsPublishDeletedMessages) SetVars(vars KeysServicesChatWallErrorsPublishDeletedMessagesVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsPublishDeletedMessagesVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsGetAlreadyHandledVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsGetAlreadyHandled struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsGetAlreadyHandled) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsGetAlreadyHandled) GetPath() string {
-	return "services.chat_wall.errors.get_already_handled"
-}
-func (k KeysServicesChatWallErrorsGetAlreadyHandled) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "get_already_handled"}
-}
-func (k KeysServicesChatWallErrorsGetAlreadyHandled) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsGetAlreadyHandled) SetVars(vars KeysServicesChatWallErrorsGetAlreadyHandledVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetAlreadyHandledVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsCreateChatWallVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsCreateChatWall struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsCreateChatWall) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsCreateChatWall) GetPath() string {
-	return "services.chat_wall.errors.create_chat_wall"
-}
-func (k KeysServicesChatWallErrorsCreateChatWall) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "create_chat_wall"}
-}
-func (k KeysServicesChatWallErrorsCreateChatWall) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsCreateChatWall) SetVars(vars KeysServicesChatWallErrorsCreateChatWallVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsCreateChatWallVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsCreateChatWallWithPhraseVars struct {
-}
-type KeysServicesChatWallErrorsCreateChatWallWithPhrase struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) GetPath() string {
-	return "services.chat_wall.errors.create_chat_wall_with_phrase"
-}
-func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "create_chat_wall_with_phrase"}
-}
-func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsCreateChatWallWithPhrase) SetVars(vars KeysServicesChatWallErrorsCreateChatWallWithPhraseVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsCreateChatWallWithPhraseVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysServicesChatWallErrorsCreateChatLogsInDbVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsCreateChatLogsInDb struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsCreateChatLogsInDb) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsCreateChatLogsInDb) GetPath() string {
-	return "services.chat_wall.errors.create_chat_logs_in_db"
-}
-func (k KeysServicesChatWallErrorsCreateChatLogsInDb) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "create_chat_logs_in_db"}
-}
-func (k KeysServicesChatWallErrorsCreateChatLogsInDb) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsCreateChatLogsInDb) SetVars(vars KeysServicesChatWallErrorsCreateChatLogsInDbVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsCreateChatLogsInDbVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsHandledMessagesToRedisVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsHandledMessagesToRedis struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsHandledMessagesToRedis) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsHandledMessagesToRedis) GetPath() string {
-	return "services.chat_wall.errors.handled_messages_to_redis"
-}
-func (k KeysServicesChatWallErrorsHandledMessagesToRedis) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "handled_messages_to_redis"}
-}
-func (k KeysServicesChatWallErrorsHandledMessagesToRedis) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsHandledMessagesToRedis) SetVars(vars KeysServicesChatWallErrorsHandledMessagesToRedisVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsHandledMessagesToRedisVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsChatWallNotFoundVars struct {
-}
-type KeysServicesChatWallErrorsChatWallNotFound struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsChatWallNotFound) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsChatWallNotFound) GetPath() string {
-	return "services.chat_wall.errors.chat_wall_not_found"
-}
-func (k KeysServicesChatWallErrorsChatWallNotFound) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "chat_wall_not_found"}
-}
-func (k KeysServicesChatWallErrorsChatWallNotFound) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsChatWallNotFound) SetVars(vars KeysServicesChatWallErrorsChatWallNotFoundVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsChatWallNotFoundVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysServicesChatWallErrorsGetChatWallsVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsGetChatWalls struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsGetChatWalls) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsGetChatWalls) GetPath() string {
-	return "services.chat_wall.errors.get_chat_walls"
-}
-func (k KeysServicesChatWallErrorsGetChatWalls) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "get_chat_walls"}
-}
-func (k KeysServicesChatWallErrorsGetChatWalls) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsGetChatWalls) SetVars(vars KeysServicesChatWallErrorsGetChatWallsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetChatWallsVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsGetCurrentChatWallsVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsGetCurrentChatWalls struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsGetCurrentChatWalls) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsGetCurrentChatWalls) GetPath() string {
-	return "services.chat_wall.errors.get_current_chat_walls"
-}
-func (k KeysServicesChatWallErrorsGetCurrentChatWalls) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "get_current_chat_walls"}
-}
-func (k KeysServicesChatWallErrorsGetCurrentChatWalls) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsGetCurrentChatWalls) SetVars(vars KeysServicesChatWallErrorsGetCurrentChatWallsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetCurrentChatWallsVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsGetChatWallSettingsVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsGetChatWallSettings struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsGetChatWallSettings) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsGetChatWallSettings) GetPath() string {
-	return "services.chat_wall.errors.get_chat_wall_settings"
-}
-func (k KeysServicesChatWallErrorsGetChatWallSettings) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "get_chat_wall_settings"}
-}
-func (k KeysServicesChatWallErrorsGetChatWallSettings) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsGetChatWallSettings) SetVars(vars KeysServicesChatWallErrorsGetChatWallSettingsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetChatWallSettingsVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsGetUsersStatsVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsGetUsersStats struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsGetUsersStats) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsGetUsersStats) GetPath() string {
-	return "services.chat_wall.errors.get_users_stats"
-}
-func (k KeysServicesChatWallErrorsGetUsersStats) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "get_users_stats"}
-}
-func (k KeysServicesChatWallErrorsGetUsersStats) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsGetUsersStats) SetVars(vars KeysServicesChatWallErrorsGetUsersStatsVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsGetUsersStatsVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrorsPublishBanUsersVars struct {
-	Reason any
-}
-type KeysServicesChatWallErrorsPublishBanUsers struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallErrorsPublishBanUsers) IsTranslationKey() {
-}
-func (k KeysServicesChatWallErrorsPublishBanUsers) GetPath() string {
-	return "services.chat_wall.errors.publish_ban_users"
-}
-func (k KeysServicesChatWallErrorsPublishBanUsers) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "errors", "publish_ban_users"}
-}
-func (k KeysServicesChatWallErrorsPublishBanUsers) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallErrorsPublishBanUsers) SetVars(vars KeysServicesChatWallErrorsPublishBanUsersVars) twiri18n.TranslationKey[KeysServicesChatWallErrorsPublishBanUsersVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysServicesChatWallErrors struct {
-	UpdateChatWalls          KeysServicesChatWallErrorsUpdateChatWalls
-	PublishDeletedMessages   KeysServicesChatWallErrorsPublishDeletedMessages
-	GetAlreadyHandled        KeysServicesChatWallErrorsGetAlreadyHandled
-	CreateChatWall           KeysServicesChatWallErrorsCreateChatWall
-	CreateChatWallWithPhrase KeysServicesChatWallErrorsCreateChatWallWithPhrase
-	CreateChatLogsInDb       KeysServicesChatWallErrorsCreateChatLogsInDb
-	HandledMessagesToRedis   KeysServicesChatWallErrorsHandledMessagesToRedis
-	ChatWallNotFound         KeysServicesChatWallErrorsChatWallNotFound
-	GetChatWalls             KeysServicesChatWallErrorsGetChatWalls
-	GetCurrentChatWalls      KeysServicesChatWallErrorsGetCurrentChatWalls
-	GetChatWallSettings      KeysServicesChatWallErrorsGetChatWallSettings
-	GetUsersStats            KeysServicesChatWallErrorsGetUsersStats
-	PublishBanUsers          KeysServicesChatWallErrorsPublishBanUsers
-}
-type KeysServicesChatWallInfoBannedByTwirVars struct {
-	BanPhrase any
-}
-type KeysServicesChatWallInfoBannedByTwir struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesChatWallInfoBannedByTwir) IsTranslationKey() {
-}
-func (k KeysServicesChatWallInfoBannedByTwir) GetPath() string {
-	return "services.chat_wall.info.banned_by_twir"
-}
-func (k KeysServicesChatWallInfoBannedByTwir) GetPathSlice() []string {
-	return []string{"services", "chat_wall", "info", "banned_by_twir"}
-}
-func (k KeysServicesChatWallInfoBannedByTwir) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesChatWallInfoBannedByTwir) SetVars(vars KeysServicesChatWallInfoBannedByTwirVars) twiri18n.TranslationKey[KeysServicesChatWallInfoBannedByTwirVars] {
-	k.Vars = twiri18n.Vars{"banPhrase": vars.BanPhrase}
-	return k
-}
-
-type KeysServicesChatWallInfo struct {
-	BannedByTwir KeysServicesChatWallInfoBannedByTwir
-}
-type KeysServicesChatWall struct {
-	Errors KeysServicesChatWallErrors
-	Info   KeysServicesChatWallInfo
-}
-type KeysServicesShortenedurlsErrorsInvalidUrlVars struct {
-}
-type KeysServicesShortenedurlsErrorsInvalidUrl struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysServicesShortenedurlsErrorsInvalidUrl) IsTranslationKey() {
-}
-func (k KeysServicesShortenedurlsErrorsInvalidUrl) GetPath() string {
-	return "services.shortenedurls.errors.invalid_url"
-}
-func (k KeysServicesShortenedurlsErrorsInvalidUrl) GetPathSlice() []string {
-	return []string{"services", "shortenedurls", "errors", "invalid_url"}
-}
-func (k KeysServicesShortenedurlsErrorsInvalidUrl) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysServicesShortenedurlsErrorsInvalidUrl) SetVars(vars KeysServicesShortenedurlsErrorsInvalidUrlVars) twiri18n.TranslationKey[KeysServicesShortenedurlsErrorsInvalidUrlVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysServicesShortenedurlsErrors struct {
-	InvalidUrl KeysServicesShortenedurlsErrorsInvalidUrl
-}
-type KeysServicesShortenedurls struct {
-	Errors KeysServicesShortenedurlsErrors
-}
 type KeysServices struct {
-	Tts           KeysServicesTts
 	ChatWall      KeysServicesChatWall
 	Shortenedurls KeysServicesShortenedurls
+	Tts           KeysServicesTts
 }
-type KeysVariablesShorturlErrorsUrlRequiredVars struct {
+type KeysVariablesSubscribersErrorsGetSubscribersVars struct {
 }
-type KeysVariablesShorturlErrorsUrlRequired struct {
+type KeysVariablesSubscribersErrorsGetSubscribers struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesShorturlErrorsUrlRequired) IsTranslationKey() {
+func (k KeysVariablesSubscribersErrorsGetSubscribers) IsTranslationKey() {
 }
-func (k KeysVariablesShorturlErrorsUrlRequired) GetPath() string {
-	return "variables.shorturl.errors.url_required"
+func (k KeysVariablesSubscribersErrorsGetSubscribers) GetPath() string {
+	return "variables.subscribers.errors.get_subscribers"
 }
-func (k KeysVariablesShorturlErrorsUrlRequired) GetPathSlice() []string {
-	return []string{"variables", "shorturl", "errors", "url_required"}
+func (k KeysVariablesSubscribersErrorsGetSubscribers) GetPathSlice() []string {
+	return []string{"variables", "subscribers", "errors", "get_subscribers"}
 }
-func (k KeysVariablesShorturlErrorsUrlRequired) GetVars() twiri18n.Vars {
+func (k KeysVariablesSubscribersErrorsGetSubscribers) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesShorturlErrorsUrlRequired) SetVars(vars KeysVariablesShorturlErrorsUrlRequiredVars) twiri18n.TranslationKey[KeysVariablesShorturlErrorsUrlRequiredVars] {
+func (k KeysVariablesSubscribersErrorsGetSubscribers) SetVars(vars KeysVariablesSubscribersErrorsGetSubscribersVars) twiri18n.TranslationKey[KeysVariablesSubscribersErrorsGetSubscribersVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesShorturlErrorsCreateShortUrlVars struct {
-	Reason any
+type KeysVariablesSubscribersErrors struct {
+	GetSubscribers KeysVariablesSubscribersErrorsGetSubscribers
 }
-type KeysVariablesShorturlErrorsCreateShortUrl struct {
+type KeysVariablesSubscribers struct {
+	Errors KeysVariablesSubscribersErrors
+}
+type KeysVariablesFollowersErrorsGetFollowersVars struct {
+}
+type KeysVariablesFollowersErrorsGetFollowers struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesShorturlErrorsCreateShortUrl) IsTranslationKey() {
+func (k KeysVariablesFollowersErrorsGetFollowers) IsTranslationKey() {
 }
-func (k KeysVariablesShorturlErrorsCreateShortUrl) GetPath() string {
-	return "variables.shorturl.errors.create_short_url"
+func (k KeysVariablesFollowersErrorsGetFollowers) GetPath() string {
+	return "variables.followers.errors.get_followers"
 }
-func (k KeysVariablesShorturlErrorsCreateShortUrl) GetPathSlice() []string {
-	return []string{"variables", "shorturl", "errors", "create_short_url"}
+func (k KeysVariablesFollowersErrorsGetFollowers) GetPathSlice() []string {
+	return []string{"variables", "followers", "errors", "get_followers"}
 }
-func (k KeysVariablesShorturlErrorsCreateShortUrl) GetVars() twiri18n.Vars {
+func (k KeysVariablesFollowersErrorsGetFollowers) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesShorturlErrorsCreateShortUrl) SetVars(vars KeysVariablesShorturlErrorsCreateShortUrlVars) twiri18n.TranslationKey[KeysVariablesShorturlErrorsCreateShortUrlVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysVariablesShorturlErrors struct {
-	UrlRequired    KeysVariablesShorturlErrorsUrlRequired
-	CreateShortUrl KeysVariablesShorturlErrorsCreateShortUrl
-}
-type KeysVariablesShorturl struct {
-	Errors KeysVariablesShorturlErrors
-}
-type KeysVariablesStreamInfoOfflineVars struct {
-}
-type KeysVariablesStreamInfoOffline struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesStreamInfoOffline) IsTranslationKey() {
-}
-func (k KeysVariablesStreamInfoOffline) GetPath() string {
-	return "variables.stream.info.offline"
-}
-func (k KeysVariablesStreamInfoOffline) GetPathSlice() []string {
-	return []string{"variables", "stream", "info", "offline"}
-}
-func (k KeysVariablesStreamInfoOffline) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesStreamInfoOffline) SetVars(vars KeysVariablesStreamInfoOfflineVars) twiri18n.TranslationKey[KeysVariablesStreamInfoOfflineVars] {
+func (k KeysVariablesFollowersErrorsGetFollowers) SetVars(vars KeysVariablesFollowersErrorsGetFollowersVars) twiri18n.TranslationKey[KeysVariablesFollowersErrorsGetFollowersVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesStreamInfoNoHistoryVars struct {
+type KeysVariablesFollowersErrors struct {
+	GetFollowers KeysVariablesFollowersErrorsGetFollowers
 }
-type KeysVariablesStreamInfoNoHistory struct {
+type KeysVariablesFollowers struct {
+	Errors KeysVariablesFollowersErrors
+}
+type KeysVariablesRandomErrorsNotPassedParamsVars struct {
+}
+type KeysVariablesRandomErrorsNotPassedParams struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesStreamInfoNoHistory) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsNotPassedParams) IsTranslationKey() {
 }
-func (k KeysVariablesStreamInfoNoHistory) GetPath() string {
-	return "variables.stream.info.no_history"
+func (k KeysVariablesRandomErrorsNotPassedParams) GetPath() string {
+	return "variables.random.errors.not_passed_params"
 }
-func (k KeysVariablesStreamInfoNoHistory) GetPathSlice() []string {
-	return []string{"variables", "stream", "info", "no_history"}
+func (k KeysVariablesRandomErrorsNotPassedParams) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "not_passed_params"}
 }
-func (k KeysVariablesStreamInfoNoHistory) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsNotPassedParams) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesStreamInfoNoHistory) SetVars(vars KeysVariablesStreamInfoNoHistoryVars) twiri18n.TranslationKey[KeysVariablesStreamInfoNoHistoryVars] {
+func (k KeysVariablesRandomErrorsNotPassedParams) SetVars(vars KeysVariablesRandomErrorsNotPassedParamsVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsNotPassedParamsVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesStreamInfo struct {
-	Offline   KeysVariablesStreamInfoOffline
-	NoHistory KeysVariablesStreamInfoNoHistory
+type KeysVariablesRandomErrorsLowerNumbersVars struct {
 }
-type KeysVariablesStreamErrorsGetHistoryOfCategoriesVars struct {
-}
-type KeysVariablesStreamErrorsGetHistoryOfCategories struct {
+type KeysVariablesRandomErrorsLowerNumbers struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesStreamErrorsGetHistoryOfCategories) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsLowerNumbers) IsTranslationKey() {
 }
-func (k KeysVariablesStreamErrorsGetHistoryOfCategories) GetPath() string {
-	return "variables.stream.errors.get_history_of_categories"
+func (k KeysVariablesRandomErrorsLowerNumbers) GetPath() string {
+	return "variables.random.errors.lower_numbers"
 }
-func (k KeysVariablesStreamErrorsGetHistoryOfCategories) GetPathSlice() []string {
-	return []string{"variables", "stream", "errors", "get_history_of_categories"}
+func (k KeysVariablesRandomErrorsLowerNumbers) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "lower_numbers"}
 }
-func (k KeysVariablesStreamErrorsGetHistoryOfCategories) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsLowerNumbers) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesStreamErrorsGetHistoryOfCategories) SetVars(vars KeysVariablesStreamErrorsGetHistoryOfCategoriesVars) twiri18n.TranslationKey[KeysVariablesStreamErrorsGetHistoryOfCategoriesVars] {
+func (k KeysVariablesRandomErrorsLowerNumbers) SetVars(vars KeysVariablesRandomErrorsLowerNumbersVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsLowerNumbersVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesStreamErrorsErrorVars struct {
+type KeysVariablesRandomErrorsEmptyPhraseVars struct {
 }
-type KeysVariablesStreamErrorsError struct {
+type KeysVariablesRandomErrorsEmptyPhrase struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesStreamErrorsError) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsEmptyPhrase) IsTranslationKey() {
 }
-func (k KeysVariablesStreamErrorsError) GetPath() string {
-	return "variables.stream.errors.error"
+func (k KeysVariablesRandomErrorsEmptyPhrase) GetPath() string {
+	return "variables.random.errors.empty_phrase"
 }
-func (k KeysVariablesStreamErrorsError) GetPathSlice() []string {
-	return []string{"variables", "stream", "errors", "error"}
+func (k KeysVariablesRandomErrorsEmptyPhrase) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "empty_phrase"}
 }
-func (k KeysVariablesStreamErrorsError) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsEmptyPhrase) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesStreamErrorsError) SetVars(vars KeysVariablesStreamErrorsErrorVars) twiri18n.TranslationKey[KeysVariablesStreamErrorsErrorVars] {
+func (k KeysVariablesRandomErrorsEmptyPhrase) SetVars(vars KeysVariablesRandomErrorsEmptyPhraseVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsEmptyPhraseVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesStreamErrorsOfflineVars struct {
+type KeysVariablesRandomErrorsWrongNumberVars struct {
 }
-type KeysVariablesStreamErrorsOffline struct {
+type KeysVariablesRandomErrorsWrongNumber struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesStreamErrorsOffline) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsWrongNumber) IsTranslationKey() {
 }
-func (k KeysVariablesStreamErrorsOffline) GetPath() string {
-	return "variables.stream.errors.offline"
+func (k KeysVariablesRandomErrorsWrongNumber) GetPath() string {
+	return "variables.random.errors.wrong_number"
 }
-func (k KeysVariablesStreamErrorsOffline) GetPathSlice() []string {
-	return []string{"variables", "stream", "errors", "offline"}
+func (k KeysVariablesRandomErrorsWrongNumber) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "wrong_number"}
 }
-func (k KeysVariablesStreamErrorsOffline) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsWrongNumber) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesStreamErrorsOffline) SetVars(vars KeysVariablesStreamErrorsOfflineVars) twiri18n.TranslationKey[KeysVariablesStreamErrorsOfflineVars] {
+func (k KeysVariablesRandomErrorsWrongNumber) SetVars(vars KeysVariablesRandomErrorsWrongNumberVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsWrongNumberVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesStreamErrorsCountFollowersVars struct {
+type KeysVariablesRandomErrorsParseFirstNumberVars struct {
 }
-type KeysVariablesStreamErrorsCountFollowers struct {
+type KeysVariablesRandomErrorsParseFirstNumber struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesStreamErrorsCountFollowers) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsParseFirstNumber) IsTranslationKey() {
 }
-func (k KeysVariablesStreamErrorsCountFollowers) GetPath() string {
-	return "variables.stream.errors.count_followers"
+func (k KeysVariablesRandomErrorsParseFirstNumber) GetPath() string {
+	return "variables.random.errors.parse_first_number"
 }
-func (k KeysVariablesStreamErrorsCountFollowers) GetPathSlice() []string {
-	return []string{"variables", "stream", "errors", "count_followers"}
+func (k KeysVariablesRandomErrorsParseFirstNumber) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "parse_first_number"}
 }
-func (k KeysVariablesStreamErrorsCountFollowers) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsParseFirstNumber) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesStreamErrorsCountFollowers) SetVars(vars KeysVariablesStreamErrorsCountFollowersVars) twiri18n.TranslationKey[KeysVariablesStreamErrorsCountFollowersVars] {
+func (k KeysVariablesRandomErrorsParseFirstNumber) SetVars(vars KeysVariablesRandomErrorsParseFirstNumberVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsParseFirstNumberVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesStreamErrors struct {
-	GetHistoryOfCategories KeysVariablesStreamErrorsGetHistoryOfCategories
-	Error                  KeysVariablesStreamErrorsError
-	Offline                KeysVariablesStreamErrorsOffline
-	CountFollowers         KeysVariablesStreamErrorsCountFollowers
+type KeysVariablesRandomErrorsParseSecondNumberVars struct {
 }
-type KeysVariablesStream struct {
-	Info   KeysVariablesStreamInfo
-	Errors KeysVariablesStreamErrors
-}
-type KeysVariablesSongInfoLastfmIntegrationVars struct {
-}
-type KeysVariablesSongInfoLastfmIntegration struct {
+type KeysVariablesRandomErrorsParseSecondNumber struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesSongInfoLastfmIntegration) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsParseSecondNumber) IsTranslationKey() {
 }
-func (k KeysVariablesSongInfoLastfmIntegration) GetPath() string {
-	return "variables.song.info.lastfm_integration"
+func (k KeysVariablesRandomErrorsParseSecondNumber) GetPath() string {
+	return "variables.random.errors.parse_second_number"
 }
-func (k KeysVariablesSongInfoLastfmIntegration) GetPathSlice() []string {
-	return []string{"variables", "song", "info", "lastfm_integration"}
+func (k KeysVariablesRandomErrorsParseSecondNumber) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "parse_second_number"}
 }
-func (k KeysVariablesSongInfoLastfmIntegration) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsParseSecondNumber) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesSongInfoLastfmIntegration) SetVars(vars KeysVariablesSongInfoLastfmIntegrationVars) twiri18n.TranslationKey[KeysVariablesSongInfoLastfmIntegrationVars] {
+func (k KeysVariablesRandomErrorsParseSecondNumber) SetVars(vars KeysVariablesRandomErrorsParseSecondNumberVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsParseSecondNumberVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesSongInfoFailedGetSpotifyIntegrationVars struct {
+type KeysVariablesRandomErrorsFirstLargerSecondVars struct {
 }
-type KeysVariablesSongInfoFailedGetSpotifyIntegration struct {
+type KeysVariablesRandomErrorsFirstLargerSecond struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsFirstLargerSecond) IsTranslationKey() {
 }
-func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) GetPath() string {
-	return "variables.song.info.failed_get_spotify_integration"
+func (k KeysVariablesRandomErrorsFirstLargerSecond) GetPath() string {
+	return "variables.random.errors.first_larger_second"
 }
-func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) GetPathSlice() []string {
-	return []string{"variables", "song", "info", "failed_get_spotify_integration"}
+func (k KeysVariablesRandomErrorsFirstLargerSecond) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "first_larger_second"}
 }
-func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsFirstLargerSecond) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) SetVars(vars KeysVariablesSongInfoFailedGetSpotifyIntegrationVars) twiri18n.TranslationKey[KeysVariablesSongInfoFailedGetSpotifyIntegrationVars] {
+func (k KeysVariablesRandomErrorsFirstLargerSecond) SetVars(vars KeysVariablesRandomErrorsFirstLargerSecondVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsFirstLargerSecondVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesSongInfoGetSpotifyIntegrationVars struct {
-	Reason any
+type KeysVariablesRandomErrorsParametersNotSpecifiedVars struct {
 }
-type KeysVariablesSongInfoGetSpotifyIntegration struct {
+type KeysVariablesRandomErrorsParametersNotSpecified struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesSongInfoGetSpotifyIntegration) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsParametersNotSpecified) IsTranslationKey() {
 }
-func (k KeysVariablesSongInfoGetSpotifyIntegration) GetPath() string {
-	return "variables.song.info.get_spotify_integration"
+func (k KeysVariablesRandomErrorsParametersNotSpecified) GetPath() string {
+	return "variables.random.errors.parameters_not_specified"
 }
-func (k KeysVariablesSongInfoGetSpotifyIntegration) GetPathSlice() []string {
-	return []string{"variables", "song", "info", "get_spotify_integration"}
+func (k KeysVariablesRandomErrorsParametersNotSpecified) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "parameters_not_specified"}
 }
-func (k KeysVariablesSongInfoGetSpotifyIntegration) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsParametersNotSpecified) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesSongInfoGetSpotifyIntegration) SetVars(vars KeysVariablesSongInfoGetSpotifyIntegrationVars) twiri18n.TranslationKey[KeysVariablesSongInfoGetSpotifyIntegrationVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysVariablesSongInfoHistoryVars struct {
-	TrackTitle  any
-	TrackArtist any
-	Minutes     any
-}
-type KeysVariablesSongInfoHistory struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesSongInfoHistory) IsTranslationKey() {
-}
-func (k KeysVariablesSongInfoHistory) GetPath() string {
-	return "variables.song.info.history"
-}
-func (k KeysVariablesSongInfoHistory) GetPathSlice() []string {
-	return []string{"variables", "song", "info", "history"}
-}
-func (k KeysVariablesSongInfoHistory) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesSongInfoHistory) SetVars(vars KeysVariablesSongInfoHistoryVars) twiri18n.TranslationKey[KeysVariablesSongInfoHistoryVars] {
-	k.Vars = twiri18n.Vars{"trackTitle": vars.TrackTitle, "trackArtist": vars.TrackArtist, "minutes": vars.Minutes}
-	return k
-}
-
-type KeysVariablesSongInfoNoNeededScopeVars struct {
-}
-type KeysVariablesSongInfoNoNeededScope struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesSongInfoNoNeededScope) IsTranslationKey() {
-}
-func (k KeysVariablesSongInfoNoNeededScope) GetPath() string {
-	return "variables.song.info.no_needed_scope"
-}
-func (k KeysVariablesSongInfoNoNeededScope) GetPathSlice() []string {
-	return []string{"variables", "song", "info", "no_needed_scope"}
-}
-func (k KeysVariablesSongInfoNoNeededScope) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesSongInfoNoNeededScope) SetVars(vars KeysVariablesSongInfoNoNeededScopeVars) twiri18n.TranslationKey[KeysVariablesSongInfoNoNeededScopeVars] {
+func (k KeysVariablesRandomErrorsParametersNotSpecified) SetVars(vars KeysVariablesRandomErrorsParametersNotSpecifiedVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsParametersNotSpecifiedVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesSongInfoSpotifyNotConnectedVars struct {
+type KeysVariablesRandomErrorsWrongWithParamsVars struct {
 }
-type KeysVariablesSongInfoSpotifyNotConnected struct {
+type KeysVariablesRandomErrorsWrongWithParams struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesSongInfoSpotifyNotConnected) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsWrongWithParams) IsTranslationKey() {
 }
-func (k KeysVariablesSongInfoSpotifyNotConnected) GetPath() string {
-	return "variables.song.info.spotify_not_connected"
+func (k KeysVariablesRandomErrorsWrongWithParams) GetPath() string {
+	return "variables.random.errors.wrong_with_params"
 }
-func (k KeysVariablesSongInfoSpotifyNotConnected) GetPathSlice() []string {
-	return []string{"variables", "song", "info", "spotify_not_connected"}
+func (k KeysVariablesRandomErrorsWrongWithParams) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "wrong_with_params"}
 }
-func (k KeysVariablesSongInfoSpotifyNotConnected) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsWrongWithParams) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesSongInfoSpotifyNotConnected) SetVars(vars KeysVariablesSongInfoSpotifyNotConnectedVars) twiri18n.TranslationKey[KeysVariablesSongInfoSpotifyNotConnectedVars] {
+func (k KeysVariablesRandomErrorsWrongWithParams) SetVars(vars KeysVariablesRandomErrorsWrongWithParamsVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsWrongWithParamsVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesSongInfoGetSpotifyEntityVars struct {
+type KeysVariablesRandomErrorsGetOnlineUserVars struct {
 }
-type KeysVariablesSongInfoGetSpotifyEntity struct {
+type KeysVariablesRandomErrorsGetOnlineUser struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesSongInfoGetSpotifyEntity) IsTranslationKey() {
+func (k KeysVariablesRandomErrorsGetOnlineUser) IsTranslationKey() {
 }
-func (k KeysVariablesSongInfoGetSpotifyEntity) GetPath() string {
-	return "variables.song.info.get_spotify_entity"
+func (k KeysVariablesRandomErrorsGetOnlineUser) GetPath() string {
+	return "variables.random.errors.get_online_user"
 }
-func (k KeysVariablesSongInfoGetSpotifyEntity) GetPathSlice() []string {
-	return []string{"variables", "song", "info", "get_spotify_entity"}
+func (k KeysVariablesRandomErrorsGetOnlineUser) GetPathSlice() []string {
+	return []string{"variables", "random", "errors", "get_online_user"}
 }
-func (k KeysVariablesSongInfoGetSpotifyEntity) GetVars() twiri18n.Vars {
+func (k KeysVariablesRandomErrorsGetOnlineUser) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesSongInfoGetSpotifyEntity) SetVars(vars KeysVariablesSongInfoGetSpotifyEntityVars) twiri18n.TranslationKey[KeysVariablesSongInfoGetSpotifyEntityVars] {
+func (k KeysVariablesRandomErrorsGetOnlineUser) SetVars(vars KeysVariablesRandomErrorsGetOnlineUserVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsGetOnlineUserVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesSongInfoNoIntegrationsVars struct {
+type KeysVariablesRandomErrors struct {
+	NotPassedParams        KeysVariablesRandomErrorsNotPassedParams
+	LowerNumbers           KeysVariablesRandomErrorsLowerNumbers
+	EmptyPhrase            KeysVariablesRandomErrorsEmptyPhrase
+	WrongNumber            KeysVariablesRandomErrorsWrongNumber
+	ParseFirstNumber       KeysVariablesRandomErrorsParseFirstNumber
+	ParseSecondNumber      KeysVariablesRandomErrorsParseSecondNumber
+	FirstLargerSecond      KeysVariablesRandomErrorsFirstLargerSecond
+	ParametersNotSpecified KeysVariablesRandomErrorsParametersNotSpecified
+	WrongWithParams        KeysVariablesRandomErrorsWrongWithParams
+	GetOnlineUser          KeysVariablesRandomErrorsGetOnlineUser
 }
-type KeysVariablesSongInfoNoIntegrations struct {
+type KeysVariablesRandom struct {
+	Errors KeysVariablesRandomErrors
+}
+type KeysVariablesCommandsInfoCommandWithNameNotFoundVars struct {
+	CommandName any
+}
+type KeysVariablesCommandsInfoCommandWithNameNotFound struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesSongInfoNoIntegrations) IsTranslationKey() {
+func (k KeysVariablesCommandsInfoCommandWithNameNotFound) IsTranslationKey() {
 }
-func (k KeysVariablesSongInfoNoIntegrations) GetPath() string {
-	return "variables.song.info.no_integrations"
+func (k KeysVariablesCommandsInfoCommandWithNameNotFound) GetPath() string {
+	return "variables.commands.info.command_with_name_not_found"
 }
-func (k KeysVariablesSongInfoNoIntegrations) GetPathSlice() []string {
-	return []string{"variables", "song", "info", "no_integrations"}
+func (k KeysVariablesCommandsInfoCommandWithNameNotFound) GetPathSlice() []string {
+	return []string{"variables", "commands", "info", "command_with_name_not_found"}
 }
-func (k KeysVariablesSongInfoNoIntegrations) GetVars() twiri18n.Vars {
+func (k KeysVariablesCommandsInfoCommandWithNameNotFound) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesSongInfoNoIntegrations) SetVars(vars KeysVariablesSongInfoNoIntegrationsVars) twiri18n.TranslationKey[KeysVariablesSongInfoNoIntegrationsVars] {
-	k.Vars = twiri18n.Vars{}
+func (k KeysVariablesCommandsInfoCommandWithNameNotFound) SetVars(vars KeysVariablesCommandsInfoCommandWithNameNotFoundVars) twiri18n.TranslationKey[KeysVariablesCommandsInfoCommandWithNameNotFoundVars] {
+	k.Vars = twiri18n.Vars{"commandName": vars.CommandName}
 	return k
 }
 
-type KeysVariablesSongInfo struct {
-	LastfmIntegration           KeysVariablesSongInfoLastfmIntegration
-	FailedGetSpotifyIntegration KeysVariablesSongInfoFailedGetSpotifyIntegration
-	GetSpotifyIntegration       KeysVariablesSongInfoGetSpotifyIntegration
-	History                     KeysVariablesSongInfoHistory
-	NoNeededScope               KeysVariablesSongInfoNoNeededScope
-	SpotifyNotConnected         KeysVariablesSongInfoSpotifyNotConnected
-	GetSpotifyEntity            KeysVariablesSongInfoGetSpotifyEntity
-	NoIntegrations              KeysVariablesSongInfoNoIntegrations
-}
-type KeysVariablesSongErrorsCreateLastfmServiceVars struct {
-	Reason any
-}
-type KeysVariablesSongErrorsCreateLastfmService struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesSongErrorsCreateLastfmService) IsTranslationKey() {
-}
-func (k KeysVariablesSongErrorsCreateLastfmService) GetPath() string {
-	return "variables.song.errors.create_lastfm_service"
-}
-func (k KeysVariablesSongErrorsCreateLastfmService) GetPathSlice() []string {
-	return []string{"variables", "song", "errors", "create_lastfm_service"}
-}
-func (k KeysVariablesSongErrorsCreateLastfmService) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesSongErrorsCreateLastfmService) SetVars(vars KeysVariablesSongErrorsCreateLastfmServiceVars) twiri18n.TranslationKey[KeysVariablesSongErrorsCreateLastfmServiceVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysVariablesSongErrorsFetchTracksLastfmVars struct {
-	Reason any
-}
-type KeysVariablesSongErrorsFetchTracksLastfm struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesSongErrorsFetchTracksLastfm) IsTranslationKey() {
-}
-func (k KeysVariablesSongErrorsFetchTracksLastfm) GetPath() string {
-	return "variables.song.errors.fetch_tracks_lastfm"
-}
-func (k KeysVariablesSongErrorsFetchTracksLastfm) GetPathSlice() []string {
-	return []string{"variables", "song", "errors", "fetch_tracks_lastfm"}
-}
-func (k KeysVariablesSongErrorsFetchTracksLastfm) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesSongErrorsFetchTracksLastfm) SetVars(vars KeysVariablesSongErrorsFetchTracksLastfmVars) twiri18n.TranslationKey[KeysVariablesSongErrorsFetchTracksLastfmVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysVariablesSongErrorsFetchTracksSpotifyVars struct {
-	Reason any
-}
-type KeysVariablesSongErrorsFetchTracksSpotify struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesSongErrorsFetchTracksSpotify) IsTranslationKey() {
-}
-func (k KeysVariablesSongErrorsFetchTracksSpotify) GetPath() string {
-	return "variables.song.errors.fetch_tracks_spotify"
-}
-func (k KeysVariablesSongErrorsFetchTracksSpotify) GetPathSlice() []string {
-	return []string{"variables", "song", "errors", "fetch_tracks_spotify"}
-}
-func (k KeysVariablesSongErrorsFetchTracksSpotify) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesSongErrorsFetchTracksSpotify) SetVars(vars KeysVariablesSongErrorsFetchTracksSpotifyVars) twiri18n.TranslationKey[KeysVariablesSongErrorsFetchTracksSpotifyVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysVariablesSongErrorsParsePlayedAtVars struct {
-}
-type KeysVariablesSongErrorsParsePlayedAt struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesSongErrorsParsePlayedAt) IsTranslationKey() {
-}
-func (k KeysVariablesSongErrorsParsePlayedAt) GetPath() string {
-	return "variables.song.errors.parse_played_at"
-}
-func (k KeysVariablesSongErrorsParsePlayedAt) GetPathSlice() []string {
-	return []string{"variables", "song", "errors", "parse_played_at"}
-}
-func (k KeysVariablesSongErrorsParsePlayedAt) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesSongErrorsParsePlayedAt) SetVars(vars KeysVariablesSongErrorsParsePlayedAtVars) twiri18n.TranslationKey[KeysVariablesSongErrorsParsePlayedAtVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesSongErrorsGetRecentTracksVars struct {
-	Reason any
-}
-type KeysVariablesSongErrorsGetRecentTracks struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesSongErrorsGetRecentTracks) IsTranslationKey() {
-}
-func (k KeysVariablesSongErrorsGetRecentTracks) GetPath() string {
-	return "variables.song.errors.get_recent_tracks"
-}
-func (k KeysVariablesSongErrorsGetRecentTracks) GetPathSlice() []string {
-	return []string{"variables", "song", "errors", "get_recent_tracks"}
-}
-func (k KeysVariablesSongErrorsGetRecentTracks) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesSongErrorsGetRecentTracks) SetVars(vars KeysVariablesSongErrorsGetRecentTracksVars) twiri18n.TranslationKey[KeysVariablesSongErrorsGetRecentTracksVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysVariablesSongErrors struct {
-	CreateLastfmService KeysVariablesSongErrorsCreateLastfmService
-	FetchTracksLastfm   KeysVariablesSongErrorsFetchTracksLastfm
-	FetchTracksSpotify  KeysVariablesSongErrorsFetchTracksSpotify
-	ParsePlayedAt       KeysVariablesSongErrorsParsePlayedAt
-	GetRecentTracks     KeysVariablesSongErrorsGetRecentTracks
-}
-type KeysVariablesSong struct {
-	Info   KeysVariablesSongInfo
-	Errors KeysVariablesSongErrors
-}
-type KeysVariablesRequestErrorsExecuteRequestVars struct {
-}
-type KeysVariablesRequestErrorsExecuteRequest struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRequestErrorsExecuteRequest) IsTranslationKey() {
-}
-func (k KeysVariablesRequestErrorsExecuteRequest) GetPath() string {
-	return "variables.request.errors.execute_request"
-}
-func (k KeysVariablesRequestErrorsExecuteRequest) GetPathSlice() []string {
-	return []string{"variables", "request", "errors", "execute_request"}
-}
-func (k KeysVariablesRequestErrorsExecuteRequest) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRequestErrorsExecuteRequest) SetVars(vars KeysVariablesRequestErrorsExecuteRequestVars) twiri18n.TranslationKey[KeysVariablesRequestErrorsExecuteRequestVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRequestErrors struct {
-	ExecuteRequest KeysVariablesRequestErrorsExecuteRequest
-}
-type KeysVariablesRequest struct {
-	Errors KeysVariablesRequestErrors
-}
-type KeysVariablesChatEvalInfoWrongCodeVars struct {
-}
-type KeysVariablesChatEvalInfoWrongCode struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesChatEvalInfoWrongCode) IsTranslationKey() {
-}
-func (k KeysVariablesChatEvalInfoWrongCode) GetPath() string {
-	return "variables.chat_eval.info.wrong_code"
-}
-func (k KeysVariablesChatEvalInfoWrongCode) GetPathSlice() []string {
-	return []string{"variables", "chat_eval", "info", "wrong_code"}
-}
-func (k KeysVariablesChatEvalInfoWrongCode) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesChatEvalInfoWrongCode) SetVars(vars KeysVariablesChatEvalInfoWrongCodeVars) twiri18n.TranslationKey[KeysVariablesChatEvalInfoWrongCodeVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesChatEvalInfo struct {
-	WrongCode KeysVariablesChatEvalInfoWrongCode
-}
-type KeysVariablesChatEval struct {
-	Info KeysVariablesChatEvalInfo
-}
-type KeysVariablesCountdownErrorsParseDateVars struct {
-}
-type KeysVariablesCountdownErrorsParseDate struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesCountdownErrorsParseDate) IsTranslationKey() {
-}
-func (k KeysVariablesCountdownErrorsParseDate) GetPath() string {
-	return "variables.countdown.errors.parse_date"
-}
-func (k KeysVariablesCountdownErrorsParseDate) GetPathSlice() []string {
-	return []string{"variables", "countdown", "errors", "parse_date"}
-}
-func (k KeysVariablesCountdownErrorsParseDate) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesCountdownErrorsParseDate) SetVars(vars KeysVariablesCountdownErrorsParseDateVars) twiri18n.TranslationKey[KeysVariablesCountdownErrorsParseDateVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesCountdownErrorsNotPassedParamsVars struct {
-}
-type KeysVariablesCountdownErrorsNotPassedParams struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesCountdownErrorsNotPassedParams) IsTranslationKey() {
-}
-func (k KeysVariablesCountdownErrorsNotPassedParams) GetPath() string {
-	return "variables.countdown.errors.not_passed_params"
-}
-func (k KeysVariablesCountdownErrorsNotPassedParams) GetPathSlice() []string {
-	return []string{"variables", "countdown", "errors", "not_passed_params"}
-}
-func (k KeysVariablesCountdownErrorsNotPassedParams) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesCountdownErrorsNotPassedParams) SetVars(vars KeysVariablesCountdownErrorsNotPassedParamsVars) twiri18n.TranslationKey[KeysVariablesCountdownErrorsNotPassedParamsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesCountdownErrors struct {
-	ParseDate       KeysVariablesCountdownErrorsParseDate
-	NotPassedParams KeysVariablesCountdownErrorsNotPassedParams
-}
-type KeysVariablesCountdown struct {
-	Errors KeysVariablesCountdownErrors
-}
-type KeysVariablesValorantInfoMatchesVars struct {
-	MatchResult any
-	RoundsWon   any
-	RoundsLost  any
-	Char        any
-	KDA         any
-}
-type KeysVariablesValorantInfoMatches struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesValorantInfoMatches) IsTranslationKey() {
-}
-func (k KeysVariablesValorantInfoMatches) GetPath() string {
-	return "variables.valorant.info.matches"
-}
-func (k KeysVariablesValorantInfoMatches) GetPathSlice() []string {
-	return []string{"variables", "valorant", "info", "matches"}
-}
-func (k KeysVariablesValorantInfoMatches) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesValorantInfoMatches) SetVars(vars KeysVariablesValorantInfoMatchesVars) twiri18n.TranslationKey[KeysVariablesValorantInfoMatchesVars] {
-	k.Vars = twiri18n.Vars{"matchResult": vars.MatchResult, "roundsWon": vars.RoundsWon, "roundsLost": vars.RoundsLost, "char": vars.Char, "KDA": vars.KDA}
-	return k
-}
-
-type KeysVariablesValorantInfo struct {
-	Matches KeysVariablesValorantInfoMatches
-}
-type KeysVariablesValorant struct {
-	Info KeysVariablesValorantInfo
-}
 type KeysVariablesCommandsInfoGetCountVars struct {
 }
 type KeysVariablesCommandsInfoGetCount struct {
@@ -1176,36 +837,41 @@ func (k KeysVariablesCommandsInfoNoPassedParams) SetVars(vars KeysVariablesComma
 	return k
 }
 
-type KeysVariablesCommandsInfoCommandWithNameNotFoundVars struct {
-	CommandName any
-}
-type KeysVariablesCommandsInfoCommandWithNameNotFound struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesCommandsInfoCommandWithNameNotFound) IsTranslationKey() {
-}
-func (k KeysVariablesCommandsInfoCommandWithNameNotFound) GetPath() string {
-	return "variables.commands.info.command_with_name_not_found"
-}
-func (k KeysVariablesCommandsInfoCommandWithNameNotFound) GetPathSlice() []string {
-	return []string{"variables", "commands", "info", "command_with_name_not_found"}
-}
-func (k KeysVariablesCommandsInfoCommandWithNameNotFound) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesCommandsInfoCommandWithNameNotFound) SetVars(vars KeysVariablesCommandsInfoCommandWithNameNotFoundVars) twiri18n.TranslationKey[KeysVariablesCommandsInfoCommandWithNameNotFoundVars] {
-	k.Vars = twiri18n.Vars{"commandName": vars.CommandName}
-	return k
-}
-
 type KeysVariablesCommandsInfo struct {
+	CommandWithNameNotFound KeysVariablesCommandsInfoCommandWithNameNotFound
 	GetCount                KeysVariablesCommandsInfoGetCount
 	NoPassedParams          KeysVariablesCommandsInfoNoPassedParams
-	CommandWithNameNotFound KeysVariablesCommandsInfoCommandWithNameNotFound
 }
 type KeysVariablesCommands struct {
 	Info KeysVariablesCommandsInfo
+}
+type KeysVariablesUserErrorsFindUserOnTwitchVars struct {
+}
+type KeysVariablesUserErrorsFindUserOnTwitch struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesUserErrorsFindUserOnTwitch) IsTranslationKey() {
+}
+func (k KeysVariablesUserErrorsFindUserOnTwitch) GetPath() string {
+	return "variables.user.errors.find_user_on_twitch"
+}
+func (k KeysVariablesUserErrorsFindUserOnTwitch) GetPathSlice() []string {
+	return []string{"variables", "user", "errors", "find_user_on_twitch"}
+}
+func (k KeysVariablesUserErrorsFindUserOnTwitch) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesUserErrorsFindUserOnTwitch) SetVars(vars KeysVariablesUserErrorsFindUserOnTwitchVars) twiri18n.TranslationKey[KeysVariablesUserErrorsFindUserOnTwitchVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesUserErrors struct {
+	FindUserOnTwitch KeysVariablesUserErrorsFindUserOnTwitch
+}
+type KeysVariablesUser struct {
+	Errors KeysVariablesUserErrors
 }
 type KeysVariablesCustomVarErrorsWrongNumbersVars struct {
 	Reason any
@@ -1282,319 +948,6 @@ type KeysVariablesCustomVarErrors struct {
 type KeysVariablesCustomVar struct {
 	Errors KeysVariablesCustomVarErrors
 }
-type KeysVariablesRandomErrorsWrongNumberVars struct {
-}
-type KeysVariablesRandomErrorsWrongNumber struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsWrongNumber) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsWrongNumber) GetPath() string {
-	return "variables.random.errors.wrong_number"
-}
-func (k KeysVariablesRandomErrorsWrongNumber) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "wrong_number"}
-}
-func (k KeysVariablesRandomErrorsWrongNumber) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsWrongNumber) SetVars(vars KeysVariablesRandomErrorsWrongNumberVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsWrongNumberVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsParseFirstNumberVars struct {
-}
-type KeysVariablesRandomErrorsParseFirstNumber struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsParseFirstNumber) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsParseFirstNumber) GetPath() string {
-	return "variables.random.errors.parse_first_number"
-}
-func (k KeysVariablesRandomErrorsParseFirstNumber) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "parse_first_number"}
-}
-func (k KeysVariablesRandomErrorsParseFirstNumber) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsParseFirstNumber) SetVars(vars KeysVariablesRandomErrorsParseFirstNumberVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsParseFirstNumberVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsWrongWithParamsVars struct {
-}
-type KeysVariablesRandomErrorsWrongWithParams struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsWrongWithParams) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsWrongWithParams) GetPath() string {
-	return "variables.random.errors.wrong_with_params"
-}
-func (k KeysVariablesRandomErrorsWrongWithParams) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "wrong_with_params"}
-}
-func (k KeysVariablesRandomErrorsWrongWithParams) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsWrongWithParams) SetVars(vars KeysVariablesRandomErrorsWrongWithParamsVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsWrongWithParamsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsNotPassedParamsVars struct {
-}
-type KeysVariablesRandomErrorsNotPassedParams struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsNotPassedParams) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsNotPassedParams) GetPath() string {
-	return "variables.random.errors.not_passed_params"
-}
-func (k KeysVariablesRandomErrorsNotPassedParams) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "not_passed_params"}
-}
-func (k KeysVariablesRandomErrorsNotPassedParams) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsNotPassedParams) SetVars(vars KeysVariablesRandomErrorsNotPassedParamsVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsNotPassedParamsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsParseSecondNumberVars struct {
-}
-type KeysVariablesRandomErrorsParseSecondNumber struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsParseSecondNumber) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsParseSecondNumber) GetPath() string {
-	return "variables.random.errors.parse_second_number"
-}
-func (k KeysVariablesRandomErrorsParseSecondNumber) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "parse_second_number"}
-}
-func (k KeysVariablesRandomErrorsParseSecondNumber) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsParseSecondNumber) SetVars(vars KeysVariablesRandomErrorsParseSecondNumberVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsParseSecondNumberVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsFirstLargerSecondVars struct {
-}
-type KeysVariablesRandomErrorsFirstLargerSecond struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsFirstLargerSecond) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsFirstLargerSecond) GetPath() string {
-	return "variables.random.errors.first_larger_second"
-}
-func (k KeysVariablesRandomErrorsFirstLargerSecond) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "first_larger_second"}
-}
-func (k KeysVariablesRandomErrorsFirstLargerSecond) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsFirstLargerSecond) SetVars(vars KeysVariablesRandomErrorsFirstLargerSecondVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsFirstLargerSecondVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsLowerNumbersVars struct {
-}
-type KeysVariablesRandomErrorsLowerNumbers struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsLowerNumbers) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsLowerNumbers) GetPath() string {
-	return "variables.random.errors.lower_numbers"
-}
-func (k KeysVariablesRandomErrorsLowerNumbers) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "lower_numbers"}
-}
-func (k KeysVariablesRandomErrorsLowerNumbers) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsLowerNumbers) SetVars(vars KeysVariablesRandomErrorsLowerNumbersVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsLowerNumbersVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsParametersNotSpecifiedVars struct {
-}
-type KeysVariablesRandomErrorsParametersNotSpecified struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsParametersNotSpecified) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsParametersNotSpecified) GetPath() string {
-	return "variables.random.errors.parameters_not_specified"
-}
-func (k KeysVariablesRandomErrorsParametersNotSpecified) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "parameters_not_specified"}
-}
-func (k KeysVariablesRandomErrorsParametersNotSpecified) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsParametersNotSpecified) SetVars(vars KeysVariablesRandomErrorsParametersNotSpecifiedVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsParametersNotSpecifiedVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsEmptyPhraseVars struct {
-}
-type KeysVariablesRandomErrorsEmptyPhrase struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsEmptyPhrase) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsEmptyPhrase) GetPath() string {
-	return "variables.random.errors.empty_phrase"
-}
-func (k KeysVariablesRandomErrorsEmptyPhrase) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "empty_phrase"}
-}
-func (k KeysVariablesRandomErrorsEmptyPhrase) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsEmptyPhrase) SetVars(vars KeysVariablesRandomErrorsEmptyPhraseVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsEmptyPhraseVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrorsGetOnlineUserVars struct {
-}
-type KeysVariablesRandomErrorsGetOnlineUser struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesRandomErrorsGetOnlineUser) IsTranslationKey() {
-}
-func (k KeysVariablesRandomErrorsGetOnlineUser) GetPath() string {
-	return "variables.random.errors.get_online_user"
-}
-func (k KeysVariablesRandomErrorsGetOnlineUser) GetPathSlice() []string {
-	return []string{"variables", "random", "errors", "get_online_user"}
-}
-func (k KeysVariablesRandomErrorsGetOnlineUser) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesRandomErrorsGetOnlineUser) SetVars(vars KeysVariablesRandomErrorsGetOnlineUserVars) twiri18n.TranslationKey[KeysVariablesRandomErrorsGetOnlineUserVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesRandomErrors struct {
-	WrongNumber            KeysVariablesRandomErrorsWrongNumber
-	ParseFirstNumber       KeysVariablesRandomErrorsParseFirstNumber
-	WrongWithParams        KeysVariablesRandomErrorsWrongWithParams
-	NotPassedParams        KeysVariablesRandomErrorsNotPassedParams
-	ParseSecondNumber      KeysVariablesRandomErrorsParseSecondNumber
-	FirstLargerSecond      KeysVariablesRandomErrorsFirstLargerSecond
-	LowerNumbers           KeysVariablesRandomErrorsLowerNumbers
-	ParametersNotSpecified KeysVariablesRandomErrorsParametersNotSpecified
-	EmptyPhrase            KeysVariablesRandomErrorsEmptyPhrase
-	GetOnlineUser          KeysVariablesRandomErrorsGetOnlineUser
-}
-type KeysVariablesRandom struct {
-	Errors KeysVariablesRandomErrors
-}
-type KeysVariablesFollowersErrorsGetFollowersVars struct {
-}
-type KeysVariablesFollowersErrorsGetFollowers struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesFollowersErrorsGetFollowers) IsTranslationKey() {
-}
-func (k KeysVariablesFollowersErrorsGetFollowers) GetPath() string {
-	return "variables.followers.errors.get_followers"
-}
-func (k KeysVariablesFollowersErrorsGetFollowers) GetPathSlice() []string {
-	return []string{"variables", "followers", "errors", "get_followers"}
-}
-func (k KeysVariablesFollowersErrorsGetFollowers) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesFollowersErrorsGetFollowers) SetVars(vars KeysVariablesFollowersErrorsGetFollowersVars) twiri18n.TranslationKey[KeysVariablesFollowersErrorsGetFollowersVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesFollowersErrors struct {
-	GetFollowers KeysVariablesFollowersErrorsGetFollowers
-}
-type KeysVariablesFollowers struct {
-	Errors KeysVariablesFollowersErrors
-}
-type KeysVariablesUserErrorsFindUserOnTwitchVars struct {
-}
-type KeysVariablesUserErrorsFindUserOnTwitch struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesUserErrorsFindUserOnTwitch) IsTranslationKey() {
-}
-func (k KeysVariablesUserErrorsFindUserOnTwitch) GetPath() string {
-	return "variables.user.errors.find_user_on_twitch"
-}
-func (k KeysVariablesUserErrorsFindUserOnTwitch) GetPathSlice() []string {
-	return []string{"variables", "user", "errors", "find_user_on_twitch"}
-}
-func (k KeysVariablesUserErrorsFindUserOnTwitch) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesUserErrorsFindUserOnTwitch) SetVars(vars KeysVariablesUserErrorsFindUserOnTwitchVars) twiri18n.TranslationKey[KeysVariablesUserErrorsFindUserOnTwitchVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysVariablesUserErrors struct {
-	FindUserOnTwitch KeysVariablesUserErrorsFindUserOnTwitch
-}
-type KeysVariablesUser struct {
-	Errors KeysVariablesUserErrors
-}
-type KeysVariablesKeywordsErrorsNotFoundVars struct {
-}
-type KeysVariablesKeywordsErrorsNotFound struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysVariablesKeywordsErrorsNotFound) IsTranslationKey() {
-}
-func (k KeysVariablesKeywordsErrorsNotFound) GetPath() string {
-	return "variables.keywords.errors.not_found"
-}
-func (k KeysVariablesKeywordsErrorsNotFound) GetPathSlice() []string {
-	return []string{"variables", "keywords", "errors", "not_found"}
-}
-func (k KeysVariablesKeywordsErrorsNotFound) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysVariablesKeywordsErrorsNotFound) SetVars(vars KeysVariablesKeywordsErrorsNotFoundVars) twiri18n.TranslationKey[KeysVariablesKeywordsErrorsNotFoundVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
 type KeysVariablesKeywordsErrorsIdNotProvidedVars struct {
 }
 type KeysVariablesKeywordsErrorsIdNotProvided struct {
@@ -1617,12 +970,62 @@ func (k KeysVariablesKeywordsErrorsIdNotProvided) SetVars(vars KeysVariablesKeyw
 	return k
 }
 
+type KeysVariablesKeywordsErrorsNotFoundVars struct {
+}
+type KeysVariablesKeywordsErrorsNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesKeywordsErrorsNotFound) IsTranslationKey() {
+}
+func (k KeysVariablesKeywordsErrorsNotFound) GetPath() string {
+	return "variables.keywords.errors.not_found"
+}
+func (k KeysVariablesKeywordsErrorsNotFound) GetPathSlice() []string {
+	return []string{"variables", "keywords", "errors", "not_found"}
+}
+func (k KeysVariablesKeywordsErrorsNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesKeywordsErrorsNotFound) SetVars(vars KeysVariablesKeywordsErrorsNotFoundVars) twiri18n.TranslationKey[KeysVariablesKeywordsErrorsNotFoundVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
 type KeysVariablesKeywordsErrors struct {
-	NotFound      KeysVariablesKeywordsErrorsNotFound
 	IdNotProvided KeysVariablesKeywordsErrorsIdNotProvided
+	NotFound      KeysVariablesKeywordsErrorsNotFound
 }
 type KeysVariablesKeywords struct {
 	Errors KeysVariablesKeywordsErrors
+}
+type KeysVariablesChatEvalInfoWrongCodeVars struct {
+}
+type KeysVariablesChatEvalInfoWrongCode struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesChatEvalInfoWrongCode) IsTranslationKey() {
+}
+func (k KeysVariablesChatEvalInfoWrongCode) GetPath() string {
+	return "variables.chat_eval.info.wrong_code"
+}
+func (k KeysVariablesChatEvalInfoWrongCode) GetPathSlice() []string {
+	return []string{"variables", "chat_eval", "info", "wrong_code"}
+}
+func (k KeysVariablesChatEvalInfoWrongCode) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesChatEvalInfoWrongCode) SetVars(vars KeysVariablesChatEvalInfoWrongCodeVars) twiri18n.TranslationKey[KeysVariablesChatEvalInfoWrongCodeVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesChatEvalInfo struct {
+	WrongCode KeysVariablesChatEvalInfoWrongCode
+}
+type KeysVariablesChatEval struct {
+	Info KeysVariablesChatEvalInfo
 }
 type KeysVariablesSeventvErrorsNoActiveSetVars struct {
 }
@@ -1746,1196 +1149,647 @@ type KeysVariablesSeventvErrors struct {
 type KeysVariablesSeventv struct {
 	Errors KeysVariablesSeventvErrors
 }
-type KeysVariablesSubscribersErrorsGetSubscribersVars struct {
+type KeysVariablesSongInfoNoNeededScopeVars struct {
 }
-type KeysVariablesSubscribersErrorsGetSubscribers struct {
+type KeysVariablesSongInfoNoNeededScope struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysVariablesSubscribersErrorsGetSubscribers) IsTranslationKey() {
+func (k KeysVariablesSongInfoNoNeededScope) IsTranslationKey() {
 }
-func (k KeysVariablesSubscribersErrorsGetSubscribers) GetPath() string {
-	return "variables.subscribers.errors.get_subscribers"
+func (k KeysVariablesSongInfoNoNeededScope) GetPath() string {
+	return "variables.song.info.no_needed_scope"
 }
-func (k KeysVariablesSubscribersErrorsGetSubscribers) GetPathSlice() []string {
-	return []string{"variables", "subscribers", "errors", "get_subscribers"}
+func (k KeysVariablesSongInfoNoNeededScope) GetPathSlice() []string {
+	return []string{"variables", "song", "info", "no_needed_scope"}
 }
-func (k KeysVariablesSubscribersErrorsGetSubscribers) GetVars() twiri18n.Vars {
+func (k KeysVariablesSongInfoNoNeededScope) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysVariablesSubscribersErrorsGetSubscribers) SetVars(vars KeysVariablesSubscribersErrorsGetSubscribersVars) twiri18n.TranslationKey[KeysVariablesSubscribersErrorsGetSubscribersVars] {
+func (k KeysVariablesSongInfoNoNeededScope) SetVars(vars KeysVariablesSongInfoNoNeededScopeVars) twiri18n.TranslationKey[KeysVariablesSongInfoNoNeededScopeVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysVariablesSubscribersErrors struct {
-	GetSubscribers KeysVariablesSubscribersErrorsGetSubscribers
+type KeysVariablesSongInfoFailedGetSpotifyIntegrationVars struct {
 }
-type KeysVariablesSubscribers struct {
-	Errors KeysVariablesSubscribersErrors
+type KeysVariablesSongInfoFailedGetSpotifyIntegration struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) IsTranslationKey() {
+}
+func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) GetPath() string {
+	return "variables.song.info.failed_get_spotify_integration"
+}
+func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) GetPathSlice() []string {
+	return []string{"variables", "song", "info", "failed_get_spotify_integration"}
+}
+func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongInfoFailedGetSpotifyIntegration) SetVars(vars KeysVariablesSongInfoFailedGetSpotifyIntegrationVars) twiri18n.TranslationKey[KeysVariablesSongInfoFailedGetSpotifyIntegrationVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesSongInfoNoIntegrationsVars struct {
+}
+type KeysVariablesSongInfoNoIntegrations struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongInfoNoIntegrations) IsTranslationKey() {
+}
+func (k KeysVariablesSongInfoNoIntegrations) GetPath() string {
+	return "variables.song.info.no_integrations"
+}
+func (k KeysVariablesSongInfoNoIntegrations) GetPathSlice() []string {
+	return []string{"variables", "song", "info", "no_integrations"}
+}
+func (k KeysVariablesSongInfoNoIntegrations) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongInfoNoIntegrations) SetVars(vars KeysVariablesSongInfoNoIntegrationsVars) twiri18n.TranslationKey[KeysVariablesSongInfoNoIntegrationsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesSongInfoLastfmIntegrationVars struct {
+}
+type KeysVariablesSongInfoLastfmIntegration struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongInfoLastfmIntegration) IsTranslationKey() {
+}
+func (k KeysVariablesSongInfoLastfmIntegration) GetPath() string {
+	return "variables.song.info.lastfm_integration"
+}
+func (k KeysVariablesSongInfoLastfmIntegration) GetPathSlice() []string {
+	return []string{"variables", "song", "info", "lastfm_integration"}
+}
+func (k KeysVariablesSongInfoLastfmIntegration) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongInfoLastfmIntegration) SetVars(vars KeysVariablesSongInfoLastfmIntegrationVars) twiri18n.TranslationKey[KeysVariablesSongInfoLastfmIntegrationVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesSongInfoSpotifyNotConnectedVars struct {
+}
+type KeysVariablesSongInfoSpotifyNotConnected struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongInfoSpotifyNotConnected) IsTranslationKey() {
+}
+func (k KeysVariablesSongInfoSpotifyNotConnected) GetPath() string {
+	return "variables.song.info.spotify_not_connected"
+}
+func (k KeysVariablesSongInfoSpotifyNotConnected) GetPathSlice() []string {
+	return []string{"variables", "song", "info", "spotify_not_connected"}
+}
+func (k KeysVariablesSongInfoSpotifyNotConnected) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongInfoSpotifyNotConnected) SetVars(vars KeysVariablesSongInfoSpotifyNotConnectedVars) twiri18n.TranslationKey[KeysVariablesSongInfoSpotifyNotConnectedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesSongInfoGetSpotifyEntityVars struct {
+}
+type KeysVariablesSongInfoGetSpotifyEntity struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongInfoGetSpotifyEntity) IsTranslationKey() {
+}
+func (k KeysVariablesSongInfoGetSpotifyEntity) GetPath() string {
+	return "variables.song.info.get_spotify_entity"
+}
+func (k KeysVariablesSongInfoGetSpotifyEntity) GetPathSlice() []string {
+	return []string{"variables", "song", "info", "get_spotify_entity"}
+}
+func (k KeysVariablesSongInfoGetSpotifyEntity) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongInfoGetSpotifyEntity) SetVars(vars KeysVariablesSongInfoGetSpotifyEntityVars) twiri18n.TranslationKey[KeysVariablesSongInfoGetSpotifyEntityVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesSongInfoGetSpotifyIntegrationVars struct {
+	Reason any
+}
+type KeysVariablesSongInfoGetSpotifyIntegration struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongInfoGetSpotifyIntegration) IsTranslationKey() {
+}
+func (k KeysVariablesSongInfoGetSpotifyIntegration) GetPath() string {
+	return "variables.song.info.get_spotify_integration"
+}
+func (k KeysVariablesSongInfoGetSpotifyIntegration) GetPathSlice() []string {
+	return []string{"variables", "song", "info", "get_spotify_integration"}
+}
+func (k KeysVariablesSongInfoGetSpotifyIntegration) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongInfoGetSpotifyIntegration) SetVars(vars KeysVariablesSongInfoGetSpotifyIntegrationVars) twiri18n.TranslationKey[KeysVariablesSongInfoGetSpotifyIntegrationVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysVariablesSongInfoHistoryVars struct {
+	TrackTitle  any
+	TrackArtist any
+	Minutes     any
+}
+type KeysVariablesSongInfoHistory struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongInfoHistory) IsTranslationKey() {
+}
+func (k KeysVariablesSongInfoHistory) GetPath() string {
+	return "variables.song.info.history"
+}
+func (k KeysVariablesSongInfoHistory) GetPathSlice() []string {
+	return []string{"variables", "song", "info", "history"}
+}
+func (k KeysVariablesSongInfoHistory) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongInfoHistory) SetVars(vars KeysVariablesSongInfoHistoryVars) twiri18n.TranslationKey[KeysVariablesSongInfoHistoryVars] {
+	k.Vars = twiri18n.Vars{"trackTitle": vars.TrackTitle, "trackArtist": vars.TrackArtist, "minutes": vars.Minutes}
+	return k
+}
+
+type KeysVariablesSongInfo struct {
+	NoNeededScope               KeysVariablesSongInfoNoNeededScope
+	FailedGetSpotifyIntegration KeysVariablesSongInfoFailedGetSpotifyIntegration
+	NoIntegrations              KeysVariablesSongInfoNoIntegrations
+	LastfmIntegration           KeysVariablesSongInfoLastfmIntegration
+	SpotifyNotConnected         KeysVariablesSongInfoSpotifyNotConnected
+	GetSpotifyEntity            KeysVariablesSongInfoGetSpotifyEntity
+	GetSpotifyIntegration       KeysVariablesSongInfoGetSpotifyIntegration
+	History                     KeysVariablesSongInfoHistory
+}
+type KeysVariablesSongErrorsParsePlayedAtVars struct {
+}
+type KeysVariablesSongErrorsParsePlayedAt struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongErrorsParsePlayedAt) IsTranslationKey() {
+}
+func (k KeysVariablesSongErrorsParsePlayedAt) GetPath() string {
+	return "variables.song.errors.parse_played_at"
+}
+func (k KeysVariablesSongErrorsParsePlayedAt) GetPathSlice() []string {
+	return []string{"variables", "song", "errors", "parse_played_at"}
+}
+func (k KeysVariablesSongErrorsParsePlayedAt) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongErrorsParsePlayedAt) SetVars(vars KeysVariablesSongErrorsParsePlayedAtVars) twiri18n.TranslationKey[KeysVariablesSongErrorsParsePlayedAtVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesSongErrorsGetRecentTracksVars struct {
+	Reason any
+}
+type KeysVariablesSongErrorsGetRecentTracks struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongErrorsGetRecentTracks) IsTranslationKey() {
+}
+func (k KeysVariablesSongErrorsGetRecentTracks) GetPath() string {
+	return "variables.song.errors.get_recent_tracks"
+}
+func (k KeysVariablesSongErrorsGetRecentTracks) GetPathSlice() []string {
+	return []string{"variables", "song", "errors", "get_recent_tracks"}
+}
+func (k KeysVariablesSongErrorsGetRecentTracks) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongErrorsGetRecentTracks) SetVars(vars KeysVariablesSongErrorsGetRecentTracksVars) twiri18n.TranslationKey[KeysVariablesSongErrorsGetRecentTracksVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysVariablesSongErrorsCreateLastfmServiceVars struct {
+	Reason any
+}
+type KeysVariablesSongErrorsCreateLastfmService struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongErrorsCreateLastfmService) IsTranslationKey() {
+}
+func (k KeysVariablesSongErrorsCreateLastfmService) GetPath() string {
+	return "variables.song.errors.create_lastfm_service"
+}
+func (k KeysVariablesSongErrorsCreateLastfmService) GetPathSlice() []string {
+	return []string{"variables", "song", "errors", "create_lastfm_service"}
+}
+func (k KeysVariablesSongErrorsCreateLastfmService) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongErrorsCreateLastfmService) SetVars(vars KeysVariablesSongErrorsCreateLastfmServiceVars) twiri18n.TranslationKey[KeysVariablesSongErrorsCreateLastfmServiceVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysVariablesSongErrorsFetchTracksLastfmVars struct {
+	Reason any
+}
+type KeysVariablesSongErrorsFetchTracksLastfm struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongErrorsFetchTracksLastfm) IsTranslationKey() {
+}
+func (k KeysVariablesSongErrorsFetchTracksLastfm) GetPath() string {
+	return "variables.song.errors.fetch_tracks_lastfm"
+}
+func (k KeysVariablesSongErrorsFetchTracksLastfm) GetPathSlice() []string {
+	return []string{"variables", "song", "errors", "fetch_tracks_lastfm"}
+}
+func (k KeysVariablesSongErrorsFetchTracksLastfm) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongErrorsFetchTracksLastfm) SetVars(vars KeysVariablesSongErrorsFetchTracksLastfmVars) twiri18n.TranslationKey[KeysVariablesSongErrorsFetchTracksLastfmVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysVariablesSongErrorsFetchTracksSpotifyVars struct {
+	Reason any
+}
+type KeysVariablesSongErrorsFetchTracksSpotify struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesSongErrorsFetchTracksSpotify) IsTranslationKey() {
+}
+func (k KeysVariablesSongErrorsFetchTracksSpotify) GetPath() string {
+	return "variables.song.errors.fetch_tracks_spotify"
+}
+func (k KeysVariablesSongErrorsFetchTracksSpotify) GetPathSlice() []string {
+	return []string{"variables", "song", "errors", "fetch_tracks_spotify"}
+}
+func (k KeysVariablesSongErrorsFetchTracksSpotify) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesSongErrorsFetchTracksSpotify) SetVars(vars KeysVariablesSongErrorsFetchTracksSpotifyVars) twiri18n.TranslationKey[KeysVariablesSongErrorsFetchTracksSpotifyVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysVariablesSongErrors struct {
+	ParsePlayedAt       KeysVariablesSongErrorsParsePlayedAt
+	GetRecentTracks     KeysVariablesSongErrorsGetRecentTracks
+	CreateLastfmService KeysVariablesSongErrorsCreateLastfmService
+	FetchTracksLastfm   KeysVariablesSongErrorsFetchTracksLastfm
+	FetchTracksSpotify  KeysVariablesSongErrorsFetchTracksSpotify
+}
+type KeysVariablesSong struct {
+	Info   KeysVariablesSongInfo
+	Errors KeysVariablesSongErrors
+}
+type KeysVariablesValorantInfoMatchesVars struct {
+	MatchResult any
+	RoundsWon   any
+	RoundsLost  any
+	Char        any
+	KDA         any
+}
+type KeysVariablesValorantInfoMatches struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesValorantInfoMatches) IsTranslationKey() {
+}
+func (k KeysVariablesValorantInfoMatches) GetPath() string {
+	return "variables.valorant.info.matches"
+}
+func (k KeysVariablesValorantInfoMatches) GetPathSlice() []string {
+	return []string{"variables", "valorant", "info", "matches"}
+}
+func (k KeysVariablesValorantInfoMatches) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesValorantInfoMatches) SetVars(vars KeysVariablesValorantInfoMatchesVars) twiri18n.TranslationKey[KeysVariablesValorantInfoMatchesVars] {
+	k.Vars = twiri18n.Vars{"matchResult": vars.MatchResult, "roundsWon": vars.RoundsWon, "roundsLost": vars.RoundsLost, "char": vars.Char, "KDA": vars.KDA}
+	return k
+}
+
+type KeysVariablesValorantInfo struct {
+	Matches KeysVariablesValorantInfoMatches
+}
+type KeysVariablesValorant struct {
+	Info KeysVariablesValorantInfo
+}
+type KeysVariablesShorturlErrorsUrlRequiredVars struct {
+}
+type KeysVariablesShorturlErrorsUrlRequired struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesShorturlErrorsUrlRequired) IsTranslationKey() {
+}
+func (k KeysVariablesShorturlErrorsUrlRequired) GetPath() string {
+	return "variables.shorturl.errors.url_required"
+}
+func (k KeysVariablesShorturlErrorsUrlRequired) GetPathSlice() []string {
+	return []string{"variables", "shorturl", "errors", "url_required"}
+}
+func (k KeysVariablesShorturlErrorsUrlRequired) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesShorturlErrorsUrlRequired) SetVars(vars KeysVariablesShorturlErrorsUrlRequiredVars) twiri18n.TranslationKey[KeysVariablesShorturlErrorsUrlRequiredVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesShorturlErrorsCreateShortUrlVars struct {
+	Reason any
+}
+type KeysVariablesShorturlErrorsCreateShortUrl struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesShorturlErrorsCreateShortUrl) IsTranslationKey() {
+}
+func (k KeysVariablesShorturlErrorsCreateShortUrl) GetPath() string {
+	return "variables.shorturl.errors.create_short_url"
+}
+func (k KeysVariablesShorturlErrorsCreateShortUrl) GetPathSlice() []string {
+	return []string{"variables", "shorturl", "errors", "create_short_url"}
+}
+func (k KeysVariablesShorturlErrorsCreateShortUrl) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesShorturlErrorsCreateShortUrl) SetVars(vars KeysVariablesShorturlErrorsCreateShortUrlVars) twiri18n.TranslationKey[KeysVariablesShorturlErrorsCreateShortUrlVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysVariablesShorturlErrors struct {
+	UrlRequired    KeysVariablesShorturlErrorsUrlRequired
+	CreateShortUrl KeysVariablesShorturlErrorsCreateShortUrl
+}
+type KeysVariablesShorturl struct {
+	Errors KeysVariablesShorturlErrors
+}
+type KeysVariablesCountdownErrorsNotPassedParamsVars struct {
+}
+type KeysVariablesCountdownErrorsNotPassedParams struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesCountdownErrorsNotPassedParams) IsTranslationKey() {
+}
+func (k KeysVariablesCountdownErrorsNotPassedParams) GetPath() string {
+	return "variables.countdown.errors.not_passed_params"
+}
+func (k KeysVariablesCountdownErrorsNotPassedParams) GetPathSlice() []string {
+	return []string{"variables", "countdown", "errors", "not_passed_params"}
+}
+func (k KeysVariablesCountdownErrorsNotPassedParams) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesCountdownErrorsNotPassedParams) SetVars(vars KeysVariablesCountdownErrorsNotPassedParamsVars) twiri18n.TranslationKey[KeysVariablesCountdownErrorsNotPassedParamsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesCountdownErrorsParseDateVars struct {
+}
+type KeysVariablesCountdownErrorsParseDate struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesCountdownErrorsParseDate) IsTranslationKey() {
+}
+func (k KeysVariablesCountdownErrorsParseDate) GetPath() string {
+	return "variables.countdown.errors.parse_date"
+}
+func (k KeysVariablesCountdownErrorsParseDate) GetPathSlice() []string {
+	return []string{"variables", "countdown", "errors", "parse_date"}
+}
+func (k KeysVariablesCountdownErrorsParseDate) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesCountdownErrorsParseDate) SetVars(vars KeysVariablesCountdownErrorsParseDateVars) twiri18n.TranslationKey[KeysVariablesCountdownErrorsParseDateVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesCountdownErrors struct {
+	NotPassedParams KeysVariablesCountdownErrorsNotPassedParams
+	ParseDate       KeysVariablesCountdownErrorsParseDate
+}
+type KeysVariablesCountdown struct {
+	Errors KeysVariablesCountdownErrors
+}
+type KeysVariablesStreamErrorsGetHistoryOfCategoriesVars struct {
+}
+type KeysVariablesStreamErrorsGetHistoryOfCategories struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesStreamErrorsGetHistoryOfCategories) IsTranslationKey() {
+}
+func (k KeysVariablesStreamErrorsGetHistoryOfCategories) GetPath() string {
+	return "variables.stream.errors.get_history_of_categories"
+}
+func (k KeysVariablesStreamErrorsGetHistoryOfCategories) GetPathSlice() []string {
+	return []string{"variables", "stream", "errors", "get_history_of_categories"}
+}
+func (k KeysVariablesStreamErrorsGetHistoryOfCategories) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesStreamErrorsGetHistoryOfCategories) SetVars(vars KeysVariablesStreamErrorsGetHistoryOfCategoriesVars) twiri18n.TranslationKey[KeysVariablesStreamErrorsGetHistoryOfCategoriesVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesStreamErrorsErrorVars struct {
+}
+type KeysVariablesStreamErrorsError struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesStreamErrorsError) IsTranslationKey() {
+}
+func (k KeysVariablesStreamErrorsError) GetPath() string {
+	return "variables.stream.errors.error"
+}
+func (k KeysVariablesStreamErrorsError) GetPathSlice() []string {
+	return []string{"variables", "stream", "errors", "error"}
+}
+func (k KeysVariablesStreamErrorsError) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesStreamErrorsError) SetVars(vars KeysVariablesStreamErrorsErrorVars) twiri18n.TranslationKey[KeysVariablesStreamErrorsErrorVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesStreamErrorsOfflineVars struct {
+}
+type KeysVariablesStreamErrorsOffline struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesStreamErrorsOffline) IsTranslationKey() {
+}
+func (k KeysVariablesStreamErrorsOffline) GetPath() string {
+	return "variables.stream.errors.offline"
+}
+func (k KeysVariablesStreamErrorsOffline) GetPathSlice() []string {
+	return []string{"variables", "stream", "errors", "offline"}
+}
+func (k KeysVariablesStreamErrorsOffline) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesStreamErrorsOffline) SetVars(vars KeysVariablesStreamErrorsOfflineVars) twiri18n.TranslationKey[KeysVariablesStreamErrorsOfflineVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesStreamErrorsCountFollowersVars struct {
+}
+type KeysVariablesStreamErrorsCountFollowers struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesStreamErrorsCountFollowers) IsTranslationKey() {
+}
+func (k KeysVariablesStreamErrorsCountFollowers) GetPath() string {
+	return "variables.stream.errors.count_followers"
+}
+func (k KeysVariablesStreamErrorsCountFollowers) GetPathSlice() []string {
+	return []string{"variables", "stream", "errors", "count_followers"}
+}
+func (k KeysVariablesStreamErrorsCountFollowers) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesStreamErrorsCountFollowers) SetVars(vars KeysVariablesStreamErrorsCountFollowersVars) twiri18n.TranslationKey[KeysVariablesStreamErrorsCountFollowersVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesStreamErrors struct {
+	GetHistoryOfCategories KeysVariablesStreamErrorsGetHistoryOfCategories
+	Error                  KeysVariablesStreamErrorsError
+	Offline                KeysVariablesStreamErrorsOffline
+	CountFollowers         KeysVariablesStreamErrorsCountFollowers
+}
+type KeysVariablesStreamInfoOfflineVars struct {
+}
+type KeysVariablesStreamInfoOffline struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesStreamInfoOffline) IsTranslationKey() {
+}
+func (k KeysVariablesStreamInfoOffline) GetPath() string {
+	return "variables.stream.info.offline"
+}
+func (k KeysVariablesStreamInfoOffline) GetPathSlice() []string {
+	return []string{"variables", "stream", "info", "offline"}
+}
+func (k KeysVariablesStreamInfoOffline) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesStreamInfoOffline) SetVars(vars KeysVariablesStreamInfoOfflineVars) twiri18n.TranslationKey[KeysVariablesStreamInfoOfflineVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesStreamInfoNoHistoryVars struct {
+}
+type KeysVariablesStreamInfoNoHistory struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesStreamInfoNoHistory) IsTranslationKey() {
+}
+func (k KeysVariablesStreamInfoNoHistory) GetPath() string {
+	return "variables.stream.info.no_history"
+}
+func (k KeysVariablesStreamInfoNoHistory) GetPathSlice() []string {
+	return []string{"variables", "stream", "info", "no_history"}
+}
+func (k KeysVariablesStreamInfoNoHistory) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesStreamInfoNoHistory) SetVars(vars KeysVariablesStreamInfoNoHistoryVars) twiri18n.TranslationKey[KeysVariablesStreamInfoNoHistoryVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesStreamInfo struct {
+	Offline   KeysVariablesStreamInfoOffline
+	NoHistory KeysVariablesStreamInfoNoHistory
+}
+type KeysVariablesStream struct {
+	Errors KeysVariablesStreamErrors
+	Info   KeysVariablesStreamInfo
+}
+type KeysVariablesRequestErrorsExecuteRequestVars struct {
+}
+type KeysVariablesRequestErrorsExecuteRequest struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysVariablesRequestErrorsExecuteRequest) IsTranslationKey() {
+}
+func (k KeysVariablesRequestErrorsExecuteRequest) GetPath() string {
+	return "variables.request.errors.execute_request"
+}
+func (k KeysVariablesRequestErrorsExecuteRequest) GetPathSlice() []string {
+	return []string{"variables", "request", "errors", "execute_request"}
+}
+func (k KeysVariablesRequestErrorsExecuteRequest) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysVariablesRequestErrorsExecuteRequest) SetVars(vars KeysVariablesRequestErrorsExecuteRequestVars) twiri18n.TranslationKey[KeysVariablesRequestErrorsExecuteRequestVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysVariablesRequestErrors struct {
+	ExecuteRequest KeysVariablesRequestErrorsExecuteRequest
+}
+type KeysVariablesRequest struct {
+	Errors KeysVariablesRequestErrors
 }
 type KeysVariables struct {
-	Shorturl    KeysVariablesShorturl
-	Stream      KeysVariablesStream
-	Song        KeysVariablesSong
-	Request     KeysVariablesRequest
-	ChatEval    KeysVariablesChatEval
-	Countdown   KeysVariablesCountdown
-	Valorant    KeysVariablesValorant
-	Commands    KeysVariablesCommands
-	CustomVar   KeysVariablesCustomVar
-	Random      KeysVariablesRandom
-	Followers   KeysVariablesFollowers
-	User        KeysVariablesUser
-	Keywords    KeysVariablesKeywords
-	Seventv     KeysVariablesSeventv
 	Subscribers KeysVariablesSubscribers
-}
-type KeysCommandsSongrequestErrorsGetCurrentSongVars struct {
-}
-type KeysCommandsSongrequestErrorsGetCurrentSong struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsGetCurrentSong) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentSong) GetPath() string {
-	return "commands.songrequest.errors.get_current_song"
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentSong) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "get_current_song"}
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentSong) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentSong) SetVars(vars KeysCommandsSongrequestErrorsGetCurrentSongVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetCurrentSongVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsGetSettingsVars struct {
-}
-type KeysCommandsSongrequestErrorsGetSettings struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsGetSettings) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsGetSettings) GetPath() string {
-	return "commands.songrequest.errors.get_settings"
-}
-func (k KeysCommandsSongrequestErrorsGetSettings) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "get_settings"}
-}
-func (k KeysCommandsSongrequestErrorsGetSettings) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsGetSettings) SetVars(vars KeysCommandsSongrequestErrorsGetSettingsVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetSettingsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsGetSongsFromQueueVars struct {
-}
-type KeysCommandsSongrequestErrorsGetSongsFromQueue struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) GetPath() string {
-	return "commands.songrequest.errors.get_songs_from_queue"
-}
-func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "get_songs_from_queue"}
-}
-func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) SetVars(vars KeysCommandsSongrequestErrorsGetSongsFromQueueVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetSongsFromQueueVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsGetVotesCountVars struct {
-}
-type KeysCommandsSongrequestErrorsGetVotesCount struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsGetVotesCount) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsGetVotesCount) GetPath() string {
-	return "commands.songrequest.errors.get_votes_count"
-}
-func (k KeysCommandsSongrequestErrorsGetVotesCount) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "get_votes_count"}
-}
-func (k KeysCommandsSongrequestErrorsGetVotesCount) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsGetVotesCount) SetVars(vars KeysCommandsSongrequestErrorsGetVotesCountVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetVotesCountVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsGetCurrentVoteVars struct {
-}
-type KeysCommandsSongrequestErrorsGetCurrentVote struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsGetCurrentVote) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentVote) GetPath() string {
-	return "commands.songrequest.errors.get_current_vote"
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentVote) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "get_current_vote"}
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentVote) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentVote) SetVars(vars KeysCommandsSongrequestErrorsGetCurrentVoteVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetCurrentVoteVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsNotFoundVars struct {
-}
-type KeysCommandsSongrequestErrorsNotFound struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsNotFound) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsNotFound) GetPath() string {
-	return "commands.songrequest.errors.not_found"
-}
-func (k KeysCommandsSongrequestErrorsNotFound) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "not_found"}
-}
-func (k KeysCommandsSongrequestErrorsNotFound) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsNotFound) SetVars(vars KeysCommandsSongrequestErrorsNotFoundVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsNotFoundVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsSearchSongVars struct {
-}
-type KeysCommandsSongrequestErrorsSearchSong struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsSearchSong) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsSearchSong) GetPath() string {
-	return "commands.songrequest.errors.search_song"
-}
-func (k KeysCommandsSongrequestErrorsSearchSong) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "search_song"}
-}
-func (k KeysCommandsSongrequestErrorsSearchSong) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsSearchSong) SetVars(vars KeysCommandsSongrequestErrorsSearchSongVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsSearchSongVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsGetLatestSongVars struct {
-}
-type KeysCommandsSongrequestErrorsGetLatestSong struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsGetLatestSong) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsGetLatestSong) GetPath() string {
-	return "commands.songrequest.errors.get_latest_song"
-}
-func (k KeysCommandsSongrequestErrorsGetLatestSong) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "get_latest_song"}
-}
-func (k KeysCommandsSongrequestErrorsGetLatestSong) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsGetLatestSong) SetVars(vars KeysCommandsSongrequestErrorsGetLatestSongVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetLatestSongVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsUpdateSongVars struct {
-}
-type KeysCommandsSongrequestErrorsUpdateSong struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsUpdateSong) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsUpdateSong) GetPath() string {
-	return "commands.songrequest.errors.update_song"
-}
-func (k KeysCommandsSongrequestErrorsUpdateSong) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "update_song"}
-}
-func (k KeysCommandsSongrequestErrorsUpdateSong) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsUpdateSong) SetVars(vars KeysCommandsSongrequestErrorsUpdateSongVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsUpdateSongVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsGetCurrentQueueCountVars struct {
-}
-type KeysCommandsSongrequestErrorsGetCurrentQueueCount struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) GetPath() string {
-	return "commands.songrequest.errors.get_current_queue_count"
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "get_current_queue_count"}
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) SetVars(vars KeysCommandsSongrequestErrorsGetCurrentQueueCountVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetCurrentQueueCountVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsRemoveSongFromQueueVars struct {
-}
-type KeysCommandsSongrequestErrorsRemoveSongFromQueue struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) GetPath() string {
-	return "commands.songrequest.errors.remove_song_from_queue"
-}
-func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "remove_song_from_queue"}
-}
-func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) SetVars(vars KeysCommandsSongrequestErrorsRemoveSongFromQueueVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsRemoveSongFromQueueVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrorsGetUsersCountVars struct {
-}
-type KeysCommandsSongrequestErrorsGetUsersCount struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestErrorsGetUsersCount) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestErrorsGetUsersCount) GetPath() string {
-	return "commands.songrequest.errors.get_users_count"
-}
-func (k KeysCommandsSongrequestErrorsGetUsersCount) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "errors", "get_users_count"}
-}
-func (k KeysCommandsSongrequestErrorsGetUsersCount) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestErrorsGetUsersCount) SetVars(vars KeysCommandsSongrequestErrorsGetUsersCountVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetUsersCountVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestErrors struct {
-	GetCurrentSong       KeysCommandsSongrequestErrorsGetCurrentSong
-	GetSettings          KeysCommandsSongrequestErrorsGetSettings
-	GetSongsFromQueue    KeysCommandsSongrequestErrorsGetSongsFromQueue
-	GetVotesCount        KeysCommandsSongrequestErrorsGetVotesCount
-	GetCurrentVote       KeysCommandsSongrequestErrorsGetCurrentVote
-	NotFound             KeysCommandsSongrequestErrorsNotFound
-	SearchSong           KeysCommandsSongrequestErrorsSearchSong
-	GetLatestSong        KeysCommandsSongrequestErrorsGetLatestSong
-	UpdateSong           KeysCommandsSongrequestErrorsUpdateSong
-	GetCurrentQueueCount KeysCommandsSongrequestErrorsGetCurrentQueueCount
-	RemoveSongFromQueue  KeysCommandsSongrequestErrorsRemoveSongFromQueue
-	GetUsersCount        KeysCommandsSongrequestErrorsGetUsersCount
-}
-type KeysCommandsSongrequestInfoSongSkippedVars struct {
-	SongTitle any
-}
-type KeysCommandsSongrequestInfoSongSkipped struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestInfoSongSkipped) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestInfoSongSkipped) GetPath() string {
-	return "commands.songrequest.info.song_skipped"
-}
-func (k KeysCommandsSongrequestInfoSongSkipped) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "info", "song_skipped"}
-}
-func (k KeysCommandsSongrequestInfoSongSkipped) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestInfoSongSkipped) SetVars(vars KeysCommandsSongrequestInfoSongSkippedVars) twiri18n.TranslationKey[KeysCommandsSongrequestInfoSongSkippedVars] {
-	k.Vars = twiri18n.Vars{"songTitle": vars.SongTitle}
-	return k
-}
-
-type KeysCommandsSongrequestInfoNoRequestedSongsVars struct {
-}
-type KeysCommandsSongrequestInfoNoRequestedSongs struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestInfoNoRequestedSongs) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestInfoNoRequestedSongs) GetPath() string {
-	return "commands.songrequest.info.no_requested_songs"
-}
-func (k KeysCommandsSongrequestInfoNoRequestedSongs) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "info", "no_requested_songs"}
-}
-func (k KeysCommandsSongrequestInfoNoRequestedSongs) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestInfoNoRequestedSongs) SetVars(vars KeysCommandsSongrequestInfoNoRequestedSongsVars) twiri18n.TranslationKey[KeysCommandsSongrequestInfoNoRequestedSongsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestInfoOnlyCountSongsVars struct {
-	SongsCount any
-}
-type KeysCommandsSongrequestInfoOnlyCountSongs struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestInfoOnlyCountSongs) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestInfoOnlyCountSongs) GetPath() string {
-	return "commands.songrequest.info.only_count_songs"
-}
-func (k KeysCommandsSongrequestInfoOnlyCountSongs) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "info", "only_count_songs"}
-}
-func (k KeysCommandsSongrequestInfoOnlyCountSongs) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestInfoOnlyCountSongs) SetVars(vars KeysCommandsSongrequestInfoOnlyCountSongsVars) twiri18n.TranslationKey[KeysCommandsSongrequestInfoOnlyCountSongsVars] {
-	k.Vars = twiri18n.Vars{"songsCount": vars.SongsCount}
-	return k
-}
-
-type KeysCommandsSongrequestInfoDeleteVars struct {
-	SongTitle any
-}
-type KeysCommandsSongrequestInfoDelete struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestInfoDelete) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestInfoDelete) GetPath() string {
-	return "commands.songrequest.info.delete"
-}
-func (k KeysCommandsSongrequestInfoDelete) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "info", "delete"}
-}
-func (k KeysCommandsSongrequestInfoDelete) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestInfoDelete) SetVars(vars KeysCommandsSongrequestInfoDeleteVars) twiri18n.TranslationKey[KeysCommandsSongrequestInfoDeleteVars] {
-	k.Vars = twiri18n.Vars{"songTitle": vars.SongTitle}
-	return k
-}
-
-type KeysCommandsSongrequestInfo struct {
-	SongSkipped      KeysCommandsSongrequestInfoSongSkipped
-	NoRequestedSongs KeysCommandsSongrequestInfoNoRequestedSongs
-	OnlyCountSongs   KeysCommandsSongrequestInfoOnlyCountSongs
-	Delete           KeysCommandsSongrequestInfoDelete
-}
-type KeysCommandsSongrequestValidateErrorsRestrictionsOnUserVars struct {
-}
-type KeysCommandsSongrequestValidateErrorsRestrictionsOnUser struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) GetPath() string {
-	return "commands.songrequest.validate.errors.restrictions_on_user"
-}
-func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "validate", "errors", "restrictions_on_user"}
-}
-func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) SetVars(vars KeysCommandsSongrequestValidateErrorsRestrictionsOnUserVars) twiri18n.TranslationKey[KeysCommandsSongrequestValidateErrorsRestrictionsOnUserVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestValidateErrorsInternalErrorVars struct {
-}
-type KeysCommandsSongrequestValidateErrorsInternalError struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestValidateErrorsInternalError) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestValidateErrorsInternalError) GetPath() string {
-	return "commands.songrequest.validate.errors.internal_error"
-}
-func (k KeysCommandsSongrequestValidateErrorsInternalError) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "validate", "errors", "internal_error"}
-}
-func (k KeysCommandsSongrequestValidateErrorsInternalError) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestValidateErrorsInternalError) SetVars(vars KeysCommandsSongrequestValidateErrorsInternalErrorVars) twiri18n.TranslationKey[KeysCommandsSongrequestValidateErrorsInternalErrorVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestValidateErrorsNeedFollowVars struct {
-}
-type KeysCommandsSongrequestValidateErrorsNeedFollow struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSongrequestValidateErrorsNeedFollow) IsTranslationKey() {
-}
-func (k KeysCommandsSongrequestValidateErrorsNeedFollow) GetPath() string {
-	return "commands.songrequest.validate.errors.need_follow"
-}
-func (k KeysCommandsSongrequestValidateErrorsNeedFollow) GetPathSlice() []string {
-	return []string{"commands", "songrequest", "validate", "errors", "need_follow"}
-}
-func (k KeysCommandsSongrequestValidateErrorsNeedFollow) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSongrequestValidateErrorsNeedFollow) SetVars(vars KeysCommandsSongrequestValidateErrorsNeedFollowVars) twiri18n.TranslationKey[KeysCommandsSongrequestValidateErrorsNeedFollowVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSongrequestValidateErrors struct {
-	RestrictionsOnUser KeysCommandsSongrequestValidateErrorsRestrictionsOnUser
-	InternalError      KeysCommandsSongrequestValidateErrorsInternalError
-	NeedFollow         KeysCommandsSongrequestValidateErrorsNeedFollow
-}
-type KeysCommandsSongrequestValidate struct {
-	Errors KeysCommandsSongrequestValidateErrors
-}
-type KeysCommandsSongrequest struct {
-	Errors   KeysCommandsSongrequestErrors
-	Info     KeysCommandsSongrequestInfo
-	Validate KeysCommandsSongrequestValidate
-}
-type KeysCommandsSubageErrorsNotSubscriberOrHiddenVars struct {
-}
-type KeysCommandsSubageErrorsNotSubscriberOrHidden struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) IsTranslationKey() {
-}
-func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) GetPath() string {
-	return "commands.subage.errors.not_subscriber_or_hidden"
-}
-func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) GetPathSlice() []string {
-	return []string{"commands", "subage", "errors", "not_subscriber_or_hidden"}
-}
-func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) SetVars(vars KeysCommandsSubageErrorsNotSubscriberOrHiddenVars) twiri18n.TranslationKey[KeysCommandsSubageErrorsNotSubscriberOrHiddenVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsSubageErrors struct {
-	NotSubscriberOrHidden KeysCommandsSubageErrorsNotSubscriberOrHidden
-}
-type KeysCommandsSubageResponsesNotSubscriberVars struct {
-	User any
-}
-type KeysCommandsSubageResponsesNotSubscriber struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSubageResponsesNotSubscriber) IsTranslationKey() {
-}
-func (k KeysCommandsSubageResponsesNotSubscriber) GetPath() string {
-	return "commands.subage.responses.not_subscriber"
-}
-func (k KeysCommandsSubageResponsesNotSubscriber) GetPathSlice() []string {
-	return []string{"commands", "subage", "responses", "not_subscriber"}
-}
-func (k KeysCommandsSubageResponsesNotSubscriber) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSubageResponsesNotSubscriber) SetVars(vars KeysCommandsSubageResponsesNotSubscriberVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesNotSubscriberVars] {
-	k.Vars = twiri18n.Vars{"user": vars.User}
-	return k
-}
-
-type KeysCommandsSubageResponsesNotSubscriberButWasVars struct {
-	User   any
-	Months any
-}
-type KeysCommandsSubageResponsesNotSubscriberButWas struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSubageResponsesNotSubscriberButWas) IsTranslationKey() {
-}
-func (k KeysCommandsSubageResponsesNotSubscriberButWas) GetPath() string {
-	return "commands.subage.responses.not_subscriber_but_was"
-}
-func (k KeysCommandsSubageResponsesNotSubscriberButWas) GetPathSlice() []string {
-	return []string{"commands", "subage", "responses", "not_subscriber_but_was"}
-}
-func (k KeysCommandsSubageResponsesNotSubscriberButWas) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSubageResponsesNotSubscriberButWas) SetVars(vars KeysCommandsSubageResponsesNotSubscriberButWasVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesNotSubscriberButWasVars] {
-	k.Vars = twiri18n.Vars{"user": vars.User, "months": vars.Months}
-	return k
-}
-
-type KeysCommandsSubageResponsesSubscriptionInfoVars struct {
-	User    any
-	Tier    any
-	Channel any
-	Months  any
-}
-type KeysCommandsSubageResponsesSubscriptionInfo struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSubageResponsesSubscriptionInfo) IsTranslationKey() {
-}
-func (k KeysCommandsSubageResponsesSubscriptionInfo) GetPath() string {
-	return "commands.subage.responses.subscription_info"
-}
-func (k KeysCommandsSubageResponsesSubscriptionInfo) GetPathSlice() []string {
-	return []string{"commands", "subage", "responses", "subscription_info"}
-}
-func (k KeysCommandsSubageResponsesSubscriptionInfo) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSubageResponsesSubscriptionInfo) SetVars(vars KeysCommandsSubageResponsesSubscriptionInfoVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesSubscriptionInfoVars] {
-	k.Vars = twiri18n.Vars{"user": vars.User, "tier": vars.Tier, "channel": vars.Channel, "months": vars.Months}
-	return k
-}
-
-type KeysCommandsSubageResponsesStreakInfoVars struct {
-	Months any
-}
-type KeysCommandsSubageResponsesStreakInfo struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSubageResponsesStreakInfo) IsTranslationKey() {
-}
-func (k KeysCommandsSubageResponsesStreakInfo) GetPath() string {
-	return "commands.subage.responses.streak_info"
-}
-func (k KeysCommandsSubageResponsesStreakInfo) GetPathSlice() []string {
-	return []string{"commands", "subage", "responses", "streak_info"}
-}
-func (k KeysCommandsSubageResponsesStreakInfo) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSubageResponsesStreakInfo) SetVars(vars KeysCommandsSubageResponsesStreakInfoVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesStreakInfoVars] {
-	k.Vars = twiri18n.Vars{"months": vars.Months}
-	return k
-}
-
-type KeysCommandsSubageResponsesTimeRemainingVars struct {
-	Duration any
-}
-type KeysCommandsSubageResponsesTimeRemaining struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSubageResponsesTimeRemaining) IsTranslationKey() {
-}
-func (k KeysCommandsSubageResponsesTimeRemaining) GetPath() string {
-	return "commands.subage.responses.time_remaining"
-}
-func (k KeysCommandsSubageResponsesTimeRemaining) GetPathSlice() []string {
-	return []string{"commands", "subage", "responses", "time_remaining"}
-}
-func (k KeysCommandsSubageResponsesTimeRemaining) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSubageResponsesTimeRemaining) SetVars(vars KeysCommandsSubageResponsesTimeRemainingVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesTimeRemainingVars] {
-	k.Vars = twiri18n.Vars{"duration": vars.Duration}
-	return k
-}
-
-type KeysCommandsSubageResponses struct {
-	NotSubscriber       KeysCommandsSubageResponsesNotSubscriber
-	NotSubscriberButWas KeysCommandsSubageResponsesNotSubscriberButWas
-	SubscriptionInfo    KeysCommandsSubageResponsesSubscriptionInfo
-	StreakInfo          KeysCommandsSubageResponsesStreakInfo
-	TimeRemaining       KeysCommandsSubageResponsesTimeRemaining
-}
-type KeysCommandsSubage struct {
-	Errors    KeysCommandsSubageErrors
-	Responses KeysCommandsSubageResponses
-}
-type KeysCommandsVipsErrorsUpdatedVars struct {
-	UserName any
-	EndTime  any
-}
-type KeysCommandsVipsErrorsUpdated struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsUpdated) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsUpdated) GetPath() string {
-	return "commands.vips.errors.updated"
-}
-func (k KeysCommandsVipsErrorsUpdated) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "updated"}
-}
-func (k KeysCommandsVipsErrorsUpdated) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsUpdated) SetVars(vars KeysCommandsVipsErrorsUpdatedVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsUpdatedVars] {
-	k.Vars = twiri18n.Vars{"userName": vars.UserName, "endTime": vars.EndTime}
-	return k
-}
-
-type KeysCommandsVipsErrorsAlreadyHaveRoleVars struct {
-}
-type KeysCommandsVipsErrorsAlreadyHaveRole struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsAlreadyHaveRole) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsAlreadyHaveRole) GetPath() string {
-	return "commands.vips.errors.already_have_role"
-}
-func (k KeysCommandsVipsErrorsAlreadyHaveRole) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "already_have_role"}
-}
-func (k KeysCommandsVipsErrorsAlreadyHaveRole) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsAlreadyHaveRole) SetVars(vars KeysCommandsVipsErrorsAlreadyHaveRoleVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsAlreadyHaveRoleVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsVipsErrorsAddedWithRemoveTimeVars struct {
-	UserName any
-	EndTime  any
-}
-type KeysCommandsVipsErrorsAddedWithRemoveTime struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsAddedWithRemoveTime) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsAddedWithRemoveTime) GetPath() string {
-	return "commands.vips.errors.added_with_remove_time"
-}
-func (k KeysCommandsVipsErrorsAddedWithRemoveTime) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "added_with_remove_time"}
-}
-func (k KeysCommandsVipsErrorsAddedWithRemoveTime) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsAddedWithRemoveTime) SetVars(vars KeysCommandsVipsErrorsAddedWithRemoveTimeVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsAddedWithRemoveTimeVars] {
-	k.Vars = twiri18n.Vars{"userName": vars.UserName, "endTime": vars.EndTime}
-	return k
-}
-
-type KeysCommandsVipsErrorsCannotGetListFromDbVars struct {
-}
-type KeysCommandsVipsErrorsCannotGetListFromDb struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsCannotGetListFromDb) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsCannotGetListFromDb) GetPath() string {
-	return "commands.vips.errors.cannot_get_list_from_db"
-}
-func (k KeysCommandsVipsErrorsCannotGetListFromDb) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "cannot_get_list_from_db"}
-}
-func (k KeysCommandsVipsErrorsCannotGetListFromDb) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsCannotGetListFromDb) SetVars(vars KeysCommandsVipsErrorsCannotGetListFromDbVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsCannotGetListFromDbVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsVipsErrorsNoScheduledVipsVars struct {
-}
-type KeysCommandsVipsErrorsNoScheduledVips struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsNoScheduledVips) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsNoScheduledVips) GetPath() string {
-	return "commands.vips.errors.no_scheduled_vips"
-}
-func (k KeysCommandsVipsErrorsNoScheduledVips) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "no_scheduled_vips"}
-}
-func (k KeysCommandsVipsErrorsNoScheduledVips) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsNoScheduledVips) SetVars(vars KeysCommandsVipsErrorsNoScheduledVipsVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsNoScheduledVipsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsVipsErrorsInvalidDurationVars struct {
-}
-type KeysCommandsVipsErrorsInvalidDuration struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsInvalidDuration) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsInvalidDuration) GetPath() string {
-	return "commands.vips.errors.invalid_duration"
-}
-func (k KeysCommandsVipsErrorsInvalidDuration) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "invalid_duration"}
-}
-func (k KeysCommandsVipsErrorsInvalidDuration) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsInvalidDuration) SetVars(vars KeysCommandsVipsErrorsInvalidDurationVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsInvalidDurationVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsVipsErrorsCannotCreateScheduledInDbVars struct {
-}
-type KeysCommandsVipsErrorsCannotCreateScheduledInDb struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) GetPath() string {
-	return "commands.vips.errors.cannot_create_scheduled_in_db"
-}
-func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "cannot_create_scheduled_in_db"}
-}
-func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) SetVars(vars KeysCommandsVipsErrorsCannotCreateScheduledInDbVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsCannotCreateScheduledInDbVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsVipsErrorsAddedVars struct {
-	UserName any
-}
-type KeysCommandsVipsErrorsAdded struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsAdded) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsAdded) GetPath() string {
-	return "commands.vips.errors.added"
-}
-func (k KeysCommandsVipsErrorsAdded) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "added"}
-}
-func (k KeysCommandsVipsErrorsAdded) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsAdded) SetVars(vars KeysCommandsVipsErrorsAddedVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsAddedVars] {
-	k.Vars = twiri18n.Vars{"userName": vars.UserName}
-	return k
-}
-
-type KeysCommandsVipsErrorsRemovedVars struct {
-	UserName any
-}
-type KeysCommandsVipsErrorsRemoved struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsRemoved) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsRemoved) GetPath() string {
-	return "commands.vips.errors.removed"
-}
-func (k KeysCommandsVipsErrorsRemoved) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "removed"}
-}
-func (k KeysCommandsVipsErrorsRemoved) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsRemoved) SetVars(vars KeysCommandsVipsErrorsRemovedVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsRemovedVars] {
-	k.Vars = twiri18n.Vars{"userName": vars.UserName}
-	return k
-}
-
-type KeysCommandsVipsErrorsCannotUpdateVars struct {
-}
-type KeysCommandsVipsErrorsCannotUpdate struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsErrorsCannotUpdate) IsTranslationKey() {
-}
-func (k KeysCommandsVipsErrorsCannotUpdate) GetPath() string {
-	return "commands.vips.errors.cannot_update"
-}
-func (k KeysCommandsVipsErrorsCannotUpdate) GetPathSlice() []string {
-	return []string{"commands", "vips", "errors", "cannot_update"}
-}
-func (k KeysCommandsVipsErrorsCannotUpdate) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsErrorsCannotUpdate) SetVars(vars KeysCommandsVipsErrorsCannotUpdateVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsCannotUpdateVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsVipsErrors struct {
-	Updated                   KeysCommandsVipsErrorsUpdated
-	AlreadyHaveRole           KeysCommandsVipsErrorsAlreadyHaveRole
-	AddedWithRemoveTime       KeysCommandsVipsErrorsAddedWithRemoveTime
-	CannotGetListFromDb       KeysCommandsVipsErrorsCannotGetListFromDb
-	NoScheduledVips           KeysCommandsVipsErrorsNoScheduledVips
-	InvalidDuration           KeysCommandsVipsErrorsInvalidDuration
-	CannotCreateScheduledInDb KeysCommandsVipsErrorsCannotCreateScheduledInDb
-	Added                     KeysCommandsVipsErrorsAdded
-	Removed                   KeysCommandsVipsErrorsRemoved
-	CannotUpdate              KeysCommandsVipsErrorsCannotUpdate
-}
-type KeysCommandsVipsHintsUserVars struct {
-}
-type KeysCommandsVipsHintsUser struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsHintsUser) IsTranslationKey() {
-}
-func (k KeysCommandsVipsHintsUser) GetPath() string {
-	return "commands.vips.hints.user"
-}
-func (k KeysCommandsVipsHintsUser) GetPathSlice() []string {
-	return []string{"commands", "vips", "hints", "user"}
-}
-func (k KeysCommandsVipsHintsUser) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsHintsUser) SetVars(vars KeysCommandsVipsHintsUserVars) twiri18n.TranslationKey[KeysCommandsVipsHintsUserVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsVipsHintsUnvipInVars struct {
-}
-type KeysCommandsVipsHintsUnvipIn struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsVipsHintsUnvipIn) IsTranslationKey() {
-}
-func (k KeysCommandsVipsHintsUnvipIn) GetPath() string {
-	return "commands.vips.hints.unvip_in"
-}
-func (k KeysCommandsVipsHintsUnvipIn) GetPathSlice() []string {
-	return []string{"commands", "vips", "hints", "unvip_in"}
-}
-func (k KeysCommandsVipsHintsUnvipIn) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsVipsHintsUnvipIn) SetVars(vars KeysCommandsVipsHintsUnvipInVars) twiri18n.TranslationKey[KeysCommandsVipsHintsUnvipInVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsVipsHints struct {
-	User    KeysCommandsVipsHintsUser
-	UnvipIn KeysCommandsVipsHintsUnvipIn
-}
-type KeysCommandsVips struct {
-	Errors KeysCommandsVipsErrors
-	Hints  KeysCommandsVipsHints
-}
-type KeysCommandsChatWallStartChatWallStartVars struct {
-	ChatWallPhrase any
-}
-type KeysCommandsChatWallStartChatWallStart struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallStartChatWallStart) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallStartChatWallStart) GetPath() string {
-	return "commands.chat_wall.start.chat_wall_start"
-}
-func (k KeysCommandsChatWallStartChatWallStart) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "start", "chat_wall_start"}
-}
-func (k KeysCommandsChatWallStartChatWallStart) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallStartChatWallStart) SetVars(vars KeysCommandsChatWallStartChatWallStartVars) twiri18n.TranslationKey[KeysCommandsChatWallStartChatWallStartVars] {
-	k.Vars = twiri18n.Vars{"chatWallPhrase": vars.ChatWallPhrase}
-	return k
-}
-
-type KeysCommandsChatWallStart struct {
-	ChatWallStart KeysCommandsChatWallStartChatWallStart
-}
-type KeysCommandsChatWallStopChatWalStopVars struct {
-	ChatWallPhrase any
-}
-type KeysCommandsChatWallStopChatWalStop struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallStopChatWalStop) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallStopChatWalStop) GetPath() string {
-	return "commands.chat_wall.stop.chat_wal_stop"
-}
-func (k KeysCommandsChatWallStopChatWalStop) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "stop", "chat_wal_stop"}
-}
-func (k KeysCommandsChatWallStopChatWalStop) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallStopChatWalStop) SetVars(vars KeysCommandsChatWallStopChatWalStopVars) twiri18n.TranslationKey[KeysCommandsChatWallStopChatWalStopVars] {
-	k.Vars = twiri18n.Vars{"chatWallPhrase": vars.ChatWallPhrase}
-	return k
-}
-
-type KeysCommandsChatWallStop struct {
-	ChatWalStop KeysCommandsChatWallStopChatWalStop
-}
-type KeysCommandsChatWallHintsBanPhraseArgNameVars struct {
-}
-type KeysCommandsChatWallHintsBanPhraseArgName struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallHintsBanPhraseArgName) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallHintsBanPhraseArgName) GetPath() string {
-	return "commands.chat_wall.hints.banPhraseArgName"
-}
-func (k KeysCommandsChatWallHintsBanPhraseArgName) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "hints", "banPhraseArgName"}
-}
-func (k KeysCommandsChatWallHintsBanPhraseArgName) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallHintsBanPhraseArgName) SetVars(vars KeysCommandsChatWallHintsBanPhraseArgNameVars) twiri18n.TranslationKey[KeysCommandsChatWallHintsBanPhraseArgNameVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChatWallHintsDeletePhraseArgNameVars struct {
-}
-type KeysCommandsChatWallHintsDeletePhraseArgName struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallHintsDeletePhraseArgName) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallHintsDeletePhraseArgName) GetPath() string {
-	return "commands.chat_wall.hints.deletePhraseArgName"
-}
-func (k KeysCommandsChatWallHintsDeletePhraseArgName) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "hints", "deletePhraseArgName"}
-}
-func (k KeysCommandsChatWallHintsDeletePhraseArgName) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallHintsDeletePhraseArgName) SetVars(vars KeysCommandsChatWallHintsDeletePhraseArgNameVars) twiri18n.TranslationKey[KeysCommandsChatWallHintsDeletePhraseArgNameVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChatWallHintsTimeoutDurationArgNameVars struct {
-}
-type KeysCommandsChatWallHintsTimeoutDurationArgName struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallHintsTimeoutDurationArgName) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallHintsTimeoutDurationArgName) GetPath() string {
-	return "commands.chat_wall.hints.timeoutDurationArgName"
-}
-func (k KeysCommandsChatWallHintsTimeoutDurationArgName) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "hints", "timeoutDurationArgName"}
-}
-func (k KeysCommandsChatWallHintsTimeoutDurationArgName) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallHintsTimeoutDurationArgName) SetVars(vars KeysCommandsChatWallHintsTimeoutDurationArgNameVars) twiri18n.TranslationKey[KeysCommandsChatWallHintsTimeoutDurationArgNameVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChatWallHintsTimeoutPhraseArgNameVars struct {
-}
-type KeysCommandsChatWallHintsTimeoutPhraseArgName struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) GetPath() string {
-	return "commands.chat_wall.hints.timeoutPhraseArgName"
-}
-func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "hints", "timeoutPhraseArgName"}
-}
-func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) SetVars(vars KeysCommandsChatWallHintsTimeoutPhraseArgNameVars) twiri18n.TranslationKey[KeysCommandsChatWallHintsTimeoutPhraseArgNameVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChatWallHints struct {
-	BanPhraseArgName       KeysCommandsChatWallHintsBanPhraseArgName
-	DeletePhraseArgName    KeysCommandsChatWallHintsDeletePhraseArgName
-	TimeoutDurationArgName KeysCommandsChatWallHintsTimeoutDurationArgName
-	TimeoutPhraseArgName   KeysCommandsChatWallHintsTimeoutPhraseArgName
-}
-type KeysCommandsChatWallErrorsInvalidDurationVars struct {
-}
-type KeysCommandsChatWallErrorsInvalidDuration struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallErrorsInvalidDuration) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallErrorsInvalidDuration) GetPath() string {
-	return "commands.chat_wall.errors.invalid_duration"
-}
-func (k KeysCommandsChatWallErrorsInvalidDuration) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "errors", "invalid_duration"}
-}
-func (k KeysCommandsChatWallErrorsInvalidDuration) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallErrorsInvalidDuration) SetVars(vars KeysCommandsChatWallErrorsInvalidDurationVars) twiri18n.TranslationKey[KeysCommandsChatWallErrorsInvalidDurationVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChatWallErrorsLongDurationTimeoutVars struct {
-}
-type KeysCommandsChatWallErrorsLongDurationTimeout struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallErrorsLongDurationTimeout) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallErrorsLongDurationTimeout) GetPath() string {
-	return "commands.chat_wall.errors.long_duration_timeout"
-}
-func (k KeysCommandsChatWallErrorsLongDurationTimeout) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "errors", "long_duration_timeout"}
-}
-func (k KeysCommandsChatWallErrorsLongDurationTimeout) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallErrorsLongDurationTimeout) SetVars(vars KeysCommandsChatWallErrorsLongDurationTimeoutVars) twiri18n.TranslationKey[KeysCommandsChatWallErrorsLongDurationTimeoutVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChatWallErrorsDurationCannotParseVars struct {
-}
-type KeysCommandsChatWallErrorsDurationCannotParse struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallErrorsDurationCannotParse) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallErrorsDurationCannotParse) GetPath() string {
-	return "commands.chat_wall.errors.duration_cannot_parse"
-}
-func (k KeysCommandsChatWallErrorsDurationCannotParse) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "errors", "duration_cannot_parse"}
-}
-func (k KeysCommandsChatWallErrorsDurationCannotParse) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallErrorsDurationCannotParse) SetVars(vars KeysCommandsChatWallErrorsDurationCannotParseVars) twiri18n.TranslationKey[KeysCommandsChatWallErrorsDurationCannotParseVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChatWallErrorsChatWallNotFoundVars struct {
-	ErrorPhrase any
-}
-type KeysCommandsChatWallErrorsChatWallNotFound struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChatWallErrorsChatWallNotFound) IsTranslationKey() {
-}
-func (k KeysCommandsChatWallErrorsChatWallNotFound) GetPath() string {
-	return "commands.chat_wall.errors.chat_wall_not_found"
-}
-func (k KeysCommandsChatWallErrorsChatWallNotFound) GetPathSlice() []string {
-	return []string{"commands", "chat_wall", "errors", "chat_wall_not_found"}
-}
-func (k KeysCommandsChatWallErrorsChatWallNotFound) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChatWallErrorsChatWallNotFound) SetVars(vars KeysCommandsChatWallErrorsChatWallNotFoundVars) twiri18n.TranslationKey[KeysCommandsChatWallErrorsChatWallNotFoundVars] {
-	k.Vars = twiri18n.Vars{"errorPhrase": vars.ErrorPhrase}
-	return k
-}
-
-type KeysCommandsChatWallErrors struct {
-	InvalidDuration     KeysCommandsChatWallErrorsInvalidDuration
-	LongDurationTimeout KeysCommandsChatWallErrorsLongDurationTimeout
-	DurationCannotParse KeysCommandsChatWallErrorsDurationCannotParse
-	ChatWallNotFound    KeysCommandsChatWallErrorsChatWallNotFound
-}
-type KeysCommandsChatWall struct {
-	Start  KeysCommandsChatWallStart
-	Stop   KeysCommandsChatWallStop
-	Hints  KeysCommandsChatWallHints
-	Errors KeysCommandsChatWallErrors
+	Followers   KeysVariablesFollowers
+	Random      KeysVariablesRandom
+	Commands    KeysVariablesCommands
+	User        KeysVariablesUser
+	CustomVar   KeysVariablesCustomVar
+	Keywords    KeysVariablesKeywords
+	ChatEval    KeysVariablesChatEval
+	Seventv     KeysVariablesSeventv
+	Song        KeysVariablesSong
+	Valorant    KeysVariablesValorant
+	Shorturl    KeysVariablesShorturl
+	Countdown   KeysVariablesCountdown
+	Stream      KeysVariablesStream
+	Request     KeysVariablesRequest
 }
 type KeysCommandsMarkerErrorsCannotCreateMarkerVars struct {
 	Reason any
@@ -2992,1145 +1846,401 @@ type KeysCommandsMarker struct {
 	Errors  KeysCommandsMarkerErrors
 	Success KeysCommandsMarkerSuccess
 }
-type KeysCommandsQuotesErrorsCannotGetVars struct {
+type KeysCommandsPrefixErrorsRequiredVars struct {
 }
-type KeysCommandsQuotesErrorsCannotGet struct {
+type KeysCommandsPrefixErrorsRequired struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsQuotesErrorsCannotGet) IsTranslationKey() {
+func (k KeysCommandsPrefixErrorsRequired) IsTranslationKey() {
 }
-func (k KeysCommandsQuotesErrorsCannotGet) GetPath() string {
-	return "commands.quotes.errors.cannot_get"
+func (k KeysCommandsPrefixErrorsRequired) GetPath() string {
+	return "commands.prefix.errors.required"
 }
-func (k KeysCommandsQuotesErrorsCannotGet) GetPathSlice() []string {
-	return []string{"commands", "quotes", "errors", "cannot_get"}
+func (k KeysCommandsPrefixErrorsRequired) GetPathSlice() []string {
+	return []string{"commands", "prefix", "errors", "required"}
 }
-func (k KeysCommandsQuotesErrorsCannotGet) GetVars() twiri18n.Vars {
+func (k KeysCommandsPrefixErrorsRequired) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsQuotesErrorsCannotGet) SetVars(vars KeysCommandsQuotesErrorsCannotGetVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsCannotGetVars] {
+func (k KeysCommandsPrefixErrorsRequired) SetVars(vars KeysCommandsPrefixErrorsRequiredVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsRequiredVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsQuotesErrorsCannotAddVars struct {
+type KeysCommandsPrefixErrorsTooLongVars struct {
 }
-type KeysCommandsQuotesErrorsCannotAdd struct {
+type KeysCommandsPrefixErrorsTooLong struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsQuotesErrorsCannotAdd) IsTranslationKey() {
+func (k KeysCommandsPrefixErrorsTooLong) IsTranslationKey() {
 }
-func (k KeysCommandsQuotesErrorsCannotAdd) GetPath() string {
-	return "commands.quotes.errors.cannot_add"
+func (k KeysCommandsPrefixErrorsTooLong) GetPath() string {
+	return "commands.prefix.errors.too_long"
 }
-func (k KeysCommandsQuotesErrorsCannotAdd) GetPathSlice() []string {
-	return []string{"commands", "quotes", "errors", "cannot_add"}
+func (k KeysCommandsPrefixErrorsTooLong) GetPathSlice() []string {
+	return []string{"commands", "prefix", "errors", "too_long"}
 }
-func (k KeysCommandsQuotesErrorsCannotAdd) GetVars() twiri18n.Vars {
+func (k KeysCommandsPrefixErrorsTooLong) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsQuotesErrorsCannotAdd) SetVars(vars KeysCommandsQuotesErrorsCannotAddVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsCannotAddVars] {
+func (k KeysCommandsPrefixErrorsTooLong) SetVars(vars KeysCommandsPrefixErrorsTooLongVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsTooLongVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsQuotesErrorsCannotRemoveVars struct {
+type KeysCommandsPrefixErrorsCannotGetCurrentVars struct {
 }
-type KeysCommandsQuotesErrorsCannotRemove struct {
+type KeysCommandsPrefixErrorsCannotGetCurrent struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsQuotesErrorsCannotRemove) IsTranslationKey() {
+func (k KeysCommandsPrefixErrorsCannotGetCurrent) IsTranslationKey() {
 }
-func (k KeysCommandsQuotesErrorsCannotRemove) GetPath() string {
-	return "commands.quotes.errors.cannot_remove"
+func (k KeysCommandsPrefixErrorsCannotGetCurrent) GetPath() string {
+	return "commands.prefix.errors.cannot_get_current"
 }
-func (k KeysCommandsQuotesErrorsCannotRemove) GetPathSlice() []string {
-	return []string{"commands", "quotes", "errors", "cannot_remove"}
+func (k KeysCommandsPrefixErrorsCannotGetCurrent) GetPathSlice() []string {
+	return []string{"commands", "prefix", "errors", "cannot_get_current"}
 }
-func (k KeysCommandsQuotesErrorsCannotRemove) GetVars() twiri18n.Vars {
+func (k KeysCommandsPrefixErrorsCannotGetCurrent) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsQuotesErrorsCannotRemove) SetVars(vars KeysCommandsQuotesErrorsCannotRemoveVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsCannotRemoveVars] {
+func (k KeysCommandsPrefixErrorsCannotGetCurrent) SetVars(vars KeysCommandsPrefixErrorsCannotGetCurrentVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsCannotGetCurrentVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsQuotesErrorsRandomEmptyVars struct {
+type KeysCommandsPrefixErrorsCannotCreateVars struct {
 }
-type KeysCommandsQuotesErrorsRandomEmpty struct {
+type KeysCommandsPrefixErrorsCannotCreate struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsQuotesErrorsRandomEmpty) IsTranslationKey() {
+func (k KeysCommandsPrefixErrorsCannotCreate) IsTranslationKey() {
 }
-func (k KeysCommandsQuotesErrorsRandomEmpty) GetPath() string {
-	return "commands.quotes.errors.random_empty"
+func (k KeysCommandsPrefixErrorsCannotCreate) GetPath() string {
+	return "commands.prefix.errors.cannot_create"
 }
-func (k KeysCommandsQuotesErrorsRandomEmpty) GetPathSlice() []string {
-	return []string{"commands", "quotes", "errors", "random_empty"}
+func (k KeysCommandsPrefixErrorsCannotCreate) GetPathSlice() []string {
+	return []string{"commands", "prefix", "errors", "cannot_create"}
 }
-func (k KeysCommandsQuotesErrorsRandomEmpty) GetVars() twiri18n.Vars {
+func (k KeysCommandsPrefixErrorsCannotCreate) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsQuotesErrorsRandomEmpty) SetVars(vars KeysCommandsQuotesErrorsRandomEmptyVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsRandomEmptyVars] {
+func (k KeysCommandsPrefixErrorsCannotCreate) SetVars(vars KeysCommandsPrefixErrorsCannotCreateVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsCannotCreateVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsQuotesErrorsNotFoundVars struct {
+type KeysCommandsPrefixErrorsCannotUpdateVars struct {
 }
-type KeysCommandsQuotesErrorsNotFound struct {
+type KeysCommandsPrefixErrorsCannotUpdate struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsQuotesErrorsNotFound) IsTranslationKey() {
+func (k KeysCommandsPrefixErrorsCannotUpdate) IsTranslationKey() {
 }
-func (k KeysCommandsQuotesErrorsNotFound) GetPath() string {
-	return "commands.quotes.errors.not_found"
+func (k KeysCommandsPrefixErrorsCannotUpdate) GetPath() string {
+	return "commands.prefix.errors.cannot_update"
 }
-func (k KeysCommandsQuotesErrorsNotFound) GetPathSlice() []string {
-	return []string{"commands", "quotes", "errors", "not_found"}
+func (k KeysCommandsPrefixErrorsCannotUpdate) GetPathSlice() []string {
+	return []string{"commands", "prefix", "errors", "cannot_update"}
 }
-func (k KeysCommandsQuotesErrorsNotFound) GetVars() twiri18n.Vars {
+func (k KeysCommandsPrefixErrorsCannotUpdate) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsQuotesErrorsNotFound) SetVars(vars KeysCommandsQuotesErrorsNotFoundVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsNotFoundVars] {
+func (k KeysCommandsPrefixErrorsCannotUpdate) SetVars(vars KeysCommandsPrefixErrorsCannotUpdateVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsCannotUpdateVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsQuotesErrorsEmptyTextVars struct {
+type KeysCommandsPrefixErrors struct {
+	Required         KeysCommandsPrefixErrorsRequired
+	TooLong          KeysCommandsPrefixErrorsTooLong
+	CannotGetCurrent KeysCommandsPrefixErrorsCannotGetCurrent
+	CannotCreate     KeysCommandsPrefixErrorsCannotCreate
+	CannotUpdate     KeysCommandsPrefixErrorsCannotUpdate
 }
-type KeysCommandsQuotesErrorsEmptyText struct {
+type KeysCommandsPrefixSuccessUpdatedVars struct {
+}
+type KeysCommandsPrefixSuccessUpdated struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsQuotesErrorsEmptyText) IsTranslationKey() {
+func (k KeysCommandsPrefixSuccessUpdated) IsTranslationKey() {
 }
-func (k KeysCommandsQuotesErrorsEmptyText) GetPath() string {
-	return "commands.quotes.errors.empty_text"
+func (k KeysCommandsPrefixSuccessUpdated) GetPath() string {
+	return "commands.prefix.success.updated"
 }
-func (k KeysCommandsQuotesErrorsEmptyText) GetPathSlice() []string {
-	return []string{"commands", "quotes", "errors", "empty_text"}
+func (k KeysCommandsPrefixSuccessUpdated) GetPathSlice() []string {
+	return []string{"commands", "prefix", "success", "updated"}
 }
-func (k KeysCommandsQuotesErrorsEmptyText) GetVars() twiri18n.Vars {
+func (k KeysCommandsPrefixSuccessUpdated) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsQuotesErrorsEmptyText) SetVars(vars KeysCommandsQuotesErrorsEmptyTextVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsEmptyTextVars] {
+func (k KeysCommandsPrefixSuccessUpdated) SetVars(vars KeysCommandsPrefixSuccessUpdatedVars) twiri18n.TranslationKey[KeysCommandsPrefixSuccessUpdatedVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsQuotesErrors struct {
-	CannotGet    KeysCommandsQuotesErrorsCannotGet
-	CannotAdd    KeysCommandsQuotesErrorsCannotAdd
-	CannotRemove KeysCommandsQuotesErrorsCannotRemove
-	RandomEmpty  KeysCommandsQuotesErrorsRandomEmpty
-	NotFound     KeysCommandsQuotesErrorsNotFound
-	EmptyText    KeysCommandsQuotesErrorsEmptyText
+type KeysCommandsPrefixSuccess struct {
+	Updated KeysCommandsPrefixSuccessUpdated
 }
-type KeysCommandsQuotesAddAddedVars struct {
-	Number any
+type KeysCommandsPrefix struct {
+	Errors  KeysCommandsPrefixErrors
+	Success KeysCommandsPrefixSuccess
 }
-type KeysCommandsQuotesAddAdded struct {
+type KeysCommandsShoutoutErrorsBotHaveNoPermissionsVars struct {
+}
+type KeysCommandsShoutoutErrorsBotHaveNoPermissions struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsQuotesAddAdded) IsTranslationKey() {
+func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) IsTranslationKey() {
 }
-func (k KeysCommandsQuotesAddAdded) GetPath() string {
-	return "commands.quotes.add.added"
+func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) GetPath() string {
+	return "commands.shoutout.errors.bot_have_no_permissions"
 }
-func (k KeysCommandsQuotesAddAdded) GetPathSlice() []string {
-	return []string{"commands", "quotes", "add", "added"}
+func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) GetPathSlice() []string {
+	return []string{"commands", "shoutout", "errors", "bot_have_no_permissions"}
 }
-func (k KeysCommandsQuotesAddAdded) GetVars() twiri18n.Vars {
+func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsQuotesAddAdded) SetVars(vars KeysCommandsQuotesAddAddedVars) twiri18n.TranslationKey[KeysCommandsQuotesAddAddedVars] {
-	k.Vars = twiri18n.Vars{"number": vars.Number}
-	return k
-}
-
-type KeysCommandsQuotesAdd struct {
-	Added KeysCommandsQuotesAddAdded
-}
-type KeysCommandsQuotesRemoveRemovedVars struct {
-}
-type KeysCommandsQuotesRemoveRemoved struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsQuotesRemoveRemoved) IsTranslationKey() {
-}
-func (k KeysCommandsQuotesRemoveRemoved) GetPath() string {
-	return "commands.quotes.remove.removed"
-}
-func (k KeysCommandsQuotesRemoveRemoved) GetPathSlice() []string {
-	return []string{"commands", "quotes", "remove", "removed"}
-}
-func (k KeysCommandsQuotesRemoveRemoved) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsQuotesRemoveRemoved) SetVars(vars KeysCommandsQuotesRemoveRemovedVars) twiri18n.TranslationKey[KeysCommandsQuotesRemoveRemovedVars] {
+func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) SetVars(vars KeysCommandsShoutoutErrorsBotHaveNoPermissionsVars) twiri18n.TranslationKey[KeysCommandsShoutoutErrorsBotHaveNoPermissionsVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsQuotesRemove struct {
-	Removed KeysCommandsQuotesRemoveRemoved
+type KeysCommandsShoutoutErrors struct {
+	BotHaveNoPermissions KeysCommandsShoutoutErrorsBotHaveNoPermissions
 }
-type KeysCommandsQuotes struct {
-	Errors KeysCommandsQuotesErrors
-	Add    KeysCommandsQuotesAdd
-	Remove KeysCommandsQuotesRemove
-}
-type KeysCommandsChannelAddCategoryChangeVars struct {
+type KeysCommandsShoutoutResponseOnlineVars struct {
+	UserName     any
 	CategoryName any
+	Title        any
+	Viewers      any
 }
-type KeysCommandsChannelAddCategoryChange struct {
+type KeysCommandsShoutoutResponseOnline struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsChannelAddCategoryChange) IsTranslationKey() {
+func (k KeysCommandsShoutoutResponseOnline) IsTranslationKey() {
 }
-func (k KeysCommandsChannelAddCategoryChange) GetPath() string {
-	return "commands.channel.add.category_change"
+func (k KeysCommandsShoutoutResponseOnline) GetPath() string {
+	return "commands.shoutout.response_online"
 }
-func (k KeysCommandsChannelAddCategoryChange) GetPathSlice() []string {
-	return []string{"commands", "channel", "add", "category_change"}
+func (k KeysCommandsShoutoutResponseOnline) GetPathSlice() []string {
+	return []string{"commands", "shoutout", "response_online"}
 }
-func (k KeysCommandsChannelAddCategoryChange) GetVars() twiri18n.Vars {
+func (k KeysCommandsShoutoutResponseOnline) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsChannelAddCategoryChange) SetVars(vars KeysCommandsChannelAddCategoryChangeVars) twiri18n.TranslationKey[KeysCommandsChannelAddCategoryChangeVars] {
-	k.Vars = twiri18n.Vars{"categoryName": vars.CategoryName}
+func (k KeysCommandsShoutoutResponseOnline) SetVars(vars KeysCommandsShoutoutResponseOnlineVars) twiri18n.TranslationKey[KeysCommandsShoutoutResponseOnlineVars] {
+	k.Vars = twiri18n.Vars{"userName": vars.UserName, "categoryName": vars.CategoryName, "title": vars.Title, "viewers": vars.Viewers}
 	return k
 }
 
-type KeysCommandsChannelAdd struct {
-	CategoryChange KeysCommandsChannelAddCategoryChange
+type KeysCommandsShoutoutResponseOfflineVars struct {
+	UserName     any
+	CategoryName any
+	Title        any
 }
-type KeysCommandsChannelErrorsChannelNotFoundVars struct {
-}
-type KeysCommandsChannelErrorsChannelNotFound struct {
+type KeysCommandsShoutoutResponseOffline struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsChannelErrorsChannelNotFound) IsTranslationKey() {
+func (k KeysCommandsShoutoutResponseOffline) IsTranslationKey() {
 }
-func (k KeysCommandsChannelErrorsChannelNotFound) GetPath() string {
-	return "commands.channel.errors.channel_not_found"
+func (k KeysCommandsShoutoutResponseOffline) GetPath() string {
+	return "commands.shoutout.response_offline"
 }
-func (k KeysCommandsChannelErrorsChannelNotFound) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "channel_not_found"}
+func (k KeysCommandsShoutoutResponseOffline) GetPathSlice() []string {
+	return []string{"commands", "shoutout", "response_offline"}
 }
-func (k KeysCommandsChannelErrorsChannelNotFound) GetVars() twiri18n.Vars {
+func (k KeysCommandsShoutoutResponseOffline) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsChannelErrorsChannelNotFound) SetVars(vars KeysCommandsChannelErrorsChannelNotFoundVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsChannelNotFoundVars] {
+func (k KeysCommandsShoutoutResponseOffline) SetVars(vars KeysCommandsShoutoutResponseOfflineVars) twiri18n.TranslationKey[KeysCommandsShoutoutResponseOfflineVars] {
+	k.Vars = twiri18n.Vars{"userName": vars.UserName, "categoryName": vars.CategoryName, "title": vars.Title}
+	return k
+}
+
+type KeysCommandsShoutout struct {
+	Errors          KeysCommandsShoutoutErrors
+	ResponseOnline  KeysCommandsShoutoutResponseOnline
+	ResponseOffline KeysCommandsShoutoutResponseOffline
+}
+type KeysCommandsNukeHintsNukeTimeArgNameVars struct {
+}
+type KeysCommandsNukeHintsNukeTimeArgName struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsNukeHintsNukeTimeArgName) IsTranslationKey() {
+}
+func (k KeysCommandsNukeHintsNukeTimeArgName) GetPath() string {
+	return "commands.nuke.hints.nukeTimeArgName"
+}
+func (k KeysCommandsNukeHintsNukeTimeArgName) GetPathSlice() []string {
+	return []string{"commands", "nuke", "hints", "nukeTimeArgName"}
+}
+func (k KeysCommandsNukeHintsNukeTimeArgName) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsNukeHintsNukeTimeArgName) SetVars(vars KeysCommandsNukeHintsNukeTimeArgNameVars) twiri18n.TranslationKey[KeysCommandsNukeHintsNukeTimeArgNameVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsChannelErrorsAliasCannotGetCategoryVars struct {
+type KeysCommandsNukeHints struct {
+	NukeTimeArgName KeysCommandsNukeHintsNukeTimeArgName
 }
-type KeysCommandsChannelErrorsAliasCannotGetCategory struct {
+type KeysCommandsNukeErrorsCannotGetHandeledMessagesVars struct {
+}
+type KeysCommandsNukeErrorsCannotGetHandeledMessages struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsChannelErrorsAliasCannotGetCategory) IsTranslationKey() {
+func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) IsTranslationKey() {
 }
-func (k KeysCommandsChannelErrorsAliasCannotGetCategory) GetPath() string {
-	return "commands.channel.errors.alias_cannot_get_category"
+func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) GetPath() string {
+	return "commands.nuke.errors.cannot_get_handeled_messages"
 }
-func (k KeysCommandsChannelErrorsAliasCannotGetCategory) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "alias_cannot_get_category"}
+func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) GetPathSlice() []string {
+	return []string{"commands", "nuke", "errors", "cannot_get_handeled_messages"}
 }
-func (k KeysCommandsChannelErrorsAliasCannotGetCategory) GetVars() twiri18n.Vars {
+func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsChannelErrorsAliasCannotGetCategory) SetVars(vars KeysCommandsChannelErrorsAliasCannotGetCategoryVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsAliasCannotGetCategoryVars] {
+func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) SetVars(vars KeysCommandsNukeErrorsCannotGetHandeledMessagesVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsCannotGetHandeledMessagesVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsChannelErrorsCategoryNotFoundVars struct {
+type KeysCommandsNukeErrorsCannotDeleteMessagesVars struct {
 }
-type KeysCommandsChannelErrorsCategoryNotFound struct {
+type KeysCommandsNukeErrorsCannotDeleteMessages struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsChannelErrorsCategoryNotFound) IsTranslationKey() {
+func (k KeysCommandsNukeErrorsCannotDeleteMessages) IsTranslationKey() {
 }
-func (k KeysCommandsChannelErrorsCategoryNotFound) GetPath() string {
-	return "commands.channel.errors.category_not_found"
+func (k KeysCommandsNukeErrorsCannotDeleteMessages) GetPath() string {
+	return "commands.nuke.errors.cannot_delete_messages"
 }
-func (k KeysCommandsChannelErrorsCategoryNotFound) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "category_not_found"}
+func (k KeysCommandsNukeErrorsCannotDeleteMessages) GetPathSlice() []string {
+	return []string{"commands", "nuke", "errors", "cannot_delete_messages"}
 }
-func (k KeysCommandsChannelErrorsCategoryNotFound) GetVars() twiri18n.Vars {
+func (k KeysCommandsNukeErrorsCannotDeleteMessages) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsChannelErrorsCategoryNotFound) SetVars(vars KeysCommandsChannelErrorsCategoryNotFoundVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryNotFoundVars] {
+func (k KeysCommandsNukeErrorsCannotDeleteMessages) SetVars(vars KeysCommandsNukeErrorsCannotDeleteMessagesVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsCannotDeleteMessagesVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsChannelErrorsCategoryCannotChangeVars struct {
+type KeysCommandsNukeErrorsTimeoutDurationVars struct {
 }
-type KeysCommandsChannelErrorsCategoryCannotChange struct {
+type KeysCommandsNukeErrorsTimeoutDuration struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsChannelErrorsCategoryCannotChange) IsTranslationKey() {
+func (k KeysCommandsNukeErrorsTimeoutDuration) IsTranslationKey() {
 }
-func (k KeysCommandsChannelErrorsCategoryCannotChange) GetPath() string {
-	return "commands.channel.errors.category_cannot_change"
+func (k KeysCommandsNukeErrorsTimeoutDuration) GetPath() string {
+	return "commands.nuke.errors.timeout_duration"
 }
-func (k KeysCommandsChannelErrorsCategoryCannotChange) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "category_cannot_change"}
+func (k KeysCommandsNukeErrorsTimeoutDuration) GetPathSlice() []string {
+	return []string{"commands", "nuke", "errors", "timeout_duration"}
 }
-func (k KeysCommandsChannelErrorsCategoryCannotChange) GetVars() twiri18n.Vars {
+func (k KeysCommandsNukeErrorsTimeoutDuration) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsChannelErrorsCategoryCannotChange) SetVars(vars KeysCommandsChannelErrorsCategoryCannotChangeVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryCannotChangeVars] {
+func (k KeysCommandsNukeErrorsTimeoutDuration) SetVars(vars KeysCommandsNukeErrorsTimeoutDurationVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsTimeoutDurationVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsChannelErrorsHistoryGameMessageVars struct {
+type KeysCommandsNukeErrorsParseDurationVars struct {
 }
-type KeysCommandsChannelErrorsHistoryGameMessage struct {
+type KeysCommandsNukeErrorsParseDuration struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsChannelErrorsHistoryGameMessage) IsTranslationKey() {
+func (k KeysCommandsNukeErrorsParseDuration) IsTranslationKey() {
 }
-func (k KeysCommandsChannelErrorsHistoryGameMessage) GetPath() string {
-	return "commands.channel.errors.history_game_message"
+func (k KeysCommandsNukeErrorsParseDuration) GetPath() string {
+	return "commands.nuke.errors.parse_duration"
 }
-func (k KeysCommandsChannelErrorsHistoryGameMessage) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "history_game_message"}
+func (k KeysCommandsNukeErrorsParseDuration) GetPathSlice() []string {
+	return []string{"commands", "nuke", "errors", "parse_duration"}
 }
-func (k KeysCommandsChannelErrorsHistoryGameMessage) GetVars() twiri18n.Vars {
+func (k KeysCommandsNukeErrorsParseDuration) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsChannelErrorsHistoryGameMessage) SetVars(vars KeysCommandsChannelErrorsHistoryGameMessageVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsHistoryGameMessageVars] {
+func (k KeysCommandsNukeErrorsParseDuration) SetVars(vars KeysCommandsNukeErrorsParseDurationVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsParseDurationVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsChannelErrorsHistoryTitleMessageVars struct {
-	Reason any
+type KeysCommandsNukeErrorsInvalidDurationVars struct {
 }
-type KeysCommandsChannelErrorsHistoryTitleMessage struct {
+type KeysCommandsNukeErrorsInvalidDuration struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsChannelErrorsHistoryTitleMessage) IsTranslationKey() {
+func (k KeysCommandsNukeErrorsInvalidDuration) IsTranslationKey() {
 }
-func (k KeysCommandsChannelErrorsHistoryTitleMessage) GetPath() string {
-	return "commands.channel.errors.history_title_message"
+func (k KeysCommandsNukeErrorsInvalidDuration) GetPath() string {
+	return "commands.nuke.errors.invalid_duration"
 }
-func (k KeysCommandsChannelErrorsHistoryTitleMessage) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "history_title_message"}
+func (k KeysCommandsNukeErrorsInvalidDuration) GetPathSlice() []string {
+	return []string{"commands", "nuke", "errors", "invalid_duration"}
 }
-func (k KeysCommandsChannelErrorsHistoryTitleMessage) GetVars() twiri18n.Vars {
+func (k KeysCommandsNukeErrorsInvalidDuration) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsChannelErrorsHistoryTitleMessage) SetVars(vars KeysCommandsChannelErrorsHistoryTitleMessageVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsHistoryTitleMessageVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreateVars struct {
-}
-type KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) IsTranslationKey() {
-}
-func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) GetPath() string {
-	return "commands.channel.errors.broadcaster_twitch_client_cannot_create"
-}
-func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "broadcaster_twitch_client_cannot_create"}
-}
-func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) SetVars(vars KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreateVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreateVars] {
+func (k KeysCommandsNukeErrorsInvalidDuration) SetVars(vars KeysCommandsNukeErrorsInvalidDurationVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsInvalidDurationVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsChannelErrorsCategoryCannotGetVars struct {
+type KeysCommandsNukeErrorsCannotGetUsersStatsVars struct {
 }
-type KeysCommandsChannelErrorsCategoryCannotGet struct {
+type KeysCommandsNukeErrorsCannotGetUsersStats struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsChannelErrorsCategoryCannotGet) IsTranslationKey() {
+func (k KeysCommandsNukeErrorsCannotGetUsersStats) IsTranslationKey() {
 }
-func (k KeysCommandsChannelErrorsCategoryCannotGet) GetPath() string {
-	return "commands.channel.errors.category_cannot_get"
+func (k KeysCommandsNukeErrorsCannotGetUsersStats) GetPath() string {
+	return "commands.nuke.errors.cannot_get_users_stats"
 }
-func (k KeysCommandsChannelErrorsCategoryCannotGet) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "category_cannot_get"}
+func (k KeysCommandsNukeErrorsCannotGetUsersStats) GetPathSlice() []string {
+	return []string{"commands", "nuke", "errors", "cannot_get_users_stats"}
 }
-func (k KeysCommandsChannelErrorsCategoryCannotGet) GetVars() twiri18n.Vars {
+func (k KeysCommandsNukeErrorsCannotGetUsersStats) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsChannelErrorsCategoryCannotGet) SetVars(vars KeysCommandsChannelErrorsCategoryCannotGetVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryCannotGetVars] {
+func (k KeysCommandsNukeErrorsCannotGetUsersStats) SetVars(vars KeysCommandsNukeErrorsCannotGetUsersStatsVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsCannotGetUsersStatsVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsChannelErrorsCategoryCannotGetErrorVars struct {
-	ErrorMessage any
-}
-type KeysCommandsChannelErrorsCategoryCannotGetError struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChannelErrorsCategoryCannotGetError) IsTranslationKey() {
-}
-func (k KeysCommandsChannelErrorsCategoryCannotGetError) GetPath() string {
-	return "commands.channel.errors.category_cannot_get_error"
-}
-func (k KeysCommandsChannelErrorsCategoryCannotGetError) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "category_cannot_get_error"}
-}
-func (k KeysCommandsChannelErrorsCategoryCannotGetError) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChannelErrorsCategoryCannotGetError) SetVars(vars KeysCommandsChannelErrorsCategoryCannotGetErrorVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryCannotGetErrorVars] {
-	k.Vars = twiri18n.Vars{"errorMessage": vars.ErrorMessage}
-	return k
-}
-
-type KeysCommandsChannelErrorsCategoryCannotChangeErrorVars struct {
-	ErrorMessage any
-}
-type KeysCommandsChannelErrorsCategoryCannotChangeError struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChannelErrorsCategoryCannotChangeError) IsTranslationKey() {
-}
-func (k KeysCommandsChannelErrorsCategoryCannotChangeError) GetPath() string {
-	return "commands.channel.errors.category_cannot_change_error"
-}
-func (k KeysCommandsChannelErrorsCategoryCannotChangeError) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "category_cannot_change_error"}
-}
-func (k KeysCommandsChannelErrorsCategoryCannotChangeError) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChannelErrorsCategoryCannotChangeError) SetVars(vars KeysCommandsChannelErrorsCategoryCannotChangeErrorVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryCannotChangeErrorVars] {
-	k.Vars = twiri18n.Vars{"errorMessage": vars.ErrorMessage}
-	return k
-}
-
-type KeysCommandsChannelErrorsGameNotFoundVars struct {
-}
-type KeysCommandsChannelErrorsGameNotFound struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChannelErrorsGameNotFound) IsTranslationKey() {
-}
-func (k KeysCommandsChannelErrorsGameNotFound) GetPath() string {
-	return "commands.channel.errors.game_not_found"
-}
-func (k KeysCommandsChannelErrorsGameNotFound) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "game_not_found"}
-}
-func (k KeysCommandsChannelErrorsGameNotFound) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChannelErrorsGameNotFound) SetVars(vars KeysCommandsChannelErrorsGameNotFoundVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsGameNotFoundVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChannelErrorsBroadcasterTwitchApiClientVars struct {
-	Reason any
-}
-type KeysCommandsChannelErrorsBroadcasterTwitchApiClient struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) IsTranslationKey() {
-}
-func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) GetPath() string {
-	return "commands.channel.errors.broadcaster_twitch_api_client"
-}
-func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "broadcaster_twitch_api_client"}
-}
-func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) SetVars(vars KeysCommandsChannelErrorsBroadcasterTwitchApiClientVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsBroadcasterTwitchApiClientVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsChannelErrorsChannelCannotGetInformationVars struct {
-}
-type KeysCommandsChannelErrorsChannelCannotGetInformation struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChannelErrorsChannelCannotGetInformation) IsTranslationKey() {
-}
-func (k KeysCommandsChannelErrorsChannelCannotGetInformation) GetPath() string {
-	return "commands.channel.errors.channel_cannot_get_information"
-}
-func (k KeysCommandsChannelErrorsChannelCannotGetInformation) GetPathSlice() []string {
-	return []string{"commands", "channel", "errors", "channel_cannot_get_information"}
-}
-func (k KeysCommandsChannelErrorsChannelCannotGetInformation) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChannelErrorsChannelCannotGetInformation) SetVars(vars KeysCommandsChannelErrorsChannelCannotGetInformationVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsChannelCannotGetInformationVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChannelErrors struct {
-	ChannelNotFound                     KeysCommandsChannelErrorsChannelNotFound
-	AliasCannotGetCategory              KeysCommandsChannelErrorsAliasCannotGetCategory
-	CategoryNotFound                    KeysCommandsChannelErrorsCategoryNotFound
-	CategoryCannotChange                KeysCommandsChannelErrorsCategoryCannotChange
-	HistoryGameMessage                  KeysCommandsChannelErrorsHistoryGameMessage
-	HistoryTitleMessage                 KeysCommandsChannelErrorsHistoryTitleMessage
-	BroadcasterTwitchClientCannotCreate KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate
-	CategoryCannotGet                   KeysCommandsChannelErrorsCategoryCannotGet
-	CategoryCannotGetError              KeysCommandsChannelErrorsCategoryCannotGetError
-	CategoryCannotChangeError           KeysCommandsChannelErrorsCategoryCannotChangeError
-	GameNotFound                        KeysCommandsChannelErrorsGameNotFound
-	BroadcasterTwitchApiClient          KeysCommandsChannelErrorsBroadcasterTwitchApiClient
-	ChannelCannotGetInformation         KeysCommandsChannelErrorsChannelCannotGetInformation
-}
-type KeysCommandsChannelHintsGameArgNameVars struct {
-}
-type KeysCommandsChannelHintsGameArgName struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsChannelHintsGameArgName) IsTranslationKey() {
-}
-func (k KeysCommandsChannelHintsGameArgName) GetPath() string {
-	return "commands.channel.hints.gameArgName"
-}
-func (k KeysCommandsChannelHintsGameArgName) GetPathSlice() []string {
-	return []string{"commands", "channel", "hints", "gameArgName"}
-}
-func (k KeysCommandsChannelHintsGameArgName) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsChannelHintsGameArgName) SetVars(vars KeysCommandsChannelHintsGameArgNameVars) twiri18n.TranslationKey[KeysCommandsChannelHintsGameArgNameVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsChannelHints struct {
-	GameArgName KeysCommandsChannelHintsGameArgName
-}
-type KeysCommandsChannel struct {
-	Add    KeysCommandsChannelAdd
-	Errors KeysCommandsChannelErrors
-	Hints  KeysCommandsChannelHints
-}
-type KeysCommandsGamesErrorsRouletteCannotSendInitialMessageVars struct {
-}
-type KeysCommandsGamesErrorsRouletteCannotSendInitialMessage struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) GetPath() string {
-	return "commands.games.errors.roulette_cannot_send_initial_message"
-}
-func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "roulette_cannot_send_initial_message"}
-}
-func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) SetVars(vars KeysCommandsGamesErrorsRouletteCannotSendInitialMessageVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsRouletteCannotSendInitialMessageVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsVotebanCannotSetVoteVars struct {
-}
-type KeysCommandsGamesErrorsVotebanCannotSetVote struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsVotebanCannotSetVote) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsVotebanCannotSetVote) GetPath() string {
-	return "commands.games.errors.voteban_cannot_set_vote"
-}
-func (k KeysCommandsGamesErrorsVotebanCannotSetVote) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "voteban_cannot_set_vote"}
-}
-func (k KeysCommandsGamesErrorsVotebanCannotSetVote) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsVotebanCannotSetVote) SetVars(vars KeysCommandsGamesErrorsVotebanCannotSetVoteVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotSetVoteVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotGetWithSettingsVars struct {
-}
-type KeysCommandsGamesErrorsDuelCannotGetWithSettings struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) GetPath() string {
-	return "commands.games.errors.duel_cannot_get_with_settings"
-}
-func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_get_with_settings"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) SetVars(vars KeysCommandsGamesErrorsDuelCannotGetWithSettingsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotGetWithSettingsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotSaveDataVars struct {
-	Reason any
-}
-type KeysCommandsGamesErrorsDuelCannotSaveData struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotSaveData) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveData) GetPath() string {
-	return "commands.games.errors.duel_cannot_save_data"
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveData) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_save_data"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveData) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveData) SetVars(vars KeysCommandsGamesErrorsDuelCannotSaveDataVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSaveDataVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelWithYourselfVars struct {
-}
-type KeysCommandsGamesErrorsDuelWithYourself struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelWithYourself) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelWithYourself) GetPath() string {
-	return "commands.games.errors.duel_with_yourself"
-}
-func (k KeysCommandsGamesErrorsDuelWithYourself) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_with_yourself"}
-}
-func (k KeysCommandsGamesErrorsDuelWithYourself) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelWithYourself) SetVars(vars KeysCommandsGamesErrorsDuelWithYourselfVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelWithYourselfVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotSetUserCooldownVars struct {
-	Reason any
-}
-type KeysCommandsGamesErrorsDuelCannotSetUserCooldown struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) GetPath() string {
-	return "commands.games.errors.duel_cannot_set_user_cooldown"
-}
-func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_set_user_cooldown"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) SetVars(vars KeysCommandsGamesErrorsDuelCannotSetUserCooldownVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSetUserCooldownVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsGamesErrorsVotebanCannotFindSettingsVars struct {
-}
-type KeysCommandsGamesErrorsVotebanCannotFindSettings struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) GetPath() string {
-	return "commands.games.errors.voteban_cannot_find_settings"
-}
-func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "voteban_cannot_find_settings"}
-}
-func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) SetVars(vars KeysCommandsGamesErrorsVotebanCannotFindSettingsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotFindSettingsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsVotebanCannotCheckProgressVars struct {
-}
-type KeysCommandsGamesErrorsVotebanCannotCheckProgress struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) GetPath() string {
-	return "commands.games.errors.voteban_cannot_check_progress"
-}
-func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "voteban_cannot_check_progress"}
-}
-func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) SetVars(vars KeysCommandsGamesErrorsVotebanCannotCheckProgressVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotCheckProgressVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsVotebanCannotFindUserVars struct {
-}
-type KeysCommandsGamesErrorsVotebanCannotFindUser struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsVotebanCannotFindUser) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsVotebanCannotFindUser) GetPath() string {
-	return "commands.games.errors.voteban_cannot_find_user"
-}
-func (k KeysCommandsGamesErrorsVotebanCannotFindUser) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "voteban_cannot_find_user"}
-}
-func (k KeysCommandsGamesErrorsVotebanCannotFindUser) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsVotebanCannotFindUser) SetVars(vars KeysCommandsGamesErrorsVotebanCannotFindUserVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotFindUserVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsVotebanCannotTimeoutModeratorVars struct {
-}
-type KeysCommandsGamesErrorsVotebanCannotTimeoutModerator struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) GetPath() string {
-	return "commands.games.errors.voteban_cannot_timeout_moderator"
-}
-func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "voteban_cannot_timeout_moderator"}
-}
-func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) SetVars(vars KeysCommandsGamesErrorsVotebanCannotTimeoutModeratorVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotTimeoutModeratorVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotGetSenderVars struct {
-}
-type KeysCommandsGamesErrorsDuelCannotGetSender struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotGetSender) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotGetSender) GetPath() string {
-	return "commands.games.errors.duel_cannot_get_sender"
-}
-func (k KeysCommandsGamesErrorsDuelCannotGetSender) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_get_sender"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotGetSender) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotGetSender) SetVars(vars KeysCommandsGamesErrorsDuelCannotGetSenderVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotGetSenderVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelWithStreamerVars struct {
-}
-type KeysCommandsGamesErrorsDuelWithStreamer struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelWithStreamer) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelWithStreamer) GetPath() string {
-	return "commands.games.errors.duel_with_streamer"
-}
-func (k KeysCommandsGamesErrorsDuelWithStreamer) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_with_streamer"}
-}
-func (k KeysCommandsGamesErrorsDuelWithStreamer) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelWithStreamer) SetVars(vars KeysCommandsGamesErrorsDuelWithStreamerVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelWithStreamerVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotSaveToCacheVars struct {
-}
-type KeysCommandsGamesErrorsDuelCannotSaveToCache struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) GetPath() string {
-	return "commands.games.errors.duel_cannot_save_to_cache"
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_save_to_cache"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) SetVars(vars KeysCommandsGamesErrorsDuelCannotSaveToCacheVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSaveToCacheVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsRouletteCannotSendDeathMessageVars struct {
-}
-type KeysCommandsGamesErrorsRouletteCannotSendDeathMessage struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) GetPath() string {
-	return "commands.games.errors.roulette_cannot_send_death_message"
-}
-func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "roulette_cannot_send_death_message"}
-}
-func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) SetVars(vars KeysCommandsGamesErrorsRouletteCannotSendDeathMessageVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsRouletteCannotSendDeathMessageVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsVotebanCannotLockVars struct {
-}
-type KeysCommandsGamesErrorsVotebanCannotLock struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsVotebanCannotLock) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsVotebanCannotLock) GetPath() string {
-	return "commands.games.errors.voteban_cannot_lock"
-}
-func (k KeysCommandsGamesErrorsVotebanCannotLock) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "voteban_cannot_lock"}
-}
-func (k KeysCommandsGamesErrorsVotebanCannotLock) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsVotebanCannotLock) SetVars(vars KeysCommandsGamesErrorsVotebanCannotLockVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotLockVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsVotebanCannotSetVoteExpirationVars struct {
-}
-type KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) GetPath() string {
-	return "commands.games.errors.voteban_cannot_set_vote_expiration"
-}
-func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "voteban_cannot_set_vote_expiration"}
-}
-func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) SetVars(vars KeysCommandsGamesErrorsVotebanCannotSetVoteExpirationVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotSetVoteExpirationVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelWithBotVars struct {
-}
-type KeysCommandsGamesErrorsDuelWithBot struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelWithBot) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelWithBot) GetPath() string {
-	return "commands.games.errors.duel_with_bot"
-}
-func (k KeysCommandsGamesErrorsDuelWithBot) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_with_bot"}
-}
-func (k KeysCommandsGamesErrorsDuelWithBot) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelWithBot) SetVars(vars KeysCommandsGamesErrorsDuelWithBotVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelWithBotVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotCheckCooldownVars struct {
-	Reason any
-}
-type KeysCommandsGamesErrorsDuelCannotCheckCooldown struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) GetPath() string {
-	return "commands.games.errors.duel_cannot_check_cooldown"
-}
-func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_check_cooldown"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) SetVars(vars KeysCommandsGamesErrorsDuelCannotCheckCooldownVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotCheckCooldownVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsGamesErrorsSeppukuCannotFindSettingsVars struct {
-}
-type KeysCommandsGamesErrorsSeppukuCannotFindSettings struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) GetPath() string {
-	return "commands.games.errors.seppuku_cannot_find_settings"
-}
-func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "seppuku_cannot_find_settings"}
-}
-func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) SetVars(vars KeysCommandsGamesErrorsSeppukuCannotFindSettingsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsSeppukuCannotFindSettingsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsEightballCannotFindVars struct {
-}
-type KeysCommandsGamesErrorsEightballCannotFind struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsEightballCannotFind) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsEightballCannotFind) GetPath() string {
-	return "commands.games.errors.8ball_cannot_find"
-}
-func (k KeysCommandsGamesErrorsEightballCannotFind) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "8ball_cannot_find"}
-}
-func (k KeysCommandsGamesErrorsEightballCannotFind) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsEightballCannotFind) SetVars(vars KeysCommandsGamesErrorsEightballCannotFindVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsEightballCannotFindVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotSaveResultVars struct {
-	Reason any
-}
-type KeysCommandsGamesErrorsDuelCannotSaveResult struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotSaveResult) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveResult) GetPath() string {
-	return "commands.games.errors.duel_cannot_save_result"
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveResult) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_save_result"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveResult) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotSaveResult) SetVars(vars KeysCommandsGamesErrorsDuelCannotSaveResultVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSaveResultVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotCheckUserVars struct {
-	Reason any
-}
-type KeysCommandsGamesErrorsDuelCannotCheckUser struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotCheckUser) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotCheckUser) GetPath() string {
-	return "commands.games.errors.duel_cannot_check_user"
-}
-func (k KeysCommandsGamesErrorsDuelCannotCheckUser) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_check_user"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotCheckUser) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotCheckUser) SetVars(vars KeysCommandsGamesErrorsDuelCannotCheckUserVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotCheckUserVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotSetGlobalCooldownVars struct {
-	Reason any
-}
-type KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) GetPath() string {
-	return "commands.games.errors.duel_cannot_set_global_cooldown"
-}
-func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_set_global_cooldown"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) SetVars(vars KeysCommandsGamesErrorsDuelCannotSetGlobalCooldownVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSetGlobalCooldownVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsGamesErrorsDuelCannotValidateParticipantsVars struct {
-}
-type KeysCommandsGamesErrorsDuelCannotValidateParticipants struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) GetPath() string {
-	return "commands.games.errors.duel_cannot_validate_participants"
-}
-func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "duel_cannot_validate_participants"}
-}
-func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) SetVars(vars KeysCommandsGamesErrorsDuelCannotValidateParticipantsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotValidateParticipantsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrorsRouletteCannotGetWithSettingsVars struct {
-}
-type KeysCommandsGamesErrorsRouletteCannotGetWithSettings struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) IsTranslationKey() {
-}
-func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) GetPath() string {
-	return "commands.games.errors.roulette_cannot_get_with_settings"
-}
-func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) GetPathSlice() []string {
-	return []string{"commands", "games", "errors", "roulette_cannot_get_with_settings"}
-}
-func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) SetVars(vars KeysCommandsGamesErrorsRouletteCannotGetWithSettingsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsRouletteCannotGetWithSettingsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsGamesErrors struct {
-	RouletteCannotSendInitialMessage KeysCommandsGamesErrorsRouletteCannotSendInitialMessage
-	VotebanCannotSetVote             KeysCommandsGamesErrorsVotebanCannotSetVote
-	DuelCannotGetWithSettings        KeysCommandsGamesErrorsDuelCannotGetWithSettings
-	DuelCannotSaveData               KeysCommandsGamesErrorsDuelCannotSaveData
-	DuelWithYourself                 KeysCommandsGamesErrorsDuelWithYourself
-	DuelCannotSetUserCooldown        KeysCommandsGamesErrorsDuelCannotSetUserCooldown
-	VotebanCannotFindSettings        KeysCommandsGamesErrorsVotebanCannotFindSettings
-	VotebanCannotCheckProgress       KeysCommandsGamesErrorsVotebanCannotCheckProgress
-	VotebanCannotFindUser            KeysCommandsGamesErrorsVotebanCannotFindUser
-	VotebanCannotTimeoutModerator    KeysCommandsGamesErrorsVotebanCannotTimeoutModerator
-	DuelCannotGetSender              KeysCommandsGamesErrorsDuelCannotGetSender
-	DuelWithStreamer                 KeysCommandsGamesErrorsDuelWithStreamer
-	DuelCannotSaveToCache            KeysCommandsGamesErrorsDuelCannotSaveToCache
-	RouletteCannotSendDeathMessage   KeysCommandsGamesErrorsRouletteCannotSendDeathMessage
-	VotebanCannotLock                KeysCommandsGamesErrorsVotebanCannotLock
-	VotebanCannotSetVoteExpiration   KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration
-	DuelWithBot                      KeysCommandsGamesErrorsDuelWithBot
-	DuelCannotCheckCooldown          KeysCommandsGamesErrorsDuelCannotCheckCooldown
-	SeppukuCannotFindSettings        KeysCommandsGamesErrorsSeppukuCannotFindSettings
-	EightballCannotFind              KeysCommandsGamesErrorsEightballCannotFind
-	DuelCannotSaveResult             KeysCommandsGamesErrorsDuelCannotSaveResult
-	DuelCannotCheckUser              KeysCommandsGamesErrorsDuelCannotCheckUser
-	DuelCannotSetGlobalCooldown      KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown
-	DuelCannotValidateParticipants   KeysCommandsGamesErrorsDuelCannotValidateParticipants
-	RouletteCannotGetWithSettings    KeysCommandsGamesErrorsRouletteCannotGetWithSettings
+type KeysCommandsNukeErrors struct {
+	CannotGetHandeledMessages KeysCommandsNukeErrorsCannotGetHandeledMessages
+	CannotDeleteMessages      KeysCommandsNukeErrorsCannotDeleteMessages
+	TimeoutDuration           KeysCommandsNukeErrorsTimeoutDuration
+	ParseDuration             KeysCommandsNukeErrorsParseDuration
+	InvalidDuration           KeysCommandsNukeErrorsInvalidDuration
+	CannotGetUsersStats       KeysCommandsNukeErrorsCannotGetUsersStats
+}
+type KeysCommandsNuke struct {
+	Hints  KeysCommandsNukeHints
+	Errors KeysCommandsNukeErrors
 }
 type KeysCommandsGamesInfoUserNotParticipateVars struct {
 }
@@ -4253,179 +2363,1069 @@ type KeysCommandsGamesInfo struct {
 	DuelStats           KeysCommandsGamesInfoDuelStats
 	VotebanInProgress   KeysCommandsGamesInfoVotebanInProgress
 }
+type KeysCommandsGamesErrorsDuelCannotSetUserCooldownVars struct {
+	Reason any
+}
+type KeysCommandsGamesErrorsDuelCannotSetUserCooldown struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) GetPath() string {
+	return "commands.games.errors.duel_cannot_set_user_cooldown"
+}
+func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_set_user_cooldown"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotSetUserCooldown) SetVars(vars KeysCommandsGamesErrorsDuelCannotSetUserCooldownVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSetUserCooldownVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsGamesErrorsRouletteCannotSendInitialMessageVars struct {
+}
+type KeysCommandsGamesErrorsRouletteCannotSendInitialMessage struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) GetPath() string {
+	return "commands.games.errors.roulette_cannot_send_initial_message"
+}
+func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "roulette_cannot_send_initial_message"}
+}
+func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsRouletteCannotSendInitialMessage) SetVars(vars KeysCommandsGamesErrorsRouletteCannotSendInitialMessageVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsRouletteCannotSendInitialMessageVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsSeppukuCannotFindSettingsVars struct {
+}
+type KeysCommandsGamesErrorsSeppukuCannotFindSettings struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) GetPath() string {
+	return "commands.games.errors.seppuku_cannot_find_settings"
+}
+func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "seppuku_cannot_find_settings"}
+}
+func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsSeppukuCannotFindSettings) SetVars(vars KeysCommandsGamesErrorsSeppukuCannotFindSettingsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsSeppukuCannotFindSettingsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsVotebanCannotFindUserVars struct {
+}
+type KeysCommandsGamesErrorsVotebanCannotFindUser struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsVotebanCannotFindUser) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsVotebanCannotFindUser) GetPath() string {
+	return "commands.games.errors.voteban_cannot_find_user"
+}
+func (k KeysCommandsGamesErrorsVotebanCannotFindUser) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "voteban_cannot_find_user"}
+}
+func (k KeysCommandsGamesErrorsVotebanCannotFindUser) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsVotebanCannotFindUser) SetVars(vars KeysCommandsGamesErrorsVotebanCannotFindUserVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotFindUserVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotGetSenderVars struct {
+}
+type KeysCommandsGamesErrorsDuelCannotGetSender struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotGetSender) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotGetSender) GetPath() string {
+	return "commands.games.errors.duel_cannot_get_sender"
+}
+func (k KeysCommandsGamesErrorsDuelCannotGetSender) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_get_sender"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotGetSender) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotGetSender) SetVars(vars KeysCommandsGamesErrorsDuelCannotGetSenderVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotGetSenderVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotCheckCooldownVars struct {
+	Reason any
+}
+type KeysCommandsGamesErrorsDuelCannotCheckCooldown struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) GetPath() string {
+	return "commands.games.errors.duel_cannot_check_cooldown"
+}
+func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_check_cooldown"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotCheckCooldown) SetVars(vars KeysCommandsGamesErrorsDuelCannotCheckCooldownVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotCheckCooldownVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsGamesErrorsVotebanCannotCheckProgressVars struct {
+}
+type KeysCommandsGamesErrorsVotebanCannotCheckProgress struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) GetPath() string {
+	return "commands.games.errors.voteban_cannot_check_progress"
+}
+func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "voteban_cannot_check_progress"}
+}
+func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsVotebanCannotCheckProgress) SetVars(vars KeysCommandsGamesErrorsVotebanCannotCheckProgressVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotCheckProgressVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsVotebanCannotTimeoutModeratorVars struct {
+}
+type KeysCommandsGamesErrorsVotebanCannotTimeoutModerator struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) GetPath() string {
+	return "commands.games.errors.voteban_cannot_timeout_moderator"
+}
+func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "voteban_cannot_timeout_moderator"}
+}
+func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsVotebanCannotTimeoutModerator) SetVars(vars KeysCommandsGamesErrorsVotebanCannotTimeoutModeratorVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotTimeoutModeratorVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelWithYourselfVars struct {
+}
+type KeysCommandsGamesErrorsDuelWithYourself struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelWithYourself) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelWithYourself) GetPath() string {
+	return "commands.games.errors.duel_with_yourself"
+}
+func (k KeysCommandsGamesErrorsDuelWithYourself) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_with_yourself"}
+}
+func (k KeysCommandsGamesErrorsDuelWithYourself) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelWithYourself) SetVars(vars KeysCommandsGamesErrorsDuelWithYourselfVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelWithYourselfVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelWithStreamerVars struct {
+}
+type KeysCommandsGamesErrorsDuelWithStreamer struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelWithStreamer) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelWithStreamer) GetPath() string {
+	return "commands.games.errors.duel_with_streamer"
+}
+func (k KeysCommandsGamesErrorsDuelWithStreamer) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_with_streamer"}
+}
+func (k KeysCommandsGamesErrorsDuelWithStreamer) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelWithStreamer) SetVars(vars KeysCommandsGamesErrorsDuelWithStreamerVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelWithStreamerVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelWithBotVars struct {
+}
+type KeysCommandsGamesErrorsDuelWithBot struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelWithBot) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelWithBot) GetPath() string {
+	return "commands.games.errors.duel_with_bot"
+}
+func (k KeysCommandsGamesErrorsDuelWithBot) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_with_bot"}
+}
+func (k KeysCommandsGamesErrorsDuelWithBot) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelWithBot) SetVars(vars KeysCommandsGamesErrorsDuelWithBotVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelWithBotVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotValidateParticipantsVars struct {
+}
+type KeysCommandsGamesErrorsDuelCannotValidateParticipants struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) GetPath() string {
+	return "commands.games.errors.duel_cannot_validate_participants"
+}
+func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_validate_participants"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotValidateParticipants) SetVars(vars KeysCommandsGamesErrorsDuelCannotValidateParticipantsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotValidateParticipantsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotSaveToCacheVars struct {
+}
+type KeysCommandsGamesErrorsDuelCannotSaveToCache struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) GetPath() string {
+	return "commands.games.errors.duel_cannot_save_to_cache"
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_save_to_cache"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveToCache) SetVars(vars KeysCommandsGamesErrorsDuelCannotSaveToCacheVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSaveToCacheVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsRouletteCannotGetWithSettingsVars struct {
+}
+type KeysCommandsGamesErrorsRouletteCannotGetWithSettings struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) GetPath() string {
+	return "commands.games.errors.roulette_cannot_get_with_settings"
+}
+func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "roulette_cannot_get_with_settings"}
+}
+func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsRouletteCannotGetWithSettings) SetVars(vars KeysCommandsGamesErrorsRouletteCannotGetWithSettingsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsRouletteCannotGetWithSettingsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsVotebanCannotLockVars struct {
+}
+type KeysCommandsGamesErrorsVotebanCannotLock struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsVotebanCannotLock) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsVotebanCannotLock) GetPath() string {
+	return "commands.games.errors.voteban_cannot_lock"
+}
+func (k KeysCommandsGamesErrorsVotebanCannotLock) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "voteban_cannot_lock"}
+}
+func (k KeysCommandsGamesErrorsVotebanCannotLock) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsVotebanCannotLock) SetVars(vars KeysCommandsGamesErrorsVotebanCannotLockVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotLockVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsVotebanCannotFindSettingsVars struct {
+}
+type KeysCommandsGamesErrorsVotebanCannotFindSettings struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) GetPath() string {
+	return "commands.games.errors.voteban_cannot_find_settings"
+}
+func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "voteban_cannot_find_settings"}
+}
+func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsVotebanCannotFindSettings) SetVars(vars KeysCommandsGamesErrorsVotebanCannotFindSettingsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotFindSettingsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsEightballCannotFindVars struct {
+}
+type KeysCommandsGamesErrorsEightballCannotFind struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsEightballCannotFind) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsEightballCannotFind) GetPath() string {
+	return "commands.games.errors.8ball_cannot_find"
+}
+func (k KeysCommandsGamesErrorsEightballCannotFind) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "8ball_cannot_find"}
+}
+func (k KeysCommandsGamesErrorsEightballCannotFind) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsEightballCannotFind) SetVars(vars KeysCommandsGamesErrorsEightballCannotFindVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsEightballCannotFindVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotGetWithSettingsVars struct {
+}
+type KeysCommandsGamesErrorsDuelCannotGetWithSettings struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) GetPath() string {
+	return "commands.games.errors.duel_cannot_get_with_settings"
+}
+func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_get_with_settings"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotGetWithSettings) SetVars(vars KeysCommandsGamesErrorsDuelCannotGetWithSettingsVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotGetWithSettingsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotCheckUserVars struct {
+	Reason any
+}
+type KeysCommandsGamesErrorsDuelCannotCheckUser struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotCheckUser) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotCheckUser) GetPath() string {
+	return "commands.games.errors.duel_cannot_check_user"
+}
+func (k KeysCommandsGamesErrorsDuelCannotCheckUser) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_check_user"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotCheckUser) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotCheckUser) SetVars(vars KeysCommandsGamesErrorsDuelCannotCheckUserVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotCheckUserVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotSetGlobalCooldownVars struct {
+	Reason any
+}
+type KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) GetPath() string {
+	return "commands.games.errors.duel_cannot_set_global_cooldown"
+}
+func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_set_global_cooldown"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown) SetVars(vars KeysCommandsGamesErrorsDuelCannotSetGlobalCooldownVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSetGlobalCooldownVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsGamesErrorsRouletteCannotSendDeathMessageVars struct {
+}
+type KeysCommandsGamesErrorsRouletteCannotSendDeathMessage struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) GetPath() string {
+	return "commands.games.errors.roulette_cannot_send_death_message"
+}
+func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "roulette_cannot_send_death_message"}
+}
+func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsRouletteCannotSendDeathMessage) SetVars(vars KeysCommandsGamesErrorsRouletteCannotSendDeathMessageVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsRouletteCannotSendDeathMessageVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsVotebanCannotSetVoteVars struct {
+}
+type KeysCommandsGamesErrorsVotebanCannotSetVote struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsVotebanCannotSetVote) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsVotebanCannotSetVote) GetPath() string {
+	return "commands.games.errors.voteban_cannot_set_vote"
+}
+func (k KeysCommandsGamesErrorsVotebanCannotSetVote) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "voteban_cannot_set_vote"}
+}
+func (k KeysCommandsGamesErrorsVotebanCannotSetVote) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsVotebanCannotSetVote) SetVars(vars KeysCommandsGamesErrorsVotebanCannotSetVoteVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotSetVoteVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsVotebanCannotSetVoteExpirationVars struct {
+}
+type KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) GetPath() string {
+	return "commands.games.errors.voteban_cannot_set_vote_expiration"
+}
+func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "voteban_cannot_set_vote_expiration"}
+}
+func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration) SetVars(vars KeysCommandsGamesErrorsVotebanCannotSetVoteExpirationVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsVotebanCannotSetVoteExpirationVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotSaveResultVars struct {
+	Reason any
+}
+type KeysCommandsGamesErrorsDuelCannotSaveResult struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotSaveResult) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveResult) GetPath() string {
+	return "commands.games.errors.duel_cannot_save_result"
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveResult) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_save_result"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveResult) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveResult) SetVars(vars KeysCommandsGamesErrorsDuelCannotSaveResultVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSaveResultVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsGamesErrorsDuelCannotSaveDataVars struct {
+	Reason any
+}
+type KeysCommandsGamesErrorsDuelCannotSaveData struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsGamesErrorsDuelCannotSaveData) IsTranslationKey() {
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveData) GetPath() string {
+	return "commands.games.errors.duel_cannot_save_data"
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveData) GetPathSlice() []string {
+	return []string{"commands", "games", "errors", "duel_cannot_save_data"}
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveData) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsGamesErrorsDuelCannotSaveData) SetVars(vars KeysCommandsGamesErrorsDuelCannotSaveDataVars) twiri18n.TranslationKey[KeysCommandsGamesErrorsDuelCannotSaveDataVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsGamesErrors struct {
+	DuelCannotSetUserCooldown        KeysCommandsGamesErrorsDuelCannotSetUserCooldown
+	RouletteCannotSendInitialMessage KeysCommandsGamesErrorsRouletteCannotSendInitialMessage
+	SeppukuCannotFindSettings        KeysCommandsGamesErrorsSeppukuCannotFindSettings
+	VotebanCannotFindUser            KeysCommandsGamesErrorsVotebanCannotFindUser
+	DuelCannotGetSender              KeysCommandsGamesErrorsDuelCannotGetSender
+	DuelCannotCheckCooldown          KeysCommandsGamesErrorsDuelCannotCheckCooldown
+	VotebanCannotCheckProgress       KeysCommandsGamesErrorsVotebanCannotCheckProgress
+	VotebanCannotTimeoutModerator    KeysCommandsGamesErrorsVotebanCannotTimeoutModerator
+	DuelWithYourself                 KeysCommandsGamesErrorsDuelWithYourself
+	DuelWithStreamer                 KeysCommandsGamesErrorsDuelWithStreamer
+	DuelWithBot                      KeysCommandsGamesErrorsDuelWithBot
+	DuelCannotValidateParticipants   KeysCommandsGamesErrorsDuelCannotValidateParticipants
+	DuelCannotSaveToCache            KeysCommandsGamesErrorsDuelCannotSaveToCache
+	RouletteCannotGetWithSettings    KeysCommandsGamesErrorsRouletteCannotGetWithSettings
+	VotebanCannotLock                KeysCommandsGamesErrorsVotebanCannotLock
+	VotebanCannotFindSettings        KeysCommandsGamesErrorsVotebanCannotFindSettings
+	EightballCannotFind              KeysCommandsGamesErrorsEightballCannotFind
+	DuelCannotGetWithSettings        KeysCommandsGamesErrorsDuelCannotGetWithSettings
+	DuelCannotCheckUser              KeysCommandsGamesErrorsDuelCannotCheckUser
+	DuelCannotSetGlobalCooldown      KeysCommandsGamesErrorsDuelCannotSetGlobalCooldown
+	RouletteCannotSendDeathMessage   KeysCommandsGamesErrorsRouletteCannotSendDeathMessage
+	VotebanCannotSetVote             KeysCommandsGamesErrorsVotebanCannotSetVote
+	VotebanCannotSetVoteExpiration   KeysCommandsGamesErrorsVotebanCannotSetVoteExpiration
+	DuelCannotSaveResult             KeysCommandsGamesErrorsDuelCannotSaveResult
+	DuelCannotSaveData               KeysCommandsGamesErrorsDuelCannotSaveData
+}
 type KeysCommandsGames struct {
-	Errors KeysCommandsGamesErrors
 	Info   KeysCommandsGamesInfo
+	Errors KeysCommandsGamesErrors
 }
-type KeysCommandsNukeHintsNukeTimeArgNameVars struct {
+type KeysCommandsSongrequestValidateErrorsRestrictionsOnUserVars struct {
 }
-type KeysCommandsNukeHintsNukeTimeArgName struct {
+type KeysCommandsSongrequestValidateErrorsRestrictionsOnUser struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsNukeHintsNukeTimeArgName) IsTranslationKey() {
+func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) IsTranslationKey() {
 }
-func (k KeysCommandsNukeHintsNukeTimeArgName) GetPath() string {
-	return "commands.nuke.hints.nukeTimeArgName"
+func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) GetPath() string {
+	return "commands.songrequest.validate.errors.restrictions_on_user"
 }
-func (k KeysCommandsNukeHintsNukeTimeArgName) GetPathSlice() []string {
-	return []string{"commands", "nuke", "hints", "nukeTimeArgName"}
+func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "validate", "errors", "restrictions_on_user"}
 }
-func (k KeysCommandsNukeHintsNukeTimeArgName) GetVars() twiri18n.Vars {
+func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsNukeHintsNukeTimeArgName) SetVars(vars KeysCommandsNukeHintsNukeTimeArgNameVars) twiri18n.TranslationKey[KeysCommandsNukeHintsNukeTimeArgNameVars] {
+func (k KeysCommandsSongrequestValidateErrorsRestrictionsOnUser) SetVars(vars KeysCommandsSongrequestValidateErrorsRestrictionsOnUserVars) twiri18n.TranslationKey[KeysCommandsSongrequestValidateErrorsRestrictionsOnUserVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsNukeHints struct {
-	NukeTimeArgName KeysCommandsNukeHintsNukeTimeArgName
+type KeysCommandsSongrequestValidateErrorsInternalErrorVars struct {
 }
-type KeysCommandsNukeErrorsCannotGetUsersStatsVars struct {
-}
-type KeysCommandsNukeErrorsCannotGetUsersStats struct {
+type KeysCommandsSongrequestValidateErrorsInternalError struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsNukeErrorsCannotGetUsersStats) IsTranslationKey() {
+func (k KeysCommandsSongrequestValidateErrorsInternalError) IsTranslationKey() {
 }
-func (k KeysCommandsNukeErrorsCannotGetUsersStats) GetPath() string {
-	return "commands.nuke.errors.cannot_get_users_stats"
+func (k KeysCommandsSongrequestValidateErrorsInternalError) GetPath() string {
+	return "commands.songrequest.validate.errors.internal_error"
 }
-func (k KeysCommandsNukeErrorsCannotGetUsersStats) GetPathSlice() []string {
-	return []string{"commands", "nuke", "errors", "cannot_get_users_stats"}
+func (k KeysCommandsSongrequestValidateErrorsInternalError) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "validate", "errors", "internal_error"}
 }
-func (k KeysCommandsNukeErrorsCannotGetUsersStats) GetVars() twiri18n.Vars {
+func (k KeysCommandsSongrequestValidateErrorsInternalError) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsNukeErrorsCannotGetUsersStats) SetVars(vars KeysCommandsNukeErrorsCannotGetUsersStatsVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsCannotGetUsersStatsVars] {
+func (k KeysCommandsSongrequestValidateErrorsInternalError) SetVars(vars KeysCommandsSongrequestValidateErrorsInternalErrorVars) twiri18n.TranslationKey[KeysCommandsSongrequestValidateErrorsInternalErrorVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsNukeErrorsCannotGetHandeledMessagesVars struct {
+type KeysCommandsSongrequestValidateErrorsNeedFollowVars struct {
 }
-type KeysCommandsNukeErrorsCannotGetHandeledMessages struct {
+type KeysCommandsSongrequestValidateErrorsNeedFollow struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) IsTranslationKey() {
+func (k KeysCommandsSongrequestValidateErrorsNeedFollow) IsTranslationKey() {
 }
-func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) GetPath() string {
-	return "commands.nuke.errors.cannot_get_handeled_messages"
+func (k KeysCommandsSongrequestValidateErrorsNeedFollow) GetPath() string {
+	return "commands.songrequest.validate.errors.need_follow"
 }
-func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) GetPathSlice() []string {
-	return []string{"commands", "nuke", "errors", "cannot_get_handeled_messages"}
+func (k KeysCommandsSongrequestValidateErrorsNeedFollow) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "validate", "errors", "need_follow"}
 }
-func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) GetVars() twiri18n.Vars {
+func (k KeysCommandsSongrequestValidateErrorsNeedFollow) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsNukeErrorsCannotGetHandeledMessages) SetVars(vars KeysCommandsNukeErrorsCannotGetHandeledMessagesVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsCannotGetHandeledMessagesVars] {
+func (k KeysCommandsSongrequestValidateErrorsNeedFollow) SetVars(vars KeysCommandsSongrequestValidateErrorsNeedFollowVars) twiri18n.TranslationKey[KeysCommandsSongrequestValidateErrorsNeedFollowVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsNukeErrorsCannotDeleteMessagesVars struct {
+type KeysCommandsSongrequestValidateErrors struct {
+	RestrictionsOnUser KeysCommandsSongrequestValidateErrorsRestrictionsOnUser
+	InternalError      KeysCommandsSongrequestValidateErrorsInternalError
+	NeedFollow         KeysCommandsSongrequestValidateErrorsNeedFollow
 }
-type KeysCommandsNukeErrorsCannotDeleteMessages struct {
+type KeysCommandsSongrequestValidate struct {
+	Errors KeysCommandsSongrequestValidateErrors
+}
+type KeysCommandsSongrequestErrorsGetVotesCountVars struct {
+}
+type KeysCommandsSongrequestErrorsGetVotesCount struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsNukeErrorsCannotDeleteMessages) IsTranslationKey() {
+func (k KeysCommandsSongrequestErrorsGetVotesCount) IsTranslationKey() {
 }
-func (k KeysCommandsNukeErrorsCannotDeleteMessages) GetPath() string {
-	return "commands.nuke.errors.cannot_delete_messages"
+func (k KeysCommandsSongrequestErrorsGetVotesCount) GetPath() string {
+	return "commands.songrequest.errors.get_votes_count"
 }
-func (k KeysCommandsNukeErrorsCannotDeleteMessages) GetPathSlice() []string {
-	return []string{"commands", "nuke", "errors", "cannot_delete_messages"}
+func (k KeysCommandsSongrequestErrorsGetVotesCount) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "get_votes_count"}
 }
-func (k KeysCommandsNukeErrorsCannotDeleteMessages) GetVars() twiri18n.Vars {
+func (k KeysCommandsSongrequestErrorsGetVotesCount) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsNukeErrorsCannotDeleteMessages) SetVars(vars KeysCommandsNukeErrorsCannotDeleteMessagesVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsCannotDeleteMessagesVars] {
+func (k KeysCommandsSongrequestErrorsGetVotesCount) SetVars(vars KeysCommandsSongrequestErrorsGetVotesCountVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetVotesCountVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsNukeErrorsTimeoutDurationVars struct {
+type KeysCommandsSongrequestErrorsGetCurrentVoteVars struct {
 }
-type KeysCommandsNukeErrorsTimeoutDuration struct {
+type KeysCommandsSongrequestErrorsGetCurrentVote struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsNukeErrorsTimeoutDuration) IsTranslationKey() {
+func (k KeysCommandsSongrequestErrorsGetCurrentVote) IsTranslationKey() {
 }
-func (k KeysCommandsNukeErrorsTimeoutDuration) GetPath() string {
-	return "commands.nuke.errors.timeout_duration"
+func (k KeysCommandsSongrequestErrorsGetCurrentVote) GetPath() string {
+	return "commands.songrequest.errors.get_current_vote"
 }
-func (k KeysCommandsNukeErrorsTimeoutDuration) GetPathSlice() []string {
-	return []string{"commands", "nuke", "errors", "timeout_duration"}
+func (k KeysCommandsSongrequestErrorsGetCurrentVote) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "get_current_vote"}
 }
-func (k KeysCommandsNukeErrorsTimeoutDuration) GetVars() twiri18n.Vars {
+func (k KeysCommandsSongrequestErrorsGetCurrentVote) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsNukeErrorsTimeoutDuration) SetVars(vars KeysCommandsNukeErrorsTimeoutDurationVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsTimeoutDurationVars] {
+func (k KeysCommandsSongrequestErrorsGetCurrentVote) SetVars(vars KeysCommandsSongrequestErrorsGetCurrentVoteVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetCurrentVoteVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsNukeErrorsParseDurationVars struct {
+type KeysCommandsSongrequestErrorsNotFoundVars struct {
 }
-type KeysCommandsNukeErrorsParseDuration struct {
+type KeysCommandsSongrequestErrorsNotFound struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsNukeErrorsParseDuration) IsTranslationKey() {
+func (k KeysCommandsSongrequestErrorsNotFound) IsTranslationKey() {
 }
-func (k KeysCommandsNukeErrorsParseDuration) GetPath() string {
-	return "commands.nuke.errors.parse_duration"
+func (k KeysCommandsSongrequestErrorsNotFound) GetPath() string {
+	return "commands.songrequest.errors.not_found"
 }
-func (k KeysCommandsNukeErrorsParseDuration) GetPathSlice() []string {
-	return []string{"commands", "nuke", "errors", "parse_duration"}
+func (k KeysCommandsSongrequestErrorsNotFound) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "not_found"}
 }
-func (k KeysCommandsNukeErrorsParseDuration) GetVars() twiri18n.Vars {
+func (k KeysCommandsSongrequestErrorsNotFound) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsNukeErrorsParseDuration) SetVars(vars KeysCommandsNukeErrorsParseDurationVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsParseDurationVars] {
+func (k KeysCommandsSongrequestErrorsNotFound) SetVars(vars KeysCommandsSongrequestErrorsNotFoundVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsNotFoundVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsNukeErrorsInvalidDurationVars struct {
+type KeysCommandsSongrequestErrorsSearchSongVars struct {
 }
-type KeysCommandsNukeErrorsInvalidDuration struct {
+type KeysCommandsSongrequestErrorsSearchSong struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsNukeErrorsInvalidDuration) IsTranslationKey() {
+func (k KeysCommandsSongrequestErrorsSearchSong) IsTranslationKey() {
 }
-func (k KeysCommandsNukeErrorsInvalidDuration) GetPath() string {
-	return "commands.nuke.errors.invalid_duration"
+func (k KeysCommandsSongrequestErrorsSearchSong) GetPath() string {
+	return "commands.songrequest.errors.search_song"
 }
-func (k KeysCommandsNukeErrorsInvalidDuration) GetPathSlice() []string {
-	return []string{"commands", "nuke", "errors", "invalid_duration"}
+func (k KeysCommandsSongrequestErrorsSearchSong) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "search_song"}
 }
-func (k KeysCommandsNukeErrorsInvalidDuration) GetVars() twiri18n.Vars {
+func (k KeysCommandsSongrequestErrorsSearchSong) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsNukeErrorsInvalidDuration) SetVars(vars KeysCommandsNukeErrorsInvalidDurationVars) twiri18n.TranslationKey[KeysCommandsNukeErrorsInvalidDurationVars] {
+func (k KeysCommandsSongrequestErrorsSearchSong) SetVars(vars KeysCommandsSongrequestErrorsSearchSongVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsSearchSongVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsNukeErrors struct {
-	CannotGetUsersStats       KeysCommandsNukeErrorsCannotGetUsersStats
-	CannotGetHandeledMessages KeysCommandsNukeErrorsCannotGetHandeledMessages
-	CannotDeleteMessages      KeysCommandsNukeErrorsCannotDeleteMessages
-	TimeoutDuration           KeysCommandsNukeErrorsTimeoutDuration
-	ParseDuration             KeysCommandsNukeErrorsParseDuration
-	InvalidDuration           KeysCommandsNukeErrorsInvalidDuration
+type KeysCommandsSongrequestErrorsGetSongsFromQueueVars struct {
 }
-type KeysCommandsNuke struct {
-	Hints  KeysCommandsNukeHints
-	Errors KeysCommandsNukeErrors
+type KeysCommandsSongrequestErrorsGetSongsFromQueue struct {
+	Vars twiri18n.Vars
 }
+
+func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) GetPath() string {
+	return "commands.songrequest.errors.get_songs_from_queue"
+}
+func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "get_songs_from_queue"}
+}
+func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestErrorsGetSongsFromQueue) SetVars(vars KeysCommandsSongrequestErrorsGetSongsFromQueueVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetSongsFromQueueVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestErrorsGetUsersCountVars struct {
+}
+type KeysCommandsSongrequestErrorsGetUsersCount struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestErrorsGetUsersCount) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestErrorsGetUsersCount) GetPath() string {
+	return "commands.songrequest.errors.get_users_count"
+}
+func (k KeysCommandsSongrequestErrorsGetUsersCount) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "get_users_count"}
+}
+func (k KeysCommandsSongrequestErrorsGetUsersCount) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestErrorsGetUsersCount) SetVars(vars KeysCommandsSongrequestErrorsGetUsersCountVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetUsersCountVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestErrorsGetCurrentSongVars struct {
+}
+type KeysCommandsSongrequestErrorsGetCurrentSong struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestErrorsGetCurrentSong) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestErrorsGetCurrentSong) GetPath() string {
+	return "commands.songrequest.errors.get_current_song"
+}
+func (k KeysCommandsSongrequestErrorsGetCurrentSong) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "get_current_song"}
+}
+func (k KeysCommandsSongrequestErrorsGetCurrentSong) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestErrorsGetCurrentSong) SetVars(vars KeysCommandsSongrequestErrorsGetCurrentSongVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetCurrentSongVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestErrorsGetLatestSongVars struct {
+}
+type KeysCommandsSongrequestErrorsGetLatestSong struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestErrorsGetLatestSong) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestErrorsGetLatestSong) GetPath() string {
+	return "commands.songrequest.errors.get_latest_song"
+}
+func (k KeysCommandsSongrequestErrorsGetLatestSong) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "get_latest_song"}
+}
+func (k KeysCommandsSongrequestErrorsGetLatestSong) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestErrorsGetLatestSong) SetVars(vars KeysCommandsSongrequestErrorsGetLatestSongVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetLatestSongVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestErrorsUpdateSongVars struct {
+}
+type KeysCommandsSongrequestErrorsUpdateSong struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestErrorsUpdateSong) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestErrorsUpdateSong) GetPath() string {
+	return "commands.songrequest.errors.update_song"
+}
+func (k KeysCommandsSongrequestErrorsUpdateSong) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "update_song"}
+}
+func (k KeysCommandsSongrequestErrorsUpdateSong) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestErrorsUpdateSong) SetVars(vars KeysCommandsSongrequestErrorsUpdateSongVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsUpdateSongVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestErrorsGetSettingsVars struct {
+}
+type KeysCommandsSongrequestErrorsGetSettings struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestErrorsGetSettings) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestErrorsGetSettings) GetPath() string {
+	return "commands.songrequest.errors.get_settings"
+}
+func (k KeysCommandsSongrequestErrorsGetSettings) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "get_settings"}
+}
+func (k KeysCommandsSongrequestErrorsGetSettings) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestErrorsGetSettings) SetVars(vars KeysCommandsSongrequestErrorsGetSettingsVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetSettingsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestErrorsGetCurrentQueueCountVars struct {
+}
+type KeysCommandsSongrequestErrorsGetCurrentQueueCount struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) GetPath() string {
+	return "commands.songrequest.errors.get_current_queue_count"
+}
+func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "get_current_queue_count"}
+}
+func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestErrorsGetCurrentQueueCount) SetVars(vars KeysCommandsSongrequestErrorsGetCurrentQueueCountVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsGetCurrentQueueCountVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestErrorsRemoveSongFromQueueVars struct {
+}
+type KeysCommandsSongrequestErrorsRemoveSongFromQueue struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) GetPath() string {
+	return "commands.songrequest.errors.remove_song_from_queue"
+}
+func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "errors", "remove_song_from_queue"}
+}
+func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestErrorsRemoveSongFromQueue) SetVars(vars KeysCommandsSongrequestErrorsRemoveSongFromQueueVars) twiri18n.TranslationKey[KeysCommandsSongrequestErrorsRemoveSongFromQueueVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestErrors struct {
+	GetVotesCount        KeysCommandsSongrequestErrorsGetVotesCount
+	GetCurrentVote       KeysCommandsSongrequestErrorsGetCurrentVote
+	NotFound             KeysCommandsSongrequestErrorsNotFound
+	SearchSong           KeysCommandsSongrequestErrorsSearchSong
+	GetSongsFromQueue    KeysCommandsSongrequestErrorsGetSongsFromQueue
+	GetUsersCount        KeysCommandsSongrequestErrorsGetUsersCount
+	GetCurrentSong       KeysCommandsSongrequestErrorsGetCurrentSong
+	GetLatestSong        KeysCommandsSongrequestErrorsGetLatestSong
+	UpdateSong           KeysCommandsSongrequestErrorsUpdateSong
+	GetSettings          KeysCommandsSongrequestErrorsGetSettings
+	GetCurrentQueueCount KeysCommandsSongrequestErrorsGetCurrentQueueCount
+	RemoveSongFromQueue  KeysCommandsSongrequestErrorsRemoveSongFromQueue
+}
+type KeysCommandsSongrequestInfoDeleteVars struct {
+	SongTitle any
+}
+type KeysCommandsSongrequestInfoDelete struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestInfoDelete) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestInfoDelete) GetPath() string {
+	return "commands.songrequest.info.delete"
+}
+func (k KeysCommandsSongrequestInfoDelete) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "info", "delete"}
+}
+func (k KeysCommandsSongrequestInfoDelete) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestInfoDelete) SetVars(vars KeysCommandsSongrequestInfoDeleteVars) twiri18n.TranslationKey[KeysCommandsSongrequestInfoDeleteVars] {
+	k.Vars = twiri18n.Vars{"songTitle": vars.SongTitle}
+	return k
+}
+
+type KeysCommandsSongrequestInfoSongSkippedVars struct {
+	SongTitle any
+}
+type KeysCommandsSongrequestInfoSongSkipped struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestInfoSongSkipped) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestInfoSongSkipped) GetPath() string {
+	return "commands.songrequest.info.song_skipped"
+}
+func (k KeysCommandsSongrequestInfoSongSkipped) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "info", "song_skipped"}
+}
+func (k KeysCommandsSongrequestInfoSongSkipped) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestInfoSongSkipped) SetVars(vars KeysCommandsSongrequestInfoSongSkippedVars) twiri18n.TranslationKey[KeysCommandsSongrequestInfoSongSkippedVars] {
+	k.Vars = twiri18n.Vars{"songTitle": vars.SongTitle}
+	return k
+}
+
+type KeysCommandsSongrequestInfoNoRequestedSongsVars struct {
+}
+type KeysCommandsSongrequestInfoNoRequestedSongs struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestInfoNoRequestedSongs) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestInfoNoRequestedSongs) GetPath() string {
+	return "commands.songrequest.info.no_requested_songs"
+}
+func (k KeysCommandsSongrequestInfoNoRequestedSongs) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "info", "no_requested_songs"}
+}
+func (k KeysCommandsSongrequestInfoNoRequestedSongs) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestInfoNoRequestedSongs) SetVars(vars KeysCommandsSongrequestInfoNoRequestedSongsVars) twiri18n.TranslationKey[KeysCommandsSongrequestInfoNoRequestedSongsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSongrequestInfoOnlyCountSongsVars struct {
+	SongsCount any
+}
+type KeysCommandsSongrequestInfoOnlyCountSongs struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSongrequestInfoOnlyCountSongs) IsTranslationKey() {
+}
+func (k KeysCommandsSongrequestInfoOnlyCountSongs) GetPath() string {
+	return "commands.songrequest.info.only_count_songs"
+}
+func (k KeysCommandsSongrequestInfoOnlyCountSongs) GetPathSlice() []string {
+	return []string{"commands", "songrequest", "info", "only_count_songs"}
+}
+func (k KeysCommandsSongrequestInfoOnlyCountSongs) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSongrequestInfoOnlyCountSongs) SetVars(vars KeysCommandsSongrequestInfoOnlyCountSongsVars) twiri18n.TranslationKey[KeysCommandsSongrequestInfoOnlyCountSongsVars] {
+	k.Vars = twiri18n.Vars{"songsCount": vars.SongsCount}
+	return k
+}
+
+type KeysCommandsSongrequestInfo struct {
+	Delete           KeysCommandsSongrequestInfoDelete
+	SongSkipped      KeysCommandsSongrequestInfoSongSkipped
+	NoRequestedSongs KeysCommandsSongrequestInfoNoRequestedSongs
+	OnlyCountSongs   KeysCommandsSongrequestInfoOnlyCountSongs
+}
+type KeysCommandsSongrequest struct {
+	Validate KeysCommandsSongrequestValidate
+	Errors   KeysCommandsSongrequestErrors
+	Info     KeysCommandsSongrequestInfo
+}
+type KeysCommandsTtsErrorsNotConfiguredVars struct {
+}
+type KeysCommandsTtsErrorsNotConfigured struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsTtsErrorsNotConfigured) IsTranslationKey() {
+}
+func (k KeysCommandsTtsErrorsNotConfigured) GetPath() string {
+	return "commands.tts.errors.not_configured"
+}
+func (k KeysCommandsTtsErrorsNotConfigured) GetPathSlice() []string {
+	return []string{"commands", "tts", "errors", "not_configured"}
+}
+func (k KeysCommandsTtsErrorsNotConfigured) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsTtsErrorsNotConfigured) SetVars(vars KeysCommandsTtsErrorsNotConfiguredVars) twiri18n.TranslationKey[KeysCommandsTtsErrorsNotConfiguredVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
 type KeysCommandsTtsErrorsSendingToTtsVars struct {
 }
 type KeysCommandsTtsErrorsSendingToTts struct {
@@ -4514,34 +3514,12 @@ func (k KeysCommandsTtsErrorsWhileEnable) SetVars(vars KeysCommandsTtsErrorsWhil
 	return k
 }
 
-type KeysCommandsTtsErrorsNotConfiguredVars struct {
-}
-type KeysCommandsTtsErrorsNotConfigured struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsTtsErrorsNotConfigured) IsTranslationKey() {
-}
-func (k KeysCommandsTtsErrorsNotConfigured) GetPath() string {
-	return "commands.tts.errors.not_configured"
-}
-func (k KeysCommandsTtsErrorsNotConfigured) GetPathSlice() []string {
-	return []string{"commands", "tts", "errors", "not_configured"}
-}
-func (k KeysCommandsTtsErrorsNotConfigured) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsTtsErrorsNotConfigured) SetVars(vars KeysCommandsTtsErrorsNotConfiguredVars) twiri18n.TranslationKey[KeysCommandsTtsErrorsNotConfiguredVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
 type KeysCommandsTtsErrors struct {
+	NotConfigured      KeysCommandsTtsErrorsNotConfigured
 	SendingToTts       KeysCommandsTtsErrorsSendingToTts
 	WhileGettingVoices KeysCommandsTtsErrorsWhileGettingVoices
 	WhileDisable       KeysCommandsTtsErrorsWhileDisable
 	WhileEnable        KeysCommandsTtsErrorsWhileEnable
-	NotConfigured      KeysCommandsTtsErrorsNotConfigured
 }
 type KeysCommandsTtsInfoDisabledVars struct {
 }
@@ -4565,27 +3543,26 @@ func (k KeysCommandsTtsInfoDisabled) SetVars(vars KeysCommandsTtsInfoDisabledVar
 	return k
 }
 
-type KeysCommandsTtsInfoRateVars struct {
-	GlobalRate any
-	UserRate   any
+type KeysCommandsTtsInfoChangePitchVars struct {
+	NewPitch any
 }
-type KeysCommandsTtsInfoRate struct {
+type KeysCommandsTtsInfoChangePitch struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsTtsInfoRate) IsTranslationKey() {
+func (k KeysCommandsTtsInfoChangePitch) IsTranslationKey() {
 }
-func (k KeysCommandsTtsInfoRate) GetPath() string {
-	return "commands.tts.info.rate"
+func (k KeysCommandsTtsInfoChangePitch) GetPath() string {
+	return "commands.tts.info.change_pitch"
 }
-func (k KeysCommandsTtsInfoRate) GetPathSlice() []string {
-	return []string{"commands", "tts", "info", "rate"}
+func (k KeysCommandsTtsInfoChangePitch) GetPathSlice() []string {
+	return []string{"commands", "tts", "info", "change_pitch"}
 }
-func (k KeysCommandsTtsInfoRate) GetVars() twiri18n.Vars {
+func (k KeysCommandsTtsInfoChangePitch) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsTtsInfoRate) SetVars(vars KeysCommandsTtsInfoRateVars) twiri18n.TranslationKey[KeysCommandsTtsInfoRateVars] {
-	k.Vars = twiri18n.Vars{"globalRate": vars.GlobalRate, "userRate": vars.UserRate}
+func (k KeysCommandsTtsInfoChangePitch) SetVars(vars KeysCommandsTtsInfoChangePitchVars) twiri18n.TranslationKey[KeysCommandsTtsInfoChangePitchVars] {
+	k.Vars = twiri18n.Vars{"newPitch": vars.NewPitch}
 	return k
 }
 
@@ -4609,144 +3586,6 @@ func (k KeysCommandsTtsInfoChangeRate) GetVars() twiri18n.Vars {
 }
 func (k KeysCommandsTtsInfoChangeRate) SetVars(vars KeysCommandsTtsInfoChangeRateVars) twiri18n.TranslationKey[KeysCommandsTtsInfoChangeRateVars] {
 	k.Vars = twiri18n.Vars{"newRate": vars.NewRate}
-	return k
-}
-
-type KeysCommandsTtsInfoVoiceVars struct {
-	GlobalVoice any
-	UserVoice   any
-}
-type KeysCommandsTtsInfoVoice struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsTtsInfoVoice) IsTranslationKey() {
-}
-func (k KeysCommandsTtsInfoVoice) GetPath() string {
-	return "commands.tts.info.voice"
-}
-func (k KeysCommandsTtsInfoVoice) GetPathSlice() []string {
-	return []string{"commands", "tts", "info", "voice"}
-}
-func (k KeysCommandsTtsInfoVoice) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsTtsInfoVoice) SetVars(vars KeysCommandsTtsInfoVoiceVars) twiri18n.TranslationKey[KeysCommandsTtsInfoVoiceVars] {
-	k.Vars = twiri18n.Vars{"globalVoice": vars.GlobalVoice, "userVoice": vars.UserVoice}
-	return k
-}
-
-type KeysCommandsTtsInfoNoVoicesVars struct {
-}
-type KeysCommandsTtsInfoNoVoices struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsTtsInfoNoVoices) IsTranslationKey() {
-}
-func (k KeysCommandsTtsInfoNoVoices) GetPath() string {
-	return "commands.tts.info.no_voices"
-}
-func (k KeysCommandsTtsInfoNoVoices) GetPathSlice() []string {
-	return []string{"commands", "tts", "info", "no_voices"}
-}
-func (k KeysCommandsTtsInfoNoVoices) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsTtsInfoNoVoices) SetVars(vars KeysCommandsTtsInfoNoVoicesVars) twiri18n.TranslationKey[KeysCommandsTtsInfoNoVoicesVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsTtsInfoVoiceDisallowedVars struct {
-	VoiceName any
-}
-type KeysCommandsTtsInfoVoiceDisallowed struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsTtsInfoVoiceDisallowed) IsTranslationKey() {
-}
-func (k KeysCommandsTtsInfoVoiceDisallowed) GetPath() string {
-	return "commands.tts.info.voice_disallowed"
-}
-func (k KeysCommandsTtsInfoVoiceDisallowed) GetPathSlice() []string {
-	return []string{"commands", "tts", "info", "voice_disallowed"}
-}
-func (k KeysCommandsTtsInfoVoiceDisallowed) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsTtsInfoVoiceDisallowed) SetVars(vars KeysCommandsTtsInfoVoiceDisallowedVars) twiri18n.TranslationKey[KeysCommandsTtsInfoVoiceDisallowedVars] {
-	k.Vars = twiri18n.Vars{"voiceName": vars.VoiceName}
-	return k
-}
-
-type KeysCommandsTtsInfoEnabledVars struct {
-}
-type KeysCommandsTtsInfoEnabled struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsTtsInfoEnabled) IsTranslationKey() {
-}
-func (k KeysCommandsTtsInfoEnabled) GetPath() string {
-	return "commands.tts.info.enabled"
-}
-func (k KeysCommandsTtsInfoEnabled) GetPathSlice() []string {
-	return []string{"commands", "tts", "info", "enabled"}
-}
-func (k KeysCommandsTtsInfoEnabled) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsTtsInfoEnabled) SetVars(vars KeysCommandsTtsInfoEnabledVars) twiri18n.TranslationKey[KeysCommandsTtsInfoEnabledVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsTtsInfoPitchVars struct {
-	GlobalPitch any
-	UserPitch   any
-}
-type KeysCommandsTtsInfoPitch struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsTtsInfoPitch) IsTranslationKey() {
-}
-func (k KeysCommandsTtsInfoPitch) GetPath() string {
-	return "commands.tts.info.pitch"
-}
-func (k KeysCommandsTtsInfoPitch) GetPathSlice() []string {
-	return []string{"commands", "tts", "info", "pitch"}
-}
-func (k KeysCommandsTtsInfoPitch) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsTtsInfoPitch) SetVars(vars KeysCommandsTtsInfoPitchVars) twiri18n.TranslationKey[KeysCommandsTtsInfoPitchVars] {
-	k.Vars = twiri18n.Vars{"globalPitch": vars.GlobalPitch, "userPitch": vars.UserPitch}
-	return k
-}
-
-type KeysCommandsTtsInfoChangePitchVars struct {
-	NewPitch any
-}
-type KeysCommandsTtsInfoChangePitch struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsTtsInfoChangePitch) IsTranslationKey() {
-}
-func (k KeysCommandsTtsInfoChangePitch) GetPath() string {
-	return "commands.tts.info.change_pitch"
-}
-func (k KeysCommandsTtsInfoChangePitch) GetPathSlice() []string {
-	return []string{"commands", "tts", "info", "change_pitch"}
-}
-func (k KeysCommandsTtsInfoChangePitch) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsTtsInfoChangePitch) SetVars(vars KeysCommandsTtsInfoChangePitchVars) twiri18n.TranslationKey[KeysCommandsTtsInfoChangePitchVars] {
-	k.Vars = twiri18n.Vars{"newPitch": vars.NewPitch}
 	return k
 }
 
@@ -4819,994 +3658,358 @@ func (k KeysCommandsTtsInfoChangeVolume) SetVars(vars KeysCommandsTtsInfoChangeV
 	return k
 }
 
+type KeysCommandsTtsInfoVoiceDisallowedVars struct {
+	VoiceName any
+}
+type KeysCommandsTtsInfoVoiceDisallowed struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsTtsInfoVoiceDisallowed) IsTranslationKey() {
+}
+func (k KeysCommandsTtsInfoVoiceDisallowed) GetPath() string {
+	return "commands.tts.info.voice_disallowed"
+}
+func (k KeysCommandsTtsInfoVoiceDisallowed) GetPathSlice() []string {
+	return []string{"commands", "tts", "info", "voice_disallowed"}
+}
+func (k KeysCommandsTtsInfoVoiceDisallowed) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsTtsInfoVoiceDisallowed) SetVars(vars KeysCommandsTtsInfoVoiceDisallowedVars) twiri18n.TranslationKey[KeysCommandsTtsInfoVoiceDisallowedVars] {
+	k.Vars = twiri18n.Vars{"voiceName": vars.VoiceName}
+	return k
+}
+
+type KeysCommandsTtsInfoEnabledVars struct {
+}
+type KeysCommandsTtsInfoEnabled struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsTtsInfoEnabled) IsTranslationKey() {
+}
+func (k KeysCommandsTtsInfoEnabled) GetPath() string {
+	return "commands.tts.info.enabled"
+}
+func (k KeysCommandsTtsInfoEnabled) GetPathSlice() []string {
+	return []string{"commands", "tts", "info", "enabled"}
+}
+func (k KeysCommandsTtsInfoEnabled) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsTtsInfoEnabled) SetVars(vars KeysCommandsTtsInfoEnabledVars) twiri18n.TranslationKey[KeysCommandsTtsInfoEnabledVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsTtsInfoPitchVars struct {
+	GlobalPitch any
+	UserPitch   any
+}
+type KeysCommandsTtsInfoPitch struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsTtsInfoPitch) IsTranslationKey() {
+}
+func (k KeysCommandsTtsInfoPitch) GetPath() string {
+	return "commands.tts.info.pitch"
+}
+func (k KeysCommandsTtsInfoPitch) GetPathSlice() []string {
+	return []string{"commands", "tts", "info", "pitch"}
+}
+func (k KeysCommandsTtsInfoPitch) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsTtsInfoPitch) SetVars(vars KeysCommandsTtsInfoPitchVars) twiri18n.TranslationKey[KeysCommandsTtsInfoPitchVars] {
+	k.Vars = twiri18n.Vars{"globalPitch": vars.GlobalPitch, "userPitch": vars.UserPitch}
+	return k
+}
+
+type KeysCommandsTtsInfoRateVars struct {
+	GlobalRate any
+	UserRate   any
+}
+type KeysCommandsTtsInfoRate struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsTtsInfoRate) IsTranslationKey() {
+}
+func (k KeysCommandsTtsInfoRate) GetPath() string {
+	return "commands.tts.info.rate"
+}
+func (k KeysCommandsTtsInfoRate) GetPathSlice() []string {
+	return []string{"commands", "tts", "info", "rate"}
+}
+func (k KeysCommandsTtsInfoRate) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsTtsInfoRate) SetVars(vars KeysCommandsTtsInfoRateVars) twiri18n.TranslationKey[KeysCommandsTtsInfoRateVars] {
+	k.Vars = twiri18n.Vars{"globalRate": vars.GlobalRate, "userRate": vars.UserRate}
+	return k
+}
+
+type KeysCommandsTtsInfoVoiceVars struct {
+	GlobalVoice any
+	UserVoice   any
+}
+type KeysCommandsTtsInfoVoice struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsTtsInfoVoice) IsTranslationKey() {
+}
+func (k KeysCommandsTtsInfoVoice) GetPath() string {
+	return "commands.tts.info.voice"
+}
+func (k KeysCommandsTtsInfoVoice) GetPathSlice() []string {
+	return []string{"commands", "tts", "info", "voice"}
+}
+func (k KeysCommandsTtsInfoVoice) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsTtsInfoVoice) SetVars(vars KeysCommandsTtsInfoVoiceVars) twiri18n.TranslationKey[KeysCommandsTtsInfoVoiceVars] {
+	k.Vars = twiri18n.Vars{"globalVoice": vars.GlobalVoice, "userVoice": vars.UserVoice}
+	return k
+}
+
+type KeysCommandsTtsInfoNoVoicesVars struct {
+}
+type KeysCommandsTtsInfoNoVoices struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsTtsInfoNoVoices) IsTranslationKey() {
+}
+func (k KeysCommandsTtsInfoNoVoices) GetPath() string {
+	return "commands.tts.info.no_voices"
+}
+func (k KeysCommandsTtsInfoNoVoices) GetPathSlice() []string {
+	return []string{"commands", "tts", "info", "no_voices"}
+}
+func (k KeysCommandsTtsInfoNoVoices) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsTtsInfoNoVoices) SetVars(vars KeysCommandsTtsInfoNoVoicesVars) twiri18n.TranslationKey[KeysCommandsTtsInfoNoVoicesVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
 type KeysCommandsTtsInfo struct {
 	Disabled        KeysCommandsTtsInfoDisabled
-	Rate            KeysCommandsTtsInfoRate
-	ChangeRate      KeysCommandsTtsInfoChangeRate
-	Voice           KeysCommandsTtsInfoVoice
-	NoVoices        KeysCommandsTtsInfoNoVoices
-	VoiceDisallowed KeysCommandsTtsInfoVoiceDisallowed
-	Enabled         KeysCommandsTtsInfoEnabled
-	Pitch           KeysCommandsTtsInfoPitch
 	ChangePitch     KeysCommandsTtsInfoChangePitch
+	ChangeRate      KeysCommandsTtsInfoChangeRate
 	ChangeVoice     KeysCommandsTtsInfoChangeVoice
 	CurrentVolume   KeysCommandsTtsInfoCurrentVolume
 	ChangeVolume    KeysCommandsTtsInfoChangeVolume
+	VoiceDisallowed KeysCommandsTtsInfoVoiceDisallowed
+	Enabled         KeysCommandsTtsInfoEnabled
+	Pitch           KeysCommandsTtsInfoPitch
+	Rate            KeysCommandsTtsInfoRate
+	Voice           KeysCommandsTtsInfoVoice
+	NoVoices        KeysCommandsTtsInfoNoVoices
 }
 type KeysCommandsTts struct {
 	Errors KeysCommandsTtsErrors
 	Info   KeysCommandsTtsInfo
 }
-type KeysCommandsPredictionsInfoNoRunedVars struct {
+type KeysCommandsQuotesErrorsEmptyTextVars struct {
 }
-type KeysCommandsPredictionsInfoNoRuned struct {
+type KeysCommandsQuotesErrorsEmptyText struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPredictionsInfoNoRuned) IsTranslationKey() {
+func (k KeysCommandsQuotesErrorsEmptyText) IsTranslationKey() {
 }
-func (k KeysCommandsPredictionsInfoNoRuned) GetPath() string {
-	return "commands.predictions.info.no_runed"
+func (k KeysCommandsQuotesErrorsEmptyText) GetPath() string {
+	return "commands.quotes.errors.empty_text"
 }
-func (k KeysCommandsPredictionsInfoNoRuned) GetPathSlice() []string {
-	return []string{"commands", "predictions", "info", "no_runed"}
+func (k KeysCommandsQuotesErrorsEmptyText) GetPathSlice() []string {
+	return []string{"commands", "quotes", "errors", "empty_text"}
 }
-func (k KeysCommandsPredictionsInfoNoRuned) GetVars() twiri18n.Vars {
+func (k KeysCommandsQuotesErrorsEmptyText) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPredictionsInfoNoRuned) SetVars(vars KeysCommandsPredictionsInfoNoRunedVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoNoRunedVars] {
+func (k KeysCommandsQuotesErrorsEmptyText) SetVars(vars KeysCommandsQuotesErrorsEmptyTextVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsEmptyTextVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPredictionsInfoCancelVars struct {
+type KeysCommandsQuotesErrorsCannotGetVars struct {
 }
-type KeysCommandsPredictionsInfoCancel struct {
+type KeysCommandsQuotesErrorsCannotGet struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPredictionsInfoCancel) IsTranslationKey() {
+func (k KeysCommandsQuotesErrorsCannotGet) IsTranslationKey() {
 }
-func (k KeysCommandsPredictionsInfoCancel) GetPath() string {
-	return "commands.predictions.info.cancel"
+func (k KeysCommandsQuotesErrorsCannotGet) GetPath() string {
+	return "commands.quotes.errors.cannot_get"
 }
-func (k KeysCommandsPredictionsInfoCancel) GetPathSlice() []string {
-	return []string{"commands", "predictions", "info", "cancel"}
+func (k KeysCommandsQuotesErrorsCannotGet) GetPathSlice() []string {
+	return []string{"commands", "quotes", "errors", "cannot_get"}
 }
-func (k KeysCommandsPredictionsInfoCancel) GetVars() twiri18n.Vars {
+func (k KeysCommandsQuotesErrorsCannotGet) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPredictionsInfoCancel) SetVars(vars KeysCommandsPredictionsInfoCancelVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoCancelVars] {
+func (k KeysCommandsQuotesErrorsCannotGet) SetVars(vars KeysCommandsQuotesErrorsCannotGetVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsCannotGetVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPredictionsInfoLockedVars struct {
+type KeysCommandsQuotesErrorsCannotAddVars struct {
 }
-type KeysCommandsPredictionsInfoLocked struct {
+type KeysCommandsQuotesErrorsCannotAdd struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPredictionsInfoLocked) IsTranslationKey() {
+func (k KeysCommandsQuotesErrorsCannotAdd) IsTranslationKey() {
 }
-func (k KeysCommandsPredictionsInfoLocked) GetPath() string {
-	return "commands.predictions.info.locked"
+func (k KeysCommandsQuotesErrorsCannotAdd) GetPath() string {
+	return "commands.quotes.errors.cannot_add"
 }
-func (k KeysCommandsPredictionsInfoLocked) GetPathSlice() []string {
-	return []string{"commands", "predictions", "info", "locked"}
+func (k KeysCommandsQuotesErrorsCannotAdd) GetPathSlice() []string {
+	return []string{"commands", "quotes", "errors", "cannot_add"}
 }
-func (k KeysCommandsPredictionsInfoLocked) GetVars() twiri18n.Vars {
+func (k KeysCommandsQuotesErrorsCannotAdd) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPredictionsInfoLocked) SetVars(vars KeysCommandsPredictionsInfoLockedVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoLockedVars] {
+func (k KeysCommandsQuotesErrorsCannotAdd) SetVars(vars KeysCommandsQuotesErrorsCannotAddVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsCannotAddVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPredictionsInfoResolvedVars struct {
+type KeysCommandsQuotesErrorsCannotRemoveVars struct {
 }
-type KeysCommandsPredictionsInfoResolved struct {
+type KeysCommandsQuotesErrorsCannotRemove struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPredictionsInfoResolved) IsTranslationKey() {
+func (k KeysCommandsQuotesErrorsCannotRemove) IsTranslationKey() {
 }
-func (k KeysCommandsPredictionsInfoResolved) GetPath() string {
-	return "commands.predictions.info.resolved"
+func (k KeysCommandsQuotesErrorsCannotRemove) GetPath() string {
+	return "commands.quotes.errors.cannot_remove"
 }
-func (k KeysCommandsPredictionsInfoResolved) GetPathSlice() []string {
-	return []string{"commands", "predictions", "info", "resolved"}
+func (k KeysCommandsQuotesErrorsCannotRemove) GetPathSlice() []string {
+	return []string{"commands", "quotes", "errors", "cannot_remove"}
 }
-func (k KeysCommandsPredictionsInfoResolved) GetVars() twiri18n.Vars {
+func (k KeysCommandsQuotesErrorsCannotRemove) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPredictionsInfoResolved) SetVars(vars KeysCommandsPredictionsInfoResolvedVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoResolvedVars] {
+func (k KeysCommandsQuotesErrorsCannotRemove) SetVars(vars KeysCommandsQuotesErrorsCannotRemoveVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsCannotRemoveVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPredictionsInfoStartedVars struct {
+type KeysCommandsQuotesErrorsRandomEmptyVars struct {
 }
-type KeysCommandsPredictionsInfoStarted struct {
+type KeysCommandsQuotesErrorsRandomEmpty struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPredictionsInfoStarted) IsTranslationKey() {
+func (k KeysCommandsQuotesErrorsRandomEmpty) IsTranslationKey() {
 }
-func (k KeysCommandsPredictionsInfoStarted) GetPath() string {
-	return "commands.predictions.info.started"
+func (k KeysCommandsQuotesErrorsRandomEmpty) GetPath() string {
+	return "commands.quotes.errors.random_empty"
 }
-func (k KeysCommandsPredictionsInfoStarted) GetPathSlice() []string {
-	return []string{"commands", "predictions", "info", "started"}
+func (k KeysCommandsQuotesErrorsRandomEmpty) GetPathSlice() []string {
+	return []string{"commands", "quotes", "errors", "random_empty"}
 }
-func (k KeysCommandsPredictionsInfoStarted) GetVars() twiri18n.Vars {
+func (k KeysCommandsQuotesErrorsRandomEmpty) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPredictionsInfoStarted) SetVars(vars KeysCommandsPredictionsInfoStartedVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoStartedVars] {
+func (k KeysCommandsQuotesErrorsRandomEmpty) SetVars(vars KeysCommandsQuotesErrorsRandomEmptyVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsRandomEmptyVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPredictionsInfo struct {
-	NoRuned  KeysCommandsPredictionsInfoNoRuned
-	Cancel   KeysCommandsPredictionsInfoCancel
-	Locked   KeysCommandsPredictionsInfoLocked
-	Resolved KeysCommandsPredictionsInfoResolved
-	Started  KeysCommandsPredictionsInfoStarted
+type KeysCommandsQuotesErrorsNotFoundVars struct {
 }
-type KeysCommandsPredictionsHintsPredictionResolveOutcomeNumVars struct {
-}
-type KeysCommandsPredictionsHintsPredictionResolveOutcomeNum struct {
+type KeysCommandsQuotesErrorsNotFound struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) IsTranslationKey() {
+func (k KeysCommandsQuotesErrorsNotFound) IsTranslationKey() {
 }
-func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) GetPath() string {
-	return "commands.predictions.hints.predictionResolveOutcomeNum"
+func (k KeysCommandsQuotesErrorsNotFound) GetPath() string {
+	return "commands.quotes.errors.not_found"
 }
-func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) GetPathSlice() []string {
-	return []string{"commands", "predictions", "hints", "predictionResolveOutcomeNum"}
+func (k KeysCommandsQuotesErrorsNotFound) GetPathSlice() []string {
+	return []string{"commands", "quotes", "errors", "not_found"}
 }
-func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) GetVars() twiri18n.Vars {
+func (k KeysCommandsQuotesErrorsNotFound) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) SetVars(vars KeysCommandsPredictionsHintsPredictionResolveOutcomeNumVars) twiri18n.TranslationKey[KeysCommandsPredictionsHintsPredictionResolveOutcomeNumVars] {
+func (k KeysCommandsQuotesErrorsNotFound) SetVars(vars KeysCommandsQuotesErrorsNotFoundVars) twiri18n.TranslationKey[KeysCommandsQuotesErrorsNotFoundVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPredictionsHintsStartPredictionDurationVars struct {
+type KeysCommandsQuotesErrors struct {
+	EmptyText    KeysCommandsQuotesErrorsEmptyText
+	CannotGet    KeysCommandsQuotesErrorsCannotGet
+	CannotAdd    KeysCommandsQuotesErrorsCannotAdd
+	CannotRemove KeysCommandsQuotesErrorsCannotRemove
+	RandomEmpty  KeysCommandsQuotesErrorsRandomEmpty
+	NotFound     KeysCommandsQuotesErrorsNotFound
 }
-type KeysCommandsPredictionsHintsStartPredictionDuration struct {
+type KeysCommandsQuotesAddAddedVars struct {
+	Number any
+}
+type KeysCommandsQuotesAddAdded struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPredictionsHintsStartPredictionDuration) IsTranslationKey() {
+func (k KeysCommandsQuotesAddAdded) IsTranslationKey() {
 }
-func (k KeysCommandsPredictionsHintsStartPredictionDuration) GetPath() string {
-	return "commands.predictions.hints.startPredictionDuration"
+func (k KeysCommandsQuotesAddAdded) GetPath() string {
+	return "commands.quotes.add.added"
 }
-func (k KeysCommandsPredictionsHintsStartPredictionDuration) GetPathSlice() []string {
-	return []string{"commands", "predictions", "hints", "startPredictionDuration"}
+func (k KeysCommandsQuotesAddAdded) GetPathSlice() []string {
+	return []string{"commands", "quotes", "add", "added"}
 }
-func (k KeysCommandsPredictionsHintsStartPredictionDuration) GetVars() twiri18n.Vars {
+func (k KeysCommandsQuotesAddAdded) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPredictionsHintsStartPredictionDuration) SetVars(vars KeysCommandsPredictionsHintsStartPredictionDurationVars) twiri18n.TranslationKey[KeysCommandsPredictionsHintsStartPredictionDurationVars] {
+func (k KeysCommandsQuotesAddAdded) SetVars(vars KeysCommandsQuotesAddAddedVars) twiri18n.TranslationKey[KeysCommandsQuotesAddAddedVars] {
+	k.Vars = twiri18n.Vars{"number": vars.Number}
+	return k
+}
+
+type KeysCommandsQuotesAdd struct {
+	Added KeysCommandsQuotesAddAdded
+}
+type KeysCommandsQuotesRemoveRemovedVars struct {
+}
+type KeysCommandsQuotesRemoveRemoved struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsQuotesRemoveRemoved) IsTranslationKey() {
+}
+func (k KeysCommandsQuotesRemoveRemoved) GetPath() string {
+	return "commands.quotes.remove.removed"
+}
+func (k KeysCommandsQuotesRemoveRemoved) GetPathSlice() []string {
+	return []string{"commands", "quotes", "remove", "removed"}
+}
+func (k KeysCommandsQuotesRemoveRemoved) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsQuotesRemoveRemoved) SetVars(vars KeysCommandsQuotesRemoveRemovedVars) twiri18n.TranslationKey[KeysCommandsQuotesRemoveRemovedVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPredictionsHintsStartPredictionArgTitleVars struct {
-}
-type KeysCommandsPredictionsHintsStartPredictionArgTitle struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) GetPath() string {
-	return "commands.predictions.hints.startPredictionArgTitle"
-}
-func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) GetPathSlice() []string {
-	return []string{"commands", "predictions", "hints", "startPredictionArgTitle"}
-}
-func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) SetVars(vars KeysCommandsPredictionsHintsStartPredictionArgTitleVars) twiri18n.TranslationKey[KeysCommandsPredictionsHintsStartPredictionArgTitleVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsPredictionsHintsStartPredictionArgVariantsVars struct {
-}
-type KeysCommandsPredictionsHintsStartPredictionArgVariants struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) GetPath() string {
-	return "commands.predictions.hints.startPredictionArgVariants"
-}
-func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) GetPathSlice() []string {
-	return []string{"commands", "predictions", "hints", "startPredictionArgVariants"}
-}
-func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) SetVars(vars KeysCommandsPredictionsHintsStartPredictionArgVariantsVars) twiri18n.TranslationKey[KeysCommandsPredictionsHintsStartPredictionArgVariantsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsPredictionsHints struct {
-	PredictionResolveOutcomeNum KeysCommandsPredictionsHintsPredictionResolveOutcomeNum
-	StartPredictionDuration     KeysCommandsPredictionsHintsStartPredictionDuration
-	StartPredictionArgTitle     KeysCommandsPredictionsHintsStartPredictionArgTitle
-	StartPredictionArgVariants  KeysCommandsPredictionsHintsStartPredictionArgVariants
-}
-type KeysCommandsPredictionsErrorsCannotCancelVars struct {
-}
-type KeysCommandsPredictionsErrorsCannotCancel struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsErrorsCannotCancel) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsErrorsCannotCancel) GetPath() string {
-	return "commands.predictions.errors.cannot_cancel"
-}
-func (k KeysCommandsPredictionsErrorsCannotCancel) GetPathSlice() []string {
-	return []string{"commands", "predictions", "errors", "cannot_cancel"}
-}
-func (k KeysCommandsPredictionsErrorsCannotCancel) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsErrorsCannotCancel) SetVars(vars KeysCommandsPredictionsErrorsCannotCancelVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotCancelVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsPredictionsErrorsCannotCancelVarVars struct {
-	Reason any
-}
-type KeysCommandsPredictionsErrorsCannotCancelVar struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsErrorsCannotCancelVar) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsErrorsCannotCancelVar) GetPath() string {
-	return "commands.predictions.errors.cannot_cancel_var"
-}
-func (k KeysCommandsPredictionsErrorsCannotCancelVar) GetPathSlice() []string {
-	return []string{"commands", "predictions", "errors", "cannot_cancel_var"}
-}
-func (k KeysCommandsPredictionsErrorsCannotCancelVar) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsErrorsCannotCancelVar) SetVars(vars KeysCommandsPredictionsErrorsCannotCancelVarVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotCancelVarVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsPredictionsErrorsNoVariantVars struct {
-}
-type KeysCommandsPredictionsErrorsNoVariant struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsErrorsNoVariant) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsErrorsNoVariant) GetPath() string {
-	return "commands.predictions.errors.no_variant"
-}
-func (k KeysCommandsPredictionsErrorsNoVariant) GetPathSlice() []string {
-	return []string{"commands", "predictions", "errors", "no_variant"}
-}
-func (k KeysCommandsPredictionsErrorsNoVariant) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsErrorsNoVariant) SetVars(vars KeysCommandsPredictionsErrorsNoVariantVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsNoVariantVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsPredictionsErrorsCannotCreateVars struct {
-}
-type KeysCommandsPredictionsErrorsCannotCreate struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsErrorsCannotCreate) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsErrorsCannotCreate) GetPath() string {
-	return "commands.predictions.errors.cannot_create"
-}
-func (k KeysCommandsPredictionsErrorsCannotCreate) GetPathSlice() []string {
-	return []string{"commands", "predictions", "errors", "cannot_create"}
-}
-func (k KeysCommandsPredictionsErrorsCannotCreate) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsErrorsCannotCreate) SetVars(vars KeysCommandsPredictionsErrorsCannotCreateVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotCreateVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsPredictionsErrorsCannotCreateVarVars struct {
-	Reason any
-}
-type KeysCommandsPredictionsErrorsCannotCreateVar struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsErrorsCannotCreateVar) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsErrorsCannotCreateVar) GetPath() string {
-	return "commands.predictions.errors.cannot_create_var"
-}
-func (k KeysCommandsPredictionsErrorsCannotCreateVar) GetPathSlice() []string {
-	return []string{"commands", "predictions", "errors", "cannot_create_var"}
-}
-func (k KeysCommandsPredictionsErrorsCannotCreateVar) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsErrorsCannotCreateVar) SetVars(vars KeysCommandsPredictionsErrorsCannotCreateVarVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotCreateVarVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsPredictionsErrorsCannotGetCurrentVars struct {
-}
-type KeysCommandsPredictionsErrorsCannotGetCurrent struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsErrorsCannotGetCurrent) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsErrorsCannotGetCurrent) GetPath() string {
-	return "commands.predictions.errors.cannot_get_current"
-}
-func (k KeysCommandsPredictionsErrorsCannotGetCurrent) GetPathSlice() []string {
-	return []string{"commands", "predictions", "errors", "cannot_get_current"}
-}
-func (k KeysCommandsPredictionsErrorsCannotGetCurrent) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsErrorsCannotGetCurrent) SetVars(vars KeysCommandsPredictionsErrorsCannotGetCurrentVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotGetCurrentVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsPredictionsErrorsCannotGetCurrentVarVars struct {
-	Reason any
-}
-type KeysCommandsPredictionsErrorsCannotGetCurrentVar struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) IsTranslationKey() {
-}
-func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) GetPath() string {
-	return "commands.predictions.errors.cannot_get_current_var"
-}
-func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) GetPathSlice() []string {
-	return []string{"commands", "predictions", "errors", "cannot_get_current_var"}
-}
-func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) SetVars(vars KeysCommandsPredictionsErrorsCannotGetCurrentVarVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotGetCurrentVarVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysCommandsPredictionsErrors struct {
-	CannotCancel        KeysCommandsPredictionsErrorsCannotCancel
-	CannotCancelVar     KeysCommandsPredictionsErrorsCannotCancelVar
-	NoVariant           KeysCommandsPredictionsErrorsNoVariant
-	CannotCreate        KeysCommandsPredictionsErrorsCannotCreate
-	CannotCreateVar     KeysCommandsPredictionsErrorsCannotCreateVar
-	CannotGetCurrent    KeysCommandsPredictionsErrorsCannotGetCurrent
-	CannotGetCurrentVar KeysCommandsPredictionsErrorsCannotGetCurrentVar
-}
-type KeysCommandsPredictions struct {
-	Info   KeysCommandsPredictionsInfo
-	Hints  KeysCommandsPredictionsHints
-	Errors KeysCommandsPredictionsErrors
-}
-type KeysCommandsManageErrorsAliasCannotUpdateVars struct {
-}
-type KeysCommandsManageErrorsAliasCannotUpdate struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsAliasCannotUpdate) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsAliasCannotUpdate) GetPath() string {
-	return "commands.manage.errors.alias_cannot_update"
-}
-func (k KeysCommandsManageErrorsAliasCannotUpdate) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "alias_cannot_update"}
-}
-func (k KeysCommandsManageErrorsAliasCannotUpdate) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsAliasCannotUpdate) SetVars(vars KeysCommandsManageErrorsAliasCannotUpdateVars) twiri18n.TranslationKey[KeysCommandsManageErrorsAliasCannotUpdateVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsAliasNotCommandVars struct {
-}
-type KeysCommandsManageErrorsAliasNotCommand struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsAliasNotCommand) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsAliasNotCommand) GetPath() string {
-	return "commands.manage.errors.alias_not_command"
-}
-func (k KeysCommandsManageErrorsAliasNotCommand) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "alias_not_command"}
-}
-func (k KeysCommandsManageErrorsAliasNotCommand) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsAliasNotCommand) SetVars(vars KeysCommandsManageErrorsAliasNotCommandVars) twiri18n.TranslationKey[KeysCommandsManageErrorsAliasNotCommandVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandWithAliasAlreadyExistsVars struct {
-}
-type KeysCommandsManageErrorsCommandWithAliasAlreadyExists struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) GetPath() string {
-	return "commands.manage.errors.command_with_alias_already_exists"
-}
-func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_with_alias_already_exists"}
-}
-func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) SetVars(vars KeysCommandsManageErrorsCommandWithAliasAlreadyExistsVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandWithAliasAlreadyExistsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandCannotGetVars struct {
-}
-type KeysCommandsManageErrorsCommandCannotGet struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandCannotGet) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandCannotGet) GetPath() string {
-	return "commands.manage.errors.command_cannot_get"
-}
-func (k KeysCommandsManageErrorsCommandCannotGet) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_cannot_get"}
-}
-func (k KeysCommandsManageErrorsCommandCannotGet) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandCannotGet) SetVars(vars KeysCommandsManageErrorsCommandCannotGetVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotGetVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandHaveNoAliasesVars struct {
-}
-type KeysCommandsManageErrorsCommandHaveNoAliases struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandHaveNoAliases) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandHaveNoAliases) GetPath() string {
-	return "commands.manage.errors.command_have_no_aliases"
-}
-func (k KeysCommandsManageErrorsCommandHaveNoAliases) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_have_no_aliases"}
-}
-func (k KeysCommandsManageErrorsCommandHaveNoAliases) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandHaveNoAliases) SetVars(vars KeysCommandsManageErrorsCommandHaveNoAliasesVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandHaveNoAliasesVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandCannotDeleteDefaultVars struct {
-}
-type KeysCommandsManageErrorsCommandCannotDeleteDefault struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) GetPath() string {
-	return "commands.manage.errors.command_cannot_delete_default"
-}
-func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_cannot_delete_default"}
-}
-func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) SetVars(vars KeysCommandsManageErrorsCommandCannotDeleteDefaultVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotDeleteDefaultVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandCannotUpdateVars struct {
-}
-type KeysCommandsManageErrorsCommandCannotUpdate struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandCannotUpdate) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandCannotUpdate) GetPath() string {
-	return "commands.manage.errors.command_cannot_update"
-}
-func (k KeysCommandsManageErrorsCommandCannotUpdate) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_cannot_update"}
-}
-func (k KeysCommandsManageErrorsCommandCannotUpdate) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandCannotUpdate) SetVars(vars KeysCommandsManageErrorsCommandCannotUpdateVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotUpdateVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsAliasAlreadyExistVars struct {
-	Alias any
-}
-type KeysCommandsManageErrorsAliasAlreadyExist struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsAliasAlreadyExist) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsAliasAlreadyExist) GetPath() string {
-	return "commands.manage.errors.alias_already_exist"
-}
-func (k KeysCommandsManageErrorsAliasAlreadyExist) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "alias_already_exist"}
-}
-func (k KeysCommandsManageErrorsAliasAlreadyExist) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsAliasAlreadyExist) SetVars(vars KeysCommandsManageErrorsAliasAlreadyExistVars) twiri18n.TranslationKey[KeysCommandsManageErrorsAliasAlreadyExistVars] {
-	k.Vars = twiri18n.Vars{"alias": vars.Alias}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandWithNameCannotFindVars struct {
-}
-type KeysCommandsManageErrorsCommandWithNameCannotFind struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandWithNameCannotFind) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandWithNameCannotFind) GetPath() string {
-	return "commands.manage.errors.command_with_name_cannot_find"
-}
-func (k KeysCommandsManageErrorsCommandWithNameCannotFind) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_with_name_cannot_find"}
-}
-func (k KeysCommandsManageErrorsCommandWithNameCannotFind) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandWithNameCannotFind) SetVars(vars KeysCommandsManageErrorsCommandWithNameCannotFindVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandWithNameCannotFindVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandNotFoundVars struct {
-}
-type KeysCommandsManageErrorsCommandNotFound struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandNotFound) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandNotFound) GetPath() string {
-	return "commands.manage.errors.command_not_found"
-}
-func (k KeysCommandsManageErrorsCommandNotFound) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_not_found"}
-}
-func (k KeysCommandsManageErrorsCommandNotFound) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandNotFound) SetVars(vars KeysCommandsManageErrorsCommandNotFoundVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandNotFoundVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandLargeSizeVars struct {
-}
-type KeysCommandsManageErrorsCommandLargeSize struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandLargeSize) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandLargeSize) GetPath() string {
-	return "commands.manage.errors.command_large_size"
-}
-func (k KeysCommandsManageErrorsCommandLargeSize) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_large_size"}
-}
-func (k KeysCommandsManageErrorsCommandLargeSize) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandLargeSize) SetVars(vars KeysCommandsManageErrorsCommandLargeSizeVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandLargeSizeVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandCannotUpdateResponseVars struct {
-}
-type KeysCommandsManageErrorsCommandCannotUpdateResponse struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) GetPath() string {
-	return "commands.manage.errors.command_cannot_update_response"
-}
-func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_cannot_update_response"}
-}
-func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) SetVars(vars KeysCommandsManageErrorsCommandCannotUpdateResponseVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotUpdateResponseVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsCommandCannotSaveVars struct {
-}
-type KeysCommandsManageErrorsCommandCannotSave struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsCommandCannotSave) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsCommandCannotSave) GetPath() string {
-	return "commands.manage.errors.command_cannot_save"
-}
-func (k KeysCommandsManageErrorsCommandCannotSave) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "command_cannot_save"}
-}
-func (k KeysCommandsManageErrorsCommandCannotSave) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsCommandCannotSave) SetVars(vars KeysCommandsManageErrorsCommandCannotSaveVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotSaveVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrorsAliasCannotGetExistedCommandsVars struct {
-}
-type KeysCommandsManageErrorsAliasCannotGetExistedCommands struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) IsTranslationKey() {
-}
-func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) GetPath() string {
-	return "commands.manage.errors.alias_cannot_get_existed_commands"
-}
-func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) GetPathSlice() []string {
-	return []string{"commands", "manage", "errors", "alias_cannot_get_existed_commands"}
-}
-func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) SetVars(vars KeysCommandsManageErrorsAliasCannotGetExistedCommandsVars) twiri18n.TranslationKey[KeysCommandsManageErrorsAliasCannotGetExistedCommandsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageErrors struct {
-	AliasCannotUpdate             KeysCommandsManageErrorsAliasCannotUpdate
-	AliasNotCommand               KeysCommandsManageErrorsAliasNotCommand
-	CommandWithAliasAlreadyExists KeysCommandsManageErrorsCommandWithAliasAlreadyExists
-	CommandCannotGet              KeysCommandsManageErrorsCommandCannotGet
-	CommandHaveNoAliases          KeysCommandsManageErrorsCommandHaveNoAliases
-	CommandCannotDeleteDefault    KeysCommandsManageErrorsCommandCannotDeleteDefault
-	CommandCannotUpdate           KeysCommandsManageErrorsCommandCannotUpdate
-	AliasAlreadyExist             KeysCommandsManageErrorsAliasAlreadyExist
-	CommandWithNameCannotFind     KeysCommandsManageErrorsCommandWithNameCannotFind
-	CommandNotFound               KeysCommandsManageErrorsCommandNotFound
-	CommandLargeSize              KeysCommandsManageErrorsCommandLargeSize
-	CommandCannotUpdateResponse   KeysCommandsManageErrorsCommandCannotUpdateResponse
-	CommandCannotSave             KeysCommandsManageErrorsCommandCannotSave
-	AliasCannotGetExistedCommands KeysCommandsManageErrorsAliasCannotGetExistedCommands
-}
-type KeysCommandsManageAddAliasAddVars struct {
-}
-type KeysCommandsManageAddAliasAdd struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageAddAliasAdd) IsTranslationKey() {
-}
-func (k KeysCommandsManageAddAliasAdd) GetPath() string {
-	return "commands.manage.add.alias_add"
-}
-func (k KeysCommandsManageAddAliasAdd) GetPathSlice() []string {
-	return []string{"commands", "manage", "add", "alias_add"}
-}
-func (k KeysCommandsManageAddAliasAdd) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageAddAliasAdd) SetVars(vars KeysCommandsManageAddAliasAddVars) twiri18n.TranslationKey[KeysCommandsManageAddAliasAddVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageAddCommandAddVars struct {
-}
-type KeysCommandsManageAddCommandAdd struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageAddCommandAdd) IsTranslationKey() {
-}
-func (k KeysCommandsManageAddCommandAdd) GetPath() string {
-	return "commands.manage.add.command_add"
-}
-func (k KeysCommandsManageAddCommandAdd) GetPathSlice() []string {
-	return []string{"commands", "manage", "add", "command_add"}
-}
-func (k KeysCommandsManageAddCommandAdd) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageAddCommandAdd) SetVars(vars KeysCommandsManageAddCommandAddVars) twiri18n.TranslationKey[KeysCommandsManageAddCommandAddVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageAdd struct {
-	AliasAdd   KeysCommandsManageAddAliasAdd
-	CommandAdd KeysCommandsManageAddCommandAdd
-}
-type KeysCommandsManageEditCommandEditedVars struct {
-}
-type KeysCommandsManageEditCommandEdited struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageEditCommandEdited) IsTranslationKey() {
-}
-func (k KeysCommandsManageEditCommandEdited) GetPath() string {
-	return "commands.manage.edit.command_edited"
-}
-func (k KeysCommandsManageEditCommandEdited) GetPathSlice() []string {
-	return []string{"commands", "manage", "edit", "command_edited"}
-}
-func (k KeysCommandsManageEditCommandEdited) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageEditCommandEdited) SetVars(vars KeysCommandsManageEditCommandEditedVars) twiri18n.TranslationKey[KeysCommandsManageEditCommandEditedVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageEdit struct {
-	CommandEdited KeysCommandsManageEditCommandEdited
-}
-type KeysCommandsManageRemoveAliasRemovedVars struct {
-}
-type KeysCommandsManageRemoveAliasRemoved struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageRemoveAliasRemoved) IsTranslationKey() {
-}
-func (k KeysCommandsManageRemoveAliasRemoved) GetPath() string {
-	return "commands.manage.remove.alias_removed"
-}
-func (k KeysCommandsManageRemoveAliasRemoved) GetPathSlice() []string {
-	return []string{"commands", "manage", "remove", "alias_removed"}
-}
-func (k KeysCommandsManageRemoveAliasRemoved) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageRemoveAliasRemoved) SetVars(vars KeysCommandsManageRemoveAliasRemovedVars) twiri18n.TranslationKey[KeysCommandsManageRemoveAliasRemovedVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageRemoveCommandRemovedVars struct {
-}
-type KeysCommandsManageRemoveCommandRemoved struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsManageRemoveCommandRemoved) IsTranslationKey() {
-}
-func (k KeysCommandsManageRemoveCommandRemoved) GetPath() string {
-	return "commands.manage.remove.command_removed"
-}
-func (k KeysCommandsManageRemoveCommandRemoved) GetPathSlice() []string {
-	return []string{"commands", "manage", "remove", "command_removed"}
-}
-func (k KeysCommandsManageRemoveCommandRemoved) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsManageRemoveCommandRemoved) SetVars(vars KeysCommandsManageRemoveCommandRemovedVars) twiri18n.TranslationKey[KeysCommandsManageRemoveCommandRemovedVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsManageRemove struct {
-	AliasRemoved   KeysCommandsManageRemoveAliasRemoved
-	CommandRemoved KeysCommandsManageRemoveCommandRemoved
-}
-type KeysCommandsManage struct {
-	Errors KeysCommandsManageErrors
-	Add    KeysCommandsManageAdd
-	Edit   KeysCommandsManageEdit
-	Remove KeysCommandsManageRemove
-}
-type KeysCommandsPermitErrorsCannotCreateVars struct {
-}
-type KeysCommandsPermitErrorsCannotCreate struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPermitErrorsCannotCreate) IsTranslationKey() {
-}
-func (k KeysCommandsPermitErrorsCannotCreate) GetPath() string {
-	return "commands.permit.errors.cannot_create"
-}
-func (k KeysCommandsPermitErrorsCannotCreate) GetPathSlice() []string {
-	return []string{"commands", "permit", "errors", "cannot_create"}
-}
-func (k KeysCommandsPermitErrorsCannotCreate) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPermitErrorsCannotCreate) SetVars(vars KeysCommandsPermitErrorsCannotCreateVars) twiri18n.TranslationKey[KeysCommandsPermitErrorsCannotCreateVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsPermitErrors struct {
-	CannotCreate KeysCommandsPermitErrorsCannotCreate
-}
-type KeysCommandsPermitSuccessAddedPermitVars struct {
-	CountPermit any
-	UserName    any
-}
-type KeysCommandsPermitSuccessAddedPermit struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsPermitSuccessAddedPermit) IsTranslationKey() {
-}
-func (k KeysCommandsPermitSuccessAddedPermit) GetPath() string {
-	return "commands.permit.success.added_permit"
-}
-func (k KeysCommandsPermitSuccessAddedPermit) GetPathSlice() []string {
-	return []string{"commands", "permit", "success", "added_permit"}
-}
-func (k KeysCommandsPermitSuccessAddedPermit) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsPermitSuccessAddedPermit) SetVars(vars KeysCommandsPermitSuccessAddedPermitVars) twiri18n.TranslationKey[KeysCommandsPermitSuccessAddedPermitVars] {
-	k.Vars = twiri18n.Vars{"countPermit": vars.CountPermit, "userName": vars.UserName}
-	return k
-}
-
-type KeysCommandsPermitSuccess struct {
-	AddedPermit KeysCommandsPermitSuccessAddedPermit
-}
-type KeysCommandsPermit struct {
-	Errors  KeysCommandsPermitErrors
-	Success KeysCommandsPermitSuccess
-}
-type KeysCommandsShoutoutErrorsBotHaveNoPermissionsVars struct {
-}
-type KeysCommandsShoutoutErrorsBotHaveNoPermissions struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) IsTranslationKey() {
-}
-func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) GetPath() string {
-	return "commands.shoutout.errors.bot_have_no_permissions"
-}
-func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) GetPathSlice() []string {
-	return []string{"commands", "shoutout", "errors", "bot_have_no_permissions"}
-}
-func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsShoutoutErrorsBotHaveNoPermissions) SetVars(vars KeysCommandsShoutoutErrorsBotHaveNoPermissionsVars) twiri18n.TranslationKey[KeysCommandsShoutoutErrorsBotHaveNoPermissionsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsShoutoutErrors struct {
-	BotHaveNoPermissions KeysCommandsShoutoutErrorsBotHaveNoPermissions
-}
-type KeysCommandsShoutoutResponseOnlineVars struct {
-	UserName     any
-	CategoryName any
-	Title        any
-	Viewers      any
-}
-type KeysCommandsShoutoutResponseOnline struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsShoutoutResponseOnline) IsTranslationKey() {
-}
-func (k KeysCommandsShoutoutResponseOnline) GetPath() string {
-	return "commands.shoutout.response_online"
-}
-func (k KeysCommandsShoutoutResponseOnline) GetPathSlice() []string {
-	return []string{"commands", "shoutout", "response_online"}
-}
-func (k KeysCommandsShoutoutResponseOnline) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsShoutoutResponseOnline) SetVars(vars KeysCommandsShoutoutResponseOnlineVars) twiri18n.TranslationKey[KeysCommandsShoutoutResponseOnlineVars] {
-	k.Vars = twiri18n.Vars{"userName": vars.UserName, "categoryName": vars.CategoryName, "title": vars.Title, "viewers": vars.Viewers}
-	return k
-}
-
-type KeysCommandsShoutoutResponseOfflineVars struct {
-	UserName     any
-	CategoryName any
-	Title        any
-}
-type KeysCommandsShoutoutResponseOffline struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsShoutoutResponseOffline) IsTranslationKey() {
-}
-func (k KeysCommandsShoutoutResponseOffline) GetPath() string {
-	return "commands.shoutout.response_offline"
-}
-func (k KeysCommandsShoutoutResponseOffline) GetPathSlice() []string {
-	return []string{"commands", "shoutout", "response_offline"}
-}
-func (k KeysCommandsShoutoutResponseOffline) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsShoutoutResponseOffline) SetVars(vars KeysCommandsShoutoutResponseOfflineVars) twiri18n.TranslationKey[KeysCommandsShoutoutResponseOfflineVars] {
-	k.Vars = twiri18n.Vars{"userName": vars.UserName, "categoryName": vars.CategoryName, "title": vars.Title}
-	return k
-}
-
-type KeysCommandsShoutout struct {
-	Errors          KeysCommandsShoutoutErrors
-	ResponseOnline  KeysCommandsShoutoutResponseOnline
-	ResponseOffline KeysCommandsShoutoutResponseOffline
+type KeysCommandsQuotesRemove struct {
+	Removed KeysCommandsQuotesRemoveRemoved
+}
+type KeysCommandsQuotes struct {
+	Errors KeysCommandsQuotesErrors
+	Add    KeysCommandsQuotesAdd
+	Remove KeysCommandsQuotesRemove
 }
 type KeysCommandsStatsInfoWatchingStreamVars struct {
 	UserWatching any
@@ -5976,9 +4179,551 @@ type KeysCommandsStatsMe struct {
 	Messages KeysCommandsStatsMeMessages
 	Emotes   KeysCommandsStatsMeEmotes
 }
+type KeysCommandsStatsBotuptimeUnavailableVars struct {
+}
+type KeysCommandsStatsBotuptimeUnavailable struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsStatsBotuptimeUnavailable) IsTranslationKey() {
+}
+func (k KeysCommandsStatsBotuptimeUnavailable) GetPath() string {
+	return "commands.stats.botuptime.unavailable"
+}
+func (k KeysCommandsStatsBotuptimeUnavailable) GetPathSlice() []string {
+	return []string{"commands", "stats", "botuptime", "unavailable"}
+}
+func (k KeysCommandsStatsBotuptimeUnavailable) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsStatsBotuptimeUnavailable) SetVars(vars KeysCommandsStatsBotuptimeUnavailableVars) twiri18n.TranslationKey[KeysCommandsStatsBotuptimeUnavailableVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsStatsBotuptimeServicesVars struct {
+}
+type KeysCommandsStatsBotuptimeServices struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsStatsBotuptimeServices) IsTranslationKey() {
+}
+func (k KeysCommandsStatsBotuptimeServices) GetPath() string {
+	return "commands.stats.botuptime.services"
+}
+func (k KeysCommandsStatsBotuptimeServices) GetPathSlice() []string {
+	return []string{"commands", "stats", "botuptime", "services"}
+}
+func (k KeysCommandsStatsBotuptimeServices) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsStatsBotuptimeServices) SetVars(vars KeysCommandsStatsBotuptimeServicesVars) twiri18n.TranslationKey[KeysCommandsStatsBotuptimeServicesVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsStatsBotuptimeDownVars struct {
+}
+type KeysCommandsStatsBotuptimeDown struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsStatsBotuptimeDown) IsTranslationKey() {
+}
+func (k KeysCommandsStatsBotuptimeDown) GetPath() string {
+	return "commands.stats.botuptime.down"
+}
+func (k KeysCommandsStatsBotuptimeDown) GetPathSlice() []string {
+	return []string{"commands", "stats", "botuptime", "down"}
+}
+func (k KeysCommandsStatsBotuptimeDown) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsStatsBotuptimeDown) SetVars(vars KeysCommandsStatsBotuptimeDownVars) twiri18n.TranslationKey[KeysCommandsStatsBotuptimeDownVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsStatsBotuptimeRecentlyRestartedVars struct {
+}
+type KeysCommandsStatsBotuptimeRecentlyRestarted struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsStatsBotuptimeRecentlyRestarted) IsTranslationKey() {
+}
+func (k KeysCommandsStatsBotuptimeRecentlyRestarted) GetPath() string {
+	return "commands.stats.botuptime.recently_restarted"
+}
+func (k KeysCommandsStatsBotuptimeRecentlyRestarted) GetPathSlice() []string {
+	return []string{"commands", "stats", "botuptime", "recently_restarted"}
+}
+func (k KeysCommandsStatsBotuptimeRecentlyRestarted) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsStatsBotuptimeRecentlyRestarted) SetVars(vars KeysCommandsStatsBotuptimeRecentlyRestartedVars) twiri18n.TranslationKey[KeysCommandsStatsBotuptimeRecentlyRestartedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsStatsBotuptimePingVars struct {
+}
+type KeysCommandsStatsBotuptimePing struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsStatsBotuptimePing) IsTranslationKey() {
+}
+func (k KeysCommandsStatsBotuptimePing) GetPath() string {
+	return "commands.stats.botuptime.ping"
+}
+func (k KeysCommandsStatsBotuptimePing) GetPathSlice() []string {
+	return []string{"commands", "stats", "botuptime", "ping"}
+}
+func (k KeysCommandsStatsBotuptimePing) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsStatsBotuptimePing) SetVars(vars KeysCommandsStatsBotuptimePingVars) twiri18n.TranslationKey[KeysCommandsStatsBotuptimePingVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsStatsBotuptimeNoDataVars struct {
+	Services    any
+	Unavailable any
+}
+type KeysCommandsStatsBotuptimeNoData struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsStatsBotuptimeNoData) IsTranslationKey() {
+}
+func (k KeysCommandsStatsBotuptimeNoData) GetPath() string {
+	return "commands.stats.botuptime.no_data"
+}
+func (k KeysCommandsStatsBotuptimeNoData) GetPathSlice() []string {
+	return []string{"commands", "stats", "botuptime", "no_data"}
+}
+func (k KeysCommandsStatsBotuptimeNoData) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsStatsBotuptimeNoData) SetVars(vars KeysCommandsStatsBotuptimeNoDataVars) twiri18n.TranslationKey[KeysCommandsStatsBotuptimeNoDataVars] {
+	k.Vars = twiri18n.Vars{"services": vars.Services, "unavailable": vars.Unavailable}
+	return k
+}
+
+type KeysCommandsStatsBotuptime struct {
+	Unavailable       KeysCommandsStatsBotuptimeUnavailable
+	Services          KeysCommandsStatsBotuptimeServices
+	Down              KeysCommandsStatsBotuptimeDown
+	RecentlyRestarted KeysCommandsStatsBotuptimeRecentlyRestarted
+	Ping              KeysCommandsStatsBotuptimePing
+	NoData            KeysCommandsStatsBotuptimeNoData
+}
 type KeysCommandsStats struct {
-	Info KeysCommandsStatsInfo
-	Me   KeysCommandsStatsMe
+	Info      KeysCommandsStatsInfo
+	Me        KeysCommandsStatsMe
+	Botuptime KeysCommandsStatsBotuptime
+}
+type KeysCommandsVipsHintsUserVars struct {
+}
+type KeysCommandsVipsHintsUser struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsHintsUser) IsTranslationKey() {
+}
+func (k KeysCommandsVipsHintsUser) GetPath() string {
+	return "commands.vips.hints.user"
+}
+func (k KeysCommandsVipsHintsUser) GetPathSlice() []string {
+	return []string{"commands", "vips", "hints", "user"}
+}
+func (k KeysCommandsVipsHintsUser) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsHintsUser) SetVars(vars KeysCommandsVipsHintsUserVars) twiri18n.TranslationKey[KeysCommandsVipsHintsUserVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsVipsHintsUnvipInVars struct {
+}
+type KeysCommandsVipsHintsUnvipIn struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsHintsUnvipIn) IsTranslationKey() {
+}
+func (k KeysCommandsVipsHintsUnvipIn) GetPath() string {
+	return "commands.vips.hints.unvip_in"
+}
+func (k KeysCommandsVipsHintsUnvipIn) GetPathSlice() []string {
+	return []string{"commands", "vips", "hints", "unvip_in"}
+}
+func (k KeysCommandsVipsHintsUnvipIn) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsHintsUnvipIn) SetVars(vars KeysCommandsVipsHintsUnvipInVars) twiri18n.TranslationKey[KeysCommandsVipsHintsUnvipInVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsVipsHints struct {
+	User    KeysCommandsVipsHintsUser
+	UnvipIn KeysCommandsVipsHintsUnvipIn
+}
+type KeysCommandsVipsErrorsAlreadyHaveRoleVars struct {
+}
+type KeysCommandsVipsErrorsAlreadyHaveRole struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsAlreadyHaveRole) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsAlreadyHaveRole) GetPath() string {
+	return "commands.vips.errors.already_have_role"
+}
+func (k KeysCommandsVipsErrorsAlreadyHaveRole) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "already_have_role"}
+}
+func (k KeysCommandsVipsErrorsAlreadyHaveRole) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsAlreadyHaveRole) SetVars(vars KeysCommandsVipsErrorsAlreadyHaveRoleVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsAlreadyHaveRoleVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsVipsErrorsAddedVars struct {
+	UserName any
+}
+type KeysCommandsVipsErrorsAdded struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsAdded) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsAdded) GetPath() string {
+	return "commands.vips.errors.added"
+}
+func (k KeysCommandsVipsErrorsAdded) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "added"}
+}
+func (k KeysCommandsVipsErrorsAdded) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsAdded) SetVars(vars KeysCommandsVipsErrorsAddedVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsAddedVars] {
+	k.Vars = twiri18n.Vars{"userName": vars.UserName}
+	return k
+}
+
+type KeysCommandsVipsErrorsCannotGetListFromDbVars struct {
+}
+type KeysCommandsVipsErrorsCannotGetListFromDb struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsCannotGetListFromDb) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsCannotGetListFromDb) GetPath() string {
+	return "commands.vips.errors.cannot_get_list_from_db"
+}
+func (k KeysCommandsVipsErrorsCannotGetListFromDb) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "cannot_get_list_from_db"}
+}
+func (k KeysCommandsVipsErrorsCannotGetListFromDb) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsCannotGetListFromDb) SetVars(vars KeysCommandsVipsErrorsCannotGetListFromDbVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsCannotGetListFromDbVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsVipsErrorsInvalidDurationVars struct {
+}
+type KeysCommandsVipsErrorsInvalidDuration struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsInvalidDuration) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsInvalidDuration) GetPath() string {
+	return "commands.vips.errors.invalid_duration"
+}
+func (k KeysCommandsVipsErrorsInvalidDuration) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "invalid_duration"}
+}
+func (k KeysCommandsVipsErrorsInvalidDuration) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsInvalidDuration) SetVars(vars KeysCommandsVipsErrorsInvalidDurationVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsInvalidDurationVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsVipsErrorsCannotCreateScheduledInDbVars struct {
+}
+type KeysCommandsVipsErrorsCannotCreateScheduledInDb struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) GetPath() string {
+	return "commands.vips.errors.cannot_create_scheduled_in_db"
+}
+func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "cannot_create_scheduled_in_db"}
+}
+func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsCannotCreateScheduledInDb) SetVars(vars KeysCommandsVipsErrorsCannotCreateScheduledInDbVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsCannotCreateScheduledInDbVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsVipsErrorsAddedWithRemoveTimeVars struct {
+	UserName any
+	EndTime  any
+}
+type KeysCommandsVipsErrorsAddedWithRemoveTime struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsAddedWithRemoveTime) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsAddedWithRemoveTime) GetPath() string {
+	return "commands.vips.errors.added_with_remove_time"
+}
+func (k KeysCommandsVipsErrorsAddedWithRemoveTime) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "added_with_remove_time"}
+}
+func (k KeysCommandsVipsErrorsAddedWithRemoveTime) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsAddedWithRemoveTime) SetVars(vars KeysCommandsVipsErrorsAddedWithRemoveTimeVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsAddedWithRemoveTimeVars] {
+	k.Vars = twiri18n.Vars{"userName": vars.UserName, "endTime": vars.EndTime}
+	return k
+}
+
+type KeysCommandsVipsErrorsNoScheduledVipsVars struct {
+}
+type KeysCommandsVipsErrorsNoScheduledVips struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsNoScheduledVips) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsNoScheduledVips) GetPath() string {
+	return "commands.vips.errors.no_scheduled_vips"
+}
+func (k KeysCommandsVipsErrorsNoScheduledVips) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "no_scheduled_vips"}
+}
+func (k KeysCommandsVipsErrorsNoScheduledVips) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsNoScheduledVips) SetVars(vars KeysCommandsVipsErrorsNoScheduledVipsVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsNoScheduledVipsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsVipsErrorsRemovedVars struct {
+	UserName any
+}
+type KeysCommandsVipsErrorsRemoved struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsRemoved) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsRemoved) GetPath() string {
+	return "commands.vips.errors.removed"
+}
+func (k KeysCommandsVipsErrorsRemoved) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "removed"}
+}
+func (k KeysCommandsVipsErrorsRemoved) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsRemoved) SetVars(vars KeysCommandsVipsErrorsRemovedVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsRemovedVars] {
+	k.Vars = twiri18n.Vars{"userName": vars.UserName}
+	return k
+}
+
+type KeysCommandsVipsErrorsCannotUpdateVars struct {
+}
+type KeysCommandsVipsErrorsCannotUpdate struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsCannotUpdate) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsCannotUpdate) GetPath() string {
+	return "commands.vips.errors.cannot_update"
+}
+func (k KeysCommandsVipsErrorsCannotUpdate) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "cannot_update"}
+}
+func (k KeysCommandsVipsErrorsCannotUpdate) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsCannotUpdate) SetVars(vars KeysCommandsVipsErrorsCannotUpdateVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsCannotUpdateVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsVipsErrorsUpdatedVars struct {
+	UserName any
+	EndTime  any
+}
+type KeysCommandsVipsErrorsUpdated struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsVipsErrorsUpdated) IsTranslationKey() {
+}
+func (k KeysCommandsVipsErrorsUpdated) GetPath() string {
+	return "commands.vips.errors.updated"
+}
+func (k KeysCommandsVipsErrorsUpdated) GetPathSlice() []string {
+	return []string{"commands", "vips", "errors", "updated"}
+}
+func (k KeysCommandsVipsErrorsUpdated) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsVipsErrorsUpdated) SetVars(vars KeysCommandsVipsErrorsUpdatedVars) twiri18n.TranslationKey[KeysCommandsVipsErrorsUpdatedVars] {
+	k.Vars = twiri18n.Vars{"userName": vars.UserName, "endTime": vars.EndTime}
+	return k
+}
+
+type KeysCommandsVipsErrors struct {
+	AlreadyHaveRole           KeysCommandsVipsErrorsAlreadyHaveRole
+	Added                     KeysCommandsVipsErrorsAdded
+	CannotGetListFromDb       KeysCommandsVipsErrorsCannotGetListFromDb
+	InvalidDuration           KeysCommandsVipsErrorsInvalidDuration
+	CannotCreateScheduledInDb KeysCommandsVipsErrorsCannotCreateScheduledInDb
+	AddedWithRemoveTime       KeysCommandsVipsErrorsAddedWithRemoveTime
+	NoScheduledVips           KeysCommandsVipsErrorsNoScheduledVips
+	Removed                   KeysCommandsVipsErrorsRemoved
+	CannotUpdate              KeysCommandsVipsErrorsCannotUpdate
+	Updated                   KeysCommandsVipsErrorsUpdated
+}
+type KeysCommandsVips struct {
+	Hints  KeysCommandsVipsHints
+	Errors KeysCommandsVipsErrors
+}
+type KeysCommandsPermitErrorsCannotCreateVars struct {
+}
+type KeysCommandsPermitErrorsCannotCreate struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPermitErrorsCannotCreate) IsTranslationKey() {
+}
+func (k KeysCommandsPermitErrorsCannotCreate) GetPath() string {
+	return "commands.permit.errors.cannot_create"
+}
+func (k KeysCommandsPermitErrorsCannotCreate) GetPathSlice() []string {
+	return []string{"commands", "permit", "errors", "cannot_create"}
+}
+func (k KeysCommandsPermitErrorsCannotCreate) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPermitErrorsCannotCreate) SetVars(vars KeysCommandsPermitErrorsCannotCreateVars) twiri18n.TranslationKey[KeysCommandsPermitErrorsCannotCreateVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsPermitErrors struct {
+	CannotCreate KeysCommandsPermitErrorsCannotCreate
+}
+type KeysCommandsPermitSuccessAddedPermitVars struct {
+	CountPermit any
+	UserName    any
+}
+type KeysCommandsPermitSuccessAddedPermit struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPermitSuccessAddedPermit) IsTranslationKey() {
+}
+func (k KeysCommandsPermitSuccessAddedPermit) GetPath() string {
+	return "commands.permit.success.added_permit"
+}
+func (k KeysCommandsPermitSuccessAddedPermit) GetPathSlice() []string {
+	return []string{"commands", "permit", "success", "added_permit"}
+}
+func (k KeysCommandsPermitSuccessAddedPermit) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPermitSuccessAddedPermit) SetVars(vars KeysCommandsPermitSuccessAddedPermitVars) twiri18n.TranslationKey[KeysCommandsPermitSuccessAddedPermitVars] {
+	k.Vars = twiri18n.Vars{"countPermit": vars.CountPermit, "userName": vars.UserName}
+	return k
+}
+
+type KeysCommandsPermitSuccess struct {
+	AddedPermit KeysCommandsPermitSuccessAddedPermit
+}
+type KeysCommandsPermit struct {
+	Errors  KeysCommandsPermitErrors
+	Success KeysCommandsPermitSuccess
+}
+type KeysCommandsSeventvRemoveEmoteRemoveVars struct {
+	EmoteName any
+}
+type KeysCommandsSeventvRemoveEmoteRemove struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSeventvRemoveEmoteRemove) IsTranslationKey() {
+}
+func (k KeysCommandsSeventvRemoveEmoteRemove) GetPath() string {
+	return "commands.7tv.remove.emote_remove"
+}
+func (k KeysCommandsSeventvRemoveEmoteRemove) GetPathSlice() []string {
+	return []string{"commands", "7tv", "remove", "emote_remove"}
+}
+func (k KeysCommandsSeventvRemoveEmoteRemove) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSeventvRemoveEmoteRemove) SetVars(vars KeysCommandsSeventvRemoveEmoteRemoveVars) twiri18n.TranslationKey[KeysCommandsSeventvRemoveEmoteRemoveVars] {
+	k.Vars = twiri18n.Vars{"emoteName": vars.EmoteName}
+	return k
+}
+
+type KeysCommandsSeventvRemove struct {
+	EmoteRemove KeysCommandsSeventvRemoveEmoteRemove
+}
+type KeysCommandsSeventvRenameEmoteRenameVars struct {
+	OldEmoteName any
+	NewEmoteName any
+}
+type KeysCommandsSeventvRenameEmoteRename struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSeventvRenameEmoteRename) IsTranslationKey() {
+}
+func (k KeysCommandsSeventvRenameEmoteRename) GetPath() string {
+	return "commands.7tv.rename.emote_rename"
+}
+func (k KeysCommandsSeventvRenameEmoteRename) GetPathSlice() []string {
+	return []string{"commands", "7tv", "rename", "emote_rename"}
+}
+func (k KeysCommandsSeventvRenameEmoteRename) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSeventvRenameEmoteRename) SetVars(vars KeysCommandsSeventvRenameEmoteRenameVars) twiri18n.TranslationKey[KeysCommandsSeventvRenameEmoteRenameVars] {
+	k.Vars = twiri18n.Vars{"oldEmoteName": vars.OldEmoteName, "newEmoteName": vars.NewEmoteName}
+	return k
+}
+
+type KeysCommandsSeventvRename struct {
+	EmoteRename KeysCommandsSeventvRenameEmoteRename
 }
 type KeysCommandsSeventvEmoteInfoResponseVars struct {
 	Name            any
@@ -6044,6 +4789,28 @@ func (k KeysCommandsSeventvProfileInfoResponse) SetVars(vars KeysCommandsSeventv
 type KeysCommandsSeventvProfileInfo struct {
 	Response KeysCommandsSeventvProfileInfoResponse
 }
+type KeysCommandsSeventvHintsEmoteForCopyAliasVars struct {
+}
+type KeysCommandsSeventvHintsEmoteForCopyAlias struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSeventvHintsEmoteForCopyAlias) IsTranslationKey() {
+}
+func (k KeysCommandsSeventvHintsEmoteForCopyAlias) GetPath() string {
+	return "commands.7tv.hints.emoteForCopyAlias"
+}
+func (k KeysCommandsSeventvHintsEmoteForCopyAlias) GetPathSlice() []string {
+	return []string{"commands", "7tv", "hints", "emoteForCopyAlias"}
+}
+func (k KeysCommandsSeventvHintsEmoteForCopyAlias) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSeventvHintsEmoteForCopyAlias) SetVars(vars KeysCommandsSeventvHintsEmoteForCopyAliasVars) twiri18n.TranslationKey[KeysCommandsSeventvHintsEmoteForCopyAliasVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
 type KeysCommandsSeventvHintsEmoteForCopyArgNameVars struct {
 }
 type KeysCommandsSeventvHintsEmoteForCopyArgName struct {
@@ -6154,56 +4921,58 @@ func (k KeysCommandsSeventvHintsEmoteForAddArgAlias) SetVars(vars KeysCommandsSe
 	return k
 }
 
-type KeysCommandsSeventvHintsEmoteForCopyAliasVars struct {
-}
-type KeysCommandsSeventvHintsEmoteForCopyAlias struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSeventvHintsEmoteForCopyAlias) IsTranslationKey() {
-}
-func (k KeysCommandsSeventvHintsEmoteForCopyAlias) GetPath() string {
-	return "commands.7tv.hints.emoteForCopyAlias"
-}
-func (k KeysCommandsSeventvHintsEmoteForCopyAlias) GetPathSlice() []string {
-	return []string{"commands", "7tv", "hints", "emoteForCopyAlias"}
-}
-func (k KeysCommandsSeventvHintsEmoteForCopyAlias) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSeventvHintsEmoteForCopyAlias) SetVars(vars KeysCommandsSeventvHintsEmoteForCopyAliasVars) twiri18n.TranslationKey[KeysCommandsSeventvHintsEmoteForCopyAliasVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
 type KeysCommandsSeventvHints struct {
+	EmoteForCopyAlias   KeysCommandsSeventvHintsEmoteForCopyAlias
 	EmoteForCopyArgName KeysCommandsSeventvHintsEmoteForCopyArgName
 	CopySetChannelName  KeysCommandsSeventvHintsCopySetChannelName
 	CopySetNameOfSet    KeysCommandsSeventvHintsCopySetNameOfSet
 	EmoteForAddArgLink  KeysCommandsSeventvHintsEmoteForAddArgLink
 	EmoteForAddArgAlias KeysCommandsSeventvHintsEmoteForAddArgAlias
-	EmoteForCopyAlias   KeysCommandsSeventvHintsEmoteForCopyAlias
 }
-type KeysCommandsSeventvErrorsEmoteAlreadyExistInChannelVars struct {
+type KeysCommandsSeventvErrorsEmoteNotFoundInEmotesetVars struct {
 	EmoteName any
+	EmoteSet  any
 }
-type KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel struct {
+type KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) IsTranslationKey() {
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) IsTranslationKey() {
 }
-func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) GetPath() string {
-	return "commands.7tv.errors.emote_already_exist_in_channel"
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) GetPath() string {
+	return "commands.7tv.errors.emote_not_found_in_emoteset"
 }
-func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) GetPathSlice() []string {
-	return []string{"commands", "7tv", "errors", "emote_already_exist_in_channel"}
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) GetPathSlice() []string {
+	return []string{"commands", "7tv", "errors", "emote_not_found_in_emoteset"}
 }
-func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) GetVars() twiri18n.Vars {
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) SetVars(vars KeysCommandsSeventvErrorsEmoteAlreadyExistInChannelVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteAlreadyExistInChannelVars] {
-	k.Vars = twiri18n.Vars{"emoteName": vars.EmoteName}
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) SetVars(vars KeysCommandsSeventvErrorsEmoteNotFoundInEmotesetVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteNotFoundInEmotesetVars] {
+	k.Vars = twiri18n.Vars{"emoteName": vars.EmoteName, "emoteSet": vars.EmoteSet}
+	return k
+}
+
+type KeysCommandsSeventvErrorsEmoteNotFoundInChannelVars struct {
+	EmoteSearch any
+}
+type KeysCommandsSeventvErrorsEmoteNotFoundInChannel struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) IsTranslationKey() {
+}
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) GetPath() string {
+	return "commands.7tv.errors.emote_not_found_in_channel"
+}
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) GetPathSlice() []string {
+	return []string{"commands", "7tv", "errors", "emote_not_found_in_channel"}
+}
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) SetVars(vars KeysCommandsSeventvErrorsEmoteNotFoundInChannelVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteNotFoundInChannelVars] {
+	k.Vars = twiri18n.Vars{"emoteSearch": vars.EmoteSearch}
 	return k
 }
 
@@ -6297,26 +5066,49 @@ func (k KeysCommandsSeventvErrorsEmoteFailedToRemove) SetVars(vars KeysCommandsS
 	return k
 }
 
-type KeysCommandsSeventvErrorsEmoteFailedToFetchVars struct {
+type KeysCommandsSeventvErrorsEmoteFailedToRenameVars struct {
 	Reason any
 }
-type KeysCommandsSeventvErrorsEmoteFailedToFetch struct {
+type KeysCommandsSeventvErrorsEmoteFailedToRename struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) IsTranslationKey() {
+func (k KeysCommandsSeventvErrorsEmoteFailedToRename) IsTranslationKey() {
 }
-func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) GetPath() string {
-	return "commands.7tv.errors.emote_failed_to_fetch"
+func (k KeysCommandsSeventvErrorsEmoteFailedToRename) GetPath() string {
+	return "commands.7tv.errors.emote_failed_to_rename"
 }
-func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) GetPathSlice() []string {
-	return []string{"commands", "7tv", "errors", "emote_failed_to_fetch"}
+func (k KeysCommandsSeventvErrorsEmoteFailedToRename) GetPathSlice() []string {
+	return []string{"commands", "7tv", "errors", "emote_failed_to_rename"}
 }
-func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) GetVars() twiri18n.Vars {
+func (k KeysCommandsSeventvErrorsEmoteFailedToRename) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) SetVars(vars KeysCommandsSeventvErrorsEmoteFailedToFetchVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteFailedToFetchVars] {
+func (k KeysCommandsSeventvErrorsEmoteFailedToRename) SetVars(vars KeysCommandsSeventvErrorsEmoteFailedToRenameVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteFailedToRenameVars] {
 	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsSeventvErrorsEmoteAlreadyExistInChannelVars struct {
+	EmoteName any
+}
+type KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) IsTranslationKey() {
+}
+func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) GetPath() string {
+	return "commands.7tv.errors.emote_already_exist_in_channel"
+}
+func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) GetPathSlice() []string {
+	return []string{"commands", "7tv", "errors", "emote_already_exist_in_channel"}
+}
+func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel) SetVars(vars KeysCommandsSeventvErrorsEmoteAlreadyExistInChannelVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteAlreadyExistInChannelVars] {
+	k.Vars = twiri18n.Vars{"emoteName": vars.EmoteName}
 	return k
 }
 
@@ -6388,25 +5180,25 @@ func (k KeysCommandsSeventvErrorsEmoteFailedToAdd) SetVars(vars KeysCommandsSeve
 	return k
 }
 
-type KeysCommandsSeventvErrorsEmoteFailedToRenameVars struct {
+type KeysCommandsSeventvErrorsEmoteFailedToFetchVars struct {
 	Reason any
 }
-type KeysCommandsSeventvErrorsEmoteFailedToRename struct {
+type KeysCommandsSeventvErrorsEmoteFailedToFetch struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsSeventvErrorsEmoteFailedToRename) IsTranslationKey() {
+func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) IsTranslationKey() {
 }
-func (k KeysCommandsSeventvErrorsEmoteFailedToRename) GetPath() string {
-	return "commands.7tv.errors.emote_failed_to_rename"
+func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) GetPath() string {
+	return "commands.7tv.errors.emote_failed_to_fetch"
 }
-func (k KeysCommandsSeventvErrorsEmoteFailedToRename) GetPathSlice() []string {
-	return []string{"commands", "7tv", "errors", "emote_failed_to_rename"}
+func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) GetPathSlice() []string {
+	return []string{"commands", "7tv", "errors", "emote_failed_to_fetch"}
 }
-func (k KeysCommandsSeventvErrorsEmoteFailedToRename) GetVars() twiri18n.Vars {
+func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsSeventvErrorsEmoteFailedToRename) SetVars(vars KeysCommandsSeventvErrorsEmoteFailedToRenameVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteFailedToRenameVars] {
+func (k KeysCommandsSeventvErrorsEmoteFailedToFetch) SetVars(vars KeysCommandsSeventvErrorsEmoteFailedToFetchVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteFailedToFetchVars] {
 	k.Vars = twiri18n.Vars{"reason": vars.Reason}
 	return k
 }
@@ -6434,67 +5226,20 @@ func (k KeysCommandsSeventvErrorsEmoteNotFound) SetVars(vars KeysCommandsSeventv
 	return k
 }
 
-type KeysCommandsSeventvErrorsEmoteNotFoundInEmotesetVars struct {
-	EmoteName any
-	EmoteSet  any
-}
-type KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) IsTranslationKey() {
-}
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) GetPath() string {
-	return "commands.7tv.errors.emote_not_found_in_emoteset"
-}
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) GetPathSlice() []string {
-	return []string{"commands", "7tv", "errors", "emote_not_found_in_emoteset"}
-}
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset) SetVars(vars KeysCommandsSeventvErrorsEmoteNotFoundInEmotesetVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteNotFoundInEmotesetVars] {
-	k.Vars = twiri18n.Vars{"emoteName": vars.EmoteName, "emoteSet": vars.EmoteSet}
-	return k
-}
-
-type KeysCommandsSeventvErrorsEmoteNotFoundInChannelVars struct {
-	EmoteSearch any
-}
-type KeysCommandsSeventvErrorsEmoteNotFoundInChannel struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) IsTranslationKey() {
-}
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) GetPath() string {
-	return "commands.7tv.errors.emote_not_found_in_channel"
-}
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) GetPathSlice() []string {
-	return []string{"commands", "7tv", "errors", "emote_not_found_in_channel"}
-}
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSeventvErrorsEmoteNotFoundInChannel) SetVars(vars KeysCommandsSeventvErrorsEmoteNotFoundInChannelVars) twiri18n.TranslationKey[KeysCommandsSeventvErrorsEmoteNotFoundInChannelVars] {
-	k.Vars = twiri18n.Vars{"emoteSearch": vars.EmoteSearch}
-	return k
-}
-
 type KeysCommandsSeventvErrors struct {
-	EmoteAlreadyExistInChannel   KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel
+	EmoteNotFoundInEmoteset      KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset
+	EmoteNotFoundInChannel       KeysCommandsSeventvErrorsEmoteNotFoundInChannel
 	EmotesetNotActive            KeysCommandsSeventvErrorsEmotesetNotActive
 	EmotesetBroadcasterNotActive KeysCommandsSeventvErrorsEmotesetBroadcasterNotActive
 	ProfileFailedToGet           KeysCommandsSeventvErrorsProfileFailedToGet
 	EmoteFailedToRemove          KeysCommandsSeventvErrorsEmoteFailedToRemove
-	EmoteFailedToFetch           KeysCommandsSeventvErrorsEmoteFailedToFetch
+	EmoteFailedToRename          KeysCommandsSeventvErrorsEmoteFailedToRename
+	EmoteAlreadyExistInChannel   KeysCommandsSeventvErrorsEmoteAlreadyExistInChannel
 	EmotesetNotFound             KeysCommandsSeventvErrorsEmotesetNotFound
 	ProfileNotFound              KeysCommandsSeventvErrorsProfileNotFound
 	EmoteFailedToAdd             KeysCommandsSeventvErrorsEmoteFailedToAdd
-	EmoteFailedToRename          KeysCommandsSeventvErrorsEmoteFailedToRename
+	EmoteFailedToFetch           KeysCommandsSeventvErrorsEmoteFailedToFetch
 	EmoteNotFound                KeysCommandsSeventvErrorsEmoteNotFound
-	EmoteNotFoundInEmoteset      KeysCommandsSeventvErrorsEmoteNotFoundInEmoteset
-	EmoteNotFoundInChannel       KeysCommandsSeventvErrorsEmoteNotFoundInChannel
 }
 type KeysCommandsSeventvAddEmoteAddVars struct {
 }
@@ -6521,91 +5266,869 @@ func (k KeysCommandsSeventvAddEmoteAdd) SetVars(vars KeysCommandsSeventvAddEmote
 type KeysCommandsSeventvAdd struct {
 	EmoteAdd KeysCommandsSeventvAddEmoteAdd
 }
-type KeysCommandsSeventvRemoveEmoteRemoveVars struct {
-	EmoteName any
-}
-type KeysCommandsSeventvRemoveEmoteRemove struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSeventvRemoveEmoteRemove) IsTranslationKey() {
-}
-func (k KeysCommandsSeventvRemoveEmoteRemove) GetPath() string {
-	return "commands.7tv.remove.emote_remove"
-}
-func (k KeysCommandsSeventvRemoveEmoteRemove) GetPathSlice() []string {
-	return []string{"commands", "7tv", "remove", "emote_remove"}
-}
-func (k KeysCommandsSeventvRemoveEmoteRemove) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSeventvRemoveEmoteRemove) SetVars(vars KeysCommandsSeventvRemoveEmoteRemoveVars) twiri18n.TranslationKey[KeysCommandsSeventvRemoveEmoteRemoveVars] {
-	k.Vars = twiri18n.Vars{"emoteName": vars.EmoteName}
-	return k
-}
-
-type KeysCommandsSeventvRemove struct {
-	EmoteRemove KeysCommandsSeventvRemoveEmoteRemove
-}
-type KeysCommandsSeventvRenameEmoteRenameVars struct {
-	OldEmoteName any
-	NewEmoteName any
-}
-type KeysCommandsSeventvRenameEmoteRename struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsSeventvRenameEmoteRename) IsTranslationKey() {
-}
-func (k KeysCommandsSeventvRenameEmoteRename) GetPath() string {
-	return "commands.7tv.rename.emote_rename"
-}
-func (k KeysCommandsSeventvRenameEmoteRename) GetPathSlice() []string {
-	return []string{"commands", "7tv", "rename", "emote_rename"}
-}
-func (k KeysCommandsSeventvRenameEmoteRename) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsSeventvRenameEmoteRename) SetVars(vars KeysCommandsSeventvRenameEmoteRenameVars) twiri18n.TranslationKey[KeysCommandsSeventvRenameEmoteRenameVars] {
-	k.Vars = twiri18n.Vars{"oldEmoteName": vars.OldEmoteName, "newEmoteName": vars.NewEmoteName}
-	return k
-}
-
-type KeysCommandsSeventvRename struct {
-	EmoteRename KeysCommandsSeventvRenameEmoteRename
-}
 type KeysCommandsSeventv struct {
+	Remove      KeysCommandsSeventvRemove
+	Rename      KeysCommandsSeventvRename
 	EmoteInfo   KeysCommandsSeventvEmoteInfo
 	ProfileInfo KeysCommandsSeventvProfileInfo
 	Hints       KeysCommandsSeventvHints
 	Errors      KeysCommandsSeventvErrors
 	Add         KeysCommandsSeventvAdd
-	Remove      KeysCommandsSeventvRemove
-	Rename      KeysCommandsSeventvRename
 }
-type KeysCommandsClipClipCreatedVars struct {
-	Url any
+type KeysCommandsManageErrorsAliasCannotGetExistedCommandsVars struct {
 }
-type KeysCommandsClipClipCreated struct {
+type KeysCommandsManageErrorsAliasCannotGetExistedCommands struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsClipClipCreated) IsTranslationKey() {
+func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) IsTranslationKey() {
 }
-func (k KeysCommandsClipClipCreated) GetPath() string {
-	return "commands.clip.clip_created"
+func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) GetPath() string {
+	return "commands.manage.errors.alias_cannot_get_existed_commands"
 }
-func (k KeysCommandsClipClipCreated) GetPathSlice() []string {
-	return []string{"commands", "clip", "clip_created"}
+func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "alias_cannot_get_existed_commands"}
 }
-func (k KeysCommandsClipClipCreated) GetVars() twiri18n.Vars {
+func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsClipClipCreated) SetVars(vars KeysCommandsClipClipCreatedVars) twiri18n.TranslationKey[KeysCommandsClipClipCreatedVars] {
-	k.Vars = twiri18n.Vars{"url": vars.Url}
+func (k KeysCommandsManageErrorsAliasCannotGetExistedCommands) SetVars(vars KeysCommandsManageErrorsAliasCannotGetExistedCommandsVars) twiri18n.TranslationKey[KeysCommandsManageErrorsAliasCannotGetExistedCommandsVars] {
+	k.Vars = twiri18n.Vars{}
 	return k
 }
 
+type KeysCommandsManageErrorsAliasNotCommandVars struct {
+}
+type KeysCommandsManageErrorsAliasNotCommand struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsAliasNotCommand) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsAliasNotCommand) GetPath() string {
+	return "commands.manage.errors.alias_not_command"
+}
+func (k KeysCommandsManageErrorsAliasNotCommand) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "alias_not_command"}
+}
+func (k KeysCommandsManageErrorsAliasNotCommand) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsAliasNotCommand) SetVars(vars KeysCommandsManageErrorsAliasNotCommandVars) twiri18n.TranslationKey[KeysCommandsManageErrorsAliasNotCommandVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandNotFoundVars struct {
+}
+type KeysCommandsManageErrorsCommandNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandNotFound) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandNotFound) GetPath() string {
+	return "commands.manage.errors.command_not_found"
+}
+func (k KeysCommandsManageErrorsCommandNotFound) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_not_found"}
+}
+func (k KeysCommandsManageErrorsCommandNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandNotFound) SetVars(vars KeysCommandsManageErrorsCommandNotFoundVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandNotFoundVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandCannotGetVars struct {
+}
+type KeysCommandsManageErrorsCommandCannotGet struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandCannotGet) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandCannotGet) GetPath() string {
+	return "commands.manage.errors.command_cannot_get"
+}
+func (k KeysCommandsManageErrorsCommandCannotGet) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_cannot_get"}
+}
+func (k KeysCommandsManageErrorsCommandCannotGet) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandCannotGet) SetVars(vars KeysCommandsManageErrorsCommandCannotGetVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotGetVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandLargeSizeVars struct {
+}
+type KeysCommandsManageErrorsCommandLargeSize struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandLargeSize) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandLargeSize) GetPath() string {
+	return "commands.manage.errors.command_large_size"
+}
+func (k KeysCommandsManageErrorsCommandLargeSize) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_large_size"}
+}
+func (k KeysCommandsManageErrorsCommandLargeSize) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandLargeSize) SetVars(vars KeysCommandsManageErrorsCommandLargeSizeVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandLargeSizeVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandCannotDeleteDefaultVars struct {
+}
+type KeysCommandsManageErrorsCommandCannotDeleteDefault struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) GetPath() string {
+	return "commands.manage.errors.command_cannot_delete_default"
+}
+func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_cannot_delete_default"}
+}
+func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandCannotDeleteDefault) SetVars(vars KeysCommandsManageErrorsCommandCannotDeleteDefaultVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotDeleteDefaultVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandCannotSaveVars struct {
+}
+type KeysCommandsManageErrorsCommandCannotSave struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandCannotSave) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandCannotSave) GetPath() string {
+	return "commands.manage.errors.command_cannot_save"
+}
+func (k KeysCommandsManageErrorsCommandCannotSave) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_cannot_save"}
+}
+func (k KeysCommandsManageErrorsCommandCannotSave) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandCannotSave) SetVars(vars KeysCommandsManageErrorsCommandCannotSaveVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotSaveVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsAliasAlreadyExistVars struct {
+	Alias any
+}
+type KeysCommandsManageErrorsAliasAlreadyExist struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsAliasAlreadyExist) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsAliasAlreadyExist) GetPath() string {
+	return "commands.manage.errors.alias_already_exist"
+}
+func (k KeysCommandsManageErrorsAliasAlreadyExist) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "alias_already_exist"}
+}
+func (k KeysCommandsManageErrorsAliasAlreadyExist) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsAliasAlreadyExist) SetVars(vars KeysCommandsManageErrorsAliasAlreadyExistVars) twiri18n.TranslationKey[KeysCommandsManageErrorsAliasAlreadyExistVars] {
+	k.Vars = twiri18n.Vars{"alias": vars.Alias}
+	return k
+}
+
+type KeysCommandsManageErrorsAliasCannotUpdateVars struct {
+}
+type KeysCommandsManageErrorsAliasCannotUpdate struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsAliasCannotUpdate) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsAliasCannotUpdate) GetPath() string {
+	return "commands.manage.errors.alias_cannot_update"
+}
+func (k KeysCommandsManageErrorsAliasCannotUpdate) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "alias_cannot_update"}
+}
+func (k KeysCommandsManageErrorsAliasCannotUpdate) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsAliasCannotUpdate) SetVars(vars KeysCommandsManageErrorsAliasCannotUpdateVars) twiri18n.TranslationKey[KeysCommandsManageErrorsAliasCannotUpdateVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandWithAliasAlreadyExistsVars struct {
+}
+type KeysCommandsManageErrorsCommandWithAliasAlreadyExists struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) GetPath() string {
+	return "commands.manage.errors.command_with_alias_already_exists"
+}
+func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_with_alias_already_exists"}
+}
+func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandWithAliasAlreadyExists) SetVars(vars KeysCommandsManageErrorsCommandWithAliasAlreadyExistsVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandWithAliasAlreadyExistsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandWithNameCannotFindVars struct {
+}
+type KeysCommandsManageErrorsCommandWithNameCannotFind struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandWithNameCannotFind) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandWithNameCannotFind) GetPath() string {
+	return "commands.manage.errors.command_with_name_cannot_find"
+}
+func (k KeysCommandsManageErrorsCommandWithNameCannotFind) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_with_name_cannot_find"}
+}
+func (k KeysCommandsManageErrorsCommandWithNameCannotFind) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandWithNameCannotFind) SetVars(vars KeysCommandsManageErrorsCommandWithNameCannotFindVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandWithNameCannotFindVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandHaveNoAliasesVars struct {
+}
+type KeysCommandsManageErrorsCommandHaveNoAliases struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandHaveNoAliases) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandHaveNoAliases) GetPath() string {
+	return "commands.manage.errors.command_have_no_aliases"
+}
+func (k KeysCommandsManageErrorsCommandHaveNoAliases) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_have_no_aliases"}
+}
+func (k KeysCommandsManageErrorsCommandHaveNoAliases) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandHaveNoAliases) SetVars(vars KeysCommandsManageErrorsCommandHaveNoAliasesVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandHaveNoAliasesVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandCannotUpdateResponseVars struct {
+}
+type KeysCommandsManageErrorsCommandCannotUpdateResponse struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) GetPath() string {
+	return "commands.manage.errors.command_cannot_update_response"
+}
+func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_cannot_update_response"}
+}
+func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandCannotUpdateResponse) SetVars(vars KeysCommandsManageErrorsCommandCannotUpdateResponseVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotUpdateResponseVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrorsCommandCannotUpdateVars struct {
+}
+type KeysCommandsManageErrorsCommandCannotUpdate struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageErrorsCommandCannotUpdate) IsTranslationKey() {
+}
+func (k KeysCommandsManageErrorsCommandCannotUpdate) GetPath() string {
+	return "commands.manage.errors.command_cannot_update"
+}
+func (k KeysCommandsManageErrorsCommandCannotUpdate) GetPathSlice() []string {
+	return []string{"commands", "manage", "errors", "command_cannot_update"}
+}
+func (k KeysCommandsManageErrorsCommandCannotUpdate) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageErrorsCommandCannotUpdate) SetVars(vars KeysCommandsManageErrorsCommandCannotUpdateVars) twiri18n.TranslationKey[KeysCommandsManageErrorsCommandCannotUpdateVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageErrors struct {
+	AliasCannotGetExistedCommands KeysCommandsManageErrorsAliasCannotGetExistedCommands
+	AliasNotCommand               KeysCommandsManageErrorsAliasNotCommand
+	CommandNotFound               KeysCommandsManageErrorsCommandNotFound
+	CommandCannotGet              KeysCommandsManageErrorsCommandCannotGet
+	CommandLargeSize              KeysCommandsManageErrorsCommandLargeSize
+	CommandCannotDeleteDefault    KeysCommandsManageErrorsCommandCannotDeleteDefault
+	CommandCannotSave             KeysCommandsManageErrorsCommandCannotSave
+	AliasAlreadyExist             KeysCommandsManageErrorsAliasAlreadyExist
+	AliasCannotUpdate             KeysCommandsManageErrorsAliasCannotUpdate
+	CommandWithAliasAlreadyExists KeysCommandsManageErrorsCommandWithAliasAlreadyExists
+	CommandWithNameCannotFind     KeysCommandsManageErrorsCommandWithNameCannotFind
+	CommandHaveNoAliases          KeysCommandsManageErrorsCommandHaveNoAliases
+	CommandCannotUpdateResponse   KeysCommandsManageErrorsCommandCannotUpdateResponse
+	CommandCannotUpdate           KeysCommandsManageErrorsCommandCannotUpdate
+}
+type KeysCommandsManageAddCommandAddVars struct {
+}
+type KeysCommandsManageAddCommandAdd struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageAddCommandAdd) IsTranslationKey() {
+}
+func (k KeysCommandsManageAddCommandAdd) GetPath() string {
+	return "commands.manage.add.command_add"
+}
+func (k KeysCommandsManageAddCommandAdd) GetPathSlice() []string {
+	return []string{"commands", "manage", "add", "command_add"}
+}
+func (k KeysCommandsManageAddCommandAdd) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageAddCommandAdd) SetVars(vars KeysCommandsManageAddCommandAddVars) twiri18n.TranslationKey[KeysCommandsManageAddCommandAddVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageAddAliasAddVars struct {
+}
+type KeysCommandsManageAddAliasAdd struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageAddAliasAdd) IsTranslationKey() {
+}
+func (k KeysCommandsManageAddAliasAdd) GetPath() string {
+	return "commands.manage.add.alias_add"
+}
+func (k KeysCommandsManageAddAliasAdd) GetPathSlice() []string {
+	return []string{"commands", "manage", "add", "alias_add"}
+}
+func (k KeysCommandsManageAddAliasAdd) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageAddAliasAdd) SetVars(vars KeysCommandsManageAddAliasAddVars) twiri18n.TranslationKey[KeysCommandsManageAddAliasAddVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageAdd struct {
+	CommandAdd KeysCommandsManageAddCommandAdd
+	AliasAdd   KeysCommandsManageAddAliasAdd
+}
+type KeysCommandsManageEditCommandEditedVars struct {
+}
+type KeysCommandsManageEditCommandEdited struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageEditCommandEdited) IsTranslationKey() {
+}
+func (k KeysCommandsManageEditCommandEdited) GetPath() string {
+	return "commands.manage.edit.command_edited"
+}
+func (k KeysCommandsManageEditCommandEdited) GetPathSlice() []string {
+	return []string{"commands", "manage", "edit", "command_edited"}
+}
+func (k KeysCommandsManageEditCommandEdited) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageEditCommandEdited) SetVars(vars KeysCommandsManageEditCommandEditedVars) twiri18n.TranslationKey[KeysCommandsManageEditCommandEditedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageEdit struct {
+	CommandEdited KeysCommandsManageEditCommandEdited
+}
+type KeysCommandsManageRemoveAliasRemovedVars struct {
+}
+type KeysCommandsManageRemoveAliasRemoved struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageRemoveAliasRemoved) IsTranslationKey() {
+}
+func (k KeysCommandsManageRemoveAliasRemoved) GetPath() string {
+	return "commands.manage.remove.alias_removed"
+}
+func (k KeysCommandsManageRemoveAliasRemoved) GetPathSlice() []string {
+	return []string{"commands", "manage", "remove", "alias_removed"}
+}
+func (k KeysCommandsManageRemoveAliasRemoved) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageRemoveAliasRemoved) SetVars(vars KeysCommandsManageRemoveAliasRemovedVars) twiri18n.TranslationKey[KeysCommandsManageRemoveAliasRemovedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageRemoveCommandRemovedVars struct {
+}
+type KeysCommandsManageRemoveCommandRemoved struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsManageRemoveCommandRemoved) IsTranslationKey() {
+}
+func (k KeysCommandsManageRemoveCommandRemoved) GetPath() string {
+	return "commands.manage.remove.command_removed"
+}
+func (k KeysCommandsManageRemoveCommandRemoved) GetPathSlice() []string {
+	return []string{"commands", "manage", "remove", "command_removed"}
+}
+func (k KeysCommandsManageRemoveCommandRemoved) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsManageRemoveCommandRemoved) SetVars(vars KeysCommandsManageRemoveCommandRemovedVars) twiri18n.TranslationKey[KeysCommandsManageRemoveCommandRemovedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsManageRemove struct {
+	AliasRemoved   KeysCommandsManageRemoveAliasRemoved
+	CommandRemoved KeysCommandsManageRemoveCommandRemoved
+}
+type KeysCommandsManage struct {
+	Errors KeysCommandsManageErrors
+	Add    KeysCommandsManageAdd
+	Edit   KeysCommandsManageEdit
+	Remove KeysCommandsManageRemove
+}
+type KeysCommandsSubageErrorsNotSubscriberOrHiddenVars struct {
+}
+type KeysCommandsSubageErrorsNotSubscriberOrHidden struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) IsTranslationKey() {
+}
+func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) GetPath() string {
+	return "commands.subage.errors.not_subscriber_or_hidden"
+}
+func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) GetPathSlice() []string {
+	return []string{"commands", "subage", "errors", "not_subscriber_or_hidden"}
+}
+func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSubageErrorsNotSubscriberOrHidden) SetVars(vars KeysCommandsSubageErrorsNotSubscriberOrHiddenVars) twiri18n.TranslationKey[KeysCommandsSubageErrorsNotSubscriberOrHiddenVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsSubageErrors struct {
+	NotSubscriberOrHidden KeysCommandsSubageErrorsNotSubscriberOrHidden
+}
+type KeysCommandsSubageResponsesNotSubscriberVars struct {
+	User any
+}
+type KeysCommandsSubageResponsesNotSubscriber struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSubageResponsesNotSubscriber) IsTranslationKey() {
+}
+func (k KeysCommandsSubageResponsesNotSubscriber) GetPath() string {
+	return "commands.subage.responses.not_subscriber"
+}
+func (k KeysCommandsSubageResponsesNotSubscriber) GetPathSlice() []string {
+	return []string{"commands", "subage", "responses", "not_subscriber"}
+}
+func (k KeysCommandsSubageResponsesNotSubscriber) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSubageResponsesNotSubscriber) SetVars(vars KeysCommandsSubageResponsesNotSubscriberVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesNotSubscriberVars] {
+	k.Vars = twiri18n.Vars{"user": vars.User}
+	return k
+}
+
+type KeysCommandsSubageResponsesNotSubscriberButWasVars struct {
+	User   any
+	Months any
+}
+type KeysCommandsSubageResponsesNotSubscriberButWas struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSubageResponsesNotSubscriberButWas) IsTranslationKey() {
+}
+func (k KeysCommandsSubageResponsesNotSubscriberButWas) GetPath() string {
+	return "commands.subage.responses.not_subscriber_but_was"
+}
+func (k KeysCommandsSubageResponsesNotSubscriberButWas) GetPathSlice() []string {
+	return []string{"commands", "subage", "responses", "not_subscriber_but_was"}
+}
+func (k KeysCommandsSubageResponsesNotSubscriberButWas) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSubageResponsesNotSubscriberButWas) SetVars(vars KeysCommandsSubageResponsesNotSubscriberButWasVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesNotSubscriberButWasVars] {
+	k.Vars = twiri18n.Vars{"user": vars.User, "months": vars.Months}
+	return k
+}
+
+type KeysCommandsSubageResponsesSubscriptionInfoVars struct {
+	User    any
+	Tier    any
+	Channel any
+	Months  any
+}
+type KeysCommandsSubageResponsesSubscriptionInfo struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSubageResponsesSubscriptionInfo) IsTranslationKey() {
+}
+func (k KeysCommandsSubageResponsesSubscriptionInfo) GetPath() string {
+	return "commands.subage.responses.subscription_info"
+}
+func (k KeysCommandsSubageResponsesSubscriptionInfo) GetPathSlice() []string {
+	return []string{"commands", "subage", "responses", "subscription_info"}
+}
+func (k KeysCommandsSubageResponsesSubscriptionInfo) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSubageResponsesSubscriptionInfo) SetVars(vars KeysCommandsSubageResponsesSubscriptionInfoVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesSubscriptionInfoVars] {
+	k.Vars = twiri18n.Vars{"user": vars.User, "tier": vars.Tier, "channel": vars.Channel, "months": vars.Months}
+	return k
+}
+
+type KeysCommandsSubageResponsesStreakInfoVars struct {
+	Months any
+}
+type KeysCommandsSubageResponsesStreakInfo struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSubageResponsesStreakInfo) IsTranslationKey() {
+}
+func (k KeysCommandsSubageResponsesStreakInfo) GetPath() string {
+	return "commands.subage.responses.streak_info"
+}
+func (k KeysCommandsSubageResponsesStreakInfo) GetPathSlice() []string {
+	return []string{"commands", "subage", "responses", "streak_info"}
+}
+func (k KeysCommandsSubageResponsesStreakInfo) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSubageResponsesStreakInfo) SetVars(vars KeysCommandsSubageResponsesStreakInfoVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesStreakInfoVars] {
+	k.Vars = twiri18n.Vars{"months": vars.Months}
+	return k
+}
+
+type KeysCommandsSubageResponsesTimeRemainingVars struct {
+	Duration any
+}
+type KeysCommandsSubageResponsesTimeRemaining struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsSubageResponsesTimeRemaining) IsTranslationKey() {
+}
+func (k KeysCommandsSubageResponsesTimeRemaining) GetPath() string {
+	return "commands.subage.responses.time_remaining"
+}
+func (k KeysCommandsSubageResponsesTimeRemaining) GetPathSlice() []string {
+	return []string{"commands", "subage", "responses", "time_remaining"}
+}
+func (k KeysCommandsSubageResponsesTimeRemaining) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsSubageResponsesTimeRemaining) SetVars(vars KeysCommandsSubageResponsesTimeRemainingVars) twiri18n.TranslationKey[KeysCommandsSubageResponsesTimeRemainingVars] {
+	k.Vars = twiri18n.Vars{"duration": vars.Duration}
+	return k
+}
+
+type KeysCommandsSubageResponses struct {
+	NotSubscriber       KeysCommandsSubageResponsesNotSubscriber
+	NotSubscriberButWas KeysCommandsSubageResponsesNotSubscriberButWas
+	SubscriptionInfo    KeysCommandsSubageResponsesSubscriptionInfo
+	StreakInfo          KeysCommandsSubageResponsesStreakInfo
+	TimeRemaining       KeysCommandsSubageResponsesTimeRemaining
+}
+type KeysCommandsSubage struct {
+	Errors    KeysCommandsSubageErrors
+	Responses KeysCommandsSubageResponses
+}
+type KeysCommandsChatWallStartChatWallStartVars struct {
+	ChatWallPhrase any
+}
+type KeysCommandsChatWallStartChatWallStart struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallStartChatWallStart) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallStartChatWallStart) GetPath() string {
+	return "commands.chat_wall.start.chat_wall_start"
+}
+func (k KeysCommandsChatWallStartChatWallStart) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "start", "chat_wall_start"}
+}
+func (k KeysCommandsChatWallStartChatWallStart) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallStartChatWallStart) SetVars(vars KeysCommandsChatWallStartChatWallStartVars) twiri18n.TranslationKey[KeysCommandsChatWallStartChatWallStartVars] {
+	k.Vars = twiri18n.Vars{"chatWallPhrase": vars.ChatWallPhrase}
+	return k
+}
+
+type KeysCommandsChatWallStart struct {
+	ChatWallStart KeysCommandsChatWallStartChatWallStart
+}
+type KeysCommandsChatWallStopChatWalStopVars struct {
+	ChatWallPhrase any
+}
+type KeysCommandsChatWallStopChatWalStop struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallStopChatWalStop) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallStopChatWalStop) GetPath() string {
+	return "commands.chat_wall.stop.chat_wal_stop"
+}
+func (k KeysCommandsChatWallStopChatWalStop) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "stop", "chat_wal_stop"}
+}
+func (k KeysCommandsChatWallStopChatWalStop) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallStopChatWalStop) SetVars(vars KeysCommandsChatWallStopChatWalStopVars) twiri18n.TranslationKey[KeysCommandsChatWallStopChatWalStopVars] {
+	k.Vars = twiri18n.Vars{"chatWallPhrase": vars.ChatWallPhrase}
+	return k
+}
+
+type KeysCommandsChatWallStop struct {
+	ChatWalStop KeysCommandsChatWallStopChatWalStop
+}
+type KeysCommandsChatWallHintsTimeoutPhraseArgNameVars struct {
+}
+type KeysCommandsChatWallHintsTimeoutPhraseArgName struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) GetPath() string {
+	return "commands.chat_wall.hints.timeoutPhraseArgName"
+}
+func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "hints", "timeoutPhraseArgName"}
+}
+func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallHintsTimeoutPhraseArgName) SetVars(vars KeysCommandsChatWallHintsTimeoutPhraseArgNameVars) twiri18n.TranslationKey[KeysCommandsChatWallHintsTimeoutPhraseArgNameVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChatWallHintsBanPhraseArgNameVars struct {
+}
+type KeysCommandsChatWallHintsBanPhraseArgName struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallHintsBanPhraseArgName) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallHintsBanPhraseArgName) GetPath() string {
+	return "commands.chat_wall.hints.banPhraseArgName"
+}
+func (k KeysCommandsChatWallHintsBanPhraseArgName) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "hints", "banPhraseArgName"}
+}
+func (k KeysCommandsChatWallHintsBanPhraseArgName) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallHintsBanPhraseArgName) SetVars(vars KeysCommandsChatWallHintsBanPhraseArgNameVars) twiri18n.TranslationKey[KeysCommandsChatWallHintsBanPhraseArgNameVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChatWallHintsDeletePhraseArgNameVars struct {
+}
+type KeysCommandsChatWallHintsDeletePhraseArgName struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallHintsDeletePhraseArgName) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallHintsDeletePhraseArgName) GetPath() string {
+	return "commands.chat_wall.hints.deletePhraseArgName"
+}
+func (k KeysCommandsChatWallHintsDeletePhraseArgName) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "hints", "deletePhraseArgName"}
+}
+func (k KeysCommandsChatWallHintsDeletePhraseArgName) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallHintsDeletePhraseArgName) SetVars(vars KeysCommandsChatWallHintsDeletePhraseArgNameVars) twiri18n.TranslationKey[KeysCommandsChatWallHintsDeletePhraseArgNameVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChatWallHintsTimeoutDurationArgNameVars struct {
+}
+type KeysCommandsChatWallHintsTimeoutDurationArgName struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallHintsTimeoutDurationArgName) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallHintsTimeoutDurationArgName) GetPath() string {
+	return "commands.chat_wall.hints.timeoutDurationArgName"
+}
+func (k KeysCommandsChatWallHintsTimeoutDurationArgName) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "hints", "timeoutDurationArgName"}
+}
+func (k KeysCommandsChatWallHintsTimeoutDurationArgName) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallHintsTimeoutDurationArgName) SetVars(vars KeysCommandsChatWallHintsTimeoutDurationArgNameVars) twiri18n.TranslationKey[KeysCommandsChatWallHintsTimeoutDurationArgNameVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChatWallHints struct {
+	TimeoutPhraseArgName   KeysCommandsChatWallHintsTimeoutPhraseArgName
+	BanPhraseArgName       KeysCommandsChatWallHintsBanPhraseArgName
+	DeletePhraseArgName    KeysCommandsChatWallHintsDeletePhraseArgName
+	TimeoutDurationArgName KeysCommandsChatWallHintsTimeoutDurationArgName
+}
+type KeysCommandsChatWallErrorsChatWallNotFoundVars struct {
+	ErrorPhrase any
+}
+type KeysCommandsChatWallErrorsChatWallNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallErrorsChatWallNotFound) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallErrorsChatWallNotFound) GetPath() string {
+	return "commands.chat_wall.errors.chat_wall_not_found"
+}
+func (k KeysCommandsChatWallErrorsChatWallNotFound) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "errors", "chat_wall_not_found"}
+}
+func (k KeysCommandsChatWallErrorsChatWallNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallErrorsChatWallNotFound) SetVars(vars KeysCommandsChatWallErrorsChatWallNotFoundVars) twiri18n.TranslationKey[KeysCommandsChatWallErrorsChatWallNotFoundVars] {
+	k.Vars = twiri18n.Vars{"errorPhrase": vars.ErrorPhrase}
+	return k
+}
+
+type KeysCommandsChatWallErrorsInvalidDurationVars struct {
+}
+type KeysCommandsChatWallErrorsInvalidDuration struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallErrorsInvalidDuration) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallErrorsInvalidDuration) GetPath() string {
+	return "commands.chat_wall.errors.invalid_duration"
+}
+func (k KeysCommandsChatWallErrorsInvalidDuration) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "errors", "invalid_duration"}
+}
+func (k KeysCommandsChatWallErrorsInvalidDuration) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallErrorsInvalidDuration) SetVars(vars KeysCommandsChatWallErrorsInvalidDurationVars) twiri18n.TranslationKey[KeysCommandsChatWallErrorsInvalidDurationVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChatWallErrorsLongDurationTimeoutVars struct {
+}
+type KeysCommandsChatWallErrorsLongDurationTimeout struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallErrorsLongDurationTimeout) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallErrorsLongDurationTimeout) GetPath() string {
+	return "commands.chat_wall.errors.long_duration_timeout"
+}
+func (k KeysCommandsChatWallErrorsLongDurationTimeout) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "errors", "long_duration_timeout"}
+}
+func (k KeysCommandsChatWallErrorsLongDurationTimeout) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallErrorsLongDurationTimeout) SetVars(vars KeysCommandsChatWallErrorsLongDurationTimeoutVars) twiri18n.TranslationKey[KeysCommandsChatWallErrorsLongDurationTimeoutVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChatWallErrorsDurationCannotParseVars struct {
+}
+type KeysCommandsChatWallErrorsDurationCannotParse struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChatWallErrorsDurationCannotParse) IsTranslationKey() {
+}
+func (k KeysCommandsChatWallErrorsDurationCannotParse) GetPath() string {
+	return "commands.chat_wall.errors.duration_cannot_parse"
+}
+func (k KeysCommandsChatWallErrorsDurationCannotParse) GetPathSlice() []string {
+	return []string{"commands", "chat_wall", "errors", "duration_cannot_parse"}
+}
+func (k KeysCommandsChatWallErrorsDurationCannotParse) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChatWallErrorsDurationCannotParse) SetVars(vars KeysCommandsChatWallErrorsDurationCannotParseVars) twiri18n.TranslationKey[KeysCommandsChatWallErrorsDurationCannotParseVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChatWallErrors struct {
+	ChatWallNotFound    KeysCommandsChatWallErrorsChatWallNotFound
+	InvalidDuration     KeysCommandsChatWallErrorsInvalidDuration
+	LongDurationTimeout KeysCommandsChatWallErrorsLongDurationTimeout
+	DurationCannotParse KeysCommandsChatWallErrorsDurationCannotParse
+}
+type KeysCommandsChatWall struct {
+	Start  KeysCommandsChatWallStart
+	Stop   KeysCommandsChatWallStop
+	Hints  KeysCommandsChatWallHints
+	Errors KeysCommandsChatWallErrors
+}
 type KeysCommandsClipCannotCreateClipVars struct {
 }
 type KeysCommandsClipCannotCreateClip struct {
@@ -6672,179 +6195,34 @@ func (k KeysCommandsClipCannotGetClip) SetVars(vars KeysCommandsClipCannotGetCli
 	return k
 }
 
+type KeysCommandsClipClipCreatedVars struct {
+	Url any
+}
+type KeysCommandsClipClipCreated struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsClipClipCreated) IsTranslationKey() {
+}
+func (k KeysCommandsClipClipCreated) GetPath() string {
+	return "commands.clip.clip_created"
+}
+func (k KeysCommandsClipClipCreated) GetPathSlice() []string {
+	return []string{"commands", "clip", "clip_created"}
+}
+func (k KeysCommandsClipClipCreated) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsClipClipCreated) SetVars(vars KeysCommandsClipClipCreatedVars) twiri18n.TranslationKey[KeysCommandsClipClipCreatedVars] {
+	k.Vars = twiri18n.Vars{"url": vars.Url}
+	return k
+}
+
 type KeysCommandsClip struct {
-	ClipCreated      KeysCommandsClipClipCreated
 	CannotCreateClip KeysCommandsClipCannotCreateClip
 	EmptyClipUrl     KeysCommandsClipEmptyClipUrl
 	CannotGetClip    KeysCommandsClipCannotGetClip
-}
-type KeysCommandsDudesInfoSpriteRequiredVars struct {
-	AvailableSprites any
-}
-type KeysCommandsDudesInfoSpriteRequired struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsDudesInfoSpriteRequired) IsTranslationKey() {
-}
-func (k KeysCommandsDudesInfoSpriteRequired) GetPath() string {
-	return "commands.dudes.info.sprite_required"
-}
-func (k KeysCommandsDudesInfoSpriteRequired) GetPathSlice() []string {
-	return []string{"commands", "dudes", "info", "sprite_required"}
-}
-func (k KeysCommandsDudesInfoSpriteRequired) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsDudesInfoSpriteRequired) SetVars(vars KeysCommandsDudesInfoSpriteRequiredVars) twiri18n.TranslationKey[KeysCommandsDudesInfoSpriteRequiredVars] {
-	k.Vars = twiri18n.Vars{"availableSprites": vars.AvailableSprites}
-	return k
-}
-
-type KeysCommandsDudesInfoColorResetVars struct {
-}
-type KeysCommandsDudesInfoColorReset struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsDudesInfoColorReset) IsTranslationKey() {
-}
-func (k KeysCommandsDudesInfoColorReset) GetPath() string {
-	return "commands.dudes.info.color_reset"
-}
-func (k KeysCommandsDudesInfoColorReset) GetPathSlice() []string {
-	return []string{"commands", "dudes", "info", "color_reset"}
-}
-func (k KeysCommandsDudesInfoColorReset) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsDudesInfoColorReset) SetVars(vars KeysCommandsDudesInfoColorResetVars) twiri18n.TranslationKey[KeysCommandsDudesInfoColorResetVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsDudesInfoColorChangedVars struct {
-	DudeColor any
-}
-type KeysCommandsDudesInfoColorChanged struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsDudesInfoColorChanged) IsTranslationKey() {
-}
-func (k KeysCommandsDudesInfoColorChanged) GetPath() string {
-	return "commands.dudes.info.color_changed"
-}
-func (k KeysCommandsDudesInfoColorChanged) GetPathSlice() []string {
-	return []string{"commands", "dudes", "info", "color_changed"}
-}
-func (k KeysCommandsDudesInfoColorChanged) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsDudesInfoColorChanged) SetVars(vars KeysCommandsDudesInfoColorChangedVars) twiri18n.TranslationKey[KeysCommandsDudesInfoColorChangedVars] {
-	k.Vars = twiri18n.Vars{"dudeColor": vars.DudeColor}
-	return k
-}
-
-type KeysCommandsDudesInfoSpriteChangedVars struct {
-	DudeSprite any
-}
-type KeysCommandsDudesInfoSpriteChanged struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsDudesInfoSpriteChanged) IsTranslationKey() {
-}
-func (k KeysCommandsDudesInfoSpriteChanged) GetPath() string {
-	return "commands.dudes.info.sprite_changed"
-}
-func (k KeysCommandsDudesInfoSpriteChanged) GetPathSlice() []string {
-	return []string{"commands", "dudes", "info", "sprite_changed"}
-}
-func (k KeysCommandsDudesInfoSpriteChanged) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsDudesInfoSpriteChanged) SetVars(vars KeysCommandsDudesInfoSpriteChangedVars) twiri18n.TranslationKey[KeysCommandsDudesInfoSpriteChangedVars] {
-	k.Vars = twiri18n.Vars{"dudeSprite": vars.DudeSprite}
-	return k
-}
-
-type KeysCommandsDudesInfoColorVars struct {
-	DudeColor any
-}
-type KeysCommandsDudesInfoColor struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsDudesInfoColor) IsTranslationKey() {
-}
-func (k KeysCommandsDudesInfoColor) GetPath() string {
-	return "commands.dudes.info.color"
-}
-func (k KeysCommandsDudesInfoColor) GetPathSlice() []string {
-	return []string{"commands", "dudes", "info", "color"}
-}
-func (k KeysCommandsDudesInfoColor) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsDudesInfoColor) SetVars(vars KeysCommandsDudesInfoColorVars) twiri18n.TranslationKey[KeysCommandsDudesInfoColorVars] {
-	k.Vars = twiri18n.Vars{"dudeColor": vars.DudeColor}
-	return k
-}
-
-type KeysCommandsDudesInfoSpriteVars struct {
-	DudeSprite any
-}
-type KeysCommandsDudesInfoSprite struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsDudesInfoSprite) IsTranslationKey() {
-}
-func (k KeysCommandsDudesInfoSprite) GetPath() string {
-	return "commands.dudes.info.sprite"
-}
-func (k KeysCommandsDudesInfoSprite) GetPathSlice() []string {
-	return []string{"commands", "dudes", "info", "sprite"}
-}
-func (k KeysCommandsDudesInfoSprite) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsDudesInfoSprite) SetVars(vars KeysCommandsDudesInfoSpriteVars) twiri18n.TranslationKey[KeysCommandsDudesInfoSpriteVars] {
-	k.Vars = twiri18n.Vars{"dudeSprite": vars.DudeSprite}
-	return k
-}
-
-type KeysCommandsDudesInfoColorRequiredVars struct {
-}
-type KeysCommandsDudesInfoColorRequired struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsDudesInfoColorRequired) IsTranslationKey() {
-}
-func (k KeysCommandsDudesInfoColorRequired) GetPath() string {
-	return "commands.dudes.info.color_required"
-}
-func (k KeysCommandsDudesInfoColorRequired) GetPathSlice() []string {
-	return []string{"commands", "dudes", "info", "color_required"}
-}
-func (k KeysCommandsDudesInfoColorRequired) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsDudesInfoColorRequired) SetVars(vars KeysCommandsDudesInfoColorRequiredVars) twiri18n.TranslationKey[KeysCommandsDudesInfoColorRequiredVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsDudesInfo struct {
-	SpriteRequired KeysCommandsDudesInfoSpriteRequired
-	ColorReset     KeysCommandsDudesInfoColorReset
-	ColorChanged   KeysCommandsDudesInfoColorChanged
-	SpriteChanged  KeysCommandsDudesInfoSpriteChanged
-	Color          KeysCommandsDudesInfoColor
-	Sprite         KeysCommandsDudesInfoSprite
-	ColorRequired  KeysCommandsDudesInfoColorRequired
+	ClipCreated      KeysCommandsClipClipCreated
 }
 type KeysCommandsDudesErrorsGrowCannotTriggerVars struct {
 }
@@ -7010,155 +6388,559 @@ type KeysCommandsDudesErrors struct {
 	SpriteInvalid       KeysCommandsDudesErrorsSpriteInvalid
 	ColorCannotTrigger  KeysCommandsDudesErrorsColorCannotTrigger
 }
+type KeysCommandsDudesInfoSpriteChangedVars struct {
+	DudeSprite any
+}
+type KeysCommandsDudesInfoSpriteChanged struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsDudesInfoSpriteChanged) IsTranslationKey() {
+}
+func (k KeysCommandsDudesInfoSpriteChanged) GetPath() string {
+	return "commands.dudes.info.sprite_changed"
+}
+func (k KeysCommandsDudesInfoSpriteChanged) GetPathSlice() []string {
+	return []string{"commands", "dudes", "info", "sprite_changed"}
+}
+func (k KeysCommandsDudesInfoSpriteChanged) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsDudesInfoSpriteChanged) SetVars(vars KeysCommandsDudesInfoSpriteChangedVars) twiri18n.TranslationKey[KeysCommandsDudesInfoSpriteChangedVars] {
+	k.Vars = twiri18n.Vars{"dudeSprite": vars.DudeSprite}
+	return k
+}
+
+type KeysCommandsDudesInfoColorVars struct {
+	DudeColor any
+}
+type KeysCommandsDudesInfoColor struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsDudesInfoColor) IsTranslationKey() {
+}
+func (k KeysCommandsDudesInfoColor) GetPath() string {
+	return "commands.dudes.info.color"
+}
+func (k KeysCommandsDudesInfoColor) GetPathSlice() []string {
+	return []string{"commands", "dudes", "info", "color"}
+}
+func (k KeysCommandsDudesInfoColor) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsDudesInfoColor) SetVars(vars KeysCommandsDudesInfoColorVars) twiri18n.TranslationKey[KeysCommandsDudesInfoColorVars] {
+	k.Vars = twiri18n.Vars{"dudeColor": vars.DudeColor}
+	return k
+}
+
+type KeysCommandsDudesInfoSpriteVars struct {
+	DudeSprite any
+}
+type KeysCommandsDudesInfoSprite struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsDudesInfoSprite) IsTranslationKey() {
+}
+func (k KeysCommandsDudesInfoSprite) GetPath() string {
+	return "commands.dudes.info.sprite"
+}
+func (k KeysCommandsDudesInfoSprite) GetPathSlice() []string {
+	return []string{"commands", "dudes", "info", "sprite"}
+}
+func (k KeysCommandsDudesInfoSprite) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsDudesInfoSprite) SetVars(vars KeysCommandsDudesInfoSpriteVars) twiri18n.TranslationKey[KeysCommandsDudesInfoSpriteVars] {
+	k.Vars = twiri18n.Vars{"dudeSprite": vars.DudeSprite}
+	return k
+}
+
+type KeysCommandsDudesInfoColorRequiredVars struct {
+}
+type KeysCommandsDudesInfoColorRequired struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsDudesInfoColorRequired) IsTranslationKey() {
+}
+func (k KeysCommandsDudesInfoColorRequired) GetPath() string {
+	return "commands.dudes.info.color_required"
+}
+func (k KeysCommandsDudesInfoColorRequired) GetPathSlice() []string {
+	return []string{"commands", "dudes", "info", "color_required"}
+}
+func (k KeysCommandsDudesInfoColorRequired) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsDudesInfoColorRequired) SetVars(vars KeysCommandsDudesInfoColorRequiredVars) twiri18n.TranslationKey[KeysCommandsDudesInfoColorRequiredVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsDudesInfoSpriteRequiredVars struct {
+	AvailableSprites any
+}
+type KeysCommandsDudesInfoSpriteRequired struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsDudesInfoSpriteRequired) IsTranslationKey() {
+}
+func (k KeysCommandsDudesInfoSpriteRequired) GetPath() string {
+	return "commands.dudes.info.sprite_required"
+}
+func (k KeysCommandsDudesInfoSpriteRequired) GetPathSlice() []string {
+	return []string{"commands", "dudes", "info", "sprite_required"}
+}
+func (k KeysCommandsDudesInfoSpriteRequired) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsDudesInfoSpriteRequired) SetVars(vars KeysCommandsDudesInfoSpriteRequiredVars) twiri18n.TranslationKey[KeysCommandsDudesInfoSpriteRequiredVars] {
+	k.Vars = twiri18n.Vars{"availableSprites": vars.AvailableSprites}
+	return k
+}
+
+type KeysCommandsDudesInfoColorResetVars struct {
+}
+type KeysCommandsDudesInfoColorReset struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsDudesInfoColorReset) IsTranslationKey() {
+}
+func (k KeysCommandsDudesInfoColorReset) GetPath() string {
+	return "commands.dudes.info.color_reset"
+}
+func (k KeysCommandsDudesInfoColorReset) GetPathSlice() []string {
+	return []string{"commands", "dudes", "info", "color_reset"}
+}
+func (k KeysCommandsDudesInfoColorReset) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsDudesInfoColorReset) SetVars(vars KeysCommandsDudesInfoColorResetVars) twiri18n.TranslationKey[KeysCommandsDudesInfoColorResetVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsDudesInfoColorChangedVars struct {
+	DudeColor any
+}
+type KeysCommandsDudesInfoColorChanged struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsDudesInfoColorChanged) IsTranslationKey() {
+}
+func (k KeysCommandsDudesInfoColorChanged) GetPath() string {
+	return "commands.dudes.info.color_changed"
+}
+func (k KeysCommandsDudesInfoColorChanged) GetPathSlice() []string {
+	return []string{"commands", "dudes", "info", "color_changed"}
+}
+func (k KeysCommandsDudesInfoColorChanged) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsDudesInfoColorChanged) SetVars(vars KeysCommandsDudesInfoColorChangedVars) twiri18n.TranslationKey[KeysCommandsDudesInfoColorChangedVars] {
+	k.Vars = twiri18n.Vars{"dudeColor": vars.DudeColor}
+	return k
+}
+
+type KeysCommandsDudesInfo struct {
+	SpriteChanged  KeysCommandsDudesInfoSpriteChanged
+	Color          KeysCommandsDudesInfoColor
+	Sprite         KeysCommandsDudesInfoSprite
+	ColorRequired  KeysCommandsDudesInfoColorRequired
+	SpriteRequired KeysCommandsDudesInfoSpriteRequired
+	ColorReset     KeysCommandsDudesInfoColorReset
+	ColorChanged   KeysCommandsDudesInfoColorChanged
+}
 type KeysCommandsDudes struct {
-	Info   KeysCommandsDudesInfo
 	Errors KeysCommandsDudesErrors
+	Info   KeysCommandsDudesInfo
 }
-type KeysCommandsPrefixErrorsCannotCreateVars struct {
+type KeysCommandsPredictionsHintsStartPredictionArgVariantsVars struct {
 }
-type KeysCommandsPrefixErrorsCannotCreate struct {
+type KeysCommandsPredictionsHintsStartPredictionArgVariants struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPrefixErrorsCannotCreate) IsTranslationKey() {
+func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) IsTranslationKey() {
 }
-func (k KeysCommandsPrefixErrorsCannotCreate) GetPath() string {
-	return "commands.prefix.errors.cannot_create"
+func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) GetPath() string {
+	return "commands.predictions.hints.startPredictionArgVariants"
 }
-func (k KeysCommandsPrefixErrorsCannotCreate) GetPathSlice() []string {
-	return []string{"commands", "prefix", "errors", "cannot_create"}
+func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) GetPathSlice() []string {
+	return []string{"commands", "predictions", "hints", "startPredictionArgVariants"}
 }
-func (k KeysCommandsPrefixErrorsCannotCreate) GetVars() twiri18n.Vars {
+func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPrefixErrorsCannotCreate) SetVars(vars KeysCommandsPrefixErrorsCannotCreateVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsCannotCreateVars] {
+func (k KeysCommandsPredictionsHintsStartPredictionArgVariants) SetVars(vars KeysCommandsPredictionsHintsStartPredictionArgVariantsVars) twiri18n.TranslationKey[KeysCommandsPredictionsHintsStartPredictionArgVariantsVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPrefixErrorsCannotUpdateVars struct {
+type KeysCommandsPredictionsHintsPredictionResolveOutcomeNumVars struct {
 }
-type KeysCommandsPrefixErrorsCannotUpdate struct {
+type KeysCommandsPredictionsHintsPredictionResolveOutcomeNum struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPrefixErrorsCannotUpdate) IsTranslationKey() {
+func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) IsTranslationKey() {
 }
-func (k KeysCommandsPrefixErrorsCannotUpdate) GetPath() string {
-	return "commands.prefix.errors.cannot_update"
+func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) GetPath() string {
+	return "commands.predictions.hints.predictionResolveOutcomeNum"
 }
-func (k KeysCommandsPrefixErrorsCannotUpdate) GetPathSlice() []string {
-	return []string{"commands", "prefix", "errors", "cannot_update"}
+func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) GetPathSlice() []string {
+	return []string{"commands", "predictions", "hints", "predictionResolveOutcomeNum"}
 }
-func (k KeysCommandsPrefixErrorsCannotUpdate) GetVars() twiri18n.Vars {
+func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPrefixErrorsCannotUpdate) SetVars(vars KeysCommandsPrefixErrorsCannotUpdateVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsCannotUpdateVars] {
+func (k KeysCommandsPredictionsHintsPredictionResolveOutcomeNum) SetVars(vars KeysCommandsPredictionsHintsPredictionResolveOutcomeNumVars) twiri18n.TranslationKey[KeysCommandsPredictionsHintsPredictionResolveOutcomeNumVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPrefixErrorsRequiredVars struct {
+type KeysCommandsPredictionsHintsStartPredictionDurationVars struct {
 }
-type KeysCommandsPrefixErrorsRequired struct {
+type KeysCommandsPredictionsHintsStartPredictionDuration struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPrefixErrorsRequired) IsTranslationKey() {
+func (k KeysCommandsPredictionsHintsStartPredictionDuration) IsTranslationKey() {
 }
-func (k KeysCommandsPrefixErrorsRequired) GetPath() string {
-	return "commands.prefix.errors.required"
+func (k KeysCommandsPredictionsHintsStartPredictionDuration) GetPath() string {
+	return "commands.predictions.hints.startPredictionDuration"
 }
-func (k KeysCommandsPrefixErrorsRequired) GetPathSlice() []string {
-	return []string{"commands", "prefix", "errors", "required"}
+func (k KeysCommandsPredictionsHintsStartPredictionDuration) GetPathSlice() []string {
+	return []string{"commands", "predictions", "hints", "startPredictionDuration"}
 }
-func (k KeysCommandsPrefixErrorsRequired) GetVars() twiri18n.Vars {
+func (k KeysCommandsPredictionsHintsStartPredictionDuration) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPrefixErrorsRequired) SetVars(vars KeysCommandsPrefixErrorsRequiredVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsRequiredVars] {
+func (k KeysCommandsPredictionsHintsStartPredictionDuration) SetVars(vars KeysCommandsPredictionsHintsStartPredictionDurationVars) twiri18n.TranslationKey[KeysCommandsPredictionsHintsStartPredictionDurationVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPrefixErrorsTooLongVars struct {
+type KeysCommandsPredictionsHintsStartPredictionArgTitleVars struct {
 }
-type KeysCommandsPrefixErrorsTooLong struct {
+type KeysCommandsPredictionsHintsStartPredictionArgTitle struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPrefixErrorsTooLong) IsTranslationKey() {
+func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) IsTranslationKey() {
 }
-func (k KeysCommandsPrefixErrorsTooLong) GetPath() string {
-	return "commands.prefix.errors.too_long"
+func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) GetPath() string {
+	return "commands.predictions.hints.startPredictionArgTitle"
 }
-func (k KeysCommandsPrefixErrorsTooLong) GetPathSlice() []string {
-	return []string{"commands", "prefix", "errors", "too_long"}
+func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) GetPathSlice() []string {
+	return []string{"commands", "predictions", "hints", "startPredictionArgTitle"}
 }
-func (k KeysCommandsPrefixErrorsTooLong) GetVars() twiri18n.Vars {
+func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPrefixErrorsTooLong) SetVars(vars KeysCommandsPrefixErrorsTooLongVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsTooLongVars] {
+func (k KeysCommandsPredictionsHintsStartPredictionArgTitle) SetVars(vars KeysCommandsPredictionsHintsStartPredictionArgTitleVars) twiri18n.TranslationKey[KeysCommandsPredictionsHintsStartPredictionArgTitleVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPrefixErrorsCannotGetCurrentVars struct {
+type KeysCommandsPredictionsHints struct {
+	StartPredictionArgVariants  KeysCommandsPredictionsHintsStartPredictionArgVariants
+	PredictionResolveOutcomeNum KeysCommandsPredictionsHintsPredictionResolveOutcomeNum
+	StartPredictionDuration     KeysCommandsPredictionsHintsStartPredictionDuration
+	StartPredictionArgTitle     KeysCommandsPredictionsHintsStartPredictionArgTitle
 }
-type KeysCommandsPrefixErrorsCannotGetCurrent struct {
+type KeysCommandsPredictionsErrorsCannotGetCurrentVars struct {
+}
+type KeysCommandsPredictionsErrorsCannotGetCurrent struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPrefixErrorsCannotGetCurrent) IsTranslationKey() {
+func (k KeysCommandsPredictionsErrorsCannotGetCurrent) IsTranslationKey() {
 }
-func (k KeysCommandsPrefixErrorsCannotGetCurrent) GetPath() string {
-	return "commands.prefix.errors.cannot_get_current"
+func (k KeysCommandsPredictionsErrorsCannotGetCurrent) GetPath() string {
+	return "commands.predictions.errors.cannot_get_current"
 }
-func (k KeysCommandsPrefixErrorsCannotGetCurrent) GetPathSlice() []string {
-	return []string{"commands", "prefix", "errors", "cannot_get_current"}
+func (k KeysCommandsPredictionsErrorsCannotGetCurrent) GetPathSlice() []string {
+	return []string{"commands", "predictions", "errors", "cannot_get_current"}
 }
-func (k KeysCommandsPrefixErrorsCannotGetCurrent) GetVars() twiri18n.Vars {
+func (k KeysCommandsPredictionsErrorsCannotGetCurrent) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPrefixErrorsCannotGetCurrent) SetVars(vars KeysCommandsPrefixErrorsCannotGetCurrentVars) twiri18n.TranslationKey[KeysCommandsPrefixErrorsCannotGetCurrentVars] {
+func (k KeysCommandsPredictionsErrorsCannotGetCurrent) SetVars(vars KeysCommandsPredictionsErrorsCannotGetCurrentVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotGetCurrentVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPrefixErrors struct {
-	CannotCreate     KeysCommandsPrefixErrorsCannotCreate
-	CannotUpdate     KeysCommandsPrefixErrorsCannotUpdate
-	Required         KeysCommandsPrefixErrorsRequired
-	TooLong          KeysCommandsPrefixErrorsTooLong
-	CannotGetCurrent KeysCommandsPrefixErrorsCannotGetCurrent
+type KeysCommandsPredictionsErrorsCannotGetCurrentVarVars struct {
+	Reason any
 }
-type KeysCommandsPrefixSuccessUpdatedVars struct {
-}
-type KeysCommandsPrefixSuccessUpdated struct {
+type KeysCommandsPredictionsErrorsCannotGetCurrentVar struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsPrefixSuccessUpdated) IsTranslationKey() {
+func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) IsTranslationKey() {
 }
-func (k KeysCommandsPrefixSuccessUpdated) GetPath() string {
-	return "commands.prefix.success.updated"
+func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) GetPath() string {
+	return "commands.predictions.errors.cannot_get_current_var"
 }
-func (k KeysCommandsPrefixSuccessUpdated) GetPathSlice() []string {
-	return []string{"commands", "prefix", "success", "updated"}
+func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) GetPathSlice() []string {
+	return []string{"commands", "predictions", "errors", "cannot_get_current_var"}
 }
-func (k KeysCommandsPrefixSuccessUpdated) GetVars() twiri18n.Vars {
+func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsPrefixSuccessUpdated) SetVars(vars KeysCommandsPrefixSuccessUpdatedVars) twiri18n.TranslationKey[KeysCommandsPrefixSuccessUpdatedVars] {
+func (k KeysCommandsPredictionsErrorsCannotGetCurrentVar) SetVars(vars KeysCommandsPredictionsErrorsCannotGetCurrentVarVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotGetCurrentVarVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsPredictionsErrorsCannotCancelVars struct {
+}
+type KeysCommandsPredictionsErrorsCannotCancel struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsErrorsCannotCancel) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsErrorsCannotCancel) GetPath() string {
+	return "commands.predictions.errors.cannot_cancel"
+}
+func (k KeysCommandsPredictionsErrorsCannotCancel) GetPathSlice() []string {
+	return []string{"commands", "predictions", "errors", "cannot_cancel"}
+}
+func (k KeysCommandsPredictionsErrorsCannotCancel) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsErrorsCannotCancel) SetVars(vars KeysCommandsPredictionsErrorsCannotCancelVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotCancelVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysCommandsPrefixSuccess struct {
-	Updated KeysCommandsPrefixSuccessUpdated
+type KeysCommandsPredictionsErrorsCannotCancelVarVars struct {
+	Reason any
 }
-type KeysCommandsPrefix struct {
-	Errors  KeysCommandsPrefixErrors
-	Success KeysCommandsPrefixSuccess
+type KeysCommandsPredictionsErrorsCannotCancelVar struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsErrorsCannotCancelVar) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsErrorsCannotCancelVar) GetPath() string {
+	return "commands.predictions.errors.cannot_cancel_var"
+}
+func (k KeysCommandsPredictionsErrorsCannotCancelVar) GetPathSlice() []string {
+	return []string{"commands", "predictions", "errors", "cannot_cancel_var"}
+}
+func (k KeysCommandsPredictionsErrorsCannotCancelVar) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsErrorsCannotCancelVar) SetVars(vars KeysCommandsPredictionsErrorsCannotCancelVarVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotCancelVarVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsPredictionsErrorsNoVariantVars struct {
+}
+type KeysCommandsPredictionsErrorsNoVariant struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsErrorsNoVariant) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsErrorsNoVariant) GetPath() string {
+	return "commands.predictions.errors.no_variant"
+}
+func (k KeysCommandsPredictionsErrorsNoVariant) GetPathSlice() []string {
+	return []string{"commands", "predictions", "errors", "no_variant"}
+}
+func (k KeysCommandsPredictionsErrorsNoVariant) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsErrorsNoVariant) SetVars(vars KeysCommandsPredictionsErrorsNoVariantVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsNoVariantVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsPredictionsErrorsCannotCreateVars struct {
+}
+type KeysCommandsPredictionsErrorsCannotCreate struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsErrorsCannotCreate) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsErrorsCannotCreate) GetPath() string {
+	return "commands.predictions.errors.cannot_create"
+}
+func (k KeysCommandsPredictionsErrorsCannotCreate) GetPathSlice() []string {
+	return []string{"commands", "predictions", "errors", "cannot_create"}
+}
+func (k KeysCommandsPredictionsErrorsCannotCreate) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsErrorsCannotCreate) SetVars(vars KeysCommandsPredictionsErrorsCannotCreateVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotCreateVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsPredictionsErrorsCannotCreateVarVars struct {
+	Reason any
+}
+type KeysCommandsPredictionsErrorsCannotCreateVar struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsErrorsCannotCreateVar) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsErrorsCannotCreateVar) GetPath() string {
+	return "commands.predictions.errors.cannot_create_var"
+}
+func (k KeysCommandsPredictionsErrorsCannotCreateVar) GetPathSlice() []string {
+	return []string{"commands", "predictions", "errors", "cannot_create_var"}
+}
+func (k KeysCommandsPredictionsErrorsCannotCreateVar) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsErrorsCannotCreateVar) SetVars(vars KeysCommandsPredictionsErrorsCannotCreateVarVars) twiri18n.TranslationKey[KeysCommandsPredictionsErrorsCannotCreateVarVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsPredictionsErrors struct {
+	CannotGetCurrent    KeysCommandsPredictionsErrorsCannotGetCurrent
+	CannotGetCurrentVar KeysCommandsPredictionsErrorsCannotGetCurrentVar
+	CannotCancel        KeysCommandsPredictionsErrorsCannotCancel
+	CannotCancelVar     KeysCommandsPredictionsErrorsCannotCancelVar
+	NoVariant           KeysCommandsPredictionsErrorsNoVariant
+	CannotCreate        KeysCommandsPredictionsErrorsCannotCreate
+	CannotCreateVar     KeysCommandsPredictionsErrorsCannotCreateVar
+}
+type KeysCommandsPredictionsInfoNoRunedVars struct {
+}
+type KeysCommandsPredictionsInfoNoRuned struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsInfoNoRuned) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsInfoNoRuned) GetPath() string {
+	return "commands.predictions.info.no_runed"
+}
+func (k KeysCommandsPredictionsInfoNoRuned) GetPathSlice() []string {
+	return []string{"commands", "predictions", "info", "no_runed"}
+}
+func (k KeysCommandsPredictionsInfoNoRuned) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsInfoNoRuned) SetVars(vars KeysCommandsPredictionsInfoNoRunedVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoNoRunedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsPredictionsInfoCancelVars struct {
+}
+type KeysCommandsPredictionsInfoCancel struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsInfoCancel) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsInfoCancel) GetPath() string {
+	return "commands.predictions.info.cancel"
+}
+func (k KeysCommandsPredictionsInfoCancel) GetPathSlice() []string {
+	return []string{"commands", "predictions", "info", "cancel"}
+}
+func (k KeysCommandsPredictionsInfoCancel) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsInfoCancel) SetVars(vars KeysCommandsPredictionsInfoCancelVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoCancelVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsPredictionsInfoLockedVars struct {
+}
+type KeysCommandsPredictionsInfoLocked struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsInfoLocked) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsInfoLocked) GetPath() string {
+	return "commands.predictions.info.locked"
+}
+func (k KeysCommandsPredictionsInfoLocked) GetPathSlice() []string {
+	return []string{"commands", "predictions", "info", "locked"}
+}
+func (k KeysCommandsPredictionsInfoLocked) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsInfoLocked) SetVars(vars KeysCommandsPredictionsInfoLockedVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoLockedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsPredictionsInfoResolvedVars struct {
+}
+type KeysCommandsPredictionsInfoResolved struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsInfoResolved) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsInfoResolved) GetPath() string {
+	return "commands.predictions.info.resolved"
+}
+func (k KeysCommandsPredictionsInfoResolved) GetPathSlice() []string {
+	return []string{"commands", "predictions", "info", "resolved"}
+}
+func (k KeysCommandsPredictionsInfoResolved) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsInfoResolved) SetVars(vars KeysCommandsPredictionsInfoResolvedVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoResolvedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsPredictionsInfoStartedVars struct {
+}
+type KeysCommandsPredictionsInfoStarted struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsPredictionsInfoStarted) IsTranslationKey() {
+}
+func (k KeysCommandsPredictionsInfoStarted) GetPath() string {
+	return "commands.predictions.info.started"
+}
+func (k KeysCommandsPredictionsInfoStarted) GetPathSlice() []string {
+	return []string{"commands", "predictions", "info", "started"}
+}
+func (k KeysCommandsPredictionsInfoStarted) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsPredictionsInfoStarted) SetVars(vars KeysCommandsPredictionsInfoStartedVars) twiri18n.TranslationKey[KeysCommandsPredictionsInfoStartedVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsPredictionsInfo struct {
+	NoRuned  KeysCommandsPredictionsInfoNoRuned
+	Cancel   KeysCommandsPredictionsInfoCancel
+	Locked   KeysCommandsPredictionsInfoLocked
+	Resolved KeysCommandsPredictionsInfoResolved
+	Started  KeysCommandsPredictionsInfoStarted
+}
+type KeysCommandsPredictions struct {
+	Hints  KeysCommandsPredictionsHints
+	Errors KeysCommandsPredictionsErrors
+	Info   KeysCommandsPredictionsInfo
 }
 type KeysCommandsShorturlErrorsCannotCreateShortUrlVars struct {
 	Error any
@@ -7216,29 +6998,394 @@ type KeysCommandsShorturl struct {
 	Errors  KeysCommandsShorturlErrors
 	Success KeysCommandsShorturlSuccess
 }
-type KeysCommandsCategoriesAliasesErrorsAliasRemovedVars struct {
-	AliasName any
+type KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreateVars struct {
 }
-type KeysCommandsCategoriesAliasesErrorsAliasRemoved struct {
+type KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) IsTranslationKey() {
+func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) IsTranslationKey() {
 }
-func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) GetPath() string {
-	return "commands.categories_aliases.errors.alias_removed"
+func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) GetPath() string {
+	return "commands.channel.errors.broadcaster_twitch_client_cannot_create"
 }
-func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) GetPathSlice() []string {
-	return []string{"commands", "categories_aliases", "errors", "alias_removed"}
+func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "broadcaster_twitch_client_cannot_create"}
 }
-func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) GetVars() twiri18n.Vars {
+func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) SetVars(vars KeysCommandsCategoriesAliasesErrorsAliasRemovedVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsAliasRemovedVars] {
-	k.Vars = twiri18n.Vars{"aliasName": vars.AliasName}
+func (k KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate) SetVars(vars KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreateVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreateVars] {
+	k.Vars = twiri18n.Vars{}
 	return k
 }
 
+type KeysCommandsChannelErrorsChannelNotFoundVars struct {
+}
+type KeysCommandsChannelErrorsChannelNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsChannelNotFound) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsChannelNotFound) GetPath() string {
+	return "commands.channel.errors.channel_not_found"
+}
+func (k KeysCommandsChannelErrorsChannelNotFound) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "channel_not_found"}
+}
+func (k KeysCommandsChannelErrorsChannelNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsChannelNotFound) SetVars(vars KeysCommandsChannelErrorsChannelNotFoundVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsChannelNotFoundVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelErrorsAliasCannotGetCategoryVars struct {
+}
+type KeysCommandsChannelErrorsAliasCannotGetCategory struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsAliasCannotGetCategory) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsAliasCannotGetCategory) GetPath() string {
+	return "commands.channel.errors.alias_cannot_get_category"
+}
+func (k KeysCommandsChannelErrorsAliasCannotGetCategory) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "alias_cannot_get_category"}
+}
+func (k KeysCommandsChannelErrorsAliasCannotGetCategory) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsAliasCannotGetCategory) SetVars(vars KeysCommandsChannelErrorsAliasCannotGetCategoryVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsAliasCannotGetCategoryVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelErrorsCategoryNotFoundVars struct {
+}
+type KeysCommandsChannelErrorsCategoryNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsCategoryNotFound) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsCategoryNotFound) GetPath() string {
+	return "commands.channel.errors.category_not_found"
+}
+func (k KeysCommandsChannelErrorsCategoryNotFound) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "category_not_found"}
+}
+func (k KeysCommandsChannelErrorsCategoryNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsCategoryNotFound) SetVars(vars KeysCommandsChannelErrorsCategoryNotFoundVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryNotFoundVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelErrorsCategoryCannotGetVars struct {
+}
+type KeysCommandsChannelErrorsCategoryCannotGet struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsCategoryCannotGet) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsCategoryCannotGet) GetPath() string {
+	return "commands.channel.errors.category_cannot_get"
+}
+func (k KeysCommandsChannelErrorsCategoryCannotGet) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "category_cannot_get"}
+}
+func (k KeysCommandsChannelErrorsCategoryCannotGet) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsCategoryCannotGet) SetVars(vars KeysCommandsChannelErrorsCategoryCannotGetVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryCannotGetVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelErrorsCategoryCannotChangeVars struct {
+}
+type KeysCommandsChannelErrorsCategoryCannotChange struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsCategoryCannotChange) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsCategoryCannotChange) GetPath() string {
+	return "commands.channel.errors.category_cannot_change"
+}
+func (k KeysCommandsChannelErrorsCategoryCannotChange) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "category_cannot_change"}
+}
+func (k KeysCommandsChannelErrorsCategoryCannotChange) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsCategoryCannotChange) SetVars(vars KeysCommandsChannelErrorsCategoryCannotChangeVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryCannotChangeVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelErrorsGameNotFoundVars struct {
+}
+type KeysCommandsChannelErrorsGameNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsGameNotFound) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsGameNotFound) GetPath() string {
+	return "commands.channel.errors.game_not_found"
+}
+func (k KeysCommandsChannelErrorsGameNotFound) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "game_not_found"}
+}
+func (k KeysCommandsChannelErrorsGameNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsGameNotFound) SetVars(vars KeysCommandsChannelErrorsGameNotFoundVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsGameNotFoundVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelErrorsBroadcasterTwitchApiClientVars struct {
+	Reason any
+}
+type KeysCommandsChannelErrorsBroadcasterTwitchApiClient struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) GetPath() string {
+	return "commands.channel.errors.broadcaster_twitch_api_client"
+}
+func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "broadcaster_twitch_api_client"}
+}
+func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsBroadcasterTwitchApiClient) SetVars(vars KeysCommandsChannelErrorsBroadcasterTwitchApiClientVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsBroadcasterTwitchApiClientVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsChannelErrorsChannelCannotGetInformationVars struct {
+}
+type KeysCommandsChannelErrorsChannelCannotGetInformation struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsChannelCannotGetInformation) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsChannelCannotGetInformation) GetPath() string {
+	return "commands.channel.errors.channel_cannot_get_information"
+}
+func (k KeysCommandsChannelErrorsChannelCannotGetInformation) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "channel_cannot_get_information"}
+}
+func (k KeysCommandsChannelErrorsChannelCannotGetInformation) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsChannelCannotGetInformation) SetVars(vars KeysCommandsChannelErrorsChannelCannotGetInformationVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsChannelCannotGetInformationVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelErrorsCategoryCannotGetErrorVars struct {
+	ErrorMessage any
+}
+type KeysCommandsChannelErrorsCategoryCannotGetError struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsCategoryCannotGetError) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsCategoryCannotGetError) GetPath() string {
+	return "commands.channel.errors.category_cannot_get_error"
+}
+func (k KeysCommandsChannelErrorsCategoryCannotGetError) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "category_cannot_get_error"}
+}
+func (k KeysCommandsChannelErrorsCategoryCannotGetError) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsCategoryCannotGetError) SetVars(vars KeysCommandsChannelErrorsCategoryCannotGetErrorVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryCannotGetErrorVars] {
+	k.Vars = twiri18n.Vars{"errorMessage": vars.ErrorMessage}
+	return k
+}
+
+type KeysCommandsChannelErrorsCategoryCannotChangeErrorVars struct {
+	ErrorMessage any
+}
+type KeysCommandsChannelErrorsCategoryCannotChangeError struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsCategoryCannotChangeError) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsCategoryCannotChangeError) GetPath() string {
+	return "commands.channel.errors.category_cannot_change_error"
+}
+func (k KeysCommandsChannelErrorsCategoryCannotChangeError) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "category_cannot_change_error"}
+}
+func (k KeysCommandsChannelErrorsCategoryCannotChangeError) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsCategoryCannotChangeError) SetVars(vars KeysCommandsChannelErrorsCategoryCannotChangeErrorVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsCategoryCannotChangeErrorVars] {
+	k.Vars = twiri18n.Vars{"errorMessage": vars.ErrorMessage}
+	return k
+}
+
+type KeysCommandsChannelErrorsHistoryGameMessageVars struct {
+}
+type KeysCommandsChannelErrorsHistoryGameMessage struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsHistoryGameMessage) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsHistoryGameMessage) GetPath() string {
+	return "commands.channel.errors.history_game_message"
+}
+func (k KeysCommandsChannelErrorsHistoryGameMessage) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "history_game_message"}
+}
+func (k KeysCommandsChannelErrorsHistoryGameMessage) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsHistoryGameMessage) SetVars(vars KeysCommandsChannelErrorsHistoryGameMessageVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsHistoryGameMessageVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelErrorsHistoryTitleMessageVars struct {
+	Reason any
+}
+type KeysCommandsChannelErrorsHistoryTitleMessage struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelErrorsHistoryTitleMessage) IsTranslationKey() {
+}
+func (k KeysCommandsChannelErrorsHistoryTitleMessage) GetPath() string {
+	return "commands.channel.errors.history_title_message"
+}
+func (k KeysCommandsChannelErrorsHistoryTitleMessage) GetPathSlice() []string {
+	return []string{"commands", "channel", "errors", "history_title_message"}
+}
+func (k KeysCommandsChannelErrorsHistoryTitleMessage) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelErrorsHistoryTitleMessage) SetVars(vars KeysCommandsChannelErrorsHistoryTitleMessageVars) twiri18n.TranslationKey[KeysCommandsChannelErrorsHistoryTitleMessageVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysCommandsChannelErrors struct {
+	BroadcasterTwitchClientCannotCreate KeysCommandsChannelErrorsBroadcasterTwitchClientCannotCreate
+	ChannelNotFound                     KeysCommandsChannelErrorsChannelNotFound
+	AliasCannotGetCategory              KeysCommandsChannelErrorsAliasCannotGetCategory
+	CategoryNotFound                    KeysCommandsChannelErrorsCategoryNotFound
+	CategoryCannotGet                   KeysCommandsChannelErrorsCategoryCannotGet
+	CategoryCannotChange                KeysCommandsChannelErrorsCategoryCannotChange
+	GameNotFound                        KeysCommandsChannelErrorsGameNotFound
+	BroadcasterTwitchApiClient          KeysCommandsChannelErrorsBroadcasterTwitchApiClient
+	ChannelCannotGetInformation         KeysCommandsChannelErrorsChannelCannotGetInformation
+	CategoryCannotGetError              KeysCommandsChannelErrorsCategoryCannotGetError
+	CategoryCannotChangeError           KeysCommandsChannelErrorsCategoryCannotChangeError
+	HistoryGameMessage                  KeysCommandsChannelErrorsHistoryGameMessage
+	HistoryTitleMessage                 KeysCommandsChannelErrorsHistoryTitleMessage
+}
+type KeysCommandsChannelHintsGameArgNameVars struct {
+}
+type KeysCommandsChannelHintsGameArgName struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelHintsGameArgName) IsTranslationKey() {
+}
+func (k KeysCommandsChannelHintsGameArgName) GetPath() string {
+	return "commands.channel.hints.gameArgName"
+}
+func (k KeysCommandsChannelHintsGameArgName) GetPathSlice() []string {
+	return []string{"commands", "channel", "hints", "gameArgName"}
+}
+func (k KeysCommandsChannelHintsGameArgName) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelHintsGameArgName) SetVars(vars KeysCommandsChannelHintsGameArgNameVars) twiri18n.TranslationKey[KeysCommandsChannelHintsGameArgNameVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsChannelHints struct {
+	GameArgName KeysCommandsChannelHintsGameArgName
+}
+type KeysCommandsChannelAddCategoryChangeVars struct {
+	CategoryName any
+}
+type KeysCommandsChannelAddCategoryChange struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsChannelAddCategoryChange) IsTranslationKey() {
+}
+func (k KeysCommandsChannelAddCategoryChange) GetPath() string {
+	return "commands.channel.add.category_change"
+}
+func (k KeysCommandsChannelAddCategoryChange) GetPathSlice() []string {
+	return []string{"commands", "channel", "add", "category_change"}
+}
+func (k KeysCommandsChannelAddCategoryChange) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsChannelAddCategoryChange) SetVars(vars KeysCommandsChannelAddCategoryChangeVars) twiri18n.TranslationKey[KeysCommandsChannelAddCategoryChangeVars] {
+	k.Vars = twiri18n.Vars{"categoryName": vars.CategoryName}
+	return k
+}
+
+type KeysCommandsChannelAdd struct {
+	CategoryChange KeysCommandsChannelAddCategoryChange
+}
+type KeysCommandsChannel struct {
+	Errors KeysCommandsChannelErrors
+	Hints  KeysCommandsChannelHints
+	Add    KeysCommandsChannelAdd
+}
+type KeysCommandsCategoriesAliasesAddAliasAddToCategoryVars struct {
+	AliasName    any
+	CategoryName any
+}
+type KeysCommandsCategoriesAliasesAddAliasAddToCategory struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) IsTranslationKey() {
+}
+func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) GetPath() string {
+	return "commands.categories_aliases.add.alias_add_to_category"
+}
+func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) GetPathSlice() []string {
+	return []string{"commands", "categories_aliases", "add", "alias_add_to_category"}
+}
+func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) SetVars(vars KeysCommandsCategoriesAliasesAddAliasAddToCategoryVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesAddAliasAddToCategoryVars] {
+	k.Vars = twiri18n.Vars{"aliasName": vars.AliasName, "categoryName": vars.CategoryName}
+	return k
+}
+
+type KeysCommandsCategoriesAliasesAdd struct {
+	AliasAddToCategory KeysCommandsCategoriesAliasesAddAliasAddToCategory
+}
 type KeysCommandsCategoriesAliasesErrorsCategoryRequiredVars struct {
 }
 type KeysCommandsCategoriesAliasesErrorsCategoryRequired struct {
@@ -7257,116 +7404,6 @@ func (k KeysCommandsCategoriesAliasesErrorsCategoryRequired) GetVars() twiri18n.
 	return k.Vars
 }
 func (k KeysCommandsCategoriesAliasesErrorsCategoryRequired) SetVars(vars KeysCommandsCategoriesAliasesErrorsCategoryRequiredVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsCategoryRequiredVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsCategoriesAliasesErrorsCategoryCannotToGetVars struct {
-}
-type KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) IsTranslationKey() {
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) GetPath() string {
-	return "commands.categories_aliases.errors.category_cannot_to_get"
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) GetPathSlice() []string {
-	return []string{"commands", "categories_aliases", "errors", "category_cannot_to_get"}
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) SetVars(vars KeysCommandsCategoriesAliasesErrorsCategoryCannotToGetVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsCategoryCannotToGetVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreateVars struct {
-}
-type KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) IsTranslationKey() {
-}
-func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) GetPath() string {
-	return "commands.categories_aliases.errors.twitch_client_cannot_to_create"
-}
-func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) GetPathSlice() []string {
-	return []string{"commands", "categories_aliases", "errors", "twitch_client_cannot_to_create"}
-}
-func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) SetVars(vars KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreateVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreateVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsCategoriesAliasesErrorsGameCannotToGetVars struct {
-}
-type KeysCommandsCategoriesAliasesErrorsGameCannotToGet struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) IsTranslationKey() {
-}
-func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) GetPath() string {
-	return "commands.categories_aliases.errors.game_cannot_to_get"
-}
-func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) GetPathSlice() []string {
-	return []string{"commands", "categories_aliases", "errors", "game_cannot_to_get"}
-}
-func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) SetVars(vars KeysCommandsCategoriesAliasesErrorsGameCannotToGetVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsGameCannotToGetVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsCategoriesAliasesErrorsCategoryFailedToGetVars struct {
-}
-type KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) IsTranslationKey() {
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) GetPath() string {
-	return "commands.categories_aliases.errors.category_failed_to_get"
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) GetPathSlice() []string {
-	return []string{"commands", "categories_aliases", "errors", "category_failed_to_get"}
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) SetVars(vars KeysCommandsCategoriesAliasesErrorsCategoryFailedToGetVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsCategoryFailedToGetVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysCommandsCategoriesAliasesErrorsCategoryNotFoundVars struct {
-}
-type KeysCommandsCategoriesAliasesErrorsCategoryNotFound struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) IsTranslationKey() {
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) GetPath() string {
-	return "commands.categories_aliases.errors.category_not_found"
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) GetPathSlice() []string {
-	return []string{"commands", "categories_aliases", "errors", "category_not_found"}
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) SetVars(vars KeysCommandsCategoriesAliasesErrorsCategoryNotFoundVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsCategoryNotFoundVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
@@ -7482,92 +7519,221 @@ func (k KeysCommandsCategoriesAliasesErrorsAliasNotFound) SetVars(vars KeysComma
 	return k
 }
 
+type KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreateVars struct {
+}
+type KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) IsTranslationKey() {
+}
+func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) GetPath() string {
+	return "commands.categories_aliases.errors.twitch_client_cannot_to_create"
+}
+func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) GetPathSlice() []string {
+	return []string{"commands", "categories_aliases", "errors", "twitch_client_cannot_to_create"}
+}
+func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate) SetVars(vars KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreateVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreateVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsCategoriesAliasesErrorsGameCannotToGetVars struct {
+}
+type KeysCommandsCategoriesAliasesErrorsGameCannotToGet struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) IsTranslationKey() {
+}
+func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) GetPath() string {
+	return "commands.categories_aliases.errors.game_cannot_to_get"
+}
+func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) GetPathSlice() []string {
+	return []string{"commands", "categories_aliases", "errors", "game_cannot_to_get"}
+}
+func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsCategoriesAliasesErrorsGameCannotToGet) SetVars(vars KeysCommandsCategoriesAliasesErrorsGameCannotToGetVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsGameCannotToGetVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsCategoriesAliasesErrorsCategoryFailedToGetVars struct {
+}
+type KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) IsTranslationKey() {
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) GetPath() string {
+	return "commands.categories_aliases.errors.category_failed_to_get"
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) GetPathSlice() []string {
+	return []string{"commands", "categories_aliases", "errors", "category_failed_to_get"}
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet) SetVars(vars KeysCommandsCategoriesAliasesErrorsCategoryFailedToGetVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsCategoryFailedToGetVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsCategoriesAliasesErrorsCategoryCannotToGetVars struct {
+}
+type KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) IsTranslationKey() {
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) GetPath() string {
+	return "commands.categories_aliases.errors.category_cannot_to_get"
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) GetPathSlice() []string {
+	return []string{"commands", "categories_aliases", "errors", "category_cannot_to_get"}
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet) SetVars(vars KeysCommandsCategoriesAliasesErrorsCategoryCannotToGetVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsCategoryCannotToGetVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsCategoriesAliasesErrorsCategoryNotFoundVars struct {
+}
+type KeysCommandsCategoriesAliasesErrorsCategoryNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) IsTranslationKey() {
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) GetPath() string {
+	return "commands.categories_aliases.errors.category_not_found"
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) GetPathSlice() []string {
+	return []string{"commands", "categories_aliases", "errors", "category_not_found"}
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsCategoriesAliasesErrorsCategoryNotFound) SetVars(vars KeysCommandsCategoriesAliasesErrorsCategoryNotFoundVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsCategoryNotFoundVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysCommandsCategoriesAliasesErrorsAliasRemovedVars struct {
+	AliasName any
+}
+type KeysCommandsCategoriesAliasesErrorsAliasRemoved struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) IsTranslationKey() {
+}
+func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) GetPath() string {
+	return "commands.categories_aliases.errors.alias_removed"
+}
+func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) GetPathSlice() []string {
+	return []string{"commands", "categories_aliases", "errors", "alias_removed"}
+}
+func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysCommandsCategoriesAliasesErrorsAliasRemoved) SetVars(vars KeysCommandsCategoriesAliasesErrorsAliasRemovedVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesErrorsAliasRemovedVars] {
+	k.Vars = twiri18n.Vars{"aliasName": vars.AliasName}
+	return k
+}
+
 type KeysCommandsCategoriesAliasesErrors struct {
-	AliasRemoved               KeysCommandsCategoriesAliasesErrorsAliasRemoved
 	CategoryRequired           KeysCommandsCategoriesAliasesErrorsCategoryRequired
-	CategoryCannotToGet        KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet
-	TwitchClientCannotToCreate KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate
-	GameCannotToGet            KeysCommandsCategoriesAliasesErrorsGameCannotToGet
-	CategoryFailedToGet        KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet
-	CategoryNotFound           KeysCommandsCategoriesAliasesErrorsCategoryNotFound
 	CategoryFailedToCreate     KeysCommandsCategoriesAliasesErrorsCategoryFailedToCreate
 	CategoryCannotDelete       KeysCommandsCategoriesAliasesErrorsCategoryCannotDelete
 	AliasAlreadyExists         KeysCommandsCategoriesAliasesErrorsAliasAlreadyExists
 	AliasEmpty                 KeysCommandsCategoriesAliasesErrorsAliasEmpty
 	AliasNotFound              KeysCommandsCategoriesAliasesErrorsAliasNotFound
+	TwitchClientCannotToCreate KeysCommandsCategoriesAliasesErrorsTwitchClientCannotToCreate
+	GameCannotToGet            KeysCommandsCategoriesAliasesErrorsGameCannotToGet
+	CategoryFailedToGet        KeysCommandsCategoriesAliasesErrorsCategoryFailedToGet
+	CategoryCannotToGet        KeysCommandsCategoriesAliasesErrorsCategoryCannotToGet
+	CategoryNotFound           KeysCommandsCategoriesAliasesErrorsCategoryNotFound
+	AliasRemoved               KeysCommandsCategoriesAliasesErrorsAliasRemoved
 }
-type KeysCommandsCategoriesAliasesAddAliasAddToCategoryVars struct {
-	AliasName    any
-	CategoryName any
+type KeysCommandsCategoriesAliases struct {
+	Add    KeysCommandsCategoriesAliasesAdd
+	Errors KeysCommandsCategoriesAliasesErrors
 }
-type KeysCommandsCategoriesAliasesAddAliasAddToCategory struct {
+type KeysCommands struct {
+	Marker            KeysCommandsMarker
+	Prefix            KeysCommandsPrefix
+	Shoutout          KeysCommandsShoutout
+	Nuke              KeysCommandsNuke
+	Games             KeysCommandsGames
+	Songrequest       KeysCommandsSongrequest
+	Tts               KeysCommandsTts
+	Quotes            KeysCommandsQuotes
+	Stats             KeysCommandsStats
+	Vips              KeysCommandsVips
+	Permit            KeysCommandsPermit
+	Seventv           KeysCommandsSeventv
+	Manage            KeysCommandsManage
+	Subage            KeysCommandsSubage
+	ChatWall          KeysCommandsChatWall
+	Clip              KeysCommandsClip
+	Dudes             KeysCommandsDudes
+	Predictions       KeysCommandsPredictions
+	Shorturl          KeysCommandsShorturl
+	Channel           KeysCommandsChannel
+	CategoriesAliases KeysCommandsCategoriesAliases
+}
+type KeysErrorsGenericCannotGetModeratorsVars struct {
+	Reason any
+}
+type KeysErrorsGenericCannotGetModerators struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) IsTranslationKey() {
+func (k KeysErrorsGenericCannotGetModerators) IsTranslationKey() {
 }
-func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) GetPath() string {
-	return "commands.categories_aliases.add.alias_add_to_category"
+func (k KeysErrorsGenericCannotGetModerators) GetPath() string {
+	return "errors.generic.cannot_get_moderators"
 }
-func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) GetPathSlice() []string {
-	return []string{"commands", "categories_aliases", "add", "alias_add_to_category"}
+func (k KeysErrorsGenericCannotGetModerators) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_get_moderators"}
 }
-func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) GetVars() twiri18n.Vars {
+func (k KeysErrorsGenericCannotGetModerators) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysCommandsCategoriesAliasesAddAliasAddToCategory) SetVars(vars KeysCommandsCategoriesAliasesAddAliasAddToCategoryVars) twiri18n.TranslationKey[KeysCommandsCategoriesAliasesAddAliasAddToCategoryVars] {
-	k.Vars = twiri18n.Vars{"aliasName": vars.AliasName, "categoryName": vars.CategoryName}
+func (k KeysErrorsGenericCannotGetModerators) SetVars(vars KeysErrorsGenericCannotGetModeratorsVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetModeratorsVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
 	return k
 }
 
-type KeysCommandsCategoriesAliasesAdd struct {
-	AliasAddToCategory KeysCommandsCategoriesAliasesAddAliasAddToCategory
+type KeysErrorsGenericTwirErrorVars struct {
 }
-type KeysCommandsCategoriesAliases struct {
-	Errors KeysCommandsCategoriesAliasesErrors
-	Add    KeysCommandsCategoriesAliasesAdd
-}
-type KeysCommands struct {
-	Songrequest       KeysCommandsSongrequest
-	Subage            KeysCommandsSubage
-	Vips              KeysCommandsVips
-	ChatWall          KeysCommandsChatWall
-	Marker            KeysCommandsMarker
-	Quotes            KeysCommandsQuotes
-	Channel           KeysCommandsChannel
-	Games             KeysCommandsGames
-	Nuke              KeysCommandsNuke
-	Tts               KeysCommandsTts
-	Predictions       KeysCommandsPredictions
-	Manage            KeysCommandsManage
-	Permit            KeysCommandsPermit
-	Shoutout          KeysCommandsShoutout
-	Stats             KeysCommandsStats
-	Seventv           KeysCommandsSeventv
-	Clip              KeysCommandsClip
-	Dudes             KeysCommandsDudes
-	Prefix            KeysCommandsPrefix
-	Shorturl          KeysCommandsShorturl
-	CategoriesAliases KeysCommandsCategoriesAliases
-}
-type KeysErrorsGenericUserNotFoundVars struct {
-}
-type KeysErrorsGenericUserNotFound struct {
+type KeysErrorsGenericTwirError struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysErrorsGenericUserNotFound) IsTranslationKey() {
+func (k KeysErrorsGenericTwirError) IsTranslationKey() {
 }
-func (k KeysErrorsGenericUserNotFound) GetPath() string {
-	return "errors.generic.user_not_found"
+func (k KeysErrorsGenericTwirError) GetPath() string {
+	return "errors.generic.twir_error"
 }
-func (k KeysErrorsGenericUserNotFound) GetPathSlice() []string {
-	return []string{"errors", "generic", "user_not_found"}
+func (k KeysErrorsGenericTwirError) GetPathSlice() []string {
+	return []string{"errors", "generic", "twir_error"}
 }
-func (k KeysErrorsGenericUserNotFound) GetVars() twiri18n.Vars {
+func (k KeysErrorsGenericTwirError) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysErrorsGenericUserNotFound) SetVars(vars KeysErrorsGenericUserNotFoundVars) twiri18n.TranslationKey[KeysErrorsGenericUserNotFoundVars] {
+func (k KeysErrorsGenericTwirError) SetVars(vars KeysErrorsGenericTwirErrorVars) twiri18n.TranslationKey[KeysErrorsGenericTwirErrorVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
@@ -7616,24 +7782,24 @@ func (k KeysErrorsGenericBroadcasterClient) SetVars(vars KeysErrorsGenericBroadc
 	return k
 }
 
-type KeysErrorsGenericCannotFindUserTwitchVars struct {
+type KeysErrorsGenericCannotFindUserDbVars struct {
 }
-type KeysErrorsGenericCannotFindUserTwitch struct {
+type KeysErrorsGenericCannotFindUserDb struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysErrorsGenericCannotFindUserTwitch) IsTranslationKey() {
+func (k KeysErrorsGenericCannotFindUserDb) IsTranslationKey() {
 }
-func (k KeysErrorsGenericCannotFindUserTwitch) GetPath() string {
-	return "errors.generic.cannot_find_user_twitch"
+func (k KeysErrorsGenericCannotFindUserDb) GetPath() string {
+	return "errors.generic.cannot_find_user_db"
 }
-func (k KeysErrorsGenericCannotFindUserTwitch) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_find_user_twitch"}
+func (k KeysErrorsGenericCannotFindUserDb) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_find_user_db"}
 }
-func (k KeysErrorsGenericCannotFindUserTwitch) GetVars() twiri18n.Vars {
+func (k KeysErrorsGenericCannotFindUserDb) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysErrorsGenericCannotFindUserTwitch) SetVars(vars KeysErrorsGenericCannotFindUserTwitchVars) twiri18n.TranslationKey[KeysErrorsGenericCannotFindUserTwitchVars] {
+func (k KeysErrorsGenericCannotFindUserDb) SetVars(vars KeysErrorsGenericCannotFindUserDbVars) twiri18n.TranslationKey[KeysErrorsGenericCannotFindUserDbVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
@@ -7656,116 +7822,6 @@ func (k KeysErrorsGenericCannotFindUsersTwitch) GetVars() twiri18n.Vars {
 	return k.Vars
 }
 func (k KeysErrorsGenericCannotFindUsersTwitch) SetVars(vars KeysErrorsGenericCannotFindUsersTwitchVars) twiri18n.TranslationKey[KeysErrorsGenericCannotFindUsersTwitchVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericCannotCreateTwitchVars struct {
-}
-type KeysErrorsGenericCannotCreateTwitch struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericCannotCreateTwitch) IsTranslationKey() {
-}
-func (k KeysErrorsGenericCannotCreateTwitch) GetPath() string {
-	return "errors.generic.cannot_create_twitch"
-}
-func (k KeysErrorsGenericCannotCreateTwitch) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_create_twitch"}
-}
-func (k KeysErrorsGenericCannotCreateTwitch) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericCannotCreateTwitch) SetVars(vars KeysErrorsGenericCannotCreateTwitchVars) twiri18n.TranslationKey[KeysErrorsGenericCannotCreateTwitchVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericGettingUserSettingsVars struct {
-}
-type KeysErrorsGenericGettingUserSettings struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericGettingUserSettings) IsTranslationKey() {
-}
-func (k KeysErrorsGenericGettingUserSettings) GetPath() string {
-	return "errors.generic.getting_user_settings"
-}
-func (k KeysErrorsGenericGettingUserSettings) GetPathSlice() []string {
-	return []string{"errors", "generic", "getting_user_settings"}
-}
-func (k KeysErrorsGenericGettingUserSettings) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericGettingUserSettings) SetVars(vars KeysErrorsGenericGettingUserSettingsVars) twiri18n.TranslationKey[KeysErrorsGenericGettingUserSettingsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericCreateSettingsVars struct {
-}
-type KeysErrorsGenericCreateSettings struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericCreateSettings) IsTranslationKey() {
-}
-func (k KeysErrorsGenericCreateSettings) GetPath() string {
-	return "errors.generic.create_settings"
-}
-func (k KeysErrorsGenericCreateSettings) GetPathSlice() []string {
-	return []string{"errors", "generic", "create_settings"}
-}
-func (k KeysErrorsGenericCreateSettings) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericCreateSettings) SetVars(vars KeysErrorsGenericCreateSettingsVars) twiri18n.TranslationKey[KeysErrorsGenericCreateSettingsVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericCannotGetDbChannelVars struct {
-}
-type KeysErrorsGenericCannotGetDbChannel struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericCannotGetDbChannel) IsTranslationKey() {
-}
-func (k KeysErrorsGenericCannotGetDbChannel) GetPath() string {
-	return "errors.generic.cannot_get_db_channel"
-}
-func (k KeysErrorsGenericCannotGetDbChannel) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_get_db_channel"}
-}
-func (k KeysErrorsGenericCannotGetDbChannel) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericCannotGetDbChannel) SetVars(vars KeysErrorsGenericCannotGetDbChannelVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetDbChannelVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericTwirErrorVars struct {
-}
-type KeysErrorsGenericTwirError struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericTwirError) IsTranslationKey() {
-}
-func (k KeysErrorsGenericTwirError) GetPath() string {
-	return "errors.generic.twir_error"
-}
-func (k KeysErrorsGenericTwirError) GetPathSlice() []string {
-	return []string{"errors", "generic", "twir_error"}
-}
-func (k KeysErrorsGenericTwirError) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericTwirError) SetVars(vars KeysErrorsGenericTwirErrorVars) twiri18n.TranslationKey[KeysErrorsGenericTwirErrorVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
@@ -7793,24 +7849,24 @@ func (k KeysErrorsGenericCannotGetUser) SetVars(vars KeysErrorsGenericCannotGetU
 	return k
 }
 
-type KeysErrorsGenericUpdatingSettingsVars struct {
+type KeysErrorsGenericGettingUserSettingsVars struct {
 }
-type KeysErrorsGenericUpdatingSettings struct {
+type KeysErrorsGenericGettingUserSettings struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysErrorsGenericUpdatingSettings) IsTranslationKey() {
+func (k KeysErrorsGenericGettingUserSettings) IsTranslationKey() {
 }
-func (k KeysErrorsGenericUpdatingSettings) GetPath() string {
-	return "errors.generic.updating_settings"
+func (k KeysErrorsGenericGettingUserSettings) GetPath() string {
+	return "errors.generic.getting_user_settings"
 }
-func (k KeysErrorsGenericUpdatingSettings) GetPathSlice() []string {
-	return []string{"errors", "generic", "updating_settings"}
+func (k KeysErrorsGenericGettingUserSettings) GetPathSlice() []string {
+	return []string{"errors", "generic", "getting_user_settings"}
 }
-func (k KeysErrorsGenericUpdatingSettings) GetVars() twiri18n.Vars {
+func (k KeysErrorsGenericGettingUserSettings) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysErrorsGenericUpdatingSettings) SetVars(vars KeysErrorsGenericUpdatingSettingsVars) twiri18n.TranslationKey[KeysErrorsGenericUpdatingSettingsVars] {
+func (k KeysErrorsGenericGettingUserSettings) SetVars(vars KeysErrorsGenericGettingUserSettingsVars) twiri18n.TranslationKey[KeysErrorsGenericGettingUserSettingsVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
@@ -7837,135 +7893,46 @@ func (k KeysErrorsGenericCannotFindChannelDb) SetVars(vars KeysErrorsGenericCann
 	return k
 }
 
-type KeysErrorsGenericShouldMentionWithAtVars struct {
+type KeysErrorsGenericCannotFindUserTwitchVars struct {
 }
-type KeysErrorsGenericShouldMentionWithAt struct {
+type KeysErrorsGenericCannotFindUserTwitch struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysErrorsGenericShouldMentionWithAt) IsTranslationKey() {
+func (k KeysErrorsGenericCannotFindUserTwitch) IsTranslationKey() {
 }
-func (k KeysErrorsGenericShouldMentionWithAt) GetPath() string {
-	return "errors.generic.should_mention_with_at"
+func (k KeysErrorsGenericCannotFindUserTwitch) GetPath() string {
+	return "errors.generic.cannot_find_user_twitch"
 }
-func (k KeysErrorsGenericShouldMentionWithAt) GetPathSlice() []string {
-	return []string{"errors", "generic", "should_mention_with_at"}
+func (k KeysErrorsGenericCannotFindUserTwitch) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_find_user_twitch"}
 }
-func (k KeysErrorsGenericShouldMentionWithAt) GetVars() twiri18n.Vars {
+func (k KeysErrorsGenericCannotFindUserTwitch) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysErrorsGenericShouldMentionWithAt) SetVars(vars KeysErrorsGenericShouldMentionWithAtVars) twiri18n.TranslationKey[KeysErrorsGenericShouldMentionWithAtVars] {
+func (k KeysErrorsGenericCannotFindUserTwitch) SetVars(vars KeysErrorsGenericCannotFindUserTwitchVars) twiri18n.TranslationKey[KeysErrorsGenericCannotFindUserTwitchVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
 
-type KeysErrorsGenericCannotGetModeratorsVars struct {
-	Reason any
+type KeysErrorsGenericCreateSettingsVars struct {
 }
-type KeysErrorsGenericCannotGetModerators struct {
+type KeysErrorsGenericCreateSettings struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysErrorsGenericCannotGetModerators) IsTranslationKey() {
+func (k KeysErrorsGenericCreateSettings) IsTranslationKey() {
 }
-func (k KeysErrorsGenericCannotGetModerators) GetPath() string {
-	return "errors.generic.cannot_get_moderators"
+func (k KeysErrorsGenericCreateSettings) GetPath() string {
+	return "errors.generic.create_settings"
 }
-func (k KeysErrorsGenericCannotGetModerators) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_get_moderators"}
+func (k KeysErrorsGenericCreateSettings) GetPathSlice() []string {
+	return []string{"errors", "generic", "create_settings"}
 }
-func (k KeysErrorsGenericCannotGetModerators) GetVars() twiri18n.Vars {
+func (k KeysErrorsGenericCreateSettings) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysErrorsGenericCannotGetModerators) SetVars(vars KeysErrorsGenericCannotGetModeratorsVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetModeratorsVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
-	return k
-}
-
-type KeysErrorsGenericCannotGetAcceptCommandNameVars struct {
-}
-type KeysErrorsGenericCannotGetAcceptCommandName struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericCannotGetAcceptCommandName) IsTranslationKey() {
-}
-func (k KeysErrorsGenericCannotGetAcceptCommandName) GetPath() string {
-	return "errors.generic.cannot_get_accept_command_name"
-}
-func (k KeysErrorsGenericCannotGetAcceptCommandName) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_get_accept_command_name"}
-}
-func (k KeysErrorsGenericCannotGetAcceptCommandName) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericCannotGetAcceptCommandName) SetVars(vars KeysErrorsGenericCannotGetAcceptCommandNameVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetAcceptCommandNameVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericCannotCreateCommandVars struct {
-}
-type KeysErrorsGenericCannotCreateCommand struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericCannotCreateCommand) IsTranslationKey() {
-}
-func (k KeysErrorsGenericCannotCreateCommand) GetPath() string {
-	return "errors.generic.cannot_create_command"
-}
-func (k KeysErrorsGenericCannotCreateCommand) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_create_command"}
-}
-func (k KeysErrorsGenericCannotCreateCommand) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericCannotCreateCommand) SetVars(vars KeysErrorsGenericCannotCreateCommandVars) twiri18n.TranslationKey[KeysErrorsGenericCannotCreateCommandVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericCannotBanUserVars struct {
-}
-type KeysErrorsGenericCannotBanUser struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericCannotBanUser) IsTranslationKey() {
-}
-func (k KeysErrorsGenericCannotBanUser) GetPath() string {
-	return "errors.generic.cannot_ban_user"
-}
-func (k KeysErrorsGenericCannotBanUser) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_ban_user"}
-}
-func (k KeysErrorsGenericCannotBanUser) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericCannotBanUser) SetVars(vars KeysErrorsGenericCannotBanUserVars) twiri18n.TranslationKey[KeysErrorsGenericCannotBanUserVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericNotAFollowerVars struct {
-}
-type KeysErrorsGenericNotAFollower struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericNotAFollower) IsTranslationKey() {
-}
-func (k KeysErrorsGenericNotAFollower) GetPath() string {
-	return "errors.generic.not_a_follower"
-}
-func (k KeysErrorsGenericNotAFollower) GetPathSlice() []string {
-	return []string{"errors", "generic", "not_a_follower"}
-}
-func (k KeysErrorsGenericNotAFollower) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericNotAFollower) SetVars(vars KeysErrorsGenericNotAFollowerVars) twiri18n.TranslationKey[KeysErrorsGenericNotAFollowerVars] {
+func (k KeysErrorsGenericCreateSettings) SetVars(vars KeysErrorsGenericCreateSettingsVars) twiri18n.TranslationKey[KeysErrorsGenericCreateSettingsVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
@@ -8015,26 +7982,47 @@ func (k KeysErrorsGenericGettingChannelSettings) SetVars(vars KeysErrorsGenericG
 	return k
 }
 
-type KeysErrorsGenericCannotGetStreamVars struct {
-	Reason any
+type KeysErrorsGenericShouldMentionWithAtVars struct {
 }
-type KeysErrorsGenericCannotGetStream struct {
+type KeysErrorsGenericShouldMentionWithAt struct {
 	Vars twiri18n.Vars
 }
 
-func (k KeysErrorsGenericCannotGetStream) IsTranslationKey() {
+func (k KeysErrorsGenericShouldMentionWithAt) IsTranslationKey() {
 }
-func (k KeysErrorsGenericCannotGetStream) GetPath() string {
-	return "errors.generic.cannot_get_stream"
+func (k KeysErrorsGenericShouldMentionWithAt) GetPath() string {
+	return "errors.generic.should_mention_with_at"
 }
-func (k KeysErrorsGenericCannotGetStream) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_get_stream"}
+func (k KeysErrorsGenericShouldMentionWithAt) GetPathSlice() []string {
+	return []string{"errors", "generic", "should_mention_with_at"}
 }
-func (k KeysErrorsGenericCannotGetStream) GetVars() twiri18n.Vars {
+func (k KeysErrorsGenericShouldMentionWithAt) GetVars() twiri18n.Vars {
 	return k.Vars
 }
-func (k KeysErrorsGenericCannotGetStream) SetVars(vars KeysErrorsGenericCannotGetStreamVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetStreamVars] {
-	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+func (k KeysErrorsGenericShouldMentionWithAt) SetVars(vars KeysErrorsGenericShouldMentionWithAtVars) twiri18n.TranslationKey[KeysErrorsGenericShouldMentionWithAtVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysErrorsGenericCannotGetAcceptCommandNameVars struct {
+}
+type KeysErrorsGenericCannotGetAcceptCommandName struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericCannotGetAcceptCommandName) IsTranslationKey() {
+}
+func (k KeysErrorsGenericCannotGetAcceptCommandName) GetPath() string {
+	return "errors.generic.cannot_get_accept_command_name"
+}
+func (k KeysErrorsGenericCannotGetAcceptCommandName) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_get_accept_command_name"}
+}
+func (k KeysErrorsGenericCannotGetAcceptCommandName) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericCannotGetAcceptCommandName) SetVars(vars KeysErrorsGenericCannotGetAcceptCommandNameVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetAcceptCommandNameVars] {
+	k.Vars = twiri18n.Vars{}
 	return k
 }
 
@@ -8056,28 +8044,6 @@ func (k KeysErrorsGenericCannotGetCommand) GetVars() twiri18n.Vars {
 	return k.Vars
 }
 func (k KeysErrorsGenericCannotGetCommand) SetVars(vars KeysErrorsGenericCannotGetCommandVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetCommandVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
-type KeysErrorsGenericCannotGetMessageVars struct {
-}
-type KeysErrorsGenericCannotGetMessage struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericCannotGetMessage) IsTranslationKey() {
-}
-func (k KeysErrorsGenericCannotGetMessage) GetPath() string {
-	return "errors.generic.cannot_get_message"
-}
-func (k KeysErrorsGenericCannotGetMessage) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_get_message"}
-}
-func (k KeysErrorsGenericCannotGetMessage) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericCannotGetMessage) SetVars(vars KeysErrorsGenericCannotGetMessageVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetMessageVars] {
 	k.Vars = twiri18n.Vars{}
 	return k
 }
@@ -8104,28 +8070,6 @@ func (k KeysErrorsGenericSomethingWentWrong) SetVars(vars KeysErrorsGenericSomet
 	return k
 }
 
-type KeysErrorsGenericCannotFindUserDbVars struct {
-}
-type KeysErrorsGenericCannotFindUserDb struct {
-	Vars twiri18n.Vars
-}
-
-func (k KeysErrorsGenericCannotFindUserDb) IsTranslationKey() {
-}
-func (k KeysErrorsGenericCannotFindUserDb) GetPath() string {
-	return "errors.generic.cannot_find_user_db"
-}
-func (k KeysErrorsGenericCannotFindUserDb) GetPathSlice() []string {
-	return []string{"errors", "generic", "cannot_find_user_db"}
-}
-func (k KeysErrorsGenericCannotFindUserDb) GetVars() twiri18n.Vars {
-	return k.Vars
-}
-func (k KeysErrorsGenericCannotFindUserDb) SetVars(vars KeysErrorsGenericCannotFindUserDbVars) twiri18n.TranslationKey[KeysErrorsGenericCannotFindUserDbVars] {
-	k.Vars = twiri18n.Vars{}
-	return k
-}
-
 type KeysErrorsGenericCannotTimeoutUserVars struct {
 }
 type KeysErrorsGenericCannotTimeoutUser struct {
@@ -8148,34 +8092,233 @@ func (k KeysErrorsGenericCannotTimeoutUser) SetVars(vars KeysErrorsGenericCannot
 	return k
 }
 
+type KeysErrorsGenericCannotBanUserVars struct {
+}
+type KeysErrorsGenericCannotBanUser struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericCannotBanUser) IsTranslationKey() {
+}
+func (k KeysErrorsGenericCannotBanUser) GetPath() string {
+	return "errors.generic.cannot_ban_user"
+}
+func (k KeysErrorsGenericCannotBanUser) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_ban_user"}
+}
+func (k KeysErrorsGenericCannotBanUser) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericCannotBanUser) SetVars(vars KeysErrorsGenericCannotBanUserVars) twiri18n.TranslationKey[KeysErrorsGenericCannotBanUserVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysErrorsGenericCannotGetStreamVars struct {
+	Reason any
+}
+type KeysErrorsGenericCannotGetStream struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericCannotGetStream) IsTranslationKey() {
+}
+func (k KeysErrorsGenericCannotGetStream) GetPath() string {
+	return "errors.generic.cannot_get_stream"
+}
+func (k KeysErrorsGenericCannotGetStream) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_get_stream"}
+}
+func (k KeysErrorsGenericCannotGetStream) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericCannotGetStream) SetVars(vars KeysErrorsGenericCannotGetStreamVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetStreamVars] {
+	k.Vars = twiri18n.Vars{"reason": vars.Reason}
+	return k
+}
+
+type KeysErrorsGenericCannotCreateCommandVars struct {
+}
+type KeysErrorsGenericCannotCreateCommand struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericCannotCreateCommand) IsTranslationKey() {
+}
+func (k KeysErrorsGenericCannotCreateCommand) GetPath() string {
+	return "errors.generic.cannot_create_command"
+}
+func (k KeysErrorsGenericCannotCreateCommand) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_create_command"}
+}
+func (k KeysErrorsGenericCannotCreateCommand) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericCannotCreateCommand) SetVars(vars KeysErrorsGenericCannotCreateCommandVars) twiri18n.TranslationKey[KeysErrorsGenericCannotCreateCommandVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysErrorsGenericCannotGetMessageVars struct {
+}
+type KeysErrorsGenericCannotGetMessage struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericCannotGetMessage) IsTranslationKey() {
+}
+func (k KeysErrorsGenericCannotGetMessage) GetPath() string {
+	return "errors.generic.cannot_get_message"
+}
+func (k KeysErrorsGenericCannotGetMessage) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_get_message"}
+}
+func (k KeysErrorsGenericCannotGetMessage) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericCannotGetMessage) SetVars(vars KeysErrorsGenericCannotGetMessageVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetMessageVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysErrorsGenericCannotCreateTwitchVars struct {
+}
+type KeysErrorsGenericCannotCreateTwitch struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericCannotCreateTwitch) IsTranslationKey() {
+}
+func (k KeysErrorsGenericCannotCreateTwitch) GetPath() string {
+	return "errors.generic.cannot_create_twitch"
+}
+func (k KeysErrorsGenericCannotCreateTwitch) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_create_twitch"}
+}
+func (k KeysErrorsGenericCannotCreateTwitch) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericCannotCreateTwitch) SetVars(vars KeysErrorsGenericCannotCreateTwitchVars) twiri18n.TranslationKey[KeysErrorsGenericCannotCreateTwitchVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysErrorsGenericUserNotFoundVars struct {
+}
+type KeysErrorsGenericUserNotFound struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericUserNotFound) IsTranslationKey() {
+}
+func (k KeysErrorsGenericUserNotFound) GetPath() string {
+	return "errors.generic.user_not_found"
+}
+func (k KeysErrorsGenericUserNotFound) GetPathSlice() []string {
+	return []string{"errors", "generic", "user_not_found"}
+}
+func (k KeysErrorsGenericUserNotFound) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericUserNotFound) SetVars(vars KeysErrorsGenericUserNotFoundVars) twiri18n.TranslationKey[KeysErrorsGenericUserNotFoundVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysErrorsGenericUpdatingSettingsVars struct {
+}
+type KeysErrorsGenericUpdatingSettings struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericUpdatingSettings) IsTranslationKey() {
+}
+func (k KeysErrorsGenericUpdatingSettings) GetPath() string {
+	return "errors.generic.updating_settings"
+}
+func (k KeysErrorsGenericUpdatingSettings) GetPathSlice() []string {
+	return []string{"errors", "generic", "updating_settings"}
+}
+func (k KeysErrorsGenericUpdatingSettings) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericUpdatingSettings) SetVars(vars KeysErrorsGenericUpdatingSettingsVars) twiri18n.TranslationKey[KeysErrorsGenericUpdatingSettingsVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysErrorsGenericNotAFollowerVars struct {
+}
+type KeysErrorsGenericNotAFollower struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericNotAFollower) IsTranslationKey() {
+}
+func (k KeysErrorsGenericNotAFollower) GetPath() string {
+	return "errors.generic.not_a_follower"
+}
+func (k KeysErrorsGenericNotAFollower) GetPathSlice() []string {
+	return []string{"errors", "generic", "not_a_follower"}
+}
+func (k KeysErrorsGenericNotAFollower) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericNotAFollower) SetVars(vars KeysErrorsGenericNotAFollowerVars) twiri18n.TranslationKey[KeysErrorsGenericNotAFollowerVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
+type KeysErrorsGenericCannotGetDbChannelVars struct {
+}
+type KeysErrorsGenericCannotGetDbChannel struct {
+	Vars twiri18n.Vars
+}
+
+func (k KeysErrorsGenericCannotGetDbChannel) IsTranslationKey() {
+}
+func (k KeysErrorsGenericCannotGetDbChannel) GetPath() string {
+	return "errors.generic.cannot_get_db_channel"
+}
+func (k KeysErrorsGenericCannotGetDbChannel) GetPathSlice() []string {
+	return []string{"errors", "generic", "cannot_get_db_channel"}
+}
+func (k KeysErrorsGenericCannotGetDbChannel) GetVars() twiri18n.Vars {
+	return k.Vars
+}
+func (k KeysErrorsGenericCannotGetDbChannel) SetVars(vars KeysErrorsGenericCannotGetDbChannelVars) twiri18n.TranslationKey[KeysErrorsGenericCannotGetDbChannelVars] {
+	k.Vars = twiri18n.Vars{}
+	return k
+}
+
 type KeysErrorsGeneric struct {
-	UserNotFound               KeysErrorsGenericUserNotFound
+	CannotGetModerators        KeysErrorsGenericCannotGetModerators
+	TwirError                  KeysErrorsGenericTwirError
 	Internal                   KeysErrorsGenericInternal
 	BroadcasterClient          KeysErrorsGenericBroadcasterClient
-	CannotFindUserTwitch       KeysErrorsGenericCannotFindUserTwitch
+	CannotFindUserDb           KeysErrorsGenericCannotFindUserDb
 	CannotFindUsersTwitch      KeysErrorsGenericCannotFindUsersTwitch
-	CannotCreateTwitch         KeysErrorsGenericCannotCreateTwitch
-	GettingUserSettings        KeysErrorsGenericGettingUserSettings
-	CreateSettings             KeysErrorsGenericCreateSettings
-	CannotGetDbChannel         KeysErrorsGenericCannotGetDbChannel
-	TwirError                  KeysErrorsGenericTwirError
 	CannotGetUser              KeysErrorsGenericCannotGetUser
-	UpdatingSettings           KeysErrorsGenericUpdatingSettings
+	GettingUserSettings        KeysErrorsGenericGettingUserSettings
 	CannotFindChannelDb        KeysErrorsGenericCannotFindChannelDb
-	ShouldMentionWithAt        KeysErrorsGenericShouldMentionWithAt
-	CannotGetModerators        KeysErrorsGenericCannotGetModerators
-	CannotGetAcceptCommandName KeysErrorsGenericCannotGetAcceptCommandName
-	CannotCreateCommand        KeysErrorsGenericCannotCreateCommand
-	CannotBanUser              KeysErrorsGenericCannotBanUser
-	NotAFollower               KeysErrorsGenericNotAFollower
+	CannotFindUserTwitch       KeysErrorsGenericCannotFindUserTwitch
+	CreateSettings             KeysErrorsGenericCreateSettings
 	CannotFindChannelTwitch    KeysErrorsGenericCannotFindChannelTwitch
 	GettingChannelSettings     KeysErrorsGenericGettingChannelSettings
-	CannotGetStream            KeysErrorsGenericCannotGetStream
+	ShouldMentionWithAt        KeysErrorsGenericShouldMentionWithAt
+	CannotGetAcceptCommandName KeysErrorsGenericCannotGetAcceptCommandName
 	CannotGetCommand           KeysErrorsGenericCannotGetCommand
-	CannotGetMessage           KeysErrorsGenericCannotGetMessage
 	SomethingWentWrong         KeysErrorsGenericSomethingWentWrong
-	CannotFindUserDb           KeysErrorsGenericCannotFindUserDb
 	CannotTimeoutUser          KeysErrorsGenericCannotTimeoutUser
+	CannotBanUser              KeysErrorsGenericCannotBanUser
+	CannotGetStream            KeysErrorsGenericCannotGetStream
+	CannotCreateCommand        KeysErrorsGenericCannotCreateCommand
+	CannotGetMessage           KeysErrorsGenericCannotGetMessage
+	CannotCreateTwitch         KeysErrorsGenericCannotCreateTwitch
+	UserNotFound               KeysErrorsGenericUserNotFound
+	UpdatingSettings           KeysErrorsGenericUpdatingSettings
+	NotAFollower               KeysErrorsGenericNotAFollower
+	CannotGetDbChannel         KeysErrorsGenericCannotGetDbChannel
 }
 type KeysErrors struct {
 	Generic KeysErrorsGeneric
@@ -8188,4 +8331,4 @@ type Keys struct {
 }
 
 var Translations = Keys{}
-var Store twiri18n.LocalesStore = twiri18n.LocalesStore{"en": map[string]map[string]map[string]string{"errors": map[string]map[string]string{"generic": map[string]string{"cannot_ban_user": `Cannot ban user`, "should_mention_with_at": `You should tag user with @`, "cannot_get_stream": `Cannot get stream. {reason}`, "cannot_get_db_channel": `Cannot get database channel`, "broadcaster_client": `Cannot create broadcaster twitch client`, "cannot_find_user_db": `Cannot find user in database`, "cannot_find_channel_twitch": `Cannot find channel on twitch. {reason}`, "cannot_create_command": `Cannot create command`, "cannot_get_accept_command_name": `Cannot get accept command name`, "internal": `❌ Internal error`, "cannot_get_user": `Cannot get user: {reason}`, "something_went_wrong": `Something went wrong, please try again later`, "getting_user_settings": `Error while getting user settings`, "getting_channel_settings": `Error while getting channel settings`, "user_not_found": `User not found`, "updating_settings": `Error while updating settings`, "cannot_get_moderators": `Cannot get moderators: {reason}`, "twir_error": `[Twir error]: Unknown error happened. Please contact developers.`, "cannot_find_user_twitch": `Cannot find user on twitch`, "cannot_create_twitch": `Cannot create twitch client`, "cannot_timeout_user": `Cannot timeout user`, "cannot_get_command": `Cannot get command`, "cannot_get_message": `Cannot get messages`, "create_settings": `Error while creating settings`, "not_a_follower": `Not a follower`, "cannot_find_channel_db": `Cannot find channel in database`, "cannot_find_users_twitch": `Cannot find users on twitch`}}, "services": map[string]map[string]string{"chat_wall": map[string]string{"errors.get_users_stats": `Cannot get users stats: {reason}`, "info.banned_by_twir": `Banned by twir for chat wall phrase: {banPhrase}`, "errors.create_chat_wall": `Cannot create chat wall: {reason}`, "errors.get_chat_wall_settings": `Cannot get chat wall settings: {reason}`, "errors.get_already_handled": `Cannot get already handled messages: {reason}`, "errors.create_chat_wall_with_phrase": `Cannot create chat wall with phrase that already exists`, "errors.publish_deleted_messages": `Cannot publish deleted messages: {reason}`, "errors.chat_wall_not_found": `Chat wall not found`, "errors.publish_ban_users": `Cannot publish ban users: {reason}`, "errors.get_chat_walls": `Cannot get chat walls: {reason}`, "errors.update_chat_walls": `Cannot update chat wall: {reason}`, "errors.get_current_chat_walls": `Cannot get current chat walls: {reason}`, "errors.create_chat_logs_in_db": `Cannot create chat wall logs in db: {reason}`, "errors.handled_messages_to_redis": `Cannot add handled messages to redis: {reason}`}, "shortenedurls": map[string]string{"errors.invalid_url": `Invalid url`}, "tts": map[string]string{"info.no_voices": `No voices available`, "errors.not_found": `Voice {userVoice} not found`, "errors.voice_disallowed": `Voice {userVoice} is disallowed for usage`, "info.not_configured": `TTS not configured`}}, "variables": map[string]map[string]string{"commands": map[string]string{"info.no_passed_params": `Have not passed params to variable`, "info.command_with_name_not_found": `Command with name {commandName} not found`, "info.get_count": `Cannot get count`}, "custom_var": map[string]string{"errors.evaluate_variable": `Cannot evaluate variable. This is internal error, please report this bug`, "errors.wrong_numbers": `Wrong number: {reason}`, "errors.update_custom_var": `Cannot update custom variables`}, "keywords": map[string]string{"errors.id_not_provided": `ID is not provided`, "errors.not_found": `Keyword not found`}, "7tv": map[string]string{"errors.no_roles": `No roles`, "errors.no_active_set": `You don't have a 7TV set set`, "errors.profile_not_found": `Failed to get 7tv profile: {reason}`, "errors.emote_not_found": `Emote {name} not found`, "errors.no_paint": `No paint`}, "countdown": map[string]string{"errors.parse_date": `Cannot parse date`, "errors.not_passed_params": `Have not passed params to variable`}, "request": map[string]string{"errors.execute_request": `Cannot execute request`}, "song": map[string]string{"info.failed_get_spotify_integration": `Failed to get spotify integration`, "info.get_spotify_integration": `Cannot get spotify integration: {reason}`, "info.history": `{trackTitle} - {trackArtist} (~{minutes}m ago)`, "info.no_needed_scope": `No needed scope, reconnect spotify in dashboard`, "info.no_integrations": `No integrations connected`, "errors.get_recent_tracks": `Cannot get recent tracks: {reason}`, "errors.create_lastfm_service": `Cannot create lastfm service: {reason}`, "errors.fetch_tracks_lastfm": `Cannot fetch tracks from lastfm: {reason}`, "info.lastfm_integration": `LastFM integration not enabled`, "info.spotify_not_connected": `Spotify not connected`, "info.get_spotify_entity": `Failed to get spotify entity`, "errors.fetch_tracks_spotify": `Cannot fetch tracks from spotify: {reason}`, "errors.parse_played_at": `Cannot parse played at`}, "stream": map[string]string{"errors.count_followers": `Cannot count followers`, "info.offline": `Offline or error on getting category`, "info.no_history": `No history recorded`, "errors.get_history_of_categories": `Cannot get history of categories`, "errors.error": `Error`, "errors.offline": `offline`}, "subscribers": map[string]string{"errors.get_subscribers": `Cannot get subscribers`}, "user": map[string]string{"errors.find_user_on_twitch": `Cannot find user on twitch`}, "chat_eval": map[string]string{"info.wrong_code": `Probably you're doing some suspicious things or wrote wrong code.`}, "followers": map[string]string{"errors.get_followers": `Cannot get followers`}, "random": map[string]string{"errors.get_online_user": `Cannot get online user`, "errors.lower_numbers": `Numbers cannot be lower then 0`, "errors.wrong_with_params": `Something is wrong with your params`, "errors.not_passed_params": `Have not passed params to random variable`, "errors.parse_first_number": `Cannot parse first number from arguments`, "errors.empty_phrase": `Your phrases contains empty phrase, check you writed commas correctly`, "errors.first_larger_second": `First number cannot be larger then second`, "errors.parameters_not_specified": `Parameters are not specified`, "errors.wrong_number": `Wrong number of arguments passed to random`, "errors.parse_second_number": `Cannot parse second number from arguments`}, "shorturl": map[string]string{"errors.url_required": `URL is required`, "errors.create_short_url": `Cannot create short url: {reason}`}, "valorant": map[string]string{"info.matches": `{matchResult}({roundsWon}/{roundsLost}) — {char} {KDA}`}}, "commands": map[string]map[string]string{"subage": map[string]string{"errors.not_subscriber_or_hidden": `User is not a subscriber or their subscription info is hidden`, "responses.time_remaining": `(time remaining: {duration})`, "responses.not_subscriber": `{user} is not a subscriber`, "responses.not_subscriber_but_was": `{user} is not a subscriber but was subscribed for {months} months`, "responses.subscription_info": `{user} is a {tier} subscriber of {channel} for {months} months`, "responses.streak_info": `(streak: {months} months)`}, "prefix": map[string]string{"errors.cannot_update": `Cannot update prefix`, "errors.required": `Prefix is required`, "errors.too_long": `Prefix cannot be longer than 10 characters`, "errors.cannot_get_current": `Cannot get current prefix`, "errors.cannot_create": `Cannot create prefix`, "success.updated": `Prefix updated`}, "categories_aliases": map[string]string{"errors.alias_already_exists": `Alias {aliasName} already exists`, "errors.twitch_client_cannot_to_create": `Cannot create twitch client`, "errors.category_failed_to_create": `Failed to create category`, "errors.game_cannot_to_get": `Cannot get games`, "errors.category_required": `Alias and category are required`, "errors.category_cannot_to_get": `Cannot get categories`, "add.alias_add_to_category": `Category alias {aliasName} added with category {categoryName}`, "errors.alias_removed": `Category alias {aliasName} removed`, "errors.alias_empty": `No categories aliases created`, "errors.alias_not_found": `Category alias not found`, "errors.category_failed_to_get": `Failed to get caterogies`, "errors.category_not_found": `Category not found`, "errors.category_cannot_delete": `Cannot delete category`}, "dudes": map[string]string{"errors.color_invalid": `Invalid color`, "errors.grow_cannot_trigger": `Cannot trigger dudes grow`, "errors.sprite_cannot_trigger": `Cannot trigger dudes sprite`, "info.color_reset": `Color reset to default`, "info.color_changed": `Color changed to {dudeColor}`, "info.sprite_changed": `Sprite changed to {dudeSprite}`, "info.color": `Your color is {dudeColor}`, "errors.sprite_invalid": `Invalid sprite, available: {availableSprites}`, "errors.color_cannot_trigger": `Cannot trigger dudes color`, "errors.jump_cannot_trigger": `Cannot trigger dudes jump`, "errors.leave_cannot_trigger": `Cannot trigger dudes leave`, "info.sprite_required": `Sprite is required, available: {availableSprites}`, "info.sprite": `Your sprite is {dudeSprite}`, "info.color_required": `Color is required`}, "manage": map[string]string{"errors.alias_cannot_update": `Cannot update command aliases`, "errors.command_with_name_cannot_find": `Command with that name not found`, "errors.command_large_size": `Command name cannot be greatest then 20.`, "errors.alias_already_exist": `Command with {alias} name or alias already exists`, "edit.command_edited": `✅ Command edited`, "remove.command_removed": `✅ Command removed`, "errors.command_cannot_delete_default": `Cannot delete default command`, "errors.command_with_alias_already_exists": `Command with that name or alias already exists`, "errors.command_cannot_get": `Cannot get command`, "errors.command_have_no_aliases": `Command have no aliases`, "errors.command_cannot_save": `Cannot save command`, "errors.alias_not_command": `That alias not in the command`, "errors.command_not_found": `Command not found`, "add.alias_add": `✅ Alias added`, "add.command_add": `✅ Command added`, "remove.alias_removed": `✅ Alias removed`, "errors.command_cannot_update": `Cannot update command`, "errors.alias_cannot_get_existed_commands": `Cannot get existed commands`, "errors.command_cannot_update_response": `Cannot update response because you have more than 1 response in command. Please use UI.`}, "nuke": map[string]string{"errors.timeout_duration": `Duration of timeout cannot be longer than 2 weeks`, "errors.parse_duration": `Cannot parse duration`, "errors.invalid_duration": `Invalid duration. Examples: !nuke 10m phrase, !nuke 10 phrase, !nuke 1h5m phrase`, "hints.nukeTimeArgName": `time, examples: 10m, 10, 1h5m`, "errors.cannot_get_users_stats": `Cannot get users stats`, "errors.cannot_get_handeled_messages": `Cannot get handled messages`, "errors.cannot_delete_messages": `Cannot delete messages`}, "songrequest": map[string]string{"info.delete": `Song {songTitle} deleted from queue`, "validate.errors.need_follow": `For request song you need to be a followed`, "errors.get_latest_song": `Cannot get latest song`, "info.only_count_songs": `There is only {songsCount} songs`, "validate.errors.internal_error": `Internal error when checking follow`, "errors.not_found": `Current song not found`, "errors.search_song": `Cannot search song`, "errors.get_songs_from_queue": `Cannot get songs from queue`, "errors.get_current_vote": `Cannot get current vote`, "errors.update_song": `Cannot update song`, "info.no_requested_songs": `You haven't requested any song`, "validate.errors.restrictions_on_user": `There are restrictions on user, but i cannot find you in db, sorry :(`, "errors.get_current_song": `Cannot get current song`, "errors.get_settings": `Cannot get song requests settings`, "errors.get_current_queue_count": `Cannot get current queue count`, "errors.remove_song_from_queue": `Cannot remove song from queue`, "info.song_skipped": `Song {songTitle} skipped`, "errors.get_users_count": `Cannot get online users count`, "errors.get_votes_count": `Cannot get votes count`}, "stats": map[string]string{"info.watching_stream": `You're watching stream for {userWatching} hours`, "info.watching_stream_mentioned": `{userName} is watching stream for {userWatching} hours`, "me.messages": `messages`, "me.emotes": `used emotes`, "me.points": `used points`, "me.songs": `songs requests`, "me.watched": `watched`}, "tts": map[string]string{"errors.sending_to_tts": `Error while sending message to tts service`, "info.voice_disallowed": `Voice {voiceName} is disallowed for usage`, "info.disabled": `TTS disabled`, "info.enabled": `TTS enabled`, "errors.not_configured": `TTS is not configured for this channel`, "errors.while_enable": `Error while enabling tts`, "info.pitch": `Global pitch: {globalPitch} | Your pitch: {userPitch}`, "info.rate": `Global rate: {globalRate} | Your rate: {userRate}`, "info.change_pitch": `Pitch changed to {newPitch}`, "errors.while_getting_voices": `Error while getting voices`, "info.change_voice": `Voice changed to {newVoice}`, "info.no_voices": `No voices available`, "info.voice": `Global voice: {globalVoice} | Your voice: {userVoice}`, "info.change_volume": `TTS volume changed to {userVolume}`, "errors.while_disable": `Error while disabling tts`, "info.current_volume": `Current volume: {ttsVolume}`, "info.change_rate": `Rate changed to {newRate}`}, "7tv": map[string]string{"rename.emote_rename": `✅ Emote {oldEmoteName} renamed to {newEmoteName}"`, "hints.emoteForAddArgLink": `Link or name`, "errors.profile_failed_to_get": `Failed to get 7tv profile: {reason}`, "errors.emote_not_found_in_channel": `❌ Emote {emoteSearch} not found in target channel`, "errors.profile_not_found": `7tv profile not found`, "errors.emote_failed_to_add": `Failed to add 7tv emote: {reason}`, "errors.emote_failed_to_rename": `Failed to rename 7tv emote: {reason}`, "add.emote_add": `✅ Emote added`, "hints.emoteForAddArgAlias": `Optional alias`, "errors.emote_not_found": `Emote {emoteName} not found.`, "errors.emote_already_exist_in_channel": `❌ Emote {emoteName} already exists in this channel`, "errors.emoteset_broadcaster_not_active": `❌ No active emote set for broadcaster`, "errors.emote_failed_to_fetch": `Failed to fetch 7tv emote: {reason}`, "errors.emoteset_not_active": `You don't have an active 7TV emote set`, "errors.emoteset_not_found": `Emote set {emoteName} not found`, "errors.emote_not_found_in_emoteset": `Emote {emoteName} not found in set {emoteSet}`, "remove.emote_remove": `✅ Emote {emoteName} removed`, "emote_info.response": `{name}: {link} · Added by @{addedByUserName} {addedByTime} ago · Author {emoteAuthor}`, "hints.emoteForCopyAlias": `Alias for emote`, "hints.copySetChannelName": `@channelName`, "errors.emote_failed_to_remove": `Failed to remove 7tv emote: {reason}`, "profile_info.response": `{profileLink} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}`, "hints.emoteForCopyArgName": `Name of emote to copy`, "hints.copySetNameOfSet": `Name of set to copy`}, "channel": map[string]string{"errors.category_cannot_get": `Cannot get category`, "errors.category_not_found": `Category not found`, "errors.category_cannot_change_error": `Cannot change category: {errorMessage}`, "errors.history_game_message": `Cannot find used games in database`, "errors.category_cannot_get_error": `Cannot get category: {errorMessage}`, "errors.history_title_message": `Cannot get history of titles from database: {reason}`, "errors.broadcaster_twitch_api_client": `Cannot create broadcaster twitch api client: {reason}`, "add.category_change": `✅ {categoryName}`, "errors.alias_cannot_get_category": `Cannot get category aliases`, "errors.category_cannot_change": `Cannot change category`, "errors.broadcaster_twitch_client_cannot_create": `Cannot create broadcaster twitch client`, "errors.game_not_found": `Game not found on twitch`, "errors.channel_cannot_get_information": `Cannot get channel information`, "hints.gameArgName": `Category name or created category alias`, "errors.channel_not_found": `Channel not found`}, "chat_wall": map[string]string{"errors.duration_cannot_parse": `Cannot parse duration`, "start.chat_wall_start": `✅ Chat wall started for 10 minutes, you can stop it with !chat wall stop {chatWallPhrase}`, "stop.chat_wal_stop": `✅ Chat wall {chatWallPhrase} stopped`, "hints.banPhraseArgName": `Phrase to ban`, "hints.deletePhraseArgName": `Phrase to delete`, "hints.timeoutPhraseArgName": `Phrase to ban`, "errors.chat_wall_not_found": `Chat wall {errorPhrase} not found or already stopped`, "errors.long_duration_timeout": `Duration of timeout cannot be longer than 2 weeks`, "hints.timeoutDurationArgName": `Time. Examples: 10m, 10, 1h5m`, "errors.invalid_duration": `Invalid duration. Cannot be longer 2w Examples: 10m, 10, 1h5m`}, "vips": map[string]string{"errors.already_have_role": `User already vip or moderator!`, "errors.cannot_create_scheduled_in_db": `Cannot create scheduled vip in database`, "errors.added": `✅ Added vip to {userName}`, "errors.cannot_update": `Cannot update scheduled vip`, "errors.invalid_duration": `Invalid duration format. Please use formats like <1h>, <30m>, or <2d>`, "errors.cannot_get_list_from_db": `Cannot get vip list from database`, "hints.user": `@username`, "errors.removed": `✅ Removed vip from {userName}`, "errors.added_with_remove_time": `✅ Added vip to {userName}, will be removed at {endTime}`, "errors.no_scheduled_vips": `There are no scheduled vips`, "errors.updated": `✅ Updated vip for user {userName} new expriation time {endTime}`, "hints.unvip_in": `can be time in format: 1w1h30m, 2d5h; or can be stream_end to unvip when stream ends (delayed for 10 mins in case of stream crash). Leave it empty for permanent vip.`}, "clip": map[string]string{"cannot_get_clip": `Cannot get created clip`, "clip_created": `Clip created: {url}`, "cannot_create_clip": `Cannot create clip`, "empty_clip_url": `Clip URL is empty, please try again`}, "games": map[string]string{"errors.roulette_cannot_send_initial_message": `Cannot send initial message`, "errors.voteban_cannot_find_user": `Cannot find target user`, "errors.voteban_cannot_lock": `Cannot lock voteban`, "info.duel_stats": `You have shoot {duels} times · {wins} W – {loses} L ({winrate} WR)`, "info.user_not_participate": `You are not participate in any duel`, "errors.duel_cannot_get_with_settings": `Cannot get duel channel settings`, "info.voteban_in_progress": `Another voteban in progress`, "errors.roulette_cannot_get_with_settings": `Cannot get roulette settings from database`, "errors.8ball_cannot_find": `Cannot find 8ball settings`, "errors.voteban_cannot_find_settings": `Cannot find voteban settings`, "errors.voteban_cannot_check_progress": `Cannot check if vote in progress`, "errors.duel_cannot_set_user_cooldown": `Cannot set user cooldown: {reason}`, "errors.voteban_cannot_set_vote_expiration": `Cannot set vote expiration`, "errors.voteban_cannot_timeout_moderator": `Cannot start voteban on moderator`, "info.user_already_in_duel": `Target user already in duel`, "errors.duel_cannot_save_data": `Cannot save duel data: {reason}`, "errors.voteban_cannot_set_vote": `Cannot set vote`, "info.sender_already_in_duel": `You already in duel`, "errors.duel_cannot_get_sender": `Cannot get sender current duel`, "errors.duel_cannot_save_result": `Cannot save duel result: {reason}`, "errors.duel_with_yourself": `You cannot duel with yourself`, "errors.duel_cannot_set_global_cooldown": `Cannot set global cooldown: {reason}`, "errors.roulette_cannot_send_death_message": `Cannot send death message`, "errors.duel_with_streamer": `You cannot duel with streamer`, "errors.seppuku_cannot_find_settings": `Cannot find seppuku settings`, "errors.duel_with_bot": `You cannot duel with bot`, "errors.duel_cannot_save_to_cache": `Cannot save duel data to cache`, "errors.duel_cannot_check_user": `Cannot check user in duel: {reason}`, "errors.duel_cannot_validate_participants": `Cannot validate participants`, "errors.duel_cannot_check_cooldown": `Cannot check duel cooldown: {reason}`}, "permit": map[string]string{"errors.cannot_create": `Cannot create permit`, "success.added_permit": `✅ Added {countPermit} permits to {userName}`}, "predictions": map[string]string{"hints.startPredictionDuration": `120`, "hints.startPredictionArgTitle": `Will we win this game?`, "info.no_runed": `No prediction runed`, "info.cancel": `✅ Prediction canceled`, "info.locked": `✅ Prediction locked`, "errors.cannot_get_current_var": `Cannot get current prediction: {reason}`, "errors.no_variant": `No prediction variant`, "errors.cannot_create": `Cannot create prediction`, "info.resolved": `✅ Prediction resolved`, "hints.predictionResolveOutcomeNum": `Variant number, for example: 1,2,3,4,5`, "errors.cannot_get_current": `Cannot get current prediction`, "info.started": `✅ Prediction started`, "hints.startPredictionArgVariants": `Yes, win / No, lose`, "errors.cannot_cancel": `Cannot cancel prediction`, "errors.cannot_cancel_var": `Cannot cancel prediction: {reason}`, "errors.cannot_create_var": `Cannot create prediction: {reason}`}, "shoutout": map[string]string{"response_offline": `Explore https://twitch.tv/{userName}’s world, last featured in 🎮 {categoryName} 📜 {title}!`, "errors.bot_have_no_permissions": `We have no permissions for shoutout. Streamer must re-authorize to bot dashboard.`, "response_online": `Join https://twitch.tv/{userName} shining in 🎮 {categoryName} 📜 {title} with 👁️ {viewers} viewers!`}, "marker": map[string]string{"errors.cannot_create_marker": `Cannot create marker. {reason}`, "success.marker_created": `Marker created`}, "quotes": map[string]string{"errors.random_empty": `No quotes have been added yet`, "errors.not_found": `Quote not found`, "errors.empty_text": `Quote text cannot be empty`, "errors.cannot_get": `Cannot get quote`, "add.added": `Quote added #{number}`, "remove.removed": `Quote removed`, "errors.cannot_add": `Cannot add quote`, "errors.cannot_remove": `Cannot remove quote`}, "shorturl": map[string]string{"success.short_url_created": `Short url: {url}`, "errors.cannot_create_short_url": `Cannot create short url. {error}`}}}}
+var Store twiri18n.LocalesStore = twiri18n.LocalesStore{"en": map[string]map[string]map[string]string{"services": map[string]map[string]string{"chat_wall": map[string]string{"errors.create_chat_logs_in_db": `Cannot create chat wall logs in db: {reason}`, "errors.get_current_chat_walls": `Cannot get current chat walls: {reason}`, "errors.get_chat_wall_settings": `Cannot get chat wall settings: {reason}`, "errors.create_chat_wall_with_phrase": `Cannot create chat wall with phrase that already exists`, "errors.create_chat_wall": `Cannot create chat wall: {reason}`, "errors.publish_deleted_messages": `Cannot publish deleted messages: {reason}`, "errors.chat_wall_not_found": `Chat wall not found`, "errors.get_chat_walls": `Cannot get chat walls: {reason}`, "errors.publish_ban_users": `Cannot publish ban users: {reason}`, "info.banned_by_twir": `Banned by twir for chat wall phrase: {banPhrase}`, "errors.handled_messages_to_redis": `Cannot add handled messages to redis: {reason}`, "errors.update_chat_walls": `Cannot update chat wall: {reason}`, "errors.get_users_stats": `Cannot get users stats: {reason}`, "errors.get_already_handled": `Cannot get already handled messages: {reason}`}, "shortenedurls": map[string]string{"errors.invalid_url": `Invalid url`}, "tts": map[string]string{"info.not_configured": `TTS not configured`, "info.no_voices": `No voices available`, "errors.not_found": `Voice {userVoice} not found`, "errors.voice_disallowed": `Voice {userVoice} is disallowed for usage`}}, "variables": map[string]map[string]string{"commands": map[string]string{"info.get_count": `Cannot get count`, "info.no_passed_params": `Have not passed params to variable`, "info.command_with_name_not_found": `Command with name {commandName} not found`}, "request": map[string]string{"errors.execute_request": `Cannot execute request`}, "stream": map[string]string{"info.no_history": `No history recorded`, "errors.count_followers": `Cannot count followers`, "errors.get_history_of_categories": `Cannot get history of categories`, "errors.error": `Error`, "errors.offline": `offline`, "info.offline": `Offline or error on getting category`}, "valorant": map[string]string{"info.matches": `{matchResult}({roundsWon}/{roundsLost}) — {char} {KDA}`}, "7tv": map[string]string{"errors.profile_not_found": `Failed to get 7tv profile: {reason}`, "errors.emote_not_found": `Emote {name} not found`, "errors.no_paint": `No paint`, "errors.no_roles": `No roles`, "errors.no_active_set": `You don't have a 7TV set set`}, "countdown": map[string]string{"errors.parse_date": `Cannot parse date`, "errors.not_passed_params": `Have not passed params to variable`}, "custom_var": map[string]string{"errors.evaluate_variable": `Cannot evaluate variable. This is internal error, please report this bug`, "errors.wrong_numbers": `Wrong number: {reason}`, "errors.update_custom_var": `Cannot update custom variables`}, "random": map[string]string{"errors.lower_numbers": `Numbers cannot be lower then 0`, "errors.get_online_user": `Cannot get online user`, "errors.empty_phrase": `Your phrases contains empty phrase, check you writed commas correctly`, "errors.first_larger_second": `First number cannot be larger then second`, "errors.parse_second_number": `Cannot parse second number from arguments`, "errors.wrong_number": `Wrong number of arguments passed to random`, "errors.parameters_not_specified": `Parameters are not specified`, "errors.parse_first_number": `Cannot parse first number from arguments`, "errors.not_passed_params": `Have not passed params to random variable`, "errors.wrong_with_params": `Something is wrong with your params`}, "subscribers": map[string]string{"errors.get_subscribers": `Cannot get subscribers`}, "user": map[string]string{"errors.find_user_on_twitch": `Cannot find user on twitch`}, "chat_eval": map[string]string{"info.wrong_code": `Probably you're doing some suspicious things or wrote wrong code.`}, "followers": map[string]string{"errors.get_followers": `Cannot get followers`}, "keywords": map[string]string{"errors.not_found": `Keyword not found`, "errors.id_not_provided": `ID is not provided`}, "shorturl": map[string]string{"errors.url_required": `URL is required`, "errors.create_short_url": `Cannot create short url: {reason}`}, "song": map[string]string{"info.get_spotify_integration": `Cannot get spotify integration: {reason}`, "info.history": `{trackTitle} - {trackArtist} (~{minutes}m ago)`, "info.no_integrations": `No integrations connected`, "errors.fetch_tracks_lastfm": `Cannot fetch tracks from lastfm: {reason}`, "errors.fetch_tracks_spotify": `Cannot fetch tracks from spotify: {reason}`, "errors.get_recent_tracks": `Cannot get recent tracks: {reason}`, "errors.create_lastfm_service": `Cannot create lastfm service: {reason}`, "info.no_needed_scope": `No needed scope, reconnect spotify in dashboard`, "info.lastfm_integration": `LastFM integration not enabled`, "info.spotify_not_connected": `Spotify not connected`, "errors.parse_played_at": `Cannot parse played at`, "info.failed_get_spotify_integration": `Failed to get spotify integration`, "info.get_spotify_entity": `Failed to get spotify entity`}}, "commands": map[string]map[string]string{"shoutout": map[string]string{"errors.bot_have_no_permissions": `We have no permissions for shoutout. Streamer must re-authorize to bot dashboard.`, "response_online": `Join https://twitch.tv/{userName} shining in 🎮 {categoryName} 📜 {title} with 👁️ {viewers} viewers!`, "response_offline": `Explore https://twitch.tv/{userName}’s world, last featured in 🎮 {categoryName} 📜 {title}!`}, "subage": map[string]string{"responses.subscription_info": `{user} is a {tier} subscriber of {channel} for {months} months`, "responses.streak_info": `(streak: {months} months)`, "responses.time_remaining": `(time remaining: {duration})`, "errors.not_subscriber_or_hidden": `User is not a subscriber or their subscription info is hidden`, "responses.not_subscriber": `{user} is not a subscriber`, "responses.not_subscriber_but_was": `{user} is not a subscriber but was subscribed for {months} months`}, "vips": map[string]string{"errors.cannot_get_list_from_db": `Cannot get vip list from database`, "errors.removed": `✅ Removed vip from {userName}`, "errors.cannot_update": `Cannot update scheduled vip`, "errors.cannot_create_scheduled_in_db": `Cannot create scheduled vip in database`, "errors.updated": `✅ Updated vip for user {userName} new expriation time {endTime}`, "errors.added_with_remove_time": `✅ Added vip to {userName}, will be removed at {endTime}`, "errors.no_scheduled_vips": `There are no scheduled vips`, "errors.invalid_duration": `Invalid duration format. Please use formats like <1h>, <30m>, or <2d>`, "errors.already_have_role": `User already vip or moderator!`, "hints.user": `@username`, "hints.unvip_in": `can be time in format: 1w1h30m, 2d5h; or can be stream_end to unvip when stream ends (delayed for 10 mins in case of stream crash). Leave it empty for permanent vip.`, "errors.added": `✅ Added vip to {userName}`}, "7tv": map[string]string{"errors.emote_not_found": `Emote {emoteName} not found.`, "errors.emote_not_found_in_channel": `❌ Emote {emoteSearch} not found in target channel`, "add.emote_add": `✅ Emote added`, "rename.emote_rename": `✅ Emote {oldEmoteName} renamed to {newEmoteName}"`, "emote_info.response": `{name}: {link} · Added by @{addedByUserName} {addedByTime} ago · Author {emoteAuthor}`, "errors.emote_not_found_in_emoteset": `Emote {emoteName} not found in set {emoteSet}`, "errors.profile_failed_to_get": `Failed to get 7tv profile: {reason}`, "errors.emote_failed_to_add": `Failed to add 7tv emote: {reason}`, "remove.emote_remove": `✅ Emote {emoteName} removed`, "profile_info.response": `{profileLink} · Paint: {paintName} ({unlockedPaints} unlocked) · Roles: {roles} · Editor for {editorCount} · Set: {emoteSetName} ({emoteSetCount}/{emoteSetCapacity}) · Created: {profileCreatedAt}`, "hints.emoteForCopyArgName": `Name of emote to copy`, "hints.emoteForAddArgAlias": `Optional alias`, "errors.emoteset_not_active": `You don't have an active 7TV emote set`, "errors.emoteset_broadcaster_not_active": `❌ No active emote set for broadcaster`, "errors.emote_failed_to_remove": `Failed to remove 7tv emote: {reason}`, "errors.emoteset_not_found": `Emote set {emoteName} not found`, "errors.emote_already_exist_in_channel": `❌ Emote {emoteName} already exists in this channel`, "hints.copySetChannelName": `@channelName`, "hints.copySetNameOfSet": `Name of set to copy`, "hints.emoteForAddArgLink": `Link or name`, "hints.emoteForCopyAlias": `Alias for emote`, "errors.emote_failed_to_rename": `Failed to rename 7tv emote: {reason}`, "errors.emote_failed_to_fetch": `Failed to fetch 7tv emote: {reason}`, "errors.profile_not_found": `7tv profile not found`}, "dudes": map[string]string{"errors.color_cannot_trigger": `Cannot trigger dudes color`, "errors.jump_cannot_trigger": `Cannot trigger dudes jump`, "errors.leave_cannot_trigger": `Cannot trigger dudes leave`, "errors.sprite_cannot_trigger": `Cannot trigger dudes sprite`, "errors.color_invalid": `Invalid color`, "info.color_reset": `Color reset to default`, "info.color_changed": `Color changed to {dudeColor}`, "info.color": `Your color is {dudeColor}`, "info.sprite": `Your sprite is {dudeSprite}`, "errors.grow_cannot_trigger": `Cannot trigger dudes grow`, "errors.sprite_invalid": `Invalid sprite, available: {availableSprites}`, "info.sprite_changed": `Sprite changed to {dudeSprite}`, "info.color_required": `Color is required`, "info.sprite_required": `Sprite is required, available: {availableSprites}`}, "manage": map[string]string{"errors.command_not_found": `Command not found`, "errors.alias_already_exist": `Command with {alias} name or alias already exists`, "errors.alias_cannot_update": `Cannot update command aliases`, "errors.command_cannot_get": `Cannot get command`, "errors.command_cannot_update_response": `Cannot update response because you have more than 1 response in command. Please use UI.`, "errors.alias_not_command": `That alias not in the command`, "add.command_add": `✅ Command added`, "remove.command_removed": `✅ Command removed`, "errors.command_large_size": `Command name cannot be greatest then 20.`, "errors.command_cannot_save": `Cannot save command`, "errors.command_with_alias_already_exists": `Command with that name or alias already exists`, "errors.command_with_name_cannot_find": `Command with that name not found`, "add.alias_add": `✅ Alias added`, "errors.command_have_no_aliases": `Command have no aliases`, "errors.command_cannot_delete_default": `Cannot delete default command`, "errors.command_cannot_update": `Cannot update command`, "errors.alias_cannot_get_existed_commands": `Cannot get existed commands`, "edit.command_edited": `✅ Command edited`, "remove.alias_removed": `✅ Alias removed`}, "marker": map[string]string{"success.marker_created": `Marker created`, "errors.cannot_create_marker": `Cannot create marker. {reason}`}, "nuke": map[string]string{"errors.parse_duration": `Cannot parse duration`, "errors.invalid_duration": `Invalid duration. Examples: !nuke 10m phrase, !nuke 10 phrase, !nuke 1h5m phrase`, "errors.cannot_get_users_stats": `Cannot get users stats`, "errors.cannot_get_handeled_messages": `Cannot get handled messages`, "hints.nukeTimeArgName": `time, examples: 10m, 10, 1h5m`, "errors.cannot_delete_messages": `Cannot delete messages`, "errors.timeout_duration": `Duration of timeout cannot be longer than 2 weeks`}, "stats": map[string]string{"botuptime.down": `down`, "botuptime.recently_restarted": `recently restarted`, "botuptime.no_data": `{services} data is {unavailable}`, "me.watched": `watched`, "me.messages": `messages`, "me.songs": `songs requests`, "botuptime.ping": `pings`, "botuptime.unavailable": `unavailable`, "info.watching_stream": `You're watching stream for {userWatching} hours`, "info.watching_stream_mentioned": `{userName} is watching stream for {userWatching} hours`, "me.emotes": `used emotes`, "me.points": `used points`, "botuptime.services": `services`}, "tts": map[string]string{"errors.sending_to_tts": `Error while sending message to tts service`, "errors.while_getting_voices": `Error while getting voices`, "info.voice_disallowed": `Voice {voiceName} is disallowed for usage`, "info.change_rate": `Rate changed to {newRate}`, "info.voice": `Global voice: {globalVoice} | Your voice: {userVoice}`, "info.disabled": `TTS disabled`, "info.enabled": `TTS enabled`, "info.pitch": `Global pitch: {globalPitch} | Your pitch: {userPitch}`, "info.change_voice": `Voice changed to {newVoice}`, "errors.while_disable": `Error while disabling tts`, "errors.while_enable": `Error while enabling tts`, "info.no_voices": `No voices available`, "errors.not_configured": `TTS is not configured for this channel`, "info.change_volume": `TTS volume changed to {userVolume}`, "info.rate": `Global rate: {globalRate} | Your rate: {userRate}`, "info.change_pitch": `Pitch changed to {newPitch}`, "info.current_volume": `Current volume: {ttsVolume}`}, "clip": map[string]string{"clip_created": `Clip created: {url}`, "cannot_create_clip": `Cannot create clip`, "empty_clip_url": `Clip URL is empty, please try again`, "cannot_get_clip": `Cannot get created clip`}, "permit": map[string]string{"errors.cannot_create": `Cannot create permit`, "success.added_permit": `✅ Added {countPermit} permits to {userName}`}, "quotes": map[string]string{"add.added": `Quote added #{number}`, "remove.removed": `Quote removed`, "errors.cannot_remove": `Cannot remove quote`, "errors.random_empty": `No quotes have been added yet`, "errors.not_found": `Quote not found`, "errors.empty_text": `Quote text cannot be empty`, "errors.cannot_get": `Cannot get quote`, "errors.cannot_add": `Cannot add quote`}, "shorturl": map[string]string{"errors.cannot_create_short_url": `Cannot create short url. {error}`, "success.short_url_created": `Short url: {url}`}, "songrequest": map[string]string{"info.song_skipped": `Song {songTitle} skipped`, "validate.errors.internal_error": `Internal error when checking follow`, "validate.errors.need_follow": `For request song you need to be a followed`, "errors.get_current_vote": `Cannot get current vote`, "errors.search_song": `Cannot search song`, "errors.get_users_count": `Cannot get online users count`, "errors.get_settings": `Cannot get song requests settings`, "errors.update_song": `Cannot update song`, "validate.errors.restrictions_on_user": `There are restrictions on user, but i cannot find you in db, sorry :(`, "errors.get_current_song": `Cannot get current song`, "errors.remove_song_from_queue": `Cannot remove song from queue`, "info.no_requested_songs": `You haven't requested any song`, "errors.get_latest_song": `Cannot get latest song`, "info.only_count_songs": `There is only {songsCount} songs`, "info.delete": `Song {songTitle} deleted from queue`, "errors.get_votes_count": `Cannot get votes count`, "errors.get_current_queue_count": `Cannot get current queue count`, "errors.not_found": `Current song not found`, "errors.get_songs_from_queue": `Cannot get songs from queue`}, "categories_aliases": map[string]string{"errors.category_required": `Alias and category are required`, "errors.category_failed_to_get": `Failed to get caterogies`, "errors.category_not_found": `Category not found`, "add.alias_add_to_category": `Category alias {aliasName} added with category {categoryName}`, "errors.category_failed_to_create": `Failed to create category`, "errors.alias_not_found": `Category alias not found`, "errors.category_cannot_to_get": `Cannot get categories`, "errors.alias_removed": `Category alias {aliasName} removed`, "errors.category_cannot_delete": `Cannot delete category`, "errors.alias_already_exists": `Alias {aliasName} already exists`, "errors.twitch_client_cannot_to_create": `Cannot create twitch client`, "errors.game_cannot_to_get": `Cannot get games`, "errors.alias_empty": `No categories aliases created`}, "channel": map[string]string{"add.category_change": `✅ {categoryName}`, "errors.category_cannot_get_error": `Cannot get category: {errorMessage}`, "errors.alias_cannot_get_category": `Cannot get category aliases`, "errors.broadcaster_twitch_api_client": `Cannot create broadcaster twitch api client: {reason}`, "errors.category_not_found": `Category not found`, "hints.gameArgName": `Category name or created category alias`, "errors.category_cannot_change": `Cannot change category`, "errors.category_cannot_get": `Cannot get category`, "errors.broadcaster_twitch_client_cannot_create": `Cannot create broadcaster twitch client`, "errors.category_cannot_change_error": `Cannot change category: {errorMessage}`, "errors.channel_not_found": `Channel not found`, "errors.history_game_message": `Cannot find used games in database`, "errors.channel_cannot_get_information": `Cannot get channel information`, "errors.game_not_found": `Game not found on twitch`, "errors.history_title_message": `Cannot get history of titles from database: {reason}`}, "chat_wall": map[string]string{"hints.banPhraseArgName": `Phrase to ban`, "hints.timeoutDurationArgName": `Time. Examples: 10m, 10, 1h5m`, "hints.timeoutPhraseArgName": `Phrase to ban`, "errors.chat_wall_not_found": `Chat wall {errorPhrase} not found or already stopped`, "errors.invalid_duration": `Invalid duration. Cannot be longer 2w Examples: 10m, 10, 1h5m`, "errors.duration_cannot_parse": `Cannot parse duration`, "stop.chat_wal_stop": `✅ Chat wall {chatWallPhrase} stopped`, "hints.deletePhraseArgName": `Phrase to delete`, "errors.long_duration_timeout": `Duration of timeout cannot be longer than 2 weeks`, "start.chat_wall_start": `✅ Chat wall started for 10 minutes, you can stop it with !chat wall stop {chatWallPhrase}`}, "games": map[string]string{"errors.duel_cannot_save_result": `Cannot save duel result: {reason}`, "errors.voteban_cannot_timeout_moderator": `Cannot start voteban on moderator`, "errors.duel_cannot_check_cooldown": `Cannot check duel cooldown: {reason}`, "errors.seppuku_cannot_find_settings": `Cannot find seppuku settings`, "info.sender_already_in_duel": `You already in duel`, "info.voteban_in_progress": `Another voteban in progress`, "info.user_already_in_duel": `Target user already in duel`, "errors.voteban_cannot_find_settings": `Cannot find voteban settings`, "errors.roulette_cannot_send_death_message": `Cannot send death message`, "errors.duel_cannot_set_global_cooldown": `Cannot set global cooldown: {reason}`, "errors.duel_cannot_validate_participants": `Cannot validate participants`, "info.user_not_participate": `You are not participate in any duel`, "errors.duel_cannot_get_sender": `Cannot get sender current duel`, "errors.duel_cannot_save_to_cache": `Cannot save duel data to cache`, "errors.voteban_cannot_set_vote_expiration": `Cannot set vote expiration`, "info.duel_stats": `You have shoot {duels} times · {wins} W – {loses} L ({winrate} WR)`, "errors.voteban_cannot_check_progress": `Cannot check if vote in progress`, "errors.duel_cannot_check_user": `Cannot check user in duel: {reason}`, "errors.duel_with_bot": `You cannot duel with bot`, "errors.voteban_cannot_find_user": `Cannot find target user`, "errors.roulette_cannot_send_initial_message": `Cannot send initial message`, "errors.duel_with_streamer": `You cannot duel with streamer`, "errors.duel_cannot_set_user_cooldown": `Cannot set user cooldown: {reason}`, "errors.roulette_cannot_get_with_settings": `Cannot get roulette settings from database`, "errors.voteban_cannot_lock": `Cannot lock voteban`, "errors.duel_cannot_get_with_settings": `Cannot get duel channel settings`, "errors.voteban_cannot_set_vote": `Cannot set vote`, "errors.duel_cannot_save_data": `Cannot save duel data: {reason}`, "errors.duel_with_yourself": `You cannot duel with yourself`, "errors.8ball_cannot_find": `Cannot find 8ball settings`}, "predictions": map[string]string{"hints.predictionResolveOutcomeNum": `Variant number, for example: 1,2,3,4,5`, "errors.cannot_create": `Cannot create prediction`, "errors.cannot_get_current_var": `Cannot get current prediction: {reason}`, "errors.cannot_cancel_var": `Cannot cancel prediction: {reason}`, "errors.no_variant": `No prediction variant`, "errors.cannot_create_var": `Cannot create prediction: {reason}`, "info.no_runed": `No prediction runed`, "info.cancel": `✅ Prediction canceled`, "hints.startPredictionArgTitle": `Will we win this game?`, "hints.startPredictionDuration": `120`, "errors.cannot_get_current": `Cannot get current prediction`, "hints.startPredictionArgVariants": `Yes, win / No, lose`, "errors.cannot_cancel": `Cannot cancel prediction`, "info.locked": `✅ Prediction locked`, "info.resolved": `✅ Prediction resolved`, "info.started": `✅ Prediction started`}, "prefix": map[string]string{"errors.too_long": `Prefix cannot be longer than 10 characters`, "errors.cannot_get_current": `Cannot get current prefix`, "errors.cannot_create": `Cannot create prefix`, "errors.cannot_update": `Cannot update prefix`, "errors.required": `Prefix is required`, "success.updated": `Prefix updated`}}, "errors": map[string]map[string]string{"generic": map[string]string{"cannot_get_moderators": `Cannot get moderators: {reason}`, "something_went_wrong": `Something went wrong, please try again later`, "broadcaster_client": `Cannot create broadcaster twitch client`, "updating_settings": `Error while updating settings`, "cannot_find_channel_db": `Cannot find channel in database`, "cannot_create_twitch": `Cannot create twitch client`, "cannot_ban_user": `Cannot ban user`, "create_settings": `Error while creating settings`, "getting_channel_settings": `Error while getting channel settings`, "cannot_get_message": `Cannot get messages`, "cannot_find_user_db": `Cannot find user in database`, "getting_user_settings": `Error while getting user settings`, "cannot_get_accept_command_name": `Cannot get accept command name`, "cannot_get_stream": `Cannot get stream. {reason}`, "user_not_found": `User not found`, "should_mention_with_at": `You should tag user with @`, "cannot_get_command": `Cannot get command`, "cannot_find_user_twitch": `Cannot find user on twitch`, "cannot_create_command": `Cannot create command`, "twir_error": `[Twir error]: Unknown error happened. Please contact developers.`, "cannot_find_users_twitch": `Cannot find users on twitch`, "cannot_get_user": `Cannot get user: {reason}`, "not_a_follower": `Not a follower`, "cannot_get_db_channel": `Cannot get database channel`, "internal": `❌ Internal error`, "cannot_find_channel_twitch": `Cannot find channel on twitch. {reason}`, "cannot_timeout_user": `Cannot timeout user`}}}}

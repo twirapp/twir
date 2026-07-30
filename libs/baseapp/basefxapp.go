@@ -21,13 +21,14 @@ import (
 	"github.com/twirapp/twir/libs/audit/recorder"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/otel"
-	"github.com/twirapp/twir/libs/entities/platform"
 	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
 	twirsentry "github.com/twirapp/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/uptime"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 )
@@ -95,6 +96,31 @@ func CreateBaseApp(opts Opts) fx.Option {
 						Level:   slog.LevelInfo,
 					},
 				)
+			},
+		),
+		fx.Invoke(
+			func(lifecycle fx.Lifecycle, redisClient *redis.Client) error {
+				reporter, err := uptime.NewReporter(
+					redisClient,
+					uptime.ReporterOpts{ServiceName: opts.AppName},
+				)
+				if err != nil {
+					return fmt.Errorf("create uptime reporter: %w", err)
+				}
+
+				reporterContext, cancel := context.WithCancel(context.Background())
+				lifecycle.Append(fx.Hook{
+					OnStart: func(context.Context) error {
+						reporter.Start(reporterContext)
+						return nil
+					},
+					OnStop: func(context.Context) error {
+						cancel()
+						return nil
+					},
+				})
+
+				return nil
 			},
 		),
 	)
