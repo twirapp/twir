@@ -140,6 +140,7 @@ func TestPlatformCapabilities(t *testing.T) {
 			want: Capabilities{
 				CapabilityChatRead,
 				CapabilityChatWrite,
+				CapabilityStreamsRead,
 			},
 		},
 		{platform: "unknown", want: Capabilities{}},

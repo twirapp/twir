@@ -13,6 +13,7 @@ import {
 import type { ChannelBinding, YoutubeTextChatMessage } from './message.ts'
 import type { BindingOwnershipManager } from './locks.ts'
 import type { RetryScheduler } from './live-chat-scheduler.ts'
+import type { YoutubeStream } from './streams.ts'
 
 const RETRY_BASE_MS = 1_000
 const RETRY_MAX_MS = 120_000
@@ -49,6 +50,7 @@ export interface LiveChatSource {
 	resolve(binding: ChannelBinding): Promise<{
 		readonly session: LiveChatSession
 		readonly broadcasterName: string
+		readonly stream?: YoutubeStream
 	}>
 }
 
@@ -59,6 +61,8 @@ export interface LiveChatManagerOptions {
 	) => Promise<ChannelBinding>
 	readonly retryScheduler?: RetryScheduler
 	readonly ownership?: BindingOwnershipManager
+	readonly onStreamOnline?: (binding: ChannelBinding, stream: YoutubeStream) => Promise<void>
+	readonly onStreamOffline?: (binding: ChannelBinding, stream: YoutubeStream) => Promise<void>
 }
 
 interface ActiveSession {
@@ -82,6 +86,7 @@ export class LiveChatManager {
 	readonly #starting = new Map<string, StartingSession>()
 	readonly #attempts = new Map<string, number>()
 	readonly #generations = new Map<string, number>()
+	readonly #onlineStreams = new Map<string, YoutubeStream>()
 	#closed = false
 	#reconciling = false
 	#pendingReconcile: readonly ChannelBinding[] | null = null
@@ -124,11 +129,15 @@ export class LiveChatManager {
 		if (!this.#bindings.has(bindingId)) {
 			return
 		}
-		this.#forgetBinding(bindingId)
+		this.#forgetBinding(bindingId, true)
 		await this.options.ownership?.release(bindingId)
 	}
 
-	#forgetBinding(bindingId: string): void {
+	#forgetBinding(bindingId: string, markOffline: boolean): void {
+		const binding = this.#bindings.get(bindingId)
+		if (markOffline && binding) {
+			this.#markOffline(binding)
+		}
 		this.#nextGeneration(bindingId)
 		this.#bindings.delete(bindingId)
 		this.#attempts.delete(bindingId)
@@ -170,7 +179,7 @@ export class LiveChatManager {
 		}
 		this.#closed = true
 		for (const bindingId of [...this.#bindings.keys()]) {
-			this.#forgetBinding(bindingId)
+			this.#forgetBinding(bindingId, false)
 		}
 		this.#attempts.clear()
 		this.#removeOwnershipListener?.()
@@ -229,12 +238,16 @@ export class LiveChatManager {
 			}
 
 			this.#sessions.set(binding.id, { generation, session: resolved.session })
+			if (resolved.stream) {
+				this.#markOnline(binding, resolved.stream)
+			}
 			resolved.session.start()
 			console.info(`started YouTube live chat for ${binding.platformChannelId}`)
 		} catch (error) {
 			if (this.#isCurrent(binding, generation)) {
 				this.#stopSession(binding.id, generation)
 				if (error instanceof StreamOfflineError) {
+					this.#markOffline(binding)
 					this.#scheduleRetry(binding, generation, error, true)
 				} else {
 					this.#scheduleRetry(binding, generation, error instanceof Error ? error : new Error('YouTube live chat startup failed'), false)
@@ -288,6 +301,9 @@ export class LiveChatManager {
 			return
 		}
 		this.#stopSession(binding.id, generation)
+		if (error instanceof StreamOfflineError) {
+			this.#markOffline(binding)
+		}
 		this.#scheduleRetry(binding, generation, error, error instanceof StreamOfflineError)
 	}
 
@@ -351,6 +367,29 @@ export class LiveChatManager {
 		if (!this.#bindings.has(bindingId)) {
 			return
 		}
-		this.#forgetBinding(bindingId)
+		this.#forgetBinding(bindingId, false)
+	}
+
+	#markOnline(binding: ChannelBinding, stream: YoutubeStream): void {
+		if (this.#onlineStreams.has(binding.id)) {
+			return
+		}
+		this.#onlineStreams.set(binding.id, stream)
+		if (this.options.onStreamOnline) {
+			void this.options.onStreamOnline(binding, stream)
+				.catch((error: unknown) => logAsyncError('youtube.stream-online.failed', error, binding.id))
+		}
+	}
+
+	#markOffline(binding: ChannelBinding): void {
+		const stream = this.#onlineStreams.get(binding.id)
+		if (!stream) {
+			return
+		}
+		this.#onlineStreams.delete(binding.id)
+		if (this.options.onStreamOffline) {
+			void this.options.onStreamOffline(binding, stream)
+				.catch((error: unknown) => logAsyncError('youtube.stream-offline.failed', error, binding.id))
+		}
 	}
 }

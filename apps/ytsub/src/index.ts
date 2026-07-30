@@ -13,6 +13,7 @@ import {
 } from './db.ts'
 import { LiveChatManager, StreamOfflineError } from './live-chat.ts'
 import { RedisBindingOwnership } from './locks.ts'
+import { closeStreamsDatabase, markOffline, markOnline } from './streams.ts'
 
 const RECONCILE_INTERVAL_MS = Number.parseInt(Bun.env.YTSUB_RECONCILE_INTERVAL_MS ?? '120000', 10)
 const NATS_URL = Bun.env.NODE_ENV === 'production' ? 'nats://nats:4222' : 'nats://127.0.0.1:4222'
@@ -43,9 +44,22 @@ const liveChatSource: LiveChatSource = {
 				throw new StreamOfflineError(binding.platformChannelId)
 			}
 			const liveChat = info.getLiveChat()
+			const broadcasterName =
+				info.basic_info.channel?.name ?? info.basic_info.author ?? binding.platformChannelId
+			const endpointVideoId = endpoint.payload?.videoId
+			const videoId = typeof endpointVideoId === 'string' ? endpointVideoId : info.basic_info.id
+			if (!videoId) {
+				throw new Error(`YouTube live stream for ${binding.platformChannelId} has no video id`)
+			}
 			return {
-				broadcasterName:
-					info.basic_info.channel?.name ?? info.basic_info.author ?? binding.platformChannelId,
+				broadcasterName,
+				stream: {
+					videoId,
+					broadcasterName,
+					title: info.basic_info.title ?? '',
+					viewers: info.basic_info.view_count ?? 0,
+					startedAt: info.basic_info.start_timestamp ?? new Date(),
+				},
 			session: {
 				onStart(listener): void {
 					liveChat.on('start', listener)
@@ -82,6 +96,8 @@ const ownership = new RedisBindingOwnership(new Bun.RedisClient(config.REDIS_URL
 const liveChats = new LiveChatManager(liveChatSource, bus, {
 	ensureChatter: ensureYoutubeChatter,
 	ownership,
+	onStreamOnline: (binding, stream) => markOnline(bus, binding, stream),
+	onStreamOffline: (binding, stream) => markOffline(bus, binding.platformChannelId, stream.startedAt),
 })
 
 async function subscribeChannel(channelId: string): Promise<void> {
@@ -142,8 +158,9 @@ function shutdown(): Promise<void> {
 			const drainError = error instanceof Error ? error : new Error('NATS drain failed')
 			console.error('youtube.shutdown.drain.failed', { error: drainError })
 		} finally {
-			try {
-				await closeDatabase()
+		try {
+			await closeDatabase()
+			await closeStreamsDatabase()
 			} catch (error) {
 				const closeError = error instanceof Error ? error : new Error('Database close failed')
 				console.error('youtube.shutdown.database-close.failed', { error: closeError })

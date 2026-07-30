@@ -204,13 +204,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				nc,
 				events.StreamOnlineSubject,
 				1*time.Minute,
-				GobEncoder,
+				JsonEncoder,
 			),
 			StreamOffline: NewNatsQueue[twitch.StreamOfflineMessage, struct{}](
 				nc,
 				events.StreamOfflineSubject,
 				1*time.Minute,
-				GobEncoder,
+				JsonEncoder,
 			),
 		},
 

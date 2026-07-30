@@ -5,12 +5,14 @@ import {
 	LiveChatManager,
 	type LiveChatSession,
 	type LiveChatSource,
+	StreamOfflineError,
 } from './live-chat.ts'
 import { RedisBindingOwnership, type RedisClient } from './locks.ts'
 import { shouldIgnoreYoutubeBotMessage } from './message.ts'
 
 import type { RetryScheduler } from './live-chat-scheduler.ts'
 import type { ChannelBinding } from './message.ts'
+import type { YoutubeStream } from './streams.ts'
 import type { Helpers } from 'youtubei.js'
 
 class FakeRedis implements RedisClient {
@@ -70,6 +72,7 @@ class FakeLiveChat implements LiveChatSession {
 	#startListener: (() => void) | undefined
 	#chatUpdateListener: ((action: Helpers.YTNode) => void) | undefined
 	#errorListener: ((error: Error) => void) | undefined
+	#endListener: (() => void) | undefined
 
 	onStart(listener: () => void): void {
 		this.#startListener = listener
@@ -83,7 +86,9 @@ class FakeLiveChat implements LiveChatSession {
 		this.#errorListener = listener
 	}
 
-	onEnd(): void {}
+	onEnd(listener: () => void): void {
+		this.#endListener = listener
+	}
 
 	selectLiveChat(): void {
 		this.selectLiveChatCalls += 1
@@ -104,6 +109,10 @@ class FakeLiveChat implements LiveChatSession {
 
 	emitChatUpdate(action: Helpers.YTNode): void {
 		this.#chatUpdateListener?.(action)
+	}
+
+	emitEnd(): void {
+		this.#endListener?.()
 	}
 }
 
@@ -139,6 +148,16 @@ function binding(platformChannelId = 'UCbroadcaster'): ChannelBinding {
 		botPlatformId: 'UCbot',
 		userId: 'broadcaster-user-1',
 		enabled: true,
+	}
+}
+
+function stream(): YoutubeStream {
+	return {
+		videoId: 'video-1',
+		broadcasterName: 'Broadcaster',
+		title: 'Live title',
+		viewers: 42,
+		startedAt: new Date('2026-07-30T12:00:00.000Z'),
 	}
 }
 
@@ -423,4 +442,99 @@ test('LiveChatManager acquires a released binding during a later reconcile', asy
 
 	expect(secondSession.startCalls).toBe(1)
 	await second.close()
+})
+
+test('LiveChatManager publishes stream online once and keeps it online across transient retries', async () => {
+	const first = new FakeLiveChat()
+	const second = new FakeLiveChat()
+	const scheduler = new FakeRetryScheduler()
+	const online: YoutubeStream[] = []
+	const offline: YoutubeStream[] = []
+	const results = [
+		Promise.resolve({ session: first, broadcasterName: 'Broadcaster', stream: stream() }),
+		Promise.resolve({ session: second, broadcasterName: 'Broadcaster', stream: stream() }),
+	]
+	const manager = new LiveChatManager({
+		resolve(): Promise<{ readonly session: LiveChatSession; readonly broadcasterName: string; readonly stream: YoutubeStream }> {
+			const result = results.shift()
+			if (!result) {
+				throw new Error('Unexpected live chat resolution')
+			}
+			return result
+		},
+	}, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+		retryScheduler: scheduler,
+		onStreamOnline: async (_binding, activeStream): Promise<void> => { online.push(activeStream) },
+		onStreamOffline: async (_binding, activeStream): Promise<void> => { offline.push(activeStream) },
+	})
+
+	await manager.subscribe(binding())
+	first.emitError(new Error('temporary failure'))
+	scheduler.runNext()
+	await flushMicrotasks()
+
+	expect(online).toHaveLength(1)
+	expect(offline).toHaveLength(0)
+})
+
+test('LiveChatManager publishes stream offline when a live chat ends', async () => {
+	const liveChat = new FakeLiveChat()
+	const offline: YoutubeStream[] = []
+	const manager = new LiveChatManager({ resolve: async () => ({ session: liveChat, broadcasterName: 'Broadcaster', stream: stream() }) }, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+		onStreamOffline: async (_binding, activeStream): Promise<void> => { offline.push(activeStream) },
+	})
+
+	await manager.subscribe(binding())
+	liveChat.emitEnd()
+	await flushMicrotasks()
+
+	expect(offline).toHaveLength(1)
+})
+
+test('LiveChatManager publishes stream offline when a retry resolves offline', async () => {
+	const liveChat = new FakeLiveChat()
+	const scheduler = new FakeRetryScheduler()
+	const offline: YoutubeStream[] = []
+	const results = [
+		Promise.resolve({ session: liveChat, broadcasterName: 'Broadcaster', stream: stream() }),
+		Promise.reject(new StreamOfflineError('UCbroadcaster')),
+	]
+	const manager = new LiveChatManager({
+		resolve(): Promise<{ readonly session: LiveChatSession; readonly broadcasterName: string; readonly stream?: YoutubeStream }> {
+			const result = results.shift()
+			if (!result) {
+				throw new Error('Unexpected live chat resolution')
+			}
+			return result
+		},
+	}, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+		retryScheduler: scheduler,
+		onStreamOffline: async (_binding, activeStream): Promise<void> => { offline.push(activeStream) },
+	})
+
+	await manager.subscribe(binding())
+	liveChat.emitError(new Error('temporary failure'))
+	scheduler.runNext()
+	await flushMicrotasks()
+
+	expect(offline).toHaveLength(1)
+})
+
+test('LiveChatManager publishes stream offline when unsubscribed', async () => {
+	const liveChat = new FakeLiveChat()
+	const offline: YoutubeStream[] = []
+	const manager = new LiveChatManager({ resolve: async () => ({ session: liveChat, broadcasterName: 'Broadcaster', stream: stream() }) }, bus(), {
+		ensureChatter: async (channelBinding): Promise<ChannelBinding> => channelBinding,
+		onStreamOffline: async (_binding, activeStream): Promise<void> => { offline.push(activeStream) },
+	})
+
+	const channelBinding = binding()
+	await manager.subscribe(channelBinding)
+	await manager.unsubscribe(channelBinding.id)
+	await flushMicrotasks()
+
+	expect(offline).toHaveLength(1)
 })

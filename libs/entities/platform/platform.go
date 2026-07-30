@@ -56,6 +56,7 @@ var capabilitiesByPlatform = map[Platform]Capabilities{
 	PlatformYouTube: {
 		CapabilityChatRead,
 		CapabilityChatWrite,
+		CapabilityStreamsRead,
 	},
 }
 
