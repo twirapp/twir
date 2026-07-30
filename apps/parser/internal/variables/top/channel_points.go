@@ -8,12 +8,14 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 var ChannelPoints = &types.Variable{
 	Name:                "top.usedChannelPoints",
 	Description:         lo.ToPtr("Top users by spent channel points"),
 	Example:             lo.ToPtr("top.usedChannelPoints|10"),
+	Platforms:           []platformentity.Platform{platformentity.PlatformTwitch},
 	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

@@ -1,5 +1,7 @@
 package parser
 
+import platformentity "github.com/twirapp/twir/libs/entities/platform"
+
 const GetBuiltInVariablesSubject = "parser.get_build_in_variables"
 
 type BuiltInVariable struct {
@@ -9,6 +11,7 @@ type BuiltInVariable struct {
 	Visible             bool
 	CanBeUsedInRegistry bool
 	Links               []BuiltInVariableLink
+	Platforms           []platformentity.Platform
 }
 
 type BuiltInVariableLink struct {

@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/apps/parser/pkg/helpers"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
@@ -23,6 +24,7 @@ var SubAge = &types.DefaultCommand{
 		Visible:     true,
 		IsReply:     true,
 	},
+	Platforms: []platformentity.Platform{platformentity.PlatformTwitch},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,

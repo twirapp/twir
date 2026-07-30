@@ -36,6 +36,7 @@ export const useVariablesApi = createGlobalState(() => {
 					description
 					visible
 					canBeUsedInRegistry
+					platforms
 					links {
 						href
 						name
@@ -55,6 +56,7 @@ export const useVariablesApi = createGlobalState(() => {
 				example: `customvar|${variable.name}`,
 				isBuiltIn: false,
 				canBeUsedInRegistry: variable.type !== VariableType.Script,
+				platforms: [],
 				type: variable.type,
 				response: variable.response,
 				evalValue: variable.evalValue,
@@ -74,6 +76,7 @@ export const useVariablesApi = createGlobalState(() => {
 				example: variable.example || `${variable.name}`,
 				isBuiltIn: true,
 				canBeUsedInRegistry: variable.canBeUsedInRegistry,
+				platforms: variable.platforms,
 				links: variable.links,
 			})) ?? [];
 

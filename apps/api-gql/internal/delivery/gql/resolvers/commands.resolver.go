@@ -379,6 +379,30 @@ func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([
 	return convertedCommands, nil
 }
 
+// CommandsDefault is the resolver for the commandsDefault field.
+func (r *queryResolver) CommandsDefault(ctx context.Context) ([]gqlmodel.DefaultCommandInfo, error) {
+	commands, err := r.deps.TwirBus.Parser.GetDefaultCommands.Request(ctx, struct{}{})
+	if err != nil {
+		return nil, fmt.Errorf("cannot get default commands: %w", err)
+	}
+
+	result := make([]gqlmodel.DefaultCommandInfo, 0, len(commands.Data.List))
+	for _, command := range commands.Data.List {
+		result = append(
+			result,
+			gqlmodel.DefaultCommandInfo{
+				Name:        command.Name,
+				Description: command.Description,
+				Module:      command.Module,
+				Aliases:     append([]string{}, command.Aliases...),
+				Platforms:   mappers.PlatformsToStrings(command.Platforms),
+			},
+		)
+	}
+
+	return result, nil
+}
+
 // Command returns graph.CommandResolver implementation.
 func (r *Resolver) Command() graph.CommandResolver { return &commandResolver{r} }
 

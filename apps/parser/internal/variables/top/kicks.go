@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/scorfly/gokick"
 	"github.com/samber/lo"
+	"github.com/scorfly/gokick"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	sharedvars "github.com/twirapp/twir/apps/parser/internal/variables/shared"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -66,6 +66,7 @@ func kickLeaderboardVariable(name string, selector func(kickLeaderboardData) []k
 	return &types.Variable{
 		Name:                name,
 		Description:         lo.ToPtr("Kick gifted kicks leaderboard"),
+		Platforms:           []platformentity.Platform{platformentity.PlatformKick},
 		CanBeUsedInRegistry: true,
 		Handler: func(
 			ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

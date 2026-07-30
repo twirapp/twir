@@ -11,6 +11,7 @@ import (
 var TwitchName = &types.Variable{
 	Name:         "channel.twitch.name",
 	Description:  new("Twitch Name of channel. Empty in case of twitch not connected"),
+	Platforms:    []platform.Platform{platform.PlatformTwitch},
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
@@ -46,6 +47,7 @@ var TwitchName = &types.Variable{
 var KickName = &types.Variable{
 	Name:         "channel.kick.name",
 	Description:  new("Kick Name of channel. Empty in case of Kick not connected"),
+	Platforms:    []platform.Platform{platform.PlatformKick},
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

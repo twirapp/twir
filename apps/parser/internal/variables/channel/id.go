@@ -22,6 +22,7 @@ var ID = &types.Variable{
 var TwitchID = &types.Variable{
 	Name:         "channel.twitch.id",
 	Description:  new("Twitch ID of channel. Empty in case of twitch not connected"),
+	Platforms:    []platform.Platform{platform.PlatformTwitch},
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
@@ -48,6 +49,7 @@ var TwitchID = &types.Variable{
 var KickID = &types.Variable{
 	Name:         "channel.kick.id",
 	Description:  new("Kick ID of channel. Empty in case of twitch not connected"),
+	Platforms:    []platform.Platform{platform.PlatformKick},
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

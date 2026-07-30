@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
@@ -33,6 +34,7 @@ var List = &types.DefaultCommand{
 		Visible: true,
 		IsReply: true,
 	},
+	Platforms:         []platformentity.Platform{platformentity.PlatformTwitch},
 	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,

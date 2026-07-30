@@ -11,6 +11,7 @@ import (
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
@@ -30,6 +31,7 @@ var Start = &types.DefaultCommand{
 		Module:      "PREDICTIONS",
 		IsReply:     true,
 	},
+	Platforms:         []platformentity.Platform{platformentity.PlatformTwitch},
 	SkipToxicityCheck: true,
 	ArgsDelimiter:     " | ",
 	Args: []command_arguments.Arg{

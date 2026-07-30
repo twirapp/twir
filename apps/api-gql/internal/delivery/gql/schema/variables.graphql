@@ -55,6 +55,7 @@ type BuiltInVariable {
 	visible: Boolean!
 	canBeUsedInRegistry: Boolean!
 	links: [BuiltInVariableLink!]!
+	platforms: [String!]!
 }
 
 type BuiltInVariableLink {

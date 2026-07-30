@@ -45,4 +45,5 @@ type DefaultCommand struct {
 	IsReply            bool
 	KeepResponsesOrder bool
 	Aliases            []string
+	Platforms          []platformentity.Platform
 }

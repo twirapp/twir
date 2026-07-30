@@ -8,12 +8,14 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/i18n"
 )
 
 var FollowSince = &types.Variable{
 	Name:         "user.followsince",
 	Description:  lo.ToPtr(`User follow since in "16 January 2023 (22 days)" format.`),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch},
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

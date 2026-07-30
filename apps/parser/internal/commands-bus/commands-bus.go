@@ -152,6 +152,7 @@ func (c *CommandsBus) Subscribe() error {
 						IsReply:            cmd.IsReply,
 						KeepResponsesOrder: cmd.KeepResponsesOrder,
 						Aliases:            cmd.Aliases,
+						Platforms:          cmd.Platforms,
 					},
 				)
 			}

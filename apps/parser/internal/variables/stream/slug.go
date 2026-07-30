@@ -14,6 +14,7 @@ import (
 var Slug = &types.Variable{
 	Name:                "stream.slug",
 	Description:         lo.ToPtr("Stream slug"),
+	Platforms:           []platformentity.Platform{platformentity.PlatformKick},
 	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

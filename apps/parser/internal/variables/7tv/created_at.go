@@ -7,12 +7,14 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/apps/parser/pkg/helpers"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/i18n"
 )
 
 var ProfileCreatedAt = &types.Variable{
 	Name:         "7tv.profile.createdAt",
 	Description:  lo.ToPtr("Date when profile created on 7tv"),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

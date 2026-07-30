@@ -7,12 +7,14 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/i18n"
 )
 
 var Roles = &types.Variable{
 	Name:         "7tv.roles",
 	Description:  lo.ToPtr("Roles of user on 7tv"),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
