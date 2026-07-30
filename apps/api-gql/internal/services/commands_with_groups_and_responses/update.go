@@ -57,6 +57,7 @@ type UpdateInputResponse struct {
 	TwitchCategoryIDs []string
 	OnlineOnly        bool
 	OfflineOnly       bool
+	Platforms         []platform.Platform
 }
 
 type UpdateInputRoleCooldown struct {
@@ -182,6 +183,7 @@ func (c *Service) Update(
 							TwitchCategoryIDs: r.TwitchCategoryIDs,
 							OnlineOnly:        r.OnlineOnly,
 							OfflineOnly:       r.OfflineOnly,
+							Platforms:         r.Platforms,
 						},
 					)
 					if err != nil {

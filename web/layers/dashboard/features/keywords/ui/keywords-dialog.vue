@@ -27,6 +27,8 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 
+import { Platform } from '~/gql/graphql.js'
+
 const props = defineProps<{
 	keyword?: Omit<KeywordResponse, 'id'> & { id?: string }
 }>()
@@ -50,7 +52,7 @@ const keywordsForm = useForm({
 		usageCount: z.number().min(0).optional(),
 		rolesIds: z.array(z.string()).optional(),
 		enabled: z.boolean().optional().default(true),
-		platforms: z.array(z.string()).default([]),
+		platforms: z.array(z.nativeEnum(Platform)).default([]),
 	}),
 	initialValues: {
 		text: '',

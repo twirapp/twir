@@ -3,6 +3,7 @@ import { FieldArray, useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import { useProfile } from '~~/layers/dashboard/api/auth'
+import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
 import TwitchCategorySearchShadcnMultiple from '~~/layers/dashboard/components/twitch-category-search-shadcn-multiple.vue'
 import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 
@@ -47,7 +48,7 @@ const maxCommandResponses = computed(() => {
 function handlePush() {
 	setValue([
 		...value.value,
-		{ text: '', twitchCategoriesIds: [], onlineOnly: false, offlineOnly: false },
+		{ text: '', twitchCategoriesIds: [], onlineOnly: false, offlineOnly: false, platforms: [] },
 	])
 }
 
@@ -175,6 +176,22 @@ const editable = computed(() => !command.value?.default)
 												@update:model-value="componentField['onUpdate:modelValue']"
 											/>
 										</FormControl>
+									</FormItem>
+								</FormField>
+
+								<FormField
+									v-slot="{ componentField }"
+									:name="`responses[${index}].platforms`"
+								>
+									<FormItem>
+										<FormLabel> Platforms for response </FormLabel>
+										<FormControl>
+											<PlatformSelector
+												:model-value="componentField.modelValue"
+												@update:model-value="componentField['onUpdate:modelValue']"
+											/>
+										</FormControl>
+										<FormMessage />
 									</FormItem>
 								</FormField>
 

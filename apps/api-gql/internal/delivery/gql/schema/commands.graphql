@@ -54,7 +54,7 @@ type Command {
   expiresAt: Int
   expiresType: CommandExpiresType
   roleCooldowns: [CommandRoleCooldown!]!
-  platforms: [String!]!
+  platforms: [Platform!]!
 }
 
 type CommandResponse {
@@ -65,6 +65,7 @@ type CommandResponse {
   twitchCategories: [TwitchCategory!]! @goField(forceResolver: true)
   onlineOnly: Boolean!
   offlineOnly: Boolean!
+  platforms: [Platform!]!
 }
 
 type CommandRoleCooldown {
@@ -118,7 +119,7 @@ input CommandsCreateOpts {
   expiresType: CommandExpiresType
   roleCooldowns: [CommandRoleCooldownInput!]!
     @validate(constraint: "dive,max=500")
-  platforms: [String!]
+  platforms: [Platform!]
 }
 
 input CommandsUpdateOpts {
@@ -148,7 +149,7 @@ input CommandsUpdateOpts {
   offlineOnly: Boolean
   roleCooldowns: [CommandRoleCooldownInput!]
     @validate(constraint: "dive,omitempty")
-  platforms: [String!]
+  platforms: [Platform!]
 }
 
 input CreateOrUpdateCommandResponseInput {
@@ -156,6 +157,7 @@ input CreateOrUpdateCommandResponseInput {
   twitchCategoriesIds: [String!]! @validate(constraint: "max=500")
   onlineOnly: Boolean!
   offlineOnly: Boolean!
+  platforms: [Platform!]
 }
 
 input CommandRoleCooldownInput {

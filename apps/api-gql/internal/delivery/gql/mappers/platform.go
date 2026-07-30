@@ -7,28 +7,6 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
-func PlatformsToStrings(platforms []platformentity.Platform) []string {
-	if platforms == nil {
-		return []string{}
-	}
-	result := make([]string, len(platforms))
-	for i, p := range platforms {
-		result[i] = p.String()
-	}
-	return result
-}
-
-func StringsToPlatforms(ss []string) []platformentity.Platform {
-	if ss == nil {
-		return []platformentity.Platform{}
-	}
-	result := make([]platformentity.Platform, len(ss))
-	for i, s := range ss {
-		result[i] = platformentity.Platform(s)
-	}
-	return result
-}
-
 func GraphQLPlatformToEntity(platform gqlmodel.Platform) (platformentity.Platform, error) {
 	switch platform {
 	case gqlmodel.PlatformTwitch:

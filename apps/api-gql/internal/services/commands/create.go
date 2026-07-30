@@ -53,6 +53,7 @@ type CreateInputResponse struct {
 	TwitchCategoryIDs []string
 	OnlineOnly        bool
 	OfflineOnly       bool
+	Platforms         []platform.Platform
 }
 
 type CreateInputRoleCooldown struct {
@@ -166,6 +167,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 						TwitchCategoryIDs: response.TwitchCategoryIDs,
 						OnlineOnly:        response.OnlineOnly,
 						OfflineOnly:       response.OfflineOnly,
+						Platforms:         response.Platforms,
 					},
 				)
 				if err != nil {

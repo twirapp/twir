@@ -120,6 +120,7 @@ func (c *Service) mapToEntity(
 				TwitchCategoryIDs: r.TwitchCategoryIDs,
 				OnlineOnly:        r.OnlineOnly,
 				OfflineOnly:       r.OfflineOnly,
+				Platforms:         r.Platforms,
 			},
 		)
 	}

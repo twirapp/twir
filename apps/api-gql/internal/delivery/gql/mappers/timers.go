@@ -1,13 +1,25 @@
 package mappers
 
 import (
+	"fmt"
+
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
 
-func TimerEntityToGql(m timersentity.Timer) gqlmodel.Timer {
+func TimerEntityToGql(m timersentity.Timer) (gqlmodel.Timer, error) {
+	platforms := make([]gqlmodel.Platform, 0, len(m.Platforms))
+	for _, p := range m.Platforms {
+		mappedPlatform, err := EntityPlatformToGraphQL(p)
+		if err != nil {
+			return gqlmodel.Timer{}, fmt.Errorf("map timer platform: %w", err)
+		}
+
+		platforms = append(platforms, mappedPlatform)
+	}
+
 	responses := make([]gqlmodel.TimerResponse, 0, len(m.Responses))
 	for _, r := range m.Responses {
 		responses = append(
@@ -31,8 +43,8 @@ func TimerEntityToGql(m timersentity.Timer) gqlmodel.Timer {
 		TimeInterval:    m.TimeInterval,
 		MessageInterval: m.MessageInterval,
 		Responses:       responses,
-		Platforms:       PlatformsToStrings(m.Platforms),
-	}
+		Platforms:       platforms,
+	}, nil
 }
 
 func StreamElementsTimerToGql(m streamelements.Timer) gqlmodel.StreamElementsTimer {

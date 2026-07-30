@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_response/model"
 	"go.uber.org/fx"
@@ -34,6 +35,7 @@ func (c *Service) modelToEntity(dbResponse model.Response) commandwithrelationen
 		TwitchCategoryIDs: dbResponse.TwitchCategoryIDs,
 		OnlineOnly:        dbResponse.OnlineOnly,
 		OfflineOnly:       dbResponse.OfflineOnly,
+		Platforms:         dbResponse.Platforms,
 	}
 }
 
@@ -68,6 +70,7 @@ type CreateInput struct {
 	TwitchCategoryIDs []string
 	OnlineOnly        bool
 	OfflineOnly       bool
+	Platforms         []platform.Platform
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (
@@ -83,6 +86,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (
 			TwitchCategoryIDs: input.TwitchCategoryIDs,
 			OnlineOnly:        input.OnlineOnly,
 			OfflineOnly:       input.OfflineOnly,
+			Platforms:         input.Platforms,
 		},
 	)
 	if err != nil {

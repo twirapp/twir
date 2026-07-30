@@ -3,39 +3,39 @@ import { Platform } from '~/gql/graphql.js'
 
 const props = withDefaults(
 	defineProps<{
-		exclude?: string[]
+		exclude?: Platform[]
 	}>(),
 	{
 		exclude: () => [],
 	},
 )
 
-const platforms = defineModel<string[]>({ default: () => [] })
+const platforms = defineModel<Platform[]>({ default: () => [] })
 
 const options = [
 	{
-		id: 'twitch',
+		id: Platform.Twitch,
 		label: 'Twitch',
 		icon: 'simple-icons:twitch',
 		colorClass:
 			'data-[active=true]:border-[#9146FF] data-[active=true]:bg-[#9146FF]/10 data-[active=true]:text-[#9146FF]',
 	},
 	{
-		id: 'kick',
+		id: Platform.Kick,
 		label: 'Kick',
 		icon: 'simple-icons:kick',
 		colorClass:
 			'data-[active=true]:border-[#53FC18] data-[active=true]:bg-[#53FC18]/10 data-[active=true]:text-[#53FC18]',
 	},
 	{
-		id: Platform.VkVideoLive.toLowerCase(),
+		id: Platform.VkVideoLive,
 		label: 'VK Video Live',
 		icon: 'simple-icons:vk',
 		colorClass:
 			'data-[active=true]:border-[#0077FF] data-[active=true]:bg-[#0077FF]/10 data-[active=true]:text-[#0077FF]',
 	},
 	{
-		id: Platform.Youtube.toLowerCase(),
+		id: Platform.Youtube,
 		label: 'YouTube',
 		icon: 'simple-icons:youtube',
 		colorClass:
@@ -45,7 +45,7 @@ const options = [
 
 const visibleOptions = computed(() => options.filter((opt) => !props.exclude.includes(opt.id)))
 
-function toggle(id: string) {
+function toggle(id: Platform) {
 	const current = new Set(platforms.value)
 	if (current.has(id)) {
 		current.delete(id)

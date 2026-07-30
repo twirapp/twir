@@ -39,6 +39,11 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 			},
 		)
 	}
+	platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	timer, err := r.deps.TimersService.Create(
 		ctx, timers.CreateInput{
 			ChannelID:       dashboardId,
@@ -50,14 +55,18 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 			TimeInterval:    opts.TimeInterval,
 			MessageInterval: opts.MessageInterval,
 			Responses:       responses,
-			Platforms:       mappers.StringsToPlatforms(opts.Platforms.Value()),
+			Platforms:       platforms,
 		},
 	)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	converted := mappers.TimerEntityToGql(timer)
+	converted, err := mappers.TimerEntityToGql(timer)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	return &converted, nil
 }
 
@@ -88,6 +97,11 @@ func (r *mutationResolver) TimersCreateMany(ctx context.Context, opts []gqlmodel
 			)
 		}
 
+		platforms, err := mappers.GraphQLPlatformsToEntities(opt.Platforms.Value())
+		if err != nil {
+			return false, gqlerrors.HandleError(err)
+		}
+
 		inputs = append(
 			inputs,
 			timers.CreateInput{
@@ -100,7 +114,7 @@ func (r *mutationResolver) TimersCreateMany(ctx context.Context, opts []gqlmodel
 				TimeInterval:    opt.TimeInterval,
 				MessageInterval: opt.MessageInterval,
 				Responses:       responses,
-				Platforms:       mappers.StringsToPlatforms(opt.Platforms.Value()),
+				Platforms:       platforms,
 			},
 		)
 	}
@@ -137,6 +151,11 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 		)
 	}
 
+	platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	timer, err := r.deps.TimersService.Update(
 		ctx,
 		timers.UpdateInput{
@@ -150,14 +169,18 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 			TimeInterval:    opts.TimeInterval.Value(),
 			MessageInterval: opts.MessageInterval.Value(),
 			Responses:       responses,
-			Platforms:       mappers.StringsToPlatforms(opts.Platforms.Value()),
+			Platforms:       platforms,
 		},
 	)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	converted := mappers.TimerEntityToGql(timer)
+	converted, err := mappers.TimerEntityToGql(timer)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	return &converted, nil
 }
 
@@ -195,7 +218,12 @@ func (r *queryResolver) Timers(ctx context.Context) ([]gqlmodel.Timer, error) {
 
 	converted := make([]gqlmodel.Timer, 0, len(channelTimers))
 	for _, timer := range channelTimers {
-		converted = append(converted, mappers.TimerEntityToGql(timer))
+		mapped, err := mappers.TimerEntityToGql(timer)
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		converted = append(converted, mapped)
 	}
 
 	return converted, nil
