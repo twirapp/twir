@@ -167,6 +167,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 					TwitchCategoryIDs: res.TwitchCategoriesIds,
 					OnlineOnly:        res.OnlineOnly,
 					OfflineOnly:       res.OfflineOnly,
+					Platforms:         mappers.StringsToPlatforms(res.Platforms.Value()),
 				},
 			)
 		}

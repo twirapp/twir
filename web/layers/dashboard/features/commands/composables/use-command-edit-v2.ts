@@ -27,6 +27,7 @@ export const formSchema = object({
 			twitchCategoriesIds: array(string()).max(100),
 			onlineOnly: boolean(),
 			offlineOnly: boolean(),
+			platforms: array(string()).max(100).default([]),
 		})
 	)
 		.max(3)

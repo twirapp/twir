@@ -33,6 +33,7 @@ export const useCommandsApi = createGlobalState(() => {
 							}
 							onlineOnly
 							offlineOnly
+							platforms
 						}
 						cooldown
 						cooldownType

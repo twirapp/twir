@@ -123,6 +123,7 @@ func CommandResponseTo(e commandwithrelationentity.CommandResponse) gqlmodel.Com
 		TwitchCategoriesIds: e.TwitchCategoryIDs,
 		OnlineOnly:          e.OnlineOnly,
 		OfflineOnly:         e.OfflineOnly,
+		Platforms:           PlatformsToStrings(e.Platforms),
 	}
 
 	if e.Text != nil {
@@ -144,6 +145,7 @@ func CommandGqlInputToService(
 			TwitchCategoryIDs: res.TwitchCategoriesIds,
 			OnlineOnly:        res.OnlineOnly,
 			OfflineOnly:       res.OfflineOnly,
+			Platforms:         StringsToPlatforms(res.Platforms.Value()),
 		}
 	}
 

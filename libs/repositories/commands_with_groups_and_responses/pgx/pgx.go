@@ -54,13 +54,14 @@ func init() {
 		columns,
 		`
  (SELECT COALESCE(json_agg(json_build_object(
-			 'id', r.id,
-			 'text', r.text,
-			 'commandId', r."commandId",
-			 'order', r."order",
-			 'twitch_category_id', r."twitch_category_id",
-				'online_only', r."online_only",
-				'offline_only', r."offline_only"
+		 'id', r.id,
+		 'text', r.text,
+		 'commandId', r."commandId",
+		 'order', r."order",
+		 'twitch_category_id', r."twitch_category_id",
+			'online_only', r."online_only",
+			'offline_only', r."offline_only",
+			'platforms', r."platforms"
 )), '[]'::json)
 FROM channels_commands_responses r
 WHERE r."commandId" = c.id) as responses

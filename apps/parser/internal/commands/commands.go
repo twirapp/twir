@@ -477,6 +477,10 @@ func (c *Commands) ParseCommandResponses(
 				continue
 			}
 
+			if !platformentity.ShouldExecute(r.Platforms, plat) {
+				continue
+			}
+
 			responsesForCategory = append(responsesForCategory, r)
 		}
 
