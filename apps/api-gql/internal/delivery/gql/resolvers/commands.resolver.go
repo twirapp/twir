@@ -78,7 +78,10 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	createInput := mappers.CommandGqlInputToService(dashboardId, user.ID, opts)
+	createInput, err := mappers.CommandGqlInputToService(dashboardId, user.ID, opts)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
 
 	newCmd, err := r.deps.CommandsService.Create(ctx, createInput)
 	if err != nil {
@@ -159,6 +162,11 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 
 	if opts.Responses.IsSet() {
 		for idx, res := range opts.Responses.Value() {
+			platforms, err := mappers.GraphQLPlatformsToEntities(res.Platforms.Value())
+			if err != nil {
+				return false, err
+			}
+
 			updateInput.Responses = append(
 				updateInput.Responses,
 				commands_with_groups_and_responses.UpdateInputResponse{
@@ -167,7 +175,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 					TwitchCategoryIDs: res.TwitchCategoriesIds,
 					OnlineOnly:        res.OnlineOnly,
 					OfflineOnly:       res.OfflineOnly,
-					Platforms:         mappers.StringsToPlatforms(res.Platforms.Value()),
+					Platforms:         platforms,
 				},
 			)
 		}
@@ -244,7 +252,10 @@ func (r *mutationResolver) CommandsCreateMultiple(ctx context.Context, commands 
 
 	inputs := make([]commandsservice.CreateInput, 0, len(commands))
 	for _, cmd := range commands {
-		createInput := mappers.CommandGqlInputToService(dashboardId, user.ID, cmd)
+		createInput, err := mappers.CommandGqlInputToService(dashboardId, user.ID, cmd)
+		if err != nil {
+			return false, err
+		}
 
 		inputs = append(inputs, createInput)
 	}

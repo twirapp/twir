@@ -1,6 +1,8 @@
 package mappers
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -115,7 +117,17 @@ func CommandGroupTo(e commandwithrelationentity.CommandGroup) gqlmodel.CommandGr
 	}
 }
 
-func CommandResponseTo(e commandwithrelationentity.CommandResponse) gqlmodel.CommandResponse {
+func CommandResponseTo(e commandwithrelationentity.CommandResponse) (gqlmodel.CommandResponse, error) {
+	platforms := make([]gqlmodel.Platform, 0, len(e.Platforms))
+	for _, p := range e.Platforms {
+		mappedPlatform, err := EntityPlatformToGraphQL(p)
+		if err != nil {
+			return gqlmodel.CommandResponse{}, fmt.Errorf("map response platform: %w", err)
+		}
+
+		platforms = append(platforms, mappedPlatform)
+	}
+
 	m := gqlmodel.CommandResponse{
 		ID:                  e.ID,
 		CommandID:           e.CommandID.String(),
@@ -123,29 +135,34 @@ func CommandResponseTo(e commandwithrelationentity.CommandResponse) gqlmodel.Com
 		TwitchCategoriesIds: e.TwitchCategoryIDs,
 		OnlineOnly:          e.OnlineOnly,
 		OfflineOnly:         e.OfflineOnly,
-		Platforms:           PlatformsToStrings(e.Platforms),
+		Platforms:           platforms,
 	}
 
 	if e.Text != nil {
 		m.Text = *e.Text
 	}
 
-	return m
+	return m, nil
 }
 
 func CommandGqlInputToService(
 	channelID, actorID string,
 	input gqlmodel.CommandsCreateOpts,
-) commands.CreateInput {
+) (commands.CreateInput, error) {
 	responses := make([]commands.CreateInputResponse, len(input.Responses))
 	for idx, res := range input.Responses {
+		platforms, err := GraphQLPlatformsToEntities(res.Platforms.Value())
+		if err != nil {
+			return commands.CreateInput{}, fmt.Errorf("map response platforms: %w", err)
+		}
+
 		responses[idx] = commands.CreateInputResponse{
 			Text:              &res.Text,
 			Order:             idx,
 			TwitchCategoryIDs: res.TwitchCategoriesIds,
 			OnlineOnly:        res.OnlineOnly,
 			OfflineOnly:       res.OfflineOnly,
-			Platforms:         StringsToPlatforms(res.Platforms.Value()),
+			Platforms:         platforms,
 		}
 	}
 
@@ -198,7 +215,7 @@ func CommandGqlInputToService(
 		Responses:                 responses,
 		RoleCooldowns:             roleCooldowns,
 		Platforms:                 StringsToPlatforms(input.Platforms.Value()),
-	}
+	}, nil
 }
 
 func StreamElementsCommandToGql(m streamelements.Command) gqlmodel.StreamElementsCommand {

@@ -65,7 +65,7 @@ type CommandResponse {
   twitchCategories: [TwitchCategory!]! @goField(forceResolver: true)
   onlineOnly: Boolean!
   offlineOnly: Boolean!
-  platforms: [String!]!
+  platforms: [Platform!]!
 }
 
 type CommandRoleCooldown {
@@ -157,7 +157,7 @@ input CreateOrUpdateCommandResponseInput {
   twitchCategoriesIds: [String!]! @validate(constraint: "max=500")
   onlineOnly: Boolean!
   offlineOnly: Boolean!
-  platforms: [String!]
+  platforms: [Platform!]
 }
 
 input CommandRoleCooldownInput {

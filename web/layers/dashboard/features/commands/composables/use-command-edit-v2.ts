@@ -7,7 +7,7 @@ import { array, boolean, nativeEnum, number, object, string } from 'zod'
 import { type Command, useCommandsApi } from '~~/layers/dashboard/api/commands/commands'
 import { useRoles } from '~~/layers/dashboard/api/roles'
 
-import { CommandExpiresType } from '~/gql/graphql.js'
+import { CommandExpiresType, Platform } from '~/gql/graphql.js'
 
 export const formSchema = object({
 	id: string().optional(),
@@ -27,7 +27,7 @@ export const formSchema = object({
 			twitchCategoriesIds: array(string()).max(100),
 			onlineOnly: boolean(),
 			offlineOnly: boolean(),
-			platforms: array(string()).max(100).default([]),
+			platforms: array(nativeEnum(Platform)).max(100).default([]),
 		})
 	)
 		.max(3)
