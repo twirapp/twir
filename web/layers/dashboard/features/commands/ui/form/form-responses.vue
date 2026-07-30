@@ -7,8 +7,6 @@ import PlatformSelector from '~~/layers/dashboard/components/platform-selector.v
 import TwitchCategorySearchShadcnMultiple from '~~/layers/dashboard/components/twitch-category-search-shadcn-multiple.vue'
 import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 
-import type { Platform } from '~/gql/graphql.js'
-
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -59,14 +57,6 @@ const responseDialogOpened = ref(false)
 const { command } = useCommandEditV2()
 
 const editable = computed(() => !command.value?.default)
-
-function selectorToPlatforms(ids: string[]): Platform[] {
-	return ids.map((id) => id.toUpperCase() as Platform)
-}
-
-function platformsToSelectorIds(platforms: Platform[] | undefined): string[] {
-	return (platforms ?? []).map((p) => p.toLowerCase())
-}
 </script>
 
 <template>
@@ -190,15 +180,15 @@ function platformsToSelectorIds(platforms: Platform[] | undefined): string[] {
 								</FormField>
 
 								<FormField
-									v-slot="{ value, handleChange }"
+									v-slot="{ componentField }"
 									:name="`responses[${index}].platforms`"
 								>
 									<FormItem>
 										<FormLabel> Platforms for response </FormLabel>
 										<FormControl>
 											<PlatformSelector
-												:model-value="platformsToSelectorIds(value)"
-												@update:model-value="handleChange(selectorToPlatforms($event))"
+												:model-value="componentField.modelValue"
+												@update:model-value="componentField['onUpdate:modelValue']"
 											/>
 										</FormControl>
 										<FormMessage />

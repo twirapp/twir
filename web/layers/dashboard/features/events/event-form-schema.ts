@@ -1,7 +1,7 @@
 
 import * as z from 'zod';
 
-import { EventOperationType, EventType } from '~/gql/graphql.js';
+import { EventOperationType, EventType, Platform } from '~/gql/graphql.js';
 
 export const eventFormSchema =
 	z
@@ -10,7 +10,7 @@ export const eventFormSchema =
 			description: z.string().min(1).max(20),
 			enabled: z.boolean().default(true),
 			onlineOnly: z.boolean().default(false),
-			platforms: z.array(z.string()).default([]),
+			platforms: z.array(z.nativeEnum(Platform)).default([]),
 			rewardId: z.string().max(50).optional(),
 			commandId: z.string().max(50).optional(),
 			keywordId: z.string().max(50).optional(),

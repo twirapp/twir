@@ -32,10 +32,20 @@ var commandsEntityExpiresAtMap = map[commandwithrelationentity.CommandExpireType
 	commandwithrelationentity.CommandExpireTypeDisable: gqlmodel.CommandExpiresTypeDisable,
 }
 
-func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) gqlmodel.Command {
+func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) (gqlmodel.Command, error) {
 	rolesIds := make([]string, len(e.Command.RolesIDS))
 	for i, v := range e.Command.RolesIDS {
 		rolesIds[i] = v.String()
+	}
+
+	platforms := make([]gqlmodel.Platform, 0, len(e.Command.Platforms))
+	for _, p := range e.Command.Platforms {
+		mappedPlatform, err := EntityPlatformToGraphQL(p)
+		if err != nil {
+			return gqlmodel.Command{}, fmt.Errorf("map command platform: %w", err)
+		}
+
+		platforms = append(platforms, mappedPlatform)
 	}
 
 	m := gqlmodel.Command{
@@ -67,7 +77,7 @@ func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) g
 		ExpiresAt:                 nil, // will be set later
 		ExpiresType:               nil, // will be set later
 		RoleCooldowns:             nil, // will be set later
-		Platforms:                 PlatformsToStrings(e.Command.Platforms),
+		Platforms:                 platforms,
 	}
 
 	if e.Command.Cooldown != nil {
@@ -106,7 +116,7 @@ func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) g
 	}
 	m.RoleCooldowns = rolesCooldowns
 
-	return m
+	return m, nil
 }
 
 func CommandGroupTo(e commandwithrelationentity.CommandGroup) gqlmodel.CommandGroup {
@@ -189,6 +199,11 @@ func CommandGqlInputToService(
 		)
 	}
 
+	commandPlatforms, err := GraphQLPlatformsToEntities(input.Platforms.Value())
+	if err != nil {
+		return commands.CreateInput{}, fmt.Errorf("map command platforms: %w", err)
+	}
+
 	return commands.CreateInput{
 		ChannelID:                 channelID,
 		ActorID:                   actorID,
@@ -214,7 +229,7 @@ func CommandGqlInputToService(
 		ExpiresType:               expiresType,
 		Responses:                 responses,
 		RoleCooldowns:             roleCooldowns,
-		Platforms:                 StringsToPlatforms(input.Platforms.Value()),
+		Platforms:                 commandPlatforms,
 	}, nil
 }
 

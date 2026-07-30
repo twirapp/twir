@@ -198,7 +198,12 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 	}
 
 	if opts.Platforms.IsSet() {
-		updateInput.Platforms = mappers.StringsToPlatforms(opts.Platforms.Value())
+		platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
+		if err != nil {
+			return false, err
+		}
+
+		updateInput.Platforms = platforms
 	}
 
 	if _, err := r.deps.CommandsWithGroupsAndResponsesService.Update(
@@ -300,7 +305,11 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 
 	converted := make([]gqlmodel.Command, 0, len(cmds))
 	for _, c := range cmds {
-		command := mappers.CommandEntityTo(c)
+		command, err := mappers.CommandEntityTo(c)
+		if err != nil {
+			return nil, err
+		}
+
 		converted = append(converted, command)
 	}
 

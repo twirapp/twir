@@ -5,9 +5,9 @@ import { Platform } from '~/gql/graphql.js'
 
 import PlatformSelector from './platform-selector.vue'
 
-const vkPlatformId = Platform.VkVideoLive.toLowerCase()
+const vkPlatformId = Platform.VkVideoLive
 
-function mountSelector(props: { modelValue?: string[]; exclude?: string[] } = {}) {
+function mountSelector(props: { modelValue?: Platform[]; exclude?: Platform[] } = {}) {
 	return mount(PlatformSelector, {
 		props: {
 			modelValue: props.modelValue ?? [],
@@ -59,7 +59,7 @@ describe('PlatformSelector', () => {
 		const vkButton = wrapper.findAll('button').find((button) => button.text().includes('VK Video Live'))!
 		await vkButton.trigger('click')
 
-		// Then the model update carries the generated VK platform constant, lowercased for the wire
+		// Then the model update carries the VK platform enum value
 		const emitted = wrapper.emitted('update:modelValue')
 		expect(emitted).toBeDefined()
 		expect(emitted![0]).toEqual([[vkPlatformId]])

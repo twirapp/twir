@@ -19,7 +19,15 @@ import (
 func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMessageInput) ([]gqlmodel.ChatMessage, error) {
 	var platformFilter []string
 	if input.PlatformIn.IsSet() {
-		platformFilter = input.PlatformIn.Value()
+		platforms, err := mappers.GraphQLPlatformsToEntities(input.PlatformIn.Value())
+		if err != nil {
+			return nil, fmt.Errorf("failed to map platforms filter: %w", err)
+		}
+
+		platformFilter = make([]string, 0, len(platforms))
+		for _, p := range platforms {
+			platformFilter = append(platformFilter, p.String())
+		}
 	}
 
 	targets, err := resolveSelectedDashboardChatMessageTargets(ctx, r.deps, platformFilter)
