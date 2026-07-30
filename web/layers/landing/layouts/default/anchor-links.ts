@@ -23,4 +23,8 @@ export const anchorLinks = [
 		href: '/terms',
 		label: 'Terms of Service',
 	},
+	{
+		href: '/privacy',
+		label: 'Privacy Policy',
+	},
 ]

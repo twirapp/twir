@@ -1689,6 +1689,12 @@
       "description": "Terms of Service for the Twir chat bot and twir.app website."
     }
   },
+  "privacy": {
+    "meta": {
+      "title": "Privacy Policy",
+      "description": "Privacy Policy for the Twir chat bot and twir.app website."
+    }
+  },
   "compare": {
     "meta": {
       "title": "Twir vs Nightbot, StreamElements, Moobot and Fossabot",
