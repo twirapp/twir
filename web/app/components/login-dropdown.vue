@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { Platform } from '~/gql/graphql.js'
+import { PLATFORM_OPTIONS } from '~/utils/platforms.js'
+
 interface Props {
 	variant?: 'hero' | 'header' | 'sidebar'
 }
@@ -9,32 +12,18 @@ const props = withDefaults(defineProps<Props>(), {
 
 const userStore = useAuth()
 
-const platforms = [
-	{
-		label: 'Twitch',
-		icon: 'simple-icons:twitch',
-		iconClass: 'text-[#9146FF]',
-		login: () => userStore.login(),
-	},
-	{
-		label: 'Kick',
-		icon: 'simple-icons:kick',
-		iconClass: 'text-[#53FC18]',
-		login: () => userStore.loginWithKick(),
-	},
-	{
-		label: 'VK Live',
-		icon: 'simple-icons:vk',
-		iconClass: 'text-[#0077FF]',
-		login: () => userStore.loginWithVk(),
-	},
-	{
-		label: 'YouTube',
-		icon: 'simple-icons:youtube',
-		iconClass: 'text-[#FF0000]',
-		login: () => userStore.loginWithYoutube(),
-	},
-]
+const loginHandlers: Record<Platform, () => void> = {
+	[Platform.Twitch]: () => userStore.login(),
+	[Platform.Kick]: () => userStore.loginWithKick(),
+	[Platform.VkVideoLive]: () => userStore.loginWithVk(),
+	[Platform.Youtube]: () => userStore.loginWithYoutube(),
+}
+
+const platforms = PLATFORM_OPTIONS.map((meta) => ({
+	...meta,
+	label: meta.platform === Platform.VkVideoLive ? 'VK Live' : meta.label,
+	login: loginHandlers[meta.platform],
+}))
 
 const triggerClass = computed(() => {
 	return props.variant === 'hero'
@@ -67,12 +56,12 @@ const contentClass = computed(() => {
 		<UiDropdownMenuContent align="end" side="bottom" :side-offset="4" :class="contentClass">
 			<UiDropdownMenuItem
 				v-for="platform in platforms"
-				:key="platform.label"
+				:key="platform.platform"
 				as="button"
 				class="flex w-full items-center cursor-pointer"
 				@click="platform.login"
 			>
-				<Icon :name="platform.icon" :class="['mr-2 h-4 w-4', platform.iconClass]" />
+				<Icon :name="platform.icon" :class="['mr-2 h-4 w-4', platform.colorClass]" />
 				{{ platform.label }}
 			</UiDropdownMenuItem>
 		</UiDropdownMenuContent>

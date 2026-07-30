@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePlatformStats } from '../composables/use-platform-stats.js'
-import PlatformIcon from '../ui/platform-icon.vue'
+import PlatformIcon from '@/components/platform/platform-icon.vue'
 
 import { Platform } from '~/gql/graphql.js'
 

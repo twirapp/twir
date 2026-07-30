@@ -4,7 +4,7 @@ import { computed, onMounted, ref, toRaw } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import { useRoute } from 'vue-router'
 
-import PlatformSelector from '@/components/platform-selector.vue'
+import PlatformSelector from '@/components/platform/platform-selector.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import Switch from '@/components/ui/switch/Switch.vue'

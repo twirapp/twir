@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PlatformIcon from './platform-icon.vue'
+import PlatformIcon from '@/components/platform/platform-icon.vue'
 
 import { Platform } from '~/gql/graphql.js'
 

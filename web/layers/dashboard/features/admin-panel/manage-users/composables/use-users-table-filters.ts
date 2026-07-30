@@ -2,6 +2,7 @@ import { createGlobalState, refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
 import { Platform } from '~/gql/graphql.js'
+import { PLATFORM_OPTIONS } from '~/utils/platforms.js'
 
 import { useBadges } from '../../manage-badges/composables/use-badges.js'
 
@@ -59,24 +60,10 @@ export const useUsersTableFilters = createGlobalState(() => {
 		{
 			group: 'Platforms',
 			type: 'platform',
-			list: [
-				{
-					label: 'Twitch',
-					key: Platform.Twitch,
-				},
-				{
-					label: 'Kick',
-					key: Platform.Kick,
-				},
-				{
-					label: 'VK Video Live',
-					key: Platform.VkVideoLive,
-				},
-				{
-					label: 'YouTube',
-					key: Platform.Youtube,
-				},
-			],
+			list: PLATFORM_OPTIONS.map((option) => ({
+				label: option.label,
+				key: option.platform,
+			})),
 		},
 		{
 			group: t('adminPanel.manageUsers.badgesGroup'),

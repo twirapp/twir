@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Platform } from '~/gql/graphql.js'
+import PlatformBadge from '@/components/platform/platform-badge.vue'
+import type { Platform } from '~/gql/graphql.js'
 import { resolveUserName } from '~~/layers/dashboard/helpers/resolveUserName.js'
 
 const props = defineProps<{
@@ -19,38 +19,6 @@ const userName = computed(() => {
 })
 
 const Tag = computed(() => props.url ? 'a' : 'div')
-
-const platformMeta = computed(() => {
-	if (props.platform === Platform.Kick) {
-		return {
-			label: 'Kick',
-			className: 'border-[#53FC18]/30 bg-[#53FC18]/10 text-[#3CB30F]',
-		}
-	}
-
-	if (props.platform === Platform.Twitch) {
-		return {
-			label: 'Twitch',
-			className: 'border-[#9146FF]/30 bg-[#9146FF]/10 text-[#7C3AED]',
-		}
-	}
-
-	if (props.platform === Platform.VkVideoLive) {
-		return {
-			label: 'VK Video Live',
-			className: 'border-[#0077FF]/30 bg-[#0077FF]/10 text-[#0077FF]',
-		}
-	}
-
-	if (props.platform === Platform.Youtube) {
-		return {
-			label: 'YouTube',
-			className: 'border-[#FF0000]/30 bg-[#FF0000]/10 text-[#FF0000]',
-		}
-	}
-
-	return null
-})
 </script>
 
 <template>
@@ -67,14 +35,10 @@ const platformMeta = computed(() => {
 		</Avatar>
 		<div class="flex min-w-0 flex-col gap-1">
 			<span class="truncate">{{ userName }}</span>
-			<Badge
-				v-if="platformMeta"
-				variant="outline"
-				class="w-fit text-[10px] uppercase tracking-wide"
-				:class="platformMeta.className"
-			>
-				{{ platformMeta.label }}
-			</Badge>
+			<PlatformBadge
+				v-if="platform"
+				:platform="platform"
+			/>
 		</div>
 	</component>
 </template>

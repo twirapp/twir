@@ -10,7 +10,7 @@ import type { Command } from '~/gql/graphql.js'
 
 import Table from '~~/layers/dashboard/components/table.vue'
 import TextWithVariables from '~~/layers/dashboard/components/text-with-variables.vue'
-import PlatformIcons from '~~/layers/dashboard/components/platform-icons.vue'
+import PlatformIcons from '@/components/platform/platform-icons.vue'
 import { useDefaultCommandsApi } from '~~/layers/dashboard/api/commands/default-commands.js'
 
 import ColumnActions from './list-actions.vue'

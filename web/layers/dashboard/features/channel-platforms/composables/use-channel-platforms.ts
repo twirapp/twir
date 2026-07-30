@@ -1,15 +1,9 @@
 import { computed } from 'vue'
 
 import type { Platform } from '~/gql/graphql.js'
+import { PLATFORM_META } from '~/utils/platforms.js'
 
 import { useChannelPlatformsApi } from '../api.js'
-
-const platformPresentation = {
-	TWITCH: { label: 'Twitch', icon: 'simple-icons:twitch', iconClass: 'text-[#9146FF]' },
-	KICK: { label: 'Kick', icon: 'simple-icons:kick', iconClass: 'text-[#53FC18]' },
-	VK_VIDEO_LIVE: { label: 'VK Video Live', icon: 'simple-icons:vk', iconClass: 'text-[#0077FF]' },
-	YOUTUBE: { label: 'YouTube', icon: 'simple-icons:youtube', iconClass: 'text-[#FF0000]' },
-} satisfies Record<Platform, { label: string; icon: string; iconClass: string }>
 
 export function useChannelPlatforms() {
 	const api = useChannelPlatformsApi()
@@ -24,7 +18,7 @@ export function useChannelPlatforms() {
 
 		return options.map((option) => ({
 			platform: option.platform,
-			presentation: platformPresentation[option.platform],
+			presentation: PLATFORM_META[option.platform],
 			capabilities: option.capabilities,
 			binding: bindings.find((binding) => binding.platform === option.platform) ?? null,
 		}))

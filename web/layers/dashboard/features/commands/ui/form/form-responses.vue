@@ -3,7 +3,7 @@ import { FieldArray, useField } from 'vee-validate'
 import { computed, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import { useProfile } from '~~/layers/dashboard/api/auth'
-import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
+import PlatformSelector from '@/components/platform/platform-selector.vue'
 import TwitchCategorySearchShadcnMultiple from '~~/layers/dashboard/components/twitch-category-search-shadcn-multiple.vue'
 import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 

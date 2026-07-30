@@ -7,7 +7,7 @@ import { toast } from 'vue-sonner'
 import * as z from 'zod'
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
-import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
+import PlatformSelector from '@/components/platform/platform-selector.vue'
 import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
 

@@ -21,7 +21,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
-import { Platform } from '~/gql/graphql.js'
+import type { Platform } from '~/gql/graphql.js'
+import { PLATFORM_OPTIONS } from '~/utils/platforms.js'
 
 import { useCommunityTableActions } from '../composables/use-community-table-actions.js'
 import {
@@ -32,13 +33,6 @@ import {
 const { t } = useI18n()
 const communityTableActions = useCommunityTableActions()
 const communityUsersTable = useCommunityUsersTable()
-
-const platformOptions = [
-	{ label: 'Twitch', value: Platform.Twitch },
-	{ label: 'Kick', value: Platform.Kick },
-	{ label: 'VK Video Live', value: Platform.VkVideoLive },
-	{ label: 'YouTube', value: Platform.Youtube },
-]
 
 function togglePlatform(platform: Platform) {
 	if (communityTableActions.selectedPlatforms.value.includes(platform)) {
@@ -112,20 +106,20 @@ const columns = computed(() => {
 				<Command>
 					<CommandList>
 						<CommandGroup heading="Platforms">
-							<CommandItem
-								v-for="option in platformOptions"
-								:key="option.value"
-								:value="option.value"
-								@select="togglePlatform(option.value)"
+						<CommandItem
+							v-for="option in PLATFORM_OPTIONS"
+							:key="option.platform"
+							:value="option.platform"
+							@select="togglePlatform(option.platform)"
+						>
+							<div
+								class="border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border"
+								:class="
+									communityTableActions.selectedPlatforms.value.includes(option.platform)
+										? 'bg-primary text-primary-foreground'
+										: 'opacity-50 [&_svg]:invisible'
+								"
 							>
-								<div
-									class="border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border"
-									:class="
-										communityTableActions.selectedPlatforms.value.includes(option.value)
-											? 'bg-primary text-primary-foreground'
-											: 'opacity-50 [&_svg]:invisible'
-									"
-								>
 									<Icon
 										name="lucide:check"
 										class="h-4 w-4"

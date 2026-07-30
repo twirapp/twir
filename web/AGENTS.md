@@ -84,6 +84,29 @@ Use the Nuxt `<Icon />` component everywhere, including shared UI components and
 
 Do not import icon components from `@lucide/vue` or `lucide-vue-next` in `web`.
 
+### Platform mappings
+
+All `Platform` (gql enum: `TWITCH`, `KICK`, `VK_VIDEO_LIVE`, `YOUTUBE`) presentation data lives in
+**one shared layer** — never hardcode platform labels, brand colors, or `simple-icons` names in
+components:
+
+- `web/app/utils/platforms.ts` — the single source of truth:
+  - `PLATFORM_META` — `Platform → { label, icon, color, colorClass, badgeClass, activeClass }`
+  - `PLATFORMS` / `PLATFORM_OPTIONS` — ordered lists for `v-for` option lists
+  - `PLATFORM_META_BY_SLUG` / `getPlatformMetaBySlug()` — lookup by lowercase string slug
+    (`'twitch'`, `'vk_video_live'`, ...) for non-gql string platforms
+  - `getPlatformMeta()` / `getPlatformLabel()` — helpers (`getPlatformLabel` tolerates raw strings)
+- Shared components in `web/app/components/platform/` (available to all layers via `@/components/platform/*`):
+  - `platform-selector.vue` (`PlatformSelector`) — multi-select of platforms, `v-model: Platform[]`
+    via `defineModel`, optional `exclude` prop
+  - `platform-icon.vue` (`PlatformIcon`) — single brand icon (`platform`, `live?`, `size?`)
+  - `platform-icons.vue` (`PlatformIcons`) — row of brand icons for a `Platform[]`
+  - `platform-badge.vue` (`PlatformBadge`) — outline badge with platform label in brand colors
+
+Brand colors: Twitch `#9146FF`, Kick `#53FC18`, VK Video Live `#0077FF`, YouTube `#FF0000` —
+always take them from `PLATFORM_META` (`color`/`colorClass`/`badgeClass`/`activeClass`), never
+inline `text-[#...]` hex values for platforms.
+
 ### Styling
 
 Same as dashboard: Tailwind CSS with theme colors.

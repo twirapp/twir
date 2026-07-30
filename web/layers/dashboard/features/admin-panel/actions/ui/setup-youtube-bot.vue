@@ -13,6 +13,10 @@ import CardContent from '@/components/ui/card/CardContent.vue'
 import CardDescription from '@/components/ui/card/CardDescription.vue'
 import CardHeader from '@/components/ui/card/CardHeader.vue'
 import CardTitle from '@/components/ui/card/CardTitle.vue'
+import { Platform } from '~/gql/graphql.js'
+import { PLATFORM_META } from '~/utils/platforms.js'
+
+const youtubeMeta = PLATFORM_META[Platform.Youtube]
 
 const setupLinkMutation = useMutationYouTubeBotSetupLink()
 const setupStatusMutation = useMutationYouTubeBotSetupStatus()
@@ -82,7 +86,7 @@ onBeforeUnmount(() => {
 	<Card>
 		<CardHeader>
 			<div class="flex items-center gap-2">
-				<Icon name="simple-icons:youtube" class="size-5 text-[#FF0000]" />
+				<Icon :name="youtubeMeta.icon" class="size-5" :class="youtubeMeta.colorClass" />
 				<CardTitle>YouTube bot</CardTitle>
 			</div>
 			<CardDescription>

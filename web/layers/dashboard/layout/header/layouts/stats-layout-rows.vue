@@ -5,7 +5,7 @@ import PopoverTrigger from '@/components/ui/popover/PopoverTrigger.vue'
 
 import { usePlatformStats } from '../composables/use-platform-stats.js'
 import GlobalStatsWidgets from '../global-stats-widgets.vue'
-import PlatformIcon from '../ui/platform-icon.vue'
+import PlatformIcon from '@/components/platform/platform-icon.vue'
 import PlatformStatsRows from '../ui/platform-stats-rows.vue'
 import PlatformTitleRow from '../ui/platform-title-row.vue'
 import StatWidget from '../ui/stat-widget.vue'

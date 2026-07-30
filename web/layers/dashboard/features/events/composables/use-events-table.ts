@@ -9,24 +9,17 @@ import EventsTableOperations from '~~/layers/dashboard/features/events/ui/events
 
 import { Badge } from '@/components/ui/badge'
 
-import { Platform } from '~/gql/graphql.js'
+import { getPlatformLabel } from '~/utils/platforms.js'
 
 import EventsTableActions from '../ui/events-table-actions.vue'
 
-const platformLabels: Record<Platform, string> = {
-	[Platform.Twitch]: 'Twitch',
-	[Platform.Kick]: 'Kick',
-	[Platform.VkVideoLive]: 'VK Video Live',
-	[Platform.Youtube]: 'YouTube',
-}
-
-function getPlatformBadges(platforms: Platform[]) {
+function getPlatformBadges(platforms: string[]) {
 	if (platforms.length === 0) {
 		return [h(Badge, { variant: 'outline' }, () => 'All')]
 	}
 
 	return platforms.map((platform) =>
-		h(Badge, { variant: 'outline' }, () => platformLabels[platform] ?? platform)
+		h(Badge, { variant: 'outline' }, () => getPlatformLabel(platform))
 	)
 }
 

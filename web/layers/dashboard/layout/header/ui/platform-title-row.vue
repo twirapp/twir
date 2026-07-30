@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import PlatformIcon from './platform-icon.vue'
+import PlatformIcon from '@/components/platform/platform-icon.vue'
 
 import type { Platform } from '~/gql/graphql.js'
 

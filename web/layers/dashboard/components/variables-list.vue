@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
-import PlatformIcons from './platform-icons.vue'
+import PlatformIcons from '@/components/platform/platform-icons.vue'
 
 defineProps<{
 	popoverAlign?: 'start' | 'center' | 'end'

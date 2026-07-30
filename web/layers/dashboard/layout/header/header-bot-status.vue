@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useBotJoinPart, useBotStatuses } from '~~/layers/dashboard/api/dashboard'
 import { BotJoinLeaveAction } from '~/gql/graphql.js'
+import { getPlatformMetaBySlug } from '~/utils/platforms.js'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -27,6 +28,13 @@ const sortedBotStatuses = computed(() => {
 		return a.platform.localeCompare(b.platform)
 	})
 })
+
+const statusViews = computed(() =>
+	sortedBotStatuses.value.map((status) => ({
+		...status,
+		meta: getPlatformMetaBySlug(status.platform),
+	})),
+)
 
 const enabledStatusesCount = computed(() => {
 	return sortedBotStatuses.value.filter((status) => status.enabled).length
@@ -60,11 +68,7 @@ function statusKey(status: { dashboardId: string; platform: string }) {
 }
 
 function formatPlatformName(platform: string) {
-	if (platform === 'kick') return 'Kick'
-	if (platform === 'twitch') return 'Twitch'
-	if (platform === 'vk_video_live') return 'VK Video Live'
-	if (platform === 'youtube') return 'YouTube'
-	return platform || 'Bot'
+	return getPlatformMetaBySlug(platform)?.label ?? (platform || 'Bot')
 }
 
 function isStatusPending(status: { dashboardId: string; platform: string }) {
@@ -111,18 +115,17 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 							class="size-4"
 					:class="allStatusesEnabled ? 'text-green-400' : 'text-red-400'"
 				/>
-				<div class="flex items-center gap-1">
-					<template v-for="status in sortedBotStatuses" :key="statusKey(status)">
-						<Icon v-if="status.platform === 'kick'" name="simple-icons:kick" class="size-4 text-[#53FC18]" />
-						<Icon
-							v-else-if="status.platform === 'twitch'"
-							name="simple-icons:twitch"
-							class="size-4 text-[#9146FF]"
-						/>
-						<Icon v-else-if="status.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4" />
-						<Icon v-else-if="status.platform === 'youtube'" name="simple-icons:youtube" class="size-4 text-[#FF0000]" />
-					</template>
-				</div>
+			<div class="flex items-center gap-1">
+				<template v-for="status in statusViews" :key="statusKey(status)">
+					<Icon
+						v-if="status.meta"
+						:name="status.meta.icon"
+						:title="status.meta.label"
+						class="size-4"
+						:class="status.meta.colorClass"
+					/>
+				</template>
+			</div>
 				<span class="max-w-44 truncate">{{ statusSummary }}</span>
 				<Icon name="lucide:chevrons-up-down" class="size-4" />
 			</Button>
@@ -130,23 +133,21 @@ async function changeChatState(status: { dashboardId: string; platform: string; 
 			<DropdownMenuContent align="end" class="w-72">
 				<DropdownMenuLabel>Bot platforms</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem
-					v-for="status in sortedBotStatuses"
-					:key="statusKey(status)"
-					class="flex items-center gap-3"
-					:disabled="isStatusPending(status)"
-					@select.prevent
-					@click="changeChatState(status)"
-				>
+			<DropdownMenuItem
+				v-for="status in statusViews"
+				:key="statusKey(status)"
+				class="flex items-center gap-3"
+				:disabled="isStatusPending(status)"
+				@select.prevent
+				@click="changeChatState(status)"
+			>
 				<div class="flex size-7 items-center justify-center rounded-md border border-border bg-background">
-					<Icon v-if="status.platform === 'kick'" name="simple-icons:kick" class="size-4 text-[#53FC18]" />
 					<Icon
-						v-else-if="status.platform === 'twitch'"
-						name="simple-icons:twitch"
-						class="size-4 text-[#9146FF]"
+						v-if="status.meta"
+						:name="status.meta.icon"
+						class="size-4"
+						:class="status.meta.colorClass"
 					/>
-					<Icon v-else-if="status.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4" />
-					<Icon v-else-if="status.platform === 'youtube'" name="simple-icons:youtube" class="size-4 text-[#FF0000]" />
 				</div>
 				<div class="min-w-0 flex-1">
 					<p class="truncate text-sm font-medium">
