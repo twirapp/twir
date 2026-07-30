@@ -96,19 +96,27 @@ func (c *Manager) initialize(ctx context.Context) error {
 		return nil
 	}
 
-	channels, err := c.channelsRepo.GetMany(
-		ctx,
-		channelsrepository.GetManyInput{
-			Enabled: new(true),
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("cannot get channels: %w", err)
-	}
+	channelsByID := make(map[string]channelentity.Channel)
+	for page := 0; ; page++ {
+		channels, err := c.channelsRepo.GetMany(
+			ctx,
+			channelsrepository.GetManyInput{
+				Enabled: new(true),
+				PerPage: 100,
+				Page:    page,
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("cannot get channels: %w", err)
+		}
 
-	channelsByID := make(map[string]channelentity.Channel, len(channels))
-	for _, ch := range channels {
-		channelsByID[ch.ID.String()] = ch
+		for _, ch := range channels {
+			channelsByID[ch.ID.String()] = ch
+		}
+
+		if len(channels) < 100 {
+			break
+		}
 	}
 
 	for offset := int64(0); offset < totalTimers; {

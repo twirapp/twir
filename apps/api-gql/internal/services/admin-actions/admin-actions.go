@@ -62,27 +62,35 @@ type EventSubSubscribeInput struct {
 }
 
 func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribeInput) error {
-	ch, err := c.channelsRepository.GetMany(
-		ctx,
-		channels.GetManyInput{
-			Enabled: lo.ToPtr(true),
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to get channels: %w", err)
-	}
+	for page := 0; ; page++ {
+		ch, err := c.channelsRepository.GetMany(
+			ctx,
+			channels.GetManyInput{
+				Enabled: lo.ToPtr(true),
+				PerPage: 100,
+				Page:    page,
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("failed to get channels: %w", err)
+		}
 
-	for _, channel := range ch {
-		go func() {
-			c.twirbus.EventSub.Subscribe.Publish(
-				ctx,
-				eventsub.EventsubSubscribeRequest{
-					ChannelID: channel.ID.String(),
-					Topic:     input.Type,
-					Version:   input.Version,
-				},
-			)
-		}()
+		for _, channel := range ch {
+			go func() {
+				c.twirbus.EventSub.Subscribe.Publish(
+					ctx,
+					eventsub.EventsubSubscribeRequest{
+						ChannelID: channel.ID.String(),
+						Topic:     input.Type,
+						Version:   input.Version,
+					},
+				)
+			}()
+		}
+
+		if len(ch) < 100 {
+			break
+		}
 	}
 
 	return nil
