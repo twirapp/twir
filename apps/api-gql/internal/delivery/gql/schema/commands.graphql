@@ -4,6 +4,7 @@ extend type Query {
     @hasAccessToSelectedDashboard
     @hasChannelRolesDashboardPermission(permission: VIEW_COMMANDS)
   commandsPublic(channelId: ID!): [PublicCommand!]!
+  commandsDefault: [DefaultCommandInfo!]! @isAuthenticated
 }
 
 extend type Mutation {
@@ -91,6 +92,14 @@ type PublicCommand {
 type PublicCommandPermission {
   name: String!
   type: String!
+}
+
+type DefaultCommandInfo {
+  name: String!
+  description: String!
+  module: String!
+  aliases: [String!]!
+  platforms: [Platform!]!
 }
 
 input CommandsCreateOpts {

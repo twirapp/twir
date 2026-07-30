@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
@@ -48,6 +49,7 @@ var LatestFollowerUsername = &types.Variable{
 var Count = &types.Variable{
 	Name:                "followers.count",
 	Description:         lo.ToPtr("Followers count"),
+	Platforms:           []platformentity.Platform{platformentity.PlatformTwitch},
 	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context,

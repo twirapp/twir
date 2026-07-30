@@ -8,12 +8,14 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/i18n"
 )
 
 var EmoteSetName = &types.Variable{
 	Name:         "7tv.emoteset.name",
 	Description:  lo.ToPtr("Name of 7tv emote set"),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CommandsOnly: false,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
@@ -39,6 +41,7 @@ var EmoteSetName = &types.Variable{
 var EmoteSetLink = &types.Variable{
 	Name:         "7tv.emoteset.link",
 	Description:  lo.ToPtr("Link to 7tv emote set"),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
@@ -64,6 +67,7 @@ var EmoteSetLink = &types.Variable{
 var EmoteSetCount = &types.Variable{
 	Name:         "7tv.emoteset.emotes.count",
 	Description:  lo.ToPtr("Count of emotes in emote set"),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
@@ -89,6 +93,7 @@ var EmoteSetCount = &types.Variable{
 var EmoteSetCapacity = &types.Variable{
 	Name:         "7tv.emoteset.capacity",
 	Description:  lo.ToPtr("Capacity of set"),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

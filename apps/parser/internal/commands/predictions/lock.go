@@ -9,6 +9,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/twitch"
@@ -22,6 +23,7 @@ var Lock = &types.DefaultCommand{
 		Module:      "PREDICTIONS",
 		IsReply:     true,
 	},
+	Platforms:         []platformentity.Platform{platformentity.PlatformTwitch},
 	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,

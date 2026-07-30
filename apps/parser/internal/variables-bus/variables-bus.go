@@ -45,6 +45,7 @@ func New(
 				Visible:             lo.FromPtr(variable.Visible),
 				CanBeUsedInRegistry: variable.CanBeUsedInRegistry,
 				Links:               links,
+				Platforms:           variable.Platforms,
 			},
 		)
 	}

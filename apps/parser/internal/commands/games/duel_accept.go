@@ -10,7 +10,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
-	"github.com/twirapp/twir/libs/entities/platform"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 	"gorm.io/gorm"
@@ -32,6 +32,7 @@ var DuelAccept = &types.DefaultCommand{
 		Enabled:     false,
 		RolesIDS:    pq.StringArray{},
 	},
+	Platforms: []platformentity.Platform{platformentity.PlatformTwitch},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
@@ -76,7 +77,7 @@ var DuelAccept = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
-		twitchBinding, ok := dbChannel.Binding(platform.PlatformTwitch)
+		twitchBinding, ok := dbChannel.Binding(platformentity.PlatformTwitch)
 		if !ok {
 			return nil, &types.CommandHandlerError{
 				Message: i18n.GetCtx(ctx, locales.Translations.Errors.Generic.CannotGetDbChannel),

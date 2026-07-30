@@ -16,6 +16,7 @@ import (
 var Age = &types.Variable{
 	Name:         "user.age",
 	Description:  lo.ToPtr("User account age"),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CommandsOnly: true,
 	Handler: shared.HandlerByPlatform(map[platformentity.Platform]types.VariableHandler{
 		shared.PlatformTwitch: func(

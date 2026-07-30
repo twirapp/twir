@@ -14,6 +14,7 @@ import (
 var Description = &types.Variable{
 	Name:                "stream.description",
 	Description:         lo.ToPtr("Stream description"),
+	Platforms:           []platformentity.Platform{platformentity.PlatformKick},
 	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

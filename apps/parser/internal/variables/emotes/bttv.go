@@ -9,6 +9,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type betterTTVEmote struct {
@@ -23,6 +24,7 @@ type betterTTVResponse struct {
 var BetterTTV = &types.Variable{
 	Name:        "emotes.bttv",
 	Description: lo.ToPtr("Emotes of channel from https://betterttv.com/"),
+	Platforms:   []platformentity.Platform{platformentity.PlatformTwitch},
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
