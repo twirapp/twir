@@ -182,7 +182,7 @@ export default defineNuxtConfig({
 			],
 		},
 		server: {
-			allowedHosts: ['dev.twir.app', 'localhost'],
+			allowedHosts: ['dev.twir.app', 'localhost', 'twir.dev'],
 			// fs: {
 			// 	allow: [
 			// 		'/home/satont/Documents/Projects/twir',

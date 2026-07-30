@@ -3,6 +3,7 @@
 }
 
 {$SITE_BASE_URL} http://localhost:3005 {
+    tls internal
     reverse_proxy http://127.0.0.1:3010
 
     handle_path /api/* {

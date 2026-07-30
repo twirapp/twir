@@ -1016,7 +1016,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "https://twir.localhost/api";
+  public baseUrl: string = "https://twir.dev/api";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -1183,7 +1183,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title Twir Api
  * @version 1.0.0
- * @baseUrl https://twir.localhost/api
+ * @baseUrl https://twir.dev/api
  */
 export class Api<SecurityDataType extends unknown> {
   http: HttpClient<SecurityDataType>;
@@ -1304,6 +1304,30 @@ export class Api<SecurityDataType extends unknown> {
         method: "GET",
         query: query,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthYoutubeBotCallback
+     * @summary YouTube bot setup callback
+     * @request GET:/auth/youtube/bot-callback
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    authYoutubeBotCallback: (
+      query?: {
+        code?: string;
+        state?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/auth/youtube/bot-callback`,
+        method: "GET",
+        query: query,
         ...params,
       }),
 
