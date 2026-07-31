@@ -3,11 +3,11 @@ errors:
   category_required: Alias and category are required
   category_failed_to_get: Failed to get caterogies
   category_cannot_to_get: Cannot get categories
-  category_not_found: Category not found
-  category_failed_to_create: Failed to create category
-  category_cannot_delete: Cannot delete category
+  category_not_found: Категория не найдена
+  category_failed_to_create: Не удалось создать категорию
+  category_cannot_delete: Не удается удалить категорию
   # Alias
-  alias_already_exists: 'Alias {aliasName} already exists'
+  alias_already_exists: 'Псевдоним {aliasName} уже существует'
   alias_empty: No categories aliases created
   alias_not_found: Category alias not found
   alias_removed: 'Category alias {aliasName} removed'
