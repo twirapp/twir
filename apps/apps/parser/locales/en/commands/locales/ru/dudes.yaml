@@ -1,16 +1,16 @@
 info:
-  color: 'Your color is {dudeColor}'
-  sprite: 'Your sprite is {dudeSprite}'
-  color_required: Color is required
-  sprite_required: 'Sprite is required, available: {availableSprites}'
-  color_reset: Color reset to default
-  color_changed: 'Color changed to {dudeColor}'
-  sprite_changed: 'Sprite changed to {dudeSprite}'
+  color: 'Твой цвет - {dudeColor}'
+  sprite: 'Ваш спрайт - это {dudeSprite}'
+  color_required: Требуется цвет
+  sprite_required: 'Требуется спрайт, доступный: {availableSprites}'
+  color_reset: Цвет сброшен до значения по умолчанию
+  color_changed: 'Цвет изменен на {dudeColor}'
+  sprite_changed: 'Спрайт изменен на {dudeSprite}'
 errors:
-  color_invalid: Invalid color
-  sprite_invalid: 'Invalid sprite, available: {availableSprites}'
-  color_cannot_trigger: Cannot trigger dudes color
-  grow_cannot_trigger: Cannot trigger dudes grow
-  jump_cannot_trigger: Cannot trigger dudes jump
-  leave_cannot_trigger: Cannot trigger dudes leave
-  sprite_cannot_trigger: Cannot trigger dudes sprite
+  color_invalid: Недопустимый цвет
+  sprite_invalid: 'Недопустимый спрайт, доступный: {availableSprites}'
+  color_cannot_trigger: Цвет кубиков не может срабатывать
+  grow_cannot_trigger: Не могу заставить парней расти
+  jump_cannot_trigger: Не удается спровоцировать прыжок парней
+  leave_cannot_trigger: Не могу спровоцировать уход парней
+  sprite_cannot_trigger: Не удается запустить спрайт чуваков
