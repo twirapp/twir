@@ -1,9 +1,9 @@
 hints:
-  nukeTimeArgName: 'time, examples: 10m, 10, 1h5m'
+  nukeTimeArgName: 'время, например: 10м, 10, 1ч5м'
 errors:
-  invalid_duration: 'Invalid duration. Examples: !nuke 10m phrase, !nuke 10 phrase, !nuke 1h5m phrase'
-  cannot_get_users_stats: Cannot get users stats
-  cannot_get_handeled_messages: Cannot get handled messages
-  cannot_delete_messages: Cannot delete messages
-  timeout_duration: Duration of timeout cannot be longer than 2 weeks
-  parse_duration: Cannot parse duration
+  invalid_duration: 'Недопустимая длительность. Примеры: фраза !nuke 10м фраза, !nuke 10 фраза !nuke 1ч5м'
+  cannot_get_users_stats: Не удается получить статистику пользователей
+  cannot_get_handeled_messages: Не удается получить обработанные сообщения
+  cannot_delete_messages: Не удается удалить сообщения
+  timeout_duration: Продолжительность тайм-аута не может превышать 2 недель
+  parse_duration: Не удается проанализировать длительность
