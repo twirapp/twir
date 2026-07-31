@@ -18,7 +18,7 @@ errors:
   category_cannot_change: Невозможно изменить категорию
   category_cannot_change_error: 'Не удается изменить категорию: {errorMessage}'
   # Game
-  game_not_found: Game not found on twitch
+  game_not_found: Игра не найдена на twitch
   # History
-  history_game_message: Cannot find used games in database
-  history_title_message: 'Cannot get history of titles from database: {reason}'
+  history_game_message: Не удается найти использованные игры в базе данных
+  history_title_message: 'Не удается получить историю названий из базы данных: {reason}'
