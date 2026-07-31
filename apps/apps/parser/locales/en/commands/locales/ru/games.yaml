@@ -34,6 +34,6 @@ info:
   user_not_participate: Вы не участвуете ни в какой дуэли
   user_already_in_duel: Целевой пользователь уже участвует в дуэли
   sender_already_in_duel: Ты уже в поединке
-  duel_stats: 'You have shoot {duels} times · {wins} W – {loses} L ({winrate} WR)'
+  duel_stats: 'У вас есть время для перестрелок в {duels} · {wins} W – {loses} L ({winrate} WR)'
   # Voteban
-  voteban_in_progress: Another voteban in progress
+  voteban_in_progress: Выполняется еще один запрет голоса
