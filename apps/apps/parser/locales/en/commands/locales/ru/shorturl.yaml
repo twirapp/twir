@@ -1,4 +1,4 @@
 errors:
-  cannot_create_short_url: 'Cannot create short url. {error}'
+  cannot_create_short_url: 'Не удается создать короткий Url-адрес. {error}'
 success:
-  short_url_created: 'Short url: {url}'
+  short_url_created: 'Короткий Url-адрес: {url}'
