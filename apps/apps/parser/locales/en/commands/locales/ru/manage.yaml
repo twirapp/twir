@@ -1,25 +1,25 @@
 errors:
   # Alias
-  alias_cannot_get_existed_commands: Cannot get existed commands
-  alias_already_exist: 'Command with {alias} name or alias already exists'
-  alias_cannot_update: Cannot update command aliases
-  alias_not_command: That alias not in the command
+  alias_cannot_get_existed_commands: Не удается получить существующие команды
+  alias_already_exist: 'Команда с именем {alias} или псевдонимом уже существует'
+  alias_cannot_update: Не удается обновить псевдонимы команд
+  alias_not_command: Этого псевдонима нет в команде
   # Command
-  command_with_alias_already_exists: Command with that name or alias already exists
-  command_with_name_cannot_find: Command with that name not found
-  command_not_found: Command not found
-  command_cannot_get: Cannot get command
-  command_large_size: Command name cannot be greatest then 20.
-  command_have_no_aliases: Command have no aliases
-  command_cannot_delete_default: Cannot delete default command
-  command_cannot_update_response: Cannot update response because you have more than 1 response in command. Please use UI.
-  command_cannot_update: Cannot update command
-  command_cannot_save: Cannot save command
+  command_with_alias_already_exists: Команда с таким именем или псевдонимом уже существует
+  command_with_name_cannot_find: Команда с таким именем не найдена
+  command_not_found: Команда не найдена
+  command_cannot_get: Не удается получить команду
+  command_large_size: Имя команды не может быть больше 20.
+  command_have_no_aliases: Команды не имеют псевдонимов
+  command_cannot_delete_default: Не удается удалить команду по умолчанию
+  command_cannot_update_response: Не удается обновить ответ, потому что у вас есть более 1 ответа в команде. Пожалуйста, используйте пользовательский интерфейс.
+  command_cannot_update: Не удается обновить команду
+  command_cannot_save: Не удается сохранить команду
 add:
-  alias_add: '✅ Alias added'
-  command_add: '✅ Command added'
+  alias_add: '✅ Добавлен псевдоним'
+  command_add: '✅ Добавлена команда'
 edit:
-  command_edited: '✅ Command edited'
+  command_edited: '✅ Команда отредактирована'
 remove:
-  alias_removed: '✅ Alias removed'
-  command_removed: '✅ Command removed'
+  alias_removed: '✅ Псевдоним удален'
+  command_removed: '✅ Команда удалена'
