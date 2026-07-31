@@ -1,22 +1,22 @@
 hints:
-  gameArgName: Category name or created category alias
+  gameArgName: Название категории или название созданной категории
 add:
   category_change: '✅ {categoryName}'
 errors:
   # Twitch-channel
-  broadcaster_twitch_client_cannot_create: Cannot create broadcaster twitch client
-  broadcaster_twitch_api_client: 'Cannot create broadcaster twitch api client: {reason}'
+  broadcaster_twitch_client_cannot_create: Не удается создать клиент twitch для трансляции
+  broadcaster_twitch_api_client: 'Не удается создать клиент twitch api для трансляции: {reason}'
   # Channel
-  channel_cannot_get_information: Cannot get channel information
-  channel_not_found: Channel not found
+  channel_cannot_get_information: Не удается получить информацию о канале
+  channel_not_found: Канал не найден
   # Alias
-  alias_cannot_get_category: Cannot get category aliases
+  alias_cannot_get_category: Не удается получить название категорий
   # Category
   category_not_found: Категория не найдена
-  category_cannot_get: Cannot get category
-  category_cannot_get_error: 'Cannot get category: {errorMessage}'
-  category_cannot_change: Cannot change category
-  category_cannot_change_error: 'Cannot change category: {errorMessage}'
+  category_cannot_get: Не удается получить категорию
+  category_cannot_get_error: 'Не удается получить категорию:{errorMessage}'
+  category_cannot_change: Невозможно изменить категорию
+  category_cannot_change_error: 'Не удается изменить категорию: {errorMessage}'
   # Game
   game_not_found: Game not found on twitch
   # History
