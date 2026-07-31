@@ -1,19 +1,19 @@
 hints:
-  predictionResolveOutcomeNum: 'Variant number, for example: 1,2,3,4,5'
+  predictionResolveOutcomeNum: 'Номер варианта, например: 1,2,3,4,5'
   startPredictionDuration: '120'
-  startPredictionArgTitle: Will we win this game?
-  startPredictionArgVariants: 'Yes, win / No, lose'
+  startPredictionArgTitle: Выиграем ли мы эту игру?
+  startPredictionArgVariants: 'Да, победа / Нет, поражение'
 errors:
-  cannot_create: Cannot create prediction
-  cannot_create_var: 'Cannot create prediction: {reason}'
-  cannot_get_current: Cannot get current prediction
-  cannot_get_current_var: 'Cannot get current prediction: {reason}'
-  cannot_cancel: Cannot cancel prediction
-  cannot_cancel_var: 'Cannot cancel prediction: {reason}'
-  no_variant: No prediction variant
+  cannot_create: Не удается создать прогноз
+  cannot_create_var: 'Не удается создать прогноз: {reason}'
+  cannot_get_current: Не удается получить текущий прогноз
+  cannot_get_current_var: 'Не удается получить текущий прогноз: {reason}'
+  cannot_cancel: Невозможно отменить предсказание
+  cannot_cancel_var: 'Невозможно отменить предсказание: {reason}'
+  no_variant: Нет варианта прогнозирования
 info:
-  no_runed: No prediction runed
-  cancel: '✅ Prediction canceled'
-  locked: '✅ Prediction locked'
-  resolved: '✅ Prediction resolved'
-  started: '✅ Prediction started'
+  no_runed: Никакого предсказания не последовало
+  cancel: '✅ Предсказание отменено'
+  locked: '✅ Прогноз заблокирован'
+  resolved: '✅ Предсказание выполнено'
+  started: '✅ Предсказание началось'
