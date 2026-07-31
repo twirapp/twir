@@ -1,4 +1,4 @@
 cannot_create_clip: Не удается создать клип
-empty_clip_url: Clip URL is empty, please try again
-cannot_get_clip: Cannot get created clip
-clip_created: 'Clip created: {url}'
+empty_clip_url: URL-адрес клипа пуст, пожалуйста, повторите попытку
+cannot_get_clip: Не удаётся создать клип
+clip_created: 'Клип создан {url}'
