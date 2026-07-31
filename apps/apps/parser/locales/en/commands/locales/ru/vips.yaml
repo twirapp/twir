@@ -4,11 +4,11 @@ hints:
 errors:
   invalid_duration: 'Недопустимый формат длительности. Пожалуйста, используйте такие форматы, как <1h>, <30m>, или <2d>'
   already_have_role: Пользователь уже является vip-персоной или модератором!
-  cannot_create_scheduled_in_db: Cannot create scheduled vip in database
-  added_with_remove_time: '✅ Added vip to {userName}, will be removed at {endTime}'
-  added: '✅ Added vip to {userName}'
-  cannot_get_list_from_db: Cannot get vip list from database
-  no_scheduled_vips: There are no scheduled vips
-  removed: '✅ Removed vip from {userName}'
-  cannot_update: Cannot update scheduled vip
-  updated: '✅ Updated vip for user {userName} new expriation time {endTime}'
+  cannot_create_scheduled_in_db: Не удается создать запланированный vip-визит в базе данных
+  added_with_remove_time: '✅ Добавлен vip к {userName}, будет удален в {endTime}'
+  added: '✅ Добавлен vip к {userName}'
+  cannot_get_list_from_db: Не удается получить список vip из базы данных
+  no_scheduled_vips: Здесь нет запланированных vips
+  removed: '✅ Удален vip из {userName}'
+  cannot_update: Не удается обновить запланированные vip
+  updated: '✅ Обновлен vip для пользователя {userName}, введено новое время истечения срока действия {endTime}'
