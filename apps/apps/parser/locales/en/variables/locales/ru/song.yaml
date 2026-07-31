@@ -1,15 +1,15 @@
 info:
-  lastfm_integration: LastFM integration not enabled
-  spotify_not_connected: Spotify not connected
-  failed_get_spotify_integration: Failed to get spotify integration
-  get_spotify_entity: Failed to get spotify entity
-  get_spotify_integration: 'Cannot get spotify integration: {reason}'
-  history: '{trackTitle} - {trackArtist} (~{minutes}m ago)'
-  no_needed_scope: 'No needed scope, reconnect spotify in dashboard'
-  no_integrations: No integrations connected
+  lastfm_integration: Интеграция с LastFM не включена
+  spotify_not_connected: Spotify не подключен
+  failed_get_spotify_integration: Не удалось получить интеграцию со spotify
+  get_spotify_entity: Не удалось получить объект spotify
+  get_spotify_integration: 'Не удается получить интеграцию со spotify: {причина}'
+  history: '{trackTitle} - {trackArtist} (~{minutes}м назад)'
+  no_needed_scope: 'Если область действия не требуется, повторно подключите spotify в dashboard'
+  no_integrations: Никакие интеграции не подключены
 errors:
-  get_recent_tracks: 'Cannot get recent tracks: {reason}'
-  create_lastfm_service: 'Cannot create lastfm service: {reason}'
-  fetch_tracks_lastfm: 'Cannot fetch tracks from lastfm: {reason}'
-  fetch_tracks_spotify: 'Cannot fetch tracks from spotify: {reason}'
-  parse_played_at: Cannot parse played at
+  get_recent_tracks: 'Не удается получить последние треки: {reason}'
+  create_lastfm_service: 'Не удается создать службу lastfm: {reason}'
+  fetch_tracks_lastfm: 'Не удается получить треки из lastfm: {reason}'
+  fetch_tracks_spotify: 'Не удается загрузить треки из spotify: {reason}'
+  parse_played_at: Не удается разобрать воспроизведенный на
