@@ -1,8 +1,8 @@
 hints:
   user: '@username'
-  unvip_in: 'can be time in format: 1w1h30m, 2d5h; or can be stream_end to unvip when stream ends (delayed for 10 mins in case of stream crash). Leave it empty for permanent vip.'
+  unvip_in: 'может быть время в формате: 1н1ч30м, 2д5ч; или может быть значение stream_end для unvip по окончании трансляции (с задержкой на 10 минут в случае сбоя трансляции). Оставьте это поле пустым для постоянного vip.'
 errors:
-  invalid_duration: 'Invalid duration format. Please use formats like <1h>, <30m>, or <2d>'
+  invalid_duration: 'Недопустимый формат длительности. Пожалуйста, используйте такие форматы, как <1h>, <30m>, или <2d>'
   already_have_role: User already vip or moderator!
   cannot_create_scheduled_in_db: Cannot create scheduled vip in database
   added_with_remove_time: '✅ Added vip to {userName}, will be removed at {endTime}'
