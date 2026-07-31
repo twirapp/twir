@@ -1,3 +1,3 @@
 errors:
-  not_passed_params: Have not passed params to variable
-  parse_date: Cannot parse date
+  not_passed_params: Не были переданы параметры в переменную
+  parse_date: Не удается разобрать дату
