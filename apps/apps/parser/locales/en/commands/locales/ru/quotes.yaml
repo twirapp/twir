@@ -1,11 +1,11 @@
 errors:
-  random_empty: No quotes have been added yet
-  not_found: Quote not found
-  empty_text: Quote text cannot be empty
-  cannot_get: Cannot get quote
-  cannot_add: Cannot add quote
-  cannot_remove: Cannot remove quote
+  random_empty: Нет добавленных цитат
+  not_found: Цитата не найдена
+  empty_text: Текст цитаты не может быть пустым
+  cannot_get: Не удается получить цитату
+  cannot_add: Не удается добавить цитату
+  cannot_remove: Не удается удалить цитату
 add:
-  added: 'Quote added #{number}'
+  added: 'Добавлена цитата #{number}'
 remove:
-  removed: Quote removed
+  removed: Цитата удалена
