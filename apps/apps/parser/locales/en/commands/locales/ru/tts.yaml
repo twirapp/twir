@@ -1,19 +1,19 @@
 errors:
-  while_disable: Error while disabling tts
-  while_enable: Error while enabling tts
-  not_configured: TTS is not configured for this channel
-  sending_to_tts: Error while sending message to tts service
-  while_getting_voices: Error while getting voices
+  while_disable: Ошибка при отключении tts
+  while_enable: Ошибка при включении tts
+  not_configured: TTS не настроен для этого канала
+  sending_to_tts: Ошибка при отправке сообщения в службу tts
+  while_getting_voices: Ошибка при получении голосовых сообщений
 info:
-  disabled: TTS disabled
-  enabled: TTS enabled
-  pitch: 'Global pitch: {globalPitch} | Your pitch: {userPitch}'
-  change_pitch: 'Pitch changed to {newPitch}'
-  rate: 'Global rate: {globalRate} | Your rate: {userRate}'
-  change_rate: 'Rate changed to {newRate}'
-  voice: 'Global voice: {globalVoice} | Your voice: {userVoice}'
-  change_voice: Voice changed to {newVoice}
-  no_voices: No voices available
-  current_volume: 'Current volume: {ttsVolume}'
-  change_volume: 'TTS volume changed to {userVolume}'
-  voice_disallowed: 'Voice {voiceName} is disallowed for usage'
+  disabled: TTS отключен
+  enabled: TTS включен
+  pitch: 'Глобальная подача: {globalPitch} | Ваша подача: {userPitch}'
+  change_pitch: 'Высота тона изменена на {newPitch}'
+  rate: 'Глобальный тариф: {globalRate} | Ваш тариф: {userRate}'
+  change_rate: 'Ставка изменена на {newRate}'
+  voice: 'Глобальный голос: {globalVoice} | Ваш голос: {userVoice}'
+  change_voice: Голос изменен на {newVoice}
+  no_voices: Голоса недоступны
+  current_volume: 'Текущий объем: {ttsVolume}'
+  change_volume: 'Объем TTS изменен на {userVolume}'
+  voice_disallowed: 'Голосовой {voiceName} запрещен для использования'
