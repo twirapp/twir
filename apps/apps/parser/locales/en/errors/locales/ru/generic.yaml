@@ -1,36 +1,36 @@
 # Generic
-something_went_wrong: 'Something went wrong, please try again later'
-twir_error: '[Twir error]: Unknown error happened. Please contact developers.'
-internal: '❌ Internal error'
+something_went_wrong: 'Что-то пошло не так, пожалуйста, повторите попытку позже'
+twir_error: '[Ошибка Twir]: Произошла неизвестная ошибка. Пожалуйста, свяжитесь с разработчиками.'
+internal: '❌ Внутренняя ошибка'
 # Broadcaster
-broadcaster_client: Cannot create broadcaster twitch client
+broadcaster_client: Не удается создать клиент twitch для трансляции
 # User
-cannot_find_user_db: Cannot find user in database
-cannot_find_user_twitch: Cannot find user on twitch
-cannot_find_users_twitch: Cannot find users on twitch
-cannot_create_twitch: Cannot create twitch client
-cannot_timeout_user: Cannot timeout user
-cannot_get_user: 'Cannot get user: {reason}'
-cannot_ban_user: Cannot ban user
-user_not_found: User not found
-getting_user_settings: Error while getting user settings
-updating_settings: Error while updating settings
-create_settings: Error while creating settings
-not_a_follower: Not a follower
+cannot_find_user_db: Не удается найти пользователя в базе данных
+cannot_find_user_twitch: Не удается найти пользователя на twitch
+cannot_find_users_twitch: Не удается найти пользователей на twitch
+cannot_create_twitch: Не удается создать клиент twitch
+cannot_timeout_user: Не удается истечь времени ожидания пользователя
+cannot_get_user: 'Не удается связаться с пользователем: {reason}'
+cannot_ban_user: Невозможно заблокировать пользователя
+user_not_found: Пользователь не найден
+getting_user_settings: Ошибка при получении пользовательских настроек
+updating_settings: Ошибка при обновлении настроек
+create_settings: Ошибка при создании настроек
+not_a_follower: Не подписан
 # Channel
-cannot_find_channel_db: Cannot find channel in database
-cannot_find_channel_twitch: 'Cannot find channel on twitch. {reason}'
-cannot_get_db_channel: Cannot get database channel
-getting_channel_settings: Error while getting channel settings
+cannot_find_channel_db: Не удается найти канал в базе данных
+cannot_find_channel_twitch: 'Не удается найти канал на twitch. {reason}'
+cannot_get_db_channel: Не удается получить доступ к каналу базы данных
+getting_channel_settings: Ошибка при получении настроек канала
 # Mention
-should_mention_with_at: You should tag user with @
+should_mention_with_at: Вы должны пометить пользователя с помощью @
 # Stream
-cannot_get_stream: 'Cannot get stream. {reason}'
+cannot_get_stream: 'Не удается получить поток. {reason}'
 # Moderator
-cannot_get_moderators: 'Cannot get moderators: {reason}'
+cannot_get_moderators: 'Не удается получить модераторов: {reason}'
 # Command
-cannot_get_accept_command_name: Cannot get accept command name
-cannot_create_command: Cannot create command
-cannot_get_command: Cannot get command
+cannot_get_accept_command_name: Не удается получить название команды
+cannot_create_command: Не удается создать команду
+cannot_get_command: Не удается получить команду
 # Message
-cannot_get_message: Cannot get messages
+cannot_get_message: Не удается получить сообщения
