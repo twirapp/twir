@@ -1,10 +1,10 @@
 info:
   # Watchtime
-  watching_stream: You're watching stream for {userWatching} hours
-  watching_stream_mentioned: "{userName} is watching stream for {userWatching} hours"
+  watching_stream: Вы смотрите трансляцию в течение нескольких часов {userWatching}
+  watching_stream_mentioned: "{userName} просматривает трансляцию в течение нескольких часов {userWatching}"
 me:
-  watched: "watched"
-  messages: "messages"
-  emotes: "used emotes"
-  points: "used points"
-  songs: "songs requests"
+  watched: "смотрели"
+  messages: "сообщения"
+  emotes: "использованные эмоции"
+  points: "использованные баллы"
+  songs: "запросы на песни"
