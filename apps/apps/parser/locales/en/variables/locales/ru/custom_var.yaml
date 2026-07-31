@@ -1,4 +1,4 @@
 errors:
-  wrong_numbers: 'Wrong number: {reason}'
-  update_custom_var: Cannot update custom variables
-  evaluate_variable: 'Cannot evaluate variable. This is internal error, please report this bug'
+  wrong_numbers: 'Неверный номер: {reason}'
+  update_custom_var: Не удается обновить пользовательские переменные
+  evaluate_variable: 'Не удается вычислить переменную. Это внутренняя ошибка, пожалуйста, сообщите об этой ошибке'
