@@ -2,6 +2,7 @@ package timers
 
 import (
 	"context"
+	stderrors "errors"
 	"fmt"
 	"strings"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
 	"github.com/twirapp/twir/libs/errors"
-	"github.com/twirapp/twir/libs/logger"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 )
 
@@ -108,14 +108,16 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (timersentity.Ti
 	}
 
 	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
-	if timer.Enabled {
-		if err := c.twirbus.Timers.AddTimer.Publish(ctx, timersReq); err != nil {
-			c.logger.Error("cannot publish add timer", logger.Error(err))
+	if err := c.timerLifecycle.Publish(ctx, timer.Enabled, timersReq); err != nil {
+		cleanupErr := c.timersRepository.Delete(ctx, timer.ID)
+		if cleanupErr != nil {
+			return timersentity.Nil, errors.NewInternalError(
+				"Failed to publish timer lifecycle event and delete timer",
+				stderrors.Join(err, cleanupErr),
+			)
 		}
-	} else {
-		if err := c.twirbus.Timers.RemoveTimer.Publish(ctx, timersReq); err != nil {
-			c.logger.Error("cannot publish remove timer", logger.Error(err))
-		}
+
+		return timersentity.Nil, errors.NewInternalError("Failed to publish timer lifecycle event", err)
 	}
 
 	_ = c.auditRecorder.RecordCreateOperation(

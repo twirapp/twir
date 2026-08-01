@@ -29,30 +29,33 @@ func TestImportCommandsCreatesNormalizedCommand(t *testing.T) {
 	commands := &fakeCommandCreator{}
 	service := newService(commands, &fakeTimerCreator{}, roles)
 
-	report, err := service.ImportCommands(context.Background(), "channel", "actor", []Command{{
-		Name:        "hello",
-		Response:    "world",
-		Enabled:     true,
-		Visible:     true,
-		IsReply:     true,
-		Aliases:     []string{"hi"},
-		Cooldown:    10,
-		Role:        RoleSubscriber,
-		OnlineOnly:  true,
-		OfflineOnly: false,
-	}})
+	report, err := service.ImportCommands(context.Background(), "channel", "actor", []Command{
+		{
+			Name:        "hello",
+			Response:    "world",
+			Enabled:     true,
+			Visible:     true,
+			IsReply:     true,
+			Aliases:     []string{"hi"},
+			Cooldown:    10,
+			Role:        RoleSubscriber,
+			OnlineOnly:  true,
+			OfflineOnly: false,
+		},
+		{Name: "owner", Response: "owner response", Role: RoleBroadcaster},
+	})
 	if err != nil {
 		t.Fatalf("ImportCommands() error = %v", err)
 	}
 
-	if want := (Report{ImportedCount: 1, Failures: []Failure{}}); !reflect.DeepEqual(report, want) {
+	if want := (Report{ImportedCount: 2, Failures: []Failure{}}); !reflect.DeepEqual(report, want) {
 		t.Fatalf("ImportCommands() report = %#v, want %#v", report, want)
 	}
 	if roles.calls != 1 {
 		t.Fatalf("role lookup calls = %d, want 1", roles.calls)
 	}
-	if len(commands.inputs) != 1 {
-		t.Fatalf("created commands = %d, want 1", len(commands.inputs))
+	if len(commands.inputs) != 2 {
+		t.Fatalf("created commands = %d, want 2", len(commands.inputs))
 	}
 
 	response := "world"
@@ -285,6 +288,24 @@ func TestImportTimersReportsDuplicateCreateFailure(t *testing.T) {
 	want := Report{FailedCount: 1, Failures: []Failure{{Name: "duplicate", Reason: FailureDuplicate}}}
 	if !reflect.DeepEqual(report, want) {
 		t.Fatalf("ImportTimers() report = %#v, want %#v", report, want)
+	}
+}
+
+func TestImportTimersReturnsInfrastructureErrorsImmediately(t *testing.T) {
+	t.Parallel()
+
+	timers := &fakeTimerCreator{errForName: map[string]error{"first": stderrors.New("timer repository unavailable")}}
+	service := newService(&fakeCommandCreator{}, timers, &fakeRoleLookup{})
+
+	_, err := service.ImportTimers(context.Background(), "channel", "actor", []Timer{
+		{Name: "first", Message: "one", OnlineEnabled: true, TimeInterval: 1, MessageInterval: 1},
+		{Name: "second", Message: "two", OnlineEnabled: true, TimeInterval: 1, MessageInterval: 1},
+	})
+	if !stderrors.Is(err, timers.errForName["first"]) {
+		t.Fatalf("ImportTimers() error = %v, want infrastructure error", err)
+	}
+	if got := len(timers.inputs); got != 1 {
+		t.Fatalf("creator calls = %d, want 1", got)
 	}
 }
 
