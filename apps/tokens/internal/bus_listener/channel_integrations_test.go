@@ -7,14 +7,16 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
+	config "github.com/twirapp/twir/libs/config"
 	channelsintegrations "github.com/twirapp/twir/libs/repositories/channels_integrations"
 	channelsintegrationsmodel "github.com/twirapp/twir/libs/repositories/channels_integrations/model"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	channelsintegrationsspotifymodel "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/model"
 	integrationsrepo "github.com/twirapp/twir/libs/repositories/integrations"
 	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
-	"github.com/google/uuid"
 )
 
 func TestRequestChannelIntegrationToken_SpotifyRefreshesViaTokensService(t *testing.T) {
@@ -53,7 +55,7 @@ func TestRequestChannelIntegrationToken_SpotifyRefreshesViaTokensService(t *test
 	}
 
 	impl := &tokensImpl{
-		httpClient:               server.Client(),
+		httpClient:              server.Client(),
 		spotifyIntegrationsRepo: spotifyRepo,
 		integrationsRepo: &fakeIntegrationsRepository{
 			integration: integrationsmodel.Integration{
@@ -62,7 +64,7 @@ func TestRequestChannelIntegrationToken_SpotifyRefreshesViaTokensService(t *test
 				ClientSecret: ptr("client-secret"),
 			},
 		},
-		newMutex: func(name string) lockableMutex { return fakeMutex{} },
+		newMutex:        func(name string) lockableMutex { return fakeMutex{} },
 		spotifyTokenURL: server.URL,
 	}
 
@@ -101,6 +103,10 @@ func TestRequestChannelIntegrationToken_NightbotRefreshesViaTokensService(t *tes
 		if r.Form.Get("refresh_token") != "nightbot-refresh" {
 			t.Fatalf("unexpected refresh token: %q", r.Form.Get("refresh_token"))
 		}
+		require.Equal(t,
+			"https://twir.test/dashboard/integrations/callbacks/nightbot",
+			r.Form.Get("redirect_uri"),
+		)
 
 		_, _ = w.Write([]byte(`{"access_token":"nightbot-access-new","refresh_token":"nightbot-refresh-new","expires_in":3600}`))
 	}))
@@ -117,7 +123,8 @@ func TestRequestChannelIntegrationToken_NightbotRefreshesViaTokensService(t *tes
 	}
 
 	impl := &tokensImpl{
-		httpClient:               server.Client(),
+		config:                  config.Config{SiteBaseUrl: "https://twir.test"},
+		httpClient:              server.Client(),
 		channelIntegrationsRepo: channelRepo,
 		integrationsRepo: &fakeIntegrationsRepository{
 			integration: integrationsmodel.Integration{
@@ -126,7 +133,7 @@ func TestRequestChannelIntegrationToken_NightbotRefreshesViaTokensService(t *tes
 				ClientSecret: ptr("nightbot-secret"),
 			},
 		},
-		newMutex: func(name string) lockableMutex { return fakeMutex{} },
+		newMutex:         func(name string) lockableMutex { return fakeMutex{} },
 		nightbotTokenURL: server.URL,
 	}
 

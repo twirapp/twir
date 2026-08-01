@@ -967,6 +967,11 @@ func (c *tokensImpl) requestNightbotChannelIntegrationToken(ctx context.Context,
 	formData.Set("client_id", *integration.ClientID)
 	formData.Set("client_secret", *integration.ClientSecret)
 	formData.Set("refresh_token", *channelIntegration.RefreshToken)
+	siteBaseURL, err := url.Parse(c.config.SiteBaseUrl)
+	if err != nil {
+		return tokens.TokenResponse{}, fmt.Errorf("parse site base URL for nightbot refresh: %w", err)
+	}
+	formData.Set("redirect_uri", siteBaseURL.JoinPath("dashboard", "integrations", "callbacks", "nightbot").String())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.nightbotTokenURL, strings.NewReader(formData.Encode()))
 	if err != nil {
