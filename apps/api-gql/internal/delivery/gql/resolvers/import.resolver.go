@@ -7,10 +7,14 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	model "github.com/twirapp/twir/libs/gomodels"
+	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 )
 
 // NightbotPostCode is the resolver for the nightbotPostCode field.
@@ -127,9 +131,65 @@ func (r *queryResolver) StreamelementsExchangeDataByCode(ctx context.Context, co
 
 // NightbotGetAuthLink is the resolver for the nightbotGetAuthLink field.
 func (r *queryResolver) NightbotGetAuthLink(ctx context.Context) (string, error) {
-	link, err := r.deps.NightbotIntegrationService.GetAuthLink(ctx)
+	sessions, ok := r.deps.Sessions.(nightbotOAuthSessions)
+	if !ok {
+		return "", gqlerrors.HandleError(fmt.Errorf("Nightbot OAuth session support is not configured"))
+	}
+
+	link, err := nightbotAuthLink(ctx, sessions, r.deps.NightbotIntegrationService)
 	if err != nil {
 		return "", gqlerrors.HandleError(err)
+	}
+
+	return link, nil
+}
+
+type nightbotOAuthSessions interface {
+	GetSelectedDashboard(context.Context) (string, error)
+	GetAuthenticatedUserModel(context.Context) (*model.Users, error)
+	CreateIntegrationOAuthAttempt(context.Context, integrationsmodel.Service, uuid.UUID, uuid.UUID) (string, error)
+}
+
+type nightbotAuthLinkService interface {
+	GetAuthLink(context.Context, string) (string, error)
+}
+
+func nightbotAuthLink(
+	ctx context.Context,
+	sessions nightbotOAuthSessions,
+	service nightbotAuthLinkService,
+) (string, error) {
+	dashboardID, err := sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return "", fmt.Errorf("get selected dashboard: %w", err)
+	}
+	parsedDashboardID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return "", fmt.Errorf("parse selected dashboard ID: %w", err)
+	}
+
+	user, err := sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return "", fmt.Errorf("get authenticated user: %w", err)
+	}
+	parsedUserID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return "", fmt.Errorf("parse authenticated user ID: %w", err)
+	}
+
+	state, err := sessions.CreateIntegrationOAuthAttempt(
+		ctx,
+		integrationsmodel.ServiceNightbot,
+		parsedDashboardID,
+		parsedUserID,
+	)
+	if err != nil {
+		return "", fmt.Errorf("create Nightbot OAuth attempt: %w", err)
+	}
+
+	link, err := service.GetAuthLink(ctx, state)
+	if err != nil {
+		return "", fmt.Errorf("get Nightbot authorization URL: %w", err)
 	}
 
 	return link, nil

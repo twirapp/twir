@@ -108,7 +108,11 @@ type ImportTimersResult struct {
 	FailedTimersNames []string
 }
 
-func (s *Service) GetAuthLink(ctx context.Context, states ...string) (string, error) {
+func (s *Service) GetAuthLink(ctx context.Context, state string) (string, error) {
+	if strings.TrimSpace(state) == "" {
+		return "", fmt.Errorf("nightbot OAuth state is required")
+	}
+
 	integration, err := s.integrationsRepo.GetByService(ctx, integrationsmodel.ServiceNightbot)
 	if err != nil {
 		return "", fmt.Errorf("failed to get integration: %w", err)
@@ -124,9 +128,7 @@ func (s *Service) GetAuthLink(ctx context.Context, states ...string) (string, er
 	query.Add("client_id", *integration.ClientID)
 	query.Add("scope", "commands commands_default timers regulars spam_protection")
 	query.Add("redirect_uri", *integration.RedirectURL)
-	if len(states) > 0 {
-		query.Add("state", states[0])
-	}
+	query.Add("state", state)
 	link.RawQuery = query.Encode()
 
 	return link.String(), nil

@@ -44,6 +44,22 @@ func TestGetAuthLinkEncodesProvidedState(t *testing.T) {
 	}
 }
 
+func TestGetAuthLinkRejectsBlankState(t *testing.T) {
+	t.Parallel()
+
+	clientID := "nightbot-client"
+	clientSecret := "nightbot-secret"
+	redirectURL := "https://twir.test/dashboard/integrations/callbacks/nightbot"
+	service := &Service{integrationsRepo: fakeIntegrationsRepository{integration: integrationsmodel.Integration{
+		ClientID:     &clientID,
+		ClientSecret: &clientSecret,
+		RedirectURL:  &redirectURL,
+	}}}
+	if _, err := service.GetAuthLink(context.Background(), " \t\n "); err == nil {
+		t.Fatal("GetAuthLink() error = nil, want empty state rejection")
+	}
+}
+
 func TestImportCommandsPrependsNormalizationFailuresToSharedImporterReport(t *testing.T) {
 	accessToken := "nightbot-access"
 	requests := 0
@@ -103,6 +119,65 @@ func TestImportCommandsPrependsNormalizationFailuresToSharedImporterReport(t *te
 	}
 }
 
+func TestImportTimersPrependsNormalizationFailuresToSharedImporterReport(t *testing.T) {
+	accessToken := "nightbot-access"
+	requests := 0
+	client := &http.Client{Transport: roundTripFunc(func(request *http.Request) (*http.Response, error) {
+		requests++
+		if got, want := request.URL.String(), "https://api.nightbot.tv/1/timers"; got != want {
+			t.Fatalf("request URL = %q, want %q", got, want)
+		}
+		if got, want := request.Header.Get("Authorization"), "Bearer nightbot-access"; got != want {
+			t.Fatalf("authorization = %q, want %q", got, want)
+		}
+
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Body: io.NopCloser(strings.NewReader(`{
+				"timers": [
+					{"name":"daily","message":"daily response","interval":"0 12 * * *","lines":1,"enabled":true},
+					{"name":"five","message":"five response","interval":"*/5 * * * *","lines":2,"enabled":true}
+				]
+			}`)),
+			Header: make(http.Header),
+		}, nil
+	})}
+	sharedImporter := &fakeSharedImporter{timerReport: importer.Report{
+		ImportedCount: 1,
+		FailedCount:   1,
+		Failures:      []importer.Failure{{Name: "five", Reason: importer.FailureDuplicate}},
+	}}
+	service := &Service{
+		httpClient: client,
+		importer:   sharedImporter,
+		channelIntegrationsRepo: fakeChannelIntegrationsRepository{integration: channelsintegrationsmodel.ChannelIntegration{
+			ID:          "nightbot-integration",
+			AccessToken: &accessToken,
+		}},
+	}
+
+	result, err := service.ImportTimers(context.Background(), "channel", "actor")
+	if err != nil {
+		t.Fatalf("ImportTimers() error = %v", err)
+	}
+	if want := (&ImportTimersResult{
+		ImportedCount:     1,
+		FailedCount:       2,
+		FailedTimersNames: []string{"daily", "five"},
+	}); !reflect.DeepEqual(result, want) {
+		t.Fatalf("ImportTimers() result = %#v, want %#v", result, want)
+	}
+	if want := ([]importer.Timer{{
+		Name: "five", Message: "five response", Enabled: true, OnlineEnabled: true,
+		TimeInterval: 5, MessageInterval: 2,
+	}}); !reflect.DeepEqual(sharedImporter.timers, want) {
+		t.Fatalf("shared importer timers = %#v, want %#v", sharedImporter.timers, want)
+	}
+	if got, want := requests, 1; got != want {
+		t.Fatalf("Nightbot timer requests = %d, want %d", got, want)
+	}
+}
+
 type fakeIntegrationsRepository struct {
 	integration integrationsmodel.Integration
 }
@@ -117,6 +192,8 @@ func (f fakeIntegrationsRepository) GetByService(
 type fakeSharedImporter struct {
 	commands      []importer.Command
 	commandReport importer.Report
+	timers        []importer.Timer
+	timerReport   importer.Report
 }
 
 func (f *fakeSharedImporter) ImportCommands(
@@ -131,9 +208,10 @@ func (f *fakeSharedImporter) ImportCommands(
 func (f *fakeSharedImporter) ImportTimers(
 	_ context.Context,
 	_, _ string,
-	_ []importer.Timer,
+	timers []importer.Timer,
 ) (importer.Report, error) {
-	return importer.Report{}, nil
+	f.timers = timers
+	return f.timerReport, nil
 }
 
 type fakeChannelIntegrationsRepository struct {
