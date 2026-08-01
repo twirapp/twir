@@ -54,7 +54,7 @@ type Timer struct {
 	} `json:"offline"`
 	Enabled   bool      `json:"enabled"`
 	ChatLines int       `json:"chatLines"`
-	Id        string    `json:"_id"`
+	ID        string    `json:"_id"`
 	Channel   string    `json:"channel"`
 	Name      string    `json:"name"`
 	Message   string    `json:"message"`

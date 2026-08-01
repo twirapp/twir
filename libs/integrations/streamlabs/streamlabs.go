@@ -1,4 +1,4 @@
-package streamelements
+package streamlabs
 
 import (
 	"bytes"
@@ -17,11 +17,12 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://api.streamelements.com"
-	providerName   = "streamelements"
+	defaultAPIBaseURL  = "https://streamlabs.com"
+	defaultAuthBaseURL = "https://www.streamlabs.com"
+	providerName       = "streamlabs"
 )
 
-var ErrUnauthorized = errors.New("streamelements unauthorized")
+var ErrUnauthorized = errors.New("streamlabs unauthorized")
 
 type Tokens struct {
 	AccessToken  string
@@ -33,10 +34,10 @@ type TokenStore interface {
 	UpdateTokens(ctx context.Context, channelID string, tokens Tokens) error
 }
 
-type Option func(*StreamElements)
+type Option func(*Streamlabs)
 
 func WithHTTPClient(client *http.Client) Option {
-	return func(s *StreamElements) {
+	return func(s *Streamlabs) {
 		if client != nil {
 			s.httpClient = client
 		}
@@ -44,12 +45,14 @@ func WithHTTPClient(client *http.Client) Option {
 }
 
 func WithBaseURL(baseURL string) Option {
-	return func(s *StreamElements) {
-		s.baseURL = strings.TrimRight(baseURL, "/")
+	return func(s *Streamlabs) {
+		baseURL = strings.TrimRight(baseURL, "/")
+		s.apiBaseURL = baseURL
+		s.authBaseURL = baseURL
 	}
 }
 
-type StreamElements struct {
+type Streamlabs struct {
 	clientID     string
 	clientSecret string
 	channelID    string
@@ -57,22 +60,21 @@ type StreamElements struct {
 	store        TokenStore
 	locker       oauthlock.Locker
 	httpClient   *http.Client
-	baseURL      string
+	apiBaseURL   string
+	authBaseURL  string
 
 	tokensMu sync.RWMutex
 	tokens   Tokens
 }
 
-func New(clientID, clientSecret string) *StreamElements {
-	return NewStatic(clientID, clientSecret)
-}
-
-func NewStatic(clientID, clientSecret string, opts ...Option) *StreamElements {
-	client := &StreamElements{
+func New(clientID, clientSecret, redirectURL string, opts ...Option) *Streamlabs {
+	client := &Streamlabs{
 		clientID:     clientID,
 		clientSecret: clientSecret,
+		redirectURL:  redirectURL,
 		httpClient:   &http.Client{Timeout: 15 * time.Second},
-		baseURL:      defaultBaseURL,
+		apiBaseURL:   defaultAPIBaseURL,
+		authBaseURL:  defaultAuthBaseURL,
 	}
 	for _, opt := range opts {
 		opt(client)
@@ -86,23 +88,22 @@ func NewAuthorized(
 	store TokenStore,
 	locker oauthlock.Locker,
 	opts ...Option,
-) *StreamElements {
-	client := NewStatic(clientID, clientSecret, opts...)
+) *Streamlabs {
+	client := New(clientID, clientSecret, redirectURL, opts...)
 	client.channelID = channelID
-	client.redirectURL = redirectURL
 	client.tokens = tokens
 	client.store = store
 	client.locker = locker
 	return client
 }
 
-func (s *StreamElements) GetAuthLink(redirectURL string, state ...string) string {
-	u, _ := url.Parse(s.baseURL + "/oauth2/authorize")
+func (s *Streamlabs) GetAuthLink(state ...string) string {
+	u, _ := url.Parse(s.authBaseURL + "/api/v2.0/authorize")
 	query := u.Query()
 	query.Set("client_id", s.clientID)
-	query.Set("redirect_uri", redirectURL)
+	query.Set("redirect_uri", s.redirectURL)
 	query.Set("response_type", "code")
-	query.Set("scope", "channel:read bot:read tips:read")
+	query.Set("scope", "socket.token donations.read")
 	if len(state) > 0 && state[0] != "" {
 		query.Set("state", state[0])
 	}
@@ -110,16 +111,13 @@ func (s *StreamElements) GetAuthLink(redirectURL string, state ...string) string
 	return u.String()
 }
 
-func (s *StreamElements) ExchangeCode(
-	ctx context.Context,
-	code, redirectURL string,
-) (*TokenResponse, error) {
+func (s *Streamlabs) ExchangeCode(ctx context.Context, code string) (*TokenResponse, error) {
 	form := url.Values{
 		"grant_type":    {"authorization_code"},
 		"client_id":     {s.clientID},
 		"client_secret": {s.clientSecret},
 		"code":          {code},
-		"redirect_uri":  {redirectURL},
+		"redirect_uri":  {s.redirectURL},
 	}
 
 	tokens := &TokenResponse{}
@@ -130,33 +128,23 @@ func (s *StreamElements) ExchangeCode(
 	return tokens, nil
 }
 
-func (s *StreamElements) GetProfile(ctx context.Context) (*UserProfile, error) {
+func (s *Streamlabs) GetProfile(ctx context.Context) (*UserProfile, error) {
 	profile := &UserProfile{}
-	if err := s.authorizedJSON(ctx, http.MethodGet, "/kappa/v2/channels/me", profile); err != nil {
+	if err := s.authorizedJSON(ctx, http.MethodGet, "/api/v2.0/user", profile); err != nil {
 		return nil, err
 	}
 	return profile, nil
 }
 
-func (s *StreamElements) GetCommands(ctx context.Context, channelID string) ([]Command, error) {
-	commands := make([]Command, 0)
-	path := fmt.Sprintf("/kappa/v2/bot/commands/%s", url.PathEscape(channelID))
-	if err := s.authorizedJSON(ctx, http.MethodGet, path, &commands); err != nil {
+func (s *Streamlabs) GetSocketToken(ctx context.Context) (*SocketTokenResponse, error) {
+	token := &SocketTokenResponse{}
+	if err := s.authorizedJSON(ctx, http.MethodGet, "/api/v2.0/socket/token", token); err != nil {
 		return nil, err
 	}
-	return commands, nil
+	return token, nil
 }
 
-func (s *StreamElements) GetTimers(ctx context.Context, channelID string) ([]Timer, error) {
-	timers := make([]Timer, 0)
-	path := fmt.Sprintf("/kappa/v2/bot/timers/%s", url.PathEscape(channelID))
-	if err := s.authorizedJSON(ctx, http.MethodGet, path, &timers); err != nil {
-		return nil, err
-	}
-	return timers, nil
-}
-
-func (s *StreamElements) authorizedJSON(
+func (s *Streamlabs) authorizedJSON(
 	ctx context.Context,
 	method, path string,
 	target any,
@@ -177,7 +165,7 @@ func (s *StreamElements) authorizedJSON(
 	err = s.locker.WithLock(ctx, s.lockKey(), func(ctx context.Context) error {
 		fresh, err := s.store.GetTokens(ctx, s.channelID)
 		if err != nil {
-			return fmt.Errorf("reread StreamElements tokens: %w", err)
+			return fmt.Errorf("reread Streamlabs tokens: %w", err)
 		}
 		if fresh.AccessToken != current.AccessToken {
 			current = fresh
@@ -193,7 +181,7 @@ func (s *StreamElements) authorizedJSON(
 			rotated.RefreshToken = fresh.RefreshToken
 		}
 		if err := s.store.UpdateTokens(ctx, s.channelID, rotated); err != nil {
-			return fmt.Errorf("persist StreamElements tokens: %w", err)
+			return fmt.Errorf("persist Streamlabs tokens: %w", err)
 		}
 		current = rotated
 		s.setTokens(rotated)
@@ -206,12 +194,13 @@ func (s *StreamElements) authorizedJSON(
 	return request(current.AccessToken)
 }
 
-func (s *StreamElements) refresh(ctx context.Context, refreshToken string) (Tokens, error) {
+func (s *Streamlabs) refresh(ctx context.Context, refreshToken string) (Tokens, error) {
 	form := url.Values{
 		"grant_type":    {"refresh_token"},
 		"client_id":     {s.clientID},
 		"client_secret": {s.clientSecret},
 		"refresh_token": {refreshToken},
+		"redirect_uri":  {s.redirectURL},
 	}
 	response := &TokenResponse{}
 	if err := s.postToken(ctx, form, "refresh token", response); err != nil {
@@ -220,7 +209,7 @@ func (s *StreamElements) refresh(ctx context.Context, refreshToken string) (Toke
 	return Tokens{AccessToken: response.AccessToken, RefreshToken: response.RefreshToken}, nil
 }
 
-func (s *StreamElements) postToken(
+func (s *Streamlabs) postToken(
 	ctx context.Context,
 	form url.Values,
 	operation string,
@@ -229,64 +218,64 @@ func (s *StreamElements) postToken(
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
-		s.baseURL+"/oauth2/token",
+		s.apiBaseURL+"/api/v2.0/token",
 		bytes.NewBufferString(form.Encode()),
 	)
 	if err != nil {
-		return fmt.Errorf("create StreamElements %s request: %w", operation, err)
+		return fmt.Errorf("create Streamlabs %s request: %w", operation, err)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	return s.doJSON(req, operation, target)
 }
 
-func (s *StreamElements) requestJSON(
+func (s *Streamlabs) requestJSON(
 	ctx context.Context,
 	method, path, accessToken string,
 	target any,
 ) error {
-	req, err := http.NewRequestWithContext(ctx, method, s.baseURL+path, nil)
+	req, err := http.NewRequestWithContext(ctx, method, s.apiBaseURL+path, nil)
 	if err != nil {
-		return fmt.Errorf("create StreamElements API request: %w", err)
+		return fmt.Errorf("create Streamlabs API request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 	return s.doJSON(req, "API request", target)
 }
 
-func (s *StreamElements) doJSON(req *http.Request, operation string, target any) error {
+func (s *Streamlabs) doJSON(req *http.Request, operation string, target any) error {
 	response, err := s.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("perform StreamElements %s: %w", operation, err)
+		return fmt.Errorf("perform Streamlabs %s: %w", operation, err)
 	}
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return fmt.Errorf("read StreamElements %s response: %w", operation, err)
+		return fmt.Errorf("read Streamlabs %s response: %w", operation, err)
 	}
 	if response.StatusCode == http.StatusUnauthorized {
 		return ErrUnauthorized
 	}
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return fmt.Errorf("StreamElements %s failed with status %d", operation, response.StatusCode)
+		return fmt.Errorf("Streamlabs %s failed with status %d", operation, response.StatusCode)
 	}
 	if err := json.Unmarshal(body, target); err != nil {
-		return fmt.Errorf("decode StreamElements %s response: %w", operation, err)
+		return fmt.Errorf("decode Streamlabs %s response: %w", operation, err)
 	}
 	return nil
 }
 
-func (s *StreamElements) currentTokens() Tokens {
+func (s *Streamlabs) currentTokens() Tokens {
 	s.tokensMu.RLock()
 	defer s.tokensMu.RUnlock()
 	return s.tokens
 }
 
-func (s *StreamElements) setTokens(tokens Tokens) {
+func (s *Streamlabs) setTokens(tokens Tokens) {
 	s.tokensMu.Lock()
 	defer s.tokensMu.Unlock()
 	s.tokens = tokens
 }
 
-func (s *StreamElements) lockKey() string {
+func (s *Streamlabs) lockKey() string {
 	return "twir:integration-token-refresh:" + providerName + ":" + s.channelID
 }

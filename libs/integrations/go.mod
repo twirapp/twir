@@ -4,6 +4,8 @@ go 1.26.0
 
 require (
 	github.com/Khan/genqlient v0.8.1
+	github.com/google/uuid v1.6.0
+	github.com/redis/go-redis/v9 v9.17.1
 	github.com/samber/lo v1.52.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twirapp/twir/libs/gomodels v0.0.0-20251127124349-67ad7fa0003f
@@ -21,11 +23,11 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
