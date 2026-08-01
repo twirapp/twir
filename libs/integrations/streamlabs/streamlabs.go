@@ -20,6 +20,7 @@ const (
 	defaultAPIBaseURL  = "https://streamlabs.com"
 	defaultAuthBaseURL = "https://www.streamlabs.com"
 	providerName       = "streamlabs"
+	maxResponseBytes   = int64(1 << 20)
 )
 
 var ErrUnauthorized = errors.New("streamlabs unauthorized")
@@ -248,15 +249,23 @@ func (s *Streamlabs) doJSON(req *http.Request, operation string, target any) err
 	}
 	defer response.Body.Close()
 
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return fmt.Errorf("read Streamlabs %s response: %w", operation, err)
-	}
 	if response.StatusCode == http.StatusUnauthorized {
 		return ErrUnauthorized
 	}
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return fmt.Errorf("Streamlabs %s failed with status %d", operation, response.StatusCode)
+	}
+
+	body, err := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
+	if err != nil {
+		return fmt.Errorf("read Streamlabs %s response: %w", operation, err)
+	}
+	if int64(len(body)) > maxResponseBytes {
+		return fmt.Errorf(
+			"Streamlabs %s response exceeds %d bytes",
+			operation,
+			maxResponseBytes,
+		)
 	}
 	if err := json.Unmarshal(body, target); err != nil {
 		return fmt.Errorf("decode Streamlabs %s response: %w", operation, err)

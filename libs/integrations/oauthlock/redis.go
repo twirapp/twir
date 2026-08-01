@@ -11,15 +11,23 @@ import (
 )
 
 const (
-	lockTTL      = 30 * time.Second
-	retryDelay   = 25 * time.Millisecond
-	releaseLimit = 5 * time.Second
+	lockTTL       = 30 * time.Second
+	renewInterval = 10 * time.Second
+	retryDelay    = 25 * time.Millisecond
+	releaseLimit  = 5 * time.Second
 )
 
 const releaseScript = `if redis.call("GET", KEYS[1]) == ARGV[1] then
 	return redis.call("DEL", KEYS[1])
 end
 return 0`
+
+const renewScript = `if redis.call("GET", KEYS[1]) == ARGV[1] then
+	return redis.call("PEXPIRE", KEYS[1], ARGV[2])
+end
+return 0`
+
+var ErrLockLost = errors.New("oauth refresh lock lost")
 
 type Locker interface {
 	WithLock(ctx context.Context, key string, fn func(context.Context) error) error
@@ -31,11 +39,19 @@ type RedisCommands interface {
 }
 
 type RedisLocker struct {
-	commands RedisCommands
+	commands      RedisCommands
+	renewInterval time.Duration
 }
 
 func NewRedis(commands RedisCommands) *RedisLocker {
-	return &RedisLocker{commands: commands}
+	return newRedis(commands, renewInterval)
+}
+
+func newRedis(commands RedisCommands, interval time.Duration) *RedisLocker {
+	return &RedisLocker{
+		commands:      commands,
+		renewInterval: interval,
+	}
 }
 
 func (l *RedisLocker) WithLock(
@@ -57,9 +73,7 @@ func (l *RedisLocker) WithLock(
 		).Text()
 		switch {
 		case err == nil:
-			callbackErr := fn(ctx)
-			releaseErr := l.release(ctx, key, owner)
-			return errors.Join(callbackErr, releaseErr)
+			return l.runCallback(ctx, key, owner, fn)
 		case !errors.Is(err, redis.Nil):
 			return fmt.Errorf("acquire OAuth refresh lock: %w", err)
 		}
@@ -74,6 +88,74 @@ func (l *RedisLocker) WithLock(
 		case <-timer.C:
 		}
 	}
+}
+
+func (l *RedisLocker) runCallback(
+	ctx context.Context,
+	key, owner string,
+	fn func(context.Context) error,
+) error {
+	callbackCtx, cancelCallback := context.WithCancelCause(ctx)
+	defer cancelCallback(nil)
+
+	callbackDone := make(chan error, 1)
+	go func() {
+		callbackDone <- fn(callbackCtx)
+	}()
+
+	ticker := time.NewTicker(l.renewInterval)
+	defer ticker.Stop()
+
+	finish := func(primaryErr, callbackErr error) error {
+		return errors.Join(primaryErr, callbackErr, l.release(ctx, key, owner))
+	}
+
+	for {
+		select {
+		case callbackErr := <-callbackDone:
+			return finish(nil, callbackErr)
+		default:
+		}
+
+		select {
+		case callbackErr := <-callbackDone:
+			return finish(nil, callbackErr)
+		case <-ctx.Done():
+			cancelCallback(context.Cause(ctx))
+			return finish(ctx.Err(), <-callbackDone)
+		case <-ticker.C:
+			if err := ctx.Err(); err != nil {
+				cancelCallback(context.Cause(ctx))
+				return finish(err, <-callbackDone)
+			}
+
+			renewed, err := l.renew(callbackCtx, key, owner)
+			if err == nil && renewed {
+				continue
+			}
+
+			cancelCallback(ErrLockLost)
+			callbackErr := <-callbackDone
+			if err != nil {
+				err = fmt.Errorf("renew OAuth refresh lock: %w", err)
+			}
+			return finish(errors.Join(ErrLockLost, err), callbackErr)
+		}
+	}
+}
+
+func (l *RedisLocker) renew(ctx context.Context, key, owner string) (bool, error) {
+	result, err := l.commands.Eval(
+		ctx,
+		renewScript,
+		[]string{key},
+		owner,
+		lockTTL.Milliseconds(),
+	).Int64()
+	if err != nil {
+		return false, err
+	}
+	return result == 1, nil
 }
 
 func (l *RedisLocker) release(ctx context.Context, key, owner string) error {

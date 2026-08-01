@@ -18,6 +18,11 @@ const expectedReleaseScript = `if redis.call("GET", KEYS[1]) == ARGV[1] then
 end
 return 0`
 
+const expectedRenewScript = `if redis.call("GET", KEYS[1]) == ARGV[1] then
+	return redis.call("PEXPIRE", KEYS[1], ARGV[2])
+end
+return 0`
+
 type fakeRedisCommands struct {
 	mu sync.Mutex
 
@@ -26,6 +31,7 @@ type fakeRedisCommands struct {
 	evalScripts []string
 	evalKeys    [][]string
 	evalArgs    [][]any
+	evalCtxErrs []error
 }
 
 func (f *fakeRedisCommands) Do(_ context.Context, args ...any) *redis.Cmd {
@@ -42,7 +48,7 @@ func (f *fakeRedisCommands) Do(_ context.Context, args ...any) *redis.Cmd {
 }
 
 func (f *fakeRedisCommands) Eval(
-	_ context.Context,
+	ctx context.Context,
 	script string,
 	keys []string,
 	args ...any,
@@ -53,6 +59,14 @@ func (f *fakeRedisCommands) Eval(
 	f.evalScripts = append(f.evalScripts, script)
 	f.evalKeys = append(f.evalKeys, append([]string(nil), keys...))
 	f.evalArgs = append(f.evalArgs, append([]any(nil), args...))
+	f.evalCtxErrs = append(f.evalCtxErrs, ctx.Err())
+
+	if script == expectedRenewScript {
+		if f.owner == args[0].(string) {
+			return redis.NewCmdResult(int64(1), nil)
+		}
+		return redis.NewCmdResult(int64(0), nil)
+	}
 
 	if f.owner == args[0].(string) {
 		f.owner = ""
@@ -60,6 +74,12 @@ func (f *fakeRedisCommands) Eval(
 	}
 
 	return redis.NewCmdResult(int64(0), nil)
+}
+
+func (f *fakeRedisCommands) evalContexts() []error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return append([]error(nil), f.evalCtxErrs...)
 }
 
 func (f *fakeRedisCommands) snapshot() ([][]any, []string, [][]string, [][]any, string) {
@@ -125,6 +145,13 @@ func TestRedisLockerUsesNXThirtySecondLeaseAndCompareDelete(t *testing.T) {
 	}
 	if owner != "" {
 		t.Fatalf("lock owner after release = %q, want empty", owner)
+	}
+}
+
+func TestNewRedisRenewsEveryTenSecondsByDefault(t *testing.T) {
+	locker := NewRedis(&fakeRedisCommands{})
+	if locker.renewInterval != 10*time.Second {
+		t.Fatalf("renew interval = %v, want 10s", locker.renewInterval)
 	}
 }
 
@@ -274,5 +301,239 @@ func TestRedisLockerReleasesAfterCallbackError(t *testing.T) {
 	}
 	if owner != "" {
 		t.Fatalf("lock owner after callback error = %q, want empty", owner)
+	}
+}
+
+type leaseRedisCommands struct {
+	mu sync.Mutex
+
+	owner        string
+	expiresAt    time.Time
+	testLease    time.Duration
+	renewCalls   int
+	renewNotify  chan struct{}
+	loseOnRenew  bool
+	renewErr     error
+	evalScripts  []string
+	renewKeys    [][]string
+	renewArgs    [][]any
+	releaseCalls int
+}
+
+func (f *leaseRedisCommands) Do(_ context.Context, args ...any) *redis.Cmd {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.owner != "" && time.Now().After(f.expiresAt) {
+		f.owner = ""
+	}
+	if f.owner != "" {
+		return redis.NewCmdResult(nil, redis.Nil)
+	}
+	f.owner = args[2].(string)
+	f.expiresAt = time.Now().Add(f.testLease)
+	return redis.NewCmdResult("OK", nil)
+}
+
+func (f *leaseRedisCommands) Eval(
+	_ context.Context,
+	script string,
+	keys []string,
+	args ...any,
+) *redis.Cmd {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.evalScripts = append(f.evalScripts, script)
+
+	if script == expectedRenewScript {
+		f.renewKeys = append(f.renewKeys, append([]string(nil), keys...))
+		f.renewArgs = append(f.renewArgs, append([]any(nil), args...))
+		f.renewCalls++
+		select {
+		case f.renewNotify <- struct{}{}:
+		default:
+		}
+		if f.renewErr != nil {
+			return redis.NewCmdResult(nil, f.renewErr)
+		}
+		if f.loseOnRenew {
+			f.owner = "replacement-owner"
+			return redis.NewCmdResult(int64(0), nil)
+		}
+		if f.owner == args[0].(string) && time.Now().Before(f.expiresAt) {
+			f.expiresAt = time.Now().Add(f.testLease)
+			return redis.NewCmdResult(int64(1), nil)
+		}
+		return redis.NewCmdResult(int64(0), nil)
+	}
+
+	f.releaseCalls++
+	if f.owner == args[0].(string) {
+		f.owner = ""
+		return redis.NewCmdResult(int64(1), nil)
+	}
+	return redis.NewCmdResult(int64(0), nil)
+}
+
+func (f *leaseRedisCommands) renewalContract() ([]string, []any) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return append([]string(nil), f.renewKeys[0]...), append([]any(nil), f.renewArgs[0]...)
+}
+
+func (f *leaseRedisCommands) snapshot() (int, []string, int) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.renewCalls, append([]string(nil), f.evalScripts...), f.releaseCalls
+}
+
+func TestRedisLockerRenewsLeaseWhileCallbackRuns(t *testing.T) {
+	commands := &leaseRedisCommands{
+		testLease:   40 * time.Millisecond,
+		renewNotify: make(chan struct{}, 32),
+	}
+	locker := newRedis(commands, 5*time.Millisecond)
+	firstEntered := make(chan struct{})
+	releaseFirst := make(chan struct{})
+	firstDone := make(chan error, 1)
+	go func() {
+		firstDone <- locker.WithLock(context.Background(), "shared", func(context.Context) error {
+			close(firstEntered)
+			<-releaseFirst
+			return nil
+		})
+	}()
+	<-firstEntered
+
+	for range 3 {
+		select {
+		case <-commands.renewNotify:
+		case <-time.After(time.Second):
+			t.Fatal("lease was not renewed")
+		}
+	}
+
+	secondEntered := false
+	secondCtx, cancelSecond := context.WithTimeout(context.Background(), 70*time.Millisecond)
+	defer cancelSecond()
+	err := locker.WithLock(secondCtx, "shared", func(context.Context) error {
+		secondEntered = true
+		return nil
+	})
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("second WithLock() error = %v, want deadline exceeded", err)
+	}
+	if secondEntered {
+		t.Fatal("second owner acquired while first callback lease was being renewed")
+	}
+	close(releaseFirst)
+	if err := <-firstDone; err != nil {
+		t.Fatalf("first WithLock() error = %v", err)
+	}
+
+	renewCalls, scripts, _ := commands.snapshot()
+	if renewCalls < 3 {
+		t.Fatalf("renew calls = %d, want at least 3", renewCalls)
+	}
+	if scripts[0] != expectedRenewScript {
+		t.Fatalf("renew script = %q, want exact owner-checked PEXPIRE", scripts[0])
+	}
+	renewKeys, renewArgs := commands.renewalContract()
+	if !reflect.DeepEqual(renewKeys, []string{"shared"}) {
+		t.Fatalf("renew keys = %#v, want [shared]", renewKeys)
+	}
+	if len(renewArgs) != 2 || renewArgs[0] == "" || renewArgs[1] != int64(30000) {
+		t.Fatalf("renew args = %#v, want owner and 30000ms lease", renewArgs)
+	}
+}
+
+func TestRedisLockerCancelsCallbackAndReturnsErrLockLostOnRenewalFailure(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		result *leaseRedisCommands
+	}{
+		{
+			name: "ownership changed",
+			result: &leaseRedisCommands{
+				testLease:   time.Second,
+				renewNotify: make(chan struct{}, 8),
+				loseOnRenew: true,
+			},
+		},
+		{
+			name: "redis renewal error",
+			result: &leaseRedisCommands{
+				testLease:   time.Second,
+				renewNotify: make(chan struct{}, 8),
+				renewErr:    errors.New("redis unavailable"),
+			},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			locker := newRedis(test.result, 5*time.Millisecond)
+			callbackStarted := make(chan struct{})
+			callbackExited := make(chan struct{})
+			cause := make(chan error, 1)
+			var persisted atomic.Bool
+
+			err := locker.WithLock(context.Background(), "shared", func(ctx context.Context) error {
+				close(callbackStarted)
+				defer close(callbackExited)
+				<-ctx.Done()
+				cause <- context.Cause(ctx)
+				if ctx.Err() == nil {
+					persisted.Store(true)
+				}
+				return ctx.Err()
+			})
+			if !errors.Is(err, ErrLockLost) {
+				t.Fatalf("WithLock() error = %v, want ErrLockLost", err)
+			}
+			select {
+			case <-callbackStarted:
+			default:
+				t.Fatal("callback did not start")
+			}
+			select {
+			case <-callbackExited:
+			default:
+				t.Fatal("WithLock() returned before callback exited")
+			}
+			if got := <-cause; !errors.Is(got, ErrLockLost) {
+				t.Fatalf("callback cancellation cause = %v, want ErrLockLost", got)
+			}
+			if persisted.Load() {
+				t.Fatal("callback continued into persistence after ownership loss")
+			}
+
+			renewCalls, _, _ := test.result.snapshot()
+			time.Sleep(20 * time.Millisecond)
+			after, _, _ := test.result.snapshot()
+			if after != renewCalls {
+				t.Fatalf("renew calls continued after return: before %d after %d", renewCalls, after)
+			}
+		})
+	}
+}
+
+func TestRedisLockerReleasesWithDetachedContextAfterCallerCancellation(t *testing.T) {
+	commands := &fakeRedisCommands{}
+	locker := NewRedis(commands)
+	ctx, cancel := context.WithCancel(context.Background())
+
+	err := locker.WithLock(ctx, "shared", func(callbackCtx context.Context) error {
+		cancel()
+		<-callbackCtx.Done()
+		return callbackCtx.Err()
+	})
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("WithLock() error = %v, want context canceled", err)
+	}
+
+	contexts := commands.evalContexts()
+	if len(contexts) != 1 {
+		t.Fatalf("Eval calls = %d, want one release", len(contexts))
+	}
+	if contexts[0] != nil {
+		t.Fatalf("release context error = %v, want live detached context", contexts[0])
 	}
 }

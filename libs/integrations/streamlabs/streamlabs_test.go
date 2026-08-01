@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,6 +14,25 @@ import (
 	"testing"
 	"time"
 )
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) {
+	return f(request)
+}
+
+type observedBody struct {
+	read bool
+}
+
+func (b *observedBody) Read([]byte) (int, error) {
+	b.read = true
+	return 0, errors.New("error response body must not be read")
+}
+
+func (b *observedBody) Close() error {
+	return nil
+}
 
 type fakeTokenStore struct {
 	mu sync.Mutex
@@ -201,6 +221,61 @@ func TestProviderErrorsDoNotExposeResponseBodies(t *testing.T) {
 		if strings.Contains(err.Error(), secretBody) {
 			t.Fatalf("ExchangeCode(%q) error leaked response body: %v", code, err)
 		}
+	}
+}
+
+func TestNon2xxResponseIsRejectedWithoutReadingProviderBody(t *testing.T) {
+	body := &observedBody{}
+	client := New(
+		"id",
+		"secret",
+		"callback",
+		WithHTTPClient(&http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusBadGateway,
+				Header:     make(http.Header),
+				Body:       body,
+			}, nil
+		})}),
+	)
+
+	_, err := client.ExchangeCode(context.Background(), "code")
+	if err == nil || !strings.Contains(err.Error(), "status 502") {
+		t.Fatalf("ExchangeCode() error = %v, want sanitized status error", err)
+	}
+	if body.read {
+		t.Fatal("ExchangeCode() read non-2xx provider body")
+	}
+}
+
+func TestSuccessfulResponseBodyIsCappedAtOneMiB(t *testing.T) {
+	const maxBody = 1 << 20
+	for _, test := range []struct {
+		name    string
+		size    int
+		wantErr bool
+	}{
+		{name: "exact limit", size: maxBody},
+		{name: "overflow", size: maxBody + 1, wantErr: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			prefix := `{"access_token":"access","refresh_token":"refresh"}`
+			body := prefix + strings.Repeat(" ", test.size-len(prefix))
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				_, _ = io.WriteString(w, body)
+			}))
+			defer server.Close()
+
+			client := New("id", "secret", "callback", WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+			_, err := client.ExchangeCode(context.Background(), "code")
+			if test.wantErr {
+				if err == nil || !strings.Contains(err.Error(), "exceeds 1048576 bytes") {
+					t.Fatalf("ExchangeCode() error = %v, want 1 MiB overflow error", err)
+				}
+			} else if err != nil {
+				t.Fatalf("ExchangeCode() error at exact limit = %v", err)
+			}
+		})
 	}
 }
 

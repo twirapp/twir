@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,6 +14,31 @@ import (
 	"testing"
 	"time"
 )
+
+type legacyAuthLinker interface {
+	GetAuthLink(redirectURL string) string
+}
+
+var _ legacyAuthLinker = (*StreamElements)(nil)
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) {
+	return f(request)
+}
+
+type observedBody struct {
+	read bool
+}
+
+func (b *observedBody) Read([]byte) (int, error) {
+	b.read = true
+	return 0, errors.New("error response body must not be read")
+}
+
+func (b *observedBody) Close() error {
+	return nil
+}
 
 type fakeTokenStore struct {
 	mu sync.Mutex
@@ -107,7 +133,10 @@ func TestStaticOAuthAuthorizationAndCodeExchange(t *testing.T) {
 		WithBaseURL(server.URL),
 		WithHTTPClient(server.Client()),
 	)
-	authLink := client.GetAuthLink("https://twir.example/callback", "csrf-state")
+	authLink, err := client.GetAuthLinkWithState("https://twir.example/callback", "csrf-state")
+	if err != nil {
+		t.Fatalf("GetAuthLinkWithState() error = %v", err)
+	}
 	parsed, err := url.Parse(authLink)
 	if err != nil {
 		t.Fatalf("Parse(auth link) error = %v", err)
@@ -142,6 +171,26 @@ func TestStaticOAuthAuthorizationAndCodeExchange(t *testing.T) {
 	}
 	if !reflect.DeepEqual(gotForm, wantForm) {
 		t.Fatalf("exchange form = %#v, want %#v", gotForm, wantForm)
+	}
+}
+
+func TestLegacyGetAuthLinkRetainsExactMethodSignature(t *testing.T) {
+	client := New("client-id", "client-secret")
+	var methodValue func(string) string = client.GetAuthLink
+	link := methodValue("https://twir.example/callback")
+	parsed, err := url.Parse(link)
+	if err != nil {
+		t.Fatalf("Parse(auth link) error = %v", err)
+	}
+	if parsed.Query().Get("state") != "" {
+		t.Fatalf("legacy auth link state = %q, want empty", parsed.Query().Get("state"))
+	}
+}
+
+func TestGetAuthLinkWithStateRejectsBlankState(t *testing.T) {
+	client := New("client-id", "client-secret")
+	if _, err := client.GetAuthLinkWithState("https://twir.example/callback", "   "); err == nil {
+		t.Fatal("GetAuthLinkWithState() error = nil, want blank-state rejection")
 	}
 }
 
@@ -218,6 +267,60 @@ func TestProviderErrorsDoNotExposeResponseBodies(t *testing.T) {
 		if strings.Contains(err.Error(), secretBody) {
 			t.Fatalf("ExchangeCode(%q) error leaked response body: %v", code, err)
 		}
+	}
+}
+
+func TestNon2xxResponseIsRejectedWithoutReadingProviderBody(t *testing.T) {
+	body := &observedBody{}
+	client := NewStatic(
+		"id",
+		"secret",
+		WithHTTPClient(&http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusBadGateway,
+				Header:     make(http.Header),
+				Body:       body,
+			}, nil
+		})}),
+	)
+
+	_, err := client.ExchangeCode(context.Background(), "code", "callback")
+	if err == nil || !strings.Contains(err.Error(), "status 502") {
+		t.Fatalf("ExchangeCode() error = %v, want sanitized status error", err)
+	}
+	if body.read {
+		t.Fatal("ExchangeCode() read non-2xx provider body")
+	}
+}
+
+func TestSuccessfulResponseBodyIsCappedAtOneMiB(t *testing.T) {
+	const maxBody = 1 << 20
+	for _, test := range []struct {
+		name    string
+		size    int
+		wantErr bool
+	}{
+		{name: "exact limit", size: maxBody},
+		{name: "overflow", size: maxBody + 1, wantErr: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			prefix := `{"access_token":"access","refresh_token":"refresh"}`
+			body := prefix + strings.Repeat(" ", test.size-len(prefix))
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				_, _ = io.WriteString(w, body)
+			}))
+			defer server.Close()
+
+			client := NewStatic("id", "secret", WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+			_, err := client.ExchangeCode(context.Background(), "code", "callback")
+			if test.wantErr {
+				if err == nil || !strings.Contains(err.Error(), "exceeds 1048576 bytes") {
+					t.Fatalf("ExchangeCode() error = %v, want 1 MiB overflow error", err)
+				}
+			} else if err != nil {
+				t.Fatalf("ExchangeCode() error at exact limit = %v", err)
+			}
+		})
 	}
 }
 

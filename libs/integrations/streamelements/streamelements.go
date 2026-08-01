@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://api.streamelements.com"
-	providerName   = "streamelements"
+	defaultBaseURL   = "https://api.streamelements.com"
+	providerName     = "streamelements"
+	maxResponseBytes = int64(1 << 20)
 )
 
 var ErrUnauthorized = errors.New("streamelements unauthorized")
@@ -96,15 +97,26 @@ func NewAuthorized(
 	return client
 }
 
-func (s *StreamElements) GetAuthLink(redirectURL string, state ...string) string {
+func (s *StreamElements) GetAuthLink(redirectURL string) string {
+	return s.authLink(redirectURL, "")
+}
+
+func (s *StreamElements) GetAuthLinkWithState(redirectURL, state string) (string, error) {
+	if strings.TrimSpace(state) == "" {
+		return "", errors.New("StreamElements OAuth state is required")
+	}
+	return s.authLink(redirectURL, state), nil
+}
+
+func (s *StreamElements) authLink(redirectURL, state string) string {
 	u, _ := url.Parse(s.baseURL + "/oauth2/authorize")
 	query := u.Query()
 	query.Set("client_id", s.clientID)
 	query.Set("redirect_uri", redirectURL)
 	query.Set("response_type", "code")
 	query.Set("scope", "channel:read bot:read tips:read")
-	if len(state) > 0 && state[0] != "" {
-		query.Set("state", state[0])
+	if state != "" {
+		query.Set("state", state)
 	}
 	u.RawQuery = query.Encode()
 	return u.String()
@@ -259,15 +271,23 @@ func (s *StreamElements) doJSON(req *http.Request, operation string, target any)
 	}
 	defer response.Body.Close()
 
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return fmt.Errorf("read StreamElements %s response: %w", operation, err)
-	}
 	if response.StatusCode == http.StatusUnauthorized {
 		return ErrUnauthorized
 	}
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return fmt.Errorf("StreamElements %s failed with status %d", operation, response.StatusCode)
+	}
+
+	body, err := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
+	if err != nil {
+		return fmt.Errorf("read StreamElements %s response: %w", operation, err)
+	}
+	if int64(len(body)) > maxResponseBytes {
+		return fmt.Errorf(
+			"StreamElements %s response exceeds %d bytes",
+			operation,
+			maxResponseBytes,
+		)
 	}
 	if err := json.Unmarshal(body, target); err != nil {
 		return fmt.Errorf("decode StreamElements %s response: %w", operation, err)
