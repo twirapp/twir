@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	apperrors "github.com/twirapp/twir/libs/errors"
 	model "github.com/twirapp/twir/libs/gomodels"
 	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 )
@@ -97,7 +97,12 @@ func (r *mutationResolver) NightbotImportTimers(ctx context.Context) (*gqlmodel.
 
 // StreamelementsGetAuthorizationURL is the resolver for the streamelementsGetAuthorizationUrl field.
 func (r *queryResolver) StreamelementsGetAuthorizationURL(ctx context.Context) (string, error) {
-	link, err := r.deps.StreamElementsService.GetAuthLink()
+	sessions, ok := r.deps.Sessions.(streamElementsOAuthSessions)
+	if !ok {
+		return "", gqlerrors.HandleError(fmt.Errorf("StreamElements OAuth session support is not configured"))
+	}
+
+	link, err := streamElementsAuthLink(ctx, sessions, r.deps.StreamElementsService)
 	if err != nil {
 		return "", gqlerrors.HandleError(err)
 	}
@@ -107,26 +112,9 @@ func (r *queryResolver) StreamelementsGetAuthorizationURL(ctx context.Context) (
 
 // StreamelementsExchangeDataByCode is the resolver for the streamelementsExchangeDataByCode field.
 func (r *queryResolver) StreamelementsExchangeDataByCode(ctx context.Context, code string) (*gqlmodel.StreamElementsImportDataOutput, error) {
-	data, err := r.deps.StreamElementsService.ExchangeDataByCode(ctx, code)
-	if err != nil {
-		return nil, gqlerrors.HandleError(err)
-	}
-
-	convertedCommands := make([]gqlmodel.StreamElementsCommand, 0, len(data.Commands))
-	convertedTimers := make([]gqlmodel.StreamElementsTimer, 0, len(data.Timers))
-
-	for _, cmd := range data.Commands {
-		convertedCommands = append(convertedCommands, mappers.StreamElementsCommandToGql(cmd))
-	}
-
-	for _, timer := range data.Timers {
-		convertedTimers = append(convertedTimers, mappers.StreamElementsTimerToGql(timer))
-	}
-
-	return &gqlmodel.StreamElementsImportDataOutput{
-		Commands: convertedCommands,
-		Timers:   convertedTimers,
-	}, nil
+	return nil, gqlerrors.HandleError(apperrors.NewBadRequestError(
+		"Legacy StreamElements exchange endpoint is disabled; use the state-bound authorization callback",
+	))
 }
 
 // NightbotGetAuthLink is the resolver for the nightbotGetAuthLink field.
@@ -152,6 +140,56 @@ type nightbotOAuthSessions interface {
 
 type nightbotAuthLinkService interface {
 	GetAuthLink(context.Context, string) (string, error)
+}
+
+type streamElementsOAuthSessions interface {
+	GetSelectedDashboard(context.Context) (string, error)
+	GetAuthenticatedUserModel(context.Context) (*model.Users, error)
+	CreateIntegrationOAuthAttempt(context.Context, integrationsmodel.Service, uuid.UUID, uuid.UUID) (string, error)
+}
+
+type streamElementsAuthLinkService interface {
+	GetAuthLink(context.Context, string) (string, error)
+}
+
+func streamElementsAuthLink(
+	ctx context.Context,
+	sessions streamElementsOAuthSessions,
+	service streamElementsAuthLinkService,
+) (string, error) {
+	dashboardID, err := sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return "", fmt.Errorf("get selected dashboard: %w", err)
+	}
+	parsedDashboardID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return "", fmt.Errorf("parse selected dashboard ID: %w", err)
+	}
+
+	user, err := sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return "", fmt.Errorf("get authenticated user: %w", err)
+	}
+	parsedUserID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return "", fmt.Errorf("parse authenticated user ID: %w", err)
+	}
+
+	state, err := sessions.CreateIntegrationOAuthAttempt(
+		ctx,
+		integrationsmodel.ServiceStreamElements,
+		parsedDashboardID,
+		parsedUserID,
+	)
+	if err != nil {
+		return "", fmt.Errorf("create StreamElements OAuth attempt: %w", err)
+	}
+
+	link, err := service.GetAuthLink(ctx, state)
+	if err != nil {
+		return "", fmt.Errorf("get StreamElements authorization URL: %w", err)
+	}
+	return link, nil
 }
 
 func nightbotAuthLink(

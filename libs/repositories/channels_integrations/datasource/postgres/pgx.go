@@ -87,6 +87,11 @@ func (p *Pgx) Create(
 	ctx context.Context,
 	input channelsintegrations.CreateInput,
 ) (model.ChannelIntegration, error) {
+	dataBytes, err := marshalData(input.Data)
+	if err != nil {
+		return model.Nil, fmt.Errorf("Create: failed to marshal data: %w", err)
+	}
+
 	query := sq.Insert("channels_integrations").
 		Columns(
 			`"channelId"`,
@@ -102,7 +107,7 @@ func (p *Pgx) Create(
 			input.Enabled,
 			input.AccessToken,
 			input.RefreshToken,
-			input.Data,
+			dataBytes,
 		).
 		Suffix(`RETURNING id, "channelId", "integrationId", enabled, "accessToken", "refreshToken", data->>'username' AS "userName", data->>'avatar' AS "avatar"`)
 
@@ -129,35 +134,9 @@ func (p *Pgx) Update(
 	id string,
 	input channelsintegrations.UpdateInput,
 ) error {
-	builder := sq.Update("channels_integrations").Where(squirrel.Eq{"id": id})
-
-	if input.Enabled != nil {
-		builder = builder.Set("enabled", *input.Enabled)
-	}
-	if input.AccessToken != nil {
-		builder = builder.Set(`"accessToken"`, *input.AccessToken)
-	}
-	if input.RefreshToken != nil {
-		builder = builder.Set(`"refreshToken"`, *input.RefreshToken)
-	}
-	if input.Data != nil {
-		data := map[string]any{}
-		if input.Data.UserName != nil {
-			data["username"] = *input.Data.UserName
-		}
-		if input.Data.Avatar != nil {
-			data["avatar"] = *input.Data.Avatar
-		}
-		dataBytes, err := json.Marshal(data)
-		if err != nil {
-			return fmt.Errorf("Update: failed to marshal data: %w", err)
-		}
-		builder = builder.Set("data", dataBytes)
-	}
-
-	sqlStr, args, err := builder.ToSql()
+	sqlStr, args, err := buildUpdateQuery(id, input)
 	if err != nil {
-		return fmt.Errorf("Update: failed to build query: %w", err)
+		return err
 	}
 
 	_, err = p.conn(ctx).Exec(ctx, sqlStr, args...)
@@ -166,6 +145,63 @@ func (p *Pgx) Update(
 	}
 
 	return nil
+}
+
+func buildUpdateQuery(
+	id string,
+	input channelsintegrations.UpdateInput,
+) (string, []any, error) {
+	if input.AccessToken != nil && input.ClearAccessToken {
+		return "", nil, fmt.Errorf("Update: access token cannot be set and cleared")
+	}
+	if input.RefreshToken != nil && input.ClearRefreshToken {
+		return "", nil, fmt.Errorf("Update: refresh token cannot be set and cleared")
+	}
+
+	builder := sq.Update("channels_integrations").Where(squirrel.Eq{"id": id})
+
+	if input.Enabled != nil {
+		builder = builder.Set("enabled", *input.Enabled)
+	}
+	if input.AccessToken != nil {
+		builder = builder.Set(`"accessToken"`, *input.AccessToken)
+	} else if input.ClearAccessToken {
+		builder = builder.Set(`"accessToken"`, squirrel.Expr("NULL"))
+	}
+	if input.RefreshToken != nil {
+		builder = builder.Set(`"refreshToken"`, *input.RefreshToken)
+	} else if input.ClearRefreshToken {
+		builder = builder.Set(`"refreshToken"`, squirrel.Expr("NULL"))
+	}
+	if input.Data != nil {
+		dataBytes, err := marshalData(input.Data)
+		if err != nil {
+			return "", nil, fmt.Errorf("Update: failed to marshal data: %w", err)
+		}
+		builder = builder.Set("data", dataBytes)
+	}
+
+	sqlStr, args, err := builder.ToSql()
+	if err != nil {
+		return "", nil, fmt.Errorf("Update: failed to build query: %w", err)
+	}
+
+	return sqlStr, args, nil
+}
+
+func marshalData(input *model.Data) ([]byte, error) {
+	if input == nil {
+		return nil, nil
+	}
+
+	data := map[string]any{}
+	if input.UserName != nil {
+		data["username"] = *input.UserName
+	}
+	if input.Avatar != nil {
+		data["avatar"] = *input.Avatar
+	}
+	return json.Marshal(data)
 }
 
 func (p *Pgx) rowToModel(row channelIntegrationRow) model.ChannelIntegration {

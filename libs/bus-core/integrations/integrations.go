@@ -12,6 +12,7 @@ const (
 	Streamlabs     Service = "STREAMLABS"
 	DonatePay      Service = "DONATEPAY"
 	Faceit         Service = "FACEIT"
+	StreamElements Service = "STREAMELEMENTS"
 )
 
 type Request struct {

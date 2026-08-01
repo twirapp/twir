@@ -49,7 +49,7 @@ func TimerEntityToGql(m timersentity.Timer) (gqlmodel.Timer, error) {
 
 func StreamElementsTimerToGql(m streamelements.Timer) gqlmodel.StreamElementsTimer {
 	return gqlmodel.StreamElementsTimer{
-		ID:        m.Id,
+		ID:        m.ID,
 		Name:      m.Name,
 		Enabled:   m.Enabled,
 		ChatLines: m.ChatLines,
