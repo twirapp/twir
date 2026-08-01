@@ -153,6 +153,12 @@ func TestNewRedisRenewsEveryTenSecondsByDefault(t *testing.T) {
 	if locker.renewInterval != 10*time.Second {
 		t.Fatalf("renew interval = %v, want 10s", locker.renewInterval)
 	}
+	if locker.renewTimeout != 5*time.Second {
+		t.Fatalf("renew timeout = %v, want 5s", locker.renewTimeout)
+	}
+	if locker.leaseWatchdog != 25*time.Second {
+		t.Fatalf("lease watchdog = %v, want 25s", locker.leaseWatchdog)
+	}
 }
 
 func TestRedisLockerGeneratesANewOwnerForEveryAcquisition(t *testing.T) {
@@ -535,5 +541,206 @@ func TestRedisLockerReleasesWithDetachedContextAfterCallerCancellation(t *testin
 	}
 	if contexts[0] != nil {
 		t.Fatalf("release context error = %v, want live detached context", contexts[0])
+	}
+}
+
+type stallingRenewRedisCommands struct {
+	mu sync.Mutex
+
+	owner         string
+	renewStarted  chan struct{}
+	renewExited   chan struct{}
+	startOnce     sync.Once
+	exitOnce      sync.Once
+	renewCalls    int
+	releaseCalls  int
+	releaseCtxErr error
+}
+
+func newStallingRenewRedisCommands() *stallingRenewRedisCommands {
+	return &stallingRenewRedisCommands{
+		renewStarted: make(chan struct{}),
+		renewExited:  make(chan struct{}),
+	}
+}
+
+func (f *stallingRenewRedisCommands) Do(_ context.Context, args ...any) *redis.Cmd {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.owner != "" {
+		return redis.NewCmdResult(nil, redis.Nil)
+	}
+	f.owner = args[2].(string)
+	return redis.NewCmdResult("OK", nil)
+}
+
+func (f *stallingRenewRedisCommands) Eval(
+	ctx context.Context,
+	script string,
+	_ []string,
+	args ...any,
+) *redis.Cmd {
+	if script == expectedRenewScript {
+		f.mu.Lock()
+		f.renewCalls++
+		f.mu.Unlock()
+		f.startOnce.Do(func() { close(f.renewStarted) })
+		<-ctx.Done()
+		f.exitOnce.Do(func() { close(f.renewExited) })
+		return redis.NewCmdResult(nil, ctx.Err())
+	}
+
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.releaseCalls++
+	f.releaseCtxErr = ctx.Err()
+	if f.owner == args[0].(string) {
+		f.owner = ""
+		return redis.NewCmdResult(int64(1), nil)
+	}
+	return redis.NewCmdResult(int64(0), nil)
+}
+
+func (f *stallingRenewRedisCommands) snapshot() (int, int, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.renewCalls, f.releaseCalls, f.releaseCtxErr
+}
+
+func TestRedisLockerRenewalDeadlineCancelsCallbackBeforeLeaseExpiry(t *testing.T) {
+	commands := newStallingRenewRedisCommands()
+	locker := newRedisWithTimings(commands, lockTimings{
+		renewInterval: 2 * time.Millisecond,
+		renewTimeout:  10 * time.Millisecond,
+		leaseWatchdog: 100 * time.Millisecond,
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Millisecond)
+	defer cancel()
+	cause := make(chan error, 1)
+
+	started := time.Now()
+	err := locker.WithLock(ctx, "shared", func(ctx context.Context) error {
+		<-ctx.Done()
+		cause <- context.Cause(ctx)
+		return ctx.Err()
+	})
+	if !errors.Is(err, ErrLockLost) {
+		t.Fatalf("WithLock() error = %v, want ErrLockLost", err)
+	}
+	if elapsed := time.Since(started); elapsed >= 100*time.Millisecond {
+		t.Fatalf("WithLock() elapsed = %v, renewal deadline did not return promptly", elapsed)
+	}
+	if got := <-cause; !errors.Is(got, ErrLockLost) {
+		t.Fatalf("callback cause = %v, want ErrLockLost", got)
+	}
+	select {
+	case <-commands.renewExited:
+	case <-time.After(time.Second):
+		t.Fatal("bounded renewal worker did not exit")
+	}
+	_, releases, releaseCtxErr := commands.snapshot()
+	if releases != 1 || releaseCtxErr != nil {
+		t.Fatalf("release = calls %d context error %v, want one detached release", releases, releaseCtxErr)
+	}
+}
+
+func TestRedisLockerWatchdogCancelsStalledRenewalBeforeLeaseExpiry(t *testing.T) {
+	commands := newStallingRenewRedisCommands()
+	locker := newRedisWithTimings(commands, lockTimings{
+		renewInterval: 2 * time.Millisecond,
+		renewTimeout:  120 * time.Millisecond,
+		leaseWatchdog: 20 * time.Millisecond,
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Millisecond)
+	defer cancel()
+	cause := make(chan error, 1)
+
+	started := time.Now()
+	err := locker.WithLock(ctx, "shared", func(ctx context.Context) error {
+		<-ctx.Done()
+		cause <- context.Cause(ctx)
+		return ctx.Err()
+	})
+	if !errors.Is(err, ErrLockLost) {
+		t.Fatalf("WithLock() error = %v, want ErrLockLost", err)
+	}
+	if elapsed := time.Since(started); elapsed >= 100*time.Millisecond {
+		t.Fatalf("WithLock() elapsed = %v, watchdog did not fire promptly", elapsed)
+	}
+	if got := <-cause; !errors.Is(got, ErrLockLost) {
+		t.Fatalf("callback cause = %v, want ErrLockLost", got)
+	}
+	select {
+	case <-commands.renewExited:
+	case <-time.After(time.Second):
+		t.Fatal("watchdog cancellation did not stop renewal worker")
+	}
+}
+
+func TestRedisLockerResetsWatchdogOnlyAfterConfirmedRenewal(t *testing.T) {
+	commands := &leaseRedisCommands{
+		testLease:   time.Second,
+		renewNotify: make(chan struct{}, 32),
+	}
+	locker := newRedisWithTimings(commands, lockTimings{
+		renewInterval: 5 * time.Millisecond,
+		renewTimeout:  20 * time.Millisecond,
+		leaseWatchdog: 50 * time.Millisecond,
+	})
+
+	err := locker.WithLock(context.Background(), "shared", func(context.Context) error {
+		for range 12 {
+			select {
+			case <-commands.renewNotify:
+			case <-time.After(time.Second):
+				return errors.New("confirmed renewal did not arrive")
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("WithLock() error = %v", err)
+	}
+	renewCalls, _, _ := commands.snapshot()
+	if renewCalls < 12 {
+		t.Fatalf("renew calls = %d, want at least 12 beyond initial watchdog window", renewCalls)
+	}
+}
+
+func TestRedisLockerObservesCallbackCompletionDuringStalledRenewal(t *testing.T) {
+	commands := newStallingRenewRedisCommands()
+	locker := newRedisWithTimings(commands, lockTimings{
+		renewInterval: 2 * time.Millisecond,
+		renewTimeout:  120 * time.Millisecond,
+		leaseWatchdog: 100 * time.Millisecond,
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Millisecond)
+	defer cancel()
+
+	started := time.Now()
+	err := locker.WithLock(ctx, "shared", func(context.Context) error {
+		<-commands.renewStarted
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("WithLock() error = %v", err)
+	}
+	if elapsed := time.Since(started); elapsed >= 100*time.Millisecond {
+		t.Fatalf("WithLock() elapsed = %v, callback completion was blocked by renewal", elapsed)
+	}
+
+	select {
+	case <-commands.renewExited:
+	case <-time.After(time.Second):
+		t.Fatal("canceled renewal worker leaked after callback completion")
+	}
+	renewCalls, releases, releaseCtxErr := commands.snapshot()
+	time.Sleep(15 * time.Millisecond)
+	after, _, _ := commands.snapshot()
+	if renewCalls != 1 || after != renewCalls {
+		t.Fatalf("renew calls = before %d after %d, want one stopped worker", renewCalls, after)
+	}
+	if releases != 1 || releaseCtxErr != nil {
+		t.Fatalf("release = calls %d context error %v, want one detached release", releases, releaseCtxErr)
 	}
 }

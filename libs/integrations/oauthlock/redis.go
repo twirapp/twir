@@ -11,10 +11,12 @@ import (
 )
 
 const (
-	lockTTL       = 30 * time.Second
-	renewInterval = 10 * time.Second
-	retryDelay    = 25 * time.Millisecond
-	releaseLimit  = 5 * time.Second
+	lockTTL               = 30 * time.Second
+	renewInterval         = 10 * time.Second
+	renewOperationTimeout = 5 * time.Second
+	leaseWatchdog         = 25 * time.Second
+	retryDelay            = 25 * time.Millisecond
+	releaseLimit          = 5 * time.Second
 )
 
 const releaseScript = `if redis.call("GET", KEYS[1]) == ARGV[1] then
@@ -41,16 +43,38 @@ type RedisCommands interface {
 type RedisLocker struct {
 	commands      RedisCommands
 	renewInterval time.Duration
+	renewTimeout  time.Duration
+	leaseWatchdog time.Duration
 }
 
 func NewRedis(commands RedisCommands) *RedisLocker {
-	return newRedis(commands, renewInterval)
+	return newRedisWithTimings(commands, lockTimings{
+		renewInterval: renewInterval,
+		renewTimeout:  renewOperationTimeout,
+		leaseWatchdog: leaseWatchdog,
+	})
 }
 
 func newRedis(commands RedisCommands, interval time.Duration) *RedisLocker {
+	return newRedisWithTimings(commands, lockTimings{
+		renewInterval: interval,
+		renewTimeout:  renewOperationTimeout,
+		leaseWatchdog: leaseWatchdog,
+	})
+}
+
+type lockTimings struct {
+	renewInterval time.Duration
+	renewTimeout  time.Duration
+	leaseWatchdog time.Duration
+}
+
+func newRedisWithTimings(commands RedisCommands, timings lockTimings) *RedisLocker {
 	return &RedisLocker{
 		commands:      commands,
-		renewInterval: interval,
+		renewInterval: timings.renewInterval,
+		renewTimeout:  timings.renewTimeout,
+		leaseWatchdog: timings.leaseWatchdog,
 	}
 }
 
@@ -104,9 +128,53 @@ func (l *RedisLocker) runCallback(
 	}()
 
 	ticker := time.NewTicker(l.renewInterval)
-	defer ticker.Stop()
+	watchdog := time.NewTimer(l.leaseWatchdog)
+
+	type renewalResult struct {
+		renewed bool
+		err     error
+	}
+	var (
+		renewalResults <-chan renewalResult
+		cancelRenewal  context.CancelFunc
+	)
+
+	startRenewal := func() {
+		if renewalResults != nil {
+			return
+		}
+
+		renewalCtx, cancel := context.WithTimeout(callbackCtx, l.renewTimeout)
+		results := make(chan renewalResult, 1)
+		renewalResults = results
+		cancelRenewal = cancel
+		go func() {
+			renewed, err := l.renew(renewalCtx, key, owner)
+			results <- renewalResult{renewed: renewed, err: err}
+		}()
+	}
+
+	stopRenewal := func() {
+		if cancelRenewal != nil {
+			cancelRenewal()
+		}
+		cancelRenewal = nil
+		renewalResults = nil
+	}
+
+	stopCoordination := func() {
+		stopRenewal()
+		ticker.Stop()
+		if !watchdog.Stop() {
+			select {
+			case <-watchdog.C:
+			default:
+			}
+		}
+	}
 
 	finish := func(primaryErr, callbackErr error) error {
+		stopCoordination()
 		return errors.Join(primaryErr, callbackErr, l.release(ctx, key, owner))
 	}
 
@@ -123,23 +191,39 @@ func (l *RedisLocker) runCallback(
 		case <-ctx.Done():
 			cancelCallback(context.Cause(ctx))
 			return finish(ctx.Err(), <-callbackDone)
-		case <-ticker.C:
-			if err := ctx.Err(); err != nil {
-				cancelCallback(context.Cause(ctx))
-				return finish(err, <-callbackDone)
+		case <-watchdog.C:
+			select {
+			case callbackErr := <-callbackDone:
+				return finish(nil, callbackErr)
+			default:
 			}
-
-			renewed, err := l.renew(callbackCtx, key, owner)
-			if err == nil && renewed {
+			cancelCallback(ErrLockLost)
+			return finish(ErrLockLost, <-callbackDone)
+		case <-ticker.C:
+			startRenewal()
+		case result := <-renewalResults:
+			stopRenewal()
+			select {
+			case callbackErr := <-callbackDone:
+				return finish(nil, callbackErr)
+			default:
+			}
+			if result.err == nil && result.renewed {
+				if !watchdog.Stop() {
+					select {
+					case <-watchdog.C:
+					default:
+					}
+				}
+				watchdog.Reset(l.leaseWatchdog)
 				continue
 			}
 
 			cancelCallback(ErrLockLost)
-			callbackErr := <-callbackDone
-			if err != nil {
-				err = fmt.Errorf("renew OAuth refresh lock: %w", err)
+			if result.err != nil {
+				result.err = fmt.Errorf("renew OAuth refresh lock: %w", result.err)
 			}
-			return finish(errors.Join(ErrLockLost, err), callbackErr)
+			return finish(errors.Join(ErrLockLost, result.err), <-callbackDone)
 		}
 	}
 }
