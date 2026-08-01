@@ -115,8 +115,7 @@ channel, and closes it on logout, disable, channel removal, or shutdown.
 The StreamElements client connects to `https://realtime.streamelements.com` with Socket.IO over the
 WebSocket transport and emits `authenticate` with OAuth2 and the channel access token. It accepts
 only `event` messages whose type is `tip`, normalizes the donor name, amount, currency, message, and
-provider event ID, and passes them through the existing `onDonation` path. Test events use the same
-normalizer but remain distinguishable where the provider marks them as tests.
+provider event ID, and passes them through the existing `onDonation` path.
 
 The existing Streamlabs socket flow is retained but moved behind the same lifecycle boundary. It
 derives a socket token from the OAuth access token and normalizes donation events into the existing
@@ -240,7 +239,8 @@ Frontend Vitest coverage verifies:
 - command and timer loading, success, partial success, and error states;
 - permission-disabled actions;
 - callback success and failure behavior;
-- Streamlabs unavailable content and absence of import/login actions.
+- Streamlabs connected/disconnected donation state, unavailable import content, login/logout, and
+  absence of import/settings actions.
 
 Final verification runs GraphQL generation, Go tests for affected modules, scoped dashboard Vitest,
 web typecheck, lint for touched code, and relevant backend/web builds.
