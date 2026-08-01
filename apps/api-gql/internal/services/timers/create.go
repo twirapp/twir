@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -55,7 +56,19 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (timersentity.Ti
 	if createdCount >= plan.MaxTimers {
 		return timersentity.Nil, errors.NewBadRequestError(
 			fmt.Sprintf("You have reached the maximum limit of %v timers", plan.MaxTimers),
-		)
+		).WithDetails(map[string]any{"reason": "PLAN_LIMIT"})
+	}
+
+	existingTimers, err := c.timersRepository.GetAllByChannelID(ctx, data.ChannelID)
+	if err != nil {
+		return timersentity.Nil, errors.NewInternalError("Failed to get timers", err)
+	}
+	for _, timer := range existingTimers {
+		if strings.EqualFold(timer.Name, data.Name) {
+			return timersentity.Nil, errors.NewConflictError(
+				"A timer with this name already exists",
+			).WithDetails(map[string]any{"reason": "DUPLICATE"})
+		}
 	}
 
 	responses := make([]timersrepository.CreateResponse, 0, len(data.Responses))
