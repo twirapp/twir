@@ -103,8 +103,8 @@ Lock timeout, provider rejection, or persistence failure leaves the current conn
 and surfaces a sanitized operational error; it never erases a known-good refresh token.
 
 Only custom channel commands and timers are fetched. Default StreamElements commands are excluded.
-The minimal OAuth scopes are `channel:read` and `bot:read` unless the provider rejects that set in
-contract tests against documented behavior.
+The OAuth scopes are `channel:read`, `bot:read`, and `tips:read`: the first two cover profile/import
+data and the last one covers realtime donation events. No write scope is requested.
 
 ### Realtime donations
 
