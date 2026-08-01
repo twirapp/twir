@@ -225,6 +225,24 @@ func (s *Auth) ConsumeIntegrationOAuthAttempt(
 	channelID, initiatorUserID uuid.UUID,
 	now time.Time,
 ) error {
+	claimStore, ok := s.sessionManager.Store.(oauthAttemptClaimStore)
+	if !ok {
+		return fmt.Errorf("oauth attempt claim store is not configured")
+	}
+	claimed, err := claimStore.ClaimOAuthAttempt(ctx, state)
+	if err != nil {
+		return fmt.Errorf("claim OAuth attempt: %w", err)
+	}
+	if !claimed {
+		return fmt.Errorf("%w: %s", ErrOAuthAttemptNotFound, state)
+	}
+	consumed := false
+	defer func() {
+		if !consumed {
+			_ = claimStore.ReleaseOAuthAttempt(ctx, state)
+		}
+	}()
+
 	attempt, err := s.GetOAuthAttempt(ctx, state)
 	if err != nil {
 		return err
@@ -240,7 +258,12 @@ func (s *Auth) ConsumeIntegrationOAuthAttempt(
 		return ErrOAuthAttemptExpired
 	}
 
-	return s.DeleteOAuthAttempt(ctx, state)
+	if err := s.DeleteOAuthAttempt(ctx, state); err != nil {
+		return err
+	}
+
+	consumed = true
+	return nil
 }
 
 func (s *Auth) oauthAttempts(ctx context.Context) map[string]OAuthAttempt {

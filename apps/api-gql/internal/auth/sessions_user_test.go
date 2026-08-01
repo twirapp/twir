@@ -3,10 +3,12 @@ package auth
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/entities/platform"
 	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
@@ -65,8 +67,7 @@ func TestOAuthAttemptKeepsPKCEAndCallbackDeviceIDInSession(t *testing.T) {
 }
 
 func TestIntegrationOAuthAttemptConsumesStateOnlyOnce(t *testing.T) {
-	registerSessionTypes()
-	sessionManager := scs.New()
+	sessionManager, _ := newOAuthAttemptTestSessionManager()
 	ctx, err := sessionManager.Load(context.Background(), "")
 	if err != nil {
 		t.Fatalf("load session: %v", err)
@@ -157,8 +158,7 @@ func TestIntegrationOAuthAttemptRejectsMismatchedBindingsAndExpiry(t *testing.T)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			registerSessionTypes()
-			sessionManager := scs.New()
+			sessionManager, _ := newOAuthAttemptTestSessionManager()
 			ctx, err := sessionManager.Load(context.Background(), "")
 			if err != nil {
 				t.Fatalf("load session: %v", err)
@@ -201,4 +201,123 @@ func TestIntegrationOAuthAttemptRejectsMismatchedBindingsAndExpiry(t *testing.T)
 			}
 		})
 	}
+}
+
+func TestIntegrationOAuthAttemptConsumesConcurrentStateOnlyOnce(t *testing.T) {
+	sessionManager, store := newOAuthAttemptTestSessionManager()
+	ctx, err := sessionManager.Load(context.Background(), "")
+	if err != nil {
+		t.Fatalf("load initial session: %v", err)
+	}
+	auth := &Auth{sessionManager: sessionManager}
+	channelID := uuid.New()
+	userID := uuid.New()
+	state, err := auth.CreateIntegrationOAuthAttempt(ctx, integrationsmodel.ServiceNightbot, channelID, userID)
+	if err != nil {
+		t.Fatalf("create integration OAuth attempt: %v", err)
+	}
+
+	token := sessionManager.Token(ctx)
+	firstCtx, err := sessionManager.Load(context.Background(), token)
+	if err != nil {
+		t.Fatalf("load first callback session: %v", err)
+	}
+	secondCtx, err := sessionManager.Load(context.Background(), token)
+	if err != nil {
+		t.Fatalf("load second callback session: %v", err)
+	}
+	store.blockNextCommit()
+
+	firstResult := make(chan error, 1)
+	go func() {
+		firstResult <- auth.ConsumeIntegrationOAuthAttempt(
+			firstCtx,
+			state,
+			integrationsmodel.ServiceNightbot,
+			channelID,
+			userID,
+			time.Now(),
+		)
+	}()
+
+	<-store.commitStarted
+	secondErr := auth.ConsumeIntegrationOAuthAttempt(
+		secondCtx,
+		state,
+		integrationsmodel.ServiceNightbot,
+		channelID,
+		userID,
+		time.Now(),
+	)
+	store.allowCommit <- struct{}{}
+	firstErr := <-firstResult
+
+	if firstErr != nil {
+		t.Fatalf("first concurrent consume: %v", firstErr)
+	}
+	if !errors.Is(secondErr, ErrOAuthAttemptNotFound) {
+		t.Fatalf("second concurrent consume error = %v, want ErrOAuthAttemptNotFound", secondErr)
+	}
+}
+
+type oauthAttemptTestStore struct {
+	*memstore.MemStore
+
+	mu              sync.Mutex
+	claimed         map[string]struct{}
+	shouldBlockNext bool
+	commitStarted   chan struct{}
+	allowCommit     chan struct{}
+}
+
+func newOAuthAttemptTestSessionManager() (*scs.SessionManager, *oauthAttemptTestStore) {
+	registerSessionTypes()
+	store := &oauthAttemptTestStore{
+		MemStore:      memstore.New(),
+		claimed:       make(map[string]struct{}),
+		commitStarted: make(chan struct{}, 1),
+		allowCommit:   make(chan struct{}, 1),
+	}
+	sessionManager := scs.New()
+	sessionManager.Store = store
+
+	return sessionManager, store
+}
+
+func (s *oauthAttemptTestStore) Commit(token string, b []byte, expiry time.Time) error {
+	s.mu.Lock()
+	shouldBlock := s.shouldBlockNext
+	s.shouldBlockNext = false
+	s.mu.Unlock()
+	if shouldBlock {
+		s.commitStarted <- struct{}{}
+		<-s.allowCommit
+	}
+
+	return s.MemStore.Commit(token, b, expiry)
+}
+
+func (s *oauthAttemptTestStore) ClaimOAuthAttempt(_ context.Context, state string) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, ok := s.claimed[state]; ok {
+		return false, nil
+	}
+
+	s.claimed[state] = struct{}{}
+	return true, nil
+}
+
+func (s *oauthAttemptTestStore) ReleaseOAuthAttempt(_ context.Context, state string) error {
+	s.mu.Lock()
+	delete(s.claimed, state)
+	s.mu.Unlock()
+
+	return nil
+}
+
+func (s *oauthAttemptTestStore) blockNextCommit() {
+	s.mu.Lock()
+	s.shouldBlockNext = true
+	s.mu.Unlock()
 }
