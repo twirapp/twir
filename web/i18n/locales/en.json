@@ -64,7 +64,8 @@
     "create": "Create",
     "edit": "Edit",
     "noData": "No data",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "show": "Show"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -97,7 +98,8 @@
     "darkTheme": "Dark Theme",
     "lightTheme": "Light Theme",
     "notifications": "Notifications",
-    "giveaways": "Giveaways"
+    "giveaways": "Giveaways",
+    "quotes": "Quotes"
   },
   "mcpGuide": {
     "title": "AI access",
@@ -1845,5 +1847,21 @@
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot and Fossabot are trademarks of their respective owners. Twir is not affiliated with or endorsed by them. Feature data is based on public information and may change over time."
+  },
+  "quotes": {
+    "title": "Quotes",
+    "create": "Create quote",
+    "edit": "Edit quote",
+    "text": "Quote",
+    "number": "Number",
+    "creator": "Creator",
+    "game": "Game",
+    "createdAt": "Created at",
+    "deleteConfirmation": "Are you sure you want to delete this quote?",
+    "created": "Quote created",
+    "updated": "Quote updated",
+    "deleted": "Quote deleted",
+    "errorOnSave": "Unable to save quote",
+    "errorOnDelete": "Unable to delete quote"
   }
 }

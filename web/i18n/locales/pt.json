@@ -94,7 +94,8 @@
     "darkTheme": "Tema Escuro",
     "lightTheme": "Tema Claro",
     "notifications": "Notificações",
-    "giveaways": "Sorteios"
+    "giveaways": "Sorteios",
+    "quotes": "Citações"
   },
   "deleteConfirmation": {
     "text": "Você tem certeza que quer excluir isso?",
@@ -1521,5 +1522,21 @@
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot e Fossabot são marcas de seus respectivos proprietários. O Twir não é afiliado a eles nem tem seu endosso. Os dados de recursos são baseados em informações públicas e podem mudar com o tempo."
+  },
+  "quotes": {
+    "title": "Citações",
+    "create": "Criar citação",
+    "edit": "Editar citação",
+    "text": "Citação",
+    "number": "Número",
+    "creator": "Criador",
+    "game": "Jogo",
+    "createdAt": "Criado em",
+    "deleteConfirmation": "Tem certeza de que deseja excluir esta citação?",
+    "created": "Citação criada",
+    "updated": "Citação atualizada",
+    "deleted": "Citação excluída",
+    "errorOnSave": "Não foi possível salvar a citação",
+    "errorOnDelete": "Não foi possível excluir a citação"
   }
 }

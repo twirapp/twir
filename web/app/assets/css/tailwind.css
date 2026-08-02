@@ -7,8 +7,6 @@
 @source "@twir/frontend-valorant-stats/";
 @source "@twir/frontend-chat/";
 @source not "../../../i18n/locales/";
-@source not "../../../locales/";
-@source not "../../../layers/dashboard/locales/";
 @source not "../../../layers/dashboard/assets/";
 
 @custom-variant dark (&:is(.dark *));
