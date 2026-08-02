@@ -94,7 +94,8 @@
     "darkTheme": "Tmavá téma",
     "lightTheme": "Svetlá téma",
     "notifications": "Notifikácie",
-    "giveaways": "Giveawaye"
+    "giveaways": "Giveawaye",
+    "quotes": "Citáty"
   },
   "deleteConfirmation": {
     "text": "Naozaj to chceš odstrániť?",
@@ -1521,5 +1522,21 @@
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot a Fossabot sú ochranné známky ich príslušných vlastníkov. Twir s nimi nie je spojený ani schválený. Údaje o funkciách vychádzajú z verejných informácií a môžu sa časom meniť."
+  },
+  "quotes": {
+    "title": "Citáty",
+    "create": "Vytvoriť citát",
+    "edit": "Upraviť citát",
+    "text": "Citát",
+    "number": "Číslo",
+    "creator": "Autor",
+    "game": "Hra",
+    "createdAt": "Vytvorené",
+    "deleteConfirmation": "Naozaj chcete tento citát odstrániť?",
+    "created": "Citát vytvorený",
+    "updated": "Citát aktualizovaný",
+    "deleted": "Citát odstránený",
+    "errorOnSave": "Citát sa nepodarilo uložiť",
+    "errorOnDelete": "Citát sa nepodarilo odstrániť"
   }
 }

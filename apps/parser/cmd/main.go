@@ -62,6 +62,7 @@ import (
 	userswithstatspostgres "github.com/twirapp/twir/libs/repositories/userswithstats/datasource/postgres"
 	vkintegrationpostgres "github.com/twirapp/twir/libs/repositories/vk_integration/datasource/postgres"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
+	"github.com/twirapp/twir/libs/uptime"
 
 	shortenedurlspgx "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 
@@ -222,6 +223,14 @@ func main() {
 		},
 	)
 	defer redisClient.Close()
+	uptimeReporter, err := uptime.NewReporter(
+		redisClient,
+		uptime.ReporterOpts{ServiceName: "parser"},
+	)
+	if err != nil {
+		panic(fmt.Errorf("create uptime reporter: %w", err))
+	}
+	uptimeReporter.Start(appCtx)
 
 	redisClient.Conn()
 

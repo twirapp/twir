@@ -184,3 +184,21 @@ func (r *queryResolver) ChannelPlatformOptions(ctx context.Context) ([]gqlmodel.
 
 	return result, nil
 }
+
+// ChannelAPIKey is the resolver for the channelApiKey field.
+func (r *queryResolver) ChannelAPIKey(ctx context.Context) (string, error) {
+	dashboardID, err := r.selectedChannelPlatformDashboard(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	channel, err := r.deps.ChannelService.GetChannelByID(ctx, dashboardID)
+	if err != nil {
+		return "", fmt.Errorf("get selected channel: %w", err)
+	}
+	if channel.IsNil() || channel.ApiKey == nil || *channel.ApiKey == "" {
+		return "", fmt.Errorf("selected channel has no API key")
+	}
+
+	return *channel.ApiKey, nil
+}

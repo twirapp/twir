@@ -157,6 +157,24 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Pastebi
 	return c.mapToEntity(bin), nil
 }
 
+func (c *Service) Update(
+	ctx context.Context,
+	id string,
+	content string,
+	expireAt *time.Time,
+) (entity.Pastebin, error) {
+	bin, err := c.repo.Update(ctx, id, pastebins.UpdateInput{Content: content, ExpireAt: expireAt})
+	if err != nil {
+		return entity.PastebinNil, err
+	}
+
+	if err := c.kv.Delete(ctx, makeKvStoreKey(id)); err != nil && !errors.Is(err, redis.Nil) {
+		return entity.PastebinNil, err
+	}
+
+	return c.mapToEntity(bin), nil
+}
+
 type GetManyInput struct {
 	Page        int
 	PerPage     int

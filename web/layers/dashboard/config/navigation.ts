@@ -181,6 +181,7 @@ export interface FooterNavigationItem {
 	showNotificationsBadge?: boolean
 	isPublicPageDependent?: boolean // Shows only if public page is available
 	computedHref?: () => string // For dynamic hrefs like hastebin
+	requiresManageBotSettings?: boolean
 }
 
 export const footerNavigationItems: FooterNavigationItem[] = [
@@ -201,6 +202,12 @@ export const footerNavigationItems: FooterNavigationItem[] = [
 		icon: 'lucide:bell',
 		href: '/dashboard/notifications',
 		showNotificationsBadge: true,
+	},
+	{
+		name: 'MCP',
+		icon: 'lucide:bot',
+		href: '/dashboard/mcp',
+		requiresManageBotSettings: true,
 	},
 	{
 		translationKey: 'sidebar.publicPage',

@@ -26,6 +26,7 @@ require (
 	github.com/scorfly/gokick v1.17.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/tidwall/gjson v1.18.0
+	github.com/twirapp/twir/libs/uptime v0.0.0-20260730153723-d75d97e0affa
 	github.com/valyala/fasttemplate v1.2.2
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	go.uber.org/zap v1.27.1
@@ -86,3 +87,5 @@ require (
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/twirapp/twir/libs/uptime => ../../libs/uptime

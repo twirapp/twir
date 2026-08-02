@@ -9,3 +9,11 @@ me:
   emotes: "used emotes"
   points: "used points"
   songs: "songs requests"
+
+botuptime:
+  services: "services"
+  down: "down"
+  recently_restarted: "recently restarted"
+  ping: "pings"
+  no_data: "{services} data is {unavailable}"
+  unavailable: "unavailable"

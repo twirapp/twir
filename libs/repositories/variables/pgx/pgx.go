@@ -167,9 +167,12 @@ func (c *Pgx) Update(
 		return model.Nil, err
 	}
 
-	_, err = c.pool.Query(ctx, query, args...)
+	result, err := c.pool.Exec(ctx, query, args...)
 	if err != nil {
 		return model.Nil, err
+	}
+	if result.RowsAffected() != 1 {
+		return model.Nil, variables.ErrNotFound
 	}
 
 	return c.GetByID(ctx, id)
