@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/kvizyx/twitchy/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
@@ -35,9 +36,33 @@ type createConduitResponse struct {
 	Data []conduitsResponseConduit `json:"data"`
 }
 
-func (c *Manager) createConduit() error {
-	ctx := context.TODO()
+func (c *Manager) runStartup(ctx context.Context) {
+	for {
+		if err := c.createConduit(ctx); err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 
+			c.logger.Error("failed to ensure conduit, will retry", logger.Error(err))
+
+			timer := time.NewTimer(5 * time.Second)
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return
+			case <-timer.C:
+			}
+
+			continue
+		}
+
+		break
+	}
+
+	c.startWebSocket(ctx)
+}
+
+func (c *Manager) createConduit(ctx context.Context) error {
 	conduit, err := c.ensureConduit(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to ensure conduit: %w", err)
@@ -72,7 +97,7 @@ func (c *Manager) createConduit() error {
 
 func (c *Manager) ensureConduit(ctx context.Context) (*conduitsResponseConduit, error) {
 	mu := c.redSync.NewMutex("eventsub:conduits")
-	err := mu.Lock()
+	err := mu.LockContext(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to lock conduits mutex: %w", err)
 	}
@@ -216,9 +241,9 @@ func (c *Manager) twitchCreateConduit(ctx context.Context) (*conduitsResponseCon
 
 func (c *Manager) twitchUpdateConduitShard(ctx context.Context) error {
 	mu := c.redSync.NewMutex("eventsub:shard:update")
-	err := mu.Lock()
+	err := mu.LockContext(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to lock conduits mutex: %w", err)
+		return fmt.Errorf("failed to lock shard update mutex: %w", err)
 	}
 	defer mu.Unlock()
 

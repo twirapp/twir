@@ -47,6 +47,9 @@ type Manager struct {
 
 	wsCurrentSessionId *string
 	currentConduit     *conduitsResponseConduit
+
+	workerCancel context.CancelFunc
+	workerDone   chan struct{}
 }
 
 type Opts struct {
@@ -80,6 +83,8 @@ func NewManager(opts Opts) (*Manager, error) {
 		apiBaseUrl = "https://api.twitch.tv"
 	}
 
+	workerCtx, workerCancel := context.WithCancel(context.Background())
+
 	manager := &Manager{
 		config:             opts.Config,
 		logger:             opts.Logger,
@@ -96,17 +101,29 @@ func NewManager(opts Opts) (*Manager, error) {
 		wsOpts:             wsOpts,
 		wsCurrentSessionId: nil,
 		currentConduit:     nil,
+		workerCancel:       workerCancel,
+		workerDone:         make(chan struct{}),
 	}
 
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				if err := manager.createConduit(); err != nil {
-					return err
-				}
-				go manager.startWebSocket()
+				go func() {
+					defer close(manager.workerDone)
+					manager.runStartup(workerCtx)
+				}()
 
 				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				workerCancel()
+
+				select {
+				case <-manager.workerDone:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
 			},
 		},
 	)

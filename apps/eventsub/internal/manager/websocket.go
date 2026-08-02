@@ -12,8 +12,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (c *Manager) startWebSocket() {
-	wsCtx := context.TODO()
+func (c *Manager) startWebSocket(ctx context.Context) {
 	wsOptions := append([]eventsub.WebsocketOption{eventsub.WebsocketWithKeepalive(30)}, c.wsOpts...)
 	ws := c.eventsub.Websocket(wsOptions...)
 
@@ -93,7 +92,15 @@ func (c *Manager) startWebSocket() {
 	ws.OnChannelModerateV2(wrapWsEventsubHandlerWithCtx(c.handler.HandleChannelModerateV2))
 
 	for {
-		if err := ws.Connect(wsCtx); err != nil {
+		if ctx.Err() != nil {
+			return
+		}
+
+		if err := ws.Connect(ctx); err != nil {
+			if ctx.Err() != nil {
+				return
+			}
+
 			c.logger.Error("websocket connection failed", logger.Error(err))
 		}
 
@@ -101,7 +108,11 @@ func (c *Manager) startWebSocket() {
 			c.logger.Warn("websocket disconnection failed", logger.Error(err))
 		}
 
-		time.Sleep(1 * time.Second)
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(1 * time.Second):
+		}
 	}
 }
 
