@@ -8,3 +8,10 @@ me:
   emotes: "використано емодзі"
   points: "використанні бали"
   songs: "запити пісень"
+botuptime:
+  services: "services"
+  down: "down"
+  recently_restarted: "recently restarted"
+  ping: "pings"
+  no_data: "{services} data is {unavailable}"
+  unavailable: "unavailable"
