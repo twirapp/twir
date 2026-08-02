@@ -36,7 +36,7 @@ func TestNormalizeCommandsConvertsSupportedStreamElementsCommands(t *testing.T) 
 			Aliases: []string{}, Role: importer.RoleSubscriber, OfflineOnly: true,
 		},
 		{
-			Name: "vip", Response: "vip response", Visible: true,
+			Name: "vip", Response: "/me vip response", Visible: true,
 			Aliases: []string{}, Role: importer.RoleVip,
 		},
 		{
@@ -82,6 +82,39 @@ func TestNormalizeCommandsReportsUnsupportedRolesAndResponseTypes(t *testing.T) 
 	}
 	if !reflect.DeepEqual(failures, wantFailures) {
 		t.Fatalf("NormalizeCommands() failures = %#v, want %#v", failures, wantFailures)
+	}
+}
+
+func TestNormalizeCommandsPreservesActionsAndDisablesCommandsWithNoActiveMode(t *testing.T) {
+	t.Parallel()
+
+	input := []streamelementsintegration.Command{
+		{
+			Name: "action", Response: "waves", Enabled: true, AccessLevel: 100,
+			EnabledOnline: true, EnabledOffline: true, Type: "action",
+		},
+		{
+			Name: "no-mode", Response: "hidden response", Enabled: true,
+			AccessLevel: 100, Type: "say",
+		},
+	}
+
+	got, failures := NormalizeCommands(input)
+	want := []importer.Command{
+		{
+			Name: "action", Response: "/me waves", Enabled: true, Visible: true,
+			Aliases: []string{}, Role: importer.RoleEveryone,
+		},
+		{
+			Name: "no-mode", Response: "hidden response", Enabled: false, Visible: true,
+			Aliases: []string{}, Role: importer.RoleEveryone,
+		},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("NormalizeCommands() commands = %#v, want %#v", got, want)
+	}
+	if len(failures) != 0 {
+		t.Fatalf("NormalizeCommands() failures = %#v, want none", failures)
 	}
 }
 

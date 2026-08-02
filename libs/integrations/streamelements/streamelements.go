@@ -308,5 +308,9 @@ func (s *StreamElements) setTokens(tokens Tokens) {
 }
 
 func (s *StreamElements) lockKey() string {
-	return "twir:integration-token-refresh:" + providerName + ":" + s.channelID
+	return RefreshLockKey(s.channelID)
+}
+
+func RefreshLockKey(channelID string) string {
+	return "twir:integration-token-refresh:" + providerName + ":" + channelID
 }

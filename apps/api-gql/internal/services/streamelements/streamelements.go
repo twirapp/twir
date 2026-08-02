@@ -255,25 +255,45 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 }
 
 func (s *Service) Logout(ctx context.Context, channelID string) error {
-	channelIntegration, err := s.channelIntegrationsRepo.GetByChannelAndService(
+	found := false
+	err := s.locker.WithLock(
 		ctx,
-		channelID,
-		integrationsmodel.ServiceStreamElements,
+		streamelementsintegration.RefreshLockKey(channelID),
+		func(lockCtx context.Context) error {
+			channelIntegration, err := s.channelIntegrationsRepo.GetByChannelAndService(
+				lockCtx,
+				channelID,
+				integrationsmodel.ServiceStreamElements,
+			)
+			if err != nil {
+				return fmt.Errorf("get StreamElements integration: %w", err)
+			}
+			if channelIntegration.IsNil() || channelIntegration.ID == "" {
+				return nil
+			}
+
+			found = true
+			if err := s.channelIntegrationsRepo.Update(
+				lockCtx,
+				channelIntegration.ID,
+				channelsintegrations.UpdateInput{
+					Enabled:           lo.ToPtr(false),
+					ClearAccessToken:  true,
+					ClearRefreshToken: true,
+					Data:              &channelsintegrationsmodel.Data{},
+				},
+			); err != nil {
+				return fmt.Errorf("disable StreamElements integration: %w", err)
+			}
+
+			return nil
+		},
 	)
 	if err != nil {
-		return fmt.Errorf("get StreamElements integration: %w", err)
+		return fmt.Errorf("lock StreamElements logout: %w", err)
 	}
-	if channelIntegration.IsNil() || channelIntegration.ID == "" {
+	if !found {
 		return nil
-	}
-
-	if err := s.channelIntegrationsRepo.Update(ctx, channelIntegration.ID, channelsintegrations.UpdateInput{
-		Enabled:           lo.ToPtr(false),
-		ClearAccessToken:  true,
-		ClearRefreshToken: true,
-		Data:              &channelsintegrationsmodel.Data{},
-	}); err != nil {
-		return fmt.Errorf("disable StreamElements integration: %w", err)
 	}
 
 	if err := s.events.PublishRemove(ctx, busintegrations.Request{
@@ -376,7 +396,7 @@ func (s *Service) UpdateTokens(
 	if err != nil {
 		return fmt.Errorf("get StreamElements integration for token update: %w", err)
 	}
-	if channelIntegration.IsNil() || channelIntegration.ID == "" {
+	if channelIntegration.IsNil() || channelIntegration.ID == "" || !channelIntegration.Enabled {
 		return fmt.Errorf("StreamElements integration is not connected")
 	}
 	if tokens.AccessToken == "" || tokens.RefreshToken == "" {

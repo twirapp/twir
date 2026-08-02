@@ -2,9 +2,12 @@ package streamelements
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"reflect"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/importer"
@@ -234,7 +237,10 @@ func TestImportsComposeNormalizationAndSharedImporterReports(t *testing.T) {
 	client := &fakeProviderClient{
 		profile: &streamelementsintegration.UserProfile{ID: "provider-channel"},
 		commands: []streamelementsintegration.Command{
-			{Name: "command", Response: "response", Enabled: true, AccessLevel: 100, Type: "say"},
+			{
+				Name: "command", Response: "response", Enabled: true, AccessLevel: 100,
+				EnabledOnline: true, EnabledOffline: true, Type: "say",
+			},
 			{Name: "regular", Response: "regular response", Enabled: true, AccessLevel: 300, Type: "say"},
 		},
 		timers: []streamelementsintegration.Timer{timer, badTimer},
@@ -337,6 +343,75 @@ func TestTokenStoreRejectsDisabledIntegration(t *testing.T) {
 
 	if _, err := service.GetTokens(context.Background(), "channel"); err == nil {
 		t.Fatal("GetTokens() error = nil, want disabled integration rejection")
+	}
+	if err := service.UpdateTokens(context.Background(), "channel", streamelementsintegration.Tokens{
+		AccessToken: "new-access", RefreshToken: "new-refresh",
+	}); err == nil {
+		t.Fatal("UpdateTokens() error = nil, want disabled integration rejection")
+	}
+}
+
+func TestLogoutSerializesWithRefreshAndLeavesCredentialsCleared(t *testing.T) {
+	t.Parallel()
+
+	repo := &fakeChannelIntegrationsRepository{integration: channelsintegrationsmodel.ChannelIntegration{
+		ID: "channel-integration", ChannelID: "channel", Enabled: true,
+		AccessToken: lo.ToPtr("access"), RefreshToken: lo.ToPtr("refresh"),
+	}}
+	locker := &serialTestLocker{
+		expectedKey: "twir:integration-token-refresh:streamelements:channel",
+		called:      make(chan string, 1),
+	}
+	service := testService(t, repo, nil, nil, nil)
+	service.locker = locker
+
+	locker.mu.Lock()
+	locked := true
+	defer func() {
+		if locked {
+			locker.mu.Unlock()
+		}
+	}()
+	logoutDone := make(chan error, 1)
+	go func() {
+		logoutDone <- service.Logout(context.Background(), "channel")
+	}()
+
+	select {
+	case got := <-locker.called:
+		if got != locker.expectedKey {
+			locker.mu.Unlock()
+			t.Fatalf("Logout() lock key = %q, want %q", got, locker.expectedKey)
+		}
+	case err := <-logoutDone:
+		locker.mu.Unlock()
+		t.Fatalf("Logout() completed without acquiring refresh lock: %v", err)
+	case <-time.After(time.Second):
+		locker.mu.Unlock()
+		t.Fatal("Logout() did not attempt to acquire refresh lock")
+	}
+	select {
+	case err := <-logoutDone:
+		t.Fatalf("Logout() completed while refresh lock held: %v", err)
+	default:
+	}
+
+	if err := service.UpdateTokens(context.Background(), "channel", streamelementsintegration.Tokens{
+		AccessToken: "rotated-access", RefreshToken: "rotated-refresh",
+	}); err != nil {
+		t.Fatalf("simulated refresh UpdateTokens() error = %v", err)
+	}
+	locker.mu.Unlock()
+	locked = false
+
+	if err := <-logoutDone; err != nil {
+		t.Fatalf("Logout() error = %v", err)
+	}
+	if repo.integration.Enabled {
+		t.Fatal("stored integration enabled = true, want false")
+	}
+	if repo.integration.AccessToken != nil || repo.integration.RefreshToken != nil {
+		t.Fatalf("stored tokens = (%v, %v), want nil", repo.integration.AccessToken, repo.integration.RefreshToken)
 	}
 }
 
@@ -535,6 +610,22 @@ func (f *fakeIntegrationEvents) PublishRemove(_ context.Context, request businte
 type fakeLocker struct{}
 
 func (fakeLocker) WithLock(ctx context.Context, _ string, fn func(context.Context) error) error {
+	return fn(ctx)
+}
+
+type serialTestLocker struct {
+	mu          sync.Mutex
+	expectedKey string
+	called      chan string
+}
+
+func (l *serialTestLocker) WithLock(ctx context.Context, key string, fn func(context.Context) error) error {
+	l.called <- key
+	if key != l.expectedKey {
+		return fmt.Errorf("unexpected lock key %q", key)
+	}
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	return fn(ctx)
 }
 

@@ -68,9 +68,11 @@ StreamElements permission mapping is conservative:
 Nightbot keeps its current supported role mapping. Nightbot `admin` and `regular`, and unknown
 provider levels, remain explicit failed items.
 
-StreamElements `reply` becomes a Twir reply. `say` and `action` become normal responses because Twir
-has no distinct action response. Whisper/custom response types that cannot be represented fail the
-item. Hidden commands are imported as not visible. Online/offline flags are retained on the response.
+StreamElements `reply` becomes a Twir reply. `say` becomes a normal response. `action` is prefixed
+with `/me ` because Twir's Twitch sender preserves that action syntax. Whisper/custom response types
+that cannot be represented fail the item. Hidden commands are imported as not visible. Online/offline
+flags are retained on the response; an enabled provider command with neither mode enabled is imported
+disabled instead of becoming unintentionally unrestricted.
 
 ### Normalized timer
 

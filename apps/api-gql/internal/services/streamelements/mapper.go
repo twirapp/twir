@@ -1,6 +1,8 @@
 package streamelements
 
 import (
+	"strings"
+
 	"github.com/twirapp/twir/apps/api-gql/internal/services/importer"
 	streamelementsintegration "github.com/twirapp/twir/libs/integrations/streamelements"
 )
@@ -32,10 +34,15 @@ func NormalizeCommands(input []streamelementsintegration.Command) ([]importer.Co
 			aliases = []string{}
 		}
 
+		response := command.Response
+		if command.Type == "action" && !strings.HasPrefix(response, "/me ") {
+			response = "/me " + response
+		}
+
 		commands = append(commands, importer.Command{
 			Name:        command.Name,
-			Response:    command.Response,
-			Enabled:     command.Enabled,
+			Response:    response,
+			Enabled:     command.Enabled && (command.EnabledOnline || command.EnabledOffline),
 			Visible:     !command.Hidden,
 			IsReply:     isReply,
 			Aliases:     aliases,

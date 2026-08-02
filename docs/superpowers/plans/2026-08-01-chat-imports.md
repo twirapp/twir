@@ -296,7 +296,10 @@ git commit -m "feat(integrations): own provider token refresh"
 
 - [ ] **Step 1: Write failing StreamElements mapper tests**
 
-Assert access levels `100/250/300/400/500/1000+`, aliases, cooldown, visibility, reply/say/action handling, unsupported response types, online/offline command flags, one-mode timers, equal dual-mode timers, and incompatible intervals.
+Assert access levels `100/250/300/400/500/1000+`, aliases, cooldown, visibility, reply/say handling,
+`action` preservation through a `/me ` prefix, unsupported response types, online/offline command
+flags, disabling when neither mode is active, one-mode timers, equal dual-mode timers, and
+incompatible intervals.
 
 - [ ] **Step 2: Implement normalization and verify GREEN**
 
@@ -622,14 +625,14 @@ git commit -m "refactor(integrations): harden Streamlabs socket"
 - Delete: `web/layers/dashboard/pages/import/streamlabs.vue`
 - Modify: `web/layers/dashboard/api/integrations/integrations-page.ts`
 - Modify: `web/layers/dashboard/api/integrations/integrations.ts`
-- Modify: `web/layers/dashboard/locales/de.json`
-- Modify: `web/layers/dashboard/locales/en.json`
-- Modify: `web/layers/dashboard/locales/es.json`
-- Modify: `web/layers/dashboard/locales/ja.json`
-- Modify: `web/layers/dashboard/locales/pt.json`
-- Modify: `web/layers/dashboard/locales/ru.json`
-- Modify: `web/layers/dashboard/locales/sk.json`
-- Modify: `web/layers/dashboard/locales/uk.json`
+- Modify: `web/i18n/locales/de.json`
+- Modify: `web/i18n/locales/en.json`
+- Modify: `web/i18n/locales/es.json`
+- Modify: `web/i18n/locales/ja.json`
+- Modify: `web/i18n/locales/pt.json`
+- Modify: `web/i18n/locales/ru.json`
+- Modify: `web/i18n/locales/sk.json`
+- Modify: `web/i18n/locales/uk.json`
 - Regenerate: `web/gql/gql.ts`
 - Regenerate: `web/gql/graphql.ts`
 
@@ -676,7 +679,7 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add web/layers/dashboard/features/import web/layers/dashboard/pages/dashboard/import.vue web/layers/dashboard/pages/dashboard/integrations/callbacks/streamelements.vue web/layers/dashboard/pages/import web/layers/dashboard/api/integrations web/layers/dashboard/locales web/gql
+git add web/layers/dashboard/features/import web/layers/dashboard/pages/dashboard/import.vue web/layers/dashboard/pages/dashboard/integrations/callbacks/streamelements.vue web/layers/dashboard/pages/import web/layers/dashboard/api/integrations web/i18n/locales web/gql
 git commit -m "feat(web): connect imports and donations"
 ```
 
