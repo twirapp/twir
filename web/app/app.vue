@@ -3,6 +3,7 @@ import { DISCORD_INVITE_URL, GITHUB_ORG_URL, GITHUB_REPOSITORY_URL } from '@twir
 import 'vue-sonner/style.css'
 import { Toaster } from '@/components/ui/sonner'
 
+import { useAutoUpdate } from './composables/use-auto-update'
 import { ogEnMessages } from './utils/og-en-messages'
 
 interface OgImageRoute {
@@ -48,6 +49,8 @@ if (ogImageRoute && import.meta.server) {
 } else if (import.meta.server) {
 	defineOgImage('Twir', undefined, { url: metaImg })
 }
+
+useAutoUpdate()
 
 const i18nHead = useLocaleHead({ seo: true })
 useHead(() => ({

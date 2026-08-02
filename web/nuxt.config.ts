@@ -93,6 +93,7 @@ export default defineNuxtConfig({
 		'@nuxtjs/i18n',
 		'@nuxtjs/seo',
 		'@nuxtjs/fontaine',
+		'@plugin-web-update-notification/nuxt',
 	],
 
 	i18n: {
@@ -121,11 +122,11 @@ export default defineNuxtConfig({
 		clientBundle: {
 			includeCustomCollections: true,
 		},
-	customCollections: [
-		{
-			prefix: 'twir-overlays',
-			dir: resolve('./layers/dashboard/assets/overlays'),
-		},
+		customCollections: [
+			{
+				prefix: 'twir-overlays',
+				dir: resolve('./layers/dashboard/assets/overlays'),
+			},
 			{
 				prefix: 'twir-integrations',
 				dir: resolve('./layers/dashboard/assets/integrations'),
@@ -319,5 +320,16 @@ export default defineNuxtConfig({
 	telemetry: {
 		enabled: true,
 		consent: 1,
+	},
+
+	webUpdateNotification: {
+		logVersion: true,
+		checkInterval: 60 * 1000,
+		notificationProps: {
+			title: 'system update',
+			description: 'System update, please refresh the page',
+			buttonText: 'refresh',
+			dismissButtonText: 'dismiss',
+		},
 	},
 })
