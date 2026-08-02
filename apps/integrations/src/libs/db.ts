@@ -240,6 +240,50 @@ export async function updateDonationAlertsIntegration(opts: {
 	await sql`UPDATE channels_integrations_donationalerts SET ${sql(opts)} WHERE channel_id = ${opts.channel_id}`
 }
 
+export async function getStreamElementsIntegrations(opts: {
+	id: string
+}): Promise<StreamElementsIntegration | null>
+export async function getStreamElementsIntegrations(opts: {
+	channelId: string
+}): Promise<StreamElementsIntegration | null>
+export async function getStreamElementsIntegrations(): Promise<StreamElementsIntegration[]>
+export async function getStreamElementsIntegrations(opts?: {
+	channelId?: string
+	id?: string
+}): Promise<StreamElementsIntegration[] | StreamElementsIntegration | null> {
+	let where
+	if (opts?.id) {
+		where = sql`AND ci.id = ${opts.id}`
+	} else if (opts?.channelId) {
+		where = sql`AND ci."channelId" = ${opts.channelId}`
+	} else {
+		where = sql``
+	}
+
+	const result = await sql`
+		SELECT ci.id,
+		       ci."channelId" AS "channelId",
+		       ci.enabled,
+		       ci."accessToken" AS "accessToken",
+		       ci."refreshToken" AS "refreshToken"
+		FROM channels_integrations AS ci
+		INNER JOIN integrations AS i ON i.id = ci."integrationId"
+		WHERE ci.enabled = TRUE AND i.service = 'STREAMELEMENTS'
+		${where}
+	`
+
+	if (opts?.id || opts?.channelId) return result[0] ?? null
+	return result || []
+}
+
+export interface StreamElementsIntegration {
+	id: string
+	channelId: string
+	enabled: boolean
+	accessToken: string | null
+	refreshToken: string | null
+}
+
 export async function getStreamlabsIntegrations(opts: {
 	id: string
 }): Promise<StreamlabsIntegration | null>

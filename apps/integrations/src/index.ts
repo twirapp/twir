@@ -1,12 +1,17 @@
 import { IntegrationService } from '@twir/bus-core';
+import { config } from '@twir/config';
 import process from 'node:process';
 
 import {
 	getDonationAlertsIntegrations,
 	getDonationPayIntegrations,
+	getStreamElementsIntegrations,
 	getStreamlabsIntegrations,
+	providerTokenStores,
 } from './libs/db';
+import { StreamElementsClient } from './libs/streamelements-client.ts';
 import { twirBus } from './libs/twirbus.ts';
+import { StreamElementsConnection } from './services/streamElements.ts';
 import {
 	addIntegration as addDonatePayIntegration,
 	removeIntegration as removeDonatePayIntegration,
@@ -19,7 +24,35 @@ import {
 	addIntegration as addStreamlabsIntegration,
 	removeIntegration as removeStreamlabsIntegration,
 } from './store/streamlabs';
+import { createStreamElementsStore } from './store/streamelements.ts';
 import './pubsub';
+
+const streamElementsStore = createStreamElementsStore({
+	createConnection(integration) {
+		if (!config.STREAM_ELEMENTS_CLIENT_ID || !config.STREAM_ELEMENTS_CLIENT_SECRET) {
+			throw new Error('StreamElements OAuth credentials are not configured');
+		}
+		if (!integration.accessToken || !integration.refreshToken) {
+			throw new Error('StreamElements integration tokens are missing');
+		}
+		const client = new StreamElementsClient({
+			channelID: integration.channelId,
+			tokens: {
+				accessToken: integration.accessToken,
+				refreshToken: integration.refreshToken,
+			},
+			tokenStore: providerTokenStores.streamElements,
+			clientID: config.STREAM_ELEMENTS_CLIENT_ID,
+			clientSecret: config.STREAM_ELEMENTS_CLIENT_SECRET,
+		});
+		const connection = new StreamElementsConnection({
+			channelID: integration.channelId,
+			client,
+		});
+		connection.connect();
+		return connection;
+	},
+});
 
 for (const donatePayIntegration of await getDonationPayIntegrations()) {
 	addDonatePayIntegration(donatePayIntegration);
@@ -30,7 +63,11 @@ for (const integration of await getDonationAlertsIntegrations()) {
 }
 
 for (const integration of await getStreamlabsIntegrations()) {
-	addStreamlabsIntegration(integration);
+	await addStreamlabsIntegration(integration);
+}
+
+for (const integration of await getStreamElementsIntegrations()) {
+	await streamElementsStore.addIntegration(integration);
 }
 
 twirBus.Integrations.Add.subscribe(async (data) => {
@@ -66,6 +103,16 @@ twirBus.Integrations.Add.subscribe(async (data) => {
 		return;
 	}
 
+	if (data.service === IntegrationService.STREAMELEMENTS) {
+		const integration = await getStreamElementsIntegrations({ id: data.id });
+		if (!integration) {
+			console.error(`Integration with id ${data.id} not found for StreamElements`);
+			return null;
+		}
+		await streamElementsStore.addIntegration(integration);
+		return;
+	}
+
 	return null;
 });
 
@@ -87,6 +134,11 @@ twirBus.Integrations.Remove.subscribe(async (data) => {
 		return null;
 	}
 
+	if (data.service === IntegrationService.STREAMELEMENTS) {
+		await streamElementsStore.removeIntegration(data.id); // channelId
+		return null;
+	}
+
 	return null;
 });
 
@@ -94,3 +146,14 @@ console.info('Integrations started');
 
 process.on('uncaughtException', console.error);
 process.on('unhandledRejection', console.error);
+
+let shuttingDown = false;
+const shutdown = async () => {
+	if (shuttingDown) return;
+	shuttingDown = true;
+	await streamElementsStore.closeAll();
+	process.exit(0);
+};
+
+process.on('SIGTERM', () => { void shutdown(); });
+process.on('SIGINT', () => { void shutdown(); });
