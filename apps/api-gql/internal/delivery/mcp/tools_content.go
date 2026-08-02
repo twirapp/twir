@@ -30,6 +30,16 @@ type updateVariableInput struct {
 	ScriptLanguage *string `json:"scriptLanguage,omitempty"`
 }
 
+type setVariableInput struct {
+	ID             *string `json:"id,omitempty" jsonschema:"existing variable UUID; omit to create"`
+	Name           string  `json:"name"`
+	Description    *string `json:"description,omitempty"`
+	Type           string  `json:"type" jsonschema:"TEXT, NUMBER, or SCRIPT"`
+	EvalValue      string  `json:"evalValue,omitempty"`
+	Response       string  `json:"response"`
+	ScriptLanguage string  `json:"scriptLanguage,omitempty"`
+}
+
 type evaluateVariableInput struct {
 	ID             string  `json:"id"`
 	TestAsUserName *string `json:"testAsUserName,omitempty" jsonschema:"optional Twitch login used as evaluation context"`
@@ -50,6 +60,21 @@ func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 	})
 	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_variable", Description: "Create a channel custom variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createVariableInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.Variables.Create(ctx, variables.CreateInput{ChannelID: channelID, ActorID: requestScope.ActorID, Name: input.Name, Description: input.Description, Type: entity.CustomVarType(input.Type), EvalValue: input.EvalValue, Response: input.Response, ScriptLanguage: input.ScriptLanguage})
+		return nil, item, err
+	})
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "set_variable", Description: "Create a custom variable, or replace one when id is provided."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input setVariableInput) (*modelsdk.CallToolResult, any, error) {
+		if input.ID == nil {
+			item, err := h.deps.Variables.Create(ctx, variables.CreateInput{ChannelID: channelID, ActorID: requestScope.ActorID, Name: input.Name, Description: input.Description, Type: entity.CustomVarType(input.Type), EvalValue: input.EvalValue, Response: input.Response, ScriptLanguage: input.ScriptLanguage})
+			return nil, item, err
+		}
+
+		id, err := parseID(*input.ID)
+		if err != nil {
+			return nil, nil, fmt.Errorf("invalid variable id: %w", err)
+		}
+		variableType := entity.CustomVarType(input.Type)
+		language := entity.CustomVarScriptLanguage(input.ScriptLanguage)
+		item, err := h.deps.Variables.Update(ctx, variables.UpdateInput{ID: id, ChannelID: channelID, ActorID: requestScope.ActorID, Name: &input.Name, Description: input.Description, Type: &variableType, EvalValue: &input.EvalValue, Response: &input.Response, ScriptLanguage: &language})
 		return nil, item, err
 	})
 	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_variable", Description: "Update a channel custom variable by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateVariableInput) (*modelsdk.CallToolResult, any, error) {

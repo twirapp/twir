@@ -241,6 +241,13 @@ func (h *Handler) ownedShortURL(ctx context.Context, requestScope scope, id stri
 
 func (h *Handler) addShortURLTools(s *modelsdk.Server, requestScope scope) {
 	owner := ownerID(requestScope)
+	listShortURLs := func(ctx context.Context, _ *modelsdk.CallToolRequest, input listInput) (*modelsdk.CallToolResult, any, error) {
+		if input.PerPage < 1 {
+			input.PerPage = 20
+		}
+		result, err := h.deps.ShortURLs.GetList(ctx, shortenedurls.GetListInput{Page: input.Page, PerPage: input.PerPage, OwnerUserID: &owner, SortBy: "created_at"})
+		return nil, result, err
+	}
 	modelsdk.AddTool(s, &modelsdk.Tool{Name: "shorten_url", Description: "Create a short URL owned by this channel owner."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createShortURLInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.ShortURLs.Create(ctx, shortenedurls.CreateInput{CreatedByUserID: &owner, ShortID: input.Alias, URL: input.URL})
 		return nil, item, err
@@ -252,13 +259,8 @@ func (h *Handler) addShortURLTools(s *modelsdk.Server, requestScope scope) {
 		item, err := h.deps.ShortURLs.GetByShortID(ctx, nil, input.ID)
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_short_urls", Description: "List short URLs owned by this channel owner."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input listInput) (*modelsdk.CallToolResult, any, error) {
-		if input.PerPage < 1 {
-			input.PerPage = 20
-		}
-		result, err := h.deps.ShortURLs.GetList(ctx, shortenedurls.GetListInput{Page: input.Page, PerPage: input.PerPage, OwnerUserID: &owner, SortBy: "created_at"})
-		return nil, result, err
-	})
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_short_urls", Description: "List short URLs owned by this channel owner."}, listShortURLs)
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_short_links", Description: "List short links owned by this channel owner."}, listShortURLs)
 	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_short_url", Description: "Update an owned short URL."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateShortURLInput) (*modelsdk.CallToolResult, any, error) {
 		if err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
 			return nil, nil, err

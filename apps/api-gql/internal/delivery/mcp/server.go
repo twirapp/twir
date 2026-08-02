@@ -9,6 +9,7 @@ import (
 	modelsdk "github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channel_platforms"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_overlays"
@@ -18,6 +19,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	commandsrelations "github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/discord_integration"
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
@@ -36,6 +38,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
@@ -43,6 +46,7 @@ import (
 	streamlabsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/streamlabs_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
@@ -100,6 +104,10 @@ type Deps struct {
 	Dudes             *overlays_dudes.Service
 	Kappagen          *kappagen.Service
 	BeRightBack       *be_right_back.Service
+	Dashboard         *dashboard.Service
+	ChannelPlatforms  *channel_platforms.Service
+	Users             *users.Service
+	ScheduledVIPs     *scheduledvips.Service
 	Pastebins         *pastebins.Service
 	ShortURLs         *shortenedurls.Service
 }
@@ -171,6 +179,7 @@ func (h *Handler) newServer(requestScope scope) *modelsdk.Server {
 	h.addEngagementTools(s, requestScope)
 	h.addIntegrationTools(s, requestScope)
 	h.addOverlayTools(s, requestScope)
+	h.addDashboardTools(s, requestScope)
 
 	return s
 }
