@@ -17,7 +17,7 @@ for generated infrastructure secrets. Preserve the project token from the existi
 so existing SDK configuration keeps working:
 
 ```sh
-project_token="$(ssh root@169.58.78.216 "sed -n 's/^PROJECT_TOKEN=//p' /opt/uptrace/.credentials")"
+project_token="$(openssl rand -hex 32)"
 printf 'http://%s@uptrace:4317/1' "$project_token" | docker secret create uptrace_dsn -
 unset project_token
 
