@@ -133,6 +133,7 @@ services:
     networks:
       - twir
       - traefik-public
+      - cloudflared
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost/api/health"]
       interval: 30s
@@ -156,6 +157,46 @@ services:
         - "traefik.http.routers.twir-uptrace.service=twir-uptrace"
         - "traefik.http.routers.twir-uptrace.middlewares=gzip,rate-limit"
         - "traefik.http.services.twir-uptrace.loadbalancer.server.port=80"
+
+  grafana:
+    image: grafana/grafana:12.0.0
+    entrypoint: ["/bin/sh", "/etc/grafana/entrypoint.sh"]
+    configs:
+      - source: uptrace_grafana_datasource
+        target: /etc/grafana/provisioning/datasources/uptrace.yml
+      - source: uptrace_grafana_config
+        target: /etc/grafana/grafana.ini
+      - source: uptrace_grafana_entrypoint
+        target: /etc/grafana/entrypoint.sh
+    secrets:
+      - uptrace_dsn
+      - grafana_admin_password
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - twir
+      - traefik-public
+      - cloudflared
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      placement:
+        constraints:
+          - node.labels.databases != true
+      resources:
+        limits:
+          memory: 512M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=traefik-public"
+        - "traefik.http.routers.twir-grafana.rule=Host(`grafana.twir.app`)"
+        - "traefik.http.routers.twir-grafana.entrypoints=web"
+        - "traefik.http.routers.twir-grafana.service=twir-grafana"
+        - "traefik.http.routers.twir-grafana.middlewares=gzip,rate-limit"
+        - "traefik.http.services.twir-grafana.loadbalancer.server.port=3000"
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.157.0
@@ -1210,6 +1251,12 @@ configs:
     file: ./configs/uptrace/clickhouse/90-disable-system-logs.xml
   uptrace_clickhouse_ttl:
     file: ./configs/uptrace/apply-ttl.sql
+  uptrace_grafana_datasource:
+    file: ./configs/uptrace/grafana/datasource.yml
+  uptrace_grafana_config:
+    file: ./configs/uptrace/grafana/grafana.ini
+  uptrace_grafana_entrypoint:
+    file: ./configs/uptrace/grafana/entrypoint.sh
 
   pgdog_users_config:
     file: ./configs/pgdog/users.toml
@@ -1226,6 +1273,7 @@ volumes:
   clickhouse-data:
   uptrace-clickhouse-data:
   uptrace-postgres-data:
+  grafana-data:
   dbx-data:
 
 networks:
@@ -1257,4 +1305,6 @@ secrets:
   uptrace_clickhouse_password:
     external: true
   uptrace_postgres_password:
+    external: true
+  grafana_admin_password:
     external: true
