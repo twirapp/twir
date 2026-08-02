@@ -72,3 +72,57 @@ func TestInstanceLabels_usesOrdinalsForMultipleReplicas(t *testing.T) {
 		t.Errorf("instanceLabels()[b2c3d4e5f6a7] = %q, want %q", got["b2c3d4e5f6a7"], want)
 	}
 }
+
+func TestSummarizeServices_ignoresStaleEphemeralInstances(t *testing.T) {
+	// Given
+	now := time.Date(2026, 8, 2, 12, 0, 0, 0, time.UTC)
+	statuses := []uptime.InstanceStatus{
+		{
+			Service:   "parser",
+			Instance:  "current-host",
+			StartedAt: now.Add(-time.Hour),
+			UpdatedAt: now.Add(-time.Second),
+		},
+		{
+			Service:   "parser",
+			Instance:  "old-host",
+			StartedAt: now.Add(-2 * time.Hour),
+			UpdatedAt: now.Add(-2 * time.Minute),
+		},
+	}
+
+	// When
+	services, down, _ := summarizeServices(statuses, now, "unavailable")
+
+	// Then
+	if len(services) != 1 || services[0] != "parser×1 1h" {
+		t.Fatalf("services = %v, want [parser×1 1h]", services)
+	}
+	if len(down) != 0 {
+		t.Fatalf("down = %v, want no stale ephemeral instances", down)
+	}
+}
+
+func TestSummarizeServices_reportsStaleReplicaSlotAsDown(t *testing.T) {
+	// Given
+	now := time.Date(2026, 8, 2, 12, 0, 0, 0, time.UTC)
+	statuses := []uptime.InstanceStatus{
+		{
+			Service:   "eventsub",
+			Instance:  "slot-2",
+			StartedAt: now.Add(-time.Hour),
+			UpdatedAt: now.Add(-2 * time.Minute),
+		},
+	}
+
+	// When
+	services, down, _ := summarizeServices(statuses, now, "unavailable")
+
+	// Then
+	if len(services) != 1 || services[0] != "eventsub×0 unavailable" {
+		t.Fatalf("services = %v, want [eventsub×0 unavailable]", services)
+	}
+	if len(down) != 1 || down[0] != "eventsub#2" {
+		t.Fatalf("down = %v, want [eventsub#2]", down)
+	}
+}

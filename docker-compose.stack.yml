@@ -339,6 +339,8 @@ services:
     image: registry.twir.app/twirapp/api-gql:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
       - traefik-public
@@ -412,6 +414,8 @@ services:
     image: registry.twir.app/twirapp/bots:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - traefik-public
       - twir
@@ -442,6 +446,8 @@ services:
     image: registry.twir.app/twirapp/parser:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     deploy:
       update_config:
         parallelism: 2
@@ -463,6 +469,8 @@ services:
     image: registry.twir.app/twirapp/timers:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -484,6 +492,8 @@ services:
     image: registry.twir.app/twirapp/scheduler:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -701,6 +711,8 @@ services:
     image: registry.twir.app/twirapp/websockets:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
       - traefik-public
@@ -741,6 +753,8 @@ services:
     image: registry.twir.app/twirapp/tokens:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -762,6 +776,8 @@ services:
     image: registry.twir.app/twirapp/emotes-cacher:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -786,6 +802,8 @@ services:
     image: registry.twir.app/twirapp/events:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:

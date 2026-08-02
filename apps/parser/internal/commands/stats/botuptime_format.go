@@ -17,7 +17,7 @@ import (
 const (
 	staleThreshold      = time.Minute
 	restartThreshold    = 5 * time.Minute
-	platformPingTimeout = 5 * time.Second
+	platformPingTimeout = time.Second
 	maxChatMessageRunes = 450
 )
 
@@ -55,13 +55,21 @@ func summarizeServices(
 	down := []string{}
 	restarted := []string{}
 	for _, service := range serviceNames {
-		instances := byService[service]
+		instances := visibleInstances(byService[service], now)
+		if len(instances) == 0 {
+			continue
+		}
 		labels := instanceLabels(instances)
 
 		alive := []time.Duration{}
 		for _, status := range instances {
 			if status.IsStale(now, staleThreshold) {
-				down = append(down, service+labels[status.Instance])
+				// Hostnames are ephemeral in Swarm and remain in Redis after a
+				// rolling update. Only stable replica slots can represent an
+				// instance that is actually expected to be alive.
+				if strings.HasPrefix(status.Instance, "slot-") {
+					down = append(down, service+labels[status.Instance])
+				}
 				continue
 			}
 
@@ -79,6 +87,17 @@ func summarizeServices(
 	}
 
 	return services, down, restarted
+}
+
+func visibleInstances(instances []uptime.InstanceStatus, now time.Time) []uptime.InstanceStatus {
+	visible := make([]uptime.InstanceStatus, 0, len(instances))
+	for _, instance := range instances {
+		if !instance.IsStale(now, staleThreshold) || strings.HasPrefix(instance.Instance, "slot-") {
+			visible = append(visible, instance)
+		}
+	}
+
+	return visible
 }
 
 func formatServiceUptime(service string, alive []time.Duration, unavailable string) string {

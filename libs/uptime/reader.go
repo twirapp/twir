@@ -12,6 +12,8 @@ import (
 	rediskeys "github.com/twirapp/twir/libs/redis_keys"
 )
 
+const scanCount int64 = 1000
+
 type InstanceStatus struct {
 	Service   string
 	Instance  string
@@ -81,7 +83,7 @@ func readKeys(ctx context.Context, client *redis.Client) ([]string, error) {
 	keys := []string{}
 	var cursor uint64
 	for {
-		batch, nextCursor, err := client.Scan(ctx, cursor, rediskeys.UptimeScanPattern, 0).Result()
+		batch, nextCursor, err := client.Scan(ctx, cursor, rediskeys.UptimeScanPattern, scanCount).Result()
 		if err != nil {
 			return nil, fmt.Errorf("scan cursor %d: %w", cursor, err)
 		}
