@@ -11,6 +11,7 @@ require (
 	github.com/redis/go-redis/extra/redisotel/v9 v9.17.1
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/twirapp/kv v0.5.1
+	github.com/twirapp/twir/libs/uptime v0.0.0-20260730153723-d75d97e0affa
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
@@ -56,3 +57,5 @@ require (
 	golang.org/x/sys v0.41.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
 )
+
+replace github.com/twirapp/twir/libs/uptime => ../uptime

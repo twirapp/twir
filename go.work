@@ -36,6 +36,7 @@ use (
 	./libs/services
 	./libs/twitch
 	./libs/types
+	./libs/uptime
 	./libs/utils
 	./libs/wsrouter
 )
