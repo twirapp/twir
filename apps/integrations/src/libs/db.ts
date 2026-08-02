@@ -3,10 +3,20 @@ import { SQL } from 'bun'
 import process from 'node:process'
 
 import type { Donate } from '../utils/onDonation.ts'
+import { type TokenQuery, createProviderTokenStores } from './provider-token-store.ts'
 
 const sql = new SQL(config.DATABASE_URL, {
 	prepare: true,
 })
+
+const providerTokenQuery: TokenQuery = async <Row extends Record<string, unknown>>(
+	strings: TemplateStringsArray,
+	...values: readonly unknown[]
+): Promise<Row[]> => {
+	return await sql(strings, ...values) as Row[]
+}
+
+export const providerTokenStores = createProviderTokenStores(providerTokenQuery)
 
 try {
 	await sql`SELECT 1`
