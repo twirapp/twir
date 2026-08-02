@@ -133,6 +133,7 @@ services:
     networks:
       - twir
       - traefik-public
+      - cloudflared
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost/api/health"]
       interval: 30s
@@ -175,6 +176,7 @@ services:
     networks:
       - twir
       - traefik-public
+      - cloudflared
     deploy:
       replicas: 1
       restart_policy:
