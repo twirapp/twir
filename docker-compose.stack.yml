@@ -116,22 +116,129 @@ services:
         - "traefik.http.routers.twir-nats.service=twir-nats"
         - "traefik.http.services.twir-nats.loadbalancer.server.port=8222"
 
-  #  otel-collector:
-  #    image: otel/opentelemetry-collector-contrib:0.121.0
-  #    user: "0:0"
-  #    volumes:
-  #      - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
-  #      - /var/run/docker.sock:/var/run/docker.sock:ro
-  #      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-  #    networks:
-  #      - twir
-  #    deploy:
-  #      mode: global
-  #      restart_policy:
-  #        condition: any
-  #        delay: 3s
-  #        max_attempts: 30
-  #      endpoint_mode: dnsrr
+  uptrace:
+    image: uptrace/uptrace:2.1.0-beta.5
+    entrypoint: ["/bin/sh", "/etc/uptrace/entrypoint.sh"]
+    configs:
+      - source: uptrace_config
+        target: /etc/uptrace/config.yml.tmpl
+      - source: uptrace_entrypoint
+        target: /etc/uptrace/entrypoint.sh
+    secrets:
+      - uptrace_dsn
+      - uptrace_service_secret
+      - uptrace_admin_password
+      - uptrace_clickhouse_password
+      - uptrace_postgres_password
+    networks:
+      - twir
+      - traefik-public
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 30
+      placement:
+        constraints:
+          - node.labels.databases != true
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=traefik-public"
+        - "traefik.http.routers.twir-uptrace.rule=Host(`uptrace.twir.app`)"
+        - "traefik.http.routers.twir-uptrace.entrypoints=web"
+        - "traefik.http.routers.twir-uptrace.service=twir-uptrace"
+        - "traefik.http.routers.twir-uptrace.middlewares=gzip,rate-limit"
+        - "traefik.http.services.twir-uptrace.loadbalancer.server.port=80"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.157.0
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    configs:
+      - source: uptrace_otel_collector_config
+        target: /etc/otelcol-contrib/config.yaml
+    secrets:
+      - uptrace_dsn
+    networks:
+      - twir
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 512M
+
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    command:
+      - "--path.rootfs=/host"
+      - "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($$|/)"
+    pid: host
+    volumes:
+      - type: bind
+        source: /
+        target: /host
+        read_only: true
+        bind:
+          propagation: rslave
+    networks:
+      - twir
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      resources:
+        limits:
+          memory: 128M
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.60.5
+    command:
+      - "--docker_only=true"
+      - "--housekeeping_interval=15s"
+    privileged: true
+    volumes:
+      - type: bind
+        source: /
+        target: /rootfs
+        read_only: true
+      - type: bind
+        source: /var/run
+        target: /var/run
+        read_only: true
+      - type: bind
+        source: /sys
+        target: /sys
+        read_only: true
+      - type: bind
+        source: /var/lib/docker
+        target: /var/lib/docker
+        read_only: true
+    networks:
+      - twir
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      resources:
+        limits:
+          memory: 256M
 
   postgres:
     image: postgres:18.1
@@ -240,6 +347,137 @@ services:
       - SYS_NICE
       - NET_ADMIN
       - IPC_LOCK
+
+  uptrace-clickhouse:
+    image: clickhouse/clickhouse-server:26.3
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'export CLICKHOUSE_PASSWORD="$$(tr -d ''\r\n'' < /run/secrets/uptrace_clickhouse_password)"; exec /entrypoint.sh'
+    environment:
+      CLICKHOUSE_USER: uptrace
+      CLICKHOUSE_DB: uptrace
+    secrets:
+      - uptrace_clickhouse_password
+    configs:
+      - source: uptrace_clickhouse_listen_config
+        target: /etc/clickhouse-server/config.d/00-listen.xml
+      - source: uptrace_clickhouse_optimization_config
+        target: /etc/clickhouse-server/config.d/90-disable-system-logs.xml
+    volumes:
+      - uptrace-clickhouse-data:/var/lib/clickhouse
+    networks:
+      - twir
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    ulimits:
+      nofile: 262144
+    cap_add:
+      - SYS_NICE
+      - NET_ADMIN
+      - IPC_LOCK
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases == true
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 3G
+
+  uptrace-postgres:
+    image: postgres:17-alpine
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: uptrace
+      POSTGRES_PASSWORD_FILE: /run/secrets/uptrace_postgres_password
+      POSTGRES_DB: uptrace
+    secrets:
+      - uptrace_postgres_password
+    volumes:
+      - uptrace-postgres-data:/var/lib/postgresql/data
+    networks:
+      - twir
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uptrace -d uptrace"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases == true
+
+  uptrace-redis:
+    image: redis:7-alpine
+    command: redis-server --save "" --appendonly no --loglevel warning
+    networks:
+      - twir
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases == true
+
+  uptrace-clickhouse-ttl:
+    image: clickhouse/clickhouse-server:26.3
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        password="$$(tr -d '\r\n' < /run/secrets/uptrace_clickhouse_password)"
+        attempt=1
+        until [ "$$(clickhouse-client --host uptrace-clickhouse --user uptrace --password "$$password" --database uptrace --query 'EXISTS TABLE spans_index' 2>/dev/null)" = "1" ]; do
+          if [ "$$attempt" -ge 60 ]; then
+            echo "Uptrace schema was not ready after $$attempt attempts" >&2
+            exit 1
+          fi
+          attempt=$$((attempt + 1))
+          sleep 5
+        done
+        exec clickhouse-client --host uptrace-clickhouse --user uptrace --password "$$password" --database uptrace --multiquery < /etc/uptrace/apply-ttl.sql
+    secrets:
+      - uptrace_clickhouse_password
+    configs:
+      - source: uptrace_clickhouse_ttl
+        target: /etc/uptrace/apply-ttl.sql
+    networks:
+      - twir
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 10
+      placement:
+        constraints:
+          - node.labels.databases == true
 
   temporal-postgres:
     image: "bitnamilegacy/postgresql:17"
@@ -960,6 +1198,19 @@ configs:
   clickhouse_config:
     file: ./configs/clickhouse-config.xml
 
+  uptrace_config:
+    file: ./configs/uptrace/uptrace.yml
+  uptrace_entrypoint:
+    file: ./configs/uptrace/entrypoint.sh
+  uptrace_otel_collector_config:
+    file: ./configs/uptrace/otel-collector.yml
+  uptrace_clickhouse_listen_config:
+    file: ./configs/uptrace/clickhouse/00-listen.xml
+  uptrace_clickhouse_optimization_config:
+    file: ./configs/uptrace/clickhouse/90-disable-system-logs.xml
+  uptrace_clickhouse_ttl:
+    file: ./configs/uptrace/apply-ttl.sql
+
   pgdog_users_config:
     file: ./configs/pgdog/users.toml
   pgdog_config:
@@ -973,6 +1224,8 @@ volumes:
   minio-data:
   temporal-postgres-data:
   clickhouse-data:
+  uptrace-clickhouse-data:
+  uptrace-postgres-data:
   dbx-data:
 
 networks:
@@ -994,4 +1247,14 @@ secrets:
   twir_postgres_password:
     external: true
   twir_deploy_webhook_token:
+    external: true
+  uptrace_dsn:
+    external: true
+  uptrace_service_secret:
+    external: true
+  uptrace_admin_password:
+    external: true
+  uptrace_clickhouse_password:
+    external: true
+  uptrace_postgres_password:
     external: true

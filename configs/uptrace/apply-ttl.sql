@@ -1,0 +1,25 @@
+-- Keep all Uptrace telemetry for seven days. Safe to re-apply after migrations.
+ALTER TABLE spans_index         MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE spans_data          MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE span_links          MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE events_index        MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE events_data         MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE logs_index          MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE logs_data           MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE found_spans         MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE span_group_hours    MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE span_group_minutes  MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE log_group_hours     MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE log_group_minutes   MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE event_group_hours   MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE event_group_minutes MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE timeseries          MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE datapoints          MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE preagg_datapoints   MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE service_graph_edges MODIFY TTL toDate(time) + INTERVAL 7 DAY;
+ALTER TABLE span_group_hours    MODIFY SETTING ttl_only_drop_parts = 1;
+ALTER TABLE span_group_minutes  MODIFY SETTING ttl_only_drop_parts = 1;
+ALTER TABLE log_group_hours     MODIFY SETTING ttl_only_drop_parts = 1;
+ALTER TABLE log_group_minutes   MODIFY SETTING ttl_only_drop_parts = 1;
+ALTER TABLE event_group_hours   MODIFY SETTING ttl_only_drop_parts = 1;
+ALTER TABLE event_group_minutes MODIFY SETTING ttl_only_drop_parts = 1;
