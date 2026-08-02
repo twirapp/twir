@@ -9,6 +9,7 @@ import {
 	getStreamlabsIntegrations,
 	providerTokenStores,
 } from './libs/db';
+import { logIntegrationError } from './libs/integration-logger.ts';
 import { StreamElementsClient } from './libs/streamelements-client.ts';
 import { StreamLabsClient } from './libs/streamlabs-client.ts';
 import { twirBus } from './libs/twirbus.ts';
@@ -81,22 +82,6 @@ const streamElementsStore = createStreamElementsStore({
 	},
 });
 
-for (const donatePayIntegration of await getDonationPayIntegrations()) {
-	addDonatePayIntegration(donatePayIntegration);
-}
-
-for (const integration of await getDonationAlertsIntegrations()) {
-	addDonationAlertsIntegration(integration);
-}
-
-for (const integration of await getStreamlabsIntegrations()) {
-	await streamLabsStore.addIntegration(integration);
-}
-
-for (const integration of await getStreamElementsIntegrations()) {
-	await streamElementsStore.addIntegration(integration);
-}
-
 interface IntegrationLifecycleRequest {
 	readonly id: string
 	readonly service: IntegrationService
@@ -161,19 +146,28 @@ async function handleIntegrationRemove(data: IntegrationLifecycleRequest): Promi
 }
 
 twirBus.Integrations.Add.subscribe((data) => {
-	runLifecycleOperation(() => handleIntegrationAdd(data));
+	runLifecycleOperation(
+		() => handleIntegrationAdd(data),
+		(error) => logIntegrationError({
+			provider: data.service.toLowerCase(),
+			operation: 'add',
+			integrationID: data.id,
+		}, error),
+	);
 	return null;
 });
 
 twirBus.Integrations.Remove.subscribe((data) => {
-	runLifecycleOperation(() => handleIntegrationRemove(data));
+	runLifecycleOperation(
+		() => handleIntegrationRemove(data),
+		(error) => logIntegrationError({
+			provider: data.service.toLowerCase(),
+			operation: 'remove',
+			channelID: data.id,
+		}, error),
+	);
 	return null;
 });
-
-console.info('Integrations started');
-
-process.on('uncaughtException', console.error);
-process.on('unhandledRejection', console.error);
 
 let shuttingDown = false;
 const shutdown = async () => {
@@ -186,5 +180,60 @@ const shutdown = async () => {
 	process.exit(0);
 };
 
+process.on('uncaughtException', (error) => {
+	logIntegrationError({ provider: 'integrations', operation: 'process' }, error);
+});
+process.on('unhandledRejection', (error) => {
+	logIntegrationError({ provider: 'integrations', operation: 'process' }, error);
+});
 process.on('SIGTERM', () => { void shutdown(); });
 process.on('SIGINT', () => { void shutdown(); });
+
+for (const integration of await getDonationPayIntegrations()) {
+	runLifecycleOperation(
+		() => addDonatePayIntegration(integration).then(() => undefined),
+		(error) => logIntegrationError({
+			provider: 'donatepay',
+			operation: 'hydrate',
+			channelID: integration.channel_id,
+			integrationID: integration.id,
+		}, error),
+	);
+}
+
+for (const integration of await getDonationAlertsIntegrations()) {
+	runLifecycleOperation(
+		() => addDonationAlertsIntegration(integration).then(() => undefined),
+		(error) => logIntegrationError({
+			provider: 'donationalerts',
+			operation: 'hydrate',
+			channelID: integration.channel_id,
+			integrationID: String(integration.id),
+		}, error),
+	);
+}
+
+await streamLabsStore.hydrateIntegrations(
+	await getStreamlabsIntegrations(),
+	(failure) => logIntegrationError({
+		provider: 'streamlabs',
+		operation: 'hydrate',
+		channelID: failure.channelID,
+		integrationID: failure.integrationID,
+	}, failure.error),
+);
+
+await Promise.all((await getStreamElementsIntegrations()).map(async (integration) => {
+	try {
+		await streamElementsStore.addIntegrationByID(integration.id);
+	} catch (error) {
+		logIntegrationError({
+			provider: 'streamelements',
+			operation: 'hydrate',
+			channelID: integration.channelId,
+			integrationID: integration.id,
+		}, error);
+	}
+}));
+
+console.info('Integrations started');

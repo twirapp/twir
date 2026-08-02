@@ -42,3 +42,22 @@
 - Token-store predicates continue to require an enabled Streamlabs row, so logout cannot be undone
   by an in-flight refresh or a stale Add lifecycle message.
 - No Streamlabs runtime path writes `enabled=false`; auth/network failures remain recoverable.
+
+## Review fixes
+
+- Lifecycle bus subscriptions are registered before any provider hydration starts, so logout and
+  update messages cannot be missed while startup queries or provider HTTP are pending.
+- Streamlabs startup hydration now feeds discovered row IDs back through the authoritative
+  `addIntegrationByID` path and the per-channel queue. A Remove arriving during socket-token HTTP
+  runs immediately afterward and destroys the late connection instead of leaving a stale socket.
+- Startup failures are isolated per integration. A broken Streamlabs row is reported without
+  aborting healthy rows; StreamElements startup uses the same authoritative by-ID and isolated
+  error behavior.
+- Added a structured integration logger. Socket callback defaults, lifecycle callbacks, and
+  process handlers emit provider/operation/channel context plus an allowlisted typed category and
+  sanitized message; unknown errors are reduced to a generic message rather than logging provider
+  bodies, secrets, or raw error objects.
+- Added deterministic regressions for logout during blocked hydration, broken-row isolation, and
+  typed/unknown error redaction.
+- Post-review verification: targeted 22 passed (67 assertions), full integrations 55 passed
+  (158 assertions), typecheck/build passed, scoped oxlint and diff-check passed.

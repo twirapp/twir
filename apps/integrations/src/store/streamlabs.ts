@@ -17,8 +17,18 @@ export interface StreamLabsStore {
 	readonly connections: ReadonlyMap<string, StreamLabsConnectionHandle>
 	addIntegration(integration: StreamlabsIntegration): Promise<void>
 	addIntegrationByID(integrationID: string): Promise<void>
+	hydrateIntegrations(
+		integrations: readonly StreamlabsIntegration[],
+		onError: (failure: StreamLabsHydrationFailure) => void
+	): Promise<void>
 	removeIntegration(channelID: string): Promise<void>
 	closeAll(): Promise<void>
+}
+
+export interface StreamLabsHydrationFailure {
+	readonly integrationID: string
+	readonly channelID: string
+	readonly error: unknown
 }
 
 export function createStreamLabsStore(options: StreamLabsStoreOptions): StreamLabsStore {
@@ -79,6 +89,19 @@ export function createStreamLabsStore(options: StreamLabsStoreOptions): StreamLa
 				const connection = await options.createConnection(authoritative)
 				connections.set(authoritative.channel_id, connection)
 			})
+		},
+		async hydrateIntegrations(integrations, onError) {
+			await Promise.all(integrations.map(async (integration) => {
+				try {
+					await this.addIntegrationByID(integration.id)
+				} catch (error) {
+					onError({
+						integrationID: integration.id,
+						channelID: integration.channel_id,
+						error,
+					})
+				}
+			}))
 		},
 		async removeIntegration(channelID) {
 			await enqueue(channelID, () => removeConnection(channelID))

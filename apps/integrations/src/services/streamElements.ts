@@ -1,6 +1,7 @@
 import io from 'socket.io-client'
 
 import { claimDonation as claimDonationOnce } from '../libs/donation-dedupe.ts'
+import { logIntegrationError } from '../libs/integration-logger.ts'
 import type { ProviderTokens } from '../libs/provider-token-store.ts'
 import type { Donate } from '../utils/onDonation.ts'
 
@@ -114,7 +115,13 @@ export class StreamElementsConnection {
 			clearTimeout(handle as ReturnType<typeof setTimeout>)
 		})
 		this.#random = options.random ?? Math.random
-		this.#onError = options.onError ?? console.error
+		this.#onError = options.onError ?? ((error) => {
+			logIntegrationError({
+				provider: 'streamelements',
+				operation: 'donation',
+				channelID: this.#channelID,
+			}, error)
+		})
 	}
 
 	connect(): void {

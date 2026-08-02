@@ -1,4 +1,5 @@
 import type { StreamElementsIntegration } from '../libs/db.ts'
+import { logIntegrationError } from '../libs/integration-logger.ts'
 
 export interface StreamElementsConnectionHandle {
 	destroy(): void | Promise<void>
@@ -24,7 +25,7 @@ export interface StreamElementsStore {
 export function runLifecycleOperation(
 	operation: () => Promise<void>,
 	onError: (error: unknown) => void = (error) => {
-		console.error('Integration lifecycle operation failed', error)
+		logIntegrationError({ provider: 'integration', operation: 'process' }, error)
 	},
 ): void {
 	void operation().catch(onError)

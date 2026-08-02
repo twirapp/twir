@@ -138,3 +138,51 @@ test('shutdown prevents delayed discovery from creating a connection', async () 
 	await add
 	expect(created).toBe(0)
 })
+
+test('logout during provider hydration destroys the late connection', async () => {
+	let connectionStarted: (() => void) | undefined
+	const started = new Promise<void>((resolve) => { connectionStarted = resolve })
+	let releaseProvider: (() => void) | undefined
+	const provider = new Promise<void>((resolve) => { releaseProvider = resolve })
+	let destroyed = 0
+	const store = createStreamLabsStore({
+		loadIntegrationByID: async () => integration(),
+		createConnection: async () => {
+			connectionStarted?.()
+			await provider
+			return { destroy: () => { destroyed += 1 } }
+		},
+	})
+
+	const hydration = store.hydrateIntegrations([integration()], () => undefined)
+	await started
+	const logout = store.removeIntegration('channel-1')
+	releaseProvider?.()
+	await Promise.all([hydration, logout])
+
+	expect(destroyed).toBe(1)
+	expect(store.connections.size).toBe(0)
+})
+
+test('a broken hydration row does not prevent healthy rows from connecting', async () => {
+	const rows = [
+		integration({ id: 'broken', channel_id: 'broken-channel' }),
+		integration({ id: 'healthy', channel_id: 'healthy-channel' }),
+	]
+	const failures: Array<{ integrationID: string; channelID: string; error: unknown }> = []
+	const store = createStreamLabsStore({
+		loadIntegrationByID: async (integrationID) =>
+			rows.find((row) => row.id === integrationID) ?? null,
+		createConnection: async (record) => {
+			if (record.id === 'broken') throw new Error('provider unavailable')
+			return { destroy: () => undefined }
+		},
+	})
+
+	await store.hydrateIntegrations(rows, (failure) => { failures.push(failure) })
+
+	expect(failures.map(({ integrationID, channelID }) => ({ integrationID, channelID }))).toEqual([
+		{ integrationID: 'broken', channelID: 'broken-channel' },
+	])
+	expect(store.connections.has('healthy-channel')).toBe(true)
+})
