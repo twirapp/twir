@@ -3,10 +3,14 @@ package auth
 import (
 	"context"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
@@ -166,6 +170,32 @@ func TestGetAuthenticatedUserByApiKeyFallsBackToUserKeyWhenChannelOwnershipCanno
 	}
 }
 
+func TestGetAuthenticatedUserByApiKeyMarksLegacyHTTPKeyDeprecated(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	response := httptest.NewRecorder()
+	ginContext, _ := gin.CreateTestContext(response)
+	ginContext.Request = httptest.NewRequest(http.MethodGet, "/", nil)
+	ginContext.Request.Header.Set("api-key", "user-api-key")
+
+	userID := uuid.New()
+	auth := newAPIKeyAuthForTest(
+		&apiKeyChannelsRepository{},
+		&apiKeyUsersRepository{userByAPIKey: usersmodel.User{ID: userID}},
+	)
+	ctx := context.WithValue(context.Background(), gincontext.GinContextKey, ginContext)
+
+	user, err := auth.GetAuthenticatedUserByApiKey(ctx)
+	if err != nil {
+		t.Fatalf("GetAuthenticatedUserByApiKey() error = %v", err)
+	}
+	if user.ID != userID.String() {
+		t.Fatalf("user ID = %q, want %q", user.ID, userID)
+	}
+	if got := response.Header().Get("Deprecation"); got != "true" {
+		t.Fatalf("Deprecation header = %q, want true", got)
+	}
+}
+
 func TestGetAuthenticatedUserByApiKeyFallsBackWhenBindingOwnerIsNilWithoutError(t *testing.T) {
 	bindingOwnerID := uuid.New()
 	fallbackUserID := uuid.New()
@@ -293,6 +323,10 @@ func (*apiKeyChannelsRepository) GetAllByBindingPlatform(context.Context, platfo
 
 func (*apiKeyChannelsRepository) GetByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return channelentity.Nil, nil
+}
+
+func (*apiKeyChannelsRepository) GetByIDs(context.Context, []uuid.UUID) ([]channelentity.Channel, error) {
+	return nil, nil
 }
 
 func (*apiKeyChannelsRepository) GetByBindingUserID(

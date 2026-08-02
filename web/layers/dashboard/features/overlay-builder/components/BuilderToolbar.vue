@@ -66,7 +66,7 @@ function goBack() {
 }
 
 const overlayApiKey = computed(() => {
-	return selectedDashboardUser.value?.apiKey || profile.value?.apiKey || ''
+	return selectedDashboardUser.value?.channelApiKey || profile.value?.channelApiKey || ''
 })
 
 function copyOverlayLink() {

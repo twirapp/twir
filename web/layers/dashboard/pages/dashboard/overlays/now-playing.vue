@@ -84,7 +84,7 @@ watch(openedTab, async (v) => {
 })
 
 const currentTrackPaused = computed(() => {
-	return !isSomeSongIntegrationEnabled.value || !profile.data.value?.apiKey
+	return !isSomeSongIntegrationEnabled.value || !profile.data.value?.channelApiKey
 })
 
 const { data: currentTrackSub } = useSubscription({
@@ -101,7 +101,7 @@ const { data: currentTrackSub } = useSubscription({
 	`),
 	get variables() {
 		return {
-			apiKey: profile.data.value!.apiKey!,
+			apiKey: profile.data.value!.channelApiKey!,
 		}
 	},
 	pause: currentTrackPaused,

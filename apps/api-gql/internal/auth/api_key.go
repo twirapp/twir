@@ -3,7 +3,9 @@ package auth
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -13,12 +15,14 @@ import (
 
 func (s *Auth) GetAuthenticatedUserByApiKey(ctx context.Context) (*model.Users, error) {
 	var apiKey string
+	var ginCtx *gin.Context
 
 	wsApiKey, _ := s.getWsAuthenticatedApiKey(ctx)
 	if wsApiKey != "" {
 		apiKey = wsApiKey
 	} else {
-		ginCtx, err := gincontext.GetGinContext(ctx)
+		var err error
+		ginCtx, err = gincontext.GetGinContext(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get gin context: %w", err)
 		}
@@ -40,6 +44,11 @@ func (s *Auth) GetAuthenticatedUserByApiKey(ctx context.Context) (*model.Users, 
 	}
 	if user.IsNil() {
 		return nil, fmt.Errorf("cannot get user from db: %w", usersmodel.ErrNotFound)
+	}
+
+	slog.WarnContext(ctx, "user API key is deprecated, use channel API key")
+	if ginCtx != nil {
+		ginCtx.Header("Deprecation", "true")
 	}
 
 	return mapRepositoryUser(user), nil

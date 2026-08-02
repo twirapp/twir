@@ -61,7 +61,7 @@ function openPopup() {
 	const left = Math.max(0, (screen.width - width) / 2)
 
 	window.open(
-		`${requestUrl.origin}/dashboard/popup/widgets/audit-log?apiKey=${profile.value.apiKey}`,
+		`${requestUrl.origin}/dashboard/popup/widgets/audit-log?apiKey=${profile.value.channelApiKey}`,
 		'_blank',
 		`height=${height},width=${width},top=${top},left=${left},status=0,location=0,menubar=0,toolbar=0`
 	)

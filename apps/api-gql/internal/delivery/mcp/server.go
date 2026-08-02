@@ -2,6 +2,8 @@ package mcp
 
 import (
 	"context"
+	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -52,6 +54,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -148,9 +151,31 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	channel, err := h.deps.Channels.GetChannelByApiKey(r.Context(), apiKey)
-	if err != nil || channel.IsNil() {
+	if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
 		http.Error(w, "invalid channel API key", http.StatusUnauthorized)
 		return
+	}
+	if err != nil || channel.IsNil() {
+		user, err := h.deps.Users.GetByApiKey(r.Context(), apiKey)
+		if err != nil {
+			http.Error(w, "invalid channel API key", http.StatusUnauthorized)
+			return
+		}
+
+		userID, err := uuid.Parse(user.ID)
+		if err != nil {
+			http.Error(w, "invalid channel API key", http.StatusUnauthorized)
+			return
+		}
+
+		channel, err = h.deps.Channels.GetChannelByBindingUserID(r.Context(), user.Platform, userID)
+		if err != nil || channel.IsNil() {
+			http.Error(w, "invalid channel API key", http.StatusUnauthorized)
+			return
+		}
+
+		slog.WarnContext(r.Context(), "user API key is deprecated, use channel API key")
+		w.Header().Set("Deprecation", "true")
 	}
 
 	actorID := channel.ID.String()

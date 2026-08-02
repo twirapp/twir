@@ -278,6 +278,10 @@ func (*deleteMessageChannelsRepository) GetByID(context.Context, uuid.UUID) (cha
 	return channelentity.Nil, nil
 }
 
+func (*deleteMessageChannelsRepository) GetByIDs(context.Context, []uuid.UUID) ([]channelentity.Channel, error) {
+	return nil, nil
+}
+
 func (*deleteMessageChannelsRepository) GetByApiKey(context.Context, string) (channelentity.Channel, error) {
 	return channelentity.Nil, nil
 }

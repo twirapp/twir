@@ -61,7 +61,7 @@ const selectedDashboard = computed(() => {
 })
 
 const selectedDashboardApiKey = computed(() => {
-	return selectedDashboard.value?.apiKey || profile.value?.apiKey || ''
+	return selectedDashboard.value?.channelApiKey || profile.value?.channelApiKey || ''
 })
 
 const selectedDashboardChannelName = computed(() => {

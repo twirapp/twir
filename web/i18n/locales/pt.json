@@ -1190,7 +1190,17 @@
       "showMeOnLanding": "Mostrar-se na Página Inicial?",
       "regenerateApiKey": {
         "button": "Regenerar chave API Privada",
-        "info": "Essa chave é usada para todos os links de sobreposições. Quando você regenerar, precisará verificar todas as suas sobreposições no seu aplicativo de transmissão e substituir os URLs pelos novos links."
+        "info": "Essa chave de usuário legada era usada anteriormente nos links de overlays, MCP e API pública. Está obsoleta — use a chave de API do canal."
+      },
+      "channelApiKey": {
+        "title": "Chave de API do canal",
+        "button": "Regenerar chave de API do canal",
+        "info": "Essa chave é usada para todos os links de overlays, MCP e API pública do canal selecionado. Quando você regenerar, precisará verificar todas as suas sobreposições no seu aplicativo de transmissão e substituir os URLs pelos novos links."
+      },
+      "legacyApiKey": {
+        "title": "Chave de API de usuário legada",
+        "badge": "Obsoleta",
+        "info": "Esta chave está obsoleta e será removida no futuro. Use a chave de API do canal acima."
       }
     },
     "public": {

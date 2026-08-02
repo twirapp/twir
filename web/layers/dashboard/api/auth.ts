@@ -16,6 +16,7 @@ export const profileQuery = graphql(`
 			hideOnLandingPage
 			botId
 			apiKey
+			channelApiKey
 			linkedAccounts {
 				platform
 				platformUserId
@@ -37,6 +38,7 @@ export const profileQuery = graphql(`
 					platformAvatar
 				}
 				apiKey
+				channelApiKey
 				plan {
 					id
 					name
@@ -86,6 +88,7 @@ export const useProfile = createGlobalState(() => {
 			linkedAccounts: user.linkedAccounts,
 			currentPlatform: user.currentPlatform,
 			apiKey: user.apiKey,
+			channelApiKey: user.channelApiKey,
 			isBotAdmin: user.isBotAdmin,
 			isEnabled: user.isEnabled,
 			isBanned: user.isBanned,
@@ -209,6 +212,20 @@ export const useUserSettings = createGlobalState(() => {
 		}
 	}
 
+	const useChannelApiKeyGenerateMutation = () => {
+		const { executeMutation } = useMutation(
+			graphql(`
+				mutation userRegenerateChannelApiKey {
+					authenticatedUserRegenerateChannelApiKey
+				}
+			`)
+		)
+		return {
+			executeMutation: (variables: Record<string, never>) =>
+				executeMutation(variables, { additionalTypenames: [userInvalidateQueryKey] }),
+		}
+	}
+
 	const useUserUpdateMutation = () => {
 		const { executeMutation } = useMutation(
 			graphql(`
@@ -229,6 +246,7 @@ export const useUserSettings = createGlobalState(() => {
 		usePublicQuery,
 		usePublicMutation,
 		useApiKeyGenerateMutation,
+		useChannelApiKeyGenerateMutation,
 		useUserUpdateMutation,
 	}
 })

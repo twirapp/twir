@@ -1190,7 +1190,17 @@
       "showMeOnLanding": "Ukázať sa na domovskej stránke?",
       "regenerateApiKey": {
         "button": "Vygenerovať súkromný kľúč API",
-        "info": "Tento kľúč sa používa pre všetky odkazy prekrytí. Pri jeho vygenerovaní musíte skontrolovať všetky svoje prekrytia v softvéri na streamovanie a nahradiť adresy URL novými odkazmi."
+        "info": "Tento zastaralý používateľský kľúč sa predtým používal na odkazy overlayov, MCP a verejné API. Je zastaralý — použite API kľúč kanála."
+      },
+      "channelApiKey": {
+        "title": "API kľúč kanála",
+        "button": "Znovu vygenerovať API kľúč kanála",
+        "info": "Tento kľúč sa používa pre všetky odkazy overlayov, MCP a verejné API vybraného kanála. Pri jeho vygenerovaní musíte skontrolovať všetky svoje prekrytia v softvéri na streamovanie a nahradiť adresy URL novými odkazmi."
+      },
+      "legacyApiKey": {
+        "title": "Zastaralý API kľúč používateľa",
+        "badge": "Zastaralý",
+        "info": "Tento kľúč je zastaralý a v budúcnosti bude odstránený. Použite namiesto neho API kľúč kanála vyššie."
       }
     },
     "public": {

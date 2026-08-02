@@ -485,6 +485,10 @@ func (r *reinitChannelsRepo) GetByID(context.Context, uuid.UUID) (channelsmodel.
 	return channelsmodel.Nil, nil
 }
 
+func (*reinitChannelsRepo) GetByIDs(context.Context, []uuid.UUID) ([]channelsmodel.Channel, error) {
+	return nil, nil
+}
+
 func (r *reinitChannelsRepo) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {
 	return channelsmodel.Nil, nil
 }
