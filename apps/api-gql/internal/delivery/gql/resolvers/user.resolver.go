@@ -173,6 +173,30 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 	return newAPIKey, nil
 }
 
+// AuthenticatedUserRegenerateChannelAPIKey is the resolver for the authenticatedUserRegenerateChannelApiKey field.
+func (r *mutationResolver) AuthenticatedUserRegenerateChannelAPIKey(ctx context.Context) (string, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return "", gqlerrors.HandleError(err)
+	}
+
+	channelID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return "", fmt.Errorf("parse selected dashboard id: %w", err)
+	}
+
+	newAPIKey := uuid.NewString()
+	if _, err := r.deps.ChannelsRepository.Update(
+		ctx,
+		channelID,
+		channelsrepository.UpdateInput{ApiKey: &newAPIKey},
+	); err != nil {
+		return "", fmt.Errorf("regenerate channel api key: %w", err)
+	}
+
+	return newAPIKey, nil
+}
+
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
 func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context, opts gqlmodel.UserUpdatePublicSettingsInput) (bool, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
@@ -321,6 +345,10 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 	if parsedDashboardID, parseErr := uuid.Parse(dashboardId); parseErr == nil {
 		channel, channelErr := r.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
 		if channelErr == nil && !channel.IsNil() {
+			if channel.ApiKey != nil {
+				authedUser.ChannelAPIKey = *channel.ApiKey
+			}
+
 			twitchBinding, twitchConfig, found, configErr := channel.TwitchBinding()
 			if configErr != nil {
 				return nil, fmt.Errorf("parse Twitch channel binding configuration: %w", configErr)

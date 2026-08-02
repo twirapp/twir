@@ -150,7 +150,7 @@ export const useKappagenApi = createGlobalState(() => {
 		query: KappagenOverlaySubscription,
 		get variables() {
 			return {
-				apiKey: profile.value!.apiKey,
+				apiKey: profile.value!.channelApiKey,
 			}
 		},
 		pause: !!selectedDashboard.value,

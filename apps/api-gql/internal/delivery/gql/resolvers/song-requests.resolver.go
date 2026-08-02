@@ -603,6 +603,7 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 	if user.IsNil() {
 		return nil, nil
 	}
+	r.deps.Logger.WarnContext(ctx, "user API key is deprecated, use channel API key")
 
 	channel, err = r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
 	if err != nil {

@@ -1190,7 +1190,17 @@
       "showMeOnLanding": "Lasse dich auf der Start-Seite zeigen?",
       "regenerateApiKey": {
         "button": "Privaten API Schlüssel neu generieren",
-        "info": "Dieser Schlüssel wird für alle Overlay-Links verwendet. Wenn du es neu generierst, musst du alle deiner Overlays in deiner Streaming-Software überprüfen und URLs durch die neuen Links ersetzen."
+        "info": "Dieser veraltete Benutzerschlüssel wurde zuvor für Overlay-, MCP- und Public-API-Links verwendet. Er ist veraltet – verwende stattdessen den Kanal-API-Schlüssel."
+      },
+      "channelApiKey": {
+        "title": "Kanal-API-Schlüssel",
+        "button": "Kanal-API-Schlüssel neu generieren",
+        "info": "Dieser Schlüssel wird für alle Overlay-, MCP- und Public-API-Links des ausgewählten Kanals verwendet. Wenn du ihn neu generierst, musst du alle deine Overlays in deiner Streaming-Software überprüfen und URLs durch die neuen Links ersetzen."
+      },
+      "legacyApiKey": {
+        "title": "Veralteter Benutzer-API-Schlüssel",
+        "badge": "Veraltet",
+        "info": "Dieser Schlüssel ist veraltet und wird in Zukunft entfernt. Verwende stattdessen den Kanal-API-Schlüssel oben."
       }
     },
     "public": {

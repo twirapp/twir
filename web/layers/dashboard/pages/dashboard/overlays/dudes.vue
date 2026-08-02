@@ -45,7 +45,7 @@ const openedTab = ref<string>()
 const { sendIframeMessage, dudesIframe } = useDudesIframe()
 const dudesIframeUrl = computed(() => {
 	if (!profile.value || !openedTab.value) return null
-	return `${requestUrl.origin}/overlays/${profile.value.apiKey}/dudes?id=${openedTab.value}`
+	return `${requestUrl.origin}/overlays/${profile.value.channelApiKey}/dudes?id=${openedTab.value}`
 })
 
 const { setData, getDefaultSettings } = useDudesForm()

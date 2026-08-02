@@ -53,7 +53,7 @@ const selectedDashboardTwitchUser = computed(() => {
 })
 
 async function copyUrl(id: string) {
-	const apiKey = selectedDashboardTwitchUser.value?.apiKey || profile.value?.apiKey || ''
+	const apiKey = selectedDashboardTwitchUser.value?.channelApiKey || profile.value?.channelApiKey || ''
 	if (!apiKey) {
 		toast.error('No API key found')
 		return

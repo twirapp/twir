@@ -43,6 +43,10 @@ func (r *handlerStatusChannelsRepo) GetByID(context.Context, uuid.UUID) (channel
 	return r.channel, nil
 }
 
+func (*handlerStatusChannelsRepo) GetByIDs(context.Context, []uuid.UUID) ([]channelsmodel.Channel, error) {
+	return nil, nil
+}
+
 func (r *handlerStatusChannelsRepo) GetByApiKey(context.Context, string) (channelsmodel.Channel, error) {
 	return r.channel, nil
 }

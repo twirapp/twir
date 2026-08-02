@@ -139,13 +139,35 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			return nil, err
 		}
 
+		ownedChannelIDs := make([]uuid.UUID, 0, len(ownChannels))
+		for _, channel := range ownChannels {
+			channelID, err := uuid.Parse(channel.ID)
+			if err != nil {
+				return nil, fmt.Errorf("parse owned channel id: %w", err)
+			}
+			ownedChannelIDs = append(ownedChannelIDs, channelID)
+		}
+
+		ownedChannelEntities, err := r.deps.ChannelsRepository.GetByIDs(ctx, ownedChannelIDs)
+		if err != nil {
+			return nil, fmt.Errorf("get owned channels: %w", err)
+		}
+
+		channelAPIKeys := make(map[string]string, len(ownedChannelEntities))
+		for _, channel := range ownedChannelEntities {
+			if channel.ApiKey != nil {
+				channelAPIKeys[channel.ID.String()] = *channel.ApiKey
+			}
+		}
+
 		for _, channel := range ownChannels {
 			dashboard := gqlmodel.Dashboard{
-				ID:       channel.ID,
-				Platform: r.getDashboardPlatform(ctx, channel.ID, obj.ID),
-				Flags:    []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
-				APIKey:   obj.APIKey,
-				PlanID:   channel.PlanID,
+				ID:            channel.ID,
+				Platform:      r.getDashboardPlatform(ctx, channel.ID, obj.ID),
+				Flags:         []gqlmodel.ChannelRolePermissionEnum{gqlmodel.ChannelRolePermissionEnumCanAccessDashboard},
+				APIKey:        obj.APIKey,
+				PlanID:        channel.PlanID,
+				ChannelAPIKey: channelAPIKeys[channel.ID],
 			}
 
 			dashboardsEntities[channel.ID] = dashboard
@@ -182,11 +204,12 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			}
 
 			dashboard := gqlmodel.Dashboard{
-				ID:       role.Role.Channel.ID,
-				Platform: platform,
-				Flags:    append(existing.Flags, flags...),
-				APIKey:   existing.APIKey,
-				PlanID:   role.Role.Channel.PlanID,
+				ID:            role.Role.Channel.ID,
+				Platform:      platform,
+				Flags:         append(existing.Flags, flags...),
+				APIKey:        existing.APIKey,
+				PlanID:        role.Role.Channel.PlanID,
+				ChannelAPIKey: existing.ChannelAPIKey,
 			}
 
 			dashboardsEntities[role.Role.Channel.ID] = dashboard
@@ -249,11 +272,12 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			}
 
 			dashboard := gqlmodel.Dashboard{
-				ID:       role.ChannelID,
-				Platform: platform,
-				Flags:    append(existing.Flags, flags...),
-				APIKey:   existing.APIKey,
-				PlanID:   existing.PlanID,
+				ID:            role.ChannelID,
+				Platform:      platform,
+				Flags:         append(existing.Flags, flags...),
+				APIKey:        existing.APIKey,
+				PlanID:        existing.PlanID,
+				ChannelAPIKey: existing.ChannelAPIKey,
 			}
 
 			dashboardsEntities[role.ChannelID] = dashboard

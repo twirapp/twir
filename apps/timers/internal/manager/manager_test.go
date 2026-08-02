@@ -107,6 +107,10 @@ func (r *paginatedChannelsRepository) GetByID(
 	return channelentity.Nil, nil
 }
 
+func (*paginatedChannelsRepository) GetByIDs(context.Context, []uuid.UUID) ([]channelentity.Channel, error) {
+	return nil, nil
+}
+
 func (r *paginatedChannelsRepository) GetByApiKey(
 	context.Context,
 	string,

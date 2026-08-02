@@ -33,7 +33,7 @@ export const useOverlayInstantSaveGlobal = createGlobalState(() => {
 		)
 	})
 
-	const apiKey = computed(() => selectedDashboard.value?.apiKey || profile.value?.apiKey || '')
+	const apiKey = computed(() => selectedDashboard.value?.channelApiKey || profile.value?.channelApiKey || '')
 
 	return {
 		apiKey,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -172,6 +173,8 @@ func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 		if err != nil {
 			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get %s channel: %w", user.Platform, err)
 		}
+
+		slog.WarnContext(ctx, "user API key is deprecated, use channel API key")
 	}
 
 	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, 2)

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 import { useProfile, useUserSettings } from '~~/layers/dashboard/api/auth'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -14,9 +15,11 @@ const { data: profile, executeQuery } = useProfile()
 const userManager = useUserSettings()
 const updateUser = userManager.useUserUpdateMutation()
 const regenerateUserApiKey = userManager.useApiKeyGenerateMutation()
+const regenerateChannelApiKey = userManager.useChannelApiKeyGenerateMutation()
 
 const { t } = useI18n()
 
+const showChannelApiKey = ref(false)
 const showApiKey = ref(false)
 
 async function changeLandingVisibility() {
@@ -35,6 +38,19 @@ async function changeLandingVisibility() {
 	})
 }
 
+async function callRegenerateChannelKey() {
+	const result = await regenerateChannelApiKey.executeMutation({})
+
+	if (result.error) {
+		toast.error('Failed to regenerate API key')
+		return
+	}
+
+	await executeQuery({ requestPolicy: 'network-only' })
+
+	toast.success(t('sharedTexts.saved'))
+}
+
 async function callRegenerateKey() {
 	const result = await regenerateUserApiKey.executeMutation({})
 
@@ -46,6 +62,19 @@ async function callRegenerateKey() {
 	await executeQuery({ requestPolicy: 'network-only' })
 
 	toast.success(t('sharedTexts.saved'))
+}
+
+async function copyChannelApiKey() {
+	if (!profile.value?.channelApiKey) return
+
+	try {
+		await navigator.clipboard.writeText(profile.value.channelApiKey)
+		toast.success(t('sharedTexts.copied'), {
+			duration: 1500,
+		})
+	} catch (err) {
+		toast.error('Failed to copy')
+	}
 }
 
 async function copyApiKey() {
@@ -84,7 +113,42 @@ async function copyApiKey() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Key</CardTitle>
+					<CardTitle>{{ t('userSettings.account.channelApiKey.title') }}</CardTitle>
+				</CardHeader>
+				<CardContent class="space-y-4">
+					<div class="flex gap-2 w-full flex-wrap">
+						<Input
+							:type="showChannelApiKey ? 'text' : 'password'"
+							:model-value="profile?.channelApiKey ?? ''"
+							class="flex-1"
+							readonly
+						/>
+						<Button variant="outline" size="icon" type="button" @click="showChannelApiKey = !showChannelApiKey">
+							<Icon name="lucide:eye" v-if="!showChannelApiKey" />
+							<Icon name="lucide:eye-off" v-else />
+						</Button>
+						<Button variant="outline" size="icon" type="button" @click="copyChannelApiKey">
+							<Icon name="lucide:copy"  />
+						</Button>
+						<Button variant="outline" class="min-w-37.5 sm:w-full" @click="callRegenerateChannelKey">
+							<Icon name="lucide:refresh-cw"  />
+							{{ t('userSettings.account.channelApiKey.button') }}
+						</Button>
+					</div>
+					<p class="text-sm text-muted-foreground">
+						{{ t('userSettings.account.channelApiKey.info') }}
+					</p>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle class="flex items-center gap-2">
+						{{ t('userSettings.account.legacyApiKey.title') }}
+						<Badge variant="destructive">
+							{{ t('userSettings.account.legacyApiKey.badge') }}
+						</Badge>
+					</CardTitle>
 				</CardHeader>
 				<CardContent class="space-y-4">
 					<div class="flex gap-2 w-full flex-wrap">
@@ -107,7 +171,7 @@ async function copyApiKey() {
 						</Button>
 					</div>
 					<p class="text-sm text-muted-foreground">
-						{{ t('userSettings.account.regenerateApiKey.info') }}
+						{{ t('userSettings.account.legacyApiKey.info') }}
 					</p>
 				</CardContent>
 			</Card>

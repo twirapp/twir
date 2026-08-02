@@ -2037,6 +2037,10 @@ func (r *oauthChannelsRepository) GetByID(ctx context.Context, channelID uuid.UU
 	return r.getByIDFunc(ctx, channelID)
 }
 
+func (*oauthChannelsRepository) GetByIDs(context.Context, []uuid.UUID) ([]channelentity.Channel, error) {
+	return nil, errors.New("unexpected GetByIDs call")
+}
+
 func (*oauthChannelsRepository) GetByApiKey(context.Context, string) (channelentity.Channel, error) {
 	return channelentity.Nil, errors.New("unexpected GetByApiKey call")
 }

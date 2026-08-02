@@ -465,6 +465,10 @@ func (f *fakeChannelsRepository) GetByID(context.Context, uuid.UUID) (channelent
 	return f.channel, nil
 }
 
+func (*fakeChannelsRepository) GetByIDs(context.Context, []uuid.UUID) ([]channelentity.Channel, error) {
+	return nil, nil
+}
+
 func (f *fakeChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelentity.Channel, error) {
 	return channelentity.Nil, nil
 }

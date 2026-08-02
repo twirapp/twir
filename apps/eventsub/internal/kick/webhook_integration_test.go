@@ -43,6 +43,10 @@ func (m *mockChannelsRepoWebhook) GetByID(_ context.Context, _ uuid.UUID) (chann
 	return m.channel, m.err
 }
 
+func (*mockChannelsRepoWebhook) GetByIDs(context.Context, []uuid.UUID) ([]channelsmodel.Channel, error) {
+	return nil, nil
+}
+
 func (m *mockChannelsRepoWebhook) GetByBindingUserID(_ context.Context, _ platform.Platform, _ uuid.UUID) (channelsmodel.Channel, error) {
 	return m.channel, m.err
 }

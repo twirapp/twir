@@ -16,7 +16,7 @@ import { toast } from 'vue-sonner'
 	})
 
 	const overlayApiKey = computed(() => {
-		return selectedDashboardUser.value?.apiKey || profile.value?.apiKey || ''
+		return selectedDashboardUser.value?.channelApiKey || profile.value?.channelApiKey || ''
 	})
 
 	const overlayLink = computed(() => {

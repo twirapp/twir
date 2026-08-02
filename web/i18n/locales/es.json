@@ -1190,7 +1190,17 @@
       "showMeOnLanding": "¿Mostrarte en la Landing Page?",
       "regenerateApiKey": {
         "button": "Regenerar clave de API privada",
-        "info": "Esta clave se utiliza para todos los enlaces superpuestos. Cuando lo regenere, debe verificar todas las superposiciones en su software de transmisión y reemplazar las URL con los nuevos enlaces."
+        "info": "Esta clave de usuario obsoleta se usaba anteriormente para los enlaces de overlays, MCP y API pública. Está obsoleta: usa la clave API del canal."
+      },
+      "channelApiKey": {
+        "title": "Clave API del canal",
+        "button": "Regenerar clave API del canal",
+        "info": "Esta clave se utiliza para todos los enlaces de overlays, MCP y API pública del canal seleccionado. Cuando la regenere, debe verificar todas las superposiciones en su software de transmisión y reemplazar las URL con los nuevos enlaces."
+      },
+      "legacyApiKey": {
+        "title": "Clave API de usuario obsoleta",
+        "badge": "Obsoleta",
+        "info": "Esta clave está obsoleta y se eliminará en el futuro. Usa la clave API del canal de arriba."
       }
     },
     "public": {

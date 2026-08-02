@@ -1442,7 +1442,17 @@
       "showMeOnLanding": "Show yourself on the Landing Page?",
       "regenerateApiKey": {
         "button": "Regenerate Private API key",
-        "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+        "info": "This legacy user key was previously used for overlays, MCP and public API links. It is deprecated — use the channel API key instead."
+      },
+      "channelApiKey": {
+        "title": "Channel API key",
+        "button": "Regenerate channel API key",
+        "info": "This key is used for all overlays, MCP and public API links of the selected channel. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+      },
+      "legacyApiKey": {
+        "title": "Legacy user API key",
+        "badge": "Deprecated",
+        "info": "This key is deprecated and will be removed in the future. Use the channel API key above instead."
       }
     },
     "public": {
