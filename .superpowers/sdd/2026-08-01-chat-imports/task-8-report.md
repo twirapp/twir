@@ -27,3 +27,10 @@ Implemented the shared OAuth/import GraphQL contract for Nightbot, StreamElement
 ## Follow-up boundary
 
 The dashboard still references the previous Nightbot/Streamlabs mutation variables and result types. Task 12 must migrate those operations and regenerate the frontend GraphQL types before the whole web build is expected to pass.
+
+## Review follow-up
+
+- Sanitized Nightbot token, profile, commands, and timers non-2xx errors so provider response bodies cannot reach GraphQL internal causes or logs.
+- Errors retain the provider operation and HTTP status code for diagnostics.
+- Routed Nightbot OAuth requests through the service HTTP client and added sentinel-body regressions for all four endpoints.
+- Reverified `go test -race` for the resolver/Nightbot packages, the full API suite, `go vet`, and `git diff --check`.

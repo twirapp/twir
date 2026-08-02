@@ -170,15 +170,14 @@ func (s *Service) PostCode(ctx context.Context, channelID string, code string) e
 	}
 	tokenReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	tokenResp, err := http.DefaultClient.Do(tokenReq)
+	tokenResp, err := s.httpClient.Do(tokenReq)
 	if err != nil {
 		return fmt.Errorf("failed to get tokens: %w", err)
 	}
 	defer tokenResp.Body.Close()
 
 	if tokenResp.StatusCode < http.StatusOK || tokenResp.StatusCode >= http.StatusMultipleChoices {
-		bodyBytes, _ := io.ReadAll(tokenResp.Body)
-		return fmt.Errorf("nightbot token request failed: %s", string(bodyBytes))
+		return nightbotStatusError("token", tokenResp.StatusCode)
 	}
 
 	tokenBodyBytes, err := io.ReadAll(tokenResp.Body)
@@ -197,15 +196,14 @@ func (s *Service) PostCode(ctx context.Context, channelID string, code string) e
 	}
 	meReq.Header.Set("Authorization", "Bearer "+tokensData.AccessToken)
 
-	meResp, err := http.DefaultClient.Do(meReq)
+	meResp, err := s.httpClient.Do(meReq)
 	if err != nil {
 		return fmt.Errorf("failed to get user info: %w", err)
 	}
 	defer meResp.Body.Close()
 
 	if meResp.StatusCode < http.StatusOK || meResp.StatusCode >= http.StatusMultipleChoices {
-		bodyBytes, _ := io.ReadAll(meResp.Body)
-		return fmt.Errorf("nightbot me request failed: %s", string(bodyBytes))
+		return nightbotStatusError("profile", meResp.StatusCode)
 	}
 
 	meBodyBytes, err := io.ReadAll(meResp.Body)
@@ -313,8 +311,7 @@ func (s *Service) getCommands(ctx context.Context, channelID string) (nightbotCu
 	}
 	defer response.Body.Close()
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		body, _ := io.ReadAll(response.Body)
-		return nightbotCustomCommandsResponse{}, fmt.Errorf("nightbot commands error: %s", string(body))
+		return nightbotCustomCommandsResponse{}, nightbotStatusError("commands", response.StatusCode)
 	}
 
 	var result nightbotCustomCommandsResponse
@@ -342,8 +339,7 @@ func (s *Service) getTimers(ctx context.Context, channelID string) (nightbotTime
 	}
 	defer response.Body.Close()
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		body, _ := io.ReadAll(response.Body)
-		return nightbotTimersResponse{}, fmt.Errorf("nightbot timers error: %s", string(body))
+		return nightbotTimersResponse{}, nightbotStatusError("timers", response.StatusCode)
 	}
 
 	var result nightbotTimersResponse
@@ -351,6 +347,10 @@ func (s *Service) getTimers(ctx context.Context, channelID string) (nightbotTime
 		return nightbotTimersResponse{}, fmt.Errorf("failed to unmarshal timers: %w", err)
 	}
 	return result, nil
+}
+
+func nightbotStatusError(operation string, statusCode int) error {
+	return fmt.Errorf("Nightbot %s request failed with status %d", operation, statusCode)
 }
 
 func (s *Service) accessToken(ctx context.Context, channelID string) (string, error) {

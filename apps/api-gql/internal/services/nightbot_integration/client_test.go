@@ -2,6 +2,7 @@ package nightbot_integration
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -57,6 +58,148 @@ func TestGetAuthLinkRejectsBlankState(t *testing.T) {
 	}}}
 	if _, err := service.GetAuthLink(context.Background(), " \t\n "); err == nil {
 		t.Fatal("GetAuthLink() error = nil, want empty state rejection")
+	}
+}
+
+func TestImportProviderErrorsDoNotLeakResponseBodies(t *testing.T) {
+	t.Parallel()
+
+	const sentinel = "SENTINEL_PROVIDER_SECRET_BODY"
+	accessToken := "nightbot-access"
+	for _, testCase := range []struct {
+		name      string
+		path      string
+		operation string
+		call      func(*Service) error
+	}{
+		{
+			name:      "commands",
+			path:      "/1/commands",
+			operation: "commands",
+			call: func(service *Service) error {
+				_, err := service.getCommands(context.Background(), "channel")
+				return err
+			},
+		},
+		{
+			name:      "timers",
+			path:      "/1/timers",
+			operation: "timers",
+			call: func(service *Service) error {
+				_, err := service.getTimers(context.Background(), "channel")
+				return err
+			},
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := &http.Client{Transport: roundTripFunc(func(request *http.Request) (*http.Response, error) {
+				if request.URL.Path != testCase.path {
+					t.Fatalf("request path = %q, want %q", request.URL.Path, testCase.path)
+				}
+				return &http.Response{
+					StatusCode: http.StatusTeapot,
+					Body:       io.NopCloser(strings.NewReader(sentinel)),
+					Header:     make(http.Header),
+				}, nil
+			})}
+			service := &Service{
+				httpClient: client,
+				channelIntegrationsRepo: fakeChannelIntegrationsRepository{integration: channelsintegrationsmodel.ChannelIntegration{
+					ID:          "nightbot-integration",
+					AccessToken: &accessToken,
+				}},
+			}
+
+			err := testCase.call(service)
+			if err == nil {
+				t.Fatal("provider call error = nil")
+			}
+			if strings.Contains(err.Error(), sentinel) {
+				t.Fatalf("provider error leaked response body: %v", err)
+			}
+			if !strings.Contains(err.Error(), "Nightbot "+testCase.operation) ||
+				!strings.Contains(err.Error(), "status 418") {
+				t.Fatalf("provider error = %q, want operation and status", err)
+			}
+		})
+	}
+}
+
+func TestOAuthProviderErrorsDoNotLeakResponseBodies(t *testing.T) {
+	t.Parallel()
+
+	const sentinel = "SENTINEL_OAUTH_SECRET_BODY"
+	clientID := "nightbot-client"
+	clientSecret := "nightbot-secret"
+	redirectURL := "https://twir.test/dashboard/integrations/callbacks/nightbot"
+	for _, testCase := range []struct {
+		name       string
+		operation  string
+		statusCode int
+		profile    bool
+	}{
+		{
+			name:       "token",
+			operation:  "token",
+			statusCode: http.StatusTooManyRequests,
+		},
+		{
+			name:       "profile",
+			operation:  "profile",
+			statusCode: http.StatusBadGateway,
+			profile:    true,
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			transport := roundTripFunc(func(request *http.Request) (*http.Response, error) {
+				if request.URL.Path == "/oauth2/token" && testCase.profile {
+					return providerResponse(http.StatusOK, `{"access_token":"access","refresh_token":"refresh"}`), nil
+				}
+				expectedPath := "/oauth2/token"
+				if testCase.profile {
+					expectedPath = "/1/me"
+				}
+				if request.URL.Path != expectedPath {
+					t.Fatalf("request path = %q, want %q", request.URL.Path, expectedPath)
+				}
+				return providerResponse(testCase.statusCode, sentinel), nil
+			})
+
+			service := &Service{
+				httpClient: &http.Client{Transport: transport},
+				integrationsRepo: fakeIntegrationsRepository{integration: integrationsmodel.Integration{
+					ID:           "nightbot-provider",
+					ClientID:     &clientID,
+					ClientSecret: &clientSecret,
+					RedirectURL:  &redirectURL,
+				}},
+				channelIntegrationsRepo: fakeChannelIntegrationsRepository{},
+			}
+
+			err := service.PostCode(context.Background(), "channel", "authorization-code")
+			if err == nil {
+				t.Fatal("PostCode() error = nil")
+			}
+			if strings.Contains(err.Error(), sentinel) {
+				t.Fatalf("OAuth provider error leaked response body: %v", err)
+			}
+			wantStatus := fmt.Sprintf("status %d", testCase.statusCode)
+			if !strings.Contains(err.Error(), "Nightbot "+testCase.operation) ||
+				!strings.Contains(err.Error(), wantStatus) {
+				t.Fatalf("OAuth provider error = %q, want operation and %s", err, wantStatus)
+			}
+		})
+	}
+}
+
+func providerResponse(statusCode int, body string) *http.Response {
+	return &http.Response{
+		StatusCode: statusCode,
+		Body:       io.NopCloser(strings.NewReader(body)),
+		Header:     make(http.Header),
 	}
 }
 
