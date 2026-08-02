@@ -1,0 +1,97 @@
+service:
+  env: production
+  secret: "__UPTRACE_SERVICE_SECRET__"
+
+site:
+  url: https://uptrace.twir.app
+  ingest_url: https://uptrace.twir.app
+
+listen:
+  http:
+    addr: :80
+  grpc:
+    addr: :4317
+
+seed_data:
+  update: true
+  delete: true
+  users:
+    - key: twir_admin
+      name: Twir Admin
+      email: uptrace@twir.app
+      password: "__UPTRACE_ADMIN_PASSWORD__"
+      email_confirmed: true
+  orgs:
+    - key: twir
+      name: Twir
+  org_users:
+    - key: twir_admin_owner
+      org_key: twir
+      user_key: twir_admin
+      role: owner
+  projects:
+    - key: twir
+      name: Twir
+      org_key: twir
+  project_tokens:
+    - key: twir_token
+      project_key: twir
+      token: "__UPTRACE_PROJECT_TOKEN__"
+  project_users:
+    - key: twir_admin_project
+      project_key: twir
+      org_user_key: twir_admin_owner
+      perm_level: admin
+
+ch_cluster:
+  cluster: uptrace1
+  replicated: false
+  distributed: false
+  shards:
+    - replicas:
+        - addr: uptrace-clickhouse:9000
+          database: uptrace
+          user: uptrace
+          password: "__UPTRACE_CLICKHOUSE_PASSWORD__"
+          dial_timeout: 3s
+          write_timeout: 5s
+          max_retries: 3
+          max_execution_time: 15s
+
+pg:
+  addr: uptrace-postgres:5432
+  user: uptrace
+  password: "__UPTRACE_POSTGRES_PASSWORD__"
+  database: uptrace
+
+ch_schema:
+  compression: ZSTD(1)
+  spans_index: { storage_policy: default }
+  spans_data: { storage_policy: default }
+  span_links: { storage_policy: default }
+  logs_index: { storage_policy: default }
+  logs_data: { storage_policy: default }
+  events_index: { storage_policy: default }
+  events_data: { storage_policy: default }
+  timeseries: { storage_policy: default }
+  datapoints: { storage_policy: default }
+
+redis_cache:
+  addrs:
+    1: uptrace-redis:6379
+  username: ""
+  password: ""
+  db: 0
+
+certmagic:
+  enabled: false
+
+mailer:
+  smtp:
+    enabled: false
+
+self_monitoring:
+  disabled: true
+
+logging:
+  level: INFO
