@@ -100,6 +100,51 @@
     "notifications": "Notifications",
     "giveaways": "Giveaways"
   },
+  "mcpGuide": {
+    "title": "AI access",
+    "description": "Connect an AI coding agent to your channel through Twir MCP.",
+    "copyError": "Failed to copy",
+    "copyEndpoint": "Copy endpoint",
+    "copyApiKey": "Copy API key",
+    "copyConfig": "Copy ready configuration",
+    "showKey": "Show API key",
+    "hideKey": "Hide API key",
+    "documentation": "Documentation",
+    "loadErrorTitle": "Cannot load the channel API key",
+    "clientsTitle": "Choose your client",
+    "clientsDescription": "Copied configurations include this channel's endpoint and API key. The preview stays redacted until you reveal the key.",
+    "credentials": {
+      "title": "Connection details",
+      "description": "Use these values when configuring any Streamable HTTP MCP client.",
+      "endpoint": "MCP endpoint",
+      "apiKey": "Channel API key",
+      "warningTitle": "Keep this key private",
+      "warningDescription": "Anyone with this key can manage your channel through the enabled MCP tools. Do not commit it to a repository or share it publicly."
+    },
+    "clients": {
+      "claude": {
+        "description": "Add Twir as a user-scoped remote HTTP server with Claude Code's MCP CLI.",
+        "step1": "Run the generated command in your terminal.",
+        "step2": "Restart Claude Code, then use /mcp to verify the connection."
+      },
+      "pi": {
+        "description": "Pi keeps MCP outside its core, so this setup uses the pi-mcp-adapter extension.",
+        "step1": "Install the adapter with: pi install npm:pi-mcp-adapter",
+        "step2": "Save the generated JSON to the shown shared MCP configuration file.",
+        "step3": "Restart Pi, then use /mcp status to verify the connection."
+      },
+      "codex": {
+        "description": "Configure Twir as a Streamable HTTP server in the Codex config.toml file.",
+        "step1": "Add the generated block to your user or trusted-project config.toml.",
+        "step2": "Restart Codex, then use /mcp to verify the connection."
+      },
+      "opencode": {
+        "description": "Add a remote server with static headers and disable automatic OAuth discovery.",
+        "step1": "Merge the generated object into your opencode.json configuration.",
+        "step2": "Restart OpenCode and run opencode mcp list to verify the connection."
+      }
+    }
+  },
   "deleteConfirmation": {
     "title": "Are you sure?",
     "text": "Are you sure about deleting this thing?",
