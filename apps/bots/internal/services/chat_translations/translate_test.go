@@ -67,3 +67,38 @@ func TestHasTranslatableText(t *testing.T) {
 		})
 	}
 }
+
+func TestTranslationsEquivalent(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		source     string
+		translated string
+		want       bool
+	}{
+		{name: "identical text", source: "hello world", translated: "hello world", want: true},
+		{name: "case and punctuation shuffle", source: "чай попей", translated: "чай Попай", want: true},
+		{name: "single letter suffix", source: "да не", translated: "да нет", want: true},
+		{name: "different punctuation only", source: "привет, как дела?", translated: "Привет как дела", want: true},
+		{name: "synonym swap is not equivalent", source: "дайте токенов!", translated: "Дайте мне жетон!", want: false},
+		{name: "real translation", source: "hello my friend", translated: "привет мой друг", want: false},
+		{name: "empty source", source: "!!!", translated: "???", want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := translationsEquivalent(tt.source, tt.translated); got != tt.want {
+				t.Fatalf(
+					"translationsEquivalent(%q, %q) = %t, want %t",
+					tt.source,
+					tt.translated,
+					got,
+					tt.want,
+				)
+			}
+		})
+	}
+}
