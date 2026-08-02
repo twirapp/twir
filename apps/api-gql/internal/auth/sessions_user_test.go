@@ -123,6 +123,7 @@ func TestIntegrationOAuthAttemptRejectsMismatchedBindingsAndExpiry(t *testing.T)
 		channelID       uuid.UUID
 		initiatorUserID uuid.UUID
 		expireAttempt   bool
+		wantRemoved     bool
 		wantErr         error
 	}{
 		{
@@ -152,6 +153,7 @@ func TestIntegrationOAuthAttemptRejectsMismatchedBindingsAndExpiry(t *testing.T)
 			channelID:       channelID,
 			initiatorUserID: userID,
 			expireAttempt:   true,
+			wantRemoved:     true,
 			wantErr:         ErrOAuthAttemptExpired,
 		},
 	}
@@ -196,8 +198,25 @@ func TestIntegrationOAuthAttemptRejectsMismatchedBindingsAndExpiry(t *testing.T)
 				t.Fatalf("consume integration OAuth attempt error = %v, want %v", err, tt.wantErr)
 			}
 
-			if _, err := auth.GetOAuthAttempt(ctx, state); err != nil {
-				t.Fatalf("rejected integration OAuth attempt was removed: %v", err)
+			_, getErr := auth.GetOAuthAttempt(ctx, state)
+			if tt.wantRemoved {
+				if !errors.Is(getErr, ErrOAuthAttemptNotFound) {
+					t.Fatalf("expired integration OAuth attempt error = %v, want ErrOAuthAttemptNotFound", getErr)
+				}
+
+				replayErr := auth.ConsumeIntegrationOAuthAttempt(
+					ctx,
+					state,
+					tt.service,
+					tt.channelID,
+					tt.initiatorUserID,
+					now,
+				)
+				if !errors.Is(replayErr, ErrOAuthAttemptNotFound) {
+					t.Fatalf("replayed expired OAuth attempt error = %v, want ErrOAuthAttemptNotFound", replayErr)
+				}
+			} else if getErr != nil {
+				t.Fatalf("mismatched integration OAuth attempt was removed: %v", getErr)
 			}
 		})
 	}

@@ -255,6 +255,11 @@ func (s *Auth) ConsumeIntegrationOAuthAttempt(
 	}
 
 	if !now.Before(attempt.ExpiresAt) {
+		if err := s.DeleteOAuthAttempt(ctx, state); err != nil {
+			return err
+		}
+
+		consumed = true
 		return ErrOAuthAttemptExpired
 	}
 
