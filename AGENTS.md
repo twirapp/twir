@@ -334,6 +334,23 @@ const integrationsPage = useIntegrationsPageData()
 
 ### **7. Go (Golang) Backend**
 
+- **Fx lifecycle contexts (mandatory):**
+  - Treat the `context.Context` passed to `fx.Hook.OnStart` and `fx.Hook.OnStop` as a short-lived,
+    phase-scoped deadline context owned by Fx.
+  - **NEVER** store that context in a struct, capture/pass it to a background goroutine, or reuse it
+    after the hook returns. It is canceled when the lifecycle phase finishes or times out.
+  - Long-running workers must use their own service-owned context (for example,
+    `context.WithCancel(context.Background())`). Start the worker in `OnStart`, retain its cancel
+    function, cancel it in `OnStop`, and wait for the worker to exit within the `OnStop` context.
+  - Use the Fx context only for bounded synchronous startup/shutdown work inside the hook. Do not
+    replace it with `context.Background()` or `context.TODO()` for such work, because that bypasses
+    Fx cancellation and can leave a hook running after startup has failed.
+  - `OnStart` must return quickly. Do not perform unbounded loops, bulk reconciliation, or
+    sequential calls to external services there; move those to a managed background worker unless
+    they are strictly required for readiness and have explicit bounded timeouts.
+  - Do not raise `fx.StartTimeout` or `fx.StopTimeout` merely to hide a slow or stuck hook. Increase
+    them only when the bounded lifecycle operation is intentionally required and the longer budget
+    is documented.
 - **Migrations**
   - If need to create new database migration for your task, use:
   - command `bun cli m create --name value --db postgres|clickhouse --type sql|go`

@@ -219,6 +219,7 @@ func CommandGqlInputToService(
 		AllowedUsersIDS:           input.AllowedUsersIds,
 		RolesIDS:                  input.RolesIds,
 		OnlineOnly:                input.OnlineOnly,
+		OfflineOnly:               input.OfflineOnly,
 		EnabledCategories:         input.EnabledCategories,
 		RequiredWatchTime:         input.RequiredWatchTime,
 		RequiredMessages:          input.RequiredMessages,

@@ -57,6 +57,13 @@ export const featuresData: Feature[] = [
 		icon: h(Icon, { name: 'lucide:code' }),
 	},
 	{
+		id: 'mcp',
+		title: 'AI control (MCP)',
+		description:
+			'Control your bot with AI assistants: manage commands, timers, keywords, variables and more from Claude Code, Codex or OpenCode via MCP',
+		icon: h(Icon, { name: 'lucide:bot' }),
+	},
+	{
 		id: 'timers',
 		title: 'Timers',
 		description:

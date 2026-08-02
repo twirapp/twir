@@ -217,6 +217,21 @@ func (c *Service) Handle(ctx context.Context, input ChatMessageInput) error {
 		return nil
 	}
 
+	if isAmbiguousCyrillicDetection(
+		textForTranslate,
+		msgLang.Language,
+		channelTranslationSettings.TargetLanguage,
+	) {
+		c.logger.Info(
+			"skipping translation: ambiguous cyrillic language detection",
+			slog.String("detected_lang", msgLang.Language),
+			slog.Float64("confidence", msgLang.Confidence),
+			slog.String("target_lang", channelTranslationSettings.TargetLanguage),
+			slog.String("text", textForTranslate),
+		)
+		return nil
+	}
+
 	if slices.Contains(channelTranslationSettings.ExcludedLanguages, msgLang.Language) {
 		return nil
 	}
@@ -243,7 +258,7 @@ func (c *Service) Handle(ctx context.Context, input ChatMessageInput) error {
 		return nil
 	}
 
-	if res.TranslatedText[0] == textForTranslate {
+	if translationsEquivalent(textForTranslate, res.TranslatedText[0]) {
 		return nil
 	}
 

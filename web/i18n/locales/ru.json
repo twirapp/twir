@@ -1694,7 +1694,8 @@
       "vipManagement": "Управление VIP",
       "emoteStats": "Статистика смайлов",
       "musicRecognition": "Распознавание музыки (как Shazam)",
-      "obsIntegration": "Интеграция с OBS"
+      "obsIntegration": "Интеграция с OBS",
+      "aiMcp": "Управление через ИИ (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing, Чат, статистика Faceit и Valorant, Emote Wall, Pixel Dudes, AFK и другие",
@@ -1716,7 +1717,8 @@
       "rolesMoobot": "1 группа прав на бесплатном плане",
       "vipTwir": "Управление VIP и планирование снятия по времени",
       "vipMoobot": "Только First Wave VIP, MoobotPlus (платно)",
-      "obsTwir": "Смена сцен, мьют звука, видимость источников через websockets"
+      "obsTwir": "Смена сцен, мьют звука, видимость источников через websockets",
+      "aiMcpTwir": "Управляйте ботом из Claude Code, Codex, OpenCode и других ИИ-ассистентов через MCP"
     },
     "values": {
       "platforms": {
