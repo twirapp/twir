@@ -30,7 +30,7 @@ func (c *Service) detectLanguage(ctx context.Context, text string) (*detectedLan
 
 	requestBody := detectedLangRequest{
 		Text:   text,
-		Method: "mediapipe",
+		Method: "lingua",
 	}
 
 	body := new(bytes.Buffer)
