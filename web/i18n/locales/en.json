@@ -1783,7 +1783,8 @@
       "vipManagement": "VIP management",
       "emoteStats": "Emote statistics",
       "musicRecognition": "Music recognition (Shazam-like)",
-      "obsIntegration": "OBS integration"
+      "obsIntegration": "OBS integration",
+      "aiMcp": "AI control (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing, Chat, Faceit & Valorant stats, Emote Wall, Pixel Dudes, AFK and more",
@@ -1805,7 +1806,8 @@
       "rolesMoobot": "1 permission group on the free plan",
       "vipTwir": "Manage VIPs and schedule VIP expiration",
       "vipMoobot": "First Wave VIP only, MoobotPlus (paid)",
-      "obsTwir": "Change scenes, mute audio, toggle sources via websockets"
+      "obsTwir": "Change scenes, mute audio, toggle sources via websockets",
+      "aiMcpTwir": "Manage the bot from Claude Code, Codex, OpenCode and other AI assistants via MCP"
     },
     "values": {
       "platforms": {

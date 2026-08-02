@@ -1458,7 +1458,8 @@
       "vipManagement": "Správa VIP",
       "emoteStats": "Štatistiky emotov",
       "musicRecognition": "Rozpoznávanie hudby (ako Shazam)",
-      "obsIntegration": "Integrácia s OBS"
+      "obsIntegration": "Integrácia s OBS",
+      "aiMcp": "Ovládanie pomocou AI (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing, Chat, Faceit a Valorant štatistiky, Emote Wall, Pixel Dudes, AFK a ďalšie",
@@ -1480,7 +1481,8 @@
       "rolesMoobot": "1 skupina oprávnení v bezplatnom pláne",
       "vipTwir": "Správa VIP a plánovanie expirácie",
       "vipMoobot": "Len First Wave VIP, MoobotPlus (platené)",
-      "obsTwir": "Zmena scén, stlmenie zvuku, viditeľnosť zdrojov cez websockets"
+      "obsTwir": "Zmena scén, stlmenie zvuku, viditeľnosť zdrojov cez websockets",
+      "aiMcpTwir": "Spravujte bota z Claude Code, Codex, OpenCode a ďalších AI asistentov cez MCP"
     },
     "values": {
       "platforms": {

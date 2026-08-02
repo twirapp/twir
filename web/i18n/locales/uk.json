@@ -1470,7 +1470,8 @@
       "vipManagement": "Керування VIP",
       "emoteStats": "Статистика смайлів",
       "musicRecognition": "Розпізнавання музики (як Shazam)",
-      "obsIntegration": "Інтеграція з OBS"
+      "obsIntegration": "Інтеграція з OBS",
+      "aiMcp": "Керування через ШІ (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing, Чат, статистика Faceit та Valorant, Emote Wall, Pixel Dudes, AFK та інші",
@@ -1492,7 +1493,8 @@
       "rolesMoobot": "1 група прав на безкоштовному плані",
       "vipTwir": "Керування VIP та планування зняття за часом",
       "vipMoobot": "Лише First Wave VIP, MoobotPlus (платно)",
-      "obsTwir": "Зміна сцен, мʼют звуку, видимість джерел через websockets"
+      "obsTwir": "Зміна сцен, мʼют звуку, видимість джерел через websockets",
+      "aiMcpTwir": "Керуйте ботом із Claude Code, Codex, OpenCode та інших ШІ-асистентів через MCP"
     },
     "values": {
       "platforms": {
