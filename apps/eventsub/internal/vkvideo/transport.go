@@ -36,6 +36,7 @@ type Opts struct {
 	WebSocketTokenClient *vk.WebSocketTokenClient
 	ChannelsRepo         channels.Repository
 	Lc                   fx.Lifecycle
+	ProxyUrl             string
 }
 
 type Transport struct {
@@ -48,6 +49,7 @@ type Transport struct {
 	deduplicator     messageDeduplicator
 	newConnection    realtimeConnectionFactory
 	databaseBindings bindingsProvider
+	proxyUrl         string
 
 	mu               sync.Mutex
 	bindings         map[uuid.UUID]*activeBinding
@@ -64,6 +66,7 @@ type transportDependencies struct {
 	deduplicator     messageDeduplicator
 	newConnection    realtimeConnectionFactory
 	databaseBindings bindingsProvider
+	proxyUrl         string
 }
 
 func New(opts Opts) (*Transport, error) {
@@ -86,6 +89,7 @@ func New(opts Opts) (*Transport, error) {
 		deduplicator:     redisDeduplicator{redis: opts.Redis},
 		newConnection:    newCentrifugoConnection,
 		databaseBindings: newDatabaseBindingsProvider(opts.ChannelsRepo),
+		proxyUrl:         opts.ProxyUrl,
 	})
 	reconcileCtx, stopReconcile := context.WithCancel(context.Background())
 	go transport.reconcileLoop(reconcileCtx)
@@ -112,6 +116,7 @@ func newTransport(deps transportDependencies) *Transport {
 		deduplicator:     deps.deduplicator,
 		newConnection:    deps.newConnection,
 		databaseBindings: deps.databaseBindings,
+		proxyUrl:         deps.proxyUrl,
 		bindings:         make(map[uuid.UUID]*activeBinding),
 		contentionLogged: make(map[uuid.UUID]bool),
 	}

@@ -108,6 +108,11 @@ type Config struct {
 	VKVideoAuthBaseURL   string `required:"false" default:"https://auth.live.vkvideo.ru" envconfig:"VK_VIDEO_AUTH_BASE_URL"`
 	VKVideoDevAPIBaseURL string `required:"false" default:"https://apidev.live.vkvideo.ru" envconfig:"VK_VIDEO_DEVAPI_BASE_URL"`
 
+	// VkProxyUrl is an optional HTTP/SOCKS5 proxy URL used for the VK Video
+	// Live Centrifugo (pubsub) WebSocket connection, e.g. "http://host:port"
+	// or "socks5://user:pass@host:port".
+	VkProxyUrl string `required:"false" envconfig:"VK_PROXY_URL"`
+
 	YouTubeClientID     string `required:"false" envconfig:"YOUTUBE_CLIENT_ID"`
 	YouTubeClientSecret string `required:"false" envconfig:"YOUTUBE_CLIENT_SECRET"`
 
