@@ -139,6 +139,51 @@ test('unauthorized refreshes once, rebuilds with new token, and ignores stale ca
 	expect(fake.refreshes()).toBe(1)
 })
 
+test('confirmed authentication starts a new future refresh cycle', async () => {
+	const fake = setup()
+	fake.sockets[0]?.trigger('unauthorized')
+	await Bun.sleep(0)
+	fake.sockets[1]?.trigger('connect')
+	fake.sockets[1]?.trigger('authenticated')
+	fake.sockets[1]?.trigger('unauthorized')
+	await Bun.sleep(0)
+
+	expect(fake.refreshes()).toBe(2)
+	expect(fake.sockets).toHaveLength(3)
+})
+
+test('does not publish a claimed tip after the connection is destroyed', async () => {
+	const sockets: FakeSocket[] = []
+	const donations: Donate[] = []
+	let resolveClaim: ((claimed: boolean) => void) | undefined
+	const claim = new Promise<boolean>((resolve) => { resolveClaim = resolve })
+	const connection = new StreamElementsConnection({
+		channelID: 'channel-1',
+		client: {
+			tokens: { accessToken: 'access', refreshToken: 'refresh' },
+			async refresh() { return undefined },
+		},
+		socketFactory: () => {
+			const socket = new FakeSocket()
+			sockets.push(socket)
+			return socket
+		},
+		onDonation: async (donation) => { donations.push(donation) },
+		claimDonation: async () => claim,
+	})
+	connection.connect()
+	sockets[0]?.trigger('event', {
+		type: 'tip',
+		data: { tipId: 'tip-1', username: 'Alice', amount: 1, currency: 'USD' },
+	})
+	await Bun.sleep(0)
+	connection.destroy()
+	resolveClaim?.(true)
+	await Bun.sleep(0)
+
+	expect(donations).toHaveLength(0)
+})
+
 test('network disconnect reconnects without refresh and destroy cancels stale work', () => {
 	const callbacks: Array<() => void> = []
 	const sockets: FakeSocket[] = []

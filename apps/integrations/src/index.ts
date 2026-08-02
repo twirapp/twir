@@ -24,10 +24,11 @@ import {
 	addIntegration as addStreamlabsIntegration,
 	removeIntegration as removeStreamlabsIntegration,
 } from './store/streamlabs';
-import { createStreamElementsStore } from './store/streamelements.ts';
+import { createStreamElementsStore, runLifecycleOperation } from './store/streamelements.ts';
 import './pubsub';
 
 const streamElementsStore = createStreamElementsStore({
+	loadIntegrationByID: (integrationID) => getStreamElementsIntegrations({ id: integrationID }),
 	createConnection(integration) {
 		if (!config.STREAM_ELEMENTS_CLIENT_ID || !config.STREAM_ELEMENTS_CLIENT_SECRET) {
 			throw new Error('StreamElements OAuth credentials are not configured');
@@ -70,14 +71,19 @@ for (const integration of await getStreamElementsIntegrations()) {
 	await streamElementsStore.addIntegration(integration);
 }
 
-twirBus.Integrations.Add.subscribe(async (data) => {
+interface IntegrationLifecycleRequest {
+	readonly id: string
+	readonly service: IntegrationService
+}
+
+async function handleIntegrationAdd(data: IntegrationLifecycleRequest): Promise<void> {
 	console.info(`Adding ${data.id} (${data.service}) connection`);
 
 	if (data.service === IntegrationService.DONATEPAY) {
 		const integration = await getDonationPayIntegrations({ id: data.id });
 		if (!integration) {
 			console.error(`Integration with id ${data.id} not found for DonatePay`);
-			return null;
+			return;
 		}
 		await addDonatePayIntegration(integration);
 		return;
@@ -87,7 +93,7 @@ twirBus.Integrations.Add.subscribe(async (data) => {
 		const integration = await getDonationAlertsIntegrations({ id: Number(data.id) });
 		if (!integration) {
 			console.error(`Integration with id ${data.id} not found for DonateAlerts`);
-			return null;
+			return;
 		}
 		await addDonationAlertsIntegration(integration);
 		return;
@@ -97,48 +103,49 @@ twirBus.Integrations.Add.subscribe(async (data) => {
 		const integration = await getStreamlabsIntegrations({ id: data.id });
 		if (!integration) {
 			console.error(`Integration with id ${data.id} not found for Streamlabs`);
-			return null;
+			return;
 		}
 		await addStreamlabsIntegration(integration);
 		return;
 	}
 
 	if (data.service === IntegrationService.STREAMELEMENTS) {
-		const integration = await getStreamElementsIntegrations({ id: data.id });
-		if (!integration) {
-			console.error(`Integration with id ${data.id} not found for StreamElements`);
-			return null;
-		}
-		await streamElementsStore.addIntegration(integration);
+		await streamElementsStore.addIntegrationByID(data.id);
 		return;
 	}
+}
 
-	return null;
-});
-
-twirBus.Integrations.Remove.subscribe(async (data) => {
+async function handleIntegrationRemove(data: IntegrationLifecycleRequest): Promise<void> {
 	console.info(`Destroying ${data.id} (${data.service}) connection`);
 
 	if (data.service === IntegrationService.DONATEPAY) {
 		await removeDonatePayIntegration(data.id); // channelId
-		return null;
+		return;
 	}
 
 	if (data.service === IntegrationService.DONATIONALERTS) {
 		await removeDonationAlertsIntegration(data.id); // channelId
-		return null;
+		return;
 	}
 
 	if (data.service === IntegrationService.STREAMLABS) {
 		await removeStreamlabsIntegration(data.id); // channelId
-		return null;
+		return;
 	}
 
 	if (data.service === IntegrationService.STREAMELEMENTS) {
 		await streamElementsStore.removeIntegration(data.id); // channelId
-		return null;
+		return;
 	}
+}
 
+twirBus.Integrations.Add.subscribe((data) => {
+	runLifecycleOperation(() => handleIntegrationAdd(data));
+	return null;
+});
+
+twirBus.Integrations.Remove.subscribe((data) => {
+	runLifecycleOperation(() => handleIntegrationRemove(data));
 	return null;
 });
 

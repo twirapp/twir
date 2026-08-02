@@ -34,7 +34,7 @@
   `cd apps/integrations && bun test src/libs/streamelements-client.test.ts src/services/streamElements.test.ts src/store/streamelements.test.ts`
   passed.
 - Full suite: `cd apps/integrations && bun test`
-  - 28 passed, 0 failed, 82 assertions.
+  - 33 passed, 0 failed, 91 assertions after review regressions.
 - Typecheck: `cd apps/integrations && bun run prebuild`
   - passed (`tsc --noEmit`).
 - Build: `cd apps/integrations && bun run build`
@@ -55,3 +55,16 @@
 
 - Task 11 will move the legacy Streamlabs connection onto the same lifecycle and refresh/dedupe
   primitives and can broaden shutdown cleanup to all provider stores.
+
+## Review fixes
+
+- Bus callbacks now detach through an explicit rejection handler because `Queue.subscribe` does
+  not await returned promises.
+- Add-by-row-ID performs an initial channel discovery and then rereads the authoritative enabled
+  row inside that channel's serialized lifecycle queue. A Remove/logout that wins the race cannot
+  be undone by a delayed stale Add, and shutdown also rejects Add operations still discovering a
+  channel.
+- The one-refresh guard resets only after the provider emits `authenticated`, allowing a future
+  token expiry to start a new refresh cycle without looping on a failed authentication attempt.
+- Tip delivery captures the socket generation and rechecks it after the awaited Redis claim, so a
+  removed or replaced connection cannot publish a late donation.

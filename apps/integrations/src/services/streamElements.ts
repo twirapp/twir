@@ -150,9 +150,13 @@ export class StreamElementsConnection {
 				token: this.#client.tokens.accessToken,
 			})
 		})
+		socket.on('authenticated', () => {
+			if (!this.#isCurrent(generation, socket)) return
+			this.#refreshUsed = false
+		})
 		socket.on('event', (payload) => {
 			if (!this.#isCurrent(generation, socket)) return
-			void this.#handleEvent(payload).catch(this.#onError)
+			void this.#handleEvent(payload, generation, socket).catch(this.#onError)
 		})
 		socket.on('unauthorized', () => {
 			if (!this.#isCurrent(generation, socket)) return
@@ -170,10 +174,15 @@ export class StreamElementsConnection {
 		return !this.#destroyed && generation === this.#generation && socket === this.#socket
 	}
 
-	async #handleEvent(payload: unknown): Promise<void> {
+	async #handleEvent(
+		payload: unknown,
+		generation: number,
+		socket: StreamElementsSocket,
+	): Promise<void> {
 		const tip = normalizeTip(payload)
 		if (!tip) return
 		if (!await this.#claimDonation('streamelements', tip.eventID)) return
+		if (!this.#isCurrent(generation, socket)) return
 		await this.#onDonation({
 			twitchUserId: this.#channelID,
 			amount: tip.amount,

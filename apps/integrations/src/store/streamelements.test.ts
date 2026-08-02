@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test'
 
 import type { StreamElementsIntegration } from '../libs/db.ts'
 import type { StreamElementsConnectionHandle } from './streamelements.ts'
-import { createStreamElementsStore } from './streamelements.ts'
+import { createStreamElementsStore, runLifecycleOperation } from './streamelements.ts'
 
 function integration(overrides: Partial<StreamElementsIntegration> = {}): StreamElementsIntegration {
 	return {
@@ -82,5 +82,64 @@ test('ignores disabled or incomplete records, removes by channel, and closes all
 	await store.addIntegration(integration({ id: 'integration-2', channelId: 'channel-2' }))
 	await store.closeAll()
 	expect(destroyed).toBe(3)
+	expect(store.connections.size).toBe(0)
+})
+
+test('rechecks authoritative state inside the channel queue before a stale Add can recreate', async () => {
+	let resolveInitial: ((record: StreamElementsIntegration) => void) | undefined
+	const initial = new Promise<StreamElementsIntegration>((resolve) => { resolveInitial = resolve })
+	let loads = 0
+	let created = 0
+	const store = createStreamElementsStore({
+		async loadIntegrationByID() {
+			loads += 1
+			if (loads === 1) return initial
+			return null
+		},
+		createConnection: async () => {
+			created += 1
+			return { destroy: () => undefined }
+		},
+	})
+
+	const staleAdd = store.addIntegrationByID('integration-1')
+	await store.removeIntegration('channel-1')
+	resolveInitial?.(integration())
+	await staleAdd
+
+	expect(loads).toBe(2)
+	expect(created).toBe(0)
+	expect(store.connections.size).toBe(0)
+})
+
+test('lifecycle callback wrapper handles rejected operations', async () => {
+	let caught: unknown
+	runLifecycleOperation(
+		async () => { throw new Error('failed lifecycle') },
+		(error) => { caught = error },
+	)
+	await Bun.sleep(0)
+
+	expect(caught).toBeInstanceOf(Error)
+})
+
+test('shutdown prevents an Add still waiting for its discovery query', async () => {
+	let resolveDiscovery: ((record: StreamElementsIntegration) => void) | undefined
+	const discovery = new Promise<StreamElementsIntegration>((resolve) => { resolveDiscovery = resolve })
+	let created = 0
+	const store = createStreamElementsStore({
+		loadIntegrationByID: async () => discovery,
+		createConnection: async () => {
+			created += 1
+			return { destroy: () => undefined }
+		},
+	})
+
+	const add = store.addIntegrationByID('integration-1')
+	await store.closeAll()
+	resolveDiscovery?.(integration())
+	await add
+
+	expect(created).toBe(0)
 	expect(store.connections.size).toBe(0)
 })
