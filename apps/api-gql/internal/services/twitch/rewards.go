@@ -14,6 +14,93 @@ type CustomRewardsResult struct {
 	IsPartnerOrAffiliate bool
 }
 
+type ManageRewardInput struct {
+	Action                            string
+	ID                                string
+	Title                             string
+	Prompt                            string
+	Cost                              int
+	Enabled                           bool
+	BackgroundColor                   string
+	UserInputRequired                 bool
+	MaxPerStreamEnabled               bool
+	MaxPerStream                      int
+	MaxPerUserPerStreamEnabled        bool
+	MaxPerUserPerStream               int
+	GlobalCooldownEnabled             bool
+	GlobalCooldownSeconds             int
+	ShouldRedemptionsSkipRequestQueue bool
+}
+
+func (c *Service) ManageReward(ctx context.Context, channelID string, input ManageRewardInput) (any, error) {
+	parsedID, err := uuid.Parse(channelID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid channel id: %w", err)
+	}
+	channel, err := c.channelService.GetChannelByID(ctx, parsedID)
+	if err != nil {
+		return nil, fmt.Errorf("get channel: %w", err)
+	}
+	binding, found := channel.Binding(platformentity.PlatformTwitch)
+	if !found {
+		return nil, fmt.Errorf("channel has no Twitch binding")
+	}
+	client, err := c.createUserClient(ctx, binding.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("create Twitch client: %w", err)
+	}
+
+	switch input.Action {
+	case "create":
+		response, err := client.CreateCustomReward(&helix.ChannelCustomRewardsParams{
+			BroadcasterID: binding.PlatformChannelID, Title: input.Title, Prompt: input.Prompt,
+			Cost: input.Cost, IsEnabled: input.Enabled, BackgroundColor: input.BackgroundColor,
+			IsUserInputRequired: input.UserInputRequired, IsMaxPerStreamEnabled: input.MaxPerStreamEnabled,
+			MaxPerStream: input.MaxPerStream, IsMaxPerUserPerStreamEnabled: input.MaxPerUserPerStreamEnabled,
+			MaxPerUserPerStream: input.MaxPerUserPerStream, IsGlobalCooldownEnabled: input.GlobalCooldownEnabled,
+			GlobalCooldownSeconds:             input.GlobalCooldownSeconds,
+			ShouldRedemptionsSkipRequestQueue: input.ShouldRedemptionsSkipRequestQueue,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if response.ErrorMessage != "" {
+			return nil, fmt.Errorf("Twitch: %s", response.ErrorMessage)
+		}
+		return response.Data.ChannelCustomRewards, nil
+	case "update":
+		response, err := client.UpdateCustomReward(&helix.UpdateChannelCustomRewardsParams{
+			ID: input.ID, BroadcasterID: binding.PlatformChannelID, Title: input.Title,
+			Prompt: input.Prompt, Cost: input.Cost, IsEnabled: input.Enabled,
+			BackgroundColor: input.BackgroundColor, IsUserInputRequired: input.UserInputRequired,
+			IsMaxPerStreamEnabled: input.MaxPerStreamEnabled, MaxPerStream: input.MaxPerStream,
+			IsMaxPerUserPerStreamEnabled:      input.MaxPerUserPerStreamEnabled,
+			MaxPerUserPerStream:               input.MaxPerUserPerStream,
+			IsGlobalCooldownEnabled:           input.GlobalCooldownEnabled,
+			GlobalCooldownSeconds:             input.GlobalCooldownSeconds,
+			ShouldRedemptionsSkipRequestQueue: input.ShouldRedemptionsSkipRequestQueue,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if response.ErrorMessage != "" {
+			return nil, fmt.Errorf("Twitch: %s", response.ErrorMessage)
+		}
+		return response.Data.ChannelCustomRewards, nil
+	case "delete":
+		response, err := client.DeleteCustomRewards(&helix.DeleteCustomRewardsParams{BroadcasterID: binding.PlatformChannelID, ID: input.ID})
+		if err != nil {
+			return nil, err
+		}
+		if response.ErrorMessage != "" {
+			return nil, fmt.Errorf("Twitch: %s", response.ErrorMessage)
+		}
+		return map[string]bool{"deleted": true}, nil
+	default:
+		return nil, fmt.Errorf("unsupported action %q", input.Action)
+	}
+}
+
 func (c *Service) GetRewardsByChannelID(
 	ctx context.Context,
 	channelID string,
