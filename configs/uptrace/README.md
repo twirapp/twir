@@ -13,8 +13,8 @@ docker node update --label-add databases=true DATABASE_NODE
 ```
 
 Create the external Docker secrets. Secret values must be single-line strings; hex is recommended
-for generated infrastructure secrets. Preserve the project token from the existing Uptrace server
-so existing SDK configuration keeps working:
+for generated infrastructure secrets. Applications send telemetry through the Collector, so the
+new Uptrace installation uses a new project token:
 
 ```sh
 project_token="$(openssl rand -hex 32)"
@@ -25,9 +25,15 @@ openssl rand -hex 32 | docker secret create uptrace_service_secret -
 openssl rand -hex 32 | docker secret create uptrace_clickhouse_password -
 openssl rand -hex 32 | docker secret create uptrace_postgres_password -
 
-read -r -s -p 'Uptrace admin password: ' uptrace_admin_password
+uptrace_admin_password="$(openssl rand -hex 16)"
+printf 'Save Uptrace admin password: %s\n' "$uptrace_admin_password"
 printf '%s' "$uptrace_admin_password" | docker secret create uptrace_admin_password -
 unset uptrace_admin_password
+
+grafana_admin_password="$(openssl rand -hex 16)"
+printf 'Save Grafana admin password: %s\n' "$grafana_admin_password"
+printf '%s' "$grafana_admin_password" | docker secret create grafana_admin_password -
+unset grafana_admin_password
 ```
 
 The internal DSN above is intentionally used by the Collector. Applications inside the Swarm can
@@ -46,10 +52,9 @@ OTEL_HEADERS=
 docker stack deploy --with-registry-auth -c docker-compose.stack.yml twir
 ```
 
-Uptrace is routed through Traefik at `https://uptrace.twir.app`. The separate Grafana service is no
-longer needed: Uptrace provides the UI and is Prometheus/Tempo compatible if Grafana is added again
-later. If an old Grafana service still belongs to the `twir` stack, verify its name and remove it
-after Uptrace is healthy, or use `docker stack deploy --prune` during the planned cutover.
+Uptrace is routed through Traefik at `https://uptrace.twir.app`. Grafana is available at
+`https://grafana.twir.app` and is provisioned with Uptrace Tempo and Prometheus data sources. It
+extracts the project token from the existing `uptrace_dsn` secret.
 
 ## Verify
 
@@ -57,6 +62,7 @@ after Uptrace is healthy, or use `docker stack deploy --prune` during the planne
 docker stack services twir
 docker service logs twir_uptrace --since 10m
 docker service logs twir_otel-collector --since 10m
+docker service logs twir_grafana --since 10m
 docker service ps twir_node-exporter
 docker service ps twir_cadvisor
 ```
