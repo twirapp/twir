@@ -38,6 +38,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
@@ -73,6 +74,7 @@ type Deps struct {
 	Timers            *timers.Service
 	Variables         *variables.Service
 	Quotes            *quotes.Service
+	Roles             *roles.Service
 	Keywords          *keywords.Service
 	Secrets           *channels_secret.Service
 	Storage           *channels_storage.Service
@@ -163,7 +165,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) newServer(requestScope scope) *modelsdk.Server {
 	s := modelsdk.NewServer(
 		&modelsdk.Implementation{Name: "twir", Version: "1.0.0"},
-		&modelsdk.ServerOptions{Instructions: "Manage the Twir channel authorized by the Api-Key request header. All operations are restricted to that channel."},
+		&modelsdk.ServerOptions{Instructions: "Manage the Twir channel authorized by the Api-Key request header. All operations are restricted to that channel.\n\n" + variableScriptGuide},
 	)
 
 	h.addCommandTools(s, requestScope)

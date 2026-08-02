@@ -63,6 +63,15 @@ func New(opts Opts) *Service {
 
 var ErrNotFound = errors.New("variable not found")
 
+func (c *Service) GetBuiltIn(ctx context.Context) ([]parser.BuiltInVariable, error) {
+	result, err := c.twirbus.Parser.GetBuiltInVariables.Request(ctx, struct{}{})
+	if err != nil {
+		return nil, fmt.Errorf("cannot get built-in variables: %w", err)
+	}
+
+	return result.Data, nil
+}
+
 func (c *Service) dbToModel(m model.CustomVariable) entity.CustomVariable {
 	return entity.CustomVariable{
 		ID:             m.ID,
