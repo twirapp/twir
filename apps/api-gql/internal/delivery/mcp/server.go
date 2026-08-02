@@ -11,24 +11,41 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_overlays"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_secret"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_storage"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	commandsrelations "github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/discord_integration"
+	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
+	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
+	donationalertsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
+	faceitintegration "github.com/twirapp/twir/apps/api-gql/internal/services/faceit_integration"
 	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	lastfmintegration "github.com/twirapp/twir/apps/api-gql/internal/services/lastfm_integration"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
+	streamlabsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/streamlabs_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
+	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
+	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.uber.org/fx"
@@ -66,6 +83,23 @@ type Deps struct {
 	Alerts            *alerts.Service
 	Twitch            *twitchservice.Service
 	Gorm              *gorm.DB
+	Discord           *discord_integration.Service
+	Spotify           *spotify_integration.Service
+	LastFM            *lastfmintegration.Service
+	Valorant          *valorantintegration.Service
+	Faceit            *faceitintegration.Service
+	DonationAlerts    *donationalertsintegration.Service
+	DonatePay         *donatepay_integration.Service
+	DonateStream      *donatestreamintegration.Service
+	Donatello         *donatellointegration.Service
+	Streamlabs        *streamlabsintegration.Service
+	VK                *vkintegration.Service
+	SevenTV           *seventv_integration.Service
+	CustomOverlays    *channels_overlays.Service
+	TTS               *tts.Service
+	Dudes             *overlays_dudes.Service
+	Kappagen          *kappagen.Service
+	BeRightBack       *be_right_back.Service
 	Pastebins         *pastebins.Service
 	ShortURLs         *shortenedurls.Service
 }
@@ -135,6 +169,8 @@ func (h *Handler) newServer(requestScope scope) *modelsdk.Server {
 	h.addShortURLTools(s, requestScope)
 	h.addSystemTools(s, requestScope)
 	h.addEngagementTools(s, requestScope)
+	h.addIntegrationTools(s, requestScope)
+	h.addOverlayTools(s, requestScope)
 
 	return s
 }
