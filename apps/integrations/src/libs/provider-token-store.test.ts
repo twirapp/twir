@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test'
 
 import {
+	InvalidProviderTokensError,
 	ProviderTokensNotFoundError,
 	type TokenQuery,
 	createProviderTokenStores,
@@ -89,3 +90,20 @@ test('rejects token persistence when no enabled integration matches', async () =
 		refreshToken: 'refresh',
 	})).rejects.toBeInstanceOf(ProviderTokensNotFoundError)
 })
+
+for (const [provider, invalidTokens] of [
+	['StreamElements', { accessToken: '', refreshToken: 'refresh' }],
+	['StreamElements', { accessToken: 'access', refreshToken: '   ' }],
+	['Streamlabs', { accessToken: '   ', refreshToken: 'refresh' }],
+	['Streamlabs', { accessToken: 'access', refreshToken: '' }],
+] as const) {
+	test(`${provider} rejects blank tokens before querying`, async () => {
+		const fake = createQuery([])
+		const stores = createProviderTokenStores(fake.query)
+		const store = provider === 'StreamElements' ? stores.streamElements : stores.streamLabs
+
+		await expect(store.updateTokens('channel-invalid', invalidTokens))
+			.rejects.toBeInstanceOf(InvalidProviderTokensError)
+		expect(fake.calls).toHaveLength(0)
+	})
+}

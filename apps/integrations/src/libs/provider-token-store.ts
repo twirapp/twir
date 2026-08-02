@@ -31,6 +31,13 @@ export class ProviderTokensNotFoundError extends Error {
 	}
 }
 
+export class InvalidProviderTokensError extends Error {
+	constructor() {
+		super('Provider access and refresh tokens must not be blank')
+		this.name = 'InvalidProviderTokensError'
+	}
+}
+
 function mapTokens(row: TokenRow | undefined): ProviderTokens | null {
 	if (!row?.accessToken || !row.refreshToken) {
 		return null
@@ -44,6 +51,12 @@ function mapTokens(row: TokenRow | undefined): ProviderTokens | null {
 function assertUpdated(rows: readonly UpdatedRow[]): void {
 	if (rows.length === 0) {
 		throw new ProviderTokensNotFoundError()
+	}
+}
+
+function validateTokens(tokens: ProviderTokens): void {
+	if (!tokens.accessToken.trim() || !tokens.refreshToken.trim()) {
+		throw new InvalidProviderTokensError()
 	}
 }
 
@@ -65,6 +78,7 @@ export function createProviderTokenStores(query: TokenQuery): {
 			return mapTokens(rows[0])
 		},
 		async updateTokens(channelID, tokens) {
+			validateTokens(tokens)
 			const rows = await query<UpdatedRow>`
 				UPDATE channels_integrations AS ci
 				SET "accessToken" = ${tokens.accessToken}, "refreshToken" = ${tokens.refreshToken}
@@ -90,6 +104,7 @@ export function createProviderTokenStores(query: TokenQuery): {
 			return mapTokens(rows[0])
 		},
 		async updateTokens(channelID, tokens) {
+			validateTokens(tokens)
 			const rows = await query<UpdatedRow>`
 				UPDATE channels_integrations_streamlabs
 				SET access_token = ${tokens.accessToken}, refresh_token = ${tokens.refreshToken}

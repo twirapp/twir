@@ -68,6 +68,24 @@ test('bounds acquisition retries', async () => {
 	expect(calls).toHaveLength(3)
 })
 
+test('times out a stuck acquisition without invoking the callback', async () => {
+	let callbackCalled = false
+	const redis: RedisCommands = {
+		async send() {
+			return new Promise<never>(() => undefined)
+		},
+	}
+
+	await expect(withOAuthRefreshLock('streamelements', 'channel-stuck', async () => {
+		callbackCalled = true
+	}, {
+		redis,
+		acquireAttempts: 1,
+		acquireOperationTimeoutMs: 5,
+	})).rejects.toThrow('OAuth refresh lock is unavailable')
+	expect(callbackCalled).toBe(false)
+})
+
 test('aborts and fails the callback when renewal loses ownership', async () => {
 	const redis = new FakeRedis()
 	redis.renewResult = 0

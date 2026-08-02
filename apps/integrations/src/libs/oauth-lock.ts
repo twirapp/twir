@@ -1,4 +1,5 @@
 const LOCK_TTL_MS = 30_000
+const ACQUIRE_OPERATION_TIMEOUT_MS = 5_000
 const RENEWAL_INTERVAL_MS = 10_000
 const RENEWAL_OPERATION_TIMEOUT_MS = 5_000
 const LEASE_WATCHDOG_MS = 25_000
@@ -25,6 +26,7 @@ export interface OAuthRefreshLockOptions {
 	readonly redis?: RedisCommands
 	readonly createOwner?: () => string
 	readonly acquireAttempts?: number
+	readonly acquireOperationTimeoutMs?: number
 	readonly retryDelayMs?: number
 	readonly renewalIntervalMs?: number
 	readonly renewalOperationTimeoutMs?: number
@@ -82,6 +84,7 @@ export async function withOAuthRefreshLock<T>(
 	const owner = (options.createOwner ?? (() => crypto.randomUUID()))()
 	const key = `twir:integration-token-refresh:${provider}:${channelID}`
 	const acquireAttempts = options.acquireAttempts ?? ACQUIRE_ATTEMPTS
+	const acquireOperationTimeoutMs = options.acquireOperationTimeoutMs ?? ACQUIRE_OPERATION_TIMEOUT_MS
 	const sleep = options.sleep ?? delay
 	const retryDelayMs = options.retryDelayMs ?? RETRY_DELAY_MS
 
@@ -89,7 +92,11 @@ export async function withOAuthRefreshLock<T>(
 	for (let attempt = 0; attempt < acquireAttempts; attempt += 1) {
 		let result: unknown
 		try {
-			result = await redis.send('SET', [key, owner, 'NX', 'PX', String(LOCK_TTL_MS)])
+			result = await withDeadline(
+				redis.send('SET', [key, owner, 'NX', 'PX', String(LOCK_TTL_MS)]),
+				acquireOperationTimeoutMs,
+				new OAuthRefreshLockUnavailableError()
+			)
 		} catch (cause) {
 			throw new OAuthRefreshLockUnavailableError({ cause })
 		}
