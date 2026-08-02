@@ -165,7 +165,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) newServer(requestScope scope) *modelsdk.Server {
 	s := modelsdk.NewServer(
 		&modelsdk.Implementation{Name: "twir", Version: "1.0.0"},
-		&modelsdk.ServerOptions{Instructions: "Manage the Twir channel authorized by the Api-Key request header. All operations are restricted to that channel."},
+		&modelsdk.ServerOptions{Instructions: "Manage the Twir channel authorized by the Api-Key request header. All operations are restricted to that channel.\n\n" + variableScriptGuide},
 	)
 
 	h.addCommandTools(s, requestScope)

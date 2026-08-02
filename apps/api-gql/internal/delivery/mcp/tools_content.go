@@ -11,13 +11,27 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 )
 
+const variableScriptGuide = `SCRIPT variable guide:
+- Put JavaScript source in evalValue, set type to SCRIPT and scriptLanguage to javascript. response is normally empty for SCRIPT variables.
+- The source runs inside an async function, so top-level await is supported. Always return the final value; a script without return produces an empty result. Returned values are converted to strings, and command output is limited to 1000 characters.
+- Supported APIs: fetch(url, options) with response.ok/status/statusText/headers/json()/text(); storage and twir.storage persistent async methods get/set/delete/has/keys/clear/push/pop/find/filter/splice/getProperty/setProperty/deleteProperty/hasProperty/merge; twir.secrets.get(name); twir.channel.id; lodash as _; setTimeout/clearTimeout/setInterval/clearInterval; URL/URLSearchParams; TextEncoder/TextDecoder; btoa/atob; crypto.randomUUID(); AbortController/AbortSignal; and standard JavaScript built-ins.
+- The total execution budget is about 5 seconds. HTTP redirects, private/internal network targets, responses over 1 MB, Node/Bun APIs, require(), and arbitrary imports are unavailable.
+- Twir built-in variables are expanded as raw text before JavaScript runs. Put them inside a quoted string, for example const sender = "$(sender.displayName)"; for a number use Number("$(user.messages)"). Use list_builtin_variables to discover current names and examples. $(command.param) contains command arguments.
+- Handle fetch failures and non-2xx statuses when a friendly chat response is needed. After creating or updating a SCRIPT variable, call evaluate_variable; pass testAsUserName when the script contains sender/user-dependent built-in variables.
+Example:
+const sender = "$(sender.displayName)";
+const response = await fetch("https://jsonplaceholder.typicode.com/posts/1");
+if (!response.ok) return "API error: HTTP " + response.status;
+const post = await response.json();
+return sender + ": " + post.title;`
+
 type createVariableInput struct {
 	Name           string  `json:"name"`
 	Description    *string `json:"description,omitempty"`
 	Type           string  `json:"type" jsonschema:"TEXT, NUMBER, or SCRIPT"`
-	EvalValue      string  `json:"evalValue,omitempty" jsonschema:"script source when type is SCRIPT"`
-	Response       string  `json:"response" jsonschema:"literal value or response template"`
-	ScriptLanguage string  `json:"scriptLanguage,omitempty" jsonschema:"javascript for script variables"`
+	EvalValue      string  `json:"evalValue,omitempty" jsonschema:"JavaScript source when type is SCRIPT; top-level await is supported and the script must return its final value"`
+	Response       string  `json:"response" jsonschema:"literal value or response template; normally empty for SCRIPT variables"`
+	ScriptLanguage string  `json:"scriptLanguage,omitempty" jsonschema:"must be javascript for SCRIPT variables"`
 }
 
 type updateVariableInput struct {
@@ -36,8 +50,8 @@ type setVariableInput struct {
 	Description    *string `json:"description,omitempty"`
 	Type           string  `json:"type" jsonschema:"TEXT, NUMBER, or SCRIPT"`
 	EvalValue      string  `json:"evalValue,omitempty"`
-	Response       string  `json:"response"`
-	ScriptLanguage string  `json:"scriptLanguage,omitempty"`
+	Response       string  `json:"response" jsonschema:"normally empty for SCRIPT variables"`
+	ScriptLanguage string  `json:"scriptLanguage,omitempty" jsonschema:"must be javascript for SCRIPT variables"`
 }
 
 type evaluateVariableInput struct {
@@ -47,6 +61,10 @@ type evaluateVariableInput struct {
 
 func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_builtin_variables", Description: "List Twir built-in variables available for templates and SCRIPT source. In JavaScript, wrap expansions in quotes because Twir substitutes their raw text before execution, for example: const sender = \"$(sender.displayName)\"."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+		items, err := h.deps.Variables.GetBuiltIn(ctx)
+		return nil, map[string]any{"variables": items, "scriptGuide": variableScriptGuide}, err
+	})
 	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_variables", Description: "List custom variables for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 		items, err := h.deps.Variables.GetAll(ctx, channelID)
 		return nil, map[string]any{"variables": items}, err
@@ -58,11 +76,11 @@ func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 		}
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_variable", Description: "Create a channel custom variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createVariableInput) (*modelsdk.CallToolResult, any, error) {
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_variable", Description: "Create a channel custom variable. For SCRIPT variables, follow the server SCRIPT variable guide, always return a value, then verify it with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createVariableInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.Variables.Create(ctx, variables.CreateInput{ChannelID: channelID, ActorID: requestScope.ActorID, Name: input.Name, Description: input.Description, Type: entity.CustomVarType(input.Type), EvalValue: input.EvalValue, Response: input.Response, ScriptLanguage: input.ScriptLanguage})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "set_variable", Description: "Create a custom variable, or replace one when id is provided."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input setVariableInput) (*modelsdk.CallToolResult, any, error) {
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "set_variable", Description: "Create a custom variable, or replace one when id is provided. For SCRIPT variables, follow the server SCRIPT variable guide and verify with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input setVariableInput) (*modelsdk.CallToolResult, any, error) {
 		if input.ID == nil {
 			item, err := h.deps.Variables.Create(ctx, variables.CreateInput{ChannelID: channelID, ActorID: requestScope.ActorID, Name: input.Name, Description: input.Description, Type: entity.CustomVarType(input.Type), EvalValue: input.EvalValue, Response: input.Response, ScriptLanguage: input.ScriptLanguage})
 			return nil, item, err
@@ -77,7 +95,7 @@ func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 		item, err := h.deps.Variables.Update(ctx, variables.UpdateInput{ID: id, ChannelID: channelID, ActorID: requestScope.ActorID, Name: &input.Name, Description: input.Description, Type: &variableType, EvalValue: &input.EvalValue, Response: &input.Response, ScriptLanguage: &language})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_variable", Description: "Update a channel custom variable by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateVariableInput) (*modelsdk.CallToolResult, any, error) {
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_variable", Description: "Update a channel custom variable by UUID. For SCRIPT variables, follow the server SCRIPT variable guide and verify with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateVariableInput) (*modelsdk.CallToolResult, any, error) {
 		id, err := parseID(input.ID)
 		if err != nil {
 			return nil, nil, fmt.Errorf("invalid variable id: %w", err)
@@ -103,7 +121,7 @@ func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 		err = h.deps.Variables.Delete(ctx, id, channelID, requestScope.ActorID)
 		return nil, map[string]bool{"deleted": err == nil}, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "evaluate_variable", Description: "Evaluate a SCRIPT variable using the current channel context."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input evaluateVariableInput) (*modelsdk.CallToolResult, any, error) {
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "evaluate_variable", Description: "Evaluate a variable using the current channel context. For SCRIPT variables containing sender/user-dependent built-ins, pass testAsUserName so those placeholders are expanded before execution."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input evaluateVariableInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.Variables.GetByID(ctx, input.ID)
 		if err != nil {
 			return nil, nil, err
