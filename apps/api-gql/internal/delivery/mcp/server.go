@@ -8,15 +8,20 @@ import (
 	"github.com/google/uuid"
 	modelsdk "github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_moderation_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_secret"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_storage"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_wall"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	commandsrelations "github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
+	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
@@ -44,6 +49,11 @@ type Deps struct {
 	Keywords          *keywords.Service
 	Secrets           *channels_secret.Service
 	Storage           *channels_storage.Service
+	Files             *channels_files.Service
+	Moderation        *channels_moderation_settings.Service
+	ChatWall          *chat_wall.Service
+	Games             *gamesvoteban.Service
+	SongRequests      *song_requests.Service
 	Pastebins         *pastebins.Service
 	ShortURLs         *shortenedurls.Service
 }
@@ -111,6 +121,7 @@ func (h *Handler) newServer(requestScope scope) *modelsdk.Server {
 	h.addStorageTools(s, requestScope)
 	h.addPastebinTools(s, requestScope)
 	h.addShortURLTools(s, requestScope)
+	h.addSystemTools(s, requestScope)
 
 	return s
 }
