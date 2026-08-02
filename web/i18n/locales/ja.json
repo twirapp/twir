@@ -100,7 +100,8 @@
       "vipManagement": "VIP 管理",
       "emoteStats": "エモート統計",
       "musicRecognition": "音楽認識（Shazam 風）",
-      "obsIntegration": "OBS 連携"
+      "obsIntegration": "OBS 連携",
+      "aiMcp": "AI コントロール (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing、チャット、Faceit・Valorant スタッツ、Emote Wall、Pixel Dudes、AFK など",
@@ -122,7 +123,8 @@
       "rolesMoobot": "無料プランでは権限グループ1つ",
       "vipTwir": "VIP の管理と有効期限のスケジュール",
       "vipMoobot": "First Wave VIP のみ、MoobotPlus（有料）",
-      "obsTwir": "WebSockets でシーン切替・ミュート・ソース表示切替"
+      "obsTwir": "WebSockets でシーン切替・ミュート・ソース表示切替",
+      "aiMcpTwir": "Claude Code、Codex、OpenCode などの AI アシスタントから MCP 経由でボットを管理"
     },
     "values": {
       "platforms": {
