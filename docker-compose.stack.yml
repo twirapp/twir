@@ -851,11 +851,15 @@ services:
     environment:
       - APP_ENV=production
     deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1.5G
       update_config:
         parallelism: 2
         order: start-first
       mode: replicated
-      replicas: 4
+      replicas: 1
       endpoint_mode: dnsrr
       restart_policy:
         condition: any
