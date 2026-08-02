@@ -58,7 +58,7 @@ var BotUptime = &types.DefaultCommand{
 			now,
 			i18n.GetCtx(ctx, locales.Translations.Commands.Stats.Botuptime.Unavailable),
 		)
-		result := []string{trimChatMessage("⚙️ " + strings.Join(services, " · "))}
+		result := []string{trimChatMessage("⚙️ " + strings.Join(services, " • "))}
 
 		problems := make([]string, 0, 2)
 		if len(down) > 0 {
@@ -71,7 +71,7 @@ var BotUptime = &types.DefaultCommand{
 			)
 		}
 		if len(problems) > 0 {
-			result = append(result, trimChatMessage("⚠️ "+strings.Join(problems, " · ")))
+			result = append(result, trimChatMessage("⚠️ "+strings.Join(problems, " • ")))
 		}
 
 		result = append(result, trimChatMessage(
