@@ -1,4 +1,4 @@
-FROM mirror.gcr.io/oven/bun:1-distroless-alpine AS base
+FROM mirror.gcr.io/oven/bun:1-alpine AS base
 WORKDIR /app
 
 FROM base AS builder
