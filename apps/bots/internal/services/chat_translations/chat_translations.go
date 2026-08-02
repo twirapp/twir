@@ -201,8 +201,9 @@ func (c *Service) Handle(ctx context.Context, input ChatMessageInput) error {
 	for emoteName := range input.UsedEmotesWithThirdParty {
 		textForTranslate = strings.ReplaceAll(textForTranslate, emoteName, "")
 	}
+	textForTranslate = prepareTextForTranslation(textForTranslate)
 
-	if utf8.RuneCountInString(textForTranslate) < 5 {
+	if utf8.RuneCountInString(textForTranslate) < 5 || !hasTranslatableText(textForTranslate) {
 		return nil
 	}
 

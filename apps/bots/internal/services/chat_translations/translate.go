@@ -9,14 +9,34 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	googletranslate "cloud.google.com/go/translate"
 	"github.com/lkretschmer/deepl-go"
 	kvoptions "github.com/twirapp/kv/options"
 	"golang.org/x/text/language"
 )
+
+var translationURLPattern = regexp.MustCompile(`(?i)(?:https?://|www\.)\S+`)
+
+func prepareTextForTranslation(text string) string {
+	text = translationURLPattern.ReplaceAllString(text, " ")
+	return strings.Join(strings.Fields(text), " ")
+}
+
+func hasTranslatableText(text string) bool {
+	letters := 0
+	for _, r := range text {
+		if unicode.IsLetter(r) {
+			letters++
+		}
+	}
+
+	return letters >= 3
+}
 
 type translateRequest struct {
 	Text          string   `json:"text"`
