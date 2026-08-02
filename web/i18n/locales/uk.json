@@ -317,6 +317,24 @@
       }
     }
   },
+  "imports": {
+    "title": "Імпорт з іншого бота",
+    "description": "Підключіть сервіс і перенесіть команди та таймери до Twir, не замінюючи наявні дані.",
+    "providers": {
+      "nightbot": { "description": "Підключіть Nightbot, щоб імпортувати власні команди та таймери." },
+      "streamelements": { "description": "Підключіть StreamElements для імпорту команд і таймерів та отримання нових донатів.", "donationsEnabled": "Це ж підключення вмикає події донатів StreamElements у Twir." },
+      "streamlabs": { "description": "Підключіть Streamlabs, щоб Twir міг отримувати події донатів.", "donationsEnabled": "Це підключення вмикає події донатів Streamlabs у Twir.", "importUnavailable": "Публічний API Streamlabs не надає команди й таймери Cloudbot, тому Twir нічого імпортувати." }
+    },
+    "status": { "connected": "Підключено", "disconnected": "Не підключено", "connectedAs": "Підключено як", "unavailable": "Недоступно", "donationsEnabled": "Донати ввімкнено", "importUnavailable": "Імпорт недоступний" },
+    "actions": { "connect": "Підключити", "disconnect": "Відключити", "settings": "Налаштування імпорту", "importCommands": "Імпортувати команди", "importTimers": "Імпортувати таймери", "importing": "Імпортуємо...", "close": "Закрити" },
+    "settings": { "title": "Імпорт з {provider}", "description": "Команди й таймери імпортуються окремо. Наявні елементи Twir зберігаються." },
+    "commands": { "title": "Команди", "description": "Імпортувати підтримувані власні команди без перезапису команд у Twir." },
+    "timers": { "title": "Таймери", "description": "Імпортувати підтримувані таймери без перезапису таймерів у Twir." },
+    "result": { "waiting": "Запустіть імпорт, щоб побачити результат.", "success": "Імпорт завершено", "partial": "Імпорт завершено з пропущеними елементами", "imported": "Імпортовано: {count}", "failed": "Не імпортовано: {count}" },
+    "failureReasons": { "duplicate": "Уже існує", "planLimit": "Досягнуто ліміт тарифу", "unsupportedRole": "Непідтримуваний рівень доступу", "unsupportedResponseType": "Непідтримуваний тип відповіді", "incompatibleIntervals": "Онлайн- та офлайн-інтервали несумісні", "invalidRecord": "Некоректний запис сервісу" },
+    "errors": { "import": "Не вдалося виконати імпорт. Спробуйте ще раз.", "logout": "Не вдалося відключити сервіс.", "callbackTitle": "Не вдалося підключити {provider}", "callbackMissing": "У відповіді авторизації бракує даних. Закрийте вікно й спробуйте ще раз.", "callbackRejected": "Авторизацію не завершено. Закрийте вікно й спробуйте ще раз.", "callbackRequest": "Не вдалося зберегти підключення. Закрийте вікно й спробуйте ще раз." },
+    "callback": { "connecting": "Підключаємо {provider}..." }
+  },
   "integrations": {
     "notLoggedIn": "Ви не авторизовані!",
     "songServicesInfo": "Надання доступу до цього сервісу дозволяє Twir автоматично отримувати та виводити в чат поточну пісню, що відтворюється, коли використовується команда {0}.",

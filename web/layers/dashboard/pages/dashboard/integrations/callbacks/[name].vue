@@ -3,7 +3,6 @@ import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useFaceitIntegration } from '~~/layers/dashboard/api/integrations/faceit.js'
-import { useIntegrations } from '~~/layers/dashboard/api/integrations/integrations.js'
 import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
 import {
 	lastfmBroadcaster,
@@ -19,7 +18,6 @@ const localePath = useLocalePath()
 const discordIntegration = useDiscordIntegration()
 const lastfmIntegration = useLastfmIntegration()
 const faceitIntegration = useFaceitIntegration()
-const integrationsManager = useIntegrations()
 
 const integrationsHooks: {
 	[x: string]:
@@ -46,14 +44,6 @@ const integrationsHooks: {
 			if (!error) {
 				lastfmBroadcaster.postMessage('refresh')
 			}
-		},
-	},
-	streamlabs: {
-		custom: true,
-		closeWindow: true,
-		handler: async (code: string) => {
-			await integrationsManager.streamlabsPostCode().executeMutation({ code })
-			integrationsManager.broadcastRefresh()
 		},
 	},
 	faceit: {

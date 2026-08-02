@@ -105,6 +105,18 @@ const IntegrationsPageQuery = graphql(`
 			avatar
 		}
 		streamlabsAuthLink
+
+		# Imports
+		nightbotGetData {
+			userName
+			avatar
+		}
+		nightbotGetAuthLink
+		streamelementsGetData {
+			userName
+			avatar
+		}
+		streamelementsGetAuthorizationUrl
 	}
 `)
 
@@ -159,6 +171,14 @@ export const useIntegrationsPageData = createGlobalState(() => {
 	// Streamlabs
 	const streamlabsData = computed(() => query.data.value?.streamlabs ?? null)
 	const streamlabsAuthLink = computed(() => query.data.value?.streamlabsAuthLink ?? null)
+
+	// Imports
+	const nightbotData = computed(() => query.data.value?.nightbotGetData ?? null)
+	const nightbotAuthLink = computed(() => query.data.value?.nightbotGetAuthLink ?? null)
+	const streamelementsData = computed(() => query.data.value?.streamelementsGetData ?? null)
+	const streamelementsAuthLink = computed(
+		() => query.data.value?.streamelementsGetAuthorizationUrl ?? null
+	)
 
 	async function refetch() {
 		await query.executeQuery({ requestPolicy: 'network-only' })
@@ -221,5 +241,11 @@ export const useIntegrationsPageData = createGlobalState(() => {
 		// Streamlabs
 		streamlabsData,
 		streamlabsAuthLink,
+
+		// Imports
+		nightbotData,
+		nightbotAuthLink,
+		streamelementsData,
+		streamelementsAuthLink,
 	}
 })

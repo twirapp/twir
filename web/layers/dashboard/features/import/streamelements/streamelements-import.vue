@@ -8,11 +8,11 @@ import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/in
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 import ImportProviderCard from '../components/import-provider-card.vue'
 import ImportSettings from '../components/import-settings.vue'
-import { useNightbotIntegration } from './composables/use-nightbot-integration.js'
+import { useStreamElementsIntegration } from './composables/use-streamelements-integration.js'
 
 const { t } = useI18n()
 const integrationsPage = useIntegrationsPageData()
-const nightbot = useNightbotIntegration()
+const streamElements = useStreamElementsIntegration()
 
 const commandsReport = ref<ImportReportData | null>(null)
 const timersReport = ref<ImportReportData | null>(null)
@@ -20,7 +20,7 @@ const commandsImporting = ref(false)
 const timersImporting = ref(false)
 const authLoading = ref(false)
 
-const connected = computed(() => Boolean(integrationsPage.nightbotData.value?.userName))
+const connected = computed(() => Boolean(integrationsPage.streamelementsData.value?.userName))
 const canManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations)
 const canManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands)
 const canManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageTimers)
@@ -28,12 +28,12 @@ const canManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.Manag
 async function importCommands() {
 	commandsImporting.value = true
 	try {
-		const result = await nightbot.importCommands.executeMutation({})
-		if (result.error || !result.data?.nightbotImportCommands) {
+		const result = await streamElements.importCommands.executeMutation({})
+		if (result.error || !result.data?.streamelementsImportCommands) {
 			toast.error(t('imports.errors.import'))
 			return
 		}
-		commandsReport.value = result.data.nightbotImportCommands
+		commandsReport.value = result.data.streamelementsImportCommands
 	} catch {
 		toast.error(t('imports.errors.import'))
 	} finally {
@@ -44,12 +44,12 @@ async function importCommands() {
 async function importTimers() {
 	timersImporting.value = true
 	try {
-		const result = await nightbot.importTimers.executeMutation({})
-		if (result.error || !result.data?.nightbotImportTimers) {
+		const result = await streamElements.importTimers.executeMutation({})
+		if (result.error || !result.data?.streamelementsImportTimers) {
 			toast.error(t('imports.errors.import'))
 			return
 		}
-		timersReport.value = result.data.nightbotImportTimers
+		timersReport.value = result.data.streamelementsImportTimers
 	} catch {
 		toast.error(t('imports.errors.import'))
 	} finally {
@@ -60,8 +60,8 @@ async function importTimers() {
 async function logout() {
 	authLoading.value = true
 	try {
-		const result = await nightbot.logout.executeMutation({})
-		if (result.error || !result.data?.nightbotLogout) {
+		const result = await streamElements.logout.executeMutation({})
+		if (result.error || !result.data?.streamelementsLogout) {
 			toast.error(t('imports.errors.logout'))
 			return
 		}
@@ -76,11 +76,12 @@ async function logout() {
 
 <template>
 	<ImportProviderCard
-		title="Nightbot"
-		icon="twir-integrations:nightbot"
-		:description="t('imports.providers.nightbot.description')"
-		:account="integrationsPage.nightbotData.value"
-		:auth-link="integrationsPage.nightbotAuthLink.value"
+		title="StreamElements"
+		icon="twir-integrations:streamelements"
+		:description="t('imports.providers.streamelements.description')"
+		:donation-description="connected ? t('imports.providers.streamelements.donationsEnabled') : ''"
+		:account="integrationsPage.streamelementsData.value"
+		:auth-link="integrationsPage.streamelementsAuthLink.value"
 		:is-loading="integrationsPage.fetching.value || authLoading"
 		:can-manage-integration="canManageIntegrations"
 		@logout="logout"

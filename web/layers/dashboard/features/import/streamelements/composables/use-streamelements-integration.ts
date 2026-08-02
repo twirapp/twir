@@ -4,47 +4,36 @@ import { integrationsPageCacheKey, useIntegrationsPageData } from '~~/layers/das
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/gql.js'
 
-export const useNightbotIntegration = createGlobalState(() => {
+export const useStreamElementsIntegration = createGlobalState(() => {
 	const integrationsPage = useIntegrationsPageData()
 
 	const postCode = useMutation(
 		graphql(`
-			mutation NightbotPostCode($input: IntegrationOAuthCodeInput!) {
-				nightbotPostCode(input: $input)
+			mutation StreamElementsPostCode($input: IntegrationOAuthCodeInput!) {
+				streamelementsPostCode(input: $input)
 			}
 		`),
 		[integrationsPageCacheKey]
 	)
-
 	const logout = useMutation(
-		graphql(`
-			mutation NightbotLogout {
-				nightbotLogout
-			}
-		`),
+		graphql(`mutation StreamElementsLogout { streamelementsLogout }`),
 		[integrationsPageCacheKey]
 	)
-
 	const importCommands = useMutation(
 		graphql(`
-			mutation NightbotImportCommands {
-				nightbotImportCommands {
-					importedCount
-					failedCount
-					failures { name reason }
+			mutation StreamElementsImportCommands {
+				streamelementsImportCommands {
+					importedCount failedCount failures { name reason }
 				}
 			}
 		`),
 		['commands']
 	)
-
 	const importTimers = useMutation(
 		graphql(`
-			mutation NightbotImportTimers {
-				nightbotImportTimers {
-					importedCount
-					failedCount
-					failures { name reason }
+			mutation StreamElementsImportTimers {
+				streamelementsImportTimers {
+					importedCount failedCount failures { name reason }
 				}
 			}
 		`),
