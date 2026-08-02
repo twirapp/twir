@@ -28,10 +28,10 @@
 
 ## Review fixes
 
-- OAuth-link fields protected by `MANAGE_INTEGRATIONS` are conditionally selected from the unified
-  query using the viewer's reactive permission. Integration data remains available to import roles
-  while login/logout stays disabled. Spotify remains unconditional because its schema has no role
-  restriction.
+- Every unified-query root field protected by `MANAGE_INTEGRATIONS` is conditionally selected using
+  the viewer's reactive permission, including Donatello and DonateStream data as well as OAuth
+  links. Viewable integration data remains available to import roles while management controls stay
+  disabled. Spotify remains unconditional because its schema has no role restriction.
 - Provider cards now receive an explicit connection state. Streamlabs uses the persisted `enabled`
   flag, so a disabled row with retained profile data renders disconnected/reconnect state and does
   not claim donation listening is active.

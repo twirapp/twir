@@ -67,12 +67,12 @@ export const IntegrationsPageQuery = graphql(`
 		donationAlertsAuthLink @include(if: $canManageIntegrations)
 
 		# Donatello
-		donatello {
+		donatello @include(if: $canManageIntegrations) {
 			integrationId
 		}
 
 		# DonateStream
-		integrationsDonateStream {
+		integrationsDonateStream @include(if: $canManageIntegrations) {
 			integrationId
 		}
 

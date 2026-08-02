@@ -7,28 +7,27 @@ vi.mock('~~/layers/dashboard/api/auth.js', () => ({
 }))
 
 describe('imports page permissions', () => {
-	it('loads provider data while protected OAuth links are skipped', () => {
+	it('loads provider data while every manage-only root field is skipped', () => {
 		const source = print(IntegrationsPageQuery)
 
 		expect(source).toContain('query IntegrationsPageData($canManageIntegrations: Boolean!)')
 		expect(source).toMatch(/nightbotGetData\s*\{/)
 		expect(source).toMatch(/streamelementsGetData\s*\{/)
-		expect(source).toMatch(
-			/nightbotGetAuthLink @include\(if: \$canManageIntegrations\)/
-		)
-		expect(source).toMatch(
-			/streamelementsGetAuthorizationUrl @include\(if: \$canManageIntegrations\)/
-		)
-
-		for (const field of [
+		const manageIntegrationsFields = [
 			'discordIntegrationAuthLink',
 			'valorantAuthLink',
 			'lastfmAuthLink',
 			'donationAlertsAuthLink',
+			'donatello',
+			'integrationsDonateStream',
 			'vkAuthLink',
 			'faceitAuthLink',
 			'streamlabsAuthLink',
-		]) {
+			'nightbotGetAuthLink',
+			'streamelementsGetAuthorizationUrl',
+		]
+
+		for (const field of manageIntegrationsFields) {
 			expect(source).toContain(`${field} @include(if: $canManageIntegrations)`)
 		}
 	})
