@@ -25,6 +25,25 @@ type Service struct {
 	commandsGroupsRepository commands_group.Repository
 }
 
+func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
+	[]commandwithrelationentity.CommandGroup,
+	error,
+) {
+	groups, err := c.commandsGroupsRepository.GetManyByChannelID(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]commandwithrelationentity.CommandGroup, 0, len(groups))
+	for _, group := range groups {
+		result = append(result, commandwithrelationentity.CommandGroup{
+			ID: group.ID, ChannelID: group.ChannelID, Name: group.Name, Color: group.Color,
+		})
+	}
+
+	return result, nil
+}
+
 // GetManyByIDs returns a list of command groups by their IDs in the same order.
 func (c *Service) GetManyByIDs(ctx context.Context, ids []uuid.UUID) (
 	[]*commandwithrelationentity.CommandGroup,

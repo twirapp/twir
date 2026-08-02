@@ -43,6 +43,7 @@ func TestPlatformBindingSchemaDeclaresBindingSurface(t *testing.T) {
 
 	normalizedSchema := strings.Join(strings.Fields(schema.String()), " ")
 	for _, want := range []string{
+		"channelApiKey: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)",
 		"channelPlatformBindings: [ChannelPlatformBinding!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_BOT_SETTINGS)",
 		"channelPlatformOptions: [ChannelPlatformOption!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_BOT_SETTINGS)",
 		"channelPlatformConnect(platform: Platform!): String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)",

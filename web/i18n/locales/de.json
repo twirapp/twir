@@ -94,7 +94,8 @@
     "darkTheme": "Dunkles Design",
     "lightTheme": "Helles Design",
     "notifications": "Benachrichtigungen",
-    "giveaways": "Gewinnspiele"
+    "giveaways": "Gewinnspiele",
+    "quotes": "Zitate"
   },
   "deleteConfirmation": {
     "text": "Bist du sicher, dass du das löschen möchtest?",
@@ -1521,5 +1522,21 @@
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot und Fossabot sind Marken ihrer jeweiligen Eigentümer. Twir ist nicht mit ihnen verbunden und wird von ihnen nicht unterstützt. Die Funktionsdaten basieren auf öffentlichen Informationen und können sich ändern."
+  },
+  "quotes": {
+    "title": "Zitate",
+    "create": "Zitat erstellen",
+    "edit": "Zitat bearbeiten",
+    "text": "Zitat",
+    "number": "Nummer",
+    "creator": "Ersteller",
+    "game": "Spiel",
+    "createdAt": "Erstellt am",
+    "deleteConfirmation": "Möchtest du dieses Zitat wirklich löschen?",
+    "created": "Zitat erstellt",
+    "updated": "Zitat aktualisiert",
+    "deleted": "Zitat gelöscht",
+    "errorOnSave": "Zitat konnte nicht gespeichert werden",
+    "errorOnDelete": "Zitat konnte nicht gelöscht werden"
   }
 }

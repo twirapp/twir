@@ -12,7 +12,7 @@ const { resolve } = createResolver(import.meta.url)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const localeCodes = fs
-	.readdirSync(resolve('./locales'))
+	.readdirSync(resolve('./i18n/locales'))
 	.filter((f) => f.endsWith('.json'))
 	.map((f) => f.replace('.json', ''))
 

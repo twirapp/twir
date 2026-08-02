@@ -22,6 +22,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/minio/minio-go/v7 v7.0.97
+	github.com/modelcontextprotocol/go-sdk v1.2.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/oschwald/geoip2-golang/v2 v2.1.0
 	github.com/raitonoberu/ytsearch v0.2.0

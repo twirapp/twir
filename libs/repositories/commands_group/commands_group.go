@@ -10,4 +10,5 @@ import (
 type Repository interface {
 	// GetManyByIDs GetManyByChannelID returns groups in same order as requested
 	GetManyByIDs(ctx context.Context, ids []uuid.UUID) ([]model.Group, error)
+	GetManyByChannelID(ctx context.Context, channelID string) ([]model.Group, error)
 }

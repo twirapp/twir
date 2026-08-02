@@ -60,3 +60,19 @@ WHERE id = ANY($1)
 
 	return groups, nil
 }
+
+func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model.Group, error) {
+	query := `
+SELECT id, "channelId", name, color
+FROM channels_commands_groups
+WHERE "channelId" = $1
+ORDER BY name
+`
+
+	rows, err := c.pool.Query(ctx, query, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	return pgx.CollectRows(rows, pgx.RowToStructByName[model.Group])
+}
