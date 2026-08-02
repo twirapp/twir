@@ -25,3 +25,15 @@
 
 - Generated GraphQL output lives under ignored `web/app/gql`; it is rebuilt by codegen/prepare.
 - The Nuxt test runner emits existing sitemap and SSR-disabled OG-image warnings.
+
+## Review fixes
+
+- OAuth-link fields protected by `MANAGE_INTEGRATIONS` are conditionally selected from the unified
+  query using the viewer's reactive permission. Integration data remains available to import roles
+  while login/logout stays disabled. Spotify remains unconditional because its schema has no role
+  restriction.
+- Provider cards now receive an explicit connection state. Streamlabs uses the persisted `enabled`
+  flag, so a disabled row with retained profile data renders disconnected/reconnect state and does
+  not claim donation listening is active.
+- Added permission-query and retained-profile regressions. The scoped suite now passes 21 tests in
+  7 files; codegen, Nuxt prepare, scoped lint, filtered type diagnostics, and diff checks pass.

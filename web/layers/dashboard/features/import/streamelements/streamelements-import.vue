@@ -78,6 +78,7 @@ async function logout() {
 	<ImportProviderCard
 		title="StreamElements"
 		icon="twir-integrations:streamelements"
+		:connected="connected"
 		:description="t('imports.providers.streamelements.description')"
 		:donation-description="connected ? t('imports.providers.streamelements.donationsEnabled') : ''"
 		:account="integrationsPage.streamelementsData.value"

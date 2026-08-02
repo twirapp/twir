@@ -34,6 +34,7 @@ async function logout() {
 	<ImportProviderCard
 		title="Streamlabs"
 		icon="twir-integrations:streamlabs"
+		:connected="Boolean(integrationsPage.streamlabsData.value?.enabled)"
 		:description="t('imports.providers.streamlabs.description')"
 		:donation-description="integrationsPage.streamlabsData.value?.enabled ? t('imports.providers.streamlabs.donationsEnabled') : ''"
 		:unavailable-description="t('imports.providers.streamlabs.importUnavailable')"

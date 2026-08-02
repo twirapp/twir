@@ -38,6 +38,7 @@ describe('ImportProviderCard', () => {
 				icon: 'twir-integrations:nightbot',
 				description: 'Import Nightbot data.',
 				authLink: 'https://nightbot.example/oauth',
+				connected: false,
 				account: null,
 				canManageIntegration: true,
 			},
@@ -60,6 +61,7 @@ describe('ImportProviderCard', () => {
 				icon: 'twir-integrations:streamelements',
 				description: 'Import data.',
 				authLink: 'https://streamelements.example/oauth',
+				connected: true,
 				account: { userName: 'caster', avatar: 'https://example.com/avatar.png' },
 				canManageIntegration: true,
 			},
@@ -85,6 +87,7 @@ describe('ImportProviderCard', () => {
 				icon: 'twir-integrations:nightbot',
 				description: 'Import data.',
 				authLink: 'https://nightbot.example/oauth',
+				connected: false,
 				account: null,
 				canManageIntegration: false,
 			},
@@ -92,5 +95,44 @@ describe('ImportProviderCard', () => {
 		})
 
 		expect(wrapper.get('[data-test="provider-auth"]').attributes('disabled')).toBeDefined()
+	})
+
+	it('keeps import settings usable when OAuth management is forbidden', () => {
+		const wrapper = mount(ImportProviderCard, {
+			props: {
+				title: 'Nightbot',
+				icon: 'twir-integrations:nightbot',
+				description: 'Import data.',
+				authLink: null,
+				connected: true,
+				account: { userName: 'caster' },
+				canManageIntegration: false,
+			},
+			slots: { settings: '<p>Import settings</p>' },
+			global: { plugins: [i18n], stubs },
+		})
+
+		expect(wrapper.get('[data-test="provider-auth"]').attributes('disabled')).toBeDefined()
+		expect(wrapper.get('[data-test="provider-settings"]').attributes('disabled')).toBeUndefined()
+	})
+
+	it('uses explicit connection state when a disabled row retains profile data', () => {
+		const wrapper = mount(ImportProviderCard, {
+			props: {
+				title: 'Streamlabs',
+				icon: 'twir-integrations:streamlabs',
+				description: 'Donation events.',
+				authLink: 'https://streamlabs.example/oauth',
+				connected: false,
+				account: { userName: 'retained-profile' },
+				canManageIntegration: true,
+				importAvailable: false,
+			},
+			global: { plugins: [i18n], stubs },
+		})
+
+		expect(wrapper.text()).toContain('Not connected')
+		expect(wrapper.text()).not.toContain('retained-profile')
+		expect(wrapper.get('[data-test="provider-auth"]').text()).toContain('Connect')
 	})
 })

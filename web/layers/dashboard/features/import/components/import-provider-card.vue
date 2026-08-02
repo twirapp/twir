@@ -24,6 +24,7 @@ const props = withDefaults(
 		title: string
 		icon: string
 		description: string
+		connected: boolean
 		account?: ProviderAccount | null
 		authLink?: string | null
 		isLoading?: boolean
@@ -52,7 +53,6 @@ defineSlots<{
 
 const { t } = useI18n()
 const settingsOpen = ref(false)
-const connected = computed(() => Boolean(props.account?.userName))
 
 function authenticate() {
 	if (!props.authLink) return

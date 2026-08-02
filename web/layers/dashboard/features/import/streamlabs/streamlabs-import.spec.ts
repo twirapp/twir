@@ -48,14 +48,15 @@ describe('Streamlabs import card', () => {
 				plugins: [i18n],
 				stubs: {
 					ImportProviderCard: {
-						props: ['account', 'importAvailable', 'donationDescription', 'unavailableDescription'],
-						template: '<section><span>{{ account?.userName }}</span><span>{{ importAvailable }}</span><span>{{ donationDescription }}</span><span>{{ unavailableDescription }}</span><slot name="settings" /></section>',
+						props: ['account', 'connected', 'importAvailable', 'donationDescription', 'unavailableDescription'],
+						template: '<section><span>{{ account?.userName }}</span><span>connected={{ connected }}</span><span>{{ importAvailable }}</span><span>{{ donationDescription }}</span><span>{{ unavailableDescription }}</span><slot name="settings" /></section>',
 					},
 				},
 			},
 		})
 
 		expect(wrapper.text()).toContain('labs-user')
+		expect(wrapper.text()).toContain('connected=true')
 		expect(wrapper.text()).toContain('false')
 		expect(wrapper.text()).toContain('enables Streamlabs donation events')
 		expect(wrapper.text()).toContain('does not expose Cloudbot commands or timers')
@@ -64,20 +65,22 @@ describe('Streamlabs import card', () => {
 	})
 
 	it('keeps OAuth available while disconnected without claiming donations are active', () => {
-		page.streamlabsData.value = { enabled: false, userName: null, avatar: null }
+		page.streamlabsData.value = { enabled: false, userName: 'retained-profile', avatar: 'avatar' }
 		const wrapper = mount(StreamlabsImport, {
 			global: {
 				plugins: [i18n],
 				stubs: {
 					ImportProviderCard: {
-						props: ['account', 'authLink', 'donationDescription', 'importAvailable'],
-						template: '<section><span>{{ account?.userName }}</span><span>{{ authLink }}</span><span>{{ donationDescription }}</span><span>{{ importAvailable }}</span></section>',
+						props: ['account', 'authLink', 'connected', 'donationDescription', 'importAvailable'],
+						template: '<section><span>{{ account?.userName }}</span><span>{{ authLink }}</span><span>connected={{ connected }}</span><span>{{ donationDescription }}</span><span>{{ importAvailable }}</span></section>',
 					},
 				},
 			},
 		})
 
 		expect(wrapper.text()).toContain('https://streamlabs.example/oauth')
+		expect(wrapper.text()).toContain('retained-profile')
+		expect(wrapper.text()).toContain('connected=false')
 		expect(wrapper.text()).toContain('false')
 		expect(wrapper.text()).not.toContain('enables Streamlabs donation events')
 	})

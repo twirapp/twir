@@ -78,6 +78,7 @@ async function logout() {
 	<ImportProviderCard
 		title="Nightbot"
 		icon="twir-integrations:nightbot"
+		:connected="connected"
 		:description="t('imports.providers.nightbot.description')"
 		:account="integrationsPage.nightbotData.value"
 		:auth-link="integrationsPage.nightbotAuthLink.value"
