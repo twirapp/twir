@@ -10,8 +10,10 @@ import {
 	providerTokenStores,
 } from './libs/db';
 import { StreamElementsClient } from './libs/streamelements-client.ts';
+import { StreamLabsClient } from './libs/streamlabs-client.ts';
 import { twirBus } from './libs/twirbus.ts';
 import { StreamElementsConnection } from './services/streamElements.ts';
+import { StreamLabsConnection } from './services/streamLabs.ts';
 import {
 	addIntegration as addDonatePayIntegration,
 	removeIntegration as removeDonatePayIntegration,
@@ -20,12 +22,36 @@ import {
 	addIntegration as addDonationAlertsIntegration,
 	removeIntegration as removeDonationAlertsIntegration,
 } from './store/donationAlerts';
-import {
-	addIntegration as addStreamlabsIntegration,
-	removeIntegration as removeStreamlabsIntegration,
-} from './store/streamlabs';
+import { createStreamLabsStore } from './store/streamlabs.ts';
 import { createStreamElementsStore, runLifecycleOperation } from './store/streamelements.ts';
 import './pubsub';
+
+const streamLabsStore = createStreamLabsStore({
+	loadIntegrationByID: (integrationID) => getStreamlabsIntegrations({ id: integrationID }),
+	async createConnection(integration) {
+		if (!config.STREAMLABS_CLIENT_ID || !config.STREAMLABS_CLIENT_SECRET) {
+			throw new Error('Streamlabs OAuth credentials are not configured');
+		}
+		const client = new StreamLabsClient({
+			channelID: integration.channel_id,
+			tokens: {
+				accessToken: integration.access_token,
+				refreshToken: integration.refresh_token,
+			},
+			tokenStore: providerTokenStores.streamLabs,
+			clientID: config.STREAMLABS_CLIENT_ID,
+			clientSecret: config.STREAMLABS_CLIENT_SECRET,
+			redirectURI: `${config.SITE_BASE_URL.replace(/\/$/, '')}/dashboard/integrations/streamlabs`,
+		});
+		const { socketToken } = await client.getSocketToken();
+		const connection = new StreamLabsConnection({
+			channelID: integration.channel_id,
+			socketToken,
+		});
+		connection.connect();
+		return connection;
+	},
+});
 
 const streamElementsStore = createStreamElementsStore({
 	loadIntegrationByID: (integrationID) => getStreamElementsIntegrations({ id: integrationID }),
@@ -64,7 +90,7 @@ for (const integration of await getDonationAlertsIntegrations()) {
 }
 
 for (const integration of await getStreamlabsIntegrations()) {
-	await addStreamlabsIntegration(integration);
+	await streamLabsStore.addIntegration(integration);
 }
 
 for (const integration of await getStreamElementsIntegrations()) {
@@ -100,12 +126,7 @@ async function handleIntegrationAdd(data: IntegrationLifecycleRequest): Promise<
 	}
 
 	if (data.service === IntegrationService.STREAMLABS) {
-		const integration = await getStreamlabsIntegrations({ id: data.id });
-		if (!integration) {
-			console.error(`Integration with id ${data.id} not found for Streamlabs`);
-			return;
-		}
-		await addStreamlabsIntegration(integration);
+		await streamLabsStore.addIntegrationByID(data.id);
 		return;
 	}
 
@@ -129,7 +150,7 @@ async function handleIntegrationRemove(data: IntegrationLifecycleRequest): Promi
 	}
 
 	if (data.service === IntegrationService.STREAMLABS) {
-		await removeStreamlabsIntegration(data.id); // channelId
+		await streamLabsStore.removeIntegration(data.id); // channelId
 		return;
 	}
 
@@ -158,7 +179,10 @@ let shuttingDown = false;
 const shutdown = async () => {
 	if (shuttingDown) return;
 	shuttingDown = true;
-	await streamElementsStore.closeAll();
+	await Promise.all([
+		streamElementsStore.closeAll(),
+		streamLabsStore.closeAll(),
+	]);
 	process.exit(0);
 };
 

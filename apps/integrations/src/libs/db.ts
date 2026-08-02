@@ -326,12 +326,3 @@ export interface StreamlabsIntegration {
 	username: string
 	avatar: string
 }
-
-export async function updateStreamlabsIntegration(opts: {
-	channel_id: string
-	access_token?: string
-	refresh_token?: string
-	enabled?: string
-}) {
-	await sql`UPDATE channels_integrations_streamlabs SET ${sql(opts)}	WHERE channel_id = ${opts.channel_id}`
-}
