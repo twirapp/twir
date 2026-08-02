@@ -35,6 +35,7 @@ type CreateInput struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []string
 	OnlineOnly                bool
+	OfflineOnly               bool
 	EnabledCategories         []string
 	RequiredWatchTime         int
 	RequiredMessages          int
@@ -141,6 +142,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 					AllowedUsersIDS:           input.AllowedUsersIDS,
 					RolesIDS:                  input.RolesIDS,
 					OnlineOnly:                input.OnlineOnly,
+					OfflineOnly:               input.OfflineOnly,
 					EnabledCategories:         input.EnabledCategories,
 					RequiredWatchTime:         input.RequiredWatchTime,
 					RequiredMessages:          input.RequiredMessages,

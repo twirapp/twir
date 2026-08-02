@@ -38,6 +38,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/quotes"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
@@ -73,6 +74,7 @@ type Deps struct {
 	Timers            *timers.Service
 	Variables         *variables.Service
 	Quotes            *quotes.Service
+	Roles             *roles.Service
 	Keywords          *keywords.Service
 	Secrets           *channels_secret.Service
 	Storage           *channels_storage.Service
