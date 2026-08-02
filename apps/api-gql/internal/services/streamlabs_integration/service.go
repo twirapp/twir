@@ -1,22 +1,22 @@
 package streamlabs_integration
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
+	"strings"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/bus-core/integrations"
+	busintegrations "github.com/twirapp/twir/libs/bus-core/integrations"
 	config "github.com/twirapp/twir/libs/config"
-	streamlabsintegration "github.com/twirapp/twir/libs/entities/streamlabs_integration"
-	"github.com/twirapp/twir/libs/repositories/streamlabs_integration"
+	streamlabsentity "github.com/twirapp/twir/libs/entities/streamlabs_integration"
+	"github.com/twirapp/twir/libs/integrations/oauthlock"
+	provider "github.com/twirapp/twir/libs/integrations/streamlabs"
+	repository "github.com/twirapp/twir/libs/repositories/streamlabs_integration"
 	"github.com/twirapp/twir/libs/repositories/streamlabs_integration/model"
 	"go.uber.org/fx"
 )
@@ -24,32 +24,98 @@ import (
 type Opts struct {
 	fx.In
 
-	StreamlabsRepository streamlabs_integration.Repository
+	StreamlabsRepository repository.Repository
 	TwirBus              *buscore.Bus
 	Config               config.Config
+	Redis                *redis.Client
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		streamlabsRepository: opts.StreamlabsRepository,
-		twirBus:              opts.TwirBus,
 		config:               opts.Config,
+		clientFactory:        streamlabsClientFactory{},
+		locker:               oauthlock.NewRedis(opts.Redis),
+		events:               busIntegrationEvents{bus: opts.TwirBus},
 	}
 }
 
+type providerClient interface {
+	GetAuthLink(state ...string) string
+	ExchangeCode(context.Context, string) (*provider.TokenResponse, error)
+	GetProfile(context.Context) (*provider.UserProfile, error)
+}
+
+type providerClientFactory interface {
+	New(clientID, clientSecret, redirectURL string) providerClient
+	NewAuthorized(
+		clientID, clientSecret, channelID, redirectURL string,
+		tokens provider.Tokens,
+		store provider.TokenStore,
+		locker oauthlock.Locker,
+	) providerClient
+}
+
+type streamlabsClientFactory struct{}
+
+func (streamlabsClientFactory) New(clientID, clientSecret, redirectURL string) providerClient {
+	return provider.New(clientID, clientSecret, redirectURL)
+}
+
+func (streamlabsClientFactory) NewAuthorized(
+	clientID, clientSecret, channelID, redirectURL string,
+	tokens provider.Tokens,
+	store provider.TokenStore,
+	locker oauthlock.Locker,
+) providerClient {
+	return provider.NewAuthorized(
+		clientID,
+		clientSecret,
+		channelID,
+		redirectURL,
+		tokens,
+		store,
+		locker,
+	)
+}
+
+type integrationEvents interface {
+	PublishAdd(context.Context, busintegrations.Request) error
+	PublishRemove(context.Context, busintegrations.Request) error
+}
+
+type busIntegrationEvents struct {
+	bus *buscore.Bus
+}
+
+func (b busIntegrationEvents) PublishAdd(
+	ctx context.Context,
+	request busintegrations.Request,
+) error {
+	return b.bus.Integrations.Add.Publish(ctx, request)
+}
+
+func (b busIntegrationEvents) PublishRemove(
+	ctx context.Context,
+	request busintegrations.Request,
+) error {
+	return b.bus.Integrations.Remove.Publish(ctx, request)
+}
+
 type Service struct {
-	streamlabsRepository streamlabs_integration.Repository
-	twirBus              *buscore.Bus
+	streamlabsRepository repository.Repository
 	config               config.Config
+	clientFactory        providerClientFactory
+	locker               oauthlock.Locker
+	events               integrationEvents
 }
 
 type AuthLinkResponse struct {
 	Link string `json:"link"`
 }
 
-// mapModelToEntity converts repository model to service entity
-func (s *Service) mapModelToEntity(m model.StreamlabsIntegration) streamlabsintegration.Entity {
-	return streamlabsintegration.Entity{
+func (s *Service) mapModelToEntity(m model.StreamlabsIntegration) streamlabsentity.Entity {
+	return streamlabsentity.Entity{
 		ID:           m.ID,
 		Enabled:      m.Enabled,
 		ChannelID:    m.ChannelID,
@@ -63,30 +129,23 @@ func (s *Service) mapModelToEntity(m model.StreamlabsIntegration) streamlabsinte
 }
 
 func (s *Service) GetIntegrationData(ctx context.Context, channelID string) (
-	streamlabsintegration.Entity,
+	streamlabsentity.Entity,
 	error,
 ) {
 	integration, err := s.streamlabsRepository.GetByChannelID(ctx, channelID)
 	if err != nil {
-		if errors.Is(err, streamlabs_integration.ErrNotFound) {
-			// Return default data if integration doesn't exist
-			return streamlabsintegration.Entity{
-				ChannelID: channelID,
-				Enabled:   false,
-			}, nil
+		if errors.Is(err, repository.ErrNotFound) {
+			return streamlabsentity.Entity{ChannelID: channelID, Enabled: false}, nil
 		}
-		return streamlabsintegration.Entity{}, fmt.Errorf(
-			"failed to get streamlabs integration: %w",
-			err,
-		)
+		return streamlabsentity.Entity{}, fmt.Errorf("failed to get streamlabs integration: %w", err)
 	}
 
 	return s.mapModelToEntity(integration), nil
 }
 
-func (s *Service) getCallbackUrl(ctx context.Context) (string, error) {
-	baseUrl, _ := gincontext.GetBaseUrlFromContext(ctx, s.config.SiteBaseUrl)
-	u, err := url.Parse(baseUrl)
+func (s *Service) getCallbackURL(ctx context.Context) (string, error) {
+	baseURL, _ := gincontext.GetBaseUrlFromContext(ctx, s.config.SiteBaseUrl)
+	u, err := url.Parse(baseURL)
 	if err != nil {
 		return "", fmt.Errorf("invalid site base URL: %w", err)
 	}
@@ -94,82 +153,87 @@ func (s *Service) getCallbackUrl(ctx context.Context) (string, error) {
 	return u.JoinPath("dashboard", "integrations", "streamlabs").String(), nil
 }
 
-func (s *Service) GetAuthLink(ctx context.Context) (*AuthLinkResponse, error) {
-	if s.config.StreamlabsClientId == "" || s.config.StreamlabsClientSecret == "" {
-		return nil, errors.New("streamlabs integration not properly configured")
+// The variadic state keeps the generated resolver buildable until it starts supplying
+// provider-bound state. Every successful call still requires exactly one nonblank state.
+func (s *Service) GetAuthLink(
+	ctx context.Context,
+	states ...string,
+) (*AuthLinkResponse, error) {
+	if err := s.ensureConfigured(); err != nil {
+		return nil, err
+	}
+	if len(states) != 1 || strings.TrimSpace(states[0]) == "" {
+		return nil, errors.New("streamlabs OAuth state is required")
 	}
 
-	redirectUrl, err := s.getCallbackUrl(ctx)
+	redirectURL, err := s.getCallbackURL(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get redirect URL: %w", err)
 	}
-
-	// Build OAuth authorization URL
-	authURL := "https://www.streamlabs.com/api/v2.0/authorize"
-	params := url.Values{}
-	params.Add("client_id", s.config.StreamlabsClientId)
-	params.Add("redirect_uri", redirectUrl)
-	params.Add("response_type", "code")
-	params.Add("scope", "socket.token donations.read")
-
-	fullURL := fmt.Sprintf("%s?%s", authURL, params.Encode())
-
-	return &AuthLinkResponse{
-		Link: fullURL,
-	}, nil
-}
-
-func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
-	if s.config.StreamlabsClientId == "" || s.config.StreamlabsClientSecret == "" {
-		return errors.New("streamlabs integration not properly configured")
-	}
-
-	foundIntegration, err := s.streamlabsRepository.GetByChannelID(ctx, channelID)
-	if err != nil && !errors.Is(err, streamlabs_integration.ErrNotFound) {
-		return fmt.Errorf("failed to get streamlabs integration: %w", err)
-	}
-
-	redirectURL, err := s.getCallbackUrl(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to get redirect URL: %w", err)
-	}
-
-	tokens, profile, err := s.getProfileData(
-		ctx,
+	client := s.clientFactory.New(
 		s.config.StreamlabsClientId,
 		s.config.StreamlabsClientSecret,
 		redirectURL,
-		code,
 	)
+
+	return &AuthLinkResponse{Link: client.GetAuthLink(states[0])}, nil
+}
+
+func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
+	if err := s.ensureConfigured(); err != nil {
+		return err
+	}
+
+	foundIntegration, err := s.streamlabsRepository.GetByChannelID(ctx, channelID)
+	if err != nil && !errors.Is(err, repository.ErrNotFound) {
+		return fmt.Errorf("failed to get streamlabs integration: %w", err)
+	}
+
+	redirectURL, err := s.getCallbackURL(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to get streamlabs profile data: %w", err)
+		return fmt.Errorf("failed to get redirect URL: %w", err)
+	}
+	client := s.clientFactory.New(
+		s.config.StreamlabsClientId,
+		s.config.StreamlabsClientSecret,
+		redirectURL,
+	)
+	tokens, err := client.ExchangeCode(ctx, code)
+	if err != nil {
+		return fmt.Errorf("exchange streamlabs authorization code: %w", err)
+	}
+	if tokens == nil || tokens.AccessToken == "" || tokens.RefreshToken == "" {
+		return errors.New("exchange streamlabs authorization code: provider returned incomplete credentials")
+	}
+
+	profile, err := client.GetProfile(ctx)
+	if err != nil {
+		return fmt.Errorf("get streamlabs profile: %w", err)
+	}
+	if profile == nil {
+		return errors.New("get streamlabs profile: provider returned no profile")
 	}
 
 	if foundIntegration == model.Nil {
-		if err := s.streamlabsRepository.Create(
-			ctx, streamlabs_integration.CreateOpts{
-				ChannelID:    channelID,
-				AccessToken:  tokens.AccessToken,
-				RefreshToken: tokens.RefreshToken,
-				Enabled:      true,
-				UserName:     profile.StreamLabs.DisplayName,
-				Avatar:       profile.StreamLabs.ThumbNail,
-			},
-		); err != nil {
+		if err := s.streamlabsRepository.Create(ctx, repository.CreateOpts{
+			ChannelID:    channelID,
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+			Enabled:      true,
+			UserName:     profile.StreamLabs.DisplayName,
+			Avatar:       profile.StreamLabs.ThumbNail,
+		}); err != nil {
 			return fmt.Errorf("failed to create streamlabs integration: %w", err)
 		}
 	} else {
-		if err := s.streamlabsRepository.Update(
-			ctx,
-			streamlabs_integration.UpdateOpts{
-				ChannelID:    channelID,
-				AccessToken:  &tokens.AccessToken,
-				RefreshToken: &tokens.RefreshToken,
-				Enabled:      lo.ToPtr(true),
-				UserName:     &profile.StreamLabs.DisplayName,
-				Avatar:       &profile.StreamLabs.ThumbNail,
-			},
-		); err != nil {
+		if err := s.streamlabsRepository.Update(ctx, repository.UpdateOpts{
+			ChannelID:    channelID,
+			AccessToken:  &tokens.AccessToken,
+			RefreshToken: &tokens.RefreshToken,
+			Enabled:      lo.ToPtr(true),
+			UserName:     &profile.StreamLabs.DisplayName,
+			Avatar:       &profile.StreamLabs.ThumbNail,
+		}); err != nil {
 			return fmt.Errorf("failed to update streamlabs integration: %w", err)
 		}
 	}
@@ -178,119 +242,70 @@ func (s *Service) PostCode(ctx context.Context, channelID, code string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get streamlabs integration after update: %w", err)
 	}
-
-	if err = s.twirBus.Integrations.Add.Publish(
-		ctx, integrations.Request{
-			ID:      newIntegration.ID.String(),
-			Service: integrations.Streamlabs,
-		},
-	); err != nil {
+	if err := s.events.PublishAdd(ctx, busintegrations.Request{
+		ID:      newIntegration.ID.String(),
+		Service: busintegrations.Streamlabs,
+	}); err != nil {
 		return fmt.Errorf("failed to publish add integration event: %w", err)
 	}
 
-	return err
+	return nil
+}
+
+func (s *Service) authorizedClient(ctx context.Context, channelID string) (providerClient, error) {
+	if err := s.ensureConfigured(); err != nil {
+		return nil, err
+	}
+	tokens, err := s.streamlabsRepository.GetTokens(ctx, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("get streamlabs tokens: %w", err)
+	}
+	redirectURL, err := s.getCallbackURL(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get redirect URL: %w", err)
+	}
+	return s.clientFactory.NewAuthorized(
+		s.config.StreamlabsClientId,
+		s.config.StreamlabsClientSecret,
+		channelID,
+		redirectURL,
+		tokens,
+		s.streamlabsRepository,
+		s.locker,
+	), nil
 }
 
 func (s *Service) Logout(ctx context.Context, channelID string) error {
-	err := s.streamlabsRepository.Delete(ctx, channelID)
+	if s.locker == nil {
+		return errors.New("streamlabs logout refresh lock is not configured")
+	}
+	err := s.locker.WithLock(
+		ctx,
+		provider.RefreshLockKey(channelID),
+		func(lockCtx context.Context) error {
+			if err := s.streamlabsRepository.Delete(lockCtx, channelID); err != nil {
+				return fmt.Errorf("failed to disable streamlabs integration: %w", err)
+			}
+			return nil
+		},
+	)
 	if err != nil {
-		return fmt.Errorf("failed to disable streamlabs integration: %w", err)
+		return fmt.Errorf("lock streamlabs logout: %w", err)
 	}
 
-	if err := s.twirBus.Integrations.Remove.Publish(
-		ctx,
-		integrations.Request{
-			ID:      channelID,
-			Service: integrations.Streamlabs,
-		},
-	); err != nil {
+	if err := s.events.PublishRemove(ctx, busintegrations.Request{
+		ID:      channelID,
+		Service: busintegrations.Streamlabs,
+	}); err != nil {
 		return fmt.Errorf("failed to publish remove integration event: %w", err)
 	}
 
 	return nil
 }
 
-type streamlabsTokensResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	TokenType    string `json:"token_type"`
-	ExpiresIn    int    `json:"expires_in"`
-}
-
-type streamlabsProfileResponse struct {
-	StreamLabs struct {
-		DisplayName string `json:"display_name"`
-		ThumbNail   string `json:"thumbnail"`
-		ID          int    `json:"id"`
-	} `json:"streamlabs"`
-}
-
-func (s *Service) getProfileData(
-	ctx context.Context,
-	clientId, clientSecret, redirectURL, code string,
-) (
-	*streamlabsTokensResponse,
-	*streamlabsProfileResponse,
-	error,
-) {
-	formData := url.Values{}
-	formData.Set("grant_type", "authorization_code")
-	formData.Set("client_id", clientId)
-	formData.Set("client_secret", clientSecret)
-	formData.Set("redirect_uri", redirectURL)
-	formData.Set("code", code)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://streamlabs.com/api/v2.0/token", bytes.NewBufferString(formData.Encode()))
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create token request: %w", err)
+func (s *Service) ensureConfigured() error {
+	if s.config.StreamlabsClientId == "" || s.config.StreamlabsClientSecret == "" {
+		return errors.New("streamlabs integration not properly configured")
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to exchange code for tokens: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to read token response: %w", err)
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, nil, fmt.Errorf("failed to exchange code for tokens: %s", string(body))
-	}
-
-	var data streamlabsTokensResponse
-	if err := json.Unmarshal(body, &data); err != nil {
-		return nil, nil, fmt.Errorf("failed to parse token response: %w", err)
-	}
-
-	profileReq, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://streamlabs.com/api/v2.0/user", nil)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create profile request: %w", err)
-	}
-	profileReq.Header.Set("Authorization", "Bearer "+data.AccessToken)
-
-	profileResp, err := http.DefaultClient.Do(profileReq)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to fetch streamlabs profile: %w", err)
-	}
-	defer profileResp.Body.Close()
-
-	profileBody, err := io.ReadAll(profileResp.Body)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to read profile response: %w", err)
-	}
-
-	if profileResp.StatusCode < 200 || profileResp.StatusCode >= 300 {
-		return nil, nil, fmt.Errorf("failed to fetch streamlabs profile: %s", string(profileBody))
-	}
-
-	var profile streamlabsProfileResponse
-	if err := json.Unmarshal(profileBody, &profile); err != nil {
-		return nil, nil, fmt.Errorf("failed to parse profile response: %w", err)
-	}
-
-	return &data, &profile, nil
+	return nil
 }
