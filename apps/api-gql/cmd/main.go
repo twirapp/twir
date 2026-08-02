@@ -25,6 +25,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/stream"
 	ttsroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/tts"
+	mcpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/mcp"
 	"github.com/twirapp/twir/apps/api-gql/internal/di"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
@@ -723,6 +724,7 @@ func main() {
 			directives.New,
 			middlewares.New,
 			server.New,
+			mcpdelivery.New,
 		),
 		// huma routes
 		shortlinks.FxModule,
@@ -745,6 +747,7 @@ func main() {
 			song_requests.NewBridge,
 			valorant.New,
 			stream.New,
+			mcpdelivery.Register,
 			func(l *slog.Logger) {
 				l.Info("🚀 API-GQL is running")
 			},

@@ -9,10 +9,16 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, input CreateInput) (model.Pastebin, error)
+	Update(ctx context.Context, id string, input UpdateInput) (model.Pastebin, error)
 	GetByID(ctx context.Context, id string) (model.Pastebin, error)
 	Delete(ctx context.Context, id string) error
 	GetManyByOwner(ctx context.Context, input GetManyInput) (GetManyOutput, error)
 	Count(ctx context.Context, input CountInput) (int64, error)
+}
+
+type UpdateInput struct {
+	Content  string
+	ExpireAt *time.Time
 }
 
 type CountInput struct {
