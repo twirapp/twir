@@ -6,7 +6,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
-	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
 
 func TimerEntityToGql(m timersentity.Timer) (gqlmodel.Timer, error) {
@@ -45,18 +44,6 @@ func TimerEntityToGql(m timersentity.Timer) (gqlmodel.Timer, error) {
 		Responses:       responses,
 		Platforms:       platforms,
 	}, nil
-}
-
-func StreamElementsTimerToGql(m streamelements.Timer) gqlmodel.StreamElementsTimer {
-	return gqlmodel.StreamElementsTimer{
-		ID:        m.ID,
-		Name:      m.Name,
-		Enabled:   m.Enabled,
-		ChatLines: m.ChatLines,
-		Message:   m.Message,
-		CreatedAt: m.CreatedAt,
-		UpdatedAt: m.UpdatedAt,
-	}
 }
 
 var announceEntityToGql = map[bots.AnnounceColor]gqlmodel.TwitchAnnounceColor{

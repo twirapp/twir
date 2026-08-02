@@ -93,8 +93,7 @@ func (h *Handler) addIntegrationTools(s *modelsdk.Server, requestScope scope) {
 					link, err := h.deps.DonationAlerts.GetAuthLink(ctx)
 					return nil, map[string]any{"authorizationUrl": link}, err
 				case "streamlabs":
-					link, err := h.deps.Streamlabs.GetAuthLink(ctx)
-					return nil, map[string]any{"authorizationUrl": link}, err
+					return nil, nil, fmt.Errorf("Streamlabs connection requires the dashboard OAuth flow")
 				case "vk":
 					link, err := h.deps.VK.GetAuthLink(ctx)
 					return nil, map[string]any{"authorizationUrl": link}, err

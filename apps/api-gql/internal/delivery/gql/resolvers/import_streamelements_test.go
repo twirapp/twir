@@ -2,18 +2,14 @@ package resolvers
 
 import (
 	"context"
-	"errors"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/google/uuid"
 	streamelementsservice "github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	config "github.com/twirapp/twir/libs/config"
-	apperrors "github.com/twirapp/twir/libs/errors"
 	model "github.com/twirapp/twir/libs/gomodels"
 	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 func TestStreamElementsAuthLinkCreatesStateBoundToSelectedDashboardAndUser(t *testing.T) {
@@ -56,30 +52,6 @@ func TestStreamElementsAuthLinkCreatesStateBoundToSelectedDashboardAndUser(t *te
 	}
 	if got, want := sessions.initiatorUserID, userID; got != want {
 		t.Fatalf("OAuth attempt initiator user ID = %s, want %s", got, want)
-	}
-}
-
-func TestLegacyStreamElementsExchangeIsDisabledWithoutCallingService(t *testing.T) {
-	t.Parallel()
-
-	resolver := &queryResolver{Resolver: &Resolver{deps: Deps{StreamElementsService: nil}}}
-	result, err := resolver.StreamelementsExchangeDataByCode(context.Background(), "secret-code")
-	if result != nil {
-		t.Fatalf("StreamelementsExchangeDataByCode() result = %#v, want nil", result)
-	}
-	if err == nil {
-		t.Fatal("StreamelementsExchangeDataByCode() error = nil, want disabled endpoint error")
-	}
-
-	var gqlErr *gqlerror.Error
-	if !errors.As(err, &gqlErr) {
-		t.Fatalf("error type = %T, want *gqlerror.Error", err)
-	}
-	if got, want := gqlErr.Extensions["code"], string(apperrors.ErrorCodeBadRequest); got != want {
-		t.Fatalf("GraphQL error code = %#v, want %q", got, want)
-	}
-	if strings.Contains(gqlErr.Message, "secret-code") || strings.Contains(err.Error(), "secret-code") {
-		t.Fatalf("disabled endpoint error leaked authorization code: %v", err)
 	}
 }
 

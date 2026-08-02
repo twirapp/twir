@@ -98,15 +98,15 @@ func NewAuthorized(
 	return client
 }
 
-func (s *Streamlabs) GetAuthLink(state ...string) string {
+func (s *Streamlabs) GetAuthLink(state string) string {
 	u, _ := url.Parse(s.authBaseURL + "/api/v2.0/authorize")
 	query := u.Query()
 	query.Set("client_id", s.clientID)
 	query.Set("redirect_uri", s.redirectURL)
 	query.Set("response_type", "code")
 	query.Set("scope", "socket.token donations.read")
-	if len(state) > 0 && state[0] != "" {
-		query.Set("state", state[0])
+	if state != "" {
+		query.Set("state", state)
 	}
 	u.RawQuery = query.Encode()
 	return u.String()

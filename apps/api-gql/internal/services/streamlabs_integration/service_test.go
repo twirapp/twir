@@ -340,13 +340,11 @@ type fakeProviderClient struct {
 	profile       *provider.UserProfile
 }
 
-func (f *fakeProviderClient) GetAuthLink(state ...string) string {
-	f.authStates = append(f.authStates, state...)
+func (f *fakeProviderClient) GetAuthLink(state string) string {
+	f.authStates = append(f.authStates, state)
 	u, _ := url.Parse("https://streamlabs.test/api/v2.0/authorize")
 	query := u.Query()
-	for _, value := range state {
-		query.Add("state", value)
-	}
+	query.Set("state", state)
 	u.RawQuery = query.Encode()
 	return u.String()
 }

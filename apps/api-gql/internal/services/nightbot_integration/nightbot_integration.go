@@ -96,18 +96,6 @@ type IntegrationData struct {
 	Avatar   string
 }
 
-type ImportCommandsResult struct {
-	ImportedCount       int
-	FailedCount         int
-	FailedCommandsNames []string
-}
-
-type ImportTimersResult struct {
-	ImportedCount     int
-	FailedCount       int
-	FailedTimersNames []string
-}
-
 func (s *Service) GetAuthLink(ctx context.Context, state string) (string, error) {
 	if strings.TrimSpace(state) == "" {
 		return "", fmt.Errorf("nightbot OAuth state is required")
@@ -271,44 +259,40 @@ func (s *Service) Logout(ctx context.Context, channelID string) error {
 	return nil
 }
 
-func (s *Service) ImportCommands(ctx context.Context, channelID string, actorID string) (*ImportCommandsResult, error) {
+func (s *Service) ImportCommands(ctx context.Context, channelID string, actorID string) (importer.Report, error) {
 	commandsData, err := s.getCommands(ctx, channelID)
 	if err != nil {
-		return nil, err
+		return importer.Report{}, err
 	}
 
 	commands, normalizationFailures := NormalizeCommands(commandsData)
 	report, err := s.importer.ImportCommands(ctx, channelID, actorID, commands)
 	if err != nil {
-		return nil, fmt.Errorf("import Nightbot commands: %w", err)
+		return importer.Report{}, fmt.Errorf("import Nightbot commands: %w", err)
 	}
 
 	failures := append(normalizationFailures, report.Failures...)
-	return &ImportCommandsResult{
-		ImportedCount:       report.ImportedCount,
-		FailedCount:         len(failures),
-		FailedCommandsNames: failureNames(failures),
-	}, nil
+	report.Failures = failures
+	report.FailedCount = len(failures)
+	return report, nil
 }
 
-func (s *Service) ImportTimers(ctx context.Context, channelID string, actorID string) (*ImportTimersResult, error) {
+func (s *Service) ImportTimers(ctx context.Context, channelID string, actorID string) (importer.Report, error) {
 	timersData, err := s.getTimers(ctx, channelID)
 	if err != nil {
-		return nil, err
+		return importer.Report{}, err
 	}
 
 	timers, normalizationFailures := NormalizeTimers(timersData)
 	report, err := s.importer.ImportTimers(ctx, channelID, actorID, timers)
 	if err != nil {
-		return nil, fmt.Errorf("import Nightbot timers: %w", err)
+		return importer.Report{}, fmt.Errorf("import Nightbot timers: %w", err)
 	}
 
 	failures := append(normalizationFailures, report.Failures...)
-	return &ImportTimersResult{
-		ImportedCount:     report.ImportedCount,
-		FailedCount:       len(failures),
-		FailedTimersNames: failureNames(failures),
-	}, nil
+	report.Failures = failures
+	report.FailedCount = len(failures)
+	return report, nil
 }
 
 func (s *Service) getCommands(ctx context.Context, channelID string) (nightbotCustomCommandsResponse, error) {
@@ -391,12 +375,4 @@ func (s *Service) accessToken(ctx context.Context, channelID string) (string, er
 	}
 
 	return tokenResponse.Data.AccessToken, nil
-}
-
-func failureNames(failures []importer.Failure) []string {
-	names := make([]string, 0, len(failures))
-	for _, failure := range failures {
-		names = append(names, failure.Name)
-	}
-	return names
 }

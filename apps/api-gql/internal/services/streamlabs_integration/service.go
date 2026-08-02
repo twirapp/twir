@@ -41,7 +41,7 @@ func New(opts Opts) *Service {
 }
 
 type providerClient interface {
-	GetAuthLink(state ...string) string
+	GetAuthLink(state string) string
 	ExchangeCode(context.Context, string) (*provider.TokenResponse, error)
 	GetProfile(context.Context) (*provider.UserProfile, error)
 }
@@ -153,16 +153,14 @@ func (s *Service) getCallbackURL(ctx context.Context) (string, error) {
 	return u.JoinPath("dashboard", "integrations", "streamlabs").String(), nil
 }
 
-// The variadic state keeps the generated resolver buildable until it starts supplying
-// provider-bound state. Every successful call still requires exactly one nonblank state.
 func (s *Service) GetAuthLink(
 	ctx context.Context,
-	states ...string,
+	state string,
 ) (*AuthLinkResponse, error) {
 	if err := s.ensureConfigured(); err != nil {
 		return nil, err
 	}
-	if len(states) != 1 || strings.TrimSpace(states[0]) == "" {
+	if strings.TrimSpace(state) == "" {
 		return nil, errors.New("streamlabs OAuth state is required")
 	}
 
@@ -176,7 +174,7 @@ func (s *Service) GetAuthLink(
 		redirectURL,
 	)
 
-	return &AuthLinkResponse{Link: client.GetAuthLink(states[0])}, nil
+	return &AuthLinkResponse{Link: client.GetAuthLink(state)}, nil
 }
 
 func (s *Service) PostCode(ctx context.Context, channelID, code string) error {

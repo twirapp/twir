@@ -101,10 +101,13 @@ func TestImportCommandsPrependsNormalizationFailuresToSharedImporterReport(t *te
 	if err != nil {
 		t.Fatalf("ImportCommands() error = %v", err)
 	}
-	if want := (&ImportCommandsResult{
-		ImportedCount:       1,
-		FailedCount:         2,
-		FailedCommandsNames: []string{"!Admin", "hello"},
+	if want := (importer.Report{
+		ImportedCount: 1,
+		FailedCount:   2,
+		Failures: []importer.Failure{
+			{Name: "!Admin", Reason: importer.FailureUnsupportedRole},
+			{Name: "hello", Reason: importer.FailureDuplicate},
+		},
 	}); !reflect.DeepEqual(result, want) {
 		t.Fatalf("ImportCommands() result = %#v, want %#v", result, want)
 	}
@@ -160,10 +163,13 @@ func TestImportTimersPrependsNormalizationFailuresToSharedImporterReport(t *test
 	if err != nil {
 		t.Fatalf("ImportTimers() error = %v", err)
 	}
-	if want := (&ImportTimersResult{
-		ImportedCount:     1,
-		FailedCount:       2,
-		FailedTimersNames: []string{"daily", "five"},
+	if want := (importer.Report{
+		ImportedCount: 1,
+		FailedCount:   2,
+		Failures: []importer.Failure{
+			{Name: "daily", Reason: importer.FailureIncompatibleInterval},
+			{Name: "five", Reason: importer.FailureDuplicate},
+		},
 	}); !reflect.DeepEqual(result, want) {
 		t.Fatalf("ImportTimers() result = %#v, want %#v", result, want)
 	}
