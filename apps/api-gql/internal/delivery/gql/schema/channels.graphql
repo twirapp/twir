@@ -8,6 +8,10 @@ extend type Query {
 		@isAuthenticated
 		@hasAccessToSelectedDashboard
 		@hasChannelRolesDashboardPermission(permission: VIEW_BOT_SETTINGS)
+	channelApiKey: String!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+		@hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)
 }
 
 extend type Mutation {

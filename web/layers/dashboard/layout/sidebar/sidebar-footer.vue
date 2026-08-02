@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useNotifications } from '~~/layers/dashboard/composables/use-notifications'
 import { footerNavigationItems } from '~~/layers/dashboard/config/navigation'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 
 import DiscordLogo from '@/assets/icons/social/discord.svg'
 import GithubLogo from '@/assets/icons/social/github.svg'
@@ -15,11 +16,13 @@ import {
 } from '@/components/ui/sidebar'
 
 import { usePublicPageHref } from '../use-public-page-href'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const { t } = useI18n()
 const { setOpenMobile } = useSidebar()
 const publicPageHref = usePublicPageHref()
 const { notificationsCounter } = useNotifications()
+const canManageBotSettings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageBotSettings)
 const requestUrl = useRequestURL()
 const localePath = useLocalePath()
 
@@ -27,6 +30,9 @@ const localePath = useLocalePath()
 const visibleFooterItems = computed(() => {
 	return footerNavigationItems
 		.filter((item) => {
+			if (item.requiresManageBotSettings && !canManageBotSettings.value) {
+				return false
+			}
 			// Filter out public page dependent items if no public page
 			if (item.isPublicPageDependent && !publicPageHref.value) {
 				return false
