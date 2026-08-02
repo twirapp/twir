@@ -17,13 +17,14 @@ import (
 
 var BotUptime = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
-		Name:        "botuptime",
-		Module:      "STATS",
-		Visible:     true,
-		IsReply:     true,
-		RolesIDS:    pq.StringArray{},
-		Aliases:     pq.StringArray{},
-		Description: null.StringFrom("Shows bot services uptime, status and external platforms ping."),
+		Name:               "botuptime",
+		Module:             "STATS",
+		Visible:            true,
+		IsReply:            true,
+		RolesIDS:           pq.StringArray{},
+		Aliases:            pq.StringArray{},
+		KeepResponsesOrder: true,
+		Description:        null.StringFrom("Shows bot services uptime, status and external platforms ping."),
 	},
 	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {

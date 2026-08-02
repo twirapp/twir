@@ -2,7 +2,6 @@ package stats
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 	"net/http"
 	"sort"
@@ -56,17 +55,23 @@ func summarizeServices(
 	down := []string{}
 	restarted := []string{}
 	for _, service := range serviceNames {
+		instances := byService[service]
+		labels := instanceLabels(instances)
+
 		alive := []time.Duration{}
-		for _, status := range byService[service] {
+		for _, status := range instances {
 			if status.IsStale(now, staleThreshold) {
-				down = append(down, service+displayInstance(status.Instance))
+				down = append(down, service+labels[status.Instance])
 				continue
 			}
 
 			uptimeDuration := status.Uptime(now)
 			alive = append(alive, uptimeDuration)
 			if uptimeDuration < restartThreshold {
-				restarted = append(restarted, service+displayInstance(status.Instance)+" ("+formatUptime(uptimeDuration)+")")
+				restarted = append(
+					restarted,
+					service+labels[status.Instance]+" ("+formatUptime(uptimeDuration)+")",
+				)
 			}
 		}
 
@@ -113,17 +118,27 @@ func formatUptime(duration time.Duration) string {
 	}
 }
 
-func displayInstance(instance string) string {
-	if strings.HasPrefix(instance, "slot-") {
-		return "#" + strings.TrimPrefix(instance, "slot-")
-	}
-	if len(instance) == 12 {
-		if _, err := hex.DecodeString(instance); err == nil {
-			return "#" + instance[7:]
+// instanceLabels maps instances to display suffixes: slots keep "#N",
+// replicas get ordinals only when >1, hostnames are never shown.
+func instanceLabels(instances []uptime.InstanceStatus) map[string]string {
+	sorted := make([]uptime.InstanceStatus, len(instances))
+	copy(sorted, instances)
+	sort.Slice(sorted, func(first int, second int) bool {
+		return sorted[first].Instance < sorted[second].Instance
+	})
+
+	labels := make(map[string]string, len(sorted))
+	for index, status := range sorted {
+		if slot, ok := strings.CutPrefix(status.Instance, "slot-"); ok {
+			labels[status.Instance] = "#" + slot
+			continue
+		}
+		if len(sorted) > 1 {
+			labels[status.Instance] = "#" + strconv.Itoa(index+1)
 		}
 	}
 
-	return "#" + instance
+	return labels
 }
 
 func formatPings(ctx context.Context) string {
