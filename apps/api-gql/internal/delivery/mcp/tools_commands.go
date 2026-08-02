@@ -48,6 +48,12 @@ type idInput struct {
 }
 
 func (h *Handler) addCommandTools(s *modelsdk.Server, requestScope scope) {
+	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_command_groups", Description: "List command groups for this channel."},
+		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+			items, err := h.deps.CommandGroups.GetManyByChannelID(ctx, requestScope.Channel.ID.String())
+			return nil, map[string]any{"groups": items}, err
+		})
+
 	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_commands", Description: "List all commands, groups, responses, cooldowns, and permissions for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.CommandsRelations.GetManyByChannelID(ctx, requestScope.Channel.ID.String())

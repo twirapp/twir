@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_secret"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_storage"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	commandsrelations "github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
@@ -35,6 +36,7 @@ type Deps struct {
 
 	Channels          *channelservice.ChannelService
 	Commands          *commands.Service
+	CommandGroups     *commands_groups.Service
 	CommandsRelations *commandsrelations.Service
 	Timers            *timers.Service
 	Variables         *variables.Service
