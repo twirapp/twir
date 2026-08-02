@@ -25,6 +25,63 @@ type lifecycleLogEntry struct {
 	Error         string `json:"error"`
 }
 
+func TestNewRealtimeClientRejectsInvalidProxyUrl(t *testing.T) {
+	// Given
+	config := RealtimeClientConfig{
+		Channel:       "channel-chat:123",
+		QueueCapacity: 1,
+		ProxyUrl:      "http://proxy.invalid:port",
+		Tokens: TokenCallbacks{
+			Context: context.Background(),
+			Connection: func(context.Context) (string, error) {
+				return "connection-token", nil
+			},
+			Subscription: func(context.Context, string) (string, error) {
+				return "subscription-token", nil
+			},
+		},
+	}
+
+	// When
+	client, err := newRealtimeClient(config, "ws://localhost/connection/websocket")
+
+	// Then
+	if client != nil {
+		client.Close()
+		t.Fatal("expected nil client for invalid proxy url")
+	}
+	if !errors.Is(err, ErrInvalidRealtimeClientConfig) {
+		t.Fatalf("expected ErrInvalidRealtimeClientConfig, got %v", err)
+	}
+}
+
+func TestNewRealtimeClientAcceptsProxyUrl(t *testing.T) {
+	// Given
+	config := RealtimeClientConfig{
+		Channel:       "channel-chat:123",
+		QueueCapacity: 1,
+		ProxyUrl:      "socks5://user:pass@127.0.0.1:1080",
+		Tokens: TokenCallbacks{
+			Context: context.Background(),
+			Connection: func(context.Context) (string, error) {
+				return "connection-token", nil
+			},
+			Subscription: func(context.Context, string) (string, error) {
+				return "subscription-token", nil
+			},
+		},
+	}
+
+	// When
+	client, err := newRealtimeClient(config, "ws://localhost/connection/websocket")
+
+	// Then
+	if err != nil {
+		t.Fatalf("create realtime client with proxy url: %v", err)
+	}
+	client.Close()
+}
+
 func TestRealtimeClient_handlePublicationLogsReceiptMetadata(t *testing.T) {
 	// Given
 	var logBuffer bytes.Buffer

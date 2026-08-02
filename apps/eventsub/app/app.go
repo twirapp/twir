@@ -167,15 +167,16 @@ var App = fx.Options(
 					return nil, fmt.Errorf("create VK Video WebSocket token client: %w", err)
 				}
 
-				return vkvideo.New(vkvideo.Opts{
-					Logger:               logger,
-					Redis:                redisClient,
-					Bus:                  bus,
-					UserCreator:          userCreator,
-					WebSocketTokenClient: webSocketTokenClient,
-					ChannelsRepo:         channelsRepo,
-					Lc:                   lc,
-				})
+			return vkvideo.New(vkvideo.Opts{
+				Logger:               logger,
+				Redis:                redisClient,
+				Bus:                  bus,
+				UserCreator:          userCreator,
+				WebSocketTokenClient: webSocketTokenClient,
+				ChannelsRepo:         channelsRepo,
+				Lc:                   lc,
+				ProxyUrl:             config.VkProxyUrl,
+			})
 			})
 		},
 		kick.NewHandlers,
