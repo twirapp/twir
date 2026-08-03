@@ -168,7 +168,7 @@ services:
         target: /etc/grafana/provisioning/datasources/uptrace.yml
       - source: uptrace_grafana_dashboard_provider
         target: /etc/grafana/provisioning/dashboards/twir.yml
-      - source: uptrace_grafana_dashboard_twir_overview_v4
+      - source: uptrace_grafana_dashboard_twir_overview_v5
         target: /etc/grafana/dashboards/twir-overview.json
       - source: uptrace_grafana_config
         target: /etc/grafana/grafana.ini
@@ -232,6 +232,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:v1.12.1
+    hostname: "{{.Node.Hostname}}"
     command:
       - "--path.rootfs=/host"
       - "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($$|/)"
@@ -257,6 +258,7 @@ services:
 
   cadvisor:
     image: ghcr.io/google/cadvisor:v0.57.0
+    hostname: "{{.Node.Hostname}}"
     command:
       - "--docker_only=true"
       - "--housekeeping_interval=15s"
@@ -1265,7 +1267,7 @@ configs:
     file: ./configs/uptrace/grafana/datasource.yml
   uptrace_grafana_dashboard_provider:
     file: ./configs/uptrace/grafana/dashboard-provider.yml
-  uptrace_grafana_dashboard_twir_overview_v4:
+  uptrace_grafana_dashboard_twir_overview_v5:
     file: ./configs/uptrace/grafana/dashboards/twir-overview.json
   uptrace_grafana_config:
     file: ./configs/uptrace/grafana/grafana.ini

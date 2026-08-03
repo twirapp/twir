@@ -641,8 +641,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
           "editorMode": "code",
-          "expr": "100 * (1 - avg by (service_instance_id) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))",
-          "legendFormat": "{{service_instance_id}}",
+          "expr": "100 * (1 - avg by (service_instance_id) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))) * on(service_instance_id) group_left(nodename) (0 * node_uname_info + 1)",
+          "legendFormat": "{{nodename}}",
           "range": true,
           "refId": "A"
         }
@@ -691,8 +691,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
           "editorMode": "code",
-          "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
-          "legendFormat": "{{service_instance_id}}",
+          "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * on(service_instance_id) group_left(nodename) (0 * node_uname_info + 1)",
+          "legendFormat": "{{nodename}}",
           "range": true,
           "refId": "A"
         }
@@ -714,5 +714,5 @@
   "timezone": "browser",
   "title": "Twir Live Overview",
   "uid": "twir-stream-overview",
-  "version": 2
+  "version": 3
 }
