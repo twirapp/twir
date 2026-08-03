@@ -43,3 +43,22 @@ func TestSafeFilename(t *testing.T) {
 		t.Fatalf("unexpected safe filename %q", value)
 	}
 }
+
+func TestDiscordMediaURLAllowlist(t *testing.T) {
+	tests := []struct {
+		url     string
+		allowed bool
+	}{
+		{url: "https://cdn.discordapp.com/attachments/1/2/image.png", allowed: true},
+		{url: "https://media.discordapp.net/attachments/1/2/image.png", allowed: true},
+		{url: "http://cdn.discordapp.com/attachments/1/2/image.png", allowed: false},
+		{url: "https://cdn.discordapp.com.evil.example/image.png", allowed: false},
+		{url: "https://127.0.0.1/internal.png", allowed: false},
+	}
+
+	for _, test := range tests {
+		if actual := isDiscordMediaURL(test.url); actual != test.allowed {
+			t.Errorf("isDiscordMediaURL(%q) = %v, want %v", test.url, actual, test.allowed)
+		}
+	}
+}

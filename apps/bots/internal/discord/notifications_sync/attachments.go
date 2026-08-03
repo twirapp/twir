@@ -38,6 +38,13 @@ type attachmentStore struct {
 
 var unsafeFilenamePattern = regexp.MustCompile("[^a-zA-Z0-9._-]+")
 
+var discordMediaHosts = map[string]struct{}{
+	"cdn.discordapp.com":          {},
+	"media.discordapp.net":        {},
+	"images-ext-1.discordapp.net": {},
+	"images-ext-2.discordapp.net": {},
+}
+
 func newAttachmentStore(config cfg.Config) (*attachmentStore, error) {
 	if config.S3Host == "" || config.S3Bucket == "" || config.S3PublicUrl == "" {
 		return nil, nil
@@ -144,6 +151,15 @@ func safeFilename(value string) string {
 	return value
 }
 
+func isDiscordMediaURL(value string) bool {
+	parsed, err := url.Parse(value)
+	if err != nil || parsed.Scheme != "https" {
+		return false
+	}
+	_, ok := discordMediaHosts[strings.ToLower(parsed.Hostname())]
+	return ok
+}
+
 func (s *attachmentStore) persist(
 	ctx context.Context,
 	messageID string,
@@ -155,7 +171,7 @@ func (s *attachmentStore) persist(
 		ContentType: source.ContentType,
 		IsImage:     isImage(source.ContentType, source.Filename),
 	}
-	if s == nil || !fallback.IsImage {
+	if s == nil || !fallback.IsImage || !isDiscordMediaURL(source.URL) {
 		return fallback, "", nil
 	}
 	if source.Size > s.maxBytes {
