@@ -280,7 +280,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 3 },
+      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 3 },
       "id": 6,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
@@ -320,7 +320,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 3 },
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 3 },
       "id": 7,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
@@ -360,7 +360,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 8 },
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 7 },
       "id": 8,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
@@ -391,7 +391,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 8 },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 7 },
       "id": 9,
       "options": {
         "displayMode": "gradient",
@@ -448,7 +448,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 13 },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 12 },
       "id": 10,
       "options": {
         "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right", "showLegend": true, "width": 390 },
@@ -641,7 +641,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
           "editorMode": "code",
-          "expr": "100 * (1 - avg by (service_instance_id) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\".+-[0-9]+\"} + 1)",
+          "expr": "clamp(100 * (1 - avg by (service_instance_id) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))), 0, 100) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\".+-[0-9]+\"} + 1)",
           "legendFormat": "{{nodename}}",
           "range": true,
           "refId": "A"
@@ -714,5 +714,5 @@
   "timezone": "browser",
   "title": "Twir Live Overview",
   "uid": "twir-stream-overview",
-  "version": 9
+  "version": 10
 }
