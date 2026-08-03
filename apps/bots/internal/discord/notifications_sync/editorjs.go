@@ -3,6 +3,7 @@ package notifications_sync
 import (
 	"fmt"
 	"html"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -50,16 +51,31 @@ type renderedMedia struct {
 var (
 	userMentionPattern = regexp.MustCompile("<@!?(\\d+)>")
 	customEmojiPattern = regexp.MustCompile("<a?:([a-zA-Z0-9_]+):\\d+>")
-	codePattern        = regexp.MustCompile("\x60([^\x60]+)\x60")
-	boldPattern        = regexp.MustCompile("\\*\\*([^*]+)\\*\\*")
-	underlinePattern   = regexp.MustCompile("__([^_]+)__")
-	strikePattern      = regexp.MustCompile("~~([^~]+)~~")
-	spoilerPattern     = regexp.MustCompile("\\|\\|([^|]+)\\|\\|")
 	urlPattern         = regexp.MustCompile("(https?://[^\\s<]+)")
 	headerPattern      = regexp.MustCompile("^(#{1,3})\\s+(.+)$")
 	listPattern        = regexp.MustCompile("^[-*]\\s+(.+)$")
 	quotePattern       = regexp.MustCompile("^>\\s?(.*)$")
 )
+
+type inlineDelimiter struct {
+	marker string
+	open   string
+	close  string
+}
+
+var inlineDelimiters = []inlineDelimiter{
+	{marker: "***", open: "<strong><em>", close: "</em></strong>"},
+	{marker: "__", open: "<u>", close: "</u>"},
+	{marker: "**", open: "<strong>", close: "</strong>"},
+	{marker: "~~", open: "<s>", close: "</s>"},
+	{
+		marker: "||",
+		open:   "<span class=\"discord-spoiler\" tabindex=\"0\" title=\"Click to reveal spoiler\">",
+		close:  "</span>",
+	},
+	{marker: "*", open: "<em>", close: "</em>"},
+	{marker: "_", open: "<em>", close: "</em>"},
+}
 
 func renderInline(text string, mentions map[string]string) string {
 	text = userMentionPattern.ReplaceAllStringFunc(text, func(mention string) string {
@@ -73,14 +89,129 @@ func renderInline(text string, mentions map[string]string) string {
 		return "@unknown"
 	})
 	text = customEmojiPattern.ReplaceAllString(text, ":$1:")
-	text = html.EscapeString(text)
-	text = codePattern.ReplaceAllString(text, "<code>$1</code>")
-	text = boldPattern.ReplaceAllString(text, "<strong>$1</strong>")
-	text = underlinePattern.ReplaceAllString(text, "<u>$1</u>")
-	text = strikePattern.ReplaceAllString(text, "<s>$1</s>")
-	text = spoilerPattern.ReplaceAllString(text, "<span title=\"Spoiler\">$1</span>")
-	text = urlPattern.ReplaceAllString(text, "<a href=\"$1\" target=\"_blank\" rel=\"noopener noreferrer\">$1</a>")
-	return text
+	return renderDiscordInline(text)
+}
+
+func renderDiscordInline(text string) string {
+	var result strings.Builder
+	var plain strings.Builder
+
+	flushPlain := func() {
+		if plain.Len() == 0 {
+			return
+		}
+		result.WriteString(linkifyText(plain.String()))
+		plain.Reset()
+	}
+
+	for index := 0; index < len(text); {
+		if text[index] == '\\' && index+1 < len(text) && strings.ContainsRune("\\`*_~|[]()", rune(text[index+1])) {
+			plain.WriteByte(text[index+1])
+			index += 2
+			continue
+		}
+
+		if text[index] == '`' {
+			if end := strings.IndexByte(text[index+1:], '`'); end >= 0 {
+				flushPlain()
+				contentEnd := index + 1 + end
+				result.WriteString("<code>")
+				result.WriteString(html.EscapeString(text[index+1 : contentEnd]))
+				result.WriteString("</code>")
+				index = contentEnd + 1
+				continue
+			}
+		}
+
+		if text[index] == '[' {
+			if labelEnd := strings.Index(text[index+1:], "]("); labelEnd >= 0 {
+				labelEnd += index + 1
+				urlStart := labelEnd + 2
+				if urlEnd := strings.IndexByte(text[urlStart:], ')'); urlEnd >= 0 {
+					urlEnd += urlStart
+					href := text[urlStart:urlEnd]
+					if isSafeHTTPURL(href) {
+						flushPlain()
+						result.WriteString(renderLink(href, renderDiscordInline(text[index+1:labelEnd])))
+						index = urlEnd + 1
+						continue
+					}
+				}
+			}
+		}
+
+		if text[index] == '<' {
+			if end := strings.IndexByte(text[index+1:], '>'); end >= 0 {
+				end += index + 1
+				href := text[index+1 : end]
+				if isSafeHTTPURL(href) {
+					flushPlain()
+					result.WriteString(renderLink(href, html.EscapeString(href)))
+					index = end + 1
+					continue
+				}
+			}
+		}
+
+		matched := false
+		for _, delimiter := range inlineDelimiters {
+			if !strings.HasPrefix(text[index:], delimiter.marker) {
+				continue
+			}
+			contentStart := index + len(delimiter.marker)
+			closingOffset := strings.Index(text[contentStart:], delimiter.marker)
+			if closingOffset < 0 || closingOffset == 0 {
+				continue
+			}
+
+			flushPlain()
+			contentEnd := contentStart + closingOffset
+			result.WriteString(delimiter.open)
+			result.WriteString(renderDiscordInline(text[contentStart:contentEnd]))
+			result.WriteString(delimiter.close)
+			index = contentEnd + len(delimiter.marker)
+			matched = true
+			break
+		}
+		if matched {
+			continue
+		}
+
+		plain.WriteByte(text[index])
+		index++
+	}
+
+	flushPlain()
+	return result.String()
+}
+
+func linkifyText(text string) string {
+	var result strings.Builder
+	lastIndex := 0
+	for _, match := range urlPattern.FindAllStringIndex(text, -1) {
+		result.WriteString(html.EscapeString(text[lastIndex:match[0]]))
+		href := text[match[0]:match[1]]
+		result.WriteString(renderLink(href, html.EscapeString(href)))
+		lastIndex = match[1]
+	}
+	result.WriteString(html.EscapeString(text[lastIndex:]))
+	return result.String()
+}
+
+func renderLink(href, label string) string {
+	return fmt.Sprintf(
+		"<a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a>",
+		html.EscapeString(href),
+		label,
+	)
+}
+
+func isSafeHTTPURL(value string) bool {
+	parsed, err := url.Parse(value)
+	if err != nil {
+		return false
+	}
+	return (parsed.Scheme == "http" || parsed.Scheme == "https") && parsed.Host != ""
 }
 
 func messageMentions(message discord.Message) map[string]string {

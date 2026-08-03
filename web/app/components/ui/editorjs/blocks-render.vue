@@ -65,7 +65,22 @@ watch(() => props.data, () => {
 <style scoped>
 :deep(a) {
 	cursor: pointer;
-	color: var(--notification-color);
+	color: var(--notification-color, hsl(var(--primary)));
+}
+
+:deep(.discord-spoiler) {
+	cursor: pointer;
+	border-radius: 0.25rem;
+	background-color: hsl(var(--muted-foreground));
+	color: transparent;
+	padding: 0 0.25rem;
+}
+
+:deep(.discord-spoiler:hover),
+:deep(.discord-spoiler:focus) {
+	background-color: hsl(var(--muted));
+	color: inherit;
+	outline: none;
 }
 
 .ul {
@@ -110,7 +125,7 @@ watch(() => props.data, () => {
 }
 
 .bq {
-	border-left: 4px solid var(--notification-color);
+	border-left: 4px solid var(--notification-color, hsl(var(--border)));
 	margin: 0;
 	padding: 10px 15px;
 	background-color: hsl(var(--muted));

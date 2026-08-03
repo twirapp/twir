@@ -11,7 +11,7 @@ import (
 func TestBuildEditorJSPreservesDiscordFormatting(t *testing.T) {
 	message := discord.Message{
 		ID:      42,
-		Content: "# Release\n**Bold** and ~~old~~ with \x60code\x60\n- first\n- second\n> quoted",
+		Content: "# Release\n**Bold**, *italic*, _also italic_, __underlined__, ~~old~~, ||secret||, [docs](https://example.com) and \x60https://example.com/code\x60\n- first\n- second\n> quoted",
 	}
 
 	value, ok, err := buildEditorJS(message, []renderedMedia{
@@ -44,6 +44,24 @@ func TestBuildEditorJSPreservesDiscordFormatting(t *testing.T) {
 	}
 	if !strings.Contains(paragraphText, "<s>old</s>") {
 		t.Fatalf("expected strikethrough markup in %s", paragraphText)
+	}
+	if strings.Count(paragraphText, "<em>") != 2 {
+		t.Fatalf("expected both italic variants in %s", paragraphText)
+	}
+	if !strings.Contains(paragraphText, "<u>underlined</u>") {
+		t.Fatalf("expected underline markup in %s", paragraphText)
+	}
+	if !strings.Contains(paragraphText, `class="discord-spoiler"`) {
+		t.Fatalf("expected spoiler markup in %s", paragraphText)
+	}
+	if !strings.Contains(paragraphText, `href="https://example.com"`) {
+		t.Fatalf("expected masked link in %s", paragraphText)
+	}
+	if !strings.Contains(paragraphText, "<code>https://example.com/code</code>") {
+		t.Fatalf("expected inline code in %s", paragraphText)
+	}
+	if strings.Contains(paragraphText, "<code><a") {
+		t.Fatalf("inline code must not contain links: %s", paragraphText)
 	}
 	if document.Blocks[4].Type != "image" {
 		t.Fatalf("expected image block, got %s", document.Blocks[4].Type)

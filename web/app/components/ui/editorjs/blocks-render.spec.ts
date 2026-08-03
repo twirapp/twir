@@ -63,4 +63,26 @@ describe('BlocksRender', () => {
 		expect(wrapper.get('p').classes()).toContain('w-full')
 		expect(wrapper.findAll('figure')).toHaveLength(2)
 	})
+
+	it('renders Discord inline formatting and an interactive spoiler', () => {
+		const wrapper = mount(BlocksRender, {
+			props: {
+				data: {
+					blocks: [
+						{
+							id: 'text-1',
+							type: 'paragraph',
+							data: {
+								text: '<strong>bold</strong> <em>italic</em> <span class="discord-spoiler" tabindex="0">secret</span>',
+							},
+						},
+					],
+				},
+			},
+		})
+
+		expect(wrapper.get('strong').text()).toBe('bold')
+		expect(wrapper.get('em').text()).toBe('italic')
+		expect(wrapper.get('.discord-spoiler').attributes('tabindex')).toBe('0')
+	})
 })
