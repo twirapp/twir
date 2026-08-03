@@ -280,7 +280,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 3 },
+      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 3 },
       "id": 6,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -320,7 +320,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 3 },
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 3 },
       "id": 7,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -360,7 +360,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 8 },
+      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 7 },
       "id": 8,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -391,7 +391,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 8 },
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 7 },
       "id": 9,
       "options": {
         "displayMode": "gradient",
@@ -448,7 +448,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 13 },
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 11 },
       "id": 10,
       "options": {
         "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true },
@@ -492,7 +492,7 @@
           { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 19 },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 16 },
       "id": 11,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -536,7 +536,7 @@
           { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 19 },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 16 },
       "id": 12,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -580,7 +580,7 @@
           { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 19 },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 16 },
       "id": 13,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -630,7 +630,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 24 },
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 20 },
       "id": 14,
       "options": {
         "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -680,7 +680,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 24 },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 20 },
       "id": 15,
       "options": {
         "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -714,5 +714,5 @@
   "timezone": "browser",
   "title": "Twir Live Overview",
   "uid": "twir-stream-overview",
-  "version": 4
+  "version": 5
 }
