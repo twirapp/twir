@@ -161,16 +161,24 @@ services:
   grafana:
     image: grafana/grafana:12.0.0
     entrypoint: ["/bin/sh", "/etc/grafana/entrypoint.sh"]
+    environment:
+      GF_PLUGINS_PREINSTALL_SYNC: grafana-clickhouse-datasource@4.20.0
     configs:
       - source: uptrace_grafana_datasource
         target: /etc/grafana/provisioning/datasources/uptrace.yml
+      - source: uptrace_grafana_dashboard_provider
+        target: /etc/grafana/provisioning/dashboards/twir.yml
+      - source: uptrace_grafana_dashboard_twir_overview
+        target: /etc/grafana/dashboards/twir-overview.json
       - source: uptrace_grafana_config
         target: /etc/grafana/grafana.ini
       - source: uptrace_grafana_entrypoint
         target: /etc/grafana/entrypoint.sh
     secrets:
-      - uptrace_dsn
       - grafana_admin_password
+      - uptrace_grafana_token
+      - grafana_postgres_password
+      - grafana_uptrace_clickhouse_password
     volumes:
       - grafana-data:/var/lib/grafana
     networks:
@@ -397,6 +405,7 @@ services:
     environment:
       CLICKHOUSE_USER: uptrace
       CLICKHOUSE_DB: uptrace
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     secrets:
       - uptrace_clickhouse_password
     configs:
@@ -1253,6 +1262,10 @@ configs:
     file: ./configs/uptrace/apply-ttl.sql
   uptrace_grafana_datasource:
     file: ./configs/uptrace/grafana/datasource.yml
+  uptrace_grafana_dashboard_provider:
+    file: ./configs/uptrace/grafana/dashboard-provider.yml
+  uptrace_grafana_dashboard_twir_overview:
+    file: ./configs/uptrace/grafana/dashboards/twir-overview.json
   uptrace_grafana_config:
     file: ./configs/uptrace/grafana/grafana.ini
   uptrace_grafana_entrypoint:
@@ -1307,4 +1320,10 @@ secrets:
   uptrace_postgres_password:
     external: true
   grafana_admin_password:
+    external: true
+  uptrace_grafana_token:
+    external: true
+  grafana_postgres_password:
+    external: true
+  grafana_uptrace_clickhouse_password:
     external: true

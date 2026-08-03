@@ -16,7 +16,7 @@ datasources:
       serviceMap:
         datasourceUid: uptrace-prometheus
     secureJsonData:
-      httpHeaderValue1: ${UPTRACE_PROJECT_TOKEN}
+      httpHeaderValue1: Bearer ${UPTRACE_GRAFANA_TOKEN}
 
   - name: Uptrace Prometheus
     uid: uptrace-prometheus
@@ -29,4 +29,39 @@ datasources:
       httpHeaderName1: Authorization
       httpMethod: POST
     secureJsonData:
-      httpHeaderValue1: ${UPTRACE_PROJECT_TOKEN}
+      httpHeaderValue1: Bearer ${UPTRACE_GRAFANA_TOKEN}
+
+  - name: Twir PostgreSQL
+    uid: twir-postgres
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    user: grafana_ro
+    editable: false
+    jsonData:
+      database: twir
+      sslmode: disable
+      postgresVersion: 1800
+      maxOpenConns: 5
+      maxIdleConns: 2
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: ${GRAFANA_POSTGRES_PASSWORD}
+
+  - name: Uptrace ClickHouse
+    uid: uptrace-clickhouse
+    type: grafana-clickhouse-datasource
+    access: proxy
+    editable: false
+    jsonData:
+      defaultDatabase: uptrace
+      host: uptrace-clickhouse
+      port: 9000
+      protocol: native
+      username: grafana_ro
+      secure: false
+      dialTimeout: 5
+      queryTimeout: 30
+    secureJsonData:
+      password: ${GRAFANA_UPTRACE_CLICKHOUSE_PASSWORD}
