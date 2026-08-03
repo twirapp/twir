@@ -38,7 +38,24 @@ func newAuthorize(handler *Handler) *authorizeRoute {
 }
 
 func (*authorizeRoute) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-authorize", Method: http.MethodGet, Path: "/oauth/authorize", Tags: []string{"MCP OAuth"}, Summary: "Begin OAuth authorization", DefaultStatus: http.StatusFound, Responses: map[string]*huma.Response{"302": {Description: "Redirect to consent or the validated client callback", Headers: map[string]*huma.Header{"Location": {Schema: &huma.Schema{Type: huma.TypeString}}}}}}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-authorize",
+		Method:        http.MethodGet,
+		Path:          "/oauth/authorize",
+		Tags:          []string{"MCP OAuth"},
+		Summary:       "Begin OAuth authorization",
+		DefaultStatus: http.StatusFound,
+		Responses: map[string]*huma.Response{
+			"302": {
+				Description: "Redirect to consent or the validated client callback",
+				Headers: map[string]*huma.Header{
+					"Location": {
+						Schema: &huma.Schema{Type: huma.TypeString},
+					},
+				},
+			},
+		},
+	}
 }
 
 func (route *authorizeRoute) Handler(_ context.Context, input *authorizeInput) (*huma.StreamResponse, error) {
@@ -48,7 +65,14 @@ func (route *authorizeRoute) Handler(_ context.Context, input *authorizeInput) (
 func (route *authorizeRoute) Register(api huma.API) {
 	meta := route.GetMeta()
 	meta.Responses = map[string]*huma.Response{
-		"302": {Description: "Redirect to consent or the validated client callback", Headers: map[string]*huma.Header{"Location": {Schema: &huma.Schema{Type: huma.TypeString}}}},
+		"302": {
+			Description: "Redirect to consent or the validated client callback",
+			Headers: map[string]*huma.Header{
+				"Location": {
+					Schema: &huma.Schema{Type: huma.TypeString},
+				},
+			},
+		},
 		"400": {Description: "Invalid request", Content: jsonContent[oauthErrorResponse](api)},
 		"401": {Description: "Unauthorized", Content: jsonContent[oauthErrorResponse](api)},
 		"500": {Description: "Server error", Content: jsonContent[oauthErrorResponse](api)},
@@ -62,7 +86,15 @@ func (route *authorizeRoute) authorize(context huma.Context, input authorizeInpu
 		writeOAuthError(context, http.StatusBadRequest, "invalid_request", "state is required")
 		return
 	}
-	authorizeInput := service.AuthorizeInput{ClientID: input.ClientID, RedirectURI: input.RedirectURI, ResponseType: input.ResponseType, Scope: input.Scope, Resource: input.Resource, CodeChallenge: input.CodeChallenge, CodeChallengeMethod: input.CodeChallengeMethod}
+	authorizeInput := service.AuthorizeInput{
+		ClientID:            input.ClientID,
+		RedirectURI:         input.RedirectURI,
+		ResponseType:        input.ResponseType,
+		Scope:               input.Scope,
+		Resource:            input.Resource,
+		CodeChallenge:       input.CodeChallenge,
+		CodeChallengeMethod: input.CodeChallengeMethod,
+	}
 	client, err := route.handler.service.GetClient(context.Context(), authorizeInput.ClientID)
 	if err != nil {
 		writeServiceError(context, err, false)
@@ -91,7 +123,16 @@ func (route *authorizeRoute) authorize(context huma.Context, input authorizeInpu
 	for index, scope := range request.Scopes {
 		scopes[index] = string(scope)
 	}
-	attempt := authsessions.MCPOAuthAttempt{ClientID: request.Client.ClientID, RedirectURI: request.RedirectURI, ClientState: state, CodeChallenge: request.CodeChallenge, RequestedScopes: scopes, Resource: request.Resource, CSRFToken: csrfToken, ExpiresAt: time.Now().Add(10 * time.Minute)}
+	attempt := authsessions.MCPOAuthAttempt{
+		ClientID:        request.Client.ClientID,
+		RedirectURI:     request.RedirectURI,
+		ClientState:     state,
+		CodeChallenge:   request.CodeChallenge,
+		RequestedScopes: scopes,
+		Resource:        request.Resource,
+		CSRFToken:       csrfToken,
+		ExpiresAt:       time.Now().Add(10 * time.Minute),
+	}
 	if err := route.handler.sessions.SetMCPOAuthAttempt(context.Context(), attemptID, attempt); err != nil {
 		writeOAuthError(context, http.StatusInternalServerError, "server_error", "server error")
 		return

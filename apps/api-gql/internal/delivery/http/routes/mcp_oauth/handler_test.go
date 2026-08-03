@@ -27,7 +27,9 @@ func TestHandler_metadata_has_discovery_headers_and_contract(t *testing.T) {
 	duplicate := serve(router, http.MethodGet, "/api/.well-known/oauth-authorization-server", nil, nil)
 
 	// Then
-	if response.Code != http.StatusOK || response.Header().Get("Access-Control-Allow-Origin") != "*" || response.Header().Get("Cache-Control") != "public, max-age=3600" || duplicate.Code != http.StatusNotFound {
+	allowOrigin := response.Header().Get("Access-Control-Allow-Origin")
+	cacheControl := response.Header().Get("Cache-Control")
+	if response.Code != http.StatusOK || allowOrigin != "*" || cacheControl != "public, max-age=3600" || duplicate.Code != http.StatusNotFound {
 		t.Fatalf("metadata response = %d, headers = %#v", response.Code, response.Header())
 	}
 	var metadata struct {
@@ -38,7 +40,10 @@ func TestHandler_metadata_has_discovery_headers_and_contract(t *testing.T) {
 	if err := json.Unmarshal(response.Body.Bytes(), &metadata); err != nil {
 		t.Fatal(err)
 	}
-	if metadata.Issuer != "https://twir.example" || metadata.AuthorizationEndpoint != "https://twir.example/api/oauth/authorize" || len(metadata.CodeChallengeMethods) != 1 || metadata.CodeChallengeMethods[0] != "S256" {
+	issuerMatches := metadata.Issuer == "https://twir.example"
+	authorizationEndpointMatches := metadata.AuthorizationEndpoint == "https://twir.example/api/oauth/authorize"
+	codeChallengeMethodsMatch := len(metadata.CodeChallengeMethods) == 1 && metadata.CodeChallengeMethods[0] == "S256"
+	if !issuerMatches || !authorizationEndpointMatches || !codeChallengeMethodsMatch {
 		t.Fatalf("metadata = %#v", metadata)
 	}
 }
@@ -61,7 +66,14 @@ func TestHandler_authorize_stores_sensitive_values_server_side_and_redirects_wit
 	// Given
 	handler := newTestHandler(t)
 	query := url.Values{
-		"response_type": {"code"}, "client_id": {"client"}, "redirect_uri": {"https://client.example/callback"}, "scope": {"read write"}, "state": {"client-state"}, "code_challenge": {"challenge"}, "code_challenge_method": {"S256"}, "resource": {"https://twir.example/api/mcp"},
+		"response_type":         {"code"},
+		"client_id":             {"client"},
+		"redirect_uri":          {"https://client.example/callback"},
+		"scope":                 {"read write"},
+		"state":                 {"client-state"},
+		"code_challenge":        {"challenge"},
+		"code_challenge_method": {"S256"},
+		"resource":              {"https://twir.example/api/mcp"},
 	}
 
 	// When
@@ -69,7 +81,15 @@ func TestHandler_authorize_stores_sensitive_values_server_side_and_redirects_wit
 
 	// Then
 	location, err := url.Parse(response.Header().Get("Location"))
-	if err != nil || response.Code != http.StatusFound || response.Header().Get("Content-Type") != "text/html; charset=utf-8" || !strings.Contains(response.Body.String(), "Found") || location.Query().Get("attempt") == "" || strings.Contains(response.Header().Get("Location"), "client-state") || strings.Contains(response.Header().Get("Location"), "challenge") {
+	contentType := response.Header().Get("Content-Type")
+	locationHeader := response.Header().Get("Location")
+	foundBody := strings.Contains(response.Body.String(), "Found")
+	attemptPresent := location.Query().Get("attempt") != ""
+	clientStateAbsent := !strings.Contains(locationHeader, "client-state")
+	challengeAbsent := !strings.Contains(locationHeader, "challenge")
+	responseFound := response.Code == http.StatusFound
+	contentTypeMatches := contentType == "text/html; charset=utf-8"
+	if err != nil || !responseFound || !contentTypeMatches || !foundBody || !attemptPresent || !clientStateAbsent || !challengeAbsent {
 		t.Fatalf("authorize response = %d %q", response.Code, response.Header().Get("Location"))
 	}
 	attempt, err := handler.sessions.GetMCPOAuthAttempt(context.Background(), location.Query().Get("attempt"))
@@ -86,15 +106,21 @@ func TestHandler_consent_requires_origin_csrf_permission_and_is_one_use(t *testi
 	body := fmt.Sprintf(`{"attempt":"attempt","channel_id":"%s","csrf_token":"csrf","decision":"approve","access_level":"write"}`, handler.sessions.dashboardID)
 
 	// When
-	badOrigin := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body), map[string]string{"Content-Type": "application/json", "Origin": "https://evil.example"})
-	allowed := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body), map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
-	replay := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body), map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
+	badOrigin := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body),
+		map[string]string{"Content-Type": "application/json", "Origin": "https://evil.example"})
+	allowed := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body),
+		map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
+	replay := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body),
+		map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
 
 	// Then
 	if badOrigin.Code != http.StatusForbidden || allowed.Code != http.StatusOK || replay.Code != http.StatusNotFound {
 		t.Fatalf("consent statuses = %d, %d, %d", badOrigin.Code, allowed.Code, replay.Code)
 	}
-	if handler.service.created.Authorize.Scope != "read write" || handler.service.created.ChannelID != handler.sessions.dashboardID || handler.service.created.ApprovingUserID != handler.sessions.userID {
+	createdScopeMatches := handler.service.created.Authorize.Scope == "read write"
+	createdChannelMatches := handler.service.created.ChannelID == handler.sessions.dashboardID
+	createdApproverMatches := handler.service.created.ApprovingUserID == handler.sessions.userID
+	if !createdScopeMatches || !createdChannelMatches || !createdApproverMatches {
 		t.Fatalf("created code input = %#v", handler.service.created)
 	}
 }
@@ -106,10 +132,12 @@ func TestHandler_consent_denial_redirects_to_validated_callback(t *testing.T) {
 	body := fmt.Sprintf(`{"attempt":"attempt","channel_id":"%s","csrf_token":"csrf","decision":"deny"}`, handler.sessions.dashboardID)
 
 	// When
-	response := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body), map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
+	response := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body),
+		map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
 
 	// Then
-	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "access_denied") || !strings.Contains(response.Body.String(), "client-state") {
+	bodyText := response.Body.String()
+	if response.Code != http.StatusOK || !strings.Contains(bodyText, "access_denied") || !strings.Contains(bodyText, "client-state") {
 		t.Fatalf("denial response = %d %s", response.Code, response.Body.String())
 	}
 }
@@ -124,7 +152,8 @@ func TestHandler_consent_rejects_missing_browser_session_and_invalid_csrf(t *tes
 	body := fmt.Sprintf(`{"attempt":"attempt","channel_id":"%s","csrf_token":"wrong","decision":"approve","access_level":"read"}`, handler.sessions.dashboardID)
 
 	// When
-	csrf := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body), map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
+	csrf := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body),
+		map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
 
 	// Then
 	if unauthorized.Code != http.StatusUnauthorized || csrf.Code != http.StatusForbidden {
@@ -143,7 +172,8 @@ func TestHandler_consent_returns_access_denied_when_service_permission_is_lost(t
 	body := fmt.Sprintf(`{"attempt":"attempt","channel_id":"%s","csrf_token":"csrf","decision":"approve","access_level":"read"}`, handler.sessions.dashboardID)
 
 	// When
-	response := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body), map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
+	response := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body),
+		map[string]string{"Content-Type": "application/json", "Origin": "https://twir.example"})
 
 	// Then
 	if response.Code != http.StatusForbidden || !strings.Contains(response.Body.String(), "access_denied") {
@@ -152,7 +182,16 @@ func TestHandler_consent_returns_access_denied_when_service_permission_is_lost(t
 }
 
 func testAttempt() authsessions.MCPOAuthAttempt {
-	return authsessions.MCPOAuthAttempt{ClientID: "client", RedirectURI: "https://client.example/callback", ClientState: "client-state", CodeChallenge: "challenge", RequestedScopes: []string{"read", "write"}, Resource: "https://twir.example/api/mcp", CSRFToken: "csrf", ExpiresAt: time.Now().Add(time.Minute)}
+	return authsessions.MCPOAuthAttempt{
+		ClientID:        "client",
+		RedirectURI:     "https://client.example/callback",
+		ClientState:     "client-state",
+		CodeChallenge:   "challenge",
+		RequestedScopes: []string{"read", "write"},
+		Resource:        "https://twir.example/api/mcp",
+		CSRFToken:       "csrf",
+		ExpiresAt:       time.Now().Add(time.Minute),
+	}
 }
 
 func serve(handler http.Handler, method, path string, body io.Reader, headers map[string]string) *httptest.ResponseRecorder {

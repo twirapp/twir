@@ -37,7 +37,19 @@ func newGetConsent(handler *Handler) *getConsentRoute {
 }
 
 func (*getConsentRoute) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-consent", Method: http.MethodGet, Path: "/oauth/consent", Tags: []string{"MCP OAuth"}, Summary: "Get OAuth consent details", DefaultStatus: http.StatusOK, Responses: map[string]*huma.Response{"200": {Description: "Consent details"}}}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-consent",
+		Method:        http.MethodGet,
+		Path:          "/oauth/consent",
+		Tags:          []string{"MCP OAuth"},
+		Summary:       "Get OAuth consent details",
+		DefaultStatus: http.StatusOK,
+		Responses: map[string]*huma.Response{
+			"200": {
+				Description: "Consent details",
+			},
+		},
+	}
 }
 
 func (route *getConsentRoute) Handler(_ context.Context, input *getConsentInput) (*huma.StreamResponse, error) {
@@ -84,7 +96,13 @@ func (route *getConsentRoute) getConsent(context huma.Context, attemptID string)
 	if metadata.ClientURI != "" {
 		response.URI = &metadata.ClientURI
 	}
-	writeJSON(context, http.StatusOK, consentResponse{Client: response, ChannelID: channelID.String(), RequestedScopes: attempt.RequestedScopes, AccessLevels: levels, CSRFToken: attempt.CSRFToken})
+	writeJSON(context, http.StatusOK, consentResponse{
+		Client:          response,
+		ChannelID:       channelID.String(),
+		RequestedScopes: attempt.RequestedScopes,
+		AccessLevels:    levels,
+		CSRFToken:       attempt.CSRFToken,
+	})
 }
 
 type postConsentRoute struct {
@@ -98,7 +116,14 @@ func newPostConsent(handler *Handler) *postConsentRoute {
 }
 
 func (*postConsentRoute) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-consent-submit", Method: http.MethodPost, Path: "/oauth/consent", Tags: []string{"MCP OAuth"}, Summary: "Submit OAuth consent", DefaultStatus: http.StatusOK}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-consent-submit",
+		Method:        http.MethodPost,
+		Path:          "/oauth/consent",
+		Tags:          []string{"MCP OAuth"},
+		Summary:       "Submit OAuth consent",
+		DefaultStatus: http.StatusOK,
+	}
 }
 
 func (route *postConsentRoute) Handler(ctx context.Context, _ *emptyInput) (*huma.StreamResponse, error) {
@@ -173,7 +198,19 @@ func (route *postConsentRoute) postConsent(context huma.Context, decision consen
 	if decision.AccessLevel == "write" {
 		scope = "read write"
 	}
-	issued, err := route.handler.service.CreateAuthorizationCode(context.Context(), service.CreateAuthorizationCodeInput{Authorize: service.AuthorizeInput{ClientID: attempt.ClientID, RedirectURI: attempt.RedirectURI, ResponseType: "code", Scope: scope, Resource: attempt.Resource, CodeChallenge: attempt.CodeChallenge, CodeChallengeMethod: "S256"}, ChannelID: channelID, ApprovingUserID: userID})
+	issued, err := route.handler.service.CreateAuthorizationCode(context.Context(), service.CreateAuthorizationCodeInput{
+		Authorize: service.AuthorizeInput{
+			ClientID:            attempt.ClientID,
+			RedirectURI:         attempt.RedirectURI,
+			ResponseType:        "code",
+			Scope:               scope,
+			Resource:            attempt.Resource,
+			CodeChallenge:       attempt.CodeChallenge,
+			CodeChallengeMethod: "S256",
+		},
+		ChannelID:       channelID,
+		ApprovingUserID: userID,
+	})
 	if err != nil {
 		writeServiceError(context, err, true)
 		return
