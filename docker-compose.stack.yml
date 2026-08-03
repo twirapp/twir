@@ -162,7 +162,7 @@ services:
     image: grafana/grafana:12.0.0
     entrypoint: ["/bin/sh", "/etc/grafana/entrypoint.sh"]
     environment:
-      GF_PLUGINS_PREINSTALL_SYNC: grafana-clickhouse-datasource@4.20.0
+      GF_PLUGINS_PREINSTALL: grafana-clickhouse-datasource@4.20.0
     configs:
       - source: uptrace_grafana_datasource_v2
         target: /etc/grafana/provisioning/datasources/uptrace.yml
