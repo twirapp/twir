@@ -50,15 +50,8 @@ func newAttachmentStore(config cfg.Config) (*attachmentStore, error) {
 		return nil, nil
 	}
 
-	accessToken := config.S3AccessToken
-	secretToken := config.S3SecretToken
-	if config.AppEnv != "production" {
-		accessToken = "minio"
-		secretToken = "minio-password"
-	}
-
 	client, err := minio.New(config.S3Host, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessToken, secretToken, ""),
+		Creds:  credentials.NewStaticV4(config.S3AccessToken, config.S3SecretToken, ""),
 		Region: config.S3Region,
 		Secure: config.AppEnv == "production",
 	})
