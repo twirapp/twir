@@ -10,4 +10,11 @@ describe('MCP guide translations', () => {
 		expect(en.mcpGuide.credentials).not.toHaveProperty('apiKey')
 		expect(ru.mcpGuide.credentials).not.toHaveProperty('apiKey')
 	})
+
+	it('keeps the OAuth flow section aligned between supported locales', () => {
+		expect(Object.keys(en.mcpGuide.oauth)).toEqual(Object.keys(ru.mcpGuide.oauth))
+		expect(Object.keys(en.mcpGuide.oauth.steps)).toEqual(Object.keys(ru.mcpGuide.oauth.steps))
+		expect(Object.keys(en.mcpGuide.oauth.endpoints)).toEqual(Object.keys(ru.mcpGuide.oauth.endpoints))
+		expect(Object.keys(en.mcpGuide.oauth.scopes)).toEqual(Object.keys(ru.mcpGuide.oauth.scopes))
+	})
 })

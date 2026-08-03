@@ -8,13 +8,14 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-import { createMcpClientGuides } from './config.js'
+import { createMcpClientGuides, createMcpOAuthGuide } from './config.js'
 
 const { t } = useI18n()
 const requestUrl = useRequestURL()
 
 const endpoint = computed(() => `${requestUrl.origin}/api/mcp`)
 const guides = computed(() => createMcpClientGuides(endpoint.value))
+const oauth = computed(() => createMcpOAuthGuide(requestUrl.origin))
 
 async function copy(value: string) {
 	try {
@@ -116,11 +117,84 @@ function copyGuide(id: string) {
 										</div>
 									</CardContent>
 								</Card>
-							</TabsContent>
-						</Tabs>
-					</CardContent>
-				</Card>
-			</div>
+					</TabsContent>
+					</Tabs>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>{{ t('mcpGuide.oauth.title') }}</CardTitle>
+					<CardDescription>{{ t('mcpGuide.oauth.description') }}</CardDescription>
+				</CardHeader>
+				<CardContent class="flex flex-col gap-6">
+					<div class="flex flex-col gap-3">
+						<p class="text-sm font-medium">{{ t('mcpGuide.oauth.stepsTitle') }}</p>
+						<ol class="flex list-decimal flex-col gap-3 pl-5 text-sm">
+							<li v-for="step in oauth.steps" :key="step.titleKey">
+								<span class="font-medium">{{ t(step.titleKey) }}</span>
+								<p class="text-muted-foreground">{{ t(step.descriptionKey) }}</p>
+							</li>
+						</ol>
+					</div>
+
+					<div class="flex flex-col gap-3">
+						<p class="text-sm font-medium">{{ t('mcpGuide.oauth.endpointsTitle') }}</p>
+						<div class="flex flex-col divide-y rounded-md border">
+							<div
+								v-for="item in oauth.endpoints"
+								:key="item.url"
+								class="flex flex-col gap-1 p-3 sm:flex-row sm:items-center sm:justify-between"
+							>
+								<div class="flex items-center gap-2">
+									<Badge variant="outline" class="font-mono">{{ item.method }}</Badge>
+									<code class="text-sm break-all">{{ item.url }}</code>
+								</div>
+								<p class="text-sm text-muted-foreground">{{ t(item.descriptionKey) }}</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-3">
+						<p class="text-sm font-medium">{{ t('mcpGuide.oauth.scopesTitle') }}</p>
+						<div class="flex flex-col gap-2 text-sm">
+							<div v-for="scope in oauth.scopes" :key="scope.name" class="flex items-start gap-2">
+								<Badge variant="secondary" class="font-mono">{{ scope.name }}</Badge>
+								<p class="text-muted-foreground">{{ t(scope.descriptionKey) }}</p>
+							</div>
+						</div>
+						<p class="text-sm text-muted-foreground">{{ t('mcpGuide.oauth.tokenLifetimes') }}</p>
+					</div>
+
+					<div class="flex flex-col gap-3">
+						<div>
+							<p class="text-sm font-medium">{{ t('mcpGuide.oauth.authTitle') }}</p>
+							<p class="text-sm text-muted-foreground">{{ t('mcpGuide.oauth.authDescription') }}</p>
+						</div>
+						<div class="flex flex-col divide-y rounded-md border">
+							<div
+								v-for="guide in guides"
+								:key="guide.id"
+								class="flex items-center justify-between gap-2 p-3"
+							>
+								<div class="flex items-center gap-2">
+									<Icon :name="guide.icon" />
+									<span class="text-sm font-medium">{{ guide.name }}</span>
+								</div>
+								<div v-if="guide.authCommand" class="flex items-center gap-2">
+									<code class="text-sm">{{ guide.authCommand }}</code>
+									<Button variant="outline" size="icon" type="button" @click="copy(guide.authCommand)">
+										<Icon name="lucide:copy" />
+										<span class="sr-only">{{ t('mcpGuide.copyConfig') }}</span>
+									</Button>
+								</div>
+								<p v-else class="text-sm text-muted-foreground">{{ t('mcpGuide.oauth.authHint') }}</p>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
 		</template>
 	</PageLayout>
 </template>

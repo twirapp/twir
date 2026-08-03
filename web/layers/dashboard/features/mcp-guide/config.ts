@@ -9,6 +9,7 @@ export interface McpClientGuide {
 	readonly docsUrl: string
 	readonly fileName?: string
 	readonly config: string
+	readonly authCommand?: string
 }
 
 export function createMcpClientGuides(endpoint: string): readonly [
@@ -29,6 +30,7 @@ export function createMcpClientGuides(endpoint: string): readonly [
 			],
 			docsUrl: 'https://code.claude.com/docs/en/mcp',
 			config: `claude mcp add --transport http --scope user twir ${JSON.stringify(endpoint)}`,
+			authCommand: '/mcp',
 		},
 		{
 			id: 'codex',
@@ -42,6 +44,7 @@ export function createMcpClientGuides(endpoint: string): readonly [
 			docsUrl: 'https://developers.openai.com/codex/mcp',
 			fileName: '~/.codex/config.toml',
 			config: `[mcp_servers.twir]\nurl = ${JSON.stringify(endpoint)}`,
+			authCommand: 'codex mcp login twir',
 		},
 		{
 			id: 'opencode',
@@ -64,6 +67,7 @@ export function createMcpClientGuides(endpoint: string): readonly [
 					},
 				},
 			}, null, 2),
+			authCommand: 'opencode mcp auth twir',
 		},
 		{
 			id: 'cursor',
@@ -79,4 +83,95 @@ export function createMcpClientGuides(endpoint: string): readonly [
 			config: JSON.stringify({ mcpServers: { twir: { url: endpoint } } }, null, 2),
 		},
 	]
+}
+
+export interface McpOAuthFlowStep {
+	readonly titleKey: string
+	readonly descriptionKey: string
+}
+
+export interface McpOAuthEndpoint {
+	readonly method: 'GET' | 'POST'
+	readonly url: string
+	readonly descriptionKey: string
+}
+
+export interface McpOAuthScope {
+	readonly name: 'read' | 'write'
+	readonly descriptionKey: string
+}
+
+export interface McpOAuthGuide {
+	readonly steps: readonly McpOAuthFlowStep[]
+	readonly endpoints: readonly McpOAuthEndpoint[]
+	readonly scopes: readonly McpOAuthScope[]
+}
+
+export function createMcpOAuthGuide(origin: string): McpOAuthGuide {
+	const api = `${origin}/api`
+
+	return {
+		steps: [
+			{
+				titleKey: 'mcpGuide.oauth.steps.discovery.title',
+				descriptionKey: 'mcpGuide.oauth.steps.discovery.description',
+			},
+			{
+				titleKey: 'mcpGuide.oauth.steps.register.title',
+				descriptionKey: 'mcpGuide.oauth.steps.register.description',
+			},
+			{
+				titleKey: 'mcpGuide.oauth.steps.authorize.title',
+				descriptionKey: 'mcpGuide.oauth.steps.authorize.description',
+			},
+			{
+				titleKey: 'mcpGuide.oauth.steps.token.title',
+				descriptionKey: 'mcpGuide.oauth.steps.token.description',
+			},
+			{
+				titleKey: 'mcpGuide.oauth.steps.refresh.title',
+				descriptionKey: 'mcpGuide.oauth.steps.refresh.description',
+			},
+			{
+				titleKey: 'mcpGuide.oauth.steps.revoke.title',
+				descriptionKey: 'mcpGuide.oauth.steps.revoke.description',
+			},
+		],
+		endpoints: [
+			{
+				method: 'GET',
+				url: `${api}/.well-known/oauth-protected-resource`,
+				descriptionKey: 'mcpGuide.oauth.endpoints.resourceMetadata',
+			},
+			{
+				method: 'GET',
+				url: `${api}/.well-known/oauth-authorization-server`,
+				descriptionKey: 'mcpGuide.oauth.endpoints.serverMetadata',
+			},
+			{
+				method: 'POST',
+				url: `${api}/oauth/register`,
+				descriptionKey: 'mcpGuide.oauth.endpoints.register',
+			},
+			{
+				method: 'GET',
+				url: `${api}/oauth/authorize`,
+				descriptionKey: 'mcpGuide.oauth.endpoints.authorize',
+			},
+			{
+				method: 'POST',
+				url: `${api}/oauth/token`,
+				descriptionKey: 'mcpGuide.oauth.endpoints.token',
+			},
+			{
+				method: 'POST',
+				url: `${api}/oauth/revoke`,
+				descriptionKey: 'mcpGuide.oauth.endpoints.revoke',
+			},
+		],
+		scopes: [
+			{ name: 'read', descriptionKey: 'mcpGuide.oauth.scopes.read' },
+			{ name: 'write', descriptionKey: 'mcpGuide.oauth.scopes.write' },
+		],
+	}
 }

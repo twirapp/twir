@@ -136,6 +136,55 @@
         "step1": "Merge the generated object into your Cursor MCP configuration.",
         "step2": "Restart Cursor and complete the OAuth sign-in when prompted."
       }
+    },
+    "oauth": {
+      "title": "OAuth flow",
+      "description": "Twir implements the standard MCP OAuth 2.0 flow: discovery, dynamic client registration, authorization code with PKCE, rotating refresh tokens, and revocation.",
+      "stepsTitle": "How the flow works",
+      "steps": {
+        "discovery": {
+          "title": "Discovery",
+          "description": "The client reads the protected-resource and authorization-server metadata to learn endpoints and supported features."
+        },
+        "register": {
+          "title": "Client registration",
+          "description": "The client registers itself dynamically (RFC 7591). No client secret is used; public clients are identified by their redirect URIs."
+        },
+        "authorize": {
+          "title": "Authorization",
+          "description": "The client opens the authorization URL with a PKCE S256 challenge and the MCP resource. You approve or deny access in the browser."
+        },
+        "token": {
+          "title": "Token exchange",
+          "description": "The client exchanges the authorization code together with its code verifier for tokens bound to the MCP resource."
+        },
+        "refresh": {
+          "title": "Refresh",
+          "description": "Refresh tokens rotate on every use. Reusing an old refresh token revokes the entire grant for that client."
+        },
+        "revoke": {
+          "title": "Revocation",
+          "description": "The client can revoke its own tokens at any time. Revoking an unknown token succeeds silently."
+        }
+      },
+      "endpointsTitle": "Endpoints",
+      "endpoints": {
+        "resourceMetadata": "Protected resource metadata (RFC 9728)",
+        "serverMetadata": "Authorization server metadata (RFC 8414)",
+        "register": "Dynamic client registration (RFC 7591)",
+        "authorize": "Start the authorization code flow",
+        "token": "Exchange or refresh tokens",
+        "revoke": "Revoke an access or refresh token"
+      },
+      "scopesTitle": "Scopes",
+      "scopes": {
+        "read": "Read-only tools: view channel data without changing any settings.",
+        "write": "Full tool access, including secrets, files, integrations, and moderation."
+      },
+      "tokenLifetimes": "Access tokens expire after 1 hour. Refresh tokens expire after 30 days and rotate on every refresh. Consent requires permission to manage bot settings.",
+      "authTitle": "Re-run the OAuth flow",
+      "authDescription": "Ask your client to authenticate again if the token expired or you want to switch access level.",
+      "authHint": "Open MCP settings in the client and reconnect Twir."
     }
   },
   "mcpConsent": {
