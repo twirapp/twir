@@ -178,7 +178,8 @@ services:
       - grafana_admin_password
       - uptrace_grafana_token
       - grafana_postgres_password
-      - grafana_uptrace_clickhouse_password
+      - source: grafana_uptrace_clickhouse_password_v2
+        target: grafana_uptrace_clickhouse_password
     volumes:
       - grafana-data:/var/lib/grafana
     networks:
@@ -1325,5 +1326,5 @@ secrets:
     external: true
   grafana_postgres_password:
     external: true
-  grafana_uptrace_clickhouse_password:
+  grafana_uptrace_clickhouse_password_v2:
     external: true
