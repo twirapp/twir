@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"io"
 	"net/url"
-	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
-	"github.com/twirapp/twir/apps/api-gql/internal/server"
-	servermiddlewares "github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
+	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
 	service "github.com/twirapp/twir/apps/api-gql/internal/services/mcp_oauth"
 	config "github.com/twirapp/twir/libs/config"
 	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
@@ -37,20 +36,24 @@ type sessionStore interface {
 	GetSelectedDashboard(context.Context) (string, error)
 }
 
+type registerRateLimiter interface {
+	Use(context.Context, *rate_limiter.LeakyOptions, int) (*rate_limiter.LeakyResponse, error)
+}
+
 type Dependencies struct {
-	Service           oauthService
-	Sessions          sessionStore
-	SiteBaseURL       string
-	Random            io.Reader
-	RegisterRateLimit gin.HandlerFunc
+	Service             oauthService
+	Sessions            sessionStore
+	SiteBaseURL         string
+	Random              io.Reader
+	RegisterRateLimiter registerRateLimiter
 }
 
 type Handler struct {
-	service           oauthService
-	sessions          sessionStore
-	origin            string
-	random            io.Reader
-	registerRateLimit gin.HandlerFunc
+	service             oauthService
+	sessions            sessionStore
+	origin              string
+	random              io.Reader
+	registerRateLimiter registerRateLimiter
 }
 
 func New(deps Dependencies) (*Handler, error) {
@@ -64,10 +67,7 @@ func New(deps Dependencies) (*Handler, error) {
 	if deps.Random == nil {
 		deps.Random = cryptorand.Reader
 	}
-	if deps.RegisterRateLimit == nil {
-		deps.RegisterRateLimit = func(context *gin.Context) { context.Next() }
-	}
-	return &Handler{service: deps.Service, sessions: deps.Sessions, origin: origin, random: deps.Random, registerRateLimit: deps.RegisterRateLimit}, nil
+	return &Handler{service: deps.Service, sessions: deps.Sessions, origin: origin, random: deps.Random, registerRateLimiter: deps.RegisterRateLimiter}, nil
 }
 
 type FxOpts struct {
@@ -75,30 +75,59 @@ type FxOpts struct {
 	Service     *service.Service
 	Sessions    *authsessions.Auth
 	Config      config.Config
-	Middlewares *servermiddlewares.Middlewares
+	RateLimiter *rate_limiter.LeakyBucketRateLimiter
 }
 
 func NewFx(opts FxOpts) (*Handler, error) {
-	return New(Dependencies{Service: opts.Service, Sessions: opts.Sessions, SiteBaseURL: opts.Config.SiteBaseUrl, RegisterRateLimit: opts.Middlewares.RateLimit("mcp-oauth-register", 20, time.Minute)})
+	return New(Dependencies{Service: opts.Service, Sessions: opts.Sessions, SiteBaseURL: opts.Config.SiteBaseUrl, RegisterRateLimiter: opts.RateLimiter})
 }
 
-func (handler *Handler) Register(router gin.IRouter) {
-	router.GET("/.well-known/oauth-protected-resource", handler.protectedResourceMetadata)
-	router.GET("/.well-known/oauth-authorization-server", handler.authorizationServerMetadata)
-	router.OPTIONS("/oauth/register", handler.publicPreflight)
-	router.POST("/oauth/register", handler.publicCORS, handler.registerRateLimit, handler.register)
-	router.GET("/oauth/authorize", handler.authorize)
-	router.GET("/oauth/consent", handler.getConsent)
-	router.POST("/oauth/consent", handler.postConsent)
-	router.OPTIONS("/oauth/token", handler.publicPreflight)
-	router.POST("/oauth/token", handler.publicCORS, handler.token)
-	router.OPTIONS("/oauth/revoke", handler.publicPreflight)
-	router.POST("/oauth/revoke", handler.publicCORS, handler.revoke)
+type route interface {
+	GetMeta() huma.Operation
+	Register(huma.API)
 }
 
-func Register(router *server.Server, handler *Handler) {
-	handler.Register(router)
+func (handler *Handler) routes() []route {
+	return []route{
+		newProtectedResourceMetadata(handler),
+		newAuthorizationServerMetadata(handler),
+		newRegisterOptions(handler),
+		newRegisterClient(handler),
+		newAuthorize(handler),
+		newGetConsent(handler),
+		newPostConsent(handler),
+		newTokenOptions(handler),
+		newToken(handler),
+		newRevokeOptions(handler),
+		newRevoke(handler),
+	}
 }
+
+func (handler *Handler) Register(api huma.API) {
+	for _, route := range handler.routes() {
+		route.Register(api)
+	}
+}
+
+var FxModule = fx.Options(
+	fx.Provide(
+		NewFx,
+		httpbase.AsFxRoute(newProtectedResourceMetadata),
+		httpbase.AsFxRoute(newAuthorizationServerMetadata),
+		httpbase.AsFxRoute(newRegisterOptions),
+		httpbase.AsFxRoute(newRegisterClient),
+		httpbase.AsFxRoute(newAuthorize),
+		httpbase.AsFxRoute(newGetConsent),
+		httpbase.AsFxRoute(newPostConsent),
+		httpbase.AsFxRoute(newTokenOptions),
+		httpbase.AsFxRoute(newToken),
+		httpbase.AsFxRoute(newRevokeOptions),
+		httpbase.AsFxRoute(newRevoke),
+	),
+)
+
+type emptyInput struct{}
+type preflightOutput struct{ Status int }
 
 func canonicalOrigin(raw string) (string, error) {
 	parsed, err := url.Parse(raw)

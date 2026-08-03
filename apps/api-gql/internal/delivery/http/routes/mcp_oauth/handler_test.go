@@ -1,6 +1,7 @@
 package mcp_oauth
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -68,10 +69,10 @@ func TestHandler_authorize_stores_sensitive_values_server_side_and_redirects_wit
 
 	// Then
 	location, err := url.Parse(response.Header().Get("Location"))
-	if err != nil || response.Code != http.StatusFound || location.Query().Get("attempt") == "" || strings.Contains(response.Header().Get("Location"), "client-state") || strings.Contains(response.Header().Get("Location"), "challenge") {
+	if err != nil || response.Code != http.StatusFound || response.Header().Get("Content-Type") != "text/html; charset=utf-8" || !strings.Contains(response.Body.String(), "Found") || location.Query().Get("attempt") == "" || strings.Contains(response.Header().Get("Location"), "client-state") || strings.Contains(response.Header().Get("Location"), "challenge") {
 		t.Fatalf("authorize response = %d %q", response.Code, response.Header().Get("Location"))
 	}
-	attempt, err := handler.sessions.GetMCPOAuthAttempt(nil, location.Query().Get("attempt"))
+	attempt, err := handler.sessions.GetMCPOAuthAttempt(context.Background(), location.Query().Get("attempt"))
 	if err != nil || attempt.ClientState != "client-state" || attempt.CodeChallenge != "challenge" || attempt.RedirectURI != "https://client.example/callback" {
 		t.Fatalf("attempt = %#v, err = %v", attempt, err)
 	}

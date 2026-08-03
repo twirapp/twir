@@ -701,7 +701,6 @@ func main() {
 			dataloader.New,
 			auth.NewSessions,
 			authroutes.New,
-			mcpOAuthRoutes.NewFx,
 			minio.New,
 			twitchcache.New,
 			channelcache.New,
@@ -745,6 +744,7 @@ func main() {
 		brb.FxModule,
 		twirhttp.FxModule,
 		scheduledvipsroutes.FxModule,
+		mcpOAuthRoutes.FxModule,
 		// huma routes end
 		fx.Invoke(
 			func(*platform.Registry) {},
@@ -759,7 +759,6 @@ func main() {
 			valorant.New,
 			stream.New,
 			mcpdelivery.Register,
-			mcpOAuthRoutes.Register,
 			func(l *slog.Logger) {
 				l.Info("🚀 API-GQL is running")
 			},

@@ -129,7 +129,7 @@ func TestHandler_public_oauth_endpoints_support_preflight_without_credentials(t 
 			response := serve(handler.router(), http.MethodOptions, path, nil, map[string]string{"Origin": "https://client.example", "Access-Control-Request-Method": "POST"})
 
 			// Then
-			if response.Code != http.StatusNoContent || response.Header().Get("Access-Control-Allow-Origin") != "*" || response.Header().Get("Access-Control-Allow-Methods") != "POST, OPTIONS" || response.Header().Get("Access-Control-Allow-Headers") != "Content-Type" || response.Header().Get("Access-Control-Allow-Credentials") != "" {
+			if response.Code != http.StatusNoContent || response.Header().Get("Access-Control-Allow-Origin") != "*" || response.Header().Get("Access-Control-Allow-Methods") != "POST, OPTIONS" || response.Header().Get("Access-Control-Allow-Headers") != "Content-Type" || response.Header().Get("Access-Control-Max-Age") != "600" || response.Header().Get("Access-Control-Allow-Credentials") != "" {
 				t.Fatalf("preflight response = %d, headers = %#v", response.Code, response.Header())
 			}
 		})

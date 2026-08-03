@@ -1,25 +1,24 @@
 package mcp_oauth
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humagin"
 )
 
-func (handler *Handler) publicCORS(context *gin.Context) {
+func (handler *Handler) publicCORS(context huma.Context, next func(huma.Context)) {
 	handler.publicCORSHeaders(context)
-	context.Next()
+	next(context)
 }
 
-func (handler *Handler) publicPreflight(context *gin.Context) {
+func (handler *Handler) publicPreflight(context huma.Context, next func(huma.Context)) {
 	handler.publicCORSHeaders(context)
-	context.Status(http.StatusNoContent)
+	next(context)
 }
 
-func (*Handler) publicCORSHeaders(context *gin.Context) {
-	context.Writer.Header().Del("Access-Control-Allow-Credentials")
-	context.Header("Access-Control-Allow-Origin", "*")
-	context.Header("Access-Control-Allow-Methods", "POST, OPTIONS")
-	context.Header("Access-Control-Allow-Headers", "Content-Type")
-	context.Header("Access-Control-Max-Age", "600")
+func (*Handler) publicCORSHeaders(context huma.Context) {
+	humagin.Unwrap(context).Writer.Header().Del("Access-Control-Allow-Credentials")
+	context.SetHeader("Access-Control-Allow-Origin", "*")
+	context.SetHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
+	context.SetHeader("Access-Control-Allow-Headers", "Content-Type")
+	context.SetHeader("Access-Control-Max-Age", "600")
 }
