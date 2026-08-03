@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	channelsgiveaways "github.com/twirapp/twir/libs/entities/channels_giveaways"
-	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
@@ -62,13 +61,6 @@ type manageAlertInput struct {
 	RewardIDs   []string `json:"rewardIds,omitempty"`
 	GreetingIDs []string `json:"greetingIds,omitempty"`
 	KeywordIDs  []string `json:"keywordIds,omitempty"`
-}
-
-func (h *Handler) notificationOwnerID(requestScope scope) string {
-	if binding, found := requestScope.Channel.Binding(platform.PlatformTwitch); found {
-		return binding.PlatformChannelID
-	}
-	return ownerID(requestScope)
 }
 
 func (h *Handler) addEngagementTools(s *modelsdk.Server, requestScope scope) {
@@ -137,14 +129,14 @@ func (h *Handler) addEngagementTools(s *modelsdk.Server, requestScope scope) {
 
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_notifications", Description: "List global and channel-owner notifications."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
-			owner := h.notificationOwnerID(requestScope)
+			owner := ownerID(requestScope)
 			var items []model.Notifications
 			err := h.deps.Gorm.WithContext(ctx).Where(`"userId" = ? OR "userId" IS NULL`, owner).Order(`"createdAt" DESC`).Find(&items).Error
 			return nil, map[string]any{"notifications": items}, err
 		})
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_notification", Description: "Get one global or channel-owner notification by ID."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
-			owner := h.notificationOwnerID(requestScope)
+			owner := ownerID(requestScope)
 			var item model.Notifications
 			err := h.deps.Gorm.WithContext(ctx).Where(`id = ? AND ("userId" = ? OR "userId" IS NULL)`, input.ID, owner).First(&item).Error
 			return nil, item, err
