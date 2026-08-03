@@ -170,8 +170,13 @@ func TestHandlerReadGrantKeepsStreamableHTTPStatelessAndRejectsWrites(t *testing
 	if list.Code != http.StatusOK || list.Header().Get("Mcp-Session-Id") != "" {
 		t.Fatalf("list response = %d, session ID = %q", list.Code, list.Header().Get("Mcp-Session-Id"))
 	}
-	if !strings.Contains(list.Body.String(), "list_commands") || !strings.Contains(list.Body.String(), "get_command") || strings.Contains(list.Body.String(), "create_command") {
+	if !strings.Contains(list.Body.String(), "list_commands") || !strings.Contains(list.Body.String(), "get_command") || strings.Contains(list.Body.String(), "get_secret") || strings.Contains(list.Body.String(), "create_command") {
 		t.Fatalf("unexpected read tool surface: %s", list.Body.String())
+	}
+
+	secret := serveMCPRequest(handler, `{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_secret","arguments":{"id":"00000000-0000-0000-0000-000000000000"}}}`)
+	if secret.Code != http.StatusOK || !strings.Contains(secret.Body.String(), "unknown tool") {
+		t.Fatalf("secret response = %d %s", secret.Code, secret.Body.String())
 	}
 
 	write := serveMCPRequest(handler, `{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"create_command","arguments":{}}}`)

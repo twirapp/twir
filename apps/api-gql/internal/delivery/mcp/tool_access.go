@@ -16,6 +16,18 @@ const (
 
 type toolAccessScopes map[toolAccessScope]struct{}
 
+type toolAccessClassification string
+
+const (
+	toolAccessClassificationSensitive toolAccessClassification = "sensitive"
+	toolAccessClassificationRead      toolAccessClassification = "read"
+	toolAccessClassificationOther     toolAccessClassification = "other"
+)
+
+var sensitiveToolNames = map[string]struct{}{
+	"get_secret": {},
+}
+
 func fullToolAccessScopes() toolAccessScopes {
 	return toolAccessScopes{
 		toolAccessScopeRead:  {},
@@ -46,11 +58,17 @@ func (scopes toolAccessScopes) allowsTool(name string) bool {
 	if _, ok := scopes[toolAccessScopeRead]; !ok {
 		return false
 	}
-	return isReadTool(name)
+	return classifyToolAccess(name) == toolAccessClassificationRead
 }
 
-func isReadTool(name string) bool {
-	return strings.HasPrefix(name, "list_") || strings.HasPrefix(name, "get_")
+func classifyToolAccess(name string) toolAccessClassification {
+	if _, ok := sensitiveToolNames[name]; ok {
+		return toolAccessClassificationSensitive
+	}
+	if strings.HasPrefix(name, "list_") || strings.HasPrefix(name, "get_") {
+		return toolAccessClassificationRead
+	}
+	return toolAccessClassificationOther
 }
 
 type toolRegistrar struct {
