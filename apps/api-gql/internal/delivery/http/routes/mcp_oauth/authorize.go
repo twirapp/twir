@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"slices"
 	"strings"
 	"time"
 
@@ -27,7 +26,7 @@ func (handler *Handler) authorize(context *gin.Context) {
 		writeServiceError(context, err, false)
 		return
 	}
-	if !slices.Contains(client.RedirectURIs, input.RedirectURI) {
+	if !service.MatchesRegisteredRedirectURI(client.RedirectURIs, input.RedirectURI) {
 		writeOAuthError(context, http.StatusBadRequest, "invalid_request", "invalid redirect URI")
 		return
 	}

@@ -89,6 +89,49 @@ func TestService_ExchangeAuthorizationCode_issues_hashed_credentials(t *testing.
 	}
 }
 
+func TestService_AuthorizationCode_binds_runtime_loopback_redirect_URI(t *testing.T) {
+	// Given
+	ctx := context.Background()
+	repo := newFakeRepository()
+	client := testClient()
+	registeredURI := "http://127.0.0.1:3000/callback?source=mcp"
+	requestedURI := "http://127.0.0.1:49321/callback?source=mcp"
+	client.RedirectURIs = []string{registeredURI}
+	repo.clients[client.ClientID] = client
+	service := newTestService(t, repo, true, appentity.User{ID: uuid.NewString()})
+	verifier := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~abcdefghijk"
+	authorize := AuthorizeInput{ClientID: client.ClientID, RedirectURI: requestedURI, ResponseType: "code", Scope: "read", Resource: "https://twir.example/api/mcp", CodeChallenge: s256Challenge(verifier), CodeChallengeMethod: "S256"}
+	issueCode := func() (IssuedAuthorizationCode, error) {
+		return service.CreateAuthorizationCode(ctx, CreateAuthorizationCodeInput{Authorize: authorize, ChannelID: uuid.New(), ApprovingUserID: uuid.New()})
+	}
+
+	// When
+	issued, err := issueCode()
+
+	// Then
+	if err != nil {
+		t.Fatalf("CreateAuthorizationCode() error = %v", err)
+	}
+	for _, code := range repo.codes {
+		if code.RedirectURI != requestedURI {
+			t.Fatalf("stored redirect URI = %q, want %q", code.RedirectURI, requestedURI)
+		}
+	}
+	if _, err := service.ExchangeAuthorizationCode(ctx, ExchangeAuthorizationCodeInput{ClientID: client.ClientID, Code: issued.Code, RedirectURI: requestedURI, CodeVerifier: verifier, Resource: "https://twir.example/api/mcp"}); err != nil {
+		t.Fatalf("ExchangeAuthorizationCode() with runtime redirect URI error = %v", err)
+	}
+
+	issued, err = issueCode()
+	if err != nil {
+		t.Fatalf("CreateAuthorizationCode() second issue error = %v", err)
+	}
+	if _, err := service.ExchangeAuthorizationCode(ctx, ExchangeAuthorizationCodeInput{ClientID: client.ClientID, Code: issued.Code, RedirectURI: registeredURI, CodeVerifier: verifier, Resource: "https://twir.example/api/mcp"}); err == nil {
+		t.Fatal("ExchangeAuthorizationCode() accepted registered URI instead of runtime redirect URI")
+	} else {
+		requireOAuthCode(t, err, ErrorInvalidGrant)
+	}
+}
+
 func TestService_Refresh_rejects_scope_elevation_and_revokes_reuse(t *testing.T) {
 	// Given
 	ctx := context.Background()

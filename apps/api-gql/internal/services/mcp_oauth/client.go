@@ -65,7 +65,7 @@ func (s *Service) ValidateAuthorizeInput(ctx context.Context, input AuthorizeInp
 	if err != nil {
 		return AuthorizationRequest{}, err
 	}
-	if input.ResponseType != "code" || !slices.Contains(client.RedirectURIs, input.RedirectURI) || input.Resource != s.resource || input.CodeChallengeMethod != "S256" || !validChallenge(input.CodeChallenge) {
+	if input.ResponseType != "code" || !MatchesRegisteredRedirectURI(client.RedirectURIs, input.RedirectURI) || input.Resource != s.resource || input.CodeChallengeMethod != "S256" || !validChallenge(input.CodeChallenge) {
 		return AuthorizationRequest{}, oauthError(ErrorInvalidRequest, "invalid authorization request")
 	}
 	scopes := client.Scopes
@@ -77,6 +77,32 @@ func (s *Service) ValidateAuthorizeInput(ctx context.Context, input AuthorizeInp
 	}
 	return AuthorizationRequest{Client: client, RedirectURI: input.RedirectURI, CodeChallenge: input.CodeChallenge, Resource: s.resource, Scopes: scopes}, nil
 }
+
+func MatchesRegisteredRedirectURI(registeredURIs []string, requestedURI string) bool {
+	for _, registeredURI := range registeredURIs {
+		if registeredURI == requestedURI || matchesLoopbackRedirectURI(registeredURI, requestedURI) {
+			return true
+		}
+	}
+	return false
+}
+
+func matchesLoopbackRedirectURI(registeredURI, requestedURI string) bool {
+	registered, err := url.Parse(registeredURI)
+	if err != nil {
+		return false
+	}
+	requested, err := url.Parse(requestedURI)
+	if err != nil {
+		return false
+	}
+	if registered.Scheme != "http" || requested.Scheme != "http" || registered.Fragment != "" || requested.Fragment != "" || registered.User != nil || requested.User != nil {
+		return false
+	}
+	registeredHost := registered.Hostname()
+	return registeredHost != "" && registeredHost == requested.Hostname() && localHost(registeredHost) && registered.EscapedPath() == requested.EscapedPath() && registered.RawQuery == requested.RawQuery
+}
+
 func normalizeMetadata(raw json.RawMessage) (clientMetadata, []entity.Scope, error) {
 	if len(raw) == 0 || len(raw) > 16*1024 {
 		return clientMetadata{}, nil, oauthError(ErrorInvalidClientMetadata, "invalid client metadata")

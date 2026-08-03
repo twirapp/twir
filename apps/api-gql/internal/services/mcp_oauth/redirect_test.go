@@ -40,3 +40,46 @@ func TestService_RegisterClient_allows_reverse_dns_private_use_redirect_scheme(t
 		t.Fatalf("redirect URI = %q, want %q", client.RedirectURIs[0], "com.example.app:/oauth/callback")
 	}
 }
+
+func TestService_ValidateAuthorizeInput_matches_loopback_redirect_with_dynamic_port(t *testing.T) {
+	const challenge = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~abcdefghijk"
+	tests := []struct {
+		name          string
+		registeredURI string
+		requestedURI  string
+		wantError     bool
+	}{
+		{name: "allows changed port", registeredURI: "http://127.0.0.1:3000/callback?source=mcp", requestedURI: "http://127.0.0.1:49321/callback?source=mcp"},
+		{name: "allows localhost changed port", registeredURI: "http://localhost:3000/callback?source=mcp", requestedURI: "http://localhost:49321/callback?source=mcp"},
+		{name: "allows IPv6 loopback changed port", registeredURI: "http://[::1]:3000/callback?source=mcp", requestedURI: "http://[::1]:49321/callback?source=mcp"},
+		{name: "rejects changed loopback host", registeredURI: "http://127.0.0.1:3000/callback?source=mcp", requestedURI: "http://127.0.0.2:49321/callback?source=mcp", wantError: true},
+		{name: "rejects changed path", registeredURI: "http://127.0.0.1:3000/callback?source=mcp", requestedURI: "http://127.0.0.1:49321/other?source=mcp", wantError: true},
+		{name: "rejects changed query", registeredURI: "http://127.0.0.1:3000/callback?source=mcp", requestedURI: "http://127.0.0.1:49321/callback?source=other", wantError: true},
+		{name: "rejects user info", registeredURI: "http://127.0.0.1:3000/callback?source=mcp", requestedURI: "http://client@127.0.0.1:49321/callback?source=mcp", wantError: true},
+		{name: "rejects fragment", registeredURI: "http://127.0.0.1:3000/callback?source=mcp", requestedURI: "http://127.0.0.1:49321/callback?source=mcp#fragment", wantError: true},
+		{name: "rejects changed HTTPS port", registeredURI: "https://client.example:3000/callback", requestedURI: "https://client.example:49321/callback", wantError: true},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// Given
+			repo := newFakeRepository()
+			client := testClient()
+			client.RedirectURIs = []string{test.registeredURI}
+			repo.clients[client.ClientID] = client
+			service := newTestService(t, repo, true, appentity.User{})
+
+			// When
+			request, err := service.ValidateAuthorizeInput(context.Background(), AuthorizeInput{ClientID: client.ClientID, RedirectURI: test.requestedURI, ResponseType: "code", Resource: "https://twir.example/api/mcp", CodeChallenge: s256Challenge(challenge), CodeChallengeMethod: "S256"})
+
+			// Then
+			if test.wantError {
+				requireOAuthCode(t, err, ErrorInvalidRequest)
+				return
+			}
+			if err != nil || request.RedirectURI != test.requestedURI {
+				t.Fatalf("ValidateAuthorizeInput() request = %#v, error = %v", request, err)
+			}
+		})
+	}
+}
