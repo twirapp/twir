@@ -168,7 +168,7 @@ services:
         target: /etc/grafana/provisioning/datasources/uptrace.yml
       - source: uptrace_grafana_dashboard_provider
         target: /etc/grafana/provisioning/dashboards/twir.yml
-      - source: uptrace_grafana_dashboard_twir_overview_v7
+      - source: uptrace_grafana_dashboard_twir_overview_v8
         target: /etc/grafana/dashboards/twir-overview.json
       - source: uptrace_grafana_config
         target: /etc/grafana/grafana.ini
@@ -1267,7 +1267,7 @@ configs:
     file: ./configs/uptrace/grafana/datasource.yml
   uptrace_grafana_dashboard_provider:
     file: ./configs/uptrace/grafana/dashboard-provider.yml
-  uptrace_grafana_dashboard_twir_overview_v7:
+  uptrace_grafana_dashboard_twir_overview_v8:
     file: ./configs/uptrace/grafana/dashboards/twir-overview.json
   uptrace_grafana_config:
     file: ./configs/uptrace/grafana/grafana.ini
