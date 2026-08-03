@@ -205,57 +205,38 @@ func (r *repository) GetByChannelID(ctx context.Context, channelID string) (plan
 	return r.dbToEntity(dbPlan), nil
 }
 
+const getByUserIDQuery = `
+SELECT
+	p.id,
+	p.name,
+	p.max_commands,
+	p.max_timers,
+	p.max_variables,
+	p.max_alerts,
+	p.max_events,
+	p.max_chat_alerts_messages,
+	p.max_custom_overlays,
+	p.max_eightball_answers,
+	p.max_commands_responses,
+	p.max_moderation_rules,
+	p.max_keywords,
+	p.max_greetings,
+	p.links_shortener_custom_domains,
+	p.created_at,
+	p.updated_at
+FROM plans p
+JOIN channels c ON c.plan_id = p.id
+JOIN channel_platforms cp ON cp.channel_id = c.id
+WHERE cp.user_id = $1
+LIMIT 1`
+
 func (r *repository) GetByUserID(ctx context.Context, userID string) (plan.Plan, error) {
-	query, args, err := squirrel.Select(
-		"p.id",
-		"p.name",
-		"p.max_commands",
-		"p.max_timers",
-		"p.max_variables",
-		"p.max_alerts",
-		"p.max_events",
-		"p.max_chat_alerts_messages",
-		"p.max_custom_overlays",
-		"p.max_eightball_answers",
-		"p.max_commands_responses",
-		"p.max_moderation_rules",
-		"p.max_keywords",
-		"p.max_greetings",
-		"p.links_shortener_custom_domains",
-		"p.created_at",
-		"p.updated_at",
-	).
-		From("plans p").
-		Join("channels c ON c.plan_id = p.id").
-		Join("channel_platforms cp ON cp.channel_id = c.id").
-		Where(squirrel.Eq{"cp.user_id": userID}).
-		Limit(1).
-		PlaceholderFormat(squirrel.Dollar).
-		ToSql()
+	rows, err := r.db.Query(ctx, getByUserIDQuery, userID)
 	if err != nil {
-		return plan.Nil, fmt.Errorf("failed to build query: %w", err)
+		return plan.Nil, fmt.Errorf("failed to query plan: %w", err)
 	}
 
-	var dbPlan model.Plan
-	err = r.db.QueryRow(ctx, query, args...).Scan(
-		&dbPlan.ID,
-		&dbPlan.Name,
-		&dbPlan.MaxCommands,
-		&dbPlan.MaxTimers,
-		&dbPlan.MaxVariables,
-		&dbPlan.MaxAlerts,
-		&dbPlan.MaxEvents,
-		&dbPlan.MaxChatAlertsMessages,
-		&dbPlan.MaxCustomOverlays,
-		&dbPlan.MaxEightballAnswers,
-		&dbPlan.MaxCommandsResponses,
-		&dbPlan.MaxModerationRules,
-		&dbPlan.MaxKeywords,
-		&dbPlan.MaxGreetings,
-		&dbPlan.LinksShortenerCustomDomains,
-		&dbPlan.CreatedAt,
-		&dbPlan.UpdatedAt,
-	)
+	dbPlan, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Plan])
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return plan.Nil, nil
