@@ -77,7 +77,7 @@ func newAttachmentStore(config cfg.Config) (*attachmentStore, error) {
 			Timeout: 30 * time.Second,
 		},
 		bucket:    config.S3Bucket,
-		publicURL: strings.TrimRight(config.S3PublicUrl, "/"),
+		publicURL: config.BuildS3PublicURL(""),
 		maxBytes:  maxBytes,
 	}, nil
 }
@@ -204,12 +204,12 @@ func (s *attachmentStore) persist(
 		return fallback, "", fmt.Errorf("downloaded attachment exceeds %d bytes", s.maxBytes)
 	}
 
-	contentType := source.ContentType
-	if contentType == "" {
-		contentType = response.Header.Get("Content-Type")
-	}
-	if contentType == "" {
-		contentType = http.DetectContentType(data)
+	contentType := http.DetectContentType(data)
+	if !strings.HasPrefix(strings.ToLower(contentType), "image/") {
+		contentType = source.ContentType
+		if contentType == "" {
+			contentType = response.Header.Get("Content-Type")
+		}
 	}
 	if !strings.HasPrefix(strings.ToLower(contentType), "image/") {
 		return fallback, "", fmt.Errorf("attachment content type %q is not an image", contentType)

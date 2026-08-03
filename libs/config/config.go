@@ -136,6 +136,17 @@ type Config struct {
 	SecretsEncryptionKey string `required:"false" default:"0123456789abcdef0123456789abcdef" envconfig:"SECRETS_ENCRYPTION_KEY"`
 }
 
+func (c Config) BuildS3PublicURL(objectPath string) string {
+	parts := []string{strings.TrimRight(c.S3PublicUrl, "/")}
+	if c.AppEnv == "development" {
+		parts = append(parts, strings.Trim(c.S3Bucket, "/"))
+	}
+	if objectPath = strings.TrimLeft(objectPath, "/"); objectPath != "" {
+		parts = append(parts, objectPath)
+	}
+	return strings.Join(parts, "/")
+}
+
 func (c *Config) IsProduction() bool {
 	return c.AppEnv == "production"
 }
