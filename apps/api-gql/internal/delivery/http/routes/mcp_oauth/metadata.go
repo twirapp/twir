@@ -25,16 +25,37 @@ func newProtectedResourceMetadata(handler *Handler) *protectedResourceMetadata {
 }
 
 func (*protectedResourceMetadata) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-protected-resource", Method: http.MethodGet, Path: "/.well-known/oauth-protected-resource", Tags: []string{"MCP OAuth"}, Summary: "OAuth protected resource metadata", DefaultStatus: http.StatusOK}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-protected-resource",
+		Method:        http.MethodGet,
+		Path:          "/.well-known/oauth-protected-resource",
+		Tags:          []string{"MCP OAuth"},
+		Summary:       "OAuth protected resource metadata",
+		DefaultStatus: http.StatusOK,
+	}
 }
 
 func (route *protectedResourceMetadata) Handler(_ context.Context, _ *emptyInput) (*metadataOutput[protectedResourceMetadataResponse], error) {
-	return &metadataOutput[protectedResourceMetadataResponse]{AccessControlAllowOrigin: "*", CacheControl: "public, max-age=3600", Body: protectedResourceMetadataResponse{Resource: route.handler.origin + "/api/mcp", AuthorizationServers: []string{route.handler.origin}, ScopesSupported: []string{"read", "write"}, BearerMethodsSupported: []string{"header"}}}, nil
+	return &metadataOutput[protectedResourceMetadataResponse]{
+		AccessControlAllowOrigin: "*",
+		CacheControl:             "public, max-age=3600",
+		Body: protectedResourceMetadataResponse{
+			Resource:               route.handler.origin + "/api/mcp",
+			AuthorizationServers:   []string{route.handler.origin},
+			ScopesSupported:        []string{"read", "write"},
+			BearerMethodsSupported: []string{"header"},
+		},
+	}, nil
 }
 
 func (route *protectedResourceMetadata) Register(api huma.API) {
 	meta := route.GetMeta()
-	meta.Responses = map[string]*huma.Response{"200": {Description: "OAuth protected resource metadata", Content: jsonContent[protectedResourceMetadataResponse](api)}}
+	meta.Responses = map[string]*huma.Response{
+		"200": {
+			Description: "OAuth protected resource metadata",
+			Content:     jsonContent[protectedResourceMetadataResponse](api),
+		},
+	}
 	huma.Register(api, meta, route.Handler)
 }
 
@@ -49,16 +70,43 @@ func newAuthorizationServerMetadata(handler *Handler) *authorizationServerMetada
 }
 
 func (*authorizationServerMetadata) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-authorization-server", Method: http.MethodGet, Path: "/.well-known/oauth-authorization-server", Tags: []string{"MCP OAuth"}, Summary: "OAuth authorization server metadata", DefaultStatus: http.StatusOK}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-authorization-server",
+		Method:        http.MethodGet,
+		Path:          "/.well-known/oauth-authorization-server",
+		Tags:          []string{"MCP OAuth"},
+		Summary:       "OAuth authorization server metadata",
+		DefaultStatus: http.StatusOK,
+	}
 }
 
 func (route *authorizationServerMetadata) Handler(_ context.Context, _ *emptyInput) (*metadataOutput[authorizationServerMetadataResponse], error) {
-	return &metadataOutput[authorizationServerMetadataResponse]{AccessControlAllowOrigin: "*", CacheControl: "public, max-age=3600", Body: authorizationServerMetadataResponse{Issuer: route.handler.origin, AuthorizationEndpoint: route.handler.origin + "/api/oauth/authorize", TokenEndpoint: route.handler.origin + "/api/oauth/token", RegistrationEndpoint: route.handler.origin + "/api/oauth/register", RevocationEndpoint: route.handler.origin + "/api/oauth/revoke", ScopesSupported: []string{"read", "write"}, ResponseTypesSupported: []string{"code"}, GrantTypesSupported: []string{"authorization_code", "refresh_token"}, TokenEndpointAuthMethodsSupported: []string{"none"}, CodeChallengeMethodsSupported: []string{"S256"}}}, nil
+	return &metadataOutput[authorizationServerMetadataResponse]{
+		AccessControlAllowOrigin: "*",
+		CacheControl:             "public, max-age=3600",
+		Body: authorizationServerMetadataResponse{
+			Issuer:                            route.handler.origin,
+			AuthorizationEndpoint:             route.handler.origin + "/api/oauth/authorize",
+			TokenEndpoint:                     route.handler.origin + "/api/oauth/token",
+			RegistrationEndpoint:              route.handler.origin + "/api/oauth/register",
+			RevocationEndpoint:                route.handler.origin + "/api/oauth/revoke",
+			ScopesSupported:                   []string{"read", "write"},
+			ResponseTypesSupported:            []string{"code"},
+			GrantTypesSupported:               []string{"authorization_code", "refresh_token"},
+			TokenEndpointAuthMethodsSupported: []string{"none"},
+			CodeChallengeMethodsSupported:     []string{"S256"},
+		},
+	}, nil
 }
 
 func (route *authorizationServerMetadata) Register(api huma.API) {
 	meta := route.GetMeta()
-	meta.Responses = map[string]*huma.Response{"200": {Description: "OAuth authorization server metadata", Content: jsonContent[authorizationServerMetadataResponse](api)}}
+	meta.Responses = map[string]*huma.Response{
+		"200": {
+			Description: "OAuth authorization server metadata",
+			Content:     jsonContent[authorizationServerMetadataResponse](api),
+		},
+	}
 	huma.Register(api, meta, route.Handler)
 }
 

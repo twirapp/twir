@@ -49,18 +49,23 @@ func TestHandler_generated_openapi_exposes_concrete_oauth_contract(t *testing.T)
 		assertResponseStatuses(t, openapi, check)
 	}
 
-	assertParameters(t, openapi, "/oauth/authorize", http.MethodGet, "client_id", "redirect_uri", "response_type", "scope", "state", "resource", "code_challenge", "code_challenge_method")
+	assertParameters(t, openapi, "/oauth/authorize", http.MethodGet,
+		"client_id", "redirect_uri", "response_type", "scope", "state", "resource", "code_challenge", "code_challenge_method")
 	assertParameters(t, openapi, "/oauth/consent", http.MethodGet, "attempt")
 
-	assertJSONRequestSchemaProps(t, openapi, "/oauth/register", http.MethodPost, "application/json", "client_name", "client_uri", "redirect_uris", "grant_types", "response_types", "token_endpoint_auth_method", "scope")
-	assertJSONRequestSchemaProps(t, openapi, "/oauth/consent", http.MethodPost, "application/json", "attempt", "channel_id", "csrf_token", "decision", "access_level")
-	assertFormRequestSchemaProps(t, openapi, "/oauth/token", http.MethodPost, "application/x-www-form-urlencoded", "grant_type", "client_id", "code", "redirect_uri", "code_verifier", "refresh_token", "scope", "resource")
+	assertJSONRequestSchemaProps(t, openapi, "/oauth/register", http.MethodPost, "application/json",
+		"client_name", "client_uri", "redirect_uris", "grant_types", "response_types", "token_endpoint_auth_method", "scope")
+	assertJSONRequestSchemaProps(t, openapi, "/oauth/consent", http.MethodPost, "application/json",
+		"attempt", "channel_id", "csrf_token", "decision", "access_level")
+	assertFormRequestSchemaProps(t, openapi, "/oauth/token", http.MethodPost, "application/x-www-form-urlencoded",
+		"grant_type", "client_id", "code", "redirect_uri", "code_verifier", "refresh_token", "scope", "resource")
 	assertFormRequestSchemaProps(t, openapi, "/oauth/revoke", http.MethodPost, "application/x-www-form-urlencoded", "client_id", "token")
 
 	assertJSONResponseSchemaProps(t, openapi, "/.well-known/oauth-protected-resource", http.MethodGet, http.StatusOK, "resource", "authorization_servers")
 	assertJSONResponseSchemaProps(t, openapi, "/.well-known/oauth-authorization-server", http.MethodGet, http.StatusOK, "issuer", "token_endpoint")
 	assertJSONResponseSchemaProps(t, openapi, "/oauth/register", http.MethodPost, http.StatusCreated, "client_id", "client_id_issued_at", "client_name")
-	assertJSONResponseSchemaProps(t, openapi, "/oauth/consent", http.MethodGet, http.StatusOK, "client", "channel_id", "requested_scopes", "access_levels", "csrf_token")
+	assertJSONResponseSchemaProps(t, openapi, "/oauth/consent", http.MethodGet, http.StatusOK,
+		"client", "channel_id", "requested_scopes", "access_levels", "csrf_token")
 	assertJSONResponseSchemaProps(t, openapi, "/oauth/consent", http.MethodPost, http.StatusOK, "redirect_to")
 	assertJSONResponseSchemaProps(t, openapi, "/oauth/token", http.MethodPost, http.StatusOK, "access_token", "token_type", "expires_in", "refresh_token", "scope")
 
