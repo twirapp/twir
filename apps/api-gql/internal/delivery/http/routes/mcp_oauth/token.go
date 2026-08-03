@@ -24,7 +24,12 @@ func newTokenOptions(handler *Handler) *tokenOptions {
 }
 
 func (*tokenOptions) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-token-options", Method: http.MethodOptions, Path: "/oauth/token", DefaultStatus: http.StatusNoContent}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-token-options",
+		Method:        http.MethodOptions,
+		Path:          "/oauth/token",
+		DefaultStatus: http.StatusNoContent,
+	}
 }
 
 func (*tokenOptions) Handler(context.Context, *emptyInput) (*preflightOutput, error) {
@@ -48,7 +53,14 @@ func newToken(handler *Handler) *tokenRoute {
 }
 
 func (*tokenRoute) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-token", Method: http.MethodPost, Path: "/oauth/token", Tags: []string{"MCP OAuth"}, Summary: "Issue OAuth tokens", DefaultStatus: http.StatusOK}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-token",
+		Method:        http.MethodPost,
+		Path:          "/oauth/token",
+		Tags:          []string{"MCP OAuth"},
+		Summary:       "Issue OAuth tokens",
+		DefaultStatus: http.StatusOK,
+	}
 }
 
 func (route *tokenRoute) Handler(ctx context.Context, _ *emptyInput) (*huma.StreamResponse, error) {
@@ -89,13 +101,24 @@ func (route *tokenRoute) token(context huma.Context, form url.Values) {
 			writeOAuthError(context, http.StatusBadRequest, "invalid_request", "authorization code fields are required")
 			return
 		}
-		tokens, err = route.handler.service.ExchangeAuthorizationCode(context.Context(), service.ExchangeAuthorizationCodeInput{ClientID: form.Get("client_id"), Code: form.Get("code"), RedirectURI: form.Get("redirect_uri"), CodeVerifier: form.Get("code_verifier"), Resource: form.Get("resource")})
+		tokens, err = route.handler.service.ExchangeAuthorizationCode(context.Context(), service.ExchangeAuthorizationCodeInput{
+			ClientID:     form.Get("client_id"),
+			Code:         form.Get("code"),
+			RedirectURI:  form.Get("redirect_uri"),
+			CodeVerifier: form.Get("code_verifier"),
+			Resource:     form.Get("resource"),
+		})
 	case "refresh_token":
 		if !required(form.Get("client_id"), form.Get("refresh_token"), form.Get("resource")) {
 			writeOAuthError(context, http.StatusBadRequest, "invalid_request", "refresh token fields are required")
 			return
 		}
-		tokens, err = route.handler.service.Refresh(context.Context(), service.RefreshInput{ClientID: form.Get("client_id"), RefreshToken: form.Get("refresh_token"), Scope: form.Get("scope"), Resource: form.Get("resource")})
+		tokens, err = route.handler.service.Refresh(context.Context(), service.RefreshInput{
+			ClientID:     form.Get("client_id"),
+			RefreshToken: form.Get("refresh_token"),
+			Scope:        form.Get("scope"),
+			Resource:     form.Get("resource"),
+		})
 	default:
 		writeOAuthError(context, http.StatusBadRequest, "unsupported_grant_type", "unsupported grant type")
 		return
@@ -104,7 +127,13 @@ func (route *tokenRoute) token(context huma.Context, form url.Values) {
 		writeServiceError(context, err, false)
 		return
 	}
-	writeJSON(context, http.StatusOK, tokenResponse{AccessToken: tokens.AccessToken, TokenType: tokens.TokenType, ExpiresIn: int(time.Until(tokens.AccessExpiresAt).Seconds()), RefreshToken: tokens.RefreshToken, Scope: strings.Join(scopeNames(tokens), " ")})
+	writeJSON(context, http.StatusOK, tokenResponse{
+		AccessToken:  tokens.AccessToken,
+		TokenType:    tokens.TokenType,
+		ExpiresIn:    int(time.Until(tokens.AccessExpiresAt).Seconds()),
+		RefreshToken: tokens.RefreshToken,
+		Scope:        strings.Join(scopeNames(tokens), " "),
+	})
 }
 
 type tokenResponse struct {

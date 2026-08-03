@@ -21,7 +21,12 @@ func newRevokeOptions(handler *Handler) *revokeOptions {
 }
 
 func (*revokeOptions) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-revoke-options", Method: http.MethodOptions, Path: "/oauth/revoke", DefaultStatus: http.StatusNoContent}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-revoke-options",
+		Method:        http.MethodOptions,
+		Path:          "/oauth/revoke",
+		DefaultStatus: http.StatusNoContent,
+	}
 }
 
 func (*revokeOptions) Handler(context.Context, *emptyInput) (*preflightOutput, error) {
@@ -45,7 +50,14 @@ func newRevoke(handler *Handler) *revokeRoute {
 }
 
 func (*revokeRoute) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-revoke", Method: http.MethodPost, Path: "/oauth/revoke", Tags: []string{"MCP OAuth"}, Summary: "Revoke an OAuth token", DefaultStatus: http.StatusOK}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-revoke",
+		Method:        http.MethodPost,
+		Path:          "/oauth/revoke",
+		Tags:          []string{"MCP OAuth"},
+		Summary:       "Revoke an OAuth token",
+		DefaultStatus: http.StatusOK,
+	}
 }
 
 func (route *revokeRoute) Handler(ctx context.Context, _ *emptyInput) (*huma.StreamResponse, error) {

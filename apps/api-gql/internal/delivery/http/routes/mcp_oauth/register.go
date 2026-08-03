@@ -34,7 +34,12 @@ func newRegisterOptions(handler *Handler) *registerOptions {
 }
 
 func (route *registerOptions) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-register-options", Method: http.MethodOptions, Path: "/oauth/register", DefaultStatus: http.StatusNoContent}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-register-options",
+		Method:        http.MethodOptions,
+		Path:          "/oauth/register",
+		DefaultStatus: http.StatusNoContent,
+	}
 }
 
 func (*registerOptions) Handler(context.Context, *emptyInput) (*preflightOutput, error) {
@@ -58,7 +63,14 @@ func newRegisterClient(handler *Handler) *registerClient {
 }
 
 func (*registerClient) GetMeta() huma.Operation {
-	return huma.Operation{OperationID: "mcp-oauth-register", Method: http.MethodPost, Path: "/oauth/register", Tags: []string{"MCP OAuth"}, Summary: "Register an OAuth client", DefaultStatus: http.StatusCreated}
+	return huma.Operation{
+		OperationID:   "mcp-oauth-register",
+		Method:        http.MethodPost,
+		Path:          "/oauth/register",
+		Tags:          []string{"MCP OAuth"},
+		Summary:       "Register an OAuth client",
+		DefaultStatus: http.StatusCreated,
+	}
 }
 
 func (route *registerClient) Handler(ctx context.Context, _ *emptyInput) (*huma.StreamResponse, error) {
@@ -79,7 +91,12 @@ func (route *registerClient) Register(api huma.API) {
 		"400": {Description: "Invalid client metadata", Content: jsonContent[oauthErrorResponse](api)},
 		"500": {Description: "Server error", Content: jsonContent[oauthErrorResponse](api)},
 	}
-	meta.Middlewares = huma.Middlewares{route.handler.publicCORS, route.handler.registerRateLimit, requireContentType("application/json"), jsonBody[json.RawMessage](registerBodyKey)}
+	meta.Middlewares = huma.Middlewares{
+		route.handler.publicCORS,
+		route.handler.registerRateLimit,
+		requireContentType("application/json"),
+		jsonBody[json.RawMessage](registerBodyKey),
+	}
 	huma.Register(api, meta, route.Handler)
 }
 
@@ -133,7 +150,17 @@ func (route *registerClient) register(context huma.Context, metadata json.RawMes
 		writeOAuthError(context, http.StatusInternalServerError, "server_error", "server error")
 		return
 	}
-	writeJSON(context, http.StatusCreated, registerClientResponse{ClientID: client.ClientID, ClientIssuedAt: client.CreatedAt.Unix(), ClientName: response.ClientName, ClientURI: response.ClientURI, RedirectURIs: response.RedirectURIs, GrantTypes: response.GrantTypes, ResponseTypes: response.ResponseTypes, TokenEndpointAuthMethod: response.TokenEndpointAuthMethod, Scope: response.Scope})
+	writeJSON(context, http.StatusCreated, registerClientResponse{
+		ClientID:                client.ClientID,
+		ClientIssuedAt:          client.CreatedAt.Unix(),
+		ClientName:              response.ClientName,
+		ClientURI:               response.ClientURI,
+		RedirectURIs:            response.RedirectURIs,
+		GrantTypes:              response.GrantTypes,
+		ResponseTypes:           response.ResponseTypes,
+		TokenEndpointAuthMethod: response.TokenEndpointAuthMethod,
+		Scope:                   response.Scope,
+	})
 }
 
 type registerClientResponse struct {
