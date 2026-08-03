@@ -461,7 +461,7 @@
           "editorType": "sql",
           "format": 0,
           "pluginVersion": "4.20.0",
-          "rawSql": "SELECT bucket AS time, operation, quantileTDigestWeighted(0.95)(duration, count_x100) AS p95 FROM (SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS bucket, count_x100, duration, multiIf(service_name = 'parser' AND system = 'messaging:nats' AND name = 'Read parser.process_message_as_command', 'Command · total', service_name = 'parser' AND system = 'funcs' AND name IN ('ParseCommandResponses', 'ParseVariablesInText'), 'Command · internals', service_name = 'eventsub' AND system = 'funcs' AND name IN ('eventsub.websocket.handler', 'HandleChannelChatMessage'), 'EventSub · pipeline', service_name = 'bots' AND system = 'funcs' AND name = 'handle', 'Bot · message', service_name = 'bots' AND system = 'funcs' AND name = 'handleTts', 'Bot · TTS', service_name = 'bots' AND system = 'funcs' AND name IN ('handleModeration', 'handleGiveaways', 'handleKeywords', 'handleChatWall', 'handleGreetings', 'handleEmotesUsages', 'handleRemoveLurker', 'handleFirstStreamUserJoin'), 'Bot · features', '') AS operation FROM spans_index WHERE project_id = 1 AND $__timeFilter(time)) WHERE operation != '' GROUP BY bucket, operation ORDER BY bucket",
+          "rawSql": "SELECT bucket AS time, operation, quantileTDigestWeighted(0.95)(duration, count_x100) AS p95 FROM (SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS bucket, count_x100, duration, multiIf(service_name = 'parser' AND system = 'messaging:nats' AND name = 'Read parser.process_message_as_command', 'Command · total', service_name = 'eventsub' AND system = 'funcs' AND name IN ('eventsub.websocket.handler', 'HandleChannelChatMessage'), 'EventSub · pipeline', service_name = 'bots' AND system = 'funcs' AND name = 'handle', 'Bot · message', service_name = 'bots' AND system = 'funcs' AND name = 'handleTts', 'Bot · TTS', service_name = 'bots' AND system = 'funcs' AND name IN ('handleModeration', 'handleGiveaways', 'handleKeywords', 'handleChatWall', 'handleGreetings', 'handleEmotesUsages', 'handleRemoveLurker', 'handleFirstStreamUserJoin'), 'Bot · features', '') AS operation FROM spans_index WHERE project_id = 1 AND $__timeFilter(time)) WHERE operation != '' GROUP BY bucket, operation ORDER BY bucket",
           "refId": "A"
         }
       ],
@@ -714,5 +714,5 @@
   "timezone": "browser",
   "title": "Twir Live Overview",
   "uid": "twir-stream-overview",
-  "version": 8
+  "version": 9
 }
