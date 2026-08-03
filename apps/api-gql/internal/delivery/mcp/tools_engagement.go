@@ -74,22 +74,22 @@ func (h *Handler) notificationOwnerID(requestScope scope) string {
 func (h *Handler) addEngagementTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_events", Description: "List configured automation events and operations for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_events", Description: "List configured automation events and operations for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.Events.GetAll(ctx, channelID)
 			return nil, map[string]any{"events": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_twir_events", Description: "List Twir event types that can be subscribed to or used by channel automations."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_twir_events", Description: "List Twir event types that can be subscribed to or used by channel automations."},
 		func(_ context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			return nil, map[string]any{"eventTypes": entity.AllEventType}, nil
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_rewards", Description: "List Twitch custom rewards for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_rewards", Description: "List Twitch custom rewards for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			result, err := h.deps.Twitch.GetRewardsByChannelID(ctx, channelID)
 			return nil, result, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "manage_rewards", Description: "Create, update, or delete a Twitch custom reward."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "manage_rewards", Description: "Create, update, or delete a Twitch custom reward."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input manageRewardInput) (*modelsdk.CallToolResult, any, error) {
 			result, err := h.deps.Twitch.ManageReward(ctx, channelID, twitchservice.ManageRewardInput{
 				Action: input.Action, ID: input.ID, Title: input.Title, Prompt: input.Prompt,
@@ -103,12 +103,12 @@ func (h *Handler) addEngagementTools(s *modelsdk.Server, requestScope scope) {
 			return nil, result, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_giveaways", Description: "List giveaways for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_giveaways", Description: "List giveaways for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.Giveaways.GiveawaysGetMany(ctx, channelID)
 			return nil, map[string]any{"giveaways": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_giveaway", Description: "Create a keyword or online-chatters giveaway."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "create_giveaway", Description: "Create a keyword or online-chatters giveaway."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input createGiveawayInput) (*modelsdk.CallToolResult, any, error) {
 			item, err := h.deps.Giveaways.Create(ctx, giveaways.CreateInput{
 				ChannelID: channelID, CreatedByUserID: requestScope.ActorID,
@@ -120,12 +120,12 @@ func (h *Handler) addEngagementTools(s *modelsdk.Server, requestScope scope) {
 			return nil, item, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_greetings", Description: "List channel greetings."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_greetings", Description: "List channel greetings."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.Greetings.GetManyByChannelID(ctx, channelID)
 			return nil, map[string]any{"greetings": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_greeting", Description: "Update a channel greeting by UUID."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_greeting", Description: "Update a channel greeting by UUID."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateGreetingInput) (*modelsdk.CallToolResult, any, error) {
 			id, err := parseID(input.ID)
 			if err != nil {
@@ -135,14 +135,14 @@ func (h *Handler) addEngagementTools(s *modelsdk.Server, requestScope scope) {
 			return nil, item, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_notifications", Description: "List global and channel-owner notifications."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_notifications", Description: "List global and channel-owner notifications."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			owner := h.notificationOwnerID(requestScope)
 			var items []model.Notifications
 			err := h.deps.Gorm.WithContext(ctx).Where(`"userId" = ? OR "userId" IS NULL`, owner).Order(`"createdAt" DESC`).Find(&items).Error
 			return nil, map[string]any{"notifications": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_notification", Description: "Get one global or channel-owner notification by ID."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_notification", Description: "Get one global or channel-owner notification by ID."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
 			owner := h.notificationOwnerID(requestScope)
 			var item model.Notifications
@@ -150,12 +150,12 @@ func (h *Handler) addEngagementTools(s *modelsdk.Server, requestScope scope) {
 			return nil, item, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_alerts", Description: "List channel alerts and their command/reward/greeting/keyword bindings."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_alerts", Description: "List channel alerts and their command/reward/greeting/keyword bindings."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.Alerts.GetManyByChannelID(ctx, channelID)
 			return nil, map[string]any{"alerts": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "manage_alerts", Description: "Create, update, or delete a channel alert."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "manage_alerts", Description: "Create, update, or delete a channel alert."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input manageAlertInput) (*modelsdk.CallToolResult, any, error) {
 			switch input.Action {
 			case "create":

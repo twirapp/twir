@@ -48,7 +48,7 @@ func (h *Handler) setLegacyIntegrationEnabled(ctx context.Context, channelID, se
 
 func (h *Handler) addIntegrationTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_integration_status", Description: "Get connection status and safe profile/settings data for all supported integrations."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_integration_status", Description: "Get connection status and safe profile/settings data for all supported integrations."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			discord, discordErr := h.deps.Discord.GetData(ctx, channelID)
 			spotify, spotifyErr := h.deps.Spotify.GetSpotifyData(ctx, channelID)
@@ -70,7 +70,7 @@ func (h *Handler) addIntegrationTools(s *modelsdk.Server, requestScope scope) {
 			}, nil
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "toggle_integration", Description: "Enable/connect or disable/disconnect an integration. OAuth integrations return an authorization URL when enabling."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "toggle_integration", Description: "Enable/connect or disable/disconnect an integration. OAuth integrations return an authorization URL when enabling."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input toggleIntegrationInput) (*modelsdk.CallToolResult, any, error) {
 			if input.Enabled {
 				switch input.Integration {
