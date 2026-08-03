@@ -21,6 +21,8 @@ func TestToolAccessScopesAllowsOnlyListAndGetToolsWithReadScope(t *testing.T) {
 		{name: "allows list tool", tool: "list_commands", allow: true},
 		{name: "allows get tool", tool: "get_command", allow: true},
 		{name: "rejects sensitive get tool", tool: "get_secret", allow: false},
+		{name: "rejects write-required list tool", tool: "list_overlays", allow: false},
+		{name: "rejects write-required get tool", tool: "get_overlay", allow: false},
 		{name: "rejects create tool", tool: "create_command", allow: false},
 		{name: "rejects evaluation tool", tool: "evaluate_variable", allow: false},
 		{name: "rejects similarly named tool", tool: "listing_commands", allow: false},
@@ -50,6 +52,8 @@ func TestClassifyToolAccessMarksSensitiveToolsBeforeReadPrefix(t *testing.T) {
 		want toolAccessClassification
 	}{
 		{name: "sensitive get tool", tool: "get_secret", want: toolAccessClassificationSensitive},
+		{name: "write-required list tool", tool: "list_overlays", want: toolAccessClassificationWriteRequired},
+		{name: "write-required get tool", tool: "get_overlay", want: toolAccessClassificationWriteRequired},
 		{name: "read list tool", tool: "list_commands", want: toolAccessClassificationRead},
 		{name: "read get tool", tool: "get_command", want: toolAccessClassificationRead},
 		{name: "other tool", tool: "create_command", want: toolAccessClassificationOther},
@@ -69,7 +73,7 @@ func TestToolAccessScopesAllowsAllToolsWithWriteScope(t *testing.T) {
 	scopes := toolAccessScopes{toolAccessScopeWrite: {}}
 
 	// When / Then
-	for _, name := range []string{"list_commands", "get_command", "create_command", "evaluate_variable"} {
+	for _, name := range []string{"list_commands", "get_command", "create_command", "evaluate_variable", "list_overlays", "get_overlay"} {
 		if !scopes.allowsTool(name) {
 			t.Fatalf("write scope did not allow %q", name)
 		}
@@ -89,13 +93,15 @@ func TestNewServerListsOnlyReadToolsWithReadScope(t *testing.T) {
 			t.Fatalf("read scope exposed write tool %q", name)
 		}
 	}
-	for _, name := range []string{"list_commands", "get_command"} {
+	for _, name := range []string{"list_commands", "get_command", "get_integration_status"} {
 		if _, ok := tools[name]; !ok {
 			t.Fatalf("read scope did not expose %q", name)
 		}
 	}
-	if _, ok := tools["get_secret"]; ok {
-		t.Fatal("read scope exposed get_secret")
+	for _, name := range []string{"get_secret", "list_overlays", "get_overlay"} {
+		if _, ok := tools[name]; ok {
+			t.Fatalf("read scope exposed %q", name)
+		}
 	}
 	for _, name := range []string{"create_command", "evaluate_variable"} {
 		if _, ok := tools[name]; ok {
@@ -127,8 +133,10 @@ func TestNewServerListsCompleteSurfaceWithWriteScope(t *testing.T) {
 			t.Fatalf("full scope omitted %q", name)
 		}
 	}
-	if _, ok := fullTools["get_secret"]; !ok {
-		t.Fatal("full scope omitted get_secret")
+	for _, name := range []string{"get_secret", "list_overlays", "get_overlay"} {
+		if _, ok := fullTools[name]; !ok {
+			t.Fatalf("full scope omitted %q", name)
+		}
 	}
 }
 

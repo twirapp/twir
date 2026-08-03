@@ -19,13 +19,19 @@ type toolAccessScopes map[toolAccessScope]struct{}
 type toolAccessClassification string
 
 const (
-	toolAccessClassificationSensitive toolAccessClassification = "sensitive"
-	toolAccessClassificationRead      toolAccessClassification = "read"
-	toolAccessClassificationOther     toolAccessClassification = "other"
+	toolAccessClassificationSensitive     toolAccessClassification = "sensitive"
+	toolAccessClassificationWriteRequired toolAccessClassification = "write-required"
+	toolAccessClassificationRead          toolAccessClassification = "read"
+	toolAccessClassificationOther         toolAccessClassification = "other"
 )
 
 var sensitiveToolNames = map[string]struct{}{
 	"get_secret": {},
+}
+
+var writeRequiredToolNames = map[string]struct{}{
+	"get_overlay":   {},
+	"list_overlays": {},
 }
 
 func fullToolAccessScopes() toolAccessScopes {
@@ -64,6 +70,9 @@ func (scopes toolAccessScopes) allowsTool(name string) bool {
 func classifyToolAccess(name string) toolAccessClassification {
 	if _, ok := sensitiveToolNames[name]; ok {
 		return toolAccessClassificationSensitive
+	}
+	if _, ok := writeRequiredToolNames[name]; ok {
+		return toolAccessClassificationWriteRequired
 	}
 	if strings.HasPrefix(name, "list_") || strings.HasPrefix(name, "get_") {
 		return toolAccessClassificationRead
