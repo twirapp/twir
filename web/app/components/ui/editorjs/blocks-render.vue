@@ -31,7 +31,33 @@ watch(() => props.data, () => {
 
 			<div v-if="block.type === 'delimiter'" class="border-2 border-b-border my-2" />
 
-			<img v-if="block.type === 'image'" :src="block.data.url" />
+			<figure
+				v-if="block.type === 'image'"
+				class="my-3 w-fit max-w-full overflow-hidden rounded-lg border bg-muted/30 shadow-sm sm:max-w-2xl"
+			>
+				<a
+					:href="block.data.url"
+					:aria-label="block.data.caption || 'Open image in a new tab'"
+					class="group block"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<img
+						:src="block.data.url"
+						:alt="block.data.caption || ''"
+						class="block h-auto max-h-96 w-auto max-w-full object-contain transition-opacity group-hover:opacity-90"
+						loading="lazy"
+						decoding="async"
+					>
+				</a>
+				<figcaption
+					v-if="block.data.caption"
+					class="truncate border-t px-3 py-2 text-xs text-muted-foreground"
+					:title="block.data.caption"
+				>
+					{{ block.data.caption }}
+				</figcaption>
+			</figure>
 		</template>
 	</div>
 </template>
