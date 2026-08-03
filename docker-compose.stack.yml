@@ -60,7 +60,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.labels.databases != true
+          - node.hostname == traefik-1
       labels:
         - "traefik.enable=true"
         - "traefik.swarm.network=traefik-public"

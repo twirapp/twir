@@ -105,6 +105,8 @@ The provisioned `Twir Live Overview` dashboard is stored at
 `configs/uptrace/grafana/dashboards/twir-overview.json`. The streamer opens it over the attachable
 `twir` overlay network using `http://twir_grafana:3000`, so it does not depend on Cloudflare or
 public DNS. The stack-qualified service name avoids the legacy `grafana` alias from another stack.
+Grafana is pinned to `traefik-1` because `grafana-data` is a node-local volume; moving the task to
+another node would create a separate SQLite database and a different set of users/sessions.
 
 Docker Swarm configs are immutable. When changing an existing datasource or entrypoint config,
 create a new key such as `uptrace_grafana_datasource_v3`, point the service at it, and deploy. Do
