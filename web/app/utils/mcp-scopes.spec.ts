@@ -8,7 +8,6 @@ import {
 	mcpRequestedScopeSchema,
 	mcpScopeGroupSchema,
 	mcpScopeTokenSchema,
-	mcpScopeCatalogResponseSchema,
 } from './mcp-scopes.ts'
 
 function groupedScope(group: string, actions: ('read' | 'edit')[] = ['read', 'edit']) {
@@ -61,24 +60,6 @@ describe('MCP scope model', () => {
 		expect(mcpRequestedScopeSchema.safeParse(groupedScope('commands', ['read', 'edit'])).success).toBe(
 			true,
 		)
-	})
-
-	it('accepts backend-shaped catalogs with unknown groups and any count, while rejecting duplicates', () => {
-		expect(
-			mcpScopeCatalogResponseSchema.safeParse({
-				scopes: [
-					groupedScope('commands', ['read']),
-					groupedScope('future_scope', ['read', 'edit']),
-					groupedScope('another_scope', ['read']),
-				],
-			}).success,
-		).toBe(true)
-		expect(
-			mcpScopeCatalogResponseSchema.safeParse({
-				scopes: [groupedScope('commands', ['read']), groupedScope('commands', ['edit'])],
-			}).success,
-		).toBe(false)
-		expect(mcpScopeCatalogResponseSchema.safeParse({ scopes: [] }).success).toBe(true)
 	})
 
 	it('rejects malformed approved scope tokens and empty approvals', () => {

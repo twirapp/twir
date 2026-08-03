@@ -61,24 +61,6 @@ export const mcpRequestedScopesSchema = z
 
 export type McpRequestedScopes = z.infer<typeof mcpRequestedScopesSchema>
 
-export const mcpScopeCatalogResponseSchema = z.object({
-	scopes: z.array(mcpRequestedScopeSchema).superRefine((scopes, context) => {
-		const seenGroups = new Set<McpScopeGroup>()
-		for (const [index, scope] of scopes.entries()) {
-			if (seenGroups.has(scope.group)) {
-				context.addIssue({
-					code: 'custom',
-					message: 'scope groups must be unique',
-					path: [index, 'group'],
-				})
-			}
-			seenGroups.add(scope.group)
-		}
-	}),
-})
-
-export type McpScopeCatalogResponse = z.infer<typeof mcpScopeCatalogResponseSchema>
-
 export const mcpApprovedScopesSchema = z
 	.array(mcpScopeTokenSchema)
 	.min(1)

@@ -127,9 +127,9 @@
         "step2": "Restart Codex and complete the OAuth sign-in when prompted."
       },
       "opencode": {
-        "description": "Add a remote server with OAuth discovery enabled.",
-        "step1": "Merge the generated object into your opencode.json configuration.",
-        "step2": "Restart OpenCode and complete the OAuth sign-in when prompted."
+        "description": "Add Twir as a remote MCP server and authenticate it with OpenCode.",
+        "step1": "Run the generated command in your terminal.",
+        "step2": "Run the authentication command to complete the OAuth sign-in."
       },
       "cursor": {
         "description": "Add Twir as a remote MCP server. Cursor discovers OAuth automatically.",
@@ -176,12 +176,6 @@
         "token": "Exchange or refresh tokens",
         "revoke": "Revoke an access or refresh token"
       },
-      "scopesTitle": "Scopes",
-      "scopesDescription": "Each scope group grants a separate set of MCP tools. The catalog below is served by the backend and always reflects what your client can request.",
-      "scopesLoading": "Loading the scope catalog...",
-      "scopesUnavailable": "The scope catalog could not be loaded. Your client will still discover the available scopes during the OAuth flow.",
-      "scopesEditIncludesRead": "Granting edit access always includes read access for the same group.",
-      "scopesLegacyAliases": "The legacy read and write scope aliases are still accepted for compatibility, but they are no longer advertised.",
       "tokenLifetimes": "Access tokens expire after 1 hour. Refresh tokens expire after 30 days and rotate on every refresh. Consent requires permission to manage bot settings.",
       "authTitle": "Re-run the OAuth flow",
       "authDescription": "Ask your client to authenticate again if the token expired or you want to switch access level.",

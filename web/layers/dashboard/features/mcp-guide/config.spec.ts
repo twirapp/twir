@@ -17,17 +17,11 @@ describe('createMcpClientGuides', () => {
 			config: `[mcp_servers.twir]\nurl = ${JSON.stringify(endpoint)}`,
 			authCommand: 'codex mcp login twir',
 		})
-		expect(JSON.parse(opencode.config)).toEqual({
-			mcp: {
-				twir: {
-					type: 'remote',
-					url: endpoint,
-					oauth: {},
-					enabled: true,
-				},
-			},
-		})
+		expect(opencode.config).toBe(
+			`opencode mcp add twir --url ${endpoint}\nopencode mcp auth twir`,
+		)
 		expect(opencode.authCommand).toBe('opencode mcp auth twir')
+		expect(opencode.fileName).toBeUndefined()
 		expect(JSON.parse(cursor.config)).toEqual({
 			mcpServers: {
 				twir: { url: endpoint },

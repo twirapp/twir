@@ -56,17 +56,7 @@ export function createMcpClientGuides(endpoint: string): readonly [
 				'mcpGuide.clients.opencode.step2',
 			],
 			docsUrl: 'https://opencode.ai/docs/mcp-servers/',
-			fileName: 'opencode.json',
-			config: JSON.stringify({
-				mcp: {
-					twir: {
-						type: 'remote',
-						url: endpoint,
-						oauth: {},
-						enabled: true,
-					},
-				},
-			}, null, 2),
+			config: `opencode mcp add twir --url ${endpoint}\nopencode mcp auth twir`,
 			authCommand: 'opencode mcp auth twir',
 		},
 		{

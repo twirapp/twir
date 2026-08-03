@@ -8,9 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-import { createMcpGuideApi, type McpGuideScope } from './api.js'
 import { createMcpClientGuides, createMcpOAuthGuide } from './config.js'
-import McpGuideScopes from './mcp-guide-scopes.vue'
 
 const { t } = useI18n()
 const requestUrl = useRequestURL()
@@ -18,30 +16,6 @@ const requestUrl = useRequestURL()
 const endpoint = computed(() => `${requestUrl.origin}/api/mcp`)
 const guides = computed(() => createMcpClientGuides(endpoint.value))
 const oauth = computed(() => createMcpOAuthGuide(requestUrl.origin))
-
-const mcpGuideApi = createMcpGuideApi($fetch)
-const scopesState = ref<'loading' | 'ready' | 'error'>('loading')
-const scopeGroups = ref<readonly McpGuideScope[]>([])
-
-async function loadScopesCatalog(): Promise<void> {
-	const result = await mcpGuideApi.getScopesCatalog()
-
-	switch (result.kind) {
-		case 'success':
-			scopeGroups.value = result.scopes
-			scopesState.value = 'ready'
-			return
-		case 'error':
-			scopesState.value = 'error'
-			return
-		default:
-			return result satisfies never
-	}
-}
-
-onMounted(() => {
-	void loadScopesCatalog()
-})
 
 async function copy(value: string) {
 	try {
@@ -181,7 +155,7 @@ function copyGuide(id: string) {
 						</div>
 					</div>
 
-					<McpGuideScopes :state="scopesState" :scopes="scopeGroups" />
+					<p class="text-sm text-muted-foreground">{{ t('mcpGuide.oauth.tokenLifetimes') }}</p>
 
 					<div class="flex flex-col gap-3">
 						<div>

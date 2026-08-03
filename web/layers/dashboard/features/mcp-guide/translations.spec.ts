@@ -12,10 +12,22 @@ describe('MCP guide translations', () => {
 	})
 
 	it('keeps the OAuth flow section aligned between supported locales', () => {
-		expect(Object.keys(en.mcpGuide.oauth)).toEqual(Object.keys(ru.mcpGuide.oauth))
+		expect(Object.keys(en.mcpGuide.oauth)).toEqual([
+			'title',
+			'description',
+			'stepsTitle',
+			'steps',
+			'endpointsTitle',
+			'endpoints',
+			'tokenLifetimes',
+			'authTitle',
+			'authDescription',
+			'authHint',
+		])
+		expect(Object.keys(ru.mcpGuide.oauth)).toEqual(Object.keys(en.mcpGuide.oauth))
 		expect(Object.keys(en.mcpGuide.oauth.steps)).toEqual(Object.keys(ru.mcpGuide.oauth.steps))
 		expect(Object.keys(en.mcpGuide.oauth.endpoints)).toEqual(Object.keys(ru.mcpGuide.oauth.endpoints))
-		expect(en.mcpGuide.oauth).not.toHaveProperty('scopes')
-		expect(ru.mcpGuide.oauth).not.toHaveProperty('scopes')
+		expect(en.mcpGuide.oauth).toHaveProperty('tokenLifetimes')
+		expect(ru.mcpGuide.oauth).toHaveProperty('tokenLifetimes')
 	})
 })
