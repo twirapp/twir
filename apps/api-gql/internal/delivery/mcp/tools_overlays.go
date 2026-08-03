@@ -14,7 +14,7 @@ type getOverlayInput struct {
 
 func (h *Handler) addOverlayTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_overlays", Description: "List custom, TTS, dudes, Kappagen, and be-right-back overlay settings."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_overlays", Description: "List custom, TTS, dudes, Kappagen, and be-right-back overlay settings."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			custom, err := h.deps.CustomOverlays.GetManyByChannelID(ctx, channelID)
 			if err != nil {
@@ -39,7 +39,7 @@ func (h *Handler) addOverlayTools(s *modelsdk.Server, requestScope scope) {
 			return nil, map[string]any{"custom": custom, "tts": ttsSettings, "dudes": dudes, "kappagen": kappagenSettings, "beRightBack": brb}, nil
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_overlay", Description: "Get one overlay or singleton overlay settings by type."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_overlay", Description: "Get one overlay or singleton overlay settings by type."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input getOverlayInput) (*modelsdk.CallToolResult, any, error) {
 			switch input.Type {
 			case "custom":
