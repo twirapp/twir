@@ -31,6 +31,7 @@ export function useQueryNotifications() {
 					text
 					createdAt
 					editorJsJson
+					deleted
 				}
 			}
 		`),
@@ -39,7 +40,22 @@ export function useQueryNotifications() {
 	watch(newNotifications, (newNotification) => {
 		if (!allNotifications.value || !newNotification)
 			return
-		allNotifications.value.notificationsByUser.unshift(newNotification.newNotification)
+
+		const notification = newNotification.newNotification
+		const existingIndex = allNotifications.value.notificationsByUser.findIndex(
+			(item) => item.id === notification.id,
+		)
+		if (notification.deleted) {
+			if (existingIndex !== -1)
+				allNotifications.value.notificationsByUser.splice(existingIndex, 1)
+			return
+		}
+
+		if (existingIndex !== -1) {
+			allNotifications.value.notificationsByUser.splice(existingIndex, 1, notification)
+			return
+		}
+		allNotifications.value.notificationsByUser.unshift(notification)
 	})
 
 	const notifications = computed(() => {
