@@ -1,33 +1,12 @@
-import { ContentType } from '@twir/api/openapi'
 import type { CustomDomainOutputDto, ErrorModel, LinkBannedUserAgentDto, LinkOutputDto, ShortUrlProfileParamsSortByEnum } from '@twir/api/openapi'
 
 import { useOapi } from '~/composables/use-oapi'
-
-export type BannedUserAgentDto = {
-	id: string
-	pattern: string
-	description: string | null
-	created_at: string
-}
-
-type BannedUserAgentsListResponseDto = {
-	$schema?: string
-	data: BannedUserAgentDto[]
-}
-
-type BannedUserAgentResponseDto = {
-	$schema?: string
-	data: BannedUserAgentDto
-}
 
 export const useUrlShortener = defineStore('url-shortener', () => {
 	const api = useOapi()
 	const latestShortenedUrls = ref<LinkOutputDto[]>([])
 	const customDomain = ref<CustomDomainOutputDto | null>(null)
 	const isCustomDomainLoading = ref(false)
-
-	const globalBannedUserAgents = ref<BannedUserAgentDto[]>([])
-	const isGlobalBannedUserAgentsLoading = ref(false)
 
 	const perLinkBannedUserAgents = ref<Map<string, LinkBannedUserAgentDto[]>>(new Map())
 	const isPerLinkBannedUserAgentsLoading = ref<Map<string, boolean>>(new Map())
@@ -162,56 +141,6 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		}
 	}
 
-	async function fetchGlobalBannedUserAgents() {
-		isGlobalBannedUserAgentsLoading.value = true
-		try {
-			const response = await api.http.request<BannedUserAgentsListResponseDto, ErrorModel>({
-				path: '/v1/short-links/banned-user-agents',
-				method: 'GET',
-				format: 'json',
-			})
-			globalBannedUserAgents.value = response.data.data
-			return { data: response.data, error: response.error }
-		} catch (e) {
-			return { data: null, error: await parseApiError(e) }
-		} finally {
-			isGlobalBannedUserAgentsLoading.value = false
-		}
-	}
-
-	async function createGlobalBannedUserAgent(opts: { pattern: string; description?: string | null }) {
-		try {
-			const response = await api.http.request<BannedUserAgentResponseDto, ErrorModel>({
-				path: '/v1/short-links/banned-user-agents',
-				method: 'POST',
-				type: ContentType.Json,
-				format: 'json',
-				body: {
-					pattern: opts.pattern,
-					description: opts.description,
-				},
-			})
-			globalBannedUserAgents.value = [...globalBannedUserAgents.value, response.data.data]
-			return { data: response.data, error: response.error }
-		} catch (e) {
-			return { data: null, error: await parseApiError(e) }
-		}
-	}
-
-	async function deleteGlobalBannedUserAgent(id: string) {
-		try {
-			const response = await api.http.request<Record<string, never>, ErrorModel>({
-				path: `/v1/short-links/banned-user-agents/${id}`,
-				method: 'DELETE',
-				format: 'json',
-			})
-			globalBannedUserAgents.value = globalBannedUserAgents.value.filter((item) => item.id !== id)
-			return { data: response.data, error: response.error }
-		} catch (e) {
-			return { data: null, error: await parseApiError(e) }
-		}
-	}
-
 	async function fetchPerLinkBannedUserAgents(linkId: string) {
 		isPerLinkBannedUserAgentsLoading.value.set(linkId, true)
 		try {
@@ -260,11 +189,6 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		deleteCustomDomain,
 		customDomain,
 		isCustomDomainLoading,
-		globalBannedUserAgents,
-		isGlobalBannedUserAgentsLoading,
-		fetchGlobalBannedUserAgents,
-		createGlobalBannedUserAgent,
-		deleteGlobalBannedUserAgent,
 		perLinkBannedUserAgents,
 		isPerLinkBannedUserAgentsLoading,
 		fetchPerLinkBannedUserAgents,

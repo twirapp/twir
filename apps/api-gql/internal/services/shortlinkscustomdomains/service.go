@@ -66,7 +66,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (shortlinkscust
 		return shortlinkscustomdomain.Nil, err
 	}
 
-	plan, err := s.plansRepository.GetByChannelID(ctx, input.UserID)
+	plan, err := s.plansRepository.GetByUserID(ctx, input.UserID)
 	if err != nil {
 		return shortlinkscustomdomain.Nil, fmt.Errorf("failed to get plan: %w", err)
 	}

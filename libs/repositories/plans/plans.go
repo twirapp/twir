@@ -10,5 +10,6 @@ type Repository interface {
 	GetByID(ctx context.Context, id string) (plan.Plan, error)
 	GetByName(ctx context.Context, name string) (plan.Plan, error)
 	GetByChannelID(ctx context.Context, channelID string) (plan.Plan, error)
+	GetByUserID(ctx context.Context, userID string) (plan.Plan, error)
 	GetManyByIDs(ctx context.Context, ids []string) ([]plan.Plan, error)
 }
