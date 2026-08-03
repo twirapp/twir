@@ -10,6 +10,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/entities/platform"
 	timersentity "github.com/twirapp/twir/libs/entities/timers"
@@ -174,6 +175,13 @@ func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, erro
 	return count, nil
 }
 
+func platformsOrEmpty(platforms []platform.Platform) pgtype.FlatArray[platform.Platform] {
+	if platforms == nil {
+		return pgtype.FlatArray[platform.Platform]{}
+	}
+	return platforms
+}
+
 func (c *Pgx) Create(ctx context.Context, data timers.CreateInput) (timersentity.Timer, error) {
 	createQuery := `
 INSERT INTO "channels_timers" ("channelId", "name", "enabled", "offline_enabled", "online_enabled", "timeInterval", "messageInterval", platforms)
@@ -203,7 +211,7 @@ RETURNING "id", "text", "isAnnounce", "timerId", count, "announce_color"
 		data.OnlineEnabled,
 		data.TimeInterval,
 		data.MessageInterval,
-		data.Platforms,
+		platformsOrEmpty(data.Platforms),
 	).Scan(
 		&newTimer.ID,
 		&newTimer.ChannelID,
@@ -361,7 +369,7 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 	}
 
 	if data.Platforms != nil {
-		updateBuilder = updateBuilder.Set("platforms", data.Platforms)
+		updateBuilder = updateBuilder.Set("platforms", pgtype.FlatArray[platform.Platform](data.Platforms))
 	}
 
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})

@@ -3,14 +3,13 @@ package pgx
 import (
 	"context"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/entities/platform"
 	channelspgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
-	"github.com/twirapp/twir/libs/repositories/timers"
+	"github.com/twirapp/twir/libs/repositories/keywords"
 )
 
 const integrationDatabaseURLEnv = "TWIR_REPOSITORY_TEST_DATABASE_URL"
@@ -57,27 +56,6 @@ func newIntegrationPool(t *testing.T, ctx context.Context) *pgxpool.Pool {
 	return pool
 }
 
-func TestBuildGetManyQuerySelectsPlatformsBeforeResponses(t *testing.T) {
-	query, _, err := buildGetManyQuery(timers.GetManyInput{})
-	if err != nil {
-		t.Fatalf("build query: %v", err)
-	}
-
-	platformsIndex := strings.Index(query, "t.platforms")
-	if platformsIndex == -1 {
-		t.Fatalf("query does not select t.platforms: %s", query)
-	}
-
-	responsesIndex := strings.Index(query, "AS responses")
-	if responsesIndex == -1 {
-		t.Fatalf("query does not select responses JSON: %s", query)
-	}
-
-	if platformsIndex > responsesIndex {
-		t.Fatalf("t.platforms must be selected before responses JSON to match GetMany scan order: %s", query)
-	}
-}
-
 func TestPgx_Create_defaults_nil_platforms_to_empty_array(t *testing.T) {
 	// Given
 	ctx := context.Background()
@@ -91,17 +69,13 @@ func TestPgx_Create_defaults_nil_platforms_to_empty_array(t *testing.T) {
 			t.Errorf("delete test channel: %v", err)
 		}
 	})
-	repository := New(Opts{Pgx: pool})
+	repository := New(Opts{PgxPool: pool})
 
 	// When
-	created, err := repository.Create(ctx, timers.CreateInput{
-		ChannelID:       channel.ID.String(),
-		Name:            "integration-test-timer",
-		Enabled:         true,
-		OfflineEnabled:  true,
-		OnlineEnabled:   true,
-		TimeInterval:    60,
-		MessageInterval: 1,
+	created, err := repository.Create(ctx, keywords.CreateInput{
+		ChannelID: channel.ID,
+		Text:      "integration-test-keyword",
+		Enabled:   true,
 	})
 
 	// Then
@@ -109,11 +83,55 @@ func TestPgx_Create_defaults_nil_platforms_to_empty_array(t *testing.T) {
 		t.Fatalf("Create() error = %v", err)
 	}
 	t.Cleanup(func() {
-		if _, err := pool.Exec(ctx, `DELETE FROM channels_timers WHERE id = $1`, created.ID); err != nil {
-			t.Errorf("delete test timer: %v", err)
+		if err := repository.Delete(ctx, created.ID); err != nil {
+			t.Errorf("delete test keyword: %v", err)
 		}
 	})
 	if created.Platforms == nil || len(created.Platforms) != 0 {
 		t.Fatalf("platforms = %v, want empty array", created.Platforms)
+	}
+}
+
+func TestPgx_Update_preserves_platforms_when_input_omits_them(t *testing.T) {
+	// Given
+	ctx := context.Background()
+	pool := newIntegrationPool(t, ctx)
+	channel, err := channelspgx.New(channelspgx.Opts{PgxPool: pool}).Create(ctx)
+	if err != nil {
+		t.Fatalf("create test channel: %v", err)
+	}
+	t.Cleanup(func() {
+		if _, err := pool.Exec(ctx, `DELETE FROM channels WHERE id = $1`, channel.ID); err != nil {
+			t.Errorf("delete test channel: %v", err)
+		}
+	})
+	repository := New(Opts{PgxPool: pool})
+	created, err := repository.Create(ctx, keywords.CreateInput{
+		ChannelID: channel.ID,
+		Text:      "integration-test-keyword",
+		Enabled:   true,
+	})
+	if err != nil {
+		t.Fatalf("Create() error = %v", err)
+	}
+	t.Cleanup(func() {
+		if err := repository.Delete(ctx, created.ID); err != nil {
+			t.Errorf("delete test keyword: %v", err)
+		}
+	})
+	newText := "integration-test-keyword-updated"
+
+	// When
+	updated, err := repository.Update(ctx, created.ID, keywords.UpdateInput{Text: &newText})
+
+	// Then
+	if err != nil {
+		t.Fatalf("Update() error = %v", err)
+	}
+	if updated.Platforms == nil || len(updated.Platforms) != 0 {
+		t.Fatalf("platforms = %v, want preserved empty array", updated.Platforms)
+	}
+	if updated.Text != newText {
+		t.Fatalf("text = %q, want %q", updated.Text, newText)
 	}
 }

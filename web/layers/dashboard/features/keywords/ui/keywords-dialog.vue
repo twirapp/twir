@@ -87,7 +87,6 @@ function resetFormValue() {
 watch(
 	() => props.keyword,
 	(k) => {
-		console.log(k)
 		if (!k) return
 
 		keywordsForm.setValues(structuredClone(toRaw(k)))
@@ -133,7 +132,7 @@ const save = keywordsForm.handleSubmit(async (values) => {
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
 		</DialogTrigger>
-		<DialogOrSheet class="sm:max-w-[424px]">
+		<DialogOrSheet class="sm:max-w-lg">
 			<DialogHeader>
 				<DialogTitle>
 					{{ keyword ? t('keywords.edit') : t('keywords.create') }}
