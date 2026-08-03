@@ -4,8 +4,10 @@ import en from '../../../../i18n/locales/en.json'
 import ru from '../../../../i18n/locales/ru.json'
 
 describe('MCP guide translations', () => {
-	it('uses locale files loaded by Nuxt i18n', () => {
-		expect(en.mcpGuide.title.loc.source).toBe('AI access')
-		expect(ru.mcpGuide.title.loc.source).toBe('Доступ для ИИ')
+	it('keeps the OAuth client set aligned between supported locales', () => {
+		expect(Object.keys(en.mcpGuide.clients)).toEqual(['claude', 'codex', 'opencode', 'cursor'])
+		expect(Object.keys(ru.mcpGuide.clients)).toEqual(['claude', 'codex', 'opencode', 'cursor'])
+		expect(en.mcpGuide.credentials).not.toHaveProperty('apiKey')
+		expect(ru.mcpGuide.credentials).not.toHaveProperty('apiKey')
 	})
 })

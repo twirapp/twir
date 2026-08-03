@@ -1,25 +1,22 @@
-export type McpClientId = 'claude' | 'pi' | 'codex' | 'opencode'
+export type McpClientId = 'claude' | 'codex' | 'opencode' | 'cursor'
 
 export interface McpClientGuide {
-	id: McpClientId
-	name: string
-	icon: string
-	descriptionKey: string
-	stepKeys: string[]
-	docsUrl: string
-	fileName?: string
-	config: string
+	readonly id: McpClientId
+	readonly name: string
+	readonly icon: string
+	readonly descriptionKey: string
+	readonly stepKeys: readonly string[]
+	readonly docsUrl: string
+	readonly fileName?: string
+	readonly config: string
 }
 
-export function createMcpClientGuides(endpoint: string, apiKey: string): McpClientGuide[] {
-	const server = {
-		type: 'http',
-		url: endpoint,
-		headers: {
-			'Api-Key': apiKey,
-		},
-	}
-
+export function createMcpClientGuides(endpoint: string): readonly [
+	McpClientGuide,
+	McpClientGuide,
+	McpClientGuide,
+	McpClientGuide,
+] {
 	return [
 		{
 			id: 'claude',
@@ -31,21 +28,7 @@ export function createMcpClientGuides(endpoint: string, apiKey: string): McpClie
 				'mcpGuide.clients.claude.step2',
 			],
 			docsUrl: 'https://code.claude.com/docs/en/mcp',
-			config: `claude mcp add-json --scope user twir '${JSON.stringify(server)}'`,
-		},
-		{
-			id: 'pi',
-			name: 'Pi',
-			icon: 'lucide:pi',
-			descriptionKey: 'mcpGuide.clients.pi.description',
-			stepKeys: [
-				'mcpGuide.clients.pi.step1',
-				'mcpGuide.clients.pi.step2',
-				'mcpGuide.clients.pi.step3',
-			],
-			docsUrl: 'https://github.com/nicobailon/pi-mcp-adapter',
-			fileName: '~/.config/mcp/mcp.json',
-			config: JSON.stringify({ mcpServers: { twir: { url: endpoint, headers: server.headers } } }, null, 2),
+			config: `claude mcp add --transport http --scope user twir ${JSON.stringify(endpoint)}`,
 		},
 		{
 			id: 'codex',
@@ -56,9 +39,9 @@ export function createMcpClientGuides(endpoint: string, apiKey: string): McpClie
 				'mcpGuide.clients.codex.step1',
 				'mcpGuide.clients.codex.step2',
 			],
-			docsUrl: 'https://learn.chatgpt.com/docs/extend/mcp.md',
+			docsUrl: 'https://developers.openai.com/codex/mcp',
 			fileName: '~/.codex/config.toml',
-			config: `[mcp_servers.twir]\nurl = ${JSON.stringify(endpoint)}\nhttp_headers = { "Api-Key" = ${JSON.stringify(apiKey)} }`,
+			config: `[mcp_servers.twir]\nurl = ${JSON.stringify(endpoint)}`,
 		},
 		{
 			id: 'opencode',
@@ -76,12 +59,24 @@ export function createMcpClientGuides(endpoint: string, apiKey: string): McpClie
 					twir: {
 						type: 'remote',
 						url: endpoint,
-						oauth: false,
-						headers: server.headers,
+						oauth: {},
 						enabled: true,
 					},
 				},
 			}, null, 2),
+		},
+		{
+			id: 'cursor',
+			name: 'Cursor',
+			icon: 'lucide:mouse-pointer-2',
+			descriptionKey: 'mcpGuide.clients.cursor.description',
+			stepKeys: [
+				'mcpGuide.clients.cursor.step1',
+				'mcpGuide.clients.cursor.step2',
+			],
+			docsUrl: 'https://cursor.com/docs/mcp',
+			fileName: '~/.cursor/mcp.json',
+			config: JSON.stringify({ mcpServers: { twir: { url: endpoint } } }, null, 2),
 		},
 	]
 }

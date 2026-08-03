@@ -3,17 +3,32 @@ import { describe, expect, it } from 'vitest'
 import { createMcpClientGuides } from './config.js'
 
 describe('createMcpClientGuides', () => {
-	it('creates ready-to-use configurations for every supported client', () => {
+	it('creates URL-only OAuth configurations for every supported client', () => {
 		const endpoint = 'https://twir.example/api/mcp'
-		const apiKey = 'channel-api-key'
-		const guides = createMcpClientGuides(endpoint, apiKey)
+		const [claude, codex, opencode, cursor] = createMcpClientGuides(endpoint)
 
-		expect(guides.map((guide) => guide.id)).toEqual(['claude', 'pi', 'codex', 'opencode'])
-		for (const guide of guides) {
-			expect(guide.config).toContain(endpoint)
-			expect(guide.config).toContain(apiKey)
-		}
-		expect(guides.find((guide) => guide.id === 'opencode')?.config).toContain('"oauth": false')
-		expect(guides.find((guide) => guide.id === 'codex')?.config).toContain('http_headers')
+		expect(claude).toMatchObject({
+			id: 'claude',
+			config: `claude mcp add --transport http --scope user twir ${JSON.stringify(endpoint)}`,
+		})
+		expect(codex).toMatchObject({
+			id: 'codex',
+			config: `[mcp_servers.twir]\nurl = ${JSON.stringify(endpoint)}`,
+		})
+		expect(JSON.parse(opencode.config)).toEqual({
+			mcp: {
+				twir: {
+					type: 'remote',
+					url: endpoint,
+					oauth: {},
+					enabled: true,
+				},
+			},
+		})
+		expect(JSON.parse(cursor.config)).toEqual({
+			mcpServers: {
+				twir: { url: endpoint },
+			},
+		})
 	})
 })
