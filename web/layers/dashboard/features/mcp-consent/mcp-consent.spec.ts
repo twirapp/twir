@@ -58,10 +58,6 @@ function mountPage() {
 			plugins: [i18n],
 			stubs: {
 				NuxtIcon: { props: ['name'], template: '<i :data-icon="name" />' },
-				PageLayout: {
-					template:
-						'<div><slot name="title" /><slot name="title-footer" /><slot name="content" /></div>',
-				},
 			},
 		},
 	})

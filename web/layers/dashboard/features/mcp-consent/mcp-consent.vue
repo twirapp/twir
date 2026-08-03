@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+import { Accordion } from '@/components/ui/accordion'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,14 +20,10 @@ import {
 
 import { type McpConsent, type McpConsentDecision, createMcpConsentApi } from './api.js'
 import McpConsentState from './mcp-consent-state.vue'
+import { useMcpConsentScopeSelection } from './mcp-consent-selection.js'
 import ScopeGroupToggle from './scope-group-toggle.vue'
 
 type ConsentScreenState = 'loading' | 'ready' | 'expired' | 'permission' | 'network'
-
-interface GroupSelection {
-	readonly read: boolean
-	readonly edit: boolean
-}
 
 const { t } = useI18n()
 const route = useRoute()
@@ -35,30 +31,30 @@ const mcpConsentApi = createMcpConsentApi($fetch)
 const attempt = computed(() => parseMcpConsentAttempt(route.query.attempt))
 const consent = ref<McpConsent | null>(null)
 const screenState = ref<ConsentScreenState>('loading')
-const selection = ref<Partial<Record<McpScopeGroup, GroupSelection>>>({})
-const showSelectionError = ref(false)
 const isSubmitting = ref(false)
 const hasCompleted = ref(false)
+const {
+	selection,
+	showSelectionError,
+	hasEditSelected,
+	initializeSelection,
+	setRead,
+	setEdit,
+	hasEveryRequestedActionSelected,
+	toggleAll,
+} = useMcpConsentScopeSelection()
 
 const selectedDashboardName = computed(() => consent.value?.channel_id ?? '')
 
 const isActionDisabled = computed(() => isSubmitting.value || hasCompleted.value)
 
-const hasEditSelected = computed(() =>
-	Object.values(selection.value).some((groupSelection) => groupSelection?.edit === true),
-)
+const allRequestedActionsSelected = computed(() => consent.value !== null && hasEveryRequestedActionSelected(consent.value.requested_scopes))
 
 function setScreenState(result: Awaited<ReturnType<typeof mcpConsentApi.getMcpConsent>>): void {
 	switch (result.kind) {
 		case 'success':
 			consent.value = result.data
-			selection.value = Object.fromEntries(
-				result.data.requested_scopes.map((scope) => [
-					scope.group,
-					{ read: true, edit: false },
-				]),
-			)
-			showSelectionError.value = false
+			initializeSelection(result.data.requested_scopes)
 			screenState.value = 'ready'
 			return
 		case 'expired':
@@ -82,18 +78,10 @@ async function loadConsent(): Promise<void> {
 	setScreenState(await mcpConsentApi.getMcpConsent(currentAttempt))
 }
 
-function setRead(group: McpScopeGroup, value: boolean): void {
-	selection.value[group] = value
-		? { read: true, edit: selection.value[group]?.edit === true }
-		: { read: false, edit: false }
-	showSelectionError.value = false
-}
+function toggleAllRequestedActions(): void {
+	if (consent.value === null || isActionDisabled.value) return
 
-function setEdit(group: McpScopeGroup, value: boolean): void {
-	selection.value[group] = value
-		? { read: true, edit: true }
-		: { read: selection.value[group]?.read === true, edit: false }
-	showSelectionError.value = false
+	toggleAll(consent.value.requested_scopes)
 }
 
 function buildApprovedScopes(currentConsent: McpConsent): McpApprovedScopes | null {
@@ -174,54 +162,72 @@ onMounted(() => {
 </script>
 
 <template>
-	<PageLayout>
-		<template #title>{{ t('mcpConsent.title') }}</template>
+	<div class="bg-background flex min-h-svh w-full">
+		<div class="m-auto flex w-full max-w-lg flex-col gap-6 px-4 py-8">
+			<div class="flex flex-col gap-1 text-center">
+				<h1 class="text-xl font-semibold">{{ t('mcpConsent.title') }}</h1>
+				<p class="text-muted-foreground text-sm">{{ t('mcpConsent.description') }}</p>
+			</div>
 
-		<template #title-footer>
-			<p class="text-muted-foreground">{{ t('mcpConsent.description') }}</p>
-		</template>
+			<McpConsentState
+				v-if="screenState !== 'ready'"
+				:state="screenState"
+				@retry="loadConsent"
+			/>
 
-		<template #content>
-			<div class="mx-auto flex w-full max-w-2xl flex-col gap-6">
-				<McpConsentState
-					v-if="screenState !== 'ready'"
-					:state="screenState"
-					@retry="loadConsent"
-				/>
+			<form v-else-if="consent" class="flex flex-col" @submit.prevent="approve">
+				<Card>
+					<CardHeader>
+						<CardTitle>{{
+							t('mcpConsent.requestTitle', { client: consent.client.name })
+						}}</CardTitle>
+						<CardDescription>{{ t('mcpConsent.requestDescription') }}</CardDescription>
+					</CardHeader>
+					<CardContent class="flex flex-col gap-4">
+						<dl class="flex flex-col divide-y rounded-lg border text-sm">
+							<div class="flex items-center justify-between gap-3 px-3 py-2">
+								<dt class="text-muted-foreground shrink-0">{{ t('mcpConsent.client') }}</dt>
+								<dd class="truncate font-medium">{{ consent.client.name }}</dd>
+							</div>
+							<div class="flex items-center justify-between gap-3 px-3 py-2">
+								<dt class="text-muted-foreground shrink-0">{{ t('mcpConsent.dashboard') }}</dt>
+								<dd class="truncate font-medium">{{ selectedDashboardName }}</dd>
+							</div>
+							<div
+								v-if="consent.client.uri"
+								class="flex items-center justify-between gap-3 px-3 py-2"
+							>
+								<dt class="text-muted-foreground shrink-0">{{ t('mcpConsent.clientUri') }}</dt>
+								<dd class="truncate font-medium">{{ consent.client.uri }}</dd>
+							</div>
+						</dl>
 
-				<form v-else-if="consent" class="flex flex-col" @submit.prevent="approve">
-					<Card>
-						<CardHeader>
-							<CardTitle>{{
-								t('mcpConsent.requestTitle', { client: consent.client.name })
-							}}</CardTitle>
-							<CardDescription>{{ t('mcpConsent.requestDescription') }}</CardDescription>
-						</CardHeader>
-						<CardContent class="flex flex-col gap-6">
-							<dl class="grid gap-4 text-sm sm:grid-cols-2">
-								<div class="flex flex-col gap-1">
-									<dt class="text-muted-foreground">{{ t('mcpConsent.client') }}</dt>
-									<dd class="font-medium">{{ consent.client.name }}</dd>
-								</div>
-								<div class="flex flex-col gap-1">
-									<dt class="text-muted-foreground">{{ t('mcpConsent.dashboard') }}</dt>
-									<dd class="font-medium">{{ selectedDashboardName }}</dd>
-								</div>
-								<div v-if="consent.client.uri" class="flex flex-col gap-1 sm:col-span-2">
-									<dt class="text-muted-foreground">{{ t('mcpConsent.clientUri') }}</dt>
-									<dd class="break-all font-medium">{{ consent.client.uri }}</dd>
-								</div>
-							</dl>
-
-							<fieldset class="flex flex-col gap-3">
-								<legend class="sr-only">{{ t('mcpConsent.scopes.title') }}</legend>
+						<fieldset class="flex flex-col gap-3">
+							<legend class="sr-only">{{ t('mcpConsent.scopes.title') }}</legend>
+							<div class="flex flex-wrap items-start justify-between gap-3">
 								<div class="flex flex-col gap-1">
 									<h3 class="text-sm font-medium">{{ t('mcpConsent.scopes.title') }}</h3>
 									<p class="text-muted-foreground text-sm">
 										{{ t('mcpConsent.scopes.description') }}
 									</p>
 								</div>
+								<Button
+									:disabled="isActionDisabled"
+									type="button"
+									variant="outline"
+									size="sm"
+									data-test="bulk-selection-button"
+									@click="toggleAllRequestedActions"
+								>
+									{{
+										allRequestedActionsSelected
+											? t('mcpConsent.scopes.deselectAll')
+											: t('mcpConsent.scopes.selectAll')
+									}}
+								</Button>
+							</div>
 
+							<Accordion type="multiple" class="w-full rounded-lg border px-3">
 								<ScopeGroupToggle
 									v-for="scope in consent.requested_scopes"
 									:key="scope.group"
@@ -232,46 +238,46 @@ onMounted(() => {
 									@update:read="setRead(scope.group, $event)"
 									@update:edit="setEdit(scope.group, $event)"
 								/>
+							</Accordion>
 
-								<p
-									v-if="showSelectionError"
-									class="text-destructive text-sm"
-									role="alert"
-									data-test="selection-error"
-								>
-									{{ t('mcpConsent.scopes.emptySelection') }}
-								</p>
-							</fieldset>
-
-							<Alert v-if="hasEditSelected" variant="destructive" data-test="edit-warning">
-								<Icon name="lucide:shield-alert" />
-								<AlertTitle>{{ t('mcpConsent.writeWarning.title') }}</AlertTitle>
-								<AlertDescription>{{ t('mcpConsent.writeWarning.description') }}</AlertDescription>
-							</Alert>
-						</CardContent>
-						<CardFooter class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-							<Button
-								:disabled="isActionDisabled"
-								type="button"
-								variant="outline"
-								data-test="deny-button"
-								@click="deny"
+							<p
+								v-if="showSelectionError"
+								class="text-destructive text-sm"
+								role="alert"
+								data-test="selection-error"
 							>
-								{{ t('mcpConsent.deny') }}
-							</Button>
-							<Button :disabled="isActionDisabled" type="submit" data-test="approve-button">
-								<Icon
-									v-if="isSubmitting"
-									name="lucide:loader-circle"
-									class="animate-spin"
-									data-icon="inline-start"
-								/>
-								{{ t('mcpConsent.approve') }}
-							</Button>
-						</CardFooter>
-					</Card>
-				</form>
-			</div>
-		</template>
-	</PageLayout>
+								{{ t('mcpConsent.scopes.emptySelection') }}
+							</p>
+						</fieldset>
+
+						<Alert v-if="hasEditSelected" variant="destructive" data-test="edit-warning">
+							<Icon name="lucide:shield-alert" />
+							<AlertTitle>{{ t('mcpConsent.writeWarning.title') }}</AlertTitle>
+							<AlertDescription>{{ t('mcpConsent.writeWarning.description') }}</AlertDescription>
+						</Alert>
+					</CardContent>
+					<CardFooter class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+						<Button
+							:disabled="isActionDisabled"
+							type="button"
+							variant="outline"
+							data-test="deny-button"
+							@click="deny"
+						>
+							{{ t('mcpConsent.deny') }}
+						</Button>
+						<Button :disabled="isActionDisabled" type="submit" data-test="approve-button">
+							<Icon
+								v-if="isSubmitting"
+								name="lucide:loader-circle"
+								class="animate-spin"
+								data-icon="inline-start"
+							/>
+							{{ t('mcpConsent.approve') }}
+						</Button>
+					</CardFooter>
+				</Card>
+			</form>
+		</div>
+	</div>
 </template>

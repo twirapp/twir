@@ -199,10 +199,13 @@
     "scopes": {
       "title": "Requested permissions",
       "description": "Choose what this client may do in each area. Read access is on by default; enable edit only where the client truly needs it.",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
       "read": "Read",
       "edit": "Edit",
       "editIncludesRead": "Edit access includes read access.",
-      "emptySelection": "Select at least one permission before approving."
+      "emptySelection": "Select at least one permission before approving.",
+      "none": "None"
     },
     "writeWarning": {
       "title": "Sensitive access enabled",

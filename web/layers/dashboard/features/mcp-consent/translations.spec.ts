@@ -11,10 +11,13 @@ describe('MCP consent translations', () => {
 		expect(Object.keys(en.mcpConsent.scopes)).toEqual([
 			'title',
 			'description',
+			'selectAll',
+			'deselectAll',
 			'read',
 			'edit',
 			'editIncludesRead',
 			'emptySelection',
+			'none',
 		])
 		expect(Object.keys(ru.mcpConsent.scopes)).toEqual(Object.keys(en.mcpConsent.scopes))
 		expect(Object.keys(en.mcpConsent.writeWarning)).toEqual(['title', 'description'])
