@@ -10,6 +10,15 @@
         reverse_proxy 127.0.0.1:3009
     }
 
+    # MCP OAuth discovery (served by api-gql at root paths, keep prefix)
+    handle /.well-known/oauth* {
+        reverse_proxy 127.0.0.1:3009
+    }
+
+    handle /.well-known/openid-configuration {
+        reverse_proxy 127.0.0.1:3009
+    }
+
     # Socket proxy
     handle_path /socket/* {
     		# rewrite * /socket{path}

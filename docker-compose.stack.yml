@@ -360,6 +360,13 @@ services:
         - "traefik.http.routers.twir-api.priority=20"
         - "traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api"
 
+        # MCP OAuth discovery for twir.app (api-gql serves root .well-known paths)
+        - "traefik.http.routers.twir-oauth-discovery.rule=Host(`twir.app`) && (PathPrefix(`/.well-known/oauth`) || Path(`/.well-known/openid-configuration`))"
+        - "traefik.http.routers.twir-oauth-discovery.entrypoints=web"
+        - "traefik.http.routers.twir-oauth-discovery.service=twir-api-gql"
+        - "traefik.http.routers.twir-oauth-discovery.middlewares=gzip,rate-limit"
+        - "traefik.http.routers.twir-oauth-discovery.priority=20"
+
         # /s shortener route for twir.app
         - "traefik.http.routers.twir-shortener.rule=Host(`twir.app`) && PathPrefix(`/s/`)"
         - "traefik.http.routers.twir-shortener.entrypoints=web"
