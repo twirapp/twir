@@ -33,4 +33,34 @@ describe('BlocksRender', () => {
 		expect(image.classes()).toContain('max-h-96')
 		expect(wrapper.get('figcaption').text()).toBe('image.png')
 	})
+
+	it('lays images out in a wrapping row while text spans the full width', () => {
+		const wrapper = mount(BlocksRender, {
+			props: {
+				data: {
+					blocks: [
+						{
+							id: 'text-1',
+							type: 'paragraph',
+							data: { text: 'Release notes' },
+						},
+						{
+							id: 'image-1',
+							type: 'image',
+							data: { url: 'https://cdn.example/one.png' },
+						},
+						{
+							id: 'image-2',
+							type: 'image',
+							data: { url: 'https://cdn.example/two.png' },
+						},
+					],
+				},
+			},
+		})
+
+		expect(wrapper.get('div').classes()).toContain('flex-wrap')
+		expect(wrapper.get('p').classes()).toContain('w-full')
+		expect(wrapper.findAll('figure')).toHaveLength(2)
+	})
 })

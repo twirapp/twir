@@ -18,9 +18,9 @@ watch(() => props.data, () => {
 </script>
 
 <template>
-	<div v-if="renderValue" class="flex flex-col">
+	<div v-if="renderValue" class="flex flex-row flex-wrap items-start gap-3">
 		<template v-for="block in renderValue.blocks" :key="block.id">
-			<p v-if="block.type === 'paragraph'" v-html="block.data.text" />
+			<p v-if="block.type === 'paragraph'" class="w-full" v-html="block.data.text" />
 			<ul v-if="block.type === 'list'" class="ul">
 				<li v-for="item of block.data.items" :key="item" v-html="item" />
 			</ul>
@@ -29,11 +29,11 @@ watch(() => props.data, () => {
 
 			<blockquote v-if="block.type === 'quote'" class="bq" v-html="block.data.text" />
 
-			<div v-if="block.type === 'delimiter'" class="border-2 border-b-border my-2" />
+			<div v-if="block.type === 'delimiter'" class="my-2 w-full border-2 border-b-border" />
 
 			<figure
 				v-if="block.type === 'image'"
-				class="my-3 w-fit max-w-full overflow-hidden rounded-lg border bg-muted/30 shadow-sm sm:max-w-2xl"
+				class="w-fit max-w-full flex-none overflow-hidden rounded-lg border bg-muted/30 shadow-sm sm:max-w-2xl"
 			>
 				<a
 					:href="block.data.url"
