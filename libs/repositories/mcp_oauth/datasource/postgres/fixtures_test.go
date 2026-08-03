@@ -87,7 +87,7 @@ func newIntegrationFixture(t *testing.T, ctx context.Context) (*Pgx, integration
 		t.Fatalf("create test client: %v", err)
 	}
 	t.Cleanup(func() {
-		if _, err := pool.Exec(ctx, `DELETE FROM mcp_oauth_clients WHERE client_id = $1`, clientID); err != nil {
+		if _, err := pool.Exec(ctx, `DELETE FROM oauth_clients WHERE client_id = $1`, clientID); err != nil {
 			t.Errorf("delete test client: %v", err)
 		}
 	})

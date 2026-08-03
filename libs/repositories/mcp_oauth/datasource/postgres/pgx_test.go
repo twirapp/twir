@@ -88,7 +88,7 @@ func TestPgx_RotateRefreshToken_revokes_the_family_on_reuse(t *testing.T) {
 	}
 
 	var activeTokens int
-	if err := fixture.pool.QueryRow(ctx, `SELECT COUNT(*) FROM mcp_oauth_tokens WHERE family_id = $1 AND revoked_at IS NULL`, initial.FamilyID).Scan(&activeTokens); err != nil {
+	if err := fixture.pool.QueryRow(ctx, `SELECT COUNT(*) FROM oauth_tokens WHERE family_id = $1 AND revoked_at IS NULL`, initial.FamilyID).Scan(&activeTokens); err != nil {
 		t.Fatalf("count active family tokens: %v", err)
 	}
 	if activeTokens != 0 {
@@ -223,7 +223,7 @@ func assertFamilyRevoked(t *testing.T, ctx context.Context, fixture integrationF
 	t.Helper()
 
 	var activeTokens int
-	if err := fixture.pool.QueryRow(ctx, `SELECT COUNT(*) FROM mcp_oauth_tokens WHERE family_id = $1 AND revoked_at IS NULL`, familyID).Scan(&activeTokens); err != nil {
+	if err := fixture.pool.QueryRow(ctx, `SELECT COUNT(*) FROM oauth_tokens WHERE family_id = $1 AND revoked_at IS NULL`, familyID).Scan(&activeTokens); err != nil {
 		t.Fatalf("count revoked family tokens: %v", err)
 	}
 	if activeTokens != 0 {

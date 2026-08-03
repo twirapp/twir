@@ -19,7 +19,7 @@ func (repository *Pgx) GetTokenByRefreshTokenHash(ctx context.Context, hash enti
 }
 
 func (repository *Pgx) getTokenByHash(ctx context.Context, column string, hash entity.CredentialHash, notFound error) (entity.Token, error) {
-	model, err := scanToken(repository.pool.QueryRow(ctx, `SELECT `+tokenColumns+` FROM mcp_oauth_tokens WHERE `+column+` = $1`, hash.Bytes()))
+	model, err := scanToken(repository.pool.QueryRow(ctx, `SELECT `+tokenColumns+` FROM oauth_tokens WHERE `+column+` = $1`, hash.Bytes()))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return entity.NilToken, notFound

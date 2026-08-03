@@ -16,7 +16,7 @@ func (repository *Pgx) CreateAuthorizationCode(
 ) (entity.AuthorizationCode, error) {
 	model, err := scanAuthorizationCode(repository.pool.QueryRow(
 		ctx,
-		`INSERT INTO mcp_oauth_authorization_codes (
+		`INSERT INTO oauth_authorization_codes (
 			code_hash, client_id, channel_id, user_id, redirect_uri, pkce_challenge,
 			scopes, resource, expires_at
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -48,7 +48,7 @@ func (repository *Pgx) ConsumeAuthorizationCode(
 ) (entity.AuthorizationCode, error) {
 	model, err := scanAuthorizationCode(repository.pool.QueryRow(
 		ctx,
-		`DELETE FROM mcp_oauth_authorization_codes
+		`DELETE FROM oauth_authorization_codes
 		WHERE code_hash = $1 AND expires_at > NOW()
 		RETURNING `+authorizationCodeColumns,
 		codeHash.Bytes(),

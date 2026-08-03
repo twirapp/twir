@@ -75,7 +75,7 @@ func (repository *Pgx) RotateRefreshToken(
 
 	updated, err := tx.Exec(
 		ctx,
-		`UPDATE mcp_oauth_tokens
+		`UPDATE oauth_tokens
 		SET replaced_by_id = $2, updated_at = NOW()
 		WHERE id = $1
 			AND revoked_at IS NULL
@@ -88,7 +88,7 @@ func (repository *Pgx) RotateRefreshToken(
 		return entity.NilToken, fmt.Errorf("mark MCP OAuth refresh token rotated: %w", err)
 	}
 	if updated.RowsAffected() == 0 {
-		if _, err := tx.Exec(ctx, `DELETE FROM mcp_oauth_tokens WHERE id = $1`, nextTokenID); err != nil {
+		if _, err := tx.Exec(ctx, `DELETE FROM oauth_tokens WHERE id = $1`, nextTokenID); err != nil {
 			return entity.NilToken, fmt.Errorf("delete unrotated MCP OAuth token: %w", err)
 		}
 		return repository.revokeReusedFamily(ctx, tx, current.FamilyID)
@@ -116,7 +116,7 @@ func (repository *Pgx) RevokeToken(ctx context.Context, clientID string, tokenHa
 	err = tx.QueryRow(
 		ctx,
 		`SELECT family_id
-		FROM mcp_oauth_tokens
+		FROM oauth_tokens
 		WHERE client_id = $1 AND (access_token_hash = $2 OR refresh_token_hash = $3)
 		LIMIT 1
 		FOR UPDATE`,
@@ -158,7 +158,7 @@ func findRefreshTokenForUpdate(
 	return scanToken(tx.QueryRow(
 		ctx,
 		`SELECT `+tokenColumns+`
-		FROM mcp_oauth_tokens
+		FROM oauth_tokens
 		WHERE refresh_token_hash = $1
 		FOR UPDATE`,
 		refreshTokenHash.Bytes(),
@@ -172,7 +172,7 @@ func insertInitialToken(
 ) (tokenModel, error) {
 	return scanToken(pool.QueryRow(
 		ctx,
-		`INSERT INTO mcp_oauth_tokens (
+		`INSERT INTO oauth_tokens (
 			client_id, channel_id, user_id, access_token_hash, refresh_token_hash,
 			scopes, resource, access_expires_at, refresh_expires_at
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -198,7 +198,7 @@ func insertRotatedToken(
 ) (tokenModel, error) {
 	return scanToken(tx.QueryRow(
 		ctx,
-		`INSERT INTO mcp_oauth_tokens (
+		`INSERT INTO oauth_tokens (
 			id, family_id, client_id, channel_id, user_id, access_token_hash,
 			refresh_token_hash, scopes, resource, access_expires_at, refresh_expires_at
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
@@ -220,7 +220,7 @@ func insertRotatedToken(
 func revokeFamilyInTx(ctx context.Context, tx pgx.Tx, familyID uuid.UUID) error {
 	if _, err := tx.Exec(
 		ctx,
-		`UPDATE mcp_oauth_tokens
+		`UPDATE oauth_tokens
 		SET revoked_at = NOW(), updated_at = NOW()
 		WHERE family_id = $1 AND revoked_at IS NULL`,
 		familyID,

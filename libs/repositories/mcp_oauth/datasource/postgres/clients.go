@@ -14,7 +14,7 @@ import (
 func (repository *Pgx) CreateClient(ctx context.Context, input mcpOAuth.CreateClientInput) (entity.Client, error) {
 	model, err := scanClient(repository.pool.QueryRow(
 		ctx,
-		`INSERT INTO mcp_oauth_clients (
+		`INSERT INTO oauth_clients (
 			client_id, metadata, redirect_uris, grant_types, response_types,
 			token_endpoint_auth_method, scopes
 		) VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -40,7 +40,7 @@ func (repository *Pgx) CreateClient(ctx context.Context, input mcpOAuth.CreateCl
 func (repository *Pgx) GetClient(ctx context.Context, clientID string) (entity.Client, error) {
 	model, err := scanClient(repository.pool.QueryRow(
 		ctx,
-		`SELECT `+clientColumns+` FROM mcp_oauth_clients WHERE client_id = $1`,
+		`SELECT `+clientColumns+` FROM oauth_clients WHERE client_id = $1`,
 		clientID,
 	))
 	if err != nil {
@@ -72,5 +72,5 @@ func scanClient(row pgx.Row) (clientModel, error) {
 
 func isClientIDConflict(err error) bool {
 	var databaseError *pgconn.PgError
-	return errors.As(err, &databaseError) && databaseError.ConstraintName == "mcp_oauth_clients_client_id_key"
+	return errors.As(err, &databaseError) && databaseError.ConstraintName == "oauth_clients_client_id_key"
 }
