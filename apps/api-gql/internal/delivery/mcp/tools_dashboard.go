@@ -44,23 +44,23 @@ type communityUserInfoInput struct {
 func (h *Handler) addDashboardTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_stats", Description: "Get stream and channel dashboard statistics."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_stats", Description: "Get stream and channel dashboard statistics."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 		stats, err := h.deps.Dashboard.GetDashboardStats(ctx, channelID)
 		return nil, stats, err
 	})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_bot_settings", Description: "Get bot status and enabled state for every connected channel platform."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_bot_settings", Description: "Get bot status and enabled state for every connected channel platform."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 		statuses, err := h.deps.Dashboard.GetBotStatuses(ctx, channelID)
 		return nil, map[string]any{"platforms": statuses}, err
 	})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_bot_settings", Description: "Enable or disable the bot on one connected channel platform."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateBotSettingsInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_bot_settings", Description: "Enable or disable the bot on one connected channel platform."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateBotSettingsInput) (*modelsdk.CallToolResult, any, error) {
 		platform := platformentity.Platform(strings.ToLower(input.Platform))
 		binding, err := h.deps.ChannelPlatforms.SetEnabled(ctx, requestScope.Channel.ID, platform, input.Enabled)
 		return nil, binding, err
 	})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_community_users", Description: "List users who have channel statistics, with optional search and pagination."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input listCommunityUsersInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_community_users", Description: "List users who have channel statistics, with optional search and pagination."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input listCommunityUsersInput) (*modelsdk.CallToolResult, any, error) {
 		if input.Page < 0 {
 			input.Page = 0
 		}
@@ -98,12 +98,12 @@ func (h *Handler) addDashboardTools(s *modelsdk.Server, requestScope scope) {
 		return nil, map[string]any{"users": items, "total": total}, nil
 	})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_user_info", Description: "Get channel-specific statistics and follow state for a community user."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input communityUserInfoInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_user_info", Description: "Get channel-specific statistics and follow state for a community user."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input communityUserInfoInput) (*modelsdk.CallToolResult, any, error) {
 		info, err := h.deps.Users.GetChannelUserInfo(ctx, users.ChannelUserInfoInput{ChannelID: channelID, UserID: input.UserID})
 		return nil, info, err
 	})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_scheduled_vips", Description: "List VIP removals scheduled for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_scheduled_vips", Description: "List VIP removals scheduled for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 		items, err := h.deps.ScheduledVIPs.GetScheduledVips(ctx, channelID)
 		return nil, map[string]any{"scheduledVips": items}, err
 	})
