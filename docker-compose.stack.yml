@@ -164,7 +164,7 @@ services:
     environment:
       GF_PLUGINS_PREINSTALL_SYNC: grafana-clickhouse-datasource@4.20.0
     configs:
-      - source: uptrace_grafana_datasource
+      - source: uptrace_grafana_datasource_v2
         target: /etc/grafana/provisioning/datasources/uptrace.yml
       - source: uptrace_grafana_dashboard_provider
         target: /etc/grafana/provisioning/dashboards/twir.yml
@@ -172,7 +172,7 @@ services:
         target: /etc/grafana/dashboards/twir-overview.json
       - source: uptrace_grafana_config
         target: /etc/grafana/grafana.ini
-      - source: uptrace_grafana_entrypoint
+      - source: uptrace_grafana_entrypoint_v2
         target: /etc/grafana/entrypoint.sh
     secrets:
       - grafana_admin_password
@@ -1260,7 +1260,7 @@ configs:
     file: ./configs/uptrace/clickhouse/90-disable-system-logs.xml
   uptrace_clickhouse_ttl:
     file: ./configs/uptrace/apply-ttl.sql
-  uptrace_grafana_datasource:
+  uptrace_grafana_datasource_v2:
     file: ./configs/uptrace/grafana/datasource.yml
   uptrace_grafana_dashboard_provider:
     file: ./configs/uptrace/grafana/dashboard-provider.yml
@@ -1268,7 +1268,7 @@ configs:
     file: ./configs/uptrace/grafana/dashboards/twir-overview.json
   uptrace_grafana_config:
     file: ./configs/uptrace/grafana/grafana.ini
-  uptrace_grafana_entrypoint:
+  uptrace_grafana_entrypoint_v2:
     file: ./configs/uptrace/grafana/entrypoint.sh
 
   pgdog_users_config:
