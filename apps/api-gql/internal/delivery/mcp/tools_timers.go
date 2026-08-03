@@ -63,17 +63,17 @@ func announceColor(value string) bots.AnnounceColor {
 }
 
 func (h *Handler) addTimerTools(s *modelsdk.Server, requestScope scope) {
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_timers", Description: "List all chat timers for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_timers", Description: "List all chat timers for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.Timers.GetAllByChannelID(ctx, requestScope.Channel.ID.String())
 			return nil, map[string]any{"timers": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_timer", Description: "Create a chat timer for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "create_timer", Description: "Create a chat timer for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input createTimerInput) (*modelsdk.CallToolResult, any, error) {
 			result, err := h.deps.Timers.Create(ctx, timers.CreateInput{ChannelID: requestScope.Channel.ID.String(), ActorID: requestScope.ActorID, Name: input.Name, Enabled: input.Enabled, OfflineEnabled: input.OfflineEnabled, OnlineEnabled: input.OnlineEnabled, TimeInterval: input.TimeInterval, MessageInterval: input.MessageInterval, Responses: timerResponses(input.Responses)})
 			return nil, result, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_timer", Description: "Update a chat timer by UUID."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_timer", Description: "Update a chat timer by UUID."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateTimerInput) (*modelsdk.CallToolResult, any, error) {
 			id, err := parseID(input.ID)
 			if err != nil {
@@ -82,7 +82,7 @@ func (h *Handler) addTimerTools(s *modelsdk.Server, requestScope scope) {
 			result, err := h.deps.Timers.Update(ctx, timers.UpdateInput{ID: id, ChannelID: requestScope.Channel.ID.String(), ActorID: requestScope.ActorID, Name: input.Name, Enabled: input.Enabled, OfflineEnabled: input.OfflineEnabled, OnlineEnabled: input.OnlineEnabled, TimeInterval: input.TimeInterval, MessageInterval: input.MessageInterval, Responses: timerResponses(input.Responses)})
 			return nil, result, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "delete_timer", Description: "Delete a chat timer by UUID."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "delete_timer", Description: "Delete a chat timer by UUID."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
 			id, err := parseID(input.ID)
 			if err != nil {

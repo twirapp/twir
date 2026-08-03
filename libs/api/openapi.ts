@@ -37,6 +37,19 @@ export interface AuthResponseDto {
   redirect_to: string;
 }
 
+export interface AuthorizationServerMetadataResponse {
+  authorization_endpoint: string;
+  code_challenge_methods_supported: string[];
+  grant_types_supported: string[];
+  issuer: string;
+  registration_endpoint: string;
+  response_types_supported: string[];
+  revocation_endpoint: string;
+  scopes_supported: string[];
+  token_endpoint: string;
+  token_endpoint_auth_methods_supported: string[];
+}
+
 export interface BadgeWithUsers {
   /** @format int64 */
   ffzSlot: number;
@@ -338,6 +351,19 @@ export interface CommandV2Dto {
   module: string;
   name: string;
   responses: KickCommandDtoResponse[];
+}
+
+export interface ConsentClientResponse {
+  id: string;
+  name: string;
+  uri?: string;
+}
+
+export interface ConsentScopeResponse {
+  actions: string[];
+  description: string;
+  group: string;
+  name: string;
 }
 
 export interface CountryStatsDto {
@@ -689,6 +715,13 @@ export interface ProfileResponseDto {
   total: number;
 }
 
+export interface ProtectedResourceMetadataResponse {
+  authorization_servers: string[];
+  bearer_methods_supported: string[];
+  resource: string;
+  scopes_supported: string[];
+}
+
 export interface ScheduledVipOutputDto {
   channel_id: string;
   /** @format date-time */
@@ -698,6 +731,17 @@ export interface ScheduledVipOutputDto {
   remove_at?: string | null;
   remove_type?: ScheduledVipOutputDtoRemoveTypeEnum;
   user_id: string;
+}
+
+export interface ScopeCatalogItem {
+  actions: string[];
+  description: string;
+  group: string;
+  name: string;
+}
+
+export interface ScopeCatalogResponse {
+  scopes: ScopeCatalogItem[];
 }
 
 export interface SeasonStruct {
@@ -1192,6 +1236,83 @@ export class Api<SecurityDataType extends unknown> {
     this.http = http;
   }
 
+  wellKnown = {
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthAuthorizationServer
+ * @summary OAuth authorization server metadata
+ * @request GET:/.well-known/oauth-authorization-server
+ * @response `200` `{
+    authorization_endpoint: string,
+    code_challenge_methods_supported: (string)[],
+    grant_types_supported: (string)[],
+    issuer: string,
+    registration_endpoint: string,
+    response_types_supported: (string)[],
+    revocation_endpoint: string,
+    scopes_supported: (string)[],
+    token_endpoint: string,
+    token_endpoint_auth_methods_supported: (string)[],
+
+}` OAuth authorization server metadata
+ * @response `default` `ErrorModel` Error
+ */
+    mcpOauthAuthorizationServer: (params: RequestParams = {}) =>
+      this.http.request<
+        {
+          authorization_endpoint: string;
+          code_challenge_methods_supported: string[];
+          grant_types_supported: string[];
+          issuer: string;
+          registration_endpoint: string;
+          response_types_supported: string[];
+          revocation_endpoint: string;
+          scopes_supported: string[];
+          token_endpoint: string;
+          token_endpoint_auth_methods_supported: string[];
+        },
+        any
+      >({
+        path: `/.well-known/oauth-authorization-server`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthProtectedResource
+ * @summary OAuth protected resource metadata
+ * @request GET:/.well-known/oauth-protected-resource
+ * @response `200` `{
+    authorization_servers: (string)[],
+    bearer_methods_supported: (string)[],
+    resource: string,
+    scopes_supported: (string)[],
+
+}` OAuth protected resource metadata
+ * @response `default` `ErrorModel` Error
+ */
+    mcpOauthProtectedResource: (params: RequestParams = {}) =>
+      this.http.request<
+        {
+          authorization_servers: string[];
+          bearer_methods_supported: string[];
+          resource: string;
+          scopes_supported: string[];
+        },
+        any
+      >({
+        path: `/.well-known/oauth-protected-resource`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
   auth = {
     /**
      * No description
@@ -1372,6 +1493,448 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
+  oauth = {
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthAuthorize
+ * @summary Begin OAuth authorization
+ * @request GET:/oauth/authorize
+ * @response `302` `void` Redirect to consent or the validated client callback
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid request
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Unauthorized
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthAuthorize: (
+      query?: {
+        client_id?: string;
+        redirect_uri?: string;
+        response_type?: string;
+        scope?: string;
+        state?: string;
+        resource?: string;
+        code_challenge?: string;
+        code_challenge_method?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        any,
+        void | {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/authorize`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthConsent
+ * @summary Get OAuth consent details
+ * @request GET:/oauth/consent
+ * @response `200` `{
+    channel_id: string,
+    client: ConsentClientResponse,
+    csrf_token: string,
+    requested_scopes: (ConsentScopeResponse)[],
+
+}` Consent details
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Unauthorized
+ * @response `403` `{
+    error: string,
+    error_description: string,
+
+}` Forbidden
+ * @response `404` `{
+    error: string,
+    error_description: string,
+
+}` Not found
+ * @response `410` `{
+    error: string,
+    error_description: string,
+
+}` Gone
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthConsent: (
+      query?: {
+        attempt?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        {
+          channel_id: string;
+          client: ConsentClientResponse;
+          csrf_token: string;
+          requested_scopes: ConsentScopeResponse[];
+        },
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/consent`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthConsentSubmit
+ * @summary Submit OAuth consent
+ * @request POST:/oauth/consent
+ * @response `200` `{
+    redirect_to: string,
+
+}` Authorization callback redirect
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid consent
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Unauthorized
+ * @response `403` `{
+    error: string,
+    error_description: string,
+
+}` Forbidden
+ * @response `404` `{
+    error: string,
+    error_description: string,
+
+}` Not found
+ * @response `409` `{
+    error: string,
+    error_description: string,
+
+}` Conflict
+ * @response `410` `{
+    error: string,
+    error_description: string,
+
+}` Gone
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthConsentSubmit: (
+      data: {
+        approved_scopes?: string[];
+        attempt: string;
+        channel_id: string;
+        csrf_token: string;
+        decision: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        {
+          redirect_to: string;
+        },
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/consent`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name McpOauthRegisterOptions
+     * @request OPTIONS:/oauth/register
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    mcpOauthRegisterOptions: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/oauth/register`,
+        method: "OPTIONS",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthRegister
+ * @summary Register an OAuth client
+ * @request POST:/oauth/register
+ * @response `201` `{
+    client_id: string,
+  \** @format int64 *\
+    client_id_issued_at: number,
+    client_name: string,
+    client_uri?: string,
+    grant_types: (string)[],
+    redirect_uris: (string)[],
+    response_types: (string)[],
+    scope: string,
+    token_endpoint_auth_method: string,
+
+}` Registered client
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid client metadata
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthRegister: (
+      data: {
+        client_name: string;
+        client_uri?: string;
+        grant_types: string[];
+        redirect_uris: string[];
+        response_types: string[];
+        scope: string;
+        token_endpoint_auth_method: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        {
+          client_id: string;
+          /** @format int64 */
+          client_id_issued_at: number;
+          client_name: string;
+          client_uri?: string;
+          grant_types: string[];
+          redirect_uris: string[];
+          response_types: string[];
+          scope: string;
+          token_endpoint_auth_method: string;
+        },
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/register`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name McpOauthRevokeOptions
+     * @request OPTIONS:/oauth/revoke
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    mcpOauthRevokeOptions: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/oauth/revoke`,
+        method: "OPTIONS",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthRevoke
+ * @summary Revoke an OAuth token
+ * @request POST:/oauth/revoke
+ * @response `200` `void` Token revoked
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid revoke request
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Invalid client
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthRevoke: (
+      data: {
+        client_id: string;
+        token: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        void,
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/revoke`,
+        method: "POST",
+        body: data,
+        type: ContentType.UrlEncoded,
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthScopes
+ * @summary OAuth scope catalog
+ * @request GET:/oauth/scopes
+ * @response `200` `{
+    scopes: (ScopeCatalogItem)[],
+
+}` OAuth scope catalog
+ * @response `default` `ErrorModel` Error
+ */
+    mcpOauthScopes: (params: RequestParams = {}) =>
+      this.http.request<
+        {
+          scopes: ScopeCatalogItem[];
+        },
+        any
+      >({
+        path: `/oauth/scopes`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name McpOauthTokenOptions
+     * @request OPTIONS:/oauth/token
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    mcpOauthTokenOptions: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/oauth/token`,
+        method: "OPTIONS",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthToken
+ * @summary Issue OAuth tokens
+ * @request POST:/oauth/token
+ * @response `200` `{
+    access_token: string,
+  \** @format int64 *\
+    expires_in: number,
+    refresh_token: string,
+    scope: string,
+    token_type: string,
+
+}` OAuth token set
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid token request
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Invalid client
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthToken: (
+      data: {
+        client_id: string;
+        code: string;
+        code_verifier: string;
+        grant_type: string;
+        redirect_uri: string;
+        refresh_token: string;
+        resource?: string;
+        scope: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        {
+          access_token: string;
+          /** @format int64 */
+          expires_in: number;
+          refresh_token: string;
+          scope: string;
+          token_type: string;
+        },
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/token`,
+        method: "POST",
+        body: data,
+        type: ContentType.UrlEncoded,
         format: "json",
         ...params,
       }),

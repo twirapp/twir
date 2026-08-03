@@ -6,7 +6,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
@@ -117,7 +119,7 @@ RETURNING id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt"
 		input.IsRegular,
 		input.Usages,
 		rolesIds,
-		input.Platforms,
+		platformsOrEmpty(input.Platforms),
 	)
 	if err != nil {
 		return model.Nil, err
@@ -160,7 +162,9 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input keywords.UpdateInp
 		updateBuilder = updateBuilder.Set("roles_ids", rolesIds)
 	}
 
-	updateBuilder = updateBuilder.Set("platforms", input.Platforms)
+	if input.Platforms != nil {
+		updateBuilder = updateBuilder.Set("platforms", pgtype.FlatArray[platform.Platform](input.Platforms))
+	}
 
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})
 
@@ -169,12 +173,19 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input keywords.UpdateInp
 		return model.Nil, err
 	}
 
-	_, err = c.pool.Query(ctx, query, args...)
+	_, err = c.pool.Exec(ctx, query, args...)
 	if err != nil {
 		return model.Nil, err
 	}
 
 	return c.GetByID(ctx, id)
+}
+
+func platformsOrEmpty(platforms []platform.Platform) pgtype.FlatArray[platform.Platform] {
+	if platforms == nil {
+		return pgtype.FlatArray[platform.Platform]{}
+	}
+	return platforms
 }
 
 func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {

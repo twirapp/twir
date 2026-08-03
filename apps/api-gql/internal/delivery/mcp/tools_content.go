@@ -61,26 +61,26 @@ type evaluateVariableInput struct {
 
 func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_builtin_variables", Description: "List Twir built-in variables available for templates and SCRIPT source. In JavaScript, wrap expansions in quotes because Twir substitutes their raw text before execution, for example: const sender = \"$(sender.displayName)\"."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_builtin_variables", Description: "List Twir built-in variables available for templates and SCRIPT source. In JavaScript, wrap expansions in quotes because Twir substitutes their raw text before execution, for example: const sender = \"$(sender.displayName)\"."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 		items, err := h.deps.Variables.GetBuiltIn(ctx)
 		return nil, map[string]any{"variables": items, "scriptGuide": variableScriptGuide}, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_variables", Description: "List custom variables for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_variables", Description: "List custom variables for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 		items, err := h.deps.Variables.GetAll(ctx, channelID)
 		return nil, map[string]any{"variables": items}, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_variable", Description: "Get a custom variable by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_variable", Description: "Get a custom variable by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.Variables.GetByID(ctx, input.ID)
 		if err == nil && item.ChannelID != channelID {
 			return nil, nil, variables.ErrNotFound
 		}
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_variable", Description: "Create a channel custom variable. For SCRIPT variables, follow the server SCRIPT variable guide, always return a value, then verify it with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createVariableInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "create_variable", Description: "Create a channel custom variable. For SCRIPT variables, follow the server SCRIPT variable guide, always return a value, then verify it with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createVariableInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.Variables.Create(ctx, variables.CreateInput{ChannelID: channelID, ActorID: requestScope.ActorID, Name: input.Name, Description: input.Description, Type: entity.CustomVarType(input.Type), EvalValue: input.EvalValue, Response: input.Response, ScriptLanguage: input.ScriptLanguage})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "set_variable", Description: "Create a custom variable, or replace one when id is provided. For SCRIPT variables, follow the server SCRIPT variable guide and verify with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input setVariableInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "set_variable", Description: "Create a custom variable, or replace one when id is provided. For SCRIPT variables, follow the server SCRIPT variable guide and verify with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input setVariableInput) (*modelsdk.CallToolResult, any, error) {
 		if input.ID == nil {
 			item, err := h.deps.Variables.Create(ctx, variables.CreateInput{ChannelID: channelID, ActorID: requestScope.ActorID, Name: input.Name, Description: input.Description, Type: entity.CustomVarType(input.Type), EvalValue: input.EvalValue, Response: input.Response, ScriptLanguage: input.ScriptLanguage})
 			return nil, item, err
@@ -95,7 +95,7 @@ func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 		item, err := h.deps.Variables.Update(ctx, variables.UpdateInput{ID: id, ChannelID: channelID, ActorID: requestScope.ActorID, Name: &input.Name, Description: input.Description, Type: &variableType, EvalValue: &input.EvalValue, Response: &input.Response, ScriptLanguage: &language})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_variable", Description: "Update a channel custom variable by UUID. For SCRIPT variables, follow the server SCRIPT variable guide and verify with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateVariableInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_variable", Description: "Update a channel custom variable by UUID. For SCRIPT variables, follow the server SCRIPT variable guide and verify with evaluate_variable."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateVariableInput) (*modelsdk.CallToolResult, any, error) {
 		id, err := parseID(input.ID)
 		if err != nil {
 			return nil, nil, fmt.Errorf("invalid variable id: %w", err)
@@ -113,7 +113,7 @@ func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 		item, err := h.deps.Variables.Update(ctx, variables.UpdateInput{ID: id, ChannelID: channelID, ActorID: requestScope.ActorID, Name: input.Name, Description: input.Description, Type: variableType, EvalValue: input.EvalValue, Response: input.Response, ScriptLanguage: language})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "delete_variable", Description: "Delete a channel custom variable by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "delete_variable", Description: "Delete a channel custom variable by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
 		id, err := parseID(input.ID)
 		if err != nil {
 			return nil, nil, fmt.Errorf("invalid variable id: %w", err)
@@ -121,7 +121,7 @@ func (h *Handler) addVariableTools(s *modelsdk.Server, requestScope scope) {
 		err = h.deps.Variables.Delete(ctx, id, channelID, requestScope.ActorID)
 		return nil, map[string]bool{"deleted": err == nil}, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "evaluate_variable", Description: "Evaluate a variable using the current channel context. For SCRIPT variables containing sender/user-dependent built-ins, pass testAsUserName so those placeholders are expanded before execution."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input evaluateVariableInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "evaluate_variable", Description: "Evaluate a variable using the current channel context. For SCRIPT variables containing sender/user-dependent built-ins, pass testAsUserName so those placeholders are expanded before execution."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input evaluateVariableInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.Variables.GetByID(ctx, input.ID)
 		if err != nil {
 			return nil, nil, err
@@ -148,15 +148,15 @@ type updateQuoteInput struct {
 
 func (h *Handler) addQuoteTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_quotes", Description: "List quotes for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_quotes", Description: "List quotes for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 		items, err := h.deps.Quotes.GetAllByChannelID(ctx, channelID)
 		return nil, map[string]any{"quotes": items}, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_quote", Description: "Create a quote for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createQuoteInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "create_quote", Description: "Create a quote for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createQuoteInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.Quotes.Create(ctx, quotes.CreateInput{ChannelID: channelID, ActorID: requestScope.ActorID, Text: input.Text, CreatorName: input.CreatorName})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_quote", Description: "Update a quote by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateQuoteInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_quote", Description: "Update a quote by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateQuoteInput) (*modelsdk.CallToolResult, any, error) {
 		id, err := parseID(input.ID)
 		if err != nil {
 			return nil, nil, err
@@ -164,7 +164,7 @@ func (h *Handler) addQuoteTools(s *modelsdk.Server, requestScope scope) {
 		item, err := h.deps.Quotes.Update(ctx, quotes.UpdateInput{ID: id, ChannelID: channelID, ActorID: requestScope.ActorID, Text: &input.Text})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "delete_quote", Description: "Delete a quote by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "delete_quote", Description: "Delete a quote by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
 		id, err := parseID(input.ID)
 		if err != nil {
 			return nil, nil, err
@@ -194,15 +194,15 @@ type updateKeywordInput struct {
 
 func (h *Handler) addKeywordTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_keywords", Description: "List keyword triggers for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_keywords", Description: "List keyword triggers for this channel."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 		items, err := h.deps.Keywords.GetAllByChannelID(ctx, channelID)
 		return nil, map[string]any{"keywords": items}, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_keyword", Description: "Create a keyword trigger."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createKeywordInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "create_keyword", Description: "Create a keyword trigger."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input createKeywordInput) (*modelsdk.CallToolResult, any, error) {
 		item, err := h.deps.Keywords.Create(ctx, keywords.CreateInput{ChannelID: channelID, ActorID: requestScope.ActorID, Text: input.Text, Response: input.Response, Enabled: input.Enabled, Cooldown: input.Cooldown, IsReply: input.IsReply, IsRegular: input.IsRegular})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_keyword", Description: "Update a keyword trigger by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateKeywordInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_keyword", Description: "Update a keyword trigger by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateKeywordInput) (*modelsdk.CallToolResult, any, error) {
 		id, err := parseID(input.ID)
 		if err != nil {
 			return nil, nil, err
@@ -210,7 +210,7 @@ func (h *Handler) addKeywordTools(s *modelsdk.Server, requestScope scope) {
 		item, err := h.deps.Keywords.Update(ctx, keywords.UpdateInput{ID: id, ChannelID: channelID, ActorID: requestScope.ActorID, Text: input.Text, Response: input.Response, Enabled: input.Enabled, Cooldown: input.Cooldown, IsReply: input.IsReply, IsRegular: input.IsRegular})
 		return nil, item, err
 	})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "delete_keyword", Description: "Delete a keyword trigger by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "delete_keyword", Description: "Delete a keyword trigger by UUID."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
 		id, err := parseID(input.ID)
 		if err != nil {
 			return nil, nil, err

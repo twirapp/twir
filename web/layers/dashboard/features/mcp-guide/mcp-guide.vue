@@ -1,31 +1,47 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
-import { useMcpChannelApiKey } from './api.js'
-import { createMcpClientGuides } from './config.js'
+import { createMcpGuideApi, type McpGuideScope } from './api.js'
+import { createMcpClientGuides, createMcpOAuthGuide } from './config.js'
+import McpGuideScopes from './mcp-guide-scopes.vue'
 
 const { t } = useI18n()
 const requestUrl = useRequestURL()
-const showApiKey = ref(false)
 
-const { data, fetching, error } = useMcpChannelApiKey()
-
-const apiKey = computed(() => data.value?.channelApiKey ?? '')
 const endpoint = computed(() => `${requestUrl.origin}/api/mcp`)
-const guides = computed(() => createMcpClientGuides(endpoint.value, apiKey.value))
-const visibleGuides = computed(() => createMcpClientGuides(
-	endpoint.value,
-	showApiKey.value ? apiKey.value : '<YOUR_CHANNEL_API_KEY>'
-))
+const guides = computed(() => createMcpClientGuides(endpoint.value))
+const oauth = computed(() => createMcpOAuthGuide(requestUrl.origin))
+
+const mcpGuideApi = createMcpGuideApi($fetch)
+const scopesState = ref<'loading' | 'ready' | 'error'>('loading')
+const scopeGroups = ref<readonly McpGuideScope[]>([])
+
+async function loadScopesCatalog(): Promise<void> {
+	const result = await mcpGuideApi.getScopesCatalog()
+
+	switch (result.kind) {
+		case 'success':
+			scopeGroups.value = result.scopes
+			scopesState.value = 'ready'
+			return
+		case 'error':
+			scopesState.value = 'error'
+			return
+		default:
+			return result satisfies never
+	}
+}
+
+onMounted(() => {
+	void loadScopesCatalog()
+})
 
 async function copy(value: string) {
 	try {
@@ -62,18 +78,6 @@ function copyGuide(id: string) {
 						<CardDescription>{{ t('mcpGuide.credentials.description') }}</CardDescription>
 					</CardHeader>
 					<CardContent class="flex flex-col gap-5">
-						<Alert variant="destructive">
-							<Icon name="lucide:triangle-alert" />
-							<AlertTitle>{{ t('mcpGuide.credentials.warningTitle') }}</AlertTitle>
-							<AlertDescription>{{ t('mcpGuide.credentials.warningDescription') }}</AlertDescription>
-						</Alert>
-
-						<Alert v-if="error" variant="destructive">
-							<Icon name="lucide:circle-x" />
-							<AlertTitle>{{ t('mcpGuide.loadErrorTitle') }}</AlertTitle>
-							<AlertDescription>{{ error.message }}</AlertDescription>
-						</Alert>
-
 						<div class="flex flex-col gap-2">
 							<p class="text-sm font-medium">{{ t('mcpGuide.credentials.endpoint') }}</p>
 							<div class="flex gap-2">
@@ -81,26 +85,6 @@ function copyGuide(id: string) {
 								<Button variant="outline" size="icon" type="button" @click="copy(endpoint)">
 									<Icon name="lucide:copy" />
 									<span class="sr-only">{{ t('mcpGuide.copyEndpoint') }}</span>
-								</Button>
-							</div>
-						</div>
-
-						<div class="flex flex-col gap-2">
-							<p class="text-sm font-medium">{{ t('mcpGuide.credentials.apiKey') }}</p>
-							<Skeleton v-if="fetching" class="h-9 w-full" />
-							<div v-else class="flex gap-2">
-								<Input
-									:type="showApiKey ? 'text' : 'password'"
-									:model-value="apiKey"
-									readonly
-								/>
-								<Button variant="outline" size="icon" type="button" @click="showApiKey = !showApiKey">
-									<Icon :name="showApiKey ? 'lucide:eye-off' : 'lucide:eye'" />
-									<span class="sr-only">{{ showApiKey ? t('mcpGuide.hideKey') : t('mcpGuide.showKey') }}</span>
-								</Button>
-								<Button variant="outline" size="icon" type="button" :disabled="!apiKey" @click="copy(apiKey)">
-									<Icon name="lucide:copy" />
-									<span class="sr-only">{{ t('mcpGuide.copyApiKey') }}</span>
 								</Button>
 							</div>
 						</div>
@@ -115,13 +99,13 @@ function copyGuide(id: string) {
 					<CardContent>
 						<Tabs default-value="claude" class="flex flex-col gap-4">
 							<TabsList class="grid h-auto w-full grid-cols-2 sm:grid-cols-4">
-								<TabsTrigger v-for="guide in visibleGuides" :key="guide.id" :value="guide.id">
+								<TabsTrigger v-for="guide in guides" :key="guide.id" :value="guide.id">
 									<Icon :name="guide.icon" />
 									{{ guide.name }}
 								</TabsTrigger>
 							</TabsList>
 
-							<TabsContent v-for="guide in visibleGuides" :key="guide.id" :value="guide.id">
+							<TabsContent v-for="guide in guides" :key="guide.id" :value="guide.id">
 								<Card>
 									<CardHeader>
 										<CardTitle class="flex items-center gap-2">
@@ -148,7 +132,7 @@ function copyGuide(id: string) {
 										<div class="flex items-center justify-between gap-2">
 											<Badge v-if="guide.fileName" variant="secondary">{{ guide.fileName }}</Badge>
 											<span v-else />
-											<Button type="button" size="sm" :disabled="!apiKey" @click="copyGuide(guide.id)">
+											<Button type="button" size="sm" @click="copyGuide(guide.id)">
 												<Icon name="lucide:copy" data-icon="inline-start" />
 												{{ t('mcpGuide.copyConfig') }}
 											</Button>
@@ -159,11 +143,75 @@ function copyGuide(id: string) {
 										</div>
 									</CardContent>
 								</Card>
-							</TabsContent>
-						</Tabs>
-					</CardContent>
-				</Card>
-			</div>
+					</TabsContent>
+					</Tabs>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>{{ t('mcpGuide.oauth.title') }}</CardTitle>
+					<CardDescription>{{ t('mcpGuide.oauth.description') }}</CardDescription>
+				</CardHeader>
+				<CardContent class="flex flex-col gap-6">
+					<div class="flex flex-col gap-3">
+						<p class="text-sm font-medium">{{ t('mcpGuide.oauth.stepsTitle') }}</p>
+						<ol class="flex list-decimal flex-col gap-3 pl-5 text-sm">
+							<li v-for="step in oauth.steps" :key="step.titleKey">
+								<span class="font-medium">{{ t(step.titleKey) }}</span>
+								<p class="text-muted-foreground">{{ t(step.descriptionKey) }}</p>
+							</li>
+						</ol>
+					</div>
+
+					<div class="flex flex-col gap-3">
+						<p class="text-sm font-medium">{{ t('mcpGuide.oauth.endpointsTitle') }}</p>
+						<div class="flex flex-col divide-y rounded-md border">
+							<div
+								v-for="item in oauth.endpoints"
+								:key="item.url"
+								class="flex flex-col gap-1 p-3 sm:flex-row sm:items-center sm:justify-between"
+							>
+								<div class="flex items-center gap-2">
+									<Badge variant="outline" class="font-mono">{{ item.method }}</Badge>
+									<code class="text-sm break-all">{{ item.url }}</code>
+								</div>
+								<p class="text-sm text-muted-foreground">{{ t(item.descriptionKey) }}</p>
+							</div>
+						</div>
+					</div>
+
+					<McpGuideScopes :state="scopesState" :scopes="scopeGroups" />
+
+					<div class="flex flex-col gap-3">
+						<div>
+							<p class="text-sm font-medium">{{ t('mcpGuide.oauth.authTitle') }}</p>
+							<p class="text-sm text-muted-foreground">{{ t('mcpGuide.oauth.authDescription') }}</p>
+						</div>
+						<div class="flex flex-col divide-y rounded-md border">
+							<div
+								v-for="guide in guides"
+								:key="guide.id"
+								class="flex items-center justify-between gap-2 p-3"
+							>
+								<div class="flex items-center gap-2">
+									<Icon :name="guide.icon" />
+									<span class="text-sm font-medium">{{ guide.name }}</span>
+								</div>
+								<div v-if="guide.authCommand" class="flex items-center gap-2">
+									<code class="text-sm">{{ guide.authCommand }}</code>
+									<Button variant="outline" size="icon" type="button" @click="copy(guide.authCommand)">
+										<Icon name="lucide:copy" />
+										<span class="sr-only">{{ t('mcpGuide.copyConfig') }}</span>
+									</Button>
+								</div>
+								<p v-else class="text-sm text-muted-foreground">{{ t('mcpGuide.oauth.authHint') }}</p>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
 		</template>
 	</PageLayout>
 </template>

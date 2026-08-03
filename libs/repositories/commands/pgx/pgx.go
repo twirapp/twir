@@ -190,6 +190,11 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input commands.UpdateInp
 	model.Command,
 	error,
 ) {
+	var platformsArg interface{}
+	if input.Platforms != nil {
+		platformsArg = pgtype.FlatArray[platform.Platform](input.Platforms)
+	}
+
 	updateBuilder := sq.Update("channels_commands").
 		Where(squirrel.Eq{"id": id})
 	updateBuilder = repositories.SquirrelApplyPatch(
@@ -210,7 +215,7 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input commands.UpdateInp
 			"online_only":                 input.OnlineOnly,
 			`"offline_only"`:              input.OfflineOnly,
 			`"enabled_categories"`:        input.EnabledCategories,
-			"platforms":                   input.Platforms,
+			"platforms":                   platformsArg,
 			`"requiredWatchTime"`:         input.RequiredWatchTime,
 			`"requiredMessages"`:          input.RequiredMessages,
 			`"requiredUsedChannelPoints"`: input.RequiredUsedChannelPoints,

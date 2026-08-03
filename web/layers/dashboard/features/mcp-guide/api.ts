@@ -1,19 +1,24 @@
-import { useQuery } from '@urql/vue'
+import { mcpScopeCatalogResponseSchema, type McpRequestedScope } from '~/utils/mcp-scopes.js'
 
-import { graphql } from '~/gql/gql.js'
+export type McpGuideScope = McpRequestedScope
 
-const channelApiKeyQuery = graphql(`
-	query McpGuideChannelApiKey {
-		channelApiKey
+export type McpGuideScopesResult =
+	| { readonly kind: 'success'; readonly scopes: readonly McpGuideScope[] }
+	| { readonly kind: 'error' }
+
+export type McpGuideFetcher = <T>(request: string) => Promise<T>
+
+export function createMcpGuideApi(fetcher: McpGuideFetcher) {
+	async function getScopesCatalog(): Promise<McpGuideScopesResult> {
+		try {
+			const response = await fetcher<unknown>('/api/oauth/scopes')
+			const parsed = mcpScopeCatalogResponseSchema.parse(response)
+
+			return { kind: 'success', scopes: parsed.scopes }
+		} catch {
+			return { kind: 'error' }
+		}
 	}
-`)
 
-export function useMcpChannelApiKey() {
-	return useQuery({
-		query: channelApiKeyQuery,
-		variables: {},
-		context: {
-			key: 'McpGuideChannelApiKey',
-		},
-	})
+	return { getScopesCatalog }
 }

@@ -5,6 +5,8 @@ export default defineVitestConfig({
 		environment: 'happy-dom',
 		include: [
 			'app/components/**/*.spec.ts',
+			'app/utils/**/*.spec.ts',
+			'server/**/*.spec.ts',
 			'layers/dashboard/features/**/*.spec.ts',
 			'layers/dashboard/components/**/*.spec.ts',
 			'layers/dashboard/layout/**/*.spec.ts',

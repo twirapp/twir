@@ -37,17 +37,7 @@ func New(opts Opts) (*Server, error) {
 
 	r := gin.New()
 	r.Use(opts.Middlewares.Logger())
-	r.Use(
-		cors.New(
-			cors.Config{
-				AllowAllOrigins:  true,
-				AllowMethods:     []string{"*"},
-				AllowHeaders:     []string{"*"},
-				ExposeHeaders:    []string{"*"},
-				AllowCredentials: true,
-			},
-		),
-	)
+	r.Use(newGlobalCORS(r))
 
 	r.Use(otelgin.Middleware("api-gql"))
 	r.Use(opts.Sessions.Middleware())
@@ -68,7 +58,6 @@ func New(opts Opts) (*Server, error) {
 					"ip":      c.ClientIP(),
 				},
 			)
-			return
 		},
 	)
 
@@ -104,4 +93,38 @@ func (c *Server) StartServer() {
 }
 
 func (c *Server) StopServer() {
+}
+
+func newGlobalCORS(router *gin.Engine) gin.HandlerFunc {
+	fallback := cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
+		AllowCredentials: true,
+	})
+
+	return func(c *gin.Context) {
+		if c.Request.Method == http.MethodOptions {
+			if hasExplicitRoute(router, http.MethodOptions, c.Request.URL.Path) {
+				c.Next()
+				return
+			}
+
+			fallback(c)
+			return
+		}
+
+		fallback(c)
+	}
+}
+
+func hasExplicitRoute(router *gin.Engine, method, path string) bool {
+	for _, route := range router.Routes() {
+		if route.Method == method && route.Path == path {
+			return true
+		}
+	}
+
+	return false
 }

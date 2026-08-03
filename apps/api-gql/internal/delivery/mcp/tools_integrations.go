@@ -7,6 +7,7 @@ import (
 
 	modelsdk "github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
+	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
@@ -23,21 +24,41 @@ type toggleIntegrationInput struct {
 	GuildID     string `json:"guildId,omitempty" jsonschema:"Discord guild ID when disconnecting"`
 }
 
-func integrationStatus(data any, err error) integrationResult {
+func integrationStatus(requestScope scope, data any, err error) integrationResult {
 	if err != nil {
 		return integrationResult{Error: err.Error()}
 	}
 	connected := data != nil && !reflect.ValueOf(data).IsZero()
-	return integrationResult{Connected: connected, Data: data}
+	result := integrationResult{Connected: connected}
+	if integrationDetailsAllowed(requestScope.AccessScopes) {
+		result.Data = data
+	}
+	return result
 }
 
-func (h *Handler) legacyIntegrationStatus(ctx context.Context, channelID, service string) integrationResult {
+func integrationDetailsAllowed(accessScopes toolAccessScopes) bool {
+	scopes := make([]entity.Scope, 0, len(accessScopes))
+	for scope := range accessScopes {
+		scopes = append(scopes, scope)
+	}
+	return entity.HasScope(scopes, entity.ScopeGroupIntegrations, entity.ScopeActionEdit)
+}
+
+func (h *Handler) legacyIntegrationStatus(ctx context.Context, requestScope scope, service string) integrationResult {
 	var item model.ChannelsIntegrations
-	err := h.deps.Gorm.WithContext(ctx).Joins("JOIN integrations i ON i.id = channels_integrations.\"integrationId\"").Where(`channels_integrations."channelId" = ? AND i.service = ?`, channelID, service).First(&item).Error
+	err := h.deps.Gorm.WithContext(ctx).Joins("JOIN integrations i ON i.id = channels_integrations.\"integrationId\"").Where(`channels_integrations."channelId" = ? AND i.service = ?`, requestScope.Channel.ID.String(), service).First(&item).Error
 	if err != nil {
 		return integrationResult{}
 	}
-	return integrationResult{Connected: item.Enabled, Data: map[string]any{"enabled": item.Enabled}}
+	return legacyIntegrationResult(requestScope, item.Enabled)
+}
+
+func legacyIntegrationResult(requestScope scope, enabled bool) integrationResult {
+	result := integrationResult{Connected: enabled}
+	if integrationDetailsAllowed(requestScope.AccessScopes) {
+		result.Data = map[string]any{"enabled": enabled}
+	}
+	return result
 }
 
 func (h *Handler) setLegacyIntegrationEnabled(ctx context.Context, channelID, service string, enabled bool) error {
@@ -48,7 +69,7 @@ func (h *Handler) setLegacyIntegrationEnabled(ctx context.Context, channelID, se
 
 func (h *Handler) addIntegrationTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_integration_status", Description: "Get connection status and safe profile/settings data for all supported integrations."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_integration_status", Description: "Get connection status and errors for all supported integrations. Detailed data requires write access."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			discord, discordErr := h.deps.Discord.GetData(ctx, channelID)
 			spotify, spotifyErr := h.deps.Spotify.GetSpotifyData(ctx, channelID)
@@ -61,16 +82,16 @@ func (h *Handler) addIntegrationTools(s *modelsdk.Server, requestScope scope) {
 			vk, vkErr := h.deps.VK.GetIntegrationData(ctx, channelID)
 			sevenTV, sevenTVErr := h.deps.SevenTV.GetSevenTvData(ctx, channelID)
 			return nil, map[string]integrationResult{
-				"discord": integrationStatus(discord, discordErr), "spotify": integrationStatus(spotify, spotifyErr),
-				"lastfm": integrationStatus(lastfm, lastfmErr), "valorant": integrationStatus(valorant, valorantErr),
-				"faceit": integrationStatus(faceit, faceitErr), "donationalerts": integrationStatus(donationAlerts, donationAlertsErr),
-				"donatepay": integrationStatus(donatePay, donatePayErr), "donatestream": h.legacyIntegrationStatus(ctx, channelID, "DONATE_STREAM"),
-				"donatello": h.legacyIntegrationStatus(ctx, channelID, "DONATELLO"), "streamlabs": integrationStatus(streamlabs, streamlabsErr),
-				"vk": integrationStatus(vk, vkErr), "seventv": integrationStatus(sevenTV, sevenTVErr),
+				"discord": integrationStatus(requestScope, discord, discordErr), "spotify": integrationStatus(requestScope, spotify, spotifyErr),
+				"lastfm": integrationStatus(requestScope, lastfm, lastfmErr), "valorant": integrationStatus(requestScope, valorant, valorantErr),
+				"faceit": integrationStatus(requestScope, faceit, faceitErr), "donationalerts": integrationStatus(requestScope, donationAlerts, donationAlertsErr),
+				"donatepay": integrationStatus(requestScope, donatePay, donatePayErr), "donatestream": h.legacyIntegrationStatus(ctx, requestScope, "DONATE_STREAM"),
+				"donatello": h.legacyIntegrationStatus(ctx, requestScope, "DONATELLO"), "streamlabs": integrationStatus(requestScope, streamlabs, streamlabsErr),
+				"vk": integrationStatus(requestScope, vk, vkErr), "seventv": integrationStatus(requestScope, sevenTV, sevenTVErr),
 			}, nil
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "toggle_integration", Description: "Enable/connect or disable/disconnect an integration. OAuth integrations return an authorization URL when enabling."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "toggle_integration", Description: "Enable/connect or disable/disconnect an integration. OAuth integrations return an authorization URL when enabling."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input toggleIntegrationInput) (*modelsdk.CallToolResult, any, error) {
 			if input.Enabled {
 				switch input.Integration {

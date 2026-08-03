@@ -106,43 +106,126 @@
     "description": "Connect an AI coding agent to your channel through Twir MCP.",
     "copyError": "Failed to copy",
     "copyEndpoint": "Copy endpoint",
-    "copyApiKey": "Copy API key",
     "copyConfig": "Copy ready configuration",
-    "showKey": "Show API key",
-    "hideKey": "Hide API key",
     "documentation": "Documentation",
-    "loadErrorTitle": "Cannot load the channel API key",
     "clientsTitle": "Choose your client",
-    "clientsDescription": "Copied configurations include this channel's endpoint and API key. The preview stays redacted until you reveal the key.",
+    "clientsDescription": "Each configuration uses the MCP endpoint and starts the standard OAuth flow in your browser.",
     "credentials": {
       "title": "Connection details",
-      "description": "Use these values when configuring any Streamable HTTP MCP client.",
-      "endpoint": "MCP endpoint",
-      "apiKey": "Channel API key",
-      "warningTitle": "Keep this key private",
-      "warningDescription": "Anyone with this key can manage your channel through the enabled MCP tools. Do not commit it to a repository or share it publicly."
+      "description": "Use this Streamable HTTP endpoint with a client that supports OAuth discovery.",
+      "endpoint": "MCP endpoint"
     },
     "clients": {
       "claude": {
-        "description": "Add Twir as a user-scoped remote HTTP server with Claude Code's MCP CLI.",
+        "description": "Add Twir as a user-scoped remote HTTP server. Claude Code discovers OAuth automatically.",
         "step1": "Run the generated command in your terminal.",
-        "step2": "Restart Claude Code, then use /mcp to verify the connection."
-      },
-      "pi": {
-        "description": "Pi keeps MCP outside its core, so this setup uses the pi-mcp-adapter extension.",
-        "step1": "Install the adapter with: pi install npm:pi-mcp-adapter",
-        "step2": "Save the generated JSON to the shown shared MCP configuration file.",
-        "step3": "Restart Pi, then use /mcp status to verify the connection."
+        "step2": "Restart Claude Code and complete the OAuth sign-in when prompted."
       },
       "codex": {
-        "description": "Configure Twir as a Streamable HTTP server in the Codex config.toml file.",
+        "description": "Configure Twir as a Streamable HTTP server. Codex discovers OAuth automatically.",
         "step1": "Add the generated block to your user or trusted-project config.toml.",
-        "step2": "Restart Codex, then use /mcp to verify the connection."
+        "step2": "Restart Codex and complete the OAuth sign-in when prompted."
       },
       "opencode": {
-        "description": "Add a remote server with static headers and disable automatic OAuth discovery.",
+        "description": "Add a remote server with OAuth discovery enabled.",
         "step1": "Merge the generated object into your opencode.json configuration.",
-        "step2": "Restart OpenCode and run opencode mcp list to verify the connection."
+        "step2": "Restart OpenCode and complete the OAuth sign-in when prompted."
+      },
+      "cursor": {
+        "description": "Add Twir as a remote MCP server. Cursor discovers OAuth automatically.",
+        "step1": "Merge the generated object into your Cursor MCP configuration.",
+        "step2": "Restart Cursor and complete the OAuth sign-in when prompted."
+      }
+    },
+    "oauth": {
+      "title": "OAuth flow",
+      "description": "Twir implements the standard MCP OAuth 2.0 flow: discovery, dynamic client registration, authorization code with PKCE, rotating refresh tokens, and revocation.",
+      "stepsTitle": "How the flow works",
+      "steps": {
+        "discovery": {
+          "title": "Discovery",
+          "description": "The client reads the protected-resource and authorization-server metadata to learn endpoints and supported features."
+        },
+        "register": {
+          "title": "Client registration",
+          "description": "The client registers itself dynamically (RFC 7591). No client secret is used; public clients are identified by their redirect URIs."
+        },
+        "authorize": {
+          "title": "Authorization",
+          "description": "The client opens the authorization URL with a PKCE S256 challenge and the MCP resource. You approve or deny access in the browser."
+        },
+        "token": {
+          "title": "Token exchange",
+          "description": "The client exchanges the authorization code together with its code verifier for tokens bound to the MCP resource."
+        },
+        "refresh": {
+          "title": "Refresh",
+          "description": "Refresh tokens rotate on every use. Reusing an old refresh token revokes the entire grant for that client."
+        },
+        "revoke": {
+          "title": "Revocation",
+          "description": "The client can revoke its own tokens at any time. Revoking an unknown token succeeds silently."
+        }
+      },
+      "endpointsTitle": "Endpoints",
+      "endpoints": {
+        "resourceMetadata": "Protected resource metadata (RFC 9728)",
+        "serverMetadata": "Authorization server metadata (RFC 8414)",
+        "register": "Dynamic client registration (RFC 7591)",
+        "authorize": "Start the authorization code flow",
+        "token": "Exchange or refresh tokens",
+        "revoke": "Revoke an access or refresh token"
+      },
+      "scopesTitle": "Scopes",
+      "scopesDescription": "Each scope group grants a separate set of MCP tools. The catalog below is served by the backend and always reflects what your client can request.",
+      "scopesLoading": "Loading the scope catalog...",
+      "scopesUnavailable": "The scope catalog could not be loaded. Your client will still discover the available scopes during the OAuth flow.",
+      "scopesEditIncludesRead": "Granting edit access always includes read access for the same group.",
+      "scopesLegacyAliases": "The legacy read and write scope aliases are still accepted for compatibility, but they are no longer advertised.",
+      "tokenLifetimes": "Access tokens expire after 1 hour. Refresh tokens expire after 30 days and rotate on every refresh. Consent requires permission to manage bot settings.",
+      "authTitle": "Re-run the OAuth flow",
+      "authDescription": "Ask your client to authenticate again if the token expired or you want to switch access level.",
+      "authHint": "Open MCP settings in the client and reconnect Twir."
+    }
+  },
+  "mcpConsent": {
+    "title": "Authorize AI access",
+    "description": "Review the requested MCP access for your selected dashboard.",
+    "requestTitle": "{client} wants to access your channel",
+    "requestDescription": "Choose the least access this client needs. You can deny this request at any time.",
+    "client": "Client",
+    "clientUri": "Client website",
+    "dashboard": "Selected dashboard",
+    "scopes": {
+      "title": "Requested permissions",
+      "description": "Choose what this client may do in each area. Read access is on by default; enable edit only where the client truly needs it.",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "read": "Read",
+      "edit": "Edit",
+      "editIncludesRead": "Edit access includes read access.",
+      "emptySelection": "Select at least one permission before approving.",
+      "none": "None"
+    },
+    "writeWarning": {
+      "title": "Sensitive access enabled",
+      "description": "Full access can manage secrets, integrations, moderation, and uploaded files. Only approve a client you trust."
+    },
+    "approve": "Approve access",
+    "deny": "Deny",
+    "retry": "Try again",
+    "errors": {
+      "expired": {
+        "title": "This request is no longer valid",
+        "description": "Reload or reopen this consent request before continuing."
+      },
+      "permission": {
+        "title": "You cannot authorize this request",
+        "description": "Select a dashboard where you can manage bot settings, then try again."
+      },
+      "network": {
+        "title": "We could not load this request",
+        "description": "Check your connection and try again."
       }
     }
   },

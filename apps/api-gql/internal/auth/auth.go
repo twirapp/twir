@@ -30,6 +30,7 @@ type Auth struct {
 	sessionManager *scs.SessionManager
 	usersRepo      usersrepository.Repository
 	channelService *channelservice.ChannelService
+	now            func() time.Time
 }
 
 func NewSessions(opts Opts) *Auth {
@@ -43,6 +44,7 @@ func NewSessions(opts Opts) *Auth {
 		sessionManager: sessionManager,
 		usersRepo:      opts.UsersRepo,
 		channelService: opts.ChannelService,
+		now:            time.Now,
 	}
 }
 
@@ -53,6 +55,8 @@ func registerSessionTypes() {
 	gob.Register(KickSessionUser{})
 	gob.Register(OAuthAttempt{})
 	gob.Register(map[string]OAuthAttempt{})
+	gob.Register(MCPOAuthAttempt{})
+	gob.Register(map[string]MCPOAuthAttempt{})
 }
 
 const SESSION_KEY = "__session__"

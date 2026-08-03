@@ -86,25 +86,25 @@ type idInput struct {
 }
 
 func (h *Handler) addCommandTools(s *modelsdk.Server, requestScope scope) {
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_command_roles", Description: "List channel roles and their UUIDs for command access and role cooldown settings."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_command_roles", Description: "List channel roles and their UUIDs for command access and role cooldown settings."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.Roles.GetManyByChannelID(ctx, requestScope.Channel.ID.String())
 			return nil, map[string]any{"roles": items}, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_command_groups", Description: "List command groups for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_command_groups", Description: "List command groups for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.CommandGroups.GetManyByChannelID(ctx, requestScope.Channel.ID.String())
 			return nil, map[string]any{"groups": items}, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_commands", Description: "List all commands, groups, responses, cooldowns, and permissions for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_commands", Description: "List all commands, groups, responses, cooldowns, and permissions for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.CommandsRelations.GetManyByChannelID(ctx, requestScope.Channel.ID.String())
 			return nil, map[string]any{"commands": items}, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_command", Description: "Get one channel command by UUID."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_command", Description: "Get one channel command by UUID."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
 			id, err := parseID(input.ID)
 			if err != nil {
@@ -122,7 +122,7 @@ func (h *Handler) addCommandTools(s *modelsdk.Server, requestScope scope) {
 			return nil, nil, fmt.Errorf("command not found")
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "create_command", Description: "Create a command for this channel with dashboard-equivalent access, availability, response, cooldown, grouping, expiration, and platform settings."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "create_command", Description: "Create a command for this channel with dashboard-equivalent access, availability, response, cooldown, grouping, expiration, and platform settings."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input createCommandInput) (*modelsdk.CallToolResult, any, error) {
 			serviceInput, err := createCommandServiceInput(requestScope, input)
 			if err != nil {
@@ -132,7 +132,7 @@ func (h *Handler) addCommandTools(s *modelsdk.Server, requestScope scope) {
 			return nil, result, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_command", Description: "Update a channel command by UUID with dashboard-equivalent settings."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_command", Description: "Update a channel command by UUID with dashboard-equivalent settings."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateCommandInput) (*modelsdk.CallToolResult, any, error) {
 			id, err := parseID(input.ID)
 			if err != nil {
@@ -146,7 +146,7 @@ func (h *Handler) addCommandTools(s *modelsdk.Server, requestScope scope) {
 			return nil, result, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "delete_command", Description: "Delete a custom command from this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "delete_command", Description: "Delete a custom command from this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
 			id, err := parseID(input.ID)
 			if err != nil {

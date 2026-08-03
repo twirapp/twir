@@ -150,6 +150,7 @@ func (s *Auth) SessionLogout(ctx context.Context) error {
 	s.sessionManager.Remove(ctx, selectedDashboardIdKey)
 	s.sessionManager.Remove(ctx, kickUserKey)
 	s.sessionManager.Remove(ctx, oauthAttemptsKey)
+	s.sessionManager.Remove(ctx, mcpOAuthAttemptsKey)
 	if _, _, err := s.sessionManager.Commit(ctx); err != nil {
 		return fmt.Errorf("cannot commit session: %w", err)
 	}

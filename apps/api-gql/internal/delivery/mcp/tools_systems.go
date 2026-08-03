@@ -66,12 +66,12 @@ func moderationServiceInput(channelID string, input moderationInput) channels_mo
 func (h *Handler) addSystemTools(s *modelsdk.Server, requestScope scope) {
 	channelID := requestScope.Channel.ID.String()
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_files", Description: "List uploaded image and audio files for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_files", Description: "List uploaded image and audio files for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.Files.GetMany(ctx, channelID)
 			return nil, map[string]any{"files": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "upload_file", Description: "Upload a base64-encoded image or audio file to channel storage."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "upload_file", Description: "Upload a base64-encoded image or audio file to channel storage."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input uploadFileInput) (*modelsdk.CallToolResult, any, error) {
 			content, err := base64.StdEncoding.DecodeString(input.ContentBase64)
 			if err != nil {
@@ -81,28 +81,28 @@ func (h *Handler) addSystemTools(s *modelsdk.Server, requestScope scope) {
 			return nil, item, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_games", Description: "List channel game modules and their settings."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_games", Description: "List channel game modules and their settings."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			voteban, err := h.deps.Games.GetByChannelID(ctx, channelID)
 			return nil, map[string]any{"games": []any{map[string]any{"name": "voteban", "settings": voteban}}}, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_song_requests", Description: "List the full song request queue for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_song_requests", Description: "List the full song request queue for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.SongRequests.GetQueue(ctx, channelID)
 			return nil, map[string]any{"queue": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_current_song", Description: "Get the current song request playback state."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_current_song", Description: "Get the current song request playback state."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			item, err := h.deps.SongRequests.GetCurrentSong(ctx, channelID)
 			return nil, map[string]any{"currentSong": item}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "skip_song", Description: "Skip and remove the currently playing song."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "skip_song", Description: "Skip and remove the currently playing song."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			err := h.deps.SongRequests.Skip(ctx, channelID)
 			return nil, map[string]bool{"skipped": err == nil}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "manage_queue", Description: "Delete one song, clear the queue, or reorder the complete queue."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "manage_queue", Description: "Delete one song, clear the queue, or reorder the complete queue."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input manageQueueInput) (*modelsdk.CallToolResult, any, error) {
 			var err error
 			switch input.Action {
@@ -118,12 +118,12 @@ func (h *Handler) addSystemTools(s *modelsdk.Server, requestScope scope) {
 			return nil, map[string]bool{"updated": err == nil}, err
 		})
 
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "get_moderation_settings", Description: "Get all moderation rules for this channel."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_moderation_settings", Description: "Get all moderation rules for this channel."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			items, err := h.deps.Moderation.GetByChannelID(ctx, channelID)
 			return nil, map[string]any{"rules": items}, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "update_moderation", Description: "Create a moderation rule, or replace one when id is provided."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_moderation", Description: "Create a moderation rule, or replace one when id is provided."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, input moderationInput) (*modelsdk.CallToolResult, any, error) {
 			serviceInput := moderationServiceInput(channelID, input)
 			if input.ID == "" {
@@ -141,7 +141,7 @@ func (h *Handler) addSystemTools(s *modelsdk.Server, requestScope scope) {
 			item, err := h.deps.Moderation.Update(ctx, id, serviceInput)
 			return nil, item, err
 		})
-	modelsdk.AddTool(s, &modelsdk.Tool{Name: "list_mod_chat_wall", Description: "List moderation chat-wall entries and channel wall settings."},
+	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_mod_chat_wall", Description: "List moderation chat-wall entries and channel wall settings."},
 		func(ctx context.Context, _ *modelsdk.CallToolRequest, _ struct{}) (*modelsdk.CallToolResult, any, error) {
 			walls, err := h.deps.ChatWall.GetChatWalls(ctx, channelID)
 			if err != nil {

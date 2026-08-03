@@ -2,6 +2,7 @@ import { AuthPlatformAuthorizeParamsEnum } from '@twir/api/openapi'
 import { createRequest } from '@urql/vue'
 
 import { graphql } from '~/gql/gql.js'
+import { getMcpConsentAuthorizePath, parseMcpConsentAttempt } from '~/utils/mcp-consent.js'
 
 export const userProfileWithoutDashboards = createRequest(
 	graphql(`
@@ -89,6 +90,11 @@ export const useAuth = defineStore('auth-store', () => {
 
 	const redirectTo = computed(() => {
 		const currentRoute = router.currentRoute.value
+		const mcpConsentAttempt = parseMcpConsentAttempt(currentRoute.query.mcp_attempt)
+
+		if (mcpConsentAttempt !== null) {
+			return getMcpConsentAuthorizePath(mcpConsentAttempt)
+		}
 
 		const isPublic = currentRoute.matched.at(0)?.path.startsWith('/p/:channelName()')
 		const isPaste = currentRoute.matched.at(0)?.path.startsWith('/h')

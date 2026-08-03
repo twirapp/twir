@@ -2,9 +2,8 @@ package mcp
 
 import (
 	"context"
-	"errors"
-	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -34,6 +33,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	lastfmintegration "github.com/twirapp/twir/apps/api-gql/internal/services/lastfm_integration"
+	mcpOAuthService "github.com/twirapp/twir/apps/api-gql/internal/services/mcp_oauth"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/kappagen"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
@@ -54,8 +54,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelservice "github.com/twirapp/twir/libs/services/channels"
+	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -63,58 +62,64 @@ import (
 type contextKey struct{}
 
 type scope struct {
-	Channel channelentity.Channel
-	ActorID string
+	Channel      channelentity.Channel
+	ActorID      string
+	AccessScopes toolAccessScopes
+}
+
+type AccessTokenVerifier interface {
+	VerifyAccessToken(context.Context, string) (mcpOAuthService.AuthorizedGrant, error)
+	ProtectedResourceMetadataURL() string
 }
 
 type Deps struct {
 	fx.In
 
-	Channels          *channelservice.ChannelService
-	Commands          *commands.Service
-	CommandGroups     *commands_groups.Service
-	CommandsRelations *commandsrelations.Service
-	Timers            *timers.Service
-	Variables         *variables.Service
-	Quotes            *quotes.Service
-	Roles             *roles.Service
-	Keywords          *keywords.Service
-	Secrets           *channels_secret.Service
-	Storage           *channels_storage.Service
-	Files             *channels_files.Service
-	Moderation        *channels_moderation_settings.Service
-	ChatWall          *chat_wall.Service
-	Games             *gamesvoteban.Service
-	SongRequests      *song_requests.Service
-	Events            *events.Service
-	Giveaways         *giveaways.Service
-	Greetings         *greetings.Service
-	Alerts            *alerts.Service
-	Twitch            *twitchservice.Service
-	Gorm              *gorm.DB
-	Discord           *discord_integration.Service
-	Spotify           *spotify_integration.Service
-	LastFM            *lastfmintegration.Service
-	Valorant          *valorantintegration.Service
-	Faceit            *faceitintegration.Service
-	DonationAlerts    *donationalertsintegration.Service
-	DonatePay         *donatepay_integration.Service
-	DonateStream      *donatestreamintegration.Service
-	Donatello         *donatellointegration.Service
-	Streamlabs        *streamlabsintegration.Service
-	VK                *vkintegration.Service
-	SevenTV           *seventv_integration.Service
-	CustomOverlays    *channels_overlays.Service
-	TTS               *tts.Service
-	Dudes             *overlays_dudes.Service
-	Kappagen          *kappagen.Service
-	BeRightBack       *be_right_back.Service
-	Dashboard         *dashboard.Service
-	ChannelPlatforms  *channel_platforms.Service
-	Users             *users.Service
-	ScheduledVIPs     *scheduledvips.Service
-	Pastebins         *pastebins.Service
-	ShortURLs         *shortenedurls.Service
+	AccessTokenVerifier AccessTokenVerifier
+	Commands            *commands.Service
+	CommandGroups       *commands_groups.Service
+	CommandsRelations   *commandsrelations.Service
+	Timers              *timers.Service
+	Variables           *variables.Service
+	Quotes              *quotes.Service
+	Roles               *roles.Service
+	Keywords            *keywords.Service
+	Secrets             *channels_secret.Service
+	Storage             *channels_storage.Service
+	Files               *channels_files.Service
+	Moderation          *channels_moderation_settings.Service
+	ChatWall            *chat_wall.Service
+	Games               *gamesvoteban.Service
+	SongRequests        *song_requests.Service
+	Events              *events.Service
+	Giveaways           *giveaways.Service
+	Greetings           *greetings.Service
+	Alerts              *alerts.Service
+	Twitch              *twitchservice.Service
+	Gorm                *gorm.DB
+	Discord             *discord_integration.Service
+	Spotify             *spotify_integration.Service
+	LastFM              *lastfmintegration.Service
+	Valorant            *valorantintegration.Service
+	Faceit              *faceitintegration.Service
+	DonationAlerts      *donationalertsintegration.Service
+	DonatePay           *donatepay_integration.Service
+	DonateStream        *donatestreamintegration.Service
+	Donatello           *donatellointegration.Service
+	Streamlabs          *streamlabsintegration.Service
+	VK                  *vkintegration.Service
+	SevenTV             *seventv_integration.Service
+	CustomOverlays      *channels_overlays.Service
+	TTS                 *tts.Service
+	Dudes               *overlays_dudes.Service
+	Kappagen            *kappagen.Service
+	BeRightBack         *be_right_back.Service
+	Dashboard           *dashboard.Service
+	ChannelPlatforms    *channel_platforms.Service
+	Users               *users.Service
+	ScheduledVIPs       *scheduledvips.Service
+	Pastebins           *pastebins.Service
+	ShortURLs           *shortenedurls.Service
 }
 
 type Handler struct {
@@ -144,53 +149,50 @@ func Register(s *server.Server, h *Handler) {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	apiKey := r.Header.Get("Api-Key")
-	if apiKey == "" {
-		http.Error(w, "Api-Key header is required", http.StatusUnauthorized)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, MCP-Protocol-Version, Last-Event-ID")
+	w.Header().Set("Access-Control-Expose-Headers", "MCP-Session-Id, MCP-Protocol-Version, WWW-Authenticate")
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
-	channel, err := h.deps.Channels.GetChannelByApiKey(r.Context(), apiKey)
-	if err != nil && !errors.Is(err, channelsrepository.ErrNotFound) {
-		http.Error(w, "invalid channel API key", http.StatusUnauthorized)
+	credential, ok := bearerCredential(r.Header.Values("Authorization"))
+	if !ok {
+		h.unauthorized(w)
 		return
 	}
-	if err != nil || channel.IsNil() {
-		user, err := h.deps.Users.GetByApiKey(r.Context(), apiKey)
-		if err != nil {
-			http.Error(w, "invalid channel API key", http.StatusUnauthorized)
-			return
-		}
 
-		userID, err := uuid.Parse(user.ID)
-		if err != nil {
-			http.Error(w, "invalid channel API key", http.StatusUnauthorized)
-			return
-		}
-
-		channel, err = h.deps.Channels.GetChannelByBindingUserID(r.Context(), user.Platform, userID)
-		if err != nil || channel.IsNil() {
-			http.Error(w, "invalid channel API key", http.StatusUnauthorized)
-			return
-		}
-
-		slog.WarnContext(r.Context(), "user API key is deprecated, use channel API key")
-		w.Header().Set("Deprecation", "true")
+	grant, err := h.deps.AccessTokenVerifier.VerifyAccessToken(r.Context(), credential)
+	if err != nil {
+		h.unauthorized(w)
+		return
+	}
+	accessScopes, ok := toolAccessScopesFromOAuthScopes(grant.Scopes)
+	if !ok || grant.Channel.IsNil() {
+		h.unauthorized(w)
+		return
 	}
 
-	actorID := channel.ID.String()
-	if len(channel.Bindings) > 0 {
-		actorID = channel.Bindings[0].UserID.String()
-	}
-
-	ctx := context.WithValue(r.Context(), contextKey{}, scope{Channel: channel, ActorID: actorID})
+	ctx := context.WithValue(r.Context(), contextKey{}, scope{
+		Channel:      grant.Channel,
+		ActorID:      grant.ApprovingUserID.String(),
+		AccessScopes: accessScopes,
+	})
 	h.transport.ServeHTTP(w, r.WithContext(ctx))
+}
+
+func (h *Handler) unauthorized(w http.ResponseWriter) {
+	availableScopes := strings.Join(entity.ScopeStrings(entity.AllScopes()), " ")
+	w.Header().Set("WWW-Authenticate", `Bearer resource_metadata="`+h.deps.AccessTokenVerifier.ProtectedResourceMetadataURL()+`", scope="`+availableScopes+`"`)
+	http.Error(w, "unauthorized", http.StatusUnauthorized)
 }
 
 func (h *Handler) newServer(requestScope scope) *modelsdk.Server {
 	s := modelsdk.NewServer(
 		&modelsdk.Implementation{Name: "twir", Version: "1.0.0"},
-		&modelsdk.ServerOptions{Instructions: "Manage the Twir channel authorized by the Api-Key request header. All operations are restricted to that channel.\n\n" + variableScriptGuide},
+		&modelsdk.ServerOptions{Instructions: "Manage the Twir channel authorized through scoped OAuth Bearer access. Group scopes ending in :read grant read access; group scopes ending in :edit grant read and edit access. All operations are restricted to the authorized channel.\n\n" + variableScriptGuide},
 	)
 
 	h.addCommandTools(s, requestScope)
@@ -213,4 +215,15 @@ func (h *Handler) newServer(requestScope scope) *modelsdk.Server {
 
 func parseID(value string) (uuid.UUID, error) {
 	return uuid.Parse(value)
+}
+
+func bearerCredential(values []string) (string, bool) {
+	if len(values) != 1 {
+		return "", false
+	}
+	parts := strings.Fields(values[0])
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") || parts[1] == "" {
+		return "", false
+	}
+	return parts[1], true
 }
