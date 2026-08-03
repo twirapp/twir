@@ -70,11 +70,7 @@ func (c *Service) computeBadgeFileName(file entity.Upload, fileID uuid.UUID) (st
 }
 
 func (c *Service) computeBadgeUrl(fileName string) string {
-	if c.config.AppEnv == "development" {
-		return c.config.S3PublicUrl + "/" + c.config.S3Bucket + "/badges/" + fileName
-	}
-
-	return c.config.S3PublicUrl + "/badges/" + fileName
+	return c.config.BuildS3PublicURL("badges/" + fileName)
 }
 
 func (c *Service) GetByID(ctx context.Context, id uuid.UUID) (entity.Badge, error) {

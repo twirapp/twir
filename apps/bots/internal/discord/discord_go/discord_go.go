@@ -2,10 +2,14 @@ package discord_go
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 
 	discordapi "github.com/diamondburned/arikawa/v3/api"
 	"github.com/diamondburned/arikawa/v3/discord"
+	"github.com/diamondburned/arikawa/v3/gateway"
+	"github.com/diamondburned/arikawa/v3/session"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
@@ -22,7 +26,8 @@ type Opts struct {
 }
 
 type Discord struct {
-	api *discordapi.Client
+	api     *discordapi.Client
+	session *session.Session
 
 	logger      *slog.Logger
 	discordRepo channelsintegrationsdiscord.Repository
@@ -33,13 +38,22 @@ func New(opts Opts) (*Discord, error) {
 		return &Discord{}, nil
 	}
 
-	discordapi.NewClient(opts.Config.DiscordBotToken)
-
 	log := logger.WithComponent(opts.Logger, "discord")
 	d := &Discord{
 		logger:      log,
 		discordRepo: opts.DiscordRepo,
 		api:         discordapi.NewClient("Bot " + opts.Config.DiscordBotToken),
+	}
+	if opts.Config.DiscordNotificationsChannelID != "" {
+		d.session = session.NewWithIntents(
+			"Bot "+opts.Config.DiscordBotToken,
+			gateway.IntentGuilds,
+			gateway.IntentGuildMessages,
+			gateway.IntentMessageContent,
+		)
+		d.api = d.session.Client
+		d.session.AddHandler(d.handleShardReady)
+		d.session.AddHandler(d.handleGuildDelete)
 	}
 
 	opts.LC.Append(
@@ -55,15 +69,62 @@ func New(opts Opts) (*Discord, error) {
 					slog.String("bot_id", botInfo.ID.String()),
 				)
 
+				if d.session != nil {
+					if err := d.session.Open(ctx); err != nil {
+						return fmt.Errorf("open Discord gateway: %w", err)
+					}
+				}
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				return nil
+				if d.session == nil {
+					return nil
+				}
+
+				closeResult := make(chan error, 1)
+				go func() {
+					closeResult <- d.session.Close()
+				}()
+
+				select {
+				case err := <-closeResult:
+					if errors.Is(err, session.ErrClosed) {
+						return nil
+					}
+					return err
+				case <-ctx.Done():
+					return ctx.Err()
+				}
 			},
 		},
 	)
 
 	return d, nil
+}
+
+func (c *Discord) AddHandler(handler any) func() {
+	if c.session == nil {
+		return func() {}
+	}
+
+	return c.session.AddHandler(handler)
+}
+
+func (c *Discord) Messages(
+	ctx context.Context,
+	channelID discord.ChannelID,
+	limit uint,
+) ([]discord.Message, error) {
+	return c.api.WithContext(ctx).Messages(channelID, limit)
+}
+
+func (c *Discord) Message(
+	ctx context.Context,
+	channelID discord.ChannelID,
+	messageID discord.MessageID,
+) (*discord.Message, error) {
+	return c.api.WithContext(ctx).Message(channelID, messageID)
 }
 
 func (c *Discord) DeleteMessage(_ context.Context, channelID, messageID, reason string) error {

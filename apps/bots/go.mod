@@ -10,6 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hibiken/asynq v0.25.1
 	github.com/lib/pq v1.10.9
+	github.com/minio/minio-go/v7 v7.0.97
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/redis/go-redis/v9 v9.17.1
@@ -43,9 +44,12 @@ require (
 	github.com/twirapp/twir/libs/twitch v0.0.0-20251217140736-48670d138d86
 	github.com/twirapp/twir/libs/types v0.0.0-20251217140736-48670d138d86
 	github.com/twirapp/twir/libs/utils v0.0.0-20251217140736-48670d138d86
+	github.com/twirapp/twir/libs/wsrouter v0.0.0-00010101000000-000000000000
 	go.uber.org/atomic v1.11.0
 	google.golang.org/api v0.257.0
 )
+
+replace github.com/twirapp/twir/libs/wsrouter => ../../libs/wsrouter
 
 require (
 	cloud.google.com/go v0.123.0 // indirect

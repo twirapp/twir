@@ -34,6 +34,7 @@ type UserNotification implements Notification {
 	text: String
 	createdAt: Time!
 	editorJsJson: String
+	deleted: Boolean!
 }
 
 type AdminNotification implements Notification {

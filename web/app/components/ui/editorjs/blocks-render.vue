@@ -18,9 +18,9 @@ watch(() => props.data, () => {
 </script>
 
 <template>
-	<div v-if="renderValue" class="flex flex-col">
+	<div v-if="renderValue" class="flex flex-row flex-wrap items-start gap-3">
 		<template v-for="block in renderValue.blocks" :key="block.id">
-			<p v-if="block.type === 'paragraph'" v-html="block.data.text" />
+			<p v-if="block.type === 'paragraph'" class="w-full" v-html="block.data.text" />
 			<ul v-if="block.type === 'list'" class="ul">
 				<li v-for="item of block.data.items" :key="item" v-html="item" />
 			</ul>
@@ -29,9 +29,35 @@ watch(() => props.data, () => {
 
 			<blockquote v-if="block.type === 'quote'" class="bq" v-html="block.data.text" />
 
-			<div v-if="block.type === 'delimiter'" class="border-2 border-b-border my-2" />
+			<div v-if="block.type === 'delimiter'" class="my-2 w-full border-2 border-b-border" />
 
-			<img v-if="block.type === 'image'" :src="block.data.url" />
+			<figure
+				v-if="block.type === 'image'"
+				class="w-fit max-w-full flex-none overflow-hidden rounded-lg border bg-muted/30 shadow-sm sm:max-w-2xl"
+			>
+				<a
+					:href="block.data.url"
+					:aria-label="block.data.caption || 'Open image in a new tab'"
+					class="group block"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<img
+						:src="block.data.url"
+						:alt="block.data.caption || ''"
+						class="block h-auto max-h-96 w-auto max-w-full object-contain transition-opacity group-hover:opacity-90"
+						loading="lazy"
+						decoding="async"
+					>
+				</a>
+				<figcaption
+					v-if="block.data.caption"
+					class="truncate border-t px-3 py-2 text-xs text-muted-foreground"
+					:title="block.data.caption"
+				>
+					{{ block.data.caption }}
+				</figcaption>
+			</figure>
 		</template>
 	</div>
 </template>
@@ -39,7 +65,34 @@ watch(() => props.data, () => {
 <style scoped>
 :deep(a) {
 	cursor: pointer;
-	color: var(--notification-color);
+	color: var(--notification-color, var(--primary));
+}
+
+:deep(.discord-spoiler) {
+	display: inline-block;
+	cursor: pointer;
+	border: 1px solid color-mix(in oklab, var(--foreground) 16%, transparent);
+	border-radius: 0.25rem;
+	background-color: color-mix(in oklab, var(--foreground) 28%, transparent);
+	color: transparent;
+	line-height: 1.25;
+	padding: 0 0.25rem;
+	user-select: none;
+	vertical-align: baseline;
+	transition: background-color 150ms ease, color 150ms ease;
+}
+
+:deep(.discord-spoiler:hover),
+:deep(.discord-spoiler:focus) {
+	background-color: color-mix(in oklab, var(--foreground) 10%, transparent);
+	color: var(--foreground);
+	outline: none;
+	user-select: text;
+}
+
+:deep(.discord-spoiler:focus-visible) {
+	outline: 2px solid var(--notification-color, var(--ring));
+	outline-offset: 2px;
 }
 
 .ul {
@@ -49,7 +102,7 @@ watch(() => props.data, () => {
 }
 
 .ul li::marker {
-	color: var(--notification-color);
+	color: var(--notification-color, var(--primary));
 	font-size: 1rem;
 }
 
@@ -84,10 +137,10 @@ watch(() => props.data, () => {
 }
 
 .bq {
-	border-left: 4px solid var(--notification-color);
+	border-left: 4px solid var(--notification-color, var(--border));
 	margin: 0;
 	padding: 10px 15px;
-	background-color: hsl(var(--muted));
+	background-color: var(--muted);
 	border-radius: 4px;
 	width: 100%;
 }

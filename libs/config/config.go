@@ -53,11 +53,14 @@ type Config struct {
 	S3AccessToken string `required:"false" envconfig:"CDN_ACCESS_TOKEN"`
 	S3SecretToken string `required:"false" envconfig:"CDN_SECRET_TOKEN"`
 
-	DiscordClientID     string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
-	DiscordClientSecret string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
-	DiscordBotToken     string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
-	DiscordFeedbackUrl  string `required:"false" envconfig:"DISCORD_FEEDBACK_URL"`
-	GithubWebhookSecret string `required:"false" envconfig:"GITHUB_WEBHOOK_SECRET"`
+	DiscordClientID                        string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
+	DiscordClientSecret                    string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
+	DiscordBotToken                        string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
+	DiscordFeedbackUrl                     string `required:"false" envconfig:"DISCORD_FEEDBACK_URL"`
+	DiscordNotificationsChannelID          string `required:"false" envconfig:"DISCORD_NOTIFICATIONS_CHANNEL_ID"`
+	DiscordNotificationsHistoryLimit       uint   `required:"false" default:"100" envconfig:"DISCORD_NOTIFICATIONS_HISTORY_LIMIT"`
+	DiscordNotificationsMaxAttachmentBytes int64  `required:"false" default:"26214400" envconfig:"DISCORD_NOTIFICATIONS_MAX_ATTACHMENT_BYTES"`
+	GithubWebhookSecret                    string `required:"false" envconfig:"GITHUB_WEBHOOK_SECRET"`
 
 	OpenWeatherMapApiKey string `required:"false" envconfig:"OPENWEATHERMAP_API_KEY"`
 
@@ -131,6 +134,17 @@ type Config struct {
 	StreamlabsClientSecret string `required:"false" envconfig:"STREAMLABS_CLIENT_SECRET"`
 
 	SecretsEncryptionKey string `required:"false" default:"0123456789abcdef0123456789abcdef" envconfig:"SECRETS_ENCRYPTION_KEY"`
+}
+
+func (c Config) BuildS3PublicURL(objectPath string) string {
+	parts := []string{strings.TrimRight(c.S3PublicUrl, "/")}
+	if c.AppEnv == "development" {
+		parts = append(parts, strings.Trim(c.S3Bucket, "/"))
+	}
+	if objectPath = strings.TrimLeft(objectPath, "/"); objectPath != "" {
+		parts = append(parts, objectPath)
+	}
+	return strings.Join(parts, "/")
 }
 
 func (c *Config) IsProduction() bool {
