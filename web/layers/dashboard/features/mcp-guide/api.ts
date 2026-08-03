@@ -1,17 +1,6 @@
-import * as z from 'zod'
+import { mcpScopeCatalogResponseSchema, type McpRequestedScope } from '~/utils/mcp-scopes.js'
 
-const mcpGuideScopeSchema = z.object({
-	group: z.string().min(1),
-	name: z.string().min(1),
-	description: z.string().min(1),
-	actions: z.array(z.string().min(1)).min(1),
-})
-
-const mcpGuideScopesResponseSchema = z.object({
-	scopes: z.array(mcpGuideScopeSchema),
-})
-
-export type McpGuideScope = z.infer<typeof mcpGuideScopeSchema>
+export type McpGuideScope = McpRequestedScope
 
 export type McpGuideScopesResult =
 	| { readonly kind: 'success'; readonly scopes: readonly McpGuideScope[] }
@@ -23,7 +12,7 @@ export function createMcpGuideApi(fetcher: McpGuideFetcher) {
 	async function getScopesCatalog(): Promise<McpGuideScopesResult> {
 		try {
 			const response = await fetcher<unknown>('/api/oauth/scopes')
-			const parsed = mcpGuideScopesResponseSchema.parse(response)
+			const parsed = mcpScopeCatalogResponseSchema.parse(response)
 
 			return { kind: 'success', scopes: parsed.scopes }
 		} catch {

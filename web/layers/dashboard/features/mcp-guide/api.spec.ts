@@ -2,6 +2,17 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createMcpGuideApi } from './api.js'
 
+const invalidCatalogFixture = {
+	scopes: [
+		{
+			group: 'commands',
+			name: 'Commands',
+			description: 'Manage channel commands',
+			actions: ['write'],
+		},
+	],
+} as const
+
 const catalogFixture = {
 	scopes: [
 		{
@@ -20,6 +31,12 @@ const catalogFixture = {
 } as const
 
 describe('MCP guide API', () => {
+	it('rejects unknown scope actions in the backend catalog payload', async () => {
+		const api = createMcpGuideApi(vi.fn().mockResolvedValue(invalidCatalogFixture))
+
+		expect(await api.getScopesCatalog()).toEqual({ kind: 'error' })
+	})
+
 	it('requests the backend scope catalog and parses each group', async () => {
 		const fetchMock = vi.fn().mockResolvedValue(catalogFixture)
 		const api = createMcpGuideApi(fetchMock)
