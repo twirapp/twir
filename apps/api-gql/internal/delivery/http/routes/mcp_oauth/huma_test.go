@@ -18,6 +18,7 @@ func TestHandler_registers_exact_public_huma_routes_without_security(t *testing.
 	wantRoutes := map[string]struct{}{
 		http.MethodGet + " /.well-known/oauth-protected-resource":   {},
 		http.MethodGet + " /.well-known/oauth-authorization-server": {},
+		http.MethodGet + " /oauth/scopes":                           {},
 		http.MethodOptions + " /oauth/register":                     {},
 		http.MethodPost + " /oauth/register":                        {},
 		http.MethodGet + " /oauth/authorize":                        {},
@@ -31,7 +32,11 @@ func TestHandler_registers_exact_public_huma_routes_without_security(t *testing.
 
 	// When
 	router := handler.router()
-	for _, route := range handler.routes() {
+	routes := handler.routes()
+	if len(routes) != len(wantRoutes) {
+		t.Fatalf("route count = %d, want %d", len(routes), len(wantRoutes))
+	}
+	for _, route := range routes {
 		meta := route.GetMeta()
 		if _, ok := wantRoutes[meta.Method+" "+meta.Path]; !ok {
 			t.Fatalf("unexpected route = %s %s", meta.Method, meta.Path)

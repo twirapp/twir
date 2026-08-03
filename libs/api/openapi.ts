@@ -359,6 +359,13 @@ export interface ConsentClientResponse {
   uri?: string;
 }
 
+export interface ConsentScopeResponse {
+  actions: string[];
+  description: string;
+  group: string;
+  name: string;
+}
+
 export interface CountryStatsDto {
   /**
    * @format int64
@@ -724,6 +731,17 @@ export interface ScheduledVipOutputDto {
   remove_at?: string | null;
   remove_type?: ScheduledVipOutputDtoRemoveTypeEnum;
   user_id: string;
+}
+
+export interface ScopeCatalogItem {
+  actions: string[];
+  description: string;
+  group: string;
+  name: string;
+}
+
+export interface ScopeCatalogResponse {
+  scopes: ScopeCatalogItem[];
 }
 
 export interface SeasonStruct {
@@ -1538,11 +1556,10 @@ export class Api<SecurityDataType extends unknown> {
  * @summary Get OAuth consent details
  * @request GET:/oauth/consent
  * @response `200` `{
-    access_levels: (string)[],
     channel_id: string,
     client: ConsentClientResponse,
     csrf_token: string,
-    requested_scopes: (string)[],
+    requested_scopes: (ConsentScopeResponse)[],
 
 }` Consent details
  * @response `401` `{
@@ -1579,11 +1596,10 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<
         {
-          access_levels: string[];
           channel_id: string;
           client: ConsentClientResponse;
           csrf_token: string;
-          requested_scopes: string[];
+          requested_scopes: ConsentScopeResponse[];
         },
         {
           error: string;
@@ -1646,7 +1662,7 @@ export class Api<SecurityDataType extends unknown> {
  */
     mcpOauthConsentSubmit: (
       data: {
-        access_level: string;
+        approved_scopes?: string[];
         attempt: string;
         channel_id: string;
         csrf_token: string;
@@ -1812,6 +1828,32 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         body: data,
         type: ContentType.UrlEncoded,
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthScopes
+ * @summary OAuth scope catalog
+ * @request GET:/oauth/scopes
+ * @response `200` `{
+    scopes: (ScopeCatalogItem)[],
+
+}` OAuth scope catalog
+ * @response `default` `ErrorModel` Error
+ */
+    mcpOauthScopes: (params: RequestParams = {}) =>
+      this.http.request<
+        {
+          scopes: ScopeCatalogItem[];
+        },
+        any
+      >({
+        path: `/oauth/scopes`,
+        method: "GET",
+        format: "json",
         ...params,
       }),
 

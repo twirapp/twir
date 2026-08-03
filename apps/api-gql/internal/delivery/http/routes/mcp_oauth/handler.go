@@ -91,6 +91,7 @@ func (handler *Handler) routes() []route {
 	return []route{
 		newProtectedResourceMetadata(handler),
 		newAuthorizationServerMetadata(handler),
+		newScopeCatalog(),
 		newRegisterOptions(handler),
 		newRegisterClient(handler),
 		newAuthorize(handler),
@@ -114,6 +115,7 @@ var FxModule = fx.Options(
 		NewFx,
 		httpbase.AsFxRoute(newProtectedResourceMetadata),
 		httpbase.AsFxRoute(newAuthorizationServerMetadata),
+		httpbase.AsFxRoute(newScopeCatalog),
 		httpbase.AsFxRoute(newRegisterOptions),
 		httpbase.AsFxRoute(newRegisterClient),
 		httpbase.AsFxRoute(newAuthorize),

@@ -3,23 +3,22 @@ package mcp_oauth
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/google/uuid"
-	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	service "github.com/twirapp/twir/apps/api-gql/internal/services/mcp_oauth"
+	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
 )
 
 type consentDecision struct {
-	Attempt     string `json:"attempt"`
-	ChannelID   string `json:"channel_id"`
-	CSRFToken   string `json:"csrf_token"`
-	Decision    string `json:"decision"`
-	AccessLevel string `json:"access_level"`
+	Attempt        string   `json:"attempt"`
+	ChannelID      string   `json:"channel_id"`
+	CSRFToken      string   `json:"csrf_token"`
+	Decision       string   `json:"decision"`
+	ApprovedScopes []string `json:"approved_scopes,omitempty"`
 }
 
 type getConsentRoute struct {
@@ -87,9 +86,31 @@ func (route *getConsentRoute) getConsent(context huma.Context, attemptID string)
 		writeOAuthError(context, http.StatusInternalServerError, "server_error", "server error")
 		return
 	}
-	levels := []string{"read"}
-	if scopesContain(attempt.RequestedScopes, "write") {
-		levels = append(levels, "write")
+	requested := make([]entity.Scope, len(attempt.RequestedScopes))
+	for index, scope := range attempt.RequestedScopes {
+		requested[index] = entity.Scope(scope)
+	}
+	normalized, err := entity.NormalizeScopes(requested)
+	if err != nil {
+		writeOAuthError(context, http.StatusBadRequest, "invalid_scope", "requested scope is not permitted")
+		return
+	}
+	groups := entity.AllScopeGroups()
+	requestedGroups := make([]consentScopeResponse, 0, len(groups))
+	for _, group := range groups {
+		if !entity.HasScope(normalized, group.Group, entity.ScopeActionRead) {
+			continue
+		}
+		actions := []entity.ScopeAction{entity.ScopeActionRead}
+		if entity.HasScope(normalized, group.Group, entity.ScopeActionEdit) {
+			actions = append(actions, entity.ScopeActionEdit)
+		}
+		requestedGroups = append(requestedGroups, consentScopeResponse{
+			Group:       group.Group,
+			Name:        group.Name,
+			Description: group.Description,
+			Actions:     actions,
+		})
 	}
 	channelID, _ := route.handler.selectedDashboard(context)
 	response := consentClientResponse{ID: client.ClientID, Name: metadata.ClientName}
@@ -99,8 +120,7 @@ func (route *getConsentRoute) getConsent(context huma.Context, attemptID string)
 	writeJSON(context, http.StatusOK, consentResponse{
 		Client:          response,
 		ChannelID:       channelID.String(),
-		RequestedScopes: attempt.RequestedScopes,
-		AccessLevels:    levels,
+		RequestedScopes: requestedGroups,
 		CSRFToken:       attempt.CSRFToken,
 	})
 }
@@ -178,13 +198,27 @@ func (route *postConsentRoute) postConsent(context huma.Context, decision consen
 		writeOAuthError(context, http.StatusBadRequest, "invalid_request", "invalid consent decision")
 		return
 	}
-	if decision.Decision == "approve" && (decision.AccessLevel != "read" && decision.AccessLevel != "write") {
-		writeOAuthError(context, http.StatusBadRequest, "invalid_request", "invalid access level")
-		return
-	}
-	if decision.AccessLevel == "write" && !scopesContain(attempt.RequestedScopes, "write") {
-		writeOAuthError(context, http.StatusBadRequest, "invalid_scope", "requested scope is not permitted")
-		return
+	var approved []entity.Scope
+	if decision.Decision == "deny" {
+		if len(decision.ApprovedScopes) != 0 {
+			writeOAuthError(context, http.StatusBadRequest, "invalid_request", "approved scopes are not allowed when denying consent")
+			return
+		}
+	} else {
+		var err error
+		approved, err = entity.ParseScopes(strings.Join(decision.ApprovedScopes, " "))
+		if err != nil {
+			writeOAuthError(context, http.StatusBadRequest, "invalid_scope", "approved scope is not permitted")
+			return
+		}
+		requested := make([]entity.Scope, len(attempt.RequestedScopes))
+		for index, scope := range attempt.RequestedScopes {
+			requested[index] = entity.Scope(scope)
+		}
+		if !entity.ScopeSubset(approved, requested) {
+			writeOAuthError(context, http.StatusBadRequest, "invalid_scope", "approved scope is not permitted")
+			return
+		}
 	}
 	if err := route.handler.sessions.DeleteMCPOAuthAttempt(context.Context(), decision.Attempt); err != nil {
 		writeOAuthError(context, http.StatusNotFound, "invalid_request", "authorization attempt not found")
@@ -194,16 +228,12 @@ func (route *postConsentRoute) postConsent(context huma.Context, decision consen
 		route.handler.writeConsentRedirect(context, attempt, url.Values{"error": {"access_denied"}, "state": {attempt.ClientState}})
 		return
 	}
-	scope := "read"
-	if decision.AccessLevel == "write" {
-		scope = "read write"
-	}
 	issued, err := route.handler.service.CreateAuthorizationCode(context.Context(), service.CreateAuthorizationCodeInput{
 		Authorize: service.AuthorizeInput{
 			ClientID:            attempt.ClientID,
 			RedirectURI:         attempt.RedirectURI,
 			ResponseType:        "code",
-			Scope:               scope,
+			Scope:               strings.Join(entity.ScopeStrings(approved), " "),
 			Resource:            attempt.Resource,
 			CodeChallenge:       attempt.CodeChallenge,
 			CodeChallengeMethod: "S256",
@@ -216,67 +246,4 @@ func (route *postConsentRoute) postConsent(context huma.Context, decision consen
 		return
 	}
 	route.handler.writeConsentRedirect(context, attempt, url.Values{"code": {issued.Code}, "state": {attempt.ClientState}})
-}
-
-func (handler *Handler) loadAttempt(context huma.Context, attemptID string) (authsessions.MCPOAuthAttempt, bool) {
-	attempt, err := handler.sessions.GetMCPOAuthAttempt(context.Context(), attemptID)
-	if errors.Is(err, authsessions.ErrMCPOAuthAttemptExpired) {
-		writeOAuthError(context, http.StatusGone, "invalid_request", "authorization attempt expired")
-		return authsessions.MCPOAuthAttempt{}, false
-	}
-	if err != nil {
-		writeOAuthError(context, http.StatusNotFound, "invalid_request", "authorization attempt not found")
-		return authsessions.MCPOAuthAttempt{}, false
-	}
-	return attempt, true
-}
-
-func (handler *Handler) browserIdentity(context huma.Context) (uuid.UUID, uuid.UUID, bool) {
-	userID, err := handler.sessions.GetInternalUserID(context.Context())
-	if err != nil {
-		writeOAuthError(context, http.StatusUnauthorized, "login_required", "login required")
-		return uuid.Nil, uuid.Nil, false
-	}
-	channelID, ok := handler.selectedDashboard(context)
-	if !ok {
-		return uuid.Nil, uuid.Nil, false
-	}
-	return userID, channelID, true
-}
-
-func (handler *Handler) selectedDashboard(context huma.Context) (uuid.UUID, bool) {
-	raw, err := handler.sessions.GetSelectedDashboard(context.Context())
-	channelID, parseErr := uuid.Parse(raw)
-	if err != nil || parseErr != nil {
-		writeOAuthError(context, http.StatusForbidden, "access_denied", "selected dashboard is unavailable")
-		return uuid.Nil, false
-	}
-	return channelID, true
-}
-
-func (handler *Handler) writeConsentRedirect(context huma.Context, attempt authsessions.MCPOAuthAttempt, values url.Values) {
-	redirect, err := oauthRedirect(attempt.RedirectURI, values)
-	if err != nil {
-		writeOAuthError(context, http.StatusInternalServerError, "server_error", "server error")
-		return
-	}
-	writeJSON(context, http.StatusOK, consentRedirectResponse{RedirectTo: redirect})
-}
-
-type consentClientResponse struct {
-	ID   string  `json:"id"`
-	Name string  `json:"name"`
-	URI  *string `json:"uri,omitempty"`
-}
-
-type consentResponse struct {
-	Client          consentClientResponse `json:"client"`
-	ChannelID       string                `json:"channel_id"`
-	RequestedScopes []string              `json:"requested_scopes"`
-	AccessLevels    []string              `json:"access_levels"`
-	CSRFToken       string                `json:"csrf_token"`
-}
-
-type consentRedirectResponse struct {
-	RedirectTo string `json:"redirect_to"`
 }

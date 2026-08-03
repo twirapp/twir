@@ -3,6 +3,8 @@ package mcp
 import (
 	"errors"
 	"testing"
+
+	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
 )
 
 type integrationStatusDetails struct {
@@ -44,9 +46,33 @@ func TestIntegrationStatusPreservesErrorsWhenScopeIsReadOnly(t *testing.T) {
 	}
 }
 
-func TestIntegrationStatusRetainsDetailsWhenScopeAllowsWrites(t *testing.T) {
+func TestIntegrationStatusOmitsDetailsWithoutIntegrationEditScope(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		scopes toolAccessScopes
+	}{
+		{name: "integration read", scopes: toolAccessScopes{entity.Scope("integrations:read"): {}}},
+		{name: "unrelated edit", scopes: toolAccessScopes{entity.Scope("secrets:edit"): {}}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			// Given
+			requestScope := scope{AccessScopes: test.scopes}
+			details := integrationStatusDetails{AccessToken: "access-token", RefreshToken: "refresh-token"}
+
+			// When
+			result := integrationStatus(requestScope, details, nil)
+
+			// Then
+			if result.Data != nil {
+				t.Fatalf("scope %s exposed details: %#v", test.name, result.Data)
+			}
+		})
+	}
+}
+
+func TestIntegrationStatusRetainsDetailsWithIntegrationEditScope(t *testing.T) {
 	// Given
-	requestScope := scope{AccessScopes: fullToolAccessScopes()}
+	requestScope := scope{AccessScopes: toolAccessScopes{entity.Scope("integrations:edit"): {}}}
 	details := integrationStatusDetails{AccessToken: "access-token", RefreshToken: "refresh-token"}
 
 	// When
@@ -64,7 +90,7 @@ func TestLegacyIntegrationResultPreservesDisabledState(t *testing.T) {
 		t.Fatalf("read result = %#v, want disconnected without data", readResult)
 	}
 
-	writeResult := legacyIntegrationResult(scope{AccessScopes: fullToolAccessScopes()}, false)
+	writeResult := legacyIntegrationResult(scope{AccessScopes: toolAccessScopes{entity.Scope("integrations:edit"): {}}}, false)
 	if writeResult.Connected {
 		t.Fatalf("write result = %#v, want disconnected", writeResult)
 	}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
 )
 
 type protectedResourceMetadata struct {
@@ -42,7 +43,7 @@ func (route *protectedResourceMetadata) Handler(_ context.Context, _ *emptyInput
 		Body: protectedResourceMetadataResponse{
 			Resource:               route.handler.origin + "/api/mcp",
 			AuthorizationServers:   []string{route.handler.origin},
-			ScopesSupported:        []string{"read", "write"},
+			ScopesSupported:        entity.ScopeStrings(entity.AllScopes()),
 			BearerMethodsSupported: []string{"header"},
 		},
 	}, nil
@@ -90,7 +91,7 @@ func (route *authorizationServerMetadata) Handler(_ context.Context, _ *emptyInp
 			TokenEndpoint:                     route.handler.origin + "/api/oauth/token",
 			RegistrationEndpoint:              route.handler.origin + "/api/oauth/register",
 			RevocationEndpoint:                route.handler.origin + "/api/oauth/revoke",
-			ScopesSupported:                   []string{"read", "write"},
+			ScopesSupported:                   entity.ScopeStrings(entity.AllScopes()),
 			ResponseTypesSupported:            []string{"code"},
 			GrantTypesSupported:               []string{"authorization_code", "refresh_token"},
 			TokenEndpointAuthMethodsSupported: []string{"none"},

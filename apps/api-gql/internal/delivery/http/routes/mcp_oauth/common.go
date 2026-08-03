@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
-	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humagin"
@@ -175,5 +174,3 @@ func oauthRedirect(raw string, values url.Values) (string, error) {
 	redirect.RawQuery = query.Encode()
 	return redirect.String(), nil
 }
-
-func scopeString(scopes []string) string { return strings.Join(scopes, " ") }

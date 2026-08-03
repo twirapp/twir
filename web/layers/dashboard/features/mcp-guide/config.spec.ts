@@ -38,7 +38,7 @@ describe('createMcpClientGuides', () => {
 })
 
 describe('createMcpOAuthGuide', () => {
-	it('documents the complete flow, endpoints, and scopes for the site origin', () => {
+	it('documents the complete flow and endpoints for the site origin', () => {
 		const guide = createMcpOAuthGuide('https://twir.example')
 
 		expect(guide.steps).toHaveLength(6)
@@ -82,9 +82,6 @@ describe('createMcpOAuthGuide', () => {
 				descriptionKey: 'mcpGuide.oauth.endpoints.revoke',
 			},
 		])
-		expect(guide.scopes).toEqual([
-			{ name: 'read', descriptionKey: 'mcpGuide.oauth.scopes.read' },
-			{ name: 'write', descriptionKey: 'mcpGuide.oauth.scopes.write' },
-		])
+		expect(guide).not.toHaveProperty('scopes')
 	})
 })

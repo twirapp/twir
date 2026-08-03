@@ -2,6 +2,7 @@ package mcp_oauth
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -30,27 +31,28 @@ func newTestHandler(t *testing.T) testHandler {
 
 func newTestHandlerWithRateLimiter(t *testing.T, limiter registerRateLimiter) testHandler {
 	t.Helper()
+	allScopes := strings.Join(entity.ScopeStrings(entity.AllScopes()), " ")
 	service := &fakeService{
 		client: entity.Client{
 			ClientID: "client",
 			Metadata: []byte(
 				`{"client_name":"Example","client_uri":"https://client.example","redirect_uris":["https://client.example/callback"],` +
 					`"grant_types":["authorization_code","refresh_token"],"response_types":["code"],` +
-					`"token_endpoint_auth_method":"none","scope":"read write"}`,
+					`"token_endpoint_auth_method":"none","scope":"` + allScopes + `"}`,
 			),
 			RedirectURIs: []string{"https://client.example/callback"},
-			Scopes:       []entity.Scope{entity.ScopeRead, entity.ScopeWrite},
+			Scopes:       entity.AllScopes(),
 			CreatedAt:    time.Unix(1, 0),
 		},
 		authorized: service.AuthorizationRequest{
 			Client: entity.Client{
 				ClientID: "client",
-				Scopes:   []entity.Scope{entity.ScopeRead, entity.ScopeWrite},
+				Scopes:   entity.AllScopes(),
 			},
 			RedirectURI:   "https://client.example/callback",
 			CodeChallenge: "challenge",
 			Resource:      "https://twir.example/api/mcp",
-			Scopes:        []entity.Scope{entity.ScopeRead, entity.ScopeWrite},
+			Scopes:        entity.AllScopes(),
 		},
 		code: service.IssuedAuthorizationCode{Code: "issued-code"},
 		tokens: service.TokenSet{

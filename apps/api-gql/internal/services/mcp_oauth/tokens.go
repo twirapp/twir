@@ -73,7 +73,11 @@ func (s *Service) ExchangeAuthorizationCode(ctx context.Context, input ExchangeA
 	if code.ClientID != input.ClientID || code.RedirectURI != input.RedirectURI || code.Resource != s.resource || input.Resource != code.Resource || !code.ExpiresAt.After(s.clock.Now()) || !validVerifier(input.CodeVerifier) || subtle.ConstantTimeCompare([]byte(s256Challenge(input.CodeVerifier)), []byte(code.PKCEChallenge)) != 1 {
 		return TokenSet{}, oauthError(ErrorInvalidGrant, "invalid authorization code")
 	}
-	return s.createToken(ctx, code.ClientID, code.ChannelID, code.UserID, code.Scopes, code.Resource, false, entity.CredentialHash{})
+	scopes, err := entity.NormalizeScopes(code.Scopes)
+	if err != nil {
+		return TokenSet{}, oauthError(ErrorInvalidGrant, "invalid authorization code")
+	}
+	return s.createToken(ctx, code.ClientID, code.ChannelID, code.UserID, scopes, code.Resource, false, entity.CredentialHash{})
 }
 func (s *Service) Refresh(ctx context.Context, input RefreshInput) (TokenSet, error) {
 	hash := credentialHash(input.RefreshToken)
@@ -81,10 +85,14 @@ func (s *Service) Refresh(ctx context.Context, input RefreshInput) (TokenSet, er
 	if err != nil || current.ClientID != input.ClientID || input.Resource != s.resource || current.Resource != input.Resource || !current.RefreshExpiresAt.After(s.clock.Now()) {
 		return TokenSet{}, oauthError(ErrorInvalidGrant, "invalid refresh token")
 	}
-	requested := current.Scopes
+	currentScopes, err := entity.NormalizeScopes(current.Scopes)
+	if err != nil {
+		return TokenSet{}, oauthError(ErrorInvalidGrant, "invalid refresh token")
+	}
+	requested := currentScopes
 	if input.Scope != "" {
-		requested, err = parseScopes(input.Scope)
-		if err != nil || !scopeSubset(requested, current.Scopes) {
+		requested, err = entity.ParseScopes(input.Scope)
+		if err != nil || !entity.ScopeSubset(requested, currentScopes) {
 			return TokenSet{}, oauthError(ErrorInvalidScope, "requested scope is not permitted")
 		}
 	}
@@ -102,6 +110,10 @@ func (s *Service) VerifyAccessToken(ctx context.Context, raw string) (Authorized
 	if err != nil || token.RevokedAt != nil || !token.AccessExpiresAt.After(s.clock.Now()) || token.Resource != s.resource {
 		return AuthorizedGrant{}, oauthError(ErrorInvalidToken, "invalid access token")
 	}
+	scopes, err := entity.NormalizeScopes(token.Scopes)
+	if err != nil {
+		return AuthorizedGrant{}, oauthError(ErrorInvalidToken, "invalid access token")
+	}
 	channel, err := s.authorize(ctx, token.ClientID, token.UserID, token.ChannelID, hash)
 	if err != nil {
 		return AuthorizedGrant{}, err
@@ -110,9 +122,18 @@ func (s *Service) VerifyAccessToken(ctx context.Context, raw string) (Authorized
 	if err != nil {
 		return AuthorizedGrant{}, oauthError(ErrorInvalidToken, "invalid access token")
 	}
-	return AuthorizedGrant{Client: client, ChannelID: token.ChannelID, ApprovingUserID: token.UserID, Channel: channel, Scopes: slices.Clone(token.Scopes), Resource: s.resource}, nil
+	clientScopes, err := entity.NormalizeScopes(client.Scopes)
+	if err != nil {
+		return AuthorizedGrant{}, oauthError(ErrorInvalidToken, "invalid access token")
+	}
+	client.Scopes = clientScopes
+	return AuthorizedGrant{Client: client, ChannelID: token.ChannelID, ApprovingUserID: token.UserID, Channel: channel, Scopes: slices.Clone(scopes), Resource: s.resource}, nil
 }
 func (s *Service) createToken(ctx context.Context, clientID string, channelID, userID uuid.UUID, scopes []entity.Scope, resource string, rotate bool, refreshHash entity.CredentialHash) (TokenSet, error) {
+	normalizedScopes, err := entity.NormalizeScopes(scopes)
+	if err != nil {
+		return TokenSet{}, oauthError(ErrorInvalidGrant, "invalid authorization grant")
+	}
 	access, accessHash, err := s.credential()
 	if err != nil {
 		return TokenSet{}, err
@@ -122,7 +143,7 @@ func (s *Service) createToken(ctx context.Context, clientID string, channelID, u
 		return TokenSet{}, err
 	}
 	now := s.clock.Now()
-	input := repository.CreateTokenInput{ClientID: clientID, ChannelID: channelID, UserID: userID, AccessTokenHash: accessHash, RefreshTokenHash: refreshTokenHash, Scopes: scopes, Resource: resource, AccessExpiresAt: now.Add(time.Hour), RefreshExpiresAt: now.Add(30 * 24 * time.Hour)}
+	input := repository.CreateTokenInput{ClientID: clientID, ChannelID: channelID, UserID: userID, AccessTokenHash: accessHash, RefreshTokenHash: refreshTokenHash, Scopes: normalizedScopes, Resource: resource, AccessExpiresAt: now.Add(time.Hour), RefreshExpiresAt: now.Add(30 * 24 * time.Hour)}
 	if rotate {
 		_, err = s.repository.RotateRefreshToken(ctx, repository.RotateRefreshTokenInput{PresentedRefreshTokenHash: refreshHash, NextAccessTokenHash: accessHash, NextRefreshTokenHash: refreshTokenHash, Scopes: input.Scopes, AccessExpiresAt: input.AccessExpiresAt, RefreshExpiresAt: input.RefreshExpiresAt})
 	} else {
@@ -134,7 +155,7 @@ func (s *Service) createToken(ctx context.Context, clientID string, channelID, u
 		}
 		return TokenSet{}, fmt.Errorf("issue MCP OAuth token: %w", err)
 	}
-	return TokenSet{AccessToken: access, RefreshToken: refresh, TokenType: "Bearer", Resource: resource, Scopes: slices.Clone(scopes), AccessExpiresAt: input.AccessExpiresAt, RefreshExpiresAt: input.RefreshExpiresAt}, nil
+	return TokenSet{AccessToken: access, RefreshToken: refresh, TokenType: "Bearer", Resource: resource, Scopes: slices.Clone(normalizedScopes), AccessExpiresAt: input.AccessExpiresAt, RefreshExpiresAt: input.RefreshExpiresAt}, nil
 }
 func (s *Service) authorize(ctx context.Context, clientID string, userID, channelID uuid.UUID, hash entity.CredentialHash) (channelentity.Channel, error) {
 	user, err := s.users.GetByID(ctx, userID.String())

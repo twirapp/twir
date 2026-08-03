@@ -7,6 +7,7 @@ import (
 
 	modelsdk "github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/seventv_integration"
+	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
@@ -29,10 +30,18 @@ func integrationStatus(requestScope scope, data any, err error) integrationResul
 	}
 	connected := data != nil && !reflect.ValueOf(data).IsZero()
 	result := integrationResult{Connected: connected}
-	if _, writeAllowed := requestScope.AccessScopes[toolAccessScopeWrite]; writeAllowed {
+	if integrationDetailsAllowed(requestScope.AccessScopes) {
 		result.Data = data
 	}
 	return result
+}
+
+func integrationDetailsAllowed(accessScopes toolAccessScopes) bool {
+	scopes := make([]entity.Scope, 0, len(accessScopes))
+	for scope := range accessScopes {
+		scopes = append(scopes, scope)
+	}
+	return entity.HasScope(scopes, entity.ScopeGroupIntegrations, entity.ScopeActionEdit)
 }
 
 func (h *Handler) legacyIntegrationStatus(ctx context.Context, requestScope scope, service string) integrationResult {
@@ -46,7 +55,7 @@ func (h *Handler) legacyIntegrationStatus(ctx context.Context, requestScope scop
 
 func legacyIntegrationResult(requestScope scope, enabled bool) integrationResult {
 	result := integrationResult{Connected: enabled}
-	if _, writeAllowed := requestScope.AccessScopes[toolAccessScopeWrite]; writeAllowed {
+	if integrationDetailsAllowed(requestScope.AccessScopes) {
 		result.Data = map[string]any{"enabled": enabled}
 	}
 	return result

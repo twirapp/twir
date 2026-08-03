@@ -177,10 +177,11 @@
         "revoke": "Revoke an access or refresh token"
       },
       "scopesTitle": "Scopes",
-      "scopes": {
-        "read": "Read-only tools: view channel data without changing any settings.",
-        "write": "Full tool access, including secrets, files, integrations, and moderation."
-      },
+      "scopesDescription": "Each scope group grants a separate set of MCP tools. The catalog below is served by the backend and always reflects what your client can request.",
+      "scopesLoading": "Loading the scope catalog...",
+      "scopesUnavailable": "The scope catalog could not be loaded. Your client will still discover the available scopes during the OAuth flow.",
+      "scopesEditIncludesRead": "Granting edit access always includes read access for the same group.",
+      "scopesLegacyAliases": "The legacy read and write scope aliases are still accepted for compatibility, but they are no longer advertised.",
       "tokenLifetimes": "Access tokens expire after 1 hour. Refresh tokens expire after 30 days and rotate on every refresh. Consent requires permission to manage bot settings.",
       "authTitle": "Re-run the OAuth flow",
       "authDescription": "Ask your client to authenticate again if the token expired or you want to switch access level.",
@@ -195,12 +196,14 @@
     "client": "Client",
     "clientUri": "Client website",
     "dashboard": "Selected dashboard",
-    "requestedScopes": "Requested scopes",
-    "accessLevel": "Access level",
-    "readTitle": "Read-only access",
-    "readDescription": "View channel data without changing your settings.",
-    "writeTitle": "Full read and write access",
-    "writeDescription": "Allow this client to view and change channel settings.",
+    "scopes": {
+      "title": "Requested permissions",
+      "description": "Choose what this client may do in each area. Read access is on by default; enable edit only where the client truly needs it.",
+      "read": "Read",
+      "edit": "Edit",
+      "editIncludesRead": "Edit access includes read access.",
+      "emptySelection": "Select at least one permission before approving."
+    },
     "writeWarning": {
       "title": "Sensitive access enabled",
       "description": "Full access can manage secrets, integrations, moderation, and uploaded files. Only approve a client you trust."

@@ -17,7 +17,7 @@ import (
 )
 
 const protectedResourceMetadataURL = "https://twir.example/.well-known/oauth-protected-resource/api/mcp"
-const bearerChallenge = `Bearer resource_metadata="` + protectedResourceMetadataURL + `", scope="read write"`
+const bearerChallenge = `Bearer resource_metadata="` + protectedResourceMetadataURL + `", scope="commands:read commands:edit timers:read timers:edit files:read files:edit games:read games:edit song_requests:read song_requests:edit moderation:read moderation:edit overlays:read overlays:edit integrations:read integrations:edit events:read events:edit rewards:read rewards:edit giveaways:read giveaways:edit greetings:read greetings:edit notifications:read notifications:edit alerts:read alerts:edit secrets:read secrets:edit storage:read storage:edit pastes:read pastes:edit short_urls:read short_urls:edit dashboard:read dashboard:edit variables:read variables:edit quotes:read quotes:edit keywords:read keywords:edit"`
 const corsAllowMethods = "POST, GET, OPTIONS"
 const corsAllowHeaders = "Authorization, Content-Type, Accept, MCP-Protocol-Version, Last-Event-ID"
 const corsExposeHeaders = "MCP-Session-Id, MCP-Protocol-Version, WWW-Authenticate"
@@ -147,7 +147,7 @@ func TestHandlerBindsVerifiedGrantToRequestScope(t *testing.T) {
 }
 
 func TestHandlerRejectsInvalidGrantScopes(t *testing.T) {
-	for _, scopes := range [][]entity.Scope{{entity.ScopeWrite}, {entity.ScopeRead, "unknown"}} {
+	for _, scopes := range [][]entity.Scope{{"unknown"}, {"commands"}, {"commands:delete"}, {entity.ScopeRead, "unknown"}} {
 		t.Run(strings.Join(scopeNames(scopes), ","), func(t *testing.T) {
 			verifier := &mcpAccessVerifier{grant: testAuthorizedGrant(scopes...)}
 			handler := newTestMCPHandler(verifier)

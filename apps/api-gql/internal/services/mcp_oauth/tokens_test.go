@@ -8,6 +8,7 @@ import (
 	appentity "github.com/twirapp/twir/apps/api-gql/internal/entity"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
+	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
 )
 
 func TestService_VerifyAccessToken_returnsAuthorizedChannel(t *testing.T) {
@@ -16,7 +17,7 @@ func TestService_VerifyAccessToken_returnsAuthorizedChannel(t *testing.T) {
 	repository := newFakeRepository()
 	client := testClient()
 	repository.clients[client.ClientID] = client
-	token := testToken(client.ClientID, "access-token", "refresh-token", nil)
+	token := testToken(client.ClientID, "access-token", "refresh-token", entity.AllScopes())
 	repository.putToken(token)
 	service := newTestService(t, repository, true, appentity.User{ID: token.UserID.String()})
 	channel := channelentity.Channel{

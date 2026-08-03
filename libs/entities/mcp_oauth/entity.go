@@ -11,6 +11,7 @@ import (
 type Scope string
 
 const (
+	// ScopeRead and ScopeWrite are legacy compatibility aliases for the full read and edit scope sets.
 	ScopeRead  Scope = "read"
 	ScopeWrite Scope = "write"
 )

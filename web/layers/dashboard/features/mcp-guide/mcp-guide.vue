@@ -8,7 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
+import { createMcpGuideApi, type McpGuideScope } from './api.js'
 import { createMcpClientGuides, createMcpOAuthGuide } from './config.js'
+import McpGuideScopes from './mcp-guide-scopes.vue'
 
 const { t } = useI18n()
 const requestUrl = useRequestURL()
@@ -16,6 +18,30 @@ const requestUrl = useRequestURL()
 const endpoint = computed(() => `${requestUrl.origin}/api/mcp`)
 const guides = computed(() => createMcpClientGuides(endpoint.value))
 const oauth = computed(() => createMcpOAuthGuide(requestUrl.origin))
+
+const mcpGuideApi = createMcpGuideApi($fetch)
+const scopesState = ref<'loading' | 'ready' | 'error'>('loading')
+const scopeGroups = ref<readonly McpGuideScope[]>([])
+
+async function loadScopesCatalog(): Promise<void> {
+	const result = await mcpGuideApi.getScopesCatalog()
+
+	switch (result.kind) {
+		case 'success':
+			scopeGroups.value = result.scopes
+			scopesState.value = 'ready'
+			return
+		case 'error':
+			scopesState.value = 'error'
+			return
+		default:
+			return result satisfies never
+	}
+}
+
+onMounted(() => {
+	void loadScopesCatalog()
+})
 
 async function copy(value: string) {
 	try {
@@ -155,16 +181,7 @@ function copyGuide(id: string) {
 						</div>
 					</div>
 
-					<div class="flex flex-col gap-3">
-						<p class="text-sm font-medium">{{ t('mcpGuide.oauth.scopesTitle') }}</p>
-						<div class="flex flex-col gap-2 text-sm">
-							<div v-for="scope in oauth.scopes" :key="scope.name" class="flex items-start gap-2">
-								<Badge variant="secondary" class="font-mono">{{ scope.name }}</Badge>
-								<p class="text-muted-foreground">{{ t(scope.descriptionKey) }}</p>
-							</div>
-						</div>
-						<p class="text-sm text-muted-foreground">{{ t('mcpGuide.oauth.tokenLifetimes') }}</p>
-					</div>
+					<McpGuideScopes :state="scopesState" :scopes="scopeGroups" />
 
 					<div class="flex flex-col gap-3">
 						<div>

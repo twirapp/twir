@@ -96,15 +96,9 @@ export interface McpOAuthEndpoint {
 	readonly descriptionKey: string
 }
 
-export interface McpOAuthScope {
-	readonly name: 'read' | 'write'
-	readonly descriptionKey: string
-}
-
 export interface McpOAuthGuide {
 	readonly steps: readonly McpOAuthFlowStep[]
 	readonly endpoints: readonly McpOAuthEndpoint[]
-	readonly scopes: readonly McpOAuthScope[]
 }
 
 export function createMcpOAuthGuide(origin: string): McpOAuthGuide {
@@ -168,10 +162,6 @@ export function createMcpOAuthGuide(origin: string): McpOAuthGuide {
 				url: `${api}/oauth/revoke`,
 				descriptionKey: 'mcpGuide.oauth.endpoints.revoke',
 			},
-		],
-		scopes: [
-			{ name: 'read', descriptionKey: 'mcpGuide.oauth.scopes.read' },
-			{ name: 'write', descriptionKey: 'mcpGuide.oauth.scopes.write' },
 		],
 	}
 }

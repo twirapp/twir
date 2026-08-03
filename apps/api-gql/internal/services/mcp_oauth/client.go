@@ -68,11 +68,16 @@ func (s *Service) ValidateAuthorizeInput(ctx context.Context, input AuthorizeInp
 	if input.ResponseType != "code" || !MatchesRegisteredRedirectURI(client.RedirectURIs, input.RedirectURI) || input.Resource != s.resource || input.CodeChallengeMethod != "S256" || !validChallenge(input.CodeChallenge) {
 		return AuthorizationRequest{}, oauthError(ErrorInvalidRequest, "invalid authorization request")
 	}
-	scopes := client.Scopes
-	if input.Scope != "" {
-		scopes, err = parseScopes(input.Scope)
+	clientScopes, err := entity.NormalizeScopes(client.Scopes)
+	if err != nil {
+		return AuthorizationRequest{}, oauthError(ErrorInvalidScope, "requested scope is not permitted")
 	}
-	if err != nil || !scopeSubset(scopes, client.Scopes) {
+	client.Scopes = clientScopes
+	scopes := clientScopes
+	if input.Scope != "" {
+		scopes, err = entity.ParseScopes(input.Scope)
+	}
+	if err != nil || !entity.ScopeSubset(scopes, clientScopes) {
 		return AuthorizationRequest{}, oauthError(ErrorInvalidScope, "requested scope is not permitted")
 	}
 	return AuthorizationRequest{Client: client, RedirectURI: input.RedirectURI, CodeChallenge: input.CodeChallenge, Resource: s.resource, Scopes: scopes}, nil
@@ -147,13 +152,13 @@ func normalizeMetadata(raw json.RawMessage) (clientMetadata, []entity.Scope, err
 		}
 		metadata.RedirectURIs[i] = normalized
 	}
-	scopes, err := parseScopes(metadata.Scope)
-	if err != nil || !slices.Contains(scopes, entity.ScopeRead) {
+	scopes, err := entity.ParseScopes(metadata.Scope)
+	if err != nil {
 		return clientMetadata{}, nil, oauthError(ErrorInvalidClientMetadata, "invalid client scope")
 	}
 	metadata.GrantTypes = []string{"authorization_code", "refresh_token"}
 	metadata.ResponseTypes = []string{"code"}
-	metadata.Scope = strings.Join(scopeStrings(scopes), " ")
+	metadata.Scope = strings.Join(entity.ScopeStrings(scopes), " ")
 	return metadata, scopes, nil
 }
 func normalizeRedirectURI(raw string) (string, error) {
@@ -208,40 +213,6 @@ func sameSet(got, want []string) bool {
 		seen[value] = true
 	}
 	return slices.EqualFunc(want, want, func(left, right string) bool { return seen[left] && seen[right] })
-}
-func parseScopes(raw string) ([]entity.Scope, error) {
-	values := strings.Fields(raw)
-	seen := map[entity.Scope]bool{}
-	for _, value := range values {
-		scope := entity.Scope(value)
-		if (scope != entity.ScopeRead && scope != entity.ScopeWrite) || seen[scope] {
-			return nil, oauthError(ErrorInvalidScope, "invalid scope")
-		}
-		seen[scope] = true
-	}
-	if len(seen) == 0 {
-		return nil, oauthError(ErrorInvalidScope, "scope is required")
-	}
-	result := []entity.Scope{entity.ScopeRead}
-	if seen[entity.ScopeWrite] {
-		result = append(result, entity.ScopeWrite)
-	}
-	return result, nil
-}
-func scopeSubset(requested, allowed []entity.Scope) bool {
-	for _, scope := range requested {
-		if !slices.Contains(allowed, scope) {
-			return false
-		}
-	}
-	return true
-}
-func scopeStrings(scopes []entity.Scope) []string {
-	result := make([]string, len(scopes))
-	for i, scope := range scopes {
-		result[i] = string(scope)
-	}
-	return result
 }
 func validChallenge(value string) bool {
 	bytes, err := base64.RawURLEncoding.DecodeString(value)

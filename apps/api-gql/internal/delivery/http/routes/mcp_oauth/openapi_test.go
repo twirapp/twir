@@ -26,6 +26,7 @@ func TestHandler_generated_openapi_exposes_concrete_oauth_contract(t *testing.T)
 	for _, check := range []operationCheck{
 		{path: "/.well-known/oauth-protected-resource", method: http.MethodGet},
 		{path: "/.well-known/oauth-authorization-server", method: http.MethodGet},
+		{path: "/oauth/scopes", method: http.MethodGet},
 		{path: "/oauth/register", method: http.MethodOptions},
 		{path: "/oauth/register", method: http.MethodPost},
 		{path: "/oauth/authorize", method: http.MethodGet},
@@ -56,16 +57,22 @@ func TestHandler_generated_openapi_exposes_concrete_oauth_contract(t *testing.T)
 	assertJSONRequestSchemaProps(t, openapi, "/oauth/register", http.MethodPost, "application/json",
 		"client_name", "client_uri", "redirect_uris", "grant_types", "response_types", "token_endpoint_auth_method", "scope")
 	assertJSONRequestSchemaProps(t, openapi, "/oauth/consent", http.MethodPost, "application/json",
-		"attempt", "channel_id", "csrf_token", "decision", "access_level")
+		"attempt", "channel_id", "csrf_token", "decision", "approved_scopes")
 	assertFormRequestSchemaProps(t, openapi, "/oauth/token", http.MethodPost, "application/x-www-form-urlencoded",
 		"grant_type", "client_id", "code", "redirect_uri", "code_verifier", "refresh_token", "scope", "resource")
 	assertFormRequestSchemaProps(t, openapi, "/oauth/revoke", http.MethodPost, "application/x-www-form-urlencoded", "client_id", "token")
 
 	assertJSONResponseSchemaProps(t, openapi, "/.well-known/oauth-protected-resource", http.MethodGet, http.StatusOK, "resource", "authorization_servers")
 	assertJSONResponseSchemaProps(t, openapi, "/.well-known/oauth-authorization-server", http.MethodGet, http.StatusOK, "issuer", "token_endpoint")
+	assertJSONResponseSchemaProps(t, openapi, "/oauth/scopes", http.MethodGet, http.StatusOK, "scopes")
+	assertJSONResponseArrayItemSchemaProps(t, openapi, "/oauth/scopes", http.MethodGet, http.StatusOK, "scopes", "group", "name", "description", "actions")
 	assertJSONResponseSchemaProps(t, openapi, "/oauth/register", http.MethodPost, http.StatusCreated, "client_id", "client_id_issued_at", "client_name")
 	assertJSONResponseSchemaProps(t, openapi, "/oauth/consent", http.MethodGet, http.StatusOK,
-		"client", "channel_id", "requested_scopes", "access_levels", "csrf_token")
+		"client", "channel_id", "requested_scopes", "csrf_token")
+	assertJSONResponseArrayItemSchemaProps(t, openapi, "/oauth/consent", http.MethodGet, http.StatusOK,
+		"requested_scopes", "group", "name", "description", "actions")
+	assertJSONRequestSchemaPropsAbsent(t, openapi, "/oauth/consent", http.MethodPost, "application/json", "access_level")
+	assertJSONResponseSchemaPropsAbsent(t, openapi, "/oauth/consent", http.MethodGet, http.StatusOK, "access_levels")
 	assertJSONResponseSchemaProps(t, openapi, "/oauth/consent", http.MethodPost, http.StatusOK, "redirect_to")
 	assertJSONResponseSchemaProps(t, openapi, "/oauth/token", http.MethodPost, http.StatusOK, "access_token", "token_type", "expires_in", "refresh_token", "scope")
 
@@ -165,6 +172,29 @@ func assertJSONResponseSchemaProps(t *testing.T, openapi *huma.OpenAPI, path str
 	assertSchemaProps(t, openapi, content.Schema, want...)
 }
 
+func assertJSONResponseArrayItemSchemaProps(t *testing.T, openapi *huma.OpenAPI, path string, method string, status int, property string, want ...string) {
+	t.Helper()
+	operation := mustOperation(t, openapi, path, method)
+	response := operation.Responses[fmt.Sprint(status)]
+	if response == nil {
+		t.Fatalf("%s %s missing response %d", method, path, status)
+	}
+	content := response.Content["application/json"]
+	if content == nil {
+		t.Fatalf("%s %s response %d missing json content", method, path, status)
+	}
+	resolved := resolveSchema(t, openapi, content.Schema)
+	arraySchema, ok := resolved.Properties[property]
+	if !ok {
+		t.Fatalf("schema %q missing property %q; got keys %v", schemaLabel(resolved), property, schemaKeys(resolved))
+	}
+	arraySchema = resolveSchema(t, openapi, arraySchema)
+	if arraySchema.Type != huma.TypeArray || arraySchema.Items == nil {
+		t.Fatalf("schema %q property %q = %#v, want array with items", schemaLabel(resolved), property, arraySchema)
+	}
+	assertSchemaProps(t, openapi, arraySchema.Items, want...)
+}
+
 func assertNoContentResponse(t *testing.T, openapi *huma.OpenAPI, path string, method string, status int) {
 	t.Helper()
 	operation := mustOperation(t, openapi, path, method)
@@ -196,6 +226,39 @@ func assertSchemaProps(t *testing.T, openapi *huma.OpenAPI, schema *huma.Schema,
 	for _, name := range want {
 		if _, ok := resolved.Properties[name]; !ok {
 			t.Fatalf("schema %q missing property %q; got keys %v", schemaLabel(schema), name, schemaKeys(resolved))
+		}
+	}
+}
+
+func assertJSONRequestSchemaPropsAbsent(t *testing.T, openapi *huma.OpenAPI, path string, method string, contentType string, unwanted ...string) {
+	t.Helper()
+	operation := mustOperation(t, openapi, path, method)
+	if operation.RequestBody == nil {
+		t.Fatalf("%s %s missing request body", method, path)
+	}
+	assertSchemaPropsAbsent(t, openapi, operation.RequestBody.Content[contentType].Schema, unwanted...)
+}
+
+func assertJSONResponseSchemaPropsAbsent(t *testing.T, openapi *huma.OpenAPI, path string, method string, status int, unwanted ...string) {
+	t.Helper()
+	operation := mustOperation(t, openapi, path, method)
+	response := operation.Responses[fmt.Sprint(status)]
+	if response == nil {
+		t.Fatalf("%s %s missing response %d", method, path, status)
+	}
+	content := response.Content["application/json"]
+	if content == nil {
+		t.Fatalf("%s %s response %d missing json content", method, path, status)
+	}
+	assertSchemaPropsAbsent(t, openapi, content.Schema, unwanted...)
+}
+
+func assertSchemaPropsAbsent(t *testing.T, openapi *huma.OpenAPI, schema *huma.Schema, unwanted ...string) {
+	t.Helper()
+	resolved := resolveSchema(t, openapi, schema)
+	for _, name := range unwanted {
+		if _, ok := resolved.Properties[name]; ok {
+			t.Fatalf("schema %q unexpectedly contains property %q", schemaLabel(schema), name)
 		}
 	}
 }

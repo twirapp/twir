@@ -6,6 +6,8 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -32,11 +34,34 @@ func TestService_RegisterClient_normalizes_public_metadata(t *testing.T) {
 	if client.ClientID == "" || len(client.ClientID) != 43 {
 		t.Fatalf("client ID = %q, want 32-byte base64url value", client.ClientID)
 	}
-	if !equalScopes(client.Scopes, []entity.Scope{entity.ScopeRead, entity.ScopeWrite}) {
+	if !equalScopes(client.Scopes, entity.AllScopes()) {
 		t.Fatalf("scopes = %v", client.Scopes)
+	}
+	var normalizedMetadata clientMetadata
+	if err := json.Unmarshal(client.Metadata, &normalizedMetadata); err != nil {
+		t.Fatalf("unmarshal normalized metadata: %v", err)
+	}
+	if normalizedMetadata.Scope != strings.Join(entity.ScopeStrings(entity.AllScopes()), " ") {
+		t.Fatalf("metadata scope = %q, want canonical scopes", normalizedMetadata.Scope)
 	}
 	if client.RedirectURIs[1] != "com.example.app:/oauth/callback" {
 		t.Fatalf("redirect URI = %q", client.RedirectURIs[1])
+	}
+}
+
+func TestService_RegisterClient_rejects_unknown_or_malformed_scopes(t *testing.T) {
+	for _, scope := range []string{"unknown", "commands", "commands:delete"} {
+		t.Run(scope, func(t *testing.T) {
+			// Given
+			service := newTestService(t, newFakeRepository(), true, appentity.User{})
+			metadata := json.RawMessage(`{"redirect_uris":["https://client.example/callback"],"scope":"` + scope + `"}`)
+
+			// When
+			_, err := service.RegisterClient(context.Background(), RegisterClientInput{Metadata: metadata})
+
+			// Then
+			requireOAuthCode(t, err, ErrorInvalidClientMetadata)
+		})
 	}
 }
 
@@ -84,8 +109,42 @@ func TestService_ExchangeAuthorizationCode_issues_hashed_credentials(t *testing.
 	if repo.lastCreated.AccessTokenHash != accessHash {
 		t.Fatal("repository did not receive access-token hash")
 	}
-	if !equalScopes(repo.lastCreated.Scopes, []entity.Scope{entity.ScopeRead, entity.ScopeWrite}) {
+	if !equalScopes(repo.lastCreated.Scopes, entity.AllScopes()) {
 		t.Fatalf("issued scopes = %v", repo.lastCreated.Scopes)
+	}
+}
+
+func TestService_ExchangeAuthorizationCode_normalizes_legacy_scopes(t *testing.T) {
+	// Given
+	ctx := context.Background()
+	repo := newFakeRepository()
+	client := testClient()
+	repo.clients[client.ClientID] = client
+	codeValue := "legacy-authorization-code"
+	codeHash := credentialHash(codeValue)
+	verifier := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~abcdefghijk"
+	repo.codes[codeHash] = entity.AuthorizationCode{
+		CodeHash:      codeHash,
+		ClientID:      client.ClientID,
+		ChannelID:     uuid.New(),
+		UserID:        uuid.New(),
+		RedirectURI:   client.RedirectURIs[0],
+		PKCEChallenge: s256Challenge(verifier),
+		Scopes:        []entity.Scope{entity.ScopeRead},
+		Resource:      "https://twir.example/api/mcp",
+		ExpiresAt:     time.Date(2026, 8, 3, 12, 5, 0, 0, time.UTC),
+	}
+	service := newTestService(t, repo, true, appentity.User{})
+
+	// When
+	tokens, err := service.ExchangeAuthorizationCode(ctx, ExchangeAuthorizationCodeInput{ClientID: client.ClientID, Code: codeValue, RedirectURI: client.RedirectURIs[0], CodeVerifier: verifier, Resource: "https://twir.example/api/mcp"})
+
+	// Then
+	if err != nil {
+		t.Fatalf("ExchangeAuthorizationCode() error = %v", err)
+	}
+	if !equalScopes(tokens.Scopes, canonicalReadScopes()) || !equalScopes(repo.lastCreated.Scopes, canonicalReadScopes()) {
+		t.Fatalf("issued scopes = %v, stored scopes = %v", tokens.Scopes, repo.lastCreated.Scopes)
 	}
 }
 
@@ -133,23 +192,58 @@ func TestService_AuthorizationCode_binds_runtime_loopback_redirect_URI(t *testin
 }
 
 func TestService_Refresh_rejects_scope_elevation_and_revokes_reuse(t *testing.T) {
+	for _, test := range []struct {
+		name  string
+		scope string
+	}{
+		{name: "legacy write alias", scope: "write"},
+		{name: "new group", scope: "timers:read"},
+		{name: "read to edit", scope: "commands:edit"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			// Given
+			ctx := context.Background()
+			repo := newFakeRepository()
+			client := testClient()
+			repo.clients[client.ClientID] = client
+			refresh := "refresh-token"
+			token := testToken(client.ClientID, "access-token", refresh, []entity.Scope{"commands:read"})
+			repo.putToken(token)
+			service := newTestService(t, repo, true, appentity.User{ID: token.UserID.String()})
+
+			// When
+			_, err := service.Refresh(ctx, RefreshInput{ClientID: client.ClientID, RefreshToken: refresh, Scope: test.scope, Resource: "https://twir.example/api/mcp"})
+
+			// Then
+			requireOAuthCode(t, err, ErrorInvalidScope)
+			if repo.rotations != 0 {
+				t.Fatal("scope elevation attempted token rotation")
+			}
+		})
+	}
+}
+
+func TestService_Refresh_narrows_scopes_per_group(t *testing.T) {
 	// Given
 	ctx := context.Background()
 	repo := newFakeRepository()
 	client := testClient()
 	repo.clients[client.ClientID] = client
 	refresh := "refresh-token"
-	token := testToken(client.ClientID, "access-token", refresh, []entity.Scope{entity.ScopeRead})
+	token := testToken(client.ClientID, "access-token", refresh, entity.AllScopes())
 	repo.putToken(token)
 	service := newTestService(t, repo, true, appentity.User{ID: token.UserID.String()})
 
 	// When
-	_, err := service.Refresh(ctx, RefreshInput{ClientID: client.ClientID, RefreshToken: refresh, Scope: "write", Resource: "https://twir.example/api/mcp"})
+	refreshed, err := service.Refresh(ctx, RefreshInput{ClientID: client.ClientID, RefreshToken: refresh, Scope: "commands:read timers:edit", Resource: "https://twir.example/api/mcp"})
 
 	// Then
-	requireOAuthCode(t, err, ErrorInvalidScope)
-	if repo.rotations != 0 {
-		t.Fatal("scope elevation attempted token rotation")
+	if err != nil {
+		t.Fatalf("Refresh() error = %v", err)
+	}
+	want := []entity.Scope{"commands:read", "timers:read", "timers:edit"}
+	if !equalScopes(refreshed.Scopes, want) || !equalScopes(repo.lastCreated.Scopes, want) {
+		t.Fatalf("refreshed scopes = %v, stored scopes = %v, want %v", refreshed.Scopes, repo.lastCreated.Scopes, want)
 	}
 }
 
@@ -173,6 +267,45 @@ func TestService_VerifyAccessToken_revokes_family_when_permission_is_lost(t *tes
 	}
 }
 
+func TestService_VerifyAccessToken_normalizes_legacy_scopes(t *testing.T) {
+	// Given
+	ctx := context.Background()
+	repo := newFakeRepository()
+	client := testClient()
+	repo.clients[client.ClientID] = client
+	token := testToken(client.ClientID, "access-token", "refresh-token", []entity.Scope{entity.ScopeRead})
+	repo.putToken(token)
+	service := newTestService(t, repo, true, appentity.User{ID: token.UserID.String()})
+
+	// When
+	grant, err := service.VerifyAccessToken(ctx, "access-token")
+
+	// Then
+	if err != nil {
+		t.Fatalf("VerifyAccessToken() error = %v", err)
+	}
+	if !equalScopes(grant.Scopes, canonicalReadScopes()) {
+		t.Fatalf("grant scopes = %v, want canonical read scopes", grant.Scopes)
+	}
+}
+
+func TestService_VerifyAccessToken_rejects_invalid_stored_scopes(t *testing.T) {
+	// Given
+	ctx := context.Background()
+	repo := newFakeRepository()
+	client := testClient()
+	repo.clients[client.ClientID] = client
+	token := testToken(client.ClientID, "access-token", "refresh-token", []entity.Scope{"commands:delete"})
+	repo.putToken(token)
+	service := newTestService(t, repo, true, appentity.User{ID: token.UserID.String()})
+
+	// When
+	_, err := service.VerifyAccessToken(ctx, "access-token")
+
+	// Then
+	requireOAuthCode(t, err, ErrorInvalidToken)
+}
+
 func newTestService(t *testing.T, repo *fakeRepository, allowed bool, user appentity.User) *Service {
 	t.Helper()
 	channelID := uuid.New()
@@ -187,7 +320,7 @@ func newTestService(t *testing.T, repo *fakeRepository, allowed bool, user appen
 }
 
 func testClient() entity.Client {
-	return entity.Client{ClientID: "client", RedirectURIs: []string{"https://client.example/callback"}, GrantTypes: []string{"authorization_code", "refresh_token"}, ResponseTypes: []string{"code"}, TokenEndpointAuthMethod: "none", Scopes: []entity.Scope{entity.ScopeRead, entity.ScopeWrite}}
+	return entity.Client{ClientID: "client", RedirectURIs: []string{"https://client.example/callback"}, GrantTypes: []string{"authorization_code", "refresh_token"}, ResponseTypes: []string{"code"}, TokenEndpointAuthMethod: "none", Scopes: entity.AllScopes()}
 }
 
 func testToken(clientID, access, refresh string, scopes []entity.Scope) entity.Token {
@@ -197,7 +330,13 @@ func testToken(clientID, access, refresh string, scopes []entity.Scope) entity.T
 }
 
 func equalScopes(left, right []entity.Scope) bool {
-	return len(left) == len(right) && (len(left) == 0 || (left[0] == right[0] && (len(left) == 1 || left[1] == right[1])))
+	return slices.Equal(left, right)
+}
+
+func canonicalReadScopes() []entity.Scope {
+	return slices.DeleteFunc(entity.AllScopes(), func(scope entity.Scope) bool {
+		return !strings.HasSuffix(string(scope), ":read")
+	})
 }
 
 func requireOAuthCode(t *testing.T, err error, want ErrorCode) {

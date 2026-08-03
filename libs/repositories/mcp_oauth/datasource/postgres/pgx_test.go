@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"slices"
 	"sync"
 	"testing"
 	"time"
@@ -92,6 +93,42 @@ func TestPgx_RotateRefreshToken_revokes_the_family_on_reuse(t *testing.T) {
 	}
 	if activeTokens != 0 {
 		t.Fatalf("active family tokens = %d, want 0 after refresh reuse", activeTokens)
+	}
+}
+
+func TestPgx_CreateToken_round_trips_granular_scopes(t *testing.T) {
+	// Given
+	ctx := context.Background()
+	repository, fixture := newIntegrationFixture(t, ctx)
+	accessHash := testHash(30)
+	granularScopes := []entity.Scope{"commands:read", "timers:edit", "dashboard:read"}
+
+	// When
+	token, err := repository.CreateToken(ctx, mcpOAuth.CreateTokenInput{
+		ClientID:         fixture.clientID,
+		ChannelID:        fixture.channelID,
+		UserID:           fixture.userID,
+		AccessTokenHash:  accessHash,
+		RefreshTokenHash: testHash(31),
+		Scopes:           granularScopes,
+		Resource:         "https://mcp.example.com",
+		AccessExpiresAt:  time.Now().Add(time.Hour),
+		RefreshExpiresAt: time.Now().Add(24 * time.Hour),
+	})
+
+	// Then
+	if err != nil {
+		t.Fatalf("create token: %v", err)
+	}
+	if !slices.Equal(token.Scopes, granularScopes) {
+		t.Fatalf("created scopes = %v, want %v", token.Scopes, granularScopes)
+	}
+	fetched, err := repository.GetTokenByAccessTokenHash(ctx, accessHash)
+	if err != nil {
+		t.Fatalf("get token: %v", err)
+	}
+	if !slices.Equal(fetched.Scopes, granularScopes) {
+		t.Fatalf("fetched scopes = %v, want %v", fetched.Scopes, granularScopes)
 	}
 }
 

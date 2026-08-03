@@ -1,9 +1,10 @@
 import * as z from 'zod'
 
 import { type McpConsentAttempt, mcpConsentAttemptSchema } from '~/utils/mcp-consent.js'
-
-const mcpScopeSchema = z.enum(['read', 'write'])
-const mcpAccessLevelSchema = z.enum(['read', 'write'])
+import {
+	mcpApprovedScopesSchema,
+	mcpRequestedScopesSchema,
+} from '~/utils/mcp-scopes.js'
 
 const mcpConsentSchema = z.object({
 	client: z.object({
@@ -12,11 +13,7 @@ const mcpConsentSchema = z.object({
 		uri: z.string().min(1).optional(),
 	}),
 	channel_id: z.string().min(1),
-	requested_scopes: z.array(mcpScopeSchema),
-	access_levels: z
-		.array(mcpAccessLevelSchema)
-		.min(1)
-		.refine((accessLevels) => accessLevels.includes('read')),
+	requested_scopes: mcpRequestedScopesSchema,
 	csrf_token: z.string().min(1),
 })
 
@@ -30,7 +27,7 @@ const mcpConsentDecisionSchema = z.discriminatedUnion('decision', [
 		csrf_token: z.string().min(1),
 		channel_id: z.string().min(1),
 		decision: z.literal('approve'),
-		access_level: mcpAccessLevelSchema,
+		approved_scopes: mcpApprovedScopesSchema,
 	}),
 	z.object({
 		attempt: mcpConsentAttemptSchema,
@@ -45,7 +42,6 @@ const fetchErrorSchema = z.object({
 })
 
 export type McpConsent = z.infer<typeof mcpConsentSchema>
-export type McpConsentAccessLevel = z.infer<typeof mcpAccessLevelSchema>
 export type McpConsentDecision = z.infer<typeof mcpConsentDecisionSchema>
 
 export type McpConsentRequestResult<T> =

@@ -54,6 +54,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
+	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -183,14 +184,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) unauthorized(w http.ResponseWriter) {
-	w.Header().Set("WWW-Authenticate", `Bearer resource_metadata="`+h.deps.AccessTokenVerifier.ProtectedResourceMetadataURL()+`", scope="read write"`)
+	availableScopes := strings.Join(entity.ScopeStrings(entity.AllScopes()), " ")
+	w.Header().Set("WWW-Authenticate", `Bearer resource_metadata="`+h.deps.AccessTokenVerifier.ProtectedResourceMetadataURL()+`", scope="`+availableScopes+`"`)
 	http.Error(w, "unauthorized", http.StatusUnauthorized)
 }
 
 func (h *Handler) newServer(requestScope scope) *modelsdk.Server {
 	s := modelsdk.NewServer(
 		&modelsdk.Implementation{Name: "twir", Version: "1.0.0"},
-		&modelsdk.ServerOptions{Instructions: "Manage the Twir channel authorized through scoped OAuth Bearer access. Read grants may use list/get tools; write grants allow all tools. All operations are restricted to the authorized channel.\n\n" + variableScriptGuide},
+		&modelsdk.ServerOptions{Instructions: "Manage the Twir channel authorized through scoped OAuth Bearer access. Group scopes ending in :read grant read access; group scopes ending in :edit grant read and edit access. All operations are restricted to the authorized channel.\n\n" + variableScriptGuide},
 	)
 
 	h.addCommandTools(s, requestScope)

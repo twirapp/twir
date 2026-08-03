@@ -15,6 +15,7 @@ describe('MCP guide translations', () => {
 		expect(Object.keys(en.mcpGuide.oauth)).toEqual(Object.keys(ru.mcpGuide.oauth))
 		expect(Object.keys(en.mcpGuide.oauth.steps)).toEqual(Object.keys(ru.mcpGuide.oauth.steps))
 		expect(Object.keys(en.mcpGuide.oauth.endpoints)).toEqual(Object.keys(ru.mcpGuide.oauth.endpoints))
-		expect(Object.keys(en.mcpGuide.oauth.scopes)).toEqual(Object.keys(ru.mcpGuide.oauth.scopes))
+		expect(en.mcpGuide.oauth).not.toHaveProperty('scopes')
+		expect(ru.mcpGuide.oauth).not.toHaveProperty('scopes')
 	})
 })

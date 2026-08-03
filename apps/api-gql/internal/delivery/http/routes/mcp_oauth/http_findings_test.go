@@ -142,7 +142,7 @@ func TestHandler_consent_rejects_dashboard_changed_since_display(t *testing.T) {
 	handler.sessions.attempts["attempt"] = testAttempt()
 	displayedChannelID := handler.sessions.dashboardID
 	handler.sessions.dashboardID = uuid.New()
-	body := fmt.Sprintf(`{"attempt":"attempt","channel_id":"%s","csrf_token":"csrf","decision":"approve","access_level":"read"}`, displayedChannelID)
+	body := fmt.Sprintf(`{"attempt":"attempt","channel_id":"%s","csrf_token":"csrf","decision":"approve","approved_scopes":["commands:read"]}`, displayedChannelID)
 
 	// When
 	response := serve(handler.router(), http.MethodPost, "/oauth/consent", strings.NewReader(body),

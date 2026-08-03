@@ -15,8 +15,20 @@ describe('MCP consent API', () => {
 		const fetchMock = vi.fn().mockResolvedValue({
 			client: { id: 'client-1', name: 'Desktop Agent', uri: 'https://agent.example' },
 			channel_id: 'channel-1',
-			requested_scopes: ['read', 'write'],
-			access_levels: ['read', 'write'],
+			requested_scopes: [
+				{
+					group: 'commands',
+					name: 'Commands',
+					description: 'Read and edit commands',
+					actions: ['read'],
+				},
+				{
+					group: 'timers',
+					name: 'Timers',
+					description: 'Read and edit timers',
+					actions: ['read', 'edit'],
+				},
+			],
 			csrf_token: 'csrf-token',
 		})
 		const api = createMcpConsentApi(fetchMock)
@@ -30,8 +42,20 @@ describe('MCP consent API', () => {
 			data: {
 				client: { id: 'client-1', name: 'Desktop Agent', uri: 'https://agent.example' },
 				channel_id: 'channel-1',
-				requested_scopes: ['read', 'write'],
-				access_levels: ['read', 'write'],
+				requested_scopes: [
+					{
+						group: 'commands',
+						name: 'Commands',
+						description: 'Read and edit commands',
+						actions: ['read'],
+					},
+					{
+						group: 'timers',
+						name: 'Timers',
+						description: 'Read and edit timers',
+						actions: ['read', 'edit'],
+					},
+				],
 				csrf_token: 'csrf-token',
 			},
 		})
@@ -57,13 +81,19 @@ describe('MCP consent API', () => {
 		expect(result).toEqual({ kind: 'expired' })
 	})
 
-	it('rejects a write-only response before it can initialize an invalid read default', async () => {
+	it('rejects a malformed grouped response before it reaches the consent screen', async () => {
 		const api = createMcpConsentApi(
 			vi.fn().mockResolvedValue({
 				client: { id: 'client-1', name: 'Desktop Agent' },
 				channel_id: 'channel-1',
-				requested_scopes: ['write'],
-				access_levels: ['write'],
+				requested_scopes: [
+					{
+						group: 'commands',
+						name: 'Commands',
+						description: 'Read and edit commands',
+						actions: ['edit'],
+					},
+				],
 				csrf_token: 'csrf-token',
 			}),
 		)
@@ -73,7 +103,7 @@ describe('MCP consent API', () => {
 		expect(result).toEqual({ kind: 'network' })
 	})
 
-	it('posts an approval with the consent response channel and backend-only redirect target', async () => {
+	it('posts canonical approved scopes with the consent response channel and redirect target', async () => {
 		const fetchMock = vi.fn().mockResolvedValue({ redirect_to: 'https://agent.example/callback' })
 		const api = createMcpConsentApi(fetchMock)
 		const result = await api.submitMcpConsent({
@@ -81,7 +111,7 @@ describe('MCP consent API', () => {
 			csrf_token: 'csrf-token',
 			channel_id: 'channel-1',
 			decision: 'approve',
-			access_level: 'read',
+			approved_scopes: ['commands:read', 'timers:read', 'timers:edit'],
 		})
 
 		expect(fetchMock).toHaveBeenCalledWith('/api/oauth/consent', {
@@ -91,7 +121,7 @@ describe('MCP consent API', () => {
 				csrf_token: 'csrf-token',
 				channel_id: 'channel-1',
 				decision: 'approve',
-				access_level: 'read',
+				approved_scopes: ['commands:read', 'timers:read', 'timers:edit'],
 			},
 		})
 		expect(result).toEqual({

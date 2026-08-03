@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -153,8 +152,4 @@ func (route *authorizeRoute) writeAuthorizeErrorRedirect(context huma.Context, r
 		return
 	}
 	writeRedirect(context, redirect)
-}
-
-func scopesContain(scopes []string, wanted string) bool {
-	return strings.Contains(" "+scopeString(scopes)+" ", " "+wanted+" ")
 }
