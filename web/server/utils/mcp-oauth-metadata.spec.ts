@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+	MCP_OAUTH_METADATA_RESPONSE_HEADERS,
 	createMcpAuthorizationServerMetadata,
 	createMcpProtectedResourceMetadata,
 	isMcpProtectedResourceSuffix,
-	MCP_OAUTH_METADATA_RESPONSE_HEADERS,
 } from './mcp-oauth-metadata.js'
 
 describe('MCP OAuth metadata', () => {

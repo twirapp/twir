@@ -1,6 +1,6 @@
 import {
-	createMcpProtectedResourceMetadata,
 	MCP_OAUTH_METADATA_RESPONSE_HEADERS,
+	createMcpProtectedResourceMetadata,
 } from '../../utils/mcp-oauth-metadata.js'
 
 export default defineEventHandler((event) => {

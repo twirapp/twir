@@ -1,6 +1,6 @@
 import * as z from 'zod'
 
-import { mcpConsentAttemptSchema, type McpConsentAttempt } from '~/utils/mcp-consent.js'
+import { type McpConsentAttempt, mcpConsentAttemptSchema } from '~/utils/mcp-consent.js'
 
 const mcpScopeSchema = z.enum(['read', 'write'])
 const mcpAccessLevelSchema = z.enum(['read', 'write'])

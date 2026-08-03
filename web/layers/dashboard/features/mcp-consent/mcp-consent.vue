@@ -25,7 +25,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { parseMcpConsentAttempt } from '~/utils/mcp-consent.js'
 
-import { createMcpConsentApi, type McpConsent } from './api.js'
+import { type McpConsent, createMcpConsentApi } from './api.js'
 
 type ConsentScreenState = 'loading' | 'ready' | 'expired' | 'permission' | 'network'
 
