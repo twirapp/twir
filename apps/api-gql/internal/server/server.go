@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -95,7 +96,11 @@ func New(opts Opts) (*Server, error) {
 }
 
 func (c *Server) StartServer() {
-	c.Run(":3009")
+	port := os.Getenv("API_GQL_PORT")
+	if port == "" {
+		port = "3009"
+	}
+	c.Run(":" + port)
 }
 
 func (c *Server) StopServer() {
