@@ -24,7 +24,7 @@
       "description": "Approximate live row count from PostgreSQL statistics; avoids scanning 5M+ users every 30 seconds.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixedColor", "fixedColor": "blue" },
+          "color": { "mode": "fixed", "fixedColor": "blue" },
           "decimals": 0,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
@@ -63,7 +63,7 @@
       "datasource": { "type": "postgres", "uid": "twir-postgres" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixedColor", "fixedColor": "purple" },
+          "color": { "mode": "fixed", "fixedColor": "purple" },
           "decimals": 0,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
@@ -102,7 +102,7 @@
       "datasource": { "type": "postgres", "uid": "twir-postgres" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixedColor", "fixedColor": "green" },
+          "color": { "mode": "fixed", "fixedColor": "green" },
           "decimals": 0,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
@@ -187,7 +187,7 @@
       "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixedColor", "fixedColor": "orange" },
+          "color": { "mode": "fixed", "fixedColor": "orange" },
           "decimals": 0,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },

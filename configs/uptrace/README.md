@@ -103,8 +103,8 @@ Uptrace is routed through Traefik at `https://uptrace.twir.app`. Grafana is avai
 
 The provisioned `Twir Live Overview` dashboard is stored at
 `configs/uptrace/grafana/dashboards/twir-overview.json`. The streamer opens it over the attachable
-`twir` overlay network using `http://grafana:3000`, so it does not depend on Cloudflare or public
-DNS.
+`twir` overlay network using `http://twir_grafana:3000`, so it does not depend on Cloudflare or
+public DNS. The stack-qualified service name avoids the legacy `grafana` alias from another stack.
 
 Docker Swarm configs are immutable. When changing an existing datasource or entrypoint config,
 create a new key such as `uptrace_grafana_datasource_v3`, point the service at it, and deploy. Do
@@ -141,7 +141,7 @@ from the streamer container:
 
 ```sh
 docker compose exec streamer bun -e \
-  'fetch("http://grafana:3000/api/health").then(async r => { console.log(r.status, await r.text()) })'
+  'fetch("http://twir_grafana:3000/api/health").then(async r => { console.log(r.status, await r.text()) })'
 ```
 
 The `uptrace-clickhouse-ttl` one-shot service waits for Uptrace migrations and then applies the same
