@@ -19,6 +19,7 @@ import (
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	channelsfilesroute "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/channels/channels_files"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/integrations/valorant"
+	mcpOAuthRoutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/mcp_oauth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/overlays/brb"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/pastebins"
 	scheduledvipsroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/scheduled_vips"
@@ -76,6 +77,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	lastfmintegration "github.com/twirapp/twir/apps/api-gql/internal/services/lastfm_integration"
+	mcpOAuthService "github.com/twirapp/twir/apps/api-gql/internal/services/mcp_oauth"
 	nightbotintegration "github.com/twirapp/twir/apps/api-gql/internal/services/nightbot_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/obs_websocket_module"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays_dudes"
@@ -170,6 +172,8 @@ import (
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
+	mcpOAuthRepository "github.com/twirapp/twir/libs/repositories/mcp_oauth"
+	mcpOAuthRepositoryPostgres "github.com/twirapp/twir/libs/repositories/mcp_oauth/datasource/postgres"
 	overlaysdudesrepository "github.com/twirapp/twir/libs/repositories/overlays_dudes"
 	overlaysdudesrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_dudes/pgx"
 	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
@@ -363,6 +367,10 @@ func main() {
 			fx.Annotate(
 				usersrepositorypgx.NewFx,
 				fx.As(new(usersrepository.Repository)),
+			),
+			fx.Annotate(
+				mcpOAuthRepositoryPostgres.NewFx,
+				fx.As(new(mcpOAuthRepository.Repository)),
 			),
 			fx.Annotate(
 				userswithchannelrepositorypgx.NewFx,
@@ -639,6 +647,8 @@ func main() {
 			channels.New,
 			channelplatformservice.NewFx,
 			dashboardaccess.NewFx,
+			mcpOAuthService.NewFx,
+			func(service *mcpOAuthService.Service) mcpdelivery.AccessTokenVerifier { return service },
 			chat_messages.New,
 			channels_commands_prefix.New,
 			channels_emotes_usages.New,
@@ -691,6 +701,7 @@ func main() {
 			dataloader.New,
 			auth.NewSessions,
 			authroutes.New,
+			mcpOAuthRoutes.NewFx,
 			minio.New,
 			twitchcache.New,
 			channelcache.New,
@@ -748,6 +759,7 @@ func main() {
 			valorant.New,
 			stream.New,
 			mcpdelivery.Register,
+			mcpOAuthRoutes.Register,
 			func(l *slog.Logger) {
 				l.Info("🚀 API-GQL is running")
 			},
