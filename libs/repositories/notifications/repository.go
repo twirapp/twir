@@ -23,7 +23,16 @@ type UpsertDiscordResult struct {
 	Created                bool
 }
 
+type DeletedDiscordNotification struct {
+	ID             string
+	AttachmentKeys []string
+}
+
 type Repository interface {
 	UpsertDiscord(ctx context.Context, input UpsertDiscordInput) (UpsertDiscordResult, error)
-	DeleteDiscord(ctx context.Context, channelID string, messageIDs []string) ([]string, error)
+	DeleteDiscord(
+		ctx context.Context,
+		channelID string,
+		messageIDs []string,
+	) ([]DeletedDiscordNotification, error)
 }

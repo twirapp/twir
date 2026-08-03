@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -122,7 +121,7 @@ func (p *Pgx) DeleteDiscord(
 	ctx context.Context,
 	channelID string,
 	messageIDs []string,
-) ([]string, error) {
+) ([]notifications.DeletedDiscordNotification, error) {
 	if len(messageIDs) == 0 {
 		return nil, nil
 	}
@@ -131,7 +130,7 @@ func (p *Pgx) DeleteDiscord(
 		DELETE FROM notifications
 		WHERE discord_channel_id = $1
 			AND discord_message_id = ANY($2)
-		RETURNING discord_attachment_keys
+		RETURNING id, discord_attachment_keys
 	`
 
 	rows, err := p.pool.Query(ctx, query, channelID, messageIDs)
@@ -139,15 +138,17 @@ func (p *Pgx) DeleteDiscord(
 		return nil, err
 	}
 
-	attachmentKeyGroups, err := pgx.CollectRows(rows, pgx.RowTo[[]string])
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+	deleted, err := pgx.CollectRows(
+		rows,
+		func(row pgx.CollectableRow) (notifications.DeletedDiscordNotification, error) {
+			var item notifications.DeletedDiscordNotification
+			err := row.Scan(&item.ID, &item.AttachmentKeys)
+			return item, err
+		},
+	)
+	if err != nil {
 		return nil, err
 	}
 
-	var attachmentKeys []string
-	for _, keys := range attachmentKeyGroups {
-		attachmentKeys = append(attachmentKeys, keys...)
-	}
-
-	return attachmentKeys, nil
+	return deleted, nil
 }

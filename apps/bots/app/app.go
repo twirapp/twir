@@ -10,6 +10,7 @@ import (
 	discordbushandler "github.com/twirapp/twir/apps/bots/internal/discord/bus_handler"
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
 	"github.com/twirapp/twir/apps/bots/internal/discord/messages_updater"
+	notificationssync "github.com/twirapp/twir/apps/bots/internal/discord/notifications_sync"
 	"github.com/twirapp/twir/apps/bots/internal/discord/sended_messages_store"
 	kickchat "github.com/twirapp/twir/apps/bots/internal/kick"
 	"github.com/twirapp/twir/apps/bots/internal/messagehandler"
@@ -79,6 +80,8 @@ import (
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
 	kickbotsrepositorypgx "github.com/twirapp/twir/libs/repositories/kick_bots/pgx"
+	notificationsrepository "github.com/twirapp/twir/libs/repositories/notifications"
+	notificationsrepositorypostgres "github.com/twirapp/twir/libs/repositories/notifications/datasource/postgres"
 	overlays_tts_repository "github.com/twirapp/twir/libs/repositories/overlays_tts"
 	overlays_tts_pgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
 	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
@@ -98,6 +101,7 @@ import (
 	vkvideobotsrepository "github.com/twirapp/twir/libs/repositories/vk_video_bots"
 	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
+	"github.com/twirapp/twir/libs/wsrouter"
 
 	"go.uber.org/fx"
 )
@@ -203,6 +207,10 @@ var App = fx.Module(
 			vkvideobotsrepositorypgx.NewFx,
 			fx.As(new(vkvideobotsrepository.Repository)),
 		),
+		fx.Annotate(
+			notificationsrepositorypostgres.NewFx,
+			fx.As(new(notificationsrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -251,6 +259,10 @@ var App = fx.Module(
 		sended_messages_store.New,
 		discordmessagesupdater.New,
 		discord_go.New,
+		fx.Annotate(
+			wsrouter.NewNatsWsRouterFx,
+			fx.As(new(wsrouter.WsRouter)),
+		),
 	),
 	fx.Invoke(
 		ytsr.New,
@@ -264,6 +276,7 @@ var App = fx.Module(
 		stream_handlers.New,
 		bus_listener.New,
 		discordbushandler.New,
+		notificationssync.New,
 		func(l *slog.Logger) {
 			l.Info("🚀 Bots started")
 		},
