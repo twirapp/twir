@@ -57,3 +57,19 @@ func TestIntegrationStatusRetainsDetailsWhenScopeAllowsWrites(t *testing.T) {
 		t.Fatalf("details = %#v, want %#v", result.Data, details)
 	}
 }
+
+func TestLegacyIntegrationResultPreservesDisabledState(t *testing.T) {
+	readResult := legacyIntegrationResult(scope{AccessScopes: toolAccessScopes{toolAccessScopeRead: {}}}, false)
+	if readResult.Connected || readResult.Data != nil {
+		t.Fatalf("read result = %#v, want disconnected without data", readResult)
+	}
+
+	writeResult := legacyIntegrationResult(scope{AccessScopes: fullToolAccessScopes()}, false)
+	if writeResult.Connected {
+		t.Fatalf("write result = %#v, want disconnected", writeResult)
+	}
+	data, ok := writeResult.Data.(map[string]any)
+	if !ok || data["enabled"] != false {
+		t.Fatalf("write data = %#v, want enabled=false", writeResult.Data)
+	}
+}

@@ -41,7 +41,15 @@ func (h *Handler) legacyIntegrationStatus(ctx context.Context, requestScope scop
 	if err != nil {
 		return integrationResult{}
 	}
-	return integrationStatus(requestScope, map[string]any{"enabled": item.Enabled}, nil)
+	return legacyIntegrationResult(requestScope, item.Enabled)
+}
+
+func legacyIntegrationResult(requestScope scope, enabled bool) integrationResult {
+	result := integrationResult{Connected: enabled}
+	if _, writeAllowed := requestScope.AccessScopes[toolAccessScopeWrite]; writeAllowed {
+		result.Data = map[string]any{"enabled": enabled}
+	}
+	return result
 }
 
 func (h *Handler) setLegacyIntegrationEnabled(ctx context.Context, channelID, service string, enabled bool) error {
