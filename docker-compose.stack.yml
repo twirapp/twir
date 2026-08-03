@@ -256,7 +256,7 @@ services:
           memory: 128M
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.60.5
+    image: ghcr.io/google/cadvisor:v0.57.0
     command:
       - "--docker_only=true"
       - "--housekeeping_interval=15s"

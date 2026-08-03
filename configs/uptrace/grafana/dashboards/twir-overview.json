@@ -1,7 +1,5 @@
 {
-  "annotations": {
-    "list": []
-  },
+  "annotations": { "list": [] },
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -21,18 +19,18 @@
   "panels": [
     {
       "datasource": { "type": "postgres", "uid": "twir-postgres" },
-      "description": "Approximate live row count from PostgreSQL statistics; avoids scanning 5M+ users every 30 seconds.",
+      "description": "Approximate PostgreSQL row count. The value is complete and locale-formatted; the estimate avoids scanning millions of rows every refresh.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "fixed", "fixedColor": "blue" },
           "decimals": 0,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
-          "unit": "short"
+          "unit": "locale"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 0 },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
       "id": 1,
       "options": {
         "colorMode": "background_solid",
@@ -67,11 +65,11 @@
           "decimals": 0,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
-          "unit": "short"
+          "unit": "locale"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 5, "x": 5, "y": 0 },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
       "id": 2,
       "options": {
         "colorMode": "background_solid",
@@ -106,11 +104,11 @@
           "decimals": 0,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "short"
+          "unit": "locale"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 5, "x": 10, "y": 0 },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
       "id": 3,
       "options": {
         "colorMode": "background_solid",
@@ -152,11 +150,11 @@
               { "color": "orange", "value": 50 }
             ]
           },
-          "unit": "short"
+          "unit": "locale"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 15, "y": 0 },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
       "id": 4,
       "options": {
         "colorMode": "background_solid",
@@ -191,11 +189,11 @@
           "decimals": 0,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
-          "unit": "short"
+          "unit": "locale"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 5, "x": 19, "y": 0 },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
       "id": 5,
       "options": {
         "colorMode": "background_solid",
@@ -224,34 +222,61 @@
     },
     {
       "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "description": "Same total as the Twir landing page: SUM(users_stats.messages).",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": { "mode": "fixed", "fixedColor": "yellow" },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "yellow", "value": null }] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "id": 16,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "twir-postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(sum(messages), 0)::double precision AS \"Messages processed\" FROM users_stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Messages processed",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "bars",
-            "fillOpacity": 45,
-            "gradientMode": "hue",
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.72, "drawStyle": "bars",
+            "fillOpacity": 55, "gradientMode": "opacity",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 1, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "short"
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "unit": "locale"
         },
         "overrides": []
       },
@@ -279,32 +304,19 @@
       "datasource": { "type": "postgres", "uid": "twir-postgres" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": { "mode": "fixed", "fixedColor": "purple" },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "bars",
-            "fillOpacity": 45,
-            "gradientMode": "hue",
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.72, "drawStyle": "bars",
+            "fillOpacity": 55, "gradientMode": "opacity",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 1, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "short"
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
+          "unit": "locale"
         },
         "overrides": []
       },
@@ -332,32 +344,19 @@
       "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "continuous-GrYlRd" },
+          "color": { "mode": "fixed", "fixedColor": "orange" },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "events",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "bars",
-            "fillOpacity": 55,
-            "gradientMode": "opacity",
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "events",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.72, "drawStyle": "bars",
+            "fillOpacity": 50, "gradientMode": "opacity",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 1, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "short"
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
+          "unit": "locale"
         },
         "overrides": []
       },
@@ -386,11 +385,9 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "continuous-GrYlRd" },
-          "decimals": 0,
           "mappings": [],
-          "min": 0,
           "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "short"
+          "unit": "locale"
         },
         "overrides": []
       },
@@ -407,7 +404,6 @@
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
         "showUnfilled": true,
         "sizing": "auto",
-        "text": {},
         "valueMode": "color"
       },
       "pluginVersion": "12.0.0",
@@ -426,41 +422,36 @@
     },
     {
       "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "description": "Application p95 from OTel spans. One view combines command parsing, EventSub delivery, and the most useful bot message handlers.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "req/s",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "opacity",
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "p95",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 18, "gradientMode": "opacity",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "log", "log": 2 }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" }
           },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "reqps"
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 100 },
+              { "color": "red", "value": 500 }
+            ]
+          },
+          "unit": "ms"
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 16 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
       "id": 10,
       "options": {
-        "legend": { "calcs": ["mean"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true },
         "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
       },
       "pluginVersion": "12.0.0",
@@ -470,54 +461,38 @@
           "editorType": "sql",
           "format": 0,
           "pluginVersion": "4.20.0",
-          "rawSql": "SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS time, service_name, sum(count_x100) / 100 / greatest($__interval_s, 1) AS \"Requests/s\" FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND startsWith(system, 'httpserver:') GROUP BY time, service_name ORDER BY time",
+          "rawSql": "SELECT bucket AS time, operation, quantileTDigestWeighted(0.95)(duration, count_x100) AS p95 FROM (SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS bucket, count_x100, duration, multiIf(service_name = 'parser' AND system = 'messaging:nats' AND name = 'Read parser.process_message_as_command', 'Command · total', service_name = 'parser' AND system = 'funcs' AND name = 'ParseCommandResponses', 'Command · response', service_name = 'parser' AND system = 'funcs' AND name = 'ParseVariablesInText', 'Command · variables', service_name = 'eventsub' AND system = 'funcs' AND name = 'eventsub.websocket.handler', 'EventSub · receive', service_name = 'eventsub' AND system = 'funcs' AND name = 'HandleChannelChatMessage', 'EventSub · message', service_name = 'bots' AND system = 'funcs' AND name = 'handle', 'Bot · message', service_name = 'bots' AND system = 'funcs' AND name = 'handleTts', 'Bot · TTS', service_name = 'bots' AND system = 'funcs' AND name = 'handleModeration', 'Bot · moderation', service_name = 'bots' AND system = 'funcs' AND name = 'handleGiveaways', 'Bot · giveaways', service_name = 'bots' AND system = 'funcs' AND name = 'handleKeywords', 'Bot · keywords', service_name = 'bots' AND system = 'funcs' AND name = 'handleChatWall', 'Bot · chat wall', '') AS operation FROM spans_index WHERE project_id = 1 AND $__timeFilter(time)) WHERE operation != '' GROUP BY bucket, operation ORDER BY bucket",
           "refId": "A"
         }
       ],
-      "title": "HTTP traffic by service",
+      "title": "Operation performance · p95",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "description": "Application-observed PostgreSQL operations from OTel spans. Pool acquisition and transaction bookkeeping are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "p95",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 18,
-            "gradientMode": "opacity",
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "ops/s",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 30, "gradientMode": "opacity",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "line+area" }
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "db", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 500 },
-              { "color": "red", "value": 1500 }
-            ]
-          },
-          "unit": "ms"
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "ops"
         },
-        "overrides": []
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Reads" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
       },
-      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 16 },
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 24 },
       "id": 11,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -530,56 +505,38 @@
           "editorType": "sql",
           "format": 0,
           "pluginVersion": "4.20.0",
-          "rawSql": "SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS time, service_name, quantileTDigestWeighted(0.95)(duration, count_x100) AS \"P95\" FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND startsWith(system, 'httpserver:') GROUP BY time, service_name ORDER BY time",
+          "rawSql": "SELECT bucket AS time, operation, sum(count_x100) / 100 / greatest($__interval_s, 1) AS rate FROM (SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS bucket, count_x100, multiIf(upperUTF8(attrs.db_operation_name::String) = 'SELECT' OR name IN ('gorm.Query', 'gorm.Row') OR positionCaseInsensitive(name, 'SELECT') > 0, 'Reads', upperUTF8(attrs.db_operation_name::String) IN ('INSERT', 'UPDATE', 'DELETE') OR positionCaseInsensitive(name, 'INSERT') > 0 OR positionCaseInsensitive(name, 'UPDATE') > 0 OR positionCaseInsensitive(name, 'DELETE') > 0, 'Writes', '') AS operation FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND system = 'db:postgresql') WHERE operation != '' GROUP BY bucket, operation ORDER BY bucket",
           "refId": "A"
         }
       ],
-      "title": "HTTP p95 latency",
+      "title": "PostgreSQL · read/write",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "description": "Application-observed ClickHouse SELECT and INSERT operations from OTel spans.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": true,
-            "axisColorMode": "text",
-            "axisLabel": "errors",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "ops/s",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 30, "gradientMode": "opacity",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "line+area" }
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "db", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 1 },
-              { "color": "red", "value": 5 }
-            ]
-          },
-          "unit": "percent"
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "ops"
         },
-        "overrides": []
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Reads" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
       },
-      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 16 },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 24 },
       "id": 12,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -592,48 +549,80 @@
           "editorType": "sql",
           "format": 0,
           "pluginVersion": "4.20.0",
-          "rawSql": "SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS time, service_name, 100 * sumIf(count_x100, status_code = 'error') / nullIf(sum(count_x100), 0) AS \"Error %\" FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND startsWith(system, 'httpserver:') GROUP BY time, service_name ORDER BY time",
+          "rawSql": "SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS time, if(upperUTF8(attrs.db_operation_name::String) = 'SELECT', 'Reads', 'Writes') AS operation, sum(count_x100) / 100 / greatest($__interval_s, 1) AS rate FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND system = 'db:clickhouse' AND upperUTF8(attrs.db_operation_name::String) IN ('SELECT', 'INSERT') GROUP BY time, operation ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "HTTP error rate",
+      "title": "ClickHouse · read/write",
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
+      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "description": "Application-observed Redis operations from OTel spans. Read-only commands are separated; scripts and pipelines are classified as writes.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "CPU",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 22,
-            "gradientMode": "opacity",
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "ops/s",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 30, "gradientMode": "opacity",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "line+area" }
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "db", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "ops"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Reads" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 24 },
+      "id": 13,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+          "editorType": "sql",
+          "format": 0,
+          "pluginVersion": "4.20.0",
+          "rawSql": "SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS time, if(lowerUTF8(name) IN ('get', 'mget', 'hget', 'hmget', 'exists', 'ttl', 'pttl', 'scan', 'sscan', 'hscan', 'zscan', 'strlen', 'llen', 'scard', 'smembers', 'sismember', 'zrange', 'zscore', 'zcard'), 'Reads', 'Writes') AS operation, sum(count_x100) / 100 / greatest($__interval_s, 1) AS rate FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND system = 'db:redis' GROUP BY time, operation ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Redis · read/write",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
+      "description": "CPU busy by Swarm node from node-exporter.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 25, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" }
+          },
           "max": 100,
           "min": 0,
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               { "color": "green", "value": null },
-              { "color": "orange", "value": 75 },
+              { "color": "orange", "value": 70 },
               { "color": "red", "value": 90 }
             ]
           },
@@ -641,10 +630,10 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 22 },
-      "id": 13,
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 31 },
+      "id": 14,
       "options": {
-        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
         "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
       },
       "pluginVersion": "12.0.0",
@@ -658,55 +647,43 @@
           "refId": "A"
         }
       ],
-      "title": "Fleet CPU",
+      "title": "Server CPU",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
+      "description": "Memory used by Swarm node from node-exporter.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "RAM",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 22,
-            "gradientMode": "opacity",
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 25, "gradientMode": "opacity",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "line+area" }
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" }
           },
-          "mappings": [],
           "max": 100,
           "min": 0,
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               { "color": "green", "value": null },
-              { "color": "orange", "value": 80 },
-              { "color": "red", "value": 92 }
+              { "color": "orange", "value": 75 },
+              { "color": "red", "value": 90 }
             ]
           },
           "unit": "percent"
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 22 },
-      "id": 14,
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 31 },
+      "id": 15,
       "options": {
-        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
         "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
       },
       "pluginVersion": "12.0.0",
@@ -720,60 +697,7 @@
           "refId": "A"
         }
       ],
-      "title": "Fleet RAM",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "memory",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 28,
-            "gradientMode": "opacity",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 22 },
-      "id": 15,
-      "options": {
-        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
-      },
-      "pluginVersion": "12.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
-          "editorMode": "code",
-          "expr": "topk(8, sum by (container_label_com_docker_swarm_service_name) (container_memory_working_set_bytes{container_label_com_docker_stack_namespace=\"twir\",container_label_com_docker_swarm_service_name!=\"\"}))",
-          "legendFormat": "{{container_label_com_docker_swarm_service_name}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Top containers by memory",
+      "title": "Server RAM",
       "type": "timeseries"
     }
   ],
@@ -790,5 +714,5 @@
   "timezone": "browser",
   "title": "Twir Live Overview",
   "uid": "twir-stream-overview",
-  "version": 1
+  "version": 2
 }

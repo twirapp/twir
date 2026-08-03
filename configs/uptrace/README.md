@@ -64,10 +64,12 @@ unset value
 ```
 
 Create `grafana_ro` in the main PostgreSQL database with `LOGIN`, `CONNECT` to `twir`, `USAGE` on
-`public`, and `SELECT` only on `users`, `channels`, `channel_platforms`, and `channels_streams`.
+`public`, and `SELECT` only on `users`, `channels`, `channel_platforms`, `channels_streams`, and
+`users_stats`. The last table powers the same `Messages processed` total as the Twir landing page.
 Set these role defaults:
 
 ```sql
+GRANT SELECT ON TABLE users, channels, channel_platforms, channels_streams, users_stats TO grafana_ro;
 ALTER ROLE grafana_ro SET default_transaction_read_only = on;
 ALTER ROLE grafana_ro SET statement_timeout = '15s';
 ```
@@ -102,7 +104,13 @@ Uptrace is routed through Traefik at `https://uptrace.twir.app`. Grafana is avai
 - Twir PostgreSQL for aggregate user, channel, and live-stream statistics.
 
 The provisioned `Twir Live Overview` dashboard is stored at
-`configs/uptrace/grafana/dashboards/twir-overview.json`. The streamer opens it over the attachable
+`configs/uptrace/grafana/dashboards/twir-overview.json`. Its application panels use OTel spans from
+Uptrace for command/handler p95 and PostgreSQL, ClickHouse, and Redis read/write rates. These rates
+describe operations observed from Twir applications, not every server-side background query. CPU
+and RAM are grouped by Swarm node from node-exporter. cAdvisor remains available for future
+container-level panels, but the overview intentionally does not show individual containers.
+
+The streamer opens the dashboard over the attachable
 `twir` overlay network using `http://twir_grafana:3000`, so it does not depend on Cloudflare or
 public DNS. The stack-qualified service name avoids the legacy `grafana` alias from another stack.
 Grafana is pinned to `traefik-1` because `grafana-data` is a node-local volume; moving the task to
