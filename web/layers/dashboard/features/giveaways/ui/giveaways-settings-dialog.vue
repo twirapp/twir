@@ -1,22 +1,12 @@
 <script setup lang="ts">
+import { useForm } from 'vee-validate'
+import { computed, ref, watch } from 'vue'
+import { toast } from 'vue-sonner'
+import { z } from 'zod'
+import { useGiveawaysApi } from '~~/layers/dashboard/api/giveaways.js'
 
-import { useForm } from 'vee-validate';
-import { computed, ref, watch } from 'vue';
-;
-import { z } from 'zod';
-
-import {Alert, AlertDescription} from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Textarea} from '@/components/ui/textarea';
-import { useGiveawaysApi } from '~~/layers/dashboard/api/giveaways.js';
-import { toast } from 'vue-sonner';
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form';
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import {
 	Dialog,
 	DialogClose,
@@ -26,38 +16,40 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Textarea } from '@/components/ui/textarea'
 
-const { t } = useI18n();
-const api = useGiveawaysApi();
+const { t } = useI18n()
+const api = useGiveawaysApi()
 
-const open = ref(false);
+const open = ref(false)
 
-const { data: settingsData, fetching } = api.useGiveawaysSettings();
+const { data: settingsData, fetching } = api.useGiveawaysSettings()
 const settings = computed(() => {
-	const data: any = settingsData.value?.giveawaysSettings;
-	if (!data) return null;
+	const data: any = settingsData.value?.giveawaysSettings
+	if (!data) return null
 	return {
 		id: data.id,
 		channelId: data.channelId,
 		winnerMessage: data.winnerMessage,
-	};
-});
+	}
+})
 
-const formSchema =
-	z.object({
-		winnerMessage: z
-			.string()
-			.min(1, t('giveaways.settings.validation.required'))
-			.max(500, t('giveaways.settings.validation.maxLength')),
-	});
+const formSchema = z.object({
+	winnerMessage: z
+		.string()
+		.min(1, t('giveaways.settings.validation.required'))
+		.max(500, t('giveaways.settings.validation.maxLength')),
+})
 
 const form = useForm({
 	validationSchema: formSchema,
 	initialValues: {
 		winnerMessage: 'Congratulations {winner}! You won the giveaway!',
 	},
-});
+	keepValuesOnUnmount: true,
+})
 
 watch(
 	settings,
@@ -65,45 +57,44 @@ watch(
 		if (newSettings) {
 			form.setValues({
 				winnerMessage: newSettings.winnerMessage,
-			});
+			})
 		}
 	},
-	{ immediate: true },
-);
+	{ immediate: true }
+)
 
-
-const updateMutation = api.useMutationUpdateSettings();
+const updateMutation = api.useMutationUpdateSettings()
 
 const buttonText = computed(() => {
 	if (
 		!settings.value?.winnerMessage ||
 		settings.value.winnerMessage === 'Congratulations {winner}! You won the giveaway!'
 	) {
-		return t('giveaways.settings.create');
+		return t('giveaways.settings.create')
 	}
-	return t('giveaways.settings.update');
-});
+	return t('giveaways.settings.update')
+})
 
 const handleSubmit = form.handleSubmit(async (values) => {
 	const result = await updateMutation.executeMutation({
 		opts: {
 			winnerMessage: values.winnerMessage,
 		},
-	});
+	})
 
 	if (result.error) {
 		toast.error(t('giveaways.settings.error'), {
 			description: result.error.message,
-		});
-		return;
+		})
+		return
 	}
 
 	toast.success(t('giveaways.settings.success'), {
 		description: t('giveaways.settings.successDescription'),
-	});
+	})
 
-	open.value = false;
-});
+	open.value = false
+})
 </script>
 
 <template>
@@ -123,15 +114,24 @@ const handleSubmit = form.handleSubmit(async (values) => {
 			</DialogHeader>
 
 			<Alert v-if="!fetching">
-				<Icon name="lucide:info" class="h-4 w-4" />
+				<Icon
+					name="lucide:info"
+					class="h-4 w-4"
+				/>
 				<AlertDescription>
 					{{ t('giveaways.settings.hint') }}
-					<code class="bg-muted px-1 py-0.5 rounded text-sm">{winner}</code>
+					<code class="bg-muted rounded px-1 py-0.5 text-sm">{winner}</code>
 				</AlertDescription>
 			</Alert>
 
-			<form @submit="handleSubmit" class="space-y-4">
-				<FormField v-slot="{ componentField }" name="winnerMessage">
+			<form
+				@submit="handleSubmit"
+				class="space-y-4"
+			>
+				<FormField
+					v-slot="{ componentField }"
+					name="winnerMessage"
+				>
 					<FormItem>
 						<FormLabel>{{ t('giveaways.settings.messageLabel') }}</FormLabel>
 						<FormControl>
@@ -142,17 +142,23 @@ const handleSubmit = form.handleSubmit(async (values) => {
 								:disabled="fetching"
 							/>
 						</FormControl>
-						<FormMessage/>
+						<FormMessage />
 					</FormItem>
 				</FormField>
 
 				<DialogFooter>
 					<DialogClose as-child>
-						<Button type="button" variant="outline">
+						<Button
+							type="button"
+							variant="outline"
+						>
 							{{ t('sharedButtons.cancel') }}
 						</Button>
 					</DialogClose>
-					<Button type="submit" :disabled="updateMutation.fetching.value || fetching">
+					<Button
+						type="submit"
+						:disabled="updateMutation.fetching.value || fetching"
+					>
 						{{ buttonText }}
 					</Button>
 				</DialogFooter>
