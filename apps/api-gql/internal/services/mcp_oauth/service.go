@@ -83,3 +83,10 @@ func New(deps Dependencies) (*Service, error) {
 func (s *Service) ProtectedResourceMetadataURL() string {
 	return s.metadata
 }
+
+func (s *Service) resourceOrDefault(resource string) string {
+	if resource == "" {
+		return s.resource
+	}
+	return resource
+}

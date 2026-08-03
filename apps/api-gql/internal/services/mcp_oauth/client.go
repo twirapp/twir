@@ -65,7 +65,8 @@ func (s *Service) ValidateAuthorizeInput(ctx context.Context, input AuthorizeInp
 	if err != nil {
 		return AuthorizationRequest{}, err
 	}
-	if input.ResponseType != "code" || !MatchesRegisteredRedirectURI(client.RedirectURIs, input.RedirectURI) || input.Resource != s.resource || input.CodeChallengeMethod != "S256" || !validChallenge(input.CodeChallenge) {
+	resource := s.resourceOrDefault(input.Resource)
+	if input.ResponseType != "code" || !MatchesRegisteredRedirectURI(client.RedirectURIs, input.RedirectURI) || resource != s.resource || input.CodeChallengeMethod != "S256" || !validChallenge(input.CodeChallenge) {
 		return AuthorizationRequest{}, oauthError(ErrorInvalidRequest, "invalid authorization request")
 	}
 	clientScopes, err := entity.NormalizeScopes(client.Scopes)
@@ -80,7 +81,7 @@ func (s *Service) ValidateAuthorizeInput(ctx context.Context, input AuthorizeInp
 	if err != nil || !entity.ScopeSubset(scopes, clientScopes) {
 		return AuthorizationRequest{}, oauthError(ErrorInvalidScope, "requested scope is not permitted")
 	}
-	return AuthorizationRequest{Client: client, RedirectURI: input.RedirectURI, CodeChallenge: input.CodeChallenge, Resource: s.resource, Scopes: scopes}, nil
+	return AuthorizationRequest{Client: client, RedirectURI: input.RedirectURI, CodeChallenge: input.CodeChallenge, Resource: resource, Scopes: scopes}, nil
 }
 
 func MatchesRegisteredRedirectURI(registeredURIs []string, requestedURI string) bool {

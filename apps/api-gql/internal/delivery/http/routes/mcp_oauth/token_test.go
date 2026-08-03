@@ -34,6 +34,52 @@ func TestHandler_token_passes_pkce_and_resource_and_disables_caching(t *testing.
 	}
 }
 
+func TestHandler_token_accepts_omitted_resource_for_authorization_code_and_refresh_grants(t *testing.T) {
+	for _, test := range []struct {
+		name      string
+		grantType string
+		form      url.Values
+		resource  func(*fakeService) string
+	}{
+		{
+			name:      "authorization code",
+			grantType: "authorization_code",
+			form: url.Values{
+				"grant_type":    {"authorization_code"},
+				"client_id":     {"client"},
+				"code":          {"one-use-code"},
+				"redirect_uri":  {"https://client.example/callback"},
+				"code_verifier": {"verifier"},
+			},
+			resource: func(service *fakeService) string { return service.exchanged.Resource },
+		},
+		{
+			name:      "refresh token",
+			grantType: "refresh_token",
+			form: url.Values{
+				"grant_type":    {"refresh_token"},
+				"client_id":     {"client"},
+				"refresh_token": {"refresh"},
+			},
+			resource: func(service *fakeService) string { return service.refreshed.Resource },
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			// Given
+			handler := newTestHandler(t)
+
+			// When
+			response := serve(handler.router(), http.MethodPost, "/oauth/token", strings.NewReader(test.form.Encode()),
+				map[string]string{"Content-Type": "application/x-www-form-urlencoded"})
+
+			// Then
+			if response.Code != http.StatusOK || test.resource(handler.service) != "" {
+				t.Fatalf("%s token response = %d, input = %#v", test.grantType, response.Code, handler.service)
+			}
+		})
+	}
+}
+
 func TestHandler_token_rejects_client_secret_and_refresh_reuse(t *testing.T) {
 	// Given
 	handler := newTestHandler(t)

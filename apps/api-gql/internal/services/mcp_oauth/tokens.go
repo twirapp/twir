@@ -70,7 +70,8 @@ func (s *Service) ExchangeAuthorizationCode(ctx context.Context, input ExchangeA
 	if err != nil {
 		return TokenSet{}, oauthError(ErrorInvalidGrant, "invalid authorization code")
 	}
-	if code.ClientID != input.ClientID || code.RedirectURI != input.RedirectURI || code.Resource != s.resource || input.Resource != code.Resource || !code.ExpiresAt.After(s.clock.Now()) || !validVerifier(input.CodeVerifier) || subtle.ConstantTimeCompare([]byte(s256Challenge(input.CodeVerifier)), []byte(code.PKCEChallenge)) != 1 {
+	resource := s.resourceOrDefault(input.Resource)
+	if code.ClientID != input.ClientID || code.RedirectURI != input.RedirectURI || code.Resource != s.resource || resource != code.Resource || !code.ExpiresAt.After(s.clock.Now()) || !validVerifier(input.CodeVerifier) || subtle.ConstantTimeCompare([]byte(s256Challenge(input.CodeVerifier)), []byte(code.PKCEChallenge)) != 1 {
 		return TokenSet{}, oauthError(ErrorInvalidGrant, "invalid authorization code")
 	}
 	scopes, err := entity.NormalizeScopes(code.Scopes)
@@ -82,7 +83,8 @@ func (s *Service) ExchangeAuthorizationCode(ctx context.Context, input ExchangeA
 func (s *Service) Refresh(ctx context.Context, input RefreshInput) (TokenSet, error) {
 	hash := credentialHash(input.RefreshToken)
 	current, err := s.repository.GetTokenByRefreshTokenHash(ctx, hash)
-	if err != nil || current.ClientID != input.ClientID || input.Resource != s.resource || current.Resource != input.Resource || !current.RefreshExpiresAt.After(s.clock.Now()) {
+	resource := s.resourceOrDefault(input.Resource)
+	if err != nil || current.ClientID != input.ClientID || resource != s.resource || current.Resource != resource || !current.RefreshExpiresAt.After(s.clock.Now()) {
 		return TokenSet{}, oauthError(ErrorInvalidGrant, "invalid refresh token")
 	}
 	currentScopes, err := entity.NormalizeScopes(current.Scopes)

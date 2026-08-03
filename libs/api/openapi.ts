@@ -1912,7 +1912,7 @@ export class Api<SecurityDataType extends unknown> {
         grant_type: string;
         redirect_uri: string;
         refresh_token: string;
-        resource: string;
+        resource?: string;
         scope: string;
       },
       params: RequestParams = {},

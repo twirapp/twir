@@ -97,7 +97,7 @@ func (route *tokenRoute) token(context huma.Context, form url.Values) {
 	var err error
 	switch form.Get("grant_type") {
 	case "authorization_code":
-		if !required(form.Get("client_id"), form.Get("code"), form.Get("redirect_uri"), form.Get("code_verifier"), form.Get("resource")) {
+		if !required(form.Get("client_id"), form.Get("code"), form.Get("redirect_uri"), form.Get("code_verifier")) {
 			writeOAuthError(context, http.StatusBadRequest, "invalid_request", "authorization code fields are required")
 			return
 		}
@@ -109,7 +109,7 @@ func (route *tokenRoute) token(context huma.Context, form url.Values) {
 			Resource:     form.Get("resource"),
 		})
 	case "refresh_token":
-		if !required(form.Get("client_id"), form.Get("refresh_token"), form.Get("resource")) {
+		if !required(form.Get("client_id"), form.Get("refresh_token")) {
 			writeOAuthError(context, http.StatusBadRequest, "invalid_request", "refresh token fields are required")
 			return
 		}
@@ -152,7 +152,7 @@ type oauthTokenForm struct {
 	CodeVerifier string `json:"code_verifier"`
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
-	Resource     string `json:"resource"`
+	Resource     string `json:"resource" required:"false"`
 }
 
 func required(values ...string) bool {
