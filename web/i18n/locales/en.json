@@ -106,43 +106,71 @@
     "description": "Connect an AI coding agent to your channel through Twir MCP.",
     "copyError": "Failed to copy",
     "copyEndpoint": "Copy endpoint",
-    "copyApiKey": "Copy API key",
     "copyConfig": "Copy ready configuration",
-    "showKey": "Show API key",
-    "hideKey": "Hide API key",
     "documentation": "Documentation",
-    "loadErrorTitle": "Cannot load the channel API key",
     "clientsTitle": "Choose your client",
-    "clientsDescription": "Copied configurations include this channel's endpoint and API key. The preview stays redacted until you reveal the key.",
+    "clientsDescription": "Each configuration uses the MCP endpoint and starts the standard OAuth flow in your browser.",
     "credentials": {
       "title": "Connection details",
-      "description": "Use these values when configuring any Streamable HTTP MCP client.",
-      "endpoint": "MCP endpoint",
-      "apiKey": "Channel API key",
-      "warningTitle": "Keep this key private",
-      "warningDescription": "Anyone with this key can manage your channel through the enabled MCP tools. Do not commit it to a repository or share it publicly."
+      "description": "Use this Streamable HTTP endpoint with a client that supports OAuth discovery.",
+      "endpoint": "MCP endpoint"
     },
     "clients": {
       "claude": {
-        "description": "Add Twir as a user-scoped remote HTTP server with Claude Code's MCP CLI.",
+        "description": "Add Twir as a user-scoped remote HTTP server. Claude Code discovers OAuth automatically.",
         "step1": "Run the generated command in your terminal.",
-        "step2": "Restart Claude Code, then use /mcp to verify the connection."
-      },
-      "pi": {
-        "description": "Pi keeps MCP outside its core, so this setup uses the pi-mcp-adapter extension.",
-        "step1": "Install the adapter with: pi install npm:pi-mcp-adapter",
-        "step2": "Save the generated JSON to the shown shared MCP configuration file.",
-        "step3": "Restart Pi, then use /mcp status to verify the connection."
+        "step2": "Restart Claude Code and complete the OAuth sign-in when prompted."
       },
       "codex": {
-        "description": "Configure Twir as a Streamable HTTP server in the Codex config.toml file.",
+        "description": "Configure Twir as a Streamable HTTP server. Codex discovers OAuth automatically.",
         "step1": "Add the generated block to your user or trusted-project config.toml.",
-        "step2": "Restart Codex, then use /mcp to verify the connection."
+        "step2": "Restart Codex and complete the OAuth sign-in when prompted."
       },
       "opencode": {
-        "description": "Add a remote server with static headers and disable automatic OAuth discovery.",
+        "description": "Add a remote server with OAuth discovery enabled.",
         "step1": "Merge the generated object into your opencode.json configuration.",
-        "step2": "Restart OpenCode and run opencode mcp list to verify the connection."
+        "step2": "Restart OpenCode and complete the OAuth sign-in when prompted."
+      },
+      "cursor": {
+        "description": "Add Twir as a remote MCP server. Cursor discovers OAuth automatically.",
+        "step1": "Merge the generated object into your Cursor MCP configuration.",
+        "step2": "Restart Cursor and complete the OAuth sign-in when prompted."
+      }
+    }
+  },
+  "mcpConsent": {
+    "title": "Authorize AI access",
+    "description": "Review the requested MCP access for your selected dashboard.",
+    "requestTitle": "{client} wants to access your channel",
+    "requestDescription": "Choose the least access this client needs. You can deny this request at any time.",
+    "client": "Client",
+    "clientUri": "Client website",
+    "dashboard": "Selected dashboard",
+    "requestedScopes": "Requested scopes",
+    "accessLevel": "Access level",
+    "readTitle": "Read-only access",
+    "readDescription": "View channel data without changing your settings.",
+    "writeTitle": "Full read and write access",
+    "writeDescription": "Allow this client to view and change channel settings.",
+    "writeWarning": {
+      "title": "Sensitive access enabled",
+      "description": "Full access can manage secrets, integrations, moderation, and uploaded files. Only approve a client you trust."
+    },
+    "approve": "Approve access",
+    "deny": "Deny",
+    "retry": "Try again",
+    "errors": {
+      "expired": {
+        "title": "This request is no longer valid",
+        "description": "Reload or reopen this consent request before continuing."
+      },
+      "permission": {
+        "title": "You cannot authorize this request",
+        "description": "Select a dashboard where you can manage bot settings, then try again."
+      },
+      "network": {
+        "title": "We could not load this request",
+        "description": "Check your connection and try again."
       }
     }
   },

@@ -41,7 +41,7 @@ function buildDiagnosticsPlugin(): any {
 
 const diagnosticsPlugin = buildDiagnosticsPlugin()
 
-const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://twir.app'
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || process.env.SITE_BASE_URL || 'https://twir.app'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -53,6 +53,12 @@ export default defineNuxtConfig({
 		enabled: true,
 		timeline: {
 			enabled: true,
+		},
+	},
+
+	runtimeConfig: {
+		public: {
+			siteUrl,
 		},
 	},
 
