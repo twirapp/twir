@@ -30,7 +30,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 0 },
       "id": 1,
       "options": {
         "colorMode": "background_solid",
@@ -69,7 +69,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 0 },
       "id": 2,
       "options": {
         "colorMode": "background_solid",
@@ -108,7 +108,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 0 },
       "id": 3,
       "options": {
         "colorMode": "background_solid",
@@ -154,7 +154,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "gridPos": { "h": 3, "w": 4, "x": 12, "y": 0 },
       "id": 4,
       "options": {
         "colorMode": "background_solid",
@@ -193,7 +193,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "gridPos": { "h": 3, "w": 4, "x": 16, "y": 0 },
       "id": 5,
       "options": {
         "colorMode": "background_solid",
@@ -229,11 +229,11 @@
           "decimals": 1,
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "yellow", "value": null }] },
-          "unit": "short"
+          "unit": "suffix:M"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 0 },
       "id": 16,
       "options": {
         "colorMode": "background_solid",
@@ -253,7 +253,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COALESCE(sum(messages), 0)::double precision AS \"Messages processed\" FROM users_stats",
+          "rawSql": "SELECT (COALESCE(sum(messages), 0) / 1000000.0)::double precision AS \"Messages processed\" FROM users_stats",
           "refId": "A"
         }
       ],
@@ -280,7 +280,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 4 },
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 3 },
       "id": 6,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -320,7 +320,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 4 },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 3 },
       "id": 7,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -360,7 +360,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 10 },
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 8 },
       "id": 8,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -391,7 +391,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 10 },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 8 },
       "id": 9,
       "options": {
         "displayMode": "gradient",
@@ -448,7 +448,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 13 },
       "id": 10,
       "options": {
         "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true },
@@ -492,7 +492,7 @@
           { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 24 },
+      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 19 },
       "id": 11,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -536,7 +536,7 @@
           { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 24 },
+      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 19 },
       "id": 12,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -580,7 +580,7 @@
           { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 24 },
+      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 19 },
       "id": 13,
       "options": {
         "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -630,7 +630,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 31 },
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 24 },
       "id": 14,
       "options": {
         "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -680,7 +680,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 31 },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 24 },
       "id": 15,
       "options": {
         "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -714,5 +714,5 @@
   "timezone": "browser",
   "title": "Twir Live Overview",
   "uid": "twir-stream-overview",
-  "version": 3
+  "version": 4
 }
