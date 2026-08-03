@@ -65,15 +65,15 @@ watch(() => props.data, () => {
 <style scoped>
 :deep(a) {
 	cursor: pointer;
-	color: var(--notification-color, hsl(var(--primary)));
+	color: var(--notification-color, var(--primary));
 }
 
 :deep(.discord-spoiler) {
 	display: inline-block;
 	cursor: pointer;
-	border: 1px solid hsl(var(--foreground) / 0.16);
+	border: 1px solid color-mix(in oklab, var(--foreground) 16%, transparent);
 	border-radius: 0.25rem;
-	background-color: hsl(var(--foreground) / 0.28);
+	background-color: color-mix(in oklab, var(--foreground) 28%, transparent);
 	color: transparent;
 	line-height: 1.25;
 	padding: 0 0.25rem;
@@ -84,14 +84,14 @@ watch(() => props.data, () => {
 
 :deep(.discord-spoiler:hover),
 :deep(.discord-spoiler:focus) {
-	background-color: hsl(var(--foreground) / 0.1);
-	color: hsl(var(--foreground));
+	background-color: color-mix(in oklab, var(--foreground) 10%, transparent);
+	color: var(--foreground);
 	outline: none;
 	user-select: text;
 }
 
 :deep(.discord-spoiler:focus-visible) {
-	outline: 2px solid var(--notification-color, hsl(var(--ring)));
+	outline: 2px solid var(--notification-color, var(--ring));
 	outline-offset: 2px;
 }
 
@@ -102,7 +102,7 @@ watch(() => props.data, () => {
 }
 
 .ul li::marker {
-	color: var(--notification-color);
+	color: var(--notification-color, var(--primary));
 	font-size: 1rem;
 }
 
@@ -137,10 +137,10 @@ watch(() => props.data, () => {
 }
 
 .bq {
-	border-left: 4px solid var(--notification-color, hsl(var(--border)));
+	border-left: 4px solid var(--notification-color, var(--border));
 	margin: 0;
 	padding: 10px 15px;
-	background-color: hsl(var(--muted));
+	background-color: var(--muted);
 	border-radius: 4px;
 	width: 100%;
 }

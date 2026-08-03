@@ -76,6 +76,11 @@ describe('BlocksRender', () => {
 								text: '<strong>bold</strong> <em>italic</em> <span class="discord-spoiler" tabindex="0">secret</span>',
 							},
 						},
+						{
+							id: 'quote-1',
+							type: 'quote',
+							data: { text: 'quoted text' },
+						},
 					],
 				},
 			},
@@ -84,5 +89,6 @@ describe('BlocksRender', () => {
 		expect(wrapper.get('strong').text()).toBe('bold')
 		expect(wrapper.get('em').text()).toBe('italic')
 		expect(wrapper.get('.discord-spoiler').attributes('tabindex')).toBe('0')
+		expect(wrapper.get('blockquote.bq').text()).toBe('quoted text')
 	})
 })
