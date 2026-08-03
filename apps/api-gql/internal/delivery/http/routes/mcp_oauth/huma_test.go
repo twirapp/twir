@@ -63,7 +63,8 @@ func TestHandler_register_preserves_json_transport_failures_and_cors(t *testing.
 		{name: "accepts normalized JSON media type", body: `{"client_name":"Example"}`, contentType: "application/json; charset=utf-8", status: http.StatusCreated},
 		{name: "rejects malformed JSON", body: `{"client_name":`, contentType: "application/json", status: http.StatusBadRequest},
 		{name: "rejects trailing JSON", body: `{"client_name":"Example"} {}`, contentType: "application/json", status: http.StatusBadRequest},
-		{name: "rejects JSON over 16KiB", body: `{"client_name":"` + strings.Repeat("x", requestBodyLimit) + `"}`, contentType: "application/json", status: http.StatusBadRequest},
+		{name: "rejects JSON over 16KiB", body: `{"client_name":"` + strings.Repeat("x", requestBodyLimit) + `"}`,
+			contentType: "application/json", status: http.StatusBadRequest},
 	}
 
 	for _, test := range tests {
@@ -96,10 +97,31 @@ func TestHandler_token_preserves_form_auth_rejection_and_cache_headers(t *testin
 		status        int
 		wantChallenge bool
 	}{
-		{name: "accepts normalized form media type", form: tokenForm(), headers: map[string]string{"Content-Type": "application/x-www-form-urlencoded; charset=utf-8"}, status: http.StatusOK},
-		{name: "rejects client secret without challenge", form: addClientSecret(tokenForm()), headers: map[string]string{"Content-Type": "application/x-www-form-urlencoded"}, status: http.StatusUnauthorized},
-		{name: "rejects authorization with challenge", form: tokenForm(), headers: map[string]string{"Content-Type": "application/x-www-form-urlencoded", "Authorization": "Basic Y2xpZW50OnNlY3JldA=="}, status: http.StatusUnauthorized, wantChallenge: true},
-		{name: "rejects form over 16KiB", form: url.Values{"client_id": {strings.Repeat("x", requestBodyLimit+1)}}, headers: map[string]string{"Content-Type": "application/x-www-form-urlencoded"}, status: http.StatusBadRequest},
+		{
+			name:    "accepts normalized form media type",
+			form:    tokenForm(),
+			headers: map[string]string{"Content-Type": "application/x-www-form-urlencoded; charset=utf-8"},
+			status:  http.StatusOK,
+		},
+		{
+			name:    "rejects client secret without challenge",
+			form:    addClientSecret(tokenForm()),
+			headers: map[string]string{"Content-Type": "application/x-www-form-urlencoded"},
+			status:  http.StatusUnauthorized,
+		},
+		{
+			name:          "rejects authorization with challenge",
+			form:          tokenForm(),
+			headers:       map[string]string{"Content-Type": "application/x-www-form-urlencoded", "Authorization": "Basic Y2xpZW50OnNlY3JldA=="},
+			status:        http.StatusUnauthorized,
+			wantChallenge: true,
+		},
+		{
+			name:    "rejects form over 16KiB",
+			form:    url.Values{"client_id": {strings.Repeat("x", requestBodyLimit+1)}},
+			headers: map[string]string{"Content-Type": "application/x-www-form-urlencoded"},
+			status:  http.StatusBadRequest,
+		},
 	}
 
 	for _, test := range tests {
@@ -111,7 +133,10 @@ func TestHandler_token_preserves_form_auth_rejection_and_cache_headers(t *testin
 			response := serve(handler.router(), http.MethodPost, "/oauth/token", strings.NewReader(test.form.Encode()), test.headers)
 
 			// Then
-			if response.Code != test.status || response.Header().Get("Cache-Control") != "no-store" || response.Header().Get("Pragma") != "no-cache" || response.Header().Get("Access-Control-Allow-Origin") != "*" {
+			cacheControl := response.Header().Get("Cache-Control")
+			pragma := response.Header().Get("Pragma")
+			allowOrigin := response.Header().Get("Access-Control-Allow-Origin")
+			if response.Code != test.status || cacheControl != "no-store" || pragma != "no-cache" || allowOrigin != "*" {
 				t.Fatalf("token response = %d, headers = %#v", response.Code, response.Header())
 			}
 			if test.wantChallenge && response.Header().Get("WWW-Authenticate") != `Basic realm="oauth"` {
@@ -153,7 +178,9 @@ func TestHandler_register_limiter_preserves_gin_client_ip_and_short_circuits(t *
 	handler.router().ServeHTTP(response, request)
 
 	// Then
-	if response.Code != http.StatusTooManyRequests || response.Body.Len() != 0 || response.Header().Get("Access-Control-Allow-Origin") != "*" || response.Header().Get("X-Rate-Limit-Limit") != "20" {
+	allowOrigin := response.Header().Get("Access-Control-Allow-Origin")
+	limit := response.Header().Get("X-Rate-Limit-Limit")
+	if response.Code != http.StatusTooManyRequests || response.Body.Len() != 0 || allowOrigin != "*" || limit != "20" {
 		t.Fatalf("limited response = %d, headers = %#v, body = %q", response.Code, response.Header(), response.Body.String())
 	}
 	if handler.service.registrations != 20 || len(limiter.options) != 21 {
@@ -166,7 +193,14 @@ func TestHandler_register_limiter_preserves_gin_client_ip_and_short_circuits(t *
 }
 
 func tokenForm() url.Values {
-	return url.Values{"grant_type": {"authorization_code"}, "client_id": {"client"}, "code": {"one-use-code"}, "redirect_uri": {"https://client.example/callback"}, "code_verifier": {"verifier"}, "resource": {"https://twir.example/api/mcp"}}
+	return url.Values{
+		"grant_type":    {"authorization_code"},
+		"client_id":     {"client"},
+		"code":          {"one-use-code"},
+		"redirect_uri":  {"https://client.example/callback"},
+		"code_verifier": {"verifier"},
+		"resource":      {"https://twir.example/api/mcp"},
+	}
 }
 
 func addClientSecret(form url.Values) url.Values {

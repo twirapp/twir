@@ -30,7 +30,37 @@ func newTestHandler(t *testing.T) testHandler {
 
 func newTestHandlerWithRateLimiter(t *testing.T, limiter registerRateLimiter) testHandler {
 	t.Helper()
-	service := &fakeService{client: entity.Client{ClientID: "client", Metadata: []byte(`{"client_name":"Example","client_uri":"https://client.example","redirect_uris":["https://client.example/callback"],"grant_types":["authorization_code","refresh_token"],"response_types":["code"],"token_endpoint_auth_method":"none","scope":"read write"}`), RedirectURIs: []string{"https://client.example/callback"}, Scopes: []entity.Scope{entity.ScopeRead, entity.ScopeWrite}, CreatedAt: time.Unix(1, 0)}, authorized: service.AuthorizationRequest{Client: entity.Client{ClientID: "client", Scopes: []entity.Scope{entity.ScopeRead, entity.ScopeWrite}}, RedirectURI: "https://client.example/callback", CodeChallenge: "challenge", Resource: "https://twir.example/api/mcp", Scopes: []entity.Scope{entity.ScopeRead, entity.ScopeWrite}}, code: service.IssuedAuthorizationCode{Code: "issued-code"}, tokens: service.TokenSet{AccessToken: "access", RefreshToken: "refresh", TokenType: "Bearer", Scopes: []entity.Scope{entity.ScopeRead}, AccessExpiresAt: time.Now().Add(time.Hour)}}
+	service := &fakeService{
+		client: entity.Client{
+			ClientID: "client",
+			Metadata: []byte(
+				`{"client_name":"Example","client_uri":"https://client.example","redirect_uris":["https://client.example/callback"],` +
+					`"grant_types":["authorization_code","refresh_token"],"response_types":["code"],` +
+					`"token_endpoint_auth_method":"none","scope":"read write"}`,
+			),
+			RedirectURIs: []string{"https://client.example/callback"},
+			Scopes:       []entity.Scope{entity.ScopeRead, entity.ScopeWrite},
+			CreatedAt:    time.Unix(1, 0),
+		},
+		authorized: service.AuthorizationRequest{
+			Client: entity.Client{
+				ClientID: "client",
+				Scopes:   []entity.Scope{entity.ScopeRead, entity.ScopeWrite},
+			},
+			RedirectURI:   "https://client.example/callback",
+			CodeChallenge: "challenge",
+			Resource:      "https://twir.example/api/mcp",
+			Scopes:        []entity.Scope{entity.ScopeRead, entity.ScopeWrite},
+		},
+		code: service.IssuedAuthorizationCode{Code: "issued-code"},
+		tokens: service.TokenSet{
+			AccessToken:     "access",
+			RefreshToken:    "refresh",
+			TokenType:       "Bearer",
+			Scopes:          []entity.Scope{entity.ScopeRead},
+			AccessExpiresAt: time.Now().Add(time.Hour),
+		},
+	}
 	sessions := &fakeSessions{attempts: map[string]authsessions.MCPOAuthAttempt{}, userID: uuid.New(), dashboardID: uuid.New()}
 	handler, err := New(Dependencies{Service: service, Sessions: sessions, SiteBaseURL: "https://twir.example", RegisterRateLimiter: limiter})
 	if err != nil {
