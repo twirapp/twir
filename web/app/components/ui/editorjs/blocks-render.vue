@@ -69,18 +69,30 @@ watch(() => props.data, () => {
 }
 
 :deep(.discord-spoiler) {
+	display: inline-block;
 	cursor: pointer;
+	border: 1px solid hsl(var(--foreground) / 0.16);
 	border-radius: 0.25rem;
-	background-color: hsl(var(--muted-foreground));
+	background-color: hsl(var(--foreground) / 0.28);
 	color: transparent;
+	line-height: 1.25;
 	padding: 0 0.25rem;
+	user-select: none;
+	vertical-align: baseline;
+	transition: background-color 150ms ease, color 150ms ease;
 }
 
 :deep(.discord-spoiler:hover),
 :deep(.discord-spoiler:focus) {
-	background-color: hsl(var(--muted));
-	color: inherit;
+	background-color: hsl(var(--foreground) / 0.1);
+	color: hsl(var(--foreground));
 	outline: none;
+	user-select: text;
+}
+
+:deep(.discord-spoiler:focus-visible) {
+	outline: 2px solid var(--notification-color, hsl(var(--ring)));
+	outline-offset: 2px;
 }
 
 .ul {
