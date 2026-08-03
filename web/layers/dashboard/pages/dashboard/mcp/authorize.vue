@@ -3,9 +3,8 @@ import McpConsent from '~~/layers/dashboard/features/mcp-consent/mcp-consent.vue
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 definePageMeta({
-	layout: 'dashboard',
+	layout: 'fullscreen',
 	middleware: 'auth',
-	noPadding: true,
 	neededPermission: ChannelRolePermissionEnum.ManageBotSettings,
 })
 </script>
