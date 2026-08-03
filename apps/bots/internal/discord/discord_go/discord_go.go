@@ -39,20 +39,22 @@ func New(opts Opts) (*Discord, error) {
 	}
 
 	log := logger.WithComponent(opts.Logger, "discord")
-	discordSession := session.NewWithIntents(
-		"Bot "+opts.Config.DiscordBotToken,
-		gateway.IntentGuilds,
-		gateway.IntentGuildMessages,
-		gateway.IntentMessageContent,
-	)
 	d := &Discord{
 		logger:      log,
 		discordRepo: opts.DiscordRepo,
-		api:         discordSession.Client,
-		session:     discordSession,
+		api:         discordapi.NewClient("Bot " + opts.Config.DiscordBotToken),
 	}
-	discordSession.AddHandler(d.handleShardReady)
-	discordSession.AddHandler(d.handleGuildDelete)
+	if opts.Config.DiscordNotificationsChannelID != "" {
+		d.session = session.NewWithIntents(
+			"Bot "+opts.Config.DiscordBotToken,
+			gateway.IntentGuilds,
+			gateway.IntentGuildMessages,
+			gateway.IntentMessageContent,
+		)
+		d.api = d.session.Client
+		d.session.AddHandler(d.handleShardReady)
+		d.session.AddHandler(d.handleGuildDelete)
+	}
 
 	opts.LC.Append(
 		fx.Hook{
@@ -67,13 +69,19 @@ func New(opts Opts) (*Discord, error) {
 					slog.String("bot_id", botInfo.ID.String()),
 				)
 
-				if err := d.session.Open(ctx); err != nil {
-					return fmt.Errorf("open Discord gateway: %w", err)
+				if d.session != nil {
+					if err := d.session.Open(ctx); err != nil {
+						return fmt.Errorf("open Discord gateway: %w", err)
+					}
 				}
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
+				if d.session == nil {
+					return nil
+				}
+
 				closeResult := make(chan error, 1)
 				go func() {
 					closeResult <- d.session.Close()
