@@ -32,7 +32,7 @@ type AuthorizationRequest struct {
 	Scopes                               []entity.Scope
 }
 
-var privateScheme = regexp.MustCompile(`^[a-z][a-z0-9+.-]*$`)
+var privateUseScheme = regexp.MustCompile(`^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$`)
 
 func (s *Service) RegisterClient(ctx context.Context, input RegisterClientInput) (entity.Client, error) {
 	metadata, scopes, err := normalizeMetadata(input.Metadata)
@@ -116,10 +116,8 @@ func normalizeMetadata(raw json.RawMessage) (clientMetadata, []entity.Scope, err
 		if err != nil {
 			return clientMetadata{}, nil, err
 		}
-		for _, previous := range metadata.RedirectURIs[:i] {
-			if previous == normalized {
-				return clientMetadata{}, nil, oauthError(ErrorInvalidClientMetadata, "duplicate redirect URI")
-			}
+		if slices.Contains(metadata.RedirectURIs[:i], normalized) {
+			return clientMetadata{}, nil, oauthError(ErrorInvalidClientMetadata, "duplicate redirect URI")
 		}
 		metadata.RedirectURIs[i] = normalized
 	}
@@ -151,7 +149,7 @@ func normalizeRedirectURI(raw string) (string, error) {
 			return "", oauthError(ErrorInvalidClientMetadata, "invalid redirect URI")
 		}
 	default:
-		if (u.Host == "" && u.Path == "") || u.Opaque != "" || !privateScheme.MatchString(u.Scheme) {
+		if (u.Host == "" && u.Path == "") || u.Opaque != "" || !privateUseScheme.MatchString(u.Scheme) {
 			return "", oauthError(ErrorInvalidClientMetadata, "invalid redirect URI")
 		}
 	}
