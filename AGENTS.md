@@ -334,23 +334,43 @@ const integrationsPage = useIntegrationsPageData()
 
 ### **7. Go (Golang) Backend**
 
-- **Fx lifecycle contexts (mandatory):**
-  - Treat the `context.Context` passed to `fx.Hook.OnStart` and `fx.Hook.OnStop` as a short-lived,
-    phase-scoped deadline context owned by Fx.
-  - **NEVER** store that context in a struct, capture/pass it to a background goroutine, or reuse it
-    after the hook returns. It is canceled when the lifecycle phase finishes or times out.
-  - Long-running workers must use their own service-owned context (for example,
-    `context.WithCancel(context.Background())`). Start the worker in `OnStart`, retain its cancel
-    function, cancel it in `OnStop`, and wait for the worker to exit within the `OnStop` context.
-  - Use the Fx context only for bounded synchronous startup/shutdown work inside the hook. Do not
-    replace it with `context.Background()` or `context.TODO()` for such work, because that bypasses
-    Fx cancellation and can leave a hook running after startup has failed.
-  - `OnStart` must return quickly. Do not perform unbounded loops, bulk reconciliation, or
-    sequential calls to external services there; move those to a managed background worker unless
-    they are strictly required for readiness and have explicit bounded timeouts.
-  - Do not raise `fx.StartTimeout` or `fx.StopTimeout` merely to hide a slow or stuck hook. Increase
-    them only when the bounded lifecycle operation is intentionally required and the longer budget
-    is documented.
+- **Dependency Injection — Wire (mandatory):**
+  - We use [goforj/wire](https://github.com/goforj/wire) (maintained google/wire fork) — compile-time
+    DI, no runtime container, no reflection.
+  - **A dependency = a constructor parameter.** Never create `Opts`/`Deps` structs for DI and never
+    use `wire.Struct(new(X.Opts), "*")` for services. The only allowed `wire.Struct` exceptions:
+    root application aggregation (e.g. `ApplicationDeps` in api-gql) and `parserservices.Services`
+    with an explicit field list.
+  - **Layout per app:**
+    - `apps/<app>/cmd/main.go` — minimal: calls `initializeApplication()` and `application.Run()`.
+    - `apps/<app>/cmd/wire.go` — injector stub with `//go:build wireinject`, `wire.Build(app.ProviderSet)`.
+    - `apps/<app>/app/app.go` — `var ProviderSet`, `Application` type, `Run()` delegating to
+      `lifecycle.Lifecycle`.
+    - api-gql is bigger: its graph lives in `apps/api-gql/internal/di/` (`provider_set.go`,
+      `repositories.go`, `overlays_*.go`).
+  - **Shared infrastructure** (config, logger, redis, pgx, gorm, clickhouse, bus, sentry, uptime,
+    lifecycle) comes from `baseapp.ProviderSet`; every app set starts with
+    `wire.Value(baseapp.Opts{AppName: "..."}), baseapp.ProviderSet`.
+  - **Adding a dependency:** add a parameter to your constructor. If the type is already provided
+    somewhere in the set — nothing else to do. If not, add its provider to the app set
+    (`foo.New` for services; `xxxpgx.NewFx` + `wire.Bind(new(xxx.Repository), new(*xxxpgx.Pgx))`
+    for repositories). Wire errors at generation time if a type is missing.
+  - **`wire_gen.go` is gitignored** and regenerated automatically by the CLI on `bun dev` and
+    `bun cli build`. Manual regeneration (from `cli/`, one target per invocation — multi-target
+    runs hit a stale-cache bug, see goforj/wire#14):
+    `WIRE_CACHE_MODE=content go tool github.com/goforj/wire/cmd/wire gen ../apps/<app>/cmd`
+  - **Running an app:** `go run ./apps/<app>/cmd` (package path, NOT `cmd/main.go` — file-list runs
+    skip `wire_gen.go` and fail with `undefined: initializeApplication`).
+- **Lifecycle contexts (mandatory):**
+  - Apps register `lifecycle.Hook{OnStart, OnStop}` via `*lifecycle.Lifecycle.Append` (usually
+    inside constructors) and finish with `application.Run()` → `Lifecycle.Run()`, which blocks
+    until SIGINT/SIGTERM and then stops hooks.
+  - Treat hook `context.Context` as short-lived and phase-scoped: **NEVER** store it in a struct,
+    capture it in a background goroutine, or reuse it after the hook returns.
+  - Long-running workers use their own context (e.g. `context.WithCancel(context.Background())`):
+    start in `OnStart`, cancel in `OnStop`, wait for exit.
+  - `OnStart` must return quickly — no unbounded loops or bulk reconciliation; move those to
+    managed background workers.
 - **Migrations**
   - If need to create new database migration for your task, use:
   - command `bun cli m create --name value --db postgres|clickhouse --type sql|go`
