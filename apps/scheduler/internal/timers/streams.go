@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	buskick "github.com/twirapp/twir/libs/bus-core/kick"
 	bustokens "github.com/twirapp/twir/libs/bus-core/tokens"
@@ -18,7 +19,6 @@ import (
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 
 	"github.com/google/uuid"
@@ -30,8 +30,7 @@ import (
 )
 
 type StreamOpts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Config config.Config
 	Logger *slog.Logger
@@ -72,7 +71,7 @@ func NewStreams(opts StreamOpts) {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
 					for {

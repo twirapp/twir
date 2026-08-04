@@ -5,16 +5,15 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type WatchedOpts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Logger *slog.Logger
 	Config config.Config
@@ -46,7 +45,7 @@ func NewWatched(opts WatchedOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
 					for {

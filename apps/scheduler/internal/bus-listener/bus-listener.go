@@ -5,10 +5,10 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/scheduler/internal/services"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 )
 
 type schedulerListener struct {
@@ -19,8 +19,7 @@ type schedulerListener struct {
 }
 
 type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Logger *slog.Logger
 
@@ -38,7 +37,7 @@ func New(opts Opts) error {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				impl.bus.Scheduler.CreateDefaultCommands.SubscribeGroup(
 					"scheduler",

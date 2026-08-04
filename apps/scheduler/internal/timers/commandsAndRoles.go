@@ -6,15 +6,14 @@ import (
 	"time"
 
 	"github.com/twirapp/twir/apps/scheduler/internal/services"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type CommandsAndRolesOpts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Logger *slog.Logger
 	Config config.Config
@@ -34,7 +33,7 @@ func NewCommandsAndRoles(opts CommandsAndRolesOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
 					for {

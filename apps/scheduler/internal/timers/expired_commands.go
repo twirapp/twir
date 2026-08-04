@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/guregu/null"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -14,13 +15,11 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type ExpiredCommandsOpts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Logger *slog.Logger
 	Config config.Config
@@ -54,7 +53,7 @@ func NewExpiredCommands(opts ExpiredCommandsOpts) *expiredCommands {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
 					for {

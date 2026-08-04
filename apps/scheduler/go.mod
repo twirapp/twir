@@ -3,6 +3,7 @@ module github.com/twirapp/twir/apps/scheduler
 go 1.26.0
 
 require (
+	github.com/goforj/wire v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lib/pq v1.10.9
@@ -16,7 +17,6 @@ require (
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/twitch v0.0.0-20251127124349-67ad7fa0003f
-	go.uber.org/fx v1.24.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
