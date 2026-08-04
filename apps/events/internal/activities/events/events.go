@@ -16,13 +16,10 @@ import (
 	"github.com/twirapp/twir/libs/repositories/variables"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Gorm                *gorm.DB
 	Redis               *redis.Client
 	Cfg                 config.Config

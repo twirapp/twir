@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/apps/events/internal/song_request"
 	"github.com/twirapp/twir/apps/events/internal/workflows"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -32,13 +33,11 @@ import (
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/utils"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Logger *slog.Logger
 	Cfg    cfg.Config
@@ -73,7 +72,7 @@ func New(opts Opts) error {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.twirBus.Events.Follow.SubscribeGroup("events", impl.Follow); err != nil {
 					return err

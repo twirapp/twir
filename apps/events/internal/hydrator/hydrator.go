@@ -13,13 +13,10 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/valyala/fasttemplate"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Db      *gorm.DB
 	TwirBus *bus_core.Bus
 }

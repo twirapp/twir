@@ -7,16 +7,15 @@ import (
 	eventsActivity "github.com/twirapp/twir/apps/events/internal/activities/events"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/apps/events/internal/workflows"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	config "github.com/twirapp/twir/libs/config"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/worker"
-	"go.uber.org/fx"
 )
 
 type EventsWorkerOpts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Cfg        config.Config
 	Workflow   *workflows.EventWorkflow
@@ -75,7 +74,7 @@ func NewEventsWorker(opts EventsWorkerOpts) error {
 	temporalWorker.RegisterActivity(opts.Activities.SendHttpRequest)
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				return temporalWorker.Start()
 			},

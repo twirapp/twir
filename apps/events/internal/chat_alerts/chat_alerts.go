@@ -21,7 +21,6 @@ import (
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -39,8 +38,6 @@ type ChatAlerts struct {
 }
 
 type Opts struct {
-	fx.In
-
 	DB                    *gorm.DB
 	Redis                 *redis.Client
 	Logger                *slog.Logger

@@ -22,13 +22,10 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type EventsWorkflowOpts struct {
-	fx.In
-
 	Cfg                               config.Config
 	EventsActivity                    *eventsActivity.Activity
 	Gorm                              *gorm.DB

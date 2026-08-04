@@ -14,13 +14,10 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Gorm           *gorm.DB
 	TwirBus        *buscore.Bus
 	Logger         *slog.Logger
