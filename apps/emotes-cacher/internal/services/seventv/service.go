@@ -9,18 +9,17 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/messages"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/operations"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Gorm        *gorm.DB
 	Config      config.Config
@@ -40,7 +39,7 @@ func New(opts Opts) error {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go s.start(context.Background())
 				return nil

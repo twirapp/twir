@@ -9,15 +9,14 @@ import (
 	"unsafe"
 
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/entities/platform"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Gorm   *gorm.DB
 	Logger *slog.Logger
@@ -42,7 +41,7 @@ func New(opts Opts) *EmotesStore {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
 					s.fillChannels()

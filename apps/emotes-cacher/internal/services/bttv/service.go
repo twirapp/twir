@@ -10,16 +10,15 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/socket_client"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Gorm       *gorm.DB
 	Logger     *slog.Logger
@@ -45,7 +44,7 @@ func New(opts Opts) error {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				socket, err := socket_client.New(
 					ctx,
