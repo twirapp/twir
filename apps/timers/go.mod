@@ -3,6 +3,7 @@ module github.com/twirapp/twir/apps/timers
 go 1.26.0
 
 require (
+	github.com/goforj/wire v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
@@ -12,7 +13,6 @@ require (
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/redis_keys v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
-	go.uber.org/fx v1.24.0
 )
 
 require (

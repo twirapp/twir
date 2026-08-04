@@ -1,48 +1,70 @@
 package app
 
 import (
+	"fmt"
 	"log/slog"
 
-	bus_listener "github.com/twirapp/twir/apps/timers/internal/bus-listener"
+	"github.com/goforj/wire"
+	buslistener "github.com/twirapp/twir/apps/timers/internal/bus-listener"
 	"github.com/twirapp/twir/apps/timers/internal/manager"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
-	"github.com/twirapp/twir/libs/otel"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
-	"github.com/twirapp/twir/libs/repositories/streams"
-	streamsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
+	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
+	streamsrepositorypgx "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
-var App = fx.Module(
-	"timers",
-	baseapp.CreateBaseApp(baseapp.Opts{AppName: "timers"}),
-	fx.Provide(
-		fx.Annotate(
-			timersrepositorypgx.NewFx,
-			fx.As(new(timersrepository.Repository)),
-		),
-		fx.Annotate(
-			channelsrepositorypgx.NewFx,
-			fx.As(new(channelsrepository.Repository)),
-		),
-		fx.Annotate(
-			streamsrepositorypostgres.NewFx,
-			fx.As(new(streams.Repository)),
-		),
-		channelservice.NewChannelService,
-		channelcache.New,
-		manager.New,
+const Service = "timers"
+
+var ProviderSet = wire.NewSet(
+	wire.Value(baseapp.Opts{AppName: Service}),
+	baseapp.NewBase,
+	wire.FieldsOf(
+		new(baseapp.Base),
+		"Lifecycle",
+		"Config",
+		"Redis",
+		"Logger",
+		"Bus",
+		"PgxPool",
+		"KV",
 	),
-	fx.Invoke(
-		otel.NewFx("timers"),
-		bus_listener.New,
-		func(l *slog.Logger) {
-			l.Info("🚀 Timers service started")
-		},
-	),
+	timersrepositorypgx.NewFx,
+	wire.Bind(new(timersrepository.Repository), new(*timersrepositorypgx.Pgx)),
+	channelsrepositorypgx.NewFx,
+	wire.Bind(new(channelsrepository.Repository), new(*channelsrepositorypgx.Pgx)),
+	streamsrepositorypgx.NewFx,
+	wire.Bind(new(streamsrepository.Repository), new(*streamsrepositorypgx.Pgx)),
+	channelservice.NewChannelService,
+	channelcache.New,
+	wire.Struct(new(manager.Opts), "*"),
+	manager.New,
+	wire.Struct(new(buslistener.Opts), "*"),
+	NewApplication,
 )
+
+type Application struct {
+	lifecycle *lifecycle.Lifecycle
+}
+
+func NewApplication(
+	lifecycle *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	listenerOpts buslistener.Opts,
+) (*Application, error) {
+	if err := buslistener.New(listenerOpts); err != nil {
+		return nil, fmt.Errorf("create timers listener: %w", err)
+	}
+
+	logger.Info("🚀 Timers service started")
+	return &Application{lifecycle: lifecycle}, nil
+}
+
+func (a *Application) Run() error {
+	return a.lifecycle.Run()
+}

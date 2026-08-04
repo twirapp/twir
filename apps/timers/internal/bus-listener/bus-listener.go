@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/timers/internal/manager"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/timers"
-	"go.uber.org/fx"
 )
 
 type server struct {
@@ -18,9 +18,7 @@ type server struct {
 }
 
 type Opts struct {
-	fx.In
-
-	Lc      fx.Lifecycle
+	Lc      *lifecycle.Lifecycle
 	Logger  *slog.Logger
 	Bus     *buscore.Bus
 	Manager *manager.Manager
@@ -32,7 +30,7 @@ func New(opts Opts) error {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				opts.Bus.Timers.AddTimer.SubscribeGroup("timers", s.onAddTimerToQueue)
 				opts.Bus.Timers.RemoveTimer.SubscribeGroup("timers", s.onRemoveTimerFromQueue)
