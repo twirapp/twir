@@ -887,8 +887,12 @@ services:
     networks:
       - twir
     deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
       mode: replicated
-      replicas: 3
+      replicas: 1
       restart_policy:
         condition: any
         delay: 30s

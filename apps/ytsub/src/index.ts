@@ -24,13 +24,15 @@ function isOfflineError(error: unknown): boolean {
 	}
 	const info = (error as { info?: { status?: string; reason?: string } }).info
 	const reason = (info?.reason ?? error.message).toLowerCase()
-	return reason.includes('unavailable')
-		|| reason.includes('offline')
-		|| reason.includes('not available')
-		|| reason.includes('not live')
+	return (
+		reason.includes('unavailable') ||
+		reason.includes('offline') ||
+		reason.includes('not available') ||
+		reason.includes('not live')
+	)
 }
 
-const yt = await Innertube.create()
+const yt = await Innertube.create({ cookie: config.YTSUB_COOKIE })
 const nc = await connect({ servers: NATS_URL })
 const bus = newBus(nc)
 const liveChatSource: LiveChatSource = {
@@ -60,30 +62,30 @@ const liveChatSource: LiveChatSource = {
 					viewers: info.basic_info.view_count ?? 0,
 					startedAt: info.basic_info.start_timestamp ?? new Date(),
 				},
-			session: {
-				onStart(listener): void {
-					liveChat.on('start', listener)
+				session: {
+					onStart(listener): void {
+						liveChat.on('start', listener)
+					},
+					onChatUpdate(listener): void {
+						liveChat.on('chat-update', listener)
+					},
+					onError(listener): void {
+						liveChat.on('error', listener)
+					},
+					onEnd(listener): void {
+						liveChat.on('end', listener)
+					},
+					selectLiveChat(): void {
+						liveChat.applyFilter('LIVE_CHAT')
+					},
+					start(): void {
+						liveChat.start()
+					},
+					stop(): void {
+						liveChat.stop()
+					},
 				},
-				onChatUpdate(listener): void {
-					liveChat.on('chat-update', listener)
-				},
-				onError(listener): void {
-					liveChat.on('error', listener)
-				},
-				onEnd(listener): void {
-					liveChat.on('end', listener)
-				},
-				selectLiveChat(): void {
-					liveChat.applyFilter('LIVE_CHAT')
-				},
-				start(): void {
-					liveChat.start()
-				},
-				stop(): void {
-					liveChat.stop()
-				},
-			},
-		}
+			}
 		} catch (error) {
 			if (error instanceof StreamOfflineError || isOfflineError(error)) {
 				throw new StreamOfflineError(binding.platformChannelId)
@@ -97,7 +99,8 @@ const liveChats = new LiveChatManager(liveChatSource, bus, {
 	ensureChatter: ensureYoutubeChatter,
 	ownership,
 	onStreamOnline: (binding, stream) => markOnline(bus, binding, stream),
-	onStreamOffline: (binding, stream) => markOffline(bus, binding.platformChannelId, stream.startedAt),
+	onStreamOffline: (binding, stream) =>
+		markOffline(bus, binding.platformChannelId, stream.startedAt),
 })
 
 async function subscribeChannel(channelId: string): Promise<void> {
@@ -158,9 +161,9 @@ function shutdown(): Promise<void> {
 			const drainError = error instanceof Error ? error : new Error('NATS drain failed')
 			console.error('youtube.shutdown.drain.failed', { error: drainError })
 		} finally {
-		try {
-			await closeDatabase()
-			await closeStreamsDatabase()
+			try {
+				await closeDatabase()
+				await closeStreamsDatabase()
 			} catch (error) {
 				const closeError = error instanceof Error ? error : new Error('Database close failed')
 				console.error('youtube.shutdown.database-close.failed', { error: closeError })
