@@ -17,34 +17,29 @@ import (
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	TrmManager                               trm.Manager
-	CommandsRepository                       commands.Repository
-	CommandsWithGroupsAndResponsesRepository commands_with_groups_and_responses.Repository
-	ResponsesRepository                      commands_response.Repository
-	CommandRoleCooldownRepository            command_role_cooldown.Repository
-	CommandsService                          *commandsservice.Service
-	Logger                                   *slog.Logger
-	AuditRecorder                            audit.Recorder
-	CachedCommandsClient                     *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-}
-
-func New(opts Opts) *Service {
+func New(
+	trmManager trm.Manager,
+	commandsRepository commands.Repository,
+	commandsWithGroupsAndResponsesRepository commands_with_groups_and_responses.Repository,
+	responsesRepository commands_response.Repository,
+	commandRoleCooldownRepository command_role_cooldown.Repository,
+	commandsService *commandsservice.Service,
+	logger *slog.Logger,
+	auditRecorder audit.Recorder,
+	cachedCommandsClient *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses],
+) *Service {
 	return &Service{
-		trmManager:                               opts.TrmManager,
-		commandsWithGroupsAndResponsesRepository: opts.CommandsWithGroupsAndResponsesRepository,
-		responsesRepository:                      opts.ResponsesRepository,
-		commandsRepository:                       opts.CommandsRepository,
-		commandRoleCooldownRepository:            opts.CommandRoleCooldownRepository,
-		logger:                                   opts.Logger,
-		auditRecorder:                            opts.AuditRecorder,
-		commandsService:                          opts.CommandsService,
-		cachedCommandsClient:                     opts.CachedCommandsClient,
+		trmManager:                               trmManager,
+		commandsWithGroupsAndResponsesRepository: commandsWithGroupsAndResponsesRepository,
+		responsesRepository:                      responsesRepository,
+		commandsRepository:                       commandsRepository,
+		commandRoleCooldownRepository:            commandRoleCooldownRepository,
+		logger:                                   logger,
+		auditRecorder:                            auditRecorder,
+		commandsService:                          commandsService,
+		cachedCommandsClient:                     cachedCommandsClient,
 	}
 }
 

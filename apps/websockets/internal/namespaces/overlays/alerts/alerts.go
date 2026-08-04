@@ -13,10 +13,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/twirapp/twir/apps/websockets/types"
-	"github.com/twirapp/twir/libs/logger"
+	twirlogger "github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -30,24 +29,20 @@ type Alerts struct {
 	counter prometheus.Gauge
 }
 
-type Opts struct {
-	fx.In
-
-	Gorm               *gorm.DB
-	Logger             *slog.Logger
-	Redis              *redis.Client
-	ChannelsRepository channels.Repository
-	UsersRepository    users.Repository
-}
-
-func NewAlerts(opts Opts) *Alerts {
+func NewAlerts(
+	gorm *gorm.DB,
+	logger *slog.Logger,
+	redis *redis.Client,
+	channelsRepository channels.Repository,
+	usersRepository users.Repository,
+) *Alerts {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	alerts := &Alerts{
 		manager: m,
-		gorm:    opts.Gorm,
-		logger:  opts.Logger,
-		redis:   opts.Redis,
+		gorm:    gorm,
+		logger:  logger,
+		redis:   redis,
 		counter: promauto.NewGauge(
 			prometheus.GaugeOpts{
 				Name:        "websockets_connections_count",
@@ -58,10 +53,10 @@ func NewAlerts(opts Opts) *Alerts {
 
 	alerts.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckChannelByApiKey(session, opts.ChannelsRepository, opts.UsersRepository)
+			err := helpers.CheckChannelByApiKey(session, channelsRepository, usersRepository)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
-					opts.Logger.Error("cannot check user by api key", logger.Error(err))
+					logger.Error("cannot check user by api key", twirlogger.Error(err))
 				}
 				return
 			}
@@ -94,7 +89,7 @@ func (c *Alerts) SendEvent(channelId, eventName string, data any) error {
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.logger.Error("cannot process message", logger.Error(err))
+		c.logger.Error("cannot process message", twirlogger.Error(err))
 		return err
 	}
 
@@ -106,7 +101,7 @@ func (c *Alerts) SendEvent(channelId, eventName string, data any) error {
 	)
 
 	if err != nil {
-		c.logger.Error("cannot broadcast message", logger.Error(err))
+		c.logger.Error("cannot broadcast message", twirlogger.Error(err))
 		return err
 	}
 

@@ -18,22 +18,17 @@ import (
 	streamlabsintegration "github.com/twirapp/twir/libs/entities/streamlabs_integration"
 	"github.com/twirapp/twir/libs/repositories/streamlabs_integration"
 	"github.com/twirapp/twir/libs/repositories/streamlabs_integration/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	StreamlabsRepository streamlabs_integration.Repository
-	TwirBus              *buscore.Bus
-	Config               config.Config
-}
-
-func New(opts Opts) *Service {
+func New(
+	streamlabsRepository streamlabs_integration.Repository,
+	twirBus *buscore.Bus,
+	cfg config.Config,
+) *Service {
 	return &Service{
-		streamlabsRepository: opts.StreamlabsRepository,
-		twirBus:              opts.TwirBus,
-		config:               opts.Config,
+		streamlabsRepository: streamlabsRepository,
+		twirBus:              twirBus,
+		config:               cfg,
 	}
 }
 

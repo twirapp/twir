@@ -9,7 +9,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
-	"go.uber.org/fx"
 )
 
 type deleteRequestDto struct {
@@ -19,8 +18,6 @@ type deleteRequestDto struct {
 var _ httpbase.Route[*deleteRequestDto, *httpbase.BaseOutputJson[any]] = (*deleteRoute)(nil)
 
 type DeleteOpts struct {
-	fx.In
-
 	Service              *shortenedurls.Service
 	CustomDomainsService *shortlinkscustomdomains.Service
 	Sessions             *auth.Auth

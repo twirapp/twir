@@ -40,15 +40,25 @@ func TestHandleChatWall_UsesProviderMessageIDForDeleteAndDedup(t *testing.T) {
 	channelID := uuid.New()
 	handler := &MessageHandler{
 		redis: redisClient,
-		twitchActions: twitchactions.New(twitchactions.Opts{
-			Config: cfg.Config{
+		twitchActions: twitchactions.New(
+			nil,
+			nil,
+			nil,
+			nil,
+			nil,
+			redisClient,
+			nil,
+			cfg.Config{
 				TwitchMockEnabled: true,
 				TwitchMockApiUrl:  server.URL,
 				TwitchClientId:    "test-client",
 			},
-			TwirBus: bus,
-			Redis:   redisClient,
-		}),
+			nil,
+			bus,
+			nil,
+			nil,
+			nil,
+		),
 		chatWallCacher: genericcacher.New(genericcacher.Opts[[]chatwallmodel.ChatWall]{
 			KV: messageIDCache{},
 			LoadFn: func(context.Context, string) ([]chatwallmodel.ChatWall, error) {

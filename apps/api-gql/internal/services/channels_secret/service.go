@@ -12,19 +12,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/audit"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/channels_secret"
 	"github.com/twirapp/twir/libs/repositories/channels_secret/model"
-	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
-
-type Opts struct {
-	fx.In
-
-	Config            config.Config
-	AuditRecorder     audit.Recorder
-	SecretsRepository channels_secret.Repository
-}
 
 type Service struct {
 	config            config.Config
@@ -35,8 +26,8 @@ type Service struct {
 
 var ErrNotFound = errors.New("secret not found")
 
-func New(opts Opts) (*Service, error) {
-	key := opts.Config.SecretsEncryptionKey
+func New(config config.Config, auditRecorder audit.Recorder, secretsRepository channels_secret.Repository) (*Service, error) {
+	key := config.SecretsEncryptionKey
 	if key == "" {
 		return nil, fmt.Errorf("SECRETS_ENCRYPTION_KEY is required")
 	}
@@ -46,9 +37,9 @@ func New(opts Opts) (*Service, error) {
 	}
 
 	return &Service{
-		config:            opts.Config,
-		auditRecorder:     opts.AuditRecorder,
-		secretsRepository: opts.SecretsRepository,
+		config:            config,
+		auditRecorder:     auditRecorder,
+		secretsRepository: secretsRepository,
 		encryptionKey:     []byte(key),
 	}, nil
 }

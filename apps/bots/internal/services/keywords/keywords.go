@@ -12,26 +12,21 @@ import (
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 	"github.com/twirapp/twir/libs/repositories/roles"
 	rolesmodel "github.com/twirapp/twir/libs/repositories/roles/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	KeywordsRepository keywords.Repository
-	KeywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
-	RolesCache         *generic_cacher.GenericCacher[[]rolesmodel.Role]
-	RolesRepository    roles.Repository
-	Redis              *redis.Client
-}
-
-func New(opts Opts) *Service {
+func New(
+	keywordsRepository keywords.Repository,
+	keywordsCacher *generic_cacher.GenericCacher[[]model.Keyword],
+	rolesCache *generic_cacher.GenericCacher[[]rolesmodel.Role],
+	rolesRepository roles.Repository,
+	redisClient *redis.Client,
+) *Service {
 	return &Service{
-		keywordsRepository: opts.KeywordsRepository,
-		keywordsCacher:     opts.KeywordsCacher,
-		rolesRepository:    opts.RolesRepository,
-		rolesCache:         opts.RolesCache,
-		redis:              opts.Redis,
+		keywordsRepository: keywordsRepository,
+		keywordsCacher:     keywordsCacher,
+		rolesRepository:    rolesRepository,
+		rolesCache:         rolesCache,
+		redis:              redisClient,
 	}
 }
 

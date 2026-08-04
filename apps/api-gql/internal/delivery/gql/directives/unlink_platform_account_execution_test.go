@@ -130,7 +130,7 @@ func newUnlinkPlatformAccountGraphQLServer(
 		&selectedDashboardDirectiveStore{roles: roles},
 	)
 
-	resolver, err := resolvers.New(resolvers.Deps{
+	resolver, err := resolvers.NewFromDeps(resolvers.Deps{
 		ChannelPlatformBindingsService: operations,
 		ChannelPlatformDashboard:       unlinkPlatformAccountDashboard{dashboardID: dashboardID},
 		CurrentPlatform:                unlinkPlatformAccountCurrentPlatform{},

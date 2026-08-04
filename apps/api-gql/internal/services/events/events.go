@@ -6,30 +6,25 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/entities/platform"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/events"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	EventsRepository events.Repository
-	PlansRepository  plans.Repository
-	Logger           *slog.Logger
-	Cacher           *generic_cacher.GenericCacher[[]model.Event]
-}
-
-func New(opts Opts) *Service {
+func New(
+	eventsRepository events.Repository,
+	plansRepository plans.Repository,
+	logger *slog.Logger,
+	cacher *generic_cacher.GenericCacher[[]model.Event],
+) *Service {
 	return &Service{
-		eventsRepository: opts.EventsRepository,
-		plansRepository:  opts.PlansRepository,
-		logger:           opts.Logger,
-		cacher:           opts.Cacher,
+		eventsRepository: eventsRepository,
+		plansRepository:  plansRepository,
+		logger:           logger,
+		cacher:           cacher,
 	}
 }
 

@@ -14,25 +14,20 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	fx.In
-
-	Gorm           *gorm.DB
-	TwirBus        *buscore.Bus
-	Logger         *slog.Logger
-	ChannelService *channelservice.ChannelService
-}
-
-func New(opts Opts) *SongRequest {
+func New(
+	db *gorm.DB,
+	twirBus *buscore.Bus,
+	logger *slog.Logger,
+	channelService *channelservice.ChannelService,
+) *SongRequest {
 	return &SongRequest{
-		gorm:           opts.Gorm,
-		twirBus:        opts.TwirBus,
-		logger:         opts.Logger,
-		channelService: opts.ChannelService,
+		gorm:           db,
+		twirBus:        twirBus,
+		logger:         logger,
+		channelService: channelService,
 	}
 }
 

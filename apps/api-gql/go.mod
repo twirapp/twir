@@ -3,6 +3,7 @@ module github.com/twirapp/twir/apps/api-gql
 go 1.26.1
 
 require (
+	github.com/goforj/wire v1.2.0
 	github.com/99designs/gqlgen v0.17.84
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/aidenwallis/go-ratelimiting v0.0.5
@@ -55,7 +56,6 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.63.0
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
-	go.uber.org/fx v1.24.0
 	golang.org/x/sync v0.19.0
 	gorm.io/gorm v1.31.1
 )

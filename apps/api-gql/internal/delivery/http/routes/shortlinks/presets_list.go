@@ -9,7 +9,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
-	"go.uber.org/fx"
 )
 
 type presetDto struct {
@@ -26,8 +25,6 @@ type listPresets struct {
 }
 
 type ListPresetsOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }

@@ -5,10 +5,10 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/scheduler/internal/services"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 )
 
 type schedulerListener struct {
@@ -18,27 +18,22 @@ type schedulerListener struct {
 	logger          *slog.Logger
 }
 
-type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Logger *slog.Logger
-
-	CommandsService *services.Commands
-	RolesService    *services.Roles
-	Bus             *buscore.Bus
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	commandsService *services.Commands,
+	rolesService *services.Roles,
+	bus *buscore.Bus,
+) error {
 	impl := &schedulerListener{
-		commandsService: opts.CommandsService,
-		rolesService:    opts.RolesService,
-		bus:             opts.Bus,
-		logger:          opts.Logger,
+		commandsService: commandsService,
+		rolesService:    rolesService,
+		bus:             bus,
+		logger:          logger,
 	}
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				impl.bus.Scheduler.CreateDefaultCommands.SubscribeGroup(
 					"scheduler",

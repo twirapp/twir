@@ -7,7 +7,6 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/slog-sentry/v2 v2.10.1
 	github.com/samber/slog-zerolog/v2 v2.9.0
-	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.1 // indirect
 )
 

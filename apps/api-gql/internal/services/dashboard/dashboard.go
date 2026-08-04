@@ -33,43 +33,38 @@ import (
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	fx.In
-
-	CachedTwitchClient         *twitchcache.CachedTwitchClient
-	AuthService                *auth.Auth
-	KV                         kv.KV
-	Config                     config.Config
-	Logger                     *slog.Logger
-	TwirBus                    *buscore.Bus
-	ChannelsCache              *generic_cacher.GenericCacher[channelentity.Channel]
-	ChannelPlatformsRepository channelplatforms.Repository
-	ChannelService             *channelservice.ChannelService
-	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
-	StreamsRepository          streams.Repository
-	UsersRepo                  usersrepository.Repository
-	RequestedSongsRepo         requestedsongsrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(
+	cachedTwitchClient *twitchcache.CachedTwitchClient,
+	authService *auth.Auth,
+	kv kv.KV,
+	config config.Config,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+	channelsCache *generic_cacher.GenericCacher[channelentity.Channel],
+	channelPlatformsRepository channelplatforms.Repository,
+	channelService *channelservice.ChannelService,
+	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository,
+	streamsRepository streams.Repository,
+	usersRepo usersrepository.Repository,
+	requestedSongsRepo requestedsongsrepository.Repository,
+) *Service {
 	return &Service{
-		cachedTwitchClient:      opts.CachedTwitchClient,
-		authService:             opts.AuthService,
-		kv:                      opts.KV,
-		config:                  opts.Config,
-		logger:                  opts.Logger,
-		twirBus:                 opts.TwirBus,
-		channelsCache:           opts.ChannelsCache,
-		channelPlatformsRepo:    opts.ChannelPlatformsRepository,
-		channelService:          opts.ChannelService,
-		channelEmotesUsagesRepo: opts.ChannelEmotesUsagesRepo,
-		streamsRepository:       opts.StreamsRepository,
-		usersRepo:               opts.UsersRepo,
-		requestedSongsRepo:      opts.RequestedSongsRepo,
+		cachedTwitchClient:      cachedTwitchClient,
+		authService:             authService,
+		kv:                      kv,
+		config:                  config,
+		logger:                  logger,
+		twirBus:                 twirBus,
+		channelsCache:           channelsCache,
+		channelPlatformsRepo:    channelPlatformsRepository,
+		channelService:          channelService,
+		channelEmotesUsagesRepo: channelEmotesUsagesRepo,
+		streamsRepository:       streamsRepository,
+		usersRepo:               usersRepo,
+		requestedSongsRepo:      requestedSongsRepo,
 	}
 }
 

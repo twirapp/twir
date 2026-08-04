@@ -9,6 +9,7 @@ require (
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.2
 	github.com/exaring/otelpgx v0.9.3
 	github.com/getsentry/sentry-go v0.42.0
+	github.com/goforj/wire v1.2.0
 	github.com/go-redis/redis_rate/v10 v10.0.1
 	github.com/go-redsync/redsync/v4 v4.14.1
 	github.com/google/uuid v1.6.0

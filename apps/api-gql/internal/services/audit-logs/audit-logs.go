@@ -7,20 +7,12 @@ import (
 	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
 	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
 	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	AuditLogsRepository auditlogsrepository.Repository
-	AuditLogsPubSub     auditlogs.PubSub
-}
-
-func New(opts Opts) *Service {
+func New(auditLogsRepository auditlogsrepository.Repository, auditLogsPubSub auditlogs.PubSub) *Service {
 	return &Service{
-		auditLogsRepository: opts.AuditLogsRepository,
-		auditLogsPubSub:     opts.AuditLogsPubSub,
+		auditLogsRepository: auditLogsRepository,
+		auditLogsPubSub:     auditLogsPubSub,
 	}
 }
 

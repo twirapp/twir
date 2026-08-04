@@ -19,23 +19,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
-
-type Opts struct {
-	fx.In
-
-	TwirBus             *buscore.Bus
-	Config              config.Config
-	CachedTwitchClient  *twitch.CachedTwitchClient
-	Gorm                *gorm.DB
-	AuditRecorder       audit.Recorder
-	VariablesRepository variables.Repository
-	PlansRepository     plans.Repository
-	ChannelService      *channelservice.ChannelService
-}
 
 type Service struct {
 	twirbus             *buscore.Bus
@@ -48,16 +34,25 @@ type Service struct {
 	channelService      *channelservice.ChannelService
 }
 
-func New(opts Opts) *Service {
+func New(
+	twirBus *buscore.Bus,
+	cfg config.Config,
+	cachedTwitchClient *twitch.CachedTwitchClient,
+	db *gorm.DB,
+	auditRecorder audit.Recorder,
+	variablesRepository variables.Repository,
+	plansRepository plans.Repository,
+	channelService *channelservice.ChannelService,
+) *Service {
 	return &Service{
-		twirbus:             opts.TwirBus,
-		config:              opts.Config,
-		cachedTwitchClient:  opts.CachedTwitchClient,
-		gorm:                opts.Gorm,
-		auditRecorder:       opts.AuditRecorder,
-		variablesRepository: opts.VariablesRepository,
-		plansRepository:     opts.PlansRepository,
-		channelService:      opts.ChannelService,
+		twirbus:             twirBus,
+		config:              cfg,
+		cachedTwitchClient:  cachedTwitchClient,
+		gorm:                db,
+		auditRecorder:       auditRecorder,
+		variablesRepository: variablesRepository,
+		plansRepository:     plansRepository,
+		channelService:      channelService,
 	}
 }
 

@@ -11,8 +11,10 @@ Main GraphQL API service serving dashboard, overlays, and web clients. Handles a
 ```
 apps/api-gql/
 ├── cmd/
-│   └── main.go              # Entry point
+│   ├── main.go              # Entry point (minimal; calls the injector)
+│   └── wire.go              # Wire injector stub (//go:build wireinject)
 ├── internal/
+│   ├── di/                  # Wire provider graph (provider_set.go, repositories.go)
 │   ├── delivery/
 │   │   ├── gql/             # GraphQL resolvers
 │   │   │   ├── resolvers/   # Root resolvers
@@ -30,6 +32,7 @@ apps/api-gql/
 | Type               | Path             | Purpose                         |
 | ------------------ | ---------------- | ------------------------------- |
 | Main               | `cmd/main.go`    | Service bootstrap               |
+| DI graph           | `internal/di/`   | Wire provider sets              |
 | GraphQL Playground | `/graphql`       | Interactive query explorer      |
 | HTTP API           | `/api/*`         | REST endpoints                  |
 | WebSocket          | `/subscriptions` | Real-time GraphQL subscriptions |
@@ -39,13 +42,19 @@ apps/api-gql/
 ```bash
 # Run locally (requires infra: postgres, redis)
 bun cli build gql          # Regenerate resolvers after schema changes
-go run ./cmd/main.go       # Start dev server on :3009
+go run ./cmd       # Start dev server on :3009
 
 # Build for production
 bun cli build api-gql
 ```
 
 ## CONVENTIONS
+
+### Dependency Injection
+
+Constructor-parameter DI via goforj/wire; the graph lives in `internal/di/`. To add a dependency,
+add a constructor parameter; if the type is missing from the graph, add its provider to a set in
+`internal/di/`. See root `AGENTS.md` §7 for the full Wire rules.
 
 ### GraphQL Schema Changes
 

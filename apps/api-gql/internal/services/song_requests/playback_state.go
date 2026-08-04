@@ -10,7 +10,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 const (
@@ -18,25 +17,21 @@ const (
 	DefaultVolume     = 30
 )
 
-type PlaybackStateOpts struct {
-	fx.In
-
-	Redis    *redis.Client
-	Logger   *slog.Logger
-	WsRouter wsrouter.WsRouter
-}
-
 type PlaybackStateService struct {
 	redis    *redis.Client
 	logger   *slog.Logger
 	wsRouter wsrouter.WsRouter
 }
 
-func NewPlaybackStateService(opts PlaybackStateOpts) *PlaybackStateService {
+func NewPlaybackStateService(
+	redisClient *redis.Client,
+	logger *slog.Logger,
+	wsRouter wsrouter.WsRouter,
+) *PlaybackStateService {
 	return &PlaybackStateService{
-		redis:    opts.Redis,
-		logger:   opts.Logger,
-		wsRouter: opts.WsRouter,
+		redis:    redisClient,
+		logger:   logger,
+		wsRouter: wsRouter,
 	}
 }
 

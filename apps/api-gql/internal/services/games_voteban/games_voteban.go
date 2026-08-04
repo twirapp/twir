@@ -10,22 +10,17 @@ import (
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 	apperrors "github.com/twirapp/twir/libs/errors"
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Repository    channelsgamesvoteban.Repository
-	AuditRecorder audit.Recorder
-	Cacher        *generic_cacher.GenericCacher[votebanentity.Voteban]
-}
-
-func New(opts Opts) *Service {
+func New(
+	repository channelsgamesvoteban.Repository,
+	auditRecorder audit.Recorder,
+	cacher *generic_cacher.GenericCacher[votebanentity.Voteban],
+) *Service {
 	return &Service{
-		repository:    opts.Repository,
-		auditRecorder: opts.AuditRecorder,
-		cacher:        opts.Cacher,
+		repository:    repository,
+		auditRecorder: auditRecorder,
+		cacher:        cacher,
 	}
 }
 

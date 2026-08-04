@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
-	"go.uber.org/fx"
 )
 
 type deleteCustomDomain struct {
@@ -21,8 +20,6 @@ type deleteCustomDomain struct {
 }
 
 type DeleteCustomDomainOpts struct {
-	fx.In
-
 	CustomDomainsService *shortlinkscustomdomains.Service
 	ShortenedUrlsService *shortenedurls.Service
 	Sessions             *auth.Auth

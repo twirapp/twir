@@ -7,43 +7,39 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/timers/internal/manager"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/bus-core/timers"
-	"go.uber.org/fx"
 )
 
 type server struct {
 	manager *manager.Manager
 }
 
-type Opts struct {
-	fx.In
-
-	Lc      fx.Lifecycle
-	Logger  *slog.Logger
-	Bus     *buscore.Bus
-	Manager *manager.Manager
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	_ *slog.Logger,
+	bus *buscore.Bus,
+	managerService *manager.Manager,
+) error {
 	s := &server{
-		manager: opts.Manager,
+		manager: managerService,
 	}
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				opts.Bus.Timers.AddTimer.SubscribeGroup("timers", s.onAddTimerToQueue)
-				opts.Bus.Timers.RemoveTimer.SubscribeGroup("timers", s.onRemoveTimerFromQueue)
-				opts.Bus.ChatMessages.SubscribeGroup("timers", s.onChatMessage)
+				bus.Timers.AddTimer.SubscribeGroup("timers", s.onAddTimerToQueue)
+				bus.Timers.RemoveTimer.SubscribeGroup("timers", s.onRemoveTimerFromQueue)
+				bus.ChatMessages.SubscribeGroup("timers", s.onChatMessage)
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				opts.Bus.Timers.AddTimer.Unsubscribe()
-				opts.Bus.Timers.RemoveTimer.Unsubscribe()
-				opts.Bus.ChatMessages.Unsubscribe()
+				bus.Timers.AddTimer.Unsubscribe()
+				bus.Timers.RemoveTimer.Unsubscribe()
+				bus.ChatMessages.Unsubscribe()
 				return nil
 			},
 		},

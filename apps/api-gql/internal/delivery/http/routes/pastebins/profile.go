@@ -8,7 +8,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
-	"go.uber.org/fx"
 )
 
 type profileRequestDto struct {
@@ -24,8 +23,6 @@ type profileResponseDto struct {
 var _ httpbase.Route[*profileRequestDto, *httpbase.BaseOutputJson[profileResponseDto]] = (*profile)(nil)
 
 type ProfileOpts struct {
-	fx.In
-
 	Service  *pastebins.Service
 	Sessions *auth.Auth
 }

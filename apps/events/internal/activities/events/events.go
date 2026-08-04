@@ -16,45 +16,40 @@ import (
 	"github.com/twirapp/twir/libs/repositories/variables"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	fx.In
-
-	Gorm                *gorm.DB
-	Redis               *redis.Client
-	Cfg                 config.Config
-	WebsocketsGrpc      websockets.WebsocketClient
-	Hydrator            *hydrator.Hydrator
-	Bus                 *bus_core.Bus
-	ChannelService      *channelservice.ChannelService
-	CommandsRepository  commandsrepository.Repository
-	GreetingsRepository greetings.Repository
-	VariablesRepository variables.Repository
-	TTSRepository       overlays_tts.Repository
-	TTSCache            *generic_cacher.GenericCacher[modules.TTSSettings]
-	Logger              *slog.Logger
-	UsersRepository     usersrepository.Repository
-}
-
-func New(opts Opts) *Activity {
+func New(
+	db *gorm.DB,
+	redisClient *redis.Client,
+	cfg config.Config,
+	websocketsGrpc websockets.WebsocketClient,
+	hydrator *hydrator.Hydrator,
+	bus *bus_core.Bus,
+	channelService *channelservice.ChannelService,
+	commandsRepository commandsrepository.Repository,
+	greetingsRepository greetings.Repository,
+	variablesRepository variables.Repository,
+	ttsRepository overlays_tts.Repository,
+	ttsCache *generic_cacher.GenericCacher[modules.TTSSettings],
+	logger *slog.Logger,
+	usersRepository usersrepository.Repository,
+) *Activity {
 	return &Activity{
-		db:                  opts.Gorm,
-		redis:               opts.Redis,
-		cfg:                 opts.Cfg,
-		websocketsGrpc:      opts.WebsocketsGrpc,
-		bus:                 opts.Bus,
-		hydrator:            opts.Hydrator,
-		channelService:      opts.ChannelService,
-		commandsRepo:        opts.CommandsRepository,
-		greetingsRepository: opts.GreetingsRepository,
-		variablesRepository: opts.VariablesRepository,
-		ttsRepository:       opts.TTSRepository,
-		ttsCache:            opts.TTSCache,
-		logger:              opts.Logger,
-		usersRepo:           opts.UsersRepository,
+		db:                  db,
+		redis:               redisClient,
+		cfg:                 cfg,
+		websocketsGrpc:      websocketsGrpc,
+		bus:                 bus,
+		hydrator:            hydrator,
+		channelService:      channelService,
+		commandsRepo:        commandsRepository,
+		greetingsRepository: greetingsRepository,
+		variablesRepository: variablesRepository,
+		ttsRepository:       ttsRepository,
+		ttsCache:            ttsCache,
+		logger:              logger,
+		usersRepo:           usersRepository,
 	}
 }
 

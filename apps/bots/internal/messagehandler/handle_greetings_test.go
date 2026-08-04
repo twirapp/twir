@@ -166,16 +166,27 @@ func (f *greetingFixture) installTwitchActions(t *testing.T, calls *int) {
 	]{response: &buscore.QueueResponse[buscoretokens.TokenResponse]{
 		Data: buscoretokens.TokenResponse{AccessToken: "test-token"},
 	}}
-	f.handler.twitchActions = twitchactions.New(twitchactions.Opts{
-		Config: cfg.Config{TwitchMockEnabled: true, TwitchMockApiUrl: server.URL, TwitchClientId: "test-client"}, TwirBus: f.handler.twirBus,
-		ChannelsByTwitchIDCache: &channelcache.TwitchUserIDCacher{GenericCacher: genericcacher.New(genericcacher.Opts[channelentity.Channel]{
+	f.handler.twitchActions = twitchactions.New(
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		cfg.Config{TwitchMockEnabled: true, TwitchMockApiUrl: server.URL, TwitchClientId: "test-client"},
+		&channelcache.TwitchUserIDCacher{GenericCacher: genericcacher.New(genericcacher.Opts[channelentity.Channel]{
 			KV: messageIDCache{}, LoadFn: func(context.Context, string) (channelentity.Channel, error) {
 				return channelentity.Channel{Bindings: []channelplatformentity.ChannelPlatform{{
 					Platform: platform.PlatformTwitch, PlatformChannelID: f.message.BroadcasterUserId, UserID: userID, Enabled: true, BotConfig: []byte(`{"is_bot_mod":true}`),
 				}}}, nil
 			},
 		})},
-	})
+		f.handler.twirBus,
+		nil,
+		nil,
+		nil,
+	)
 }
 
 func TestHandleGreetingsDispatchesThroughSourcePlatform(t *testing.T) {

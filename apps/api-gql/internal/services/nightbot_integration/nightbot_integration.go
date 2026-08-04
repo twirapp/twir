@@ -18,8 +18,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
+	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	channelsintegrations "github.com/twirapp/twir/libs/repositories/channels_integrations"
@@ -31,43 +31,38 @@ import (
 	"github.com/twirapp/twir/libs/repositories/roles"
 	rolesmodel "github.com/twirapp/twir/libs/repositories/roles/model"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Config                  config.Config
-	Logger                  *slog.Logger
-	TrManager               trm.Manager
-	TwirBus                 *buscore.Bus
-	IntegrationsRepository  integrations.Repository
-	ChannelIntegrationsRepo channelsintegrations.Repository
-	RolesRepository         roles.Repository
-	CommandsService         *commands.Service
-	TimersService           *timers.Service
-	TimersRepository        timersrepository.Repository
-	CachedCommandsClient    *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	PlansRepository         plans.Repository
-}
-
-func New(opts Opts) (*Service, error) {
+func New(
+	cfg config.Config,
+	logger *slog.Logger,
+	trManager trm.Manager,
+	twirBus *buscore.Bus,
+	integrationsRepository integrations.Repository,
+	channelIntegrationsRepo channelsintegrations.Repository,
+	rolesRepository roles.Repository,
+	commandsService *commands.Service,
+	timersService *timers.Service,
+	timersRepository timersrepository.Repository,
+	cachedCommandsClient *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses],
+	plansRepository plans.Repository,
+) (*Service, error) {
 	s := &Service{
-		config:                  opts.Config,
-		logger:                  opts.Logger,
-		trManager:               opts.TrManager,
-		twirBus:                 opts.TwirBus,
-		integrationsRepo:        opts.IntegrationsRepository,
-		channelIntegrationsRepo: opts.ChannelIntegrationsRepo,
-		rolesRepository:         opts.RolesRepository,
-		commandsService:         opts.CommandsService,
-		timersService:           opts.TimersService,
-		timersRepository:        opts.TimersRepository,
-		cachedCommandsClient:    opts.CachedCommandsClient,
-		plansRepository:         opts.PlansRepository,
+		config:                  cfg,
+		logger:                  logger,
+		trManager:               trManager,
+		twirBus:                 twirBus,
+		integrationsRepo:        integrationsRepository,
+		channelIntegrationsRepo: channelIntegrationsRepo,
+		rolesRepository:         rolesRepository,
+		commandsService:         commandsService,
+		timersService:           timersService,
+		timersRepository:        timersRepository,
+		cachedCommandsClient:    cachedCommandsClient,
+		plansRepository:         plansRepository,
 	}
 
-	siteBaseUrl, err := url.Parse(opts.Config.SiteBaseUrl)
+	siteBaseUrl, err := url.Parse(cfg.SiteBaseUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse site base URL: %w", err)
 	}

@@ -13,28 +13,23 @@ import (
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchclient "github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	TwirBus            *buscore.Bus
-	Config             config.Config
-	CachedTwitchClient *twitchcahe.CachedTwitchClient
-	UsersRepository    users.Repository
-	ChannelService     *channelservice.ChannelService
-	KickProvider       *kickplatform.Provider
-}
-
-func New(opts Opts) *Service {
+func New(
+	twirBus *buscore.Bus,
+	cfg config.Config,
+	cachedTwitchClient *twitchcahe.CachedTwitchClient,
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+	kickProvider *kickplatform.Provider,
+) *Service {
 	return &Service{
-		twirBus:            opts.TwirBus,
-		config:             opts.Config,
-		cachedTwitchClient: opts.CachedTwitchClient,
-		usersRepository:    opts.UsersRepository,
-		channelService:     opts.ChannelService,
-		kickProvider:       opts.KickProvider,
+		twirBus:            twirBus,
+		config:             cfg,
+		cachedTwitchClient: cachedTwitchClient,
+		usersRepository:    usersRepository,
+		channelService:     channelService,
+		kickProvider:       kickProvider,
 	}
 }
 

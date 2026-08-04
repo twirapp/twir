@@ -16,6 +16,7 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/apps/events/internal/song_request"
 	"github.com/twirapp/twir/apps/events/internal/workflows"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -32,48 +33,41 @@ import (
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/utils"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Logger *slog.Logger
-	Cfg    cfg.Config
-	Db     *gorm.DB
-	Redis  *redis.Client
-
-	WebsocketsGrpc websockets.WebsocketClient
-
-	ChatAlerts             *chat_alerts.ChatAlerts
-	EventsWorkflow         *workflows.EventWorkflow
-	SongRequest            *song_request.SongRequest
-	TwirBus                *buscore.Bus
-	ChannelService         *channelservice.ChannelService
-	ChannelsEventsListRepo channelseventslist.Repository
-	UsersRepo              usersrepository.Repository
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	cfg cfg.Config,
+	db *gorm.DB,
+	redisClient *redis.Client,
+	websocketsGrpc websockets.WebsocketClient,
+	chatAlerts *chat_alerts.ChatAlerts,
+	eventsWorkflow *workflows.EventWorkflow,
+	songRequest *song_request.SongRequest,
+	twirBus *buscore.Bus,
+	channelService *channelservice.ChannelService,
+	channelsEventsListRepo channelseventslist.Repository,
+	usersRepo usersrepository.Repository,
+) error {
 	impl := &EventsGrpcImplementation{
-		db:                     opts.Db,
-		redis:                  opts.Redis,
-		logger:                 opts.Logger,
-		cfg:                    opts.Cfg,
-		websocketsGrpc:         opts.WebsocketsGrpc,
-		chatAlerts:             opts.ChatAlerts,
-		eventsWorkflow:         opts.EventsWorkflow,
-		songsRequest:           opts.SongRequest,
-		twirBus:                opts.TwirBus,
-		channelService:         opts.ChannelService,
-		channelsEventsListRepo: opts.ChannelsEventsListRepo,
-		usersRepo:              opts.UsersRepo,
+		db:                     db,
+		redis:                  redisClient,
+		logger:                 logger,
+		cfg:                    cfg,
+		websocketsGrpc:         websocketsGrpc,
+		chatAlerts:             chatAlerts,
+		eventsWorkflow:         eventsWorkflow,
+		songsRequest:           songRequest,
+		twirBus:                twirBus,
+		channelService:         channelService,
+		channelsEventsListRepo: channelsEventsListRepo,
+		usersRepo:              usersRepo,
 	}
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.twirBus.Events.Follow.SubscribeGroup("events", impl.Follow); err != nil {
 					return err

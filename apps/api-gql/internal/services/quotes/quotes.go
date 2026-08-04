@@ -8,24 +8,19 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/quotes"
 	"github.com/twirapp/twir/libs/repositories/quotes/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	QuotesRepository quotes.Repository
-	AuditRecorder    audit.Recorder
-	Logger           *slog.Logger
-	QuotesCacher     *generic_cacher.GenericCacher[[]model.Quote]
-}
-
-func New(opts Opts) *Service {
+func New(
+	quotesRepository quotes.Repository,
+	auditRecorder audit.Recorder,
+	logger *slog.Logger,
+	quotesCacher *generic_cacher.GenericCacher[[]model.Quote],
+) *Service {
 	return &Service{
-		quotesRepository: opts.QuotesRepository,
-		auditRecorder:    opts.AuditRecorder,
-		logger:           opts.Logger,
-		quotesCacher:     opts.QuotesCacher,
+		quotesRepository: quotesRepository,
+		auditRecorder:    auditRecorder,
+		logger:           logger,
+		quotesCacher:     quotesCacher,
 	}
 }
 

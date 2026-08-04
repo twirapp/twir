@@ -14,24 +14,19 @@ import (
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 	userswithstatsrepository "github.com/twirapp/twir/libs/repositories/userswithstats"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	UsersStatsRepo     usersstats.Repository
-	UsersRepo          users.Repository
-	UsersWithStatsRepo userswithstatsrepository.Repository
-	TrManager          trm.Manager
-}
-
-func New(opts Opts) *UserCreatorService {
+func New(
+	usersStatsRepo usersstats.Repository,
+	usersRepo users.Repository,
+	usersWithStatsRepo userswithstatsrepository.Repository,
+	trManager trm.Manager,
+) *UserCreatorService {
 	return &UserCreatorService{
-		usersStatsRepo:     opts.UsersStatsRepo,
-		usersRepo:          opts.UsersRepo,
-		usersWithStatsRepo: opts.UsersWithStatsRepo,
-		trManager:          opts.TrManager,
+		usersStatsRepo:     usersStatsRepo,
+		usersRepo:          usersRepo,
+		usersWithStatsRepo: usersWithStatsRepo,
+		trManager:          trManager,
 	}
 }
 

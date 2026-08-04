@@ -12,26 +12,21 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	TrmManager        trm.Manager
-	RolesService      *roles.Service
-	RolesUsersService *roles_users.Service
-	UsersRepository   usersrepository.Repository
-	Logger            *slog.Logger
-}
-
-func New(opts Opts) *Service {
+func New(
+	trmManager trm.Manager,
+	rolesService *roles.Service,
+	rolesUsersService *roles_users.Service,
+	usersRepository usersrepository.Repository,
+	logger *slog.Logger,
+) *Service {
 	return &Service{
-		trmManager:        opts.TrmManager,
-		rolesService:      opts.RolesService,
-		rolesUsersService: opts.RolesUsersService,
-		usersRepository:   opts.UsersRepository,
-		logger:            opts.Logger,
+		trmManager:        trmManager,
+		rolesService:      rolesService,
+		rolesUsersService: rolesUsersService,
+		usersRepository:   usersRepository,
+		logger:            logger,
 	}
 }
 

@@ -3,8 +3,6 @@ package baseapp
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"os"
 	"time"
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
@@ -15,115 +13,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
-	"github.com/twirapp/kv"
-	kvredis "github.com/twirapp/kv/stores/redis"
-	"github.com/twirapp/twir/libs/audit"
-	"github.com/twirapp/twir/libs/audit/recorder"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/platform"
-	"github.com/twirapp/twir/libs/logger"
-	"github.com/twirapp/twir/libs/otel"
-	auditlogs "github.com/twirapp/twir/libs/pubsub/audit-logs"
-	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
-	auditlogsrepositoryclickhouse "github.com/twirapp/twir/libs/repositories/audit_logs/datasources/clickhouse"
-	twirsentry "github.com/twirapp/twir/libs/sentry"
-	"github.com/twirapp/twir/libs/uptime"
-	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
 )
 
 type Opts struct {
 	AppName string
 
 	WithAudit bool
-}
-
-func CreateBaseApp(opts Opts) fx.Option {
-	return fx.Options(
-		fx.WithLogger(func() fxevent.Logger {
-			return logger.NewFxLogger(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{})))
-		}),
-		fx.Provide(
-			config.NewFx,
-			otel.NewFx(opts.AppName),
-			newRedis,
-			newPgxPool,
-			newGorm,
-			NewClickHouse(opts.AppName),
-			buscore.NewNatsBusFx(opts.AppName),
-			fx.Annotate(
-				auditlogs.NewBusPubSubFx,
-				fx.As(new(auditlogs.PubSub)),
-			),
-			fx.Annotate(
-				auditlogsrepositoryclickhouse.NewFx,
-				fx.As(new(auditlogsrepository.Repository)),
-			),
-			fx.Annotate(
-				recorder.NewDatabase,
-				fx.As(new(audit.Recorder)),
-				fx.ResultTags(`group:"audit-recorders"`),
-			),
-			fx.Annotate(
-				recorder.NewPubSub,
-				fx.As(new(audit.Recorder)),
-				fx.ResultTags(`group:"audit-recorders"`),
-			),
-			fx.Annotate(
-				recorder.NewFxFanout,
-				fx.As(new(audit.Recorder)),
-			),
-			func(r *redis.Client) kv.KV {
-				return kvredis.New(r)
-			},
-			logger.NewFx(
-				logger.Options{
-					AppName: opts.AppName,
-					Level:   slog.LevelInfo,
-				},
-			),
-		),
-		fx.Invoke(
-			twirsentry.NewFx(twirsentry.NewFxOpts{Service: opts.AppName}),
-			otel.NewFx(opts.AppName),
-		),
-		fx.Invoke(
-			func() {
-				logger.SetDefault(
-					logger.Options{
-						AppName: opts.AppName,
-						Level:   slog.LevelInfo,
-					},
-				)
-			},
-		),
-		fx.Invoke(
-			func(lifecycle fx.Lifecycle, redisClient *redis.Client) error {
-				reporter, err := uptime.NewReporter(
-					redisClient,
-					uptime.ReporterOpts{ServiceName: opts.AppName},
-				)
-				if err != nil {
-					return fmt.Errorf("create uptime reporter: %w", err)
-				}
-
-				reporterContext, cancel := context.WithCancel(context.Background())
-				lifecycle.Append(fx.Hook{
-					OnStart: func(context.Context) error {
-						reporter.Start(reporterContext)
-						return nil
-					},
-					OnStop: func(context.Context) error {
-						cancel()
-						return nil
-					},
-				})
-
-				return nil
-			},
-		),
-	)
 }
 
 func newRedis(cfg config.Config) (*redis.Client, error) {
@@ -144,17 +41,10 @@ func newRedis(cfg config.Config) (*redis.Client, error) {
 	return redisClient, nil
 }
 
-type PgxResult struct {
-	fx.Out
-
-	PgxPool   *pgxpool.Pool
-	TrManager trm.Manager
-}
-
-func newPgxPool(cfg config.Config) (PgxResult, error) {
+func createPgxPool(cfg config.Config) (*pgxpool.Pool, error) {
 	connConfig, err := pgxpool.ParseConfig(cfg.DatabaseUrl)
 	if err != nil {
-		return PgxResult{}, err
+		return nil, err
 	}
 
 	connConfig.ConnConfig.Tracer = otelpgx.NewTracer()
@@ -189,16 +79,12 @@ func newPgxPool(cfg config.Config) (PgxResult, error) {
 		connConfig,
 	)
 	if err != nil {
-		return PgxResult{}, err
+		return nil, err
 	}
 
-	trManager, err := manager.New(trmpgx.NewDefaultFactory(pool))
-	if err != nil {
-		return PgxResult{}, err
-	}
+	return pool, nil
+}
 
-	return PgxResult{
-		PgxPool:   pool,
-		TrManager: trManager,
-	}, nil
+func newTransactionManager(pool *pgxpool.Pool) (trm.Manager, error) {
+	return manager.New(trmpgx.NewDefaultFactory(pool))
 }

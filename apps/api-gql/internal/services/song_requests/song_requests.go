@@ -13,25 +13,19 @@ import (
 	songrequestssettingsentity "github.com/twirapp/twir/libs/entities/song_requests_settings"
 	requestedsongsrepository "github.com/twirapp/twir/libs/repositories/requested_songs"
 	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Bus           *buscore.Bus
-	PlaybackState *PlaybackStateService
-
-	SettingsRepository songrequestssettingsrepository.Repository
-	SongsRepository    requestedsongsrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(
+	bus *buscore.Bus,
+	playbackState *PlaybackStateService,
+	settingsRepository songrequestssettingsrepository.Repository,
+	songsRepository requestedsongsrepository.Repository,
+) *Service {
 	return &Service{
-		bus:                opts.Bus,
-		playbackState:      opts.PlaybackState,
-		settingsRepository: opts.SettingsRepository,
-		songsRepository:    opts.SongsRepository,
+		bus:                bus,
+		playbackState:      playbackState,
+		settingsRepository: settingsRepository,
+		songsRepository:    songsRepository,
 	}
 }
 

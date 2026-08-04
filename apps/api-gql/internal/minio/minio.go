@@ -3,15 +3,15 @@ package minio
 import (
 	"context"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	cfg "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
-func New(l *slog.Logger, config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
+func New(l *slog.Logger, config cfg.Config, lc *lifecycle.Lifecycle) (*minio.Client, error) {
 	var creds *credentials.Credentials
 	if config.AppEnv != "production" {
 		creds = credentials.NewStaticV4("minio", "minio-password", "")
@@ -39,7 +39,7 @@ func New(l *slog.Logger, config cfg.Config, lc fx.Lifecycle) (*minio.Client, err
 	}
 
 	lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				buckets, err := client.ListBuckets(ctx)
 				if err != nil {

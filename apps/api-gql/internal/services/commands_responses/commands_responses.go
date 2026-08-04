@@ -8,18 +8,11 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_response/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	CommandsResponsesRepository commands_response.Repository
-}
-
-func New(opts Opts) *Service {
+func New(commandsResponsesRepository commands_response.Repository) *Service {
 	return &Service{
-		commandsResponsesRepository: opts.CommandsResponsesRepository,
+		commandsResponsesRepository: commandsResponsesRepository,
 	}
 }
 

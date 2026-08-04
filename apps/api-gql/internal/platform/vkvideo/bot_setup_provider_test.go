@@ -8,15 +8,13 @@ import (
 )
 
 func TestBotSetupAuthURLRequestsChatMessageSendScope(t *testing.T) {
-	provider := NewBotSetupProvider(BotSetupProviderOpts{
-		Config: cfg.Config{
-			SiteBaseUrl:          "https://twir.example.test",
-			VKVideoClientID:      "client-id",
-			VKVideoClientSecret:  "client-secret",
-			VKVideoAPIBaseURL:    "https://api.example.test",
-			VKVideoAuthBaseURL:   "https://auth.example.test",
-			VKVideoDevAPIBaseURL: "https://devapi.example.test",
-		},
+	provider := NewBotSetupProvider(cfg.Config{
+		SiteBaseUrl:          "https://twir.example.test",
+		VKVideoClientID:      "client-id",
+		VKVideoClientSecret:  "client-secret",
+		VKVideoAPIBaseURL:    "https://api.example.test",
+		VKVideoAuthBaseURL:   "https://auth.example.test",
+		VKVideoDevAPIBaseURL: "https://devapi.example.test",
 	})
 
 	rawURL, err := provider.GetBotSetupAuthURL("state-value")

@@ -18,6 +18,7 @@ import (
 	"github.com/lkretschmer/deepl-go"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/kv"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/generic"
@@ -27,23 +28,8 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelschattrenslationsrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
-	"go.uber.org/fx"
 	googleapioption "google.golang.org/api/option"
 )
-
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	Config  config.Config
-	Logger  *slog.Logger
-	TwirBus *buscore.Bus
-	Redis   *redis.Client
-	KV      kv.KV
-
-	ChannelsTranslationsRepository channelschattrenslationsrepository.Repository
-	ChannelsTranslationsCache      *generic_cacher.GenericCacher[model.ChatTranslation]
-}
 
 type provider = func(c *Service, ctx context.Context, input translateRequest) (
 	*translateResult,
@@ -54,20 +40,29 @@ var providers = []provider{
 	(*Service).translateDeeplUnOfficial,
 }
 
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	cfg config.Config,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+	redisClient *redis.Client,
+	kv kv.KV,
+	channelsTranslationsRepository channelschattrenslationsrepository.Repository,
+	channelsTranslationsCache *generic_cacher.GenericCacher[model.ChatTranslation],
+) *Service {
 	s := &Service{
-		config:                         opts.Config,
-		logger:                         opts.Logger,
-		twirBus:                        opts.TwirBus,
-		redis:                          opts.Redis,
-		channelsTranslationsRepository: opts.ChannelsTranslationsRepository,
-		channelsTranslationsCache:      opts.ChannelsTranslationsCache,
-		rateLimiter:                    redislimiter.NewSlidingWindow(redislimiteradapter.NewAdapter(opts.Redis)),
-		kv:                             opts.KV,
+		config:                         cfg,
+		logger:                         logger,
+		twirBus:                        twirBus,
+		redis:                          redisClient,
+		channelsTranslationsRepository: channelsTranslationsRepository,
+		channelsTranslationsCache:      channelsTranslationsCache,
+		rateLimiter:                    redislimiter.NewSlidingWindow(redislimiteradapter.NewAdapter(redisClient)),
+		kv:                             kv,
 	}
 
-	if opts.Config.DeeplApiKey != "" {
-		s.deeplClient = deepl.NewClient(opts.Config.DeeplApiKey)
+	if cfg.DeeplApiKey != "" {
+		s.deeplClient = deepl.NewClient(cfg.DeeplApiKey)
 		providers = append(
 			[]provider{
 				(*Service).translateDeeplOfficial,
@@ -76,8 +71,8 @@ func New(opts Opts) *Service {
 		)
 	}
 
-	if len(opts.Config.GoogleTranslateServiceAccountJson) > 0 {
-		key, err := base64.StdEncoding.DecodeString(opts.Config.GoogleTranslateServiceAccountJson)
+	if len(cfg.GoogleTranslateServiceAccountJson) > 0 {
+		key, err := base64.StdEncoding.DecodeString(cfg.GoogleTranslateServiceAccountJson)
 		if err != nil {
 			panic(err)
 		}
@@ -100,8 +95,8 @@ func New(opts Opts) *Service {
 		)
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStop: func(ctx context.Context) error {
 				if s.googleTranslateClient != nil {
 					return s.googleTranslateClient.Close()

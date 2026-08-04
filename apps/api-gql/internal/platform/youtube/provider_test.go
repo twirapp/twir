@@ -19,7 +19,7 @@ func (f roundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) 
 
 func TestProviderBuildsOfflineConsentPKCEURLs(t *testing.T) {
 	// Given
-	provider := New(Opts{Config: cfg.Config{SiteBaseUrl: "https://twir.example.test", YouTubeClientID: "client-id", YouTubeClientSecret: "client-secret"}})
+	provider := New(cfg.Config{SiteBaseUrl: "https://twir.example.test", YouTubeClientID: "client-id", YouTubeClientSecret: "client-secret"})
 
 	// When
 	userURL, err := url.Parse(provider.GetAuthURL("user-state", "user-challenge"))

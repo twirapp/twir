@@ -16,23 +16,8 @@ import (
 	"github.com/twirapp/twir/libs/repositories/pastebins"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
-
-type Opts struct {
-	fx.In
-
-	Gorm                       *gorm.DB
-	Logger                     *slog.Logger
-	Config                     config.Config
-	CachedTwitchClient         *twitchcache.CachedTwitchClient
-	ChannelsEmotesUsagesRepo   channelsemotesusagesrepository.Repository
-	ChannelsCommandsUsagesRepo channelscommandsusages.Repository
-	ShortenedUrlsRepository    shortened_urls.Repository
-	PastebinsRepository        pastebins.Repository
-	StreamsRepository          streamsrepository.Repository
-}
 
 type TwirStats struct {
 	gorm *gorm.DB
@@ -64,18 +49,18 @@ type Stats struct {
 	LiveChannels    int
 }
 
-func New(opts Opts) *TwirStats {
+func New(gorm *gorm.DB, logger *slog.Logger, config config.Config, cachedTwitchClient *twitchcache.CachedTwitchClient, channelsEmotesUsagesRepo channelsemotesusagesrepository.Repository, channelsCommandsUsagesRepo channelscommandsusages.Repository, shortenedUrlsRepository shortened_urls.Repository, pastebinsRepository pastebins.Repository, streamsRepository streamsrepository.Repository) *TwirStats {
 	s := &TwirStats{
-		gorm:                       opts.Gorm,
+		gorm:                       gorm,
 		cachedResponse:             &Stats{},
-		logger:                     opts.Logger,
-		config:                     opts.Config,
-		cachedTwitchClient:         opts.CachedTwitchClient,
-		channelsEmotesUsagesRepo:   opts.ChannelsEmotesUsagesRepo,
-		channelsCommandsUsagesRepo: opts.ChannelsCommandsUsagesRepo,
-		shortenedUrlsRepository:    opts.ShortenedUrlsRepository,
-		pastebinsRepository:        opts.PastebinsRepository,
-		streamsRepository:          opts.StreamsRepository,
+		logger:                     logger,
+		config:                     config,
+		cachedTwitchClient:         cachedTwitchClient,
+		channelsEmotesUsagesRepo:   channelsEmotesUsagesRepo,
+		channelsCommandsUsagesRepo: channelsCommandsUsagesRepo,
+		shortenedUrlsRepository:    shortenedUrlsRepository,
+		pastebinsRepository:        pastebinsRepository,
+		streamsRepository:          streamsRepository,
 	}
 
 	go s.cacheCounts()

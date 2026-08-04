@@ -13,22 +13,13 @@ import (
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/badges"
 	"github.com/twirapp/twir/libs/repositories/badges/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	BadgesRepository badges.Repository
-	Config           config.Config
-	MinioClient      *minio.Client
-}
-
-func New(opts Opts) *Service {
+func New(badgesRepository badges.Repository, config config.Config, minioClient *minio.Client) *Service {
 	return &Service{
-		badgesRepository: opts.BadgesRepository,
-		config:           opts.Config,
-		minioClient:      opts.MinioClient,
+		badgesRepository: badgesRepository,
+		config:           config,
+		minioClient:      minioClient,
 	}
 }
 

@@ -55,7 +55,6 @@ import (
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -73,8 +72,6 @@ type AccessTokenVerifier interface {
 }
 
 type Deps struct {
-	fx.In
-
 	AccessTokenVerifier AccessTokenVerifier
 	Commands            *commands.Service
 	CommandGroups       *commands_groups.Service
@@ -127,8 +124,54 @@ type Handler struct {
 	transport http.Handler
 }
 
-func New(deps Deps) *Handler {
-	h := &Handler{deps: deps}
+func New(accessTokenVerifier AccessTokenVerifier, commandsService *commands.Service, commandGroupsService *commands_groups.Service, commandsRelationsService *commandsrelations.Service, timersService *timers.Service, variablesService *variables.Service, quotesService *quotes.Service, rolesService *roles.Service, keywordsService *keywords.Service, secretsService *channels_secret.Service, storageService *channels_storage.Service, filesService *channels_files.Service, moderationService *channels_moderation_settings.Service, chatWallService *chat_wall.Service, gamesService *gamesvoteban.Service, songRequestsService *song_requests.Service, eventsService *events.Service, giveawaysService *giveaways.Service, greetingsService *greetings.Service, alertsService *alerts.Service, twitchService *twitchservice.Service, gorm *gorm.DB, discordService *discord_integration.Service, spotifyService *spotify_integration.Service, lastFMService *lastfmintegration.Service, valorantService *valorantintegration.Service, faceitService *faceitintegration.Service, donationAlertsService *donationalertsintegration.Service, donatePayService *donatepay_integration.Service, donateStreamService *donatestreamintegration.Service, donatelloService *donatellointegration.Service, streamlabsService *streamlabsintegration.Service, vkService *vkintegration.Service, sevenTVService *seventv_integration.Service, customOverlaysService *channels_overlays.Service, ttsService *tts.Service, dudesService *overlays_dudes.Service, kappagenService *kappagen.Service, beRightBackService *be_right_back.Service, dashboardService *dashboard.Service, channelPlatformsService *channel_platforms.Service, usersService *users.Service, scheduledVIPsService *scheduledvips.Service, pastebinsService *pastebins.Service, shortURLsService *shortenedurls.Service) *Handler {
+	h := &Handler{deps: Deps{
+		AccessTokenVerifier: accessTokenVerifier,
+		Commands:            commandsService,
+		CommandGroups:       commandGroupsService,
+		CommandsRelations:   commandsRelationsService,
+		Timers:              timersService,
+		Variables:           variablesService,
+		Quotes:              quotesService,
+		Roles:               rolesService,
+		Keywords:            keywordsService,
+		Secrets:             secretsService,
+		Storage:             storageService,
+		Files:               filesService,
+		Moderation:          moderationService,
+		ChatWall:            chatWallService,
+		Games:               gamesService,
+		SongRequests:        songRequestsService,
+		Events:              eventsService,
+		Giveaways:           giveawaysService,
+		Greetings:           greetingsService,
+		Alerts:              alertsService,
+		Twitch:              twitchService,
+		Gorm:                gorm,
+		Discord:             discordService,
+		Spotify:             spotifyService,
+		LastFM:              lastFMService,
+		Valorant:            valorantService,
+		Faceit:              faceitService,
+		DonationAlerts:      donationAlertsService,
+		DonatePay:           donatePayService,
+		DonateStream:        donateStreamService,
+		Donatello:           donatelloService,
+		Streamlabs:          streamlabsService,
+		VK:                  vkService,
+		SevenTV:             sevenTVService,
+		CustomOverlays:      customOverlaysService,
+		TTS:                 ttsService,
+		Dudes:               dudesService,
+		Kappagen:            kappagenService,
+		BeRightBack:         beRightBackService,
+		Dashboard:           dashboardService,
+		ChannelPlatforms:    channelPlatformsService,
+		Users:               usersService,
+		ScheduledVIPs:       scheduledVIPsService,
+		Pastebins:           pastebinsService,
+		ShortURLs:           shortURLsService,
+	}}
 	h.transport = modelsdk.NewStreamableHTTPHandler(
 		func(r *http.Request) *modelsdk.Server {
 			requestScope, ok := r.Context().Value(contextKey{}).(scope)

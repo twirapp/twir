@@ -9,18 +9,11 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
 	userswithchannelmodel "github.com/twirapp/twir/libs/repositories/users_with_channel/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	UsersWithChannelsRepository users_with_channel.Repository
-}
-
-func New(opts Opts) *Service {
+func New(usersWithChannelsRepository users_with_channel.Repository) *Service {
 	return &Service{
-		usersWithChannelsRepository: opts.UsersWithChannelsRepository,
+		usersWithChannelsRepository: usersWithChannelsRepository,
 	}
 }
 

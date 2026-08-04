@@ -2,6 +2,7 @@ package twir_events
 
 import (
 	"context"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"sync"
 
 	"github.com/goccy/go-json"
@@ -9,16 +10,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/events"
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
-
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	WsRouter wsrouter.WsRouter
-	TwirBus  *buscore.Bus
-}
 
 type Service struct {
 	wsRouter        wsrouter.WsRouter
@@ -27,15 +19,15 @@ type Service struct {
 	offlineMu       sync.Mutex
 }
 
-func New(opts Opts) *Service {
+func New(lc *lifecycle.Lifecycle, wsRouter wsrouter.WsRouter, twirBus *buscore.Bus) *Service {
 	s := &Service{
-		wsRouter:        opts.WsRouter,
-		twirBus:         opts.TwirBus,
+		wsRouter:        wsRouter,
+		twirBus:         twirBus,
 		offlineChannels: make(map[string]struct{}),
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := s.twirBus.Events.Follow.SubscribeGroup("api", s.follow); err != nil {
 					return err

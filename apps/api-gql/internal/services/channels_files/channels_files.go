@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"io"
 	"strings"
 	"time"
@@ -17,30 +18,25 @@ import (
 	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/channels_files"
 	"github.com/twirapp/twir/libs/repositories/channels_files/model"
-	"go.uber.org/fx"
 )
-
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	FilesRepo  channels_files.Repository
-	TrmManager trm.Manager
-	S3Client   *minio.Client
-	Config     config.Config
-}
 
 type cachedFile struct {
 	content []byte
 	addedAt time.Time
 }
 
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	filesRepo channels_files.Repository,
+	trmManager trm.Manager,
+	s3Client *minio.Client,
+	config config.Config,
+) *Service {
 	s := &Service{
-		config:            opts.Config,
-		filesRepo:         opts.FilesRepo,
-		trmManager:        opts.TrmManager,
-		s3Client:          opts.S3Client,
+		config:            config,
+		filesRepo:         filesRepo,
+		trmManager:        trmManager,
+		s3Client:          s3Client,
 		filesContentCache: make(map[string]*cachedFile),
 	}
 
@@ -48,8 +44,8 @@ func New(opts Opts) *Service {
 	contentClearTicker := time.NewTicker(cacheTime)
 	contentClearTickerDone := make(chan struct{})
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
 					for {

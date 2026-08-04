@@ -15,24 +15,19 @@ import (
 	"github.com/twirapp/twir/libs/repositories/alerts"
 	"github.com/twirapp/twir/libs/repositories/alerts/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	AlertsRepository alerts.Repository
-	PlansRepository  plans.Repository
-	AuditRecorder    audit.Recorder
-	AlertsCache      *genericcacher.GenericCacher[[]model.Alert]
-}
-
-func New(opts Opts) *Service {
+func New(
+	alertsRepository alerts.Repository,
+	plansRepository plans.Repository,
+	auditRecorder audit.Recorder,
+	alertsCache *genericcacher.GenericCacher[[]model.Alert],
+) *Service {
 	return &Service{
-		alertsRepository: opts.AlertsRepository,
-		plansRepository:  opts.PlansRepository,
-		auditRecorder:    opts.AuditRecorder,
-		alertsCache:      opts.AlertsCache,
+		alertsRepository: alertsRepository,
+		plansRepository:  plansRepository,
+		auditRecorder:    auditRecorder,
+		alertsCache:      alertsCache,
 	}
 }
 

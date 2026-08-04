@@ -215,7 +215,7 @@ func newChannelPlatformBindingExecutionServer(
 ) *handler.Server {
 	t.Helper()
 
-	resolver, err := resolvers.New(resolvers.Deps{
+	resolver, err := resolvers.NewFromDeps(resolvers.Deps{
 		ChannelPlatformBindingsService: operations,
 		ChannelPlatformDashboard:       channelPlatformBindingExecutionDashboard{dashboardID: dashboardID},
 		Sessions:                       channelPlatformBindingExecutionSession{user: &user},

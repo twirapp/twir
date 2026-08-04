@@ -9,7 +9,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
-	"go.uber.org/fx"
 )
 
 type deleteRequestDto struct {
@@ -23,8 +22,6 @@ type deleteResponseDto struct {
 var _ httpbase.Route[*deleteRequestDto, *deleteResponseDto] = (*deleteRoute)(nil)
 
 type DeleteOpts struct {
-	fx.In
-
 	Service  *scheduledvips.Service
 	Sessions *auth.Auth
 }

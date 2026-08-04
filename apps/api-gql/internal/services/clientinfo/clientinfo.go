@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"io"
 	"log/slog"
 	"net"
@@ -21,7 +22,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 )
 
 const (
@@ -29,14 +29,6 @@ const (
 	geoDbFileName     = "dbip-city-lite.mmdb"
 	geoDbInfoFileName = "db-info.json"
 )
-
-type Opts struct {
-	fx.In
-
-	LC     fx.Lifecycle
-	Logger *slog.Logger
-	Config config.Config
-}
 
 type Location struct {
 	Country *string
@@ -53,17 +45,17 @@ type Service struct {
 	reader *geoip2.Reader
 }
 
-func New(opts Opts) *Service {
+func New(lc *lifecycle.Lifecycle, logger *slog.Logger, config config.Config) *Service {
 	dbDir := resolveDbDir()
 	s := &Service{
-		logger:   opts.Logger,
-		config:   opts.Config,
+		logger:   logger,
+		config:   config,
 		dbPath:   filepath.Join(dbDir, geoDbFileName),
 		infoPath: filepath.Join(dbDir, geoDbInfoFileName),
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: s.onStart,
 			OnStop:  s.onStop,
 		},

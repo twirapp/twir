@@ -10,7 +10,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinksbanneduapresetsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_presets"
-	"go.uber.org/fx"
 )
 
 type updatePreset struct {
@@ -19,8 +18,6 @@ type updatePreset struct {
 }
 
 type UpdatePresetOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }

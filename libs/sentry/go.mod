@@ -4,7 +4,6 @@ go 1.26.0
 
 require (
 	github.com/getsentry/sentry-go v0.42.0
-	go.uber.org/fx v1.24.0
 )
 
 require (

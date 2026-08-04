@@ -6,18 +6,11 @@ import (
 	"github.com/google/uuid"
 	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
 	"github.com/twirapp/twir/libs/repositories/commands_group"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	CommandsGroupsRepository commands_group.Repository
-}
-
-func New(opts Opts) *Service {
+func New(commandsGroupsRepository commands_group.Repository) *Service {
 	return &Service{
-		commandsGroupsRepository: opts.CommandsGroupsRepository,
+		commandsGroupsRepository: commandsGroupsRepository,
 	}
 }
 

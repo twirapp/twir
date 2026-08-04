@@ -8,16 +8,9 @@ import (
 
 	"github.com/twirapp/twir/libs/repositories/channels_storage"
 	"github.com/twirapp/twir/libs/repositories/channels_storage/model"
-	"go.uber.org/fx"
 )
 
 const maxStorageSize = 30 * 1024 * 1024 // 30MB
-
-type Opts struct {
-	fx.In
-
-	StorageRepository channels_storage.Repository
-}
 
 type Service struct {
 	storageRepository channels_storage.Repository
@@ -26,9 +19,9 @@ type Service struct {
 var ErrNotFound = errors.New("storage entry not found")
 var ErrStorageLimitExceeded = errors.New("storage limit exceeded")
 
-func New(opts Opts) *Service {
+func New(storageRepository channels_storage.Repository) *Service {
 	return &Service{
-		storageRepository: opts.StorageRepository,
+		storageRepository: storageRepository,
 	}
 }
 

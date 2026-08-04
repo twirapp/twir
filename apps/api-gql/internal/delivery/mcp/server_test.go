@@ -195,7 +195,18 @@ func TestHandlerReadGrantKeepsStreamableHTTPStatelessAndRejectsWrites(t *testing
 }
 
 func newTestMCPHandler(verifier *mcpAccessVerifier) *Handler {
-	return New(Deps{AccessTokenVerifier: verifier})
+	return New(verifier,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil)
 }
 
 func testAuthorizedGrant(scopes ...entity.Scope) oauth.AuthorizedGrant {

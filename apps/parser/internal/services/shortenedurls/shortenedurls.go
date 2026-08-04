@@ -13,15 +13,10 @@ import (
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 )
 
-type Opts struct {
-	Repository shortenedurlsrepository.Repository
-	Config     config.Config
-}
-
-func New(opts Opts) *Service {
+func New(repository shortenedurlsrepository.Repository, applicationConfig config.Config) *Service {
 	return &Service{
-		repo:   opts.Repository,
-		config: opts.Config,
+		repo:   repository,
+		config: applicationConfig,
 	}
 }
 

@@ -14,22 +14,17 @@ import (
 	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	ChannelsRepository channels.Repository
-	UsersRepository    users.Repository
-	ChannelService     *channelservice.ChannelService
-}
-
-func New(opts Opts) *Service {
+func New(
+	channelsRepository channels.Repository,
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+) *Service {
 	return &Service{
-		channelsRepository: opts.ChannelsRepository,
-		usersRepository:    opts.UsersRepository,
-		channelService:     opts.ChannelService,
+		channelsRepository: channelsRepository,
+		usersRepository:    usersRepository,
+		channelService:     channelService,
 	}
 }
 

@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	shortlinkslinkbannedusaragentsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_banned_user_agents"
-	"go.uber.org/fx"
 )
 
 type createLinkBannedUserAgent struct {
@@ -21,8 +20,6 @@ type createLinkBannedUserAgent struct {
 }
 
 type CreateLinkBannedUserAgentOpts struct {
-	fx.In
-
 	Service              *shortenedurls.Service
 	CustomDomainsService *shortlinkscustomdomains.Service
 	Sessions             *auth.Auth

@@ -7,7 +7,6 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
-	"go.uber.org/fx"
 )
 
 type allowCustomDomain struct {
@@ -15,8 +14,6 @@ type allowCustomDomain struct {
 }
 
 type AllowCustomDomainOpts struct {
-	fx.In
-
 	CustomDomainsService *shortlinkscustomdomains.Service
 }
 

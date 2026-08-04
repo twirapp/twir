@@ -11,24 +11,19 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	repo "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
-	"go.uber.org/fx"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-type Opts struct {
-	fx.In
-
-	ChatTranslationRepository repo.Repository
-	AuditRecorder             audit.Recorder
-	TranslationsSettingsCache *generic_cacher.GenericCacher[model.ChatTranslation]
-}
-
-func New(opts Opts) *Service {
+func New(
+	chatTranslationRepository repo.Repository,
+	auditRecorder audit.Recorder,
+	translationsSettingsCache *generic_cacher.GenericCacher[model.ChatTranslation],
+) *Service {
 	return &Service{
-		chatTranslationRepository: opts.ChatTranslationRepository,
-		auditRecorder:             opts.AuditRecorder,
-		translationsSettingsCache: opts.TranslationsSettingsCache,
+		chatTranslationRepository: chatTranslationRepository,
+		auditRecorder:             auditRecorder,
+		translationsSettingsCache: translationsSettingsCache,
 	}
 }
 

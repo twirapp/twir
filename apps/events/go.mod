@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/goccy/go-json v0.10.5
+	github.com/goforj/wire v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
@@ -22,7 +23,6 @@ require (
 	github.com/twirapp/twir/libs/utils v0.0.0-20251127124349-67ad7fa0003f
 	github.com/valyala/fasttemplate v1.2.2
 	go.temporal.io/sdk v1.38.0
-	go.uber.org/fx v1.24.0
 	golang.org/x/sync v0.19.0
 	gorm.io/gorm v1.31.1
 )

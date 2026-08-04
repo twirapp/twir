@@ -6,7 +6,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/redis/go-redis/v9 v9.17.1
-	go.uber.org/fx v1.24.0
 )
 
 require (

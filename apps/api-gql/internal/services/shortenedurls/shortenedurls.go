@@ -21,32 +21,27 @@ import (
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Repository                     shortenedurlsrepository.Repository
-	ViewsRepository                shortlinksviewsrepository.Repository
-	CustomDomainsRepository        shortlinkscustomdomainsrepo.Repository
-	PresetsRepository              shortlinksbanneduapresetsrepository.Repository
-	PresetPatternsRepository       shortlinksbanneduapresetpatternsrepository.Repository
-	LinkPresetsRepository          shortlinkslinkpresetsrepository.Repository
-	LinkBannedUserAgentsRepository shortlinkslinkbannedusaragentsrepository.Repository
-	WsRouter                       wsrouter.WsRouter
-}
-
-func New(opts Opts) *Service {
+func New(
+	repository shortenedurlsrepository.Repository,
+	viewsRepository shortlinksviewsrepository.Repository,
+	customDomainsRepository shortlinkscustomdomainsrepo.Repository,
+	presetsRepository shortlinksbanneduapresetsrepository.Repository,
+	presetPatternsRepository shortlinksbanneduapresetpatternsrepository.Repository,
+	linkPresetsRepository shortlinkslinkpresetsrepository.Repository,
+	linkBannedUserAgentsRepository shortlinkslinkbannedusaragentsrepository.Repository,
+	wsRouter wsrouter.WsRouter,
+) *Service {
 	return &Service{
-		repository:                     opts.Repository,
-		viewsRepository:                opts.ViewsRepository,
-		customDomainsRepository:        opts.CustomDomainsRepository,
-		presetsRepository:              opts.PresetsRepository,
-		presetPatternsRepository:       opts.PresetPatternsRepository,
-		linkPresetsRepository:          opts.LinkPresetsRepository,
-		linkBannedUserAgentsRepository: opts.LinkBannedUserAgentsRepository,
-		wsRouter:                       opts.WsRouter,
+		repository:                     repository,
+		viewsRepository:                viewsRepository,
+		customDomainsRepository:        customDomainsRepository,
+		presetsRepository:              presetsRepository,
+		presetPatternsRepository:       presetPatternsRepository,
+		linkPresetsRepository:          linkPresetsRepository,
+		linkBannedUserAgentsRepository: linkBannedUserAgentsRepository,
+		wsRouter:                       wsRouter,
 		viewsSubs:                      make(map[string]struct{}),
 	}
 }

@@ -5,18 +5,11 @@ import (
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	ChannelsEmotesUsagesRepository channelsemotesusagesrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(channelsEmotesUsagesRepository channelsemotesusagesrepository.Repository) *Service {
 	return &Service{
-		channelsEmotesUsagesRepository: opts.ChannelsEmotesUsagesRepository,
+		channelsEmotesUsagesRepository: channelsEmotesUsagesRepository,
 	}
 }
 

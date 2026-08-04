@@ -6,7 +6,6 @@ require (
 	github.com/goccy/go-json v0.10.5
 	github.com/nats-io/nats.go v1.48.0
 	github.com/twirapp/twir/libs/config v0.0.0-20260104225553-e12a225540d0
-	go.uber.org/fx v1.24.0
 )
 
 require (

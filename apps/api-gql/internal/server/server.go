@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"net/http"
 	"os"
@@ -15,36 +16,25 @@ import (
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.uber.org/fx"
 )
-
-type Opts struct {
-	fx.In
-	LC                 fx.Lifecycle
-	Sessions           *auth.Auth
-	CachedTwitchClient *twitch.CachedTwitchClient
-	Logger             *slog.Logger
-	Middlewares        *middlewares.Middlewares
-	Config             config.Config
-}
 
 type Server struct {
 	*gin.Engine
 }
 
-func New(opts Opts) (*Server, error) {
+func New(lc *lifecycle.Lifecycle, sessions *auth.Auth, cachedTwitchClient *twitch.CachedTwitchClient, logger *slog.Logger, middlewaresService *middlewares.Middlewares, config config.Config) (*Server, error) {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
-	r.Use(opts.Middlewares.Logger())
+	r.Use(middlewaresService.Logger())
 	r.Use(newGlobalCORS(r))
 
 	r.Use(otelgin.Middleware("api-gql"))
-	r.Use(opts.Sessions.Middleware())
-	r.Use(opts.Middlewares.DashboardID)
+	r.Use(sessions.Middleware())
+	r.Use(middlewaresService.DashboardID)
 	r.Use(gin.Recovery())
 	r.Use(gincontext.Middleware())
-	r.Use(opts.Middlewares.RateLimit("global", 1000, 60*time.Second))
+	r.Use(middlewaresService.RateLimit("global", 1000, 60*time.Second))
 
 	r.NoRoute(
 		func(c *gin.Context) {
@@ -61,27 +51,27 @@ func New(opts Opts) (*Server, error) {
 		},
 	)
 
-	server := &Server{
+	srv := &Server{
 		r,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				opts.Logger.Info("Starting server")
+				logger.Info("Starting server")
 				go func() {
-					server.StartServer()
+					srv.StartServer()
 				}()
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				server.StopServer()
+				srv.StopServer()
 				return nil
 			},
 		},
 	)
 
-	return server, nil
+	return srv, nil
 }
 
 func (c *Server) StartServer() {

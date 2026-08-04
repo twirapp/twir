@@ -15,7 +15,6 @@ import (
 	"github.com/twirapp/twir/libs/repositories/plans"
 	shortlinkscustomdomainsrepo "github.com/twirapp/twir/libs/repositories/short_links_custom_domains"
 	"github.com/twirapp/twir/libs/repositories/short_links_custom_domains/model"
-	"go.uber.org/fx"
 )
 
 var reservedDomains = map[string]struct{}{
@@ -25,19 +24,15 @@ var reservedDomains = map[string]struct{}{
 	"services-bots.twir.app":    {},
 }
 
-type Opts struct {
-	fx.In
-
-	Repository      shortlinkscustomdomainsrepo.Repository
-	PlansRepository plans.Repository
-	Config          config.Config
-}
-
-func New(opts Opts) *Service {
+func New(
+	repository shortlinkscustomdomainsrepo.Repository,
+	plansRepository plans.Repository,
+	cfg config.Config,
+) *Service {
 	return &Service{
-		repository:      opts.Repository,
-		plansRepository: opts.PlansRepository,
-		config:          opts.Config,
+		repository:      repository,
+		plansRepository: plansRepository,
+		config:          cfg,
 	}
 }
 

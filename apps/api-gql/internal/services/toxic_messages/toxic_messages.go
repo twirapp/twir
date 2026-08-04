@@ -5,18 +5,11 @@ import (
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Repository toxicmessagesrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(repository toxicmessagesrepository.Repository) *Service {
 	return &Service{
-		repository: opts.Repository,
+		repository: repository,
 	}
 }
 

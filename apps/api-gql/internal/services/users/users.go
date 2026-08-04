@@ -17,27 +17,22 @@ import (
 	"github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	fx.In
-
-	UsersRepository users.Repository
-	ChannelService  *channelservice.ChannelService
-	Gorm            *gorm.DB
-	Config          config.Config
-	TwirBus         *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+	db *gorm.DB,
+	cfg config.Config,
+	twirBus *buscore.Bus,
+) *Service {
 	return &Service{
-		usersRepository: opts.UsersRepository,
-		channelService:  opts.ChannelService,
-		gorm:            opts.Gorm,
-		config:          opts.Config,
-		twirBus:         opts.TwirBus,
+		usersRepository: usersRepository,
+		channelService:  channelService,
+		gorm:            db,
+		config:          cfg,
+		twirBus:         twirBus,
 	}
 }
 

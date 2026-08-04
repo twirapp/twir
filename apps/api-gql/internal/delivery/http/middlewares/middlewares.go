@@ -5,24 +5,14 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Auth            *auth.Auth
-	DashboardAccess *dashboardaccess.Service
-	Huma            huma.API
-	RateLimiter     *rate_limiter.LeakyBucketRateLimiter
-}
-
-func New(opts Opts) *Middlewares {
+func New(authService *auth.Auth, dashboardAccess *dashboardaccess.Service, humaAPI huma.API, rateLimiter *rate_limiter.LeakyBucketRateLimiter) *Middlewares {
 	return &Middlewares{
-		auth:            opts.Auth,
-		dashboardAccess: opts.DashboardAccess,
-		huma:            opts.Huma,
-		rateLimiter:     opts.RateLimiter,
+		auth:            authService,
+		dashboardAccess: dashboardAccess,
+		huma:            humaAPI,
+		rateLimiter:     rateLimiter,
 	}
 }
 

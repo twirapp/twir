@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"go.uber.org/fx"
 	"golang.org/x/oauth2"
 )
 
@@ -21,12 +20,6 @@ const (
 	youtubeChannelsURL      = "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true"
 	youtubeScope            = "https://www.googleapis.com/auth/youtube"
 )
-
-type Opts struct {
-	fx.In
-
-	Config cfg.Config
-}
 
 type Provider struct {
 	config     cfg.Config
@@ -39,8 +32,8 @@ type youtubeThumbnail struct {
 
 var _ platform.PlatformProvider = (*Provider)(nil)
 
-func New(opts Opts) *Provider {
-	return &Provider{config: opts.Config, httpClient: http.DefaultClient}
+func New(config cfg.Config) *Provider {
+	return &Provider{config: config, httpClient: http.DefaultClient}
 }
 
 func (p *Provider) Platform() platformentity.Platform {

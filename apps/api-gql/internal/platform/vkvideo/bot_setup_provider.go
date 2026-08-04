@@ -7,14 +7,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/vk"
-	"go.uber.org/fx"
 )
-
-type BotSetupProviderOpts struct {
-	fx.In
-
-	Config cfg.Config
-}
 
 type BotSetupProvider struct {
 	config cfg.Config
@@ -23,8 +16,8 @@ type BotSetupProvider struct {
 // POST /v1/chat/message/send requires user authorization with this permission.
 const vkVideoBotChatSendScope = "chat:message:send"
 
-func NewBotSetupProvider(opts BotSetupProviderOpts) *BotSetupProvider {
-	return &BotSetupProvider{config: opts.Config}
+func NewBotSetupProvider(config cfg.Config) *BotSetupProvider {
+	return &BotSetupProvider{config: config}
 }
 
 func (p *BotSetupProvider) GetBotSetupAuthURL(state string) (string, error) {
