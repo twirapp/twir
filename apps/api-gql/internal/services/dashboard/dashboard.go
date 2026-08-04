@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
@@ -21,11 +22,11 @@ import (
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelplatforms "github.com/twirapp/twir/libs/repositories/channel_platforms"
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
+	requestedsongsrepository "github.com/twirapp/twir/libs/repositories/requested_songs"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -34,13 +35,11 @@ import (
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
-	"gorm.io/gorm"
 )
 
 type Opts struct {
 	fx.In
 
-	Gorm                       *gorm.DB
 	CachedTwitchClient         *twitchcache.CachedTwitchClient
 	AuthService                *auth.Auth
 	KV                         kv.KV
@@ -53,11 +52,11 @@ type Opts struct {
 	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
 	StreamsRepository          streams.Repository
 	UsersRepo                  usersrepository.Repository
+	RequestedSongsRepo         requestedsongsrepository.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		gorm:                    opts.Gorm,
 		cachedTwitchClient:      opts.CachedTwitchClient,
 		authService:             opts.AuthService,
 		kv:                      opts.KV,
@@ -70,6 +69,7 @@ func New(opts Opts) *Service {
 		channelEmotesUsagesRepo: opts.ChannelEmotesUsagesRepo,
 		streamsRepository:       opts.StreamsRepository,
 		usersRepo:               opts.UsersRepo,
+		requestedSongsRepo:      opts.RequestedSongsRepo,
 	}
 }
 
@@ -109,12 +109,15 @@ type streamLookup interface {
 	GetByChannelID(ctx context.Context, channelID uuid.UUID, platform platformentity.Platform) (streamsmodel.Stream, error)
 }
 
+type requestedSongsCounter interface {
+	CountByChannelID(ctx context.Context, channelID string, createdAfter time.Time) (int64, error)
+}
+
 type parsedMessagesLookup interface {
 	Get(ctx context.Context, key string) kv.Valuer
 }
 
 type Service struct {
-	gorm                    *gorm.DB
 	cachedTwitchClient      *twitchcache.CachedTwitchClient
 	authService             currentPlatformResolver
 	kv                      parsedMessagesLookup
@@ -127,6 +130,7 @@ type Service struct {
 	channelEmotesUsagesRepo channelEmotesUsagesCounter
 	streamsRepository       streamLookup
 	usersRepo               usersLookup
+	requestedSongsRepo      requestedSongsCounter
 }
 
 func (c *Service) resolveAnalyticsIdentity(ctx context.Context, channel channelentity.Channel) (string, string) {
@@ -237,13 +241,12 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 			})
 
 			errgrp.Go(func() error {
-				if err = c.gorm.
-					WithContext(ctx).
-					Model(&model.RequestedSong{}).
-					Where(`"channelId" = ? AND "createdAt" >= ?`, channelID, stream.StartedAt).
-					Count(&requestedSongs).Error; err != nil {
+				count, err := c.requestedSongsRepo.CountByChannelID(ctx, channelID, stream.StartedAt)
+				if err != nil {
 					return fmt.Errorf("get count of requested songs: %w", err)
 				}
+
+				requestedSongs = count
 				return nil
 			})
 
@@ -424,13 +427,12 @@ func (c *Service) GetDashboardStats(ctx context.Context, channelID string) (
 
 	errgrp.Go(
 		func() error {
-			if err = c.gorm.
-				WithContext(ctx).
-				Model(&model.RequestedSong{}).
-				Where(`"channelId" = ? AND "createdAt" >= ?`, channelID, stream.StartedAt).
-				Count(&requestedSongs).Error; err != nil {
+			count, err := c.requestedSongsRepo.CountByChannelID(ctx, channelID, stream.StartedAt)
+			if err != nil {
 				return fmt.Errorf("get count of requested songs: %w", err)
 			}
+
+			requestedSongs = count
 
 			return nil
 		},

@@ -241,6 +241,11 @@ import (
 	songrequestoverlaysettingsrepository "github.com/twirapp/twir/libs/repositories/song_request_overlay_settings"
 	songrequestoverlaysettingspgx "github.com/twirapp/twir/libs/repositories/song_request_overlay_settings/pgx"
 
+	requestedsongsrepository "github.com/twirapp/twir/libs/repositories/requested_songs"
+	requestedsongspostgres "github.com/twirapp/twir/libs/repositories/requested_songs/datasource/postgres"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
+	songrequestssettingspostgres "github.com/twirapp/twir/libs/repositories/song_requests_settings/datasource/postgres"
+
 	channelsgiveawaysrepository "github.com/twirapp/twir/libs/repositories/giveaways"
 	channelsgiveawaysrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways/pgx"
 
@@ -607,6 +612,14 @@ func main() {
 			fx.Annotate(
 				songrequestoverlaysettingspgx.NewFx,
 				fx.As(new(songrequestoverlaysettingsrepository.Repository)),
+			),
+			fx.Annotate(
+				requestedsongspostgres.NewFx,
+				fx.As(new(requestedsongsrepository.Repository)),
+			),
+			fx.Annotate(
+				songrequestssettingspostgres.NewFx,
+				fx.As(new(songrequestssettingsrepository.Repository)),
 			),
 		),
 		// services

@@ -6,21 +6,22 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-	model "github.com/twirapp/twir/libs/gomodels"
-	"gorm.io/gorm"
+	"github.com/twirapp/twir/libs/entities/requested_song"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 )
 
 // AnnounceNowPlaying sends the configured "now playing" message to the channel chat.
 // It is a no-op when announcements are disabled in the song requests settings
 // or when the nowPlaying translation is empty.
-func (s *Service) AnnounceNowPlaying(ctx context.Context, channelID string, song model.RequestedSong) error {
-	settings := model.ChannelSongRequestsSettings{}
-	if err := s.gorm.WithContext(ctx).
-		Where(`"channel_id" = ?`, channelID).
-		First(&settings).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+func (s *Service) AnnounceNowPlaying(
+	ctx context.Context,
+	channelID string,
+	song requested_song.RequestedSong,
+) error {
+	settings, err := s.settingsRepository.GetByChannelID(ctx, channelID)
+	if err != nil {
+		if errors.Is(err, songrequestssettingsrepository.ErrNotFound) {
 			return nil
 		}
 
@@ -31,37 +32,22 @@ func (s *Service) AnnounceNowPlaying(ctx context.Context, channelID string, song
 		return nil
 	}
 
-	songLink := fmt.Sprintf("https://youtu.be/%s", song.VideoID)
-	if song.SongLink.Valid && song.SongLink.String != "" {
-		songLink = song.SongLink.String
-	}
-
-	orderedByDisplayName := song.OrderedByDisplayName.String
-	if orderedByDisplayName == "" {
-		orderedByDisplayName = song.OrderedByName
-	}
-
 	message := strings.NewReplacer(
 		"{{songTitle}}", song.Title,
-		"{{songLink}}", songLink,
+		"{{songLink}}", song.Link(),
 		"{{songId}}", song.VideoID,
 		"{{orderedByName}}", song.OrderedByName,
-		"{{orderedByDisplayName}}", orderedByDisplayName,
+		"{{orderedByDisplayName}}", song.RequesterDisplayName(),
 	).Replace(settings.TranslationsNowPlaying)
 
 	if strings.TrimSpace(message) == "" {
 		return nil
 	}
 
-	parsedChannelID, err := uuid.Parse(channelID)
-	if err != nil {
-		return fmt.Errorf("failed to parse channel id: %w", err)
-	}
-
 	if err := s.bus.Bots.SendMessage.Publish(
 		ctx,
 		bots.SendMessageRequest{
-			ChannelID:      parsedChannelID,
+			ChannelID:      settings.ChannelID,
 			Message:        message,
 			SkipRateLimits: true,
 		},
