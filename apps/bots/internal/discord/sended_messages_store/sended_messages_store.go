@@ -5,7 +5,6 @@ import (
 	"time"
 
 	discordsendednotifications "github.com/twirapp/twir/libs/repositories/discord_sended_notifications"
-	"go.uber.org/fx"
 )
 
 type Message struct {
@@ -21,8 +20,6 @@ type SendedMessagesStore struct {
 }
 
 type Opts struct {
-	fx.In
-
 	Repo discordsendednotifications.Repository
 }
 

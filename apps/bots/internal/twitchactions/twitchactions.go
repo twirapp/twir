@@ -16,13 +16,10 @@ import (
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"github.com/twirapp/twir/libs/repositories/toxic_messages"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Logger                  *slog.Logger
 	SentMessagesRepository  sentmessages.Repository
 	ChannelsRepository      channels.Repository

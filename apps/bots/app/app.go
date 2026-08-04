@@ -1,10 +1,12 @@
 package app
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	_ "net/http/pprof"
 
+	"github.com/goforj/wire"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	bus_listener "github.com/twirapp/twir/apps/bots/internal/bus-listener"
 	discordbushandler "github.com/twirapp/twir/apps/bots/internal/discord/bus_handler"
@@ -32,6 +34,7 @@ import (
 	youtubechat "github.com/twirapp/twir/apps/bots/internal/youtube"
 	"github.com/twirapp/twir/apps/bots/pkg/tlds"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
@@ -102,183 +105,217 @@ import (
 	vkvideobotsrepositorypgx "github.com/twirapp/twir/libs/repositories/vk_video_bots/datasource/postgres"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-
-	"go.uber.org/fx"
 )
 
-var App = fx.Module(
-	"bots",
-	baseapp.CreateBaseApp(baseapp.Opts{AppName: "bots"}),
-	// repositories
-	fx.Provide(
-		fx.Annotate(
-			keywordsrepositorypgx.NewFx,
-			fx.As(new(keywordsrepository.Repository)),
-		),
-		fx.Annotate(
-			quotesrepositorypgx.NewFx,
-			fx.As(new(quotesrepository.Repository)),
-		),
-		fx.Annotate(
-			greetingsrepositorypgx.NewFx,
-			fx.As(new(greetingsrepository.Repository)),
-		),
-		fx.Annotate(
-			sentmessagesrepositorypgx.NewFx,
-			fx.As(new(sentmessagesrepository.Repository)),
-		),
-		fx.Annotate(
-			channelsrepositorypgx.NewFx,
-			fx.As(new(channelsrepository.Repository)),
-		),
-		fx.Annotate(
-			streamsrepositorypostgres.NewFx,
-			fx.As(new(streamsrepository.Repository)),
-		),
-		fx.Annotate(
-			toxicmessagesrepositorypgx.NewFx,
-			fx.As(new(toxicmessagesrepository.Repository)),
-		),
-		fx.Annotate(
-			chatmessagesrepositoryclickhouse.NewFx,
-			fx.As(new(chatmessagesrepository.Repository)),
-		),
-		fx.Annotate(
-			channelscommandsprefixpgx.NewFx,
-			fx.As(new(channelscommandsprefixrepository.Repository)),
-		),
-		fx.Annotate(
-			chatwallrepositorypostgres.NewFx,
-			fx.As(new(chatwallrepository.Repository)),
-		),
-		fx.Annotate(
-			giveawaysrepositorypgx.NewFx,
-			fx.As(new(giveawaysrepository.Repository)),
-		),
-		fx.Annotate(
-			channelsmoderationsettingsrepositorypostgres.NewFx,
-			fx.As(new(channelsmoderationsettingsrepository.Repository)),
-		),
-		fx.Annotate(
-			channelsemotesusagesrepositoryclickhouse.NewFx,
-			fx.As(new(channelsemotesusagesrepository.Repository)),
-		),
-		fx.Annotate(
-			usersrepositorypgx.NewFx,
-			fx.As(new(usersrepository.Repository)),
-		),
-		fx.Annotate(
-			usersstatsrepositorypostgres.NewFx,
-			fx.As(new(usersstatsrepository.Repository)),
-		),
-		fx.Annotate(
-			rolesrepositorypgx.NewFx,
-			fx.As(new(rolesrepository.Repository)),
-		),
-		fx.Annotate(
-			overlays_tts_pgx.NewFx,
-			fx.As(new(overlays_tts_repository.Repository)),
-		),
-		fx.Annotate(
-			channelsgamesvotebanpgx.NewFx,
-			fx.As(new(channelsgamesvotebanrepository.Repository)),
-		),
-		fx.Annotate(
-			channelschattrenslationsrepositorypostgres.NewFx,
-			fx.As(new(channelschattrenslationsrepository.Repository)),
-		),
-		fx.Annotate(
-			giveawaysparticipantsrepositorypgx.NewFx,
-			fx.As(new(giveawaysparticipantsrepository.Repository)),
-		),
-		fx.Annotate(
-			channelsintegrationsdiscordpostgres.NewFx,
-			fx.As(new(channelsintegrationsdiscord.Repository)),
-		),
-		fx.Annotate(
-			discordsendednotificationspgx.NewFx,
-			fx.As(new(discordsendednotifications.Repository)),
-		),
-		fx.Annotate(
-			kickbotsrepositorypgx.NewFx,
-			fx.As(new(kickbotsrepository.Repository)),
-		),
-		fx.Annotate(
-			vkvideobotsrepositorypgx.NewFx,
-			fx.As(new(vkvideobotsrepository.Repository)),
-		),
-		fx.Annotate(
-			notificationsrepositorypostgres.NewFx,
-			fx.As(new(notificationsrepository.Repository)),
-		),
+const Service = "bots"
+
+var ProviderSet = wire.NewSet(
+	wire.Value(baseapp.Opts{AppName: Service}),
+	baseapp.NewBase,
+	wire.FieldsOf(
+		new(baseapp.Base),
+		"Lifecycle",
+		"Config",
+		"Tracer",
+		"Gorm",
+		"Redis",
+		"Logger",
+		"Bus",
+		"PgxPool",
+		"ClickHouse",
+		"TrManager",
+		"KV",
 	),
-	fx.Provide(
-		tlds.New,
-		channelservice.NewChannelService,
-		func(config cfg.Config) websockets.WebsocketClient {
-			return clients.NewWebsocket(config.AppEnv)
-		},
-		workers.New,
-		chatwallcacher.NewEnabledOnly,
-		chatwallcacher.NewSettings,
-		giveawayscache.New,
-		fx.Annotate(
-			mod_task_queue.NewRedisModTaskDistributor,
-			fx.As(new(mod_task_queue.TaskDistributor)),
-		),
-		rolescache.New,
-		toxicity_check.New,
-		func(
-			repo channelscommandsprefixrepository.Repository,
-			bus *buscore.Bus,
-		) *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix] {
-			return channelscommandsprefixcache.New(repo, bus)
-		},
-		ttscache.NewTTSSettings,
-		keywordscache.New,
-		greetingscache.New,
-		channelcache.NewByTwitchUserID,
-		twitchactions.New,
-		kickchat.NewChatClient,
-		youtubechat.NewChatClient,
-		newVKVideoChatClient,
-		vkchat.NewChatClient,
-		botplatforms.NewChatRegistry,
-		channelsmoderationsettingscache.New,
-		channelsgamesvotebancache.New,
-		moderationhelpers.New,
-		messagehandler.New,
-		channel.New,
-		keywords.New,
-		tts.New,
-		voteban.New,
-		chattranslationssettingscache.New,
-		chattranslationsservice.New,
-		giveaways.New,
-		twitch.New,
-		sended_messages_store.New,
-		discordmessagesupdater.New,
-		discord_go.New,
-		fx.Annotate(
-			wsrouter.NewNatsWsRouterFx,
-			fx.As(new(wsrouter.WsRouter)),
-		),
-	),
-	fx.Invoke(
-		ytsr.New,
-		mod_task_queue.NewRedisTaskProcessor,
-		func(config cfg.Config) {
-			if config.AppEnv != "development" {
-				http.Handle("/metrics", promhttp.Handler())
-				go http.ListenAndServe("0.0.0.0:3000", nil)
-			}
-		},
-		stream_handlers.New,
-		bus_listener.New,
-		discordbushandler.New,
-		notificationssync.New,
-		func(l *slog.Logger) {
-			l.Info("🚀 Bots started")
-		},
-	),
+
+	keywordsrepositorypgx.NewFx,
+	wire.Bind(new(keywordsrepository.Repository), new(*keywordsrepositorypgx.Pgx)),
+	quotesrepositorypgx.NewFx,
+	wire.Bind(new(quotesrepository.Repository), new(*quotesrepositorypgx.Pgx)),
+	greetingsrepositorypgx.NewFx,
+	wire.Bind(new(greetingsrepository.Repository), new(*greetingsrepositorypgx.Pgx)),
+	sentmessagesrepositorypgx.NewFx,
+	wire.Bind(new(sentmessagesrepository.Repository), new(*sentmessagesrepositorypgx.Pgx)),
+	channelsrepositorypgx.NewFx,
+	wire.Bind(new(channelsrepository.Repository), new(*channelsrepositorypgx.Pgx)),
+	streamsrepositorypostgres.NewFx,
+	wire.Bind(new(streamsrepository.Repository), new(*streamsrepositorypostgres.Pgx)),
+	toxicmessagesrepositorypgx.NewFx,
+	wire.Bind(new(toxicmessagesrepository.Repository), new(*toxicmessagesrepositorypgx.Pgx)),
+	chatmessagesrepositoryclickhouse.NewFx,
+	wire.Bind(new(chatmessagesrepository.Repository), new(*chatmessagesrepositoryclickhouse.Clickhouse)),
+	channelscommandsprefixpgx.NewFx,
+	wire.Bind(new(channelscommandsprefixrepository.Repository), new(*channelscommandsprefixpgx.Pgx)),
+	chatwallrepositorypostgres.NewFx,
+	wire.Bind(new(chatwallrepository.Repository), new(*chatwallrepositorypostgres.Pgx)),
+	giveawaysrepositorypgx.NewFx,
+	wire.Bind(new(giveawaysrepository.Repository), new(*giveawaysrepositorypgx.Pgx)),
+	channelsmoderationsettingsrepositorypostgres.NewFx,
+	wire.Bind(new(channelsmoderationsettingsrepository.Repository), new(*channelsmoderationsettingsrepositorypostgres.Pgx)),
+	channelsemotesusagesrepositoryclickhouse.NewFx,
+	wire.Bind(new(channelsemotesusagesrepository.Repository), new(*channelsemotesusagesrepositoryclickhouse.Clickhouse)),
+	usersrepositorypgx.NewFx,
+	wire.Bind(new(usersrepository.Repository), new(*usersrepositorypgx.Pgx)),
+	usersstatsrepositorypostgres.NewFx,
+	wire.Bind(new(usersstatsrepository.Repository), new(*usersstatsrepositorypostgres.Pgx)),
+	rolesrepositorypgx.NewFx,
+	wire.Bind(new(rolesrepository.Repository), new(*rolesrepositorypgx.Pgx)),
+	overlays_tts_pgx.NewFx,
+	wire.Bind(new(overlays_tts_repository.Repository), new(*overlays_tts_pgx.Pgx)),
+	channelsgamesvotebanpgx.NewFx,
+	wire.Bind(new(channelsgamesvotebanrepository.Repository), new(*channelsgamesvotebanpgx.Pgx)),
+	channelschattrenslationsrepositorypostgres.NewFx,
+	wire.Bind(new(channelschattrenslationsrepository.Repository), new(*channelschattrenslationsrepositorypostgres.Pgx)),
+	giveawaysparticipantsrepositorypgx.NewFx,
+	wire.Bind(new(giveawaysparticipantsrepository.Repository), new(*giveawaysparticipantsrepositorypgx.Pgx)),
+	channelsintegrationsdiscordpostgres.NewFx,
+	wire.Bind(new(channelsintegrationsdiscord.Repository), new(*channelsintegrationsdiscordpostgres.Pgx)),
+	discordsendednotificationspgx.NewFx,
+	wire.Bind(new(discordsendednotifications.Repository), new(*discordsendednotificationspgx.Pgx)),
+	kickbotsrepositorypgx.NewFx,
+	wire.Bind(new(kickbotsrepository.Repository), new(*kickbotsrepositorypgx.Pgx)),
+	vkvideobotsrepositorypgx.NewFx,
+	wire.Bind(new(vkvideobotsrepository.Repository), new(*vkvideobotsrepositorypgx.Pgx)),
+	notificationsrepositorypostgres.NewFx,
+	wire.Bind(new(notificationsrepository.Repository), new(*notificationsrepositorypostgres.Pgx)),
+
+	tlds.New,
+	channelservice.NewChannelService,
+	NewWebsocketClient,
+	workers.New,
+	wire.Struct(new(workers.Opts), "*"),
+	chatwallcacher.NewEnabledOnly,
+	chatwallcacher.NewSettings,
+	giveawayscache.New,
+	mod_task_queue.NewRedisModTaskDistributor,
+	wire.Bind(new(mod_task_queue.TaskDistributor), new(*mod_task_queue.ModTaskDistributor)),
+	rolescache.New,
+	toxicity_check.New,
+	wire.Struct(new(toxicity_check.Opts), "*"),
+	NewCommandsPrefixCache,
+	ttscache.NewTTSSettings,
+	keywordscache.New,
+	greetingscache.New,
+	channelcache.NewByTwitchUserID,
+	twitchactions.New,
+	wire.Struct(new(twitchactions.Opts), "*"),
+	kickchat.NewChatClient,
+	youtubechat.NewChatClient,
+	NewVKVideoChatClient,
+	vkchat.NewChatClient,
+	botplatforms.NewChatRegistry,
+	channelsmoderationsettingscache.New,
+	channelsgamesvotebancache.New,
+	moderationhelpers.New,
+	wire.Struct(new(moderationhelpers.Opts), "*"),
+	messagehandler.New,
+	wire.Struct(new(messagehandler.Opts), "*"),
+	channel.New,
+	wire.Struct(new(channel.Opts), "*"),
+	keywords.New,
+	wire.Struct(new(keywords.Opts), "*"),
+	tts.New,
+	wire.Struct(new(tts.Opts), "*"),
+	voteban.New,
+	wire.Struct(new(voteban.Opts), "*"),
+	chattranslationssettingscache.New,
+	chattranslationsservice.New,
+	wire.Struct(new(chattranslationsservice.Opts), "*"),
+	giveaways.New,
+	wire.Struct(new(giveaways.Opts), "*"),
+	twitch.New,
+	sended_messages_store.New,
+	wire.Struct(new(sended_messages_store.Opts), "*"),
+	discordmessagesupdater.New,
+	wire.Struct(new(discordmessagesupdater.Opts), "*"),
+	discord_go.New,
+	wire.Struct(new(discord_go.Opts), "*"),
+	wsrouter.NewNatsWsRouterFx,
+	wire.Bind(new(wsrouter.WsRouter), new(*wsrouter.WsRouterNats)),
+
+	wire.Struct(new(ytsr.Opts), "*"),
+	RegisterYTSR,
+	wire.Struct(new(mod_task_queue.RedisTaskProcessorOpts), "*"),
+	mod_task_queue.NewRedisTaskProcessor,
+	StartMetrics,
+	wire.Struct(new(stream_handlers.Opts), "*"),
+	RegisterStreamHandlers,
+	wire.Struct(new(bus_listener.Opts), "*"),
+	bus_listener.New,
+	wire.Struct(new(discordbushandler.Opts), "*"),
+	RegisterDiscordBusHandler,
+	wire.Struct(new(notificationssync.Opts), "*"),
+	notificationssync.New,
+	wire.Struct(new(ApplicationDeps), "*"),
+	NewApplication,
 )
+
+type YTSRRegistration struct{}
+type MetricsServer struct{}
+type StreamHandlersRegistration struct{}
+type DiscordBusHandlerRegistration struct{}
+
+type ApplicationDeps struct {
+	Lifecycle         *lifecycle.Lifecycle
+	YTSR              YTSRRegistration
+	TaskProcessor     *mod_task_queue.RedisTaskProcessor
+	Metrics           MetricsServer
+	StreamHandlers    StreamHandlersRegistration
+	BusListener       *bus_listener.BusListener
+	DiscordBusHandler DiscordBusHandlerRegistration
+	NotificationsSync *notificationssync.Service
+	Logger            *slog.Logger
+}
+
+type Application struct {
+	lifecycle *lifecycle.Lifecycle
+}
+
+func NewWebsocketClient(config cfg.Config) websockets.WebsocketClient {
+	return clients.NewWebsocket(config.AppEnv)
+}
+
+func NewCommandsPrefixCache(
+	repository channelscommandsprefixrepository.Repository,
+	bus *buscore.Bus,
+) *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix] {
+	return channelscommandsprefixcache.New(repository, bus)
+}
+
+func RegisterYTSR(opts ytsr.Opts) (YTSRRegistration, error) {
+	if err := ytsr.New(opts); err != nil {
+		return YTSRRegistration{}, fmt.Errorf("register YTSR: %w", err)
+	}
+
+	return YTSRRegistration{}, nil
+}
+
+func StartMetrics(config cfg.Config) MetricsServer {
+	if config.AppEnv != "development" {
+		http.Handle("/metrics", promhttp.Handler())
+		go func() { _ = http.ListenAndServe("0.0.0.0:3000", nil) }()
+	}
+
+	return MetricsServer{}
+}
+
+func RegisterStreamHandlers(opts stream_handlers.Opts) StreamHandlersRegistration {
+	stream_handlers.New(opts)
+	return StreamHandlersRegistration{}
+}
+
+func RegisterDiscordBusHandler(opts discordbushandler.Opts) (DiscordBusHandlerRegistration, error) {
+	if err := discordbushandler.New(opts); err != nil {
+		return DiscordBusHandlerRegistration{}, fmt.Errorf("register Discord bus handler: %w", err)
+	}
+
+	return DiscordBusHandlerRegistration{}, nil
+}
+
+func NewApplication(deps ApplicationDeps) *Application {
+	deps.Logger.Info("🚀 Bots started")
+	return &Application{lifecycle: deps.Lifecycle}
+}
+
+func (a *Application) Run() error {
+	return a.lifecycle.Run()
+}

@@ -15,16 +15,15 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/raitonoberu/ytsearch"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Config  cfg.Config
 	Logger  *slog.Logger
@@ -41,7 +40,7 @@ func New(opts Opts) error {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				opts.Logger.Info("ytsr started")
 				return opts.TwirBus.YTSRSearch.SubscribeGroup("ytsr", s.search)

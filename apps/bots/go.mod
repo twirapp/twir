@@ -3,6 +3,7 @@ module github.com/twirapp/twir/apps/bots
 go 1.26.1
 
 require (
+	github.com/goforj/wire v1.2.0
 	github.com/aidenwallis/go-ratelimiting v0.0.5
 	github.com/alitto/pond/v2 v2.5.0
 	github.com/dlclark/regexp2 v1.11.5
@@ -18,7 +19,6 @@ require (
 	github.com/twirapp/batch-processor v0.0.1
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
-	go.uber.org/fx v1.24.0
 	golang.org/x/sync v0.19.0
 	gorm.io/gorm v1.31.1
 )

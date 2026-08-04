@@ -10,13 +10,10 @@ import (
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Logger         *slog.Logger
 	Gorm           *gorm.DB
 	TwitchActions  *twitchactions.TwitchActions

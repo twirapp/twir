@@ -4,12 +4,12 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
 type PubSubHandlers struct {
@@ -21,9 +21,7 @@ type PubSubHandlers struct {
 }
 
 type Opts struct {
-	fx.In
-
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Bus                 *bus_core.Bus
 	ChannelService      *channelservice.ChannelService
@@ -42,7 +40,7 @@ func New(opts Opts) {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				service.bus.Channel.StreamOnline.SubscribeGroup("bots", service.streamsOnline)
 				service.bus.Channel.StreamOffline.SubscribeGroup("bots", service.streamsOffline)

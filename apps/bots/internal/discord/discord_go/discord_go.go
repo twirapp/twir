@@ -10,16 +10,14 @@ import (
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/diamondburned/arikawa/v3/session"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
-	LC          fx.Lifecycle
+	LC          *lifecycle.Lifecycle
 	Config      cfg.Config
 	Logger      *slog.Logger
 	DiscordRepo channelsintegrationsdiscord.Repository
@@ -57,7 +55,7 @@ func New(opts Opts) (*Discord, error) {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				botInfo, err := d.api.Me()
 				if err != nil {

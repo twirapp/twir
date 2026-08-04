@@ -12,12 +12,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 	"github.com/twirapp/twir/libs/repositories/roles"
 	rolesmodel "github.com/twirapp/twir/libs/repositories/roles/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	KeywordsRepository keywords.Repository
 	KeywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
 	RolesCache         *generic_cacher.GenericCacher[[]rolesmodel.Role]

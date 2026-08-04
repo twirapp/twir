@@ -10,19 +10,17 @@ import (
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/notifications"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 const notificationsSubscriptionKey = "api.newNotifications"
 
 type Opts struct {
-	fx.In
-
-	Lifecycle fx.Lifecycle
+	Lifecycle *lifecycle.Lifecycle
 	Config    cfg.Config
 	Logger    *slog.Logger
 	Discord   *discord_go.Discord
@@ -111,7 +109,7 @@ func New(opts Opts) (*Service, error) {
 	opts.Discord.AddHandler(service.handleMessageDelete)
 	opts.Discord.AddHandler(service.handleMessageDeleteBulk)
 
-	opts.Lifecycle.Append(fx.Hook{
+	opts.Lifecycle.Append(lifecycle.Hook{
 		OnStart: service.start,
 		OnStop:  service.stop,
 	})

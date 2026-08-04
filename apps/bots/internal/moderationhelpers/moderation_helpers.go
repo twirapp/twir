@@ -6,12 +6,9 @@ import (
 	"strings"
 
 	"github.com/twirapp/twir/apps/bots/pkg/tlds"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Tlds *tlds.TLDS
 }
 

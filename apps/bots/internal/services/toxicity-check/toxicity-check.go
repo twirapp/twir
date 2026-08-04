@@ -14,13 +14,10 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
 type Opts struct {
-	fx.In
-
 	RedisClient *redis.Client
 	Config      config.Config
 }

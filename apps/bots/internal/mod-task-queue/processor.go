@@ -6,10 +6,10 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -40,8 +40,7 @@ type RedisTaskProcessor struct {
 var _ TaskProcessor = (*RedisTaskProcessor)(nil)
 
 type RedisTaskProcessorOpts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Cfg     config.Config
 	Logger  *slog.Logger
@@ -87,7 +86,7 @@ func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
 					opts.Logger.Info("Starting mod task processor")

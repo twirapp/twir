@@ -6,17 +6,16 @@ import (
 	"time"
 
 	"github.com/alitto/pond/v2"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/atomic"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	ChannelsRepository channelsrepository.Repository
 	Logger             *slog.Logger
@@ -32,7 +31,7 @@ func New(opts Opts) *Pool {
 	workersResizerCtx, workersResizerCtxCancel := context.WithCancel(context.Background())
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				w.setSize(workersResizerCtx)
 

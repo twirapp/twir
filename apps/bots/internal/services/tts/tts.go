@@ -3,14 +3,11 @@ package tts
 import (
 	"context"
 
-	"github.com/twirapp/twir/libs/types/types/api/modules"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/types/types/api/modules"
 )
 
 type Opts struct {
-	fx.In
-
 	TTSSettingsCacher *generic_cacher.GenericCacher[modules.TTSSettings]
 }
 

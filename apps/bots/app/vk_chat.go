@@ -5,6 +5,6 @@ import (
 	vkintegrations "github.com/twirapp/twir/libs/integrations/vk"
 )
 
-func newVKVideoChatClient(config cfg.Config) (*vkintegrations.VideoChatClient, error) {
+func NewVKVideoChatClient(config cfg.Config) (*vkintegrations.VideoChatClient, error) {
 	return vkintegrations.NewVideoChatClient(vkintegrations.VideoChatClientOpts{APIBaseURL: config.VKVideoDevAPIBaseURL})
 }

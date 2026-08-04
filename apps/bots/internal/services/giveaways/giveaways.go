@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbusmodel "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -24,12 +25,10 @@ import (
 	"github.com/twirapp/twir/libs/repositories/users"
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	TxManager                       trm.Manager
 	GiveawaysRepository             giveaways.Repository
@@ -60,7 +59,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				return s.twirBus.Giveaways.ChooseWinner.SubscribeGroup(
 					"giveaways",

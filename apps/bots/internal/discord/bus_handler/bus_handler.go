@@ -6,16 +6,14 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/discord"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
 type Opts struct {
-	fx.In
-
-	LC      fx.Lifecycle
+	LC      *lifecycle.Lifecycle
 	Logger  *slog.Logger
 	Discord *discord_go.Discord
 	Bus     *buscore.Bus
@@ -35,7 +33,7 @@ func New(opts Opts) error {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := h.subscribe(); err != nil {
 					return err

@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/voteban"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -43,13 +44,11 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Logger                           *slog.Logger
 	WebsocketsGrpc                   websockets.WebsocketClient
@@ -201,7 +200,7 @@ func New(opts Opts) *MessageHandler {
 	)
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
 					handler.messagesSaveBatcher.Start(batcherCtx)

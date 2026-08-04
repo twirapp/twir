@@ -18,6 +18,7 @@ import (
 	"github.com/lkretschmer/deepl-go"
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/kv"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/generic"
@@ -27,13 +28,11 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	channelschattrenslationsrepository "github.com/twirapp/twir/libs/repositories/chat_translation"
 	"github.com/twirapp/twir/libs/repositories/chat_translation/model"
-	"go.uber.org/fx"
 	googleapioption "google.golang.org/api/option"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Config  config.Config
 	Logger  *slog.Logger
@@ -101,7 +100,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStop: func(ctx context.Context) error {
 				if s.googleTranslateClient != nil {
 					return s.googleTranslateClient.Close()

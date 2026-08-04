@@ -7,21 +7,19 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
 	"github.com/twirapp/twir/apps/bots/internal/discord/sended_messages_store"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Store       *sended_messages_store.SendedMessagesStore
 	Logger      *slog.Logger
-	LC          fx.Lifecycle
+	LC          *lifecycle.Lifecycle
 	Config      cfg.Config
 	Discord     *discord_go.Discord
 	Bus         *buscore.Bus
@@ -50,7 +48,7 @@ func New(opts Opts) (*MessagesUpdater, error) {
 
 	// Start periodic updater in background
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go updater.StartPeriodicUpdater(closeCtx)
 				return nil

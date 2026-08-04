@@ -1,13 +1,16 @@
 package main
 
 import (
-	"github.com/twirapp/twir/apps/bots/app"
-	"go.uber.org/fx"
+	"log"
 )
 
 func main() {
-	fx.New(
+	application, err := initializeApplication()
+	if err != nil {
+		log.Fatalf("initialize application: %v", err)
+	}
 
-		app.App,
-	).Run()
+	if err := application.Run(); err != nil {
+		log.Fatalf("run application: %v", err)
+	}
 }
