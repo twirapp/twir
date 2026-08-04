@@ -1,53 +1,19 @@
 import { createGlobalState } from '@vueuse/core'
-import { useQuery } from '@urql/vue'
 
+import { integrationsPageCacheKey, useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/gql.js'
-import { integrationsPageCacheKey } from '~~/layers/dashboard/api/integrations/integrations-page.js'
-
-export const nightbotCacheKey = 'nightbot'
 
 export const useNightbotIntegration = createGlobalState(() => {
-	const nightbotBroadcaster = new BroadcastChannel('nightbot_channel')
-
-	const useAuthLink = (pause = false) =>
-		useQuery({
-			query: graphql(`
-				query NightbotGetAuthLink {
-					nightbotGetAuthLink
-				}
-			`),
-			context: {
-				additionalTypenames: [nightbotCacheKey],
-			},
-			variables: {},
-			pause,
-		})
-
-	const useData = (pause = false) =>
-		useQuery({
-			query: graphql(`
-				query NightbotGetData {
-					nightbotGetData {
-						userName
-						avatar
-					}
-				}
-			`),
-			context: {
-				additionalTypenames: [nightbotCacheKey],
-			},
-			variables: {},
-			pause,
-		})
+	const integrationsPage = useIntegrationsPageData()
 
 	const postCode = useMutation(
 		graphql(`
-			mutation NightbotPostCode($input: NightbotPostCodeInput!) {
+			mutation NightbotPostCode($input: IntegrationOAuthCodeInput!) {
 				nightbotPostCode(input: $input)
 			}
 		`),
-		[nightbotCacheKey, integrationsPageCacheKey]
+		[integrationsPageCacheKey]
 	)
 
 	const logout = useMutation(
@@ -56,7 +22,7 @@ export const useNightbotIntegration = createGlobalState(() => {
 				nightbotLogout
 			}
 		`),
-		[nightbotCacheKey, integrationsPageCacheKey]
+		[integrationsPageCacheKey]
 	)
 
 	const importCommands = useMutation(
@@ -65,7 +31,7 @@ export const useNightbotIntegration = createGlobalState(() => {
 				nightbotImportCommands {
 					importedCount
 					failedCount
-					failedCommandsNames
+					failures { name reason }
 				}
 			}
 		`),
@@ -78,25 +44,18 @@ export const useNightbotIntegration = createGlobalState(() => {
 				nightbotImportTimers {
 					importedCount
 					failedCount
-					failedTimersNames
+					failures { name reason }
 				}
 			}
 		`),
 		['timers']
 	)
 
-	function broadcastRefresh() {
-		nightbotBroadcaster.postMessage('refresh')
-	}
-
 	return {
-		nightbotBroadcaster,
-		useAuthLink,
-		useData,
 		postCode,
 		logout,
 		importCommands,
 		importTimers,
-		broadcastRefresh,
+		broadcastRefresh: integrationsPage.broadcastRefresh,
 	}
 })

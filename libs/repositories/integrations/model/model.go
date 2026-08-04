@@ -26,6 +26,7 @@ const (
 	ServiceValorant       Service = "VALORANT"
 	ServiceDonateStream   Service = "DONATE_STREAM"
 	ServiceNightbot       Service = "NIGHTBOT"
+	ServiceStreamElements Service = "STREAMELEMENTS"
 )
 
 var Nil = Integration{}

@@ -64,8 +64,8 @@ export const useIntegrations = createGlobalState(() => {
 	const streamlabsPostCode = () =>
 		useMutation(
 			graphql(`
-				mutation StreamlabsPostCode($code: String!) {
-					streamlabsPostCode(code: $code)
+				mutation StreamlabsPostCode($input: IntegrationOAuthCodeInput!) {
+					streamlabsPostCode(input: $input)
 				}
 			`),
 			[integrationsPageCacheKey]

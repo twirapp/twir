@@ -1,157 +1,103 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import type { ImportReportData } from '../components/types.js'
+
+import { toast } from 'vue-sonner'
 
 import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth.js'
-import OauthComponent from '~~/layers/dashboard/components/integrations/variants/oauth.vue'
-import { Alert, AlertDescription } from '@/components/ui/alert/index.js'
-import { Button } from '@/components/ui/button/index.js'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card/index.js'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
-
+import ImportProviderCard from '../components/import-provider-card.vue'
+import ImportSettings from '../components/import-settings.vue'
 import { useNightbotIntegration } from './composables/use-nightbot-integration.js'
 
-import type { NightbotImportCommandsOutput, NightbotImportTimersOutput } from '~/gql/graphql.js'
+const { t } = useI18n()
+const integrationsPage = useIntegrationsPageData()
+const nightbot = useNightbotIntegration()
 
-const nightbotIntegration = useNightbotIntegration()
-const { data: authLinkData } = nightbotIntegration.useAuthLink()
-const { data: nightbotData, fetching: dataFetching, executeQuery } = nightbotIntegration.useData()
-
-onMounted(() => {
-	nightbotIntegration.nightbotBroadcaster.onmessage = async (event) => {
-		if (event.data !== 'refresh') return
-
-		await executeQuery({ requestPolicy: 'network-only' })
-	}
-})
-
-const commandsResponse = ref<NightbotImportCommandsOutput | null>(null)
+const commandsReport = ref<ImportReportData | null>(null)
+const timersReport = ref<ImportReportData | null>(null)
 const commandsImporting = ref(false)
+const timersImporting = ref(false)
+const authLoading = ref(false)
+
+const connected = computed(() => Boolean(integrationsPage.nightbotData.value?.userName))
+const canManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations)
+const canManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands)
+const canManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageTimers)
+
 async function importCommands() {
 	commandsImporting.value = true
 	try {
-		const result = await nightbotIntegration.importCommands.executeMutation({})
-		if (result.data?.nightbotImportCommands) {
-			commandsResponse.value = result.data.nightbotImportCommands
+		const result = await nightbot.importCommands.executeMutation({})
+		if (result.error || !result.data?.nightbotImportCommands) {
+			toast.error(t('imports.errors.import'))
+			return
 		}
+		commandsReport.value = result.data.nightbotImportCommands
+	} catch {
+		toast.error(t('imports.errors.import'))
 	} finally {
 		commandsImporting.value = false
 	}
 }
 
-const timersResponse = ref<NightbotImportTimersOutput | null>(null)
-const timersImporting = ref(false)
 async function importTimers() {
 	timersImporting.value = true
 	try {
-		const result = await nightbotIntegration.importTimers.executeMutation({})
-		if (result.data?.nightbotImportTimers) {
-			timersResponse.value = result.data.nightbotImportTimers
+		const result = await nightbot.importTimers.executeMutation({})
+		if (result.error || !result.data?.nightbotImportTimers) {
+			toast.error(t('imports.errors.import'))
+			return
 		}
+		timersReport.value = result.data.nightbotImportTimers
+	} catch {
+		toast.error(t('imports.errors.import'))
 	} finally {
 		timersImporting.value = false
 	}
 }
 
 async function logout() {
-	await nightbotIntegration.logout.executeMutation({})
+	authLoading.value = true
+	try {
+		const result = await nightbot.logout.executeMutation({})
+		if (result.error || !result.data?.nightbotLogout) {
+			toast.error(t('imports.errors.logout'))
+			return
+		}
+		await integrationsPage.refetch()
+	} catch {
+		toast.error(t('imports.errors.logout'))
+	} finally {
+		authLoading.value = false
+	}
 }
-
-const isNightbotIntegrationEnabled = computed(() => {
-	return !!nightbotData.value?.nightbotGetData?.userName
-})
-
-const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands)
-const userCanManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageTimers)
 </script>
 
 <template>
-	<oauth-component
+	<ImportProviderCard
 		title="Nightbot"
-		:data="nightbotData?.nightbotGetData"
-		:logout="logout"
-		:authLink="authLinkData?.nightbotGetAuthLink"
 		icon="twir-integrations:nightbot"
-		:is-loading="dataFetching"
-		with-settings
+		:connected="connected"
+		:description="t('imports.providers.nightbot.description')"
+		:account="integrationsPage.nightbotData.value"
+		:auth-link="integrationsPage.nightbotAuthLink.value"
+		:is-loading="integrationsPage.fetching.value || authLoading"
+		:can-manage-integration="canManageIntegrations"
+		@logout="logout"
 	>
-		<template #description>
-			<i18n-t keypath="integrations.nightbot.info" />
-		</template>
-
 		<template #settings>
-			<div class="flex flex-col w-full gap-4">
-				<Card class="flex flex-col flex-1">
-					<CardHeader>
-						<CardTitle>Commands</CardTitle>
-					</CardHeader>
-					<CardContent class="flex-1">
-						<div v-if="commandsResponse">
-							<p>Imported Count: {{ commandsResponse.importedCount }}</p>
-							<p>Failed Count: {{ commandsResponse.failedCount }}</p>
-							<p v-if="commandsResponse.failedCommandsNames.length > 0">Failed Commands:</p>
-							<ul
-								v-if="commandsResponse.failedCommandsNames.length > 0"
-								class="overflow-y-scroll max-h-60"
-							>
-								<li v-for="name in commandsResponse.failedCommandsNames" :key="name">
-									{{ name }}
-								</li>
-							</ul>
-						</div>
-						<Alert v-else>
-							<Icon name="lucide:info" class="size-4" />
-							<AlertDescription>Waiting import...</AlertDescription>
-						</Alert>
-					</CardContent>
-					<CardFooter>
-						<Button
-							class="w-full"
-							:disabled="
-								!isNightbotIntegrationEnabled || !userCanManageCommands || commandsImporting
-							"
-							@click="importCommands"
-						>
-							<Icon name="lucide:loader-circle" v-if="commandsImporting" class="animate-spin size-4 mr-2" />
-							Import
-						</Button>
-					</CardFooter>
-				</Card>
-
-				<Card class="flex flex-col flex-1">
-					<CardHeader>
-						<CardTitle>Timers</CardTitle>
-					</CardHeader>
-					<CardContent class="flex-1">
-						<div v-if="timersResponse">
-							<p>Imported Count: {{ timersResponse.importedCount }}</p>
-							<p>Failed Count: {{ timersResponse.failedCount }}</p>
-							<p v-if="timersResponse.failedTimersNames.length > 0">Failed Timers:</p>
-							<ul
-								v-if="timersResponse.failedTimersNames.length > 0"
-								class="overflow-y-scroll max-h-60"
-							>
-								<li v-for="name in timersResponse.failedTimersNames" :key="name">
-									{{ name }}
-								</li>
-							</ul>
-						</div>
-						<Alert v-else>
-							<Icon name="lucide:info" class="size-4" />
-							<AlertDescription>Waiting import...</AlertDescription>
-						</Alert>
-					</CardContent>
-					<CardFooter>
-						<Button
-							class="w-full"
-							:disabled="!isNightbotIntegrationEnabled || !userCanManageTimers || timersImporting"
-							@click="importTimers"
-						>
-							<Icon name="lucide:loader-circle" v-if="timersImporting" class="animate-spin size-4 mr-2" />
-							Import
-						</Button>
-					</CardFooter>
-				</Card>
-			</div>
+			<ImportSettings
+				:connected="connected"
+				:can-manage-commands="canManageCommands"
+				:can-manage-timers="canManageTimers"
+				:commands-importing="commandsImporting"
+				:timers-importing="timersImporting"
+				:commands-report="commandsReport"
+				:timers-report="timersReport"
+				@import-commands="importCommands"
+				@import-timers="importTimers"
+			/>
 		</template>
-	</oauth-component>
+	</ImportProviderCard>
 </template>

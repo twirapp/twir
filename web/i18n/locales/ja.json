@@ -41,7 +41,7 @@
       },
       "q3": {
         "question": "Nightbot や StreamElements から移行できますか？",
-        "answer": "はい。Twir には Nightbot、StreamElements、Streamlabs からコマンドや設定を数クリックで移行できるインポートツールがあります。"
+        "answer": "はい。Twir は Nightbot と StreamElements からコマンドとタイマーをインポートできます。Streamlabs は投げ銭用に接続できますが、公開 API から Cloudbot データは取得できません。"
       },
       "q4": {
         "question": "Kick、VK、YouTube でも使えますか？",
@@ -141,7 +141,7 @@
     },
     "cta": {
       "title": "乗り換える準備はできましたか？",
-      "subtitle": "Nightbot、StreamElements、Streamlabs から数クリックでコマンドをインポートして、今日から Twir を始めましょう。",
+      "subtitle": "Nightbot または StreamElements から数クリックでコマンドをインポートして、今日から Twir を始めましょう。",
       "getStarted": "無料で始める",
       "import": "データをインポート",
       "questions": "ご質問はこちら："
@@ -154,7 +154,7 @@
       },
       "q2": {
         "question": "他のボットからコマンドを移行できますか？",
-        "answer": "はい。Twir には Nightbot、StreamElements、Streamlabs 用のインポートツールがあります。コマンドと設定は自動で移行され、手動のコピペは不要です。"
+        "answer": "はい。Twir は Nightbot と StreamElements からコマンドとタイマーを自動でインポートします。Streamlabs は投げ銭用に接続できますが、Cloudbot のインポートには対応していません。"
       },
       "q3": {
         "question": "Twir は本当に無料ですか？",
@@ -166,6 +166,24 @@
       }
     },
     "disclaimer": "Nightbot、StreamElements、Moobot、Fossabot は各社の商標です。Twir はこれらと提携・承認されているわけではありません。機能データは公開情報に基づいており、変更される場合があります。"
+  },
+  "imports": {
+    "title": "別のボットからインポート",
+    "description": "プロバイダーを接続し、既存データを置き換えずにコマンドとタイマーを Twir へ移行します。",
+    "providers": {
+      "nightbot": { "description": "Nightbot を接続して、カスタムコマンドとタイマーをインポートします。" },
+      "streamelements": { "description": "StreamElements を接続してコマンドとタイマーをインポートし、新しい投げ銭を受信します。", "donationsEnabled": "同じ接続で Twir の StreamElements 投げ銭イベントも有効になります。" },
+      "streamlabs": { "description": "Streamlabs を接続して、Twir が投げ銭イベントを受信できるようにします。", "donationsEnabled": "この接続で Twir の Streamlabs 投げ銭イベントが有効になります。", "importUnavailable": "Streamlabs の公開 API は Cloudbot のコマンドやタイマーを提供していないため、Twir にインポートできるデータはありません。" }
+    },
+    "status": { "connected": "接続済み", "disconnected": "未接続", "connectedAs": "接続中のアカウント", "unavailable": "利用不可", "donationsEnabled": "投げ銭を有効化済み", "importUnavailable": "インポート利用不可" },
+    "actions": { "connect": "接続", "disconnect": "切断", "settings": "インポート設定", "importCommands": "コマンドをインポート", "importTimers": "タイマーをインポート", "importing": "インポート中...", "close": "閉じる" },
+    "settings": { "title": "{provider} からインポート", "description": "コマンドとタイマーは個別にインポートされます。既存の Twir データは保持されます。" },
+    "commands": { "title": "コマンド", "description": "Twir の既存コマンドを上書きせず、対応するカスタムコマンドをインポートします。" },
+    "timers": { "title": "タイマー", "description": "Twir の既存タイマーを上書きせず、対応するタイマーをインポートします。" },
+    "result": { "waiting": "インポートを実行すると結果が表示されます。", "success": "インポート完了", "partial": "一部の項目をスキップしてインポートが完了しました", "imported": "インポート済み: {count}", "failed": "失敗: {count}" },
+    "failureReasons": { "duplicate": "すでに存在します", "planLimit": "プランの上限に達しました", "unsupportedRole": "未対応の権限レベル", "unsupportedResponseType": "未対応の応答タイプ", "incompatibleIntervals": "オンラインとオフラインの間隔に互換性がありません", "invalidRecord": "プロバイダーのレコードが無効です" },
+    "errors": { "import": "インポートに失敗しました。もう一度お試しください。", "logout": "プロバイダーを切断できませんでした。", "callbackTitle": "{provider} に接続できませんでした", "callbackMissing": "認証レスポンスに必要なデータがありません。このウィンドウを閉じてもう一度お試しください。", "callbackRejected": "認証が完了しませんでした。このウィンドウを閉じてもう一度お試しください。", "callbackRequest": "接続を保存できませんでした。このウィンドウを閉じてもう一度お試しください。" },
+    "callback": { "connecting": "{provider} に接続中..." }
   },
   "sidebar": {
     "quotes": "引用"

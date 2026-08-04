@@ -75,6 +75,7 @@ import (
 	gamesvoteban "github.com/twirapp/twir/apps/api-gql/internal/services/games_voteban"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/giveaways"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/importer"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	lastfmintegration "github.com/twirapp/twir/apps/api-gql/internal/services/lastfm_integration"
 	mcpOAuthService "github.com/twirapp/twir/apps/api-gql/internal/services/mcp_oauth"
@@ -639,6 +640,7 @@ func main() {
 			commands_groups.New,
 			commands_responses.New,
 			commands.New,
+			importer.New,
 			greetings.New,
 			roles.New,
 			roles_users.New,

@@ -6,7 +6,9 @@ import (
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	provider "github.com/twirapp/twir/libs/integrations/streamlabs"
 	streamlabsintegration "github.com/twirapp/twir/libs/repositories/streamlabs_integration"
 	"github.com/twirapp/twir/libs/repositories/streamlabs_integration/model"
 )
@@ -17,8 +19,9 @@ type Opts struct {
 
 func New(opts Opts) *Pgx {
 	return &Pgx{
-		pool:   opts.PgxPool,
-		getter: trmpgx.DefaultCtxGetter,
+		pool:         opts.PgxPool,
+		getter:       trmpgx.DefaultCtxGetter,
+		tokenStoreDB: opts.PgxPool,
 	}
 }
 
@@ -27,10 +30,75 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 }
 
 var _ streamlabsintegration.Repository = (*Pgx)(nil)
+var _ provider.TokenStore = (*Pgx)(nil)
+
+type tokenStoreDB interface {
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
+}
 
 type Pgx struct {
-	pool   *pgxpool.Pool
-	getter *trmpgx.CtxGetter
+	pool         *pgxpool.Pool
+	getter       *trmpgx.CtxGetter
+	tokenStoreDB tokenStoreDB
+}
+
+func (c *Pgx) GetTokens(ctx context.Context, channelID string) (provider.Tokens, error) {
+	const query = `
+SELECT access_token, refresh_token
+FROM channels_integrations_streamlabs
+WHERE channel_id = $1 AND enabled = TRUE
+LIMIT 1;
+`
+
+	var tokens provider.Tokens
+	if err := c.tokenStoreDB.QueryRow(ctx, query, channelID).Scan(
+		&tokens.AccessToken,
+		&tokens.RefreshToken,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return provider.Tokens{}, streamlabsintegration.ErrNotFound
+		}
+		return provider.Tokens{}, err
+	}
+	if tokens.AccessToken == "" || tokens.RefreshToken == "" {
+		return provider.Tokens{}, errors.New("streamlabs integration has incomplete credentials")
+	}
+	return tokens, nil
+}
+
+func (c *Pgx) UpdateTokens(
+	ctx context.Context,
+	channelID string,
+	tokens provider.Tokens,
+) error {
+	if tokens.AccessToken == "" || tokens.RefreshToken == "" {
+		return errors.New("refuse to persist incomplete streamlabs credentials")
+	}
+
+	const query = `
+UPDATE channels_integrations_streamlabs
+SET
+	"access_token" = $2,
+	"refresh_token" = $3,
+	updated_at = NOW()
+WHERE channel_id = $1 AND enabled = TRUE
+`
+
+	command, err := c.tokenStoreDB.Exec(
+		ctx,
+		query,
+		channelID,
+		tokens.AccessToken,
+		tokens.RefreshToken,
+	)
+	if err != nil {
+		return err
+	}
+	if command.RowsAffected() == 0 {
+		return streamlabsintegration.ErrNotFound
+	}
+	return nil
 }
 
 func (c *Pgx) GetByChannelID(ctx context.Context, channelID string) (

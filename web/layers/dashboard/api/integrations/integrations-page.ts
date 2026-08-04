@@ -2,7 +2,9 @@ import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { computed, readonly } from 'vue'
 
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth.js'
 import { graphql } from '~/gql/gql.js'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 export const integrationsPageCacheKey = 'integrationsPage'
 
@@ -10,8 +12,8 @@ export const integrationsPageCacheKey = 'integrationsPage'
  * Unified query for all integrations page data.
  * This fetches all GraphQL-based integration data in a single request.
  */
-const IntegrationsPageQuery = graphql(`
-	query IntegrationsPageData {
+export const IntegrationsPageQuery = graphql(`
+	query IntegrationsPageData($canManageIntegrations: Boolean!) {
 		# Discord
 		discordIntegrationData {
 			guilds {
@@ -31,7 +33,7 @@ const IntegrationsPageQuery = graphql(`
 				additionalUsersIdsForLiveCheck
 			}
 		}
-		discordIntegrationAuthLink
+		discordIntegrationAuthLink @include(if: $canManageIntegrations)
 
 		# Valorant
 		valorantData {
@@ -39,7 +41,7 @@ const IntegrationsPageQuery = graphql(`
 			userName
 			avatar
 		}
-		valorantAuthLink
+		valorantAuthLink @include(if: $canManageIntegrations)
 
 		# LastFM
 		lastfmData {
@@ -47,7 +49,7 @@ const IntegrationsPageQuery = graphql(`
 			userName
 			avatar
 		}
-		lastfmAuthLink
+		lastfmAuthLink @include(if: $canManageIntegrations)
 
 		# Spotify
 		spotifyData {
@@ -62,15 +64,15 @@ const IntegrationsPageQuery = graphql(`
 			userName
 			avatar
 		}
-		donationAlertsAuthLink
+		donationAlertsAuthLink @include(if: $canManageIntegrations)
 
 		# Donatello
-		donatello {
+		donatello @include(if: $canManageIntegrations) {
 			integrationId
 		}
 
 		# DonateStream
-		integrationsDonateStream {
+		integrationsDonateStream @include(if: $canManageIntegrations) {
 			integrationId
 		}
 
@@ -86,7 +88,7 @@ const IntegrationsPageQuery = graphql(`
 			userName
 			avatar
 		}
-		vkAuthLink
+		vkAuthLink @include(if: $canManageIntegrations)
 
 		# Faceit
 		faceit {
@@ -96,7 +98,7 @@ const IntegrationsPageQuery = graphql(`
 			game
 			faceitUserId
 		}
-		faceitAuthLink
+		faceitAuthLink @include(if: $canManageIntegrations)
 
 		# Streamlabs
 		streamlabs {
@@ -104,19 +106,34 @@ const IntegrationsPageQuery = graphql(`
 			userName
 			avatar
 		}
-		streamlabsAuthLink
+		streamlabsAuthLink @include(if: $canManageIntegrations)
+
+		# Imports
+		nightbotGetData {
+			userName
+			avatar
+		}
+		nightbotGetAuthLink @include(if: $canManageIntegrations)
+		streamelementsGetData {
+			userName
+			avatar
+		}
+		streamelementsGetAuthorizationUrl @include(if: $canManageIntegrations)
 	}
 `)
 
 export const useIntegrationsPageData = createGlobalState(() => {
 	const refreshBroadcaster = new BroadcastChannel('integrations_page_broadcast_channel')
+	const canManageIntegrations = useUserAccessFlagChecker(
+		ChannelRolePermissionEnum.ManageIntegrations
+	)
 
 	const query = useQuery({
 		query: IntegrationsPageQuery,
 		context: {
 			additionalTypenames: [integrationsPageCacheKey],
 		},
-		variables: {},
+		variables: computed(() => ({ canManageIntegrations: canManageIntegrations.value })),
 	})
 
 	// Discord
@@ -159,6 +176,14 @@ export const useIntegrationsPageData = createGlobalState(() => {
 	// Streamlabs
 	const streamlabsData = computed(() => query.data.value?.streamlabs ?? null)
 	const streamlabsAuthLink = computed(() => query.data.value?.streamlabsAuthLink ?? null)
+
+	// Imports
+	const nightbotData = computed(() => query.data.value?.nightbotGetData ?? null)
+	const nightbotAuthLink = computed(() => query.data.value?.nightbotGetAuthLink ?? null)
+	const streamelementsData = computed(() => query.data.value?.streamelementsGetData ?? null)
+	const streamelementsAuthLink = computed(
+		() => query.data.value?.streamelementsGetAuthorizationUrl ?? null
+	)
 
 	async function refetch() {
 		await query.executeQuery({ requestPolicy: 'network-only' })
@@ -221,5 +246,11 @@ export const useIntegrationsPageData = createGlobalState(() => {
 		// Streamlabs
 		streamlabsData,
 		streamlabsAuthLink,
+
+		// Imports
+		nightbotData,
+		nightbotAuthLink,
+		streamelementsData,
+		streamelementsAuthLink,
 	}
 })

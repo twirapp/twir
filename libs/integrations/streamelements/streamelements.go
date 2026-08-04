@@ -4,214 +4,313 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+	"time"
+
+	"github.com/twirapp/twir/libs/integrations/oauthlock"
 )
 
 const (
-	baseURL = "https://api.streamelements.com"
+	defaultBaseURL   = "https://api.streamelements.com"
+	providerName     = "streamelements"
+	maxResponseBytes = int64(1 << 20)
 )
+
+var ErrUnauthorized = errors.New("streamelements unauthorized")
+
+type Tokens struct {
+	AccessToken  string
+	RefreshToken string
+}
+
+type TokenStore interface {
+	GetTokens(ctx context.Context, channelID string) (Tokens, error)
+	UpdateTokens(ctx context.Context, channelID string, tokens Tokens) error
+}
+
+type Option func(*StreamElements)
+
+func WithHTTPClient(client *http.Client) Option {
+	return func(s *StreamElements) {
+		if client != nil {
+			s.httpClient = client
+		}
+	}
+}
+
+func WithBaseURL(baseURL string) Option {
+	return func(s *StreamElements) {
+		s.baseURL = strings.TrimRight(baseURL, "/")
+	}
+}
 
 type StreamElements struct {
 	clientID     string
 	clientSecret string
-	accessToken  string
+	channelID    string
+	redirectURL  string
+	store        TokenStore
+	locker       oauthlock.Locker
+	httpClient   *http.Client
+	baseURL      string
+
+	tokensMu sync.RWMutex
+	tokens   Tokens
 }
 
 func New(clientID, clientSecret string) *StreamElements {
-	return &StreamElements{
+	return NewStatic(clientID, clientSecret)
+}
+
+func NewStatic(clientID, clientSecret string, opts ...Option) *StreamElements {
+	client := &StreamElements{
 		clientID:     clientID,
 		clientSecret: clientSecret,
+		httpClient:   &http.Client{Timeout: 15 * time.Second},
+		baseURL:      defaultBaseURL,
 	}
+	for _, opt := range opts {
+		opt(client)
+	}
+	return client
 }
 
-var authScopes = []string{
-	"channel:read",
-	"bot:read",
-	"loyalty:read",
-	"activities:read",
-	"tips:read",
-	"activities:read",
-	"overlays:read",
+func NewAuthorized(
+	clientID, clientSecret, channelID, redirectURL string,
+	tokens Tokens,
+	store TokenStore,
+	locker oauthlock.Locker,
+	opts ...Option,
+) *StreamElements {
+	client := NewStatic(clientID, clientSecret, opts...)
+	client.channelID = channelID
+	client.redirectURL = redirectURL
+	client.tokens = tokens
+	client.store = store
+	client.locker = locker
+	return client
 }
 
-// GetAuthLink generates the OAuth2 authorization URL
 func (s *StreamElements) GetAuthLink(redirectURL string) string {
-	u, _ := url.Parse(baseURL + "/oauth2/authorize")
+	return s.authLink(redirectURL, "")
+}
 
-	q := u.Query()
-	q.Add("client_id", s.clientID)
-	q.Add("redirect_uri", redirectURL)
-	q.Add("response_type", "code")
-	q.Add(
-		"scope",
-		strings.Join(authScopes, " "),
-	)
-	u.RawQuery = q.Encode()
+func (s *StreamElements) GetAuthLinkWithState(redirectURL, state string) (string, error) {
+	if strings.TrimSpace(state) == "" {
+		return "", errors.New("StreamElements OAuth state is required")
+	}
+	return s.authLink(redirectURL, state), nil
+}
 
+func (s *StreamElements) authLink(redirectURL, state string) string {
+	u, _ := url.Parse(s.baseURL + "/oauth2/authorize")
+	query := u.Query()
+	query.Set("client_id", s.clientID)
+	query.Set("redirect_uri", redirectURL)
+	query.Set("response_type", "code")
+	query.Set("scope", "channel:read bot:read tips:read")
+	if state != "" {
+		query.Set("state", state)
+	}
+	u.RawQuery = query.Encode()
 	return u.String()
 }
 
-// ExchangeCode exchanges the authorization code for access token
 func (s *StreamElements) ExchangeCode(
 	ctx context.Context,
 	code, redirectURL string,
 ) (*TokenResponse, error) {
-	formData := url.Values{}
-	formData.Set("grant_type", "authorization_code")
-	formData.Set("client_id", s.clientID)
-	formData.Set("client_secret", s.clientSecret)
-	formData.Set("code", code)
-	formData.Set("redirect_uri", redirectURL)
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		baseURL+"/oauth2/token",
-		bytes.NewBufferString(formData.Encode()),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+	form := url.Values{
+		"grant_type":    {"authorization_code"},
+		"client_id":     {s.clientID},
+		"client_secret": {s.clientSecret},
+		"code":          {code},
+		"redirect_uri":  {redirectURL},
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
+	tokens := &TokenResponse{}
+	if err := s.postToken(ctx, form, "exchange code", tokens); err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("failed to exchange code: %s", string(body))
-	}
-
-	tokenData := &TokenResponse{}
-	if err := json.Unmarshal(body, tokenData); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
-	}
-
-	s.accessToken = tokenData.AccessToken
-	return tokenData, nil
+	s.setTokens(Tokens{AccessToken: tokens.AccessToken, RefreshToken: tokens.RefreshToken})
+	return tokens, nil
 }
 
-// GetProfile fetches the user profile
 func (s *StreamElements) GetProfile(ctx context.Context) (*UserProfile, error) {
-	if s.accessToken == "" {
-		return nil, fmt.Errorf("no access token available")
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/kappa/v2/channels/me", nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+s.accessToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
+	profile := &UserProfile{}
+	if err := s.authorizedJSON(ctx, http.MethodGet, "/kappa/v2/channels/me", profile); err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("failed to get profile: %s", string(body))
-	}
-
-	profile := &UserProfile{}
-	if err := json.Unmarshal(body, profile); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
-	}
-
 	return profile, nil
 }
 
-// GetCommands fetches all commands for a channel
 func (s *StreamElements) GetCommands(ctx context.Context, channelID string) ([]Command, error) {
-	if s.accessToken == "" {
-		return nil, fmt.Errorf("no access token available")
-	}
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		fmt.Sprintf("%s/kappa/v2/bot/commands/%s", baseURL, channelID),
-		nil,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+s.accessToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
+	commands := make([]Command, 0)
+	path := fmt.Sprintf("/kappa/v2/bot/commands/%s", url.PathEscape(channelID))
+	if err := s.authorizedJSON(ctx, http.MethodGet, path, &commands); err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("failed to get commands: %s", string(body))
-	}
-
-	var commands []Command
-	if err := json.Unmarshal(body, &commands); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
-	}
-
 	return commands, nil
 }
 
 func (s *StreamElements) GetTimers(ctx context.Context, channelID string) ([]Timer, error) {
-	if s.accessToken == "" {
-		return nil, fmt.Errorf("no access token available")
-	}
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		fmt.Sprintf("%s/kappa/v2/bot/timers/%s", baseURL, channelID),
-		nil,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+s.accessToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
+	timers := make([]Timer, 0)
+	path := fmt.Sprintf("/kappa/v2/bot/timers/%s", url.PathEscape(channelID))
+	if err := s.authorizedJSON(ctx, http.MethodGet, path, &timers); err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("failed to get timers: %s", string(body))
-	}
-
-	var timers []Timer
-	if err := json.Unmarshal(body, &timers); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
-	}
-
 	return timers, nil
+}
+
+func (s *StreamElements) authorizedJSON(
+	ctx context.Context,
+	method, path string,
+	target any,
+) error {
+	current := s.currentTokens()
+	request := func(accessToken string) error {
+		return s.requestJSON(ctx, method, path, accessToken, target)
+	}
+
+	err := request(current.AccessToken)
+	if !errors.Is(err, ErrUnauthorized) {
+		return err
+	}
+	if s.store == nil || s.locker == nil {
+		return ErrUnauthorized
+	}
+
+	err = s.locker.WithLock(ctx, s.lockKey(), func(ctx context.Context) error {
+		fresh, err := s.store.GetTokens(ctx, s.channelID)
+		if err != nil {
+			return fmt.Errorf("reread StreamElements tokens: %w", err)
+		}
+		if fresh.AccessToken != current.AccessToken {
+			current = fresh
+			s.setTokens(fresh)
+			return nil
+		}
+
+		rotated, err := s.refresh(ctx, fresh.RefreshToken)
+		if err != nil {
+			return err
+		}
+		if rotated.RefreshToken == "" {
+			rotated.RefreshToken = fresh.RefreshToken
+		}
+		if err := s.store.UpdateTokens(ctx, s.channelID, rotated); err != nil {
+			return fmt.Errorf("persist StreamElements tokens: %w", err)
+		}
+		current = rotated
+		s.setTokens(rotated)
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return request(current.AccessToken)
+}
+
+func (s *StreamElements) refresh(ctx context.Context, refreshToken string) (Tokens, error) {
+	form := url.Values{
+		"grant_type":    {"refresh_token"},
+		"client_id":     {s.clientID},
+		"client_secret": {s.clientSecret},
+		"refresh_token": {refreshToken},
+	}
+	response := &TokenResponse{}
+	if err := s.postToken(ctx, form, "refresh token", response); err != nil {
+		return Tokens{}, err
+	}
+	return Tokens{AccessToken: response.AccessToken, RefreshToken: response.RefreshToken}, nil
+}
+
+func (s *StreamElements) postToken(
+	ctx context.Context,
+	form url.Values,
+	operation string,
+	target any,
+) error {
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		s.baseURL+"/oauth2/token",
+		bytes.NewBufferString(form.Encode()),
+	)
+	if err != nil {
+		return fmt.Errorf("create StreamElements %s request: %w", operation, err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	return s.doJSON(req, operation, target)
+}
+
+func (s *StreamElements) requestJSON(
+	ctx context.Context,
+	method, path, accessToken string,
+	target any,
+) error {
+	req, err := http.NewRequestWithContext(ctx, method, s.baseURL+path, nil)
+	if err != nil {
+		return fmt.Errorf("create StreamElements API request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	return s.doJSON(req, "API request", target)
+}
+
+func (s *StreamElements) doJSON(req *http.Request, operation string, target any) error {
+	response, err := s.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("perform StreamElements %s: %w", operation, err)
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode == http.StatusUnauthorized {
+		return ErrUnauthorized
+	}
+	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
+		return fmt.Errorf("StreamElements %s failed with status %d", operation, response.StatusCode)
+	}
+
+	body, err := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
+	if err != nil {
+		return fmt.Errorf("read StreamElements %s response: %w", operation, err)
+	}
+	if int64(len(body)) > maxResponseBytes {
+		return fmt.Errorf(
+			"StreamElements %s response exceeds %d bytes",
+			operation,
+			maxResponseBytes,
+		)
+	}
+	if err := json.Unmarshal(body, target); err != nil {
+		return fmt.Errorf("decode StreamElements %s response: %w", operation, err)
+	}
+	return nil
+}
+
+func (s *StreamElements) currentTokens() Tokens {
+	s.tokensMu.RLock()
+	defer s.tokensMu.RUnlock()
+	return s.tokens
+}
+
+func (s *StreamElements) setTokens(tokens Tokens) {
+	s.tokensMu.Lock()
+	defer s.tokensMu.Unlock()
+	s.tokens = tokens
+}
+
+func (s *StreamElements) lockKey() string {
+	return RefreshLockKey(s.channelID)
+}
+
+func RefreshLockKey(channelID string) string {
+	return "twir:integration-token-refresh:" + providerName + ":" + channelID
 }

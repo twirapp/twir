@@ -3,10 +3,12 @@ package streamlabs_integration
 import (
 	"context"
 
+	provider "github.com/twirapp/twir/libs/integrations/streamlabs"
 	"github.com/twirapp/twir/libs/repositories/streamlabs_integration/model"
 )
 
 type Repository interface {
+	provider.TokenStore
 	GetByChannelID(ctx context.Context, channelID string) (model.StreamlabsIntegration, error)
 	Update(ctx context.Context, opts UpdateOpts) error
 	Delete(ctx context.Context, channelID string) error

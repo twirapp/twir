@@ -36,7 +36,7 @@ type Auth struct {
 func NewSessions(opts Opts) *Auth {
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 24 * time.Hour * 31
-	sessionManager.Store = goredisstore.New(opts.Redis)
+	sessionManager.Store = newOAuthAttemptRedisStore(goredisstore.New(opts.Redis), opts.Redis)
 
 	registerSessionTypes()
 

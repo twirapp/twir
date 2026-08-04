@@ -316,6 +316,24 @@
       }
     }
   },
+  "imports": {
+    "title": "Von einem anderen Bot importieren",
+    "description": "Verbinde einen Anbieter und übertrage Befehle und Timer zu Twir, ohne vorhandene Daten zu ersetzen.",
+    "providers": {
+      "nightbot": { "description": "Verbinde Nightbot, um eigene Befehle und Timer zu importieren." },
+      "streamelements": { "description": "Verbinde StreamElements, um Befehle und Timer zu importieren und neue Spenden zu empfangen.", "donationsEnabled": "Dieselbe Verbindung aktiviert StreamElements-Spendenereignisse in Twir." },
+      "streamlabs": { "description": "Verbinde Streamlabs, damit Twir Spendenereignisse empfangen kann.", "donationsEnabled": "Diese Verbindung aktiviert Streamlabs-Spendenereignisse in Twir.", "importUnavailable": "Die öffentliche Streamlabs-API stellt Cloudbot-Befehle und -Timer nicht bereit. Daher kann Twir nichts importieren." }
+    },
+    "status": { "connected": "Verbunden", "disconnected": "Nicht verbunden", "connectedAs": "Verbunden als", "unavailable": "Nicht verfügbar", "donationsEnabled": "Spenden aktiviert", "importUnavailable": "Import nicht verfügbar" },
+    "actions": { "connect": "Verbinden", "disconnect": "Trennen", "settings": "Importeinstellungen", "importCommands": "Befehle importieren", "importTimers": "Timer importieren", "importing": "Import läuft...", "close": "Schließen" },
+    "settings": { "title": "Aus {provider} importieren", "description": "Befehle und Timer werden getrennt importiert. Vorhandene Twir-Einträge bleiben erhalten." },
+    "commands": { "title": "Befehle", "description": "Unterstützte eigene Befehle importieren, ohne vorhandene Twir-Befehle zu überschreiben." },
+    "timers": { "title": "Timer", "description": "Unterstützte Timer importieren, ohne vorhandene Twir-Timer zu überschreiben." },
+    "result": { "waiting": "Starte einen Import, um das Ergebnis zu sehen.", "success": "Import abgeschlossen", "partial": "Import mit übersprungenen Einträgen abgeschlossen", "imported": "{count} importiert", "failed": "{count} fehlgeschlagen" },
+    "failureReasons": { "duplicate": "Bereits vorhanden", "planLimit": "Tariflimit erreicht", "unsupportedRole": "Nicht unterstützte Berechtigungsstufe", "unsupportedResponseType": "Nicht unterstützter Antworttyp", "incompatibleIntervals": "Online- und Offline-Intervalle sind nicht kompatibel", "invalidRecord": "Ungültiger Anbietereintrag" },
+    "errors": { "import": "Import fehlgeschlagen. Versuche es erneut.", "logout": "Anbieter konnte nicht getrennt werden.", "callbackTitle": "{provider} konnte nicht verbunden werden", "callbackMissing": "In der Autorisierungsantwort fehlen Daten. Schließe dieses Fenster und versuche es erneut.", "callbackRejected": "Die Autorisierung wurde nicht abgeschlossen. Schließe dieses Fenster und versuche es erneut.", "callbackRequest": "Die Verbindung konnte nicht gespeichert werden. Schließe dieses Fenster und versuche es erneut." },
+    "callback": { "connecting": "{provider} wird verbunden..." }
+  },
   "integrations": {
     "notLoggedIn": "Sie sind nicht angemeldet!",
     "songServicesInfo": "Durch die Bereitstellung des Zugriffs auf diesen Service kann Twir den aktuellen Song automatisch in den Chat laden und abspielen, wenn der Befehl {0} benutzt wird.",
@@ -1409,7 +1427,7 @@
       },
       "q3": {
         "question": "Kann ich von Nightbot oder StreamElements umziehen?",
-        "answer": "Ja. Twir hat ein eingebautes Import-Tool, das deine Commands und Einstellungen von Nightbot, StreamElements und Streamlabs mit wenigen Klicks überträgt."
+        "answer": "Ja. Twir importiert Commands und Timer aus Nightbot und StreamElements. Streamlabs kann für Spenden verbunden werden, stellt Cloudbot-Daten aber nicht über seine öffentliche API bereit."
       },
       "q4": {
         "question": "Funktioniert Twir auf Kick, VK und YouTube?",
@@ -1509,7 +1527,7 @@
     },
     "cta": {
       "title": "Bereit zu wechseln?",
-      "subtitle": "Importiere deine Commands von Nightbot, StreamElements oder Streamlabs mit wenigen Klicks und nutze Twir noch heute.",
+      "subtitle": "Importiere deine Commands von Nightbot oder StreamElements mit wenigen Klicks und nutze Twir noch heute.",
       "getStarted": "Kostenlos starten",
       "import": "Daten importieren",
       "questions": "Fragen? Frag uns auf"
@@ -1522,7 +1540,7 @@
       },
       "q2": {
         "question": "Kann ich meine Commands von einem anderen Bot übernehmen?",
-        "answer": "Ja. Twir enthält ein Import-Tool für Nightbot, StreamElements und Streamlabs. Deine Commands und Einstellungen werden automatisch übertragen — ohne manuelles Kopieren."
+        "answer": "Ja. Twir importiert Commands und Timer automatisch aus Nightbot und StreamElements. Streamlabs kann für Spenden verbunden werden, ein Cloudbot-Import ist jedoch nicht verfügbar."
       },
       "q3": {
         "question": "Ist Twir wirklich kostenlos?",

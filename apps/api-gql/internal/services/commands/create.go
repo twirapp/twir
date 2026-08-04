@@ -86,13 +86,13 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 	if createdCommands >= plan.MaxCommands {
 		return commandwithrelationentity.CommandNil, errors.NewBadRequestError(
 			fmt.Sprintf("You have reached the maximum limit of %d commands", plan.MaxCommands),
-		)
+		).WithDetails(map[string]any{"reason": "PLAN_LIMIT"})
 	}
 
 	if len(input.Responses) > plan.MaxCommandsResponses {
 		return commandwithrelationentity.CommandNil, errors.NewBadRequestError(
 			fmt.Sprintf("You have reached the maximum limit of %d responses per command", plan.MaxCommandsResponses),
-		)
+		).WithDetails(map[string]any{"reason": "PLAN_LIMIT"})
 	}
 
 	isNameConflict, err := c.IsNameConflicting(
@@ -105,7 +105,9 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 		return commandwithrelationentity.CommandNil, errors.NewInternalError("failed to check name conflict", err)
 	}
 	if isNameConflict {
-		return commandwithrelationentity.CommandNil, errors.NewConflictError("A command with this name or alias already exists")
+		return commandwithrelationentity.CommandNil, errors.NewConflictError(
+			"A command with this name or alias already exists",
+		).WithDetails(map[string]any{"reason": "DUPLICATE"})
 	}
 
 	aliases := make([]string, 0, len(input.Aliases))

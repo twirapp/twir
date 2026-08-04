@@ -10,6 +10,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 )
 
 const (
@@ -24,7 +25,11 @@ const (
 	oauthAttemptsKey          = "oauthAttempts"
 )
 
-var ErrOAuthAttemptNotFound = errors.New("oauth attempt not found")
+var (
+	ErrOAuthAttemptNotFound = errors.New("oauth attempt not found")
+	ErrOAuthAttemptMismatch = errors.New("oauth attempt mismatch")
+	ErrOAuthAttemptExpired  = errors.New("oauth attempt expired")
+)
 
 type KickSessionUser struct {
 	ID     string
@@ -34,13 +39,14 @@ type KickSessionUser struct {
 
 // OAuthAttempt retains callback material in the authenticated browser session.
 type OAuthAttempt struct {
-	Platform        platform.Platform
-	RedirectTo      string
-	CodeVerifier    string
-	DeviceID        string
-	TargetChannelID *uuid.UUID
-	InitiatorUserID *uuid.UUID
-	ExpiresAt       time.Time
+	Platform           platform.Platform
+	IntegrationService *integrationsmodel.Service
+	RedirectTo         string
+	CodeVerifier       string
+	DeviceID           string
+	TargetChannelID    *uuid.UUID
+	InitiatorUserID    *uuid.UUID
+	ExpiresAt          time.Time
 }
 
 func (s *Auth) GetLatestShortenerUrlsIds(ctx context.Context) ([]string, error) {
@@ -192,6 +198,77 @@ func (s *Auth) DeleteOAuthAttempt(ctx context.Context, state string) error {
 		return fmt.Errorf("cannot commit OAuth attempt deletion: %w", err)
 	}
 
+	return nil
+}
+
+func (s *Auth) CreateIntegrationOAuthAttempt(
+	ctx context.Context,
+	service integrationsmodel.Service,
+	channelID, initiatorUserID uuid.UUID,
+) (string, error) {
+	state := uuid.NewString()
+	if err := s.SetOAuthAttempt(ctx, state, OAuthAttempt{
+		IntegrationService: &service,
+		TargetChannelID:    &channelID,
+		InitiatorUserID:    &initiatorUserID,
+		ExpiresAt:          time.Now().Add(15 * time.Minute),
+	}); err != nil {
+		return "", err
+	}
+
+	return state, nil
+}
+
+func (s *Auth) ConsumeIntegrationOAuthAttempt(
+	ctx context.Context,
+	state string,
+	service integrationsmodel.Service,
+	channelID, initiatorUserID uuid.UUID,
+	now time.Time,
+) error {
+	claimStore, ok := s.sessionManager.Store.(oauthAttemptClaimStore)
+	if !ok {
+		return fmt.Errorf("oauth attempt claim store is not configured")
+	}
+	claimed, err := claimStore.ClaimOAuthAttempt(ctx, state)
+	if err != nil {
+		return fmt.Errorf("claim OAuth attempt: %w", err)
+	}
+	if !claimed {
+		return fmt.Errorf("%w: %s", ErrOAuthAttemptNotFound, state)
+	}
+	consumed := false
+	defer func() {
+		if !consumed {
+			_ = claimStore.ReleaseOAuthAttempt(ctx, state)
+		}
+	}()
+
+	attempt, err := s.GetOAuthAttempt(ctx, state)
+	if err != nil {
+		return err
+	}
+
+	if attempt.IntegrationService == nil || *attempt.IntegrationService != service ||
+		attempt.TargetChannelID == nil || *attempt.TargetChannelID != channelID ||
+		attempt.InitiatorUserID == nil || *attempt.InitiatorUserID != initiatorUserID {
+		return ErrOAuthAttemptMismatch
+	}
+
+	if !now.Before(attempt.ExpiresAt) {
+		if err := s.DeleteOAuthAttempt(ctx, state); err != nil {
+			return err
+		}
+
+		consumed = true
+		return ErrOAuthAttemptExpired
+	}
+
+	if err := s.DeleteOAuthAttempt(ctx, state); err != nil {
+		return err
+	}
+
+	consumed = true
 	return nil
 }
 

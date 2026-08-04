@@ -316,6 +316,24 @@
       }
     }
   },
+  "imports": {
+    "title": "Importovať z iného bota",
+    "description": "Pripojte poskytovateľa a preneste príkazy a časovače do Twir bez nahradenia existujúcich údajov.",
+    "providers": {
+      "nightbot": { "description": "Pripojte Nightbot a importujte vlastné príkazy a časovače." },
+      "streamelements": { "description": "Pripojte StreamElements na import príkazov a časovačov a príjem nových darov.", "donationsEnabled": "Rovnaké pripojenie zapne udalosti darov StreamElements v Twir." },
+      "streamlabs": { "description": "Pripojte Streamlabs, aby Twir mohol prijímať udalosti darov.", "donationsEnabled": "Toto pripojenie zapne udalosti darov Streamlabs v Twir.", "importUnavailable": "Verejné API Streamlabs nesprístupňuje príkazy ani časovače Cloudbot, takže Twir nemá čo importovať." }
+    },
+    "status": { "connected": "Pripojené", "disconnected": "Nepripojené", "connectedAs": "Pripojené ako", "unavailable": "Nedostupné", "donationsEnabled": "Dary sú zapnuté", "importUnavailable": "Import nie je dostupný" },
+    "actions": { "connect": "Pripojiť", "disconnect": "Odpojiť", "settings": "Nastavenia importu", "importCommands": "Importovať príkazy", "importTimers": "Importovať časovače", "importing": "Importuje sa...", "close": "Zavrieť" },
+    "settings": { "title": "Import z {provider}", "description": "Príkazy a časovače sa importujú samostatne. Existujúce položky Twir zostanú zachované." },
+    "commands": { "title": "Príkazy", "description": "Importujte podporované vlastné príkazy bez prepísania príkazov v Twir." },
+    "timers": { "title": "Časovače", "description": "Importujte podporované časovače bez prepísania časovačov v Twir." },
+    "result": { "waiting": "Spustite import a zobrazí sa výsledok.", "success": "Import dokončený", "partial": "Import dokončený s vynechanými položkami", "imported": "Importované: {count}", "failed": "Neúspešné: {count}" },
+    "failureReasons": { "duplicate": "Už existuje", "planLimit": "Dosiahnutý limit plánu", "unsupportedRole": "Nepodporovaná úroveň oprávnenia", "unsupportedResponseType": "Nepodporovaný typ odpovede", "incompatibleIntervals": "Online a offline intervaly nie sú kompatibilné", "invalidRecord": "Neplatný záznam poskytovateľa" },
+    "errors": { "import": "Import zlyhal. Skúste to znova.", "logout": "Poskytovateľa sa nepodarilo odpojiť.", "callbackTitle": "Nepodarilo sa pripojiť {provider}", "callbackMissing": "V odpovedi autorizácie chýbajú údaje. Zavrite okno a skúste to znova.", "callbackRejected": "Autorizácia nebola dokončená. Zavrite okno a skúste to znova.", "callbackRequest": "Pripojenie sa nepodarilo uložiť. Zavrite okno a skúste to znova." },
+    "callback": { "connecting": "Pripája sa {provider}..." }
+  },
   "integrations": {
     "notLoggedIn": "Nie ste prihlásení!",
     "songServicesInfo": "Poskytnutie prístupu k tejto službe umožňuje Twiru automaticky získať a zobraziť aktuálne prehrávanú pieseň v chate, keď sa použije príkaz {0}.",
@@ -1409,7 +1427,7 @@
       },
       "q3": {
         "question": "Môžem prejsť z Nightbotu alebo StreamElements?",
-        "answer": "Áno. Twir má vstavaný importný nástroj, ktorý prenesie vaše príkazy a nastavenia z Nightbotu, StreamElements a Streamlabs na pár kliknutí."
+        "answer": "Áno. Twir importuje príkazy a časovače z Nightbotu a StreamElements. Streamlabs možno pripojiť pre dary, ale jeho verejné API neposkytuje údaje Cloudbotu."
       },
       "q4": {
         "question": "Funguje Twir na Kicku, VK a YouTube?",
@@ -1509,7 +1527,7 @@
     },
     "cta": {
       "title": "Pripravení prejsť?",
-      "subtitle": "Importujte si príkazy z Nightbotu, StreamElements alebo Streamlabs na pár kliknutí a začnite používať Twir ešte dnes.",
+      "subtitle": "Importujte si príkazy z Nightbotu alebo StreamElements na pár kliknutí a začnite používať Twir ešte dnes.",
       "getStarted": "Začať zadarmo",
       "import": "Importovať údaje",
       "questions": "Otázky? Opýtajte sa nás na"
@@ -1522,7 +1540,7 @@
       },
       "q2": {
         "question": "Môžem si preniesť príkazy z iného bota?",
-        "answer": "Áno. Twir obsahuje importný nástroj pre Nightbot, StreamElements a Streamlabs. Vaše príkazy a nastavenia sa prenesú automaticky — bez manuálneho kopírovania."
+        "answer": "Áno. Twir automaticky importuje príkazy a časovače z Nightbotu a StreamElements. Streamlabs možno pripojiť pre dary, ale import Cloudbotu nie je dostupný."
       },
       "q3": {
         "question": "Je Twir naozaj zadarmo?",

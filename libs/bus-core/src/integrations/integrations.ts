@@ -6,6 +6,7 @@ export enum IntegrationService {
 	STREAMLABS = 'STREAMLABS',
 	DONATEPAY = 'DONATEPAY',
 	FACEIT = 'FACEIT',
+	STREAMELEMENTS = 'STREAMELEMENTS',
 }
 
 export interface Request {

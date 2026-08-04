@@ -7,21 +7,27 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
 )
 
 // NightbotPostCode is the resolver for the nightbotPostCode field.
-func (r *mutationResolver) NightbotPostCode(ctx context.Context, input gqlmodel.NightbotPostCodeInput) (bool, error) {
-	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
-	if err != nil {
-		return false, gqlerrors.HandleError(err)
+func (r *mutationResolver) NightbotPostCode(ctx context.Context, input gqlmodel.IntegrationOAuthCodeInput) (bool, error) {
+	sessions, ok := r.deps.Sessions.(integrationOAuthAttemptConsumer)
+	if !ok {
+		return false, gqlerrors.HandleError(fmt.Errorf("Nightbot OAuth session support is not configured"))
 	}
-
-	err = r.deps.NightbotIntegrationService.PostCode(ctx, dashboardId, input.Code)
-	if err != nil {
+	if err := completeIntegrationOAuth(
+		ctx,
+		sessions,
+		integrationsmodel.ServiceNightbot,
+		input.Code,
+		input.State,
+		r.deps.NightbotIntegrationService.PostCode,
+	); err != nil {
 		return false, gqlerrors.HandleError(err)
 	}
 
@@ -44,7 +50,7 @@ func (r *mutationResolver) NightbotLogout(ctx context.Context) (bool, error) {
 }
 
 // NightbotImportCommands is the resolver for the nightbotImportCommands field.
-func (r *mutationResolver) NightbotImportCommands(ctx context.Context) (*gqlmodel.NightbotImportCommandsOutput, error) {
+func (r *mutationResolver) NightbotImportCommands(ctx context.Context) (*gqlmodel.ImportReport, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
@@ -60,15 +66,11 @@ func (r *mutationResolver) NightbotImportCommands(ctx context.Context) (*gqlmode
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	return &gqlmodel.NightbotImportCommandsOutput{
-		ImportedCount:       result.ImportedCount,
-		FailedCount:         result.FailedCount,
-		FailedCommandsNames: result.FailedCommandsNames,
-	}, nil
+	return mapImportReport(result), nil
 }
 
 // NightbotImportTimers is the resolver for the nightbotImportTimers field.
-func (r *mutationResolver) NightbotImportTimers(ctx context.Context) (*gqlmodel.NightbotImportTimersOutput, error) {
+func (r *mutationResolver) NightbotImportTimers(ctx context.Context) (*gqlmodel.ImportReport, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
@@ -84,16 +86,87 @@ func (r *mutationResolver) NightbotImportTimers(ctx context.Context) (*gqlmodel.
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	return &gqlmodel.NightbotImportTimersOutput{
-		ImportedCount:     result.ImportedCount,
-		FailedCount:       result.FailedCount,
-		FailedTimersNames: result.FailedTimersNames,
-	}, nil
+	return mapImportReport(result), nil
+}
+
+// StreamelementsPostCode is the resolver for the streamelementsPostCode field.
+func (r *mutationResolver) StreamelementsPostCode(ctx context.Context, input gqlmodel.IntegrationOAuthCodeInput) (bool, error) {
+	sessions, ok := r.deps.Sessions.(integrationOAuthAttemptConsumer)
+	if !ok {
+		return false, gqlerrors.HandleError(fmt.Errorf("StreamElements OAuth session support is not configured"))
+	}
+	if err := completeIntegrationOAuth(
+		ctx,
+		sessions,
+		integrationsmodel.ServiceStreamElements,
+		input.Code,
+		input.State,
+		r.deps.StreamElementsService.PostCode,
+	); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+	return true, nil
+}
+
+// StreamelementsLogout is the resolver for the streamelementsLogout field.
+func (r *mutationResolver) StreamelementsLogout(ctx context.Context) (bool, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+	if err := r.deps.StreamElementsService.Logout(ctx, dashboardID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+	return true, nil
+}
+
+// StreamelementsImportCommands is the resolver for the streamelementsImportCommands field.
+func (r *mutationResolver) StreamelementsImportCommands(ctx context.Context) (*gqlmodel.ImportReport, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+	report, err := r.deps.StreamElementsService.ImportCommands(ctx, dashboardID, user.ID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+	return mapImportReport(report), nil
+}
+
+// StreamelementsImportTimers is the resolver for the streamelementsImportTimers field.
+func (r *mutationResolver) StreamelementsImportTimers(ctx context.Context) (*gqlmodel.ImportReport, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+	report, err := r.deps.StreamElementsService.ImportTimers(ctx, dashboardID, user.ID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+	return mapImportReport(report), nil
 }
 
 // StreamelementsGetAuthorizationURL is the resolver for the streamelementsGetAuthorizationUrl field.
 func (r *queryResolver) StreamelementsGetAuthorizationURL(ctx context.Context) (string, error) {
-	link, err := r.deps.StreamElementsService.GetAuthLink()
+	sessions, ok := r.deps.Sessions.(integrationOAuthAttemptCreator)
+	if !ok {
+		return "", gqlerrors.HandleError(fmt.Errorf("StreamElements OAuth session support is not configured"))
+	}
+
+	link, err := createIntegrationOAuthLink(
+		ctx,
+		sessions,
+		integrationsmodel.ServiceStreamElements,
+		r.deps.StreamElementsService.GetAuthLink,
+	)
 	if err != nil {
 		return "", gqlerrors.HandleError(err)
 	}
@@ -101,33 +174,35 @@ func (r *queryResolver) StreamelementsGetAuthorizationURL(ctx context.Context) (
 	return link, nil
 }
 
-// StreamelementsExchangeDataByCode is the resolver for the streamelementsExchangeDataByCode field.
-func (r *queryResolver) StreamelementsExchangeDataByCode(ctx context.Context, code string) (*gqlmodel.StreamElementsImportDataOutput, error) {
-	data, err := r.deps.StreamElementsService.ExchangeDataByCode(ctx, code)
+// StreamelementsGetData is the resolver for the streamelementsGetData field.
+func (r *queryResolver) StreamelementsGetData(ctx context.Context) (*gqlmodel.StreamElementsIntegration, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
-
-	convertedCommands := make([]gqlmodel.StreamElementsCommand, 0, len(data.Commands))
-	convertedTimers := make([]gqlmodel.StreamElementsTimer, 0, len(data.Timers))
-
-	for _, cmd := range data.Commands {
-		convertedCommands = append(convertedCommands, mappers.StreamElementsCommandToGql(cmd))
+	data, err := r.deps.StreamElementsService.GetData(ctx, dashboardID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
 	}
-
-	for _, timer := range data.Timers {
-		convertedTimers = append(convertedTimers, mappers.StreamElementsTimerToGql(timer))
+	if data == nil {
+		return nil, nil
 	}
-
-	return &gqlmodel.StreamElementsImportDataOutput{
-		Commands: convertedCommands,
-		Timers:   convertedTimers,
-	}, nil
+	return &gqlmodel.StreamElementsIntegration{UserName: data.UserName, Avatar: data.Avatar}, nil
 }
 
 // NightbotGetAuthLink is the resolver for the nightbotGetAuthLink field.
 func (r *queryResolver) NightbotGetAuthLink(ctx context.Context) (string, error) {
-	link, err := r.deps.NightbotIntegrationService.GetAuthLink(ctx)
+	sessions, ok := r.deps.Sessions.(integrationOAuthAttemptCreator)
+	if !ok {
+		return "", gqlerrors.HandleError(fmt.Errorf("Nightbot OAuth session support is not configured"))
+	}
+
+	link, err := createIntegrationOAuthLink(
+		ctx,
+		sessions,
+		integrationsmodel.ServiceNightbot,
+		r.deps.NightbotIntegrationService.GetAuthLink,
+	)
 	if err != nil {
 		return "", gqlerrors.HandleError(err)
 	}

@@ -9,7 +9,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/integrations/streamelements"
 )
 
 var commandsExpiresAtMap = map[model.ChannelCommandExpiresType]gqlmodel.CommandExpiresType{
@@ -232,22 +231,4 @@ func CommandGqlInputToService(
 		RoleCooldowns:             roleCooldowns,
 		Platforms:                 commandPlatforms,
 	}, nil
-}
-
-func StreamElementsCommandToGql(m streamelements.Command) gqlmodel.StreamElementsCommand {
-	return gqlmodel.StreamElementsCommand{
-		ID:             m.ID,
-		Name:           m.Name,
-		Enabled:        m.Enabled,
-		Cooldown:       m.Cooldown.Global,
-		Aliases:        m.Aliases,
-		Response:       m.Response,
-		AccessLevel:    m.AccessLevel,
-		EnabledOnline:  m.EnabledOnline,
-		EnabledOffline: m.EnabledOffline,
-		Hidden:         m.Hidden,
-		Type:           m.Type,
-		CreatedAt:      m.CreatedAt,
-		UpdatedAt:      m.UpdatedAt,
-	}
 }
