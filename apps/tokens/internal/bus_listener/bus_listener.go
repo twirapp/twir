@@ -14,6 +14,7 @@ import (
 	"github.com/go-redsync/redsync/v4"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/scorfly/gokick"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -24,7 +25,6 @@ import (
 	channelsintegrationsspotifyrepository "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	integrationsrepository "github.com/twirapp/twir/libs/repositories/integrations"
 	integrationsmodel "github.com/twirapp/twir/libs/repositories/integrations/model"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 
 	kickbotsrepository "github.com/twirapp/twir/libs/repositories/kick_bots"
@@ -45,8 +45,7 @@ type appToken struct {
 }
 
 type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Config                  cfg.Config
 	Gorm                    *gorm.DB
@@ -232,7 +231,7 @@ func NewTokens(opts Opts) error {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.twirBus.Tokens.RequestAppToken.SubscribeGroup(
 					"tokens",

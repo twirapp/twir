@@ -4,6 +4,7 @@ go 1.26.1
 
 require (
 	github.com/go-redsync/redsync/v4 v4.14.1
+	github.com/goforj/wire v1.2.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
@@ -12,7 +13,6 @@ require (
 	github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/integrations v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
-	go.uber.org/fx v1.24.0
 	gorm.io/gorm v1.31.1
 )
 
