@@ -11,6 +11,7 @@ type CommandParseResponse struct {
 	IsReply           bool
 	KeepOrder         bool
 	SkipToxicityCheck bool
+	ReplyToUserLogin  string
 }
 
 type ParseVariablesInTextRequest struct {

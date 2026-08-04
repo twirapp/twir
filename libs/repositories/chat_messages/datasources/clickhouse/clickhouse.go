@@ -117,6 +117,60 @@ func (c *Clickhouse) createBatch(ctx context.Context, input []chat_messages.Crea
 	return nil
 }
 
+func (c *Clickhouse) GetLatestByUser(
+	ctx context.Context,
+	input chat_messages.GetLatestByUserInput,
+) (model.ChatMessage, error) {
+	query, args, err := sq.Select(
+		"id",
+		"platform",
+		"platform_channel_id",
+		"user_id",
+		"user_name",
+		"user_display_name",
+		"user_color",
+		"text",
+		"created_at",
+	).
+		From("chat_messages").
+		Where(squirrel.Eq{"platform": input.Platform}).
+		Where(squirrel.Eq{"platform_channel_id": input.PlatformChannelID}).
+		Where("lower(user_name) = lower(?)", input.UserName).
+		OrderBy("created_at DESC", "id DESC").
+		Limit(1).
+		ToSql()
+	if err != nil {
+		return model.ChatMessage{}, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := c.client.Query(ctx, query, args...)
+	if err != nil {
+		return model.ChatMessage{}, fmt.Errorf("failed to query: %w", err)
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return model.ChatMessage{}, chat_messages.ErrNotFound
+	}
+
+	var m model.ChatMessage
+	if err := rows.Scan(
+		&m.ID,
+		&m.Platform,
+		&m.ChannelID,
+		&m.UserID,
+		&m.UserName,
+		&m.UserDisplayName,
+		&m.UserColor,
+		&m.Text,
+		&m.CreatedAt,
+	); err != nil {
+		return model.ChatMessage{}, fmt.Errorf("failed to scan: %w", err)
+	}
+
+	return m, nil
+}
+
 func (c *Clickhouse) GetMany(
 	ctx context.Context,
 	input chat_messages.GetManyInput,
