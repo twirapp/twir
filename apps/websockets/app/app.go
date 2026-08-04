@@ -52,7 +52,7 @@ var ProviderSet = wire.NewSet(
 	wire.Bind(new(channelsrepository.Repository), new(*channelsrepositorypgx.Pgx)),
 	usersrepositorypgx.NewFx,
 	wire.Bind(new(usersrepository.Repository), new(*usersrepositorypgx.Pgx)),
-	wsrouter.NewNatsWsRouterFx,
+	wsrouter.NewNatsWsRouter,
 	wire.Bind(new(wsrouter.WsRouter), new(*wsrouter.WsRouterNats)),
 	channelalertscache.New,
 	wire.Struct(new(alerts.Opts), "*"),

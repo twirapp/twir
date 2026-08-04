@@ -590,7 +590,7 @@ var ProviderSet = wire.NewSet(
 		eventscache.New,
 		rolescache.New,
 		streamlabsintegration.New,
-		wsrouter.NewNatsWsRouterFx,
+		wsrouter.NewNatsWsRouter,
 		wire.Bind(new(wsrouter.WsRouter), new(*wsrouter.WsRouterNats)),
 		twir_stats.New,
 		resolvers.New,

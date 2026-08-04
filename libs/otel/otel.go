@@ -17,7 +17,6 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/fx"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
@@ -32,13 +31,13 @@ func parseHeaders(headersStr string) map[string]string {
 
 	headers := make(map[string]string)
 	pairs := strings.Split(headersStr, ",")
-	
+
 	for _, pair := range pairs {
 		pair = strings.TrimSpace(pair)
 		if pair == "" {
 			continue
 		}
-		
+
 		parts := strings.SplitN(pair, "=", 2)
 		if len(parts) == 2 {
 			key := strings.TrimSpace(parts[0])
@@ -46,7 +45,7 @@ func parseHeaders(headersStr string) map[string]string {
 			headers[key] = value
 		}
 	}
-	
+
 	return headers
 }
 
@@ -55,12 +54,12 @@ func parseHeaders(headersStr string) map[string]string {
 func cleanEndpoint(endpoint string) string {
 	// First trim spaces
 	endpoint = strings.TrimSpace(endpoint)
-	
+
 	// Remove http://, https://, or grpc:// prefix
 	endpoint = strings.TrimPrefix(endpoint, "http://")
 	endpoint = strings.TrimPrefix(endpoint, "https://")
 	endpoint = strings.TrimPrefix(endpoint, "grpc://")
-	
+
 	return endpoint
 }
 
@@ -221,24 +220,4 @@ func Shutdown(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// NewFx creates a tracer with fx lifecycle management
-func NewFx(service string) func(config cfg.Config, lc fx.Lifecycle) trace.Tracer {
-	return func(config cfg.Config, lc fx.Lifecycle) trace.Tracer {
-		tracer, err := New(config, service)
-		if err != nil {
-			slog.Error("Failed to initialize OpenTelemetry", "error", err)
-			// Return no-op tracer on error
-			return otel.Tracer(service)
-		}
-
-		lc.Append(
-			fx.Hook{
-				OnStop: Shutdown,
-			},
-		)
-
-		return tracer
-	}
 }

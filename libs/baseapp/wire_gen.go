@@ -30,7 +30,7 @@ func NewBase(opts Opts) (Base, error) {
 	if err != nil {
 		return Base{}, err
 	}
-	db, err := newGormForWire(config, lifecycleLifecycle, pool)
+	db, err := newGorm(config, lifecycleLifecycle, pool)
 	if err != nil {
 		return Base{}, err
 	}

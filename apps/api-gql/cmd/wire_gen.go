@@ -237,7 +237,7 @@ func initializeApplication() (*Application, error) {
 	}
 	logger := base.Logger
 	recorder := base.AuditRecorder
-	wsRouterNats, err := wsrouter.NewNatsWsRouterFx(config)
+	wsRouterNats, err := wsrouter.NewNatsWsRouter(config)
 	if err != nil {
 		return nil, err
 	}

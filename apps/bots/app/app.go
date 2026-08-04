@@ -229,7 +229,7 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(discordmessagesupdater.Opts), "*"),
 	discord_go.New,
 	wire.Struct(new(discord_go.Opts), "*"),
-	wsrouter.NewNatsWsRouterFx,
+	wsrouter.NewNatsWsRouter,
 	wire.Bind(new(wsrouter.WsRouter), new(*wsrouter.WsRouterNats)),
 
 	wire.Struct(new(ytsr.Opts), "*"),

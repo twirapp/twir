@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
-	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
@@ -26,16 +25,6 @@ const (
 )
 
 func newGorm(
-	cfg config.Config,
-	lc fx.Lifecycle,
-	pool *pgxpool.Pool,
-) (*gorm.DB, error) {
-	return createGorm(cfg, pool, func(onStop func(context.Context) error) {
-		lc.Append(fx.Hook{OnStop: onStop})
-	})
-}
-
-func newGormForWire(
 	cfg config.Config,
 	lc *lifecycle.Lifecycle,
 	pool *pgxpool.Pool,

@@ -64,7 +64,7 @@ func initializeApplication() (*app.Application, error) {
 		UsersRepository:    pgx5,
 	}
 	alertsAlerts := alerts.NewAlerts(alertsOpts)
-	wsRouterNats, err := wsrouter.NewNatsWsRouterFx(config)
+	wsRouterNats, err := wsrouter.NewNatsWsRouter(config)
 	if err != nil {
 		return nil, err
 	}

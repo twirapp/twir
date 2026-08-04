@@ -7,7 +7,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/nats-io/nats.go"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 const subscriptionBufferSize = 64
@@ -23,7 +22,7 @@ func NewNatsSubscription(opts Opts) (*WsRouterNats, error) {
 	}, nil
 }
 
-func NewNatsWsRouterFx(cfg config.Config) (*WsRouterNats, error) {
+func NewNatsWsRouter(cfg config.Config) (*WsRouterNats, error) {
 	nc, err := nats.Connect(cfg.NatsUrl)
 	if err != nil {
 		return nil, err
@@ -32,16 +31,6 @@ func NewNatsWsRouterFx(cfg config.Config) (*WsRouterNats, error) {
 	return &WsRouterNats{
 		nc: nc,
 	}, nil
-}
-
-type NatsWsRouterFxOpts struct {
-	fx.In
-
-	Config config.Config
-}
-
-func NewNatsWsRouterFxWithOpts(opts NatsWsRouterFxOpts) (*WsRouterNats, error) {
-	return NewNatsWsRouterFx(opts.Config)
 }
 
 type WsRouterNats struct {

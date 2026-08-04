@@ -345,7 +345,7 @@ func initializeApplication() (*app.Application, error) {
 		return nil, err
 	}
 	pgx29 := postgres7.NewFx(pool)
-	wsRouterNats, err := wsrouter.NewNatsWsRouterFx(config)
+	wsRouterNats, err := wsrouter.NewNatsWsRouter(config)
 	if err != nil {
 		return nil, err
 	}

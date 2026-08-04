@@ -62,7 +62,7 @@ var providerSet = wire.NewSet(
 	newRedis,
 	createPgxPool,
 	newTransactionManager,
-	newGormForWire,
+	newGorm,
 	newClickHouse,
 	newBus,
 	newAuditPubSub,
