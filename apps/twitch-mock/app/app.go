@@ -12,31 +12,41 @@ import (
 	"github.com/twirapp/twir/apps/twitch-mock/internal/handlers"
 	"github.com/twirapp/twir/apps/twitch-mock/internal/state"
 	"github.com/twirapp/twir/apps/twitch-mock/internal/websocket"
-	"go.uber.org/fx"
+	"github.com/goforj/wire"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 )
 
-var Module = fx.Options(
-	fx.Provide(
-		func() *slog.Logger {
-			return slog.Default()
-		},
-		config.New,
-		state.New,
-		handlers.New,
-		websocket.New,
-		admin.New,
-	),
-	fx.Invoke(startServers),
+var ProviderSet = wire.NewSet(
+	lifecycle.New,
+	NewLogger,
+	config.New,
+	state.New,
+	handlers.New,
+	websocket.New,
+	admin.New,
+	NewApplication,
 )
 
-func startServers(
-	lifecycle fx.Lifecycle,
+type Application struct {
+	lifecycle *lifecycle.Lifecycle
+}
+
+func (a *Application) Run() error {
+	return a.lifecycle.Run()
+}
+
+func NewLogger() *slog.Logger {
+	return slog.Default()
+}
+
+func NewApplication(
+	lc *lifecycle.Lifecycle,
 	logger *slog.Logger,
 	cfg *config.Config,
 	httpServer *handlers.Server,
 	wsServer *websocket.Server,
 	adminServer *admin.Server,
-) {
+) *Application {
 	apiSrv := &http.Server{
 		Addr:              cfg.HTTPAddr,
 		Handler:           httpServer.Handler(),
@@ -55,7 +65,7 @@ func startServers(
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	lifecycle.Append(fx.Hook{
+	lc.Append(lifecycle.Hook{
 		OnStart: func(context.Context) error {
 			start := func(name string, srv *http.Server) {
 				go func() {
@@ -80,4 +90,6 @@ func startServers(
 			)
 		},
 	})
+
+	return &Application{lifecycle: lc}
 }
