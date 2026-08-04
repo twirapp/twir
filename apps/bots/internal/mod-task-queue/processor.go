@@ -9,7 +9,7 @@ import (
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
+	loggerlib "github.com/twirapp/twir/libs/logger"
 	"gorm.io/gorm"
 )
 
@@ -39,17 +39,14 @@ type RedisTaskProcessor struct {
 
 var _ TaskProcessor = (*RedisTaskProcessor)(nil)
 
-type RedisTaskProcessorOpts struct {
-	LC *lifecycle.Lifecycle
-
-	Cfg     config.Config
-	Logger  *slog.Logger
-	Gorm    *gorm.DB
-	TwirBus *buscore.Bus
-}
-
-func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
-	url, err := redis.ParseURL(opts.Cfg.RedisUrl)
+func NewRedisTaskProcessor(
+	lc *lifecycle.Lifecycle,
+	cfg config.Config,
+	logger *slog.Logger,
+	gormDB *gorm.DB,
+	twirBus *buscore.Bus,
+) *RedisTaskProcessor {
+	url, err := redis.ParseURL(cfg.RedisUrl)
 	if err != nil {
 		panic("Wrong redis url")
 	}
@@ -70,7 +67,7 @@ func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
 			},
 			ErrorHandler: asynq.ErrorHandlerFunc(
 				func(ctx context.Context, task *asynq.Task, err error) {
-					opts.Logger.Error("error processing task", slog.Any("task", task), logger.Error(err))
+					logger.Error("error processing task", slog.Any("task", task), loggerlib.Error(err))
 				},
 			),
 			LogLevel: asynq.ErrorLevel,
@@ -78,18 +75,18 @@ func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
 	)
 
 	processor := &RedisTaskProcessor{
-		config:  opts.Cfg,
+		config:  cfg,
 		server:  server,
-		logger:  opts.Logger,
-		gorm:    opts.Gorm,
-		twirBus: opts.TwirBus,
+		logger:  logger,
+		gorm:    gormDB,
+		twirBus: twirBus,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
-					opts.Logger.Info("Starting mod task processor")
+					logger.Info("Starting mod task processor")
 					if err := processor.Start(); err != nil {
 						panic(err)
 					}

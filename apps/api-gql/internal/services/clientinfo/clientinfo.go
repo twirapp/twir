@@ -30,12 +30,6 @@ const (
 	geoDbInfoFileName = "db-info.json"
 )
 
-type Opts struct {
-	LC     *lifecycle.Lifecycle
-	Logger *slog.Logger
-	Config config.Config
-}
-
 type Location struct {
 	Country *string
 	City    *string
@@ -51,16 +45,16 @@ type Service struct {
 	reader *geoip2.Reader
 }
 
-func New(opts Opts) *Service {
+func New(lc *lifecycle.Lifecycle, logger *slog.Logger, config config.Config) *Service {
 	dbDir := resolveDbDir()
 	s := &Service{
-		logger:   opts.Logger,
-		config:   opts.Config,
+		logger:   logger,
+		config:   config,
 		dbPath:   filepath.Join(dbDir, geoDbFileName),
 		infoPath: filepath.Join(dbDir, geoDbInfoFileName),
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: s.onStart,
 			OnStop:  s.onStop,

@@ -40,7 +40,7 @@ apps/parser/
 
 ```bash
 # Run locally
-go run ./cmd/main.go
+go run ./cmd
 
 # Build
 bun cli build parser

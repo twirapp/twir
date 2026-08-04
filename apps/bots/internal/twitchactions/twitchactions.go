@@ -19,37 +19,35 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	Logger                  *slog.Logger
-	SentMessagesRepository  sentmessages.Repository
-	ChannelsRepository      channels.Repository
-	ToxicMessagesRepository toxic_messages.Repository
-	Gorm                    *gorm.DB
-	Redis                   *goredis.Client
-	ToxicityCheck           *toxicity_check.Service
-	Config                  cfg.Config
-	ChannelsByTwitchIDCache *channelcache.TwitchUserIDCacher
-	TwirBus                 *buscore.Bus
-	KV                      kv.KV
-	ModTaskDistributor      mod_task_queue.TaskDistributor
-	CachedTwitchClient      *twitch.CachedTwitchClient
-}
-
-func New(opts Opts) *TwitchActions {
+func New(
+	logger *slog.Logger,
+	sentMessagesRepository sentmessages.Repository,
+	channelsRepository channels.Repository,
+	toxicMessagesRepository toxic_messages.Repository,
+	gormDB *gorm.DB,
+	redisClient *goredis.Client,
+	toxicityCheck *toxicity_check.Service,
+	cfg cfg.Config,
+	channelsByTwitchIDCache *channelcache.TwitchUserIDCacher,
+	twirBus *buscore.Bus,
+	kv kv.KV,
+	modTaskDistributor mod_task_queue.TaskDistributor,
+	cachedTwitchClient *twitch.CachedTwitchClient,
+) *TwitchActions {
 	actions := &TwitchActions{
-		logger:                  opts.Logger,
-		config:                  opts.Config,
-		twirBus:                 opts.TwirBus,
-		gorm:                    opts.Gorm,
-		rateLimiter:             redis.NewSlidingWindow(adapter.NewAdapter(opts.Redis)),
-		sentMessagesRepository:  opts.SentMessagesRepository,
-		channelsRepository:      opts.ChannelsRepository,
-		toxicityCheck:           opts.ToxicityCheck,
-		toxicMessagesRepository: opts.ToxicMessagesRepository,
-		channelsByTwitchIDCache: opts.ChannelsByTwitchIDCache,
-		kv:                      opts.KV,
-		modTaskDistributor:      opts.ModTaskDistributor,
-		cachedTwitchClient:      opts.CachedTwitchClient,
+		logger:                  logger,
+		config:                  cfg,
+		twirBus:                 twirBus,
+		gorm:                    gormDB,
+		rateLimiter:             redis.NewSlidingWindow(adapter.NewAdapter(redisClient)),
+		sentMessagesRepository:  sentMessagesRepository,
+		channelsRepository:      channelsRepository,
+		toxicityCheck:           toxicityCheck,
+		toxicMessagesRepository: toxicMessagesRepository,
+		channelsByTwitchIDCache: channelsByTwitchIDCache,
+		kv:                      kv,
+		modTaskDistributor:      modTaskDistributor,
+		cachedTwitchClient:      cachedTwitchClient,
 	}
 
 	return actions

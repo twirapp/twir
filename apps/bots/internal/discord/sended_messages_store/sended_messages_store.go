@@ -19,13 +19,9 @@ type SendedMessagesStore struct {
 	repo discordsendednotifications.Repository
 }
 
-type Opts struct {
-	Repo discordsendednotifications.Repository
-}
-
-func New(opts Opts) *SendedMessagesStore {
+func New(repo discordsendednotifications.Repository) *SendedMessagesStore {
 	return &SendedMessagesStore{
-		repo: opts.Repo,
+		repo: repo,
 	}
 }
 

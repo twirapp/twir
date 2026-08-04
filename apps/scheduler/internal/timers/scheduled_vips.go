@@ -20,21 +20,17 @@ import (
 	"github.com/twirapp/twir/libs/twitch"
 )
 
-type ScheduledVipsOpts struct {
-	LC *lifecycle.Lifecycle
-
-	Config  config.Config
-	Logger  *slog.Logger
-	TwirBus *buscore.Bus
-
-	ScheduledVipsRepo scheduledvipsrepository.Repository
-	UsersRepo         usersrepository.Repository
-	ChannelService    *channelservice.ChannelService
-}
-
-func NewScheduledVips(opts ScheduledVipsOpts) {
+func NewScheduledVips(
+	lc *lifecycle.Lifecycle,
+	cfg config.Config,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+	scheduledVipsRepo scheduledvipsrepository.Repository,
+	usersRepo usersrepository.Repository,
+	channelService *channelservice.ChannelService,
+) {
 	timeTick := 15 * time.Second
-	if opts.Config.AppEnv == "production" {
+	if cfg.AppEnv == "production" {
 		timeTick = 5 * time.Minute
 	}
 	ticker := time.NewTicker(timeTick)
@@ -42,15 +38,15 @@ func NewScheduledVips(opts ScheduledVipsOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &scheduledVips{
-		config:            opts.Config,
-		logger:            opts.Logger,
-		twirBus:           opts.TwirBus,
-		scheduledVipsRepo: opts.ScheduledVipsRepo,
-		usersRepo:         opts.UsersRepo,
-		channelService:    opts.ChannelService,
+		config:            cfg,
+		logger:            logger,
+		twirBus:           twirBus,
+		scheduledVipsRepo: scheduledVipsRepo,
+		usersRepo:         usersRepo,
+		channelService:    channelService,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {

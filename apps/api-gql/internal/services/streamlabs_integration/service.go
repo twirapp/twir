@@ -20,17 +20,15 @@ import (
 	"github.com/twirapp/twir/libs/repositories/streamlabs_integration/model"
 )
 
-type Opts struct {
-	StreamlabsRepository streamlabs_integration.Repository
-	TwirBus              *buscore.Bus
-	Config               config.Config
-}
-
-func New(opts Opts) *Service {
+func New(
+	streamlabsRepository streamlabs_integration.Repository,
+	twirBus *buscore.Bus,
+	cfg config.Config,
+) *Service {
 	return &Service{
-		streamlabsRepository: opts.StreamlabsRepository,
-		twirBus:              opts.TwirBus,
-		config:               opts.Config,
+		streamlabsRepository: streamlabsRepository,
+		twirBus:              twirBus,
+		config:               cfg,
 	}
 }
 

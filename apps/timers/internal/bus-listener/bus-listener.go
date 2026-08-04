@@ -17,31 +17,29 @@ type server struct {
 	manager *manager.Manager
 }
 
-type Opts struct {
-	Lc      *lifecycle.Lifecycle
-	Logger  *slog.Logger
-	Bus     *buscore.Bus
-	Manager *manager.Manager
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	_ *slog.Logger,
+	bus *buscore.Bus,
+	managerService *manager.Manager,
+) error {
 	s := &server{
-		manager: opts.Manager,
+		manager: managerService,
 	}
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				opts.Bus.Timers.AddTimer.SubscribeGroup("timers", s.onAddTimerToQueue)
-				opts.Bus.Timers.RemoveTimer.SubscribeGroup("timers", s.onRemoveTimerFromQueue)
-				opts.Bus.ChatMessages.SubscribeGroup("timers", s.onChatMessage)
+				bus.Timers.AddTimer.SubscribeGroup("timers", s.onAddTimerToQueue)
+				bus.Timers.RemoveTimer.SubscribeGroup("timers", s.onRemoveTimerFromQueue)
+				bus.ChatMessages.SubscribeGroup("timers", s.onChatMessage)
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				opts.Bus.Timers.AddTimer.Unsubscribe()
-				opts.Bus.Timers.RemoveTimer.Unsubscribe()
-				opts.Bus.ChatMessages.Unsubscribe()
+				bus.Timers.AddTimer.Unsubscribe()
+				bus.Timers.RemoveTimer.Unsubscribe()
+				bus.ChatMessages.Unsubscribe()
 				return nil
 			},
 		},

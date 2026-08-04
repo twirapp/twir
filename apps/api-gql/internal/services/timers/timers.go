@@ -12,25 +12,23 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	Gorm             *gorm.DB
-	AuditRecorder    audit.Recorder
-	Logger           *slog.Logger
-	TwirBus          *buscore.Bus
-	TimersRepository timersrepository.Repository
-	TrmManager       trm.Manager
-	PlansRepository  plans.Repository
-}
-
-func New(opts Opts) *Service {
+func New(
+	db *gorm.DB,
+	auditRecorder audit.Recorder,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+	timersRepository timersrepository.Repository,
+	trmManager trm.Manager,
+	plansRepository plans.Repository,
+) *Service {
 	return &Service{
-		gorm:             opts.Gorm,
-		auditRecorder:    opts.AuditRecorder,
-		logger:           opts.Logger,
-		twirbus:          opts.TwirBus,
-		timersRepository: opts.TimersRepository,
-		trmManager:       opts.TrmManager,
-		plansRepository:  opts.PlansRepository,
+		gorm:             db,
+		auditRecorder:    auditRecorder,
+		logger:           logger,
+		twirbus:          twirBus,
+		timersRepository: timersRepository,
+		trmManager:       trmManager,
+		plansRepository:  plansRepository,
 	}
 }
 

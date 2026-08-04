@@ -9,10 +9,6 @@ import (
 	"github.com/twirapp/twir/libs/integrations/vk"
 )
 
-type BotSetupProviderOpts struct {
-	Config cfg.Config
-}
-
 type BotSetupProvider struct {
 	config cfg.Config
 }
@@ -20,8 +16,8 @@ type BotSetupProvider struct {
 // POST /v1/chat/message/send requires user authorization with this permission.
 const vkVideoBotChatSendScope = "chat:message:send"
 
-func NewBotSetupProvider(opts BotSetupProviderOpts) *BotSetupProvider {
-	return &BotSetupProvider{config: opts.Config}
+func NewBotSetupProvider(config cfg.Config) *BotSetupProvider {
+	return &BotSetupProvider{config: config}
 }
 
 func (p *BotSetupProvider) GetBotSetupAuthURL(state string) (string, error) {

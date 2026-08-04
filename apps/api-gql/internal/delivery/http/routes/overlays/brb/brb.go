@@ -9,26 +9,17 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 )
 
-type Dependencies struct {
-	API            huma.API
-	Service        *be_right_back.Service
-	TwirBus        *buscore.Bus
-	ChannelService *channels.Service
-	Middlewares    *middlewares.Middlewares
-	Sessions       *auth.Auth
-}
-
 type Registration struct{}
 
-func RegisterRoutes(deps Dependencies) Registration {
+func RegisterRoutes(api huma.API, service *be_right_back.Service, twirBus *buscore.Bus, channelService *channels.Service, middlewaresService *middlewares.Middlewares, sessions *auth.Auth) Registration {
 	opts := func() StartOpts {
 		return StartOpts{
-			Service: deps.Service, TwirBus: deps.TwirBus, ChannelService: deps.ChannelService,
-			Middlewares: deps.Middlewares, Sessions: deps.Sessions,
+			Service: service, TwirBus: twirBus, ChannelService: channelService,
+			Middlewares: middlewaresService, Sessions: sessions,
 		}
 	}
-	newStart(opts()).Register(deps.API)
+	newStart(opts()).Register(api)
 	startOpts := opts()
-	newStop(StopOpts(startOpts)).Register(deps.API)
+	newStop(StopOpts(startOpts)).Register(api)
 	return Registration{}
 }

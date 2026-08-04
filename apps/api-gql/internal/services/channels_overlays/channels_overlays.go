@@ -21,23 +21,21 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	OverlaysRepository channels_overlays.Repository
-	ChannelService     *channelservice.ChannelService
-	PlansRepository    plans.Repository
-	AuditRecorder      audit.Recorder
-	Bus                *buscore.Bus
-	WsRouter           wsrouter.WsRouter
-}
-
-func New(opts Opts) *Service {
+func New(
+	overlaysRepository channels_overlays.Repository,
+	channelService *channelservice.ChannelService,
+	plansRepository plans.Repository,
+	auditRecorder audit.Recorder,
+	bus *buscore.Bus,
+	wsRouter wsrouter.WsRouter,
+) *Service {
 	return &Service{
-		overlaysRepository: opts.OverlaysRepository,
-		channelService:     opts.ChannelService,
-		plansRepository:    opts.PlansRepository,
-		auditRecorder:      opts.AuditRecorder,
-		bus:                opts.Bus,
-		wsRouter:           opts.WsRouter,
+		overlaysRepository: overlaysRepository,
+		channelService:     channelService,
+		plansRepository:    plansRepository,
+		auditRecorder:      auditRecorder,
+		bus:                bus,
+		wsRouter:           wsRouter,
 	}
 }
 

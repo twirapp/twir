@@ -17,15 +17,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	RedisClient *redis.Client
-	Config      config.Config
-}
-
-func New(opts Opts) *Service {
+func New(redisClient *redis.Client, cfg config.Config) *Service {
 	return &Service{
-		redisClient: opts.RedisClient,
-		config:      opts.Config,
+		redisClient: redisClient,
+		config:      cfg,
 	}
 }
 

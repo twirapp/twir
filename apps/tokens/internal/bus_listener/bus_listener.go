@@ -44,25 +44,6 @@ type appToken struct {
 	ExpiresIn      int
 }
 
-type Opts struct {
-	Lc *lifecycle.Lifecycle
-
-	Config                  cfg.Config
-	Gorm                    *gorm.DB
-	Redsync                 *redsync.Redsync
-	Logger                  *slog.Logger
-	TwirBus                 *buscore.Bus
-	KickBotsRepo            kickbotsrepository.Repository
-	IntegrationsRepo        integrationsrepository.Repository
-	ChannelIntegrationsRepo channelsintegrationsrepository.Repository
-	SpotifyIntegrationsRepo channelsintegrationsspotifyrepository.Repository
-	TokensRepository        tokensrepository.Repository
-	UsersRepository         usersrepository.Repository
-	VKVideoBotsRepo         vkvideobotsrepository.Repository
-	YouTubeBotsRepo         youtubebotsrepository.Repository
-	TrManager               trm.Manager
-}
-
 type lockableMutex interface {
 	Lock() error
 	Unlock() (bool, error)
@@ -140,21 +121,37 @@ func rateLimitFunc(lastResponse *helix.Response) error {
 	return nil
 }
 
-func NewTokens(opts Opts) error {
+func NewTokens(
+	lc *lifecycle.Lifecycle,
+	config cfg.Config,
+	gorm *gorm.DB,
+	redsync *redsync.Redsync,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+	kickBotsRepo kickbotsrepository.Repository,
+	integrationsRepo integrationsrepository.Repository,
+	channelIntegrationsRepo channelsintegrationsrepository.Repository,
+	spotifyIntegrationsRepo channelsintegrationsspotifyrepository.Repository,
+	tokensRepository tokensrepository.Repository,
+	usersRepository usersrepository.Repository,
+	vkVideoBotsRepo vkvideobotsrepository.Repository,
+	youtubeBotsRepo youtubebotsrepository.Repository,
+	trManager trm.Manager,
+) error {
 	httpClient := &http.Client{}
-	if opts.Config.TwitchMockEnabled {
-		httpClient.Transport = twitchlib.NewMockRoundTripper(http.DefaultTransport, opts.Config)
+	if config.TwitchMockEnabled {
+		httpClient.Transport = twitchlib.NewMockRoundTripper(http.DefaultTransport, config)
 	}
 
 	helixOpts := &helix.Options{
-		ClientID:      opts.Config.TwitchClientId,
-		ClientSecret:  opts.Config.TwitchClientSecret,
-		RedirectURI:   opts.Config.GetTwitchCallbackUrl(),
+		ClientID:      config.TwitchClientId,
+		ClientSecret:  config.TwitchClientSecret,
+		RedirectURI:   config.GetTwitchCallbackUrl(),
 		RateLimitFunc: rateLimitFunc,
 		HTTPClient:    httpClient,
 	}
-	if opts.Config.TwitchMockEnabled {
-		helixOpts.APIBaseURL = opts.Config.TwitchMockApiUrl
+	if config.TwitchMockEnabled {
+		helixOpts.APIBaseURL = config.TwitchMockApiUrl
 	}
 
 	helixClient, err := helix.NewClient(
@@ -177,52 +174,52 @@ func NewTokens(opts Opts) error {
 			ExpiresIn:      appAccessToken.Data.ExpiresIn,
 		},
 
-		config:                  opts.Config,
-		log:                     opts.Logger,
-		redSync:                 opts.Redsync,
-		twirBus:                 opts.TwirBus,
-		kickBotsRepo:            opts.KickBotsRepo,
-		integrationsRepo:        opts.IntegrationsRepo,
-		channelIntegrationsRepo: opts.ChannelIntegrationsRepo,
-		spotifyIntegrationsRepo: opts.SpotifyIntegrationsRepo,
-		tokensRepository:        opts.TokensRepository,
-		usersRepository:         opts.UsersRepository,
-		vkVideoBotsRepo:         opts.VKVideoBotsRepo,
-		youtubeBotsRepo:         opts.YouTubeBotsRepo,
-		transactionRunner:       opts.TrManager,
+		config:                  config,
+		log:                     logger,
+		redSync:                 redsync,
+		twirBus:                 twirBus,
+		kickBotsRepo:            kickBotsRepo,
+		integrationsRepo:        integrationsRepo,
+		channelIntegrationsRepo: channelIntegrationsRepo,
+		spotifyIntegrationsRepo: spotifyIntegrationsRepo,
+		tokensRepository:        tokensRepository,
+		usersRepository:         usersRepository,
+		vkVideoBotsRepo:         vkVideoBotsRepo,
+		youtubeBotsRepo:         youtubeBotsRepo,
+		transactionRunner:       trManager,
 		newMutex: func(name string) lockableMutex {
-			return opts.Redsync.NewMutex(name)
+			return redsync.NewMutex(name)
 		},
 		newKickTokenRefresher: func() (kickTokenRefresher, error) {
 			return gokick.NewClient(&gokick.ClientOptions{
 				HTTPClient:   httpClient,
-				ClientID:     opts.Config.KickClientId,
-				ClientSecret: opts.Config.KickClientSecret,
+				ClientID:     config.KickClientId,
+				ClientSecret: config.KickClientSecret,
 			})
 		},
 		newVKTokenRefresher: func() (vkTokenRefresher, error) {
 			return vk.NewOAuthClient(vk.OAuthClientOpts{
-				ClientID:      opts.Config.VKVideoClientID,
-				ClientSecret:  opts.Config.VKVideoClientSecret,
-				RedirectURL:   opts.Config.GetVkCallbackUrl(),
-				APIBaseURL:    opts.Config.VKVideoAPIBaseURL,
-				AuthBaseURL:   opts.Config.VKVideoAuthBaseURL,
-				DevAPIBaseURL: opts.Config.VKVideoDevAPIBaseURL,
+				ClientID:      config.VKVideoClientID,
+				ClientSecret:  config.VKVideoClientSecret,
+				RedirectURL:   config.GetVkCallbackUrl(),
+				APIBaseURL:    config.VKVideoAPIBaseURL,
+				AuthBaseURL:   config.VKVideoAuthBaseURL,
+				DevAPIBaseURL: config.VKVideoDevAPIBaseURL,
 			})
 		},
 		newVKBotTokenRefresher: func() (vkTokenRefresher, error) {
 			return vk.NewOAuthClient(vk.OAuthClientOpts{
-				ClientID:      opts.Config.VKVideoClientID,
-				ClientSecret:  opts.Config.VKVideoClientSecret,
-				RedirectURL:   opts.Config.GetVkVideoBotCallbackUrl(),
-				APIBaseURL:    opts.Config.VKVideoAPIBaseURL,
-				AuthBaseURL:   opts.Config.VKVideoAuthBaseURL,
-				DevAPIBaseURL: opts.Config.VKVideoDevAPIBaseURL,
+				ClientID:      config.VKVideoClientID,
+				ClientSecret:  config.VKVideoClientSecret,
+				RedirectURL:   config.GetVkVideoBotCallbackUrl(),
+				APIBaseURL:    config.VKVideoAPIBaseURL,
+				AuthBaseURL:   config.VKVideoAuthBaseURL,
+				DevAPIBaseURL: config.VKVideoDevAPIBaseURL,
 			})
 		},
 		newYouTubeTokenRefresher: func() youtubeTokenRefresher {
 			return googleTokenRefresher{config: oauth2.Config{
-				ClientID: opts.Config.YouTubeClientID, ClientSecret: opts.Config.YouTubeClientSecret,
+				ClientID: config.YouTubeClientID, ClientSecret: config.YouTubeClientSecret,
 				Endpoint: oauth2.Endpoint{TokenURL: "https://oauth2.googleapis.com/token"},
 			}}
 		},
@@ -230,7 +227,7 @@ func NewTokens(opts Opts) error {
 		nightbotTokenURL: "https://api.nightbot.tv/oauth2/token",
 	}
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.twirBus.Tokens.RequestAppToken.SubscribeGroup(

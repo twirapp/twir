@@ -15,7 +15,7 @@ import (
 	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"github.com/twirapp/twir/libs/logger"
+	twirlogger "github.com/twirapp/twir/libs/logger"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -29,19 +29,6 @@ import (
 	"github.com/twirapp/twir/libs/twitch"
 )
 
-type StreamOpts struct {
-	Lc *lifecycle.Lifecycle
-
-	Config config.Config
-	Logger *slog.Logger
-
-	Gorm    *gorm.DB
-	TwirBus *buscore.Bus
-
-	StreamsRepo    streamsrepository.Repository
-	ChannelService *channelservice.ChannelService
-}
-
 type streams struct {
 	config  config.Config
 	logger  *slog.Logger
@@ -52,9 +39,17 @@ type streams struct {
 	channelService *channelservice.ChannelService
 }
 
-func NewStreams(opts StreamOpts) {
+func NewStreams(
+	lc *lifecycle.Lifecycle,
+	cfg config.Config,
+	logger *slog.Logger,
+	gorm *gorm.DB,
+	twirBus *buscore.Bus,
+	streamsRepo streamsrepository.Repository,
+	channelService *channelservice.ChannelService,
+) {
 	timeTick := 15 * time.Second
-	if opts.Config.AppEnv == "production" {
+	if cfg.AppEnv == "production" {
 		timeTick = 5 * time.Minute
 	}
 	ticker := time.NewTicker(timeTick)
@@ -62,15 +57,15 @@ func NewStreams(opts StreamOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &streams{
-		config:         opts.Config,
-		logger:         opts.Logger,
-		gorm:           opts.Gorm,
-		twirBus:        opts.TwirBus,
-		streamsRepo:    opts.StreamsRepo,
-		channelService: opts.ChannelService,
+		config:         cfg,
+		logger:         logger,
+		gorm:           gorm,
+		twirBus:        twirBus,
+		streamsRepo:    streamsRepo,
+		channelService: channelService,
 	}
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
@@ -81,7 +76,7 @@ func NewStreams(opts StreamOpts) {
 							return
 						case <-ticker.C:
 							if err := s.processStreams(ctx); err != nil {
-								opts.Logger.Error("cannot process streams", logger.Error(err))
+								logger.Error("cannot process streams", twirlogger.Error(err))
 							}
 						}
 					}
@@ -142,7 +137,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 			}
 		}
 	} else {
-		c.logger.InfoContext(ctx, "Cannot get discord integration", logger.Error(err))
+		c.logger.InfoContext(ctx, "Cannot get discord integration", twirlogger.Error(err))
 	}
 
 	usersIds = lo.Uniq(usersIds)
@@ -177,7 +172,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 			)
 
 			if err != nil || streams.ErrorMessage != "" {
-				c.logger.Error("cannot get streams", logger.Error(err))
+				c.logger.Error("cannot get streams", twirlogger.Error(err))
 				return
 			}
 
@@ -203,7 +198,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 						c.logger.Error(
 							"cannot resolve channel for twitch user",
 							slog.String("twitch_user_id", userId),
-							logger.Error(err),
+							twirlogger.Error(err),
 						)
 						continue
 					}
@@ -236,7 +231,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 					}
 
 					if err := c.channelService.InvalidateOnlineCache(ctx, channel.ID); err != nil {
-						c.logger.Error("cannot invalidate online cache", logger.Error(err))
+						c.logger.Error("cannot invalidate online cache", twirlogger.Error(err))
 					}
 
 					if !dbStreamExists {
@@ -264,12 +259,12 @@ func (c *streams) processStreams(ctx context.Context) error {
 						dbStream.ChannelID,
 						platformentity.PlatformTwitch,
 					); err != nil {
-						c.logger.Error("cannot delete stream", logger.Error(err))
+						c.logger.Error("cannot delete stream", twirlogger.Error(err))
 						continue
 					}
 
 					if err := c.channelService.InvalidateOnlineCache(ctx, dbStream.ChannelID); err != nil {
-						c.logger.Error("cannot invalidate online cache", logger.Error(err))
+						c.logger.Error("cannot invalidate online cache", twirlogger.Error(err))
 					}
 
 					c.twirBus.Channel.StreamOffline.Publish(
@@ -443,7 +438,7 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []strea
 				}
 
 				if err := c.channelService.InvalidateOnlineCache(ctx, channelUUID); err != nil {
-					c.logger.Error("cannot invalidate online cache", logger.Error(err))
+					c.logger.Error("cannot invalidate online cache", twirlogger.Error(err))
 				}
 
 				if !dbStreamExists {
@@ -461,12 +456,12 @@ func (c *streams) processKickStreams(ctx context.Context, existedStreams []strea
 					channelUUID,
 					platformentity.PlatformKick,
 				); err != nil {
-					c.logger.Error("cannot delete kick stream", logger.Error(err))
+					c.logger.Error("cannot delete kick stream", twirlogger.Error(err))
 					continue
 				}
 
 				if err := c.channelService.InvalidateOnlineCache(ctx, channelUUID); err != nil {
-					c.logger.Error("cannot invalidate online cache", logger.Error(err))
+					c.logger.Error("cannot invalidate online cache", twirlogger.Error(err))
 				}
 
 				c.twirBus.KickStreamOffline.Publish(ctx, buskick.KickStreamOffline{

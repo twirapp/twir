@@ -20,21 +20,19 @@ import (
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 )
 
-type Opts struct {
-	GreetingsRepository greetings.Repository
-	UsersRepository     usersrepository.Repository
-	PlansRepository     plans.Repository
-	AuditRecorder       audit.Recorder
-	GreetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
-}
-
-func New(opts Opts) *Service {
+func New(
+	greetingsRepository greetings.Repository,
+	usersRepository usersrepository.Repository,
+	plansRepository plans.Repository,
+	auditRecorder audit.Recorder,
+	greetingsCache *generic_cacher.GenericCacher[[]model.Greeting],
+) *Service {
 	return &Service{
-		greetingsRepository: opts.GreetingsRepository,
-		usersRepository:     opts.UsersRepository,
-		plansRepository:     opts.PlansRepository,
-		auditRecorder:       opts.AuditRecorder,
-		greetingsCache:      opts.GreetingsCache,
+		greetingsRepository: greetingsRepository,
+		usersRepository:     usersRepository,
+		plansRepository:     plansRepository,
+		auditRecorder:       auditRecorder,
+		greetingsCache:      greetingsCache,
 	}
 }
 

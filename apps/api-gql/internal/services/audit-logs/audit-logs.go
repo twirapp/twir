@@ -9,15 +9,10 @@ import (
 	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
 )
 
-type Opts struct {
-	AuditLogsRepository auditlogsrepository.Repository
-	AuditLogsPubSub     auditlogs.PubSub
-}
-
-func New(opts Opts) *Service {
+func New(auditLogsRepository auditlogsrepository.Repository, auditLogsPubSub auditlogs.PubSub) *Service {
 	return &Service{
-		auditLogsRepository: opts.AuditLogsRepository,
-		auditLogsPubSub:     opts.AuditLogsPubSub,
+		auditLogsRepository: auditLogsRepository,
+		auditLogsPubSub:     auditLogsPubSub,
 	}
 }
 

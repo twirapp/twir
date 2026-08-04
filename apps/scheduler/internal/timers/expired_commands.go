@@ -18,17 +18,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type ExpiredCommandsOpts struct {
-	Lc *lifecycle.Lifecycle
-
-	Logger *slog.Logger
-	Config config.Config
-
-	Gorm         *gorm.DB
-	TwirBus      *buscore.Bus
-	CommandsRepo commandswithgroupsandresponsesrepository.Repository
-}
-
 type expiredCommands struct {
 	config        config.Config
 	logger        *slog.Logger
@@ -36,9 +25,16 @@ type expiredCommands struct {
 	commandsCache *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 }
 
-func NewExpiredCommands(opts ExpiredCommandsOpts) *expiredCommands {
+func NewExpiredCommands(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	cfg config.Config,
+	gorm *gorm.DB,
+	twirBus *buscore.Bus,
+	commandsRepo commandswithgroupsandresponsesrepository.Repository,
+) *expiredCommands {
 	timeTick := 15 * time.Second
-	if opts.Config.AppEnv == "production" {
+	if cfg.AppEnv == "production" {
 		timeTick = 5 * time.Minute
 	}
 	ticker := time.NewTicker(timeTick)
@@ -46,13 +42,13 @@ func NewExpiredCommands(opts ExpiredCommandsOpts) *expiredCommands {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &expiredCommands{
-		config:        opts.Config,
-		logger:        opts.Logger,
-		db:            opts.Gorm,
-		commandsCache: commandscache.New(opts.CommandsRepo, opts.TwirBus),
+		config:        cfg,
+		logger:        logger,
+		db:            gorm,
+		commandsCache: commandscache.New(commandsRepo, twirBus),
 	}
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {

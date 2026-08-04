@@ -23,16 +23,6 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	ChatMessagesRepository chat_messages.Repository
-	ChannelService         *channelservice.ChannelService
-	TwirBus                *buscore.Bus
-	WsRouter               wsrouter.WsRouter
-	Logger                 *slog.Logger
-}
-
 const (
 	chatMessagesSubscriptionKey          = "api.chatMessages"
 	chatMessagesSubscriptionKeyAll       = chatMessagesSubscriptionKey + ".All"
@@ -47,36 +37,43 @@ func chatOverlayModerationSubscriptionKeyCreate(platform string, channelId strin
 	return chatOverlayModerationSubscriptionKey + "." + platform + "." + channelId
 }
 
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	chatMessagesRepository chat_messages.Repository,
+	channelService *channelservice.ChannelService,
+	twirBus *buscore.Bus,
+	wsRouter wsrouter.WsRouter,
+	logger *slog.Logger,
+) *Service {
 	s := &Service{
-		chatMessagesRepository: opts.ChatMessagesRepository,
-		channelService:         opts.ChannelService,
-		wsRouter:               opts.WsRouter,
-		logger:                 opts.Logger,
+		chatMessagesRepository: chatMessagesRepository,
+		channelService:         channelService,
+		wsRouter:               wsRouter,
+		logger:                 logger,
 		chanSubs:               make(map[string]struct{}),
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				if err := opts.TwirBus.ChatMessages.Subscribe(s.handleBusEvent); err != nil {
+				if err := twirBus.ChatMessages.Subscribe(s.handleBusEvent); err != nil {
 					return err
 				}
-				if err := opts.TwirBus.Events.ChannelBan.Subscribe(s.handleChannelBanEvent); err != nil {
+				if err := twirBus.Events.ChannelBan.Subscribe(s.handleChannelBanEvent); err != nil {
 					return err
 				}
-				if err := opts.TwirBus.Events.ChannelMessageDelete.Subscribe(
+				if err := twirBus.Events.ChannelMessageDelete.Subscribe(
 					s.handleChannelMessageDeleteEvent,
 				); err != nil {
 					return err
 				}
-				return opts.TwirBus.Events.ChatClear.Subscribe(s.handleChatClearEvent)
+				return twirBus.Events.ChatClear.Subscribe(s.handleChatClearEvent)
 			},
 			OnStop: func(ctx context.Context) error {
-				opts.TwirBus.ChatMessages.Unsubscribe()
-				opts.TwirBus.Events.ChannelBan.Unsubscribe()
-				opts.TwirBus.Events.ChannelMessageDelete.Unsubscribe()
-				opts.TwirBus.Events.ChatClear.Unsubscribe()
+				twirBus.ChatMessages.Unsubscribe()
+				twirBus.Events.ChannelBan.Unsubscribe()
+				twirBus.Events.ChannelMessageDelete.Unsubscribe()
+				twirBus.Events.ChatClear.Unsubscribe()
 				return nil
 			},
 		},

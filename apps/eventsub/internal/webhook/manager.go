@@ -23,25 +23,22 @@ type Manager struct {
 	transports   *platformsregistry.Registry[eventplatforms.EventTransport]
 }
 
-type Opts struct {
-	Lc *lifecycle.Lifecycle
-
-	Config       cfg.Config
-	Logger       *slog.Logger
-	ChannelsRepo channels.Repository
-	Transports   *platformsregistry.Registry[eventplatforms.EventTransport]
-	Server       *httpserver.Server
-}
-
-func NewManager(opts Opts) *Manager {
+func NewManager(
+	lc *lifecycle.Lifecycle,
+	config cfg.Config,
+	logger *slog.Logger,
+	channelsRepo channels.Repository,
+	transports *platformsregistry.Registry[eventplatforms.EventTransport],
+	server *httpserver.Server,
+) *Manager {
 	m := &Manager{
-		config:       opts.Config,
-		logger:       opts.Logger,
-		channelsRepo: opts.ChannelsRepo,
-		transports:   opts.Transports,
+		config:       config,
+		logger:       logger,
+		channelsRepo: channelsRepo,
+		transports:   transports,
 	}
 
-	opts.Lc.Append(lifecycle.Hook{
+	lc.Append(lifecycle.Hook{
 		OnStart: func(ctx context.Context) error {
 			return m.start(ctx)
 		},

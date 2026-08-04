@@ -78,6 +78,7 @@ import (
 	giveawaysparticipantsrepository "github.com/twirapp/twir/libs/repositories/giveaways_participants"
 	giveawaysparticipantsrepositorypgx "github.com/twirapp/twir/libs/repositories/giveaways_participants/pgx"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
+	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
@@ -168,7 +169,6 @@ var ProviderSet = wire.NewSet(
 	channelservice.NewChannelService,
 	NewWebsocketClient,
 	workers.New,
-	wire.Struct(new(workers.Opts), "*"),
 	chatwallcacher.NewEnabledOnly,
 	chatwallcacher.NewSettings,
 	giveawayscache.New,
@@ -176,14 +176,12 @@ var ProviderSet = wire.NewSet(
 	wire.Bind(new(mod_task_queue.TaskDistributor), new(*mod_task_queue.ModTaskDistributor)),
 	rolescache.New,
 	toxicity_check.New,
-	wire.Struct(new(toxicity_check.Opts), "*"),
 	NewCommandsPrefixCache,
 	ttscache.NewTTSSettings,
 	keywordscache.New,
 	greetingscache.New,
 	channelcache.NewByTwitchUserID,
 	twitchactions.New,
-	wire.Struct(new(twitchactions.Opts), "*"),
 	kickchat.NewChatClient,
 	youtubechat.NewChatClient,
 	NewVKVideoChatClient,
@@ -192,44 +190,27 @@ var ProviderSet = wire.NewSet(
 	channelsmoderationsettingscache.New,
 	channelsgamesvotebancache.New,
 	moderationhelpers.New,
-	wire.Struct(new(moderationhelpers.Opts), "*"),
 	messagehandler.New,
-	wire.Struct(new(messagehandler.Opts), "*"),
 	channel.New,
-	wire.Struct(new(channel.Opts), "*"),
 	keywords.New,
-	wire.Struct(new(keywords.Opts), "*"),
 	tts.New,
-	wire.Struct(new(tts.Opts), "*"),
 	voteban.New,
-	wire.Struct(new(voteban.Opts), "*"),
 	chattranslationssettingscache.New,
 	chattranslationsservice.New,
-	wire.Struct(new(chattranslationsservice.Opts), "*"),
 	giveaways.New,
-	wire.Struct(new(giveaways.Opts), "*"),
 	twitch.New,
 	sended_messages_store.New,
-	wire.Struct(new(sended_messages_store.Opts), "*"),
 	discordmessagesupdater.New,
-	wire.Struct(new(discordmessagesupdater.Opts), "*"),
 	discord_go.New,
-	wire.Struct(new(discord_go.Opts), "*"),
 	wsrouter.NewNatsWsRouter,
 	wire.Bind(new(wsrouter.WsRouter), new(*wsrouter.WsRouterNats)),
 
-	wire.Struct(new(ytsr.Opts), "*"),
 	RegisterYTSR,
-	wire.Struct(new(mod_task_queue.RedisTaskProcessorOpts), "*"),
 	mod_task_queue.NewRedisTaskProcessor,
 	StartMetrics,
-	wire.Struct(new(stream_handlers.Opts), "*"),
 	RegisterStreamHandlers,
-	wire.Struct(new(bus_listener.Opts), "*"),
 	bus_listener.New,
-	wire.Struct(new(discordbushandler.Opts), "*"),
 	RegisterDiscordBusHandler,
-	wire.Struct(new(notificationssync.Opts), "*"),
 	notificationssync.New,
 	wire.Struct(new(ApplicationDeps), "*"),
 	NewApplication,
@@ -267,8 +248,13 @@ func NewCommandsPrefixCache(
 	return channelscommandsprefixcache.New(repository, bus)
 }
 
-func RegisterYTSR(opts ytsr.Opts) (YTSRRegistration, error) {
-	if err := ytsr.New(opts); err != nil {
+func RegisterYTSR(
+	lc *lifecycle.Lifecycle,
+	cfg cfg.Config,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+) (YTSRRegistration, error) {
+	if err := ytsr.New(lc, cfg, logger, twirBus); err != nil {
 		return YTSRRegistration{}, fmt.Errorf("register YTSR: %w", err)
 	}
 
@@ -284,13 +270,25 @@ func StartMetrics(config cfg.Config) MetricsServer {
 	return MetricsServer{}
 }
 
-func RegisterStreamHandlers(opts stream_handlers.Opts) StreamHandlersRegistration {
-	stream_handlers.New(opts)
+func RegisterStreamHandlers(
+	lc *lifecycle.Lifecycle,
+	bus *buscore.Bus,
+	channelService *channelservice.ChannelService,
+	logger *slog.Logger,
+	greetingsRepository greetingsrepository.Repository,
+	greetingsCacher *generic_cacher.GenericCacher[[]greetingsmodel.Greeting],
+) StreamHandlersRegistration {
+	stream_handlers.New(lc, bus, channelService, logger, greetingsRepository, greetingsCacher)
 	return StreamHandlersRegistration{}
 }
 
-func RegisterDiscordBusHandler(opts discordbushandler.Opts) (DiscordBusHandlerRegistration, error) {
-	if err := discordbushandler.New(opts); err != nil {
+func RegisterDiscordBusHandler(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	discord *discord_go.Discord,
+	bus *buscore.Bus,
+) (DiscordBusHandlerRegistration, error) {
+	if err := discordbushandler.New(lc, logger, discord, bus); err != nil {
 		return DiscordBusHandlerRegistration{}, fmt.Errorf("register Discord bus handler: %w", err)
 	}
 

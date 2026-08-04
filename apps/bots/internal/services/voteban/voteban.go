@@ -17,23 +17,20 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	TwirBus        *buscore.Bus
-	Logger         *slog.Logger
-	ChannelService *channel.Service
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	twirBus *buscore.Bus,
+	logger *slog.Logger,
+	channelService *channel.Service,
+) *Service {
 	s := &Service{
 		inProgressVotebans: make(map[voteBanChannelId]*session),
-		twirBus:            opts.TwirBus,
-		logger:             opts.Logger,
-		channelService:     opts.ChannelService,
+		twirBus:            twirBus,
+		logger:             logger,
+		channelService:     channelService,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := s.twirBus.Bots.VotebanRegister.SubscribeGroup(

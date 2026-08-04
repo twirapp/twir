@@ -15,25 +15,22 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Repository overlays_kappagen.Repository
-	WsRouter   wsrouter.WsRouter
-	TwirBus    *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	repository overlays_kappagen.Repository,
+	wsRouter wsrouter.WsRouter,
+	twirBus *buscore.Bus,
+) *Service {
 	s := &Service{
-		repository: opts.Repository,
-		wsRouter:   opts.WsRouter,
-		twirBus:    opts.TwirBus,
+		repository: repository,
+		wsRouter:   wsRouter,
+		twirBus:    twirBus,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				opts.TwirBus.Api.TriggerKappagen.SubscribeGroup(
+				twirBus.Api.TriggerKappagen.SubscribeGroup(
 					"api",
 					s.handleTriggerKappagenEvent,
 				)
@@ -41,7 +38,7 @@ func New(opts Opts) *Service {
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				opts.TwirBus.Api.TriggerKappagen.Unsubscribe()
+				twirBus.Api.TriggerKappagen.Unsubscribe()
 				return nil
 			},
 		},

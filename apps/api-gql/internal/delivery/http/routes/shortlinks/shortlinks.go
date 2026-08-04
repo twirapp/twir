@@ -13,82 +13,71 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 )
 
-type Dependencies struct {
-	API                  huma.API
-	Config               config.Config
-	Service              *shortenedurls.Service
-	CustomDomainsService *shortlinkscustomdomains.Service
-	Sessions             *auth.Auth
-	Logger               *slog.Logger
-	Middlewares          *middlewares.Middlewares
-	ClientInfoService    *clientinfo.Service
-}
-
 type Registration struct{}
 
 type registerRoute interface {
 	Register(huma.API)
 }
 
-func RegisterRoutes(deps Dependencies) Registration {
+func RegisterRoutes(api huma.API, config config.Config, service *shortenedurls.Service, customDomainsService *shortlinkscustomdomains.Service, sessions *auth.Auth, logger *slog.Logger, middlewaresService *middlewares.Middlewares, clientInfoService *clientinfo.Service) Registration {
 	routes := []registerRoute{
 		newCreate(CreateOpts{
-			Config: deps.Config, Service: deps.Service, CustomDomainsService: deps.CustomDomainsService,
-			Sessions: deps.Sessions, Logger: deps.Logger, Middlewares: deps.Middlewares,
-			ClientInfoService: deps.ClientInfoService,
+			Config: config, Service: service, CustomDomainsService: customDomainsService,
+			Sessions: sessions, Logger: logger, Middlewares: middlewaresService,
+			ClientInfoService: clientInfoService,
 		}),
-		newInfo(InfoOpts{Service: deps.Service, Config: deps.Config}),
+		newInfo(InfoOpts{Service: service, Config: config}),
 		newRedirect(RedirectOpts{
-			Service: deps.Service, Config: deps.Config, Sessions: deps.Sessions,
-			Logger: deps.Logger, ClientInfoService: deps.ClientInfoService,
+			Service: service, Config: config, Sessions: sessions,
+			Logger: logger, ClientInfoService: clientInfoService,
 		}),
-		newProfile(ProfileOpts{Service: deps.Service, Config: deps.Config, Sessions: deps.Sessions}),
+		newProfile(ProfileOpts{Service: service, Config: config, Sessions: sessions}),
 		newStatistics(StatisticsOpts{
-			Service: deps.Service, Sessions: deps.Sessions,
-			CustomDomainsService: deps.CustomDomainsService, Config: deps.Config,
+			Service: service, Sessions: sessions,
+			CustomDomainsService: customDomainsService, Config: config,
 		}),
 		newTopCountries(TopCountriesOpts{
-			Service: deps.Service, Sessions: deps.Sessions,
-			CustomDomainsService: deps.CustomDomainsService, Config: deps.Config,
+			Service: service, Sessions: sessions,
+			CustomDomainsService: customDomainsService, Config: config,
 		}),
 		newUpdate(UpdateOpts{
-			Service: deps.Service, CustomDomainsService: deps.CustomDomainsService,
-			Sessions: deps.Sessions, Config: deps.Config,
+			Service: service, CustomDomainsService: customDomainsService,
+			Sessions: sessions, Config: config,
 		}),
 		newDelete(DeleteOpts{
-			Service: deps.Service, CustomDomainsService: deps.CustomDomainsService, Sessions: deps.Sessions,
+			Service: service, CustomDomainsService: customDomainsService, Sessions: sessions,
 		}),
 		newGetCustomDomain(GetCustomDomainOpts{
-			CustomDomainsService: deps.CustomDomainsService, Sessions: deps.Sessions, Config: deps.Config,
+			CustomDomainsService: customDomainsService, Sessions: sessions, Config: config,
 		}),
 		newCreateCustomDomain(CreateCustomDomainOpts{
-			CustomDomainsService: deps.CustomDomainsService, Sessions: deps.Sessions, Config: deps.Config,
+			CustomDomainsService: customDomainsService, Sessions: sessions, Config: config,
 		}),
 		newVerifyCustomDomain(VerifyCustomDomainOpts{
-			CustomDomainsService: deps.CustomDomainsService, Sessions: deps.Sessions, Config: deps.Config,
+			CustomDomainsService: customDomainsService, Sessions: sessions, Config: config,
 		}),
 		newDeleteCustomDomain(DeleteCustomDomainOpts{
-			CustomDomainsService: deps.CustomDomainsService,
-			ShortenedUrlsService: deps.Service,
-			Sessions:             deps.Sessions,
+			CustomDomainsService: customDomainsService,
+			ShortenedUrlsService: service,
+			Sessions:             sessions,
 		}),
-		newAllowCustomDomain(AllowCustomDomainOpts{CustomDomainsService: deps.CustomDomainsService}),
-		newListPresets(ListPresetsOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newCreatePreset(CreatePresetOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newUpdatePreset(UpdatePresetOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newDeletePreset(DeletePresetOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newListPresetPatterns(ListPresetPatternsOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newCreatePresetPattern(CreatePresetPatternOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newDeletePresetPattern(DeletePresetPatternOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newListLinkPresets(ListLinkPresetsOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newApplyPresetToLink(ApplyPresetToLinkOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newRemovePresetFromLink(RemovePresetFromLinkOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newListLinkBannedUserAgents(ListLinkBannedUserAgentsOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newCreateLinkBannedUserAgent(CreateLinkBannedUserAgentOpts{Service: deps.Service, Sessions: deps.Sessions}),
-		newDeleteLinkBannedUserAgent(DeleteLinkBannedUserAgentOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newAllowCustomDomain(AllowCustomDomainOpts{CustomDomainsService: customDomainsService}),
+		newListPresets(ListPresetsOpts{Service: service, Sessions: sessions}),
+		newCreatePreset(CreatePresetOpts{Service: service, Sessions: sessions}),
+		newUpdatePreset(UpdatePresetOpts{Service: service, Sessions: sessions}),
+		newDeletePreset(DeletePresetOpts{Service: service, Sessions: sessions}),
+		newListPresetPatterns(ListPresetPatternsOpts{Service: service, Sessions: sessions}),
+		newCreatePresetPattern(CreatePresetPatternOpts{Service: service, Sessions: sessions}),
+		newDeletePresetPattern(DeletePresetPatternOpts{Service: service, Sessions: sessions}),
+		newListLinkPresets(ListLinkPresetsOpts{Service: service, Sessions: sessions}),
+		newApplyPresetToLink(ApplyPresetToLinkOpts{Service: service, Sessions: sessions}),
+		newRemovePresetFromLink(RemovePresetFromLinkOpts{Service: service, Sessions: sessions}),
+		newListLinkBannedUserAgents(ListLinkBannedUserAgentsOpts{Service: service, Sessions: sessions}),
+		newCreateLinkBannedUserAgent(CreateLinkBannedUserAgentOpts{Service: service, Sessions: sessions}),
+		newDeleteLinkBannedUserAgent(DeleteLinkBannedUserAgentOpts{Service: service, Sessions: sessions}),
 	}
 	for _, route := range routes {
-		route.Register(deps.API)
+		route.Register(api)
 	}
 
 	return Registration{}

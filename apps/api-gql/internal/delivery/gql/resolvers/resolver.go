@@ -233,10 +233,57 @@ type Resolver struct {
 	deps Deps
 }
 
-func New(deps Deps) (*Resolver, error) {
+func New(logger *slog.Logger, auditRecorder audit.Recorder, wsRouter wsrouter.WsRouter, spotifyRepository channelsintegrationsspotify.Repository, lastfmRepository channelsintegrationslastfm.Repository, vkIntegrationRepository vkintegrationrepo.Repository, plansRepository plansrepository.Repository, giveawaysSettingsRepository channels_giveaways_settings.Repository, channelsRepository channelsrepository.Repository, usersRepository usersrepository.Repository, channelPublicSettingsRepository channelpublicsettingsrepo.Repository, channelService *channelservice.ChannelService, channelPlatformBindingsService ChannelPlatformBindingsService, channelPlatformDashboard SelectedDashboardGetter, currentPlatform CurrentPlatformGetter, sessions SessionReader, authService *authroutes.Auth, gorm *gorm.DB, cachedTwitchClient *twitchcahe.CachedTwitchClient, cachedCommandsClient *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses], channelSongRequestsSettingsCache *generic_cacher.GenericCacher[model.ChannelSongRequestsSettings], minioClient *minio.Client, twirBus *bus_core.Bus, kv kv.KV, twirStats *twir_stats.TwirStats, kickProvider *kickplatform.Provider, dashboardWidgetEventsService *dashboard_widget_events.Service, dashboardWidgetsService *dashboard_widgets.Service, dashboardAccess *dashboardaccess.Service, variablesService *variables.Service, timersService *timers.Service, keywordsService *keywords.Service, quotesService *quotes.Service, auditLogsService *audit_logs.Service, adminActionsService *admin_actions.Service, badgesService *badges.Service, badgesUsersService *badges_users.Service, usersService *users.Service, twirUsersService *twir_users.Service, alertsService *alerts.Service, commandsService *commands.Service, commandsWithGroupsAndResponsesService *commands_with_groups_and_responses.Service, commandsResponsesService *commands_responses.Service, greetingsService *greetings.Service, rolesService *roles.Service, rolesUsersService *roles_users.Service, rolesWithUsersService *roles_with_roles_users.Service, twitchService *twitchservice.Service, chatMessagesService *chat_messages.Service, channelsService *channelsservice.Service, channelsCommandsPrefix *channels_commands_prefix.Service, channelsEmotesUsagesService *channels_emotes_usages.Service, ttsService *tts.Service, songRequestsService *song_requests.Service, songRequestPlaybackStateService *song_requests.PlaybackStateService, songRequestOverlaySettingsService *songrequestoverlaysettings.Service, communityRedemptionsService *community_redemptions.Service, streamElementsService *streamelements.Service, dashboardService *dashboard.Service, sevenTVIntegrationService *seventv_integration.Service, spotifyIntegrationService *spotify_integration.Service, valorantIntegrationService *valorantintegration.Service, donatelloIntegrationService *donatellointegration.Service, donateStreamIntegrationService *donatestreamintegration.Service, discordIntegrationService *discord_integration.Service, scheduledVipsService *scheduledvips.Service, chatTranslationService *chat_translation.Service, chatWallService *chat_wall.Service, cfg config.Config, giveawaysService *giveaways.Service, channelsModerationSettingsService *channels_moderation_settings.Service, shortenedUrlsService *shortenedurls.Service, shortLinksCustomDomainsService *shortlinkscustomdomains.Service, toxicMessagesService *toxic_messages.Service, chatAlertsCache *generic_cacher.GenericCacher[chatalertscache.ChatAlert], channelsFilesService *channels_files.Service, channelsRedemptionsHistoryService *channels_redemptions_history.Service, overlaysDudesService *overlays_dudes.Service, eventsService *events.Service, kappagenService *kappagen.Service, beRightBackService *be_right_back.Service, twirEventsService *twir_events.Service, donatePayService *donatepay_integration.Service, donationAlertsIntegrationService *donationalerts_integration.Service, gamesVotebanService *gamesvoteban.Service, nightbotIntegrationService *nightbotintegration.Service, lastfmIntegrationService *lastfmintegration.Service, obsWebsocketModuleService *obs_websocket_module.Service, webhookNotificationsService *webhook_notifications.Service, vkIntegrationService *vkintegration.Service, faceitIntegrationService *faceitintegration.Service, channelOverlaysService *channels_overlays.Service, streamlabsIntegrationService *streamlabs_integration.Service, channelsSecretService *channels_secret.Service, channelsStorageService *channels_storage.Service) (*Resolver, error) {
 	return &Resolver{
-		deps: deps,
+		deps: Deps{
+			Logger: logger, AuditRecorder: auditRecorder, WsRouter: wsRouter,
+			SpotifyRepository: spotifyRepository, LastfmRepository: lastfmRepository,
+			VKIntegrationRepository: vkIntegrationRepository, PlansRepository: plansRepository,
+			GiveawaysSettingsRepository: giveawaysSettingsRepository, ChannelsRepository: channelsRepository,
+			UsersRepository: usersRepository, ChannelPublicSettingsRepository: channelPublicSettingsRepository,
+			ChannelService: channelService, ChannelPlatformBindingsService: channelPlatformBindingsService,
+			ChannelPlatformDashboard: channelPlatformDashboard, CurrentPlatform: currentPlatform,
+			Sessions: sessions, Auth: authService, Gorm: gorm, CachedTwitchClient: cachedTwitchClient,
+			CachedCommandsClient: cachedCommandsClient, ChannelSongRequestsSettingsCache: channelSongRequestsSettingsCache,
+			Minio: minioClient, TwirBus: twirBus, KV: kv, TwirStats: twirStats, KickProvider: kickProvider,
+			DashboardWidgetEventsService: dashboardWidgetEventsService, DashboardWidgetsService: dashboardWidgetsService,
+			DashboardAccess: dashboardAccess, VariablesService: variablesService, TimersService: timersService,
+			KeywordsService: keywordsService, QuotesService: quotesService, AuditLogsService: auditLogsService,
+			AdminActionsService: adminActionsService, BadgesService: badgesService, BadgesUsersService: badgesUsersService,
+			UsersService: usersService, TwirUsersService: twirUsersService, AlertsService: alertsService,
+			CommandsService: commandsService, CommandsWithGroupsAndResponsesService: commandsWithGroupsAndResponsesService,
+			CommandsResponsesService: commandsResponsesService, GreetingsService: greetingsService, RolesService: rolesService,
+			RolesUsersService: rolesUsersService, RolesWithUsersService: rolesWithUsersService, TwitchService: twitchService,
+			ChatMessagesService: chatMessagesService, ChannelsService: channelsService,
+			ChannelsCommandsPrefix: channelsCommandsPrefix, ChannelsEmotesUsagesService: channelsEmotesUsagesService,
+			TTSService: ttsService, SongRequestsService: songRequestsService,
+			SongRequestPlaybackStateService:   songRequestPlaybackStateService,
+			SongRequestOverlaySettingsService: songRequestOverlaySettingsService,
+			CommunityRedemptionsService:       communityRedemptionsService, StreamElementsService: streamElementsService,
+			DashboardService: dashboardService, SevenTvIntegrationService: sevenTVIntegrationService,
+			SpotifyIntegrationService: spotifyIntegrationService, ValorantIntegrationService: valorantIntegrationService,
+			DonatelloIntegrationService:    donatelloIntegrationService,
+			DonateStreamIntegrationService: donateStreamIntegrationService, DiscordIntegrationService: discordIntegrationService,
+			ScheduledVipsService: scheduledVipsService, ChatTranslationService: chatTranslationService,
+			ChatWallService: chatWallService, Config: cfg, GiveawaysService: giveawaysService,
+			ChannelsModerationSettingsService: channelsModerationSettingsService,
+			ShortenedUrlsService:              shortenedUrlsService, ShortLinksCustomDomainsService: shortLinksCustomDomainsService,
+			ToxicMessagesService: toxicMessagesService, ChatAlertsCache: chatAlertsCache,
+			ChannelsFilesService: channelsFilesService, ChannelsRedemptionsHistoryService: channelsRedemptionsHistoryService,
+			OverlaysDudesService: overlaysDudesService, EventsService: eventsService, KappagenService: kappagenService,
+			BeRightBackService: beRightBackService, TwirEventsService: twirEventsService, DonatePayService: donatePayService,
+			DonationAlertsIntegrationService: donationAlertsIntegrationService, GamesVotebanService: gamesVotebanService,
+			NightbotIntegrationService: nightbotIntegrationService, LastfmIntegrationService: lastfmIntegrationService,
+			ObsWebsocketModuleService: obsWebsocketModuleService, WebhookNotificationsService: webhookNotificationsService,
+			VKIntegrationService: vkIntegrationService, FaceitIntegrationService: faceitIntegrationService,
+			ChannelOverlaysService: channelOverlaysService, StreamlabsIntegrationService: streamlabsIntegrationService,
+			ChannelsSecretService: channelsSecretService, ChannelsStorageService: channelsStorageService,
+		},
 	}, nil
+}
+
+func NewFromDeps(deps Deps) (*Resolver, error) {
+	return &Resolver{deps: deps}, nil
 }
 
 func GetPreloads(ctx context.Context) []string {

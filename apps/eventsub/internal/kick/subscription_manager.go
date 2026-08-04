@@ -59,21 +59,19 @@ type SubscriptionManager struct {
 	callbackBaseURL string
 }
 
-type Opts struct {
-	Config    cfg.Config
-	Redis     *goredis.Client
-	Logger    *slog.Logger
-	TwirBus   *buscore.Bus
-	UsersRepo usersrepository.Repository
-}
-
-func New(opts Opts) *SubscriptionManager {
+func New(
+	config cfg.Config,
+	redisClient *goredis.Client,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+	usersRepo usersrepository.Repository,
+) *SubscriptionManager {
 	return &SubscriptionManager{
-		config:    opts.Config,
-		redis:     opts.Redis,
-		logger:    opts.Logger,
-		twirBus:   opts.TwirBus,
-		usersRepo: opts.UsersRepo,
+		config:    config,
+		redis:     redisClient,
+		logger:    logger,
+		twirBus:   twirBus,
+		usersRepo: usersRepo,
 	}
 }
 

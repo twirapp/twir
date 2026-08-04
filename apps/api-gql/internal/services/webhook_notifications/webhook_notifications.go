@@ -27,16 +27,6 @@ var ErrInvalidPayload = errors.New("invalid webhook payload")
 
 const webhookNotificationsPageSize = 500
 
-type Opts struct {
-	Repository    channelsmoduleswebhooks.Repository
-	StreamsRepo   streams.Repository
-	AuditRecorder audit.Recorder
-	Bus           *buscore.Bus
-	Logger        *slog.Logger
-	ShortenedUrls *shortenedurls.Service
-	Config        cfg.Config
-}
-
 type Service struct {
 	repo          channelsmoduleswebhooks.Repository
 	streamsRepo   streams.Repository
@@ -47,15 +37,23 @@ type Service struct {
 	config        cfg.Config
 }
 
-func New(opts Opts) *Service {
+func New(
+	repository channelsmoduleswebhooks.Repository,
+	streamsRepo streams.Repository,
+	auditRecorder audit.Recorder,
+	bus *buscore.Bus,
+	logger *slog.Logger,
+	shortenedUrls *shortenedurls.Service,
+	config cfg.Config,
+) *Service {
 	return &Service{
-		repo:          opts.Repository,
-		streamsRepo:   opts.StreamsRepo,
-		auditRecorder: opts.AuditRecorder,
-		bus:           opts.Bus,
-		logger:        opts.Logger,
-		shortenedUrls: opts.ShortenedUrls,
-		config:        opts.Config,
+		repo:          repository,
+		streamsRepo:   streamsRepo,
+		auditRecorder: auditRecorder,
+		bus:           bus,
+		logger:        logger,
+		shortenedUrls: shortenedUrls,
+		config:        config,
 	}
 }
 

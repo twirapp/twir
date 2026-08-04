@@ -36,32 +36,17 @@ type Gql struct {
 	*handler.Server
 }
 
-type Opts struct {
-	Resolver                *resolvers.Resolver
-	Directives              *directives.Directives
-	Config                  config.Config
-	Tracer                  trace.Tracer
-	CachedTwitchClient      *twitch.CachedTwitchClient
-	Server                  *server.Server
-	CommandsGroupsService   *commands_groups.Service
-	CommandsResponseService *commands_responses.Service
-	TwitchService           *twitchservice.Service
-	DataLoaderFactory       *data_loader.LoaderFactory
-	Middlewares             *middlewares.Middlewares
-	Logger                  *slog.Logger
-}
-
-func New(opts Opts) *Gql {
+func New(resolver *resolvers.Resolver, directivesService *directives.Directives, config config.Config, tracer trace.Tracer, cachedTwitchClient *twitch.CachedTwitchClient, httpServer *server.Server, commandsGroupsService *commands_groups.Service, commandsResponseService *commands_responses.Service, twitchService *twitchservice.Service, dataLoaderFactory *data_loader.LoaderFactory, middlewaresService *middlewares.Middlewares, loggerInstance *slog.Logger) *Gql {
 	graphConfig := graph.Config{
-		Resolvers: opts.Resolver,
+		Resolvers: resolver,
 	}
-	graphConfig.Directives.IsAuthenticated = opts.Directives.IsAuthenticated
-	graphConfig.Directives.HasAccessToSelectedDashboard = opts.Directives.HasAccessToSelectedDashboard
-	graphConfig.Directives.IsAdmin = opts.Directives.IsAdmin
-	graphConfig.Directives.HasChannelRolesDashboardPermission = opts.Directives.HasChannelRolesDashboardPermission
-	graphConfig.Directives.Validate = opts.Directives.Validate
-	graphConfig.Directives.RateLimit = opts.Directives.RateLimit
-	graphConfig.Directives.NoRateLimit = opts.Directives.NoRateLimit
+	graphConfig.Directives.IsAuthenticated = directivesService.IsAuthenticated
+	graphConfig.Directives.HasAccessToSelectedDashboard = directivesService.HasAccessToSelectedDashboard
+	graphConfig.Directives.IsAdmin = directivesService.IsAdmin
+	graphConfig.Directives.HasChannelRolesDashboardPermission = directivesService.HasChannelRolesDashboardPermission
+	graphConfig.Directives.Validate = directivesService.Validate
+	graphConfig.Directives.RateLimit = directivesService.RateLimit
+	graphConfig.Directives.NoRateLimit = directivesService.NoRateLimit
 
 	schema := graph.NewExecutableSchema(graphConfig)
 
@@ -71,7 +56,7 @@ func New(opts Opts) *Gql {
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.MultipartForm{})
 	srv.Use(&rateLimitExtension{
-		rateLimiter: opts.Middlewares.RateLimitInstance(),
+		rateLimiter: middlewaresService.RateLimitInstance(),
 	})
 	srv.AddTransport(
 		transport.Websocket{
@@ -109,7 +94,7 @@ func New(opts Opts) *Gql {
 				}
 			}
 
-			opts.Logger.ErrorContext(
+			loggerInstance.ErrorContext(
 				ctx,
 				"GraphQL error",
 				slog.String("path", gerr.Path.String()),
@@ -124,15 +109,15 @@ func New(opts Opts) *Gql {
 	srv.Use(extension.Introspection{})
 
 	playgroundHandler := playground.Handler("GraphQL", "/api/query")
-	opts.Server.Any(
+	httpServer.Any(
 		"/", func(c *gin.Context) {
 			playgroundHandler.ServeHTTP(c.Writer, c.Request)
 		},
 	)
 
-	opts.Server.Any(
+	httpServer.Any(
 		"/query",
-		opts.DataLoaderFactory.LoadMiddleware,
+		dataLoaderFactory.LoadMiddleware,
 		func(c *gin.Context) {
 			srv.ServeHTTP(c.Writer, c.Request)
 		},

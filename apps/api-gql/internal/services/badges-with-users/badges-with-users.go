@@ -15,17 +15,15 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	BadgesService      *badges.Service
-	BadgesUsersService *badges_users.Service
-	UsersRepository    usersrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(
+	badgesService *badges.Service,
+	badgesUsersService *badges_users.Service,
+	usersRepository usersrepository.Repository,
+) *Service {
 	return &Service{
-		badgesService:      opts.BadgesService,
-		badgesUsersService: opts.BadgesUsersService,
-		usersRepository:    opts.UsersRepository,
+		badgesService:      badgesService,
+		badgesUsersService: badgesUsersService,
+		usersRepository:    usersRepository,
 	}
 }
 

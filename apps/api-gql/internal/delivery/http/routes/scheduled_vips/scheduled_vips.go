@@ -8,18 +8,12 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 )
 
-type Dependencies struct {
-	API      huma.API
-	Service  *scheduledvips.Service
-	Sessions *auth.Auth
-}
-
 type Registration struct{}
 
-func RegisterRoutes(deps Dependencies) Registration {
-	newCreate(CreateOpts{Service: deps.Service, Sessions: deps.Sessions}).Register(deps.API)
-	newList(ListOpts{Service: deps.Service, Sessions: deps.Sessions}).Register(deps.API)
-	newDelete(DeleteOpts{Service: deps.Service, Sessions: deps.Sessions}).Register(deps.API)
+func RegisterRoutes(api huma.API, service *scheduledvips.Service, sessions *auth.Auth) Registration {
+	newCreate(CreateOpts{Service: service, Sessions: sessions}).Register(api)
+	newList(ListOpts{Service: service, Sessions: sessions}).Register(api)
+	newDelete(DeleteOpts{Service: service, Sessions: sessions}).Register(api)
 	return Registration{}
 }
 

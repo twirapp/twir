@@ -11,6 +11,9 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	config "github.com/twirapp/twir/libs/config"
+	"gorm.io/gorm"
 )
 
 const Service = "emotes-cacher"
@@ -18,11 +21,7 @@ const Service = "emotes-cacher"
 var ProviderSet = wire.NewSet(
 	wire.Value(baseapp.Opts{AppName: Service}),
 	baseapp.ProviderSet,
-	wire.Struct(new(emotes_store.Opts), "*"),
 	emotes_store.New,
-	wire.Struct(new(buslistener.Opts), "*"),
-	wire.Struct(new(seventv.Opts), "*"),
-	wire.Struct(new(bttv.Opts), "*"),
 	NewApplication,
 )
 
@@ -33,17 +32,18 @@ type Application struct {
 func NewApplication(
 	lifecycle *lifecycle.Lifecycle,
 	logger *slog.Logger,
-	busListenerOpts buslistener.Opts,
-	sevenTVOpts seventv.Opts,
-	bttvOpts bttv.Opts,
+	bus *buscore.Bus,
+	gorm *gorm.DB,
+	cfg config.Config,
+	emotesStore *emotes_store.EmotesStore,
 ) (*Application, error) {
-	if err := buslistener.New(busListenerOpts); err != nil {
+	if err := buslistener.New(lifecycle, logger, bus, emotesStore); err != nil {
 		return nil, fmt.Errorf("create bus listener: %w", err)
 	}
-	if err := seventv.New(sevenTVOpts); err != nil {
+	if err := seventv.New(lifecycle, gorm, cfg, logger, emotesStore); err != nil {
 		return nil, fmt.Errorf("create 7TV service: %w", err)
 	}
-	if err := bttv.New(bttvOpts); err != nil {
+	if err := bttv.New(lifecycle, gorm, logger, emotesStore); err != nil {
 		return nil, fmt.Errorf("create BTTV service: %w", err)
 	}
 

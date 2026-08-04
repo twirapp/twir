@@ -10,16 +10,12 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	Config config.Config
-}
-
-func New(opts Opts) (*Service, error) {
+func New(cfg config.Config) (*Service, error) {
 	s := &Service{
-		config: opts.Config,
+		config: cfg,
 	}
 
-	siteBaseUrl, err := url.Parse(opts.Config.SiteBaseUrl)
+	siteBaseUrl, err := url.Parse(cfg.SiteBaseUrl)
 	if err != nil {
 		return nil, err
 	}

@@ -15,17 +15,15 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-type Opts struct {
-	ChatTranslationRepository repo.Repository
-	AuditRecorder             audit.Recorder
-	TranslationsSettingsCache *generic_cacher.GenericCacher[model.ChatTranslation]
-}
-
-func New(opts Opts) *Service {
+func New(
+	chatTranslationRepository repo.Repository,
+	auditRecorder audit.Recorder,
+	translationsSettingsCache *generic_cacher.GenericCacher[model.ChatTranslation],
+) *Service {
 	return &Service{
-		chatTranslationRepository: opts.ChatTranslationRepository,
-		auditRecorder:             opts.AuditRecorder,
-		translationsSettingsCache: opts.TranslationsSettingsCache,
+		chatTranslationRepository: chatTranslationRepository,
+		auditRecorder:             auditRecorder,
+		translationsSettingsCache: translationsSettingsCache,
 	}
 }
 

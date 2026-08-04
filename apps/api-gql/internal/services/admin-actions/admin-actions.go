@@ -14,19 +14,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	KV                 kv.KV
-	ChannelsRepository channels.Repository
-	TwirBus            *buscore.Bus
-	Gorm               *gorm.DB
-}
-
-func New(opts Opts) *Service {
+func New(kv kv.KV, channelsRepository channels.Repository, twirBus *buscore.Bus, gorm *gorm.DB) *Service {
 	return &Service{
-		kv:                 opts.KV,
-		channelsRepository: opts.ChannelsRepository,
-		twirbus:            opts.TwirBus,
-		gorm:               opts.Gorm,
+		kv:                 kv,
+		channelsRepository: channelsRepository,
+		twirbus:            twirBus,
+		gorm:               gorm,
 	}
 }
 

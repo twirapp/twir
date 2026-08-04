@@ -12,15 +12,10 @@ import (
 	"github.com/twirapp/twir/libs/repositories/donatepay_integration/model"
 )
 
-type Opts struct {
-	Repo    donatepayintegration.Repository
-	TwirBus *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(repo donatepayintegration.Repository, twirBus *buscore.Bus) *Service {
 	return &Service{
-		repo:    opts.Repo,
-		twirBus: opts.TwirBus,
+		repo:    repo,
+		twirBus: twirBus,
 	}
 }
 

@@ -14,16 +14,10 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 )
 
-type Dependencies struct {
-	API     huma.API
-	Config  config.Config
-	Service *tts.Service
-}
-
 type Registration struct{}
 
-func RegisterRoutes(deps Dependencies) Registration {
-	newSay(SayOpts{Config: deps.Config, Service: deps.Service}).Register(deps.API)
+func RegisterRoutes(api huma.API, config config.Config, service *tts.Service) Registration {
+	newSay(SayOpts{Config: config, Service: service}).Register(api)
 	return Registration{}
 }
 

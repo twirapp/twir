@@ -9,13 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type DashboardWidgetsEventsOpts struct {
-	Db *gorm.DB
-}
-
-func New(opts DashboardWidgetsEventsOpts) *Service {
+func New(db *gorm.DB) *Service {
 	return &Service{
-		db: opts.Db,
+		db: db,
 	}
 }
 

@@ -55,16 +55,23 @@ type Service struct {
 	clock      Clock
 	random     io.Reader
 }
-type Opts struct {
-	Repository      repository.Repository
-	Users           *users.Service
-	Channels        *channelservice.ChannelService
-	DashboardAccess *dashboardaccess.Service
-	Config          cfg.Config
-}
 
-func NewFx(opts Opts) (*Service, error) {
-	return New(Dependencies{Repository: opts.Repository, Users: opts.Users, Channels: opts.Channels, DashboardAccess: opts.DashboardAccess, SiteBaseURL: opts.Config.SiteBaseUrl, Clock: systemClock{}, Random: cryptorand.Reader})
+func NewFx(
+	repo repository.Repository,
+	usersService *users.Service,
+	channelsService *channelservice.ChannelService,
+	dashboardAccessService *dashboardaccess.Service,
+	config cfg.Config,
+) (*Service, error) {
+	return New(Dependencies{
+		Repository:      repo,
+		Users:           usersService,
+		Channels:        channelsService,
+		DashboardAccess: dashboardAccessService,
+		SiteBaseURL:     config.SiteBaseUrl,
+		Clock:           systemClock{},
+		Random:          cryptorand.Reader,
+	})
 }
 func New(deps Dependencies) (*Service, error) {
 	if deps.Repository == nil || deps.Users == nil || deps.Channels == nil || deps.DashboardAccess == nil || deps.Clock == nil || deps.Random == nil {

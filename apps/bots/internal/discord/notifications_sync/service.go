@@ -7,26 +7,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/diamondburned/arikawa/v3/discord"
+	discordapi "github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
+	loggerlib "github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/notifications"
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
 const notificationsSubscriptionKey = "api.newNotifications"
-
-type Opts struct {
-	Lifecycle *lifecycle.Lifecycle
-	Config    cfg.Config
-	Logger    *slog.Logger
-	Discord   *discord_go.Discord
-	Repo      notifications.Repository
-	WsRouter  wsrouter.WsRouter
-}
 
 type eventKind uint8
 
@@ -39,8 +30,8 @@ const (
 
 type syncEvent struct {
 	kind       eventKind
-	message    *discord.Message
-	messageIDs []discord.MessageID
+	message    *discordapi.Message
+	messageIDs []discordapi.MessageID
 }
 
 type notificationEvent struct {
@@ -58,7 +49,7 @@ type Service struct {
 	wsRouter     wsrouter.WsRouter
 	logger       *slog.Logger
 	store        *attachmentStore
-	channelID    discord.ChannelID
+	channelID    discordapi.ChannelID
 	historyLimit uint
 	events       chan syncEvent
 
@@ -68,33 +59,40 @@ type Service struct {
 	done        chan struct{}
 }
 
-func New(opts Opts) (*Service, error) {
+func New(
+	lc *lifecycle.Lifecycle,
+	cfg cfg.Config,
+	logger *slog.Logger,
+	discord *discord_go.Discord,
+	repo notifications.Repository,
+	wsRouter wsrouter.WsRouter,
+) (*Service, error) {
 	service := &Service{
-		discord:      opts.Discord,
-		repo:         opts.Repo,
-		wsRouter:     opts.WsRouter,
-		logger:       logger.WithComponent(opts.Logger, "discord-notifications-sync"),
-		historyLimit: opts.Config.DiscordNotificationsHistoryLimit,
+		discord:      discord,
+		repo:         repo,
+		wsRouter:     wsRouter,
+		logger:       loggerlib.WithComponent(logger, "discord-notifications-sync"),
+		historyLimit: cfg.DiscordNotificationsHistoryLimit,
 		events:       make(chan syncEvent, 128),
 	}
 
-	if opts.Config.DiscordNotificationsChannelID == "" {
+	if cfg.DiscordNotificationsChannelID == "" {
 		service.logger.Info("Discord notifications sync is disabled")
 		return service, nil
 	}
-	if opts.Config.DiscordBotToken == "" {
+	if cfg.DiscordBotToken == "" {
 		return nil, fmt.Errorf(
 			"DISCORD_BOT_TOKEN is required when DISCORD_NOTIFICATIONS_CHANNEL_ID is set",
 		)
 	}
 
-	channelSnowflake, err := discord.ParseSnowflake(opts.Config.DiscordNotificationsChannelID)
+	channelSnowflake, err := discordapi.ParseSnowflake(cfg.DiscordNotificationsChannelID)
 	if err != nil {
 		return nil, fmt.Errorf("parse Discord notifications channel ID: %w", err)
 	}
-	service.channelID = discord.ChannelID(channelSnowflake)
+	service.channelID = discordapi.ChannelID(channelSnowflake)
 
-	service.store, err = newAttachmentStore(opts.Config)
+	service.store, err = newAttachmentStore(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -104,12 +102,12 @@ func New(opts Opts) (*Service, error) {
 		)
 	}
 
-	opts.Discord.AddHandler(service.handleMessageCreate)
-	opts.Discord.AddHandler(service.handleMessageUpdate)
-	opts.Discord.AddHandler(service.handleMessageDelete)
-	opts.Discord.AddHandler(service.handleMessageDeleteBulk)
+	discord.AddHandler(service.handleMessageCreate)
+	discord.AddHandler(service.handleMessageUpdate)
+	discord.AddHandler(service.handleMessageDelete)
+	discord.AddHandler(service.handleMessageDeleteBulk)
 
-	opts.Lifecycle.Append(lifecycle.Hook{
+	lc.Append(lifecycle.Hook{
 		OnStart: service.start,
 		OnStop:  service.stop,
 	})
@@ -185,14 +183,14 @@ func (s *Service) handleMessageUpdate(event *gateway.MessageUpdateEvent) {
 	if event.ChannelID != s.channelID {
 		return
 	}
-	s.enqueue(syncEvent{kind: eventUpdate, messageIDs: []discord.MessageID{event.ID}})
+	s.enqueue(syncEvent{kind: eventUpdate, messageIDs: []discordapi.MessageID{event.ID}})
 }
 
 func (s *Service) handleMessageDelete(event *gateway.MessageDeleteEvent) {
 	if event.ChannelID != s.channelID {
 		return
 	}
-	s.enqueue(syncEvent{kind: eventDelete, messageIDs: []discord.MessageID{event.ID}})
+	s.enqueue(syncEvent{kind: eventDelete, messageIDs: []discordapi.MessageID{event.ID}})
 }
 
 func (s *Service) handleMessageDeleteBulk(event *gateway.MessageDeleteBulkEvent) {
@@ -212,7 +210,7 @@ func (s *Service) run(ctx context.Context) {
 				s.logger.ErrorContext(
 					ctx,
 					"failed to process Discord notification event",
-					logger.Error(err),
+					loggerlib.Error(err),
 				)
 			}
 		}
@@ -264,7 +262,7 @@ func (s *Service) backfill(ctx context.Context) error {
 
 func (s *Service) syncMessage(
 	ctx context.Context,
-	message discord.Message,
+	message discordapi.Message,
 	historical bool,
 ) error {
 	media := make([]renderedMedia, 0, len(message.Attachments))
@@ -277,7 +275,7 @@ func (s *Service) syncMessage(
 				"failed to mirror Discord attachment; using original URL",
 				slog.String("message_id", message.ID.String()),
 				slog.String("attachment", source.Filename),
-				logger.Error(err),
+				loggerlib.Error(err),
 			)
 		}
 		media = append(media, item)
@@ -292,7 +290,7 @@ func (s *Service) syncMessage(
 		return fmt.Errorf("render Discord message %s: %w", message.ID, err)
 	}
 	if !hasContent {
-		return s.deleteMessages(ctx, []discord.MessageID{message.ID})
+		return s.deleteMessages(ctx, []discordapi.MessageID{message.ID})
 	}
 
 	createdAt := message.Timestamp.Time().UTC()
@@ -323,7 +321,7 @@ func (s *Service) syncMessage(
 		result.PreviousAttachmentKeys,
 		attachmentKeys,
 	); err != nil {
-		s.logger.ErrorContext(ctx, "failed to remove replaced attachment", logger.Error(err))
+		s.logger.ErrorContext(ctx, "failed to remove replaced attachment", loggerlib.Error(err))
 	}
 
 	if historical && !result.Created {
@@ -362,7 +360,7 @@ func (s *Service) removeReplacedAttachments(
 	return s.store.remove(ctx, obsolete)
 }
 
-func (s *Service) deleteMessages(ctx context.Context, messageIDs []discord.MessageID) error {
+func (s *Service) deleteMessages(ctx context.Context, messageIDs []discordapi.MessageID) error {
 	ids := make([]string, len(messageIDs))
 	for index, messageID := range messageIDs {
 		ids[index] = messageID.String()
@@ -374,7 +372,7 @@ func (s *Service) deleteMessages(ctx context.Context, messageIDs []discord.Messa
 	}
 	for _, item := range deleted {
 		if err := s.store.remove(ctx, item.AttachmentKeys); err != nil {
-			s.logger.ErrorContext(ctx, "failed to remove deleted attachment", logger.Error(err))
+			s.logger.ErrorContext(ctx, "failed to remove deleted attachment", loggerlib.Error(err))
 		}
 		if err := s.wsRouter.Publish(notificationsSubscriptionKey, notificationEvent{
 			ID:        item.ID,

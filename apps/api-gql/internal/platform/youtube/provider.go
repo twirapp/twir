@@ -21,10 +21,6 @@ const (
 	youtubeScope            = "https://www.googleapis.com/auth/youtube"
 )
 
-type Opts struct {
-	Config cfg.Config
-}
-
 type Provider struct {
 	config     cfg.Config
 	httpClient *http.Client
@@ -36,8 +32,8 @@ type youtubeThumbnail struct {
 
 var _ platform.PlatformProvider = (*Provider)(nil)
 
-func New(opts Opts) *Provider {
-	return &Provider{config: opts.Config, httpClient: http.DefaultClient}
+func New(config cfg.Config) *Provider {
+	return &Provider{config: config, httpClient: http.DefaultClient}
 }
 
 func (p *Provider) Platform() platformentity.Platform {

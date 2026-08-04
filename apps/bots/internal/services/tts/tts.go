@@ -7,13 +7,9 @@ import (
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 )
 
-type Opts struct {
-	TTSSettingsCacher *generic_cacher.GenericCacher[modules.TTSSettings]
-}
-
-func New(opts Opts) *Service {
+func New(ttsSettingsCacher *generic_cacher.GenericCacher[modules.TTSSettings]) *Service {
 	return &Service{
-		ttsSettingsCacher: opts.TTSSettingsCacher,
+		ttsSettingsCacher: ttsSettingsCacher,
 	}
 }
 

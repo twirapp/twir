@@ -12,17 +12,15 @@ import (
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
 )
 
-type Opts struct {
-	Repository    channelsgamesvoteban.Repository
-	AuditRecorder audit.Recorder
-	Cacher        *generic_cacher.GenericCacher[votebanentity.Voteban]
-}
-
-func New(opts Opts) *Service {
+func New(
+	repository channelsgamesvoteban.Repository,
+	auditRecorder audit.Recorder,
+	cacher *generic_cacher.GenericCacher[votebanentity.Voteban],
+) *Service {
 	return &Service{
-		repository:    opts.Repository,
-		auditRecorder: opts.AuditRecorder,
-		cacher:        opts.Cacher,
+		repository:    repository,
+		auditRecorder: auditRecorder,
+		cacher:        cacher,
 	}
 }
 

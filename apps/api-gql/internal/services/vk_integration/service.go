@@ -16,15 +16,10 @@ import (
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
 )
 
-type Opts struct {
-	VKRepository vkintegrationrepo.Repository
-	Config       config.Config
-}
-
-func New(opts Opts) *Service {
+func New(vkRepository vkintegrationrepo.Repository, cfg config.Config) *Service {
 	return &Service{
-		vkRepository: opts.VKRepository,
-		config:       opts.Config,
+		vkRepository: vkRepository,
+		config:       cfg,
 	}
 }
 

@@ -15,23 +15,21 @@ import (
 
 var colorPattern = regexp.MustCompile(`^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$`)
 
-type Opts struct {
-	Repository song_request_overlay_settings.Repository
-	WsRouter   wsrouter.WsRouter
-	Logger     *slog.Logger
-}
-
 type Service struct {
 	repository song_request_overlay_settings.Repository
 	wsRouter   wsrouter.WsRouter
 	logger     *slog.Logger
 }
 
-func New(opts Opts) *Service {
+func New(
+	repository song_request_overlay_settings.Repository,
+	wsRouter wsrouter.WsRouter,
+	logger *slog.Logger,
+) *Service {
 	return &Service{
-		repository: opts.Repository,
-		wsRouter:   opts.WsRouter,
-		logger:     opts.Logger,
+		repository: repository,
+		wsRouter:   wsRouter,
+		logger:     logger,
 	}
 }
 

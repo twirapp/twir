@@ -17,22 +17,19 @@ type BusListener struct {
 	store  *emotes_store.EmotesStore
 }
 
-type Opts struct {
-	Lc *lifecycle.Lifecycle
-
-	Logger *slog.Logger
-	Bus    *buscore.Bus
-	Store  *emotes_store.EmotesStore
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	bus *buscore.Bus,
+	store *emotes_store.EmotesStore,
+) error {
 	impl := &BusListener{
-		logger: opts.Logger,
-		bus:    opts.Bus,
-		store:  opts.Store,
+		logger: logger,
+		bus:    bus,
+		store:  store,
 	}
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.bus.EmotesCacher.GetChannelEmotes.SubscribeGroup(

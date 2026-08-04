@@ -8,13 +8,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/commands_group"
 )
 
-type Opts struct {
-	CommandsGroupsRepository commands_group.Repository
-}
-
-func New(opts Opts) *Service {
+func New(commandsGroupsRepository commands_group.Repository) *Service {
 	return &Service{
-		commandsGroupsRepository: opts.CommandsGroupsRepository,
+		commandsGroupsRepository: commandsGroupsRepository,
 	}
 }
 

@@ -15,18 +15,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Gorm   *gorm.DB
-	Logger *slog.Logger
-}
-
 const GlobalChannelID = "global"
 
 var GlobalChannelKey = ChannelKey{ID: GlobalChannelID}
 
-func New(opts Opts) *EmotesStore {
+func New(lc *lifecycle.Lifecycle, gorm *gorm.DB, logger *slog.Logger) *EmotesStore {
 	s := &EmotesStore{
 		channels: map[ChannelKey]map[emotes_cacher.ServiceName]Service{
 			GlobalChannelKey: {
@@ -35,12 +28,12 @@ func New(opts Opts) *EmotesStore {
 				emotes_cacher.ServiceNameFFZ:     Service{},
 			},
 		},
-		logger: opts.Logger,
-		gorm:   opts.Gorm,
+		logger: logger,
+		gorm:   gorm,
 		mu:     sync.RWMutex{},
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {

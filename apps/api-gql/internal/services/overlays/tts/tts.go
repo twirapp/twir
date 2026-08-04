@@ -28,31 +28,28 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Repository      overlays_tts.Repository
-	WsRouter        wsrouter.WsRouter
-	Config          config.Config
-	TwirBus         *buscore.Bus
-	Logger          *slog.Logger
-	UsersRepository users.Repository
-	ChannelService  *channelservice.ChannelService
-	Cacher          *generic_cacher.GenericCacher[modules.TTSSettings]
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	repository overlays_tts.Repository,
+	wsRouter wsrouter.WsRouter,
+	config config.Config,
+	twirBus *buscore.Bus,
+	logger *slog.Logger,
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+	cacher *generic_cacher.GenericCacher[modules.TTSSettings],
+) *Service {
 	s := &Service{
-		repository:      opts.Repository,
-		wsRouter:        opts.WsRouter,
-		config:          opts.Config,
-		twirBus:         opts.TwirBus,
-		usersRepository: opts.UsersRepository,
-		channelService:  opts.ChannelService,
-		cacher:          opts.Cacher,
+		repository:      repository,
+		wsRouter:        wsRouter,
+		config:          config,
+		twirBus:         twirBus,
+		usersRepository: usersRepository,
+		channelService:  channelService,
+		cacher:          cacher,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				s.twirBus.Api.TriggerTtsSay.SubscribeGroup(
@@ -62,7 +59,7 @@ func New(opts Opts) *Service {
 					},
 				)
 
-				opts.Logger.Info("Subscribed to TriggerTtsSay events")
+				logger.Info("Subscribed to TriggerTtsSay events")
 
 				s.twirBus.Api.TriggerTtsSkip.SubscribeGroup(
 					"api",
@@ -71,7 +68,7 @@ func New(opts Opts) *Service {
 					},
 				)
 
-				opts.Logger.Info("Subscribed to TriggerTtsSkip events")
+				logger.Info("Subscribed to TriggerTtsSkip events")
 
 				return nil
 			},
@@ -79,7 +76,7 @@ func New(opts Opts) *Service {
 				s.twirBus.Api.TriggerTtsSay.Unsubscribe()
 				s.twirBus.Api.TriggerTtsSkip.Unsubscribe()
 
-				opts.Logger.Info("Unsubscribed from TriggerTtsSay and TriggerTtsSkip events")
+				logger.Info("Unsubscribed from TriggerTtsSay and TriggerTtsSkip events")
 
 				return nil
 			},

@@ -16,15 +16,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	Db      *gorm.DB
-	TwirBus *bus_core.Bus
-}
-
-func New(opts Opts) *Hydrator {
+func New(db *gorm.DB, twirBus *bus_core.Bus) *Hydrator {
 	return &Hydrator{
-		db:      opts.Db,
-		twirBus: opts.TwirBus,
+		db:      db,
+		twirBus: twirBus,
 	}
 }
 

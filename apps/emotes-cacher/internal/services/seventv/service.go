@@ -18,27 +18,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Gorm        *gorm.DB
-	Config      config.Config
-	Logger      *slog.Logger
-	EmotesStore *emotes_store.EmotesStore
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	gorm *gorm.DB,
+	cfg config.Config,
+	logger *slog.Logger,
+	emotesStore *emotes_store.EmotesStore,
+) error {
 	s := Service{
 		sockets:              nil,
-		gorm:                 opts.Gorm,
-		sevenTvApiClient:     seventv.NewClient(opts.Config.SevenTvToken),
-		logger:               opts.Logger,
-		emotesStore:          opts.EmotesStore,
+		gorm:                 gorm,
+		sevenTvApiClient:     seventv.NewClient(cfg.SevenTvToken),
+		logger:               logger,
+		emotesStore:          emotesStore,
 		registeredChannelIDs: make(map[string]bool),
 		emoteSetToChannelID:  make(map[string]emotes_store.ChannelKey),
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go s.start(context.Background())

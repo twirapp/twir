@@ -178,10 +178,10 @@ func TestSetEnabledUsesTransactionContext(t *testing.T) {
 func TestServiceUsesRequiredDirectDependencies(t *testing.T) {
 	serviceType := reflect.TypeFor[Service]()
 	want := map[string]reflect.Type{
-		"channels":     reflect.TypeFor[*channelservice.ChannelService](),
-		"users":        reflect.TypeFor[usersrepo.Repository](),
-		"bindings":     reflect.TypeFor[channelplatformsrepo.Repository](),
-		"oauth":        reflect.TypeFor[*authroutes.Auth](),
+		"channels":      reflect.TypeFor[*channelservice.ChannelService](),
+		"users":         reflect.TypeFor[usersrepo.Repository](),
+		"bindings":      reflect.TypeFor[channelplatformsrepo.Repository](),
+		"oauth":         reflect.TypeFor[*authroutes.Auth](),
 		"transactions":  reflect.TypeFor[trm.Manager](),
 		"bus":           reflect.TypeFor[*buscore.Bus](),
 		"channelsCache": reflect.TypeFor[channelCacheInvalidator](),
@@ -208,16 +208,17 @@ func TestNewFxWiresDirectDependencies(t *testing.T) {
 	bus := &buscore.Bus{}
 	channelsCache := generic_cacher.New[channelentity.Channel](generic_cacher.Opts[channelentity.Channel]{})
 
-	service := NewFx(Opts{
-		ChannelService:       channels,
-		UsersRepository:      users,
-		ChannelPlatformsRepo: bindings,
-		Auth:                 auth,
-		PlatformRegistry:     registry,
-		TrmManager:           transactions,
-		TwirBus:              bus,
-		ChannelsCache:        channelsCache,
-	})
+	service := NewFx(
+		channels,
+		users,
+		bindings,
+		auth,
+		registry,
+		transactions,
+		bus,
+		channelsCache,
+		nil,
+	)
 
 	if service.channels != channels || !reflect.DeepEqual(service.users, users) || service.bindings != bindings || service.oauth != auth || service.registry != registry || service.transactions != transactions || service.bus != bus || service.channelsCache != channelsCache {
 		t.Fatalf("NewFx() did not retain direct dependencies: %#v", service)

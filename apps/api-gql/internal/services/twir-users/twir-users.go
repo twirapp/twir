@@ -11,13 +11,9 @@ import (
 	userswithchannelmodel "github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 )
 
-type Opts struct {
-	UsersWithChannelsRepository users_with_channel.Repository
-}
-
-func New(opts Opts) *Service {
+func New(usersWithChannelsRepository users_with_channel.Repository) *Service {
 	return &Service{
-		usersWithChannelsRepository: opts.UsersWithChannelsRepository,
+		usersWithChannelsRepository: usersWithChannelsRepository,
 	}
 }
 

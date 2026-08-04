@@ -14,23 +14,20 @@ import (
 	"go.uber.org/atomic"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	ChannelsRepository channelsrepository.Repository
-	Logger             *slog.Logger
-}
-
-func New(opts Opts) *Pool {
+func New(
+	lc *lifecycle.Lifecycle,
+	channelsRepository channelsrepository.Repository,
+	logger *slog.Logger,
+) *Pool {
 	w := &Pool{
 		Pool:               pond.NewPool(1),
-		channelsRepository: opts.ChannelsRepository,
-		logger:             opts.Logger,
+		channelsRepository: channelsRepository,
+		logger:             logger,
 	}
 
 	workersResizerCtx, workersResizerCtxCancel := context.WithCancel(context.Background())
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				w.setSize(workersResizerCtx)

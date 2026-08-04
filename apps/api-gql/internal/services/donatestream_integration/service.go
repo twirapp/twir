@@ -14,15 +14,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	Gorm *gorm.DB
-	KV   kv.KV
-}
-
-func New(opts Opts) *Service {
+func New(gorm *gorm.DB, kv kv.KV) *Service {
 	return &Service{
-		gorm: opts.Gorm,
-		kv:   opts.KV,
+		gorm: gorm,
+		kv:   kv,
 	}
 }
 

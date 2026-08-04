@@ -22,23 +22,21 @@ import (
 	"github.com/twirapp/twir/libs/twitch"
 )
 
-type Opts struct {
-	ScheduledVipsRepository scheduledvipsrepository.Repository
-	ChannelService          *channelservice.ChannelService
-	UsersRepository         usersrepository.Repository
-	Config                  config.Config
-	Bus                     *buscore.Bus
-	Logger                  *slog.Logger
-}
-
-func New(opts Opts) *Service {
+func New(
+	scheduledVipsRepository scheduledvipsrepository.Repository,
+	channelService *channelservice.ChannelService,
+	usersRepository usersrepository.Repository,
+	cfg config.Config,
+	bus *buscore.Bus,
+	logger *slog.Logger,
+) *Service {
 	return &Service{
-		repo:           opts.ScheduledVipsRepository,
-		channelService: opts.ChannelService,
-		usersRepo:      opts.UsersRepository,
-		config:         opts.Config,
-		bus:            opts.Bus,
-		logger:         opts.Logger,
+		repo:           scheduledVipsRepository,
+		channelService: channelService,
+		usersRepo:      usersRepository,
+		config:         cfg,
+		bus:            bus,
+		logger:         logger,
 	}
 }
 

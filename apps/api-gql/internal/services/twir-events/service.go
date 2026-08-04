@@ -12,13 +12,6 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	WsRouter wsrouter.WsRouter
-	TwirBus  *buscore.Bus
-}
-
 type Service struct {
 	wsRouter        wsrouter.WsRouter
 	twirBus         *buscore.Bus
@@ -26,14 +19,14 @@ type Service struct {
 	offlineMu       sync.Mutex
 }
 
-func New(opts Opts) *Service {
+func New(lc *lifecycle.Lifecycle, wsRouter wsrouter.WsRouter, twirBus *buscore.Bus) *Service {
 	s := &Service{
-		wsRouter:        opts.WsRouter,
-		twirBus:         opts.TwirBus,
+		wsRouter:        wsRouter,
+		twirBus:         twirBus,
 		offlineChannels: make(map[string]struct{}),
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := s.twirBus.Events.Follow.SubscribeGroup("api", s.follow); err != nil {

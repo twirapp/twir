@@ -8,19 +8,9 @@ import (
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
+	twirlogger "github.com/twirapp/twir/libs/logger"
 	"gorm.io/gorm"
 )
-
-type WatchedOpts struct {
-	Lc *lifecycle.Lifecycle
-
-	Logger *slog.Logger
-	Config config.Config
-
-	Gorm    *gorm.DB
-	TwirBus *buscore.Bus
-}
 
 const watchedChannelIDsQuery = `
 	SELECT DISTINCT cp.channel_id AS id
@@ -35,16 +25,22 @@ func buildWatchedChannelIDsQuery(db *gorm.DB, ctx context.Context) *gorm.DB {
 	return db.WithContext(ctx).Raw(watchedChannelIDsQuery)
 }
 
-func NewWatched(opts WatchedOpts) {
+func NewWatched(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	cfg config.Config,
+	gorm *gorm.DB,
+	_ *buscore.Bus,
+) {
 	timeTick := 15 * time.Second
-	if opts.Config.AppEnv == "production" {
+	if cfg.AppEnv == "production" {
 		timeTick = 5 * time.Minute
 	}
 	ticker := time.NewTicker(timeTick)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
@@ -57,13 +53,13 @@ func NewWatched(opts WatchedOpts) {
 							var channelIDs []struct {
 								ID string `gorm:"column:id"`
 							}
-							if err := buildWatchedChannelIDsQuery(opts.Gorm, ctx).Scan(&channelIDs).Error; err != nil {
-								opts.Logger.Error("cannot get stream channel IDs", logger.Error(err))
+							if err := buildWatchedChannelIDsQuery(gorm, ctx).Scan(&channelIDs).Error; err != nil {
+								logger.Error("cannot get stream channel IDs", twirlogger.Error(err))
 								continue
 							}
 
 							for _, ch := range channelIDs {
-								if err := opts.Gorm.WithContext(ctx).Exec(`
+								if err := gorm.WithContext(ctx).Exec(`
 									UPDATE users_stats
 									SET watched = watched + $1
 									WHERE channel_id = $2::uuid
@@ -71,7 +67,7 @@ func NewWatched(opts WatchedOpts) {
 									      SELECT "userId" FROM users_online WHERE "channelId" = $2::uuid
 									  )
 								`, timeTick.Milliseconds(), ch.ID).Error; err != nil {
-									opts.Logger.Error("cannot update watched", logger.Error(err))
+									logger.Error("cannot update watched", twirlogger.Error(err))
 								}
 							}
 						}

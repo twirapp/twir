@@ -16,19 +16,17 @@ import (
 	userswithstatsrepository "github.com/twirapp/twir/libs/repositories/userswithstats"
 )
 
-type Opts struct {
-	UsersStatsRepo     usersstats.Repository
-	UsersRepo          users.Repository
-	UsersWithStatsRepo userswithstatsrepository.Repository
-	TrManager          trm.Manager
-}
-
-func New(opts Opts) *UserCreatorService {
+func New(
+	usersStatsRepo usersstats.Repository,
+	usersRepo users.Repository,
+	usersWithStatsRepo userswithstatsrepository.Repository,
+	trManager trm.Manager,
+) *UserCreatorService {
 	return &UserCreatorService{
-		usersStatsRepo:     opts.UsersStatsRepo,
-		usersRepo:          opts.UsersRepo,
-		usersWithStatsRepo: opts.UsersWithStatsRepo,
-		trManager:          opts.TrManager,
+		usersStatsRepo:     usersStatsRepo,
+		usersRepo:          usersRepo,
+		usersWithStatsRepo: usersWithStatsRepo,
+		trManager:          trManager,
 	}
 }
 

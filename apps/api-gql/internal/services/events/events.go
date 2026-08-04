@@ -14,19 +14,17 @@ import (
 	"github.com/twirapp/twir/libs/repositories/plans"
 )
 
-type Opts struct {
-	EventsRepository events.Repository
-	PlansRepository  plans.Repository
-	Logger           *slog.Logger
-	Cacher           *generic_cacher.GenericCacher[[]model.Event]
-}
-
-func New(opts Opts) *Service {
+func New(
+	eventsRepository events.Repository,
+	plansRepository plans.Repository,
+	logger *slog.Logger,
+	cacher *generic_cacher.GenericCacher[[]model.Event],
+) *Service {
 	return &Service{
-		eventsRepository: opts.EventsRepository,
-		plansRepository:  opts.PlansRepository,
-		logger:           opts.Logger,
-		cacher:           opts.Cacher,
+		eventsRepository: eventsRepository,
+		plansRepository:  plansRepository,
+		logger:           logger,
+		cacher:           cacher,
 	}
 }
 

@@ -12,17 +12,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	Gorm          *gorm.DB
-	Bus           *buscore.Bus
-	PlaybackState *PlaybackStateService
-}
-
-func New(opts Opts) *Service {
+func New(
+	db *gorm.DB,
+	bus *buscore.Bus,
+	playbackState *PlaybackStateService,
+) *Service {
 	return &Service{
-		gorm:          opts.Gorm,
-		bus:           opts.Bus,
-		playbackState: opts.PlaybackState,
+		gorm:          db,
+		bus:           bus,
+		playbackState: playbackState,
 	}
 }
 

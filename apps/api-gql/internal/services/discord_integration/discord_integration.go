@@ -23,17 +23,15 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	DiscordRepository channelsintegrationsdiscord.Repository
-	Config            cfg.Config
-	Bus               *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(
+	discordRepository channelsintegrationsdiscord.Repository,
+	config cfg.Config,
+	bus *buscore.Bus,
+) *Service {
 	return &Service{
-		repo:   opts.DiscordRepository,
-		config: opts.Config,
-		bus:    opts.Bus,
+		repo:   discordRepository,
+		config: config,
+		bus:    bus,
 	}
 }
 

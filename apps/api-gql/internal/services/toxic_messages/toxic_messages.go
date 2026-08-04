@@ -7,13 +7,9 @@ import (
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 )
 
-type Opts struct {
-	Repository toxicmessagesrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(repository toxicmessagesrepository.Repository) *Service {
 	return &Service{
-		repository: opts.Repository,
+		repository: repository,
 	}
 }
 

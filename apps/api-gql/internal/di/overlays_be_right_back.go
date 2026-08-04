@@ -10,6 +10,5 @@ import (
 var OverlaysBeRightBackProviderSet = wire.NewSet(
 	pgx.NewFx,
 	wire.Bind(new(overlays_be_right_back.Repository), new(*pgx.Pgx)),
-	wire.Struct(new(be_right_back.Opts), "*"),
 	be_right_back.New,
 )

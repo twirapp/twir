@@ -10,6 +10,5 @@ import (
 var OverlaysTTSProviderSet = wire.NewSet(
 	pgx.NewFx,
 	wire.Bind(new(overlays_tts.Repository), new(*pgx.Pgx)),
-	wire.Struct(new(tts.Opts), "*"),
 	tts.New,
 )

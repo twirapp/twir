@@ -12,16 +12,9 @@ import (
 	"github.com/diamondburned/arikawa/v3/session"
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
+	loggerlib "github.com/twirapp/twir/libs/logger"
 	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
 )
-
-type Opts struct {
-	LC          *lifecycle.Lifecycle
-	Config      cfg.Config
-	Logger      *slog.Logger
-	DiscordRepo channelsintegrationsdiscord.Repository
-}
 
 type Discord struct {
 	api     *discordapi.Client
@@ -31,20 +24,25 @@ type Discord struct {
 	discordRepo channelsintegrationsdiscord.Repository
 }
 
-func New(opts Opts) (*Discord, error) {
-	if opts.Config.DiscordBotToken == "" {
+func New(
+	lc *lifecycle.Lifecycle,
+	cfg cfg.Config,
+	logger *slog.Logger,
+	discordRepo channelsintegrationsdiscord.Repository,
+) (*Discord, error) {
+	if cfg.DiscordBotToken == "" {
 		return &Discord{}, nil
 	}
 
-	log := logger.WithComponent(opts.Logger, "discord")
+	log := loggerlib.WithComponent(logger, "discord")
 	d := &Discord{
 		logger:      log,
-		discordRepo: opts.DiscordRepo,
-		api:         discordapi.NewClient("Bot " + opts.Config.DiscordBotToken),
+		discordRepo: discordRepo,
+		api:         discordapi.NewClient("Bot " + cfg.DiscordBotToken),
 	}
-	if opts.Config.DiscordNotificationsChannelID != "" {
+	if cfg.DiscordNotificationsChannelID != "" {
 		d.session = session.NewWithIntents(
-			"Bot "+opts.Config.DiscordBotToken,
+			"Bot "+cfg.DiscordBotToken,
 			gateway.IntentGuilds,
 			gateway.IntentGuildMessages,
 			gateway.IntentMessageContent,
@@ -54,7 +52,7 @@ func New(opts Opts) (*Discord, error) {
 		d.session.AddHandler(d.handleGuildDelete)
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				botInfo, err := d.api.Me()

@@ -7,13 +7,9 @@ import (
 	channelsemotesusagesrepository "github.com/twirapp/twir/libs/repositories/channels_emotes_usages"
 )
 
-type Opts struct {
-	ChannelsEmotesUsagesRepository channelsemotesusagesrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(channelsEmotesUsagesRepository channelsemotesusagesrepository.Repository) *Service {
 	return &Service{
-		channelsEmotesUsagesRepository: opts.ChannelsEmotesUsagesRepository,
+		channelsEmotesUsagesRepository: channelsEmotesUsagesRepository,
 	}
 }
 

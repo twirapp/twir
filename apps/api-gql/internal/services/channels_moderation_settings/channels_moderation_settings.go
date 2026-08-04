@@ -13,17 +13,15 @@ import (
 	"github.com/twirapp/twir/libs/repositories/plans"
 )
 
-type Opts struct {
-	Repo            channels_moderation_settings.Repository
-	PlansRepository plans.Repository
-	Cacher          *generic_cacher.GenericCacher[[]model.ChannelModerationSettings]
-}
-
-func New(opts Opts) *Service {
+func New(
+	repo channels_moderation_settings.Repository,
+	plansRepository plans.Repository,
+	cacher *generic_cacher.GenericCacher[[]model.ChannelModerationSettings],
+) *Service {
 	return &Service{
-		repo:            opts.Repo,
-		plansRepository: opts.PlansRepository,
-		cacher:          opts.Cacher,
+		repo:            repo,
+		plansRepository: plansRepository,
+		cacher:          cacher,
 	}
 }
 

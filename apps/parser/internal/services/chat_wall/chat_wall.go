@@ -27,26 +27,23 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	ChatWallRepository chatwallrepository.Repository
-	ChatMessagesRepo   chat_messages.Repository
-
-	Gorm          *gorm.DB
-	ChatWallCache *generic_cacher.GenericCacher[[]model.ChatWall]
-	Redis         *redis.Client
-	Config        config.Config
-	TwirBus       *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(
+	chatWallRepository chatwallrepository.Repository,
+	chatMessagesRepo chat_messages.Repository,
+	gormDB *gorm.DB,
+	chatWallCache *generic_cacher.GenericCacher[[]model.ChatWall],
+	redisClient *redis.Client,
+	applicationConfig config.Config,
+	twirBus *buscore.Bus,
+) *Service {
 	return &Service{
-		repo:             opts.ChatWallRepository,
-		chatMessagesRepo: opts.ChatMessagesRepo,
-		gorm:             opts.Gorm,
-		chatWallCache:    opts.ChatWallCache,
-		redis:            opts.Redis,
-		config:           opts.Config,
-		twirBus:          opts.TwirBus,
+		repo:             chatWallRepository,
+		chatMessagesRepo: chatMessagesRepo,
+		gorm:             gormDB,
+		chatWallCache:    chatWallCache,
+		redis:            redisClient,
+		config:           applicationConfig,
+		twirBus:          twirBus,
 	}
 }
 
@@ -131,12 +128,12 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 }
 
 type HandlePastMessagesInput struct {
-	DBChannelID     string
+	DBChannelID       string
 	PlatformChannelID string
-	Platform        platformentity.Platform
-	Phrase          string
-	Action          model.ChatWallAction
-	TimeoutDuration *time.Duration
+	Platform          platformentity.Platform
+	Phrase            string
+	Action            model.ChatWallAction
+	TimeoutDuration   *time.Duration
 }
 
 func (c *Service) HandlePastMessages(
@@ -308,11 +305,11 @@ func (c *Service) HandlePastMessages(
 			return nil
 		}
 
-			err = c.twirBus.Bots.DeleteMessage.Publish(
-				ctx,
-				botsservice.DeleteMessageRequest{
-					ChannelId:  input.PlatformChannelID,
-					MessageIds: mappedMessagesIDs,
+		err = c.twirBus.Bots.DeleteMessage.Publish(
+			ctx,
+			botsservice.DeleteMessageRequest{
+				ChannelId:  input.PlatformChannelID,
+				MessageIds: mappedMessagesIDs,
 			},
 		)
 		if err != nil {

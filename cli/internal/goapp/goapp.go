@@ -180,18 +180,27 @@ func (c *TwirGoApp) GenerateWire() error {
 	if err != nil {
 		return err
 	}
-	if len(targets) == 0 {
-		return nil
+
+	// goforj/wire keeps a persistent analysis cache (~/.cache/wire) that can
+	// return stale provider signatures when several packages are generated in
+	// a single process (observed: outdated Opts-based injectors right after
+	// constructor signature changes). Generate each target in its own process
+	// and key the cache by file content instead of modtime to keep generation
+	// deterministic.
+	for _, target := range targets {
+		args := []string{"tool", "github.com/goforj/wire/cmd/wire", "gen", target}
+		wireCmd := exec.Command("go", args...)
+		wireCmd.Dir = filepath.Join(repositoryRoot, "cli")
+		wireCmd.Env = append(os.Environ(), "WIRE_CACHE_MODE=content")
+		wireCmd.Stdout = os.Stdout
+		wireCmd.Stderr = os.Stderr
+
+		if err := wireCmd.Run(); err != nil {
+			return fmt.Errorf("generate Wire injector for %s: %w", target, err)
+		}
 	}
 
-	args := []string{"tool", "github.com/goforj/wire/cmd/wire", "gen"}
-	args = append(args, targets...)
-	wireCmd := exec.Command("go", args...)
-	wireCmd.Dir = filepath.Join(repositoryRoot, "cli")
-	wireCmd.Stdout = os.Stdout
-	wireCmd.Stderr = os.Stderr
-
-	return wireCmd.Run()
+	return nil
 }
 
 func wireTargets(repositoryRoot, appPath string) ([]string, error) {

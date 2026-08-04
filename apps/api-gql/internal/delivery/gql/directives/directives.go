@@ -10,17 +10,11 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
-type Opts struct {
-	Sessions        *auth.Auth
-	DashboardAccess *dashboardaccess.Service
-	RateLimiter     *rate_limiter.LeakyBucketRateLimiter
-}
-
-func New(opts Opts) *Directives {
+func New(sessions *auth.Auth, dashboardAccess *dashboardaccess.Service, rateLimiter *rate_limiter.LeakyBucketRateLimiter) *Directives {
 	return &Directives{
-		sessions:        opts.Sessions,
-		dashboardAccess: opts.DashboardAccess,
-		rateLimiter:     opts.RateLimiter,
+		sessions:        sessions,
+		dashboardAccess: dashboardAccess,
+		rateLimiter:     rateLimiter,
 	}
 }
 

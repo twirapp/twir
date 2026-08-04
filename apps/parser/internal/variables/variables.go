@@ -51,15 +51,11 @@ type Variables struct {
 	services *services.Services
 }
 
-type Opts struct {
-	Services *services.Services
-}
-
 var Regexp = regexp.MustCompile(
 	`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`,
 )
 
-func New(opts *Opts) *Variables {
+func New(serviceContainer *services.Services) *Variables {
 	store := lo.SliceToMap(
 		[]*types.Variable{
 			command_param.Variable,
@@ -179,7 +175,7 @@ func New(opts *Opts) *Variables {
 	)
 
 	variables := &Variables{
-		services: opts.Services,
+		services: serviceContainer,
 		Store:    store,
 	}
 

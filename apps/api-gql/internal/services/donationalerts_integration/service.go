@@ -20,17 +20,15 @@ import (
 	"github.com/twirapp/twir/libs/repositories/donationalerts_integration/model"
 )
 
-type Opts struct {
-	DonationAlertsRepository donationalerts_integration.Repository
-	TwirBus                  *buscore.Bus
-	Config                   config.Config
-}
-
-func New(opts Opts) *Service {
+func New(
+	donationAlertsRepository donationalerts_integration.Repository,
+	twirBus *buscore.Bus,
+	config config.Config,
+) *Service {
 	return &Service{
-		donationAlertsRepository: opts.DonationAlertsRepository,
-		twirBus:                  opts.TwirBus,
-		config:                   opts.Config,
+		donationAlertsRepository: donationAlertsRepository,
+		twirBus:                  twirBus,
+		config:                   config,
 	}
 }
 

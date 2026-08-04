@@ -10,13 +10,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/roles_users/model"
 )
 
-type Opts struct {
-	RolesUsersRepository roles_users.Repository
-}
-
-func New(opts Opts) *Service {
+func New(rolesUsersRepository roles_users.Repository) *Service {
 	return &Service{
-		rolesUsersRepository: opts.RolesUsersRepository,
+		rolesUsersRepository: rolesUsersRepository,
 	}
 }
 

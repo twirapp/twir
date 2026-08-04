@@ -10,23 +10,15 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 )
 
-type Dependencies struct {
-	API               huma.API
-	Config            config.Config
-	Service           *pastebins.Service
-	Sessions          *auth.Auth
-	ClientInfoService *clientinfo.Service
-}
-
 type Registration struct{}
 
-func RegisterRoutes(deps Dependencies) Registration {
-	newProfile(ProfileOpts{Service: deps.Service, Sessions: deps.Sessions}).Register(deps.API)
-	newGetById(GetByIdOpts{Service: deps.Service}).Register(deps.API)
+func RegisterRoutes(api huma.API, config config.Config, service *pastebins.Service, sessions *auth.Auth, clientInfoService *clientinfo.Service) Registration {
+	newProfile(ProfileOpts{Service: service, Sessions: sessions}).Register(api)
+	newGetById(GetByIdOpts{Service: service}).Register(api)
 	newCreate(CreateOpts{
-		Service: deps.Service, Sessions: deps.Sessions, ClientInfoService: deps.ClientInfoService,
-	}).Register(deps.API)
-	newDelete(CreateOpts{Service: deps.Service, Sessions: deps.Sessions, ClientInfoService: deps.ClientInfoService}).Register(deps.API)
+		Service: service, Sessions: sessions, ClientInfoService: clientInfoService,
+	}).Register(api)
+	newDelete(CreateOpts{Service: service, Sessions: sessions, ClientInfoService: clientInfoService}).Register(api)
 	return Registration{}
 }
 

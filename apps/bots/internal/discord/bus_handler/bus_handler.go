@@ -12,33 +12,31 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	LC      *lifecycle.Lifecycle
-	Logger  *slog.Logger
-	Discord *discord_go.Discord
-	Bus     *buscore.Bus
-}
-
 type Handler struct {
 	discord *discord_go.Discord
 	bus     *buscore.Bus
 	logger  *slog.Logger
 }
 
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	discord *discord_go.Discord,
+	bus *buscore.Bus,
+) error {
 	h := &Handler{
-		discord: opts.Discord,
-		bus:     opts.Bus,
-		logger:  opts.Logger,
+		discord: discord,
+		bus:     bus,
+		logger:  logger,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := h.subscribe(); err != nil {
 					return err
 				}
-				opts.Logger.Info("Discord bus handler is running")
+				logger.Info("Discord bus handler is running")
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {

@@ -14,13 +14,8 @@ import (
 
 const canAccessDashboardPermission = "CAN_ACCESS_DASHBOARD"
 
-type Opts struct {
-	ChannelService *channelservice.ChannelService
-	Gorm           *gorm.DB
-}
-
-func NewFx(opts Opts) *Service {
-	return New(opts.ChannelService, &gormStore{gorm: opts.Gorm})
+func NewFx(channelService *channelservice.ChannelService, gorm *gorm.DB) *Service {
+	return New(channelService, &gormStore{gorm: gorm})
 }
 
 type Service struct {

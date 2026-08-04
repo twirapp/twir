@@ -5,10 +5,6 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 )
 
-type Opts struct {
-	Config cfg.Config
-}
-
-func New(opts Opts) (*nats.Conn, error) {
-	return nats.Connect(opts.Config.NatsUrl, nats.Name("parser"))
+func New(config cfg.Config) (*nats.Conn, error) {
+	return nats.Connect(config.NatsUrl, nats.Name("parser"))
 }

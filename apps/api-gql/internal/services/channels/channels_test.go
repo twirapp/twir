@@ -366,17 +366,15 @@ func channelWithBindings(
 
 func newTestService(users usersrepo.Repository, channels channelsrepo.Repository) *Service {
 	return New(
-		Opts{
-			UsersRepository:    users,
-			ChannelsRepository: channels,
-			ChannelService: channelservice.NewChannelService(
-				channels,
-				&buscore.Bus{},
-				config.Config{},
-				nil,
-				nil,
-			),
-		},
+		channels,
+		users,
+		channelservice.NewChannelService(
+			channels,
+			&buscore.Bus{},
+			config.Config{},
+			nil,
+			nil,
+		),
 	)
 }
 

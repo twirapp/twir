@@ -23,18 +23,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type OnlineUsersOpts struct {
-	Lc *lifecycle.Lifecycle
-
-	Logger *slog.Logger
-	Config config.Config
-
-	Gorm    *gorm.DB
-	TwirBus *buscore.Bus
-
-	StreamsRepo streamsrepository.Repository
-}
-
 type onlineUsers struct {
 	config      config.Config
 	logger      *slog.Logger
@@ -107,9 +95,16 @@ func orderChattersForUserInsert(chatters []helix.ChatChatter) []helix.ChatChatte
 	return ordered
 }
 
-func NewOnlineUsers(opts OnlineUsersOpts) {
+func NewOnlineUsers(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	cfg config.Config,
+	gorm *gorm.DB,
+	twirBus *buscore.Bus,
+	streamsRepo streamsrepository.Repository,
+) {
 	timeTick := 15 * time.Second
-	if opts.Config.AppEnv == "production" {
+	if cfg.AppEnv == "production" {
 		timeTick = 5 * time.Minute
 	}
 	ticker := time.NewTicker(timeTick)
@@ -117,14 +112,14 @@ func NewOnlineUsers(opts OnlineUsersOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &onlineUsers{
-		config:      opts.Config,
-		logger:      opts.Logger,
-		db:          opts.Gorm,
-		twirBus:     opts.TwirBus,
-		streamsRepo: opts.StreamsRepo,
+		config:      cfg,
+		logger:      logger,
+		db:          gorm,
+		twirBus:     twirBus,
+		streamsRepo: streamsRepo,
 	}
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {

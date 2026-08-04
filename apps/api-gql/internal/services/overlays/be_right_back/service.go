@@ -20,27 +20,24 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Repository      overlays_be_right_back.Repository
-	WsRouter        wsrouter.WsRouter
-	TwirBus         *buscore.Bus
-	Logger          *slog.Logger
-	UsersRepository users.Repository
-	ChannelService  *channelservice.ChannelService
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	repository overlays_be_right_back.Repository,
+	wsRouter wsrouter.WsRouter,
+	twirBus *buscore.Bus,
+	logger *slog.Logger,
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+) *Service {
 	s := &Service{
-		repository:      opts.Repository,
-		wsRouter:        opts.WsRouter,
-		twirBus:         opts.TwirBus,
-		usersRepository: opts.UsersRepository,
-		channelService:  opts.ChannelService,
+		repository:      repository,
+		wsRouter:        wsRouter,
+		twirBus:         twirBus,
+		usersRepository: usersRepository,
+		channelService:  channelService,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				s.twirBus.Api.TriggerBrbStart.SubscribeGroup(
@@ -50,7 +47,7 @@ func New(opts Opts) *Service {
 					},
 				)
 
-				opts.Logger.Info("Subscribed to TriggerBrbStart events")
+				logger.Info("Subscribed to TriggerBrbStart events")
 
 				s.twirBus.Api.TriggerBrbStop.SubscribeGroup(
 					"api",
@@ -59,7 +56,7 @@ func New(opts Opts) *Service {
 					},
 				)
 
-				opts.Logger.Info("Subscribed to TriggerBrbStop events")
+				logger.Info("Subscribed to TriggerBrbStop events")
 
 				return nil
 			},
@@ -67,7 +64,7 @@ func New(opts Opts) *Service {
 				s.twirBus.Api.TriggerBrbStart.Unsubscribe()
 				s.twirBus.Api.TriggerBrbStop.Unsubscribe()
 
-				opts.Logger.Info("Unsubscribed from TriggerBrbStart and TriggerBrbStop events")
+				logger.Info("Unsubscribed from TriggerBrbStart and TriggerBrbStop events")
 
 				return nil
 			},

@@ -11,15 +11,13 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	OverlaysDudesRepository overlays_dudes.Repository
-	WsRouter                wsrouter.WsRouter
-}
-
-func New(opts Opts) *Service {
+func New(
+	overlaysDudesRepository overlays_dudes.Repository,
+	wsRouter wsrouter.WsRouter,
+) *Service {
 	return &Service{
-		overlaysDudesRepository: opts.OverlaysDudesRepository,
-		wsRouter:                opts.WsRouter,
+		overlaysDudesRepository: overlaysDudesRepository,
+		wsRouter:                wsRouter,
 	}
 }
 

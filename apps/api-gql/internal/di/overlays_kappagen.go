@@ -10,6 +10,5 @@ import (
 var OverlaysKappagenProviderSet = wire.NewSet(
 	pgx.NewFx,
 	wire.Bind(new(overlays_kappagen.Repository), new(*pgx.Pgx)),
-	wire.Struct(new(kappagen.Opts), "*"),
 	kappagen.New,
 )

@@ -66,12 +66,7 @@ type Commands struct {
 	variablesService *variables.Variables
 }
 
-type Opts struct {
-	Services         *services.Services
-	VariablesService *variables.Variables
-}
-
-func New(opts *Opts) *Commands {
+func New(serviceContainer *services.Services, variablesService *variables.Variables) *Commands {
 	commands := lo.SliceToMap(
 		[]*types.DefaultCommand{
 			song.CurrentSong,
@@ -170,8 +165,8 @@ func New(opts *Opts) *Commands {
 
 	ctx := &Commands{
 		DefaultCommands:  commands,
-		services:         opts.Services,
-		variablesService: opts.VariablesService,
+		services:         serviceContainer,
+		variablesService: variablesService,
 	}
 
 	return ctx

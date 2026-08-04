@@ -52,31 +52,28 @@ type Manager struct {
 	workerDone   chan struct{}
 }
 
-type Opts struct {
-	Lc *lifecycle.Lifecycle
-
-	Config             cfg.Config
-	Logger             *slog.Logger
-	Gorm               *gorm.DB
-	TwirBus            *buscore.Bus
-	ChannelsRepo       channelsrepo.Repository
-	ChannelService     *channelservice.ChannelService
-	ConduitsRepository twitchconduits.Repository
-	Redis              *goredislib.Client
-	Handler            *handler.Handler
-}
-
-func NewManager(opts Opts) (*Manager, error) {
+func NewManager(
+	lc *lifecycle.Lifecycle,
+	config cfg.Config,
+	logger *slog.Logger,
+	db *gorm.DB,
+	twirBus *buscore.Bus,
+	channelsRepo channelsrepo.Repository,
+	channelService *channelservice.ChannelService,
+	conduitsRepository twitchconduits.Repository,
+	redisClient *goredislib.Client,
+	handler *handler.Handler,
+) (*Manager, error) {
 	var httpClient *http.Client
 	var apiBaseUrl string
 	var wsOpts []eventsub.WebsocketOption
 
-	if opts.Config.TwitchMockEnabled {
+	if config.TwitchMockEnabled {
 		httpClient = &http.Client{
-			Transport: twitchlib.NewMockRoundTripper(http.DefaultTransport, opts.Config),
+			Transport: twitchlib.NewMockRoundTripper(http.DefaultTransport, config),
 		}
-		apiBaseUrl = strings.TrimSuffix(opts.Config.TwitchMockApiUrl, "/helix")
-		wsOpts = append(wsOpts, eventsub.WebsocketWithServerURL(opts.Config.TwitchMockWsUrl))
+		apiBaseUrl = strings.TrimSuffix(config.TwitchMockApiUrl, "/helix")
+		wsOpts = append(wsOpts, eventsub.WebsocketWithServerURL(config.TwitchMockWsUrl))
 	} else {
 		httpClient = http.DefaultClient
 		apiBaseUrl = "https://api.twitch.tv"
@@ -85,16 +82,16 @@ func NewManager(opts Opts) (*Manager, error) {
 	workerCtx, workerCancel := context.WithCancel(context.Background())
 
 	manager := &Manager{
-		config:             opts.Config,
-		logger:             opts.Logger,
-		gorm:               opts.Gorm,
-		twirBus:            opts.TwirBus,
-		channelsRepo:       opts.ChannelsRepo,
-		channelService:     opts.ChannelService,
-		conduitsRepository: opts.ConduitsRepository,
-		redSync:            redsync.New(goredis.NewPool(opts.Redis)),
+		config:             config,
+		logger:             logger,
+		gorm:               db,
+		twirBus:            twirBus,
+		channelsRepo:       channelsRepo,
+		channelService:     channelService,
+		conduitsRepository: conduitsRepository,
+		redSync:            redsync.New(goredis.NewPool(redisClient)),
 		eventsub:           eventsub.New(),
-		handler:            opts.Handler,
+		handler:            handler,
 		httpClient:         httpClient,
 		apiBaseUrl:         apiBaseUrl,
 		wsOpts:             wsOpts,
@@ -104,7 +101,7 @@ func NewManager(opts Opts) (*Manager, error) {
 		workerDone:         make(chan struct{}),
 	}
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {

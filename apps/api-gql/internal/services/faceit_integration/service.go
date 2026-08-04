@@ -26,17 +26,15 @@ import (
 	faceitintegration "github.com/twirapp/twir/libs/repositories/faceit_integration"
 )
 
-type Opts struct {
-	FaceitRepository faceitintegration.Repository
-	Config           config.Config
-	KV               kv.KV
-}
-
-func New(opts Opts) *Service {
+func New(
+	faceitRepository faceitintegration.Repository,
+	cfg config.Config,
+	kvClient kv.KV,
+) *Service {
 	return &Service{
-		faceitRepository: opts.FaceitRepository,
-		config:           opts.Config,
-		kv:               opts.KV,
+		faceitRepository: faceitRepository,
+		config:           cfg,
+		kv:               kvClient,
 	}
 }
 

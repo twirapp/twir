@@ -28,29 +28,27 @@ var (
 	ErrLastBinding         = errors.New("cannot disconnect the last channel platform binding")
 )
 
-type Opts struct {
-	ChannelService       *channelservice.ChannelService
-	UsersRepository      usersrepo.Repository
-	ChannelPlatformsRepo channelplatformsrepo.Repository
-	Auth                 *authroutes.Auth
-	PlatformRegistry     *appplatform.Registry
-	TrmManager           trm.Manager
-	TwirBus              *buscore.Bus
-	ChannelsCache        *generic_cacher.GenericCacher[channelentity.Channel]
-	Logger               *slog.Logger
-}
-
-func NewFx(opts Opts) *Service {
+func NewFx(
+	channelService *channelservice.ChannelService,
+	usersRepository usersrepo.Repository,
+	channelPlatformsRepo channelplatformsrepo.Repository,
+	auth *authroutes.Auth,
+	platformRegistry *appplatform.Registry,
+	trmManager trm.Manager,
+	twirBus *buscore.Bus,
+	channelsCache *generic_cacher.GenericCacher[channelentity.Channel],
+	logger *slog.Logger,
+) *Service {
 	return &Service{
-		channels:      opts.ChannelService,
-		users:         opts.UsersRepository,
-		bindings:      opts.ChannelPlatformsRepo,
-		oauth:         opts.Auth,
-		registry:      opts.PlatformRegistry,
-		transactions:  opts.TrmManager,
-		bus:           opts.TwirBus,
-		channelsCache: opts.ChannelsCache,
-		logger:        opts.Logger,
+		channels:      channelService,
+		users:         usersRepository,
+		bindings:      channelPlatformsRepo,
+		oauth:         auth,
+		registry:      platformRegistry,
+		transactions:  trmManager,
+		bus:           twirBus,
+		channelsCache: channelsCache,
+		logger:        logger,
 	}
 }
 

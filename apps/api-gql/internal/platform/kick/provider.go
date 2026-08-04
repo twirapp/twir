@@ -21,10 +21,6 @@ var scopes = []gokick.Scope{
 	gokick.ScopeChannelWrite,
 }
 
-type Opts struct {
-	Config cfg.Config
-}
-
 type Provider struct {
 	config cfg.Config
 	client *gokick.Client
@@ -32,15 +28,15 @@ type Provider struct {
 
 var _ platform.PlatformProvider = (*Provider)(nil)
 
-func New(opts Opts) *Provider {
+func New(config cfg.Config) *Provider {
 	client, _ := gokick.NewClient(
 		&gokick.ClientOptions{
-			ClientID:     opts.Config.KickClientId,
-			ClientSecret: opts.Config.KickClientSecret,
+			ClientID:     config.KickClientId,
+			ClientSecret: config.KickClientSecret,
 		})
 
 	return &Provider{
-		config: opts.Config,
+		config: config,
 		client: client,
 	}
 }

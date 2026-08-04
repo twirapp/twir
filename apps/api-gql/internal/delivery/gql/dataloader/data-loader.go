@@ -54,9 +54,19 @@ type LoaderFactory struct {
 	deps Opts
 }
 
-func New(opts Opts) *LoaderFactory {
+func New(authService *auth.Auth, channelsRepository channelsrepository.Repository, channelService *channelservice.ChannelService, cachedTwitchClient *twitch.CachedTwitchClient, commandsGroupsService *commands_groups.Service, commandsResponsesService *commands_responses.Service, twitchService *twitchservice.Service, emoteStatisticService *channelsemotesusages.Service, plansRepository plansrepository.Repository) *LoaderFactory {
 	return &LoaderFactory{
-		deps: opts,
+		deps: Opts{
+			AuthService:              authService,
+			ChannelsRepository:       channelsRepository,
+			ChannelService:           channelService,
+			CachedTwitchClient:       cachedTwitchClient,
+			CommandsGroupsService:    commandsGroupsService,
+			CommandsResponsesService: commandsResponsesService,
+			TwitchService:            twitchService,
+			EmoteStatisticService:    emoteStatisticService,
+			PlansRepository:          plansRepository,
+		},
 	}
 }
 

@@ -10,6 +10,8 @@ import (
 	"github.com/twirapp/twir/apps/scheduler/internal/timers"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	config "github.com/twirapp/twir/libs/config"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	commandsrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
@@ -21,6 +23,7 @@ import (
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
+	"gorm.io/gorm"
 )
 
 const Service = "scheduler"
@@ -41,13 +44,6 @@ var ProviderSet = wire.NewSet(
 	channelservice.NewChannelService,
 	services.NewRoles,
 	services.NewCommands,
-	wire.Struct(new(buslistener.Opts), "*"),
-	wire.Struct(new(timers.OnlineUsersOpts), "*"),
-	wire.Struct(new(timers.StreamOpts), "*"),
-	wire.Struct(new(timers.CommandsAndRolesOpts), "*"),
-	wire.Struct(new(timers.WatchedOpts), "*"),
-	wire.Struct(new(timers.ExpiredCommandsOpts), "*"),
-	wire.Struct(new(timers.ScheduledVipsOpts), "*"),
 	NewApplication,
 )
 
@@ -58,23 +54,26 @@ type Application struct {
 func NewApplication(
 	lifecycle *lifecycle.Lifecycle,
 	logger *slog.Logger,
-	listenerOpts buslistener.Opts,
-	onlineUsersOpts timers.OnlineUsersOpts,
-	streamsOpts timers.StreamOpts,
-	commandsAndRolesOpts timers.CommandsAndRolesOpts,
-	watchedOpts timers.WatchedOpts,
-	expiredCommandsOpts timers.ExpiredCommandsOpts,
-	scheduledVipsOpts timers.ScheduledVipsOpts,
+	commandsService *services.Commands,
+	rolesService *services.Roles,
+	bus *buscore.Bus,
+	cfg config.Config,
+	gorm *gorm.DB,
+	streamsRepo streamsrepository.Repository,
+	channelService *channelservice.ChannelService,
+	commandsRepo commandsrepository.Repository,
+	scheduledVipsRepo scheduledvipsrepository.Repository,
+	usersRepo usersrepository.Repository,
 ) (*Application, error) {
-	if err := buslistener.New(listenerOpts); err != nil {
+	if err := buslistener.New(lifecycle, logger, commandsService, rolesService, bus); err != nil {
 		return nil, fmt.Errorf("create scheduler listener: %w", err)
 	}
-	timers.NewOnlineUsers(onlineUsersOpts)
-	timers.NewStreams(streamsOpts)
-	timers.NewCommandsAndRoles(commandsAndRolesOpts)
-	timers.NewWatched(watchedOpts)
-	timers.NewExpiredCommands(expiredCommandsOpts)
-	timers.NewScheduledVips(scheduledVipsOpts)
+	timers.NewOnlineUsers(lifecycle, logger, cfg, gorm, bus, streamsRepo)
+	timers.NewStreams(lifecycle, cfg, logger, gorm, bus, streamsRepo, channelService)
+	timers.NewCommandsAndRoles(lifecycle, logger, cfg, rolesService, commandsService, gorm)
+	timers.NewWatched(lifecycle, logger, cfg, gorm, bus)
+	timers.NewExpiredCommands(lifecycle, logger, cfg, gorm, bus, commandsRepo)
+	timers.NewScheduledVips(lifecycle, cfg, logger, bus, scheduledVipsRepo, usersRepo, channelService)
 
 	logger.Info("Started")
 	return &Application{lifecycle: lifecycle}, nil

@@ -17,21 +17,19 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	SeventvRepository seventvintegrationrepository.Repository
-	BotsRepository    bots.Repository
-	Config            config.Config
-	Cacher            *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv]
-	Logger            *slog.Logger
-}
-
-func New(opts Opts) *Service {
+func New(
+	seventvRepository seventvintegrationrepository.Repository,
+	botsRepository bots.Repository,
+	cfg config.Config,
+	cacher *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv],
+	logger *slog.Logger,
+) *Service {
 	return &Service{
-		seventvRepository: opts.SeventvRepository,
-		botsRepository:    opts.BotsRepository,
-		config:            opts.Config,
-		cacher:            opts.Cacher,
-		logger:            opts.Logger,
+		seventvRepository: seventvRepository,
+		botsRepository:    botsRepository,
+		config:            cfg,
+		cacher:            cacher,
+		logger:            logger,
 	}
 }
 

@@ -39,33 +39,29 @@ type GrpcImpl struct {
 	alertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
 }
 
-type GrpcOpts struct {
-	LC *lifecycle.Lifecycle
-
-	Gorm   *gorm.DB
-	Redis  *redis.Client
-	Logger *slog.Logger
-
-	AlertsServer           *alerts.Alerts
-	OverlaysRegistryServer *overlays.Registry
-	DudesServer            *dudes.Dudes
-	AlertsCache            *generic_cacher.GenericCacher[[]alertmodel.Alert]
-}
-
-func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
+func NewGrpcImplementation(
+	lc *lifecycle.Lifecycle,
+	gorm *gorm.DB,
+	redis *redis.Client,
+	logger *slog.Logger,
+	alertsServer *alerts.Alerts,
+	overlaysRegistryServer *overlays.Registry,
+	dudesServer *dudes.Dudes,
+	alertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert],
+) (websockets.WebsocketServer, error) {
 	impl := &GrpcImpl{
-		gorm:                   opts.Gorm,
-		redis:                  opts.Redis,
-		logger:                 opts.Logger,
-		alertsServer:           opts.AlertsServer,
-		overlaysRegistryServer: opts.OverlaysRegistryServer,
-		dudesServer:            opts.DudesServer,
-		alertsCache:            opts.AlertsCache,
+		gorm:                   gorm,
+		redis:                  redis,
+		logger:                 logger,
+		alertsServer:           alertsServer,
+		overlaysRegistryServer: overlaysRegistryServer,
+		dudesServer:            dudesServer,
+		alertsCache:            alertsCache,
 	}
 
 	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.WEBSOCKET_SERVER_PORT))

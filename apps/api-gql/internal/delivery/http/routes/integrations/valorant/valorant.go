@@ -17,17 +17,9 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	Api      huma.API
-	Config   config.Config
-	Sessions *auth.Auth
-	Service  *valorantintegration.Service
-	KV       kv.KV
-}
-
-func New(opts Opts) {
+func New(api huma.API, config config.Config, sessions *auth.Auth, service *valorantintegration.Service, kvClient kv.KV) {
 	huma.Register(
-		opts.Api,
+		api,
 		huma.Operation{
 			OperationID: "integrations-valorant-stats",
 			Summary:     "Get valorant stats data",
@@ -43,18 +35,18 @@ func New(opts Opts) {
 			ctx context.Context,
 			input *struct{},
 		) (*httpdelivery.BaseOutputJson[integrationsValorantStatsOutput], error) {
-			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
+			user, err := sessions.GetAuthenticatedUserModel(ctx)
 			if user == nil || err != nil {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
 
-			selectedDashboardId, err := opts.Sessions.GetSelectedDashboard(ctx)
+			selectedDashboardId, err := sessions.GetSelectedDashboard(ctx)
 			if err != nil {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
 
 			var output *integrationsValorantStatsOutput
-			if cachedBytes, _ := opts.KV.Get(
+			if cachedBytes, _ := kvClient.Get(
 				ctx,
 				"valorant_stats_"+selectedDashboardId,
 			).Bytes(); cachedBytes != nil {
@@ -77,7 +69,7 @@ func New(opts Opts) {
 
 			wg.Go(
 				func() error {
-					m, err := opts.Service.GetChannelStoredMatchesByChannelID(ctx, selectedDashboardId)
+					m, err := service.GetChannelStoredMatchesByChannelID(ctx, selectedDashboardId)
 					if err != nil {
 						return err
 					}
@@ -88,7 +80,7 @@ func New(opts Opts) {
 
 			wg.Go(
 				func() error {
-					m, err := opts.Service.GetChannelMmr(wgCtx, selectedDashboardId)
+					m, err := service.GetChannelMmr(wgCtx, selectedDashboardId)
 					if err != nil {
 						return err
 					}
@@ -108,7 +100,7 @@ func New(opts Opts) {
 
 			bytes, err := json.Marshal(output)
 			if err == nil {
-				if err := opts.KV.Set(
+				if err := kvClient.Set(
 					ctx,
 					"valorant_stats_"+selectedDashboardId,
 					bytes,

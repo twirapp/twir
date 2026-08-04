@@ -39,7 +39,7 @@ apps/api-gql/
 ```bash
 # Run locally (requires infra: postgres, redis)
 bun cli build gql          # Regenerate resolvers after schema changes
-go run ./cmd/main.go       # Start dev server on :3009
+go run ./cmd       # Start dev server on :3009
 
 # Build for production
 bun cli build api-gql

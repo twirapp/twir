@@ -18,17 +18,15 @@ import (
 	channelsintegrationsvalorantmodel "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant/model"
 )
 
-type Opts struct {
-	ChannelsIntegrationsValorantRepository channelsintegrationsvalorant.Repository
-	Config                                 cfg.Config
-	HenrikApi                              *valorant.HenrikValorantApiClient
-}
-
-func New(opts Opts) *Service {
+func New(
+	channelsIntegrationsValorantRepository channelsintegrationsvalorant.Repository,
+	config cfg.Config,
+	henrikApi *valorant.HenrikValorantApiClient,
+) *Service {
 	return &Service{
-		repo:      opts.ChannelsIntegrationsValorantRepository,
-		henrikApi: opts.HenrikApi,
-		config:    opts.Config,
+		repo:      channelsIntegrationsValorantRepository,
+		henrikApi: henrikApi,
+		config:    config,
 	}
 }
 

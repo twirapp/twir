@@ -12,15 +12,13 @@ import (
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 )
 
-type Opts struct {
-	ChannelsCommandsPrefixRepository channels_commands_prefix.Repository
-	Cacher                           *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
-}
-
-func New(opts Opts) *Service {
+func New(
+	channelsCommandsPrefixRepository channels_commands_prefix.Repository,
+	cacher *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix],
+) *Service {
 	return &Service{
-		channelsCommandsPrefixRepository: opts.ChannelsCommandsPrefixRepository,
-		cacher:                           opts.Cacher,
+		channelsCommandsPrefixRepository: channelsCommandsPrefixRepository,
+		cacher:                           cacher,
 	}
 }
 

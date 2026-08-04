@@ -16,17 +16,15 @@ import (
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 )
 
-type Opts struct {
-	ChannelsRepository channels.Repository
-	UsersRepository    users.Repository
-	ChannelService     *channelservice.ChannelService
-}
-
-func New(opts Opts) *Service {
+func New(
+	channelsRepository channels.Repository,
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+) *Service {
 	return &Service{
-		channelsRepository: opts.ChannelsRepository,
-		usersRepository:    opts.UsersRepository,
-		channelService:     opts.ChannelService,
+		channelsRepository: channelsRepository,
+		usersRepository:    usersRepository,
+		channelService:     channelService,
 	}
 }
 

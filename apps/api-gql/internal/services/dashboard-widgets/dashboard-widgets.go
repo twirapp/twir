@@ -11,15 +11,13 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	DashboardWidgetsRepository dashboard_widgets.Repository
-	WsRouter                   wsrouter.WsRouter
-}
-
-func New(opts Opts) *Service {
+func New(
+	dashboardWidgetsRepository dashboard_widgets.Repository,
+	wsRouter wsrouter.WsRouter,
+) *Service {
 	return &Service{
-		dashboardWidgetsRepository: opts.DashboardWidgetsRepository,
-		wsRouter:                   opts.WsRouter,
+		dashboardWidgetsRepository: dashboardWidgetsRepository,
+		wsRouter:                   wsRouter,
 	}
 }
 

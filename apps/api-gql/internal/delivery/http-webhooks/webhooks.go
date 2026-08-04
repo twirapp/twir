@@ -12,16 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	Server                      *server.Server
-	KV                          kv.KV
-	Db                          *gorm.DB
-	Logger                      *slog.Logger
-	Config                      cfg.Config
-	TwirBus                     *buscore.Bus
-	WebhookNotificationsService *webhook_notifications.Service
-}
-
 type Webhooks struct {
 	kv                          kv.KV
 	db                          *gorm.DB
@@ -32,25 +22,25 @@ type Webhooks struct {
 	webhookNotificationsService *webhook_notifications.Service
 }
 
-func New(opts Opts) (*Webhooks, error) {
-	pb, err := pubsub.NewPubSub(opts.Config.RedisUrl)
+func New(srv *server.Server, kvClient kv.KV, db *gorm.DB, logger *slog.Logger, config cfg.Config, twirBus *buscore.Bus, webhookNotificationsService *webhook_notifications.Service) (*Webhooks, error) {
+	pb, err := pubsub.NewPubSub(config.RedisUrl)
 	if err != nil {
 		return nil, err
 	}
 
 	p := &Webhooks{
-		kv:                          opts.KV,
-		db:                          opts.Db,
-		logger:                      opts.Logger,
-		config:                      opts.Config,
+		kv:                          kvClient,
+		db:                          db,
+		logger:                      logger,
+		config:                      config,
 		pubSub:                      pb,
-		twirBus:                     opts.TwirBus,
-		webhookNotificationsService: opts.WebhookNotificationsService,
+		twirBus:                     twirBus,
+		webhookNotificationsService: webhookNotificationsService,
 	}
 
-	opts.Server.POST("/webhooks/integrations/donatestream/:id", p.donateStreamHandler)
-	opts.Server.POST("/webhooks/integrations/donatello", p.donatelloHandler)
-	opts.Server.POST("/webhooks/modules/github", p.githubWebhookHandler)
+	srv.POST("/webhooks/integrations/donatestream/:id", p.donateStreamHandler)
+	srv.POST("/webhooks/integrations/donatello", p.donatelloHandler)
+	srv.POST("/webhooks/modules/github", p.githubWebhookHandler)
 
 	return p, nil
 }

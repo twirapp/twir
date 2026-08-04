@@ -9,16 +9,10 @@ import (
 	commandsservice "github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 )
 
-type Dependencies struct {
-	API            huma.API
-	Service        *commandsservice.Service
-	ChannelService *channels.Service
-}
-
 type Registration struct{}
 
-func RegisterRoutes(deps Dependencies) Registration {
-	newListById(ListByIdOpts{Service: deps.Service, ChannelService: deps.ChannelService}).Register(deps.API)
+func RegisterRoutes(api huma.API, service *commandsservice.Service, channelService *channels.Service) Registration {
+	newListById(ListByIdOpts{Service: service, ChannelService: channelService}).Register(api)
 	return Registration{}
 }
 

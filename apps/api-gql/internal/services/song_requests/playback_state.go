@@ -17,23 +17,21 @@ const (
 	DefaultVolume     = 30
 )
 
-type PlaybackStateOpts struct {
-	Redis    *redis.Client
-	Logger   *slog.Logger
-	WsRouter wsrouter.WsRouter
-}
-
 type PlaybackStateService struct {
 	redis    *redis.Client
 	logger   *slog.Logger
 	wsRouter wsrouter.WsRouter
 }
 
-func NewPlaybackStateService(opts PlaybackStateOpts) *PlaybackStateService {
+func NewPlaybackStateService(
+	redisClient *redis.Client,
+	logger *slog.Logger,
+	wsRouter wsrouter.WsRouter,
+) *PlaybackStateService {
 	return &PlaybackStateService{
-		redis:    opts.Redis,
-		logger:   opts.Logger,
-		wsRouter: opts.WsRouter,
+		redis:    redisClient,
+		logger:   logger,
+		wsRouter: wsRouter,
 	}
 }
 

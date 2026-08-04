@@ -68,15 +68,8 @@ func New(deps Dependencies) (*Handler, error) {
 	return &Handler{service: deps.Service, sessions: deps.Sessions, origin: origin, random: deps.Random, registerRateLimiter: deps.RegisterRateLimiter}, nil
 }
 
-type ProviderOpts struct {
-	Service     *service.Service
-	Sessions    *authsessions.Auth
-	Config      config.Config
-	RateLimiter *rate_limiter.LeakyBucketRateLimiter
-}
-
-func NewFromOpts(opts ProviderOpts) (*Handler, error) {
-	return New(Dependencies{Service: opts.Service, Sessions: opts.Sessions, SiteBaseURL: opts.Config.SiteBaseUrl, RegisterRateLimiter: opts.RateLimiter})
+func NewFromOpts(oauthService *service.Service, sessions *authsessions.Auth, config config.Config, rateLimiter *rate_limiter.LeakyBucketRateLimiter) (*Handler, error) {
+	return New(Dependencies{Service: oauthService, Sessions: sessions, SiteBaseURL: config.SiteBaseUrl, RegisterRateLimiter: rateLimiter})
 }
 
 type route interface {

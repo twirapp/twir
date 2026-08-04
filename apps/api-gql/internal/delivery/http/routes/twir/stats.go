@@ -9,15 +9,10 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 )
 
-type Dependencies struct {
-	API     huma.API
-	Service *twir_stats.TwirStats
-}
-
 type Registration struct{}
 
-func RegisterRoutes(deps Dependencies) Registration {
-	newStats(StatsOpts{Service: deps.Service}).Register(deps.API)
+func RegisterRoutes(api huma.API, service *twir_stats.TwirStats) Registration {
+	newStats(StatsOpts{Service: service}).Register(api)
 	return Registration{}
 }
 

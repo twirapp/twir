@@ -48,32 +48,29 @@ type BusListener struct {
 	config         config.Config
 }
 
-type Opts struct {
-	Lc *lifecycle.Lifecycle
-
-	Manager        *manager.Manager
-	Transports     *platformsregistry.Registry[eventplatforms.EventTransport]
-	Gorm           *gorm.DB
-	Bus            *buscore.Bus
-	Logger         *slog.Logger
-	ChannelsRepo   channels.Repository
-	ChannelService *channelservice.ChannelService
-	Config         config.Config
-}
-
-func New(opts Opts) (*BusListener, error) {
+func New(
+	lc *lifecycle.Lifecycle,
+	manager *manager.Manager,
+	transports *platformsregistry.Registry[eventplatforms.EventTransport],
+	db *gorm.DB,
+	bus *buscore.Bus,
+	logger *slog.Logger,
+	channelsRepo channels.Repository,
+	channelService *channelservice.ChannelService,
+	config config.Config,
+) (*BusListener, error) {
 	impl := &BusListener{
-		eventSubClient: opts.Manager,
-		transports:     opts.Transports,
-		gorm:           opts.Gorm,
-		bus:            opts.Bus,
-		logger:         opts.Logger,
-		channelsRepo:   opts.ChannelsRepo,
-		channelService: opts.ChannelService,
-		config:         opts.Config,
+		eventSubClient: manager,
+		transports:     transports,
+		gorm:           db,
+		bus:            bus,
+		logger:         logger,
+		channelsRepo:   channelsRepo,
+		channelService: channelService,
+		config:         config,
 	}
 
-	opts.Lc.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.bus.EventSub.SubscribeToAllEvents.SubscribeGroup(

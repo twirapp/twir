@@ -13,16 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	Huma huma.API
-
-	Gorm                   *gorm.DB
-	CachedCommands         *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	BadgesWithUsersService *badges_with_users.Service
-	ChannelsService        *channels.Service
-	Config                 config.Config
-}
-
 type Public struct {
 	gorm                   *gorm.DB
 	cachedCommands         *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
@@ -31,17 +21,17 @@ type Public struct {
 	config                 config.Config
 }
 
-func New(opts Opts) *Public {
+func New(humaAPI huma.API, gorm *gorm.DB, cachedCommands *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses], badgesWithUsersService *badges_with_users.Service, channelsService *channels.Service, config config.Config) *Public {
 	p := &Public{
-		gorm:                   opts.Gorm,
-		config:                 opts.Config,
-		cachedCommands:         opts.CachedCommands,
-		badgesWithUsersService: opts.BadgesWithUsersService,
-		channelsService:        opts.ChannelsService,
+		gorm:                   gorm,
+		config:                 config,
+		cachedCommands:         cachedCommands,
+		badgesWithUsersService: badgesWithUsersService,
+		channelsService:        channelsService,
 	}
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "public-twir-badges",
 			Method:      http.MethodGet,
@@ -59,7 +49,7 @@ func New(opts Opts) *Public {
 	)
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "public-channel-public-commands",
 			Method:      http.MethodGet,

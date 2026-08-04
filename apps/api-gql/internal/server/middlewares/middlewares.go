@@ -7,17 +7,11 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
 )
 
-type Opts struct {
-	Sessions    *auth.Auth
-	Logger      *slog.Logger
-	RateLimiter *rate_limiter.LeakyBucketRateLimiter
-}
-
-func New(opts Opts) *Middlewares {
+func New(sessions *auth.Auth, logger *slog.Logger, rateLimiter *rate_limiter.LeakyBucketRateLimiter) *Middlewares {
 	return &Middlewares{
-		sessions:    opts.Sessions,
-		logger:      opts.Logger,
-		rateLimiter: opts.RateLimiter,
+		sessions:    sessions,
+		logger:      logger,
+		rateLimiter: rateLimiter,
 	}
 }
 

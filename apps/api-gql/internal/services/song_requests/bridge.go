@@ -10,14 +10,6 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type BridgeOpts struct {
-	LC                   *lifecycle.Lifecycle
-	WsRouter             wsrouter.WsRouter
-	TwirBus              *buscore.Bus
-	Logger               *slog.Logger
-	PlaybackStateService *PlaybackStateService
-}
-
 type Bridge struct {
 	wsRouter             wsrouter.WsRouter
 	twirBus              *buscore.Bus
@@ -25,15 +17,21 @@ type Bridge struct {
 	playbackStateService *PlaybackStateService
 }
 
-func NewBridge(opts BridgeOpts) *Bridge {
+func NewBridge(
+	lc *lifecycle.Lifecycle,
+	wsRouter wsrouter.WsRouter,
+	twirBus *buscore.Bus,
+	logger *slog.Logger,
+	playbackStateService *PlaybackStateService,
+) *Bridge {
 	b := &Bridge{
-		wsRouter:             opts.WsRouter,
-		twirBus:              opts.TwirBus,
-		logger:               opts.Logger,
-		playbackStateService: opts.PlaybackStateService,
+		wsRouter:             wsRouter,
+		twirBus:              twirBus,
+		logger:               logger,
+		playbackStateService: playbackStateService,
 	}
 
-	opts.LC.Append(lifecycle.Hook{
+	lc.Append(lifecycle.Hook{
 		OnStart: func(ctx context.Context) error {
 			b.twirBus.Api.SongRequestAddToQueue.SubscribeGroup("api",
 				func(ctx context.Context, data api.SongRequestAddToQueue) (struct{}, error) {

@@ -11,13 +11,9 @@ import (
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
 )
 
-type Opts struct {
-	Repository chatwallrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(repository chatwallrepository.Repository) *Service {
 	return &Service{
-		Repository: opts.Repository,
+		Repository: repository,
 	}
 }
 

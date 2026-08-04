@@ -12,18 +12,14 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
-type Opts struct {
-	Config cfg.Config
-}
-
 type Provider struct {
 	config cfg.Config
 }
 
 var _ platform.PlatformProvider = (*Provider)(nil)
 
-func New(opts Opts) *Provider {
-	return &Provider{config: opts.Config}
+func New(config cfg.Config) *Provider {
+	return &Provider{config: config}
 }
 
 func (p *Provider) Platform() platformentity.Platform {

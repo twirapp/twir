@@ -25,38 +25,34 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Logger         *slog.Logger
-	Tracer         trace.Tracer
-	Gorm           *gorm.DB
-	TwitchActions  *twitchactions.TwitchActions
-	MessageHandler *messagehandler.MessageHandler
-	Bus            *buscore.Bus
-	Cfg            cfg.Config
-	WorkersPool    *workers.Pool
-	KV             kv.KV
-
-	ChannelService         *channel.Service
-	DiscordMessagesUpdater *discordmessagesupdater.MessagesUpdater
-}
-
-func New(opts Opts) (*BusListener, error) {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	tracer trace.Tracer,
+	gormDB *gorm.DB,
+	twitchActions *twitchactions.TwitchActions,
+	messageHandler *messagehandler.MessageHandler,
+	bus *buscore.Bus,
+	cfg cfg.Config,
+	workersPool *workers.Pool,
+	kv kv.KV,
+	channelService *channel.Service,
+	discordMessagesUpdater *discordmessagesupdater.MessagesUpdater,
+) (*BusListener, error) {
 	listener := &BusListener{
-		gorm:                   opts.Gorm,
-		logger:                 opts.Logger,
-		config:                 opts.Cfg,
-		twitchActions:          opts.TwitchActions,
-		messageHandler:         opts.MessageHandler,
-		tracer:                 opts.Tracer,
-		bus:                    opts.Bus,
-		kv:                     opts.KV,
-		channelService:         opts.ChannelService,
-		discordMessagesUpdater: opts.DiscordMessagesUpdater,
+		gorm:                   gormDB,
+		logger:                 logger,
+		config:                 cfg,
+		twitchActions:          twitchActions,
+		messageHandler:         messageHandler,
+		tracer:                 tracer,
+		bus:                    bus,
+		kv:                     kv,
+		channelService:         channelService,
+		discordMessagesUpdater: discordMessagesUpdater,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				err := listener.bus.Bots.SendMessage.SubscribeGroup(
@@ -126,7 +122,7 @@ func New(opts Opts) (*BusListener, error) {
 				err = listener.bus.Bots.ShoutOut.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data bots.SentShoutOutRequest) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
+						err := workersPool.SubmitErr(
 							func() error {
 								return listener.handleShoutOut(ctx, data)
 							},
@@ -142,7 +138,7 @@ func New(opts Opts) (*BusListener, error) {
 				err = listener.bus.Bots.ModeratorAdd.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data bots.ModeratorAddRequest) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
+						err := workersPool.SubmitErr(
 							func() error {
 								return listener.handleModeratorAdd(ctx, data)
 							},
@@ -158,7 +154,7 @@ func New(opts Opts) (*BusListener, error) {
 				err = listener.bus.Bots.ModeratorRemove.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data bots.ModeratorRemoveRequest) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
+						err := workersPool.SubmitErr(
 							func() error {
 								return listener.handleModeratorRemove(ctx, data)
 							},
@@ -174,7 +170,7 @@ func New(opts Opts) (*BusListener, error) {
 				err = listener.bus.Events.ChannelUnban.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data events.ChannelUnbanMessage) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
+						err := workersPool.SubmitErr(
 							func() error {
 								return listener.handleUnban(ctx, data)
 							},
@@ -190,7 +186,7 @@ func New(opts Opts) (*BusListener, error) {
 				err = listener.bus.Channel.StreamOffline.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data twitch.StreamOfflineMessage) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
+						err := workersPool.SubmitErr(
 							func() error {
 								return listener.handleStreamOffline(ctx, data)
 							},
@@ -203,7 +199,7 @@ func New(opts Opts) (*BusListener, error) {
 				err = listener.bus.Channel.StreamOnline.SubscribeGroup(
 					"bots",
 					func(ctx context.Context, data twitch.StreamOnlineMessage) (struct{}, error) {
-						err := opts.WorkersPool.SubmitErr(
+						err := workersPool.SubmitErr(
 							func() error {
 								return listener.handleStreamOnline(ctx, data)
 							},

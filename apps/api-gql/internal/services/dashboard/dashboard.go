@@ -36,37 +36,35 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	Gorm                       *gorm.DB
-	CachedTwitchClient         *twitchcache.CachedTwitchClient
-	AuthService                *auth.Auth
-	KV                         kv.KV
-	Config                     config.Config
-	Logger                     *slog.Logger
-	TwirBus                    *buscore.Bus
-	ChannelsCache              *generic_cacher.GenericCacher[channelentity.Channel]
-	ChannelPlatformsRepository channelplatforms.Repository
-	ChannelService             *channelservice.ChannelService
-	ChannelEmotesUsagesRepo    channelsemotesusagesrepository.Repository
-	StreamsRepository          streams.Repository
-	UsersRepo                  usersrepository.Repository
-}
-
-func New(opts Opts) *Service {
+func New(
+	gorm *gorm.DB,
+	cachedTwitchClient *twitchcache.CachedTwitchClient,
+	authService *auth.Auth,
+	kv kv.KV,
+	config config.Config,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+	channelsCache *generic_cacher.GenericCacher[channelentity.Channel],
+	channelPlatformsRepository channelplatforms.Repository,
+	channelService *channelservice.ChannelService,
+	channelEmotesUsagesRepo channelsemotesusagesrepository.Repository,
+	streamsRepository streams.Repository,
+	usersRepo usersrepository.Repository,
+) *Service {
 	return &Service{
-		gorm:                    opts.Gorm,
-		cachedTwitchClient:      opts.CachedTwitchClient,
-		authService:             opts.AuthService,
-		kv:                      opts.KV,
-		config:                  opts.Config,
-		logger:                  opts.Logger,
-		twirBus:                 opts.TwirBus,
-		channelsCache:           opts.ChannelsCache,
-		channelPlatformsRepo:    opts.ChannelPlatformsRepository,
-		channelService:          opts.ChannelService,
-		channelEmotesUsagesRepo: opts.ChannelEmotesUsagesRepo,
-		streamsRepository:       opts.StreamsRepository,
-		usersRepo:               opts.UsersRepo,
+		gorm:                    gorm,
+		cachedTwitchClient:      cachedTwitchClient,
+		authService:             authService,
+		kv:                      kv,
+		config:                  config,
+		logger:                  logger,
+		twirBus:                 twirBus,
+		channelsCache:           channelsCache,
+		channelPlatformsRepo:    channelPlatformsRepository,
+		channelService:          channelService,
+		channelEmotesUsagesRepo: channelEmotesUsagesRepo,
+		streamsRepository:       streamsRepository,
+		usersRepo:               usersRepo,
 	}
 }
 

@@ -20,26 +20,23 @@ type PubSubHandlers struct {
 	greetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 }
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Bus                 *bus_core.Bus
-	ChannelService      *channelservice.ChannelService
-	Logger              *slog.Logger
-	GreetingsRepository greetings.Repository
-	GreetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
-}
-
-func New(opts Opts) {
+func New(
+	lc *lifecycle.Lifecycle,
+	bus *bus_core.Bus,
+	channelService *channelservice.ChannelService,
+	logger *slog.Logger,
+	greetingsRepository greetings.Repository,
+	greetingsCacher *generic_cacher.GenericCacher[[]greetingsmodel.Greeting],
+) {
 	service := &PubSubHandlers{
-		logger:              opts.Logger,
-		bus:                 opts.Bus,
-		channelService:      opts.ChannelService,
-		greetingsRepository: opts.GreetingsRepository,
-		greetingsCacher:     opts.GreetingsCacher,
+		logger:              logger,
+		bus:                 bus,
+		channelService:      channelService,
+		greetingsRepository: greetingsRepository,
+		greetingsCacher:     greetingsCacher,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				service.bus.Channel.StreamOnline.SubscribeGroup("bots", service.streamsOnline)

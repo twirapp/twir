@@ -17,14 +17,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Gorm       *gorm.DB
-	Logger     *slog.Logger
-	EmoteStore *emotes_store.EmotesStore
-}
-
 type Service struct {
 	gorm               *gorm.DB
 	logger             *slog.Logger
@@ -33,17 +25,22 @@ type Service struct {
 	emotesStore        *emotes_store.EmotesStore
 }
 
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	gorm *gorm.DB,
+	logger *slog.Logger,
+	emoteStore *emotes_store.EmotesStore,
+) error {
 	c := Service{
-		gorm:               opts.Gorm,
-		logger:             opts.Logger,
+		gorm:               gorm,
+		logger:             logger,
 		registeredChannels: make(map[string]struct{}),
-		emotesStore:        opts.EmoteStore,
+		emotesStore:        emoteStore,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				socket, err := socket_client.New(

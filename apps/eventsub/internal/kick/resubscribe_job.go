@@ -27,26 +27,23 @@ type ResubscribeJob struct {
 	interval     time.Duration
 }
 
-type ResubscribeJobOpts struct {
-	Lc *lifecycle.Lifecycle
-
-	SubManager   *SubscriptionManager
-	ChannelsRepo channels.Repository
-	Logger       *slog.Logger
-	Config       cfg.Config
-}
-
-func NewResubscribeJob(opts ResubscribeJobOpts) *ResubscribeJob {
+func NewResubscribeJob(
+	lc *lifecycle.Lifecycle,
+	subManager *SubscriptionManager,
+	channelsRepo channels.Repository,
+	logger *slog.Logger,
+	config cfg.Config,
+) *ResubscribeJob {
 	j := &ResubscribeJob{
-		subManager:   opts.SubManager,
-		channelsRepo: opts.ChannelsRepo,
-		logger:       opts.Logger,
-		config:       opts.Config,
+		subManager:   subManager,
+		channelsRepo: channelsRepo,
+		logger:       logger,
+		config:       config,
 		interval:     23 * time.Hour,
 	}
 
 	stopCh := make(chan struct{})
-	opts.Lc.Append(lifecycle.Hook{
+	lc.Append(lifecycle.Hook{
 		OnStart: func(_ context.Context) error {
 			go j.Start(stopCh)
 			return nil

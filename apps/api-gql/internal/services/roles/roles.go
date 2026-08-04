@@ -18,19 +18,17 @@ import (
 	"github.com/twirapp/twir/libs/repositories/roles_users"
 )
 
-type Opts struct {
-	RolesRepository      roles.Repository
-	RolesUsersRepository roles_users.Repository
-	AuditRecorder        audit.Recorder
-	RolesCache           *generic_cacher.GenericCacher[[]model.Role]
-}
-
-func New(opts Opts) *Service {
+func New(
+	rolesRepository roles.Repository,
+	rolesUsersRepository roles_users.Repository,
+	auditRecorder audit.Recorder,
+	rolesCache *generic_cacher.GenericCacher[[]model.Role],
+) *Service {
 	return &Service{
-		rolesRepository:      opts.RolesRepository,
-		rolesUsersRepository: opts.RolesUsersRepository,
-		auditRecorder:        opts.AuditRecorder,
-		rolesCache:           opts.RolesCache,
+		rolesRepository:      rolesRepository,
+		rolesUsersRepository: rolesUsersRepository,
+		auditRecorder:        auditRecorder,
+		rolesCache:           rolesCache,
 	}
 }
 

@@ -18,17 +18,15 @@ import (
 	pastebinsmodel "github.com/twirapp/twir/libs/repositories/pastebins/model"
 )
 
-type Opts struct {
-	Repo   pastebins.Repository
-	KV     kv.KV
-	Logger *slog.Logger
-}
-
-func New(opts Opts) *Service {
+func New(
+	repo pastebins.Repository,
+	kvClient kv.KV,
+	logger *slog.Logger,
+) *Service {
 	return &Service{
-		repo:   opts.Repo,
-		kv:     opts.KV,
-		logger: opts.Logger,
+		repo:   repo,
+		kv:     kvClient,
+		logger: logger,
 	}
 }
 

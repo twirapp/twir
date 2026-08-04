@@ -10,13 +10,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/badges_users/model"
 )
 
-type Opts struct {
-	BadgesUsersRepository badges_users.Repository
-}
-
-func New(opts Opts) *Service {
+func New(badgesUsersRepository badges_users.Repository) *Service {
 	return &Service{
-		badgesUsersRepository: opts.BadgesUsersRepository,
+		badgesUsersRepository: badgesUsersRepository,
 	}
 }
 

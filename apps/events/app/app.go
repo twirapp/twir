@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/goforj/wire"
+	"github.com/redis/go-redis/v9"
 	eventsactivity "github.com/twirapp/twir/apps/events/internal/activities/events"
 	"github.com/twirapp/twir/apps/events/internal/chat_alerts"
 	"github.com/twirapp/twir/apps/events/internal/hydrator"
@@ -14,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/events/internal/workflows"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelseventswithoperations "github.com/twirapp/twir/libs/cache/channels_events_with_operations"
 	chatalertscache "github.com/twirapp/twir/libs/cache/chatalerts"
@@ -40,6 +42,7 @@ import (
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	variablesrepositorypgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
+	"gorm.io/gorm"
 )
 
 const Service = "events"
@@ -69,20 +72,13 @@ var ProviderSet = wire.NewSet(
 	channelservice.NewChannelService,
 	tts.NewTTSSettings,
 	NewWebsocketClient,
-	wire.Struct(new(song_request.Opts), "*"),
 	song_request.New,
-	wire.Struct(new(hydrator.Opts), "*"),
 	hydrator.New,
-	wire.Struct(new(eventsactivity.Opts), "*"),
 	eventsactivity.New,
-	wire.Struct(new(workflows.EventsWorkflowOpts), "*"),
 	workflows.NewEventsWorkflow,
-	wire.Struct(new(chat_alerts.Opts), "*"),
 	chat_alerts.New,
 	channelseventswithoperations.New,
 	chatalertscache.New,
-	wire.Struct(new(workers.EventsWorkerOpts), "*"),
-	wire.Struct(new(listener.Opts), "*"),
 	NewApplication,
 )
 
@@ -97,13 +93,43 @@ func NewWebsocketClient(config config.Config) grpcwebsockets.WebsocketClient {
 func NewApplication(
 	lifecycle *lifecycle.Lifecycle,
 	logger *slog.Logger,
-	workerOpts workers.EventsWorkerOpts,
-	listenerOpts listener.Opts,
+	cfg config.Config,
+	db *gorm.DB,
+	redisClient *redis.Client,
+	websocketsGrpc grpcwebsockets.WebsocketClient,
+	chatAlerts *chat_alerts.ChatAlerts,
+	eventsWorkflow *workflows.EventWorkflow,
+	songRequest *song_request.SongRequest,
+	twirBus *buscore.Bus,
+	channelService *channelservice.ChannelService,
+	channelsEventsListRepo channelseventsrepository.Repository,
+	usersRepo usersrepository.Repository,
+	eventsActivity *eventsactivity.Activity,
 ) (*Application, error) {
-	if err := workers.NewEventsWorker(workerOpts); err != nil {
+	if err := workers.NewEventsWorker(
+		lifecycle,
+		cfg,
+		eventsWorkflow,
+		logger,
+		eventsActivity,
+	); err != nil {
 		return nil, fmt.Errorf("create events worker: %w", err)
 	}
-	if err := listener.New(listenerOpts); err != nil {
+	if err := listener.New(
+		lifecycle,
+		logger,
+		cfg,
+		db,
+		redisClient,
+		websocketsGrpc,
+		chatAlerts,
+		eventsWorkflow,
+		songRequest,
+		twirBus,
+		channelService,
+		channelsEventsListRepo,
+		usersRepo,
+	); err != nil {
 		return nil, fmt.Errorf("create events listener: %w", err)
 	}
 

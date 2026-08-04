@@ -60,4 +60,3 @@ type TTSOverlaySettings struct {
 	ReadChatMessages                   bool
 	ReadChatMessagesNicknames          bool
 }
-

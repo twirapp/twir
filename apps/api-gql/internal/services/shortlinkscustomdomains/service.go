@@ -24,17 +24,15 @@ var reservedDomains = map[string]struct{}{
 	"services-bots.twir.app":    {},
 }
 
-type Opts struct {
-	Repository      shortlinkscustomdomainsrepo.Repository
-	PlansRepository plans.Repository
-	Config          config.Config
-}
-
-func New(opts Opts) *Service {
+func New(
+	repository shortlinkscustomdomainsrepo.Repository,
+	plansRepository plans.Repository,
+	cfg config.Config,
+) *Service {
 	return &Service{
-		repository:      opts.Repository,
-		plansRepository: opts.PlansRepository,
-		config:          opts.Config,
+		repository:      repository,
+		plansRepository: plansRepository,
+		config:          cfg,
 	}
 }
 

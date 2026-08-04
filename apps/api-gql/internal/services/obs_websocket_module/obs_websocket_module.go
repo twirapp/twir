@@ -19,17 +19,6 @@ import (
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	ObsWebsocketRepository channelsmodulesobswebsocket.Repository
-	WsRouter               wsrouter.WsRouter
-	UsersRepository        users.Repository
-	Bus                    *buscore.Bus
-	Logger                 *slog.Logger
-	KV                     kv.KV
-}
-
 type Service struct {
 	obsWebsocketRepository channelsmodulesobswebsocket.Repository
 	wsRouter               wsrouter.WsRouter
@@ -38,16 +27,24 @@ type Service struct {
 	kv                     kv.KV
 }
 
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	obsWebsocketRepository channelsmodulesobswebsocket.Repository,
+	wsRouter wsrouter.WsRouter,
+	usersRepository users.Repository,
+	bus *buscore.Bus,
+	logger *slog.Logger,
+	kvClient kv.KV,
+) *Service {
 	s := &Service{
-		obsWebsocketRepository: opts.ObsWebsocketRepository,
-		wsRouter:               opts.WsRouter,
-		usersRepository:        opts.UsersRepository,
-		bus:                    opts.Bus,
-		kv:                     opts.KV,
+		obsWebsocketRepository: obsWebsocketRepository,
+		wsRouter:               wsRouter,
+		usersRepository:        usersRepository,
+		bus:                    bus,
+		kv:                     kvClient,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				s.bus.Api.TriggerObsCommand.SubscribeGroup(
@@ -61,14 +58,14 @@ func New(opts Opts) *Service {
 					},
 				)
 
-				opts.Logger.Info("Subscribed to TriggerObsCommand events")
+				logger.Info("Subscribed to TriggerObsCommand events")
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
 				s.bus.Api.TriggerObsCommand.Unsubscribe()
 
-				opts.Logger.Info("Unsubscribed from TriggerObsCommand events")
+				logger.Info("Unsubscribed from TriggerObsCommand events")
 
 				return nil
 			},

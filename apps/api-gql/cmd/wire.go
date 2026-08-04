@@ -2,9 +2,12 @@
 
 package main
 
-import "github.com/goforj/wire"
+import (
+	"github.com/goforj/wire"
+	"github.com/twirapp/twir/apps/api-gql/internal/di"
+)
 
-func initializeApplication() (*Application, error) {
-	wire.Build(ProviderSet)
+func initializeApplication() (*di.Application, error) {
+	wire.Build(di.ProviderSet)
 	return nil, nil
 }

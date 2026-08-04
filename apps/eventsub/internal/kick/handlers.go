@@ -191,44 +191,42 @@ type Handlers struct {
 	globalEmotes            bus_core.Queue[emotes_cacher.GetGlobalEmotesRequest, emotes_cacher.Response]
 }
 
-type HandlersOpts struct {
-	Logger                  *slog.Logger
-	Redis                   *redis.Client
-	Bus                     *bus_core.Bus
-	ChannelsRepo            channelsrepository.Repository
-	UsersRepo               usersrepository.Repository
-	EventsListRepo          channelseventslist.Repository
-	ChannelsInfoHistoryRepo channelsinfohistory.Repository
-	RedemptionsHistoryRepo  channelsredemptionshistory.Repository
-	StreamsRepo             streamsrepository.Repository
-	ChannelService          *channelservice.ChannelService
-	UserCreatorService      *user_creator.UserCreatorService
-}
-
-func NewHandlers(opts HandlersOpts) *Handlers {
+func NewHandlers(
+	logger *slog.Logger,
+	redisClient *redis.Client,
+	bus *bus_core.Bus,
+	channelsRepo channelsrepository.Repository,
+	usersRepo usersrepository.Repository,
+	eventsListRepo channelseventslist.Repository,
+	channelsInfoHistoryRepo channelsinfohistory.Repository,
+	redemptionsHistoryRepo channelsredemptionshistory.Repository,
+	streamsRepo streamsrepository.Repository,
+	channelService *channelservice.ChannelService,
+	userCreatorService *user_creator.UserCreatorService,
+) *Handlers {
 	return &Handlers{
-		logger:                  opts.Logger,
-		redis:                   opts.Redis,
-		chatMessages:            opts.Bus.ChatMessages,
-		processMessageAsCommand: opts.Bus.Parser.ProcessMessageAsCommand,
-		eventsFollow:            opts.Bus.Events.Follow,
-		eventsSubscribe:         opts.Bus.Events.Subscribe,
-		eventsReSubscribe:       opts.Bus.Events.ReSubscribe,
-		eventsSubGift:           opts.Bus.Events.SubGift,
-		eventsRedemptionCreated: opts.Bus.Events.RedemptionCreated,
-		eventsChannelBan:        opts.Bus.Events.ChannelBan,
-		streamOnline:            opts.Bus.KickStreamOnline,
-		streamOffline:           opts.Bus.KickStreamOffline,
-		channelsRepo:            opts.ChannelsRepo,
-		usersRepo:               opts.UsersRepo,
-		eventsListRepo:          opts.EventsListRepo,
-		channelsInfoHistoryRepo: opts.ChannelsInfoHistoryRepo,
-		redemptionsHistoryRepo:  opts.RedemptionsHistoryRepo,
-		streamsRepo:             opts.StreamsRepo,
-		channelService:          opts.ChannelService,
-		userCreatorService:      opts.UserCreatorService,
-		channelEmotes:           opts.Bus.EmotesCacher.GetChannelEmotes,
-		globalEmotes:            opts.Bus.EmotesCacher.GetGlobalEmotes,
+		logger:                  logger,
+		redis:                   redisClient,
+		chatMessages:            bus.ChatMessages,
+		processMessageAsCommand: bus.Parser.ProcessMessageAsCommand,
+		eventsFollow:            bus.Events.Follow,
+		eventsSubscribe:         bus.Events.Subscribe,
+		eventsReSubscribe:       bus.Events.ReSubscribe,
+		eventsSubGift:           bus.Events.SubGift,
+		eventsRedemptionCreated: bus.Events.RedemptionCreated,
+		eventsChannelBan:        bus.Events.ChannelBan,
+		streamOnline:            bus.KickStreamOnline,
+		streamOffline:           bus.KickStreamOffline,
+		channelsRepo:            channelsRepo,
+		usersRepo:               usersRepo,
+		eventsListRepo:          eventsListRepo,
+		channelsInfoHistoryRepo: channelsInfoHistoryRepo,
+		redemptionsHistoryRepo:  redemptionsHistoryRepo,
+		streamsRepo:             streamsRepo,
+		channelService:          channelService,
+		userCreatorService:      userCreatorService,
+		channelEmotes:           bus.EmotesCacher.GetChannelEmotes,
+		globalEmotes:            bus.EmotesCacher.GetGlobalEmotes,
 	}
 }
 

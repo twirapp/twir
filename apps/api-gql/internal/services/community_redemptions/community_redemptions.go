@@ -8,25 +8,19 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	TwirBus *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(lc *lifecycle.Lifecycle, twirBus *buscore.Bus) *Service {
 	s := &Service{
-		twirBus: opts.TwirBus,
+		twirBus: twirBus,
 		subs:    make(map[string]chan twitch.ActivatedRedemption),
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				return opts.TwirBus.RedemptionAdd.Subscribe(s.handleBusEvent)
+				return twirBus.RedemptionAdd.Subscribe(s.handleBusEvent)
 			},
 			OnStop: func(ctx context.Context) error {
-				opts.TwirBus.RedemptionAdd.Unsubscribe()
+				twirBus.RedemptionAdd.Unsubscribe()
 				return nil
 			},
 		},

@@ -10,28 +10,25 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	LC *lifecycle.Lifecycle
-
-	Bus   *bus_core.Bus
-	Dudes *dudes.Dudes
-	Gorm  *gorm.DB
-}
-
 type BusListener struct {
 	bus   *bus_core.Bus
 	dudes *dudes.Dudes
 	gorm  *gorm.DB
 }
 
-func New(opts Opts) *BusListener {
+func New(
+	lc *lifecycle.Lifecycle,
+	bus *bus_core.Bus,
+	dudesServer *dudes.Dudes,
+	gorm *gorm.DB,
+) *BusListener {
 	listener := &BusListener{
-		bus:   opts.Bus,
-		dudes: opts.Dudes,
-		gorm:  opts.Gorm,
+		bus:   bus,
+		dudes: dudesServer,
+		gorm:  gorm,
 	}
 
-	opts.LC.Append(
+	lc.Append(
 		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				if err := listener.bus.Websocket.DudesUserSettings.SubscribeGroup(
