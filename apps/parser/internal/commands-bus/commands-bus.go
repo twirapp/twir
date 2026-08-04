@@ -339,10 +339,12 @@ func (c *CommandsBus) Subscribe() error {
 			}
 
 			var replyTo string
+			replyToUserNotFound := false
 			if res.ReplyToUserLogin != "" {
 				replyTo = c.findLatestMessageIdForReply(ctx, data, messagePlatform, res.ReplyToUserLogin)
+				replyToUserNotFound = replyTo == ""
 			}
-			if replyTo == "" && res.IsReply {
+			if replyTo == "" && res.IsReply && !replyToUserNotFound {
 				replyTo = data.MessageID
 			}
 
