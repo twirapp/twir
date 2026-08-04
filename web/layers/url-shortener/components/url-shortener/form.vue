@@ -2,12 +2,18 @@
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { storeToRefs } from 'pinia'
+import { toast } from 'vue-sonner'
 
 import { useUrlShortener } from '../../composables/use-url-shortener'
+import { UserStoreKey } from '~/stores/user'
 
 import type { LinkOutputDto } from '@twir/api/openapi'
 
 const twirShortenerUrl = useRequestURL()
+
+const userStore = useAuth()
+await callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())
+const isAuthenticated = computed(() => Boolean(userStore.userWithoutDashboards))
 
 const schema = z.object({
 	url: z
@@ -34,9 +40,31 @@ const form = useForm({
 })
 
 const api = useUrlShortener()
-const { customDomain } = storeToRefs(api)
+const { customDomain, bannedUaPresets } = storeToRefs(api)
 const currentUrl = ref<LinkOutputDto>()
 const currentError = ref<string>()
+
+const selectedPresetIds = ref<string[]>([])
+
+function togglePreset(presetId: string) {
+	if (selectedPresetIds.value.includes(presetId)) {
+		selectedPresetIds.value = selectedPresetIds.value.filter((id) => id !== presetId)
+	} else {
+		selectedPresetIds.value = [...selectedPresetIds.value, presetId]
+	}
+}
+
+watch(
+	isAuthenticated,
+	async (authenticated) => {
+		if (!authenticated || !import.meta.client) {
+			if (!authenticated) selectedPresetIds.value = []
+			return
+		}
+		await api.fetchBannedUaPresets()
+	},
+	{ immediate: true }
+)
 const { setFieldValue, values } = form
 const hasVerifiedCustomDomain = computed(
 	() => Boolean(customDomain.value?.domain && customDomain.value?.verified)
@@ -93,6 +121,23 @@ const onSubmit = form.handleSubmit(async (values) => {
 	}
 
 	currentUrl.value = data.data
+
+	if (selectedPresetIds.value.length) {
+		const results = await Promise.all(
+			selectedPresetIds.value.map((presetId) => api.applyPresetToLink(data.data.id, presetId))
+		)
+		const failed = results.filter((result) => result.error).length
+		if (failed > 0) {
+			toast.error('Some presets were not applied', {
+				description: `${failed} of ${selectedPresetIds.value.length} presets failed to apply. You can apply them from the link card.`,
+			})
+		} else {
+			toast.success('Presets applied', {
+				description: 'Selected banned user agent presets are active on the new link.',
+			})
+		}
+	}
+
 	form.resetForm({
 		values: {
 			url: '',
@@ -100,6 +145,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 			useCustomDomain: values.useCustomDomain ?? false,
 		},
 	})
+	selectedPresetIds.value = []
 })
 </script>
 
@@ -207,11 +253,38 @@ const onSubmit = form.handleSubmit(async (values) => {
 										Verify your custom domain to use it for new links. Until then, links use
 										{{ twirShortenerUrl.origin + '/s/' }}.
 									</p>
-									<UiFormMessage class="text-xs" />
-								</div>
-							</UiFormItem>
-						</UiFormField>
-					</UiAccordionContent>
+								<UiFormMessage class="text-xs" />
+							</div>
+						</UiFormItem>
+					</UiFormField>
+					<div
+						v-if="isAuthenticated && bannedUaPresets.length"
+						class="flex flex-col gap-2 px-2 pb-3 mt-3"
+					>
+						<span class="font-medium text-sm">Banned user agent presets</span>
+						<div class="flex flex-wrap gap-2">
+							<button
+								v-for="preset in bannedUaPresets"
+								:key="preset.id"
+								type="button"
+								class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors"
+								:class="
+									selectedPresetIds.includes(preset.id)
+										? 'border-[hsl(240,11%,45%)] bg-[hsl(240,11%,30%)] text-white'
+										: 'border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] text-[hsl(240,11%,60%)] hover:bg-[hsl(240,11%,20%)]'
+								"
+								@click="togglePreset(preset.id)"
+							>
+								<Icon name="lucide:shield-ban" class="h-3.5 w-3.5" />
+								{{ preset.name }}
+							</button>
+						</div>
+						<p class="text-xs text-[hsl(240,11%,55%)]">
+							Selected presets will be applied to the new link right after creation. Manage presets
+							in the panel below.
+						</p>
+					</div>
+				</UiAccordionContent>
 				</UiAccordionItem>
 			</UiAccordion>
 
