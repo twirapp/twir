@@ -14,6 +14,7 @@ import ViewsHistoryDialog from './views-history-dialog.vue';
 import TopCountriesDialog from './top-countries-dialog.vue';
 import EditLinkDialog from './edit-link-dialog.vue';
 import DeleteLinkDialog from './delete-link-dialog.vue';
+import BannedUaDialog from './banned-ua-dialog.vue';
 import QrCodeDialog from './qr-code-dialog.vue';
 import { useMetaExtractor } from '../../composables/use-meta-extractor';
 import { useShortLinkViewsSubscription } from '../../composables/use-short-link-views-subscription';
@@ -71,6 +72,7 @@ const showViewsDialog = ref(false);
 const showTopCountriesDialog = ref(false);
 const showEditDialog = ref(false);
 const showDeleteDialog = ref(false);
+const showBannedUaDialog = ref(false);
 
 const emit = defineEmits<{
 	(e: "updated"): void;
@@ -176,6 +178,13 @@ watch(
 							title="Edit link"
 						>
 							<Icon name="lucide:pencil" class="w-3.5 h-3.5" />
+						</button>
+						<button
+							@click="showBannedUaDialog = true"
+							class="flex-none p-1.5 rounded-lg border border-[hsl(240,11%,25%)] hover:border-[hsl(240,11%,40%)] bg-[hsl(240,11%,20%)] hover:bg-[hsl(240,11%,30%)] transition-colors"
+							title="Banned user agents"
+						>
+							<Icon name="lucide:shield-ban" class="w-3.5 h-3.5" />
 						</button>
 						<button
 							@click="showDeleteDialog = true"
@@ -298,6 +307,15 @@ watch(
 				:link-id="link.id"
 				:short-url="displayShortUrl"
 				@deleted="emit('deleted')"
+			/>
+		</ClientOnly>
+
+		<!-- Banned User Agents Dialog -->
+		<ClientOnly>
+			<BannedUaDialog
+				v-model:open="showBannedUaDialog"
+				:link-id="link.id"
+				:short-url="displayShortUrl"
 			/>
 		</ClientOnly>
 	</div>
