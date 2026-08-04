@@ -60,8 +60,12 @@ var emoteSetSubTypes = []string{"create", "delete"}
 func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []connSubscription {
 	subMessages := make([]connSubscription, 0, len(data))
 
-	for channelID, platformEntries := range data {
+	for _, platformEntries := range data {
 		for _, entry := range platformEntries {
+			if entry.PlatformID == "" {
+				continue
+			}
+
 			for _, emoteSetSubType := range emoteSetSubTypes {
 				platform := "TWITCH"
 				if strings.EqualFold(entry.Platform, "kick") {
@@ -74,7 +78,7 @@ func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []connSubscr
 						subType: fmt.Sprintf("emote_set.%s", emoteSetSubType),
 						conditions: map[string]string{
 							"readCtx":  "channel",
-							"id":       channelID,
+							"id":       entry.PlatformID,
 							"platform": platform,
 						},
 					},
@@ -101,6 +105,7 @@ func (c *Service) createSubMessages(data channelsWithEmotesSetsIds) []connSubscr
 type channelWithEmoteSet struct {
 	EmoteSetID string
 	Platform   string
+	PlatformID string
 }
 
 type channelsWithEmotesSetsIds map[string][]channelWithEmoteSet
@@ -199,6 +204,7 @@ func (c *Service) getChannelsWithEmotesSets(
 							channelWithEmoteSet{
 								EmoteSetID: activeEmoteSetID,
 								Platform:   string(binding.Platform),
+								PlatformID: binding.PlatformID,
 							},
 						)
 						if activeEmoteSetID != "" {
