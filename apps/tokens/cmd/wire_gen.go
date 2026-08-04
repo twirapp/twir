@@ -29,14 +29,14 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	logger := base.Logger
-	config := base.Config
-	db := base.Gorm
-	client := base.Redis
+	lifecycle := baseapp.LifecycleFromBase(base)
+	logger := baseapp.LoggerFromBase(base)
+	config := baseapp.ConfigFromBase(base)
+	db := baseapp.GormFromBase(base)
+	client := baseapp.RedisFromBase(base)
 	redsync := redis.NewRedisLock(client)
-	bus := base.Bus
-	pool := base.PgxPool
+	bus := baseapp.BusFromBase(base)
+	pool := baseapp.PgxPoolFromBase(base)
 	pgxPgx := pgx.NewFx(pool)
 	postgresPgx := postgres.NewFx(pool)
 	pgx4 := postgres2.NewFx(pool)
@@ -45,7 +45,7 @@ func initializeApplication() (*app.Application, error) {
 	pgx7 := pgx3.NewFx(pool)
 	pgx8 := postgres4.NewFx(pool)
 	pgx9 := postgres5.NewFx(pool)
-	manager := base.TrManager
+	manager := baseapp.TransactionManagerFromBase(base)
 	bus_listenerOpts := bus_listener.Opts{
 		Lc:                      lifecycle,
 		Config:                  config,

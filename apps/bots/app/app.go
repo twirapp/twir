@@ -111,21 +111,7 @@ const Service = "bots"
 
 var ProviderSet = wire.NewSet(
 	wire.Value(baseapp.Opts{AppName: Service}),
-	baseapp.NewBase,
-	wire.FieldsOf(
-		new(baseapp.Base),
-		"Lifecycle",
-		"Config",
-		"Tracer",
-		"Gorm",
-		"Redis",
-		"Logger",
-		"Bus",
-		"PgxPool",
-		"ClickHouse",
-		"TrManager",
-		"KV",
-	),
+	baseapp.ProviderSet,
 
 	keywordsrepositorypgx.NewFx,
 	wire.Bind(new(keywordsrepository.Repository), new(*keywordsrepositorypgx.Pgx)),

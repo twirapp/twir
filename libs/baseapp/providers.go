@@ -73,6 +73,99 @@ var providerSet = wire.NewSet(
 	newUptimeReporter,
 )
 
+// ProviderSet exposes Base dependencies through ordinary typed providers.
+// Keeping the field access in Go code makes renames and type changes visible to
+// the compiler instead of encoding the dependency graph in FieldsOf strings.
+var ProviderSet = wire.NewSet(
+	NewBase,
+	LifecycleFromBase,
+	ConfigFromBase,
+	TracerFromBase,
+	RedisFromBase,
+	PgxPoolFromBase,
+	TransactionManagerFromBase,
+	GormFromBase,
+	ClickHouseFromBase,
+	BusFromBase,
+	AuditPubSubFromBase,
+	AuditRepositoryFromBase,
+	AuditRecorderFromBase,
+	KVFromBase,
+	LoggerFromBase,
+	SentryFromBase,
+	UptimeReporterFromBase,
+)
+
+func newBase(
+	lc *lifecycle.Lifecycle,
+	cfg config.Config,
+	tracer trace.Tracer,
+	redisClient *redis.Client,
+	pgxPool *pgxpool.Pool,
+	transactionManager trm.Manager,
+	gormDB *gorm.DB,
+	clickHouse *clickhouse.ClickhouseClient,
+	bus *buscore.Bus,
+	auditPubSub auditpubsub.PubSub,
+	auditRepository auditrepository.Repository,
+	auditRecorder audit.Recorder,
+	kvStore kv.KV,
+	appLogger *slog.Logger,
+	sentryClient *sentry.Client,
+	uptimeReporter *uptime.Reporter,
+) Base {
+	return Base{
+		Lifecycle:       lc,
+		Config:          cfg,
+		Tracer:          tracer,
+		Redis:           redisClient,
+		PgxPool:         pgxPool,
+		TrManager:       transactionManager,
+		Gorm:            gormDB,
+		ClickHouse:      clickHouse,
+		Bus:             bus,
+		AuditPubSub:     auditPubSub,
+		AuditRepository: auditRepository,
+		AuditRecorder:   auditRecorder,
+		KV:              kvStore,
+		Logger:          appLogger,
+		Sentry:          sentryClient,
+		UptimeReporter:  uptimeReporter,
+	}
+}
+
+func LifecycleFromBase(base Base) *lifecycle.Lifecycle { return base.Lifecycle }
+
+func ConfigFromBase(base Base) config.Config { return base.Config }
+
+func TracerFromBase(base Base) trace.Tracer { return base.Tracer }
+
+func RedisFromBase(base Base) *redis.Client { return base.Redis }
+
+func PgxPoolFromBase(base Base) *pgxpool.Pool { return base.PgxPool }
+
+func TransactionManagerFromBase(base Base) trm.Manager { return base.TrManager }
+
+func GormFromBase(base Base) *gorm.DB { return base.Gorm }
+
+func ClickHouseFromBase(base Base) *clickhouse.ClickhouseClient { return base.ClickHouse }
+
+func BusFromBase(base Base) *buscore.Bus { return base.Bus }
+
+func AuditPubSubFromBase(base Base) auditpubsub.PubSub { return base.AuditPubSub }
+
+func AuditRepositoryFromBase(base Base) auditrepository.Repository { return base.AuditRepository }
+
+func AuditRecorderFromBase(base Base) audit.Recorder { return base.AuditRecorder }
+
+func KVFromBase(base Base) kv.KV { return base.KV }
+
+func LoggerFromBase(base Base) *slog.Logger { return base.Logger }
+
+func SentryFromBase(base Base) *sentry.Client { return base.Sentry }
+
+func UptimeReporterFromBase(base Base) *uptime.Reporter { return base.UptimeReporter }
+
 func provideServiceName(opts Opts) serviceName {
 	return serviceName(opts.AppName)
 }

@@ -27,17 +27,7 @@ const Service = "scheduler"
 
 var ProviderSet = wire.NewSet(
 	wire.Value(baseapp.Opts{AppName: Service}),
-	baseapp.NewBase,
-	wire.FieldsOf(
-		new(baseapp.Base),
-		"Lifecycle",
-		"Config",
-		"Gorm",
-		"Logger",
-		"Bus",
-		"PgxPool",
-		"KV",
-	),
+	baseapp.ProviderSet,
 	scheduledvipsrepositorypgx.NewFx,
 	wire.Bind(new(scheduledvipsrepository.Repository), new(*scheduledvipsrepositorypgx.Pgx)),
 	commandsrepositorypgx.NewFx,

@@ -46,24 +46,24 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	logger := base.Logger
-	config := base.Config
-	db := base.Gorm
-	bus := base.Bus
-	pool := base.PgxPool
+	lifecycle := baseapp.LifecycleFromBase(base)
+	logger := baseapp.LoggerFromBase(base)
+	config := baseapp.ConfigFromBase(base)
+	db := baseapp.GormFromBase(base)
+	bus := baseapp.BusFromBase(base)
+	pool := baseapp.PgxPoolFromBase(base)
 	pgxPgx := pgx.NewFx(pool)
-	kv := base.KV
+	kv := baseapp.KVFromBase(base)
 	postgresPgx := postgres.NewFx(pool)
 	channelService := channelservice.NewChannelService(pgxPgx, bus, config, kv, postgresPgx)
 	pgx7 := postgres2.NewFx(pool)
-	client := base.Redis
+	client := baseapp.RedisFromBase(base)
 	websocketClient := app.NewWebsocketClient(config)
 	pgx8 := pgx2.NewFx(pool)
 	pgx9 := postgres3.NewFx(pool)
 	genericCacher := channel.New(pgxPgx, kv)
 	pgx10 := postgres4.NewFx(pool)
-	clickhouseClient := base.ClickHouse
+	clickhouseClient := baseapp.ClickHouseFromBase(base)
 	clickhouseClickhouse := clickhouse.NewFx(clickhouseClient)
 	pgx11 := postgres5.NewFx(pool)
 	pgx12 := pgx3.NewFx(pool)
@@ -73,7 +73,7 @@ func initializeApplication() (*app.Application, error) {
 	pgx13 := postgres6.NewFx(pool)
 	pgx14 := pgx4.NewFx(pool)
 	pgx15 := postgres7.NewFx(pool)
-	trmManager := base.TrManager
+	trmManager := baseapp.TransactionManagerFromBase(base)
 	user_creatorOpts := user_creator.Opts{
 		UsersStatsRepo:     pgx13,
 		UsersRepo:          pgx14,
@@ -81,7 +81,7 @@ func initializeApplication() (*app.Application, error) {
 		TrManager:          trmManager,
 	}
 	userCreatorService := user_creator.New(user_creatorOpts)
-	tracer := base.Tracer
+	tracer := baseapp.TracerFromBase(base)
 	pgx16 := pgx5.NewFx(pool)
 	genericCacher4 := app.NewCommandsPrefixCache(pgx16, bus)
 	pgx17 := pgx6.NewFx(pool)

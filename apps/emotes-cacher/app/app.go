@@ -17,8 +17,7 @@ const Service = "emotes-cacher"
 
 var ProviderSet = wire.NewSet(
 	wire.Value(baseapp.Opts{AppName: Service}),
-	baseapp.NewBase,
-	wire.FieldsOf(new(baseapp.Base), "Lifecycle", "Config", "Gorm", "Logger", "Bus"),
+	baseapp.ProviderSet,
 	wire.Struct(new(emotes_store.Opts), "*"),
 	emotes_store.New,
 	wire.Struct(new(buslistener.Opts), "*"),

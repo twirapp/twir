@@ -28,11 +28,11 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	logger := base.Logger
-	db := base.Gorm
-	bus := base.Bus
-	pool := base.PgxPool
+	lifecycle := baseapp.LifecycleFromBase(base)
+	logger := baseapp.LoggerFromBase(base)
+	db := baseapp.GormFromBase(base)
+	bus := baseapp.BusFromBase(base)
+	pool := baseapp.PgxPoolFromBase(base)
 	pgxPgx := pgx.NewFx(pool)
 	commands := services.NewCommands(db, logger, bus, pgxPgx)
 	roles := services.NewRoles(db, logger)
@@ -43,7 +43,7 @@ func initializeApplication() (*app.Application, error) {
 		RolesService:    roles,
 		Bus:             bus,
 	}
-	config := base.Config
+	config := baseapp.ConfigFromBase(base)
 	postgresPgx := postgres.NewFx(pool)
 	onlineUsersOpts := timers.OnlineUsersOpts{
 		Lc:          lifecycle,
@@ -54,7 +54,7 @@ func initializeApplication() (*app.Application, error) {
 		StreamsRepo: postgresPgx,
 	}
 	pgx4 := pgx2.NewFx(pool)
-	kv := base.KV
+	kv := baseapp.KVFromBase(base)
 	channelService := channelservice.NewChannelService(pgx4, bus, config, kv, postgresPgx)
 	streamOpts := timers.StreamOpts{
 		Lc:             lifecycle,

@@ -27,8 +27,8 @@ func TestWireTargets(t *testing.T) {
 	}
 
 	want := []string{
-		filepath.Join(repositoryRoot, "libs", "baseapp"),
-		filepath.Join(appPath, "cmd"),
+		filepath.Join("..", "libs", "baseapp"),
+		filepath.Join("..", "apps", "events", "cmd"),
 	}
 	if len(targets) != len(want) {
 		t.Fatalf("got %d targets, want %d: %v", len(targets), len(want), targets)

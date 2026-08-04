@@ -23,10 +23,10 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	logger := base.Logger
-	bus := base.Bus
-	db := base.Gorm
+	lifecycle := baseapp.LifecycleFromBase(base)
+	logger := baseapp.LoggerFromBase(base)
+	bus := baseapp.BusFromBase(base)
+	db := baseapp.GormFromBase(base)
 	emotes_storeOpts := emotes_store.Opts{
 		LC:     lifecycle,
 		Gorm:   db,
@@ -39,7 +39,7 @@ func initializeApplication() (*app.Application, error) {
 		Bus:    bus,
 		Store:  emotesStore,
 	}
-	config := base.Config
+	config := baseapp.ConfigFromBase(base)
 	seventvOpts := seventv.Opts{
 		LC:          lifecycle,
 		Gorm:        db,

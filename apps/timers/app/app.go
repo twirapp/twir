@@ -23,17 +23,7 @@ const Service = "timers"
 
 var ProviderSet = wire.NewSet(
 	wire.Value(baseapp.Opts{AppName: Service}),
-	baseapp.NewBase,
-	wire.FieldsOf(
-		new(baseapp.Base),
-		"Lifecycle",
-		"Config",
-		"Redis",
-		"Logger",
-		"Bus",
-		"PgxPool",
-		"KV",
-	),
+	baseapp.ProviderSet,
 	timersrepositorypgx.NewFx,
 	wire.Bind(new(timersrepository.Repository), new(*timersrepositorypgx.Pgx)),
 	channelsrepositorypgx.NewFx,

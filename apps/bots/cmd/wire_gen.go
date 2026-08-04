@@ -77,10 +77,10 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	config := base.Config
-	logger := base.Logger
-	bus := base.Bus
+	lifecycle := baseapp.LifecycleFromBase(base)
+	config := baseapp.ConfigFromBase(base)
+	logger := baseapp.LoggerFromBase(base)
+	bus := baseapp.BusFromBase(base)
 	ytsrOpts := ytsr.Opts{
 		Lc:      lifecycle,
 		Config:  config,
@@ -91,7 +91,7 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	db := base.Gorm
+	db := baseapp.GormFromBase(base)
 	redisTaskProcessorOpts := mod_task_queue.RedisTaskProcessorOpts{
 		LC:      lifecycle,
 		Cfg:     config,
@@ -101,9 +101,9 @@ func initializeApplication() (*app.Application, error) {
 	}
 	redisTaskProcessor := mod_task_queue.NewRedisTaskProcessor(redisTaskProcessorOpts)
 	metricsServer := app.StartMetrics(config)
-	pool := base.PgxPool
+	pool := baseapp.PgxPoolFromBase(base)
 	pgxPgx := pgx.NewFx(pool)
-	kv := base.KV
+	kv := baseapp.KVFromBase(base)
 	postgresPgx := postgres.NewFx(pool)
 	channelService := channelservice.NewChannelService(pgxPgx, bus, config, kv, postgresPgx)
 	pgx13 := pgx2.NewFx(pool)
@@ -117,10 +117,10 @@ func initializeApplication() (*app.Application, error) {
 		GreetingsCacher:     genericCacher,
 	}
 	streamHandlersRegistration := app.RegisterStreamHandlers(stream_handlersOpts)
-	tracer := base.Tracer
+	tracer := baseapp.TracerFromBase(base)
 	pgx14 := pgx3.NewFx(pool)
 	pgx15 := pgx4.NewFx(pool)
-	client := base.Redis
+	client := baseapp.RedisFromBase(base)
 	toxicity_checkOpts := toxicity_check.Opts{
 		RedisClient: client,
 		Config:      config,
@@ -152,7 +152,7 @@ func initializeApplication() (*app.Application, error) {
 	}
 	twitchActions := twitchactions.New(twitchactionsOpts)
 	websocketClient := app.NewWebsocketClient(config)
-	clickhouseClient := base.ClickHouse
+	clickhouseClient := baseapp.ClickHouseFromBase(base)
 	clickhouseClickhouse := clickhouse.NewFx(clickhouseClient)
 	clickhouse3 := clickhouse2.NewFx(clickhouseClient)
 	pgx16 := postgres2.NewFx(pool)
@@ -236,7 +236,7 @@ func initializeApplication() (*app.Application, error) {
 		ChannelsTranslationsCache:      genericCacher9,
 	}
 	chat_translationsService := chat_translations.New(chat_translationsOpts)
-	manager := base.TrManager
+	manager := baseapp.TransactionManagerFromBase(base)
 	pgx26 := pgx11.NewFx(pool)
 	giveawaysOpts := giveaways2.Opts{
 		LC:                              lifecycle,

@@ -40,21 +40,21 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	logger := base.Logger
-	config := base.Config
-	db := base.Gorm
-	client := base.Redis
+	lifecycle := baseapp.LifecycleFromBase(base)
+	logger := baseapp.LoggerFromBase(base)
+	config := baseapp.ConfigFromBase(base)
+	db := baseapp.GormFromBase(base)
+	client := baseapp.RedisFromBase(base)
 	websocketClient := app.NewWebsocketClient(config)
-	bus := base.Bus
+	bus := baseapp.BusFromBase(base)
 	hydratorOpts := hydrator.Opts{
 		Db:      db,
 		TwirBus: bus,
 	}
 	hydratorHydrator := hydrator.New(hydratorOpts)
-	pool := base.PgxPool
+	pool := baseapp.PgxPoolFromBase(base)
 	pgxPgx := pgx.NewFx(pool)
-	kv := base.KV
+	kv := baseapp.KVFromBase(base)
 	postgresPgx := postgres.NewFx(pool)
 	channelService := channelservice.NewChannelService(pgxPgx, bus, config, kv, postgresPgx)
 	pgx8 := pgx2.NewFx(pool)

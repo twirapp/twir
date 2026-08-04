@@ -26,16 +26,16 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	logger := base.Logger
-	bus := base.Bus
-	pool := base.PgxPool
+	lifecycle := baseapp.LifecycleFromBase(base)
+	logger := baseapp.LoggerFromBase(base)
+	bus := baseapp.BusFromBase(base)
+	pool := baseapp.PgxPoolFromBase(base)
 	pgxPgx := pgx.NewFx(pool)
 	pgx3 := pgx2.NewFx(pool)
-	kv := base.KV
+	kv := baseapp.KVFromBase(base)
 	genericCacher := channel.New(pgx3, kv)
-	client := base.Redis
-	config := base.Config
+	client := baseapp.RedisFromBase(base)
+	config := baseapp.ConfigFromBase(base)
 	postgresPgx := postgres.NewFx(pool)
 	channelService := channelservice.NewChannelService(pgx3, bus, config, kv, postgresPgx)
 	managerOpts := manager.Opts{

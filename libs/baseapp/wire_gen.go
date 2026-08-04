@@ -55,23 +55,6 @@ func NewBase(opts Opts) (Base, error) {
 	if err != nil {
 		return Base{}, err
 	}
-	base := Base{
-		Lifecycle:       lifecycleLifecycle,
-		Config:          config,
-		Tracer:          tracer,
-		Redis:           client,
-		PgxPool:         pool,
-		TrManager:       manager,
-		Gorm:            db,
-		ClickHouse:      clickhouseClient,
-		Bus:             bus,
-		AuditPubSub:     pubSub,
-		AuditRepository: repository,
-		AuditRecorder:   recorder,
-		KV:              kv,
-		Logger:          logger,
-		Sentry:          sentryClient,
-		UptimeReporter:  reporter,
-	}
+	base := newBase(lifecycleLifecycle, config, tracer, client, pool, manager, db, clickhouseClient, bus, pubSub, repository, recorder, kv, logger, sentryClient, reporter)
 	return base, nil
 }

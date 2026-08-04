@@ -30,17 +30,7 @@ const Service = "Websockets"
 
 var ProviderSet = wire.NewSet(
 	wire.Value(baseapp.Opts{AppName: Service}),
-	baseapp.NewBase,
-	wire.FieldsOf(
-		new(baseapp.Base),
-		"Lifecycle",
-		"Config",
-		"Gorm",
-		"Redis",
-		"Logger",
-		"Bus",
-		"PgxPool",
-	),
+	baseapp.ProviderSet,
 	alertsrepositorypgx.NewFx,
 	wire.Bind(new(alertsrepository.Repository), new(*alertsrepositorypgx.Pgx)),
 	channelsoverlaysrepositorypgx.NewFx,

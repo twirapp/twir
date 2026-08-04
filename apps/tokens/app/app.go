@@ -31,18 +31,7 @@ const Service = "tokens"
 
 var ProviderSet = wire.NewSet(
 	wire.Value(baseapp.Opts{AppName: Service}),
-	baseapp.NewBase,
-	wire.FieldsOf(
-		new(baseapp.Base),
-		"Lifecycle",
-		"Config",
-		"Gorm",
-		"Redis",
-		"Logger",
-		"Bus",
-		"PgxPool",
-		"TrManager",
-	),
+	baseapp.ProviderSet,
 	tokensrepositorypgx.NewFx,
 	wire.Bind(new(tokensrepository.Repository), new(*tokensrepositorypgx.Pgx)),
 	usersrepositorypgx.NewFx,

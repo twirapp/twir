@@ -195,6 +195,7 @@ func (c *TwirGoApp) GenerateWire() error {
 }
 
 func wireTargets(repositoryRoot, appPath string) ([]string, error) {
+	wireWorkingDirectory := filepath.Join(repositoryRoot, "cli")
 	candidates := []struct {
 		injector string
 		target   string
@@ -217,7 +218,12 @@ func wireTargets(repositoryRoot, appPath string) ([]string, error) {
 			}
 			return nil, fmt.Errorf("stat Wire injector %s: %w", candidate.injector, err)
 		}
-		targets = append(targets, candidate.target)
+
+		relativeTarget, err := filepath.Rel(wireWorkingDirectory, candidate.target)
+		if err != nil {
+			return nil, fmt.Errorf("make Wire target %s relative to %s: %w", candidate.target, wireWorkingDirectory, err)
+		}
+		targets = append(targets, relativeTarget)
 	}
 
 	return targets, nil

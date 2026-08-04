@@ -30,13 +30,13 @@ func initializeApplication() (*app.Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	logger := base.Logger
-	bus := base.Bus
-	db := base.Gorm
-	client := base.Redis
-	config := base.Config
-	pool := base.PgxPool
+	lifecycle := baseapp.LifecycleFromBase(base)
+	logger := baseapp.LoggerFromBase(base)
+	bus := baseapp.BusFromBase(base)
+	db := baseapp.GormFromBase(base)
+	client := baseapp.RedisFromBase(base)
+	config := baseapp.ConfigFromBase(base)
+	pool := baseapp.PgxPoolFromBase(base)
 	pgxPgx := pgx.NewFx(pool)
 	pgx5 := pgx2.NewFx(pool)
 	dudesOpts := dudes.Opts{

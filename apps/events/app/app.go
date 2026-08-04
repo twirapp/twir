@@ -46,18 +46,7 @@ const Service = "events"
 
 var ProviderSet = wire.NewSet(
 	wire.Value(baseapp.Opts{AppName: Service}),
-	baseapp.NewBase,
-	wire.FieldsOf(
-		new(baseapp.Base),
-		"Lifecycle",
-		"Config",
-		"Gorm",
-		"Redis",
-		"Logger",
-		"Bus",
-		"PgxPool",
-		"KV",
-	),
+	baseapp.ProviderSet,
 	greetingsrepositorypgx.NewFx,
 	wire.Bind(new(greetingsrepository.Repository), new(*greetingsrepositorypgx.Pgx)),
 	channelsrepositorypgx.NewFx,

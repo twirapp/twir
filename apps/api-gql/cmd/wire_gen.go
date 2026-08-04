@@ -217,8 +217,8 @@ func initializeApplication() (*Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	lifecycle := base.Lifecycle
-	config := base.Config
+	lifecycle := baseapp.LifecycleFromBase(base)
+	config := baseapp.ConfigFromBase(base)
 	twitchplatformOpts := twitchplatform.Opts{
 		Config: config,
 	}
@@ -235,13 +235,13 @@ func initializeApplication() (*Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger := base.Logger
-	recorder := base.AuditRecorder
+	logger := baseapp.LoggerFromBase(base)
+	recorder := baseapp.AuditRecorderFromBase(base)
 	wsRouterNats, err := wsrouter.NewNatsWsRouter(config)
 	if err != nil {
 		return nil, err
 	}
-	pool := base.PgxPool
+	pool := baseapp.PgxPoolFromBase(base)
 	pgxPgx := pgx.NewFx(pool)
 	postgresPgx := postgres.NewFx(pool)
 	pgx41 := postgres2.NewFx(pool)
@@ -250,12 +250,12 @@ func initializeApplication() (*Application, error) {
 	pgx43 := pgx4.NewFx(pool)
 	pgx44 := pgx5.NewFx(pool)
 	pgx45 := postgres3.NewFx(pool)
-	bus := base.Bus
-	kv := base.KV
+	bus := baseapp.BusFromBase(base)
+	kv := baseapp.KVFromBase(base)
 	pgx46 := postgres4.NewFx(pool)
 	channelService := channelservice.NewChannelService(pgx43, bus, config, kv, pgx46)
 	pgx47 := pgx6.NewFx(pool)
-	client := base.Redis
+	client := baseapp.RedisFromBase(base)
 	authOpts := auth.Opts{
 		Redis:          client,
 		UsersRepo:      pgx44,
@@ -304,7 +304,7 @@ func initializeApplication() (*Application, error) {
 		KickProvider:       kickplatformProvider,
 	}
 	twitchService := twitch2.New(twitchOpts)
-	clickhouseClient := base.ClickHouse
+	clickhouseClient := baseapp.ClickHouseFromBase(base)
 	clickhouseClickhouse := clickhouse.NewFx(clickhouseClient)
 	channels_emotes_usagesOpts := channels_emotes_usages.Opts{
 		ChannelsEmotesUsagesRepository: clickhouseClickhouse,
@@ -332,7 +332,7 @@ func initializeApplication() (*Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	manager := base.TrManager
+	manager := baseapp.TransactionManagerFromBase(base)
 	pgx50 := postgres5.NewFx(pool)
 	pgx51 := postgres6.NewFx(pool)
 	pgx52 := pgx9.NewFx(pool)
@@ -342,7 +342,7 @@ func initializeApplication() (*Application, error) {
 	botSetupProvider := vkvideo.NewBotSetupProvider(botSetupProviderOpts)
 	pgx53 := postgres7.NewFx(pool)
 	pgx54 := postgres8.NewFx(pool)
-	db := base.Gorm
+	db := baseapp.GormFromBase(base)
 	dashboard_accessOpts := dashboard_access.Opts{
 		ChannelService: channelService,
 		Gorm:           db,
@@ -458,8 +458,8 @@ func initializeApplication() (*Application, error) {
 		QuotesCacher:     genericCacher4,
 	}
 	quotesService := quotes2.New(quotesOpts)
-	audit_logsRepository := base.AuditRepository
-	pubSub := base.AuditPubSub
+	audit_logsRepository := baseapp.AuditRepositoryFromBase(base)
+	pubSub := baseapp.AuditPubSubFromBase(base)
 	audit_logsOpts := audit_logs.Opts{
 		AuditLogsRepository: audit_logsRepository,
 		AuditLogsPubSub:     pubSub,
@@ -1031,7 +1031,7 @@ func initializeApplication() (*Application, error) {
 		RateLimiter:     leakyBucketRateLimiter,
 	}
 	directivesDirectives := directives.New(directivesOpts)
-	tracer := base.Tracer
+	tracer := baseapp.TracerFromBase(base)
 	gqlOpts := gql.Opts{
 		Resolver:                resolver,
 		Directives:              directivesDirectives,
