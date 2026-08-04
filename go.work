@@ -25,6 +25,7 @@ use (
 	./libs/grpc
 	./libs/i18n
 	./libs/integrations
+	./libs/lifecycle
 	./libs/logger
 	./libs/migrations
 	./libs/otel

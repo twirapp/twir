@@ -33,11 +33,14 @@ require (
 	github.com/cosiner/argv v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d // indirect
+	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-delve/delve v1.25.2 // indirect
 	github.com/go-delve/liner v1.2.3-0.20231231155935-4726ab1d7f62 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
+	github.com/goforj/wire v1.2.0 // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/go-dap v0.12.0 // indirect
+	github.com/google/subcommands v1.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
@@ -274,6 +277,7 @@ tool (
 	github.com/bufbuild/buf/cmd/buf
 	github.com/caddyserver/caddy/v2/cmd/caddy
 	github.com/go-delve/delve/cmd/dlv
+	github.com/goforj/wire/cmd/wire
 	github.com/mgechev/revive
 	github.com/twitchtv/twirp/protoc-gen-twirp
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc
