@@ -45,6 +45,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/apps/parser/internal/variables"
+	"github.com/twirapp/twir/apps/parser/internal/variables/to_user"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/generic"
@@ -242,6 +243,17 @@ func (c *Commands) FindChannelCommandInInput(
 	}
 
 	return &res
+}
+
+func responseUsesVariable(text, variableName string) bool {
+	for _, match := range variables.Regexp.FindAllStringSubmatch(text, -1) {
+		name, _, _ := strings.Cut(match[1], " ")
+		if name == variableName {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (c *Commands) ParseCommandResponses(
@@ -491,6 +503,21 @@ func (c *Commands) ParseCommandResponses(
 				return *r.Text
 			},
 		)
+	}
+
+	if len(mentions) > 0 {
+		for _, r := range result.Responses {
+			if !responseUsesVariable(r, to_user.ToUser.Name) {
+				continue
+			}
+
+			result.ReplyToUserLogin = mentions[0].UserLogin
+			if result.ReplyToUserLogin == "" {
+				result.ReplyToUserLogin = mentions[0].UserName
+			}
+
+			break
+		}
 	}
 
 	wg := &sync.WaitGroup{}
