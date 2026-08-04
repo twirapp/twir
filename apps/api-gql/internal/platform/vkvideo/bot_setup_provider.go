@@ -7,12 +7,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/vk"
-	"go.uber.org/fx"
 )
 
 type BotSetupProviderOpts struct {
-	fx.In
-
 	Config cfg.Config
 }
 

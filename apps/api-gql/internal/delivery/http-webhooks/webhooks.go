@@ -9,13 +9,10 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/pubsub"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Server                      *server.Server
 	KV                          kv.KV
 	Db                          *gorm.DB

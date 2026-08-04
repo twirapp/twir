@@ -12,15 +12,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/audit"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/channels_secret"
 	"github.com/twirapp/twir/libs/repositories/channels_secret/model"
-	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Config            config.Config
 	AuditRecorder     audit.Recorder
 	SecretsRepository channels_secret.Repository

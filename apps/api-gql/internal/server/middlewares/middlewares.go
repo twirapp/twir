@@ -5,12 +5,9 @@ import (
 
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Sessions    *auth.Auth
 	Logger      *slog.Logger
 	RateLimiter *rate_limiter.LeakyBucketRateLimiter

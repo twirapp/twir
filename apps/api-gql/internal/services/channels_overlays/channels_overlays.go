@@ -19,12 +19,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/plans"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	OverlaysRepository channels_overlays.Repository
 	ChannelService     *channelservice.ChannelService
 	PlansRepository    plans.Repository

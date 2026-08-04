@@ -3,6 +3,7 @@ package giveaways
 import (
 	"context"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"strings"
 	"time"
@@ -25,12 +26,10 @@ import (
 	giveawaysparticipantsmodel "github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	GiveawaysRepository             giveaways.Repository
 	GiveawaysParticipantsRepository giveaways_participants.Repository
@@ -58,7 +57,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				return s.twirBus.Giveaways.NewParticipants.SubscribeGroup(
 					"api-gql",

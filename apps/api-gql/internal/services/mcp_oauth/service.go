@@ -16,7 +16,6 @@ import (
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	repository "github.com/twirapp/twir/libs/repositories/mcp_oauth"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
 const manageBotSettings = "MANAGE_BOT_SETTINGS"
@@ -57,7 +56,6 @@ type Service struct {
 	random     io.Reader
 }
 type Opts struct {
-	fx.In
 	Repository      repository.Repository
 	Users           *users.Service
 	Channels        *channelservice.ChannelService

@@ -20,13 +20,10 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	channelsintegrationsdiscord "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
 	"github.com/twirapp/twir/libs/repositories/channels_integrations_discord/model"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
 type Opts struct {
-	fx.In
-
 	DiscordRepository channelsintegrationsdiscord.Repository
 	Config            cfg.Config
 	Bus               *buscore.Bus

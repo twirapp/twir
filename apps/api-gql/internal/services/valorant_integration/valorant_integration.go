@@ -16,12 +16,9 @@ import (
 	"github.com/twirapp/twir/libs/integrations/valorant"
 	channelsintegrationsvalorant "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant"
 	channelsintegrationsvalorantmodel "github.com/twirapp/twir/libs/repositories/channels_integrations_valorant/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	ChannelsIntegrationsValorantRepository channelsintegrationsvalorant.Repository
 	Config                                 cfg.Config
 	HenrikApi                              *valorant.HenrikValorantApiClient

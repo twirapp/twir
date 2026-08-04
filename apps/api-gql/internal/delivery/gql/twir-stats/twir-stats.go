@@ -16,13 +16,10 @@ import (
 	"github.com/twirapp/twir/libs/repositories/pastebins"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Gorm                       *gorm.DB
 	Logger                     *slog.Logger
 	Config                     config.Config

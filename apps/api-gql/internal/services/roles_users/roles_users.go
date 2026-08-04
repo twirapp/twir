@@ -8,12 +8,9 @@ import (
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/roles_users"
 	"github.com/twirapp/twir/libs/repositories/roles_users/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	RolesUsersRepository roles_users.Repository
 }
 

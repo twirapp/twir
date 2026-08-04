@@ -11,12 +11,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/channels_moderation_settings"
 	"github.com/twirapp/twir/libs/repositories/channels_moderation_settings/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Repo            channels_moderation_settings.Repository
 	PlansRepository plans.Repository
 	Cacher          *generic_cacher.GenericCacher[[]model.ChannelModerationSettings]

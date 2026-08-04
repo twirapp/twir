@@ -10,12 +10,10 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	authsessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
-	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
 	service "github.com/twirapp/twir/apps/api-gql/internal/services/mcp_oauth"
 	config "github.com/twirapp/twir/libs/config"
 	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
-	"go.uber.org/fx"
 )
 
 type oauthService interface {
@@ -70,15 +68,14 @@ func New(deps Dependencies) (*Handler, error) {
 	return &Handler{service: deps.Service, sessions: deps.Sessions, origin: origin, random: deps.Random, registerRateLimiter: deps.RegisterRateLimiter}, nil
 }
 
-type FxOpts struct {
-	fx.In
+type ProviderOpts struct {
 	Service     *service.Service
 	Sessions    *authsessions.Auth
 	Config      config.Config
 	RateLimiter *rate_limiter.LeakyBucketRateLimiter
 }
 
-func NewFx(opts FxOpts) (*Handler, error) {
+func NewFromOpts(opts ProviderOpts) (*Handler, error) {
 	return New(Dependencies{Service: opts.Service, Sessions: opts.Sessions, SiteBaseURL: opts.Config.SiteBaseUrl, RegisterRateLimiter: opts.RateLimiter})
 }
 
@@ -110,23 +107,12 @@ func (handler *Handler) Register(api huma.API) {
 	}
 }
 
-var FxModule = fx.Options(
-	fx.Provide(
-		NewFx,
-		httpbase.AsFxRoute(newProtectedResourceMetadata),
-		httpbase.AsFxRoute(newAuthorizationServerMetadata),
-		httpbase.AsFxRoute(newScopeCatalog),
-		httpbase.AsFxRoute(newRegisterOptions),
-		httpbase.AsFxRoute(newRegisterClient),
-		httpbase.AsFxRoute(newAuthorize),
-		httpbase.AsFxRoute(newGetConsent),
-		httpbase.AsFxRoute(newPostConsent),
-		httpbase.AsFxRoute(newTokenOptions),
-		httpbase.AsFxRoute(newToken),
-		httpbase.AsFxRoute(newRevokeOptions),
-		httpbase.AsFxRoute(newRevoke),
-	),
-)
+type Registration struct{}
+
+func RegisterRoutes(api huma.API, handler *Handler) Registration {
+	handler.Register(api)
+	return Registration{}
+}
 
 type emptyInput struct{}
 type preflightOutput struct{ Status int }

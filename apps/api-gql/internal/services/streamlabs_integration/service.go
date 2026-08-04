@@ -18,12 +18,9 @@ import (
 	streamlabsintegration "github.com/twirapp/twir/libs/entities/streamlabs_integration"
 	"github.com/twirapp/twir/libs/repositories/streamlabs_integration"
 	"github.com/twirapp/twir/libs/repositories/streamlabs_integration/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	StreamlabsRepository streamlabs_integration.Repository
 	TwirBus              *buscore.Bus
 	Config               config.Config

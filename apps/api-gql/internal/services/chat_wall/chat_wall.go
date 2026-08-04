@@ -9,12 +9,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
 	chatwallmodel "github.com/twirapp/twir/libs/repositories/chat_wall/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Repository chatwallrepository.Repository
 }
 

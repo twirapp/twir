@@ -12,12 +12,20 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
-var FxModule = fx.Provide(
-	httpbase.AsFxRoute(newSay),
-)
+type Dependencies struct {
+	API     huma.API
+	Config  config.Config
+	Service *tts.Service
+}
+
+type Registration struct{}
+
+func RegisterRoutes(deps Dependencies) Registration {
+	newSay(SayOpts{Config: deps.Config, Service: deps.Service}).Register(deps.API)
+	return Registration{}
+}
 
 type sayRequestDto struct {
 	Voice  string `query:"voice" minLength:"1" maxLength:"100" example:"alan" doc:"Voice name to use for TTS"`
@@ -35,8 +43,6 @@ type sayResponseDto struct {
 var _ httpbase.Route[*sayRequestDto, *sayResponseDto] = (*say)(nil)
 
 type SayOpts struct {
-	fx.In
-
 	Config  config.Config
 	Service *tts.Service
 }

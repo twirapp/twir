@@ -9,13 +9,10 @@ import (
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/repositories/plans"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Gorm             *gorm.DB
 	AuditRecorder    audit.Recorder
 	Logger           *slog.Logger

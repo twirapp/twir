@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"io"
 	"log/slog"
 	"net/http"
@@ -25,12 +26,10 @@ import (
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/types/types/api/modules"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Repository      overlays_tts.Repository
 	WsRouter        wsrouter.WsRouter
@@ -54,7 +53,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				s.twirBus.Api.TriggerTtsSay.SubscribeGroup(
 					"api",

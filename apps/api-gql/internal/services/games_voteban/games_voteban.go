@@ -10,12 +10,9 @@ import (
 	votebanentity "github.com/twirapp/twir/libs/entities/voteban"
 	apperrors "github.com/twirapp/twir/libs/errors"
 	channelsgamesvoteban "github.com/twirapp/twir/libs/repositories/channels_games_voteban"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Repository    channelsgamesvoteban.Repository
 	AuditRecorder audit.Recorder
 	Cacher        *generic_cacher.GenericCacher[votebanentity.Voteban]

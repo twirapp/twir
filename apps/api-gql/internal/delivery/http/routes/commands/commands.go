@@ -3,14 +3,24 @@ package commands
 import (
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
-	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
+	commandsservice "github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 )
 
-var FxModule = fx.Provide(
-	httpbase.AsFxRoute(newListById),
-)
+type Dependencies struct {
+	API            huma.API
+	Service        *commandsservice.Service
+	ChannelService *channels.Service
+}
+
+type Registration struct{}
+
+func RegisterRoutes(deps Dependencies) Registration {
+	newListById(ListByIdOpts{Service: deps.Service, ChannelService: deps.ChannelService}).Register(deps.API)
+	return Registration{}
+}
 
 type commandResponseDto struct {
 	ID                        uuid.UUID                        `json:"id"`

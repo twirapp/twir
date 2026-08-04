@@ -13,14 +13,11 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/be_right_back"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
-	"go.uber.org/fx"
 )
 
 var _ httpbase.Route[*stopRequestDto, *httpbase.BaseOutputJson[stopResponseDto]] = (*stopEndpoint)(nil)
 
 type StopOpts struct {
-	fx.In
-
 	Service        *be_right_back.Service
 	TwirBus        *buscore.Bus
 	ChannelService *channels.Service

@@ -7,12 +7,19 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	"go.uber.org/fx"
 )
 
-var FxModule = fx.Provide(
-	httpbase.AsFxRoute(newStats),
-)
+type Dependencies struct {
+	API     huma.API
+	Service *twir_stats.TwirStats
+}
+
+type Registration struct{}
+
+func RegisterRoutes(deps Dependencies) Registration {
+	newStats(StatsOpts{Service: deps.Service}).Register(deps.API)
+	return Registration{}
+}
 
 type twirStatsRequestDto struct{}
 
@@ -35,8 +42,6 @@ type twirStatsResponseDto struct {
 var _ httpbase.Route[*twirStatsRequestDto, *twirStatsResponseDto] = (*twirStats)(nil)
 
 type StatsOpts struct {
-	fx.In
-
 	Service *twir_stats.TwirStats
 }
 

@@ -19,14 +19,11 @@ import (
 	"github.com/twirapp/twir/libs/repositories/variables"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	TwirBus             *buscore.Bus
 	Config              config.Config
 	CachedTwitchClient  *twitch.CachedTwitchClient

@@ -10,7 +10,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/clientinfo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
-	"go.uber.org/fx"
 )
 
 type pasteBinCreateRequestDto struct {
@@ -23,8 +22,6 @@ type pasteBinCreateRequestDto struct {
 var _ httpbase.Route[*pasteBinCreateRequestDto, *httpbase.BaseOutputJson[pasteBinOutputDto]] = (*create)(nil)
 
 type CreateOpts struct {
-	fx.In
-
 	Service           *pastebins.Service
 	Sessions          *auth.Auth
 	ClientInfoService *clientinfo.Service

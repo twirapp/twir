@@ -21,12 +21,9 @@ import (
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Repository                     shortenedurlsrepository.Repository
 	ViewsRepository                shortlinksviewsrepository.Repository
 	CustomDomainsRepository        shortlinkscustomdomainsrepo.Repository

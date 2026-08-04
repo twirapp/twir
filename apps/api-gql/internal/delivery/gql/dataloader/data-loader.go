@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/vikstrous/dataloadgen"
-	"go.uber.org/fx"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -28,8 +27,6 @@ const (
 )
 
 type Opts struct {
-	fx.In
-
 	AuthService              *auth.Auth
 	ChannelsRepository       channelsrepository.Repository
 	ChannelService           *channelservice.ChannelService

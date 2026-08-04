@@ -17,12 +17,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	TrManager                      trm.Manager
 	CommandsRepository             commands.Repository
 	CommandsResponsesService       *commands_responses.Service

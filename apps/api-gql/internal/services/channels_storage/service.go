@@ -8,14 +8,11 @@ import (
 
 	"github.com/twirapp/twir/libs/repositories/channels_storage"
 	"github.com/twirapp/twir/libs/repositories/channels_storage/model"
-	"go.uber.org/fx"
 )
 
 const maxStorageSize = 30 * 1024 * 1024 // 30MB
 
 type Opts struct {
-	fx.In
-
 	StorageRepository channels_storage.Repository
 }
 

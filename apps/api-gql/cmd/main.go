@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"log/slog"
 
+	"github.com/goforj/wire"
 	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
@@ -11,7 +13,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
-	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
 	v2publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public/v2"
 	http_webhooks "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
@@ -106,6 +107,7 @@ import (
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/webhook_notifications"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	channelcache "github.com/twirapp/twir/libs/cache/channel"
 	channelalertscache "github.com/twirapp/twir/libs/cache/channel_alerts"
 	channelsongrequestssettingscache "github.com/twirapp/twir/libs/cache/channel_song_requests_settings"
@@ -262,7 +264,6 @@ import (
 	channelsfilesrepository "github.com/twirapp/twir/libs/repositories/channels_files"
 	channelsfilesrepositorypgx "github.com/twirapp/twir/libs/repositories/channels_files/datasource/postgres"
 
-	plansrepository "github.com/twirapp/twir/libs/repositories/plans"
 	plansrepositorypgx "github.com/twirapp/twir/libs/repositories/plans/pgx"
 
 	channelscommandsusages "github.com/twirapp/twir/libs/repositories/channels_commands_usages"
@@ -295,8 +296,6 @@ import (
 	channelsintegrationsdiscordrepository "github.com/twirapp/twir/libs/repositories/channels_integrations_discord"
 	channelsintegrationsdiscordpostgres "github.com/twirapp/twir/libs/repositories/channels_integrations_discord/datasource/postgres"
 
-	"go.uber.org/fx"
-
 	commandshttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/commands"
 
 	twirhttp "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/twir"
@@ -308,462 +307,500 @@ import (
 	dashboardwidgetsrepositorypgx "github.com/twirapp/twir/libs/repositories/dashboard_widgets/pgx"
 )
 
+const Service = "api-gql"
+
+var ProviderSet = wire.NewSet(
+	wire.Value(baseapp.Opts{AppName: Service}),
+	baseapp.NewBase,
+	wire.FieldsOf(
+		new(baseapp.Base),
+		"Lifecycle",
+		"Config",
+		"Tracer",
+		"Redis",
+		"PgxPool",
+		"TrManager",
+		"Gorm",
+		"ClickHouse",
+		"Bus",
+		"AuditPubSub",
+		"AuditRepository",
+		"AuditRecorder",
+		"KV",
+		"Logger",
+	),
+	parameterSet,
+	di.OverlaysKappagenProviderSet,
+	di.OverlaysBeRightBackProviderSet,
+	di.OverlaysTTSProviderSet,
+	// repositories
+	wire.NewSet(
+		timersrepositorypgx.NewFx,
+		wire.Bind(new(timersrepository.Repository), new(*timersrepositorypgx.Pgx)),
+		variablespgx.NewFx,
+		wire.Bind(new(variablesrepository.Repository), new(*variablespgx.Pgx)),
+		channelssecretpgx.NewFx,
+		wire.Bind(new(channelssecretrepository.Repository), new(*channelssecretpgx.Pgx)),
+		channelsstoragepgx.NewFx,
+		wire.Bind(new(channelsstoragerepository.Repository), new(*channelsstoragepgx.Pgx)),
+		keywordsrepositorypgx.NewFx,
+		wire.Bind(new(keywordsrepository.Repository), new(*keywordsrepositorypgx.Pgx)),
+		quotesrepositorypgx.NewFx,
+		wire.Bind(new(quotesrepository.Repository), new(*quotesrepositorypgx.Pgx)),
+		channelsrepositorypgx.NewFx,
+		wire.Bind(new(channelsrepository.Repository), new(*channelsrepositorypgx.Pgx)),
+		channelplatformsrepositorypgx.NewFx,
+		wire.Bind(new(channelplatformsrepository.Repository), new(*channelplatformsrepositorypgx.Pgx)),
+		channelpublicsettingspgx.NewFx,
+		wire.Bind(new(channelpublicsettingsrepo.Repository), new(*channelpublicsettingspgx.Pgx)),
+		badgesrepositorypgx.NewFx,
+		wire.Bind(new(badgesrepository.Repository), new(*badgesrepositorypgx.Pgx)),
+		badgesusersrepositorypgx.NewFx,
+		wire.Bind(new(badgesusersrepository.Repository), new(*badgesusersrepositorypgx.Pgx)),
+		usersrepositorypgx.NewFx,
+		wire.Bind(new(usersrepository.Repository), new(*usersrepositorypgx.Pgx)),
+		mcpOAuthRepositoryPostgres.NewFx,
+		wire.Bind(new(mcpOAuthRepository.Repository), new(*mcpOAuthRepositoryPostgres.Pgx)),
+		userswithchannelrepositorypgx.NewFx,
+		wire.Bind(new(userswithchannelrepository.Repository), new(*userswithchannelrepositorypgx.Pgx)),
+		alertsrepositorypgx.NewFx,
+		wire.Bind(new(alertsrepository.Repository), new(*alertsrepositorypgx.Pgx)),
+		commandswithgroupsandresponsesrepositorypgx.NewFx,
+		wire.Bind(new(commandswithgroupsandresponsesrepository.Repository), new(*commandswithgroupsandresponsesrepositorypgx.Pgx)),
+		commandsgroupsrepositorypgx.NewFx,
+		wire.Bind(new(commandsgroupsrepository.Repository), new(*commandsgroupsrepositorypgx.Pgx)),
+		commandsresponserepositorypgx.NewFx,
+		wire.Bind(new(commandsresponserepository.Repository), new(*commandsresponserepositorypgx.Pgx)),
+		commandsrepositorypgx.NewFx,
+		wire.Bind(new(commandsrepository.Repository), new(*commandsrepositorypgx.Pgx)),
+		rolesrepositorypgx.NewFx,
+		wire.Bind(new(rolesrepository.Repository), new(*rolesrepositorypgx.Pgx)),
+		rolesusersrepositorypgx.NewFx,
+		wire.Bind(new(rolesusersrepository.Repository), new(*rolesusersrepositorypgx.Pgx)),
+		greetingsrepositorypgx.NewFx,
+		wire.Bind(new(greetingsrepository.Repository), new(*greetingsrepositorypgx.Pgx)),
+		chatmessagesrepositoryclickhouse.NewFx,
+		wire.Bind(new(chatmessagesrepository.Repository), new(*chatmessagesrepositoryclickhouse.Clickhouse)),
+		channelscommandsprefixpgx.NewFx,
+		wire.Bind(new(channelscommandsprefixrepository.Repository), new(*channelscommandsprefixpgx.Pgx)),
+		channelsintegrationsspotifypgx.NewFx,
+		wire.Bind(new(channelsintegrationsspotify.Repository), new(*channelsintegrationsspotifypgx.Pgx)),
+		seventvintegrationpostgres.NewFx,
+		wire.Bind(new(seventvintegrationrepository.Repository), new(*seventvintegrationpostgres.Pgx)),
+		botspostgres.NewFx,
+		wire.Bind(new(botsrepository.Repository), new(*botspostgres.Pgx)),
+		integrationspostgres.NewFx,
+		wire.Bind(new(integrationsrepository.Repository), new(*integrationspostgres.Pgx)),
+		kickbotsrepositorypgx.NewFx,
+		wire.Bind(new(kickbotsrepository.Repository), new(*kickbotsrepositorypgx.Pgx)),
+		vkvideobotsrepositorypgx.NewFx,
+		wire.Bind(new(vkvideobotsrepository.Repository), new(*vkvideobotsrepositorypgx.Pgx)),
+		youtubebotsrepositorypgx.NewFx,
+		wire.Bind(new(youtubebotsrepository.Repository), new(*youtubebotsrepositorypgx.Pgx)),
+		chatwallpostgres.NewFx,
+		wire.Bind(new(chatwallrepository.Repository), new(*chatwallpostgres.Pgx)),
+		scheduledvipsrepositorypostgres.NewFx,
+		wire.Bind(new(scheduledvipsrepository.Repository), new(*scheduledvipsrepositorypostgres.Pgx)),
+		chattranslationpostgres.NewFx,
+		wire.Bind(new(chattranslationrepository.Repository), new(*chattranslationpostgres.Pgx)),
+		shortenedurlsrepositorypostgres.NewFx,
+		wire.Bind(new(shortenedurlsrepository.Repository), new(*shortenedurlsrepositorypostgres.Pgx)),
+		shortlinkscustomdomainsrepositorypgx.NewFx,
+		wire.Bind(new(shortlinkscustomdomainsrepository.Repository), new(*shortlinkscustomdomainsrepositorypgx.Pgx)),
+		shortlinksbanneduapresetsrepositorypgx.NewFx,
+		wire.Bind(new(shortlinksbanneduapresetsrepository.Repository), new(*shortlinksbanneduapresetsrepositorypgx.Pgx)),
+		shortlinksbanneduapresetpatternsrepositorypgx.NewFx,
+		wire.Bind(new(shortlinksbanneduapresetpatternsrepository.Repository), new(*shortlinksbanneduapresetpatternsrepositorypgx.Pgx)),
+		shortlinkslinkpresetsrepositorypgx.NewFx,
+		wire.Bind(new(shortlinkslinkpresetsrepository.Repository), new(*shortlinkslinkpresetsrepositorypgx.Pgx)),
+		shortlinkslinkbannedusaragentsrepositorypgx.NewFx,
+		wire.Bind(new(shortlinkslinkbannedusaragentsrepository.Repository), new(*shortlinkslinkbannedusaragentsrepositorypgx.Pgx)),
+		channelsgiveawaysparticipantsrepositorypgx.NewFx,
+		wire.Bind(new(channelsgiveawaysparticipantsrepository.Repository), new(*channelsgiveawaysparticipantsrepositorypgx.Pgx)),
+		channelsgiveawaysrepositorypgx.NewFx,
+		wire.Bind(new(channelsgiveawaysrepository.Repository), new(*channelsgiveawaysrepositorypgx.Pgx)),
+		channelsgiveawayssettingsrepositorypgx.NewFx,
+		wire.Bind(new(channelsgiveawayssettingsrepository.Repository), new(*channelsgiveawayssettingsrepositorypgx.Pgx)),
+		channelsmoderationsettingsrepositorypostgres.NewFx,
+		wire.Bind(new(channelsmoderationsettingsrepository.Repository), new(*channelsmoderationsettingsrepositorypostgres.Pgx)),
+		overlaysdudesrepositorypgx.NewFx,
+		wire.Bind(new(overlaysdudesrepository.Repository), new(*overlaysdudesrepositorypgx.Pgx)),
+		eventsrepositorypgx.NewFx,
+		wire.Bind(new(eventsrepository.Repository), new(*eventsrepositorypgx.Pgx)),
+		pastebinsrepositorypgx.NewFx,
+		wire.Bind(new(pastebinsrepository.Repository), new(*pastebinsrepositorypgx.Pgx)),
+		toxicmessagesrepositorypgx.NewFx,
+		wire.Bind(new(toxicmessagesrepository.Repository), new(*toxicmessagesrepositorypgx.Pgx)),
+		channelsfilesrepositorypgx.NewFx,
+		wire.Bind(new(channelsfilesrepository.Repository), new(*channelsfilesrepositorypgx.Pgx)),
+		plansrepositorypgx.NewFx,
+		dashboardwidgetsrepositorypgx.NewFx,
+		wire.Bind(new(dashboardwidgetsrepository.Repository), new(*dashboardwidgetsrepositorypgx.Pgx)),
+		channelsemotesusagesrepositoryclickhouse.NewFx,
+		wire.Bind(new(channelsemotesusagesrepository.Repository), new(*channelsemotesusagesrepositoryclickhouse.Clickhouse)),
+		channelscommandsusagesclickhouse.NewFx,
+		wire.Bind(new(channelscommandsusages.Repository), new(*channelscommandsusagesclickhouse.Clickhouse)),
+		channelsredemptionshistoryclickhouse.NewFx,
+		wire.Bind(new(channelsredemptionshistory.Repository), new(*channelsredemptionshistoryclickhouse.Clickhouse)),
+		shortlinksviewsrepositoryclickhouse.NewFx,
+		wire.Bind(new(shortlinksviewsrepository.Repository), new(*shortlinksviewsrepositoryclickhouse.Clickhouse)),
+		donatepayrepositorypostgres.NewFx,
+		wire.Bind(new(donatepayrepository.Repository), new(*donatepayrepositorypostgres.Pgx)),
+		tokensrepositorypgx.NewFx,
+		wire.Bind(new(tokensrepository.Repository), new(*tokensrepositorypgx.Pgx)),
+		channelsintegrationsvalorantpostgres.NewFx,
+		wire.Bind(new(channelsintegrationsvalorant.Repository), new(*channelsintegrationsvalorantpostgres.Pgx)),
+		streamsrepositorypostgres.NewFx,
+		wire.Bind(new(streamsrepository.Repository), new(*streamsrepositorypostgres.Pgx)),
+		donationalertsrepoitorypostgres.NewFx,
+		wire.Bind(new(donationalertsrepository.Repository), new(*donationalertsrepoitorypostgres.Pgx)),
+		faceitrepositorypostgres.NewFx,
+		wire.Bind(new(faceitrepository.Repository), new(*faceitrepositorypostgres.Pgx)),
+		channelsgamesvotebanpgx.NewFx,
+		wire.Bind(new(channelsgamesvotebanrepository.Repository), new(*channelsgamesvotebanpgx.Pgx)),
+		channelsintegrationspostgres.NewFx,
+		wire.Bind(new(channelsintegrationsrepository.Repository), new(*channelsintegrationspostgres.Pgx)),
+		channelsintegrationsdiscordpostgres.NewFx,
+		wire.Bind(new(channelsintegrationsdiscordrepository.Repository), new(*channelsintegrationsdiscordpostgres.Pgx)),
+		channelsintegrationslastfmpostgres.NewFx,
+		wire.Bind(new(channelsintegrationslastfm.Repository), new(*channelsintegrationslastfmpostgres.Pgx)),
+		channelsmodulesobswebsocketpgx.NewFx,
+		wire.Bind(new(channelsmodulesobswebsocket.Repository), new(*channelsmodulesobswebsocketpgx.Pgx)),
+		channelsmoduleswebhookspgx.NewFx,
+		wire.Bind(new(channelsmoduleswebhooks.Repository), new(*channelsmoduleswebhookspgx.Pgx)),
+		vkintegrationrepopostgres.NewFx,
+		wire.Bind(new(vkintegrationrepo.Repository), new(*vkintegrationrepopostgres.Pgx)),
+		channelsoverlaysrepositorypgx.NewFx,
+		wire.Bind(new(channelsoverlaysrepository.Repository), new(*channelsoverlaysrepositorypgx.Pgx)),
+		streamlabsrepositorypostgres.NewFx,
+		wire.Bind(new(streamlabsrepository.Repository), new(*streamlabsrepositorypostgres.Pgx)),
+		commandrolecooldownpgx.NewFx,
+		wire.Bind(new(command_role_cooldown.Repository), new(*commandrolecooldownpgx.Pgx)),
+		songrequestoverlaysettingspgx.NewFx,
+		wire.Bind(new(songrequestoverlaysettingsrepository.Repository), new(*songrequestoverlaysettingspgx.Pgx)),
+	),
+	// services
+	wire.NewSet(
+		kickplatform.New,
+		twitchplatform.New,
+		vkvideo.NewBotSetupProvider,
+		youtubeplatform.New,
+		newPlatformRegistry,
+		channelservice.NewChannelService,
+		newValorantClient,
+		dashboard_widget_events.New,
+		dashboard_widgets.New,
+		clientinfo.New,
+		variables.New,
+		timers.New,
+		keywords.New,
+		quotes.New,
+		audit_logs.New,
+		admin_actions.New,
+		badges.New,
+		badges_users.New,
+		badges_with_users.New,
+		users.New,
+		twir_users.New,
+		alerts.New,
+		commands_with_groups_and_responses.New,
+		commands_groups.New,
+		commands_responses.New,
+		commands.New,
+		greetings.New,
+		roles.New,
+		roles_users.New,
+		roles_with_roles_users.New,
+		twitch.New,
+		channels.New,
+		channelplatformservice.NewFx,
+		wire.Bind(new(resolvers.ChannelPlatformBindingsService), new(*channelplatformservice.Service)),
+		dashboardaccess.NewFx,
+		mcpOAuthService.NewFx,
+		wire.Bind(new(mcpdelivery.AccessTokenVerifier), new(*mcpOAuthService.Service)),
+		chat_messages.New,
+		channels_commands_prefix.New,
+		channels_emotes_usages.New,
+		channels_secret.New,
+		channels_storage.New,
+		song_requests.New,
+		song_requests.NewPlaybackStateService,
+		songrequestoverlaysettings.New,
+		community_redemptions.New,
+		streamelements.New,
+		dashboard.New,
+		seventv_integration.New,
+		spotify_integration.New,
+		scheduledvips.New,
+		chat_wall.New,
+		chat_translation.New,
+		shortlinkscustomdomains.New,
+		shortenedurls.New,
+		giveaways.New,
+		overlays_dudes.New,
+		channels_moderation_settings.New,
+		pastebinsservice.New,
+		events.New,
+		twir_events.New,
+		donatepay_integration.New,
+		valorantintegrationservice.New,
+		gamesvoteban.New,
+		nightbotintegration.New,
+		discord_integration.New,
+		lastfmintegration.New,
+		obs_websocket_module.New,
+		webhook_notifications.New,
+	),
+	wire.NewSet(
+		toxic_messages.New,
+		channels_files.New,
+		channels_redemptions_history.New,
+		donationalertsintegration.New,
+		donatestreamintegration.New,
+		donatellointegration.New,
+		vkintegration.New,
+		faceitintegration.New,
+		channelsoverlaysservice.New,
+	),
+	// app itself
+	wire.NewSet(
+		rate_limiter.NewLeakyBucket,
+		httpmiddlewares.New,
+		app.NewHuma,
+		dataloader.New,
+		auth.NewSessions,
+		authroutes.New,
+		minio.New,
+		twitchcache.New,
+		channelcache.New,
+		channelscommandsprefixcache.New,
+		greetingscache.New,
+		commandscache.New,
+		keywordscacher.New,
+		quotescacher.New,
+		giveawayscache.New,
+		chatalertscache.New,
+		channelalertscache.New,
+		ttscache.NewTTSSettings,
+		channelsmoderationsettingsccahe.New,
+		chattranslationssettignscache.New,
+		channelsongrequestssettingscache.New,
+		channelsintegrationssettingsseventvcache.New,
+		channelsgamesvotebancache.New,
+		eventscache.New,
+		rolescache.New,
+		streamlabsintegration.New,
+		wsrouter.NewNatsWsRouterFx,
+		wire.Bind(new(wsrouter.WsRouter), new(*wsrouter.WsRouterNats)),
+		twir_stats.New,
+		resolvers.New,
+		wire.Bind(new(resolvers.SelectedDashboardGetter), new(*auth.Auth)),
+		wire.Bind(new(resolvers.CurrentPlatformGetter), new(*auth.Auth)),
+		wire.Bind(new(resolvers.SessionReader), new(*auth.Auth)),
+		directives.New,
+		middlewares.New,
+		server.New,
+		mcpdelivery.New,
+	),
+	wire.Struct(new(shortlinks.Dependencies), "*"),
+	shortlinks.RegisterRoutes,
+	wire.Struct(new(pastebins.Dependencies), "*"),
+	pastebins.RegisterRoutes,
+	wire.Struct(new(commandshttp.Dependencies), "*"),
+	commandshttp.RegisterRoutes,
+	wire.Struct(new(ttsroutes.Dependencies), "*"),
+	ttsroutes.RegisterRoutes,
+	wire.Struct(new(brb.Dependencies), "*"),
+	brb.RegisterRoutes,
+	wire.Struct(new(twirhttp.Dependencies), "*"),
+	twirhttp.RegisterRoutes,
+	wire.Struct(new(scheduledvipsroutes.Dependencies), "*"),
+	scheduledvipsroutes.RegisterRoutes,
+	wire.Struct(new(mcpOAuthRoutes.ProviderOpts), "*"),
+	mcpOAuthRoutes.NewFromOpts,
+	mcpOAuthRoutes.RegisterRoutes,
+	gql.New,
+	publicroutes.New,
+	v2publicroutes.New,
+	http_webhooks.New,
+	song_requests.NewBridge,
+	registerChannelsFilesRoute,
+	registerValorantRoute,
+	registerStreamRoute,
+	registerMCP,
+	wire.Struct(new(ApplicationDeps), "*"),
+	NewApplication,
+)
+
+var parameterSet = wire.NewSet(
+	wire.Struct(new(app.HumaOpts), "*"),
+	wire.Struct(new(auth.Opts), "*"),
+	wire.Struct(new(dataloader.Opts), "*"),
+	wire.Struct(new(directives.Opts), "*"),
+	wire.Struct(new(gql.Opts), "*"),
+	wire.Struct(new(resolvers.Deps), "*"),
+	wire.Struct(new(twir_stats.Opts), "*"),
+	wire.Struct(new(publicroutes.Opts), "*"),
+	wire.Struct(new(v2publicroutes.Opts), "*"),
+	wire.Struct(new(http_webhooks.Opts), "*"),
+	wire.Struct(new(httpmiddlewares.Opts), "*"),
+	wire.Struct(new(authroutes.Opts), "*"),
+	wire.Struct(new(channelsfilesroute.Opts), "*"),
+	wire.Struct(new(valorant.Opts), "*"),
+	wire.Struct(new(stream.Opts), "*"),
+	wire.Struct(new(mcpdelivery.Deps), "*"),
+	wire.Struct(new(kickplatform.Opts), "*"),
+	wire.Struct(new(twitchplatform.Opts), "*"),
+	wire.Struct(new(vkvideo.BotSetupProviderOpts), "*"),
+	wire.Struct(new(youtubeplatform.Opts), "*"),
+	wire.Struct(new(middlewares.Opts), "*"),
+	wire.Struct(new(server.Opts), "*"),
+	wire.Struct(new(dashboard_widget_events.DashboardWidgetsEventsOpts), "*"),
+	wire.Struct(new(dashboard_widgets.Opts), "*"),
+	wire.Struct(new(clientinfo.Opts), "*"),
+	wire.Struct(new(variables.Opts), "*"),
+	wire.Struct(new(timers.Opts), "*"),
+	wire.Struct(new(keywords.Opts), "*"),
+	wire.Struct(new(quotes.Opts), "*"),
+	wire.Struct(new(audit_logs.Opts), "*"),
+	wire.Struct(new(admin_actions.Opts), "*"),
+	wire.Struct(new(badges.Opts), "*"),
+	wire.Struct(new(badges_users.Opts), "*"),
+	wire.Struct(new(badges_with_users.Opts), "*"),
+	wire.Struct(new(users.Opts), "*"),
+	wire.Struct(new(twir_users.Opts), "*"),
+	wire.Struct(new(alerts.Opts), "*"),
+	wire.Struct(new(commands_with_groups_and_responses.Opts), "*"),
+	wire.Struct(new(commands_groups.Opts), "*"),
+	wire.Struct(new(commands_responses.Opts), "*"),
+	wire.Struct(new(commands.Opts), "*"),
+	wire.Struct(new(greetings.Opts), "*"),
+	wire.Struct(new(roles.Opts), "*"),
+	wire.Struct(new(roles_users.Opts), "*"),
+	wire.Struct(new(roles_with_roles_users.Opts), "*"),
+	wire.Struct(new(twitch.Opts), "*"),
+	wire.Struct(new(channels.Opts), "*"),
+	wire.Struct(new(channelplatformservice.Opts), "*"),
+	wire.Struct(new(dashboardaccess.Opts), "*"),
+	wire.Struct(new(mcpOAuthService.Opts), "*"),
+	wire.Struct(new(chat_messages.Opts), "*"),
+	wire.Struct(new(channels_commands_prefix.Opts), "*"),
+	wire.Struct(new(channels_emotes_usages.Opts), "*"),
+	wire.Struct(new(channels_secret.Opts), "*"),
+	wire.Struct(new(channels_storage.Opts), "*"),
+	wire.Struct(new(song_requests.Opts), "*"),
+	wire.Struct(new(song_requests.PlaybackStateOpts), "*"),
+	wire.Struct(new(song_requests.BridgeOpts), "*"),
+	wire.Struct(new(songrequestoverlaysettings.Opts), "*"),
+	wire.Struct(new(community_redemptions.Opts), "*"),
+	wire.Struct(new(streamelements.Opts), "*"),
+	wire.Struct(new(dashboard.Opts), "*"),
+	wire.Struct(new(seventv_integration.Opts), "*"),
+	wire.Struct(new(scheduledvips.Opts), "*"),
+	wire.Struct(new(chat_wall.Opts), "*"),
+	wire.Struct(new(chat_translation.Opts), "*"),
+	wire.Struct(new(shortlinkscustomdomains.Opts), "*"),
+	wire.Struct(new(shortenedurls.Opts), "*"),
+	wire.Struct(new(giveaways.Opts), "*"),
+	wire.Struct(new(overlays_dudes.Opts), "*"),
+	wire.Struct(new(channels_moderation_settings.Opts), "*"),
+	wire.Struct(new(pastebinsservice.Opts), "*"),
+	wire.Struct(new(events.Opts), "*"),
+	wire.Struct(new(twir_events.Opts), "*"),
+	wire.Struct(new(donatepay_integration.Opts), "*"),
+	wire.Struct(new(valorantintegrationservice.Opts), "*"),
+	wire.Struct(new(gamesvoteban.Opts), "*"),
+	wire.Struct(new(nightbotintegration.Opts), "*"),
+	wire.Struct(new(discord_integration.Opts), "*"),
+	wire.Struct(new(lastfmintegration.Opts), "*"),
+	wire.Struct(new(obs_websocket_module.Opts), "*"),
+	wire.Struct(new(webhook_notifications.Opts), "*"),
+	wire.Struct(new(toxic_messages.Opts), "*"),
+	wire.Struct(new(channels_files.Opts), "*"),
+	wire.Struct(new(channels_redemptions_history.Opts), "*"),
+	wire.Struct(new(donationalertsintegration.Opts), "*"),
+	wire.Struct(new(donatestreamintegration.Opts), "*"),
+	wire.Struct(new(donatellointegration.Opts), "*"),
+	wire.Struct(new(vkintegration.Opts), "*"),
+	wire.Struct(new(faceitintegration.Opts), "*"),
+	wire.Struct(new(channelsoverlaysservice.Opts), "*"),
+	wire.Struct(new(streamlabsintegration.Opts), "*"),
+)
+
+type ChannelsFilesRouteRegistration struct{}
+type ValorantRouteRegistration struct{}
+type StreamRouteRegistration struct{}
+type MCPRegistration struct{}
+
+func registerChannelsFilesRoute(opts channelsfilesroute.Opts) ChannelsFilesRouteRegistration {
+	channelsfilesroute.New(opts)
+	return ChannelsFilesRouteRegistration{}
+}
+
+func registerValorantRoute(opts valorant.Opts) ValorantRouteRegistration {
+	valorant.New(opts)
+	return ValorantRouteRegistration{}
+}
+
+func registerStreamRoute(opts stream.Opts) StreamRouteRegistration {
+	stream.New(opts)
+	return StreamRouteRegistration{}
+}
+
+func registerMCP(s *server.Server, handler *mcpdelivery.Handler) MCPRegistration {
+	mcpdelivery.Register(s, handler)
+	return MCPRegistration{}
+}
+
+type ApplicationDeps struct {
+	Lifecycle           *lifecycle.Lifecycle
+	PlatformRegistry    *platform.Registry
+	GQL                 *gql.Gql
+	PublicRoutes        *publicroutes.Public
+	V2PublicRoutes      *v2publicroutes.Public
+	Webhooks            *http_webhooks.Webhooks
+	AuthRoutes          *authroutes.Auth
+	ChannelsFilesRoute  ChannelsFilesRouteRegistration
+	SongRequestsBridge  *song_requests.Bridge
+	ValorantRoute       ValorantRouteRegistration
+	StreamRoute         StreamRouteRegistration
+	MCP                 MCPRegistration
+	ShortlinksRoutes    shortlinks.Registration
+	PastebinsRoutes     pastebins.Registration
+	CommandsRoutes      commandshttp.Registration
+	TTSRoutes           ttsroutes.Registration
+	BeRightBackRoutes   brb.Registration
+	TwirRoutes          twirhttp.Registration
+	ScheduledVIPsRoutes scheduledvipsroutes.Registration
+	MCPOAuthRoutes      mcpOAuthRoutes.Registration
+	Logger              *slog.Logger
+}
+
+type Application struct {
+	lifecycle *lifecycle.Lifecycle
+}
+
+func NewApplication(deps ApplicationDeps) *Application {
+	deps.Logger.Info("🚀 API-GQL is running")
+	return &Application{lifecycle: deps.Lifecycle}
+}
+
+func (a *Application) Run() error {
+	return a.lifecycle.Run()
+}
+
 func main() {
-	fx.New(
-		baseapp.CreateBaseApp(
-			baseapp.Opts{
-				AppName: "api-gql",
-			},
-		),
-		di.OverlaysKappagenModule,
-		di.OverlaysBeRightBackModule,
-		di.OverlaysTTSModule,
-		// repositories
-		fx.Provide(
-			fx.Annotate(
-				timersrepositorypgx.NewFx,
-				fx.As(new(timersrepository.Repository)),
-			),
-			fx.Annotate(
-				variablespgx.NewFx,
-				fx.As(new(variablesrepository.Repository)),
-			),
-			fx.Annotate(
-				channelssecretpgx.NewFx,
-				fx.As(new(channelssecretrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsstoragepgx.NewFx,
-				fx.As(new(channelsstoragerepository.Repository)),
-			),
-			fx.Annotate(
-				keywordsrepositorypgx.NewFx,
-				fx.As(new(keywordsrepository.Repository)),
-			),
-			fx.Annotate(
-				quotesrepositorypgx.NewFx,
-				fx.As(new(quotesrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsrepositorypgx.NewFx,
-				fx.As(new(channelsrepository.Repository)),
-			),
-			fx.Annotate(
-				channelplatformsrepositorypgx.NewFx,
-				fx.As(new(channelplatformsrepository.Repository)),
-			),
-			fx.Annotate(
-				channelpublicsettingspgx.NewFx,
-				fx.As(new(channelpublicsettingsrepo.Repository)),
-			),
-			fx.Annotate(
-				badgesrepositorypgx.NewFx,
-				fx.As(new(badgesrepository.Repository)),
-			),
-			fx.Annotate(
-				badgesusersrepositorypgx.NewFx,
-				fx.As(new(badgesusersrepository.Repository)),
-			),
-			fx.Annotate(
-				usersrepositorypgx.NewFx,
-				fx.As(new(usersrepository.Repository)),
-			),
-			fx.Annotate(
-				mcpOAuthRepositoryPostgres.NewFx,
-				fx.As(new(mcpOAuthRepository.Repository)),
-			),
-			fx.Annotate(
-				userswithchannelrepositorypgx.NewFx,
-				fx.As(new(userswithchannelrepository.Repository)),
-			),
-			fx.Annotate(
-				alertsrepositorypgx.NewFx,
-				fx.As(new(alertsrepository.Repository)),
-			),
-			fx.Annotate(
-				commandswithgroupsandresponsesrepositorypgx.NewFx,
-				fx.As(new(commandswithgroupsandresponsesrepository.Repository)),
-			),
-			fx.Annotate(
-				commandsgroupsrepositorypgx.NewFx,
-				fx.As(new(commandsgroupsrepository.Repository)),
-			),
-			fx.Annotate(
-				commandsresponserepositorypgx.NewFx,
-				fx.As(new(commandsresponserepository.Repository)),
-			),
-			fx.Annotate(
-				commandsrepositorypgx.NewFx,
-				fx.As(new(commandsrepository.Repository)),
-			),
-			fx.Annotate(
-				rolesrepositorypgx.NewFx,
-				fx.As(new(rolesrepository.Repository)),
-			),
-			fx.Annotate(
-				rolesusersrepositorypgx.NewFx,
-				fx.As(new(rolesusersrepository.Repository)),
-			),
-			fx.Annotate(
-				greetingsrepositorypgx.NewFx,
-				fx.As(new(greetingsrepository.Repository)),
-			),
-			fx.Annotate(
-				chatmessagesrepositoryclickhouse.NewFx,
-				fx.As(new(chatmessagesrepository.Repository)),
-			),
-			fx.Annotate(
-				channelscommandsprefixpgx.NewFx,
-				fx.As(new(channelscommandsprefixrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsintegrationsspotifypgx.NewFx,
-				fx.As(new(channelsintegrationsspotify.Repository)),
-			),
-			fx.Annotate(
-				seventvintegrationpostgres.NewFx,
-				fx.As(new(seventvintegrationrepository.Repository)),
-			),
-			fx.Annotate(
-				botspostgres.NewFx,
-				fx.As(new(botsrepository.Repository)),
-			),
-			fx.Annotate(
-				integrationspostgres.NewFx,
-				fx.As(new(integrationsrepository.Repository)),
-			),
-			fx.Annotate(
-				kickbotsrepositorypgx.NewFx,
-				fx.As(new(kickbotsrepository.Repository)),
-			),
-			fx.Annotate(
-				vkvideobotsrepositorypgx.NewFx,
-				fx.As(new(vkvideobotsrepository.Repository)),
-			),
-			fx.Annotate(
-				youtubebotsrepositorypgx.NewFx,
-				fx.As(new(youtubebotsrepository.Repository)),
-			),
-			fx.Annotate(
-				chatwallpostgres.NewFx,
-				fx.As(new(chatwallrepository.Repository)),
-			),
-			fx.Annotate(
-				scheduledvipsrepositorypostgres.NewFx,
-				fx.As(new(scheduledvipsrepository.Repository)),
-			),
-			fx.Annotate(
-				chattranslationpostgres.NewFx,
-				fx.As(new(chattranslationrepository.Repository)),
-			),
-			fx.Annotate(
-				shortenedurlsrepositorypostgres.NewFx,
-				fx.As(new(shortenedurlsrepository.Repository)),
-			),
-			fx.Annotate(
-				shortlinkscustomdomainsrepositorypgx.NewFx,
-				fx.As(new(shortlinkscustomdomainsrepository.Repository)),
-			),
-			fx.Annotate(
-				shortlinksbanneduapresetsrepositorypgx.NewFx,
-				fx.As(new(shortlinksbanneduapresetsrepository.Repository)),
-			),
-			fx.Annotate(
-				shortlinksbanneduapresetpatternsrepositorypgx.NewFx,
-				fx.As(new(shortlinksbanneduapresetpatternsrepository.Repository)),
-			),
-			fx.Annotate(
-				shortlinkslinkpresetsrepositorypgx.NewFx,
-				fx.As(new(shortlinkslinkpresetsrepository.Repository)),
-			),
-			fx.Annotate(
-				shortlinkslinkbannedusaragentsrepositorypgx.NewFx,
-				fx.As(new(shortlinkslinkbannedusaragentsrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsgiveawaysparticipantsrepositorypgx.NewFx,
-				fx.As(new(channelsgiveawaysparticipantsrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsgiveawaysrepositorypgx.NewFx,
-				fx.As(new(channelsgiveawaysrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsgiveawayssettingsrepositorypgx.NewFx,
-				fx.As(new(channelsgiveawayssettingsrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsmoderationsettingsrepositorypostgres.NewFx,
-				fx.As(new(channelsmoderationsettingsrepository.Repository)),
-			),
-			fx.Annotate(
-				overlaysdudesrepositorypgx.NewFx,
-				fx.As(new(overlaysdudesrepository.Repository)),
-			),
-			fx.Annotate(
-				eventsrepositorypgx.NewFx,
-				fx.As(new(eventsrepository.Repository)),
-			),
-			fx.Annotate(
-				pastebinsrepositorypgx.NewFx,
-				fx.As(new(pastebinsrepository.Repository)),
-			),
-			fx.Annotate(
-				toxicmessagesrepositorypgx.NewFx,
-				fx.As(new(toxicmessagesrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsfilesrepositorypgx.NewFx,
-				fx.As(new(channelsfilesrepository.Repository)),
-			),
-			fx.Annotate(
-				plansrepositorypgx.NewFx,
-				fx.As(new(plansrepository.Repository)),
-			),
-			fx.Annotate(
-				dashboardwidgetsrepositorypgx.NewFx,
-				fx.As(new(dashboardwidgetsrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsemotesusagesrepositoryclickhouse.NewFx,
-				fx.As(new(channelsemotesusagesrepository.Repository)),
-			),
-			fx.Annotate(
-				channelscommandsusagesclickhouse.NewFx,
-				fx.As(new(channelscommandsusages.Repository)),
-			),
-			fx.Annotate(
-				channelsredemptionshistoryclickhouse.NewFx,
-				fx.As(new(channelsredemptionshistory.Repository)),
-			),
-			fx.Annotate(
-				shortlinksviewsrepositoryclickhouse.NewFx,
-				fx.As(new(shortlinksviewsrepository.Repository)),
-			),
-			fx.Annotate(
-				donatepayrepositorypostgres.NewFx,
-				fx.As(new(donatepayrepository.Repository)),
-			),
-			fx.Annotate(
-				tokensrepositorypgx.NewFx,
-				fx.As(new(tokensrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsintegrationsvalorantpostgres.NewFx,
-				fx.As(new(channelsintegrationsvalorant.Repository)),
-			),
-			fx.Annotate(
-				streamsrepositorypostgres.NewFx,
-				fx.As(new(streamsrepository.Repository)),
-			),
-			fx.Annotate(
-				donationalertsrepoitorypostgres.NewFx,
-				fx.As(new(donationalertsrepository.Repository)),
-			),
-			fx.Annotate(
-				faceitrepositorypostgres.NewFx,
-				fx.As(new(faceitrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsgamesvotebanpgx.NewFx,
-				fx.As(new(channelsgamesvotebanrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsintegrationspostgres.NewFx,
-				fx.As(new(channelsintegrationsrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsintegrationsdiscordpostgres.NewFx,
-				fx.As(new(channelsintegrationsdiscordrepository.Repository)),
-			),
-			fx.Annotate(
-				channelsintegrationslastfmpostgres.NewFx,
-				fx.As(new(channelsintegrationslastfm.Repository)),
-			),
-			fx.Annotate(
-				channelsmodulesobswebsocketpgx.NewFx,
-				fx.As(new(channelsmodulesobswebsocket.Repository)),
-			),
-			fx.Annotate(
-				channelsmoduleswebhookspgx.NewFx,
-				fx.As(new(channelsmoduleswebhooks.Repository)),
-			),
-			fx.Annotate(
-				vkintegrationrepopostgres.NewFx,
-				fx.As(new(vkintegrationrepo.Repository)),
-			),
-			fx.Annotate(
-				channelsoverlaysrepositorypgx.NewFx,
-				fx.As(new(channelsoverlaysrepository.Repository)),
-			),
-			fx.Annotate(
-				streamlabsrepositorypostgres.NewFx,
-				fx.As(new(streamlabsrepository.Repository)),
-			),
-			fx.Annotate(
-				commandrolecooldownpgx.NewFx,
-				fx.As(new(command_role_cooldown.Repository)),
-			),
-			fx.Annotate(
-				songrequestoverlaysettingspgx.NewFx,
-				fx.As(new(songrequestoverlaysettingsrepository.Repository)),
-			),
-		),
-		// services
-		fx.Provide(
-			kickplatform.New,
-			twitchplatform.New,
-			vkvideo.NewBotSetupProvider,
-			youtubeplatform.New,
-			newPlatformRegistry,
-			channelservice.NewChannelService,
-			func(c cfg.Config) *valorantintegration.HenrikValorantApiClient {
-				return valorantintegration.NewHenrikApiClient(c.Valorant.HenrikApiKey)
-			},
-			dashboard_widget_events.New,
-			dashboard_widgets.New,
-			clientinfo.New,
-			variables.New,
-			timers.New,
-			keywords.New,
-			quotes.New,
-			audit_logs.New,
-			admin_actions.New,
-			badges.New,
-			badges_users.New,
-			badges_with_users.New,
-			users.New,
-			twir_users.New,
-			alerts.New,
-			commands_with_groups_and_responses.New,
-			commands_groups.New,
-			commands_responses.New,
-			commands.New,
-			greetings.New,
-			roles.New,
-			roles_users.New,
-			roles_with_roles_users.New,
-			twitch.New,
-			channels.New,
-			channelplatformservice.NewFx,
-			dashboardaccess.NewFx,
-			mcpOAuthService.NewFx,
-			func(service *mcpOAuthService.Service) mcpdelivery.AccessTokenVerifier { return service },
-			chat_messages.New,
-			channels_commands_prefix.New,
-			channels_emotes_usages.New,
-			channels_secret.New,
-			channels_storage.New,
-			song_requests.New,
-			song_requests.NewPlaybackStateService,
-			songrequestoverlaysettings.New,
-			community_redemptions.New,
-			streamelements.New,
-			dashboard.New,
-			seventv_integration.New,
-			spotify_integration.New,
-			scheduledvips.New,
-			chat_wall.New,
-			chat_translation.New,
-			shortlinkscustomdomains.New,
-			shortenedurls.New,
-			giveaways.New,
-			overlays_dudes.New,
-			channels_moderation_settings.New,
-			pastebinsservice.New,
-			events.New,
-			twir_events.New,
-			donatepay_integration.New,
-			valorantintegrationservice.New,
-			gamesvoteban.New,
-			nightbotintegration.New,
-			discord_integration.New,
-			lastfmintegration.New,
-			obs_websocket_module.New,
-			webhook_notifications.New,
-		),
-		fx.Provide(
-			toxic_messages.New,
-			channels_files.New,
-			channels_redemptions_history.New,
-			donationalertsintegration.New,
-			donatestreamintegration.New,
-			donatellointegration.New,
-			vkintegration.New,
-			faceitintegration.New,
-			channelsoverlaysservice.New,
-		),
-		// app itself
-		fx.Provide(
-			rate_limiter.NewLeakyBucket,
-			httpmiddlewares.New,
-			app.NewHuma,
-			dataloader.New,
-			auth.NewSessions,
-			authroutes.New,
-			minio.New,
-			twitchcache.New,
-			channelcache.New,
-			channelscommandsprefixcache.New,
-			greetingscache.New,
-			commandscache.New,
-			keywordscacher.New,
-			quotescacher.New,
-			giveawayscache.New,
-			chatalertscache.New,
-			channelalertscache.New,
-			ttscache.NewTTSSettings,
-			channelsmoderationsettingsccahe.New,
-			chattranslationssettignscache.New,
-			channelsongrequestssettingscache.New,
-			channelsintegrationssettingsseventvcache.New,
-			channelsgamesvotebancache.New,
-			eventscache.New,
-			rolescache.New,
-			streamlabsintegration.New,
-			fx.Annotate(
-				wsrouter.NewNatsWsRouterFx,
-				fx.As(new(wsrouter.WsRouter)),
-			),
-			twir_stats.New,
-			resolvers.New,
-			func(service *channelplatformservice.Service) resolvers.ChannelPlatformBindingsService { return service },
-			func(sessions *auth.Auth) resolvers.SelectedDashboardGetter { return sessions },
-			func(sessions *auth.Auth) resolvers.CurrentPlatformGetter { return sessions },
-			func(sessions *auth.Auth) resolvers.SessionReader { return sessions },
-			directives.New,
-			middlewares.New,
-			server.New,
-			mcpdelivery.New,
-		),
-		// huma routes
-		shortlinks.FxModule,
-		pastebins.FxModule,
-		commandshttp.FxModule,
-		ttsroutes.FxModule,
-		brb.FxModule,
-		twirhttp.FxModule,
-		scheduledvipsroutes.FxModule,
-		mcpOAuthRoutes.FxModule,
-		// huma routes end
-		fx.Invoke(
-			func(*platform.Registry) {},
-			gql.New,
-			publicroutes.New,
-			v2publicroutes.New,
-			http_webhooks.New,
-			httpbase.RegisterRoutes,
-			func(*authroutes.Auth) {},
-			channelsfilesroute.New,
-			song_requests.NewBridge,
-			valorant.New,
-			stream.New,
-			mcpdelivery.Register,
-			func(l *slog.Logger) {
-				l.Info("🚀 API-GQL is running")
-			},
-		),
-	).Run()
+	application, err := initializeApplication()
+	if err != nil {
+		log.Fatalf("initialize application: %v", err)
+	}
+	if err := application.Run(); err != nil {
+		log.Fatalf("run application: %v", err)
+	}
+}
+
+func newValorantClient(config cfg.Config) *valorantintegration.HenrikValorantApiClient {
+	return valorantintegration.NewHenrikApiClient(config.Valorant.HenrikApiKey)
 }
 
 func newPlatformRegistry(

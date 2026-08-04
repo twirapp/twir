@@ -6,50 +6,93 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
-	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/clientinfo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Api      huma.API
-	Config   config.Config
-	Service  *shortenedurls.Service
-	Sessions *auth.Auth
-	Logger   *slog.Logger
+type Dependencies struct {
+	API                  huma.API
+	Config               config.Config
+	Service              *shortenedurls.Service
+	CustomDomainsService *shortlinkscustomdomains.Service
+	Sessions             *auth.Auth
+	Logger               *slog.Logger
+	Middlewares          *middlewares.Middlewares
+	ClientInfoService    *clientinfo.Service
 }
 
-var FxModule = fx.Provide(
-	httpbase.AsFxRoute(newCreate),
-	httpbase.AsFxRoute(newInfo),
-	httpbase.AsFxRoute(newRedirect),
-	httpbase.AsFxRoute(newProfile),
-	httpbase.AsFxRoute(newStatistics),
-	httpbase.AsFxRoute(newTopCountries),
-	httpbase.AsFxRoute(newUpdate),
-	httpbase.AsFxRoute(newDelete),
-	httpbase.AsFxRoute(newGetCustomDomain),
-	httpbase.AsFxRoute(newCreateCustomDomain),
-	httpbase.AsFxRoute(newVerifyCustomDomain),
-	httpbase.AsFxRoute(newDeleteCustomDomain),
-	httpbase.AsFxRoute(newAllowCustomDomain),
-	httpbase.AsFxRoute(newListPresets),
-	httpbase.AsFxRoute(newCreatePreset),
-	httpbase.AsFxRoute(newUpdatePreset),
-	httpbase.AsFxRoute(newDeletePreset),
-	httpbase.AsFxRoute(newListPresetPatterns),
-	httpbase.AsFxRoute(newCreatePresetPattern),
-	httpbase.AsFxRoute(newDeletePresetPattern),
-	httpbase.AsFxRoute(newListLinkPresets),
-	httpbase.AsFxRoute(newApplyPresetToLink),
-	httpbase.AsFxRoute(newRemovePresetFromLink),
-	httpbase.AsFxRoute(newListLinkBannedUserAgents),
-	httpbase.AsFxRoute(newCreateLinkBannedUserAgent),
-	httpbase.AsFxRoute(newDeleteLinkBannedUserAgent),
-)
+type Registration struct{}
+
+type registerRoute interface {
+	Register(huma.API)
+}
+
+func RegisterRoutes(deps Dependencies) Registration {
+	routes := []registerRoute{
+		newCreate(CreateOpts{
+			Config: deps.Config, Service: deps.Service, CustomDomainsService: deps.CustomDomainsService,
+			Sessions: deps.Sessions, Logger: deps.Logger, Middlewares: deps.Middlewares,
+			ClientInfoService: deps.ClientInfoService,
+		}),
+		newInfo(InfoOpts{Service: deps.Service, Config: deps.Config}),
+		newRedirect(RedirectOpts{
+			Service: deps.Service, Config: deps.Config, Sessions: deps.Sessions,
+			Logger: deps.Logger, ClientInfoService: deps.ClientInfoService,
+		}),
+		newProfile(ProfileOpts{Service: deps.Service, Config: deps.Config, Sessions: deps.Sessions}),
+		newStatistics(StatisticsOpts{
+			Service: deps.Service, Sessions: deps.Sessions,
+			CustomDomainsService: deps.CustomDomainsService, Config: deps.Config,
+		}),
+		newTopCountries(TopCountriesOpts{
+			Service: deps.Service, Sessions: deps.Sessions,
+			CustomDomainsService: deps.CustomDomainsService, Config: deps.Config,
+		}),
+		newUpdate(UpdateOpts{
+			Service: deps.Service, CustomDomainsService: deps.CustomDomainsService,
+			Sessions: deps.Sessions, Config: deps.Config,
+		}),
+		newDelete(DeleteOpts{
+			Service: deps.Service, CustomDomainsService: deps.CustomDomainsService, Sessions: deps.Sessions,
+		}),
+		newGetCustomDomain(GetCustomDomainOpts{
+			CustomDomainsService: deps.CustomDomainsService, Sessions: deps.Sessions, Config: deps.Config,
+		}),
+		newCreateCustomDomain(CreateCustomDomainOpts{
+			CustomDomainsService: deps.CustomDomainsService, Sessions: deps.Sessions, Config: deps.Config,
+		}),
+		newVerifyCustomDomain(VerifyCustomDomainOpts{
+			CustomDomainsService: deps.CustomDomainsService, Sessions: deps.Sessions, Config: deps.Config,
+		}),
+		newDeleteCustomDomain(DeleteCustomDomainOpts{
+			CustomDomainsService: deps.CustomDomainsService,
+			ShortenedUrlsService: deps.Service,
+			Sessions:             deps.Sessions,
+		}),
+		newAllowCustomDomain(AllowCustomDomainOpts{CustomDomainsService: deps.CustomDomainsService}),
+		newListPresets(ListPresetsOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newCreatePreset(CreatePresetOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newUpdatePreset(UpdatePresetOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newDeletePreset(DeletePresetOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newListPresetPatterns(ListPresetPatternsOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newCreatePresetPattern(CreatePresetPatternOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newDeletePresetPattern(DeletePresetPatternOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newListLinkPresets(ListLinkPresetsOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newApplyPresetToLink(ApplyPresetToLinkOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newRemovePresetFromLink(RemovePresetFromLinkOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newListLinkBannedUserAgents(ListLinkBannedUserAgentsOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newCreateLinkBannedUserAgent(CreateLinkBannedUserAgentOpts{Service: deps.Service, Sessions: deps.Sessions}),
+		newDeleteLinkBannedUserAgent(DeleteLinkBannedUserAgentOpts{Service: deps.Service, Sessions: deps.Sessions}),
+	}
+	for _, route := range routes {
+		route.Register(deps.API)
+	}
+
+	return Registration{}
+}
 
 type linkOutputDto struct {
 	Id        string    `json:"id" example:"KKMEa"`

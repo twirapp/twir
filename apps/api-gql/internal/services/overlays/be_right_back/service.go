@@ -3,6 +3,7 @@ package be_right_back
 import (
 	"context"
 	"errors"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -17,12 +18,10 @@ import (
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Repository      overlays_be_right_back.Repository
 	WsRouter        wsrouter.WsRouter
@@ -42,7 +41,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				s.twirBus.Api.TriggerBrbStart.SubscribeGroup(
 					"api",

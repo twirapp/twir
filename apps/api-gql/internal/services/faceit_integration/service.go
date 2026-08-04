@@ -24,12 +24,9 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	faceitintegrationentity "github.com/twirapp/twir/libs/entities/faceit_integration"
 	faceitintegration "github.com/twirapp/twir/libs/repositories/faceit_integration"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	FaceitRepository faceitintegration.Repository
 	Config           config.Config
 	KV               kv.KV

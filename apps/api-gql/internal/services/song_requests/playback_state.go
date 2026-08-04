@@ -10,7 +10,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 const (
@@ -19,8 +18,6 @@ const (
 )
 
 type PlaybackStateOpts struct {
-	fx.In
-
 	Redis    *redis.Client
 	Logger   *slog.Logger
 	WsRouter wsrouter.WsRouter

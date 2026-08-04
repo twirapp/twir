@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"io"
 	"log/slog"
 	"net"
@@ -21,7 +22,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 )
 
 const (
@@ -31,9 +31,7 @@ const (
 )
 
 type Opts struct {
-	fx.In
-
-	LC     fx.Lifecycle
+	LC     *lifecycle.Lifecycle
 	Logger *slog.Logger
 	Config config.Config
 }
@@ -63,7 +61,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: s.onStart,
 			OnStop:  s.onStop,
 		},

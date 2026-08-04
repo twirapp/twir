@@ -11,7 +11,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkslinkpresetsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_presets"
-	"go.uber.org/fx"
 )
 
 type linkPresetDto struct {
@@ -27,8 +26,6 @@ type listLinkPresets struct {
 }
 
 type ListLinkPresetsOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }
@@ -94,8 +91,6 @@ type applyPresetToLink struct {
 }
 
 type ApplyPresetToLinkOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }
@@ -170,8 +165,6 @@ type removePresetFromLink struct {
 }
 
 type RemovePresetFromLinkOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }

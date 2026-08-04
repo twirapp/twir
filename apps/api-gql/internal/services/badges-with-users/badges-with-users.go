@@ -12,13 +12,10 @@ import (
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
 type Opts struct {
-	fx.In
-
 	BadgesService      *badges.Service
 	BadgesUsersService *badges_users.Service
 	UsersRepository    usersrepository.Repository

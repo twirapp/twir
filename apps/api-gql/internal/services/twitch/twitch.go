@@ -13,12 +13,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchclient "github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	TwirBus            *buscore.Bus
 	Config             config.Config
 	CachedTwitchClient *twitchcahe.CachedTwitchClient

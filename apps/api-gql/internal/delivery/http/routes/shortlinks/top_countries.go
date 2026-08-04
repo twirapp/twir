@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type topCountriesRequestDto struct {
@@ -27,8 +26,6 @@ type countryStatsDto struct {
 var _ httpbase.Route[*topCountriesRequestDto, *httpbase.BaseOutputJson[[]countryStatsDto]] = (*topCountries)(nil)
 
 type TopCountriesOpts struct {
-	fx.In
-
 	Service              *shortenedurls.Service
 	Sessions             *auth.Auth
 	CustomDomainsService *shortlinkscustomdomains.Service

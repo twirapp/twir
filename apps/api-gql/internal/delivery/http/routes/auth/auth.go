@@ -29,12 +29,9 @@ import (
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkvideobotsrepo "github.com/twirapp/twir/libs/repositories/vk_video_bots"
 	youtubebotsrepo "github.com/twirapp/twir/libs/repositories/youtube_bots"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Huma                 huma.API
 	Config               config.Config
 	Bus                  *buscore.Bus

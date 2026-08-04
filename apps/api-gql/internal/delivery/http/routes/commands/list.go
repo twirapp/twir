@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	commandwithrelationentity "github.com/twirapp/twir/libs/entities/command_with_relations"
-	"go.uber.org/fx"
 )
 
 type listRouteRequestDto struct {
@@ -22,8 +21,6 @@ type listRouteRequestDto struct {
 var _ httpbase.Route[*listRouteRequestDto, *httpbase.BaseOutputJson[[]commandResponseDto]] = (*listById)(nil)
 
 type ListByIdOpts struct {
-	fx.In
-
 	Service        *commands_with_groups_and_responses.Service
 	ChannelService *channels.Service
 }

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"net/http"
 	"os"
@@ -15,12 +16,10 @@ import (
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC                 fx.Lifecycle
+	LC                 *lifecycle.Lifecycle
 	Sessions           *auth.Auth
 	CachedTwitchClient *twitch.CachedTwitchClient
 	Logger             *slog.Logger
@@ -66,7 +65,7 @@ func New(opts Opts) (*Server, error) {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				opts.Logger.Info("Starting server")
 				go func() {

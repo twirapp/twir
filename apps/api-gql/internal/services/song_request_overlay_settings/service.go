@@ -11,14 +11,11 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/song_request_overlay_settings"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 var colorPattern = regexp.MustCompile(`^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$`)
 
 type Opts struct {
-	fx.In
-
 	Repository song_request_overlay_settings.Repository
 	WsRouter   wsrouter.WsRouter
 	Logger     *slog.Logger

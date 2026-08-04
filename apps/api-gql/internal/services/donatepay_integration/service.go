@@ -10,12 +10,9 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	donatepayintegration "github.com/twirapp/twir/libs/repositories/donatepay_integration"
 	"github.com/twirapp/twir/libs/repositories/donatepay_integration/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Repo    donatepayintegration.Repository
 	TwirBus *buscore.Bus
 }

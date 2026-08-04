@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"io"
 	"strings"
 	"time"
@@ -17,12 +18,10 @@ import (
 	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/channels_files"
 	"github.com/twirapp/twir/libs/repositories/channels_files/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	FilesRepo  channels_files.Repository
 	TrmManager trm.Manager
@@ -49,7 +48,7 @@ func New(opts Opts) *Service {
 	contentClearTickerDone := make(chan struct{})
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
 					for {

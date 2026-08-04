@@ -5,12 +5,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Auth            *auth.Auth
 	DashboardAccess *dashboardaccess.Service
 	Huma            huma.API

@@ -21,7 +21,6 @@ import (
 	"github.com/twirapp/twir/libs/entities/webhook_notifications"
 	channelsmoduleswebhooks "github.com/twirapp/twir/libs/repositories/channels_modules_webhooks"
 	"github.com/twirapp/twir/libs/repositories/streams"
-	"go.uber.org/fx"
 )
 
 var ErrInvalidPayload = errors.New("invalid webhook payload")
@@ -29,8 +28,6 @@ var ErrInvalidPayload = errors.New("invalid webhook payload")
 const webhookNotificationsPageSize = 500
 
 type Opts struct {
-	fx.In
-
 	Repository    channelsmoduleswebhooks.Repository
 	StreamsRepo   streams.Repository
 	AuditRecorder audit.Recorder

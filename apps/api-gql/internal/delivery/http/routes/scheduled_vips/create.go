@@ -11,7 +11,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 	scheduledvipsentity "github.com/twirapp/twir/libs/entities/scheduled_vips"
-	"go.uber.org/fx"
 )
 
 type createRequestDto struct {
@@ -25,8 +24,6 @@ type createRequestDto struct {
 var _ httpbase.Route[*createRequestDto, *httpbase.BaseOutputJson[scheduledVipOutputDto]] = (*create)(nil)
 
 type CreateOpts struct {
-	fx.In
-
 	Service  *scheduledvips.Service
 	Sessions *auth.Auth
 }

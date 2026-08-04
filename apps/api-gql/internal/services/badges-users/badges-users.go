@@ -8,12 +8,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/repositories/badges_users"
 	"github.com/twirapp/twir/libs/repositories/badges_users/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	BadgesUsersRepository badges_users.Repository
 }
 

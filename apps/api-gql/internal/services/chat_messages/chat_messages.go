@@ -3,6 +3,7 @@ package chat_messages
 import (
 	"context"
 	"encoding/json"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"strings"
 	"sync"
@@ -20,12 +21,10 @@ import (
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	ChatMessagesRepository chat_messages.Repository
 	ChannelService         *channelservice.ChannelService
@@ -58,7 +57,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := opts.TwirBus.ChatMessages.Subscribe(s.handleBusEvent); err != nil {
 					return err

@@ -10,12 +10,9 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/entities/platform"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Huma            huma.API
 	CachedCommands  *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
 	ChannelsService *channels.Service

@@ -11,13 +11,10 @@ import (
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Gorm *gorm.DB
 	KV   kv.KV
 }

@@ -20,12 +20,9 @@ import (
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	ScheduledVipsRepository scheduledvipsrepository.Repository
 	ChannelService          *channelservice.ChannelService
 	UsersRepository         usersrepository.Repository

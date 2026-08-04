@@ -32,14 +32,11 @@ import (
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	Gorm                       *gorm.DB
 	CachedTwitchClient         *twitchcache.CachedTwitchClient
 	AuthService                *auth.Auth

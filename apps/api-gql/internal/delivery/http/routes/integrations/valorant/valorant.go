@@ -14,13 +14,10 @@ import (
 	valorantintegration "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/valorant"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
 type Opts struct {
-	fx.In
-
 	Api      huma.API
 	Config   config.Config
 	Sessions *auth.Auth

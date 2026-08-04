@@ -2,17 +2,16 @@ package song_requests
 
 import (
 	"context"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 type BridgeOpts struct {
-	fx.In
-	LC                   fx.Lifecycle
+	LC                   *lifecycle.Lifecycle
 	WsRouter             wsrouter.WsRouter
 	TwirBus              *buscore.Bus
 	Logger               *slog.Logger
@@ -34,7 +33,7 @@ func NewBridge(opts BridgeOpts) *Bridge {
 		playbackStateService: opts.PlaybackStateService,
 	}
 
-	opts.LC.Append(fx.Hook{
+	opts.LC.Append(lifecycle.Hook{
 		OnStart: func(ctx context.Context) error {
 			b.twirBus.Api.SongRequestAddToQueue.SubscribeGroup("api",
 				func(ctx context.Context, data api.SongRequestAddToQueue) (struct{}, error) {

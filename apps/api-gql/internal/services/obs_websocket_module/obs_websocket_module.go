@@ -3,25 +3,24 @@ package obs_websocket_module
 import (
 	"context"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"time"
 
 	gojson "github.com/goccy/go-json"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	obsentity "github.com/twirapp/twir/libs/entities/obs"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsmodulesobswebsocket "github.com/twirapp/twir/libs/repositories/channels_modules_obs_websocket"
 	"github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/wsrouter"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	ObsWebsocketRepository channelsmodulesobswebsocket.Repository
 	WsRouter               wsrouter.WsRouter
@@ -49,7 +48,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				s.bus.Api.TriggerObsCommand.SubscribeGroup(
 					"api",

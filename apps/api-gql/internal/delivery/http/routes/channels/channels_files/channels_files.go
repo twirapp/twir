@@ -9,12 +9,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_files"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Api                  huma.API
 	Config               config.Config
 	ChannelsFilesService *channels_files.Service

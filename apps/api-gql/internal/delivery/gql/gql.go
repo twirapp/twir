@@ -30,7 +30,6 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/fx"
 )
 
 type Gql struct {
@@ -38,8 +37,6 @@ type Gql struct {
 }
 
 type Opts struct {
-	fx.In
-
 	Resolver                *resolvers.Resolver
 	Directives              *directives.Directives
 	Config                  config.Config

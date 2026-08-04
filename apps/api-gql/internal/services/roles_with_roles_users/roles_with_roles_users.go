@@ -12,12 +12,9 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	TrmManager        trm.Manager
 	RolesService      *roles.Service
 	RolesUsersService *roles_users.Service

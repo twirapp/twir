@@ -21,7 +21,6 @@ import (
 	usersrepo "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
 var (
@@ -30,8 +29,6 @@ var (
 )
 
 type Opts struct {
-	fx.In
-
 	ChannelService       *channelservice.ChannelService
 	UsersRepository      usersrepo.Repository
 	ChannelPlatformsRepo channelplatformsrepo.Repository

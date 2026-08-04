@@ -12,12 +12,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type HumaOpts struct {
-	fx.In
-
 	Router   *server.Server
 	Cfg      config.Config
 	Loader   *dataloader.LoaderFactory

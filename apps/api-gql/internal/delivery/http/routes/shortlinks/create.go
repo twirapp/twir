@@ -18,7 +18,6 @@ import (
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
-	"go.uber.org/fx"
 )
 
 var _ httpbase.Route[*createLinkInput, *httpbase.BaseOutputJson[linkOutputDto]] = (*create)(nil)
@@ -34,8 +33,6 @@ type create struct {
 }
 
 type CreateOpts struct {
-	fx.In
-
 	Config               config.Config
 	Service              *shortenedurls.Service
 	CustomDomainsService *shortlinkscustomdomains.Service

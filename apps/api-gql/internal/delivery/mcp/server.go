@@ -55,7 +55,6 @@ import (
 	vkintegration "github.com/twirapp/twir/apps/api-gql/internal/services/vk_integration"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	entity "github.com/twirapp/twir/libs/entities/mcp_oauth"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -73,8 +72,6 @@ type AccessTokenVerifier interface {
 }
 
 type Deps struct {
-	fx.In
-
 	AccessTokenVerifier AccessTokenVerifier
 	Commands            *commands.Service
 	CommandGroups       *commands_groups.Service

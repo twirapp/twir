@@ -12,7 +12,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type profileRequestDto struct {
@@ -29,8 +28,6 @@ type linksProfileOutputDto struct {
 var _ httpbase.Route[*profileRequestDto, *httpbase.BaseOutputJson[linksProfileOutputDto]] = (*profile)(nil)
 
 type ProfileOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Config   config.Config
 	Sessions *auth.Auth

@@ -9,15 +9,12 @@ import (
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 const canAccessDashboardPermission = "CAN_ACCESS_DASHBOARD"
 
 type Opts struct {
-	fx.In
-
 	ChannelService *channelservice.ChannelService
 	Gorm           *gorm.DB
 }

@@ -15,12 +15,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/alerts"
 	"github.com/twirapp/twir/libs/repositories/alerts/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	AlertsRepository alerts.Repository
 	PlansRepository  plans.Repository
 	AuditRecorder    audit.Recorder

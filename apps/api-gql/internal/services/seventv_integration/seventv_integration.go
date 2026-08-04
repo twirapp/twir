@@ -14,13 +14,10 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/bots"
 	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
 type Opts struct {
-	fx.In
-
 	SeventvRepository seventvintegrationrepository.Repository
 	BotsRepository    bots.Repository
 	Config            config.Config

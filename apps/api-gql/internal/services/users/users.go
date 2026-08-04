@@ -17,13 +17,10 @@ import (
 	"github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	UsersRepository users.Repository
 	ChannelService  *channelservice.ChannelService
 	Gorm            *gorm.DB

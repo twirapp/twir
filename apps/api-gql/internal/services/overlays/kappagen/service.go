@@ -3,21 +3,20 @@ package kappagen
 import (
 	"context"
 	"errors"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	eventmodel "github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen/model"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/wsrouter"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Repository overlays_kappagen.Repository
 	WsRouter   wsrouter.WsRouter
@@ -32,7 +31,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				opts.TwirBus.Api.TriggerKappagen.SubscribeGroup(
 					"api",

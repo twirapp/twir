@@ -18,8 +18,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
+	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	channelsintegrations "github.com/twirapp/twir/libs/repositories/channels_integrations"
@@ -31,12 +31,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/roles"
 	rolesmodel "github.com/twirapp/twir/libs/repositories/roles/model"
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Config                  config.Config
 	Logger                  *slog.Logger
 	TrManager               trm.Manager

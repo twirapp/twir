@@ -13,12 +13,9 @@ import (
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/badges"
 	"github.com/twirapp/twir/libs/repositories/badges/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	BadgesRepository badges.Repository
 	Config           config.Config
 	MinioClient      *minio.Client

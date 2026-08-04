@@ -11,12 +11,9 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	streammodel "github.com/twirapp/twir/libs/repositories/streams/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	StreamsRepository streams.Repository
 	Api               huma.API
 	Sessions          *auth.Auth

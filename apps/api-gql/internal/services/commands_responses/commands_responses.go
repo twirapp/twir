@@ -8,12 +8,9 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_response/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	CommandsResponsesRepository commands_response.Repository
 }
 

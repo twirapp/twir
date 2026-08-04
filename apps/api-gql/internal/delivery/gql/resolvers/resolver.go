@@ -97,7 +97,6 @@ import (
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -106,8 +105,6 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Deps struct {
-	fx.In
-
 	Logger        *slog.Logger
 	AuditRecorder audit.Recorder
 	WsRouter      wsrouter.WsRouter

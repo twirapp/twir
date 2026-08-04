@@ -16,12 +16,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/roles"
 	"github.com/twirapp/twir/libs/repositories/roles/model"
 	"github.com/twirapp/twir/libs/repositories/roles_users"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	RolesRepository      roles.Repository
 	RolesUsersRepository roles_users.Repository
 	AuditRecorder        audit.Recorder

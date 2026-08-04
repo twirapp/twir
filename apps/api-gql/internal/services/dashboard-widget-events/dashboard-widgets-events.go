@@ -4,15 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	dbmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"go.uber.org/fx"
+	dbmodel "github.com/twirapp/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 
 type DashboardWidgetsEventsOpts struct {
-	fx.In
-
 	Db *gorm.DB
 }
 

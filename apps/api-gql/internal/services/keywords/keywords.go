@@ -9,12 +9,9 @@ import (
 	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	KeywordsRepository keywords.Repository
 	AuditRecorder      audit.Recorder
 	Logger             *slog.Logger

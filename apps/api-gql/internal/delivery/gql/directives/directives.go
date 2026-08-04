@@ -8,12 +8,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/rate_limiter"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Sessions        *auth.Auth
 	DashboardAccess *dashboardaccess.Service
 	RateLimiter     *rate_limiter.LeakyBucketRateLimiter

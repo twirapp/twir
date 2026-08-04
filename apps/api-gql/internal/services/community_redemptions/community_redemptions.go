@@ -2,15 +2,14 @@ package community_redemptions
 
 import (
 	"context"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	TwirBus *buscore.Bus
 }
@@ -22,7 +21,7 @@ func New(opts Opts) *Service {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				return opts.TwirBus.RedemptionAdd.Subscribe(s.handleBusEvent)
 			},

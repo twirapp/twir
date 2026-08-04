@@ -15,12 +15,9 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Redis          *redis.Client
 	UsersRepo      usersrepository.Repository
 	ChannelService *channelservice.ChannelService

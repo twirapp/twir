@@ -11,13 +11,10 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-
 	KV                 kv.KV
 	ChannelsRepository channels.Repository
 	TwirBus            *buscore.Bus

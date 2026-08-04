@@ -10,7 +10,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinksbanneduapresetpatternsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_preset_patterns"
-	"go.uber.org/fx"
 )
 
 type deletePresetPattern struct {
@@ -19,8 +18,6 @@ type deletePresetPattern struct {
 }
 
 type DeletePresetPatternOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }

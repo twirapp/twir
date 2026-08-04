@@ -9,12 +9,9 @@ import (
 	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/dashboard_widgets"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	DashboardWidgetsRepository dashboard_widgets.Repository
 	WsRouter                   wsrouter.WsRouter
 }

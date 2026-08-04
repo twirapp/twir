@@ -10,12 +10,9 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
 	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	ChannelsCommandsPrefixRepository channels_commands_prefix.Repository
 	Cacher                           *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
 }

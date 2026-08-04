@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"go.uber.org/fx"
 	"golang.org/x/oauth2"
 )
 
@@ -23,8 +22,6 @@ const (
 )
 
 type Opts struct {
-	fx.In
-
 	Config cfg.Config
 }
 

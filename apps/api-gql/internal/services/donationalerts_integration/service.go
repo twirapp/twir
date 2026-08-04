@@ -18,12 +18,9 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/donationalerts_integration"
 	"github.com/twirapp/twir/libs/repositories/donationalerts_integration/model"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	DonationAlertsRepository donationalerts_integration.Repository
 	TwirBus                  *buscore.Bus
 	Config                   config.Config
