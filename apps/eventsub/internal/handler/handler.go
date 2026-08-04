@@ -9,6 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	batchprocessor "github.com/twirapp/batch-processor"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -27,7 +28,6 @@ import (
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 
 	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
@@ -66,8 +66,7 @@ type Handler struct {
 }
 
 type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Logger *slog.Logger
 
@@ -136,7 +135,7 @@ func New(opts Opts) *Handler {
 	)
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
 					myHandler.redemptionsBatcher.Start(batcherCtx)

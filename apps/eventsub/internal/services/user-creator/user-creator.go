@@ -14,12 +14,9 @@ import (
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
 	usersstatsmodel "github.com/twirapp/twir/libs/repositories/users_stats/model"
 	userswithstatsrepository "github.com/twirapp/twir/libs/repositories/userswithstats"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	UsersStatsRepo     usersstats.Repository
 	UsersRepo          users.Repository
 	UsersWithStatsRepo userswithstatsrepository.Repository

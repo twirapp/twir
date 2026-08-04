@@ -10,6 +10,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
@@ -23,7 +24,6 @@ import (
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -49,8 +49,7 @@ type BusListener struct {
 }
 
 type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Manager        *manager.Manager
 	Transports     *platformsregistry.Registry[eventplatforms.EventTransport]
@@ -75,7 +74,7 @@ func New(opts Opts) (*BusListener, error) {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.bus.EventSub.SubscribeToAllEvents.SubscribeGroup(
 					"eventsub",

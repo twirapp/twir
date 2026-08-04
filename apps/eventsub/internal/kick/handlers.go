@@ -39,7 +39,6 @@ import (
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -193,8 +192,6 @@ type Handlers struct {
 }
 
 type HandlersOpts struct {
-	fx.In
-
 	Logger                  *slog.Logger
 	Redis                   *redis.Client
 	Bus                     *bus_core.Bus

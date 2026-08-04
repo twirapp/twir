@@ -19,7 +19,6 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 )
 
 const (
@@ -61,8 +60,6 @@ type SubscriptionManager struct {
 }
 
 type Opts struct {
-	fx.In
-
 	Config    cfg.Config
 	Redis     *goredis.Client
 	Logger    *slog.Logger

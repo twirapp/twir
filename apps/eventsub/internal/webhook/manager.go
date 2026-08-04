@@ -7,13 +7,13 @@ import (
 
 	httpserver "github.com/twirapp/twir/apps/eventsub/internal/http"
 	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	platformsregistry "github.com/twirapp/twir/libs/platforms"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	"go.uber.org/fx"
 )
 
 type Manager struct {
@@ -24,9 +24,7 @@ type Manager struct {
 }
 
 type Opts struct {
-	fx.In
-
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Config       cfg.Config
 	Logger       *slog.Logger
@@ -43,7 +41,7 @@ func NewManager(opts Opts) *Manager {
 		transports:   opts.Transports,
 	}
 
-	opts.Lc.Append(fx.Hook{
+	opts.Lc.Append(lifecycle.Hook{
 		OnStart: func(ctx context.Context) error {
 			return m.start(ctx)
 		},

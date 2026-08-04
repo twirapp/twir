@@ -15,6 +15,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	goredislib "github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -25,7 +26,6 @@ import (
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -53,8 +53,7 @@ type Manager struct {
 }
 
 type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	Config             cfg.Config
 	Logger             *slog.Logger
@@ -106,7 +105,7 @@ func NewManager(opts Opts) (*Manager, error) {
 	}
 
 	opts.Lc.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
 					defer close(manager.workerDone)

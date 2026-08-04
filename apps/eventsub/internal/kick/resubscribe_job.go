@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	"go.uber.org/fx"
 )
 
 type SubscriptionLister interface {
@@ -28,9 +28,7 @@ type ResubscribeJob struct {
 }
 
 type ResubscribeJobOpts struct {
-	fx.In
-
-	Lc fx.Lifecycle
+	Lc *lifecycle.Lifecycle
 
 	SubManager   *SubscriptionManager
 	ChannelsRepo channels.Repository
@@ -48,7 +46,7 @@ func NewResubscribeJob(opts ResubscribeJobOpts) *ResubscribeJob {
 	}
 
 	stopCh := make(chan struct{})
-	opts.Lc.Append(fx.Hook{
+	opts.Lc.Append(lifecycle.Hook{
 		OnStart: func(_ context.Context) error {
 			go j.Start(stopCh)
 			return nil
