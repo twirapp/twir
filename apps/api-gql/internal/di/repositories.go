@@ -99,6 +99,8 @@ import (
 	plansrepositorypgx "github.com/twirapp/twir/libs/repositories/plans/pgx"
 	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
 	quotesrepositorypgx "github.com/twirapp/twir/libs/repositories/quotes/pgx"
+	requestedsongsrepository "github.com/twirapp/twir/libs/repositories/requested_songs"
+	requestedsongspostgres "github.com/twirapp/twir/libs/repositories/requested_songs/datasource/postgres"
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
 	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
@@ -123,6 +125,8 @@ import (
 	shortenedurlsrepositorypostgres "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
 	songrequestoverlaysettingsrepository "github.com/twirapp/twir/libs/repositories/song_request_overlay_settings"
 	songrequestoverlaysettingspgx "github.com/twirapp/twir/libs/repositories/song_request_overlay_settings/pgx"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
+	songrequestssettingspostgres "github.com/twirapp/twir/libs/repositories/song_requests_settings/datasource/postgres"
 	streamlabsrepository "github.com/twirapp/twir/libs/repositories/streamlabs_integration"
 	streamlabsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streamlabs_integration/datasource/postgres"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
@@ -292,4 +296,8 @@ var repositoriesSet = wire.NewSet(
 	wire.Bind(new(command_role_cooldown.Repository), new(*commandrolecooldownpgx.Pgx)),
 	songrequestoverlaysettingspgx.NewFx,
 	wire.Bind(new(songrequestoverlaysettingsrepository.Repository), new(*songrequestoverlaysettingspgx.Pgx)),
+	requestedsongspostgres.NewFx,
+	wire.Bind(new(requestedsongsrepository.Repository), new(*requestedsongspostgres.Pgx)),
+	songrequestssettingspostgres.NewFx,
+	wire.Bind(new(songrequestssettingsrepository.Repository), new(*songrequestssettingspostgres.Pgx)),
 )

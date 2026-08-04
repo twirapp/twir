@@ -7,6 +7,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -181,9 +182,15 @@ func (r *mutationResolver) EventDelete(ctx context.Context, id string) (bool, er
 
 // EventEnableOrDisable is the resolver for the eventEnableOrDisable field.
 func (r *mutationResolver) EventEnableOrDisable(ctx context.Context, id string, enabled bool) (*gqlmodel.Event, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	event, err := r.deps.EventsService.Update(
 		ctx, id, events.UpdateInput{
-			Enabled: &enabled,
+			ChannelID: dashboardID,
+			Enabled:   &enabled,
 		},
 	)
 	if err != nil {
@@ -225,9 +232,17 @@ func (r *queryResolver) Events(ctx context.Context) ([]gqlmodel.Event, error) {
 
 // EventByID is the resolver for the eventById field.
 func (r *queryResolver) EventByID(ctx context.Context, id string) (*gqlmodel.Event, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	event, err := r.deps.EventsService.GetByID(ctx, id)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
+	}
+	if event.ChannelID != dashboardID {
+		return nil, gqlerrors.HandleError(fmt.Errorf("event with this ID was not found"))
 	}
 
 	converted, err := mappers.MapEventToGQL(event)

@@ -356,3 +356,7 @@ func (channelPlatformBindingExecutionSession) SetSessionSelectedDashboard(contex
 func (channelPlatformBindingExecutionSession) SessionLogout(context.Context) error {
 	return nil
 }
+
+func (channelPlatformBindingExecutionSession) GetChannelFromApiKey(context.Context) (channelentity.Channel, error) {
+	return channelentity.Nil, context.Canceled
+}

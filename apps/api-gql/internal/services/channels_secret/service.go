@@ -148,6 +148,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (
 }
 
 type UpdateInput struct {
+	ChannelID   string
 	Name        *string
 	Description *string
 	Value       *string
@@ -157,6 +158,14 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 	model.ChannelSecret,
 	error,
 ) {
+	existing, err := s.secretsRepository.GetByID(ctx, id)
+	if err != nil {
+		return model.Nil, err
+	}
+	if existing.IsNil() || existing.ChannelID.String() != input.ChannelID {
+		return model.Nil, ErrNotFound
+	}
+
 	repoInput := channels_secret.UpdateInput{
 		Name:        input.Name,
 		Description: input.Description,
@@ -178,7 +187,15 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 	return secret, nil
 }
 
-func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
+func (s *Service) Delete(ctx context.Context, id uuid.UUID, channelID string) error {
+	existing, err := s.secretsRepository.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if existing.IsNil() || existing.ChannelID.String() != channelID {
+		return ErrNotFound
+	}
+
 	return s.secretsRepository.Delete(ctx, id)
 }
 

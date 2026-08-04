@@ -10,11 +10,11 @@
 			"environment": {
 				"DISABLE_NOTIFICATIONS": "true",
 			},
-			"enabled": true,
+			"enabled": false,
 		},
 		"shadcnVue": {
 			"type": "local",
-			"enabled": true,
+			"enabled": false,
 			"command": ["bunx", "shadcn-vue@latest", "mcp"],
 		},
 		"postgres": {
@@ -35,7 +35,7 @@
 		"codegraph": {
 			"type": "local",
 			"command": ["bunx", "-y", "codegraph", "serve", "--mcp"],
-			"enabled": true,
+			"enabled": false,
 		},
 		"grepApp": {
 			"type": "remote",

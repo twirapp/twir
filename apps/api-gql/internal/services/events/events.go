@@ -180,6 +180,17 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, 
 }
 
 func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (entity.Event, error) {
+	existing, err := s.eventsRepository.GetByID(ctx, id)
+	if err != nil {
+		if err == events.ErrNotFound {
+			return entity.EventNil, errors.NewNotFoundError("Event with this ID was not found")
+		}
+		return entity.EventNil, errors.NewInternalError("Failed to get event", err)
+	}
+	if existing.ChannelID != input.ChannelID {
+		return entity.EventNil, errors.NewNotFoundError("Event with this ID was not found")
+	}
+
 	var convertedType *model.EventType
 	if input.Type != nil {
 		convertedType = (*model.EventType)(input.Type)
@@ -244,7 +255,18 @@ func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 }
 
 func (s *Service) Delete(ctx context.Context, id, channelID string) error {
-	err := s.eventsRepository.Delete(ctx, id)
+	existing, err := s.eventsRepository.GetByID(ctx, id)
+	if err != nil {
+		if err == events.ErrNotFound {
+			return errors.NewNotFoundError("Event with this ID was not found")
+		}
+		return errors.NewInternalError("Failed to get event", err)
+	}
+	if existing.ChannelID != channelID {
+		return errors.NewNotFoundError("Event with this ID was not found")
+	}
+
+	err = s.eventsRepository.Delete(ctx, id)
 	if err != nil {
 		return errors.NewInternalError("Failed to delete event", err)
 	}

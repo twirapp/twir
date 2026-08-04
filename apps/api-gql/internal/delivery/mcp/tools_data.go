@@ -83,7 +83,7 @@ func (h *Handler) addSecretTools(s *modelsdk.Server, requestScope scope) {
 			return nil, nil, err
 		}
 		id, _ := parseID(input.ID)
-		item, err := h.deps.Secrets.Update(ctx, id, channels_secret.UpdateInput{Name: input.Name, Description: input.Description, Value: input.Value})
+		item, err := h.deps.Secrets.Update(ctx, id, channels_secret.UpdateInput{ChannelID: channelID, Name: input.Name, Description: input.Description, Value: input.Value})
 		return nil, secretMetadata(item.ID.String(), item.Name, item.Description.Ptr()), err
 	})
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "delete_secret", Description: "Delete an encrypted channel secret."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
@@ -91,7 +91,7 @@ func (h *Handler) addSecretTools(s *modelsdk.Server, requestScope scope) {
 			return nil, nil, err
 		}
 		id, _ := parseID(input.ID)
-		err := h.deps.Secrets.Delete(ctx, id)
+		err := h.deps.Secrets.Delete(ctx, id, channelID)
 		return nil, map[string]bool{"deleted": err == nil}, err
 	})
 }

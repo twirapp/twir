@@ -1,4 +1,13 @@
-import type { CustomDomainOutputDto, ErrorModel, LinkBannedUserAgentDto, LinkOutputDto, ShortUrlProfileParamsSortByEnum } from '@twir/api/openapi'
+import type {
+	CustomDomainOutputDto,
+	ErrorModel,
+	LinkBannedUserAgentDto,
+	LinkOutputDto,
+	LinkPresetDto,
+	PresetDto,
+	PresetPatternDto,
+	ShortUrlProfileParamsSortByEnum,
+} from '@twir/api/openapi'
 
 import { useOapi } from '~/composables/use-oapi'
 
@@ -10,6 +19,14 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 
 	const perLinkBannedUserAgents = ref<Map<string, LinkBannedUserAgentDto[]>>(new Map())
 	const isPerLinkBannedUserAgentsLoading = ref<Map<string, boolean>>(new Map())
+
+	const bannedUaPresets = ref<PresetDto[]>([])
+	const isBannedUaPresetsLoading = ref(false)
+	const presetPatterns = ref<Map<string, PresetPatternDto[]>>(new Map())
+	const isPresetPatternsLoading = ref<Map<string, boolean>>(new Map())
+
+	const linkPresets = ref<Map<string, LinkPresetDto[]>>(new Map())
+	const isLinkPresetsLoading = ref<Map<string, boolean>>(new Map())
 
 	async function shortUrl(opts: { url: string; alias?: string; useCustomDomain?: boolean }) {
 		try {
@@ -179,6 +196,151 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		}
 	}
 
+	async function fetchBannedUaPresets() {
+		isBannedUaPresetsLoading.value = true
+		try {
+			const response = await api.v1.shortLinksListPresets()
+			bannedUaPresets.value = response.data.data
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		} finally {
+			isBannedUaPresetsLoading.value = false
+		}
+	}
+
+	async function createBannedUaPreset(opts: { name: string; description?: string | null }) {
+		try {
+			const response = await api.v1.shortLinksCreatePreset({
+				name: opts.name,
+				description: opts.description ?? undefined,
+			})
+			bannedUaPresets.value = [...bannedUaPresets.value, response.data.data]
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function updateBannedUaPreset(
+		presetId: string,
+		opts: { name?: string; description?: string | null }
+	) {
+		try {
+			const response = await api.v1.shortLinksUpdatePreset(presetId, {
+				name: opts.name,
+				description: opts.description ?? undefined,
+			})
+			bannedUaPresets.value = bannedUaPresets.value.map((preset) =>
+				preset.id === presetId ? response.data.data : preset
+			)
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function deleteBannedUaPreset(presetId: string) {
+		try {
+			const response = await api.v1.shortLinksDeletePreset(presetId)
+			bannedUaPresets.value = bannedUaPresets.value.filter((preset) => preset.id !== presetId)
+			presetPatterns.value.delete(presetId)
+			for (const [linkId, presets] of linkPresets.value) {
+				linkPresets.value.set(
+					linkId,
+					presets.filter((item) => item.preset_id !== presetId)
+				)
+			}
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function fetchPresetPatterns(presetId: string) {
+		isPresetPatternsLoading.value.set(presetId, true)
+		try {
+			const response = await api.v1.shortLinksListPresetPatterns(presetId)
+			presetPatterns.value.set(presetId, response.data.data)
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		} finally {
+			isPresetPatternsLoading.value.set(presetId, false)
+		}
+	}
+
+	async function createPresetPattern(
+		presetId: string,
+		opts: { pattern: string; description?: string | null }
+	) {
+		try {
+			const response = await api.v1.shortLinksCreatePresetPattern(presetId, {
+				pattern: opts.pattern,
+				description: opts.description ?? undefined,
+			})
+			const current = presetPatterns.value.get(presetId) || []
+			presetPatterns.value.set(presetId, [...current, response.data.data])
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function deletePresetPattern(presetId: string, patternId: string) {
+		try {
+			const response = await api.v1.shortLinksDeletePresetPattern(presetId, patternId)
+			const current = presetPatterns.value.get(presetId) || []
+			presetPatterns.value.set(
+				presetId,
+				current.filter((item) => item.id !== patternId)
+			)
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function fetchLinkPresets(linkId: string) {
+		isLinkPresetsLoading.value.set(linkId, true)
+		try {
+			const response = await api.v1.shortLinksListLinkPresets(linkId)
+			linkPresets.value.set(linkId, response.data.data)
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		} finally {
+			isLinkPresetsLoading.value.set(linkId, false)
+		}
+	}
+
+	async function applyPresetToLink(linkId: string, presetId: string) {
+		try {
+			const response = await api.v1.shortLinksApplyPresetToLink(linkId, {
+				preset_id: presetId,
+			})
+			const current = linkPresets.value.get(linkId) || []
+			linkPresets.value.set(linkId, [...current, response.data.data])
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
+	async function removePresetFromLink(linkId: string, presetId: string) {
+		try {
+			const response = await api.v1.shortLinksRemovePresetFromLink(linkId, presetId)
+			const current = linkPresets.value.get(linkId) || []
+			linkPresets.value.set(
+				linkId,
+				current.filter((item) => item.preset_id !== presetId)
+			)
+			return { data: response.data, error: response.error }
+		} catch (e) {
+			return { data: null, error: await parseApiError(e) }
+		}
+	}
+
 	return {
 		shortUrl,
 		refetchLatestShortenedUrls,
@@ -194,6 +356,22 @@ export const useUrlShortener = defineStore('url-shortener', () => {
 		fetchPerLinkBannedUserAgents,
 		createPerLinkBannedUserAgent,
 		deletePerLinkBannedUserAgent,
+		bannedUaPresets,
+		isBannedUaPresetsLoading,
+		presetPatterns,
+		isPresetPatternsLoading,
+		fetchBannedUaPresets,
+		createBannedUaPreset,
+		updateBannedUaPreset,
+		deleteBannedUaPreset,
+		fetchPresetPatterns,
+		createPresetPattern,
+		deletePresetPattern,
+		linkPresets,
+		isLinkPresetsLoading,
+		fetchLinkPresets,
+		applyPresetToLink,
+		removePresetFromLink,
 	}
 })
 

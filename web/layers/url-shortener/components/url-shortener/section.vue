@@ -9,6 +9,7 @@ import FormShortHistory from '#layers/url-shortener/components/url-shortener/for
 			<UrlShortenerForm />
 			<FormShortHistory />
 			<UrlShortenerCustomDomainPanel />
+			<UrlShortenerBannedUaPresetsPanel />
 		</div>
 	</div>
 </template>

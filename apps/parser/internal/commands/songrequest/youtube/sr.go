@@ -120,27 +120,15 @@ var SrCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		latestSong := &model.RequestedSong{}
-
-		err = parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.DBChannelID).
-			Order(`"createdAt" desc`).
-			Find(&latestSong).Error
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetLatestSong),
-				Err:     err,
-			}
-		}
-
 		requested := make([]*model.RequestedSong, 0, len(req.Data.Songs))
 		errors := make([]*ReqError, 0, len(req.Data.Songs))
 
-		var currentQueueCount int64
+		var maxQueuePosition int
 		err = parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.DBChannelID).
 			Model(&model.RequestedSong{}).
-			Count(&currentQueueCount).
+			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.DBChannelID).
+			Select(`COALESCE(MAX("queuePosition"), 0)`).
+			Scan(&maxQueuePosition).
 			Error
 
 		if err != nil {
@@ -150,7 +138,7 @@ var SrCommand = &types.DefaultCommand{
 			}
 		}
 
-		for i, song := range req.Data.Songs {
+		for _, song := range req.Data.Songs {
 			err = validate(
 				ctx,
 				parseCtx.Services,
@@ -179,9 +167,9 @@ var SrCommand = &types.DefaultCommand{
 					VideoID:              song.Id,
 					Title:                song.Title,
 					Duration:             int32(song.Duration),
-					CreatedAt:            time.Now().UTC(),
-					QueuePosition:        int(currentQueueCount) + (i + 1),
-					SongLink:             null.StringFromPtr(song.Link),
+				CreatedAt:            time.Now().UTC(),
+				QueuePosition:        maxQueuePosition + len(requested) + 1,
+				SongLink:             null.StringFromPtr(song.Link),
 				}
 
 				err = parseCtx.Services.Gorm.WithContext(ctx).Create(model).Error

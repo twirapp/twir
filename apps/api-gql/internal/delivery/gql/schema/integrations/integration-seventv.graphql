@@ -1,9 +1,9 @@
 extend type Subscription {
-	sevenTvData: SevenTvIntegration! @isAuthenticated
+	sevenTvData: SevenTvIntegration! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 }
 
 extend type Mutation {
-	sevenTvUpdate(input: SevenTvUpdateInput!): Boolean! @isAuthenticated
+	sevenTvUpdate(input: SevenTvUpdateInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
 }
 
 type SevenTvProfile {

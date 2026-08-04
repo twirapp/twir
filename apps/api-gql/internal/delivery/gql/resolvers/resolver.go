@@ -84,6 +84,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
+	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelpublicsettingsrepo "github.com/twirapp/twir/libs/repositories/channel_public_settings"
@@ -227,6 +228,7 @@ type SessionReader interface {
 	GetSelectedDashboard(context.Context) (string, error)
 	SetSessionSelectedDashboard(context.Context, string) error
 	SessionLogout(context.Context) error
+	GetChannelFromApiKey(context.Context) (channelentity.Channel, error)
 }
 
 type Resolver struct {

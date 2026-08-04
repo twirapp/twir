@@ -1,4 +1,4 @@
-### **Project Development Guidelines for AI Assistants (GitHub Copilot)**
+### **Project Development Guidelines for AI Assistants**
 
 > **Navigation**: This is the root AGENTS.md. For module-specific guidelines, see:
 >
@@ -77,6 +77,18 @@ adhere to these guidelines strictly to maintain code consistency and quality.
   - When working with **shadcn-vue** components, load the **`shadcn-vue`** skill for component
     usage, styling conventions, CLI commands, and theming.
   - Skill files are located under `.agents/skills/` and can be loaded with the `skill` tool.
+
+---
+
+### **Git & Commits**
+
+- Use the **Conventional Commits** format for commit messages (for example,
+  `feat: add ...`, `fix: correct ...`, or `chore: update ...`).
+- Agents must never create co-authored commits with the user. Do not add
+  `Co-authored-by` trailers or otherwise attribute a commit to the agent.
+- When an agent creates a commit, it must be authored and committed only in the
+  user's name and identity. Do not change the configured Git author or committer
+  identity unless the user explicitly requests it.
 
 ---
 
