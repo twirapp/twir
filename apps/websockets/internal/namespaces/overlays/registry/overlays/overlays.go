@@ -17,7 +17,6 @@ import (
 	"github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -33,8 +32,6 @@ type Registry struct {
 }
 
 type Opts struct {
-	fx.In
-
 	Gorm                       *gorm.DB
 	Logger                     *slog.Logger
 	Redis                      *redis.Client

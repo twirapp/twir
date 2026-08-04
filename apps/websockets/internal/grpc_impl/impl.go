@@ -10,12 +10,12 @@ import (
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -40,8 +40,7 @@ type GrpcImpl struct {
 }
 
 type GrpcOpts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Gorm   *gorm.DB
 	Redis  *redis.Client
@@ -67,7 +66,7 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.WEBSOCKET_SERVER_PORT))
 				if err != nil {

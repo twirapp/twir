@@ -16,7 +16,6 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -31,8 +30,6 @@ type Alerts struct {
 }
 
 type Opts struct {
-	fx.In
-
 	Gorm               *gorm.DB
 	Logger             *slog.Logger
 	Redis              *redis.Client

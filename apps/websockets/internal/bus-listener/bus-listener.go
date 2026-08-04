@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	fx.In
-	LC fx.Lifecycle
+	LC *lifecycle.Lifecycle
 
 	Bus   *bus_core.Bus
 	Dudes *dudes.Dudes
@@ -33,7 +32,7 @@ func New(opts Opts) *BusListener {
 	}
 
 	opts.LC.Append(
-		fx.Hook{
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				if err := listener.bus.Websocket.DudesUserSettings.SubscribeGroup(
 					"websockets",
