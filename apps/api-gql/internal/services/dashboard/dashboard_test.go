@@ -19,8 +19,6 @@ import (
 	channelsEmotesModel "github.com/twirapp/twir/libs/repositories/channels_emotes_usages/model"
 	streammodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 type dashboardCurrentPlatformStub struct {
@@ -177,28 +175,30 @@ func newDashboardStatsService(
 	messageCounts map[string]int64,
 	emoteCounts map[string]uint64,
 ) *Service {
-	db, err := gorm.Open(
-		postgres.Open("host=127.0.0.1 user=twir dbname=twir sslmode=disable"),
-		&gorm.Config{DisableAutomaticPing: true, DryRun: true},
-	)
-	if err != nil {
-		panic(err)
-	}
-
 	return &Service{
-		gorm:                 db,
 		channelService:       dashboardChannelLookupStub{channel: channelentity.Channel{ID: channelID, Bindings: bindings}},
 		channelPlatformsRepo: &dashboardBindingUpdaterStub{bindings: bindings},
 		streamsRepository:    dashboardStreamsRepositoryStub{streams: streamRows},
 		channelEmotesUsagesRepo: dashboardEmotesUsageStub{
 			counts: emoteCounts,
 		},
-		kv:     dashboardKVStub{values: messageCounts},
-		logger: slog.Default(),
+		requestedSongsRepo: dashboardRequestedSongsStub{},
+		kv:                 dashboardKVStub{values: messageCounts},
+		logger:             slog.Default(),
 		authService: dashboardCurrentPlatformStub{
 			err: errors.New("no current platform"),
 		},
 	}
+}
+
+type dashboardRequestedSongsStub struct{}
+
+func (dashboardRequestedSongsStub) CountByChannelID(
+	_ context.Context,
+	_ string,
+	_ time.Time,
+) (int64, error) {
+	return 0, nil
 }
 
 func liveDashboardStream(
