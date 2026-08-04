@@ -58,6 +58,10 @@ func (*channelAPIKeySessions) SessionLogout(context.Context) error {
 	return nil
 }
 
+func (*channelAPIKeySessions) GetChannelFromApiKey(context.Context) (channelentity.Channel, error) {
+	return channelentity.Nil, nil
+}
+
 type channelAPIKeyRepository struct {
 	channelsrepository.Repository
 

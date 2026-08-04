@@ -302,6 +302,10 @@ func (resolverChannelPlatformSession) SessionLogout(context.Context) error {
 	return nil
 }
 
+func (resolverChannelPlatformSession) GetChannelFromApiKey(context.Context) (channelentity.Channel, error) {
+	return channelentity.Nil, context.Canceled
+}
+
 type resolverTransactionRunner struct{}
 
 func (resolverTransactionRunner) Do(ctx context.Context, fn func(context.Context) error) error {

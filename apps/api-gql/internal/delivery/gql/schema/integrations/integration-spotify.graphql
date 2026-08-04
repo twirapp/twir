@@ -1,11 +1,11 @@
 extend type Query {
-    spotifyData: SpotifyIntegration @isAuthenticated
-    spotifyAuthLink: String @isAuthenticated
+    spotifyData: SpotifyIntegration @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+    spotifyAuthLink: String @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
 }
 
 extend type Mutation {
-    spotifyPostCode(input: SpotifyPostCodeInput!): Boolean! @isAuthenticated
-    spotifyLogout: Boolean! @isAuthenticated
+    spotifyPostCode(input: SpotifyPostCodeInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+    spotifyLogout: Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
 }
 
 type SpotifyIntegration {

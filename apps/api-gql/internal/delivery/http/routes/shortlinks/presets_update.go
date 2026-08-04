@@ -57,9 +57,18 @@ func (c *updatePreset) Handler(
 	ctx context.Context,
 	input *updatePresetInput,
 ) (*httpbase.BaseOutputJson[presetDto], error) {
-	_, err := c.sessions.GetAuthenticatedUserModel(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	if err := resolveOwnedPreset(ctx, c.service, user.ID, input.PresetID); err != nil {
+		switch {
+		case errors.Is(err, errPresetNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Preset not found")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get preset", err)
+		}
 	}
 
 	item, err := c.service.UpdatePreset(

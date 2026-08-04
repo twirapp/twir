@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	channelpublicsettingsentity "github.com/twirapp/twir/libs/entities/channel_public_settings"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -111,6 +112,36 @@ func (r *dashboardResolver) Plan(ctx context.Context, obj *gqlmodel.Dashboard) (
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
 func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	dashboardUUID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("invalid dashboard id: %w", err))
+	}
+
+	if r.deps.DashboardAccess == nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("dashboard access service is not configured"))
+	}
+
+	hasAccess, err := r.deps.DashboardAccess.CanAccess(
+		ctx,
+		dashboardaccess.Subject{
+			ID:         user.ID,
+			IsBotAdmin: user.IsBotAdmin,
+		},
+		dashboardUUID,
+		"",
+	)
+	if err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("cannot check dashboard access: %w", err))
+	}
+	if !hasAccess {
+		return false, gqlerrors.HandleError(fmt.Errorf("user has no access to this dashboard"))
+	}
+
 	if err := r.deps.Sessions.SetSessionSelectedDashboard(ctx, dashboardID); err != nil {
 		return false, gqlerrors.HandleError(err)
 	}

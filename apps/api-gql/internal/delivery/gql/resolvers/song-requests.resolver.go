@@ -138,6 +138,10 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 
 // SongRequestPlay is the resolver for the songRequestPlay field.
 func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.UUID, videoID string) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	var song model.RequestedSong
@@ -171,6 +175,10 @@ func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.U
 
 // SongRequestPause is the resolver for the songRequestPause field.
 func (r *mutationResolver) SongRequestPause(ctx context.Context, channelID uuid.UUID) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	if err := r.deps.SongRequestPlaybackStateService.SetPaused(ctx, channelIDStr); err != nil {
@@ -184,6 +192,10 @@ func (r *mutationResolver) SongRequestPause(ctx context.Context, channelID uuid.
 
 // SongRequestSkip is the resolver for the songRequestSkip field.
 func (r *mutationResolver) SongRequestSkip(ctx context.Context, channelID uuid.UUID) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	state, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
@@ -217,6 +229,10 @@ func (r *mutationResolver) SongRequestSkip(ctx context.Context, channelID uuid.U
 
 // SongRequestSetVolume is the resolver for the songRequestSetVolume field.
 func (r *mutationResolver) SongRequestSetVolume(ctx context.Context, channelID uuid.UUID, volume int) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 	if volume < 0 || volume > 100 {
 		return false, gqlerrors.HandleError(fmt.Errorf("volume must be between 0 and 100"))
@@ -237,6 +253,10 @@ func (r *mutationResolver) SongRequestSetVolume(ctx context.Context, channelID u
 
 // SongRequestUpdatePosition is the resolver for the songRequestUpdatePosition field.
 func (r *mutationResolver) SongRequestUpdatePosition(ctx context.Context, channelID uuid.UUID, position float64) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	if err := r.deps.SongRequestPlaybackStateService.UpdatePosition(ctx, channelIDStr, position); err != nil {
@@ -250,6 +270,10 @@ func (r *mutationResolver) SongRequestUpdatePosition(ctx context.Context, channe
 
 // SongRequestReorder is the resolver for the songRequestReorder field.
 func (r *mutationResolver) SongRequestReorder(ctx context.Context, channelID uuid.UUID, videoIds []string) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	for i, videoID := range videoIds {
@@ -270,6 +294,10 @@ func (r *mutationResolver) SongRequestReorder(ctx context.Context, channelID uui
 
 // SongRequestDeleteFromQueue is the resolver for the songRequestDeleteFromQueue field.
 func (r *mutationResolver) SongRequestDeleteFromQueue(ctx context.Context, channelID uuid.UUID, videoID string) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	now := time.Now()
@@ -290,6 +318,10 @@ func (r *mutationResolver) SongRequestDeleteFromQueue(ctx context.Context, chann
 
 // SongRequestClearQueue is the resolver for the songRequestClearQueue field.
 func (r *mutationResolver) SongRequestClearQueue(ctx context.Context, channelID uuid.UUID) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	now := time.Now()

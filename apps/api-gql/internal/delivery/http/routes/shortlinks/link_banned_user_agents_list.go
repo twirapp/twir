@@ -2,6 +2,7 @@ package shortlinks
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	"go.uber.org/fx"
 )
 
@@ -21,21 +23,24 @@ type linkBannedUserAgentDto struct {
 }
 
 type listLinkBannedUserAgents struct {
-	service  *shortenedurls.Service
-	sessions *auth.Auth
+	service              *shortenedurls.Service
+	customDomainsService *shortlinkscustomdomains.Service
+	sessions             *auth.Auth
 }
 
 type ListLinkBannedUserAgentsOpts struct {
 	fx.In
 
-	Service  *shortenedurls.Service
-	Sessions *auth.Auth
+	Service              *shortenedurls.Service
+	CustomDomainsService *shortlinkscustomdomains.Service
+	Sessions             *auth.Auth
 }
 
 func newListLinkBannedUserAgents(opts ListLinkBannedUserAgentsOpts) *listLinkBannedUserAgents {
 	return &listLinkBannedUserAgents{
-		service:  opts.Service,
-		sessions: opts.Sessions,
+		service:              opts.Service,
+		customDomainsService: opts.CustomDomainsService,
+		sessions:             opts.Sessions,
 	}
 }
 
@@ -60,9 +65,20 @@ func (c *listLinkBannedUserAgents) Handler(
 	ctx context.Context,
 	input *listLinkBannedUserAgentsInput,
 ) (*httpbase.BaseOutputJson[[]linkBannedUserAgentDto], error) {
-	_, err := c.sessions.GetAuthenticatedUserModel(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	if _, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID); err != nil {
+		switch {
+		case errors.Is(err, errShortLinkNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Link not found")
+		case errors.Is(err, errShortLinkForbidden):
+			return nil, huma.NewError(http.StatusForbidden, "You don't have permission to manage this link")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get link", err)
+		}
 	}
 
 	items, err := c.service.GetLinkBannedUserAgents(ctx, input.LinkID)

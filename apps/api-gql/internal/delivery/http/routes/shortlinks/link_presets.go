@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	shortlinkslinkpresetsrepository "github.com/twirapp/twir/libs/repositories/short_links_link_presets"
 	"go.uber.org/fx"
 )
@@ -22,21 +23,24 @@ type linkPresetDto struct {
 }
 
 type listLinkPresets struct {
-	service  *shortenedurls.Service
-	sessions *auth.Auth
+	service              *shortenedurls.Service
+	customDomainsService *shortlinkscustomdomains.Service
+	sessions             *auth.Auth
 }
 
 type ListLinkPresetsOpts struct {
 	fx.In
 
-	Service  *shortenedurls.Service
-	Sessions *auth.Auth
+	Service              *shortenedurls.Service
+	CustomDomainsService *shortlinkscustomdomains.Service
+	Sessions             *auth.Auth
 }
 
 func newListLinkPresets(opts ListLinkPresetsOpts) *listLinkPresets {
 	return &listLinkPresets{
-		service:  opts.Service,
-		sessions: opts.Sessions,
+		service:              opts.Service,
+		customDomainsService: opts.CustomDomainsService,
+		sessions:             opts.Sessions,
 	}
 }
 
@@ -61,9 +65,20 @@ func (c *listLinkPresets) Handler(
 	ctx context.Context,
 	input *listLinkPresetsInput,
 ) (*httpbase.BaseOutputJson[[]linkPresetDto], error) {
-	_, err := c.sessions.GetAuthenticatedUserModel(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	if _, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID); err != nil {
+		switch {
+		case errors.Is(err, errShortLinkNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Link not found")
+		case errors.Is(err, errShortLinkForbidden):
+			return nil, huma.NewError(http.StatusForbidden, "You don't have permission to manage this link")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get link", err)
+		}
 	}
 
 	items, err := c.service.GetLinkPresets(ctx, input.LinkID)
@@ -89,21 +104,24 @@ func (c *listLinkPresets) Register(api huma.API) {
 }
 
 type applyPresetToLink struct {
-	service  *shortenedurls.Service
-	sessions *auth.Auth
+	service              *shortenedurls.Service
+	customDomainsService *shortlinkscustomdomains.Service
+	sessions             *auth.Auth
 }
 
 type ApplyPresetToLinkOpts struct {
 	fx.In
 
-	Service  *shortenedurls.Service
-	Sessions *auth.Auth
+	Service              *shortenedurls.Service
+	CustomDomainsService *shortlinkscustomdomains.Service
+	Sessions             *auth.Auth
 }
 
 func newApplyPresetToLink(opts ApplyPresetToLinkOpts) *applyPresetToLink {
 	return &applyPresetToLink{
-		service:  opts.Service,
-		sessions: opts.Sessions,
+		service:              opts.Service,
+		customDomainsService: opts.CustomDomainsService,
+		sessions:             opts.Sessions,
 	}
 }
 
@@ -131,9 +149,29 @@ func (c *applyPresetToLink) Handler(
 	ctx context.Context,
 	input *applyPresetToLinkInput,
 ) (*httpbase.BaseOutputJson[linkPresetDto], error) {
-	_, err := c.sessions.GetAuthenticatedUserModel(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	if _, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID); err != nil {
+		switch {
+		case errors.Is(err, errShortLinkNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Link not found")
+		case errors.Is(err, errShortLinkForbidden):
+			return nil, huma.NewError(http.StatusForbidden, "You don't have permission to manage this link")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get link", err)
+		}
+	}
+
+	if err := resolveOwnedPreset(ctx, c.service, user.ID, input.Body.PresetID); err != nil {
+		switch {
+		case errors.Is(err, errPresetNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Preset not found")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get preset", err)
+		}
 	}
 
 	item, err := c.service.ApplyPresetToLink(
@@ -165,21 +203,24 @@ func (c *applyPresetToLink) Register(api huma.API) {
 }
 
 type removePresetFromLink struct {
-	service  *shortenedurls.Service
-	sessions *auth.Auth
+	service              *shortenedurls.Service
+	customDomainsService *shortlinkscustomdomains.Service
+	sessions             *auth.Auth
 }
 
 type RemovePresetFromLinkOpts struct {
 	fx.In
 
-	Service  *shortenedurls.Service
-	Sessions *auth.Auth
+	Service              *shortenedurls.Service
+	CustomDomainsService *shortlinkscustomdomains.Service
+	Sessions             *auth.Auth
 }
 
 func newRemovePresetFromLink(opts RemovePresetFromLinkOpts) *removePresetFromLink {
 	return &removePresetFromLink{
-		service:  opts.Service,
-		sessions: opts.Sessions,
+		service:              opts.Service,
+		customDomainsService: opts.CustomDomainsService,
+		sessions:             opts.Sessions,
 	}
 }
 
@@ -205,9 +246,20 @@ func (c *removePresetFromLink) Handler(
 	ctx context.Context,
 	input *removePresetFromLinkInput,
 ) (*httpbase.BaseOutputJson[any], error) {
-	_, err := c.sessions.GetAuthenticatedUserModel(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	if _, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID); err != nil {
+		switch {
+		case errors.Is(err, errShortLinkNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Link not found")
+		case errors.Is(err, errShortLinkForbidden):
+			return nil, huma.NewError(http.StatusForbidden, "You don't have permission to manage this link")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get link", err)
+		}
 	}
 
 	if err := c.service.RemovePresetFromLink(ctx, input.LinkID, input.PresetID); err != nil {
