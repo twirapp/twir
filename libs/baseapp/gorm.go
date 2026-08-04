@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"go.uber.org/fx"
@@ -28,6 +29,26 @@ func newGorm(
 	cfg config.Config,
 	lc fx.Lifecycle,
 	pool *pgxpool.Pool,
+) (*gorm.DB, error) {
+	return createGorm(cfg, pool, func(onStop func(context.Context) error) {
+		lc.Append(fx.Hook{OnStop: onStop})
+	})
+}
+
+func newGormForWire(
+	cfg config.Config,
+	lc *lifecycle.Lifecycle,
+	pool *pgxpool.Pool,
+) (*gorm.DB, error) {
+	return createGorm(cfg, pool, func(onStop func(context.Context) error) {
+		lc.Append(lifecycle.Hook{OnStop: onStop})
+	})
+}
+
+func createGorm(
+	cfg config.Config,
+	pool *pgxpool.Pool,
+	appendStop func(func(context.Context) error),
 ) (*gorm.DB, error) {
 	newLogger := gormlogger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
@@ -69,13 +90,9 @@ func newGorm(
 		return nil, err
 	}
 
-	lc.Append(
-		fx.Hook{
-			OnStop: func(_ context.Context) error {
-				return d.Close()
-			},
-		},
-	)
+	appendStop(func(_ context.Context) error {
+		return d.Close()
+	})
 
 	return db, nil
 }

@@ -152,9 +152,26 @@ type PgxResult struct {
 }
 
 func newPgxPool(cfg config.Config) (PgxResult, error) {
-	connConfig, err := pgxpool.ParseConfig(cfg.DatabaseUrl)
+	pool, err := createPgxPool(cfg)
 	if err != nil {
 		return PgxResult{}, err
+	}
+
+	trManager, err := newTransactionManager(pool)
+	if err != nil {
+		return PgxResult{}, err
+	}
+
+	return PgxResult{
+		PgxPool:   pool,
+		TrManager: trManager,
+	}, nil
+}
+
+func createPgxPool(cfg config.Config) (*pgxpool.Pool, error) {
+	connConfig, err := pgxpool.ParseConfig(cfg.DatabaseUrl)
+	if err != nil {
+		return nil, err
 	}
 
 	connConfig.ConnConfig.Tracer = otelpgx.NewTracer()
@@ -189,16 +206,12 @@ func newPgxPool(cfg config.Config) (PgxResult, error) {
 		connConfig,
 	)
 	if err != nil {
-		return PgxResult{}, err
+		return nil, err
 	}
 
-	trManager, err := manager.New(trmpgx.NewDefaultFactory(pool))
-	if err != nil {
-		return PgxResult{}, err
-	}
+	return pool, nil
+}
 
-	return PgxResult{
-		PgxPool:   pool,
-		TrManager: trManager,
-	}, nil
+func newTransactionManager(pool *pgxpool.Pool) (trm.Manager, error) {
+	return manager.New(trmpgx.NewDefaultFactory(pool))
 }
