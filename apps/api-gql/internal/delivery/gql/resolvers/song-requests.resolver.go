@@ -157,6 +157,9 @@ func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.U
 		return true, nil
 	}
 
+	// Resume from pause must not trigger a new "now playing" announcement
+	isNewTrack := currentState == nil || currentState.VideoID != videoID
+
 	// If resuming from pause, keep paused position
 	var position float64
 	if currentState != nil && currentState.VideoID == videoID {
@@ -169,6 +172,12 @@ func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.U
 	}
 
 	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
+
+	if isNewTrack {
+		if err := r.deps.SongRequestsService.AnnounceNowPlaying(ctx, channelIDStr, song); err != nil {
+			r.deps.Logger.Error("failed to announce now playing song", slog.Any("error", err))
+		}
+	}
 
 	return true, nil
 }
