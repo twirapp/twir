@@ -3,7 +3,7 @@ import type { MessageReply } from '../types.js'
 
 defineProps<{
 	reply: MessageReply
-	variant: 'compact' | 'card'
+	variant: 'compact' | 'card' | 'inline'
 }>()
 </script>
 
@@ -28,7 +28,7 @@ defineProps<{
 		</span>
 	</div>
 
-	<div v-else class="reply reply-card">
+	<div v-else-if="variant === 'card'" class="reply reply-card">
 		<div class="reply-card-header">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -49,6 +49,25 @@ defineProps<{
 		</div>
 		<div class="reply-card-text">{{ reply.parentMessageBody }}</div>
 	</div>
+
+	<span v-else class="reply reply-inline">
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			class="reply-icon"
+		>
+			<path d="M9 14 4 9l5-5" />
+			<path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+		</svg>
+		<span class="reply-inline-text">
+			<span class="reply-name">@{{ reply.parentUserName }}</span>: {{ reply.parentMessageBody }}
+		</span>
+	</span>
 </template>
 
 <style scoped>
@@ -125,5 +144,25 @@ defineProps<{
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 	word-break: break-word;
+}
+
+/* Inline variant (horizontal layouts): prefix inside the message line */
+.reply-inline {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25em;
+	max-width: 15em;
+	margin-right: 0.35em;
+	font-size: 0.7em;
+	line-height: 1.4;
+	color: rgba(255, 255, 255, 0.55);
+	white-space: nowrap;
+	overflow: hidden;
+	vertical-align: middle;
+}
+
+.reply-inline-text {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 </style>

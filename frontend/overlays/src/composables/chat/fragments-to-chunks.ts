@@ -26,22 +26,27 @@ export function stripReplyMention(
 	const [first, ...rest] = fragments
 	if (!first) return [...fragments]
 
+	let remaining: ChatEventFragment[]
+
 	if (first.type === 'mention') {
-		const [second, ...others] = rest
-		if (second && second.type === 'text') {
-			const text = second.text.replace(/^\s+/, '')
-			return text ? [{ ...second, text }, ...others] : others
-		}
-		return rest
+		remaining = rest
+	} else if (first.type === 'text' && parentUserName) {
+		const mentionRegexp = new RegExp(`^@${escapeRegExp(parentUserName)}(?=\\s|$)`, 'i')
+		if (!mentionRegexp.test(first.text)) return [...fragments]
+
+		const text = first.text.replace(mentionRegexp, '')
+		remaining = text ? [{ ...first, text }, ...rest] : rest
+	} else {
+		return [...fragments]
 	}
 
-	if (first.type !== 'text' || !parentUserName) return [...fragments]
+	const [next, ...others] = remaining
+	if (next && next.type === 'text') {
+		const text = next.text.replace(/^\s+/, '')
+		return text ? [{ ...next, text }, ...others] : others
+	}
 
-	const mentionRegexp = new RegExp(`^@${escapeRegExp(parentUserName)}\\s*`, 'i')
-	if (!mentionRegexp.test(first.text)) return [...fragments]
-
-	const text = first.text.replace(mentionRegexp, '')
-	return text ? [{ ...first, text }, ...rest] : rest
+	return remaining
 }
 
 export function useFragmentsToChunks() {
