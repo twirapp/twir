@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinksua "github.com/twirapp/twir/libs/repositories/short_links_link_banned_user_agents"
+	"github.com/twirapp/twir/libs/repositories/shortened_urls/model"
 )
 
 type secretOutput struct {
@@ -227,16 +228,16 @@ type deleteBannedUAInput struct {
 	BannedUserAgentID string `json:"bannedUserAgentId"`
 }
 
-func (h *Handler) ownedShortURL(ctx context.Context, requestScope scope, id string) error {
+func (h *Handler) ownedShortURL(ctx context.Context, requestScope scope, id string) (model.ShortenedUrl, error) {
 	item, err := h.deps.ShortURLs.GetByShortID(ctx, nil, id)
 	if err != nil {
-		return err
+		return model.Nil, err
 	}
 	owner := ownerID(requestScope)
 	if item.IsNil() || item.CreatedByUserId == nil || *item.CreatedByUserId != owner {
-		return errors.New("short URL not found")
+		return model.Nil, errors.New("short URL not found")
 	}
-	return nil
+	return item, nil
 }
 
 func (h *Handler) addShortURLTools(s *modelsdk.Server, requestScope scope) {
@@ -253,7 +254,7 @@ func (h *Handler) addShortURLTools(s *modelsdk.Server, requestScope scope) {
 		return nil, item, err
 	})
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_short_url", Description: "Get one owned short URL."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
-		if err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
+		if _, err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
 			return nil, nil, err
 		}
 		item, err := h.deps.ShortURLs.GetByShortID(ctx, nil, input.ID)
@@ -262,21 +263,21 @@ func (h *Handler) addShortURLTools(s *modelsdk.Server, requestScope scope) {
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_short_urls", Description: "List short URLs owned by this channel owner."}, listShortURLs)
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_short_links", Description: "List short links owned by this channel owner."}, listShortURLs)
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "update_short_url", Description: "Update an owned short URL."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input updateShortURLInput) (*modelsdk.CallToolResult, any, error) {
-		if err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
+		if _, err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
 			return nil, nil, err
 		}
 		item, err := h.deps.ShortURLs.Update(ctx, nil, input.ID, shortenedurls.UpdateInput{URL: input.URL, ShortID: input.Alias})
 		return nil, item, err
 	})
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "delete_short_url", Description: "Delete an owned short URL."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
-		if err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
+		if _, err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
 			return nil, nil, err
 		}
 		err := h.deps.ShortURLs.Delete(ctx, nil, input.ID)
 		return nil, map[string]bool{"deleted": err == nil}, err
 	})
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "get_short_url_stats", Description: "Get click statistics for an owned short URL."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input statsInput) (*modelsdk.CallToolResult, any, error) {
-		if err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
+		if _, err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
 			return nil, nil, err
 		}
 		if input.Interval == "" {
@@ -286,24 +287,27 @@ func (h *Handler) addShortURLTools(s *modelsdk.Server, requestScope scope) {
 		return nil, map[string]any{"points": points}, err
 	})
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "list_banned_user_agents", Description: "List user-agent patterns banned for an owned short URL."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input idInput) (*modelsdk.CallToolResult, any, error) {
-		if err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
+		link, err := h.ownedShortURL(ctx, requestScope, input.ID)
+		if err != nil {
 			return nil, nil, err
 		}
-		items, err := h.deps.ShortURLs.GetLinkBannedUserAgents(ctx, input.ID)
+		items, err := h.deps.ShortURLs.GetLinkBannedUserAgents(ctx, link.ID)
 		return nil, map[string]any{"patterns": items}, err
 	})
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "ban_user_agent", Description: "Ban a user-agent pattern for an owned short URL."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input bannedUAInput) (*modelsdk.CallToolResult, any, error) {
-		if err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
+		link, err := h.ownedShortURL(ctx, requestScope, input.ID)
+		if err != nil {
 			return nil, nil, err
 		}
-		item, err := h.deps.ShortURLs.CreateLinkBannedUserAgent(ctx, shortlinksua.CreateInput{LinkID: input.ID, Pattern: input.Pattern, Description: input.Description})
+		item, err := h.deps.ShortURLs.CreateLinkBannedUserAgent(ctx, shortlinksua.CreateInput{LinkID: link.ID, Pattern: input.Pattern, Description: input.Description})
 		return nil, item, err
 	})
 	addTool(newToolRegistrar(s, requestScope.AccessScopes), &modelsdk.Tool{Name: "unban_user_agent", Description: "Remove a user-agent ban from an owned short URL."}, func(ctx context.Context, _ *modelsdk.CallToolRequest, input deleteBannedUAInput) (*modelsdk.CallToolResult, any, error) {
-		if err := h.ownedShortURL(ctx, requestScope, input.ID); err != nil {
+		link, err := h.ownedShortURL(ctx, requestScope, input.ID)
+		if err != nil {
 			return nil, nil, err
 		}
-		err := h.deps.ShortURLs.DeleteLinkBannedUserAgent(ctx, input.BannedUserAgentID, input.ID)
+		err = h.deps.ShortURLs.DeleteLinkBannedUserAgent(ctx, input.BannedUserAgentID, link.ID)
 		return nil, map[string]bool{"deleted": err == nil}, err
 	})
 }

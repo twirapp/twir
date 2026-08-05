@@ -650,6 +650,19 @@ func (c *Service) GetTopCountries(ctx context.Context, input GetTopCountriesInpu
 	return output, nil
 }
 
+// compileBannedUAPattern must stay the single compile path for both validation and matching.
+func compileBannedUAPattern(pattern string) (*regexp.Regexp, error) {
+	return regexp.Compile("(?i)" + pattern)
+}
+
+func matchBannedUAPattern(pattern, userAgent string) bool {
+	re, err := compileBannedUAPattern(pattern)
+	if err != nil {
+		return false
+	}
+	return re.MatchString(userAgent)
+}
+
 func (c *Service) IsUserAgentBanned(
 	ctx context.Context,
 	link model.ShortenedUrl,
@@ -659,25 +672,21 @@ func (c *Service) IsUserAgentBanned(
 		return false, nil
 	}
 
-	if link.ShortID != "" {
-		directPatterns, err := c.linkBannedUserAgentsRepository.GetByLinkID(ctx, link.ShortID)
+	if link.ID != "" {
+		directPatterns, err := c.linkBannedUserAgentsRepository.GetByLinkID(ctx, link.ID)
 		if err != nil {
 			return false, fmt.Errorf("failed to get direct link banned patterns: %w", err)
 		}
 
 		for _, p := range directPatterns {
-			re, err := regexp.Compile(p.Pattern)
-			if err != nil {
-				continue
-			}
-			if re.MatchString(userAgent) {
+			if matchBannedUAPattern(p.Pattern, userAgent) {
 				return true, nil
 			}
 		}
 	}
 
-	if link.ShortID != "" {
-		linkPresets, err := c.linkPresetsRepository.GetByLinkID(ctx, link.ShortID)
+	if link.ID != "" {
+		linkPresets, err := c.linkPresetsRepository.GetByLinkID(ctx, link.ID)
 		if err != nil {
 			return false, fmt.Errorf("failed to get link presets: %w", err)
 		}
@@ -689,11 +698,7 @@ func (c *Service) IsUserAgentBanned(
 			}
 
 			for _, p := range presetPatterns {
-				re, err := regexp.Compile(p.Pattern)
-				if err != nil {
-					continue
-				}
-				if re.MatchString(userAgent) {
+				if matchBannedUAPattern(p.Pattern, userAgent) {
 					return true, nil
 				}
 			}
@@ -741,7 +746,7 @@ func (c *Service) CreatePresetPattern(
 	ctx context.Context,
 	input shortlinksbanneduapresetpatternsrepository.CreateInput,
 ) (shortlinksbanneduapresetpatternsrepository.Pattern, error) {
-	if _, err := regexp.Compile(input.Pattern); err != nil {
+	if _, err := compileBannedUAPattern(input.Pattern); err != nil {
 		return shortlinksbanneduapresetpatternsrepository.Nil, fmt.Errorf("invalid regex pattern: %w", err)
 	}
 	return c.presetPatternsRepository.Create(ctx, input)
@@ -777,7 +782,7 @@ func (c *Service) CreateLinkBannedUserAgent(
 	ctx context.Context,
 	input shortlinkslinkbannedusaragentsrepository.CreateInput,
 ) (shortlinkslinkbannedusaragentsrepository.BannedUserAgent, error) {
-	if _, err := regexp.Compile(input.Pattern); err != nil {
+	if _, err := compileBannedUAPattern(input.Pattern); err != nil {
 		return shortlinkslinkbannedusaragentsrepository.Nil, fmt.Errorf("invalid regex pattern: %w", err)
 	}
 	return c.linkBannedUserAgentsRepository.Create(ctx, input)

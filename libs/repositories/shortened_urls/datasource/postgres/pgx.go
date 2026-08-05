@@ -34,6 +34,7 @@ var (
 	_             shortened_urls.Repository = (*Pgx)(nil)
 	sq                                      = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 	selectColumns                           = []string{
+		"shortened_urls.id",
 		"shortened_urls.short_id",
 		"shortened_urls.created_at",
 		"shortened_urls.updated_at",
@@ -48,6 +49,7 @@ var (
 	}
 	selectColumnsStr = strings.Join(selectColumns, ", ")
 	selectColumnsCte = []string{
+		"updated.id",
 		"updated.short_id",
 		"updated.created_at",
 		"updated.updated_at",
@@ -62,6 +64,7 @@ var (
 	}
 	selectColumnsCteStr  = strings.Join(selectColumnsCte, ", ")
 	selectColumnsCreated = []string{
+		"created.id",
 		"created.short_id",
 		"created.created_at",
 		"created.updated_at",
@@ -202,7 +205,7 @@ func (c *Pgx) Update(
 	updateBuilder := sq.Update("shortened_urls").
 		Where(squirrel.Eq{"short_id": id}).
 		Set("updated_at", squirrel.Expr("NOW()")).
-		Suffix("RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id, ignore_global_bans")
+		Suffix("RETURNING id, short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id, ignore_global_bans")
 
 	if domainID == nil {
 		updateBuilder = updateBuilder.Where("domain_id IS NULL")
@@ -327,7 +330,7 @@ func (c *Pgx) Create(ctx context.Context, input shortened_urls.CreateInput) (
 WITH created AS (
 	INSERT INTO shortened_urls (short_id, url, created_by_user_id, user_ip, user_agent, domain_id, ignore_global_bans)
 	VALUES (@short_id, @url, @created_by_user_id, @user_ip, @user_agent, @domain_id, @ignore_global_bans)
-	RETURNING short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id, ignore_global_bans
+	RETURNING id, short_id, created_at, updated_at, url, created_by_user_id, views, user_ip, user_agent, domain_id, ignore_global_bans
 )
 SELECT ` + selectColumnsCreatedStr + `
 FROM created

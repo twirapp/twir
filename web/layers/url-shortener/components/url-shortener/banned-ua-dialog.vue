@@ -347,7 +347,8 @@ function closeDialog() {
 							Add pattern
 						</Button>
 						<p class="text-xs text-[hsl(240,11%,55%)]">
-							Use a valid JavaScript regex. Matching is case-insensitive against the full
+							Use a valid regular expression (RE2 syntax, no lookaheads). Matching is
+							case-insensitive against the full
 							<span class="font-mono">User-Agent</span> header.
 						</p>
 					</div>
