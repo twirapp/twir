@@ -24,6 +24,7 @@ import (
 var (
 	ErrNotSpotifyMode          = errors.New("spotify song requests: not spotify mode")
 	ErrTrackNotFound           = errors.New("spotify song requests: track not found")
+	ErrTrackAlreadyInQueue     = errors.New("spotify song requests: track already in queue")
 	ErrMaxRequestsExceeded     = errors.New("spotify song requests: max requests exceeded")
 	ErrUserMaxRequestsExceeded = errors.New("spotify song requests: user max requests exceeded")
 	ErrDurationNotAllowed      = errors.New("spotify song requests: duration not allowed")
@@ -106,6 +107,16 @@ func (s *Service) CreateRequest(
 	track, err := resolveTrack(ctx, client, query)
 	if err != nil {
 		return spotify_song_request.Nil, err
+	}
+
+	activeRequests, err := s.spotifySongRequestsRepository.GetActiveByChannel(ctx, channelID)
+	if err != nil {
+		return spotify_song_request.Nil, fmt.Errorf("get active spotify song requests: %w", err)
+	}
+	for _, active := range activeRequests {
+		if active.TrackURI == track.URI {
+			return spotify_song_request.Nil, ErrTrackAlreadyInQueue
+		}
 	}
 	if settings.MaxRequests > 0 {
 		count, err := s.spotifySongRequestsRepository.CountActiveByChannel(ctx, channelID)

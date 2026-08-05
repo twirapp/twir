@@ -8,6 +8,7 @@ import (
 
 var (
 	errSpotifyTrackNotFound           = errors.New("spotify song requests: track not found")
+	errSpotifyTrackAlreadyInQueue     = errors.New("spotify song requests: track already in queue")
 	errSpotifyMaxRequestsExceeded     = errors.New("spotify song requests: max requests exceeded")
 	errSpotifyUserMaxRequestsExceeded = errors.New("spotify song requests: user max requests exceeded")
 	errSpotifyDurationNotAllowed      = errors.New("spotify song requests: duration not allowed")
@@ -27,6 +28,8 @@ func normalizeSpotifySongRequestError(err error) error {
 		return spotify.ErrNoActiveDevice
 	case errSpotifyTrackNotFound.Error():
 		return errSpotifyTrackNotFound
+	case errSpotifyTrackAlreadyInQueue.Error():
+		return errSpotifyTrackAlreadyInQueue
 	case errSpotifyMaxRequestsExceeded.Error():
 		return errSpotifyMaxRequestsExceeded
 	case errSpotifyUserMaxRequestsExceeded.Error():
@@ -50,6 +53,8 @@ func spotifySongRequestErrorMessage(err error) string {
 		return "No active Spotify device"
 	case errors.Is(normalized, errSpotifyTrackNotFound):
 		return "Track not found"
+	case errors.Is(normalized, errSpotifyTrackAlreadyInQueue):
+		return "Song already in queue"
 	case errors.Is(normalized, errSpotifyMaxRequestsExceeded):
 		return "Queue is full"
 	case errors.Is(normalized, errSpotifyUserMaxRequestsExceeded):

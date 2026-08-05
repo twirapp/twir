@@ -379,6 +379,36 @@ func TestService_CreateRequest_success(t *testing.T) {
 	}
 }
 
+func TestService_CreateRequest_rejects_duplicate_track(t *testing.T) {
+	requestsRepo := newFakeRequestsRepository()
+	requestsRepo.requests = append(
+		requestsRepo.requests,
+		spotify_song_request.SpotifySongRequest{
+			ID:        uuid.New(),
+			ChannelID: testChannelID,
+			TrackURI:  "spotify:track:track-1",
+			Status:    spotify_song_request.StatusQueued,
+		},
+	)
+
+	service := newService(
+		&fakeSettingsRepository{settings: spotifySettings()},
+		&fakeIntegrationsRepository{
+			integration: spotifyIntegration("user-modify-playback-state"),
+		},
+		requestsRepo,
+	)
+
+	swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {
+		return fixtureResponse(req, http.StatusOK, searchResponseBody), nil
+	})
+
+	_, err := service.CreateRequest(context.Background(), testChannelID, "", "viewer", "Viewer", "chat", "song")
+	if !errors.Is(err, ErrTrackAlreadyInQueue) {
+		t.Fatalf("CreateRequest() error = %v, want %v", err, ErrTrackAlreadyInQueue)
+	}
+}
+
 func TestService_CreateRequest_rejects_youtube_mode(t *testing.T) {
 	settings := spotifySettings()
 	settings.Mode = song_request_mode.ModeYouTube
