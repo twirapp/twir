@@ -3,6 +3,7 @@ package spotify_song_requests
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -91,21 +92,54 @@ func (s *Service) selectDevice(ctx context.Context, channelID string, client spo
 			continue
 		}
 
-		if s.kv != nil {
-			if err := s.kv.Set(
-				ctx,
-				spotifySongRequestDeviceCachePrefix+channelID,
-				device.ID,
-				kvoptions.WithExpire(spotifySongRequestDeviceCacheTTL),
-			); err != nil {
-				return "", fmt.Errorf("cache spotify device: %w", err)
-			}
+		if err := s.cacheDevice(ctx, channelID, device); err != nil {
+			return "", err
 		}
 
 		return device.ID, nil
 	}
 
 	return "", spotify.ErrNoActiveDevice
+}
+
+func (s *Service) cacheDevice(ctx context.Context, channelID string, device spotify.Device) error {
+	if s.kv == nil {
+		return nil
+	}
+
+	payload, err := json.Marshal(device)
+	if err != nil {
+		return fmt.Errorf("marshal spotify device: %w", err)
+	}
+
+	if err := s.kv.Set(
+		ctx,
+		spotifySongRequestDeviceCachePrefix+channelID,
+		string(payload),
+		kvoptions.WithExpire(spotifySongRequestDeviceCacheTTL),
+	); err != nil {
+		return fmt.Errorf("cache spotify device: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Service) GetCachedDevice(ctx context.Context, channelID string) (*spotify.Device, error) {
+	if s.kv == nil {
+		return nil, nil
+	}
+
+	valuer := s.kv.Get(ctx, spotifySongRequestDeviceCachePrefix+channelID)
+	if err := valuer.Err(); err != nil {
+		return nil, nil
+	}
+
+	var device spotify.Device
+	if err := valuer.Scan(&device); err != nil {
+		return nil, nil
+	}
+
+	return &device, nil
 }
 
 func (s *Service) invalidateDeviceCache(ctx context.Context, channelID string) {

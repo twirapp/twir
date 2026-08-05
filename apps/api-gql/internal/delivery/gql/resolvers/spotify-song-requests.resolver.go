@@ -43,6 +43,13 @@ func (r *mutationResolver) spotifySongRequestRefreshDevice(ctx context.Context) 
 		return nil, gqlerrors.HandleError(err)
 	}
 
+	if _, err := r.deps.SpotifySongRequestsService.SelectAndCacheDevice(ctx, dashboardID); err != nil {
+		if errors.Is(err, spotify.ErrNoActiveDevice) {
+			return nil, nil
+		}
+		return nil, spotifyGraphQLError(err)
+	}
+
 	device, err := r.spotifyDevice(ctx, dashboardID)
 	if err != nil {
 		return nil, spotifyGraphQLError(err)
@@ -222,18 +229,27 @@ func (r *songRequestsSettingsResolver) spotifyCapabilities(ctx context.Context, 
 		return nil, gqlerrors.HandleError(err)
 	}
 
+	capabilities := &gqlmodel.SpotifySongRequestCapabilities{}
+
 	integration, err := r.deps.SpotifyIntegrationService.GetSpotifyData(ctx, dashboardID)
 	if err != nil {
-		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get Spotify integration: %w", err))
+		r.deps.Logger.ErrorContext(
+			ctx,
+			"failed to get spotify integration for capabilities",
+			logger.Error(err),
+			slog.String("dashboard_id", dashboardID),
+		)
+		return capabilities, nil
 	}
-
-	capabilities := &gqlmodel.SpotifySongRequestCapabilities{}
 	if integration == nil {
 		return capabilities, nil
 	}
 
 	capabilities.Connected = true
-	capabilities.HasPlaybackScope = slices.Contains(integration.Scopes, "user-read-playback-state") && slices.Contains(integration.Scopes, "user-modify-playback-state")
+	capabilities.HasPlaybackScope = slices.Contains(
+		integration.Scopes,
+		"user-read-playback-state",
+	) && slices.Contains(integration.Scopes, "user-modify-playback-state")
 	capabilities.CanUseSpotify = capabilities.Connected && capabilities.HasPlaybackScope
 	if !capabilities.CanUseSpotify {
 		return capabilities, nil
@@ -241,7 +257,13 @@ func (r *songRequestsSettingsResolver) spotifyCapabilities(ctx context.Context, 
 
 	device, err := r.spotifyDevice(ctx, dashboardID)
 	if err != nil {
-		return nil, spotifyGraphQLError(err)
+		r.deps.Logger.ErrorContext(
+			ctx,
+			"failed to resolve spotify device for capabilities",
+			logger.Error(err),
+			slog.String("dashboard_id", dashboardID),
+		)
+		return capabilities, nil
 	}
 	capabilities.ActiveDevice = device
 	capabilities.SelectedDevice = device
@@ -250,30 +272,20 @@ func (r *songRequestsSettingsResolver) spotifyCapabilities(ctx context.Context, 
 }
 
 func (r *Resolver) spotifyDevice(ctx context.Context, dashboardID string) (*gqlmodel.SpotifySongRequestDevice, error) {
-	deviceID, err := r.deps.SpotifySongRequestsService.SelectAndCacheDevice(ctx, dashboardID)
-	if err != nil {
-		if errors.Is(err, spotify.ErrNoActiveDevice) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	devices, err := r.deps.SpotifySongRequestsService.GetDevices(ctx, dashboardID)
+	device, err := r.deps.SpotifySongRequestsService.GetCachedDevice(ctx, dashboardID)
 	if err != nil {
 		return nil, err
 	}
-	for _, device := range devices {
-		if device.ID == deviceID {
-			return &gqlmodel.SpotifySongRequestDevice{
-				ID:       device.ID,
-				Name:     device.Name,
-				Type:     device.Type,
-				IsActive: device.IsActive,
-			}, nil
-		}
+	if device == nil {
+		return nil, nil
 	}
 
-	return nil, nil
+	return &gqlmodel.SpotifySongRequestDevice{
+		ID:       device.ID,
+		Name:     device.Name,
+		Type:     device.Type,
+		IsActive: device.IsActive,
+	}, nil
 }
 
 func mapSpotifySongRequest(request spotify_song_request.SpotifySongRequest) gqlmodel.SpotifySongRequest {

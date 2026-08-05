@@ -11,7 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/kv"
-	kvoptions "github.com/twirapp/kv/options"
 	cfg "github.com/twirapp/twir/libs/config"
 	spotify_song_request "github.com/twirapp/twir/libs/entities/spotify_song_request"
 	"github.com/twirapp/twir/libs/integrations/spotify"
@@ -296,16 +295,22 @@ func (s *Service) SelectAndCacheDevice(ctx context.Context, channelID string) (s
 }
 
 func (s *Service) SetSelectedDevice(ctx context.Context, channelID, deviceID string) error {
-	if s.kv == nil {
-		return nil
+	client, _, err := s.loadSpotifyClient(ctx, channelID)
+	if err != nil {
+		return err
 	}
 
-	return s.kv.Set(
-		ctx,
-		spotifySongRequestDeviceCachePrefix+channelID,
-		deviceID,
-		kvoptions.WithExpire(spotifySongRequestDeviceCacheTTL),
-	)
+	devices, err := client.GetDevices(ctx)
+	if err != nil {
+		return err
+	}
+	for _, device := range devices {
+		if device.ID == deviceID {
+			return s.cacheDevice(ctx, channelID, device)
+		}
+	}
+
+	return spotify.ErrNoActiveDevice
 }
 
 func (s *Service) GetDevices(ctx context.Context, channelID string) ([]spotify.Device, error) {
