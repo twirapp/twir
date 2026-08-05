@@ -132,8 +132,17 @@ func playbackError(statusCode int, body []byte, header http.Header) error {
 	case http.StatusTooManyRequests:
 		return rateLimitedError(header)
 	default:
-		return fmt.Errorf("spotify request failed: %s", strings.TrimSpace(string(body)))
+		return fmt.Errorf("spotify request failed (status %d): %s", statusCode, truncateBody(body))
 	}
+}
+
+func truncateBody(body []byte) string {
+	const maxLen = 200
+	text := strings.TrimSpace(string(body))
+	if len(text) > maxLen {
+		return text[:maxLen] + "..."
+	}
+	return text
 }
 
 func playbackErrorMessage(body []byte) string {

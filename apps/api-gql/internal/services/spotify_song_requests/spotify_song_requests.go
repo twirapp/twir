@@ -15,6 +15,7 @@ import (
 	cfg "github.com/twirapp/twir/libs/config"
 	spotify_song_request "github.com/twirapp/twir/libs/entities/spotify_song_request"
 	"github.com/twirapp/twir/libs/integrations/spotify"
+	"github.com/twirapp/twir/libs/logger"
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 	spotify_song_requests_repository "github.com/twirapp/twir/libs/repositories/spotify_song_requests"
@@ -130,9 +131,25 @@ func (s *Service) CreateRequest(
 				return spotify_song_request.Nil, selectErr
 			}
 			if err = client.AddToQueue(ctx, track.URI, deviceID); err != nil {
+				s.logger.ErrorContext(
+					ctx,
+					"failed to add track to spotify queue",
+					logger.Error(err),
+					slog.String("channel_id", channelID),
+					slog.String("track_uri", track.URI),
+					slog.String("device_id", deviceID),
+				)
 				return spotify_song_request.Nil, err
 			}
 		} else {
+			s.logger.ErrorContext(
+				ctx,
+				"failed to add track to spotify queue",
+				logger.Error(err),
+				slog.String("channel_id", channelID),
+				slog.String("track_uri", track.URI),
+				slog.String("device_id", deviceID),
+			)
 			return spotify_song_request.Nil, err
 		}
 	}
