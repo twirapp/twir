@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import MessageBadges from '../../components/message-badges.vue'
 import MessageContent from '../../components/message-content.vue'
+import MessageReply from '../../components/message-reply.vue'
 import { normalizeDisplayName } from '../../helpers.js'
 
 import type { MessageComponentProps } from '../../types.js'
@@ -15,6 +16,7 @@ defineProps<MessageComponentProps>()
 			border: msg.isAnnounce && settings.showAnnounceBadge ? '2px solid #9146ff' : undefined,
 		}"
 	>
+		<MessageReply v-if="msg.reply" :reply="msg.reply" variant="card" />
 		<div class="profile">
 			<div v-if="msg.sender" class="username">
 				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}

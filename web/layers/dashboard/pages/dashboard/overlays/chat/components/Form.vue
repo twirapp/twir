@@ -74,6 +74,9 @@ watch(
 )
 
 // Generate mock messages
+let mockTick = 0
+const recentMockMessages: Array<{ sender: string; senderDisplayName: string; body: string }> = []
+
 useIntervalFn(() => {
 	if (!formValue.value) return
 
@@ -94,8 +97,15 @@ useIntervalFn(() => {
 
 	const isKickMessage = messagesMock.value.length % 2 === 1
 
+	mockTick++
+	const replyParent =
+		mockTick % 3 === 0 ? faker.randomArrayItem(recentMockMessages) : undefined
+
+	const sender = faker.firstName()!
+	const senderDisplayName = faker.firstName()!
+
 	messagesMock.value.push({
-		sender: faker.firstName(),
+		sender,
 		chunks: [{ type: 'text', value: randomWord! }],
 		createdAt: new Date(),
 		internalId,
@@ -115,8 +125,22 @@ useIntervalFn(() => {
 				]
 			: undefined,
 		id: crypto.randomUUID(),
-		senderDisplayName: faker.firstName(),
+		senderDisplayName,
+		reply: replyParent
+			? {
+					parentMessageId: crypto.randomUUID(),
+					parentMessageBody: replyParent.body,
+					parentUserId: crypto.randomUUID(),
+					parentUserName: replyParent.senderDisplayName,
+					parentUserLogin: replyParent.sender,
+				}
+			: undefined,
 	})
+
+	recentMockMessages.push({ sender, senderDisplayName, body: randomWord! })
+	if (recentMockMessages.length > 10) {
+		recentMockMessages.shift()
+	}
 
 	if (formValue.value.messageHideTimeout !== 0) {
 		setTimeout(() => {

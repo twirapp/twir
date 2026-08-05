@@ -52,6 +52,14 @@ export interface KickBadge {
 	text: string
 }
 
+export interface MessageReply {
+	parentMessageId: string
+	parentMessageBody: string
+	parentUserId: string
+	parentUserName: string
+	parentUserLogin: string
+}
+
 export interface Message {
 	internalId: string
 	id?: string
@@ -67,6 +75,7 @@ export interface Message {
 	createdAt: Date
 	announceColor?: string
 	isAnnounce: boolean
+	reply?: MessageReply
 }
 
 export interface Settings {

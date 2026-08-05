@@ -4,7 +4,7 @@ import type { Message, MessagePlatform } from '@twir/frontend-chat'
 import { ChatBox } from '@twir/frontend-chat'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import { useFragmentsToChunks } from '@/composables/chat/fragments-to-chunks.js'
+import { stripReplyMention, useFragmentsToChunks } from '@/composables/chat/fragments-to-chunks.js'
 import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.js'
 import { knownBots } from '@/composables/tmi/use-chat-tmi.js'
 import { useThirdPartyEmotes } from '@/composables/tmi/use-third-party-emotes.js'
@@ -102,11 +102,23 @@ watch(chatMessages, (v) => {
 		}
 	}
 
+	const reply = event.reply
+		? {
+				parentMessageId: event.reply.parentMessageId,
+				parentMessageBody: event.reply.parentMessageBody,
+				parentUserId: event.reply.parentUserId,
+				parentUserName: event.reply.parentUserName,
+				parentUserLogin: event.reply.parentUserLogin,
+			}
+		: undefined
+
 	pushMessage({
 		id: event.messageId ?? event.id,
 		type: 'message',
 		platform,
-		chunks: fragmentsToChunks(event.fragments),
+		chunks: fragmentsToChunks(
+			reply ? stripReplyMention(event.fragments, reply.parentUserName) : event.fragments,
+		),
 		sender: event.userName,
 		senderColor: event.userColor || undefined,
 		senderDisplayName: event.userDisplayName,
@@ -115,6 +127,7 @@ watch(chatMessages, (v) => {
 		isItalic: false,
 		isAnnounce: event.messageType === 'announcement',
 		announceColor: event.announceColor ?? undefined,
+		reply,
 	})
 })
 

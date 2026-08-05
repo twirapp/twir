@@ -53,6 +53,21 @@ func ChatMessageToGQL(input entity.ChatMessage) gqlmodel.ChatMessage {
 		announceColor = lo.ToPtr(input.AnnounceColor)
 	}
 
+	var reply *gqlmodel.ChatMessageReply
+	if input.Reply != nil {
+		reply = &gqlmodel.ChatMessageReply{
+			ParentMessageID:   input.Reply.ParentMessageID,
+			ParentMessageBody: input.Reply.ParentMessageBody,
+			ParentUserID:      input.Reply.ParentUserID,
+			ParentUserName:    input.Reply.ParentUserName,
+			ParentUserLogin:   input.Reply.ParentUserLogin,
+			ThreadMessageID:   input.Reply.ThreadMessageID,
+			ThreadUserID:      input.Reply.ThreadUserID,
+			ThreadUserName:    input.Reply.ThreadUserName,
+			ThreadUserLogin:   input.Reply.ThreadUserLogin,
+		}
+	}
+
 	return gqlmodel.ChatMessage{
 		ID:              input.ID,
 		Platform:        input.Platform,
@@ -70,6 +85,7 @@ func ChatMessageToGQL(input entity.ChatMessage) gqlmodel.ChatMessage {
 		AnnounceColor:   announceColor,
 		Badges:          badges,
 		Fragments:       fragments,
+		Reply:           reply,
 	}
 }
 
