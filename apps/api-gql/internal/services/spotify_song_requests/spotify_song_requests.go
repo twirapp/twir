@@ -19,6 +19,7 @@ import (
 	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 	spotify_song_requests_repository "github.com/twirapp/twir/libs/repositories/spotify_song_requests"
+	"github.com/twirapp/twir/libs/wsrouter"
 )
 
 var (
@@ -40,6 +41,7 @@ type Service struct {
 	config                         cfg.Config
 	logger                         *slog.Logger
 	kv                             kv.KV
+	wsRouter                       wsrouter.WsRouter
 }
 
 func New(
@@ -49,6 +51,7 @@ func New(
 	config cfg.Config,
 	logger *slog.Logger,
 	kv kv.KV,
+	wsRouter wsrouter.WsRouter,
 ) *Service {
 	return &Service{
 		spotifySongRequestsRepository:  spotifySongRequestsRepository,
@@ -57,6 +60,25 @@ func New(
 		config:                         config,
 		logger:                         logger,
 		kv:                             kv,
+		wsRouter:                       wsRouter,
+	}
+}
+
+func SpotifyQueueWsKey(channelID string) string {
+	return "api.spotifySongRequestQueue." + channelID
+}
+
+func (s *Service) publishQueueChanged(ctx context.Context, channelID string) {
+	if s.wsRouter == nil {
+		return
+	}
+	if err := s.wsRouter.Publish(SpotifyQueueWsKey(channelID), struct{}{}); err != nil {
+		s.logger.ErrorContext(
+			ctx,
+			"failed to publish spotify queue change",
+			logger.Error(err),
+			slog.String("channel_id", channelID),
+		)
 	}
 }
 
@@ -184,6 +206,8 @@ func (s *Service) CreateRequest(
 		return spotify_song_request.Nil, fmt.Errorf("create spotify song request: %w", err)
 	}
 
+	s.publishQueueChanged(ctx, channelID)
+
 	return created, nil
 }
 
@@ -218,6 +242,8 @@ func (s *Service) CancelRequest(
 	}
 	request.Status = spotify_song_request.StatusCancelledPendingSkip
 
+	s.publishQueueChanged(ctx, channelID)
+
 	return request, nil
 }
 
@@ -226,7 +252,17 @@ func (s *Service) SkipRequest(ctx context.Context, channelID, requestID string) 
 		return err
 	}
 
-	return s.spotifySongRequestsRepository.UpdateStatus(ctx, requestID, spotify_song_request.StatusSkippedByTwir)
+	if err := s.spotifySongRequestsRepository.UpdateStatus(
+		ctx,
+		requestID,
+		spotify_song_request.StatusSkippedByTwir,
+	); err != nil {
+		return err
+	}
+
+	s.publishQueueChanged(ctx, channelID)
+
+	return nil
 }
 
 func (s *Service) CancelRequestByID(ctx context.Context, channelID, requestID string) error {
@@ -234,7 +270,13 @@ func (s *Service) CancelRequestByID(ctx context.Context, channelID, requestID st
 		return err
 	}
 
-	return s.spotifySongRequestsRepository.CancelPendingSkip(ctx, requestID)
+	if err := s.spotifySongRequestsRepository.CancelPendingSkip(ctx, requestID); err != nil {
+		return err
+	}
+
+	s.publishQueueChanged(ctx, channelID)
+
+	return nil
 }
 
 func (s *Service) GetActiveQueue(

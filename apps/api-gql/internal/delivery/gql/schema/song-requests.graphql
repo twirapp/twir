@@ -328,4 +328,5 @@ extend type Subscription {
 	songRequestPlaybackState(channelId: UUID!): SongRequestPlaybackState @noRateLimit
 	songRequestQueueUpdated(channelId: UUID!): [SongRequestQueueItem!]! @noRateLimit
 	songRequestOverlaySettings(apiKey: String!): SongRequestOverlaySettings! @noRateLimit
+	spotifySongRequestsQueueUpdated(channelId: UUID!): SpotifySongRequestQueue! @noRateLimit
 }

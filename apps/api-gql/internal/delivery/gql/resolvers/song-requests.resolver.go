@@ -841,6 +841,11 @@ func (r *subscriptionResolver) SongRequestOverlaySettings(ctx context.Context, a
 	return outputChan, nil
 }
 
+// SpotifySongRequestsQueueUpdated is the resolver for the spotifySongRequestsQueueUpdated field.
+func (r *subscriptionResolver) SpotifySongRequestsQueueUpdated(ctx context.Context, channelID uuid.UUID) (<-chan *gqlmodel.SpotifySongRequestQueue, error) {
+	return r.spotifySongRequestsQueueUpdated(ctx, channelID)
+}
+
 // SongRequestPublic returns graph.SongRequestPublicResolver implementation.
 func (r *Resolver) SongRequestPublic() graph.SongRequestPublicResolver {
 	return &songRequestPublicResolver{r}

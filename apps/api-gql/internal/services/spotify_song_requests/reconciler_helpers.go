@@ -67,6 +67,8 @@ func (r *Reconciler) transitionStatus(
 		return true
 	}
 
+	r.service.publishQueueChanged(ctx, channelID)
+
 	r.service.logger.InfoContext(ctx, "updated spotify song request status", slog.String("channel_id", channelID), slog.String("request_id", request.ID.String()), slog.String("from", request.Status.String()), slog.String("to", status.String()))
 	return false
 }

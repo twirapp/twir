@@ -273,6 +273,7 @@ func newService(
 		cfg.Config{SpotifyClientID: "id", SpotifySecret: "secret"},
 		slog.Default(),
 		nil,
+		nil,
 	)
 }
 

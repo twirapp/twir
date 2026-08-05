@@ -4,15 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_song_requests"
 	"github.com/twirapp/twir/libs/entities/song_request_mode"
 	spotify_song_request "github.com/twirapp/twir/libs/entities/spotify_song_request"
 	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/integrations/spotify"
+	"github.com/twirapp/twir/libs/logger"
 	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 )
 
@@ -91,9 +94,68 @@ func (r *queryResolver) spotifySongRequestsQueue(ctx context.Context) (*gqlmodel
 		return emptySpotifyQueue(), nil
 	}
 
-	requests, err := r.deps.SpotifySongRequestsService.GetActiveQueue(ctx, dashboardID)
+	queue, err := r.buildSpotifyQueue(ctx, dashboardID)
 	if err != nil {
 		return nil, spotifyGraphQLError(err)
+	}
+
+	return queue, nil
+}
+
+func (r *subscriptionResolver) spotifySongRequestsQueueUpdated(ctx context.Context, channelID uuid.UUID) (<-chan *gqlmodel.SpotifySongRequestQueue, error) {
+	channelIDStr := channelID.String()
+
+	outputChan := make(chan *gqlmodel.SpotifySongRequestQueue, 1)
+
+	go func() {
+		sub, err := r.deps.WsRouter.Subscribe(
+			[]string{spotify_song_requests.SpotifyQueueWsKey(channelIDStr)},
+		)
+		if err != nil {
+			r.deps.Logger.Error("failed to subscribe to spotify queue updates", slog.Any("error", err))
+			close(outputChan)
+			return
+		}
+		defer func() {
+			sub.Unsubscribe()
+			close(outputChan)
+		}()
+
+		sendQueue := func() {
+			queue, err := r.buildSpotifyQueue(ctx, channelIDStr)
+			if err != nil {
+				r.deps.Logger.Error("failed to build spotify queue", slog.Any("error", err))
+				return
+			}
+
+			select {
+			case outputChan <- queue:
+			case <-ctx.Done():
+			}
+		}
+
+		sendQueue()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-sub.GetChannel():
+				sendQueue()
+			}
+		}
+	}()
+
+	return outputChan, nil
+}
+
+func (r *Resolver) buildSpotifyQueue(
+	ctx context.Context,
+	dashboardID string,
+) (*gqlmodel.SpotifySongRequestQueue, error) {
+	requests, err := r.deps.SpotifySongRequestsService.GetActiveQueue(ctx, dashboardID)
+	if err != nil {
+		return nil, err
 	}
 
 	result := &gqlmodel.SpotifySongRequestQueue{
@@ -103,9 +165,16 @@ func (r *queryResolver) spotifySongRequestsQueue(ctx context.Context) (*gqlmodel
 		result.Requests = append(result.Requests, mapSpotifySongRequest(request))
 	}
 
-	result.CurrentDevice, err = r.spotifyDevice(ctx, dashboardID)
+	device, err := r.spotifyDevice(ctx, dashboardID)
 	if err != nil {
-		return nil, spotifyGraphQLError(err)
+		r.deps.Logger.ErrorContext(
+			ctx,
+			"failed to resolve spotify device for queue payload",
+			logger.Error(err),
+			slog.String("channel_id", dashboardID),
+		)
+	} else {
+		result.CurrentDevice = device
 	}
 
 	return result, nil
