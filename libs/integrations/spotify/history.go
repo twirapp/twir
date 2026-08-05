@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 )
@@ -126,38 +125,20 @@ func (c *Spotify) GetRecentTracks(ctx context.Context, input GetRecentTracksInpu
 	}
 
 	apiUrl := fmt.Sprintf("https://api.spotify.com/v1/me/player/recently-played?limit=%d", limit)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+c.channelIntegration.AccessToken)
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.doRequest(ctx, http.MethodGet, apiUrl, nil)
 	if err != nil {
 		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == 401 && !c.isRetry && c.canRefresh() {
-		c.isRetry = true
-		c.refreshToken(ctx)
-		return c.GetRecentTracks(ctx, input)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if resp.StatusCode == 403 {
 			return nil, ErrNoNeededScope
 		}
-		return nil, fmt.Errorf("cannot get recent tracks: %s", string(body))
+		return nil, fmt.Errorf("cannot get recent tracks: %s", string(resp.Body))
 	}
 
 	var data recentTracksResponse
-	if err := json.Unmarshal(body, &data); err != nil {
+	if err := json.Unmarshal(resp.Body, &data); err != nil {
 		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
