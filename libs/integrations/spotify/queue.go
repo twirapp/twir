@@ -66,7 +66,7 @@ func (c *Spotify) AddToQueue(ctx context.Context, trackURI string, deviceID stri
 		return err
 	}
 
-	if resp.StatusCode == http.StatusNoContent {
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return nil
 	}
 
@@ -175,7 +175,7 @@ func (c *Spotify) SkipNext(ctx context.Context, deviceID string) error {
 		return err
 	}
 
-	if resp.StatusCode == http.StatusNoContent {
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return nil
 	}
 

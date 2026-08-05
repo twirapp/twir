@@ -59,6 +59,13 @@ func TestSpotify_AddToQueue_handles_success_and_errors(t *testing.T) {
 			wantHasDeviceID: false,
 		},
 		{
+			name:            "success with 200 and snapshot body",
+			statusCode:      http.StatusOK,
+			body:            `6VwrDGxNUFaCcdjX8YvfTJWKWZs`,
+			deviceID:        "device-1",
+			wantHasDeviceID: true,
+		},
+		{
 			name:            "no active device",
 			statusCode:      http.StatusNotFound,
 			body:            `{"error":{"status":404,"reason":"NO_ACTIVE_DEVICE","message":"No active device found"}}`,
@@ -154,6 +161,10 @@ func TestSpotify_SkipNext_handles_success_and_rate_limit(t *testing.T) {
 		{
 			name:       "success",
 			statusCode: http.StatusNoContent,
+		},
+		{
+			name:       "success with 200",
+			statusCode: http.StatusOK,
 		},
 		{
 			name:          "rate limited",
