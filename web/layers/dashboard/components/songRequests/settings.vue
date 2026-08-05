@@ -30,6 +30,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -40,7 +47,7 @@ import {
 	TagsInputItemText,
 } from '@/components/ui/tags-input'
 import { Textarea } from '@/components/ui/textarea'
-import { SongRequestsSearchChannelOrVideoOptsType } from '~/gql/graphql.js'
+import { SongRequestMode, SongRequestsSearchChannelOrVideoOptsType } from '~/gql/graphql.js'
 
 import RewardsSelector from '../rewardsSelector.vue'
 
@@ -76,6 +83,7 @@ const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
 const formValue = ref<SongRequestsSettingsOpts>({
 	enabled: false,
+	mode: SongRequestMode.Youtube,
 	acceptOnlyWhenOnline: true,
 	takeSongFromDonationMessages: false,
 	playerNoCookieMode: false,
@@ -149,7 +157,10 @@ watch(
 )
 
 async function save() {
-	const { channelApiKey, __typename, ...data } = unref(formValue) as Record<string, unknown>
+	const { channelApiKey, spotifyCapabilities, __typename, ...data } = unref(formValue) as Record<
+		string,
+		unknown
+	>
 	await youtubeModuleUpdater.executeMutation({ opts: data as SongRequestsSettingsOpts })
 	toast.success(t('sharedTexts.saved'))
 	isOpen.value = false
@@ -259,6 +270,28 @@ function findSongImage(id: string): string {
 									<div class="flex-1 space-y-0.5">
 										<Label class="text-base font-medium">{{ t('sharedTexts.enabled') }}</Label>
 									</div>
+								</div>
+
+								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
+									<div class="flex-1 space-y-0.5">
+										<Label class="text-base font-medium">{{ t('songRequests.settings.mode') }}</Label>
+										<p class="text-muted-foreground text-sm">
+											{{ t('songRequests.settings.modeDescription') }}
+										</p>
+									</div>
+									<Select v-model="formValue.mode">
+										<SelectTrigger class="w-40">
+											<SelectValue :placeholder="t('songRequests.settings.mode')" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem :value="SongRequestMode.Youtube">
+												YouTube
+											</SelectItem>
+											<SelectItem :value="SongRequestMode.Spotify">
+												Spotify
+											</SelectItem>
+										</SelectContent>
+									</Select>
 								</div>
 
 								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">

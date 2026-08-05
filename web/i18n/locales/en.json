@@ -969,7 +969,38 @@
         "minViews": "Minimal Views Amount"
       },
       "takeSongFromDonationMessageDescription": "Enabling this option will make the bot to try to find song links in donation messages and add them to the queue automatically.",
-      "onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live."
+      "onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live.",
+      "mode": "Song request source",
+      "modeDescription": "Choose where song requests are played: YouTube player widget or your Spotify queue."
+    },
+    "spotify": {
+      "notConnected": "Spotify is not connected. Connect Spotify to use Spotify song requests.",
+      "connect": "Connect Spotify",
+      "missingScope": "Spotify playback permissions are missing. Reconnect Spotify to grant queue access.",
+      "reconnect": "Reconnect Spotify",
+      "device": "Device: {name} ({type})",
+      "noDevice": "No active Spotify device found. Open Spotify on any device.",
+      "refreshDevice": "Refresh device",
+      "deviceRefreshed": "Spotify device refreshed",
+      "emptyQueue": "No active Spotify requests",
+      "skip": "Skip request",
+      "cancel": "Cancel request",
+      "confirmSkip": "Are you sure you want to skip this Spotify request?",
+      "confirmCancel": "Are you sure you want to cancel this Spotify request?",
+      "columns": {
+        "artist": "Artist",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "QUEUED": "Queued",
+        "PLAYING": "Playing",
+        "PLAYED": "Played",
+        "CANCELLED_PENDING_SKIP": "Cancelling",
+        "SKIPPED_BY_TWIR": "Skipped",
+        "REMOVED_OR_RECONCILED": "Removed",
+        "UNKNOWN": "Unknown"
+      }
     },
     "overlaySettings": {
       "button": "Overlay settings",

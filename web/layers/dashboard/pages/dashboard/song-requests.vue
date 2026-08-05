@@ -5,6 +5,9 @@ import OverlaySettingsModal from '~~/layers/dashboard/components/songRequests/ov
 import Player from '~~/layers/dashboard/components/songRequests/player.vue'
 import VideosQueue from '~~/layers/dashboard/components/songRequests/queue.vue'
 import SettingsModal from '~~/layers/dashboard/components/songRequests/settings.vue'
+import SpotifyQueue from '~~/layers/dashboard/components/songRequests/spotify-queue.vue'
+
+import { SongRequestMode } from '~/gql/graphql.js'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,6 +22,11 @@ const openSettingsModal = () => (isSettingsModalOpened.value = true)
 
 const youtubeModuleManager = useSongRequestsApi()
 const youtubeModuleData = youtubeModuleManager.useSongRequestQuery()
+
+const songRequestMode = computed(
+	() => youtubeModuleData.data.value?.songRequests?.mode ?? SongRequestMode.Youtube
+)
+const isSpotifyMode = computed(() => songRequestMode.value === SongRequestMode.Spotify)
 
 const channelApiKey = computed(() => {
 	return youtubeModuleData.data.value?.songRequests?.channelApiKey ?? ''
@@ -141,7 +149,30 @@ function copyLink(link: string, label: string) {
 		</CardContent>
 	</Card>
 
-	<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+	<div
+		v-if="isSpotifyMode"
+		class="grid grid-cols-1 gap-4"
+	>
+		<div class="flex justify-end">
+			<Button
+				variant="outline"
+				size="sm"
+				@click="openSettingsModal"
+			>
+				<Icon
+					name="lucide:settings"
+					class="size-4"
+				/>
+				{{ t('sharedTexts.settings') }}
+			</Button>
+		</div>
+		<SpotifyQueue v-if="!youtubeModuleData.fetching.value" />
+	</div>
+
+	<div
+		v-else
+		class="grid grid-cols-1 gap-4 lg:grid-cols-3"
+	>
 		<div class="lg:col-span-1">
 			<Player
 				v-if="!youtubeModuleData.fetching.value"
