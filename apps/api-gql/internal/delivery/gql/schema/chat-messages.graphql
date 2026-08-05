@@ -34,6 +34,19 @@ type ChatMessage {
 	announceColor: String
 	badges: [ChatMessageBadge!]!
 	fragments: [ChatMessageFragment!]!
+	reply: ChatMessageReply
+}
+
+type ChatMessageReply {
+	parentMessageId: String!
+	parentMessageBody: String!
+	parentUserId: String!
+	parentUserName: String!
+	parentUserLogin: String!
+	threadMessageId: String!
+	threadUserId: String!
+	threadUserName: String!
+	threadUserLogin: String!
 }
 
 type ChatMessageBadge {

@@ -115,6 +115,15 @@ watch(chatMessages, (v) => {
 		isItalic: false,
 		isAnnounce: event.messageType === 'announcement',
 		announceColor: event.announceColor ?? undefined,
+		reply: event.reply
+			? {
+					parentMessageId: event.reply.parentMessageId,
+					parentMessageBody: event.reply.parentMessageBody,
+					parentUserId: event.reply.parentUserId,
+					parentUserName: event.reply.parentUserName,
+					parentUserLogin: event.reply.parentUserLogin,
+				}
+			: undefined,
 	})
 })
 

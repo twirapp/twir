@@ -102,15 +102,26 @@ export const useChatOverlaySocket = createGlobalState(() => {
 						versionId
 						text
 					}
-					fragments {
-						type
-						text
-						emoteId
-						emoteUrl
-					}
+				fragments {
+					type
+					text
+					emoteId
+					emoteUrl
+				}
+				reply {
+					parentMessageId
+					parentMessageBody
+					parentUserId
+					parentUserName
+					parentUserLogin
+					threadMessageId
+					threadUserId
+					threadUserName
+					threadUserLogin
 				}
 			}
-		`),
+		}
+	`),
 		variables: {
 			apiKey: route.params.apiKey as string,
 		},

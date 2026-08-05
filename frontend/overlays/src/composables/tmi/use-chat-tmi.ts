@@ -82,6 +82,24 @@ export function useChatTmi(options: Ref<ChatSettings>) {
 		})
 	}
 
+	function messageReply(tags: ChatUserstate): Message['reply'] {
+		const parentMessageId: string | undefined = tags['reply-parent-msg-id']
+		if (!parentMessageId) return undefined
+
+		const parentMessageBody: string = tags['reply-parent-msg-body'] ?? ''
+		const parentUserId: string = tags['reply-parent-user-id'] ?? ''
+		const parentUserName: string = tags['reply-parent-display-name'] ?? ''
+		const parentUserLogin: string = tags['reply-parent-user-login'] ?? ''
+
+		return {
+			parentMessageId,
+			parentMessageBody,
+			parentUserId,
+			parentUserName,
+			parentUserLogin,
+		}
+	}
+
 	async function destroy() {
 		if (!client) return
 
@@ -115,6 +133,7 @@ export function useChatTmi(options: Ref<ChatSettings>) {
 				senderDisplayName: tags['display-name'],
 				badges: tags.badges as Record<string, string> | undefined,
 				isItalic: tags['message-type'] === 'action',
+				reply: messageReply(tags),
 			}))
 		})
 

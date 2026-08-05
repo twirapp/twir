@@ -127,6 +127,20 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 			textBuilder.WriteString(data.Text)
 		}
 	}
+	var reply *entity.ChatMessageReply
+	if data.Reply != nil {
+		reply = &entity.ChatMessageReply{
+			ParentMessageID:   data.Reply.ParentMessageId,
+			ParentMessageBody: data.Reply.ParentMessageBody,
+			ParentUserID:      data.Reply.ParentUserId,
+			ParentUserName:    data.Reply.ParentUserName,
+			ParentUserLogin:   data.Reply.ParentUserLogin,
+			ThreadMessageID:   data.Reply.ThreadMessageId,
+			ThreadUserID:      data.Reply.ThreadUserId,
+			ThreadUserName:    data.Reply.ThreadUserName,
+			ThreadUserLogin:   data.Reply.ThreadUserLogin,
+		}
+	}
 	msg := entity.ChatMessage{
 		ID:              uuid.New(),
 		Platform:        data.Platform,
@@ -145,6 +159,7 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 		AnnounceColor:   data.AnnounceColor,
 		Badges:          mapChatMessageBadges(data.Badges),
 		Fragments:       mapChatMessageFragments(data.Message),
+		Reply:           reply,
 	}
 
 	channelSubKey := chatMessagesSubscriptionKeyCreate(data.Platform, data.PlatformChannelID)
