@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"slices"
 	"time"
 
@@ -107,10 +108,13 @@ func (s *Service) CreateRequest(
 			return spotify_song_request.Nil, ErrUserMaxRequestsExceeded
 		}
 	}
-	if settings.SongMaxLength > 0 && track.DurationMs/1000 > settings.SongMaxLength {
+	trackDurationMinutes := int(
+		math.Round((time.Duration(track.DurationMs) * time.Millisecond).Minutes()),
+	)
+	if settings.SongMaxLength > 0 && trackDurationMinutes > settings.SongMaxLength {
 		return spotify_song_request.Nil, ErrDurationNotAllowed
 	}
-	if settings.SongMinLength > 0 && track.DurationMs/1000 < settings.SongMinLength {
+	if settings.SongMinLength > 0 && trackDurationMinutes < settings.SongMinLength {
 		return spotify_song_request.Nil, ErrDurationNotAllowed
 	}
 

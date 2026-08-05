@@ -450,7 +450,7 @@ func TestService_CreateRequest_rejects_user_max_requests(t *testing.T) {
 
 func TestService_CreateRequest_rejects_duration(t *testing.T) {
 	settings := spotifySettings()
-	settings.SongMaxLength = 60 // track fixture is 180s
+	settings.SongMaxLength = 2 // minutes; track fixture is 3 minutes
 
 	service := newService(
 		&fakeSettingsRepository{settings: settings},
@@ -467,6 +467,38 @@ func TestService_CreateRequest_rejects_duration(t *testing.T) {
 	_, err := service.CreateRequest(context.Background(), testChannelID, "", "viewer", "Viewer", "chat", "song")
 	if !errors.Is(err, ErrDurationNotAllowed) {
 		t.Fatalf("CreateRequest() error = %v, want %v", err, ErrDurationNotAllowed)
+	}
+}
+
+func TestService_CreateRequest_allows_duration_within_minute_limit(t *testing.T) {
+	settings := spotifySettings()
+	settings.SongMaxLength = 10 // minutes; track fixture is 3 minutes
+
+	service := newService(
+		&fakeSettingsRepository{settings: settings},
+		&fakeIntegrationsRepository{
+			integration: spotifyIntegration("user-modify-playback-state"),
+		},
+		newFakeRequestsRepository(),
+	)
+
+	swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {
+		switch req.URL.Path {
+		case "/v1/search":
+			return fixtureResponse(req, http.StatusOK, searchResponseBody), nil
+		case "/v1/me/player/devices":
+			return fixtureResponse(req, http.StatusOK, devicesResponseBody), nil
+		case "/v1/me/player/queue":
+			return fixtureResponse(req, http.StatusNoContent, ""), nil
+		default:
+			t.Fatalf("unexpected request path %s", req.URL.Path)
+			return nil, nil
+		}
+	})
+
+	_, err := service.CreateRequest(context.Background(), testChannelID, "", "viewer", "Viewer", "chat", "song")
+	if err != nil {
+		t.Fatalf("CreateRequest() error = %v, want nil for 3-minute track with 10-minute limit", err)
 	}
 }
 
