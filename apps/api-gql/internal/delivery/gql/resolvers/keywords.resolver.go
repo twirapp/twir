@@ -142,7 +142,7 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts
 	}
 
 	if opts.Platforms.IsSet() {
-		platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
+		platforms, err := mappers.GraphQLPlatformsToEntitiesOrEmpty(opts.Platforms.Value())
 		if err != nil {
 			return nil, gqlerrors.HandleError(err)
 		}

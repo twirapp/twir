@@ -40,6 +40,18 @@ func GraphQLPlatformsToEntities(platforms []gqlmodel.Platform) ([]platformentity
 	return result, nil
 }
 
+// GraphQLPlatformsToEntitiesOrEmpty is GraphQLPlatformsToEntities for update inputs:
+// repositories treat a nil slice as "field not set", so an explicitly cleared
+// selection must stay an empty non-nil slice to be persisted.
+func GraphQLPlatformsToEntitiesOrEmpty(platforms []gqlmodel.Platform) ([]platformentity.Platform, error) {
+	result, err := GraphQLPlatformsToEntities(platforms)
+	if result == nil {
+		result = []platformentity.Platform{}
+	}
+
+	return result, err
+}
+
 func EntityPlatformToGraphQL(platform platformentity.Platform) (gqlmodel.Platform, error) {
 	switch platform {
 	case platformentity.PlatformTwitch:

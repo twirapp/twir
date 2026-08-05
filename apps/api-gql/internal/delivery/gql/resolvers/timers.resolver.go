@@ -151,27 +151,29 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 		)
 	}
 
-	platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
-	if err != nil {
-		return nil, gqlerrors.HandleError(err)
+	updateInput := timers.UpdateInput{
+		ChannelID:       dashboardId,
+		ActorID:         user.ID,
+		ID:              id,
+		Name:            opts.Name.Value(),
+		Enabled:         opts.Enabled.Value(),
+		OfflineEnabled:  opts.OfflineEnabled.Value(),
+		OnlineEnabled:   opts.OnlineEnabled.Value(),
+		TimeInterval:    opts.TimeInterval.Value(),
+		MessageInterval: opts.MessageInterval.Value(),
+		Responses:       responses,
 	}
 
-	timer, err := r.deps.TimersService.Update(
-		ctx,
-		timers.UpdateInput{
-			ChannelID:       dashboardId,
-			ActorID:         user.ID,
-			ID:              id,
-			Name:            opts.Name.Value(),
-			Enabled:         opts.Enabled.Value(),
-			OfflineEnabled:  opts.OfflineEnabled.Value(),
-			OnlineEnabled:   opts.OnlineEnabled.Value(),
-			TimeInterval:    opts.TimeInterval.Value(),
-			MessageInterval: opts.MessageInterval.Value(),
-			Responses:       responses,
-			Platforms:       platforms,
-		},
-	)
+	if opts.Platforms.IsSet() {
+		platforms, err := mappers.GraphQLPlatformsToEntitiesOrEmpty(opts.Platforms.Value())
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		updateInput.Platforms = platforms
+	}
+
+	timer, err := r.deps.TimersService.Update(ctx, updateInput)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}

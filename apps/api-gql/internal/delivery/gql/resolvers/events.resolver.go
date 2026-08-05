@@ -131,7 +131,7 @@ func (r *mutationResolver) EventUpdate(ctx context.Context, id string, input gql
 
 	var convertedPlatforms *[]platform.Platform
 	if input.Platforms.IsSet() {
-		platforms, err := mappers.GraphQLPlatformsToEntities(input.Platforms.Value())
+		platforms, err := mappers.GraphQLPlatformsToEntitiesOrEmpty(input.Platforms.Value())
 		if err != nil {
 			return nil, gqlerrors.HandleError(err)
 		}

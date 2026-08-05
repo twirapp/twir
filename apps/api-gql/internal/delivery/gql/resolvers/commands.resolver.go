@@ -198,7 +198,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 	}
 
 	if opts.Platforms.IsSet() {
-		platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
+		platforms, err := mappers.GraphQLPlatformsToEntitiesOrEmpty(opts.Platforms.Value())
 		if err != nil {
 			return false, err
 		}
