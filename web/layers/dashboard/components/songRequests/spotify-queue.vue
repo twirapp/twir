@@ -133,58 +133,56 @@ function formatRelativeTime(dateStr: string) {
 
 <template>
 	<Card class="mb-4">
-		<CardContent class="flex flex-col gap-2 p-4">
-			<div class="flex flex-wrap items-center gap-2">
-				<Icon
-					name="simple-icons:spotify"
-					class="size-5 text-[#1DB954]"
-				/>
-				<template v-if="!capabilities?.connected">
-					<span class="text-sm">{{ t('songRequests.spotify.notConnected') }}</span>
-					<Button
-						size="sm"
-						variant="outline"
-						:disabled="!spotifyAuthLink"
-						@click="connectSpotify"
-					>
-						{{ t('songRequests.spotify.connect') }}
-					</Button>
-				</template>
-				<template v-else-if="!capabilities.hasPlaybackScope">
-					<span class="text-sm">{{ t('songRequests.spotify.missingScope') }}</span>
-					<Button
-						size="sm"
-						variant="outline"
-						:disabled="!spotifyAuthLink"
-						@click="connectSpotify"
-					>
-						{{ t('songRequests.spotify.reconnect') }}
-					</Button>
-				</template>
-				<template v-else>
-					<span class="text-sm">
-						{{
-							currentDevice
-								? t('songRequests.spotify.device', {
-										name: currentDevice.name,
-										type: currentDevice.type,
-									})
-								: t('songRequests.spotify.noDevice')
-						}}
-					</span>
-					<Button
-						size="sm"
-						variant="outline"
-						@click="refreshDevice"
-					>
-						<Icon
-							name="lucide:refresh-cw"
-							class="size-4"
-						/>
-						{{ t('songRequests.spotify.refreshDevice') }}
-					</Button>
-				</template>
-			</div>
+		<CardContent class="flex flex-wrap items-center gap-2 p-4">
+			<Icon
+				name="simple-icons:spotify"
+				class="size-5 text-[#1DB954]"
+			/>
+			<template v-if="!capabilities?.connected">
+				<span class="text-sm">{{ t('songRequests.spotify.notConnected') }}</span>
+				<Button
+					size="sm"
+					variant="outline"
+					:disabled="!spotifyAuthLink"
+					@click="connectSpotify"
+				>
+					{{ t('songRequests.spotify.connect') }}
+				</Button>
+			</template>
+			<template v-else-if="!capabilities.hasPlaybackScope">
+				<span class="text-sm">{{ t('songRequests.spotify.missingScope') }}</span>
+				<Button
+					size="sm"
+					variant="outline"
+					:disabled="!spotifyAuthLink"
+					@click="connectSpotify"
+				>
+					{{ t('songRequests.spotify.reconnect') }}
+				</Button>
+			</template>
+			<template v-else>
+				<span class="text-sm">
+					{{
+						currentDevice
+							? t('songRequests.spotify.device', {
+									name: currentDevice.name,
+									type: currentDevice.type,
+								})
+							: t('songRequests.spotify.noDevice')
+					}}
+				</span>
+				<Button
+					size="sm"
+					variant="outline"
+					@click="refreshDevice"
+				>
+					<Icon
+						name="lucide:refresh-cw"
+						class="size-4"
+					/>
+					{{ t('songRequests.spotify.refreshDevice') }}
+				</Button>
+			</template>
 		</CardContent>
 	</Card>
 

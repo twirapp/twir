@@ -7,11 +7,13 @@ import VideosQueue from '~~/layers/dashboard/components/songRequests/queue.vue'
 import SettingsModal from '~~/layers/dashboard/components/songRequests/settings.vue'
 import SpotifyQueue from '~~/layers/dashboard/components/songRequests/spotify-queue.vue'
 
+import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
 import { SongRequestMode } from '~/gql/graphql.js'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -22,11 +24,27 @@ const openSettingsModal = () => (isSettingsModalOpened.value = true)
 
 const youtubeModuleManager = useSongRequestsApi()
 const youtubeModuleData = youtubeModuleManager.useSongRequestQuery()
+const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
 const songRequestMode = computed(
 	() => youtubeModuleData.data.value?.songRequests?.mode ?? SongRequestMode.Youtube
 )
 const isSpotifyMode = computed(() => songRequestMode.value === SongRequestMode.Spotify)
+
+async function switchMode(mode: string) {
+	const settings = youtubeModuleData.data.value?.songRequests
+	if (!settings || mode === settings.mode) return
+
+	const { channelApiKey, spotifyCapabilities, __typename, ...rest } = settings
+	const { error } = await youtubeModuleUpdater.executeMutation({
+		opts: { ...rest, mode } as SongRequestsSettingsOpts,
+	})
+	if (error) {
+		toast.error(error.message, { duration: 5000 })
+		return
+	}
+	toast.success(t('sharedTexts.saved'), { duration: 2500 })
+}
 
 const channelApiKey = computed(() => {
 	return youtubeModuleData.data.value?.songRequests?.channelApiKey ?? ''
@@ -64,6 +82,47 @@ function copyLink(link: string, label: string) {
 </script>
 
 <template>
+	<div class="mb-4 flex items-center justify-between gap-2">
+		<Tabs
+			:model-value="songRequestMode"
+			@update:model-value="switchMode"
+		>
+			<TabsList class="grid w-56 grid-cols-2">
+				<TabsTrigger
+					:value="SongRequestMode.Youtube"
+					class="flex items-center gap-2"
+				>
+					<Icon
+						name="simple-icons:youtube"
+						class="size-4 text-[#FF0000]"
+					/>
+					<span>YouTube</span>
+				</TabsTrigger>
+				<TabsTrigger
+					:value="SongRequestMode.Spotify"
+					class="flex items-center gap-2"
+				>
+					<Icon
+						name="simple-icons:spotify"
+						class="size-4 text-[#1DB954]"
+					/>
+					<span>Spotify</span>
+				</TabsTrigger>
+			</TabsList>
+		</Tabs>
+		<Button
+			variant="outline"
+			size="sm"
+			@click="openSettingsModal"
+		>
+			<Icon
+				name="lucide:settings"
+				class="size-4"
+			/>
+			{{ t('sharedTexts.settings') }}
+		</Button>
+	</div>
+
 	<Card
 		v-if="!isSpotifyMode"
 		class="mb-4"
@@ -156,19 +215,6 @@ function copyLink(link: string, label: string) {
 		v-if="isSpotifyMode"
 		class="grid grid-cols-1 gap-4"
 	>
-		<div class="flex justify-end">
-			<Button
-				variant="outline"
-				size="sm"
-				@click="openSettingsModal"
-			>
-				<Icon
-					name="lucide:settings"
-					class="size-4"
-				/>
-				{{ t('sharedTexts.settings') }}
-			</Button>
-		</div>
 		<SpotifyQueue v-if="!youtubeModuleData.fetching.value" />
 	</div>
 
