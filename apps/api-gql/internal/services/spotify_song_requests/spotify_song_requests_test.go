@@ -796,6 +796,49 @@ func TestReconciler_marks_queued_request_as_playing(t *testing.T) {
 	}
 }
 
+func TestReconciler_marks_played_when_another_track_is_playing(t *testing.T) {
+	requestID := uuid.New()
+	requestsRepo := newFakeRequestsRepository()
+	requestsRepo.requests = append(
+		requestsRepo.requests,
+		spotify_song_request.SpotifySongRequest{
+			ID:        requestID,
+			ChannelID: testChannelID,
+			TrackURI:  "spotify:track:track-1",
+			Status:    spotify_song_request.StatusPlaying,
+		},
+	)
+
+	swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {
+		switch req.URL.Path {
+		case "/v1/me/player/currently-playing":
+			body := `{"currently_playing_type":"track","is_playing":true,"progress_ms":1,"device":{"id":"device-1","name":"Desktop","type":"Computer","is_active":true},"item":{"id":"other-track","uri":"spotify:track:other-track","name":"Other","type":"track","artists":[{"name":"Artist"}],"album":{"name":"Album","images":[]},"duration_ms":180000}}`
+			return fixtureResponse(req, http.StatusOK, body), nil
+		case "/v1/me/player/queue":
+			return fixtureResponse(req, http.StatusOK, `{"queue":[]}`), nil
+		default:
+			t.Fatalf("unexpected request path %s", req.URL.Path)
+			return nil, nil
+		}
+	})
+
+	service := newService(
+		&fakeSettingsRepository{settings: spotifySettings()},
+		&fakeIntegrationsRepository{
+			integration: spotifyIntegration("user-read-playback-state", "user-modify-playback-state"),
+		},
+		requestsRepo,
+	)
+	reconciler := &Reconciler{service: service, missing: map[string]time.Time{}}
+
+	if hadError := reconciler.reconcileChannel(context.Background(), testChannelID); hadError {
+		t.Fatal("reconcileChannel() reported error")
+	}
+	if got := requestsRepo.statusByID[requestID.String()]; got != spotify_song_request.StatusPlayed {
+		t.Fatalf("status = %q, want played", got)
+	}
+}
+
 func TestReconciler_marks_played_when_playback_stopped(t *testing.T) {
 	requestID := uuid.New()
 	requestsRepo := newFakeRequestsRepository()

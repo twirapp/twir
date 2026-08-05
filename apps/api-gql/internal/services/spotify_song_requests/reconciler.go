@@ -153,6 +153,16 @@ func (r *Reconciler) reconcileChannel(ctx context.Context, channelID string) boo
 	currentDeviceID := ""
 	if currentlyPlaying != nil {
 		currentDeviceID = currentlyPlaying.Device.ID
+		if currentlyPlaying.Device.ID != "" {
+			if err := r.service.cacheDevice(ctx, channelID, currentlyPlaying.Device); err != nil {
+				r.service.logger.ErrorContext(
+					ctx,
+					"failed to cache spotify device",
+					logger.Error(err),
+					slog.String("channel_id", channelID),
+				)
+			}
+		}
 		if currentlyPlaying.Item != nil {
 			currentURI = currentlyPlaying.Item.URI
 			queueURIs[currentURI] = struct{}{}
@@ -223,7 +233,7 @@ func (r *Reconciler) reconcileChannel(ctx context.Context, channelID string) boo
 			continue
 		}
 
-		if request.Status == spotify_song_request.StatusPlaying && currentURI == "" && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusPlayed) {
+		if request.Status == spotify_song_request.StatusPlaying && request.TrackURI != currentURI && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusPlayed) {
 			return true
 		}
 	}
