@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
+	buscorespotify "github.com/twirapp/twir/libs/bus-core/spotify"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -101,6 +102,12 @@ type executronBus struct {
 	Execute Queue[executron.ExecuteRequest, executron.ExecuteResponse]
 }
 
+type spotifyBus struct {
+	Search            Queue[buscorespotify.SearchRequest, buscorespotify.SearchResponse]
+	CreateSongRequest Queue[buscorespotify.CreateSongRequestRequest, buscorespotify.CreateSongRequestResponse]
+	CancelSongRequest Queue[buscorespotify.CancelSongRequestRequest, buscorespotify.CancelSongRequestResponse]
+}
+
 type eventsBus struct {
 	Follow                     Queue[events.FollowMessage, struct{}]
 	Subscribe                  Queue[events.SubscribeMessage, struct{}]
@@ -135,11 +142,11 @@ type eventsBus struct {
 }
 
 type apiBus struct {
-	TriggerKappagen   Queue[api.TriggerKappagenMessage, struct{}]
-	TriggerBrbStart   Queue[api.TriggerBrbStart, struct{}]
-	TriggerBrbStop    Queue[api.TriggerBrbStop, struct{}]
-	TriggerTtsSay     Queue[api.TriggerTtsSay, struct{}]
-	TriggerTtsSkip    Queue[api.TriggerTtsSkip, struct{}]
+	TriggerKappagen            Queue[api.TriggerKappagenMessage, struct{}]
+	TriggerBrbStart            Queue[api.TriggerBrbStart, struct{}]
+	TriggerBrbStop             Queue[api.TriggerBrbStop, struct{}]
+	TriggerTtsSay              Queue[api.TriggerTtsSay, struct{}]
+	TriggerTtsSkip             Queue[api.TriggerTtsSkip, struct{}]
 	TriggerObsCommand          Queue[api.TriggerObsCommand, struct{}]
 	SongRequestAddToQueue      Queue[api.SongRequestAddToQueue, struct{}]
 	SongRequestRemoveFromQueue Queue[api.SongRequestRemoveFromQueue, struct{}]

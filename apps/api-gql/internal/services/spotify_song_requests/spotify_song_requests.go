@@ -217,3 +217,17 @@ func (s *Service) SelectAndCacheDevice(ctx context.Context, channelID string) (s
 
 	return s.selectDevice(ctx, channelID, client)
 }
+
+func (s *Service) SearchTracks(
+	ctx context.Context,
+	channelID string,
+	query string,
+	limit int,
+) ([]spotify.SpotifyTrack, error) {
+	client, _, err := s.loadSpotifyClient(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	return client.SearchTracks(ctx, query, limit)
+}

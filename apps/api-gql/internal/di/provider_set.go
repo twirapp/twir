@@ -288,6 +288,7 @@ var ProviderSet = wire.NewSet(
 	http_webhooks.New,
 	song_requests.NewBridge,
 	spotify_song_requests.NewReconciler,
+	spotify_song_requests.NewRequestBridge,
 	RegisterChannelsFilesRoute,
 	RegisterValorantRoute,
 	RegisterStreamRoute,
@@ -336,27 +337,29 @@ func RegisterMCP(s *server.Server, handler *mcpdelivery.Handler) MCPRegistration
 }
 
 type ApplicationDeps struct {
-	Lifecycle           *lifecycle.Lifecycle
-	PlatformRegistry    *platform.Registry
-	GQL                 *gql.Gql
-	PublicRoutes        *publicroutes.Public
-	V2PublicRoutes      *v2publicroutes.Public
-	Webhooks            *http_webhooks.Webhooks
-	AuthRoutes          *authroutes.Auth
-	ChannelsFilesRoute  ChannelsFilesRouteRegistration
-	SongRequestsBridge  *song_requests.Bridge
-	ValorantRoute       ValorantRouteRegistration
-	StreamRoute         StreamRouteRegistration
-	MCP                 MCPRegistration
-	ShortlinksRoutes    shortlinks.Registration
-	PastebinsRoutes     pastebins.Registration
-	CommandsRoutes      commandshttp.Registration
-	TTSRoutes           ttsroutes.Registration
-	BeRightBackRoutes   brb.Registration
-	TwirRoutes          twirhttp.Registration
-	ScheduledVIPsRoutes scheduledvipsroutes.Registration
-	MCPOAuthRoutes      mcpOAuthRoutes.Registration
-	Logger              *slog.Logger
+	Lifecycle                     *lifecycle.Lifecycle
+	PlatformRegistry              *platform.Registry
+	GQL                           *gql.Gql
+	PublicRoutes                  *publicroutes.Public
+	V2PublicRoutes                *v2publicroutes.Public
+	Webhooks                      *http_webhooks.Webhooks
+	AuthRoutes                    *authroutes.Auth
+	ChannelsFilesRoute            ChannelsFilesRouteRegistration
+	SongRequestsBridge            *song_requests.Bridge
+	SpotifySongRequestsReconciler *spotify_song_requests.Reconciler
+	SpotifySongRequestsBridge     *spotify_song_requests.RequestBridge
+	ValorantRoute                 ValorantRouteRegistration
+	StreamRoute                   StreamRouteRegistration
+	MCP                           MCPRegistration
+	ShortlinksRoutes              shortlinks.Registration
+	PastebinsRoutes               pastebins.Registration
+	CommandsRoutes                commandshttp.Registration
+	TTSRoutes                     ttsroutes.Registration
+	BeRightBackRoutes             brb.Registration
+	TwirRoutes                    twirhttp.Registration
+	ScheduledVIPsRoutes           scheduledvipsroutes.Registration
+	MCPOAuthRoutes                mcpOAuthRoutes.Registration
+	Logger                        *slog.Logger
 }
 
 type Application struct {

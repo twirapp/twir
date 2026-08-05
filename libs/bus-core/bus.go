@@ -19,6 +19,7 @@ import (
 	kickbus "github.com/twirapp/twir/libs/bus-core/kick"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
+	buscorespotify "github.com/twirapp/twir/libs/bus-core/spotify"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -44,6 +45,7 @@ type Bus struct {
 	YTSRSearch        Queue[ytsr.SearchRequest, ytsr.SearchResponse]
 	Tokens            *tokensBus
 	Integrations      *integrationsBus
+	Spotify           *spotifyBus
 	Api               *apiBus
 	CacheInvalidator  Queue[cache_invalidator.InvalidateRequest, struct{}]
 	Discord           *discordBus
@@ -542,7 +544,26 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				JsonEncoder,
 			),
 		},
-
+		Spotify: &spotifyBus{
+			Search: NewNatsQueue[buscorespotify.SearchRequest, buscorespotify.SearchResponse](
+				nc,
+				buscorespotify.SearchSubject,
+				30*time.Second,
+				JsonEncoder,
+			),
+			CreateSongRequest: NewNatsQueue[buscorespotify.CreateSongRequestRequest, buscorespotify.CreateSongRequestResponse](
+				nc,
+				buscorespotify.CreateSongRequestSubject,
+				30*time.Second,
+				JsonEncoder,
+			),
+			CancelSongRequest: NewNatsQueue[buscorespotify.CancelSongRequestRequest, buscorespotify.CancelSongRequestResponse](
+				nc,
+				buscorespotify.CancelSongRequestSubject,
+				30*time.Second,
+				JsonEncoder,
+			),
+		},
 		Api: &apiBus{
 			TriggerKappagen: NewNatsQueue[api.TriggerKappagenMessage, struct{}](
 				nc,
