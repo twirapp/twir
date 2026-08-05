@@ -30,12 +30,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -278,46 +272,30 @@ function findSongImage(id: string): string {
 											{{ t('songRequests.settings.modeDescription') }}
 										</p>
 									</div>
-									<Select v-model="formValue.mode">
-										<SelectTrigger class="w-44">
-											<div class="flex items-center gap-2">
+									<Tabs v-model="formValue.mode">
+										<TabsList class="grid w-56 grid-cols-2">
+											<TabsTrigger
+												:value="SongRequestMode.Youtube"
+												class="flex items-center gap-2"
+											>
 												<Icon
-													:name="
-														formValue.mode === SongRequestMode.Spotify
-															? 'simple-icons:spotify'
-															: 'simple-icons:youtube'
-													"
-													class="size-4"
-													:class="
-														formValue.mode === SongRequestMode.Spotify
-															? 'text-[#1DB954]'
-															: 'text-[#FF0000]'
-													"
+													name="simple-icons:youtube"
+													class="size-4 text-[#FF0000]"
 												/>
-												<span>{{ formValue.mode === SongRequestMode.Spotify ? 'Spotify' : 'YouTube' }}</span>
-											</div>
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem :value="SongRequestMode.Youtube">
-												<div class="flex items-center gap-2">
-													<Icon
-														name="simple-icons:youtube"
-														class="size-4 text-[#FF0000]"
-													/>
-													<span>YouTube</span>
-												</div>
-											</SelectItem>
-											<SelectItem :value="SongRequestMode.Spotify">
-												<div class="flex items-center gap-2">
-													<Icon
-														name="simple-icons:spotify"
-														class="size-4 text-[#1DB954]"
-													/>
-													<span>Spotify</span>
-												</div>
-											</SelectItem>
-										</SelectContent>
-									</Select>
+												<span>YouTube</span>
+											</TabsTrigger>
+											<TabsTrigger
+												:value="SongRequestMode.Spotify"
+												class="flex items-center gap-2"
+											>
+												<Icon
+													name="simple-icons:spotify"
+													class="size-4 text-[#1DB954]"
+												/>
+												<span>Spotify</span>
+											</TabsTrigger>
+										</TabsList>
+									</Tabs>
 								</div>
 
 								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
