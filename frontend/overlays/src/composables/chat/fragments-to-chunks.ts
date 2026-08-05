@@ -13,6 +13,37 @@ export interface ChatEventFragment {
 	emoteUrl?: string | null
 }
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/**
+ * Twitch prefixes reply messages with the parent mention ("@parentName ...").
+ * Strip that leading mention so only the actual reply text is displayed.
+ */
+export function stripReplyMention(
+	fragments: readonly ChatEventFragment[],
+	parentUserName: string,
+): ChatEventFragment[] {
+	const [first, ...rest] = fragments
+	if (!first) return [...fragments]
+
+	if (first.type === 'mention') {
+		const [second, ...others] = rest
+		if (second && second.type === 'text') {
+			const text = second.text.replace(/^\s+/, '')
+			return text ? [{ ...second, text }, ...others] : others
+		}
+		return rest
+	}
+
+	if (first.type !== 'text' || !parentUserName) return [...fragments]
+
+	const mentionRegexp = new RegExp(`^@${escapeRegExp(parentUserName)}\\s*`, 'i')
+	if (!mentionRegexp.test(first.text)) return [...fragments]
+
+	const text = first.text.replace(mentionRegexp, '')
+	return text ? [{ ...first, text }, ...rest] : rest
+}
+
 export function useFragmentsToChunks() {
 	const { emotes: thirdPartyEmotes } = useEmotes()
 

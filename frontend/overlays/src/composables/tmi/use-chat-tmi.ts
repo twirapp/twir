@@ -100,6 +100,13 @@ export function useChatTmi(options: Ref<ChatSettings>) {
 		}
 	}
 
+	function stripReplyMention(message: string, reply: Message['reply']): string {
+		if (!reply?.parentUserName) return message
+
+		const escaped = reply.parentUserName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+		return message.replace(new RegExp(`^@${escaped}\\s*`, 'i'), '')
+	}
+
 	async function destroy() {
 		if (!client) return
 
@@ -121,19 +128,22 @@ export function useChatTmi(options: Ref<ChatSettings>) {
 		})
 
 		client.on('message', (_channel, tags, message) => {
+			const reply = messageReply(tags)
+			const text = stripReplyMention(message, reply)
+
 			options.value.onMessage(createMessage({
 				id: tags.id,
 				type: 'message',
 				platform: 'twitch',
-				rawMessage: message,
-				chunks: messageChunks(message, tags),
+				rawMessage: text,
+				chunks: messageChunks(text, tags),
 				sender: tags.username,
 				senderId: tags['user-id']!,
 				senderColor: tags.color,
 				senderDisplayName: tags['display-name'],
 				badges: tags.badges as Record<string, string> | undefined,
 				isItalic: tags['message-type'] === 'action',
-				reply: messageReply(tags),
+				reply,
 			}))
 		})
 
