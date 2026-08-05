@@ -35,7 +35,6 @@ import {
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -280,15 +279,42 @@ function findSongImage(id: string): string {
 										</p>
 									</div>
 									<Select v-model="formValue.mode">
-										<SelectTrigger class="w-40">
-											<SelectValue :placeholder="t('songRequests.settings.mode')" />
+										<SelectTrigger class="w-44">
+											<div class="flex items-center gap-2">
+												<Icon
+													:name="
+														formValue.mode === SongRequestMode.Spotify
+															? 'simple-icons:spotify'
+															: 'simple-icons:youtube'
+													"
+													class="size-4"
+													:class="
+														formValue.mode === SongRequestMode.Spotify
+															? 'text-[#1DB954]'
+															: 'text-[#FF0000]'
+													"
+												/>
+												<span>{{ formValue.mode === SongRequestMode.Spotify ? 'Spotify' : 'YouTube' }}</span>
+											</div>
 										</SelectTrigger>
 										<SelectContent>
 											<SelectItem :value="SongRequestMode.Youtube">
-												YouTube
+												<div class="flex items-center gap-2">
+													<Icon
+														name="simple-icons:youtube"
+														class="size-4 text-[#FF0000]"
+													/>
+													<span>YouTube</span>
+												</div>
 											</SelectItem>
 											<SelectItem :value="SongRequestMode.Spotify">
-												Spotify
+												<div class="flex items-center gap-2">
+													<Icon
+														name="simple-icons:spotify"
+														class="size-4 text-[#1DB954]"
+													/>
+													<span>Spotify</span>
+												</div>
 											</SelectItem>
 										</SelectContent>
 									</Select>
