@@ -1,6 +1,6 @@
 import type { MaybeRef } from 'vue'
 
-import { useQuery } from '@urql/vue'
+import { useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { unref } from 'vue'
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
@@ -195,6 +195,41 @@ export const useSongRequestsApi = createGlobalState(() => {
 			},
 		})
 
+	const useSpotifyQueueSubscription = (channelId: MaybeRef<string>, pause?: MaybeRef<boolean>) =>
+		useSubscription({
+			query: graphql(`
+				subscription SpotifySongRequestsQueueUpdated($channelId: UUID!) {
+					spotifySongRequestsQueueUpdated(channelId: $channelId) {
+						currentDevice {
+							id
+							name
+							type
+							isActive
+						}
+						requests {
+							id
+							title
+							artist
+							album
+							durationMs
+							requesterName
+							requesterDisplayName
+							source
+							queuePosition
+							status
+							createdAt
+						}
+					}
+				}
+			`),
+			get variables() {
+				return { channelId: unref(channelId) }
+			},
+			get pause() {
+				return (unref(pause) ?? false) || !unref(channelId)
+			},
+		})
+
 	const useSpotifySelectDeviceMutation = () =>
 		useMutation(
 			graphql(`
@@ -245,6 +280,7 @@ export const useSongRequestsApi = createGlobalState(() => {
 		useSongRequestMutation,
 		useYoutubeVideoOrChannelSearch,
 		useSpotifyQueueQuery,
+		useSpotifyQueueSubscription,
 		useSpotifyTrackSearch,
 		useSpotifySelectDeviceMutation,
 		useSpotifyRefreshDeviceMutation,

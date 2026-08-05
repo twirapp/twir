@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { formatDistanceToNow } from 'date-fns'
 import { toast } from 'vue-sonner'
+import { useProfile } from '~~/layers/dashboard/api/auth'
 import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
 import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
@@ -30,11 +31,25 @@ const spotifyAuthLink = computed(() => integrationsPage.spotifyAuthLink.value)
 
 const capabilities = computed(() => settingsQuery.data.value?.songRequests?.spotifyCapabilities)
 
-const queueQuery = songRequestsApi.useSpotifyQueueQuery(
-	computed(() => !capabilities.value?.canUseSpotify)
-)
-const queue = computed(() => queueQuery.data.value?.spotifySongRequestsQueue.requests ?? [])
-const currentDevice = computed(() => queueQuery.data.value?.spotifySongRequestsQueue.currentDevice)
+const queuePaused = computed(() => !capabilities.value?.canUseSpotify)
+const queueQuery = songRequestsApi.useSpotifyQueueQuery(queuePaused)
+
+const { data: profile } = useProfile()
+const channelId = computed(() => profile.value?.selectedDashboardId ?? '')
+const queueSubscription = songRequestsApi.useSpotifyQueueSubscription(channelId, queuePaused)
+
+const queue = computed(() => {
+	if (queueSubscription.data.value !== undefined) {
+		return queueSubscription.data.value.spotifySongRequestsQueueUpdated.requests ?? []
+	}
+	return queueQuery.data.value?.spotifySongRequestsQueue.requests ?? []
+})
+const currentDevice = computed(() => {
+	if (queueSubscription.data.value !== undefined) {
+		return queueSubscription.data.value.spotifySongRequestsQueueUpdated.currentDevice ?? null
+	}
+	return queueQuery.data.value?.spotifySongRequestsQueue.currentDevice
+})
 
 function connectSpotify() {
 	if (!spotifyAuthLink.value) return

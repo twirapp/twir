@@ -16,8 +16,13 @@ const integrationsPageMock = vi.hoisted(() => ({
 	useIntegrationsPageData: vi.fn(),
 }))
 
+const authMock = vi.hoisted(() => ({
+	useProfile: vi.fn(),
+}))
+
 vi.mock('~~/layers/dashboard/api/song-requests', () => api)
 vi.mock('~~/layers/dashboard/api/integrations/integrations-page.js', () => integrationsPageMock)
+vi.mock('~~/layers/dashboard/api/auth', () => authMock)
 
 const i18n = createI18n<[typeof en], 'en'>({
 	legacy: false,
@@ -93,6 +98,7 @@ function mockApi(capabilities: Record<string, unknown>, requests: Array<Record<s
 	api.useSongRequestsApi.mockReturnValue({
 		useSongRequestQuery: () => createSettingsQuery(capabilities),
 		useSpotifyQueueQuery: () => createQueueQuery(requests, currentDevice),
+		useSpotifyQueueSubscription: () => ({ data: ref(undefined), fetching: ref(false) }),
 		useSpotifySkipMutation: () => ({ executeMutation: mutations.skip }),
 		useSpotifyCancelMutation: () => ({ executeMutation: mutations.cancel }),
 		useSpotifyRefreshDeviceMutation: () => ({ executeMutation: mutations.refreshDevice }),
@@ -101,6 +107,10 @@ function mockApi(capabilities: Record<string, unknown>, requests: Array<Record<s
 	integrationsPageMock.useIntegrationsPageData.mockReturnValue({
 		spotifyAuthLink: ref('https://accounts.spotify.com/authorize?client_id=test'),
 		spotifyData: ref(null),
+	} as never)
+
+	authMock.useProfile.mockReturnValue({
+		data: ref({ selectedDashboardId: 'dashboard-1' }),
 	} as never)
 
 	return mutations
@@ -113,6 +123,10 @@ describe('SpotifyQueue', () => {
 		integrationsPageMock.useIntegrationsPageData.mockReturnValue({
 			spotifyAuthLink: ref('https://accounts.spotify.com/authorize?client_id=test'),
 			spotifyData: ref(null),
+		} as never)
+		authMock.useProfile.mockReset()
+		authMock.useProfile.mockReturnValue({
+			data: ref({ selectedDashboardId: 'dashboard-1' }),
 		} as never)
 		document.body.replaceChildren()
 	})
@@ -208,6 +222,7 @@ describe('SpotifyQueue', () => {
 				capturedPause = pause
 				return createQueueQuery([])
 			},
+			useSpotifyQueueSubscription: () => ({ data: ref(undefined), fetching: ref(false) }),
 			useSpotifySkipMutation: () => ({ executeMutation: vi.fn() }),
 			useSpotifyCancelMutation: () => ({ executeMutation: vi.fn() }),
 			useSpotifyRefreshDeviceMutation: () => ({ executeMutation: vi.fn() }),
