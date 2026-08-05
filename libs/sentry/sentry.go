@@ -22,7 +22,7 @@ func New(dsn, service string) (*sentry.Client, error) {
 		Dsn:              dsn,
 		AttachStacktrace: true,
 		Tags:             tags,
-		Debug:            true,
+		Debug:            false,
 		SendDefaultPII:   true,
 		EnableLogs:       true,
 		EnableTracing:    true,
