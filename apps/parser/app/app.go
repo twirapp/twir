@@ -72,6 +72,8 @@ import (
 	scheduledvipspostgres "github.com/twirapp/twir/libs/repositories/scheduled_vips/datasource/postgres"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
 	shortenedurlspostgres "github.com/twirapp/twir/libs/repositories/shortened_urls/datasource/postgres"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
+	songrequestssettingspostgres "github.com/twirapp/twir/libs/repositories/song_requests_settings/datasource/postgres"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamspostgres "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -133,6 +135,8 @@ var ProviderSet = wire.NewSet(
 	wire.Bind(new(userswithstatsrepository.Repository), new(*userswithstatspostgres.Pgx)),
 	vkintegrationpostgres.NewFx,
 	wire.Bind(new(vkintegrationrepository.Repository), new(*vkintegrationpostgres.Pgx)),
+	songrequestssettingspostgres.NewFx,
+	wire.Bind(new(songrequestssettingsrepository.Repository), new(*songrequestssettingspostgres.Pgx)),
 	channelscommandsprefixcache.New,
 	commandscache.New,
 	quotescache.New,
@@ -158,6 +162,7 @@ var ProviderSet = wire.NewSet(
 		"ChannelsInfoHistoryRepo", "ChannelEmotesUsagesRepo", "ChannelsCommandsUsagesRepo", "ChatMessagesRepo",
 		"ChannelEventListsRepo", "ChannelsGamesVotebanRepo", "ShortUrlServices", "LastfmRepo", "VKRepo", "FaceitRepo",
 		"I18n", "UsersWithStatsRepository", "QuotesRepo", "QuotesCacher",
+		"SongRequestsSettingsRepo",
 	),
 	variables.New,
 	commands.New,

@@ -35,6 +35,8 @@ import (
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	overlaysttsrepository "github.com/twirapp/twir/libs/repositories/overlays_tts"
 	overlaysttsrepositorypgx "github.com/twirapp/twir/libs/repositories/overlays_tts/pgx"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
+	songrequestssettingsrepositorypgx "github.com/twirapp/twir/libs/repositories/song_requests_settings/datasource/postgres"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsrepositorypgx "github.com/twirapp/twir/libs/repositories/streams/datasource/postgres"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
@@ -56,6 +58,8 @@ var ProviderSet = wire.NewSet(
 	wire.Bind(new(channelsrepository.Repository), new(*channelsrepositorypgx.Pgx)),
 	streamsrepositorypgx.NewFx,
 	wire.Bind(new(streamsrepository.Repository), new(*streamsrepositorypgx.Pgx)),
+	songrequestssettingsrepositorypgx.NewFx,
+	wire.Bind(new(songrequestssettingsrepository.Repository), new(*songrequestssettingsrepositorypgx.Pgx)),
 	commandsrepositorypgx.NewFx,
 	wire.Bind(new(commandsrepository.Repository), new(*commandsrepositorypgx.Pgx)),
 	eventsrepositorypgx.NewFx,

@@ -13,9 +13,10 @@ import (
 	"github.com/twirapp/twir/apps/parser/locales"
 
 	"github.com/twirapp/twir/libs/bus-core/api"
+	song_request_mode "github.com/twirapp/twir/libs/entities/song_request_mode"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
-	"gorm.io/gorm"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 )
 
 var SkipCommand = &types.DefaultCommand{
@@ -31,23 +32,24 @@ var SkipCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		moduleSettings := &model.ChannelSongRequestsSettings{}
-		err := parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channel_id" = ?::uuid`, parseCtx.Channel.DBChannelID).
-			First(moduleSettings).Error
-
+		moduleSettings, err := parseCtx.Services.SongRequestsSettingsRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
+			if errors.Is(err, songrequestssettingsrepository.ErrNotFound) {
 				return result, nil
-			} else {
-				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
-					Err:     err,
-				}
+			}
+
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
+				Err:     err,
 			}
 		}
 
 		if !moduleSettings.Enabled {
+			return result, nil
+		}
+
+		if moduleSettings.Mode == song_request_mode.ModeSpotify {
+			result.Result = append(result.Result, "Voteskip not supported in Spotify mode")
 			return result, nil
 		}
 

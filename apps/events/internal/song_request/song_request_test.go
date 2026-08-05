@@ -13,6 +13,8 @@ import (
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
+	songrequestmode "github.com/twirapp/twir/libs/entities/song_request_mode"
+	songrequestsettingsentity "github.com/twirapp/twir/libs/entities/song_requests_settings"
 	model "github.com/twirapp/twir/libs/gomodels"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -23,6 +25,7 @@ import (
 type songRequestQueue[Req, Res any] struct {
 	requestResponse *buscore.QueueResponse[Res]
 	published       []Req
+	requested       []Req
 }
 
 func (q *songRequestQueue[Req, Res]) Publish(_ context.Context, data Req) error {
@@ -30,7 +33,8 @@ func (q *songRequestQueue[Req, Res]) Publish(_ context.Context, data Req) error 
 	return nil
 }
 
-func (q *songRequestQueue[Req, Res]) Request(_ context.Context, _ Req) (*buscore.QueueResponse[Res], error) {
+func (q *songRequestQueue[Req, Res]) Request(_ context.Context, req Req) (*buscore.QueueResponse[Res], error) {
+	q.requested = append(q.requested, req)
 	return q.requestResponse, nil
 }
 
@@ -58,6 +62,28 @@ func (r *songRequestChannelsRepositoryFake) GetByID(
 	uuid.UUID,
 ) (channelentity.Channel, error) {
 	return r.channel, nil
+}
+
+type songRequestSettingsRepositoryFake struct {
+	settings songrequestsettingsentity.Settings
+}
+
+func (r *songRequestSettingsRepositoryFake) GetByChannelID(
+	context.Context,
+	string,
+) (songrequestsettingsentity.Settings, error) {
+	return r.settings, nil
+}
+
+func (r *songRequestSettingsRepositoryFake) Upsert(
+	context.Context,
+	songrequestsettingsentity.Settings,
+) (songrequestsettingsentity.Settings, error) {
+	return songrequestsettingsentity.Nil, nil
+}
+
+func (r *songRequestSettingsRepositoryFake) SetVolume(context.Context, string, int) error {
+	return nil
 }
 
 func TestProcessFromDonationPublishesCanonicalTwitchCommands(t *testing.T) {
@@ -98,9 +124,16 @@ func TestProcessFromDonationPublishesCanonicalTwitchCommands(t *testing.T) {
 		nil,
 	)
 	service := &SongRequest{
-		gorm:           newSongRequestTestDB(t),
-		twirBus:        bus,
-		logger:         slog.Default(),
+		gorm:    newSongRequestTestDB(t),
+		twirBus: bus,
+		logger:  slog.Default(),
+		songRequestsSettingsRepo: &songRequestSettingsRepositoryFake{
+			settings: songrequestsettingsentity.Settings{
+				Enabled:                     true,
+				Mode:                        songrequestmode.ModeYouTube,
+				TakeSongFromDonationMessage: true,
+			},
+		},
 		channelService: channelService,
 	}
 
@@ -171,6 +204,7 @@ func newSongRequestTestDB(t *testing.T) *gorm.DB {
 			case *model.ChannelSongRequestsSettings:
 				*destination = model.ChannelSongRequestsSettings{
 					Enabled:                     true,
+					Mode:                        string(songrequestmode.ModeYouTube),
 					TakeSongFromDonationMessage: true,
 				}
 			case *model.ChannelsCommands:
