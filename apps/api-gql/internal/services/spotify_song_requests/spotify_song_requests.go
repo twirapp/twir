@@ -104,7 +104,7 @@ func (s *Service) CreateRequest(
 		return spotify_song_request.Nil, spotify.ErrInsufficientScope
 	}
 
-	track, err := resolveTrack(ctx, client, query)
+	track, err := s.resolveTrack(ctx, client, query)
 	if err != nil {
 		return spotify_song_request.Nil, err
 	}

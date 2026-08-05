@@ -156,7 +156,7 @@ func (s *Service) invalidateDeviceCache(ctx context.Context, channelID string) {
 	}
 }
 
-func resolveTrack(
+func (s *Service) resolveTrack(
 	ctx context.Context,
 	client spotifyClient,
 	query string,

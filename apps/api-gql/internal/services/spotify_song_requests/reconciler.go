@@ -100,6 +100,12 @@ func (r *Reconciler) tick(ctx context.Context) (bool, int) {
 	return hadError, len(channels)
 }
 
+type playbackSnapshot struct {
+	currentURI      string
+	currentDeviceID string
+	queueURIs       map[string]struct{}
+}
+
 func (r *Reconciler) reconcileChannel(ctx context.Context, channelID string) bool {
 	activeRequests, err := r.service.spotifySongRequestsRepository.GetActiveByChannel(ctx, channelID)
 	if err != nil {
@@ -121,104 +127,25 @@ func (r *Reconciler) reconcileChannel(ctx context.Context, channelID string) boo
 		return false
 	}
 
-	currentlyPlaying, err := client.GetCurrentlyPlaying(ctx)
-	if err != nil {
-		if errors.Is(err, spotify.ErrInsufficientScope) {
-			r.markRequestsUnknown(ctx, channelID, activeRequests)
-			return false
-		}
-		if errors.Is(err, spotify.ErrNoActiveDevice) {
-			return false
-		}
-		if errors.Is(err, spotify.ErrRateLimited) {
-			r.service.logger.ErrorContext(ctx, "spotify currently-playing rate limited", logger.Error(err), slog.String("channel_id", channelID))
-			return true
-		}
-		r.service.logger.ErrorContext(ctx, "failed to get spotify currently playing track", logger.Error(err), slog.String("channel_id", channelID))
+	snapshot, hadError, skip := r.loadPlaybackSnapshot(ctx, channelID, client, activeRequests)
+	if skip {
+		return hadError
+	}
+
+	if r.reconcileMissingRequests(ctx, channelID, activeRequests, snapshot) {
 		return true
-	}
-
-	queue, err := client.GetQueue(ctx)
-	if err != nil {
-		if errors.Is(err, spotify.ErrRateLimited) {
-			r.service.logger.ErrorContext(ctx, "spotify queue rate limited", logger.Error(err), slog.String("channel_id", channelID))
-			return true
-		}
-		r.service.logger.ErrorContext(ctx, "failed to get spotify queue", logger.Error(err), slog.String("channel_id", channelID))
-		return true
-	}
-
-	queueURIs := make(map[string]struct{}, len(queue)+1)
-	currentURI := ""
-	currentDeviceID := ""
-	if currentlyPlaying != nil {
-		currentDeviceID = currentlyPlaying.Device.ID
-		if currentlyPlaying.Device.ID != "" {
-			if err := r.service.cacheDevice(ctx, channelID, currentlyPlaying.Device); err != nil {
-				r.service.logger.ErrorContext(
-					ctx,
-					"failed to cache spotify device",
-					logger.Error(err),
-					slog.String("channel_id", channelID),
-				)
-			}
-		}
-		if currentlyPlaying.Item != nil {
-			currentURI = currentlyPlaying.Item.URI
-			queueURIs[currentURI] = struct{}{}
-		}
-	}
-	for _, track := range queue {
-		queueURIs[track.URI] = struct{}{}
-	}
-
-	if r.anyRequestPresent(activeRequests, queueURIs, currentURI) {
-		r.clearMissingSince(channelID)
-	} else if r.shouldRemoveMissing(channelID) {
-		for _, request := range activeRequests {
-			if request.Status == spotify_song_request.StatusQueued && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusRemovedOrReconciled) {
-				return true
-			}
-		}
 	}
 
 	playingMatched := false
 	for _, request := range activeRequests {
-		if request.Status == spotify_song_request.StatusCancelledPendingSkip && currentURI != "" && request.TrackURI == currentURI {
-			deviceID, deviceErr := r.resolveSkipDevice(ctx, channelID, currentDeviceID)
-			if deviceErr != nil {
-				if errors.Is(deviceErr, spotify.ErrNoActiveDevice) {
-					if r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusUnknown) {
-						return true
-					}
-					continue
-				}
-				r.service.logger.ErrorContext(ctx, "failed to resolve spotify device for skip", logger.Error(deviceErr), slog.String("channel_id", channelID), slog.String("request_id", request.ID.String()))
-				return true
-			}
-
-			if err := client.SkipNext(ctx, deviceID); err != nil {
-				if errors.Is(err, spotify.ErrNoActiveDevice) {
-					if r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusUnknown) {
-						return true
-					}
-					continue
-				}
-				if errors.Is(err, spotify.ErrRateLimited) {
-					r.service.logger.ErrorContext(ctx, "spotify skip rate limited", logger.Error(err), slog.String("channel_id", channelID), slog.String("request_id", request.ID.String()))
-					return true
-				}
-				r.service.logger.ErrorContext(ctx, "failed to skip spotify track", logger.Error(err), slog.String("channel_id", channelID), slog.String("request_id", request.ID.String()))
-				return true
-			}
-
-			if r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusSkippedByTwir) {
+		if request.Status == spotify_song_request.StatusCancelledPendingSkip && snapshot.currentURI != "" && request.TrackURI == snapshot.currentURI {
+			if r.executeDeferredSkip(ctx, channelID, client, request, snapshot.currentDeviceID) {
 				return true
 			}
 			continue
 		}
 
-		if request.TrackURI == currentURI && !playingMatched {
+		if request.TrackURI == snapshot.currentURI && !playingMatched {
 			playingMatched = true
 			if request.Status == spotify_song_request.StatusQueued && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusPlaying) {
 				return true
@@ -226,21 +153,159 @@ func (r *Reconciler) reconcileChannel(ctx context.Context, channelID string) boo
 			continue
 		}
 
-		if _, present := queueURIs[request.TrackURI]; present {
+		if _, present := snapshot.queueURIs[request.TrackURI]; present {
 			if request.Status != spotify_song_request.StatusQueued && request.Status != spotify_song_request.StatusCancelledPendingSkip && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusQueued) {
 				return true
 			}
 			continue
 		}
 
-		if request.Status == spotify_song_request.StatusPlaying && request.TrackURI != currentURI && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusPlayed) {
+		if request.Status == spotify_song_request.StatusPlaying && request.TrackURI != snapshot.currentURI && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusPlayed) {
 			return true
 		}
 	}
 
-	if !r.anyQueuedRequestPresent(activeRequests, queueURIs, currentURI) {
+	if !r.anyQueuedRequestPresent(activeRequests, snapshot.queueURIs, snapshot.currentURI) {
 		r.markMissingSince(channelID)
 	}
 
 	return false
+}
+
+func (r *Reconciler) loadPlaybackSnapshot(
+	ctx context.Context,
+	channelID string,
+	client spotifyClient,
+	activeRequests []spotify_song_request.SpotifySongRequest,
+) (snapshot *playbackSnapshot, hadError bool, skip bool) {
+	currentlyPlaying, err := client.GetCurrentlyPlaying(ctx)
+	if err != nil {
+		return nil, r.handleCurrentlyPlayingError(ctx, channelID, activeRequests, err), true
+	}
+
+	queue, err := client.GetQueue(ctx)
+	if err != nil {
+		if errors.Is(err, spotify.ErrRateLimited) {
+			r.service.logger.ErrorContext(ctx, "spotify queue rate limited", logger.Error(err), slog.String("channel_id", channelID))
+		} else {
+			r.service.logger.ErrorContext(ctx, "failed to get spotify queue", logger.Error(err), slog.String("channel_id", channelID))
+		}
+		return nil, true, true
+	}
+
+	snapshot = &playbackSnapshot{
+		queueURIs: make(map[string]struct{}, len(queue)+1),
+	}
+	if currentlyPlaying != nil {
+		snapshot.currentDeviceID = currentlyPlaying.Device.ID
+		r.cachePlayerDevice(ctx, channelID, currentlyPlaying.Device)
+		if currentlyPlaying.Item != nil {
+			snapshot.currentURI = currentlyPlaying.Item.URI
+			snapshot.queueURIs[snapshot.currentURI] = struct{}{}
+		}
+	}
+	for _, track := range queue {
+		snapshot.queueURIs[track.URI] = struct{}{}
+	}
+
+	return snapshot, false, false
+}
+
+func (r *Reconciler) handleCurrentlyPlayingError(
+	ctx context.Context,
+	channelID string,
+	activeRequests []spotify_song_request.SpotifySongRequest,
+	err error,
+) bool {
+	switch {
+	case errors.Is(err, spotify.ErrInsufficientScope):
+		r.markRequestsUnknown(ctx, channelID, activeRequests)
+		return false
+	case errors.Is(err, spotify.ErrNoActiveDevice):
+		return false
+	case errors.Is(err, spotify.ErrRateLimited):
+		r.service.logger.ErrorContext(ctx, "spotify currently-playing rate limited", logger.Error(err), slog.String("channel_id", channelID))
+		return true
+	default:
+		r.service.logger.ErrorContext(ctx, "failed to get spotify currently playing track", logger.Error(err), slog.String("channel_id", channelID))
+		return true
+	}
+}
+
+func (r *Reconciler) cachePlayerDevice(ctx context.Context, channelID string, device spotify.Device) {
+	if device.ID == "" {
+		return
+	}
+	if err := r.service.cacheDevice(ctx, channelID, device); err != nil {
+		r.service.logger.ErrorContext(
+			ctx,
+			"failed to cache spotify device",
+			logger.Error(err),
+			slog.String("channel_id", channelID),
+		)
+	}
+}
+
+func (r *Reconciler) reconcileMissingRequests(
+	ctx context.Context,
+	channelID string,
+	activeRequests []spotify_song_request.SpotifySongRequest,
+	snapshot *playbackSnapshot,
+) bool {
+	if r.anyRequestPresent(activeRequests, snapshot.queueURIs, snapshot.currentURI) {
+		r.clearMissingSince(channelID)
+		return false
+	}
+
+	if !r.shouldRemoveMissing(channelID) {
+		return false
+	}
+
+	for _, request := range activeRequests {
+		if request.Status == spotify_song_request.StatusQueued && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusRemovedOrReconciled) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (r *Reconciler) executeDeferredSkip(
+	ctx context.Context,
+	channelID string,
+	client spotifyClient,
+	request spotify_song_request.SpotifySongRequest,
+	currentDeviceID string,
+) bool {
+	deviceID, err := r.resolveSkipDevice(ctx, channelID, currentDeviceID)
+	if err != nil {
+		if errors.Is(err, spotify.ErrNoActiveDevice) {
+			return r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusUnknown)
+		}
+		r.service.logger.ErrorContext(ctx, "failed to resolve spotify device for skip", logger.Error(err), slog.String("channel_id", channelID), slog.String("request_id", request.ID.String()))
+		return true
+	}
+
+	if err := client.SkipNext(ctx, deviceID); err != nil {
+		return r.handleSkipError(ctx, channelID, request, err)
+	}
+
+	return r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusSkippedByTwir)
+}
+
+func (r *Reconciler) handleSkipError(
+	ctx context.Context,
+	channelID string,
+	request spotify_song_request.SpotifySongRequest,
+	err error,
+) bool {
+	if errors.Is(err, spotify.ErrNoActiveDevice) {
+		return r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusUnknown)
+	}
+	if errors.Is(err, spotify.ErrRateLimited) {
+		r.service.logger.ErrorContext(ctx, "spotify skip rate limited", logger.Error(err), slog.String("channel_id", channelID), slog.String("request_id", request.ID.String()))
+		return true
+	}
+	r.service.logger.ErrorContext(ctx, "failed to skip spotify track", logger.Error(err), slog.String("channel_id", channelID), slog.String("request_id", request.ID.String()))
+	return true
 }

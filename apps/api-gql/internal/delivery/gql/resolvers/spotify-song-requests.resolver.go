@@ -10,9 +10,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_song_requests"
 	"github.com/twirapp/twir/libs/entities/song_request_mode"
-	spotify_song_request "github.com/twirapp/twir/libs/entities/spotify_song_request"
 	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/logger"
@@ -169,7 +169,7 @@ func (r *Resolver) buildSpotifyQueue(
 		Requests: make([]gqlmodel.SpotifySongRequest, 0, len(requests)),
 	}
 	for _, request := range requests {
-		result.Requests = append(result.Requests, mapSpotifySongRequest(request))
+		result.Requests = append(result.Requests, mappers.SpotifySongRequestToGQL(request))
 	}
 
 	device, err := r.spotifyDevice(ctx, dashboardID)
@@ -286,36 +286,6 @@ func (r *Resolver) spotifyDevice(ctx context.Context, dashboardID string) (*gqlm
 		Type:     device.Type,
 		IsActive: device.IsActive,
 	}, nil
-}
-
-func mapSpotifySongRequest(request spotify_song_request.SpotifySongRequest) gqlmodel.SpotifySongRequest {
-	status := gqlmodel.SpotifySongRequestStatusUnknown
-	switch request.Status {
-	case spotify_song_request.StatusQueued:
-		status = gqlmodel.SpotifySongRequestStatusQueued
-	case spotify_song_request.StatusPlaying:
-		status = gqlmodel.SpotifySongRequestStatusPlaying
-	case spotify_song_request.StatusPlayed:
-		status = gqlmodel.SpotifySongRequestStatusPlayed
-	case spotify_song_request.StatusSkippedByTwir:
-		status = gqlmodel.SpotifySongRequestStatus("SKIPPED")
-	case spotify_song_request.StatusCancelledPendingSkip:
-		status = gqlmodel.SpotifySongRequestStatusCancelledPendingSkip
-	}
-
-	return gqlmodel.SpotifySongRequest{
-		ID:                   request.ID,
-		Title:                request.Title,
-		Artist:               request.Artist,
-		Album:                request.Album,
-		DurationMs:           request.DurationMs,
-		RequesterName:        request.RequesterName,
-		RequesterDisplayName: request.RequesterDisplayName,
-		Source:               request.Source,
-		QueuePosition:        request.QueuePosition,
-		Status:               status,
-		CreatedAt:            request.CreatedAt,
-	}
 }
 
 func emptySpotifyQueue() *gqlmodel.SpotifySongRequestQueue {
