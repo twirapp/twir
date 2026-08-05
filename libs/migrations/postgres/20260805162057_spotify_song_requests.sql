@@ -2,14 +2,14 @@
 -- +goose StatementBegin
 CREATE TABLE spotify_song_requests (
 	id UUID PRIMARY KEY DEFAULT uuidv7(),
-	channel_id TEXT NOT NULL REFERENCES channels(id),
+	channel_id UUID NOT NULL REFERENCES channels(id),
 	track_id TEXT NOT NULL,
 	track_uri TEXT NOT NULL,
 	title TEXT NOT NULL,
 	artist TEXT NOT NULL,
 	album TEXT NOT NULL,
 	duration_ms INT NOT NULL,
-	requester_user_id TEXT,
+	requester_user_id UUID NOT NULL REFERENCES users(id),
 	requester_name TEXT NOT NULL,
 	requester_display_name TEXT,
 	source TEXT NOT NULL,

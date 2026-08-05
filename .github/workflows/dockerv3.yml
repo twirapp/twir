@@ -221,7 +221,7 @@ jobs:
 
       - name: Install JavaScript dependencies
         if: ${{ matrix.folders.runtime == 'js' && env.run-build == 'true' }}
-        run: bun install --frozen-lockfile
+        run: bun install
 
       - name: Set up Go
         if: env.run-build == 'true'
