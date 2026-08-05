@@ -22,6 +22,7 @@ type SpotifyTrack struct {
 type Device struct {
 	ID               string `json:"id"`
 	Name             string `json:"name"`
+	Type             string `json:"type"`
 	IsActive         bool   `json:"is_active"`
 	IsRestricted     bool   `json:"is_restricted"`
 	IsPrivateSession bool   `json:"is_private_session"`
