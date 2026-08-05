@@ -67,7 +67,8 @@ func (c *listLinkPresets) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	if _, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID); err != nil {
+	link, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID)
+	if err != nil {
 		switch {
 		case errors.Is(err, errShortLinkNotFound):
 			return nil, huma.NewError(http.StatusNotFound, "Link not found")
@@ -78,7 +79,7 @@ func (c *listLinkPresets) Handler(
 		}
 	}
 
-	items, err := c.service.GetLinkPresets(ctx, input.LinkID)
+	items, err := c.service.GetLinkPresets(ctx, link.ID)
 	if err != nil {
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot get link presets", err)
 	}
@@ -149,7 +150,8 @@ func (c *applyPresetToLink) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	if _, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID); err != nil {
+	link, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID)
+	if err != nil {
 		switch {
 		case errors.Is(err, errShortLinkNotFound):
 			return nil, huma.NewError(http.StatusNotFound, "Link not found")
@@ -172,7 +174,7 @@ func (c *applyPresetToLink) Handler(
 	item, err := c.service.ApplyPresetToLink(
 		ctx,
 		shortlinkslinkpresetsrepository.CreateInput{
-			LinkID:   input.LinkID,
+			LinkID:   link.ID,
 			PresetID: input.Body.PresetID,
 		},
 	)
@@ -244,7 +246,8 @@ func (c *removePresetFromLink) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	if _, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID); err != nil {
+	link, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID)
+	if err != nil {
 		switch {
 		case errors.Is(err, errShortLinkNotFound):
 			return nil, huma.NewError(http.StatusNotFound, "Link not found")
@@ -255,7 +258,7 @@ func (c *removePresetFromLink) Handler(
 		}
 	}
 
-	if err := c.service.RemovePresetFromLink(ctx, input.LinkID, input.PresetID); err != nil {
+	if err := c.service.RemovePresetFromLink(ctx, link.ID, input.PresetID); err != nil {
 		return nil, huma.NewError(http.StatusInternalServerError, "Cannot remove preset from link", err)
 	}
 

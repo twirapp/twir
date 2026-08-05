@@ -60,7 +60,8 @@ func (c *deleteLinkBannedUserAgent) Handler(
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	if _, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID); err != nil {
+	link, err := resolveOwnedShortLink(ctx, c.service, c.customDomainsService, user.ID, input.LinkID)
+	if err != nil {
 		switch {
 		case errors.Is(err, errShortLinkNotFound):
 			return nil, huma.NewError(http.StatusNotFound, "Link not found")
@@ -71,7 +72,7 @@ func (c *deleteLinkBannedUserAgent) Handler(
 		}
 	}
 
-	if err := c.service.DeleteLinkBannedUserAgent(ctx, input.ID, input.LinkID); err != nil {
+	if err := c.service.DeleteLinkBannedUserAgent(ctx, input.ID, link.ID); err != nil {
 		switch {
 		case errors.Is(err, shortlinkslinkbannedusaragentsrepository.ErrNotFound):
 			return nil, huma.NewError(http.StatusNotFound, "Banned user agent not found")

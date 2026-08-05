@@ -6,6 +6,7 @@ import (
 )
 
 type ShortenedUrl struct {
+	ID               string
 	ShortID          string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
