@@ -123,12 +123,15 @@ var SrCommand = &types.DefaultCommand{
 		requested := make([]*model.RequestedSong, 0, len(req.Data.Songs))
 		errors := make([]*ReqError, 0, len(req.Data.Songs))
 
-		var maxQueuePosition int
+		var queueStats struct {
+			MaxPosition int
+			QueueCount  int
+		}
 		err = parseCtx.Services.Gorm.WithContext(ctx).
 			Model(&model.RequestedSong{}).
 			Where(`"channelId" = ?::uuid AND "deletedAt" IS NULL`, parseCtx.Channel.DBChannelID).
-			Select(`COALESCE(MAX("queuePosition"), 0)`).
-			Scan(&maxQueuePosition).
+			Select(`COALESCE(MAX("queuePosition"), 0) AS max_position, COUNT(*) AS queue_count`).
+			Scan(&queueStats).
 			Error
 
 		if err != nil {
@@ -168,7 +171,7 @@ var SrCommand = &types.DefaultCommand{
 					Title:                song.Title,
 					Duration:             int32(song.Duration),
 				CreatedAt:            time.Now().UTC(),
-				QueuePosition:        maxQueuePosition + len(requested) + 1,
+				QueuePosition:        queueStats.MaxPosition + len(requested) + 1,
 				SongLink:             null.StringFromPtr(song.Link),
 				}
 
@@ -181,8 +184,8 @@ var SrCommand = &types.DefaultCommand{
 
 		if len(requested) > 0 {
 			requestedMapped := lo.Map(
-				requested, func(item *model.RequestedSong, _ int) string {
-					return fmt.Sprintf("%s (#%v)", item.Title, item.QueuePosition)
+				requested, func(item *model.RequestedSong, idx int) string {
+					return fmt.Sprintf("%s (#%v)", item.Title, queueStats.QueueCount+idx+1)
 				},
 			)
 
