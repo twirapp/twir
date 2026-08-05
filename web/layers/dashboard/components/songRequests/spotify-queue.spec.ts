@@ -12,7 +12,12 @@ const api = vi.hoisted(() => ({
 	useSongRequestsApi: vi.fn(),
 }))
 
+const integrationsPageMock = vi.hoisted(() => ({
+	useIntegrationsPageData: vi.fn(),
+}))
+
 vi.mock('~~/layers/dashboard/api/song-requests', () => api)
+vi.mock('~~/layers/dashboard/api/integrations/integrations-page.js', () => integrationsPageMock)
 
 const i18n = createI18n<[typeof en], 'en'>({
 	legacy: false,
@@ -93,12 +98,22 @@ function mockApi(capabilities: Record<string, unknown>, requests: Array<Record<s
 		useSpotifyRefreshDeviceMutation: () => ({ executeMutation: mutations.refreshDevice }),
 	} as never)
 
+	integrationsPageMock.useIntegrationsPageData.mockReturnValue({
+		spotifyAuthLink: ref('https://accounts.spotify.com/authorize?client_id=test'),
+		spotifyData: ref(null),
+	} as never)
+
 	return mutations
 }
 
 describe('SpotifyQueue', () => {
 	beforeEach(() => {
 		api.useSongRequestsApi.mockReset()
+		integrationsPageMock.useIntegrationsPageData.mockReset()
+		integrationsPageMock.useIntegrationsPageData.mockReturnValue({
+			spotifyAuthLink: ref('https://accounts.spotify.com/authorize?client_id=test'),
+			spotifyData: ref(null),
+		} as never)
 		document.body.replaceChildren()
 	})
 
@@ -109,6 +124,25 @@ describe('SpotifyQueue', () => {
 
 		expect(wrapper.text()).toContain('Spotify is not connected')
 		expect(wrapper.text()).toContain('Connect Spotify')
+	})
+
+	it('opens the OAuth popup when connecting', async () => {
+		mockApi({ connected: false, hasPlaybackScope: false, canUseSpotify: false }, [])
+		const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+
+		const wrapper = mount(SpotifyQueue, mountOptions)
+		const connectButton = wrapper
+			.findAll('button')
+			.find((button) => button.text().includes('Connect Spotify'))
+		expect(connectButton).toBeDefined()
+		await connectButton!.trigger('click')
+
+		expect(openSpy).toHaveBeenCalledWith(
+			'https://accounts.spotify.com/authorize?client_id=test',
+			'Twir connect integration',
+			'width=800,height=600'
+		)
+		openSpy.mockRestore()
 	})
 
 	it('prompts to reconnect when playback scope is missing', () => {

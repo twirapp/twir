@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { formatDistanceToNow } from 'date-fns'
 import { toast } from 'vue-sonner'
+import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page.js'
 import { useSongRequestsApi } from '~~/layers/dashboard/api/song-requests'
 import { convertMillisToTime } from '~~/layers/dashboard/helpers/convertMillisToTime.js'
 
@@ -24,6 +25,9 @@ const { t } = useI18n()
 const songRequestsApi = useSongRequestsApi()
 const settingsQuery = songRequestsApi.useSongRequestQuery()
 
+const integrationsPage = useIntegrationsPageData()
+const spotifyAuthLink = computed(() => integrationsPage.spotifyAuthLink.value)
+
 const capabilities = computed(() => settingsQuery.data.value?.songRequests?.spotifyCapabilities)
 
 const queueQuery = songRequestsApi.useSpotifyQueueQuery(
@@ -31,6 +35,20 @@ const queueQuery = songRequestsApi.useSpotifyQueueQuery(
 )
 const queue = computed(() => queueQuery.data.value?.spotifySongRequestsQueue.requests ?? [])
 const currentDevice = computed(() => queueQuery.data.value?.spotifySongRequestsQueue.currentDevice)
+
+function connectSpotify() {
+	if (!spotifyAuthLink.value) return
+	window.open(spotifyAuthLink.value, 'Twir connect integration', 'width=800,height=600')
+}
+
+watch(
+	() => integrationsPage.spotifyData.value,
+	(data, previous) => {
+		if (!data || data === previous) return
+		settingsQuery.executeQuery({ requestPolicy: 'network-only' })
+		queueQuery.executeQuery({ requestPolicy: 'network-only' })
+	}
+)
 
 const skipMutation = songRequestsApi.useSpotifySkipMutation()
 const cancelMutation = songRequestsApi.useSpotifyCancelMutation()
@@ -126,11 +144,10 @@ function formatRelativeTime(dateStr: string) {
 					<Button
 						size="sm"
 						variant="outline"
-						as-child
+						:disabled="!spotifyAuthLink"
+						@click="connectSpotify"
 					>
-						<NuxtLink to="/dashboard/integrations/spotify">
-							{{ t('songRequests.spotify.connect') }}
-						</NuxtLink>
+						{{ t('songRequests.spotify.connect') }}
 					</Button>
 				</template>
 				<template v-else-if="!capabilities.hasPlaybackScope">
@@ -138,11 +155,10 @@ function formatRelativeTime(dateStr: string) {
 					<Button
 						size="sm"
 						variant="outline"
-						as-child
+						:disabled="!spotifyAuthLink"
+						@click="connectSpotify"
 					>
-						<NuxtLink to="/dashboard/integrations/spotify">
-							{{ t('songRequests.spotify.reconnect') }}
-						</NuxtLink>
+						{{ t('songRequests.spotify.reconnect') }}
 					</Button>
 				</template>
 				<template v-else>

@@ -64,7 +64,10 @@ function copyLink(link: string, label: string) {
 </script>
 
 <template>
-	<Card class="mb-4">
+	<Card
+		v-if="!isSpotifyMode"
+		class="mb-4"
+	>
 		<CardHeader>
 			<CardTitle>{{ t('songRequests.links.title') }}</CardTitle>
 		</CardHeader>
