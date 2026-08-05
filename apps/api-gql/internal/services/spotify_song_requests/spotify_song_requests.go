@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/kv"
+	kvoptions "github.com/twirapp/kv/options"
 	cfg "github.com/twirapp/twir/libs/config"
 	spotify_song_request "github.com/twirapp/twir/libs/entities/spotify_song_request"
 	"github.com/twirapp/twir/libs/integrations/spotify"
@@ -27,6 +28,8 @@ var (
 )
 
 const spotifySongRequestDeviceCachePrefix = "spotify:songrequests:device:"
+
+const spotifySongRequestDeviceCacheTTL = 5 * time.Minute
 
 type Service struct {
 	spotifySongRequestsRepository  spotify_song_requests_repository.Repository
@@ -202,6 +205,22 @@ func (s *Service) CancelRequest(
 	return request, nil
 }
 
+func (s *Service) SkipRequest(ctx context.Context, channelID, requestID string) error {
+	if err := s.ensureRequestChannel(ctx, channelID, requestID); err != nil {
+		return err
+	}
+
+	return s.spotifySongRequestsRepository.UpdateStatus(ctx, requestID, spotify_song_request.StatusSkippedByTwir)
+}
+
+func (s *Service) CancelRequestByID(ctx context.Context, channelID, requestID string) error {
+	if err := s.ensureRequestChannel(ctx, channelID, requestID); err != nil {
+		return err
+	}
+
+	return s.spotifySongRequestsRepository.CancelPendingSkip(ctx, requestID)
+}
+
 func (s *Service) GetActiveQueue(
 	ctx context.Context,
 	channelID string,
@@ -218,6 +237,28 @@ func (s *Service) SelectAndCacheDevice(ctx context.Context, channelID string) (s
 	return s.selectDevice(ctx, channelID, client)
 }
 
+func (s *Service) SetSelectedDevice(ctx context.Context, channelID, deviceID string) error {
+	if s.kv == nil {
+		return nil
+	}
+
+	return s.kv.Set(
+		ctx,
+		spotifySongRequestDeviceCachePrefix+channelID,
+		deviceID,
+		kvoptions.WithExpire(spotifySongRequestDeviceCacheTTL),
+	)
+}
+
+func (s *Service) GetDevices(ctx context.Context, channelID string) ([]spotify.Device, error) {
+	client, _, err := s.loadSpotifyClient(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	return client.GetDevices(ctx)
+}
+
 func (s *Service) SearchTracks(
 	ctx context.Context,
 	channelID string,
@@ -230,4 +271,16 @@ func (s *Service) SearchTracks(
 	}
 
 	return client.SearchTracks(ctx, query, limit)
+}
+
+func (s *Service) ensureRequestChannel(ctx context.Context, channelID, requestID string) error {
+	request, err := s.spotifySongRequestsRepository.GetByID(ctx, requestID)
+	if err != nil {
+		return err
+	}
+	if request.ChannelID != channelID {
+		return spotify_song_requests_repository.ErrNotFound
+	}
+
+	return nil
 }

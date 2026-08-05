@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/google/uuid"
 	kvoptions "github.com/twirapp/kv/options"
@@ -96,7 +95,7 @@ func (s *Service) selectDevice(ctx context.Context, channelID string, client spo
 				ctx,
 				spotifySongRequestDeviceCachePrefix+channelID,
 				device.ID,
-				kvoptions.WithExpire(5*time.Minute),
+				kvoptions.WithExpire(spotifySongRequestDeviceCacheTTL),
 			); err != nil {
 				return "", fmt.Errorf("cache spotify device: %w", err)
 			}

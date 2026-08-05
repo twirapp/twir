@@ -28,6 +28,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	"github.com/twirapp/twir/libs/entities/song_request_mode"
 	songrequestoverlaysettingsentity "github.com/twirapp/twir/libs/entities/song_request_overlay_settings"
 	songrequestssettingsentity "github.com/twirapp/twir/libs/entities/song_requests_settings"
 	"github.com/twirapp/twir/libs/logger"
@@ -55,6 +56,7 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 
 	settings := songrequestssettingsentity.Settings{
 		ChannelID:                            dashboardUUID,
+		Mode:                                 song_request_mode.Mode(opts.Mode),
 		Enabled:                              opts.Enabled,
 		AcceptOnlyWhenOnline:                 opts.AcceptOnlyWhenOnline,
 		PlayerNoCookieMode:                   opts.PlayerNoCookieMode,
@@ -313,6 +315,26 @@ func (r *mutationResolver) SongRequestOverlaySettingsUpdate(ctx context.Context,
 	return &mapped, nil
 }
 
+// SpotifySongRequestSelectDevice is the resolver for the spotifySongRequestSelectDevice field.
+func (r *mutationResolver) SpotifySongRequestSelectDevice(ctx context.Context, deviceID string) (bool, error) {
+	return r.spotifySongRequestSelectDevice(ctx, deviceID)
+}
+
+// SpotifySongRequestRefreshDevice is the resolver for the spotifySongRequestRefreshDevice field.
+func (r *mutationResolver) SpotifySongRequestRefreshDevice(ctx context.Context) (*gqlmodel.SpotifySongRequestDevice, error) {
+	return r.spotifySongRequestRefreshDevice(ctx)
+}
+
+// SpotifySongRequestSkip is the resolver for the spotifySongRequestSkip field.
+func (r *mutationResolver) SpotifySongRequestSkip(ctx context.Context, requestID uuid.UUID) (bool, error) {
+	return r.spotifySongRequestSkip(ctx, requestID)
+}
+
+// SpotifySongRequestCancel is the resolver for the spotifySongRequestCancel field.
+func (r *mutationResolver) SpotifySongRequestCancel(ctx context.Context, requestID uuid.UUID) (bool, error) {
+	return r.spotifySongRequestCancel(ctx, requestID)
+}
+
 // SongRequests is the resolver for the songRequests field.
 func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequestsSettings, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
@@ -345,6 +367,7 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 	}
 
 	return &gqlmodel.SongRequestsSettings{
+		Mode:                  gqlmodel.SongRequestMode(settings.Mode),
 		Enabled:               settings.Enabled,
 		AcceptOnlyWhenOnline:  settings.AcceptOnlyWhenOnline,
 		MaxRequests:           settings.MaxRequests,
@@ -604,9 +627,24 @@ func (r *queryResolver) SongRequestOverlaySettings(ctx context.Context) (*gqlmod
 	return &mapped, nil
 }
 
+// SpotifySongRequestsQueue is the resolver for the spotifySongRequestsQueue field.
+func (r *queryResolver) SpotifySongRequestsQueue(ctx context.Context) (*gqlmodel.SpotifySongRequestQueue, error) {
+	return r.spotifySongRequestsQueue(ctx)
+}
+
+// SpotifySongRequestsSearch is the resolver for the spotifySongRequestsSearch field.
+func (r *queryResolver) SpotifySongRequestsSearch(ctx context.Context, query string, limit *int) ([]gqlmodel.SpotifySongRequestSearchResult, error) {
+	return r.spotifySongRequestsSearch(ctx, query, limit)
+}
+
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *songRequestPublicResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.SongRequestPublic) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
+}
+
+// SpotifyCapabilities is the resolver for the spotifyCapabilities field.
+func (r *songRequestsSettingsResolver) SpotifyCapabilities(ctx context.Context, obj *gqlmodel.SongRequestsSettings) (*gqlmodel.SpotifySongRequestCapabilities, error) {
+	return r.spotifyCapabilities(ctx, obj)
 }
 
 // SongRequestPlaybackState is the resolver for the songRequestPlaybackState field.
@@ -808,4 +846,10 @@ func (r *Resolver) SongRequestPublic() graph.SongRequestPublicResolver {
 	return &songRequestPublicResolver{r}
 }
 
+// SongRequestsSettings returns graph.SongRequestsSettingsResolver implementation.
+func (r *Resolver) SongRequestsSettings() graph.SongRequestsSettingsResolver {
+	return &songRequestsSettingsResolver{r}
+}
+
 type songRequestPublicResolver struct{ *Resolver }
+type songRequestsSettingsResolver struct{ *Resolver }

@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 
 	"github.com/google/uuid"
@@ -69,6 +70,7 @@ func (s *Service) GetSpotifyData(
 	return &entity.SpotifyIntegrationData{
 		UserName: integration.Username,
 		Avatar:   integration.AvatarURI,
+		Scopes:   slices.Clone(integration.Scopes),
 	}, nil
 }
 
