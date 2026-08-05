@@ -127,6 +127,8 @@ import (
 	songrequestoverlaysettingspgx "github.com/twirapp/twir/libs/repositories/song_request_overlay_settings/pgx"
 	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 	songrequestssettingspostgres "github.com/twirapp/twir/libs/repositories/song_requests_settings/datasource/postgres"
+	spotifysongrequestsrepository "github.com/twirapp/twir/libs/repositories/spotify_song_requests"
+	spotifysongrequestsrepositorypgx "github.com/twirapp/twir/libs/repositories/spotify_song_requests/datasource/postgres"
 	streamlabsrepository "github.com/twirapp/twir/libs/repositories/streamlabs_integration"
 	streamlabsrepositorypostgres "github.com/twirapp/twir/libs/repositories/streamlabs_integration/datasource/postgres"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
@@ -296,6 +298,8 @@ var repositoriesSet = wire.NewSet(
 	wire.Bind(new(command_role_cooldown.Repository), new(*commandrolecooldownpgx.Pgx)),
 	songrequestoverlaysettingspgx.NewFx,
 	wire.Bind(new(songrequestoverlaysettingsrepository.Repository), new(*songrequestoverlaysettingspgx.Pgx)),
+	spotifysongrequestsrepositorypgx.NewFx,
+	wire.Bind(new(spotifysongrequestsrepository.Repository), new(*spotifysongrequestsrepositorypgx.Pgx)),
 	requestedsongspostgres.NewFx,
 	wire.Bind(new(requestedsongsrepository.Repository), new(*requestedsongspostgres.Pgx)),
 	songrequestssettingspostgres.NewFx,

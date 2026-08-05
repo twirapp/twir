@@ -291,6 +291,30 @@ ORDER BY queue_position ASC, created_at ASC`
 	return result, nil
 }
 
+func (c *Pgx) GetActiveChannels(ctx context.Context) ([]string, error) {
+	query := `SELECT DISTINCT channel_id
+FROM spotify_song_requests
+WHERE status IN ('queued', 'playing', 'cancelled_pending_skip')
+ORDER BY channel_id ASC`
+
+	rows, err := c.pool.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("query active spotify song request channels: %w", err)
+	}
+
+	channelIDs, err := pgx.CollectRows(rows, pgx.RowTo[string])
+	if err != nil {
+		return nil, fmt.Errorf("collect active spotify song request channels: %w", err)
+	}
+
+	result := make([]string, 0, len(channelIDs))
+	for _, channelID := range channelIDs {
+		result = append(result, channelID)
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) CountActiveByChannel(
 	ctx context.Context,
 	channelID string,

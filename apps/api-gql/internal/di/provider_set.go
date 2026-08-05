@@ -94,6 +94,7 @@ import (
 	songrequestoverlaysettings "github.com/twirapp/twir/apps/api-gql/internal/services/song_request_overlay_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
+	spotify_song_requests "github.com/twirapp/twir/apps/api-gql/internal/services/spotify_song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	streamlabsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/streamlabs_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -193,6 +194,7 @@ var ProviderSet = wire.NewSet(
 		channels_secret.New,
 		channels_storage.New,
 		song_requests.New,
+		spotify_song_requests.New,
 		song_requests.NewPlaybackStateService,
 		songrequestoverlaysettings.New,
 		community_redemptions.New,
@@ -285,6 +287,7 @@ var ProviderSet = wire.NewSet(
 	v2publicroutes.New,
 	http_webhooks.New,
 	song_requests.NewBridge,
+	spotify_song_requests.NewReconciler,
 	RegisterChannelsFilesRoute,
 	RegisterValorantRoute,
 	RegisterStreamRoute,

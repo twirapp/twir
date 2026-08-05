@@ -11,6 +11,7 @@ type Repository interface {
 	GetByID(ctx context.Context, id string) (spotify_song_request.SpotifySongRequest, error)
 	GetActiveByChannel(ctx context.Context, channelID string) ([]spotify_song_request.SpotifySongRequest, error)
 	GetActiveByRequester(ctx context.Context, channelID, requesterName string) ([]spotify_song_request.SpotifySongRequest, error)
+	GetActiveChannels(ctx context.Context) ([]string, error)
 	CountActiveByChannel(ctx context.Context, channelID string) (int64, error)
 	CountActiveByRequester(ctx context.Context, channelID, requesterName string) (int64, error)
 	ListByChannel(ctx context.Context, channelID string, limit int) ([]spotify_song_request.SpotifySongRequest, error)
