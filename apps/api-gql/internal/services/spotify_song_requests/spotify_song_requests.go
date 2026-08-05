@@ -82,15 +82,10 @@ func (s *Service) CreateRequest(
 		return spotify_song_request.Nil, spotify.ErrInsufficientScope
 	}
 
-	tracks, err := client.SearchTracks(ctx, query, 5)
+	track, err := resolveTrack(ctx, client, query)
 	if err != nil {
 		return spotify_song_request.Nil, err
 	}
-	if len(tracks) == 0 {
-		return spotify_song_request.Nil, ErrTrackNotFound
-	}
-
-	track := tracks[0]
 	if settings.MaxRequests > 0 {
 		count, err := s.spotifySongRequestsRepository.CountActiveByChannel(ctx, channelID)
 		if err != nil {

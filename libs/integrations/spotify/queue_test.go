@@ -41,6 +41,56 @@ func TestSpotify_GetQueue_returns_tracks(t *testing.T) {
 	}
 }
 
+func TestSpotify_GetTrackByID(t *testing.T) {
+	t.Run("returns parsed track", func(t *testing.T) {
+		defaultClient := http.DefaultClient
+		http.DefaultClient = &http.Client{
+			Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+				if req.Method != http.MethodGet {
+					t.Fatalf("method = %s, want GET", req.Method)
+				}
+				if req.URL.Path != "/v1/tracks/track-1" {
+					t.Fatalf("path = %s, want /v1/tracks/track-1", req.URL.Path)
+				}
+
+				body := `{"id":"track-1","uri":"spotify:track:track-1","name":"Song","type":"track","artists":[{"name":"Artist"}],"album":{"name":"Album","images":[{"url":"https://img/1.jpg"}]},"duration_ms":180000}`
+				return spotifyTestResponse(req, http.StatusOK, body, nil), nil
+			}),
+		}
+		t.Cleanup(func() {
+			http.DefaultClient = defaultClient
+		})
+
+		track, err := NewStatic("access-token", nil).GetTrackByID(context.Background(), "track-1")
+		if err != nil {
+			t.Fatalf("GetTrackByID() error = %v", err)
+		}
+		if track.ID != "track-1" || track.URI != "spotify:track:track-1" || track.Name != "Song" {
+			t.Fatalf("track = %#v, want parsed fields", track)
+		}
+		if track.ArtistName != "Artist" || track.AlbumName != "Album" || track.DurationMs != 180000 {
+			t.Fatalf("track = %#v, want mapped fields", track)
+		}
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		defaultClient := http.DefaultClient
+		http.DefaultClient = &http.Client{
+			Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+				return spotifyTestResponse(req, http.StatusNotFound, `{"error":{"status":404,"message":"not found"}}`, nil), nil
+			}),
+		}
+		t.Cleanup(func() {
+			http.DefaultClient = defaultClient
+		})
+
+		_, err := NewStatic("access-token", nil).GetTrackByID(context.Background(), "missing")
+		if !errors.Is(err, ErrTrackNotFound) {
+			t.Fatalf("GetTrackByID() error = %v, want %v", err, ErrTrackNotFound)
+		}
+	})
+}
+
 func TestSpotify_AddToQueue_handles_success_and_errors(t *testing.T) {
 	tests := []struct {
 		name             string

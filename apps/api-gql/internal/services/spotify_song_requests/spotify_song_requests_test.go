@@ -276,6 +276,56 @@ func newService(
 	)
 }
 
+func TestService_CreateRequest_with_spotify_link_fetches_track_directly(t *testing.T) {
+	const trackID = "6IqfoZlee8TYVSUhIiug0P"
+	var searchCalled bool
+	swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {
+		switch req.URL.Path {
+		case "/v1/search":
+			searchCalled = true
+			return fixtureResponse(req, http.StatusOK, searchResponseBody), nil
+		case "/v1/tracks/" + trackID:
+			body := `{"id":"` + trackID + `","uri":"spotify:track:` + trackID + `","name":"Linked Song","type":"track","artists":[{"name":"Linked Artist"}],"album":{"name":"Album","images":[]},"duration_ms":180000}`
+			return fixtureResponse(req, http.StatusOK, body), nil
+		case "/v1/me/player/devices":
+			return fixtureResponse(req, http.StatusOK, devicesResponseBody), nil
+		case "/v1/me/player/queue":
+			return fixtureResponse(req, http.StatusNoContent, ""), nil
+		default:
+			t.Fatalf("unexpected request path %s", req.URL.Path)
+			return nil, nil
+		}
+	})
+
+	requestsRepo := newFakeRequestsRepository()
+	service := newService(
+		&fakeSettingsRepository{settings: spotifySettings()},
+		&fakeIntegrationsRepository{
+			integration: spotifyIntegration("user-read-playback-state", "user-modify-playback-state"),
+		},
+		requestsRepo,
+	)
+
+	request, err := service.CreateRequest(
+		context.Background(),
+		testChannelID,
+		"user-1",
+		"viewer",
+		"Viewer",
+		"chat",
+		"https://open.spotify.com/track/"+trackID+"?si=1a13b96e0ad14bf0",
+	)
+	if err != nil {
+		t.Fatalf("CreateRequest() error = %v", err)
+	}
+	if searchCalled {
+		t.Fatal("search endpoint was called for a spotify link query")
+	}
+	if request.TrackID != trackID || request.Title != "Linked Song" || request.Artist != "Linked Artist" {
+		t.Fatalf("request = %#v, want linked track fields", request)
+	}
+}
+
 func TestService_CreateRequest_success(t *testing.T) {
 	var queueAddedURI string
 	swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {

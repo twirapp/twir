@@ -49,6 +49,40 @@ func (c *Spotify) SearchTracks(ctx context.Context, query string, limit int) ([]
 	return tracks, nil
 }
 
+func (c *Spotify) GetTrackByID(ctx context.Context, trackID string) (*SpotifyTrack, error) {
+	if trackID == "" {
+		return nil, ErrTrackNotFound
+	}
+
+	resp, err := c.doRequest(
+		ctx,
+		http.MethodGet,
+		"https://api.spotify.com/v1/tracks/"+url.PathEscape(trackID),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, ErrTrackNotFound
+	}
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, rateLimitedError(resp.Header)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("cannot get spotify track: %s", truncateBody(resp.Body))
+	}
+
+	var item spotifyTrackItem
+	if err := json.Unmarshal(resp.Body, &item); err != nil {
+		return nil, fmt.Errorf("failed to parse track response: %w", err)
+	}
+
+	track := trackFromItem(item)
+	return &track, nil
+}
+
 func (c *Spotify) AddToQueue(ctx context.Context, trackURI string, deviceID string) error {
 	apiURL, err := url.Parse("https://api.spotify.com/v1/me/player/queue")
 	if err != nil {

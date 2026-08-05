@@ -20,6 +20,7 @@ import (
 
 type spotifyClient interface {
 	SearchTracks(ctx context.Context, query string, limit int) ([]spotify.SpotifyTrack, error)
+	GetTrackByID(ctx context.Context, trackID string) (*spotify.SpotifyTrack, error)
 	GetDevices(ctx context.Context) ([]spotify.Device, error)
 	AddToQueue(ctx context.Context, trackURI string, deviceID string) error
 	GetCurrentlyPlaying(ctx context.Context) (*spotify.CurrentlyPlaying, error)
@@ -119,4 +120,28 @@ func (s *Service) invalidateDeviceCache(ctx context.Context, channelID string) {
 			slog.String("channel_id", channelID),
 		)
 	}
+}
+
+func resolveTrack(
+	ctx context.Context,
+	client spotifyClient,
+	query string,
+) (spotify.SpotifyTrack, error) {
+	if trackID, ok := spotify.ParseTrackID(query); ok {
+		track, err := client.GetTrackByID(ctx, trackID)
+		if err != nil {
+			return spotify.SpotifyTrack{}, err
+		}
+		return *track, nil
+	}
+
+	tracks, err := client.SearchTracks(ctx, query, 5)
+	if err != nil {
+		return spotify.SpotifyTrack{}, err
+	}
+	if len(tracks) == 0 {
+		return spotify.SpotifyTrack{}, ErrTrackNotFound
+	}
+
+	return tracks[0], nil
 }
