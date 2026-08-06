@@ -5,6 +5,7 @@ import OverlaySettingsModal from '~~/layers/dashboard/components/songRequests/ov
 import Player from '~~/layers/dashboard/components/songRequests/player.vue'
 import VideosQueue from '~~/layers/dashboard/components/songRequests/queue.vue'
 import SettingsModal from '~~/layers/dashboard/components/songRequests/settings.vue'
+import SpotifyDevice from '~~/layers/dashboard/components/songRequests/spotify-device.vue'
 import SpotifyQueue from '~~/layers/dashboard/components/songRequests/spotify-queue.vue'
 
 import type { SongRequestsSettingsOpts } from '~/gql/graphql.js'
@@ -83,33 +84,36 @@ function copyLink(link: string, label: string) {
 
 <template>
 	<div class="mb-4 flex items-center justify-between gap-2">
-		<Tabs
-			:model-value="songRequestMode"
-			@update:model-value="switchMode"
-		>
-			<TabsList class="grid w-56 grid-cols-2">
-				<TabsTrigger
-					:value="SongRequestMode.Youtube"
-					class="flex items-center gap-2"
-				>
-					<Icon
-						name="simple-icons:youtube"
-						class="size-4 text-[#FF0000]"
-					/>
-					<span>YouTube</span>
-				</TabsTrigger>
-				<TabsTrigger
-					:value="SongRequestMode.Spotify"
-					class="flex items-center gap-2"
-				>
-					<Icon
-						name="simple-icons:spotify"
-						class="size-4 text-[#1DB954]"
-					/>
-					<span>Spotify</span>
-				</TabsTrigger>
-			</TabsList>
-		</Tabs>
+		<div class="flex items-center gap-2">
+			<Tabs
+				:model-value="songRequestMode"
+				@update:model-value="switchMode"
+			>
+				<TabsList class="grid w-56 grid-cols-2">
+					<TabsTrigger
+						:value="SongRequestMode.Youtube"
+						class="flex items-center gap-2"
+					>
+						<Icon
+							name="simple-icons:youtube"
+							class="size-4 text-[#FF0000]"
+						/>
+						<span>YouTube</span>
+					</TabsTrigger>
+					<TabsTrigger
+						:value="SongRequestMode.Spotify"
+						class="flex items-center gap-2"
+					>
+						<Icon
+							name="simple-icons:spotify"
+							class="size-4 text-[#1DB954]"
+						/>
+						<span>Spotify</span>
+					</TabsTrigger>
+				</TabsList>
+			</Tabs>
+			<SpotifyDevice v-if="isSpotifyMode" />
+		</div>
 		<Button
 			variant="outline"
 			size="sm"

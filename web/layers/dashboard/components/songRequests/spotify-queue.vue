@@ -44,13 +44,6 @@ const queue = computed(() => {
 	}
 	return queueQuery.data.value?.spotifySongRequestsQueue.requests ?? []
 })
-const currentDevice = computed(() => {
-	return (
-		queueSubscription.data.value?.spotifySongRequestsQueueUpdated.currentDevice ??
-		queueQuery.data.value?.spotifySongRequestsQueue.currentDevice ??
-		null
-	)
-})
 
 function connectSpotify() {
 	if (!spotifyAuthLink.value) return
@@ -68,7 +61,6 @@ watch(
 
 const skipMutation = songRequestsApi.useSpotifySkipMutation()
 const cancelMutation = songRequestsApi.useSpotifyCancelMutation()
-const refreshDeviceMutation = songRequestsApi.useSpotifyRefreshDeviceMutation()
 
 const totalSongsLength = computed(() => {
 	return convertMillisToTime(queue.value.reduce((acc, cur) => acc + cur.durationMs, 0))
@@ -114,15 +106,6 @@ async function cancelRequest() {
 	await executeWithToast(cancelMutation, cancelTargetId.value)
 }
 
-async function refreshDevice() {
-	const result = await refreshDeviceMutation.executeMutation({})
-	if (result.error) {
-		toast.error(result.error.message, { duration: 5000 })
-		return
-	}
-	toast.success(t('songRequests.spotify.deviceRefreshed'), { duration: 2500 })
-}
-
 function statusVariant(status: SpotifySongRequestStatus): 'default' | 'secondary' | 'destructive' | 'outline' {
 	switch (status) {
 		case SpotifySongRequestStatus.Playing:
@@ -148,7 +131,10 @@ function formatRelativeTime(dateStr: string) {
 </script>
 
 <template>
-	<Card class="mb-4">
+	<Card
+		v-if="!capabilities?.connected || !capabilities.hasPlaybackScope"
+		class="mb-4"
+	>
 		<CardContent class="flex flex-wrap items-center gap-2 p-4">
 			<Icon
 				name="simple-icons:spotify"
@@ -165,7 +151,7 @@ function formatRelativeTime(dateStr: string) {
 					{{ t('songRequests.spotify.connect') }}
 				</Button>
 			</template>
-			<template v-else-if="!capabilities.hasPlaybackScope">
+			<template v-else>
 				<span class="text-sm">{{ t('songRequests.spotify.missingScope') }}</span>
 				<Button
 					size="sm"
@@ -174,29 +160,6 @@ function formatRelativeTime(dateStr: string) {
 					@click="connectSpotify"
 				>
 					{{ t('songRequests.spotify.reconnect') }}
-				</Button>
-			</template>
-			<template v-else>
-				<span class="text-sm">
-					{{
-						currentDevice
-							? t('songRequests.spotify.device', {
-									name: currentDevice.name,
-									type: currentDevice.type,
-								})
-							: t('songRequests.spotify.noDevice')
-					}}
-				</span>
-				<Button
-					size="sm"
-					variant="outline"
-					@click="refreshDevice"
-				>
-					<Icon
-						name="lucide:refresh-cw"
-						class="size-4"
-					/>
-					{{ t('songRequests.spotify.refreshDevice') }}
 				</Button>
 			</template>
 		</CardContent>

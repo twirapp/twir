@@ -168,28 +168,6 @@ describe('SpotifyQueue', () => {
 		expect(wrapper.text()).toContain('Reconnect Spotify')
 	})
 
-	it('shows the current device and refresh button when usable', () => {
-		mockApi(connectedCapabilities, [], connectedCapabilities.activeDevice)
-
-		const wrapper = mount(SpotifyQueue, mountOptions)
-
-		expect(wrapper.text()).toContain('Desktop')
-		expect(wrapper.text()).toContain('Refresh device')
-	})
-
-	it('calls refresh device mutation', async () => {
-		const mutations = mockApi(connectedCapabilities, [], connectedCapabilities.activeDevice)
-
-		const wrapper = mount(SpotifyQueue, mountOptions)
-		const refreshButton = wrapper
-			.findAll('button')
-			.find((button) => button.text().includes('Refresh device'))
-		expect(refreshButton).toBeDefined()
-		await refreshButton!.trigger('click')
-
-		expect(mutations.refreshDevice).toHaveBeenCalledTimes(1)
-	})
-
 	it('renders queue rows with status badges', () => {
 		mockApi(connectedCapabilities, [
 			queuedRequest,
@@ -211,29 +189,6 @@ describe('SpotifyQueue', () => {
 		const wrapper = mount(SpotifyQueue, mountOptions)
 
 		expect(wrapper.text()).toContain('No active Spotify requests')
-	})
-
-	it('falls back to the query device when subscription device is null', () => {
-		api.useSongRequestsApi.mockReturnValue({
-			useSongRequestQuery: () => createSettingsQuery(connectedCapabilities),
-			useSpotifyQueueQuery: () => createQueueQuery([], connectedCapabilities.activeDevice),
-			useSpotifyQueueSubscription: () => ({
-				data: ref({
-					spotifySongRequestsQueueUpdated: {
-						currentDevice: null,
-						requests: [],
-					},
-				}),
-				fetching: ref(false),
-			}),
-			useSpotifySkipMutation: () => ({ executeMutation: vi.fn() }),
-			useSpotifyCancelMutation: () => ({ executeMutation: vi.fn() }),
-			useSpotifyRefreshDeviceMutation: () => ({ executeMutation: vi.fn() }),
-		} as never)
-
-		const wrapper = mount(SpotifyQueue, mountOptions)
-
-		expect(wrapper.text()).toContain('Desktop')
 	})
 
 	it('pauses the queue query when Spotify cannot be used', () => {
