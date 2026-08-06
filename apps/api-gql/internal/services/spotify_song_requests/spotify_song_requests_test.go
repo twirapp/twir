@@ -733,6 +733,75 @@ func TestService_CancelRequestByID_marks_pending_skip(t *testing.T) {
 	}
 }
 
+func TestReconciler_removes_request_missing_from_spotify_queue(t *testing.T) {
+	newReconcilerFixture := func(requestID uuid.UUID, missingSince time.Time) (*Reconciler, *fakeRequestsRepository) {
+		requestsRepo := newFakeRequestsRepository()
+		requestsRepo.requests = append(
+			requestsRepo.requests,
+			spotify_song_request.SpotifySongRequest{
+				ID:        requestID,
+				ChannelID: testChannelID,
+				TrackURI:  "spotify:track:track-1",
+				Status:    spotify_song_request.StatusQueued,
+			},
+		)
+
+		swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {
+			switch req.URL.Path {
+			case "/v1/me/player/currently-playing":
+				body := `{"currently_playing_type":"track","is_playing":true,"progress_ms":1,"device":{"id":"device-1","name":"Desktop","type":"Computer","is_active":true},"item":{"id":"other-track","uri":"spotify:track:other-track","name":"Other","type":"track","artists":[{"name":"Artist"}],"album":{"name":"Album","images":[]},"duration_ms":180000}}`
+				return fixtureResponse(req, http.StatusOK, body), nil
+			case "/v1/me/player/queue":
+				return fixtureResponse(req, http.StatusOK, `{"queue":[]}`), nil
+			default:
+				t.Fatalf("unexpected request path %s", req.URL.Path)
+				return nil, nil
+			}
+		})
+
+		service := newService(
+			&fakeSettingsRepository{settings: spotifySettings()},
+			&fakeIntegrationsRepository{
+				integration: spotifyIntegration("user-read-playback-state", "user-modify-playback-state"),
+			},
+			requestsRepo,
+		)
+		reconciler := &Reconciler{
+			service: service,
+			missing: map[string]time.Time{requestID.String(): missingSince},
+		}
+
+		return reconciler, requestsRepo
+	}
+
+	t.Run("marks missing on first observation without removing", func(t *testing.T) {
+		requestID := uuid.New()
+		reconciler, requestsRepo := newReconcilerFixture(requestID, time.Now())
+
+		if hadError := reconciler.reconcileChannel(context.Background(), testChannelID); hadError {
+			t.Fatal("reconcileChannel() reported error")
+		}
+		if _, ok := requestsRepo.statusByID[requestID.String()]; ok {
+			t.Fatalf("status changed to %q on first missing observation", requestsRepo.statusByID[requestID.String()])
+		}
+		if _, ok := reconciler.missing[requestID.String()]; !ok {
+			t.Fatal("missing timestamp was not recorded")
+		}
+	})
+
+	t.Run("removes after missing threshold", func(t *testing.T) {
+		requestID := uuid.New()
+		reconciler, requestsRepo := newReconcilerFixture(requestID, time.Now().Add(-time.Minute))
+
+		if hadError := reconciler.reconcileChannel(context.Background(), testChannelID); hadError {
+			t.Fatal("reconcileChannel() reported error")
+		}
+		if got := requestsRepo.statusByID[requestID.String()]; got != spotify_song_request.StatusRemovedOrReconciled {
+			t.Fatalf("status = %q, want removed_or_reconciled", got)
+		}
+	})
+}
+
 func TestReconciler_skips_cancelled_request_playing_now(t *testing.T) {
 	requestID := uuid.New()
 	requestsRepo := newFakeRequestsRepository()

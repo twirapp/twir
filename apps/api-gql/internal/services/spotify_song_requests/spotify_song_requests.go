@@ -114,6 +114,9 @@ func (s *Service) CreateRequest(
 		return spotify_song_request.Nil, fmt.Errorf("get active spotify song requests: %w", err)
 	}
 	for _, active := range activeRequests {
+		if active.Status == spotify_song_request.StatusCancelledPendingSkip {
+			continue
+		}
 		if active.TrackURI == track.URI {
 			return spotify_song_request.Nil, ErrTrackAlreadyInQueue
 		}

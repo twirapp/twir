@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_song_requests"
 	"github.com/twirapp/twir/libs/entities/song_request_mode"
+	spotify_song_request "github.com/twirapp/twir/libs/entities/spotify_song_request"
 	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/logger"
@@ -169,6 +170,10 @@ func (r *Resolver) buildSpotifyQueue(
 		Requests: make([]gqlmodel.SpotifySongRequest, 0, len(requests)),
 	}
 	for _, request := range requests {
+		// cancelled_pending_skip keeps its deferred skip in the background, but leaves the table now.
+		if request.Status == spotify_song_request.StatusCancelledPendingSkip {
+			continue
+		}
 		result.Requests = append(result.Requests, mappers.SpotifySongRequestToGQL(request))
 	}
 

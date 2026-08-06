@@ -14,32 +14,6 @@ func (r *Reconciler) hasPlaybackScopes(scopes []string) bool {
 	return slices.Contains(scopes, "user-read-playback-state") && slices.Contains(scopes, "user-modify-playback-state")
 }
 
-func (r *Reconciler) anyRequestPresent(requests []spotify_song_request.SpotifySongRequest, queueURIs map[string]struct{}, currentURI string) bool {
-	for _, request := range requests {
-		if request.TrackURI == currentURI {
-			return true
-		}
-		if _, ok := queueURIs[request.TrackURI]; ok {
-			return true
-		}
-	}
-	return false
-}
-
-func (r *Reconciler) anyQueuedRequestPresent(requests []spotify_song_request.SpotifySongRequest, queueURIs map[string]struct{}, currentURI string) bool {
-	for _, request := range requests {
-		if request.Status == spotify_song_request.StatusQueued && (request.TrackURI == currentURI || hasTrackURI(queueURIs, request.TrackURI)) {
-			return true
-		}
-	}
-	return false
-}
-
-func hasTrackURI(queueURIs map[string]struct{}, trackURI string) bool {
-	_, ok := queueURIs[trackURI]
-	return ok
-}
-
 func (r *Reconciler) resolveSkipDevice(
 	ctx context.Context,
 	channelID string,
@@ -88,23 +62,23 @@ func (r *Reconciler) markRequestsUnknown(
 	}
 }
 
-func (r *Reconciler) clearMissingSince(channelID string) {
+func (r *Reconciler) markRequestMissing(requestID string) {
 	r.mu.Lock()
-	delete(r.missing, channelID)
-	r.mu.Unlock()
-}
-
-func (r *Reconciler) markMissingSince(channelID string) {
-	r.mu.Lock()
-	if _, ok := r.missing[channelID]; !ok {
-		r.missing[channelID] = time.Now()
+	if _, ok := r.missing[requestID]; !ok {
+		r.missing[requestID] = time.Now()
 	}
 	r.mu.Unlock()
 }
 
-func (r *Reconciler) shouldRemoveMissing(channelID string) bool {
+func (r *Reconciler) clearRequestMissing(requestID string) {
 	r.mu.Lock()
-	startedAt, ok := r.missing[channelID]
+	delete(r.missing, requestID)
+	r.mu.Unlock()
+}
+
+func (r *Reconciler) requestMissingLongEnough(requestID string) bool {
+	r.mu.Lock()
+	startedAt, ok := r.missing[requestID]
 	r.mu.Unlock()
 	if !ok {
 		return false

@@ -132,10 +132,6 @@ func (r *Reconciler) reconcileChannel(ctx context.Context, channelID string) boo
 		return hadError
 	}
 
-	if r.reconcileMissingRequests(ctx, channelID, activeRequests, snapshot) {
-		return true
-	}
-
 	playingMatched := false
 	for _, request := range activeRequests {
 		if request.Status == spotify_song_request.StatusCancelledPendingSkip && snapshot.currentURI != "" && request.TrackURI == snapshot.currentURI {
@@ -147,6 +143,7 @@ func (r *Reconciler) reconcileChannel(ctx context.Context, channelID string) boo
 
 		if request.TrackURI == snapshot.currentURI && !playingMatched {
 			playingMatched = true
+			r.clearRequestMissing(request.ID.String())
 			if request.Status == spotify_song_request.StatusQueued && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusPlaying) {
 				return true
 			}
@@ -154,19 +151,26 @@ func (r *Reconciler) reconcileChannel(ctx context.Context, channelID string) boo
 		}
 
 		if _, present := snapshot.queueURIs[request.TrackURI]; present {
+			r.clearRequestMissing(request.ID.String())
 			if request.Status != spotify_song_request.StatusQueued && request.Status != spotify_song_request.StatusCancelledPendingSkip && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusQueued) {
 				return true
 			}
 			continue
 		}
 
-		if request.Status == spotify_song_request.StatusPlaying && request.TrackURI != snapshot.currentURI && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusPlayed) {
+		if request.Status == spotify_song_request.StatusPlaying && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusPlayed) {
 			return true
 		}
-	}
 
-	if !r.anyQueuedRequestPresent(activeRequests, snapshot.queueURIs, snapshot.currentURI) {
-		r.markMissingSince(channelID)
+		if request.Status == spotify_song_request.StatusQueued || request.Status == spotify_song_request.StatusCancelledPendingSkip {
+			if r.requestMissingLongEnough(request.ID.String()) {
+				if r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusRemovedOrReconciled) {
+					return true
+				}
+				continue
+			}
+			r.markRequestMissing(request.ID.String())
+		}
 	}
 
 	return false
@@ -244,30 +248,6 @@ func (r *Reconciler) cachePlayerDevice(ctx context.Context, channelID string, de
 			slog.String("channel_id", channelID),
 		)
 	}
-}
-
-func (r *Reconciler) reconcileMissingRequests(
-	ctx context.Context,
-	channelID string,
-	activeRequests []spotify_song_request.SpotifySongRequest,
-	snapshot *playbackSnapshot,
-) bool {
-	if r.anyRequestPresent(activeRequests, snapshot.queueURIs, snapshot.currentURI) {
-		r.clearMissingSince(channelID)
-		return false
-	}
-
-	if !r.shouldRemoveMissing(channelID) {
-		return false
-	}
-
-	for _, request := range activeRequests {
-		if request.Status == spotify_song_request.StatusQueued && r.transitionStatus(ctx, channelID, request, spotify_song_request.StatusRemovedOrReconciled) {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (r *Reconciler) executeDeferredSkip(
