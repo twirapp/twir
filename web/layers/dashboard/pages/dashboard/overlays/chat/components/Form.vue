@@ -32,6 +32,16 @@ import * as faker from '../faker.ts'
 import { defaultChatSettings } from './default-settings'
 import { useChatOverlayForm } from './form.ts'
 
+interface Props {
+	// Embedded inside another surface (e.g. overlay builder modal): hides the
+	// standalone "Copy Link" action because the widget is used via custom overlays.
+	embedded?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+	embedded: false,
+})
+
 const { t } = useI18n()
 const { copyOverlayLink } = useCopyOverlayLink('chat')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
@@ -375,6 +385,7 @@ function handleReset() {
 							variant="outline"
 							size="sm"
 							class="transition-all hover:scale-[1.02]"
+							:class="{ 'col-span-2': embedded }"
 							:disabled="!userCanEditOverlays"
 							@click="handleReset"
 						>
@@ -385,6 +396,7 @@ function handleReset() {
 							{{ t('sharedButtons.reset') || 'Reset' }}
 						</Button>
 						<Button
+							v-if="!embedded"
 							type="button"
 							variant="outline"
 							size="sm"
