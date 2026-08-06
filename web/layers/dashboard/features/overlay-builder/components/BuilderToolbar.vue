@@ -5,7 +5,9 @@ import { toast } from 'vue-sonner'
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
 
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface Props {
@@ -17,6 +19,7 @@ interface Props {
 	zoom: number
 	showGrid: boolean
 	snapToGrid: boolean
+	addLayersHidden: boolean
 	overlayId?: string
 	overlayName?: string
 }
@@ -45,6 +48,7 @@ const emit = defineEmits<{
 	resetZoom: []
 	toggleGrid: []
 	toggleSnap: []
+	toggleAddLayersHidden: []
 }>()
 
 const { t } = useI18n()
@@ -540,6 +544,15 @@ function copyOverlayLink() {
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
+
+		<div class="flex items-center gap-2 px-2 text-xs text-muted-foreground">
+			<Switch
+				id="add-layers-hidden"
+				:model-value="addLayersHidden"
+				@update:model-value="emit('toggleAddLayersHidden')"
+			/>
+			<Label for="add-layers-hidden" class="cursor-pointer whitespace-nowrap">Добавлять скрытыми</Label>
+		</div>
 
 		<div class="flex-1" />
 

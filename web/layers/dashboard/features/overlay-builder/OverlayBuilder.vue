@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { useOverlayBuilder } from './composables/useOverlayBuilder'
 import { type ChannelOverlayLayer, ChannelOverlayLayerType } from '~/gql/graphql.js'
-import type { Layer, OverlayProject } from './types'
+import { type Layer, type OverlayProject, createLayerSettings } from './types'
 
 interface InitialProjectLayer {
 	id: string
@@ -31,13 +31,7 @@ interface InitialProjectLayer {
 	visible?: boolean
 	locked?: boolean
 	periodicallyRefetchData: boolean
-	settings?: {
-		htmlOverlayHtml?: string
-		htmlOverlayCss?: string
-		htmlOverlayJs?: string
-		htmlOverlayDataPollSecondsInterval?: number
-		imageUrl?: string
-	}
+	settings?: Partial<Layer['settings']>
 }
 
 interface Props {
@@ -52,6 +46,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const overlayLayerTypes = ChannelOverlayLayerType
 
 const emit = defineEmits<{
 	save: [project: OverlayProject]
@@ -116,13 +111,7 @@ function loadInitialProject() {
 			locked: layer.locked || false,
 			zIndex: index,
 			periodicallyRefetchData: layer.periodicallyRefetchData,
-			settings: {
-				htmlOverlayHtml: layer.settings?.htmlOverlayHtml || '',
-				htmlOverlayCss: layer.settings?.htmlOverlayCss || '',
-				htmlOverlayJs: layer.settings?.htmlOverlayJs || '',
-				htmlOverlayDataPollSecondsInterval: layer.settings?.htmlOverlayDataPollSecondsInterval || 5,
-				imageUrl: layer.settings?.imageUrl || '',
-			},
+			settings: createLayerSettings(layer.settings),
 		}
 	})
 
@@ -173,18 +162,14 @@ onUnmounted(() => {
 
 // Add layer dialog
 const showAddLayerDialog = ref(false)
+const addLayersHidden = ref(false)
 
 function handleAddLayer() {
 	showAddLayerDialog.value = true
 }
 
-function addHtmlLayer() {
-	builder.addLayer(ChannelOverlayLayerType.Html)
-	showAddLayerDialog.value = false
-}
-
-function addImageLayer() {
-	builder.addLayer(ChannelOverlayLayerType.Image)
+function addLayer(type: ChannelOverlayLayerType) {
+	builder.addLayer(type, { visible: !addLayersHidden.value })
 	showAddLayerDialog.value = false
 }
 
@@ -409,6 +394,7 @@ const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length
 			:zoom="builder.canvasState.zoom"
 			:show-grid="builder.canvasState.showGrid"
 			:snap-to-grid="builder.canvasState.snapToGrid"
+			:add-layers-hidden="addLayersHidden"
 			:overlay-id="initialProject?.id"
 			:overlay-name="overlayName"
 			@save="handleSave"
@@ -432,6 +418,7 @@ const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length
 			@reset-zoom="builder.resetZoom"
 			@toggle-grid="builder.canvasState.showGrid = !builder.canvasState.showGrid"
 			@toggle-snap="builder.canvasState.snapToGrid = !builder.canvasState.snapToGrid"
+			@toggle-add-layers-hidden="addLayersHidden = !addLayersHidden"
 		/>
 
 		<!-- Main Content -->
@@ -506,24 +493,64 @@ const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length
 					</DialogDescription>
 				</DialogHeader>
 				<div class="grid gap-4 py-4">
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addHtmlLayer">
+					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Image)">
 						<div class="flex items-center gap-2 mb-2">
-							<span class="text-2xl">🌐</span>
-							<span class="font-semibold">HTML Layer</span>
+							<Icon name="lucide:image" class="h-5 w-5" />
+							<span class="font-semibold">Картинка</span>
 						</div>
 						<p class="text-sm text-muted-foreground text-left">
-							Create a custom layer with HTML, CSS, and JavaScript
+							Изображение из URL
 						</p>
 					</Button>
 
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addImageLayer">
+					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Video)">
 						<div class="flex items-center gap-2 mb-2">
-							<span class="text-2xl">🖼️</span>
-							<span class="font-semibold">Image Layer</span>
+							<Icon name="lucide:video" class="h-5 w-5" />
+							<span class="font-semibold">Видео</span>
 						</div>
 						<p class="text-sm text-muted-foreground text-left">
-							Display an image from a URL
+							Видео из URL
 						</p>
+					</Button>
+
+					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Youtube)">
+						<div class="flex items-center gap-2 mb-2">
+							<Icon name="simple-icons:youtube" class="h-5 w-5" />
+							<span class="font-semibold">YouTube</span>
+						</div>
+						<p class="text-sm text-muted-foreground text-left">Видео с YouTube</p>
+					</Button>
+
+					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Text)">
+						<div class="flex items-center gap-2 mb-2">
+							<Icon name="lucide:type" class="h-5 w-5" />
+							<span class="font-semibold">Текст</span>
+						</div>
+						<p class="text-sm text-muted-foreground text-left">Текстовый слой</p>
+					</Button>
+
+					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Html)">
+						<div class="flex items-center gap-2 mb-2">
+							<Icon name="lucide:code-xml" class="h-5 w-5" />
+							<span class="font-semibold">HTML</span>
+						</div>
+						<p class="text-sm text-muted-foreground text-left">HTML, CSS и JavaScript</p>
+					</Button>
+
+					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Iframe)">
+						<div class="flex items-center gap-2 mb-2">
+							<Icon name="lucide:panels-top-left" class="h-5 w-5" />
+							<span class="font-semibold">Виджет</span>
+						</div>
+						<p class="text-sm text-muted-foreground text-left">Встраиваемый URL</p>
+					</Button>
+
+					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Emote)">
+						<div class="flex items-center gap-2 mb-2">
+							<Icon name="lucide:smile" class="h-5 w-5" />
+							<span class="font-semibold">Эмоции</span>
+						</div>
+						<p class="text-sm text-muted-foreground text-left">Один эмоут на слой</p>
 					</Button>
 				</div>
 			</DialogContent>

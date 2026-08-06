@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import ImageLayerEditor from './layer-editors/ImageLayerEditor.vue'
+import LayerSettingsEditor from './layer-editors/LayerSettingsEditor.vue'
 
 import type { Layer } from '../types'
 
@@ -278,6 +279,12 @@ const localPollInterval = computed({
 							@update="emit('update', $event)"
 						/>
 					</div>
+
+					<LayerSettingsEditor
+						v-if="layer.type === 'TEXT' || layer.type === 'VIDEO' || layer.type === 'IFRAME' || layer.type === 'YOUTUBE' || layer.type === 'EMOTE'"
+						:layer="layer"
+						@update="emit('update', $event)"
+					/>
 				</div>
 			</ScrollArea>
 		</CardContent>

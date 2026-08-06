@@ -7,7 +7,7 @@ import {
 	useChannelOverlayByIdQuery,
 	useChannelOverlaysQuery,
 } from '~~/layers/dashboard/api/overlays/custom'
-import type { OverlayProject } from '~~/layers/dashboard/features/overlay-builder/types'
+import { type OverlayProject, createLayerSettings } from '~~/layers/dashboard/features/overlay-builder/types'
 import { useOverlaySave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlaySave'
 import { useOverlayInstantSave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlayInstantSave'
 
@@ -87,13 +87,7 @@ const projectData = computed(() => {
 				locked: layer.locked ?? false,
 				zIndex: index,
 				periodicallyRefetchData: layer.periodicallyRefetchData,
-				settings: {
-					htmlOverlayHtml: layer.settings.htmlOverlayHtml || '',
-					htmlOverlayCss: layer.settings.htmlOverlayCss || '',
-					htmlOverlayJs: layer.settings.htmlOverlayJs || '',
-					htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval || 5,
-					imageUrl: layer.settings.imageUrl || '',
-				},
+				settings: createLayerSettings(layer.settings),
 			}
 		}),
 	}

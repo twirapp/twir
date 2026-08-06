@@ -76,9 +76,21 @@ function isLayerSelected(layerId: string) {
 function getLayerTypeIcon(type: string): string {
 	switch (type) {
 		case 'HTML':
-			return '🌐'
+			return 'lucide:code-xml'
+		case 'IMAGE':
+			return 'lucide:image'
+		case 'TEXT':
+			return 'lucide:type'
+		case 'VIDEO':
+			return 'lucide:video'
+		case 'IFRAME':
+			return 'lucide:panels-top-left'
+		case 'YOUTUBE':
+			return 'simple-icons:youtube'
+		case 'EMOTE':
+			return 'lucide:smile'
 		default:
-			return '📄'
+			return 'lucide:file'
 	}
 }
 </script>
@@ -152,7 +164,7 @@ function getLayerTypeIcon(type: string): string {
 										class="cursor-pointer text-lg select-none"
 										@click="handleLayerClick(layer.id, $event)"
 									>
-										{{ getLayerTypeIcon(layer.type) }}
+										<Icon :name="getLayerTypeIcon(layer.type)" class="size-4" />
 									</span>
 
 									<!-- Layer Name -->
@@ -161,9 +173,10 @@ function getLayerTypeIcon(type: string): string {
 										@click="handleLayerClick(layer.id, $event)"
 									>
 										<p class="truncate text-sm font-medium">{{ layer.name }}</p>
-										<p class="text-muted-foreground text-xs">
-											{{ layer.width }}x{{ layer.height }}
-										</p>
+									<p class="text-muted-foreground text-xs">
+										{{ layer.width }}x{{ layer.height }}
+										<span v-if="!layer.visible" class="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px]">Скрыт</span>
+									</p>
 									</div>
 
 									<!-- Actions -->

@@ -6,6 +6,7 @@ import type { OnDrag, OnResize, OnRotate } from 'vue3-moveable'
 
 import HtmlLayerPreview from './HtmlLayerPreview.vue'
 import ImageLayerPreview from './ImageLayerPreview.vue'
+import LayerTypePreview from './LayerTypePreview.vue'
 import type { AlignmentGuide, Layer } from '../types'
 
 interface Props {
@@ -493,6 +494,10 @@ onUnmounted(() => {
 							:image-url="layer.settings?.imageUrl"
 							:width="layer.width"
 							:height="layer.height"
+						/>
+						<LayerTypePreview
+							v-else-if="layer.type === 'TEXT' || layer.type === 'VIDEO' || layer.type === 'IFRAME' || layer.type === 'YOUTUBE' || layer.type === 'EMOTE'"
+							:layer="layer"
 						/>
 						<!-- Fallback content -->
 						<div v-else class="w-full h-full flex items-center justify-center">
