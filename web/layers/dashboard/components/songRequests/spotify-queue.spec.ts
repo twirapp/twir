@@ -213,6 +213,29 @@ describe('SpotifyQueue', () => {
 		expect(wrapper.text()).toContain('No active Spotify requests')
 	})
 
+	it('falls back to the query device when subscription device is null', () => {
+		api.useSongRequestsApi.mockReturnValue({
+			useSongRequestQuery: () => createSettingsQuery(connectedCapabilities),
+			useSpotifyQueueQuery: () => createQueueQuery([], connectedCapabilities.activeDevice),
+			useSpotifyQueueSubscription: () => ({
+				data: ref({
+					spotifySongRequestsQueueUpdated: {
+						currentDevice: null,
+						requests: [],
+					},
+				}),
+				fetching: ref(false),
+			}),
+			useSpotifySkipMutation: () => ({ executeMutation: vi.fn() }),
+			useSpotifyCancelMutation: () => ({ executeMutation: vi.fn() }),
+			useSpotifyRefreshDeviceMutation: () => ({ executeMutation: vi.fn() }),
+		} as never)
+
+		const wrapper = mount(SpotifyQueue, mountOptions)
+
+		expect(wrapper.text()).toContain('Desktop')
+	})
+
 	it('pauses the queue query when Spotify cannot be used', () => {
 		let capturedPause: unknown
 		api.useSongRequestsApi.mockReturnValue({

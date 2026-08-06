@@ -45,10 +45,11 @@ const queue = computed(() => {
 	return queueQuery.data.value?.spotifySongRequestsQueue.requests ?? []
 })
 const currentDevice = computed(() => {
-	if (queueSubscription.data.value !== undefined) {
-		return queueSubscription.data.value.spotifySongRequestsQueueUpdated.currentDevice ?? null
-	}
-	return queueQuery.data.value?.spotifySongRequestsQueue.currentDevice
+	return (
+		queueSubscription.data.value?.spotifySongRequestsQueueUpdated.currentDevice ??
+		queueQuery.data.value?.spotifySongRequestsQueue.currentDevice ??
+		null
+	)
 })
 
 function connectSpotify() {
