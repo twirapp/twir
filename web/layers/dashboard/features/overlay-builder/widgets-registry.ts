@@ -7,7 +7,11 @@ export interface OverlayWidgetRegistryEntry {
 	readonly name: string
 	readonly description: string
 	readonly icon: string
-	readonly buildUrl: (ctx: { readonly origin: string; readonly apiKey: string }) => string
+	readonly buildUrl: (ctx: {
+		readonly origin: string
+		readonly apiKey: string
+		readonly params?: Record<string, string>
+	}) => string
 	readonly settingsComponent?: Component
 }
 
@@ -17,7 +21,10 @@ export const overlayWidgetRegistry = [
 		name: 'Чат',
 		description: 'Чат канала Twir',
 		icon: 'lucide:messages-square',
-		buildUrl: ({ origin, apiKey }) => `${origin}/overlays/${apiKey}/chat`,
+		buildUrl: ({ origin, apiKey, params }) => {
+			const base = `${origin}/overlays/${apiKey}/chat`
+			return params?.id ? `${base}?id=${params.id}` : base
+		},
 		settingsComponent: ChatWidgetSettings,
 	},
 ] satisfies readonly OverlayWidgetRegistryEntry[]

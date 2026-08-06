@@ -3,6 +3,7 @@ import type { AcceptableValue } from 'reka-ui'
 
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
+import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.js'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -51,6 +52,38 @@ const selectedWidget = computed(() => {
 	return overlayWidgetRegistry.find((widget) => widget.key === props.layer.settings.widgetKey)
 })
 
+// Chat presets are needed to build a working widget URL: the chat overlay
+// runtime resolves the preset via ?id=<presetId>.
+const { data: chatOverlaysData } = useChatOverlayApi().useOverlaysQuery()
+const firstChatPresetId = computed(() => {
+	if (props.layer.settings.widgetKey !== 'chat') return undefined
+	return chatOverlaysData.value?.chatOverlays[0]?.id ?? undefined
+})
+
+function buildWidgetUrl(params?: Record<string, string>) {
+	const widget = selectedWidget.value
+	if (!widget) return ''
+
+	return widget.buildUrl({
+		origin: requestUrl.origin,
+		apiKey: overlayApiKey.value,
+		params,
+	})
+}
+
+// Fill in the preset id once presets are loaded and the URL does not have one yet
+// (e.g. the layer was created before presets existed).
+watch(firstChatPresetId, (presetId) => {
+	if (!presetId) return
+	if (props.layer.settings.iframeUrl.includes('id=')) return
+
+	updateSettings({ iframeUrl: buildWidgetUrl({ id: presetId }) })
+})
+
+function handleWidgetPresetSelect(presetId: string) {
+	updateSettings({ iframeUrl: buildWidgetUrl({ id: presetId }) })
+}
+
 const selectedWidgetSettings = computed(() => selectedWidget.value?.settingsComponent)
 const widgetSettingsOpen = ref(false)
 type IframeSource = 'custom' | 'twir'
@@ -88,6 +121,7 @@ function handleWidgetChange(key: AcceptableValue) {
 		iframeUrl: widget.buildUrl({
 			origin: requestUrl.origin,
 			apiKey: overlayApiKey.value,
+			params: firstChatPresetId.value ? { id: firstChatPresetId.value } : undefined,
 		}),
 	})
 }
@@ -180,7 +214,7 @@ const iframeScale = computed({
 				<DialogDescription class="sr-only">Настройки виджета {{ selectedWidget?.name }}</DialogDescription>
 			</DialogHeader>
 			<div class="min-w-0 p-6">
-				<component :is="selectedWidgetSettings" />
+				<component :is="selectedWidgetSettings" @select-preset="handleWidgetPresetSelect" />
 			</div>
 		</DialogOrSheet>
 	</Dialog>

@@ -9,6 +9,12 @@ import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.ts'
 import Form from '~~/layers/dashboard/pages/dashboard/overlays/chat/components/Form.vue'
 import { useChatOverlayForm } from '~~/layers/dashboard/pages/dashboard/overlays/chat/components/form.ts'
 
+const emit = defineEmits<{
+	// Fired when the active chat preset changes (initial selection included), so the
+	// layer editor can keep the widget URL (?id=<presetId>) in sync.
+	'select-preset': [id: string]
+}>()
+
 const chatOverlaysManager = useChatOverlayApi()
 const creator = chatOverlaysManager.useOverlayCreate()
 const { data: chatOverlaysData, fetching: fetchingOverlays } = chatOverlaysManager.useOverlaysQuery()
@@ -35,6 +41,7 @@ watch(
 watch(selectedPresetId, (id) => {
 	const preset = presets.value.find((overlay) => overlay.id === id)
 	if (preset) setData(preset)
+	if (id) emit('select-preset', id)
 })
 
 function handlePresetChange(id: AcceptableValue) {
