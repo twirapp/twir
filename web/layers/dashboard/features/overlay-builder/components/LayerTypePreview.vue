@@ -19,10 +19,19 @@ const textStyle = computed(() => ({
 	wordBreak: 'break-word' as const,
 }))
 
-const iframeStyle = computed(() => ({
-	transform: `scale(${props.layer.settings.iframeScale})`,
-	transformOrigin: 'center',
-}))
+const iframeStyle = computed(() => {
+	// Mirror the runtime iframe-layer math: box stays at layer size, the iframe
+	// itself is enlarged by 1/scale and then scaled down, so the preview matches
+	// what OBS renders. pointer-events are disabled so the layer stays
+	// draggable/selectable on the canvas (iframes swallow mouse events otherwise).
+	const scale = props.layer.settings.iframeScale || 1
+	return {
+		width: `${100 / scale}%`,
+		height: `${100 / scale}%`,
+		transform: `scale(${scale})`,
+		transformOrigin: 'top left',
+	}
+})
 
 const youtubeEmbedUrl = computed(() => {
 	const videoId = props.layer.settings.youtubeVideoId.trim()
@@ -51,7 +60,7 @@ const youtubeEmbedUrl = computed(() => {
 		:loop="layer.settings.videoLoop"
 		autoplay
 		playsinline
-		class="h-full w-full object-cover"
+		class="pointer-events-none h-full w-full object-cover"
 	/>
 	<template v-else-if="layer.type === 'IFRAME'">
 		<iframe
@@ -59,7 +68,7 @@ const youtubeEmbedUrl = computed(() => {
 			:src="layer.settings.iframeUrl"
 			:title="layer.name"
 			:style="iframeStyle"
-			class="h-full w-full border-0"
+			class="pointer-events-none border-0"
 		/>
 		<div v-else class="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
 			Укажите URL виджета
@@ -70,7 +79,7 @@ const youtubeEmbedUrl = computed(() => {
 			v-if="youtubeEmbedUrl"
 			:src="youtubeEmbedUrl"
 			:title="layer.name"
-			class="h-full w-full border-0"
+			class="pointer-events-none h-full w-full border-0"
 		/>
 		<div v-else class="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
 			Укажите ID видео YouTube
