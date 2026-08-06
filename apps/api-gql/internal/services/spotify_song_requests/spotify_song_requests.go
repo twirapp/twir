@@ -302,7 +302,14 @@ func (s *Service) SelectAndCacheDevice(ctx context.Context, channelID string) (s
 		return "", err
 	}
 
-	return s.selectDevice(ctx, channelID, client)
+	deviceID, err := s.selectDevice(ctx, channelID, client)
+	if err != nil {
+		return "", err
+	}
+
+	s.publishQueueChanged(ctx, channelID)
+
+	return deviceID, nil
 }
 
 func (s *Service) SetSelectedDevice(ctx context.Context, channelID, deviceID string) error {
