@@ -2,20 +2,13 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
+// oxlint-disable-next-line consistent-type-imports
 import LayersPanel from './components/LayersPanel.vue'
 import Canvas from './components/Canvas.vue'
 import CodeEditorDialog from './components/CodeEditorDialog.vue'
 import OverlaySettings from './components/OverlaySettings.vue'
-import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog'
 import { useOverlayBuilder } from './composables/useOverlayBuilder'
-import { type ChannelOverlayLayer, ChannelOverlayLayerType } from '~/gql/graphql.js'
+import type { ChannelOverlayLayer, ChannelOverlayLayerType } from '~/gql/graphql.js'
 import { type Layer, type OverlayProject, createLayerSettings } from './types'
 
 interface InitialProjectLayer {
@@ -46,7 +39,6 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const overlayLayerTypes = ChannelOverlayLayerType
 
 const emit = defineEmits<{
 	save: [project: OverlayProject]
@@ -160,17 +152,15 @@ onUnmounted(() => {
 	window.removeEventListener('resize', calculateFitZoom)
 })
 
-// Add layer dialog
-const showAddLayerDialog = ref(false)
+// Add layer from the LayersPanel type picker
 const addLayersHidden = ref(false)
-
-function handleAddLayer() {
-	showAddLayerDialog.value = true
-}
+const layersPanelRef = ref<InstanceType<typeof LayersPanel>>()
 
 function addLayer(type: ChannelOverlayLayerType) {
-	builder.addLayer(type, { visible: !addLayersHidden.value })
-	showAddLayerDialog.value = false
+	const newLayer = builder.addLayer(type, { visible: !addLayersHidden.value })
+	nextTick(() => {
+		layersPanelRef.value?.expandLayer(newLayer.id)
+	})
 }
 
 // Toolbar handlers
@@ -261,6 +251,13 @@ function handleDuplicateLayer(layerId: string) {
 
 function handleRemoveLayer(layerId: string) {
 	builder.removeLayer(layerId)
+}
+
+function handleOpenLayerSettings(layerId: string) {
+	builder.selectLayers([layerId])
+	nextTick(() => {
+		layersPanelRef.value?.expandLayer(layerId)
+	})
 }
 
 function handleMoveLayerUp(layerId: string) {
@@ -438,12 +435,16 @@ const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length
 				:grid-size="builder.canvasState.gridSize"
 				:alignment-guides="builder.alignmentGuides.value"
 				:snap-to-guides-enabled="builder.canvasState.showGuides"
-				@update-layer="handleUpdateLayer"
-				@select-layer="handleSelectLayer"
-				@deselect-all="handleDeselectAll"
-				@find-guides="handleFindGuides"
-				@clear-guides="handleClearGuides"
-			>
+			@update-layer="handleUpdateLayer"
+			@select-layer="handleSelectLayer"
+			@deselect-all="handleDeselectAll"
+			@find-guides="handleFindGuides"
+			@clear-guides="handleClearGuides"
+			@toggle-visibility="handleToggleVisibility"
+			@toggle-lock="handleToggleLock"
+			@remove-layer="handleRemoveLayer"
+			@open-layer-settings="handleOpenLayerSettings"
+		>
 				<template #layer-content="{ layer }">
 					<!-- Custom layer content rendering can be added here -->
 					<div class="w-full h-full flex items-center justify-center text-white/70 text-sm">
@@ -462,99 +463,27 @@ const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length
 					/>
 				</div>
 
-				<!-- Layers Panel -->
-				<div class="flex-1 min-h-0 overflow-hidden p-2">
-					<LayersPanel
-						:layers="builder.project.layers"
-						:selected-layer-ids="builder.canvasState.selectedLayerIds"
-						@select="handleLayerSelect"
-						@toggle-visibility="handleToggleVisibility"
-						@toggle-lock="handleToggleLock"
-						@duplicate="handleDuplicateLayer"
-						@remove="handleRemoveLayer"
-						@move-up="handleMoveLayerUp"
-						@move-down="handleMoveLayerDown"
-						@reorder="handleReorderLayers"
-						@add-layer="handleAddLayer"
-						@update-layer-properties="handleUpdateLayerProperties"
-						@open-code-editor="handleOpenCodeEditor"
-					/>
-				</div>
+			<!-- Layers Panel -->
+			<div class="flex-1 min-h-0 overflow-hidden p-2">
+				<LayersPanel
+					ref="layersPanelRef"
+					:layers="builder.project.layers"
+					:selected-layer-ids="builder.canvasState.selectedLayerIds"
+					@select="handleLayerSelect"
+					@toggle-visibility="handleToggleVisibility"
+					@toggle-lock="handleToggleLock"
+					@duplicate="handleDuplicateLayer"
+					@remove="handleRemoveLayer"
+					@move-up="handleMoveLayerUp"
+					@move-down="handleMoveLayerDown"
+					@reorder="handleReorderLayers"
+					@add-layer="addLayer"
+					@update-layer-properties="handleUpdateLayerProperties"
+					@open-code-editor="handleOpenCodeEditor"
+				/>
+			</div>
 			</div>
 		</div>
-
-		<!-- Add Layer Dialog -->
-		<Dialog v-model:open="showAddLayerDialog">
-			<DialogContent class="sm:max-w-md">
-				<DialogHeader>
-					<DialogTitle>Add New Layer</DialogTitle>
-					<DialogDescription>
-						Choose a layer type to add to your overlay
-					</DialogDescription>
-				</DialogHeader>
-				<div class="grid gap-4 py-4">
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Image)">
-						<div class="flex items-center gap-2 mb-2">
-							<Icon name="lucide:image" class="h-5 w-5" />
-							<span class="font-semibold">Картинка</span>
-						</div>
-						<p class="text-sm text-muted-foreground text-left">
-							Изображение из URL
-						</p>
-					</Button>
-
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Video)">
-						<div class="flex items-center gap-2 mb-2">
-							<Icon name="lucide:video" class="h-5 w-5" />
-							<span class="font-semibold">Видео</span>
-						</div>
-						<p class="text-sm text-muted-foreground text-left">
-							Видео из URL
-						</p>
-					</Button>
-
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Youtube)">
-						<div class="flex items-center gap-2 mb-2">
-							<Icon name="simple-icons:youtube" class="h-5 w-5" />
-							<span class="font-semibold">YouTube</span>
-						</div>
-						<p class="text-sm text-muted-foreground text-left">Видео с YouTube</p>
-					</Button>
-
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Text)">
-						<div class="flex items-center gap-2 mb-2">
-							<Icon name="lucide:type" class="h-5 w-5" />
-							<span class="font-semibold">Текст</span>
-						</div>
-						<p class="text-sm text-muted-foreground text-left">Текстовый слой</p>
-					</Button>
-
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Html)">
-						<div class="flex items-center gap-2 mb-2">
-							<Icon name="lucide:code-xml" class="h-5 w-5" />
-							<span class="font-semibold">HTML</span>
-						</div>
-						<p class="text-sm text-muted-foreground text-left">HTML, CSS и JavaScript</p>
-					</Button>
-
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Iframe)">
-						<div class="flex items-center gap-2 mb-2">
-							<Icon name="lucide:panels-top-left" class="h-5 w-5" />
-							<span class="font-semibold">Виджет</span>
-						</div>
-						<p class="text-sm text-muted-foreground text-left">Встраиваемый URL</p>
-					</Button>
-
-					<Button variant="outline" class="h-auto p-4 flex flex-col items-start" @click="addLayer(overlayLayerTypes.Emote)">
-						<div class="flex items-center gap-2 mb-2">
-							<Icon name="lucide:smile" class="h-5 w-5" />
-							<span class="font-semibold">Эмоции</span>
-						</div>
-						<p class="text-sm text-muted-foreground text-left">Один эмоут на слой</p>
-					</Button>
-				</div>
-			</DialogContent>
-		</Dialog>
 
 		<!-- Code Editor Dialog -->
 		<CodeEditorDialog

@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 
 import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { ChannelOverlayLayerType } from '~/gql/graphql.js'
 
 import type { Layer } from '../types'
 
@@ -28,7 +30,7 @@ const emit = defineEmits<{
 	moveUp: [layerId: string]
 	moveDown: [layerId: string]
 	reorder: [layers: Layer[]]
-	addLayer: []
+	addLayer: [type: ChannelOverlayLayerType]
 	updateLayerProperties: [layerId: string, updates: Partial<Layer>]
 	openCodeEditor: []
 }>()
@@ -38,6 +40,33 @@ const displayLayers = ref<Layer[]>([])
 
 // Track expanded accordion items
 const expandedLayerId = ref<string>()
+
+// Add-layer popover
+const isAddPopoverOpen = ref(false)
+
+const layerTypeOptions: { type: ChannelOverlayLayerType; icon: string; label: string; description: string }[] = [
+	{ type: ChannelOverlayLayerType.Image, icon: 'lucide:image', label: 'Картинка', description: 'Изображение из URL' },
+	{ type: ChannelOverlayLayerType.Video, icon: 'lucide:video', label: 'Видео', description: 'Видео из URL' },
+	{ type: ChannelOverlayLayerType.Youtube, icon: 'simple-icons:youtube', label: 'YouTube', description: 'Видео с YouTube' },
+	{ type: ChannelOverlayLayerType.Text, icon: 'lucide:type', label: 'Текст', description: 'Текстовый слой' },
+	{ type: ChannelOverlayLayerType.Html, icon: 'lucide:code-xml', label: 'HTML', description: 'HTML, CSS и JavaScript' },
+	{ type: ChannelOverlayLayerType.Iframe, icon: 'lucide:panels-top-left', label: 'Виджет', description: 'Встраиваемый URL' },
+	{ type: ChannelOverlayLayerType.Emote, icon: 'lucide:smile', label: 'Эмоции', description: 'Один эмоут на слой' },
+]
+
+function handleAddLayerType(type: ChannelOverlayLayerType) {
+	isAddPopoverOpen.value = false
+	emit('addLayer', type)
+}
+
+function expandLayer(layerId: string) {
+	expandedLayerId.value = layerId
+	nextTick(() => {
+		document.getElementById(`layer-row-${layerId}`)?.scrollIntoView({ block: 'nearest' })
+	})
+}
+
+defineExpose({ expandLayer })
 
 // Watch for prop changes and update local ref
 watch(
@@ -99,18 +128,38 @@ function getLayerTypeIcon(type: string): string {
 	<Card class="flex h-full flex-col border-0 p-0">
 		<div class="flex flex-row items-center justify-between space-y-0 border-b p-2">
 			<CardTitle class="text-sm font-medium">Layers</CardTitle>
-			<Button
-				variant="default"
-				size="sm"
-				class="h-7 text-xs"
-				@click="emit('addLayer')"
-			>
-				<Icon
-					name="lucide:plus"
-					class="mr-1 h-3 w-3"
-				/>
-				Add
-			</Button>
+			<Popover v-model:open="isAddPopoverOpen">
+				<PopoverTrigger as-child>
+					<Button
+						variant="default"
+						size="sm"
+						class="h-7 text-xs"
+					>
+						<Icon
+							name="lucide:plus"
+							class="mr-1 h-3 w-3"
+						/>
+						Add
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent align="end" class="w-80 p-2">
+					<div class="grid grid-cols-2 gap-1">
+						<button
+							v-for="option in layerTypeOptions"
+							:key="option.type"
+							type="button"
+							class="hover:bg-accent flex flex-col items-start gap-1 rounded-md p-2 text-left transition-colors"
+							@click="handleAddLayerType(option.type)"
+						>
+							<div class="flex items-center gap-1.5">
+								<Icon :name="option.icon" class="h-4 w-4 shrink-0" />
+								<span class="text-sm font-medium">{{ option.label }}</span>
+							</div>
+							<p class="text-muted-foreground text-xs">{{ option.description }}</p>
+						</button>
+					</div>
+				</PopoverContent>
+			</Popover>
 		</div>
 		<CardContent class="flex-1 overflow-hidden p-0">
 			<ScrollArea class="h-full">
@@ -142,7 +191,7 @@ function getLayerTypeIcon(type: string): string {
 							:value="layer.id"
 							class="border-0"
 						>
-							<div class="group relative">
+							<div :id="`layer-row-${layer.id}`" class="group relative">
 								<div
 									class="flex items-center gap-2 rounded-md border px-2 py-2 transition-all"
 									:class="{

@@ -145,6 +145,8 @@ export function useOverlayBuilder() {
 		saveToHistory()
 		project.layers.push(newLayer)
 		selectLayers([newLayer.id])
+
+		return newLayer
 	}
 
 	function removeLayer(layerId: string) {

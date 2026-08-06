@@ -9,6 +9,8 @@ import ImageLayerPreview from './ImageLayerPreview.vue'
 import LayerTypePreview from './LayerTypePreview.vue'
 import type { AlignmentGuide, Layer } from '../types'
 
+import { Button } from '@/components/ui/button'
+
 interface Props {
 	layers: Layer[]
 	selectedLayerIds: string[]
@@ -34,6 +36,10 @@ const emit = defineEmits<{
 	dragEnd: [layerId: string]
 	findGuides: [layer: Layer]
 	clearGuides: []
+	toggleVisibility: [layerId: string]
+	toggleLock: [layerId: string]
+	removeLayer: [layerId: string]
+	openLayerSettings: [layerId: string]
 }>()
 
 const canvasElement = ref<HTMLElement>()
@@ -103,8 +109,17 @@ const moveableTargets = computed(() => {
 
 const isDragging = ref(false)
 
+// Deselect only when the whole press-release gesture started on empty canvas:
+// selecting on mousedown can retarget the subsequent click to the canvas element
+// (Moveable's drag area covers the layer mid-gesture), which must not clear selection.
+let canvasMouseDownTarget: EventTarget | null = null
+
+function handleCanvasMouseDown(event: MouseEvent) {
+	canvasMouseDownTarget = event.target
+}
+
 function handleCanvasClick(event: MouseEvent) {
-	if (event.target === canvasElement.value) {
+	if (event.target === canvasElement.value && canvasMouseDownTarget === canvasElement.value) {
 		emit('deselectAll')
 	}
 }
@@ -261,7 +276,25 @@ function handleLayerClick(layerId: string, event: MouseEvent) {
 	if (layer?.locked) return
 
 	const addToSelection = event.ctrlKey || event.metaKey
+	// Selection already applied on mousedown - skip resetting Moveable's target mid-gesture
+	if (!addToSelection && props.selectedLayerIds.length === 1 && props.selectedLayerIds[0] === layerId) {
+		return
+	}
 	emit('selectLayer', layerId, addToSelection)
+}
+
+// Select on press so an unselected layer can be dragged in a single gesture:
+// after Vue retargets Moveable, kick off its drag with the same mousedown event.
+function handleLayerMouseDown(layerId: string, event: MouseEvent) {
+	if (event.button !== 0) return
+	const layer = props.layers.find(l => l.id === layerId)
+	if (!layer || layer.locked) return
+	if (isLayerSelected(layerId)) return
+
+	emit('selectLayer', layerId, event.ctrlKey || event.metaKey)
+	nextTick(() => {
+		moveableRef.value?.dragStart(event)
+	})
 }
 
 function onDrag(e: OnDrag) {
@@ -404,6 +437,56 @@ function isLayerSelected(layerId: string) {
 	return props.selectedLayerIds.includes(layerId)
 }
 
+// Quick actions floating bar for the single selected layer.
+// Rendered inside the scaled canvas, so position is in canvas coordinates and
+// the bar content is counter-scaled to keep a constant on-screen size.
+const quickActionsLayer = computed(() => {
+	if (selectedLayers.value.length !== 1) return null
+	return selectedLayers.value[0] ?? null
+})
+
+// Estimated on-screen size of the bar, only used for bounds clamping
+const QUICK_ACTIONS_WIDTH = 150
+const QUICK_ACTIONS_HEIGHT = 36
+const QUICK_ACTIONS_GAP = 8
+
+const quickActionsFlipAbove = computed(() => {
+	const layer = quickActionsLayer.value
+	if (!layer) return false
+	const gap = QUICK_ACTIONS_GAP / props.zoom
+	const barHeight = QUICK_ACTIONS_HEIGHT / props.zoom
+	const spaceBelow = props.canvasHeight - (layer.posY + layer.height)
+	return spaceBelow < gap + barHeight && layer.posY >= gap + barHeight
+})
+
+const quickActionsStyle = computed(() => {
+	const layer = quickActionsLayer.value
+	if (!layer) return {}
+	const barWidth = QUICK_ACTIONS_WIDTH / props.zoom
+	const left = Math.max(0, Math.min(layer.posX, props.canvasWidth - barWidth))
+	const top = quickActionsFlipAbove.value ? layer.posY : layer.posY + layer.height
+	return {
+		left: `${left}px`,
+		top: `${top}px`,
+		zIndex: 10000,
+	}
+})
+
+const quickActionsInnerStyle = computed(() => {
+	return {
+		transform: `scale(${1 / props.zoom})`,
+		transformOrigin: '0 0',
+	}
+})
+
+const quickActionsOffsetStyle = computed(() => {
+	return {
+		transform: quickActionsFlipAbove.value
+			? 'translateY(calc(-100% - 8px))'
+			: 'translateY(8px)',
+	}
+})
+
 function handleKeyDown(event: KeyboardEvent) {
 	if (event.key === 'Delete' || event.key === 'Backspace') {
 		if (props.selectedLayerIds.length > 0) {
@@ -435,6 +518,7 @@ onUnmounted(() => {
 	<div
 		class="relative flex-1 overflow-hidden bg-slate-900"
 		@click="handleCanvasClick"
+		@mousedown="handleCanvasMouseDown"
 	>
 		<!-- Container for canvas and grid -->
 		<div class="flex items-center justify-center w-full h-full p-8">
@@ -476,6 +560,7 @@ onUnmounted(() => {
 					}"
 					:style="getLayerStyle(layer)"
 					@click="handleLayerClick(layer.id, $event)"
+					@mousedown="handleLayerMouseDown(layer.id, $event)"
 				>
 					<div class="w-full h-full overflow-hidden">
 						<!-- HTML Layer Preview -->
@@ -538,26 +623,103 @@ onUnmounted(() => {
 					</div>
 					</div>
 
-					<Moveable
-					v-if="selectedLayerIds.length > 0 && selectedLayers.every(l => !l.locked)"
-					ref="moveableRef"
-					:target="moveableTargets"
-					:draggable="true"
-					:resizable="true"
-					:rotatable="true"
-					:snappable="snapToGrid"
-					:snapThreshold="5"
-					:origin="false"
-					:renderDirections="['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se']"
-					:keepRatio="false"
-					:edge-draggable="false"
-					:throttleDrag="0"
-					:throttleResize="0"
-					@drag="onDrag"
-					@drag-end="onDragEnd"
-					@resize="onResize"
-					@rotate="onRotate"
-				/>
+				<Moveable
+				v-if="selectedLayerIds.length > 0 && selectedLayers.every(l => !l.locked)"
+				ref="moveableRef"
+				:target="moveableTargets"
+				:draggable="true"
+				:resizable="true"
+				:rotatable="true"
+				:snappable="snapToGrid"
+				:snapThreshold="5"
+				:origin="false"
+				:renderDirections="['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se']"
+				:keepRatio="false"
+				:edge-draggable="false"
+				:throttleDrag="0"
+				:throttleResize="0"
+				@drag="onDrag"
+				@drag-end="onDragEnd"
+				@resize="onResize"
+				@rotate="onRotate"
+			/>
+
+				<!-- Quick actions for the single selected layer -->
+				<div
+					v-if="quickActionsLayer"
+					class="pointer-events-none absolute"
+					:style="quickActionsStyle"
+				>
+					<div :style="quickActionsInnerStyle">
+						<div
+							class="bg-popover pointer-events-auto flex items-center gap-0.5 rounded-md border p-1 shadow-lg"
+							:style="quickActionsOffsetStyle"
+							@mousedown.stop
+							@click.stop
+						>
+							<Button
+								variant="ghost"
+								size="icon"
+								class="h-7 w-7"
+								:title="quickActionsLayer.visible ? 'Hide' : 'Show'"
+								@click="emit('toggleVisibility', quickActionsLayer.id)"
+							>
+								<Icon
+									v-if="quickActionsLayer.visible"
+									name="lucide:eye"
+									class="h-3.5 w-3.5"
+								/>
+								<Icon
+									v-else
+									name="lucide:eye-off"
+									class="text-muted-foreground h-3.5 w-3.5"
+								/>
+							</Button>
+							<Button
+								variant="ghost"
+								size="icon"
+								class="h-7 w-7"
+								:title="quickActionsLayer.locked ? 'Unlock' : 'Lock'"
+								@click="emit('toggleLock', quickActionsLayer.id)"
+							>
+								<Icon
+									v-if="!quickActionsLayer.locked"
+									name="lucide:lock-open"
+									class="h-3.5 w-3.5"
+								/>
+								<Icon
+									v-else
+									name="lucide:lock"
+									class="text-muted-foreground h-3.5 w-3.5"
+								/>
+							</Button>
+							<Button
+								variant="ghost"
+								size="icon"
+								class="h-7 w-7"
+								title="Settings"
+								@click="emit('openLayerSettings', quickActionsLayer.id)"
+							>
+								<Icon
+									name="lucide:settings-2"
+									class="h-3.5 w-3.5"
+								/>
+							</Button>
+							<Button
+								variant="ghost"
+								size="icon"
+								class="text-destructive hover:text-destructive h-7 w-7"
+								title="Delete"
+								@click="emit('removeLayer', quickActionsLayer.id)"
+							>
+								<Icon
+									name="lucide:trash"
+									class="h-3.5 w-3.5"
+								/>
+							</Button>
+						</div>
+					</div>
+				</div>
 				</div>
 			</div>
 		</div>
