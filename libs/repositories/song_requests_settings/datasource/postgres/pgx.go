@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/entities/song_request_mode"
 	entity "github.com/twirapp/twir/libs/entities/song_requests_settings"
 	songrequestssettings "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 )
@@ -32,58 +33,60 @@ type Pgx struct {
 }
 
 type scanModel struct {
-	ID                                   uuid.UUID  `db:"id"`
-	ChannelID                            *uuid.UUID `db:"channel_id"`
-	Enabled                              bool       `db:"enabled"`
-	AcceptOnlyWhenOnline                 bool       `db:"accept_only_when_online"`
-	PlayerNoCookieMode                   bool       `db:"player_no_cookie_mode"`
-	TakeSongFromDonationMessage          bool       `db:"take_song_from_donation_message"`
-	MaxRequests                          *int       `db:"max_requests"`
-	ChannelPointsRewardID                *string    `db:"channel_points_reward_id"`
-	AnnouncePlay                         bool       `db:"announce_play"`
-	NeededVotesForSkip                   *float64   `db:"needed_votes_for_skip"`
-	UserMaxRequests                      *int       `db:"user_max_requests"`
-	UserMinWatchTime                     *int64     `db:"user_min_watch_time"`
-	UserMinMessages                      *int       `db:"user_min_messages"`
-	UserMinFollowTime                    *int       `db:"user_min_follow_time"`
-	SongMinLength                        *int       `db:"song_min_length"`
-	SongMaxLength                        *int       `db:"song_max_length"`
-	SongMinViews                         *int       `db:"song_min_views"`
-	SongAcceptedCategories               []string   `db:"song_accepted_categories"`
-	SongWordsDenyList                    []string   `db:"song_words_deny_list"`
-	DenyListUsers                        []string   `db:"deny_list_users"`
-	DenyListSongs                        []string   `db:"deny_list_songs"`
-	DenyListChannels                     []string   `db:"deny_list_channels"`
-	DenyListArtistsNames                 []string   `db:"deny_list_artists_names"`
-	DenyListWords                        []string   `db:"deny_list_words"`
-	TranslationsNowPlaying               *string    `db:"translations_now_playing"`
-	TranslationsNotEnabled               *string    `db:"translations_not_enabled"`
-	TranslationsNoText                   *string    `db:"translations_no_text"`
-	TranslationsAcceptOnlineWhenOnline   *string    `db:"translations_accept_online_when_online"`
-	TranslationsUserDenied               *string    `db:"translations_user_denied"`
-	TranslationsUserMaxRequests          *string    `db:"translations_user_max_requests"`
-	TranslationsUserMinMessages          *string    `db:"translations_user_min_messages"`
-	TranslationsUserMinWatched           *string    `db:"translations_user_min_watched"`
-	TranslationsUserMinFollow            *string    `db:"translations_user_min_follow"`
-	TranslationsSongDenied               *string    `db:"translations_song_denied"`
-	TranslationsSongNotFound             *string    `db:"translations_song_not_found"`
-	TranslationsSongAlreadyInQueue       *string    `db:"translations_song_already_in_queue"`
-	TranslationsSongAgeRestrictions      *string    `db:"translations_song_age_restrictions"`
-	TranslationsSongCannotGetInformation *string    `db:"translations_song_cannot_get_information"`
-	TranslationsSongLive                 *string    `db:"translations_song_live"`
-	TranslationsSongMaxLength            *string    `db:"translations_song_max_length"`
-	TranslationsSongMinLength            *string    `db:"translations_song_min_length"`
-	TranslationsSongRequestedMessage     *string    `db:"translations_song_requested_message"`
-	TranslationsSongMaximumOrdered       *string    `db:"translations_song_maximum_ordered"`
-	TranslationsSongMinViews             *string    `db:"translations_song_min_views"`
-	TranslationsChannelDenied            *string    `db:"translations_channel_denied"`
-	Volume                               int        `db:"volume"`
+	ID                                   uuid.UUID              `db:"id"`
+	ChannelID                            *uuid.UUID             `db:"channel_id"`
+	Mode                                 song_request_mode.Mode `db:"mode"`
+	Enabled                              bool                   `db:"enabled"`
+	AcceptOnlyWhenOnline                 bool                   `db:"accept_only_when_online"`
+	PlayerNoCookieMode                   bool                   `db:"player_no_cookie_mode"`
+	TakeSongFromDonationMessage          bool                   `db:"take_song_from_donation_message"`
+	MaxRequests                          *int                   `db:"max_requests"`
+	ChannelPointsRewardID                *string                `db:"channel_points_reward_id"`
+	AnnouncePlay                         bool                   `db:"announce_play"`
+	NeededVotesForSkip                   *float64               `db:"needed_votes_for_skip"`
+	UserMaxRequests                      *int                   `db:"user_max_requests"`
+	UserMinWatchTime                     *int64                 `db:"user_min_watch_time"`
+	UserMinMessages                      *int                   `db:"user_min_messages"`
+	UserMinFollowTime                    *int                   `db:"user_min_follow_time"`
+	SongMinLength                        *int                   `db:"song_min_length"`
+	SongMaxLength                        *int                   `db:"song_max_length"`
+	SongMinViews                         *int                   `db:"song_min_views"`
+	SongAcceptedCategories               []string               `db:"song_accepted_categories"`
+	SongWordsDenyList                    []string               `db:"song_words_deny_list"`
+	DenyListUsers                        []string               `db:"deny_list_users"`
+	DenyListSongs                        []string               `db:"deny_list_songs"`
+	DenyListChannels                     []string               `db:"deny_list_channels"`
+	DenyListArtistsNames                 []string               `db:"deny_list_artists_names"`
+	DenyListWords                        []string               `db:"deny_list_words"`
+	TranslationsNowPlaying               *string                `db:"translations_now_playing"`
+	TranslationsNotEnabled               *string                `db:"translations_not_enabled"`
+	TranslationsNoText                   *string                `db:"translations_no_text"`
+	TranslationsAcceptOnlineWhenOnline   *string                `db:"translations_accept_online_when_online"`
+	TranslationsUserDenied               *string                `db:"translations_user_denied"`
+	TranslationsUserMaxRequests          *string                `db:"translations_user_max_requests"`
+	TranslationsUserMinMessages          *string                `db:"translations_user_min_messages"`
+	TranslationsUserMinWatched           *string                `db:"translations_user_min_watched"`
+	TranslationsUserMinFollow            *string                `db:"translations_user_min_follow"`
+	TranslationsSongDenied               *string                `db:"translations_song_denied"`
+	TranslationsSongNotFound             *string                `db:"translations_song_not_found"`
+	TranslationsSongAlreadyInQueue       *string                `db:"translations_song_already_in_queue"`
+	TranslationsSongAgeRestrictions      *string                `db:"translations_song_age_restrictions"`
+	TranslationsSongCannotGetInformation *string                `db:"translations_song_cannot_get_information"`
+	TranslationsSongLive                 *string                `db:"translations_song_live"`
+	TranslationsSongMaxLength            *string                `db:"translations_song_max_length"`
+	TranslationsSongMinLength            *string                `db:"translations_song_min_length"`
+	TranslationsSongRequestedMessage     *string                `db:"translations_song_requested_message"`
+	TranslationsSongMaximumOrdered       *string                `db:"translations_song_maximum_ordered"`
+	TranslationsSongMinViews             *string                `db:"translations_song_min_views"`
+	TranslationsChannelDenied            *string                `db:"translations_channel_denied"`
+	Volume                               int                    `db:"volume"`
 }
 
 func (s scanModel) toEntity() entity.Settings {
 	return entity.Settings{
 		ID:                                   s.ID,
 		ChannelID:                            lo.FromPtr(s.ChannelID),
+		Mode:                                 s.Mode,
 		Enabled:                              s.Enabled,
 		AcceptOnlyWhenOnline:                 s.AcceptOnlyWhenOnline,
 		PlayerNoCookieMode:                   s.PlayerNoCookieMode,
@@ -133,6 +136,7 @@ func (s scanModel) toEntity() entity.Settings {
 
 const selectFields = `id,
 	channel_id,
+	mode,
 	enabled,
 	accept_only_when_online,
 	player_no_cookie_mode,
@@ -214,6 +218,7 @@ func (c *Pgx) Upsert(
 ) (entity.Settings, error) {
 	query := `INSERT INTO channels_song_requests_settings (
 	channel_id,
+	mode,
 	enabled,
 	accept_only_when_online,
 	player_no_cookie_mode,
@@ -260,6 +265,7 @@ func (c *Pgx) Upsert(
 	volume
 ) VALUES (
 	@channel_id,
+	@mode,
 	@enabled,
 	@accept_only_when_online,
 	@player_no_cookie_mode,
@@ -307,6 +313,7 @@ func (c *Pgx) Upsert(
 )
 ON CONFLICT (channel_id) DO UPDATE SET
 	enabled = EXCLUDED.enabled,
+	mode = EXCLUDED.mode,
 	accept_only_when_online = EXCLUDED.accept_only_when_online,
 	player_no_cookie_mode = EXCLUDED.player_no_cookie_mode,
 	take_song_from_donation_message = EXCLUDED.take_song_from_donation_message,
@@ -357,6 +364,7 @@ RETURNING ` + selectFields
 		query,
 		pgx.NamedArgs{
 			"channel_id":                               settings.ChannelID,
+			"mode":                                     settings.Mode,
 			"enabled":                                  settings.Enabled,
 			"accept_only_when_online":                  settings.AcceptOnlyWhenOnline,
 			"player_no_cookie_mode":                    settings.PlayerNoCookieMode,

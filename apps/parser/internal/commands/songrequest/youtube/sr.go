@@ -14,7 +14,10 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types/services"
 	"github.com/twirapp/twir/apps/parser/locales"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	buscorespotify "github.com/twirapp/twir/libs/bus-core/spotify"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
+	song_request_mode "github.com/twirapp/twir/libs/entities/song_request_mode"
+	songrequestssettingsentity "github.com/twirapp/twir/libs/entities/song_requests_settings"
 	"github.com/twirapp/twir/libs/i18n"
 
 	"github.com/guregu/null"
@@ -27,9 +30,9 @@ import (
 
 	googleuuid "github.com/google/uuid"
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 
 	"github.com/samber/lo"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 )
 
 type ReqError struct {
@@ -60,23 +63,54 @@ var SrCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		moduleSettings := &model.ChannelSongRequestsSettings{}
-		err := parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channel_id" = ?::uuid`, parseCtx.Channel.DBChannelID).
-			First(moduleSettings).Error
-
+		moduleSettings, err := parseCtx.Services.SongRequestsSettingsRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
 		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
+			if errors.Is(err, songrequestssettingsrepository.ErrNotFound) {
 				return result, nil
-			} else {
-				return nil, &types.CommandHandlerError{
-					Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
-					Err:     err,
-				}
+			}
+
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
+				Err:     err,
 			}
 		}
 
 		if !moduleSettings.Enabled {
+			return result, nil
+		}
+
+		if moduleSettings.Mode == song_request_mode.ModeSpotify {
+			request, err := parseCtx.Services.Bus.Spotify.CreateSongRequest.Request(
+				ctx,
+				buscorespotify.CreateSongRequestRequest{
+					ChannelID:            parseCtx.Channel.DBChannelID,
+					RequesterUserID:      parseCtx.Sender.DbUser.ID,
+					RequesterName:        parseCtx.Sender.Name,
+					RequesterDisplayName: parseCtx.Sender.DisplayName,
+					Source:               "chat",
+					Query:                parseCtx.ArgsParser.Get(songRequestArgName).String(),
+				},
+			)
+			if err != nil {
+				message := spotifySongRequestErrorMessage(err)
+				if message == "" {
+					parseCtx.Services.Logger.Sugar().Errorw(
+						"spotify song request failed",
+						"error", err,
+						"channel_id", parseCtx.Channel.DBChannelID,
+						"user_id", parseCtx.Sender.DbUser.ID,
+					)
+					message = "Spotify request failed"
+				}
+
+				result.Result = append(result.Result, message)
+				return result, nil
+			}
+
+			result.Result = append(
+				result.Result,
+				fmt.Sprintf("Requested: %s - %s", request.Data.Request.Title, request.Data.Request.Artist),
+			)
 			return result, nil
 		}
 
@@ -149,7 +183,7 @@ var SrCommand = &types.DefaultCommand{
 				parseCtx.Channel.ID,
 				parseCtx.Sender.DbUser.ID,
 				parseCtx.Sender.ID,
-				*moduleSettings,
+				moduleSettings,
 				song,
 			)
 
@@ -170,9 +204,9 @@ var SrCommand = &types.DefaultCommand{
 					VideoID:              song.Id,
 					Title:                song.Title,
 					Duration:             int32(song.Duration),
-				CreatedAt:            time.Now().UTC(),
-				QueuePosition:        queueStats.MaxPosition + len(requested) + 1,
-				SongLink:             null.StringFromPtr(song.Link),
+					CreatedAt:            time.Now().UTC(),
+					QueuePosition:        queueStats.MaxPosition + len(requested) + 1,
+					SongLink:             null.StringFromPtr(song.Link),
 				}
 
 				err = parseCtx.Services.Gorm.WithContext(ctx).Create(model).Error
@@ -234,7 +268,7 @@ func validate(
 	ctx context.Context,
 	services *services.Services,
 	dbChannelID, platformChannelID, dbUserID, platformUserID string,
-	settings model.ChannelSongRequestsSettings,
+	settings songrequestssettingsentity.Settings,
 	song ytsr.Song,
 ) error {
 	alreadyRequestedSong := &model.RequestedSong{}

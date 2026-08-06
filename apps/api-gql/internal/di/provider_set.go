@@ -94,6 +94,7 @@ import (
 	songrequestoverlaysettings "github.com/twirapp/twir/apps/api-gql/internal/services/song_request_overlay_settings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/spotify_integration"
+	spotify_song_requests "github.com/twirapp/twir/apps/api-gql/internal/services/spotify_song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/streamelements"
 	streamlabsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/streamlabs_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -193,6 +194,7 @@ var ProviderSet = wire.NewSet(
 		channels_secret.New,
 		channels_storage.New,
 		song_requests.New,
+		spotify_song_requests.New,
 		song_requests.NewPlaybackStateService,
 		songrequestoverlaysettings.New,
 		community_redemptions.New,
@@ -285,6 +287,8 @@ var ProviderSet = wire.NewSet(
 	v2publicroutes.New,
 	http_webhooks.New,
 	song_requests.NewBridge,
+	spotify_song_requests.NewReconciler,
+	spotify_song_requests.NewRequestBridge,
 	RegisterChannelsFilesRoute,
 	RegisterValorantRoute,
 	RegisterStreamRoute,
@@ -333,27 +337,29 @@ func RegisterMCP(s *server.Server, handler *mcpdelivery.Handler) MCPRegistration
 }
 
 type ApplicationDeps struct {
-	Lifecycle           *lifecycle.Lifecycle
-	PlatformRegistry    *platform.Registry
-	GQL                 *gql.Gql
-	PublicRoutes        *publicroutes.Public
-	V2PublicRoutes      *v2publicroutes.Public
-	Webhooks            *http_webhooks.Webhooks
-	AuthRoutes          *authroutes.Auth
-	ChannelsFilesRoute  ChannelsFilesRouteRegistration
-	SongRequestsBridge  *song_requests.Bridge
-	ValorantRoute       ValorantRouteRegistration
-	StreamRoute         StreamRouteRegistration
-	MCP                 MCPRegistration
-	ShortlinksRoutes    shortlinks.Registration
-	PastebinsRoutes     pastebins.Registration
-	CommandsRoutes      commandshttp.Registration
-	TTSRoutes           ttsroutes.Registration
-	BeRightBackRoutes   brb.Registration
-	TwirRoutes          twirhttp.Registration
-	ScheduledVIPsRoutes scheduledvipsroutes.Registration
-	MCPOAuthRoutes      mcpOAuthRoutes.Registration
-	Logger              *slog.Logger
+	Lifecycle                     *lifecycle.Lifecycle
+	PlatformRegistry              *platform.Registry
+	GQL                           *gql.Gql
+	PublicRoutes                  *publicroutes.Public
+	V2PublicRoutes                *v2publicroutes.Public
+	Webhooks                      *http_webhooks.Webhooks
+	AuthRoutes                    *authroutes.Auth
+	ChannelsFilesRoute            ChannelsFilesRouteRegistration
+	SongRequestsBridge            *song_requests.Bridge
+	SpotifySongRequestsReconciler *spotify_song_requests.Reconciler
+	SpotifySongRequestsBridge     *spotify_song_requests.RequestBridge
+	ValorantRoute                 ValorantRouteRegistration
+	StreamRoute                   StreamRouteRegistration
+	MCP                           MCPRegistration
+	ShortlinksRoutes              shortlinks.Registration
+	PastebinsRoutes               pastebins.Registration
+	CommandsRoutes                commandshttp.Registration
+	TTSRoutes                     ttsroutes.Registration
+	BeRightBackRoutes             brb.Registration
+	TwirRoutes                    twirhttp.Registration
+	ScheduledVIPsRoutes           scheduledvipsroutes.Registration
+	MCPOAuthRoutes                mcpOAuthRoutes.Registration
+	Logger                        *slog.Logger
 }
 
 type Application struct {

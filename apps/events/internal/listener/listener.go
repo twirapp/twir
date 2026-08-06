@@ -1024,6 +1024,7 @@ func (c *EventsGrpcImplementation) Donate(
 			err := c.songsRequest.ProcessFromDonation(
 				ctx, song_request.ProcessFromDonationInput{
 					Text:      msg.Message,
+					Username:  msg.UserName,
 					ChannelID: channelDBID.String(),
 				},
 			)

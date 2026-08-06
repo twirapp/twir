@@ -10,6 +10,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -32,6 +34,13 @@ type spotifyTokensResponse struct {
 type Service struct {
 	spotifyRepository channelsintegrationsspotify.Repository
 	config            config.Config
+}
+
+var spotifyScopes = []string{
+	"user-read-currently-playing",
+	"user-read-playback-state",
+	"user-read-recently-played",
+	"user-modify-playback-state",
 }
 
 func New(
@@ -61,6 +70,7 @@ func (s *Service) GetSpotifyData(
 	return &entity.SpotifyIntegrationData{
 		UserName: integration.Username,
 		Avatar:   integration.AvatarURI,
+		Scopes:   slices.Clone(integration.Scopes),
 	}, nil
 }
 
@@ -133,7 +143,7 @@ func (s *Service) PostCode(
 		ChannelID:    channelID,
 		AccessToken:  data.AccessToken,
 		RefreshToken: data.RefreshToken,
-		Scopes:       []string{"user-read-currently-playing", "user-read-playback-state"},
+		Scopes:       append([]string(nil), spotifyScopes...),
 	}
 
 	userSpotify := spotify.New(
@@ -212,7 +222,7 @@ func (s *Service) GetAuthLink(
 	q := link.Query()
 	q.Add("response_type", "code")
 	q.Add("client_id", s.config.SpotifyClientID)
-	q.Add("scope", "user-read-currently-playing user-read-playback-state user-read-recently-played")
+	q.Add("scope", strings.Join(spotifyScopes, " "))
 	q.Add("redirect_uri", redirectUrl)
 	link.RawQuery = q.Encode()
 

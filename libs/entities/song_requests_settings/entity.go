@@ -1,10 +1,14 @@
 package song_requests_settings
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/song_request_mode"
+)
 
 type Settings struct {
 	ID                                   uuid.UUID
 	ChannelID                            uuid.UUID
+	Mode                                 song_request_mode.Mode
 	Enabled                              bool
 	AcceptOnlyWhenOnline                 bool
 	PlayerNoCookieMode                   bool
