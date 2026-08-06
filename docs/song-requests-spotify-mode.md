@@ -35,7 +35,8 @@ Data layer rule: everything new goes through `libs/entities` + `libs/repositorie
 - `sr wrong` marks the requester's latest request `cancelled_pending_skip`. Spotify does **not**
   allow removing arbitrary queue items, so the reconciler performs a **deferred skip**: when the
   cancelled track becomes the currently playing one, it calls `skip next` and marks the request
-  `skipped_by_twir`.
+  `skipped_by_twir`. The cancelled track stays visible in the Spotify app's own queue until then,
+  but it never actually plays — this is a Spotify API limitation, not a bug.
 - `voteskip` is not supported in Spotify mode (the command answers with a notice).
 - The reconciler keeps request statuses in sync with the real player: `queued` → `playing` →
   `played`, `removed_or_reconciled` when a track disappears from the queue for >15s, `unknown` when
