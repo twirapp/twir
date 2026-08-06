@@ -11,6 +11,16 @@ func ChannelOverlayLayerTypeEntityToGql(t customoverlayentity.ChannelOverlayType
 		return gqlmodel.ChannelOverlayLayerTypeHTML
 	case customoverlayentity.ChannelOverlayTypeIMAGE:
 		return gqlmodel.ChannelOverlayLayerTypeImage
+	case customoverlayentity.ChannelOverlayTypeTEXT:
+		return gqlmodel.ChannelOverlayLayerTypeText
+	case customoverlayentity.ChannelOverlayTypeVIDEO:
+		return gqlmodel.ChannelOverlayLayerTypeVideo
+	case customoverlayentity.ChannelOverlayTypeIFRAME:
+		return gqlmodel.ChannelOverlayLayerTypeIframe
+	case customoverlayentity.ChannelOverlayTypeYOUTUBE:
+		return gqlmodel.ChannelOverlayLayerTypeYoutube
+	case customoverlayentity.ChannelOverlayTypeEMOTE:
+		return gqlmodel.ChannelOverlayLayerTypeEmote
 	default:
 		return gqlmodel.ChannelOverlayLayerTypeHTML
 	}
@@ -22,6 +32,16 @@ func ChannelOverlayLayerTypeGqlToEntity(t gqlmodel.ChannelOverlayLayerType) cust
 		return customoverlayentity.ChannelOverlayTypeHTML
 	case gqlmodel.ChannelOverlayLayerTypeImage:
 		return customoverlayentity.ChannelOverlayTypeIMAGE
+	case gqlmodel.ChannelOverlayLayerTypeText:
+		return customoverlayentity.ChannelOverlayTypeTEXT
+	case gqlmodel.ChannelOverlayLayerTypeVideo:
+		return customoverlayentity.ChannelOverlayTypeVIDEO
+	case gqlmodel.ChannelOverlayLayerTypeIframe:
+		return customoverlayentity.ChannelOverlayTypeIFRAME
+	case gqlmodel.ChannelOverlayLayerTypeYoutube:
+		return customoverlayentity.ChannelOverlayTypeYOUTUBE
+	case gqlmodel.ChannelOverlayLayerTypeEmote:
+		return customoverlayentity.ChannelOverlayTypeEMOTE
 	default:
 		return customoverlayentity.ChannelOverlayTypeHTML
 	}
@@ -34,6 +54,25 @@ func ChannelOverlayLayerSettingsEntityToGql(s customoverlayentity.ChannelOverlay
 		HTMLOverlayJs:                      s.HtmlOverlayJS,
 		HTMLOverlayDataPollSecondsInterval: s.HtmlOverlayDataPollSecondsInterval,
 		ImageURL:                           s.ImageUrl,
+		TextContent:                        s.TextContent,
+		TextFontFamily:                     s.TextFontFamily,
+		TextFontSize:                       s.TextFontSize,
+		TextFontWeight:                     s.TextFontWeight,
+		TextColor:                          s.TextColor,
+		TextAlign:                          s.TextAlign,
+		VideoURL:                           s.VideoUrl,
+		VideoLoop:                          s.VideoLoop,
+		VideoMuted:                         s.VideoMuted,
+		IframeURL:                          s.IframeUrl,
+		IframeScale:                        s.IframeScale,
+		WidgetKey:                          s.WidgetKey,
+		YoutubeVideoID:                     s.YoutubeVideoID,
+		YoutubeAutoplay:                    s.YoutubeAutoplay,
+		YoutubeLoop:                        s.YoutubeLoop,
+		YoutubeMuted:                       s.YoutubeMuted,
+		EmoteURL:                           s.EmoteUrl,
+		EmoteName:                          s.EmoteName,
+		EmoteProvider:                      s.EmoteProvider,
 	}
 }
 
