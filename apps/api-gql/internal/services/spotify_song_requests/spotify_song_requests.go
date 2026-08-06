@@ -261,15 +261,12 @@ func (s *Service) CancelRequest(
 }
 
 func (s *Service) SkipRequest(ctx context.Context, channelID, requestID string) error {
-	if err := s.ensureRequestChannel(ctx, channelID, requestID); err != nil {
+	request, err := s.ensureRequestChannel(ctx, channelID, requestID)
+	if err != nil {
 		return err
 	}
 
-	if err := s.spotifySongRequestsRepository.UpdateStatus(
-		ctx,
-		requestID,
-		spotify_song_request.StatusSkippedByTwir,
-	); err != nil {
+	if err := s.skipOrDeferTrack(ctx, channelID, request); err != nil {
 		return err
 	}
 
@@ -279,17 +276,58 @@ func (s *Service) SkipRequest(ctx context.Context, channelID, requestID string) 
 }
 
 func (s *Service) CancelRequestByID(ctx context.Context, channelID, requestID string) error {
-	if err := s.ensureRequestChannel(ctx, channelID, requestID); err != nil {
+	request, err := s.ensureRequestChannel(ctx, channelID, requestID)
+	if err != nil {
 		return err
 	}
 
-	if err := s.spotifySongRequestsRepository.CancelPendingSkip(ctx, requestID); err != nil {
+	if err := s.skipOrDeferTrack(ctx, channelID, request); err != nil {
 		return err
 	}
 
 	s.publishQueueChanged(ctx, channelID)
 
 	return nil
+}
+
+// Spotify cannot remove items from the queue, so a playing track is skipped
+// immediately and a queued one is marked for a deferred skip when it starts.
+func (s *Service) skipOrDeferTrack(
+	ctx context.Context,
+	channelID string,
+	request spotify_song_request.SpotifySongRequest,
+) error {
+	client, _, err := s.loadSpotifyClient(ctx, channelID)
+	if err != nil {
+		return err
+	}
+
+	currentlyPlaying, err := client.GetCurrentlyPlaying(ctx)
+	if err != nil {
+		return fmt.Errorf("get currently playing track: %w", err)
+	}
+
+	if currentlyPlaying == nil || currentlyPlaying.Item == nil || currentlyPlaying.Item.URI != request.TrackURI {
+		return s.spotifySongRequestsRepository.CancelPendingSkip(ctx, request.ID.String())
+	}
+
+	deviceID := currentlyPlaying.Device.ID
+	if deviceID == "" {
+		deviceID, err = s.selectDevice(ctx, channelID, client)
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := client.SkipNext(ctx, deviceID); err != nil {
+		return err
+	}
+
+	return s.spotifySongRequestsRepository.UpdateStatus(
+		ctx,
+		request.ID.String(),
+		spotify_song_request.StatusSkippedByTwir,
+	)
 }
 
 func (s *Service) GetActiveQueue(
@@ -357,14 +395,18 @@ func (s *Service) SearchTracks(
 	return client.SearchTracks(ctx, query, limit)
 }
 
-func (s *Service) ensureRequestChannel(ctx context.Context, channelID, requestID string) error {
+func (s *Service) ensureRequestChannel(
+	ctx context.Context,
+	channelID,
+	requestID string,
+) (spotify_song_request.SpotifySongRequest, error) {
 	request, err := s.spotifySongRequestsRepository.GetByID(ctx, requestID)
 	if err != nil {
-		return err
+		return spotify_song_request.Nil, err
 	}
 	if request.ChannelID != channelID {
-		return spotify_song_requests_repository.ErrNotFound
+		return spotify_song_request.Nil, spotify_song_requests_repository.ErrNotFound
 	}
 
-	return nil
+	return request, nil
 }

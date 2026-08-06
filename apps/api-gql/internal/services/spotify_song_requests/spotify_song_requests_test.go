@@ -657,7 +657,9 @@ func TestService_CancelRequest_no_active_requests(t *testing.T) {
 	}
 }
 
-func TestService_SkipRequest_updates_status(t *testing.T) {
+const nothingPlayingBody = `{"currently_playing_type":"","is_playing":false,"device":{"id":"device-1","name":"Desktop","type":"Computer","is_active":true},"item":null}`
+
+func TestService_SkipRequest_defers_when_track_not_playing(t *testing.T) {
 	requestID := uuid.New()
 	requestsRepo := newFakeRequestsRepository()
 	requestsRepo.requests = append(
@@ -665,9 +667,17 @@ func TestService_SkipRequest_updates_status(t *testing.T) {
 		spotify_song_request.SpotifySongRequest{
 			ID:        requestID,
 			ChannelID: testChannelID,
+			TrackURI:  "spotify:track:track-1",
 			Status:    spotify_song_request.StatusQueued,
 		},
 	)
+
+	swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {
+		if req.URL.Path != "/v1/me/player/currently-playing" {
+			t.Fatalf("unexpected request path %s", req.URL.Path)
+		}
+		return fixtureResponse(req, http.StatusOK, nothingPlayingBody), nil
+	})
 
 	service := newService(
 		&fakeSettingsRepository{settings: spotifySettings()},
@@ -677,6 +687,51 @@ func TestService_SkipRequest_updates_status(t *testing.T) {
 
 	if err := service.SkipRequest(context.Background(), testChannelID, requestID.String()); err != nil {
 		t.Fatalf("SkipRequest() error = %v", err)
+	}
+	if len(requestsRepo.cancelledIDs) != 1 || requestsRepo.cancelledIDs[0] != requestID.String() {
+		t.Fatalf("cancelled ids = %v, want [%s] (deferred skip)", requestsRepo.cancelledIDs, requestID)
+	}
+}
+
+func TestService_SkipRequest_skips_immediately_when_track_is_playing(t *testing.T) {
+	requestID := uuid.New()
+	requestsRepo := newFakeRequestsRepository()
+	requestsRepo.requests = append(
+		requestsRepo.requests,
+		spotify_song_request.SpotifySongRequest{
+			ID:        requestID,
+			ChannelID: testChannelID,
+			TrackURI:  "spotify:track:track-1",
+			Status:    spotify_song_request.StatusPlaying,
+		},
+	)
+
+	var skippedDeviceID string
+	swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {
+		switch req.URL.Path {
+		case "/v1/me/player/currently-playing":
+			body := `{"currently_playing_type":"track","is_playing":true,"progress_ms":1,"device":{"id":"device-1","name":"Desktop","type":"Computer","is_active":true},"item":{"id":"track-1","uri":"spotify:track:track-1","name":"Song","type":"track","artists":[{"name":"Artist"}],"album":{"name":"Album","images":[]},"duration_ms":180000}}`
+			return fixtureResponse(req, http.StatusOK, body), nil
+		case "/v1/me/player/next":
+			skippedDeviceID = req.URL.Query().Get("device_id")
+			return fixtureResponse(req, http.StatusNoContent, ""), nil
+		default:
+			t.Fatalf("unexpected request path %s", req.URL.Path)
+			return nil, nil
+		}
+	})
+
+	service := newService(
+		&fakeSettingsRepository{settings: spotifySettings()},
+		&fakeIntegrationsRepository{integration: spotifyIntegration()},
+		requestsRepo,
+	)
+
+	if err := service.SkipRequest(context.Background(), testChannelID, requestID.String()); err != nil {
+		t.Fatalf("SkipRequest() error = %v", err)
+	}
+	if skippedDeviceID != "device-1" {
+		t.Fatalf("skipped device = %q, want device-1", skippedDeviceID)
 	}
 	if got := requestsRepo.statusByID[requestID.String()]; got != spotify_song_request.StatusSkippedByTwir {
 		t.Fatalf("status = %q, want skipped_by_twir", got)
@@ -715,9 +770,17 @@ func TestService_CancelRequestByID_marks_pending_skip(t *testing.T) {
 		spotify_song_request.SpotifySongRequest{
 			ID:        requestID,
 			ChannelID: testChannelID,
+			TrackURI:  "spotify:track:track-1",
 			Status:    spotify_song_request.StatusQueued,
 		},
 	)
+
+	swapHTTPClient(t, func(req *http.Request) (*http.Response, error) {
+		if req.URL.Path != "/v1/me/player/currently-playing" {
+			t.Fatalf("unexpected request path %s", req.URL.Path)
+		}
+		return fixtureResponse(req, http.StatusOK, nothingPlayingBody), nil
+	})
 
 	service := newService(
 		&fakeSettingsRepository{settings: spotifySettings()},
