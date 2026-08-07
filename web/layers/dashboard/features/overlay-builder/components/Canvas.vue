@@ -7,7 +7,6 @@ import type { OnDrag, OnResize, OnRotate } from 'vue3-moveable'
 import HtmlLayerPreview from './HtmlLayerPreview.vue'
 import ImageLayerPreview from './ImageLayerPreview.vue'
 import LayerTypePreview from './LayerTypePreview.vue'
-import { getLayerTypeMeta } from '../layer-type-meta'
 import type { AlignmentGuide, Layer } from '../types'
 
 import { Button } from '@/components/ui/button'
@@ -564,21 +563,10 @@ onUnmounted(() => {
 					@click="handleLayerClick(layer.id, $event)"
 					@mousedown="handleLayerMouseDown(layer.id, $event)"
 				>
-					<div class="w-full h-full overflow-hidden">
-						<!-- Hidden layer: gray ghost placeholder, no content preview -->
-						<div
-							v-if="!layer.visible"
-							class="flex h-full w-full flex-col items-center justify-center gap-1 bg-white/5 p-2 text-zinc-500"
-						>
-							<Icon
-								:name="getLayerTypeMeta(layer.type).icon"
-								class="h-5 w-5 flex-none"
-							/>
-							<span class="max-w-full truncate text-xs">{{ layer.name }}</span>
-						</div>
+					<div class="w-full h-full overflow-hidden transition-opacity" :class="{ 'opacity-40': !layer.visible }">
 						<!-- HTML Layer Preview -->
 						<HtmlLayerPreview
-							v-else-if="layer.type === 'HTML'"
+							v-if="layer.type === 'HTML'"
 							:html="layer.settings?.htmlOverlayHtml"
 							:css="layer.settings?.htmlOverlayCss"
 							:js="layer.settings?.htmlOverlayJs"
@@ -606,6 +594,15 @@ onUnmounted(() => {
 								</div>
 							</slot>
 						</div>
+					</div>
+
+					<!-- Hidden indicator: eye-off badge in the corner -->
+					<div
+						v-if="!layer.visible"
+						class="absolute left-1 top-1 flex items-center gap-1 rounded bg-slate-900/85 px-1.5 py-1 text-zinc-400 pointer-events-none"
+					>
+						<Icon name="lucide:eye-off" class="h-3 w-3" />
+						<span class="text-[10px] leading-none">Скрыт</span>
 					</div>
 
 					<div
