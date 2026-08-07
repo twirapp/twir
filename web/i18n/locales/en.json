@@ -1817,10 +1817,92 @@
       }
     }
   },
+  "site": {
+    "description": "Powerful and useful chat bot for Twitch, Kick, VK Video Live and YouTube that helps manage chat on big channels. Developed from streamers for streamers with love."
+  },
   "landing": {
     "meta": {
       "title": "Twir — Twitch, Kick, VK & YouTube chat bot for your community",
       "description": "Powerful and useful chat bot for Twitch, Kick, VK Video Live and YouTube that helps manage chat on big channels. Commands, timers, moderation, song requests, giveaways, overlays and more — free and open source."
+    },
+    "hero": {
+      "updates": "🚀 View latest updates",
+      "title": "Engage your audience like never before",
+      "description": "Twir is a free, open-source chat bot for Twitch, Kick, VK Video Live and YouTube. It helps streamers manage and grow their channels with custom commands, timers, chat moderation, song requests, giveaways, alerts and overlays — all in one place.",
+      "platforms": {
+        "twitch": "Twitch",
+        "kick": "Kick",
+        "vk": "VK Video Live",
+        "youtube": "YouTube"
+      },
+      "learnMore": "Learn more",
+      "dashboard": "Dashboard"
+    },
+    "stats": {
+      "activeChannels": "Active Channels",
+      "createdCommands": "Created Commands",
+      "usersSeen": "Users Seen",
+      "messagesProcessed": "Messages Processed",
+      "emotesProcessed": "Emotes Processed",
+      "commandsProcessed": "Commands Processed",
+      "platformChannels": {
+        "twitch": "Twitch Channels",
+        "kick": "Kick Channels",
+        "vk": "VK Video Live Channels",
+        "youtube": "YouTube Channels"
+      }
+    },
+    "features": {
+      "badge": "Features",
+      "title": "Explore our bot's awesome features",
+      "description": "Uncover a treasure trove of features that'll take your stream to the next level. Our bot got the tools to transform your stream adventure!",
+      "disclaimer": "This is by no means an exhaustive list of the bot's capabilities; it will be continuously updated for you as we strive to bring forth new and innovative features.",
+      "discord": "Join our Discord server to stay up to date",
+      "items": {
+        "music-recognition": { "title": "Music Recognition", "description": "Shazam for your twitch stream! Free, without the need to connect any music services" },
+        "vips": { "title": "Vips", "description": "Manage your vips through bot, schedule vips to be removed at a specific time" },
+        "giveaways": { "title": "Giveaways", "description": "Create giveaways, manage participants, choose winners, and archive giveaways for future reference" },
+        "commands": { "title": "Commands", "description": "A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling" },
+        "variables": { "title": "Custom variables", "description": "Write custom variables with JavaScript or Python for expand bot functionality" },
+        "mcp": { "title": "AI control (MCP)", "description": "Control your bot with AI assistants: manage commands, timers, keywords, variables and more from Claude Code, Codex or OpenCode via MCP" },
+        "timers": { "title": "Timers", "description": "A simple system, but with verve, has become a popular announcement system from Twitch" },
+        "greetings": { "title": "Greetings", "description": "Do you want to somehow highlight your favorite viewers? Add a greeting!" },
+        "song-requests": { "title": "Song requests", "description": "Viewers request songs via chat commands. Bot manages queue, plays songs, and offers controls. Enhances stream with viewer engagement" },
+        "keywords": { "title": "Keywords", "description": "Identifies specified keywords in chat, triggers automated messages for engagement or information. Enhances interaction and delivers targeted content during live stream" },
+        "events": { "title": "Events", "description": "With this powerful tool, you can easily set up customized listeners to keep track of specific events happening in the chat, or even trigger actions based on system events" },
+        "moderation": { "title": "Moderation", "description": "Create and manage chat filters to keep safe and kind communication" },
+        "obs": { "title": "OBS Websockets", "description": "Highly integrate with obs studio via websockets. Change scenes, mute audio, toggle source visibility via bot" },
+        "stats": { "title": "Stats tracking", "description": "Track users watch time, messages, used channel points" },
+        "overlays": { "title": "Overlays", "description": "An assortment of pre-designed overlays, including Faceit Stats, Valorant Stats, Now Playing, Chat, Emote Wall, Pixel Dudes, and AFK displays" },
+        "alerts": { "title": "Alerts", "description": "Want to sound alerts on rewards? We got you covered! Create custom alerts for your channel points, commands, keywords triggers" },
+        "games": { "title": "Games", "description": "Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment" },
+        "short-urls": { "title": "Short urls", "description": "Shrink and share links instantly with Twir's sleek URL shortener – over {landingStatsCreatedShortUrls} created and counting" },
+        "hastebins": { "title": "HasteBins", "description": "Create and share quick, secure text snippets with HasteBins – {landingStatsCreatedHastebins} created and growing" }
+      }
+    },
+    "integrations": {
+      "badge": "Integrations",
+      "title": "Power-up your stream with seamless integrations",
+      "description": "Connect with your favorite tools and platforms to supercharge your stream's performance and engagement. Twir's integrations provide endless possibilities."
+    },
+    "nav": {
+      "features": "Features",
+      "integrations": "Integrations",
+      "compare": "Compare",
+      "urlShortener": "URL Shortener",
+      "hastebin": "Hastebin",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "login": "Login",
+      "startNow": "Start now",
+      "dashboard": "Dashboard",
+      "logout": "Logout",
+      "vkLive": "VK Live"
+    },
+    "footer": {
+      "navigation": "Footer Navigation",
+      "github": "Github repository",
+      "discord": "Discord channel for asking a question and keeping up with updates"
     },
     "compareLink": "Compare Twir with other bots",
     "faq": {
