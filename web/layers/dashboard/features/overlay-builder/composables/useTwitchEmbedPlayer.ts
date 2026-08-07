@@ -130,16 +130,18 @@ export function useTwitchEmbedPlayer(
 
 		const login = channelLogin.value
 		const element = container.value
-		if (!login || !element) return
+		if (!login || !element || player) return
 
+		let scriptReady = false
 		try {
 			await loadTwitchEmbedScript()
+			scriptReady = window.Twitch !== undefined
 		} catch {
-			// handled by the retry below
+			scriptReady = false
 		}
 		if (disposed) return
 
-		if (!window.Twitch) {
+		if (!scriptReady) {
 			if (mountAttempts++ < 5) {
 				retryTimeouts.push(setTimeout(() => void mount(), 1000))
 			}
@@ -149,7 +151,7 @@ export function useTwitchEmbedPlayer(
 
 		retryTimeouts.push(
 			setTimeout(() => {
-				if (disposed || !container.value || !window.Twitch) return
+				if (disposed || !container.value || !window.Twitch || player) return
 
 				element.replaceChildren()
 				player = new window.Twitch.Player(element, {
