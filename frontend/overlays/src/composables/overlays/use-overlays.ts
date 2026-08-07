@@ -29,6 +29,36 @@ export interface LayerSettings {
 	htmlOverlayCss: string
 	htmlOverlayJs: string
 	imageUrl: string
+	textContent: string
+	textFontFamily: string
+	textFontSize: number
+	textFontWeight: number
+	textColor: string
+	textAlign: 'left' | 'center' | 'right'
+	videoUrl: string
+	videoLoop: boolean
+	videoMuted: boolean
+	iframeUrl: string
+	iframeScale: number
+	widgetKey: string
+	youtubeVideoId: string
+	youtubeAutoplay: boolean
+	youtubeLoop: boolean
+	youtubeMuted: boolean
+	emoteUrl: string
+	emoteName: string
+	emoteProvider: string
+}
+
+function normalizeTextAlign(value: string): LayerSettings['textAlign'] {
+	switch (value) {
+		case 'center':
+			return 'center'
+		case 'right':
+			return 'right'
+		default:
+			return 'left'
+	}
 }
 
 export const useOverlays = createGlobalState(() => {
@@ -62,6 +92,25 @@ export const useOverlays = createGlobalState(() => {
 							htmlOverlayJs
 							htmlOverlayDataPollSecondsInterval
 							imageUrl
+							textContent
+							textFontFamily
+							textFontSize
+							textFontWeight
+							textColor
+							textAlign
+							videoUrl
+							videoLoop
+							videoMuted
+							iframeUrl
+							iframeScale
+							widgetKey
+							youtubeVideoId
+							youtubeAutoplay
+							youtubeLoop
+							youtubeMuted
+							emoteUrl
+							emoteName
+							emoteProvider
 						}
 						overlayId
 						posX
@@ -104,6 +153,25 @@ export const useOverlays = createGlobalState(() => {
 					htmlOverlayCss: layer.settings.htmlOverlayCss,
 					htmlOverlayJs: layer.settings.htmlOverlayJs,
 					imageUrl: layer.settings.imageUrl || '',
+					textContent: layer.settings.textContent,
+					textFontFamily: layer.settings.textFontFamily,
+					textFontSize: layer.settings.textFontSize,
+					textFontWeight: layer.settings.textFontWeight,
+					textColor: layer.settings.textColor,
+					textAlign: normalizeTextAlign(layer.settings.textAlign),
+					videoUrl: layer.settings.videoUrl,
+					videoLoop: layer.settings.videoLoop,
+					videoMuted: layer.settings.videoMuted,
+					iframeUrl: layer.settings.iframeUrl,
+					iframeScale: layer.settings.iframeScale,
+					widgetKey: layer.settings.widgetKey,
+					youtubeVideoId: layer.settings.youtubeVideoId,
+					youtubeAutoplay: layer.settings.youtubeAutoplay,
+					youtubeLoop: layer.settings.youtubeLoop,
+					youtubeMuted: layer.settings.youtubeMuted,
+					emoteUrl: layer.settings.emoteUrl,
+					emoteName: layer.settings.emoteName,
+					emoteProvider: layer.settings.emoteProvider,
 				},
 				overlayId: layer.overlayId,
 				posX: layer.posX,

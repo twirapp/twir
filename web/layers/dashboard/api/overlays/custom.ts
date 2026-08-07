@@ -3,6 +3,35 @@ import { type MaybeRef, computed, unref } from 'vue'
 
 import { graphql } from '~/gql/gql.js'
 
+const _channelOverlayLayerSettingsFragment = graphql(`
+	fragment ChannelOverlayLayerSettingsFields on ChannelOverlayLayerSettings {
+		htmlOverlayHtml
+		htmlOverlayCss
+		htmlOverlayJs
+		htmlOverlayDataPollSecondsInterval
+		imageUrl
+		textContent
+		textFontFamily
+		textFontSize
+		textFontWeight
+		textColor
+		textAlign
+		videoUrl
+		videoLoop
+		videoMuted
+		iframeUrl
+		iframeScale
+		widgetKey
+		youtubeVideoId
+		youtubeAutoplay
+		youtubeLoop
+		youtubeMuted
+		emoteUrl
+		emoteName
+		emoteProvider
+	}
+`)
+
 const channelOverlaysQuery = graphql(`
 	query ChannelOverlays {
 		channelOverlays {
@@ -17,12 +46,8 @@ const channelOverlaysQuery = graphql(`
 			layers {
 				id
 				type
-				settings {
-					htmlOverlayHtml
-					htmlOverlayCss
-					htmlOverlayJs
-					htmlOverlayDataPollSecondsInterval
-					imageUrl
+			settings {
+					...ChannelOverlayLayerSettingsFields
 				}
 				overlayId
 				posX
@@ -56,11 +81,7 @@ const channelOverlayByIdQuery = graphql(`
 				id
 				type
 				settings {
-					htmlOverlayHtml
-					htmlOverlayCss
-					htmlOverlayJs
-					htmlOverlayDataPollSecondsInterval
-					imageUrl
+					...ChannelOverlayLayerSettingsFields
 				}
 				overlayId
 				posX
@@ -94,11 +115,7 @@ const channelOverlayCreateMutation = graphql(`
 				id
 				type
 				settings {
-					htmlOverlayHtml
-					htmlOverlayCss
-					htmlOverlayJs
-					htmlOverlayDataPollSecondsInterval
-					imageUrl
+					...ChannelOverlayLayerSettingsFields
 				}
 				overlayId
 				posX
@@ -131,11 +148,7 @@ const channelOverlayUpdateMutation = graphql(`
 				id
 				type
 				settings {
-					htmlOverlayHtml
-					htmlOverlayCss
-					htmlOverlayJs
-					htmlOverlayDataPollSecondsInterval
-					imageUrl
+					...ChannelOverlayLayerSettingsFields
 				}
 				overlayId
 				posX

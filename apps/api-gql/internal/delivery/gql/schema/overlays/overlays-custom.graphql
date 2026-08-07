@@ -38,6 +38,11 @@ extend type Subscription {
 enum ChannelOverlayLayerType {
   HTML
   IMAGE
+  TEXT
+  VIDEO
+  IFRAME
+  YOUTUBE
+  EMOTE
 }
 
 type ChannelOverlayLayerSettings {
@@ -46,6 +51,25 @@ type ChannelOverlayLayerSettings {
   htmlOverlayJs: String!
   htmlOverlayDataPollSecondsInterval: Int!
   imageUrl: String!
+  textContent: String!
+  textFontFamily: String!
+  textFontSize: Int!
+  textFontWeight: Int!
+  textColor: String!
+  textAlign: String!
+  videoUrl: String!
+  videoLoop: Boolean!
+  videoMuted: Boolean!
+  iframeUrl: String!
+  iframeScale: Float!
+  widgetKey: String!
+  youtubeVideoId: String!
+  youtubeAutoplay: Boolean!
+  youtubeLoop: Boolean!
+  youtubeMuted: Boolean!
+  emoteUrl: String!
+  emoteName: String!
+  emoteProvider: String!
 }
 
 type ChannelOverlayLayer {
@@ -85,6 +109,25 @@ input ChannelOverlayLayerSettingsInput {
   htmlOverlayDataPollSecondsInterval: Int!
     @validate(constraint: "min=5,max=600")
   imageUrl: String!
+  textContent: String!
+  textFontFamily: String!
+  textFontSize: Int!
+  textFontWeight: Int!
+  textColor: String!
+  textAlign: String!
+  videoUrl: String!
+  videoLoop: Boolean!
+  videoMuted: Boolean!
+  iframeUrl: String!
+  iframeScale: Float!
+  widgetKey: String!
+  youtubeVideoId: String!
+  youtubeAutoplay: Boolean!
+  youtubeLoop: Boolean!
+  youtubeMuted: Boolean!
+  emoteUrl: String!
+  emoteName: String!
+  emoteProvider: String!
 }
 
 input ChannelOverlayLayerInput {

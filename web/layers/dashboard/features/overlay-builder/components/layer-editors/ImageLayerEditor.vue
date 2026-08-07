@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
+import { toRef } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 
 import type { Layer } from '../../types'
+import FieldInput from '../fields/FieldInput.vue'
+import { useImageLayerEditor } from '../../composables/useImageLayerEditor'
 
 interface Props {
 	layer: Layer
@@ -17,26 +17,9 @@ const emit = defineEmits<{
 	update: [updates: Partial<Layer>]
 }>()
 
-const imageUrl = computed({
-	get: () => props.layer?.settings?.imageUrl ?? '',
-	set: (value: string) => {
-		emit('update', {
-			settings: {
-				...props.layer.settings,
-				imageUrl: value,
-			},
-		})
-	},
+const { imageUrl, setPlaceholder } = useImageLayerEditor(toRef(props, 'layer'), (updates) => {
+	emit('update', { settings: { ...props.layer.settings, ...updates } })
 })
-
-function setPlaceholder() {
-	emit('update', {
-		settings: {
-			...props.layer.settings,
-			imageUrl: 'https://via.placeholder.com/300x200',
-		},
-	})
-}
 </script>
 
 <template>
@@ -48,19 +31,14 @@ function setPlaceholder() {
 
 		<Separator />
 
-		<div class="space-y-2">
-			<Label for="image-url">Image URL</Label>
-			<Input
-				id="image-url"
-				v-model="imageUrl"
-				type="url"
-				placeholder="https://example.com/image.png"
-				@keydown.stop
-			/>
-			<p class="text-xs text-muted-foreground">
-				Enter a direct URL to an image (PNG, JPG, GIF, etc.)
-			</p>
-		</div>
+		<FieldInput
+			id="image-url"
+			v-model="imageUrl"
+			label="Image URL"
+			type="url"
+			placeholder="https://example.com/image.png"
+			description="Enter a direct URL to an image (PNG, JPG, GIF, etc.)"
+		/>
 
 		<Button variant="outline" size="sm" class="w-full" @click="setPlaceholder">
 			Use Placeholder Image

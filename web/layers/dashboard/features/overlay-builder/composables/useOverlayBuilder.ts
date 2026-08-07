@@ -2,7 +2,15 @@ import { computed, reactive, ref, toRaw } from 'vue'
 
 import { ChannelOverlayLayerType } from '~/gql/graphql.js'
 
-import type { AlignmentGuide, CanvasState, HistoryState, Layer, OverlayProject } from '../types'
+import {
+	type AlignmentGuide,
+	type CanvasState,
+	type HistoryState,
+	type Layer,
+	type LayerSettings,
+	type OverlayProject,
+	createLayerSettings,
+} from '../types'
 
 const MAX_HISTORY_SIZE = 50
 
@@ -88,44 +96,57 @@ export function useOverlayBuilder() {
 	}
 
 	// Layer operations
-	function addLayer(type: ChannelOverlayLayerType, options?: Partial<Layer>) {
+	type AddLayerOptions = Omit<Partial<Layer>, 'settings'> & {
+		settings?: Partial<LayerSettings>
+	}
+
+	function addLayer(type: ChannelOverlayLayerType, options?: AddLayerOptions) {
+		const defaultSize = {
+			[ChannelOverlayLayerType.Html]: { width: 200, height: 200 },
+			[ChannelOverlayLayerType.Image]: { width: 200, height: 200 },
+			[ChannelOverlayLayerType.Text]: { width: 400, height: 120 },
+			[ChannelOverlayLayerType.Video]: { width: 560, height: 315 },
+			[ChannelOverlayLayerType.Iframe]: { width: 400, height: 300 },
+			[ChannelOverlayLayerType.Youtube]: { width: 560, height: 315 },
+			[ChannelOverlayLayerType.Emote]: { width: 128, height: 128 },
+		}[type]
+
+		const typeDefaults: Partial<LayerSettings> = {
+			...(type === ChannelOverlayLayerType.Html
+				? {
+						htmlOverlayHtml: '<span class="text">$(stream.uptime)</span>',
+						htmlOverlayCss: '.text { color: #fff; font-size: 24px; }',
+						htmlOverlayJs: 'function onDataUpdate() { console.log("updated") }',
+					}
+				: {}),
+			...(type === ChannelOverlayLayerType.Image
+				? { imageUrl: 'https://via.placeholder.com/300x200' }
+				: {}),
+		}
+
 		const newLayer: Layer = {
 			id: crypto.randomUUID(),
 			type,
 			name: `${type} Layer ${project.layers.length + 1}`,
 			posX: options?.posX ?? 100,
 			posY: options?.posY ?? 100,
-			width: options?.width ?? 200,
-			height: options?.height ?? 200,
+			width: options?.width ?? defaultSize.width,
+			height: options?.height ?? defaultSize.height,
 			rotation: 0,
 			opacity: 1,
-			visible: true,
+			visible: options?.visible ?? true,
 			locked: false,
 			zIndex: project.layers.length,
 			periodicallyRefetchData:
 				options?.periodicallyRefetchData ?? type === ChannelOverlayLayerType.Html,
-			settings:
-				options?.settings ??
-				(type === ChannelOverlayLayerType.Image
-					? {
-							imageUrl: 'https://via.placeholder.com/300x200',
-							htmlOverlayHtml: '',
-							htmlOverlayCss: '',
-							htmlOverlayJs: '',
-							htmlOverlayDataPollSecondsInterval: 5,
-						}
-					: {
-							htmlOverlayHtml: '<span class="text">$(stream.uptime)</span>',
-							htmlOverlayCss: '.text { color: #fff; font-size: 24px; }',
-							htmlOverlayJs: 'function onDataUpdate() { console.log("updated") }',
-							htmlOverlayDataPollSecondsInterval: 5,
-							imageUrl: '',
-						}),
+			settings: createLayerSettings({ ...typeDefaults, ...options?.settings }),
 		}
 
 		saveToHistory()
 		project.layers.push(newLayer)
 		selectLayers([newLayer.id])
+
+		return newLayer
 	}
 
 	function removeLayer(layerId: string) {
@@ -208,22 +229,26 @@ export function useOverlayBuilder() {
 	function moveLayerUp(layerId: string) {
 		const index = project.layers.findIndex((l) => l.id === layerId)
 		if (index === project.layers.length - 1) return
+		const current = project.layers[index]
+		const next = project.layers[index + 1]
+		if (!current || !next) return
 
 		saveToHistory()
-		const temp = project.layers[index + 1]
-		project.layers[index + 1] = project.layers[index]
-		project.layers[index] = temp
+		project.layers[index + 1] = current
+		project.layers[index] = next
 		reorderLayers()
 	}
 
 	function moveLayerDown(layerId: string) {
 		const index = project.layers.findIndex((l) => l.id === layerId)
 		if (index === 0) return
+		const current = project.layers[index]
+		const previous = project.layers[index - 1]
+		if (!current || !previous) return
 
 		saveToHistory()
-		const temp = project.layers[index - 1]
-		project.layers[index - 1] = project.layers[index]
-		project.layers[index] = temp
+		project.layers[index - 1] = current
+		project.layers[index] = previous
 		reorderLayers()
 	}
 
@@ -326,6 +351,7 @@ export function useOverlayBuilder() {
 		// If only one layer selected, align to canvas
 		if (selectedLayers.value.length === 1) {
 			const layer = selectedLayers.value[0]
+			if (!layer) return
 			switch (alignment) {
 				case 'left':
 					layer.posX = 0
@@ -383,14 +409,17 @@ export function useOverlayBuilder() {
 		const sorted = [...selectedLayers.value].sort((a, b) => a.posX - b.posX)
 		const first = sorted[0]
 		const last = sorted[sorted.length - 1]
+		if (!first || !last) return
 		const totalWidth = last.posX + last.width - first.posX
 		const totalLayerWidth = sorted.reduce((sum, layer) => sum + layer.width, 0)
 		const spacing = (totalWidth - totalLayerWidth) / (sorted.length - 1)
 
 		let currentX = first.posX + first.width
 		for (let i = 1; i < sorted.length - 1; i++) {
-			sorted[i].posX = currentX + spacing
-			currentX = sorted[i].posX + sorted[i].width
+			const layer = sorted[i]
+			if (!layer) continue
+			layer.posX = currentX + spacing
+			currentX = layer.posX + layer.width
 		}
 	}
 
@@ -401,14 +430,17 @@ export function useOverlayBuilder() {
 		const sorted = [...selectedLayers.value].sort((a, b) => a.posY - b.posY)
 		const first = sorted[0]
 		const last = sorted[sorted.length - 1]
+		if (!first || !last) return
 		const totalHeight = last.posY + last.height - first.posY
 		const totalLayerHeight = sorted.reduce((sum, layer) => sum + layer.height, 0)
 		const spacing = (totalHeight - totalLayerHeight) / (sorted.length - 1)
 
 		let currentY = first.posY + first.height
 		for (let i = 1; i < sorted.length - 1; i++) {
-			sorted[i].posY = currentY + spacing
-			currentY = sorted[i].posY + sorted[i].height
+			const layer = sorted[i]
+			if (!layer) continue
+			layer.posY = currentY + spacing
+			currentY = layer.posY + layer.height
 		}
 	}
 

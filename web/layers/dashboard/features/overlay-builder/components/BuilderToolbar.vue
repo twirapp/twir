@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { toast } from 'vue-sonner'
-import { useProfile } from '~~/layers/dashboard/api/auth.js'
+import { toRef } from 'vue'
 
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useBuilderToolbar } from '../composables/useBuilderToolbar'
 
 interface Props {
 	canUndo: boolean
@@ -17,6 +17,7 @@ interface Props {
 	zoom: number
 	showGrid: boolean
 	snapToGrid: boolean
+	addLayersHidden: boolean
 	overlayId?: string
 	overlayName?: string
 }
@@ -45,50 +46,11 @@ const emit = defineEmits<{
 	resetZoom: []
 	toggleGrid: []
 	toggleSnap: []
+	toggleAddLayersHidden: []
 }>()
 
 const { t } = useI18n()
-const router = useRouter()
-const localePath = useLocalePath()
-const { data: profile } = useProfile()
-const requestUrl = useRequestURL()
-
-const selectedDashboardUser = computed(() => {
-	return profile.value?.availableDashboards.find(
-		(dashboard) => dashboard.id === profile.value?.selectedDashboardId
-	)
-})
-
-const formatZoom = computed(() => (zoom: number) => `${Math.round(zoom * 100)}%`)
-
-function goBack() {
-	router.push(localePath('/dashboard/overlays'))
-}
-
-const overlayApiKey = computed(() => {
-	return selectedDashboardUser.value?.channelApiKey || profile.value?.channelApiKey || ''
-})
-
-function copyOverlayLink() {
-	if (!props.overlayId) return
-
-	if (!overlayApiKey.value) {
-		toast.error('No API key found')
-		return
-	}
-
-	const baseUrl = requestUrl.origin
-	const overlayUrl = `${baseUrl}/overlays/${overlayApiKey.value}/registry/overlays/${props.overlayId}`
-
-	navigator.clipboard
-		.writeText(overlayUrl)
-		.then(() => {
-			toast.success(t('sharedTexts.copied'))
-		})
-		.catch(() => {
-			toast.error('Failed to copy link')
-		})
-}
+const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, 'overlayId'))
 </script>
 
 <template>
@@ -540,6 +502,15 @@ function copyOverlayLink() {
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
+
+		<div class="flex items-center gap-2 px-2 text-xs text-muted-foreground">
+			<Switch
+				id="add-layers-hidden"
+				:model-value="addLayersHidden"
+				@update:model-value="emit('toggleAddLayersHidden')"
+			/>
+			<Label for="add-layers-hidden" class="cursor-pointer whitespace-nowrap">Добавлять скрытыми</Label>
+		</div>
 
 		<div class="flex-1" />
 

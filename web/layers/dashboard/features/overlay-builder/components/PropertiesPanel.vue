@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { toRef } from 'vue'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -10,8 +10,10 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import ImageLayerEditor from './layer-editors/ImageLayerEditor.vue'
+import LayerSettingsEditor from './layer-editors/LayerSettingsEditor.vue'
 
 import type { Layer } from '../types'
+import { useLayerProperties } from '../composables/useLayerProperties'
 
 interface Props {
 	layer: Layer | null
@@ -25,69 +27,19 @@ const emit = defineEmits<{
 	openCodeEditor: []
 }>()
 
-// Local reactive values for inputs
-const localName = computed({
-	get: () => props.layer?.name ?? '',
-	set: (value: string) => emit('update', { name: value }),
-})
-
-const localPosX = computed({
-	get: () => props.layer?.posX ?? 0,
-	set: (value: number) => emit('update', { posX: value }),
-})
-
-const localPosY = computed({
-	get: () => props.layer?.posY ?? 0,
-	set: (value: number) => emit('update', { posY: value }),
-})
-
-const localWidth = computed({
-	get: () => props.layer?.width ?? 0,
-	set: (value: number) => emit('update', { width: value }),
-})
-
-const localHeight = computed({
-	get: () => props.layer?.height ?? 0,
-	set: (value: number) => emit('update', { height: value }),
-})
-
-const localRotation = computed({
-	get: () => props.layer?.rotation ?? 0,
-	set: (value: number) => emit('update', { rotation: value }),
-})
-
-const localOpacity = computed({
-	get: () => (props.layer?.opacity ?? 1) * 100,
-	set: (value: number) => emit('update', { opacity: value / 100 }),
-})
-
-const localVisible = computed({
-	get: () => props.layer?.visible ?? true,
-	set: (value: boolean) => emit('update', { visible: value }),
-})
-
-const localLocked = computed({
-	get: () => props.layer?.locked ?? false,
-	set: (value: boolean) => emit('update', { locked: value }),
-})
-
-const localPeriodicallyRefetch = computed({
-	get: () => props.layer?.periodicallyRefetchData ?? true,
-	set: (value: boolean) => emit('update', { periodicallyRefetchData: value }),
-})
-
-const localPollInterval = computed({
-	get: () => props.layer?.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
-	set: (value: number) => {
-		if (!props.layer) return
-		emit('update', {
-			settings: {
-				...props.layer.settings,
-				htmlOverlayDataPollSecondsInterval: value,
-			},
-		})
-	},
-})
+const {
+	localName,
+	localPosX,
+	localPosY,
+	localWidth,
+	localHeight,
+	localRotation,
+	localOpacity,
+	localVisible,
+	localLocked,
+	localPeriodicallyRefetch,
+	localPollInterval,
+} = useLayerProperties(toRef(props, 'layer'), (updates) => emit('update', updates))
 </script>
 
 <template>
@@ -185,7 +137,7 @@ const localPollInterval = computed({
 									id="rotation"
 									@update:model-value="(newValue) => {
 										if (!newValue) return;
-										localRotation = newValue[0]
+										localRotation = newValue[0] ?? 0
 									}"
 									:model-value="[localRotation]"
 									:min="0"
@@ -205,7 +157,7 @@ const localPollInterval = computed({
 									id="opacity"
 									@update:model-value="(newValue) => {
 										if (!newValue) return;
-										localOpacity = newValue[0]
+										localOpacity = newValue[0] ?? 0
 									}"
 									:model-value="[localOpacity]"
 									:min="0"
@@ -278,6 +230,12 @@ const localPollInterval = computed({
 							@update="emit('update', $event)"
 						/>
 					</div>
+
+					<LayerSettingsEditor
+						v-if="layer.type === 'TEXT' || layer.type === 'VIDEO' || layer.type === 'IFRAME' || layer.type === 'YOUTUBE' || layer.type === 'EMOTE'"
+						:layer="layer"
+						@update="emit('update', $event)"
+					/>
 				</div>
 			</ScrollArea>
 		</CardContent>
