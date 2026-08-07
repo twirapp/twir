@@ -314,6 +314,7 @@ export default defineNuxtConfig({
 			'/**/overlays/**',
 			'/**/login',
 			'/**/login/**',
+			'/url-shortener/profile',
 			'/**/url-shortener/profile',
 			'/**/import',
 			'/**/import/**',
