@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { toRef } from 'vue'
+
+import { useImageLayerPreview } from '../composables/useImageLayerPreview'
 
 interface Props {
 	imageUrl?: string
@@ -9,41 +11,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const imageError = ref(false)
-const imageLoaded = ref(false)
-
-// Check if imageUrl is valid (not empty/null/undefined)
-const hasValidUrl = computed(() => {
-	return props.imageUrl && props.imageUrl.trim().length > 0
-})
-
-// Reset error state when URL changes
-watch(() => props.imageUrl, (newUrl) => {
-	console.log('[ImageLayerPreview] imageUrl changed:', newUrl, 'hasValidUrl:', hasValidUrl.value)
-	imageError.value = false
-	imageLoaded.value = false
-})
-
-// Log initial mount
-console.log('[ImageLayerPreview] Component mounted with imageUrl:', props.imageUrl, 'hasValidUrl:', hasValidUrl.value)
-
-const imageStyle = computed(() => ({
-	width: '100%',
-	height: '100%',
-	objectFit: 'contain' as const,
-}))
-
-function handleImageLoad() {
-	console.log('[ImageLayerPreview] Image loaded successfully:', props.imageUrl)
-	imageLoaded.value = true
-	imageError.value = false
-}
-
-function handleImageError() {
-	console.error('[ImageLayerPreview] Failed to load image:', props.imageUrl)
-	imageError.value = true
-	imageLoaded.value = false
-}
+const { hasValidUrl, imageError, imageStyle, handleImageLoad, handleImageError } = useImageLayerPreview(toRef(props, 'imageUrl'))
 </script>
 
 <template>

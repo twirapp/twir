@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { toRef } from 'vue'
 
 import type { Layer } from '../types'
+import { useLayerTypePreview } from '../composables/useLayerTypePreview'
 
 interface Props {
 	layer: Layer
@@ -9,44 +10,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const textStyle = computed(() => ({
-	color: props.layer.settings.textColor,
-	fontFamily: props.layer.settings.textFontFamily,
-	fontSize: `${props.layer.settings.textFontSize}px`,
-	fontWeight: props.layer.settings.textFontWeight,
-	textAlign: props.layer.settings.textAlign,
-	whiteSpace: 'pre-wrap' as const,
-	wordBreak: 'break-word' as const,
-}))
-
-const iframeStyle = computed(() => {
-	// Mirror the runtime iframe-layer math: box stays at layer size, the iframe
-	// itself is enlarged by 1/scale and then scaled down, so the preview matches
-	// what OBS renders. pointer-events are disabled so the layer stays
-	// draggable/selectable on the canvas (iframes swallow mouse events otherwise).
-	const scale = props.layer.settings.iframeScale || 1
-	return {
-		width: `${100 / scale}%`,
-		height: `${100 / scale}%`,
-		transform: `scale(${scale})`,
-		transformOrigin: 'top left',
-	}
-})
-
-const youtubeEmbedUrl = computed(() => {
-	const videoId = props.layer.settings.youtubeVideoId.trim()
-	if (!videoId) return ''
-
-	const params = new URLSearchParams({
-		autoplay: props.layer.settings.youtubeAutoplay ? '1' : '0',
-		mute: props.layer.settings.youtubeMuted ? '1' : '0',
-		loop: props.layer.settings.youtubeLoop ? '1' : '0',
-		controls: '0',
-	})
-	if (props.layer.settings.youtubeLoop) params.set('playlist', videoId)
-
-	return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?${params.toString()}`
-})
+const { textStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(toRef(props, 'layer'))
 </script>
 
 <template>

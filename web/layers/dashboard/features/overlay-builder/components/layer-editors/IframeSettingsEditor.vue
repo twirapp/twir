@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { AcceptableValue } from 'reka-ui'
+import { toRef } from 'vue'
 
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
-import { useProfile } from '~~/layers/dashboard/api/auth.js'
-import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.js'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -11,8 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-import type { Layer, LayerSettings } from '../../types'
-import { overlayWidgetRegistry } from '../../widgets-registry'
+import type { Layer } from '../../types'
+import { useWidgetLayer } from '../../composables/useWidgetLayer'
 
 interface Props {
 	layer: Layer
@@ -24,123 +22,20 @@ const emit = defineEmits<{
 	update: [updates: Partial<Layer>]
 }>()
 
-const fieldId = (name: string) => `layer-${props.layer.id}-${name}`
-
-function updateSettings(updates: Partial<LayerSettings>) {
-	emit('update', {
-		settings: {
-			...props.layer.settings,
-			...updates,
-		},
-	})
-}
-
-const { data: profile } = useProfile()
-const requestUrl = useRequestURL()
-
-const selectedDashboard = computed(() => {
-	return profile.value?.availableDashboards.find(
-		(dashboard) => dashboard.id === profile.value?.selectedDashboardId
-	)
-})
-
-const overlayApiKey = computed(() => {
-	return selectedDashboard.value?.channelApiKey || profile.value?.channelApiKey || ''
-})
-
-const selectedWidget = computed(() => {
-	return overlayWidgetRegistry.find((widget) => widget.key === props.layer.settings.widgetKey)
-})
-
-// Chat presets are needed to build a working widget URL: the chat overlay
-// runtime resolves the preset via ?id=<presetId>.
-const { data: chatOverlaysData } = useChatOverlayApi().useOverlaysQuery()
-const firstChatPresetId = computed(() => {
-	if (props.layer.settings.widgetKey !== 'chat') return undefined
-	return chatOverlaysData.value?.chatOverlays[0]?.id ?? undefined
-})
-
-function buildWidgetUrl(params?: Record<string, string>) {
-	const widget = selectedWidget.value
-	if (!widget) return ''
-
-	return widget.buildUrl({
-		origin: requestUrl.origin,
-		apiKey: overlayApiKey.value,
-		params,
-	})
-}
-
-// Fill in the preset id once presets are loaded and the URL does not have one yet
-// (e.g. the layer was created before presets existed).
-watch(firstChatPresetId, (presetId) => {
-	if (!presetId) return
-	if (props.layer.settings.iframeUrl.includes('id=')) return
-
-	updateSettings({ iframeUrl: buildWidgetUrl({ id: presetId }) })
-})
-
-function handleWidgetPresetSelect(presetId: string) {
-	updateSettings({ iframeUrl: buildWidgetUrl({ id: presetId }) })
-}
-
-const selectedWidgetSettings = computed(() => selectedWidget.value?.settingsComponent)
-const widgetSettingsOpen = ref(false)
-type IframeSource = 'custom' | 'twir'
-const iframeSource = ref<IframeSource>(props.layer.settings.widgetKey ? 'twir' : 'custom')
-
-watch(
-	() => props.layer.settings.widgetKey,
-	(widgetKey) => {
-		iframeSource.value = widgetKey ? 'twir' : 'custom'
-		if (!widgetKey) widgetSettingsOpen.value = false
-	}
-)
-
-function handleIframeSourceChange(value: AcceptableValue) {
-	if (typeof value !== 'string') return
-
-	if (value === 'custom') {
-		iframeSource.value = 'custom'
-		updateSettings({ widgetKey: '' })
-		return
-	}
-
-	if (value === 'twir') iframeSource.value = 'twir'
-}
-
-function handleWidgetChange(key: AcceptableValue) {
-	if (typeof key !== 'string') return
-
-	const widget = overlayWidgetRegistry.find((entry) => entry.key === key)
-	if (!widget) return
-
-	iframeSource.value = 'twir'
-	updateSettings({
-		widgetKey: widget.key,
-		iframeUrl: widget.buildUrl({
-			origin: requestUrl.origin,
-			apiKey: overlayApiKey.value,
-			params: firstChatPresetId.value ? { id: firstChatPresetId.value } : undefined,
-		}),
-	})
-}
-
-const iframeUrl = computed({
-	get: () => props.layer.settings.iframeUrl,
-	set: (value: string) => {
-		iframeSource.value = 'custom'
-		updateSettings({ iframeUrl: value, widgetKey: '' })
-	},
-})
-
-const iframeScale = computed({
-	get: () => props.layer.settings.iframeScale,
-	set: (value: string | number) => {
-		const parsed = Number(value)
-		if (Number.isFinite(parsed)) updateSettings({ iframeScale: Math.min(4, Math.max(0.1, parsed)) })
-	},
-})
+const {
+	fieldId,
+	overlayApiKey,
+	selectedWidget,
+	selectedWidgetSettings,
+	widgetSettingsOpen,
+	iframeSource,
+	iframeUrl,
+	iframeScale,
+	handleIframeSourceChange,
+	handleWidgetChange,
+	handleWidgetPresetSelect,
+	overlayWidgetRegistry,
+} = useWidgetLayer(toRef(props, 'layer'), (updates) => emit('update', updates))
 </script>
 
 <template>
@@ -149,9 +44,7 @@ const iframeScale = computed({
 		<div class="flex flex-col gap-2">
 			<Label :for="fieldId('iframe-source')">Источник</Label>
 			<Select :model-value="iframeSource" @update:model-value="handleIframeSourceChange">
-				<SelectTrigger :id="fieldId('iframe-source')" class="w-full">
-					<SelectValue />
-				</SelectTrigger>
+				<SelectTrigger :id="fieldId('iframe-source')" class="w-full"><SelectValue /></SelectTrigger>
 				<SelectContent>
 					<SelectItem value="custom">Свой URL</SelectItem>
 					<SelectItem value="twir">Виджет Twir</SelectItem>
@@ -163,9 +56,7 @@ const iframeScale = computed({
 			<div class="flex flex-col gap-2">
 				<Label :for="fieldId('widget')">Виджет Twir</Label>
 				<Select :model-value="layer.settings.widgetKey" @update:model-value="handleWidgetChange">
-					<SelectTrigger :id="fieldId('widget')" class="w-full">
-						<SelectValue placeholder="Выберите виджет" />
-					</SelectTrigger>
+					<SelectTrigger :id="fieldId('widget')" class="w-full"><SelectValue placeholder="Выберите виджет" /></SelectTrigger>
 					<SelectContent>
 						<SelectItem v-for="widget in overlayWidgetRegistry" :key="widget.key" :value="widget.key">
 							<div class="flex items-center gap-2">
@@ -175,9 +66,7 @@ const iframeScale = computed({
 						</SelectItem>
 					</SelectContent>
 				</Select>
-				<p class="text-xs text-muted-foreground">
-					{{ selectedWidget?.description || 'Выберите встроенный виджет Twir.' }}
-				</p>
+				<p class="text-xs text-muted-foreground">{{ selectedWidget?.description || 'Выберите встроенный виджет Twir.' }}</p>
 			</div>
 
 			<Button

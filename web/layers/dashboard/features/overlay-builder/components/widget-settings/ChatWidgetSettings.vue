@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { until } from '@vueuse/core'
-import type { AcceptableValue } from 'reka-ui'
-
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.ts'
 import Form from '~~/layers/dashboard/pages/dashboard/overlays/chat/components/Form.vue'
-import { useChatOverlayForm } from '~~/layers/dashboard/pages/dashboard/overlays/chat/components/form.ts'
+
+import { useChatOverlayPresets } from '../../composables/useChatOverlayPresets'
 
 const emit = defineEmits<{
 	// Fired when the active chat preset changes (initial selection included), so the
@@ -15,54 +12,9 @@ const emit = defineEmits<{
 	'select-preset': [id: string]
 }>()
 
-const chatOverlaysManager = useChatOverlayApi()
-const creator = chatOverlaysManager.useOverlayCreate()
-const { data: chatOverlaysData, fetching: fetchingOverlays } = chatOverlaysManager.useOverlaysQuery()
-const { setData, getDefaultSettings } = useChatOverlayForm()
-
-const selectedPresetId = ref<string>()
-const presets = computed(() => chatOverlaysData.value?.chatOverlays ?? [])
-
-watch(
-	() => chatOverlaysData.value?.chatOverlays,
-	(overlays) => {
-		if (!overlays?.length) {
-			selectedPresetId.value = undefined
-			return
-		}
-
-		if (!overlays.some((overlay) => overlay.id === selectedPresetId.value)) {
-			selectedPresetId.value = overlays[0]?.id ?? undefined
-		}
-	},
-	{ immediate: true }
+const { fetchingOverlays, presets, selectedPresetId, handlePresetChange, createPreset } = useChatOverlayPresets(
+	(id) => emit('select-preset', id),
 )
-
-watch(selectedPresetId, (id) => {
-	const preset = presets.value.find((overlay) => overlay.id === id)
-	if (preset) setData(preset)
-	if (id) emit('select-preset', id)
-})
-
-function handlePresetChange(id: AcceptableValue) {
-	if (typeof id !== 'string') return
-
-	selectedPresetId.value = id
-	const preset = presets.value.find((overlay) => overlay.id === id)
-	if (preset) setData(preset)
-}
-
-async function createPreset() {
-	const previousLength = presets.value.length
-
-	await creator.executeMutation({ input: getDefaultSettings() })
-	await until(() => chatOverlaysData.value?.chatOverlays).changed()
-
-	const overlays = chatOverlaysData.value?.chatOverlays ?? []
-	if (overlays.length > previousLength) {
-		selectedPresetId.value = overlays[overlays.length - 1]?.id ?? undefined
-	}
-}
 </script>
 
 <template>

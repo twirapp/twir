@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { toRef } from 'vue'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch'
 
 import type { Layer } from '../types'
 import { getLayerTypeMeta } from '../layer-type-meta'
+import { useLayerProperties } from '../composables/useLayerProperties'
 
 import ImageLayerEditor from './layer-editors/ImageLayerEditor.vue'
 import LayerSettingsEditor from './layer-editors/LayerSettingsEditor.vue'
@@ -27,73 +28,20 @@ const emit = defineEmits<{
 	openCodeEditor: []
 }>()
 
-const typeMeta = computed(() => getLayerTypeMeta(props.layer.type))
-
-const fieldId = (name: string) => `layer-props-${props.layer.id}-${name}`
-
-// Local reactive values for inputs
-const localName = computed({
-	get: () => props.layer?.name ?? '',
-	set: (value: string) => emit('update', { name: value }),
-})
-
-const localPosX = computed({
-	get: () => props.layer?.posX ?? 0,
-	set: (value: number) => emit('update', { posX: value }),
-})
-
-const localPosY = computed({
-	get: () => props.layer?.posY ?? 0,
-	set: (value: number) => emit('update', { posY: value }),
-})
-
-const localWidth = computed({
-	get: () => props.layer?.width ?? 0,
-	set: (value: number) => emit('update', { width: value }),
-})
-
-const localHeight = computed({
-	get: () => props.layer?.height ?? 0,
-	set: (value: number) => emit('update', { height: value }),
-})
-
-const localRotation = computed({
-	get: () => props.layer?.rotation ?? 0,
-	set: (value: number) => emit('update', { rotation: value }),
-})
-
-const localOpacity = computed({
-	get: () => (props.layer?.opacity ?? 1) * 100,
-	set: (value: number) => emit('update', { opacity: value / 100 }),
-})
-
-const localVisible = computed({
-	get: () => props.layer?.visible ?? true,
-	set: (value: boolean) => emit('update', { visible: value }),
-})
-
-const localLocked = computed({
-	get: () => props.layer?.locked ?? false,
-	set: (value: boolean) => emit('update', { locked: value }),
-})
-
-const localPeriodicallyRefetch = computed({
-	get: () => props.layer?.periodicallyRefetchData ?? true,
-	set: (value: boolean) => emit('update', { periodicallyRefetchData: value }),
-})
-
-const localPollInterval = computed({
-	get: () => props.layer?.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
-	set: (value: number) => {
-		if (!props.layer) return
-		emit('update', {
-			settings: {
-				...props.layer.settings,
-				htmlOverlayDataPollSecondsInterval: value,
-			},
-		})
-	},
-})
+const {
+	fieldId,
+	localName,
+	localPosX,
+	localPosY,
+	localWidth,
+	localHeight,
+	localRotation,
+	localOpacity,
+	localVisible,
+	localLocked,
+	localPeriodicallyRefetch,
+	localPollInterval,
+} = useLayerProperties(toRef(props, 'layer'), (updates) => emit('update', updates))
 </script>
 
 <template>
@@ -106,10 +54,10 @@ const localPollInterval = computed({
 			<CardTitle class="text-sm font-medium">Свойства</CardTitle>
 			<span
 				class="flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium"
-				:class="typeMeta.chipClass"
+				:class="getLayerTypeMeta(layer.type).chipClass"
 			>
-				<Icon :name="typeMeta.icon" class="h-3 w-3" />
-				{{ typeMeta.label }}
+				<Icon :name="getLayerTypeMeta(layer.type).icon" class="h-3 w-3" />
+				{{ getLayerTypeMeta(layer.type).label }}
 			</span>
 		</div>
 		<CardContent class="min-h-0 flex-1 overflow-hidden p-0">

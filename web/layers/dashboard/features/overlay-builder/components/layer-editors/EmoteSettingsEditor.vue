@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { toRef } from 'vue'
 import EmotePicker from '~~/layers/dashboard/components/emote-picker/EmotePicker.vue'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 
 import type { Layer, LayerSettings } from '../../types'
+import FieldInput from '../fields/FieldInput.vue'
+import { useEmoteLayerEditor } from '../../composables/useEmoteLayerEditor'
 
 interface Props {
 	layer: Layer
@@ -17,8 +18,6 @@ const emit = defineEmits<{
 	update: [updates: Partial<Layer>]
 }>()
 
-const fieldId = (name: string) => `layer-${props.layer.id}-${name}`
-
 function updateSettings(updates: Partial<LayerSettings>) {
 	emit('update', {
 		settings: {
@@ -28,24 +27,8 @@ function updateSettings(updates: Partial<LayerSettings>) {
 	})
 }
 
-const emoteUrl = computed({
-	get: () => props.layer.settings.emoteUrl,
-	set: (value: string) => updateSettings({ emoteUrl: value, emoteName: '', emoteProvider: '' }),
-})
-
-interface SelectedEmote {
-	readonly url: string
-	readonly name: string
-	readonly provider: '7TV'
-}
-
-function selectEmote(emote: SelectedEmote) {
-	updateSettings({
-		emoteUrl: emote.url,
-		emoteName: emote.name,
-		emoteProvider: emote.provider,
-	})
-}
+const { emoteUrl, selectEmote } = useEmoteLayerEditor(toRef(props, 'layer'), updateSettings)
+const fieldId = (name: string) => `layer-${props.layer.id}-${name}`
 </script>
 
 <template>
@@ -70,11 +53,15 @@ function selectEmote(emote: SelectedEmote) {
 				Ввести URL вручную
 				<Icon name="lucide:chevron-down" class="ml-auto size-4 transition-transform group-open:rotate-180" />
 			</summary>
-			<div class="mt-3 flex flex-col gap-2">
-				<Label :for="fieldId('emote-url')">Прямая ссылка</Label>
-				<Input :id="fieldId('emote-url')" v-model="emoteUrl" type="url" placeholder="https://.../emote.png" @keydown.stop />
-				<p class="text-xs text-muted-foreground">Если нужной эмоции нет в 7TV, вставьте ссылку на изображение вручную.</p>
-			</div>
+			<FieldInput
+				:id="fieldId('emote-url')"
+				v-model="emoteUrl"
+				label="Прямая ссылка"
+				type="url"
+				placeholder="https://.../emote.png"
+				description="Если нужной эмоции нет в 7TV, вставьте ссылку на изображение вручную."
+				class="mt-3 flex flex-col gap-2"
+			/>
 		</details>
 		<img v-if="emoteUrl" :src="emoteUrl" alt="Предпросмотр эмоции" class="max-h-32 max-w-full self-center object-contain" />
 	</div>
