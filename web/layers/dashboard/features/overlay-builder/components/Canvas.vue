@@ -7,6 +7,7 @@ import type { OnDrag, OnResize, OnRotate } from 'vue3-moveable'
 import HtmlLayerPreview from './HtmlLayerPreview.vue'
 import ImageLayerPreview from './ImageLayerPreview.vue'
 import LayerTypePreview from './LayerTypePreview.vue'
+import { getLayerTypeMeta } from '../layer-type-meta'
 import type { AlignmentGuide, Layer } from '../types'
 
 import { Button } from '@/components/ui/button'
@@ -417,7 +418,7 @@ function onRotate(e: OnRotate) {
 }
 
 function getLayerStyle(layer: Layer) {
-	const visibility = layer.visible ? 'visible' : 'hidden'
+	// Hidden layers stay rendered as ghost placeholders so they remain selectable
 	return {
 		position: 'absolute' as const,
 		left: '0px',
@@ -427,7 +428,6 @@ function getLayerStyle(layer: Layer) {
 		transform: `translate(${layer.posX}px, ${layer.posY}px) rotate(${layer.rotation}deg)`,
 		transformOrigin: 'center center',
 		opacity: layer.opacity,
-		visibility: visibility as 'visible' | 'hidden',
 		zIndex: layer.zIndex,
 		cursor: layer.locked ? 'not-allowed' : 'move',
 	}
@@ -555,17 +555,30 @@ onUnmounted(() => {
 					class="absolute border-2 transition-colors"
 					:class="{
 						'border-primary bg-primary/5': isLayerSelected(layer.id),
-						'border-transparent hover:border-slate-500': !isLayerSelected(layer.id) && !layer.locked,
-						'border-slate-700': layer.locked,
+						'border-transparent hover:border-slate-500': !isLayerSelected(layer.id) && !layer.locked && layer.visible,
+						'border-dashed border-zinc-600 hover:border-zinc-500': !isLayerSelected(layer.id) && !layer.locked && !layer.visible,
+						'border-slate-700': layer.locked && layer.visible,
+						'border-dashed border-zinc-700': layer.locked && !layer.visible,
 					}"
 					:style="getLayerStyle(layer)"
 					@click="handleLayerClick(layer.id, $event)"
 					@mousedown="handleLayerMouseDown(layer.id, $event)"
 				>
 					<div class="w-full h-full overflow-hidden">
+						<!-- Hidden layer: gray ghost placeholder, no content preview -->
+						<div
+							v-if="!layer.visible"
+							class="flex h-full w-full flex-col items-center justify-center gap-1 bg-white/5 p-2 text-zinc-500"
+						>
+							<Icon
+								:name="getLayerTypeMeta(layer.type).icon"
+								class="h-5 w-5 flex-none"
+							/>
+							<span class="max-w-full truncate text-xs">{{ layer.name }}</span>
+						</div>
 						<!-- HTML Layer Preview -->
 						<HtmlLayerPreview
-							v-if="layer.type === 'HTML'"
+							v-else-if="layer.type === 'HTML'"
 							:html="layer.settings?.htmlOverlayHtml"
 							:css="layer.settings?.htmlOverlayCss"
 							:js="layer.settings?.htmlOverlayJs"

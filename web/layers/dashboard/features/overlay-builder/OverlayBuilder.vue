@@ -2,8 +2,8 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import BuilderToolbar from './components/BuilderToolbar.vue'
-// oxlint-disable-next-line consistent-type-imports
 import LayersPanel from './components/LayersPanel.vue'
+import LayerPropertiesCard from './components/LayerPropertiesCard.vue'
 import Canvas from './components/Canvas.vue'
 import CodeEditorDialog from './components/CodeEditorDialog.vue'
 import OverlaySettings from './components/OverlaySettings.vue'
@@ -152,15 +152,12 @@ onUnmounted(() => {
 	window.removeEventListener('resize', calculateFitZoom)
 })
 
-// Add layer from the LayersPanel type picker
+// Add layer from the LayersPanel type picker.
+// addLayer selects the new layer, so the properties card shows automatically.
 const addLayersHidden = ref(false)
-const layersPanelRef = ref<InstanceType<typeof LayersPanel>>()
 
 function addLayer(type: ChannelOverlayLayerType) {
-	const newLayer = builder.addLayer(type, { visible: !addLayersHidden.value })
-	nextTick(() => {
-		layersPanelRef.value?.expandLayer(newLayer.id)
-	})
+	builder.addLayer(type, { visible: !addLayersHidden.value })
 }
 
 // Toolbar handlers
@@ -245,27 +242,19 @@ function handleToggleLock(layerId: string) {
 	}
 }
 
-function handleDuplicateLayer(layerId: string) {
-	builder.duplicateLayer(layerId)
-}
-
 function handleRemoveLayer(layerId: string) {
 	builder.removeLayer(layerId)
 }
 
+// Selection alone drives the properties card; the quick-actions "settings"
+// button just brings the card into view.
 function handleOpenLayerSettings(layerId: string) {
 	builder.selectLayers([layerId])
 	nextTick(() => {
-		layersPanelRef.value?.expandLayer(layerId)
+		const card = document.getElementById('layer-properties-card')
+		card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+		card?.focus({ preventScroll: true })
 	})
-}
-
-function handleMoveLayerUp(layerId: string) {
-	builder.moveLayerUp(layerId)
-}
-
-function handleMoveLayerDown(layerId: string) {
-	builder.moveLayerDown(layerId)
 }
 
 function handleReorderLayers(layers: Layer[]) {
@@ -280,6 +269,13 @@ function handleUpdateLayerProperties(layerId: string, updates: Partial<Layer>) {
 	if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined || updates.opacity !== undefined || updates.visible !== undefined) {
 		handleLayerUpdate()
 	}
+}
+
+// Properties card edits always target the single selected layer
+function handleActiveLayerUpdate(updates: Partial<Layer>) {
+	const layer = builder.activeLayer.value
+	if (!layer) return
+	handleUpdateLayerProperties(layer.id, updates)
 }
 
 // Code editor dialog
@@ -463,26 +459,35 @@ const canDistribute = computed(() => builder.canvasState.selectedLayerIds.length
 					/>
 				</div>
 
+		<!-- Layers list + properties card share the space left after overlay settings -->
+		<div class="flex min-h-0 flex-1 flex-col">
 			<!-- Layers Panel -->
 			<div class="flex-1 min-h-0 overflow-hidden p-2">
 				<LayersPanel
-					ref="layersPanelRef"
 					:layers="builder.project.layers"
 					:selected-layer-ids="builder.canvasState.selectedLayerIds"
 					@select="handleLayerSelect"
 					@toggle-visibility="handleToggleVisibility"
 					@toggle-lock="handleToggleLock"
-					@duplicate="handleDuplicateLayer"
-					@remove="handleRemoveLayer"
-					@move-up="handleMoveLayerUp"
-					@move-down="handleMoveLayerDown"
 					@reorder="handleReorderLayers"
 					@add-layer="addLayer"
 					@update-layer-properties="handleUpdateLayerProperties"
+				/>
+			</div>
+
+			<!-- Properties card for the single selected layer -->
+			<div
+				v-if="builder.activeLayer.value"
+				class="flex max-h-[60%] min-h-0 shrink-0 flex-col overflow-hidden p-2 pt-1"
+			>
+				<LayerPropertiesCard
+					:layer="builder.activeLayer.value"
+					@update="handleActiveLayerUpdate"
 					@open-code-editor="handleOpenCodeEditor"
 				/>
 			</div>
-			</div>
+		</div>
+		</div>
 		</div>
 
 		<!-- Code Editor Dialog -->
