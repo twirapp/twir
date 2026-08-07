@@ -6,14 +6,24 @@ import { useChatOverlayForm } from '~~/layers/dashboard/pages/dashboard/overlays
 
 type SelectPreset = (id: string) => void
 
-export function useChatOverlayPresets(onSelectPreset: SelectPreset) {
+export function useChatOverlayPresetQuery() {
 	const chatOverlaysManager = useChatOverlayApi()
-	const creator = chatOverlaysManager.useOverlayCreate()
 	const { data: chatOverlaysData, fetching: fetchingOverlays } = chatOverlaysManager.useOverlaysQuery()
+
+	return {
+		chatOverlaysManager,
+		chatOverlaysData,
+		fetchingOverlays,
+		presets: computed(() => chatOverlaysData.value?.chatOverlays ?? []),
+	}
+}
+
+export function useChatOverlayPresets(onSelectPreset: SelectPreset) {
+	const { chatOverlaysManager, chatOverlaysData, fetchingOverlays, presets } = useChatOverlayPresetQuery()
+	const creator = chatOverlaysManager.useOverlayCreate()
 	const { setData, getDefaultSettings } = useChatOverlayForm()
 
 	const selectedPresetId = ref<string>()
-	const presets = computed(() => chatOverlaysData.value?.chatOverlays ?? [])
 
 	watch(
 		() => chatOverlaysData.value?.chatOverlays,

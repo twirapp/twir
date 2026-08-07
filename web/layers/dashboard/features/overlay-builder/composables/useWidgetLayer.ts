@@ -6,6 +6,7 @@ import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.js'
 
 import { overlayWidgetRegistry } from '../widgets-registry'
 import type { Layer, LayerSettings } from '../types'
+import { buildWidgetUrl as buildRegisteredWidgetUrl, resolveWidgetLayerUrl } from './widget-url'
 
 type UpdateLayer = (updates: Partial<Layer>) => void
 type IframeSource = 'custom' | 'twir'
@@ -28,7 +29,13 @@ export function useWidgetLayer(layer: Ref<Layer>, updateLayer: UpdateLayer) {
 		return overlayWidgetRegistry.find((widget) => widget.key === layer.value.settings.widgetKey)
 	})
 
-	const { data: chatOverlaysData } = useChatOverlayApi().useOverlaysQuery()
+	const { data: chatOverlaysData, fetching: fetchingChatPresets } = useChatOverlayApi().useOverlaysQuery()
+	const widgetUrlContext = computed(() => ({
+		origin: requestUrl.origin,
+		apiKey: overlayApiKey.value,
+		chatPresetIds: chatOverlaysData.value?.chatOverlays.map((preset) => preset.id) ?? [],
+		chatPresetsReady: !fetchingChatPresets.value && chatOverlaysData.value !== undefined,
+	}))
 	const firstChatPresetId = computed(() => {
 		if (layer.value.settings.widgetKey !== 'chat') return undefined
 		return chatOverlaysData.value?.chatOverlays[0]?.id ?? undefined
@@ -42,18 +49,12 @@ export function useWidgetLayer(layer: Ref<Layer>, updateLayer: UpdateLayer) {
 		const widget = selectedWidget.value
 		if (!widget) return ''
 
-		return widget.buildUrl({
-			origin: requestUrl.origin,
-			apiKey: overlayApiKey.value,
-			params,
-		})
+		return buildRegisteredWidgetUrl(widget.key, widgetUrlContext.value, params)
 	}
 
-	watch(firstChatPresetId, (presetId) => {
-		if (!presetId) return
-		if (layer.value.settings.iframeUrl.includes('id=')) return
-
-		updateSettings({ iframeUrl: buildWidgetUrl({ id: presetId }) })
+	watch(widgetUrlContext, (context) => {
+		const iframeUrl = resolveWidgetLayerUrl(layer.value, context)
+		if (iframeUrl !== layer.value.settings.iframeUrl) updateSettings({ iframeUrl })
 	})
 
 	function handleWidgetPresetSelect(presetId: string) {

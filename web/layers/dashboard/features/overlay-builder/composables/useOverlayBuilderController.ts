@@ -1,7 +1,10 @@
 import { type Ref, computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { ChannelOverlayLayer, ChannelOverlayLayerType } from '~/gql/graphql.js'
+import { useProfile } from '~~/layers/dashboard/api/auth.js'
 
 import { useOverlayBuilder } from './useOverlayBuilder'
+import { useChatOverlayPresetQuery } from './useChatOverlayPresets'
+import { resolveWidgetLayerUrl } from './widget-url'
 import type { Layer, OverlayProject } from '../types'
 import { createLayerSettings } from '../types'
 
@@ -49,6 +52,15 @@ export function useOverlayBuilderController(
 	const addLayersHidden = ref(false)
 	const showCodeEditor = ref(false)
 	const editorLayer = ref<Layer | null>(null)
+	const { data: profile } = useProfile()
+	const requestUrl = useRequestURL()
+	const { chatOverlaysData, fetchingOverlays: fetchingChatPresets } = useChatOverlayPresetQuery()
+	const selectedDashboard = computed(() => profile.value?.availableDashboards.find(
+		(dashboard) => dashboard.id === profile.value?.selectedDashboardId
+	))
+	const overlayApiKey = computed(() => selectedDashboard.value?.channelApiKey || profile.value?.channelApiKey || '')
+	const chatPresetIds = computed(() => chatOverlaysData.value?.chatOverlays.map((preset) => preset.id) ?? [])
+	const chatPresetsReady = computed(() => !fetchingChatPresets.value && chatOverlaysData.value !== undefined)
 
 	function calculateFitZoom() {
 		const canvasArea = canvasAreaRef.value instanceof HTMLElement ? canvasAreaRef.value : canvasAreaRef.value?.$el
@@ -59,6 +71,24 @@ export function useOverlayBuilderController(
 		const scaleX = availableWidth / builder.project.width
 		const scaleY = availableHeight / builder.project.height
 		builder.canvasState.zoom = Math.max(0.1, Math.min(scaleX, scaleY) * 0.8)
+	}
+
+	function normalizeWidgetUrls() {
+		if (!overlayApiKey.value) return
+
+		const context = {
+			origin: requestUrl.origin,
+			apiKey: overlayApiKey.value,
+			chatPresetIds: chatPresetIds.value,
+			chatPresetsReady: chatPresetsReady.value,
+		}
+		builder.project.layers.forEach((layer) => {
+			if (!layer.settings.widgetKey) return
+			const iframeUrl = resolveWidgetLayerUrl(layer, context)
+			if (iframeUrl !== layer.settings.iframeUrl) {
+				builder.updateLayer(layer.id, { settings: { ...layer.settings, iframeUrl } })
+			}
+		})
 	}
 
 	function loadInitialProject() {
@@ -103,6 +133,12 @@ export function useOverlayBuilderController(
 	watch(() => initialProject.value?.instaSave, (newInstaSave) => {
 		if (loadedProjectId.value && newInstaSave !== undefined && newInstaSave !== instaSave.value) instaSave.value = newInstaSave
 	})
+
+	watch(
+		[loadedProjectId, overlayApiKey, chatPresetsReady, () => chatPresetIds.value.join(',')],
+		normalizeWidgetUrls,
+		{ immediate: true },
+	)
 
 	onMounted(() => {
 		loadInitialProject()
