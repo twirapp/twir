@@ -10,6 +10,7 @@ import { useSevenTvEmotes } from './composables/useSevenTvEmotes'
 import type { SelectedSevenTvEmote } from './composables/useSevenTvEmotes'
 
 const open = defineModel<boolean>('open', { default: false })
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	select: [emote: SelectedSevenTvEmote]
@@ -35,19 +36,19 @@ const {
 		<DialogOrSheet class="max-h-[80dvh] max-w-3xl gap-0 overflow-hidden rounded-t-2xl p-0 sm:rounded-2xl">
 			<div class="flex min-h-0 flex-col">
 				<DialogHeader class="border-b px-6 py-4">
-					<DialogTitle>Эмоции</DialogTitle>
-					<DialogDescription class="sr-only">Выберите эмоцию из наборов 7TV.</DialogDescription>
+					<DialogTitle>{{ t('emotePicker.title') }}</DialogTitle>
+					<DialogDescription class="sr-only">{{ t('emotePicker.description') }}</DialogDescription>
 				</DialogHeader>
 
 				<Tabs v-model="activeTab" class="min-h-0 gap-0">
 					<div class="sticky top-0 z-10 border-b bg-background/95 px-4 py-3 backdrop-blur">
 						<TabsList class="grid h-9 w-full grid-cols-2 bg-muted/60">
-							<TabsTrigger value="global">7TV</TabsTrigger>
-							<TabsTrigger value="channel">7TV канал</TabsTrigger>
+							<TabsTrigger value="global">{{ t('emotePicker.tabs.global') }}</TabsTrigger>
+							<TabsTrigger value="channel">{{ t('emotePicker.tabs.channel') }}</TabsTrigger>
 						</TabsList>
 						<div class="relative mt-3">
 							<Icon name="lucide:search" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-							<Input v-model="searchQuery" class="pl-9" placeholder="Поиск по имени" aria-label="Поиск эмоций" @keydown.stop />
+							<Input v-model="searchQuery" class="pl-9" :placeholder="t('emotePicker.search.placeholder')" :aria-label="t('emotePicker.search.ariaLabel')" @keydown.stop />
 						</div>
 					</div>
 
@@ -58,7 +59,7 @@ const {
 						<div v-else-if="currentStatus === 'error'" class="flex min-h-48 flex-col items-center justify-center gap-3 text-center">
 							<Icon name="lucide:triangle-alert" class="size-8 text-destructive" />
 							<p class="max-w-sm text-sm text-muted-foreground">{{ currentError }}</p>
-							<Button variant="outline" size="sm" @click="retryActiveTab">Повторить</Button>
+							<Button variant="outline" size="sm" @click="retryActiveTab">{{ t('emotePicker.retry') }}</Button>
 						</div>
 						<div v-else-if="filteredEmotes.length === 0" class="flex min-h-48 flex-col items-center justify-center gap-2 text-center">
 							<Icon name="lucide:smile-plus" class="size-8 text-muted-foreground" />

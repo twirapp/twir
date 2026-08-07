@@ -122,6 +122,7 @@ export default defineNuxtConfig({
 			language: code,
 		})) as any, // TODO: remove any, no ai written xd
 		defaultLocale: 'en',
+		vueI18n: './i18n.config.ts',
 		langDir: 'locales',
 		compilation: {
 			strictMessage: false,

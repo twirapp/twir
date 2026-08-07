@@ -301,7 +301,7 @@ export function useCanvasInteraction(
 			transform: `translate(${layer.posX}px, ${layer.posY}px) rotate(${layer.rotation}deg)`,
 			transformOrigin: 'center center',
 			opacity: layer.opacity,
-			zIndex: layer.zIndex,
+			zIndex: layer.zIndex + 1,
 			cursor: layer.locked ? 'not-allowed' : 'move',
 		}
 	}

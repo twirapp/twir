@@ -15,7 +15,7 @@ import {
 const MAX_HISTORY_SIZE = 50
 
 export function useOverlayBuilder() {
-	// Project state (canvas size fixed at 1920x1080)
+	const { t } = useI18n()
 	const project = reactive<OverlayProject>({
 		id: '',
 		name: '',
@@ -124,14 +124,21 @@ export function useOverlayBuilder() {
 				: {}),
 		}
 
+		const width = Math.min(options?.width ?? defaultSize.width, project.width)
+		const height = Math.min(options?.height ?? defaultSize.height, project.height)
+		const posX = Math.min(options?.posX ?? 100, Math.max(0, project.width - width))
+		const posY = Math.min(options?.posY ?? 100, Math.max(0, project.height - height))
 		const newLayer: Layer = {
 			id: crypto.randomUUID(),
 			type,
-			name: `${type} Layer ${project.layers.length + 1}`,
-			posX: options?.posX ?? 100,
-			posY: options?.posY ?? 100,
-			width: options?.width ?? defaultSize.width,
-			height: options?.height ?? defaultSize.height,
+			name: options?.name ?? t('overlayBuilder.layerNames.default', {
+				type: t(`overlayBuilder.layerTypes.${type.toLowerCase()}`),
+				count: project.layers.length + 1,
+			}),
+			posX,
+			posY,
+			width,
+			height,
 			rotation: 0,
 			opacity: 1,
 			visible: options?.visible ?? true,
@@ -191,7 +198,7 @@ export function useOverlayBuilder() {
 		const duplicated: Layer = {
 			...JSON.parse(JSON.stringify(toRaw(layer))),
 			id: crypto.randomUUID(),
-			name: `${layer.name} (Copy)`,
+			name: `${layer.name} ${t('overlayBuilder.layerNames.copySuffix')}`,
 			posX: layer.posX + 20,
 			posY: layer.posY + 20,
 			zIndex: project.layers.length,
@@ -212,7 +219,7 @@ export function useOverlayBuilder() {
 			const duplicated: Layer = {
 				...JSON.parse(JSON.stringify(toRaw(layer))),
 				id: crypto.randomUUID(),
-				name: `${layer.name} (Copy)`,
+				name: `${layer.name} ${t('overlayBuilder.layerNames.copySuffix')}`,
 				posX: layer.posX + 20,
 				posY: layer.posY + 20,
 				zIndex: project.layers.length + newIds.length,
@@ -329,7 +336,7 @@ export function useOverlayBuilder() {
 			const pasted: Layer = {
 				...JSON.parse(JSON.stringify(toRaw(layer))),
 				id: crypto.randomUUID(),
-				name: `${layer.name} (Pasted)`,
+				name: `${layer.name} ${t('overlayBuilder.layerNames.pastedSuffix')}`,
 				posX: layer.posX + 20,
 				posY: layer.posY + 20,
 				zIndex: project.layers.length + newIds.length,
@@ -667,6 +674,7 @@ export function useOverlayBuilder() {
 	// Load project
 	function loadProject(data: OverlayProject) {
 		Object.assign(project, JSON.parse(JSON.stringify(data)))
+		constrainLayersToCanvas()
 		history.present = JSON.parse(JSON.stringify(toRaw(project)))
 		history.past = []
 		history.future = []

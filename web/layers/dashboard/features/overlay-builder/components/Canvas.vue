@@ -11,6 +11,7 @@ import { type CanvasInteractionProps, useCanvasInteraction } from '../composable
 import { Button } from '@/components/ui/button'
 
 const props = defineProps<CanvasInteractionProps>()
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	updateLayer: [layerId: string, updates: Partial<Layer>]
@@ -131,7 +132,7 @@ const {
 							class="absolute left-1 top-1 flex items-center gap-1 rounded bg-slate-900/85 px-1.5 py-1 text-zinc-400 pointer-events-none"
 						>
 							<Icon name="lucide:eye-off" class="h-3 w-3" />
-							<span class="text-[10px] leading-none">Скрыт</span>
+					<span class="text-[10px] leading-none">{{ t('overlayBuilder.canvas.hidden') }}</span>
 						</div>
 
 						<div
@@ -199,7 +200,7 @@ const {
 									variant="ghost"
 									size="icon"
 									class="h-7 w-7"
-									:title="quickActionsLayer.visible ? 'Hide' : 'Show'"
+					:title="quickActionsLayer.visible ? t('overlayBuilder.layers.visibility.hide') : t('overlayBuilder.layers.visibility.show')"
 									@click="emit('toggleVisibility', quickActionsLayer.id)"
 								>
 									<Icon v-if="quickActionsLayer.visible" name="lucide:eye" class="h-3.5 w-3.5" />
@@ -209,7 +210,7 @@ const {
 									variant="ghost"
 									size="icon"
 									class="h-7 w-7"
-									:title="quickActionsLayer.locked ? 'Unlock' : 'Lock'"
+					:title="quickActionsLayer.locked ? t('overlayBuilder.layers.lock.unlock') : t('overlayBuilder.layers.lock.lock')"
 									@click="emit('toggleLock', quickActionsLayer.id)"
 								>
 									<Icon v-if="!quickActionsLayer.locked" name="lucide:lock-open" class="h-3.5 w-3.5" />
@@ -219,7 +220,7 @@ const {
 									variant="ghost"
 									size="icon"
 									class="h-7 w-7"
-									title="Settings"
+					:title="t('overlayBuilder.layers.settings')"
 									@click="emit('openLayerSettings', quickActionsLayer.id)"
 								>
 									<Icon name="lucide:settings-2" class="h-3.5 w-3.5" />
@@ -228,7 +229,7 @@ const {
 									variant="ghost"
 									size="icon"
 									class="text-destructive hover:text-destructive h-7 w-7"
-									title="Delete"
+					:title="t('overlayBuilder.layers.delete')"
 									@click="emit('removeLayer', quickActionsLayer.id)"
 								>
 									<Icon name="lucide:trash" class="h-3.5 w-3.5" />

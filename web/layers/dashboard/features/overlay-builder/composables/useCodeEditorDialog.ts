@@ -28,6 +28,7 @@ interface CodeEditorDialogEmit {
 }
 
 export function useCodeEditorDialog(props: CodeEditorDialogProps, emit: CodeEditorDialogEmit) {
+	const { t } = useI18n()
 	const { monacoRef } = useMonaco()
 	const parseHtmlMutation = useChannelOverlayParseHtml()
 	const variablesApi = useVariablesApi()
@@ -77,7 +78,7 @@ export function useCodeEditorDialog(props: CodeEditorDialogProps, emit: CodeEdit
 
 	const sanitizedHtml = computed(() => {
 		const html = parsedHtml.value || localHtml.value
-		return html || '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.5); font-size: 14px;">Enter HTML to preview</div>'
+		return html || `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.5); font-size: 14px;">${t('overlayBuilder.codeEditor.emptyHtml')}</div>`
 	})
 
 	async function parseHtml() {

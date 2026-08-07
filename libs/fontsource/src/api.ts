@@ -17,8 +17,11 @@ export async function loadFont(
 ): Promise<Font | undefined> {
 	if (!fontId) return
 
-	const response = await fetch(`${FONTSOURCE_API_URL}/fonts/${fontId}`)
+	const response = await fetch(`${FONTSOURCE_API_URL}/fonts/${fontId.toLowerCase()}`)
+	if (!response.ok) return
+
 	const font = (await response.json()) as Font
+	if (!font?.subsets) return
 
 	for (const subset of font.subsets) {
 		const fontSource = `url(${font.variants[fontWeight][fontStyle][subset].url.woff2})`

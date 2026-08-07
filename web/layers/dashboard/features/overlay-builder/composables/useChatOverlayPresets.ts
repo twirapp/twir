@@ -33,18 +33,18 @@ export function useChatOverlayPresets(onSelectPreset: SelectPreset) {
 				return
 			}
 
-			if (!overlays.some((overlay) => overlay.id === selectedPresetId.value)) {
-				selectedPresetId.value = overlays[0]?.id ?? undefined
+			const current = overlays.find((overlay) => overlay.id === selectedPresetId.value) ?? overlays[0]
+			if (!current?.id) return
+
+			if (current.id !== selectedPresetId.value) {
+				selectedPresetId.value = current.id
 			}
+
+			setData(current)
+			onSelectPreset(current.id)
 		},
 		{ immediate: true }
 	)
-
-	watch(selectedPresetId, (id) => {
-		const preset = presets.value.find((overlay) => overlay.id === id)
-		if (preset) setData(preset)
-		if (id) onSelectPreset(id)
-	})
 
 	function handlePresetChange(id: AcceptableValue) {
 		if (typeof id !== 'string') return

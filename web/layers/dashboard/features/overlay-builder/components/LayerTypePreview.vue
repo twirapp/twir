@@ -9,6 +9,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const { textStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(toRef(props, 'layer'))
 </script>
@@ -35,7 +36,7 @@ const { textStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(toRef(pr
 			class="pointer-events-none border-0"
 		/>
 		<div v-else class="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-			Укажите URL виджета
+			{{ t('overlayBuilder.preview.widgetUrl') }}
 		</div>
 	</template>
 	<template v-else-if="layer.type === 'YOUTUBE'">
@@ -46,18 +47,18 @@ const { textStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(toRef(pr
 			class="pointer-events-none h-full w-full border-0"
 		/>
 		<div v-else class="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-			Укажите ID видео YouTube
+			{{ t('overlayBuilder.preview.youtubeId') }}
 		</div>
 	</template>
 	<template v-else-if="layer.type === 'EMOTE'">
 		<img
 			v-if="layer.settings.emoteUrl"
 			:src="layer.settings.emoteUrl"
-			alt="Emote"
+			:alt="t('overlayBuilder.preview.emoteAlt')"
 			class="h-full w-full object-contain"
 		/>
 		<div v-else class="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-			Выберите эмоцию
+			{{ t('overlayBuilder.preview.selectEmote') }}
 		</div>
 	</template>
 </template>

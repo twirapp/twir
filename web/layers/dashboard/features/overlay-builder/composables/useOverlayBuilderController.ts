@@ -7,6 +7,7 @@ import { useChatOverlayPresetQuery } from './useChatOverlayPresets'
 import { resolveWidgetLayerUrl } from './widget-url'
 import type { Layer, OverlayProject } from '../types'
 import { createLayerSettings } from '../types'
+import { getLayerTypeMeta } from '../layer-type-meta'
 
 export interface InitialProjectLayer {
 	id: string
@@ -45,10 +46,12 @@ export function useOverlayBuilderController(
 	emit: OverlayBuilderEmit,
 ) {
 	const builder = useOverlayBuilder()
+	const { t } = useI18n()
 	const overlayName = ref('')
 	const instaSave = ref(false)
 	const canvasAreaRef = ref<CanvasRef>()
 	const loadedProjectId = ref('')
+	const isLoadingProject = ref(false)
 	const addLayersHidden = ref(false)
 	const showCodeEditor = ref(false)
 	const editorLayer = ref<Layer | null>(null)
@@ -70,7 +73,7 @@ export function useOverlayBuilderController(
 		const availableHeight = canvasArea.clientHeight - 64
 		const scaleX = availableWidth / builder.project.width
 		const scaleY = availableHeight / builder.project.height
-		builder.canvasState.zoom = Math.max(0.1, Math.min(scaleX, scaleY) * 0.8)
+		builder.setZoom(Math.min(scaleX, scaleY) * 0.8)
 	}
 
 	function normalizeWidgetUrls() {
@@ -101,7 +104,7 @@ export function useOverlayBuilderController(
 		const layers = project.layers.map((layer, index) => ({
 			id: layer.id || `layer-${index}`,
 			type: layer.type,
-			name: layer.name || `Layer ${index + 1}`,
+			name: layer.name || t('overlayBuilder.layerNames.fallback', { count: index + 1 }),
 			posX: layer.posX,
 			posY: layer.posY,
 			width: layer.width,
@@ -112,18 +115,19 @@ export function useOverlayBuilderController(
 			locked: layer.locked || false,
 			zIndex: index,
 			periodicallyRefetchData: layer.periodicallyRefetchData,
-			settings: createLayerSettings(layer.settings),
+			settings: createLayerSettings(layer.settings, t('overlayBuilder.defaults.textContent')),
 		}))
 
+		isLoadingProject.value = true
 		builder.loadProject({
 			id: project.id,
 			name: project.name,
-			width: 1920,
-			height: 1080,
+			width: project.width,
+			height: project.height,
 			instaSave: project.instaSave || false,
 			layers,
 		})
-		nextTick(calculateFitZoom)
+		nextTick(() => { isLoadingProject.value = false; calculateFitZoom() })
 	}
 
 	watch(() => initialProject.value?.id, (newId) => {
@@ -147,7 +151,14 @@ export function useOverlayBuilderController(
 	onUnmounted(() => window.removeEventListener('resize', calculateFitZoom))
 
 	function addLayer(type: ChannelOverlayLayerType) {
-		builder.addLayer(type, { visible: !addLayersHidden.value })
+		builder.addLayer(type, {
+			name: t('overlayBuilder.layerNames.default', {
+				type: t(getLayerTypeMeta(type).labelKey),
+				count: builder.project.layers.length + 1,
+			}),
+			settings: { textContent: t('overlayBuilder.defaults.textContent') },
+			visible: !addLayersHidden.value,
+		})
 	}
 
 	function projectSnapshot(name: string, instantSave: boolean): OverlayProject {
@@ -169,6 +180,12 @@ export function useOverlayBuilderController(
 
 	watch(instaSave, (newValue, oldValue) => {
 		if (newValue !== oldValue && loadedProjectId.value) emit('instantSave', projectSnapshot(overlayName.value, newValue))
+	})
+	watch([() => builder.project.width, () => builder.project.height], () => {
+		if (isLoadingProject.value) return
+		builder.constrainLayersToCanvas()
+		void nextTick(calculateFitZoom)
+		if (instaSave.value && loadedProjectId.value) emit('save', projectSnapshot(overlayName.value, instaSave.value))
 	})
 
 	function handleUpdateLayer(layerId: string, updates: Partial<Layer>) {

@@ -13,6 +13,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	update: [updates: Partial<Layer>]
@@ -33,12 +34,12 @@ const fieldId = (name: string) => `layer-${props.layer.id}-${name}`
 
 <template>
 	<div class="flex flex-col gap-4">
-		<h4 class="text-sm font-medium">Эмоция</h4>
+		<h4 class="text-sm font-medium">{{ t('overlayBuilder.editors.emote.title') }}</h4>
 		<EmotePicker @select="selectEmote">
 			<template #trigger>
 				<Button type="button" variant="outline" class="w-full">
 					<Icon name="lucide:smile-plus" class="size-4" />
-					Выбрать эмоцию
+					{{ t('overlayBuilder.editors.emote.select') }}
 				</Button>
 			</template>
 		</EmotePicker>
@@ -50,19 +51,19 @@ const fieldId = (name: string) => `layer-${props.layer.id}-${name}`
 		<details class="group rounded-md border px-3 py-2">
 			<summary class="flex cursor-pointer list-none items-center gap-2 text-sm text-muted-foreground">
 				<Icon name="lucide:link" class="size-4" />
-				Ввести URL вручную
+				{{ t('overlayBuilder.editors.emote.manualUrl') }}
 				<Icon name="lucide:chevron-down" class="ml-auto size-4 transition-transform group-open:rotate-180" />
 			</summary>
 			<FieldInput
 				:id="fieldId('emote-url')"
 				v-model="emoteUrl"
-				label="Прямая ссылка"
+				:label="t('overlayBuilder.editors.emote.directUrl')"
 				type="url"
 				placeholder="https://.../emote.png"
-				description="Если нужной эмоции нет в 7TV, вставьте ссылку на изображение вручную."
+				:description="t('overlayBuilder.editors.emote.urlDescription')"
 				class="mt-3 flex flex-col gap-2"
 			/>
 		</details>
-		<img v-if="emoteUrl" :src="emoteUrl" alt="Предпросмотр эмоции" class="max-h-32 max-w-full self-center object-contain" />
+		<img v-if="emoteUrl" :src="emoteUrl" :alt="t('overlayBuilder.editors.emote.previewAlt')" class="max-h-32 max-w-full self-center object-contain" />
 	</div>
 </template>

@@ -18,6 +18,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	select: [layerId: string, addToSelection: boolean]
@@ -55,7 +56,7 @@ const {
 	<Card class="flex h-full flex-col border-0 p-0">
 		<div class="flex items-center justify-between border-b p-2">
 			<div class="flex items-center gap-2">
-				<CardTitle class="text-sm font-medium">Слои</CardTitle>
+					<CardTitle class="text-sm font-medium">{{ t('overlayBuilder.layers.title') }}</CardTitle>
 				<span class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
 					{{ layers.length }}
 				</span>
@@ -64,7 +65,7 @@ const {
 				<PopoverTrigger as-child>
 					<Button size="sm" class="h-7 gap-1 bg-emerald-600 px-2.5 text-xs font-medium text-white hover:bg-emerald-500">
 						<Icon name="lucide:plus" class="h-3.5 w-3.5" />
-						Добавить
+						{{ t('overlayBuilder.layers.add') }}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent align="end" class="w-80 p-2">
@@ -78,9 +79,9 @@ const {
 						>
 							<div class="flex items-center gap-1.5">
 								<Icon :name="option.icon" class="h-4 w-4 shrink-0" />
-								<span class="text-sm font-medium">{{ option.label }}</span>
+								<span class="text-sm font-medium">{{ t(option.labelKey) }}</span>
 							</div>
-							<p class="text-muted-foreground text-xs">{{ option.description }}</p>
+							<p class="text-muted-foreground text-xs">{{ t(option.descriptionKey) }}</p>
 						</button>
 					</div>
 				</PopoverContent>
@@ -89,8 +90,8 @@ const {
 		<CardContent class="flex-1 overflow-hidden p-0">
 			<ScrollArea class="h-full">
 				<div v-if="layers.length === 0" class="p-8 text-center text-muted-foreground">
-					<p class="text-sm">Слоёв пока нет</p>
-					<p class="mt-1 text-xs">Нажмите «Добавить», чтобы создать слой</p>
+					<p class="text-sm">{{ t('overlayBuilder.layers.empty') }}</p>
+					<p class="mt-1 text-xs">{{ t('overlayBuilder.layers.emptyHint') }}</p>
 				</div>
 				<VueDraggable
 					v-if="displayLayers.length > 0"
@@ -141,10 +142,10 @@ const {
 						</span>
 
 						<span class="hidden flex-none items-center gap-0.5 group-hover:flex">
-							<button type="button" class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" :title="layer.visible ? 'Скрыть' : 'Показать'" @click.stop="emit('toggleVisibility', layer.id)">
+							<button type="button" class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" :title="layer.visible ? t('overlayBuilder.layers.visibility.hide') : t('overlayBuilder.layers.visibility.show')" @click.stop="emit('toggleVisibility', layer.id)">
 								<Icon :name="layer.visible ? 'lucide:eye' : 'lucide:eye-off'" class="h-3.5 w-3.5" />
 							</button>
-							<button type="button" class="inline-flex size-6 items-center justify-center rounded-md transition-colors hover:bg-accent" :class="layer.locked ? 'text-amber-600 hover:text-amber-700 dark:text-amber-400/80 dark:hover:text-amber-300' : 'text-muted-foreground hover:text-foreground'" :title="layer.locked ? 'Разблокировать' : 'Заблокировать'" @click.stop="emit('toggleLock', layer.id)">
+							<button type="button" class="inline-flex size-6 items-center justify-center rounded-md transition-colors hover:bg-accent" :class="layer.locked ? 'text-amber-600 hover:text-amber-700 dark:text-amber-400/80 dark:hover:text-amber-300' : 'text-muted-foreground hover:text-foreground'" :title="layer.locked ? t('overlayBuilder.layers.lock.unlock') : t('overlayBuilder.layers.lock.lock')" @click.stop="emit('toggleLock', layer.id)">
 								<Icon :name="layer.locked ? 'lucide:lock' : 'lucide:lock-open'" class="h-3.5 w-3.5" />
 							</button>
 						</span>

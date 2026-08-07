@@ -44,14 +44,14 @@ export interface LayerSettings {
 	emoteProvider: string
 }
 
-export function createLayerSettings(overrides: Partial<LayerSettings> = {}): LayerSettings {
+export function createLayerSettings(overrides: Partial<LayerSettings> = {}, defaultTextContent = 'Text'): LayerSettings {
 	return {
 		htmlOverlayHtml: '',
 		htmlOverlayCss: '',
 		htmlOverlayJs: '',
 		htmlOverlayDataPollSecondsInterval: 5,
 		imageUrl: '',
-		textContent: 'Текст',
+		textContent: defaultTextContent,
 		textFontFamily: 'sans-serif',
 		textFontSize: 48,
 		textFontWeight: 700,
