@@ -124,7 +124,7 @@ const {
 
 			<div class="w-80 flex flex-col border-l">
 				<div class="border-b bg-background p-2">
-					<OverlaySettings v-model:overlay-name="overlayName" v-model:insta-save="instaSave" />
+					<OverlaySettings v-model:overlay-name="overlayName" v-model:insta-save="instaSave" v-model:canvas-width="builder.project.width" v-model:canvas-height="builder.project.height" />
 				</div>
 
 				<div class="flex min-h-0 flex-1 flex-col">

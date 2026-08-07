@@ -94,8 +94,8 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 					id: project.id,
 					input: {
 						name: project.name,
-						width: 1920,
-						height: 1080,
+						width: project.width,
+						height: project.height,
 						instaSave: project.instaSave || false,
 						layers: layersInput,
 					},
@@ -114,8 +114,8 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 				const result = await createOverlayMutation.executeMutation({
 					input: {
 						name: project.name,
-						width: 1920,
-						height: 1080,
+						width: project.width,
+						height: project.height,
 						instaSave: project.instaSave || false,
 						layers: layersInput,
 					},
@@ -153,8 +153,8 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 				id: project.id,
 				input: {
 					name: project.name,
-					width: 1920,
-					height: 1080,
+					width: project.width,
+					height: project.height,
 					instaSave: project.instaSave || false,
 					layers: layersInput,
 				},

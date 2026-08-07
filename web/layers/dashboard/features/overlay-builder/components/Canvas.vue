@@ -5,6 +5,7 @@ import Moveable from 'vue3-moveable'
 import HtmlLayerPreview from './HtmlLayerPreview.vue'
 import ImageLayerPreview from './ImageLayerPreview.vue'
 import LayerTypePreview from './LayerTypePreview.vue'
+import CanvasStreamBackground from './CanvasStreamBackground.vue'
 import type { Layer } from '../types'
 import { type CanvasInteractionProps, useCanvasInteraction } from '../composables/useCanvasInteraction'
 
@@ -64,6 +65,7 @@ const {
 					class="relative bg-[#121212] shadow-2xl border border-slate-700"
 					:style="canvasStyle"
 				>
+					<CanvasStreamBackground :zoom="zoom" />
 					<div
 						v-for="(guide, index) in alignmentGuides"
 						:key="`guide-${index}`"

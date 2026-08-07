@@ -2007,6 +2007,32 @@
       "chat": {
         "name": "Chat",
         "description": "Twir channel chat"
+      },
+      "nowPlaying": {
+        "name": "Now Playing",
+        "description": "Display the currently playing track"
+      },
+      "faceitStats": {
+        "name": "FACEIT Stats",
+        "description": "Display FACEIT player statistics",
+        "settingsHint": "Changes update this widget URL immediately."
+      },
+      "valorantStats": {
+        "name": "VALORANT Stats",
+        "description": "Display VALORANT player statistics",
+        "settingsHint": "Changes update this widget URL immediately."
+      },
+      "kappagen": {
+        "name": "Kappagen",
+        "description": "Flying emotes overlay"
+      },
+      "dudes": {
+        "name": "Dudes",
+        "description": "Animated chat avatars"
+      },
+      "afk": {
+        "name": "AFK (BRB)",
+        "description": "Show an away screen"
       }
     },
     "layers": {
@@ -2091,6 +2117,21 @@
       "fullHd": "1920 × 1080 (Full HD)",
       "instantSave": "Instant Save",
       "instantSaveDescription": "Automatically save position and rotation changes in real time"
+    },
+    "canvasSize": {
+      "label": "Canvas Size",
+      "fullHd": "1920 × 1080 (Full HD)",
+      "hd": "1280 × 720 (HD)",
+      "qhd": "2560 × 1440 (QHD)",
+      "fourK": "3840 × 2160 (4K)",
+      "custom": "Custom",
+      "width": "Width",
+      "height": "Height"
+    },
+    "streamBackground": {
+      "toggle": "Stream background",
+      "previewTitle": "Stream preview",
+      "previewNotSupported": "Preview not supported for this platform"
     },
     "preview": {
       "widgetUrl": "Enter a widget URL",

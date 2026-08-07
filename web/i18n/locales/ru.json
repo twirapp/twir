@@ -1862,6 +1862,32 @@
       "chat": {
         "name": "Чат",
         "description": "Чат канала Twir"
+      },
+      "nowPlaying": {
+        "name": "Сейчас играет",
+        "description": "Показывает текущий трек"
+      },
+      "faceitStats": {
+        "name": "Статистика FACEIT",
+        "description": "Показывает статистику игрока FACEIT",
+        "settingsHint": "Изменения сразу обновляют URL виджета."
+      },
+      "valorantStats": {
+        "name": "Статистика VALORANT",
+        "description": "Показывает статистику игрока VALORANT",
+        "settingsHint": "Изменения сразу обновляют URL виджета."
+      },
+      "kappagen": {
+        "name": "Kappagen",
+        "description": "Оверлей с летающими эмоциями"
+      },
+      "dudes": {
+        "name": "Dudes",
+        "description": "Анимированные аватары чата"
+      },
+      "afk": {
+        "name": "AFK (BRB)",
+        "description": "Показывает экран отсутствия"
       }
     },
     "layers": {
@@ -1946,6 +1972,21 @@
       "fullHd": "1920 × 1080 (Full HD)",
       "instantSave": "Мгновенное сохранение",
       "instantSaveDescription": "Автоматически сохранять изменения позиции и поворота в реальном времени"
+    },
+    "canvasSize": {
+      "label": "Размер холста",
+      "fullHd": "1920 × 1080 (Full HD)",
+      "hd": "1280 × 720 (HD)",
+      "qhd": "2560 × 1440 (QHD)",
+      "fourK": "3840 × 2160 (4K)",
+      "custom": "Свой размер",
+      "width": "Ширина",
+      "height": "Высота"
+    },
+    "streamBackground": {
+      "toggle": "Фон трансляции",
+      "previewTitle": "Предпросмотр трансляции",
+      "previewNotSupported": "Предпросмотр не поддерживается для этой платформы"
     },
     "preview": {
       "widgetUrl": "Укажите URL виджета",

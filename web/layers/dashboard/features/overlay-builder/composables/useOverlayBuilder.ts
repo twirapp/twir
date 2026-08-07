@@ -16,7 +16,6 @@ const MAX_HISTORY_SIZE = 50
 
 export function useOverlayBuilder() {
 	const { t } = useI18n()
-	// Project state (canvas size fixed at 1920x1080)
 	const project = reactive<OverlayProject>({
 		id: '',
 		name: '',
@@ -125,6 +124,10 @@ export function useOverlayBuilder() {
 				: {}),
 		}
 
+		const width = Math.min(options?.width ?? defaultSize.width, project.width)
+		const height = Math.min(options?.height ?? defaultSize.height, project.height)
+		const posX = Math.min(options?.posX ?? 100, Math.max(0, project.width - width))
+		const posY = Math.min(options?.posY ?? 100, Math.max(0, project.height - height))
 		const newLayer: Layer = {
 			id: crypto.randomUUID(),
 			type,
@@ -132,10 +135,10 @@ export function useOverlayBuilder() {
 				type: t(`overlayBuilder.layerTypes.${type.toLowerCase()}`),
 				count: project.layers.length + 1,
 			}),
-			posX: options?.posX ?? 100,
-			posY: options?.posY ?? 100,
-			width: options?.width ?? defaultSize.width,
-			height: options?.height ?? defaultSize.height,
+			posX,
+			posY,
+			width,
+			height,
 			rotation: 0,
 			opacity: 1,
 			visible: options?.visible ?? true,
@@ -671,6 +674,7 @@ export function useOverlayBuilder() {
 	// Load project
 	function loadProject(data: OverlayProject) {
 		Object.assign(project, JSON.parse(JSON.stringify(data)))
+		constrainLayersToCanvas()
 		history.present = JSON.parse(JSON.stringify(toRaw(project)))
 		history.past = []
 		history.future = []

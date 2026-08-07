@@ -67,12 +67,11 @@ const projectData = computed(() => {
 	// Sync instaSave state with composable
 	instaSaveEnabled.value = overlay.value.instaSave || false
 
-	// Convert existing overlay data to builder format (canvas size fixed at 1920x1080)
 	const converted = {
 		id: overlay.value.id,
 		name: overlay.value.name,
-		width: 1920,
-		height: 1080,
+		width: overlay.value.width,
+		height: overlay.value.height,
 		instaSave: overlay.value.instaSave || false,
 		layers: overlay.value.layers.map((layer, index) => {
 			return {

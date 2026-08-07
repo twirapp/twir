@@ -51,6 +51,7 @@ export function useOverlayBuilderController(
 	const instaSave = ref(false)
 	const canvasAreaRef = ref<CanvasRef>()
 	const loadedProjectId = ref('')
+	const isLoadingProject = ref(false)
 	const addLayersHidden = ref(false)
 	const showCodeEditor = ref(false)
 	const editorLayer = ref<Layer | null>(null)
@@ -72,7 +73,7 @@ export function useOverlayBuilderController(
 		const availableHeight = canvasArea.clientHeight - 64
 		const scaleX = availableWidth / builder.project.width
 		const scaleY = availableHeight / builder.project.height
-		builder.canvasState.zoom = Math.max(0.1, Math.min(scaleX, scaleY) * 0.8)
+		builder.setZoom(Math.min(scaleX, scaleY) * 0.8)
 	}
 
 	function normalizeWidgetUrls() {
@@ -117,15 +118,16 @@ export function useOverlayBuilderController(
 			settings: createLayerSettings(layer.settings, t('overlayBuilder.defaults.textContent')),
 		}))
 
+		isLoadingProject.value = true
 		builder.loadProject({
 			id: project.id,
 			name: project.name,
-			width: 1920,
-			height: 1080,
+			width: project.width,
+			height: project.height,
 			instaSave: project.instaSave || false,
 			layers,
 		})
-		nextTick(calculateFitZoom)
+		nextTick(() => { isLoadingProject.value = false; calculateFitZoom() })
 	}
 
 	watch(() => initialProject.value?.id, (newId) => {
@@ -178,6 +180,12 @@ export function useOverlayBuilderController(
 
 	watch(instaSave, (newValue, oldValue) => {
 		if (newValue !== oldValue && loadedProjectId.value) emit('instantSave', projectSnapshot(overlayName.value, newValue))
+	})
+	watch([() => builder.project.width, () => builder.project.height], () => {
+		if (isLoadingProject.value) return
+		builder.constrainLayersToCanvas()
+		void nextTick(calculateFitZoom)
+		if (instaSave.value && loadedProjectId.value) emit('save', projectSnapshot(overlayName.value, instaSave.value))
 	})
 
 	function handleUpdateLayer(layerId: string, updates: Partial<Layer>) {
