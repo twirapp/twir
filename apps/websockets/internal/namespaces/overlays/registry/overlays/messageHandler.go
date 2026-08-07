@@ -3,7 +3,9 @@ package overlays
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -13,6 +15,7 @@ import (
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	twirlogger "github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays"
 )
 
@@ -290,7 +293,17 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 					Opacity:  &layerData.Opacity,
 				})
 				if e != nil {
-					c.logger.Error("failed to update layer", "error", e)
+					// Layers created on the client exist only in the builder state until
+					// the overlay is fully saved, so a missing row here is expected.
+					if errors.Is(e, channels_overlays.ErrNotFound) {
+						c.logger.Debug(
+							"skipping instant save for not yet persisted layer",
+							twirlogger.Error(e),
+							slog.String("layer_id", layerID.String()),
+						)
+					} else {
+						c.logger.Error("failed to update layer", twirlogger.Error(e))
+					}
 				}
 			}()
 		}
