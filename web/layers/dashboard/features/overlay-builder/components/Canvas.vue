@@ -65,7 +65,7 @@ const {
 					class="relative bg-[#121212] shadow-2xl border border-slate-700"
 					:style="canvasStyle"
 				>
-					<CanvasStreamBackground :zoom="zoom" />
+					<CanvasStreamBackground />
 					<div
 						v-for="(guide, index) in alignmentGuides"
 						:key="`guide-${index}`"
