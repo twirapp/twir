@@ -1983,5 +1983,256 @@
     "deleted": "Quote deleted",
     "errorOnSave": "Unable to save quote",
     "errorOnDelete": "Unable to delete quote"
+  },
+  "overlayBuilder": {
+    "loading": "Loading overlay...",
+    "overlayEdit": "Overlay Edit",
+    "layerTypes": {
+      "widget": "Widget",
+      "widgetDescription": "Embeddable URL",
+      "text": "Text",
+      "textDescription": "Text layer",
+      "emote": "Emote",
+      "emoteDescription": "One emote per layer",
+      "youtube": "YouTube",
+      "youtubeDescription": "YouTube video",
+      "video": "Video",
+      "videoDescription": "Video from URL",
+      "image": "Image",
+      "imageDescription": "Image from URL",
+      "html": "HTML",
+      "htmlDescription": "HTML, CSS, and JavaScript"
+    },
+    "widgets": {
+      "chat": {
+        "name": "Chat",
+        "description": "Twir channel chat"
+      }
+    },
+    "layers": {
+      "title": "Layers",
+      "add": "Add",
+      "empty": "No layers yet",
+      "emptyHint": "Click “Add” to create a layer",
+      "settings": "Settings",
+      "delete": "Delete",
+      "visibility": {
+        "hide": "Hide",
+        "show": "Show"
+      },
+      "lock": {
+        "lock": "Lock",
+        "unlock": "Unlock"
+      }
+    },
+    "canvas": {
+      "hidden": "Hidden"
+    },
+    "layerNames": {
+      "default": "{type} Layer {count}",
+      "fallback": "Layer {count}",
+      "copySuffix": "(Copy)",
+      "pastedSuffix": "(Pasted)"
+    },
+    "defaults": {
+      "textContent": "Text"
+    },
+    "overlayNames": {
+      "default": "Overlay #{count}"
+    },
+    "properties": {
+      "title": "Properties",
+      "name": "Name",
+      "namePlaceholder": "Layer name",
+      "positionSize": "Position and size",
+      "width": "W",
+      "height": "H",
+      "rotation": "Rotation",
+      "opacity": "Opacity",
+      "visible": "Visibility",
+      "visibleDescription": "Show layer",
+      "locked": "Lock",
+      "lockedDescription": "Prevent editing",
+      "code": "Code",
+      "autoRefresh": "Auto Refresh",
+      "autoRefreshDescription": "Periodically update data",
+      "pollInterval": "Interval (seconds)"
+    },
+    "propertyPanel": {
+      "title": "Properties",
+      "noLayer": "No layer selected",
+      "noLayerHint": "Select a layer to edit its properties",
+      "multipleLayers": "Multiple layers selected",
+      "multipleLayersHint": "Select a single layer to edit properties",
+      "name": "Name",
+      "namePlaceholder": "Layer name",
+      "position": "Position",
+      "appearance": "Appearance",
+      "width": "Width",
+      "height": "Height",
+      "rotation": "Rotation",
+      "opacity": "Opacity",
+      "visible": "Visible",
+      "visibleDescription": "Show layer on canvas",
+      "locked": "Locked",
+      "lockedDescription": "Prevent editing",
+      "htmlSettings": "HTML Settings",
+      "editCode": "Edit Code",
+      "autoRefresh": "Auto Refresh",
+      "autoRefreshDescription": "Periodically update data",
+      "updateInterval": "Update Interval (seconds)"
+    },
+    "overlaySettings": {
+      "title": "Overlay Settings",
+      "name": "Name",
+      "namePlaceholder": "My Overlay",
+      "characterCount": "{count}/30 characters",
+      "canvasSize": "Canvas Size",
+      "fullHd": "1920 × 1080 (Full HD)",
+      "instantSave": "Instant Save",
+      "instantSaveDescription": "Automatically save position and rotation changes in real time"
+    },
+    "preview": {
+      "widgetUrl": "Enter a widget URL",
+      "youtubeId": "Enter a YouTube video ID",
+      "emoteAlt": "Emote",
+      "selectEmote": "Select an emote",
+      "imageAlt": "Overlay image",
+      "imageLoadFailed": "Failed to load image",
+      "checkImageUrl": "Check the image URL",
+      "noImageUrl": "No image URL"
+    },
+    "editors": {
+      "image": {
+        "title": "Image Settings",
+        "url": "Image URL",
+        "urlDescription": "Enter a direct URL to an image (PNG, JPG, GIF, etc.)",
+        "usePlaceholder": "Use Placeholder Image",
+        "tip": "Tip:",
+        "variablesTip": "You can use Twir variables in the URL, like"
+      },
+      "iframe": {
+        "title": "Widget",
+        "source": "Source",
+        "customUrl": "Custom URL",
+        "twirWidget": "Twir Widget",
+        "widgetPlaceholder": "Select a widget",
+        "widgetDescription": "Select a built-in Twir widget.",
+        "configure": "Configure",
+        "apiKeyMissing": "No channel API key found. The widget URL will not work.",
+        "url": "URL",
+        "scale": "Scale",
+        "dialogDescription": "Settings for the {name} widget"
+      },
+      "text": {
+        "title": "Text",
+        "content": "Content",
+        "size": "Size",
+        "weight": "Weight",
+        "color": "Color",
+        "align": "Alignment",
+        "font": "Font",
+        "alignLeft": "Left",
+        "alignCenter": "Center",
+        "alignRight": "Right"
+      },
+      "video": {
+        "title": "Video",
+        "url": "Video URL",
+        "loop": "Loop",
+        "muted": "Muted"
+      },
+      "youtube": {
+        "videoLink": "Video link or ID",
+        "videoPlaceholder": "https://youtu.be/... or ID",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted"
+      },
+      "emote": {
+        "title": "Emote",
+        "select": "Select emote",
+        "manualUrl": "Enter URL manually",
+        "directUrl": "Direct link",
+        "urlDescription": "If the emote you need is not in 7TV, paste an image URL manually.",
+        "previewAlt": "Emote preview"
+      }
+    },
+    "chatPresets": {
+      "loading": "Loading presets...",
+      "empty": "No chat presets",
+      "emptyHint": "Create a preset to configure the widget.",
+      "create": "Create preset",
+      "label": "Preset",
+      "placeholder": "Select a preset",
+      "item": "Preset #{count}"
+    },
+    "codeEditor": {
+      "title": "Edit HTML Layer",
+      "description": "Edit HTML, CSS, and JavaScript for this layer. Changes are previewed in real time.",
+      "refreshInterval": "Refresh interval (seconds):",
+      "variables": "Variables",
+      "preview": "Preview",
+      "availableVariables": "Available Variables",
+      "searchVariables": "Search variables...",
+      "builtIn": "Built-in",
+      "custom": "Custom",
+      "copied": "Copied!",
+      "copyToClipboard": "Copy to clipboard",
+      "noVariables": "No variables found",
+      "variableCount": "{count} variable | {count} variables",
+      "emptyHtml": "Enter HTML to preview",
+      "parsing": "Parsing...",
+      "live": "Live",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes"
+    },
+    "toolbar": {
+      "back": "Back to Overlays",
+      "undo": "Undo",
+      "redo": "Redo",
+      "copy": "Copy",
+      "cut": "Cut",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "alignLeft": "Align Left",
+      "alignCenter": "Align Center",
+      "alignRight": "Align Right",
+      "alignTop": "Align Top",
+      "alignMiddle": "Align Middle",
+      "alignBottom": "Align Bottom",
+      "distributeHorizontal": "Distribute Horizontally",
+      "distributeVertical": "Distribute Vertically",
+      "zoomOut": "Zoom Out",
+      "zoomIn": "Zoom In",
+      "toggleGrid": "Toggle Grid",
+      "snapToGrid": "Snap to Grid",
+      "addLayersHidden": "Add layers hidden",
+      "save": "Save"
+    }
+  },
+  "emotePicker": {
+    "title": "Emotes",
+    "description": "Choose an emote from the 7TV sets.",
+    "tabs": {
+      "global": "7TV",
+      "channel": "7TV Channel"
+    },
+    "search": {
+      "placeholder": "Search by name",
+      "ariaLabel": "Search emotes"
+    },
+    "retry": "Retry",
+    "empty": {
+      "search": "No emotes found for your search.",
+      "noChannel": "Select a Twitch channel to see its 7TV set.",
+      "channelNoSet": "The current channel has no connected 7TV set.",
+      "noEmotes": "This set does not contain any emotes yet."
+    },
+    "errors": {
+      "apiStatus": "7TV request failed ({status}).",
+      "loadGlobal": "Failed to load emotes.",
+      "loadChannel": "Failed to load channel emotes."
+    }
   }
 }

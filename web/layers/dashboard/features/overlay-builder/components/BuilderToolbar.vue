@@ -71,7 +71,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>{{ t('sharedButtons.back') || 'Back to Overlays' }}</p>
+					<p>{{ t('overlayBuilder.toolbar.back') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -98,7 +98,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Undo (Ctrl+Z)</p>
+					<p>{{ t('overlayBuilder.toolbar.undo') }} (Ctrl+Z)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -119,7 +119,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Redo (Ctrl+Y)</p>
+					<p>{{ t('overlayBuilder.toolbar.redo') }} (Ctrl+Y)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -146,7 +146,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Copy (Ctrl+C)</p>
+					<p>{{ t('overlayBuilder.toolbar.copy') }} (Ctrl+C)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -167,7 +167,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Cut (Ctrl+X)</p>
+					<p>{{ t('overlayBuilder.toolbar.cut') }} (Ctrl+X)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -188,7 +188,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Duplicate (Ctrl+D)</p>
+					<p>{{ t('overlayBuilder.toolbar.duplicate') }} (Ctrl+D)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -209,7 +209,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Delete (Del)</p>
+					<p>{{ t('overlayBuilder.toolbar.delete') }} (Del)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -236,7 +236,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Left</p>
+					<p>{{ t('overlayBuilder.toolbar.alignLeft') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -257,7 +257,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Center</p>
+					<p>{{ t('overlayBuilder.toolbar.alignCenter') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -278,7 +278,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Right</p>
+					<p>{{ t('overlayBuilder.toolbar.alignRight') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -305,7 +305,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Top</p>
+					<p>{{ t('overlayBuilder.toolbar.alignTop') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -326,7 +326,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Middle</p>
+					<p>{{ t('overlayBuilder.toolbar.alignMiddle') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -347,7 +347,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Bottom</p>
+					<p>{{ t('overlayBuilder.toolbar.alignBottom') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -374,7 +374,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Distribute Horizontally</p>
+					<p>{{ t('overlayBuilder.toolbar.distributeHorizontal') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -395,7 +395,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Distribute Vertically</p>
+					<p>{{ t('overlayBuilder.toolbar.distributeVertical') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -421,7 +421,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Zoom Out</p>
+					<p>{{ t('overlayBuilder.toolbar.zoomOut') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -450,7 +450,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Zoom In</p>
+					<p>{{ t('overlayBuilder.toolbar.zoomIn') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -477,7 +477,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Toggle Grid</p>
+					<p>{{ t('overlayBuilder.toolbar.toggleGrid') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -498,7 +498,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Snap to Grid</p>
+					<p>{{ t('overlayBuilder.toolbar.snapToGrid') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -509,7 +509,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 				:model-value="addLayersHidden"
 				@update:model-value="emit('toggleAddLayersHidden')"
 			/>
-			<Label for="add-layers-hidden" class="cursor-pointer whitespace-nowrap">Добавлять скрытыми</Label>
+			<Label for="add-layers-hidden" class="cursor-pointer whitespace-nowrap">{{ t('overlayBuilder.toolbar.addLayersHidden') }}</Label>
 		</div>
 
 		<div class="flex-1" />
@@ -550,7 +550,7 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>{{ t('sharedButtons.save') || 'Save' }} (Ctrl+S)</p>
+					<p>{{ t('overlayBuilder.toolbar.save') }} (Ctrl+S)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>

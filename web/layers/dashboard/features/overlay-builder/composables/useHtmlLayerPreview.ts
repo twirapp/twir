@@ -12,6 +12,7 @@ export interface HtmlLayerPreviewProps {
 }
 
 export function useHtmlLayerPreview(props: HtmlLayerPreviewProps) {
+	const { t } = useI18n()
 	const containerRef = ref<HTMLDivElement>()
 	const shadowRoot = ref<ShadowRoot>()
 	const renderKey = ref(0)
@@ -21,7 +22,7 @@ export function useHtmlLayerPreview(props: HtmlLayerPreviewProps) {
 
 	const sanitizedHtml = computed(() => {
 		const html = parsedHtml.value || props.html
-		return html || '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.5); font-size: 14px;">Empty HTML Layer</div>'
+		return html || `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.5); font-size: 14px;">${t('overlayBuilder.codeEditor.emptyHtml')}</div>`
 	})
 
 	async function parseHtml() {

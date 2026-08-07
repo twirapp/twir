@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<CodeEditorDialogProps>(), {
 	js: '',
 	refreshInterval: 5,
 })
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	'update:open': [value: boolean]
@@ -43,13 +44,13 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 			<DialogHeader class="px-6 pt-6 pb-4 border-b">
 				<DialogTitle class="flex items-center gap-2">
 					<Icon name="lucide:code-xml" class="h-5 w-5" />
-					<span>Edit HTML Layer</span>
+					<span>{{ t('overlayBuilder.codeEditor.title') }}</span>
 					<span v-if="layerName" class="text-muted-foreground font-normal">
 						- {{ layerName }}
 					</span>
 				</DialogTitle>
 				<DialogDescription>
-					Edit HTML, CSS, and JavaScript for this layer. Changes are previewed in real-time.
+					{{ t('overlayBuilder.codeEditor.description') }}
 				</DialogDescription>
 			</DialogHeader>
 
@@ -59,7 +60,7 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 					<!-- Settings Bar -->
 					<div class="flex items-center gap-4 px-4 py-3 border-b bg-muted/30">
 						<div class="flex items-center gap-2">
-							<Label for="refresh-interval" class="text-xs">Refresh Interval (seconds):</Label>
+							<Label for="refresh-interval" class="text-xs">{{ t('overlayBuilder.codeEditor.refreshInterval') }}</Label>
 							<input
 								id="refresh-interval"
 								v-model.number="localRefreshInterval"
@@ -80,7 +81,7 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 							>
 								<Icon name="lucide:chevron-left" v-if="showVariablesPanel" class="h-3 w-3" />
 								<Icon name="lucide:chevron-right" v-else class="h-3 w-3" />
-								Variables
+								{{ t('overlayBuilder.codeEditor.variables') }}
 							</Button>
 
 							<Switch
@@ -91,7 +92,7 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 							<Label for="preview-toggle" class="text-xs cursor-pointer flex items-center gap-1">
 								<Icon name="lucide:eye" v-if="showPreview" class="h-3 w-3" />
 								<Icon name="lucide:eye-off" v-else class="h-3 w-3" />
-								Preview
+								{{ t('overlayBuilder.codeEditor.preview') }}
 							</Label>
 						</div>
 					</div>
@@ -192,12 +193,12 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 					style="width: 400px;"
 				>
 					<div class="px-4 py-3 border-b shrink-0">
-						<h3 class="text-sm font-semibold mb-2">Available Variables</h3>
+										<h3 class="text-sm font-semibold mb-2">{{ t('overlayBuilder.codeEditor.availableVariables') }}</h3>
 						<div class="relative">
 							<Icon name="lucide:search" class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 							<Input
 								v-model="variablesSearchQuery"
-								placeholder="Search variables..."
+														:placeholder="t('overlayBuilder.codeEditor.searchVariables')"
 								class="pl-8 h-8 text-xs"
 								@keydown.stop
 							/>
@@ -220,13 +221,13 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 												v-if="'isBuiltIn' in variable && variable.isBuiltIn"
 												class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-medium"
 											>
-												Built-in
+														{{ t('overlayBuilder.codeEditor.builtIn') }}
 											</span>
 											<span
 												v-else
 												class="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-500 font-medium"
 											>
-												Custom
+														{{ t('overlayBuilder.codeEditor.custom') }}
 											</span>
 										</div>
 										<p v-if="variable.description" class="text-xs text-muted-foreground mt-1 line-clamp-2">
@@ -243,7 +244,7 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 										variant="ghost"
 										size="icon"
 										class="h-6 w-6 shrink-0"
-										:title="copiedVariableId === variable.name ? 'Copied!' : 'Copy to clipboard'"
+										:title="copiedVariableId === variable.name ? t('overlayBuilder.codeEditor.copied') : t('overlayBuilder.codeEditor.copyToClipboard')"
 										@click="copyVariable(variable)"
 									>
 										<Icon name="lucide:check" v-if="copiedVariableId === variable.name" class="h-3 w-3 text-green-500" />
@@ -271,25 +272,25 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 							class="text-center py-8 text-sm text-muted-foreground"
 						>
 							<Icon name="lucide:search" class="h-8 w-8 mx-auto mb-2 opacity-50" />
-							<p>No variables found</p>
+							<p>{{ t('overlayBuilder.codeEditor.noVariables') }}</p>
 						</div>
 					</div>
 
 					<div class="px-4 py-2 border-t text-xs text-muted-foreground shrink-0">
-						{{ filteredVariables.length }} variable{{ filteredVariables.length !== 1 ? 's' : '' }}
+						{{ t('overlayBuilder.codeEditor.variableCount', filteredVariables.length) }}
 					</div>
 				</div>
 
 				<!-- Preview Side -->
 				<div v-if="showPreview" class="w-150 flex flex-col bg-slate-900">
 					<div class="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
-						<h3 class="text-sm font-medium">Preview</h3>
+						<h3 class="text-sm font-medium">{{ t('overlayBuilder.codeEditor.preview') }}</h3>
 						<div v-if="isLoading" class="flex items-center gap-2 text-xs text-muted-foreground">
 							<div class="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-							<span>Parsing...</span>
+							<span>{{ t('overlayBuilder.codeEditor.parsing') }}</span>
 						</div>
 						<div v-else-if="parsedHtml" class="text-xs text-green-500">
-							✓ Live
+							{{ t('overlayBuilder.codeEditor.live') }}
 						</div>
 					</div>
 					<div class="flex-1 p-4 overflow-auto">
@@ -309,10 +310,10 @@ const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeT
 
 			<DialogFooter class="px-6 py-4 border-t">
 				<Button variant="outline" @click="handleCancel">
-					Cancel
+					{{ t('overlayBuilder.codeEditor.cancel') }}
 				</Button>
 				<Button @click="handleSave">
-					Save Changes
+					{{ t('overlayBuilder.codeEditor.saveChanges') }}
 				</Button>
 			</DialogFooter>
 		</DialogContent>

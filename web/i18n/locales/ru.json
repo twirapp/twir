@@ -1838,5 +1838,256 @@
     "deleted": "Цитата удалена",
     "errorOnSave": "Не удалось сохранить цитату",
     "errorOnDelete": "Не удалось удалить цитату"
+  },
+  "overlayBuilder": {
+    "loading": "Загрузка оверлея...",
+    "overlayEdit": "Редактирование оверлея",
+    "layerTypes": {
+      "widget": "Виджет",
+      "widgetDescription": "Встраиваемый URL",
+      "text": "Текст",
+      "textDescription": "Текстовый слой",
+      "emote": "Эмоция",
+      "emoteDescription": "Одна эмоция на слой",
+      "youtube": "YouTube",
+      "youtubeDescription": "Видео с YouTube",
+      "video": "Видео",
+      "videoDescription": "Видео из URL",
+      "image": "Изображение",
+      "imageDescription": "Изображение из URL",
+      "html": "HTML",
+      "htmlDescription": "HTML, CSS и JavaScript"
+    },
+    "widgets": {
+      "chat": {
+        "name": "Чат",
+        "description": "Чат канала Twir"
+      }
+    },
+    "layers": {
+      "title": "Слои",
+      "add": "Добавить",
+      "empty": "Слоёв пока нет",
+      "emptyHint": "Нажмите «Добавить», чтобы создать слой",
+      "settings": "Настройки",
+      "delete": "Удалить",
+      "visibility": {
+        "hide": "Скрыть",
+        "show": "Показать"
+      },
+      "lock": {
+        "lock": "Заблокировать",
+        "unlock": "Разблокировать"
+      }
+    },
+    "canvas": {
+      "hidden": "Скрыт"
+    },
+    "layerNames": {
+      "default": "{type} слой {count}",
+      "fallback": "Слой {count}",
+      "copySuffix": "(копия)",
+      "pastedSuffix": "(вставка)"
+    },
+    "defaults": {
+      "textContent": "Текст"
+    },
+    "overlayNames": {
+      "default": "Оверлей №{count}"
+    },
+    "properties": {
+      "title": "Свойства",
+      "name": "Название",
+      "namePlaceholder": "Название слоя",
+      "positionSize": "Позиция и размер",
+      "width": "Ш",
+      "height": "В",
+      "rotation": "Поворот",
+      "opacity": "Прозрачность",
+      "visible": "Видимость",
+      "visibleDescription": "Показывать слой",
+      "locked": "Замок",
+      "lockedDescription": "Запретить редактирование",
+      "code": "Код",
+      "autoRefresh": "Автообновление",
+      "autoRefreshDescription": "Периодически обновлять",
+      "pollInterval": "Интервал (секунды)"
+    },
+    "propertyPanel": {
+      "title": "Свойства",
+      "noLayer": "Слой не выбран",
+      "noLayerHint": "Выберите слой, чтобы изменить его свойства",
+      "multipleLayers": "Выбрано несколько слоёв",
+      "multipleLayersHint": "Выберите один слой для редактирования свойств",
+      "name": "Название",
+      "namePlaceholder": "Название слоя",
+      "position": "Позиция",
+      "appearance": "Внешний вид",
+      "width": "Ширина",
+      "height": "Высота",
+      "rotation": "Поворот",
+      "opacity": "Прозрачность",
+      "visible": "Видимость",
+      "visibleDescription": "Показывать слой на холсте",
+      "locked": "Заблокирован",
+      "lockedDescription": "Запретить редактирование",
+      "htmlSettings": "Настройки HTML",
+      "editCode": "Изменить код",
+      "autoRefresh": "Автообновление",
+      "autoRefreshDescription": "Периодически обновлять данные",
+      "updateInterval": "Интервал обновления (секунды)"
+    },
+    "overlaySettings": {
+      "title": "Настройки оверлея",
+      "name": "Название",
+      "namePlaceholder": "Мой оверлей",
+      "characterCount": "{count}/30 символов",
+      "canvasSize": "Размер холста",
+      "fullHd": "1920 × 1080 (Full HD)",
+      "instantSave": "Мгновенное сохранение",
+      "instantSaveDescription": "Автоматически сохранять изменения позиции и поворота в реальном времени"
+    },
+    "preview": {
+      "widgetUrl": "Укажите URL виджета",
+      "youtubeId": "Укажите ID видео YouTube",
+      "emoteAlt": "Эмоция",
+      "selectEmote": "Выберите эмоцию",
+      "imageAlt": "Изображение оверлея",
+      "imageLoadFailed": "Не удалось загрузить изображение",
+      "checkImageUrl": "Проверьте URL изображения",
+      "noImageUrl": "URL изображения не указан"
+    },
+    "editors": {
+      "image": {
+        "title": "Настройки изображения",
+        "url": "URL изображения",
+        "urlDescription": "Укажите прямой URL изображения (PNG, JPG, GIF и т. д.)",
+        "usePlaceholder": "Использовать изображение-заполнитель",
+        "tip": "Совет:",
+        "variablesTip": "В URL можно использовать переменные Twir, например"
+      },
+      "iframe": {
+        "title": "Виджет",
+        "source": "Источник",
+        "customUrl": "Свой URL",
+        "twirWidget": "Виджет Twir",
+        "widgetPlaceholder": "Выберите виджет",
+        "widgetDescription": "Выберите встроенный виджет Twir.",
+        "configure": "Настроить",
+        "apiKeyMissing": "API-ключ канала не найден. Ссылка на виджет не будет работать.",
+        "url": "URL",
+        "scale": "Масштаб",
+        "dialogDescription": "Настройки виджета «{name}»"
+      },
+      "text": {
+        "title": "Текст",
+        "content": "Содержимое",
+        "size": "Размер",
+        "weight": "Начертание",
+        "color": "Цвет",
+        "align": "Выравнивание",
+        "font": "Шрифт",
+        "alignLeft": "Слева",
+        "alignCenter": "По центру",
+        "alignRight": "Справа"
+      },
+      "video": {
+        "title": "Видео",
+        "url": "URL видео",
+        "loop": "Повторять",
+        "muted": "Без звука"
+      },
+      "youtube": {
+        "videoLink": "Ссылка или ID видео",
+        "videoPlaceholder": "https://youtu.be/... или ID",
+        "autoplay": "Автовоспроизведение",
+        "loop": "Повторять",
+        "muted": "Без звука"
+      },
+      "emote": {
+        "title": "Эмоция",
+        "select": "Выбрать эмоцию",
+        "manualUrl": "Ввести URL вручную",
+        "directUrl": "Прямая ссылка",
+        "urlDescription": "Если нужной эмоции нет в 7TV, вставьте ссылку на изображение вручную.",
+        "previewAlt": "Предпросмотр эмоции"
+      }
+    },
+    "chatPresets": {
+      "loading": "Загрузка пресетов...",
+      "empty": "Нет пресетов чата",
+      "emptyHint": "Создайте пресет, чтобы настроить виджет.",
+      "create": "Создать пресет",
+      "label": "Пресет",
+      "placeholder": "Выберите пресет",
+      "item": "Пресет №{count}"
+    },
+    "codeEditor": {
+      "title": "Редактирование HTML-слоя",
+      "description": "Редактируйте HTML, CSS и JavaScript этого слоя. Изменения отображаются в предварительном просмотре в реальном времени.",
+      "refreshInterval": "Интервал обновления (секунды):",
+      "variables": "Переменные",
+      "preview": "Предпросмотр",
+      "availableVariables": "Доступные переменные",
+      "searchVariables": "Поиск переменных...",
+      "builtIn": "Встроенная",
+      "custom": "Пользовательская",
+      "copied": "Скопировано!",
+      "copyToClipboard": "Скопировать в буфер обмена",
+      "noVariables": "Переменные не найдены",
+      "variableCount": "{count} переменная | {count} переменные | {count} переменных",
+      "emptyHtml": "Введите HTML для предпросмотра",
+      "parsing": "Разбор...",
+      "live": "Актуально",
+      "cancel": "Отмена",
+      "saveChanges": "Сохранить изменения"
+    },
+    "toolbar": {
+      "back": "Назад к оверлеям",
+      "undo": "Отменить",
+      "redo": "Повторить",
+      "copy": "Копировать",
+      "cut": "Вырезать",
+      "duplicate": "Дублировать",
+      "delete": "Удалить",
+      "alignLeft": "Выровнять по левому краю",
+      "alignCenter": "Выровнять по центру",
+      "alignRight": "Выровнять по правому краю",
+      "alignTop": "Выровнять по верхнему краю",
+      "alignMiddle": "Выровнять по середине",
+      "alignBottom": "Выровнять по нижнему краю",
+      "distributeHorizontal": "Распределить по горизонтали",
+      "distributeVertical": "Распределить по вертикали",
+      "zoomOut": "Уменьшить масштаб",
+      "zoomIn": "Увеличить масштаб",
+      "toggleGrid": "Переключить сетку",
+      "snapToGrid": "Привязка к сетке",
+      "addLayersHidden": "Добавлять скрытыми",
+      "save": "Сохранить"
+    }
+  },
+  "emotePicker": {
+    "title": "Эмоции",
+    "description": "Выберите эмоцию из наборов 7TV.",
+    "tabs": {
+      "global": "7TV",
+      "channel": "7TV канал"
+    },
+    "search": {
+      "placeholder": "Поиск по имени",
+      "ariaLabel": "Поиск эмоций"
+    },
+    "retry": "Повторить",
+    "empty": {
+      "search": "По вашему запросу эмоции не найдены.",
+      "noChannel": "Выберите Twitch-канал, чтобы увидеть его набор 7TV.",
+      "channelNoSet": "У текущего канала нет подключенного набора 7TV.",
+      "noEmotes": "В этом наборе пока нет эмоций."
+    },
+    "errors": {
+      "apiStatus": "Ошибка запроса к 7TV ({status}).",
+      "loadGlobal": "Не удалось загрузить эмоции.",
+      "loadChannel": "Не удалось загрузить эмоции канала."
+    }
   }
 }

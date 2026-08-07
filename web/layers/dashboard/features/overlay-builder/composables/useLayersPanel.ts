@@ -8,18 +8,18 @@ import { useLayerRename } from './useLayerRename'
 export interface LayerTypeOption {
 	readonly type: ChannelOverlayLayerType
 	readonly icon: string
-	readonly label: string
-	readonly description: string
+	readonly labelKey: string
+	readonly descriptionKey: string
 }
 
 const layerTypeOptions: readonly LayerTypeOption[] = [
-	{ type: ChannelOverlayLayerType.Image, icon: 'lucide:image', label: 'Картинка', description: 'Изображение из URL' },
-	{ type: ChannelOverlayLayerType.Video, icon: 'lucide:video', label: 'Видео', description: 'Видео из URL' },
-	{ type: ChannelOverlayLayerType.Youtube, icon: 'simple-icons:youtube', label: 'YouTube', description: 'Видео с YouTube' },
-	{ type: ChannelOverlayLayerType.Text, icon: 'lucide:type', label: 'Текст', description: 'Текстовый слой' },
-	{ type: ChannelOverlayLayerType.Html, icon: 'lucide:code-xml', label: 'HTML', description: 'HTML, CSS и JavaScript' },
-	{ type: ChannelOverlayLayerType.Iframe, icon: 'lucide:panels-top-left', label: 'Виджет', description: 'Встраиваемый URL' },
-	{ type: ChannelOverlayLayerType.Emote, icon: 'lucide:smile', label: 'Эмоции', description: 'Один эмоут на слой' },
+	{ type: ChannelOverlayLayerType.Image, icon: 'lucide:image', labelKey: 'overlayBuilder.layerTypes.image', descriptionKey: 'overlayBuilder.layerTypes.imageDescription' },
+	{ type: ChannelOverlayLayerType.Video, icon: 'lucide:video', labelKey: 'overlayBuilder.layerTypes.video', descriptionKey: 'overlayBuilder.layerTypes.videoDescription' },
+	{ type: ChannelOverlayLayerType.Youtube, icon: 'simple-icons:youtube', labelKey: 'overlayBuilder.layerTypes.youtube', descriptionKey: 'overlayBuilder.layerTypes.youtubeDescription' },
+	{ type: ChannelOverlayLayerType.Text, icon: 'lucide:type', labelKey: 'overlayBuilder.layerTypes.text', descriptionKey: 'overlayBuilder.layerTypes.textDescription' },
+	{ type: ChannelOverlayLayerType.Html, icon: 'lucide:code-xml', labelKey: 'overlayBuilder.layerTypes.html', descriptionKey: 'overlayBuilder.layerTypes.htmlDescription' },
+	{ type: ChannelOverlayLayerType.Iframe, icon: 'lucide:panels-top-left', labelKey: 'overlayBuilder.layerTypes.widget', descriptionKey: 'overlayBuilder.layerTypes.widgetDescription' },
+	{ type: ChannelOverlayLayerType.Emote, icon: 'lucide:smile', labelKey: 'overlayBuilder.layerTypes.emote', descriptionKey: 'overlayBuilder.layerTypes.emoteDescription' },
 ]
 
 type SelectLayer = (layerId: string, addToSelection: boolean) => void

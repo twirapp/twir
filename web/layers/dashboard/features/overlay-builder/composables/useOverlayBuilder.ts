@@ -15,6 +15,7 @@ import {
 const MAX_HISTORY_SIZE = 50
 
 export function useOverlayBuilder() {
+	const { t } = useI18n()
 	// Project state (canvas size fixed at 1920x1080)
 	const project = reactive<OverlayProject>({
 		id: '',
@@ -127,7 +128,10 @@ export function useOverlayBuilder() {
 		const newLayer: Layer = {
 			id: crypto.randomUUID(),
 			type,
-			name: `${type} Layer ${project.layers.length + 1}`,
+			name: options?.name ?? t('overlayBuilder.layerNames.default', {
+				type: t(`overlayBuilder.layerTypes.${type.toLowerCase()}`),
+				count: project.layers.length + 1,
+			}),
 			posX: options?.posX ?? 100,
 			posY: options?.posY ?? 100,
 			width: options?.width ?? defaultSize.width,
@@ -191,7 +195,7 @@ export function useOverlayBuilder() {
 		const duplicated: Layer = {
 			...JSON.parse(JSON.stringify(toRaw(layer))),
 			id: crypto.randomUUID(),
-			name: `${layer.name} (Copy)`,
+			name: `${layer.name} ${t('overlayBuilder.layerNames.copySuffix')}`,
 			posX: layer.posX + 20,
 			posY: layer.posY + 20,
 			zIndex: project.layers.length,
@@ -212,7 +216,7 @@ export function useOverlayBuilder() {
 			const duplicated: Layer = {
 				...JSON.parse(JSON.stringify(toRaw(layer))),
 				id: crypto.randomUUID(),
-				name: `${layer.name} (Copy)`,
+				name: `${layer.name} ${t('overlayBuilder.layerNames.copySuffix')}`,
 				posX: layer.posX + 20,
 				posY: layer.posY + 20,
 				zIndex: project.layers.length + newIds.length,
@@ -329,7 +333,7 @@ export function useOverlayBuilder() {
 			const pasted: Layer = {
 				...JSON.parse(JSON.stringify(toRaw(layer))),
 				id: crypto.randomUUID(),
-				name: `${layer.name} (Pasted)`,
+				name: `${layer.name} ${t('overlayBuilder.layerNames.pastedSuffix')}`,
 				posX: layer.posX + 20,
 				posY: layer.posY + 20,
 				zIndex: project.layers.length + newIds.length,

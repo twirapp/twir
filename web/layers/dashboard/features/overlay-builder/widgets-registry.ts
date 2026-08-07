@@ -4,8 +4,8 @@ import ChatWidgetSettings from './components/widget-settings/ChatWidgetSettings.
 
 export interface OverlayWidgetRegistryEntry {
 	readonly key: string
-	readonly name: string
-	readonly description: string
+	readonly nameKey: string
+	readonly descriptionKey: string
 	readonly icon: string
 	readonly buildUrl: (ctx: {
 		readonly origin: string
@@ -18,8 +18,8 @@ export interface OverlayWidgetRegistryEntry {
 export const overlayWidgetRegistry = [
 	{
 		key: 'chat',
-		name: 'Чат',
-		description: 'Чат канала Twir',
+		nameKey: 'overlayBuilder.widgets.chat.name',
+		descriptionKey: 'overlayBuilder.widgets.chat.description',
 		icon: 'lucide:messages-square',
 		buildUrl: ({ origin, apiKey, params }) => {
 			const base = `${origin}/overlays/${apiKey}/chat`

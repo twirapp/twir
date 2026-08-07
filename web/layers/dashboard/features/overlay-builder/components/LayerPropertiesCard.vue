@@ -22,6 +22,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	update: [updates: Partial<Layer>]
@@ -51,13 +52,13 @@ const {
 		tabindex="-1"
 	>
 		<div class="flex items-center justify-between border-b p-2">
-			<CardTitle class="text-sm font-medium">Свойства</CardTitle>
+			<CardTitle class="text-sm font-medium">{{ t('overlayBuilder.properties.title') }}</CardTitle>
 			<span
 				class="flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium"
 				:class="getLayerTypeMeta(layer.type).chipClass"
 			>
 				<Icon :name="getLayerTypeMeta(layer.type).icon" class="h-3 w-3" />
-				{{ getLayerTypeMeta(layer.type).label }}
+				{{ t(getLayerTypeMeta(layer.type).labelKey) }}
 			</span>
 		</div>
 		<CardContent class="min-h-0 flex-1 overflow-hidden p-0">
@@ -65,11 +66,11 @@ const {
 				<div class="space-y-4 p-3">
 					<!-- Layer Name -->
 					<div class="space-y-2">
-						<Label :for="fieldId('name')" class="text-xs">Название</Label>
+						<Label :for="fieldId('name')" class="text-xs">{{ t('overlayBuilder.properties.name') }}</Label>
 						<Input
 							:id="fieldId('name')"
 							v-model="localName"
-							placeholder="Название слоя"
+							:placeholder="t('overlayBuilder.properties.namePlaceholder')"
 							class="h-8 text-xs"
 							@keydown.stop
 						/>
@@ -80,7 +81,7 @@ const {
 					<!-- Position & Size -->
 					<div class="space-y-2">
 						<span class="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-							Позиция и размер
+							{{ t('overlayBuilder.properties.positionSize') }}
 						</span>
 						<div class="grid grid-cols-4 gap-1.5">
 							<div class="space-y-1">
@@ -106,7 +107,7 @@ const {
 								/>
 							</div>
 							<div class="space-y-1">
-								<Label :for="fieldId('width')" class="text-[10px] text-muted-foreground">Ш</Label>
+								<Label :for="fieldId('width')" class="text-[10px] text-muted-foreground">{{ t('overlayBuilder.properties.width') }}</Label>
 								<Input
 									:id="fieldId('width')"
 									v-model.number="localWidth"
@@ -118,7 +119,7 @@ const {
 								/>
 							</div>
 							<div class="space-y-1">
-								<Label :for="fieldId('height')" class="text-[10px] text-muted-foreground">В</Label>
+								<Label :for="fieldId('height')" class="text-[10px] text-muted-foreground">{{ t('overlayBuilder.properties.height') }}</Label>
 								<Input
 									:id="fieldId('height')"
 									v-model.number="localHeight"
@@ -135,7 +136,7 @@ const {
 					<!-- Rotation -->
 					<div class="space-y-1.5">
 						<div class="flex items-center justify-between">
-							<Label :for="fieldId('rotation')" class="text-xs">Поворот</Label>
+						<Label :for="fieldId('rotation')" class="text-xs">{{ t('overlayBuilder.properties.rotation') }}</Label>
 							<span class="text-xs text-muted-foreground">{{ localRotation }}°</span>
 						</div>
 						<Slider
@@ -154,7 +155,7 @@ const {
 					<!-- Opacity -->
 					<div class="space-y-1.5">
 						<div class="flex items-center justify-between">
-							<Label :for="fieldId('opacity')" class="text-xs">Прозрачность</Label>
+							<Label :for="fieldId('opacity')" class="text-xs">{{ t('overlayBuilder.properties.opacity') }}</Label>
 							<span class="text-xs text-muted-foreground">{{ Math.round(localOpacity) }}%</span>
 						</div>
 						<Slider
@@ -172,16 +173,16 @@ const {
 
 					<div class="flex items-center justify-between">
 						<div class="space-y-0.5">
-							<Label :for="fieldId('visible')" class="text-xs">Видимость</Label>
-							<p class="text-xs text-muted-foreground">Показывать слой</p>
+							<Label :for="fieldId('visible')" class="text-xs">{{ t('overlayBuilder.properties.visible') }}</Label>
+							<p class="text-xs text-muted-foreground">{{ t('overlayBuilder.properties.visibleDescription') }}</p>
 						</div>
 						<Switch :id="fieldId('visible')" v-model="localVisible" />
 					</div>
 
 					<div class="flex items-center justify-between">
 						<div class="space-y-0.5">
-							<Label :for="fieldId('locked')" class="text-xs">Замок</Label>
-							<p class="text-xs text-muted-foreground">Запретить редактирование</p>
+							<Label :for="fieldId('locked')" class="text-xs">{{ t('overlayBuilder.properties.locked') }}</Label>
+							<p class="text-xs text-muted-foreground">{{ t('overlayBuilder.properties.lockedDescription') }}</p>
 						</div>
 						<Switch :id="fieldId('locked')" v-model="localLocked" />
 					</div>
@@ -194,20 +195,20 @@ const {
 							<h4 class="text-xs font-medium">HTML</h4>
 							<Button variant="outline" size="sm" class="h-7 text-xs" @click="emit('openCodeEditor')">
 								<Icon name="lucide:code-xml" class="h-3 w-3 mr-1.5" />
-								Код
+								{{ t('overlayBuilder.properties.code') }}
 							</Button>
 						</div>
 
 						<div class="flex items-center justify-between">
 							<div class="space-y-0.5">
-								<Label :for="fieldId('auto-refresh')" class="text-xs">Автообновление</Label>
-								<p class="text-xs text-muted-foreground">Периодически обновлять</p>
+								<Label :for="fieldId('auto-refresh')" class="text-xs">{{ t('overlayBuilder.properties.autoRefresh') }}</Label>
+								<p class="text-xs text-muted-foreground">{{ t('overlayBuilder.properties.autoRefreshDescription') }}</p>
 							</div>
 							<Switch :id="fieldId('auto-refresh')" v-model="localPeriodicallyRefetch" />
 						</div>
 
 						<div v-if="localPeriodicallyRefetch" class="space-y-1.5">
-							<Label :for="fieldId('poll-interval')" class="text-xs">Интервал (секунды)</Label>
+							<Label :for="fieldId('poll-interval')" class="text-xs">{{ t('overlayBuilder.properties.pollInterval') }}</Label>
 							<Input
 								:id="fieldId('poll-interval')"
 								v-model.number="localPollInterval"

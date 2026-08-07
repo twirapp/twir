@@ -17,6 +17,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	update: [updates: Partial<Layer>]
@@ -40,33 +41,33 @@ const {
 
 <template>
 	<div class="flex flex-col gap-4">
-		<h4 class="text-sm font-medium">Виджет</h4>
+		<h4 class="text-sm font-medium">{{ t('overlayBuilder.editors.iframe.title') }}</h4>
 		<div class="flex flex-col gap-2">
-			<Label :for="fieldId('iframe-source')">Источник</Label>
+			<Label :for="fieldId('iframe-source')">{{ t('overlayBuilder.editors.iframe.source') }}</Label>
 			<Select :model-value="iframeSource" @update:model-value="handleIframeSourceChange">
 				<SelectTrigger :id="fieldId('iframe-source')" class="w-full"><SelectValue /></SelectTrigger>
 				<SelectContent>
-					<SelectItem value="custom">Свой URL</SelectItem>
-					<SelectItem value="twir">Виджет Twir</SelectItem>
+					<SelectItem value="custom">{{ t('overlayBuilder.editors.iframe.customUrl') }}</SelectItem>
+					<SelectItem value="twir">{{ t('overlayBuilder.editors.iframe.twirWidget') }}</SelectItem>
 				</SelectContent>
 			</Select>
 		</div>
 
 		<template v-if="iframeSource === 'twir'">
 			<div class="flex flex-col gap-2">
-				<Label :for="fieldId('widget')">Виджет Twir</Label>
+				<Label :for="fieldId('widget')">{{ t('overlayBuilder.editors.iframe.twirWidget') }}</Label>
 				<Select :model-value="layer.settings.widgetKey" @update:model-value="handleWidgetChange">
-					<SelectTrigger :id="fieldId('widget')" class="w-full"><SelectValue placeholder="Выберите виджет" /></SelectTrigger>
+					<SelectTrigger :id="fieldId('widget')" class="w-full"><SelectValue :placeholder="t('overlayBuilder.editors.iframe.widgetPlaceholder')" /></SelectTrigger>
 					<SelectContent>
 						<SelectItem v-for="widget in overlayWidgetRegistry" :key="widget.key" :value="widget.key">
 							<div class="flex items-center gap-2">
 								<Icon :name="widget.icon" class="h-4 w-4" />
-								<span>{{ widget.name }}</span>
+								<span>{{ t(widget.nameKey) }}</span>
 							</div>
 						</SelectItem>
 					</SelectContent>
 				</Select>
-				<p class="text-xs text-muted-foreground">{{ selectedWidget?.description || 'Выберите встроенный виджет Twir.' }}</p>
+				<p class="text-xs text-muted-foreground">{{ selectedWidget ? t(selectedWidget.descriptionKey) : t('overlayBuilder.editors.iframe.widgetDescription') }}</p>
 			</div>
 
 			<Button
@@ -77,21 +78,21 @@ const {
 				@click="widgetSettingsOpen = true"
 			>
 				<Icon name="lucide:settings-2" class="mr-2 h-4 w-4" />
-				Настроить
+				{{ t('overlayBuilder.editors.iframe.configure') }}
 			</Button>
 
 			<p v-if="layer.settings.widgetKey && !overlayApiKey" class="text-xs text-destructive">
-				Не найден API-ключ канала. Ссылка на виджет не будет работать.
+				{{ t('overlayBuilder.editors.iframe.apiKeyMissing') }}
 			</p>
 		</template>
 
 		<div v-else class="flex flex-col gap-2">
-			<Label :for="fieldId('iframe-url')">URL</Label>
+			<Label :for="fieldId('iframe-url')">{{ t('overlayBuilder.editors.iframe.url') }}</Label>
 			<Input :id="fieldId('iframe-url')" v-model="iframeUrl" type="url" placeholder="https://example.com/widget" @keydown.stop />
 		</div>
 
 		<div class="flex flex-col gap-2">
-			<Label :for="fieldId('iframe-scale')">Масштаб</Label>
+			<Label :for="fieldId('iframe-scale')">{{ t('overlayBuilder.editors.iframe.scale') }}</Label>
 			<Input :id="fieldId('iframe-scale')" v-model.number="iframeScale" type="number" min="0.1" max="4" step="0.1" @keydown.stop />
 		</div>
 	</div>
@@ -99,8 +100,8 @@ const {
 	<Dialog v-model:open="widgetSettingsOpen">
 		<DialogOrSheet v-if="selectedWidgetSettings" class="gap-0 p-0 sm:max-w-5xl">
 			<DialogHeader class="border-b px-6 py-4">
-				<DialogTitle>{{ selectedWidget?.name }}</DialogTitle>
-				<DialogDescription class="sr-only">Настройки виджета {{ selectedWidget?.name }}</DialogDescription>
+				<DialogTitle>{{ selectedWidget ? t(selectedWidget.nameKey) : '' }}</DialogTitle>
+				<DialogDescription class="sr-only">{{ t('overlayBuilder.editors.iframe.dialogDescription', { name: selectedWidget ? t(selectedWidget.nameKey) : '' }) }}</DialogDescription>
 			</DialogHeader>
 			<div class="min-w-0 p-6">
 				<component :is="selectedWidgetSettings" @select-preset="handleWidgetPresetSelect" />

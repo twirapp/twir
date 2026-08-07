@@ -12,37 +12,38 @@ const instaSave = defineModel<boolean>('instaSave', {
 	type: Boolean,
 	required: true,
 })
+const { t } = useI18n()
 </script>
 
 <template>
 	<Card class="border-0 shadow-none p-0">
 		<div class="border-b p-2">
-			<CardTitle class="text-sm font-medium">Overlay Settings</CardTitle>
+			<CardTitle class="text-sm font-medium">{{ t('overlayBuilder.overlaySettings.title') }}</CardTitle>
 		</div>
 		<CardContent class="px-3 pb-3 space-y-3">
 			<!-- Overlay Name -->
 			<div class="space-y-1.5">
 				<Label for="overlay-name" class="text-xs">
-					Name <span class="text-destructive">*</span>
+					{{ t('overlayBuilder.overlaySettings.name') }} <span class="text-destructive">*</span>
 				</Label>
 				<Input
 					id="overlay-name"
 					v-model="overlayName"
-					placeholder="My Overlay"
+					:placeholder="t('overlayBuilder.overlaySettings.namePlaceholder')"
 					maxlength="30"
 					class="h-8 text-sm"
 					@keydown.stop
 				/>
 				<p class="text-xs text-muted-foreground">
-					{{ overlayName.length }}/30 characters
+					{{ t('overlayBuilder.overlaySettings.characterCount', { count: overlayName.length }) }}
 				</p>
 			</div>
 
 			<!-- Canvas Size (Fixed) -->
 			<div class="space-y-1.5">
-				<Label class="text-xs">Canvas Size</Label>
+				<Label class="text-xs">{{ t('overlayBuilder.overlaySettings.canvasSize') }}</Label>
 				<p class="text-sm text-muted-foreground">
-					1920 × 1080 (Full HD)
+					{{ t('overlayBuilder.overlaySettings.fullHd') }}
 				</p>
 			</div>
 
@@ -50,7 +51,7 @@ const instaSave = defineModel<boolean>('instaSave', {
 			<div class="space-y-1.5">
 				<div class="flex items-center justify-between">
 					<Label for="insta-save" class="text-xs">
-						Instant Save
+						{{ t('overlayBuilder.overlaySettings.instantSave') }}
 					</Label>
 					<Switch
 						id="insta-save"
@@ -59,7 +60,7 @@ const instaSave = defineModel<boolean>('instaSave', {
 					/>
 				</div>
 				<p class="text-xs text-muted-foreground">
-					Automatically save position and rotation changes in real-time
+					{{ t('overlayBuilder.overlaySettings.instantSaveDescription') }}
 				</p>
 			</div>
 		</CardContent>

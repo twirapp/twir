@@ -43,6 +43,7 @@ const tabValues: readonly SevenTvTab[] = ['global', 'channel']
 type SelectEmote = (emote: SelectedSevenTvEmote) => void
 
 export function useSevenTvEmotes(open: Ref<boolean>, selectEmote: SelectEmote) {
+	const { t } = useI18n()
 	const { data: profile } = useProfile()
 	const activeTab = ref<SevenTvTab>('global')
 	const searchQuery = ref('')
@@ -75,12 +76,12 @@ export function useSevenTvEmotes(open: Ref<boolean>, selectEmote: SelectEmote) {
 		return currentEmotes.value.filter((emote) => emote.name.toLowerCase().includes(query))
 	})
 	const emptyMessage = computed(() => {
-		if (searchQuery.value.trim()) return 'По вашему запросу эмоции не найдены.'
+		if (searchQuery.value.trim()) return t('emotePicker.empty.search')
 		if (activeTab.value === 'channel' && !selectedTwitchUserId.value) {
-			return 'Выберите Twitch-канал, чтобы увидеть его набор 7TV.'
+			return t('emotePicker.empty.noChannel')
 		}
-		if (activeTab.value === 'channel') return 'У текущего канала нет подключенного набора 7TV.'
-		return 'В этом наборе пока нет эмоций.'
+		if (activeTab.value === 'channel') return t('emotePicker.empty.channelNoSet')
+		return t('emotePicker.empty.noEmotes')
 	})
 
 	function getEmoteUrl(emote: SevenTvEmote): string {
@@ -104,12 +105,16 @@ export function useSevenTvEmotes(open: Ref<boolean>, selectEmote: SelectEmote) {
 		globalError.value = ''
 		try {
 			const response = await fetch(GLOBAL_EMOTE_SET_URL)
-			if (!response.ok) throw new Error(`7TV returned ${response.status}`)
+			if (!response.ok) {
+				globalError.value = t('emotePicker.errors.apiStatus', { status: response.status })
+				globalStatus.value = 'error'
+				return
+			}
 			const payload = globalResponseSchema.parse(await response.json())
 			globalEmotes.value = payload.emotes
 			globalStatus.value = 'success'
-		} catch (error) {
-			globalError.value = error instanceof Error ? error.message : 'Не удалось загрузить эмоции.'
+		} catch {
+			globalError.value = t('emotePicker.errors.loadGlobal')
 			globalStatus.value = 'error'
 		}
 	}
@@ -134,13 +139,17 @@ export function useSevenTvEmotes(open: Ref<boolean>, selectEmote: SelectEmote) {
 				channelStatus.value = 'success'
 				return
 			}
-			if (!response.ok) throw new Error(`7TV returned ${response.status}`)
+			if (!response.ok) {
+				channelError.value = t('emotePicker.errors.apiStatus', { status: response.status })
+				channelStatus.value = 'error'
+				return
+			}
 			const payload = channelResponseSchema.parse(await response.json())
 			channelEmotes.value = payload.emote_set?.emotes ?? []
 			loadedChannelId.value = channelId
 			channelStatus.value = 'success'
-		} catch (error) {
-			channelError.value = error instanceof Error ? error.message : 'Не удалось загрузить эмоции канала.'
+		} catch {
+			channelError.value = t('emotePicker.errors.loadChannel')
 			channelStatus.value = 'error'
 		}
 	}

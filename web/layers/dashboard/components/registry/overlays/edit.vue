@@ -3,6 +3,7 @@ import { computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import OverlayBuilder from '~~/layers/dashboard/features/overlay-builder/OverlayBuilder.vue'
+import { getLayerTypeMeta } from '~~/layers/dashboard/features/overlay-builder/layer-type-meta'
 import {
 	useChannelOverlayByIdQuery,
 	useChannelOverlaysQuery,
@@ -13,6 +14,7 @@ import { useOverlayInstantSave } from '~~/layers/dashboard/features/overlay-buil
 
 const route = useRoute<'dashboard-registry-overlays-id'>()
 const router = useRouter()
+const { t } = useI18n()
 
 // Get overlay ID from route
 const overlayId = computed(() => {
@@ -49,7 +51,7 @@ const projectData = computed(() => {
 	if (isNewOverlay.value) {
 		return {
 			id: '',
-			name: `Overlay #${overlayCount.value + 1}`,
+			name: t('overlayBuilder.overlayNames.default', { count: overlayCount.value + 1 }),
 			width: 1920,
 			height: 1080,
 			instaSave: false,
@@ -76,7 +78,10 @@ const projectData = computed(() => {
 			return {
 				id: layer.id, // Use real layer ID from backend
 				type: layer.type,
-				name: `${layer.type} Layer ${index + 1}`,
+				name: t('overlayBuilder.layerNames.default', {
+					type: t(getLayerTypeMeta(layer.type).labelKey),
+					count: index + 1,
+				}),
 				posX: layer.posX,
 				posY: layer.posY,
 				width: layer.width,
@@ -87,7 +92,7 @@ const projectData = computed(() => {
 				locked: layer.locked ?? false,
 				zIndex: index,
 				periodicallyRefetchData: layer.periodicallyRefetchData,
-				settings: createLayerSettings(layer.settings),
+				settings: createLayerSettings(layer.settings, t('overlayBuilder.defaults.textContent')),
 			}
 		}),
 	}
@@ -130,7 +135,7 @@ onUnmounted(() => {
 			@instant-save="handleInstantSave"
 		/>
 		<div v-else class="flex items-center justify-center w-full h-full">
-			<p class="text-muted-foreground">Loading overlay...</p>
+			<p class="text-muted-foreground">{{ t('overlayBuilder.loading') }}</p>
 		</div>
 	</div>
 </template>
