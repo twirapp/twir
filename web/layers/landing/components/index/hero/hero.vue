@@ -8,6 +8,7 @@ import HeroChat from './hero-chat.vue'
 
 const userStore = useAuth()
 const localePath = useLocalePath()
+const { t } = useI18n()
 
 await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())])
 </script>
@@ -24,7 +25,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 						:href="DISCORD_INVITE_URL"
 						target="_blank"
 					>
-						🚀 View latest updates
+						{{ t('landing.hero.updates') }}
 						<SvgoArrowRight
 							:fontControlled="false"
 							class="h-4 w-4 shrink-0 stroke-white/50 stroke-[1.5]"
@@ -33,15 +34,13 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 					<h1
 						class="max-w-2xl pt-4 text-[min(48px,11vw)] leading-[1.2] font-bold tracking-tight text-white lg:text-[64px]"
 					>
-						Engage your audience like never before
+						{{ t('landing.hero.title') }}
 					</h1>
 
 					<p
 						class="max-w-xl pt-6 text-[min(18px,5vw)] leading-normal text-[#ADB0B8] lg:text-[20px]"
 					>
-						Twir is a free, open-source chat bot for Twitch, Kick, VK Video Live and YouTube. It
-						helps streamers manage and grow their channels with custom commands, timers, chat
-						moderation, song requests, giveaways, alerts and overlays — all in one place.
+						{{ t('landing.hero.description') }}
 					</p>
 
 					<div class="flex gap-4 pt-8 text-sm font-medium text-[#ADB0B8] md:text-base">
@@ -50,28 +49,28 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 								name="simple-icons:twitch"
 								class="h-4 w-4 text-[#9146FF]"
 							/>
-							<span>Twitch</span>
+							<span>{{ t('landing.hero.platforms.twitch') }}</span>
 						</div>
 						<div class="flex items-center gap-1.5">
 							<Icon
 								name="simple-icons:kick"
 								class="h-4 w-4 text-[#53FC18]"
 							/>
-							<span>Kick</span>
+							<span>{{ t('landing.hero.platforms.kick') }}</span>
 						</div>
 						<div class="flex items-center gap-1.5">
 							<Icon
 								name="simple-icons:vk"
 								class="h-4 w-4 text-[#0077FF]"
 							/>
-							<span>VK Video Live</span>
+							<span>{{ t('landing.hero.platforms.vk') }}</span>
 						</div>
 						<div class="flex items-center gap-1.5">
 							<Icon
 								name="simple-icons:youtube"
 								class="h-4 w-4 text-[#FF0000]"
 							/>
-							<span>YouTube</span>
+							<span>{{ t('landing.hero.platforms.youtube') }}</span>
 						</div>
 					</div>
 
@@ -86,7 +85,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 								variant="secondary"
 								@click="navigate"
 							>
-								Learn more
+								{{ t('landing.hero.learnMore') }}
 							</UiButton>
 						</NuxtLink>
 
@@ -101,7 +100,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 								variant="primary"
 								@click="navigate"
 							>
-								Dashboard
+								{{ t('landing.hero.dashboard') }}
 							</UiButton>
 						</NuxtLink>
 

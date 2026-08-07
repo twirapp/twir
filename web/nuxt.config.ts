@@ -16,6 +16,17 @@ const localeCodes = fs
 	.filter((f) => f.endsWith('.json'))
 	.map((f) => f.replace('.json', ''))
 
+const localeNames: Record<string, string> = {
+	de: 'Deutsch',
+	en: 'English',
+	es: 'Español',
+	ja: '日本語',
+	pt: 'Português',
+	ru: 'Русский',
+	sk: 'Slovenčina',
+	uk: 'Українська',
+}
+
 function buildDiagnosticsPlugin(): any {
 	if (process.env.TWIR_BUILD_DIAGNOSTICS !== '1') return null
 	const logPath = process.env.TWIR_BUILD_DIAG_LOG || '/tmp/nuxt-build-diag.log'
@@ -106,6 +117,7 @@ export default defineNuxtConfig({
 		baseUrl: siteUrl,
 		locales: localeCodes.map((code) => ({
 			code,
+			name: localeNames[code],
 			file: `${code}.json`,
 			language: code,
 		})) as any, // TODO: remove any, no ai written xd
@@ -119,6 +131,8 @@ export default defineNuxtConfig({
 			useCookie: true,
 			cookieKey: 'i18n_redirected',
 			redirectOn: 'root',
+			fallbackLocale: 'en',
+			cookieSecure: true,
 		},
 	},
 
@@ -314,6 +328,7 @@ export default defineNuxtConfig({
 			'/**/overlays/**',
 			'/**/login',
 			'/**/login/**',
+			'/url-shortener/profile',
 			'/**/url-shortener/profile',
 			'/**/import',
 			'/**/import/**',

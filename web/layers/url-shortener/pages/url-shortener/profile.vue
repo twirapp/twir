@@ -6,6 +6,15 @@ import UrlShortenerLinksPagination from '../../components/url-shortener/links-pa
 
 definePageMeta({
 	layout: 'landing',
+	sitemap: false,
+	robots: {
+		noindex: true,
+		nofollow: true,
+	},
+})
+
+useSeoMeta({
+	robots: 'noindex, nofollow',
 })
 
 const urlShortener = useUrlShortener()

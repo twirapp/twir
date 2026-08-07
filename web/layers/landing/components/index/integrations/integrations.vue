@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { integrationsData } from './integrations-data.js'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -9,14 +11,13 @@ import { integrationsData } from './integrations-data.js'
 				<div class="flex flex-col flex-wrap items-center text-center gap-[20px] relative">
 					<SvgoCube :fontControlled="false" :filled="true" class="absolute -top-[68px] h-[270px] w-[270px] stroke-1" aria-hidden />
 					<h2 class="font-semibold text-[#B0ADFF] text-base uppercase text-center">
-						Integrations
+						{{ t('landing.integrations.badge') }}
 					</h2>
 					<h3 class="text-4xl text-white font-bold z-10 max-w-2xl leading-tight tracking-tight">
-						Power-up your stream with seamless integrations
+						{{ t('landing.integrations.title') }}
 					</h3>
 					<span class="text-xl text-[#ADB0B8] font-normal leading-normal max-w-3xl">
-						Connect with your favorite tools and platforms to supercharge your stream's performance
-						and engagement. Twir's integrations provide endless possibilities.
+						{{ t('landing.integrations.description') }}
 					</span>
 				</div>
 				<div class="flex flex-wrap justify-center mt-[64px] gap-[24px]" role="list">
