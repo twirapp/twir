@@ -226,7 +226,7 @@ func createDefaultOverlayInput(channelID string) overlays_be_right_back.CreateIn
 			BackgroundColor: "#000000",
 			FontSize:        48,
 			FontColor:       "#FFFFFF",
-			FontFamily:      "Roboto",
+			FontFamily:      "roboto",
 		},
 	}
 }
