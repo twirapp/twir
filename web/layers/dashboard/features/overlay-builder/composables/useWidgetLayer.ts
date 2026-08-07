@@ -58,7 +58,8 @@ export function useWidgetLayer(layer: Ref<Layer>, updateLayer: UpdateLayer) {
 	})
 
 	function handleWidgetPresetSelect(presetId: string) {
-		updateSettings({ iframeUrl: buildWidgetUrl({ id: presetId }) })
+		const iframeUrl = buildWidgetUrl({ id: presetId })
+		if (iframeUrl !== layer.value.settings.iframeUrl) updateSettings({ iframeUrl })
 	}
 
 	const selectedWidgetSettings = computed(() => selectedWidget.value?.settingsComponent)
