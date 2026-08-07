@@ -6,7 +6,11 @@ import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.js'
 
 import { overlayWidgetRegistry } from '../widgets-registry'
 import type { Layer, LayerSettings } from '../types'
-import { buildWidgetUrl as buildRegisteredWidgetUrl, resolveWidgetLayerUrl } from './widget-url'
+import {
+	buildWidgetUrl as buildRegisteredWidgetUrl,
+	getWidgetUrlParams,
+	resolveWidgetLayerUrl,
+} from './widget-url'
 
 type UpdateLayer = (updates: Partial<Layer>) => void
 type IframeSource = 'custom' | 'twir'
@@ -62,7 +66,17 @@ export function useWidgetLayer(layer: Ref<Layer>, updateLayer: UpdateLayer) {
 		if (iframeUrl !== layer.value.settings.iframeUrl) updateSettings({ iframeUrl })
 	}
 
+	function handleWidgetParamsUpdate(params: Record<string, string>) {
+		const iframeUrl = buildWidgetUrl(params)
+		if (iframeUrl !== layer.value.settings.iframeUrl) updateSettings({ iframeUrl })
+	}
+
 	const selectedWidgetSettings = computed(() => selectedWidget.value?.settingsComponent)
+	const widgetParams = computed(() => getWidgetUrlParams(layer.value.settings.iframeUrl))
+	const selectedWidgetParams = computed(() => {
+		if (selectedWidget.value?.key !== 'faceit-stats' && selectedWidget.value?.key !== 'valorant-stats') return {}
+		return { params: widgetParams.value }
+	})
 	const widgetSettingsOpen = ref(false)
 	const iframeSource = ref<IframeSource>(layer.value.settings.widgetKey ? 'twir' : 'custom')
 
@@ -98,7 +112,7 @@ export function useWidgetLayer(layer: Ref<Layer>, updateLayer: UpdateLayer) {
 			iframeUrl: widget.buildUrl({
 				origin: requestUrl.origin,
 				apiKey: overlayApiKey.value,
-				params: firstChatPresetId.value ? { id: firstChatPresetId.value } : undefined,
+				params: widget.key === 'chat' && firstChatPresetId.value ? { id: firstChatPresetId.value } : undefined,
 			}),
 		})
 	}
@@ -126,6 +140,7 @@ export function useWidgetLayer(layer: Ref<Layer>, updateLayer: UpdateLayer) {
 		overlayApiKey,
 		selectedWidget,
 		selectedWidgetSettings,
+		selectedWidgetParams,
 		widgetSettingsOpen,
 		iframeSource,
 		iframeUrl,
@@ -133,6 +148,7 @@ export function useWidgetLayer(layer: Ref<Layer>, updateLayer: UpdateLayer) {
 		handleIframeSourceChange,
 		handleWidgetChange,
 		handleWidgetPresetSelect,
+		handleWidgetParamsUpdate,
 		firstChatPresetId,
 		buildWidgetUrl,
 		overlayWidgetRegistry,

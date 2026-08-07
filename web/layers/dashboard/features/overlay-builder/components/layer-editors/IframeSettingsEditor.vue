@@ -28,6 +28,7 @@ const {
 	overlayApiKey,
 	selectedWidget,
 	selectedWidgetSettings,
+	selectedWidgetParams,
 	widgetSettingsOpen,
 	iframeSource,
 	iframeUrl,
@@ -35,6 +36,7 @@ const {
 	handleIframeSourceChange,
 	handleWidgetChange,
 	handleWidgetPresetSelect,
+	handleWidgetParamsUpdate,
 	overlayWidgetRegistry,
 } = useWidgetLayer(toRef(props, 'layer'), (updates) => emit('update', updates))
 </script>
@@ -104,7 +106,12 @@ const {
 				<DialogDescription class="sr-only">{{ t('overlayBuilder.editors.iframe.dialogDescription', { name: selectedWidget ? t(selectedWidget.nameKey) : '' }) }}</DialogDescription>
 			</DialogHeader>
 			<div class="min-w-0 p-6">
-				<component :is="selectedWidgetSettings" @select-preset="handleWidgetPresetSelect" />
+				<component
+					:is="selectedWidgetSettings"
+					v-bind="selectedWidgetParams"
+					@select-preset="handleWidgetPresetSelect"
+					@update-params="handleWidgetParamsUpdate"
+				/>
 			</div>
 		</DialogOrSheet>
 	</Dialog>

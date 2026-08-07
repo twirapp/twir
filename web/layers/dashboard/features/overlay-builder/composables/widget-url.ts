@@ -27,6 +27,14 @@ function getPresetId(url: string): string | null {
 	}
 }
 
+export function getWidgetUrlParams(url: string): Record<string, string> {
+	try {
+		return Object.fromEntries(new URL(url).searchParams.entries())
+	} catch {
+		return {}
+	}
+}
+
 export function resolveWidgetLayerUrl(layer: Layer, context: WidgetUrlContext): string {
 	if (!layer.settings.widgetKey || !context.apiKey) return layer.settings.iframeUrl
 
@@ -44,5 +52,5 @@ export function resolveWidgetLayerUrl(layer: Layer, context: WidgetUrlContext): 
 		)
 	}
 
-	return buildWidgetUrl(layer.settings.widgetKey, context)
+	return buildWidgetUrl(layer.settings.widgetKey, context, getWidgetUrlParams(storedUrl))
 }
