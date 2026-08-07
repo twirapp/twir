@@ -37,6 +37,10 @@ func TestMatches(t *testing.T) {
 		{name: "skol", phrase: "школьн", text: "сколь", want: false},
 		{name: "shkol", phrase: "школьн", text: "школ", want: false},
 		{name: "embedded frame in unrelated word", phrase: "школьн", text: "прикольных", want: false},
+		{name: "first letter substitution evasion", phrase: "школьн", text: "хкольн", want: true},
+		{name: "first letter substitution extended", phrase: "школьн", text: "хкольницы", want: true},
+		// Accepted tradeoff: a 1-edit prefix of a common word also matches.
+		{name: "skolko prefix tradeoff", phrase: "школь", text: "а сколько у тебя", want: true},
 		{name: "unrelated", phrase: "школьн", text: "привет", want: false},
 		{name: "empty text", phrase: "школьн", text: "", want: false},
 		{name: "partial tokens nowhere near", phrase: "школьн", text: "ш к о ль н", want: false},

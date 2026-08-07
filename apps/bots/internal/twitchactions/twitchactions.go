@@ -2,6 +2,7 @@ package twitchactions
 
 import (
 	"log/slog"
+	"sync"
 
 	"github.com/aidenwallis/go-ratelimiting/redis"
 	adapter "github.com/aidenwallis/go-ratelimiting/redis/adapters/go-redis"
@@ -69,4 +70,7 @@ type TwitchActions struct {
 	cachedTwitchClient      *twitch.CachedTwitchClient
 	newUserClient           twitchUserClientFactory
 	newBotClient            twitchBotClientFactory
+
+	botClientsMu sync.Mutex
+	botClients   map[string]cachedBotClient
 }
