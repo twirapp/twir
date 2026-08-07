@@ -163,17 +163,21 @@ func (c *Service) HandlePastMessages(
 
 	timeGte := time.Now().Add(-10 * time.Minute)
 
-	messages, err := c.chatMessagesRepo.GetMany(
-		ctx,
-		chatmessagesrepository.GetManyInput{
-			Platform:          lo.ToPtr(string(input.Platform)),
-			PlatformChannelID: &input.PlatformChannelID,
-			TextLike:          &input.Phrase,
-			Page:              0,
-			PerPage:           1000,
-			TimeGte:           &timeGte,
-		},
-	)
+	getManyInput := chatmessagesrepository.GetManyInput{
+		Platform:          lo.ToPtr(string(input.Platform)),
+		PlatformChannelID: &input.PlatformChannelID,
+		Page:              0,
+		PerPage:           1000,
+		TimeGte:           &timeGte,
+	}
+
+	if fuzzyFilter := chatmessagesrepository.NewTextFuzzyFilter(input.Phrase); fuzzyFilter != nil {
+		getManyInput.TextFuzzy = fuzzyFilter
+	} else {
+		getManyInput.TextLike = &input.Phrase
+	}
+
+	messages, err := c.chatMessagesRepo.GetMany(ctx, getManyInput)
 	if err != nil {
 		return err
 	}
