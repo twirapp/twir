@@ -1,4 +1,10 @@
-export const anchorLinks = [
+interface AnchorLink {
+	href: string
+	label: string
+	header?: boolean
+}
+
+export const anchorLinks: AnchorLink[] = [
 	{
 		href: '/#features',
 		label: 'landing.nav.features',
@@ -22,9 +28,13 @@ export const anchorLinks = [
 	{
 		href: '/terms',
 		label: 'landing.nav.terms',
+		header: false,
 	},
 	{
 		href: '/privacy',
 		label: 'landing.nav.privacy',
+		header: false,
 	},
 ]
+
+export const headerLinks = anchorLinks.filter((link) => link.header !== false)
