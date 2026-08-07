@@ -2128,11 +2128,6 @@
       "width": "Width",
       "height": "Height"
     },
-    "streamBackground": {
-      "toggle": "Stream background",
-      "previewTitle": "Stream preview",
-      "previewNotSupported": "Preview not supported for this platform"
-    },
     "preview": {
       "widgetUrl": "Enter a widget URL",
       "youtubeId": "Enter a YouTube video ID",

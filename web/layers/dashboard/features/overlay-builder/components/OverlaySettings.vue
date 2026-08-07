@@ -6,9 +6,6 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { PLATFORM_META } from '@/utils/platforms'
-
-import { useStreamBackground } from '../composables/useStreamBackground'
 
 const overlayName = defineModel<string>('overlayName', {
 	type: String,
@@ -45,14 +42,6 @@ function updateCanvasDimension(dimension: 'width' | 'height', event: Event) {
 	if (dimension === 'width') canvasWidth.value = value
 	else canvasHeight.value = value
 }
-
-const {
-	preference: streamBackgroundPreference,
-	enabledBindings: streamBackgroundBindings,
-	selectedBinding: streamBackgroundBinding,
-	updatePlatform: updateStreamBackgroundPlatform,
-	updateEnabled: updateStreamBackgroundEnabled,
-} = useStreamBackground()
 </script>
 
 <template>
@@ -109,41 +98,6 @@ const {
 				<p class="text-xs text-muted-foreground">
 					{{ t('overlayBuilder.overlaySettings.instantSaveDescription') }}
 				</p>
-			</div>
-
-			<!-- Stream background preview -->
-			<div v-if="streamBackgroundBindings.length" class="space-y-1.5">
-				<div class="flex items-center justify-between gap-2">
-					<Label for="stream-background" class="text-xs">
-						{{ t('overlayBuilder.streamBackground.toggle') }}
-					</Label>
-					<Switch
-						id="stream-background"
-						:model-value="streamBackgroundPreference.enabled"
-						@update:model-value="updateStreamBackgroundEnabled"
-					/>
-				</div>
-				<Select
-					v-if="streamBackgroundBindings.length > 1"
-					:model-value="streamBackgroundBinding?.platform"
-					@update:model-value="updateStreamBackgroundPlatform"
-				>
-					<SelectTrigger class="h-8 w-full text-sm">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem
-							v-for="binding in streamBackgroundBindings"
-							:key="binding.platform"
-							:value="binding.platform"
-						>
-							<span class="flex items-center gap-2">
-								<Icon :name="PLATFORM_META[binding.platform].icon" :class="PLATFORM_META[binding.platform].colorClass" />
-								{{ PLATFORM_META[binding.platform].label }}
-							</span>
-						</SelectItem>
-					</SelectContent>
-				</Select>
 			</div>
 		</CardContent>
 	</Card>

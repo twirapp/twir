@@ -1983,11 +1983,6 @@
       "width": "Ширина",
       "height": "Высота"
     },
-    "streamBackground": {
-      "toggle": "Фон трансляции",
-      "previewTitle": "Предпросмотр трансляции",
-      "previewNotSupported": "Предпросмотр не поддерживается для этой платформы"
-    },
     "preview": {
       "widgetUrl": "Укажите URL виджета",
       "youtubeId": "Укажите ID видео YouTube",
