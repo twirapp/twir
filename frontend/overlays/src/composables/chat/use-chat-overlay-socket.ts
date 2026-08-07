@@ -151,6 +151,19 @@ export const useChatOverlaySocket = createGlobalState(() => {
 		}
 	})
 
+	// urql completes the operation forever on a GraphQL-level error, so re-execute it.
+	function restartSubscriptionOnError(errorRef: typeof sub.error, restart: () => void, label: string) {
+		watch(errorRef, (err) => {
+			if (!err) return
+			console.error(`[chat-overlay] ${label} subscription error, restarting in 3s`, err)
+			setTimeout(restart, 3000)
+		})
+	}
+
+	restartSubscriptionOnError(sub.error, () => sub.executeSubscription(), 'settings')
+	restartSubscriptionOnError(messagesSub.error, () => messagesSub.executeSubscription(), 'messages')
+	restartSubscriptionOnError(moderationSub.error, () => moderationSub.executeSubscription(), 'moderation')
+
 	const chatLibSettings = computed<Settings | null>(() => {
 		if (!overlaySettings.value || !neededData.value) return null
 
