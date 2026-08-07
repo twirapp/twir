@@ -8,6 +8,7 @@ const formatter = Intl.NumberFormat('en-US', {
 
 const statsStore = useLandingStatsStore()
 await callOnce(LandingStatsStoreKey, () => statsStore.fetchLandingStats())
+const { t } = useI18n()
 
 function formatNumber(value?: number | bigint) {
 	return formatter.format(value ?? 0)
@@ -23,28 +24,28 @@ const totalChannels = computed(
 
 const stats = computed(() => [
 	{
-		key: 'Active Channels',
+		key: 'activeChannels',
 		value: formatNumber(totalChannels.value),
 		isChannels: true,
 	},
 	{
-		key: 'Created Commands',
+		key: 'createdCommands',
 		value: formatNumber(statsStore.stats?.createdCommands),
 	},
 	{
-		key: 'Users Seen',
+		key: 'usersSeen',
 		value: formatNumber(statsStore.stats?.viewers),
 	},
 	{
-		key: 'Messages Processed',
+		key: 'messagesProcessed',
 		value: formatNumber(statsStore.stats?.messages),
 	},
 	{
-		key: 'Emotes Processed',
+		key: 'emotesProcessed',
 		value: formatNumber(statsStore.stats?.usedEmotes),
 	},
 	{
-		key: 'Commands Processed',
+		key: 'commandsProcessed',
 		value: formatNumber(statsStore.stats?.usedCommands),
 	},
 ])
@@ -63,22 +64,22 @@ const stats = computed(() => [
 				{{ stat.value }}
 			</span>
 			<span class="text-[#ADB0B8] lg:text-lg lg:mt-2 leading-normal whitespace-nowrap">
-				{{ stat.key }}
+				{{ t(`landing.stats.${stat.key}`) }}
 			</span>
-			<div v-if="stat.isChannels" class="flex gap-4 mt-2 text-[#ADB0B8] text-sm md:text-base font-medium">
-				<div class="flex items-center gap-1.5" title="Twitch Channels">
+				<div v-if="stat.isChannels" class="flex gap-4 mt-2 text-[#ADB0B8] text-sm md:text-base font-medium">
+					<div class="flex items-center gap-1.5" :title="t('landing.stats.platformChannels.twitch')">
 					<Icon name="simple-icons:twitch" class="w-4 h-4 text-[#9146FF]" />
 					<span>{{ formatNumber(statsStore.stats?.twitchChannels) }}</span>
 				</div>
-				<div class="flex items-center gap-1.5" title="Kick Channels">
+					<div class="flex items-center gap-1.5" :title="t('landing.stats.platformChannels.kick')">
 					<Icon name="simple-icons:kick" class="w-4 h-4 text-[#53FC18]" />
 					<span>{{ formatNumber(statsStore.stats?.kickChannels) }}</span>
 				</div>
-				<div class="flex items-center gap-1.5" title="VK Video Live Channels">
+					<div class="flex items-center gap-1.5" :title="t('landing.stats.platformChannels.vk')">
 					<Icon name="simple-icons:vk" class="w-4 h-4 text-[#0077FF]" />
 					<span>{{ formatNumber(statsStore.stats?.vkChannels) }}</span>
 				</div>
-				<div class="flex items-center gap-1.5" title="YouTube Channels">
+					<div class="flex items-center gap-1.5" :title="t('landing.stats.platformChannels.youtube')">
 					<Icon name="simple-icons:youtube" class="w-4 h-4 text-[#FF0000]" />
 					<span>{{ formatNumber(statsStore.stats?.youtubeChannels) }}</span>
 				</div>
