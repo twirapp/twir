@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/api"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back/model"
 	"github.com/twirapp/twir/libs/repositories/users"
@@ -26,15 +27,17 @@ func New(
 	wsRouter wsrouter.WsRouter,
 	twirBus *buscore.Bus,
 	logger *slog.Logger,
+	channelsRepository channels.Repository,
 	usersRepository users.Repository,
 	channelService *channelservice.ChannelService,
 ) *Service {
 	s := &Service{
-		repository:      repository,
-		wsRouter:        wsRouter,
-		twirBus:         twirBus,
-		usersRepository: usersRepository,
-		channelService:  channelService,
+		repository:         repository,
+		wsRouter:           wsRouter,
+		twirBus:            twirBus,
+		channelsRepository: channelsRepository,
+		usersRepository:    usersRepository,
+		channelService:     channelService,
 	}
 
 	lc.Append(
@@ -79,8 +82,13 @@ type Service struct {
 	wsRouter   wsrouter.WsRouter
 	twirBus    *buscore.Bus
 
-	usersRepository apiKeyUserLookup
-	channelService  bindingUserChannelLookup
+	channelsRepository apiKeyChannelLookup
+	usersRepository    apiKeyUserLookup
+	channelService     bindingUserChannelLookup
+}
+
+type apiKeyChannelLookup interface {
+	GetByApiKey(context.Context, string) (channelentity.Channel, error)
 }
 
 type apiKeyUserLookup interface {
@@ -92,6 +100,16 @@ type bindingUserChannelLookup interface {
 }
 
 func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {
+	if s.channelsRepository != nil {
+		channel, err := s.channelsRepository.GetByApiKey(ctx, apiKey)
+		if err != nil && !errors.Is(err, channels.ErrNotFound) {
+			return "", err
+		}
+		if !channel.IsNil() {
+			return channel.ID.String(), nil
+		}
+	}
+
 	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
 	if err != nil {
 		return "", err
