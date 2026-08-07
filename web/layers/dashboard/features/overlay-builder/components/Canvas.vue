@@ -8,11 +8,13 @@ import LayerTypePreview from './LayerTypePreview.vue'
 import CanvasStreamBackground from './CanvasStreamBackground.vue'
 import type { Layer } from '../types'
 import { type CanvasInteractionProps, useCanvasInteraction } from '../composables/useCanvasInteraction'
+import { useStreamBackground } from '../composables/useStreamBackground'
 
 import { Button } from '@/components/ui/button'
 
 const props = defineProps<CanvasInteractionProps>()
 const { t } = useI18n()
+const { isPreviewActive: isStreamPreviewActive } = useStreamBackground()
 
 const emit = defineEmits<{
 	updateLayer: [layerId: string, updates: Partial<Layer>]
@@ -58,14 +60,20 @@ const {
 		@click="handleCanvasClick"
 		@mousedown="handleCanvasMouseDown"
 	>
+		<CanvasStreamBackground
+			:width="props.canvasWidth * props.zoom"
+			:height="props.canvasHeight * props.zoom"
+			:offset-x="props.panX * props.zoom"
+			:offset-y="props.panY * props.zoom"
+		/>
 		<div class="flex items-center justify-center w-full h-full p-8">
 			<div class="relative" :style="canvasWrapperStyle">
 				<div
 					ref="canvasElement"
-					class="relative bg-[#121212] shadow-2xl border border-slate-700"
+					class="relative shadow-2xl border border-slate-700"
+					:class="isStreamPreviewActive ? 'bg-transparent' : 'bg-[#121212]'"
 					:style="canvasStyle"
 				>
-					<CanvasStreamBackground />
 					<div
 						v-for="(guide, index) in alignmentGuides"
 						:key="`guide-${index}`"

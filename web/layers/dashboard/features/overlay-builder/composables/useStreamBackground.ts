@@ -18,8 +18,7 @@ interface StreamBackgroundPreference {
 type StreamPlayerUrlFactory = (login: string) => string
 
 const streamPlayerUrlFactories = {
-	[Platform.Twitch]: (login: string) =>
-		`https://player.twitch.tv/?channel=${encodeURIComponent(login)}&parent=${encodeURIComponent(window.location.hostname)}&autoplay=true&muted=true&controls=false`,
+	[Platform.Twitch]: null,
 	[Platform.Kick]: (login: string) =>
 		`https://player.kick.com/${encodeURIComponent(login)}?autoplay=true&muted=true&controls=false`,
 	[Platform.VkVideoLive]: null,
@@ -59,8 +58,21 @@ export const useStreamBackground = createGlobalState(() => {
 		return streamPlayerUrlFactories[binding.platform]?.(binding.platformLogin) ?? null
 	})
 
+	// Twitch preview is driven through the Twitch JS embed API instead of an iframe
+	// (see useTwitchEmbedPlayer), so it is excluded from the unsupported state.
 	const showUnsupportedPreview = computed(() => {
-		return preference.value.enabled && selectedBinding.value !== null && streamPreviewSrc.value === null
+		return (
+			preference.value.enabled &&
+			selectedBinding.value !== null &&
+			selectedBinding.value.platform !== Platform.Twitch &&
+			streamPreviewSrc.value === null
+		)
+	})
+
+	const isPreviewActive = computed(() => {
+		if (!preference.value.enabled || selectedBinding.value === null) return false
+		if (selectedBinding.value.platform === Platform.Twitch) return true
+		return streamPreviewSrc.value !== null || showUnsupportedPreview.value
 	})
 
 	function updatePlatform(value: AcceptableValue) {
@@ -84,6 +96,7 @@ export const useStreamBackground = createGlobalState(() => {
 		selectedBinding,
 		streamPreviewSrc,
 		showUnsupportedPreview,
+		isPreviewActive,
 		updatePlatform,
 		updateEnabled,
 	}
