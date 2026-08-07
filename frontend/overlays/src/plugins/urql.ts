@@ -11,7 +11,13 @@ export const apiKeyRef = ref<string | null>(null)
 const gqlWs = createWS({
 	url: wsUrl,
 	lazy: true,
+	// graphql-ws default is 5 retries (~1 min window); after that subscriptions die forever and the overlay freezes in OBS.
+	retryAttempts: Infinity,
 	shouldRetry: () => true,
+	on: {
+		closed: (event) => console.warn('[overlays] graphql-ws connection closed, reconnecting', event),
+		error: (error) => console.error('[overlays] graphql-ws connection error', error),
+	},
 	connectionParams: () => {
 		if (apiKeyRef.value) {
 			return {

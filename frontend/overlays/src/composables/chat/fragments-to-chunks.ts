@@ -75,8 +75,13 @@ export function useFragmentsToChunks() {
 				if (thirdPartyEmote) {
 					const isZeroWidthModifier = thirdPartyEmote.isZeroWidth
 					const isModifier = typeof thirdPartyEmote.modifierFlag !== 'undefined'
-					const url = thirdPartyEmote.urls.at(-1)!
+					const url = thirdPartyEmote.urls.at(-1)
 					const latestChunk = chunks.at(-1)
+
+					if (!url) {
+						chunks.push({ type: 'text', value: word })
+						continue
+					}
 
 					if (isZeroWidthModifier && latestChunk) {
 						latestChunk.zeroWidthModifiers = [...(latestChunk.zeroWidthModifiers ?? []), url]
