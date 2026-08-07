@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const userStore = useAuth()
+const { t } = useI18n()
 
 const loginHandlers: Record<Platform, () => void> = {
 	[Platform.Twitch]: () => userStore.login(),
@@ -21,7 +22,7 @@ const loginHandlers: Record<Platform, () => void> = {
 
 const platforms = PLATFORM_OPTIONS.map((meta) => ({
 	...meta,
-	label: meta.platform === Platform.VkVideoLive ? 'VK Live' : meta.label,
+	label: meta.platform === Platform.VkVideoLive ? t('landing.nav.vkLive') : meta.label,
 	login: loginHandlers[meta.platform],
 }))
 
@@ -43,13 +44,13 @@ const contentClass = computed(() => {
 				size="lg"
 				class="items-center justify-center bg-[#5D58F5] text-white hover:bg-[#6964FF] hover:text-white"
 			>
-				Login
+				{{ t('landing.nav.login') }}
 				<Icon name="lucide:chevrons-up-down" class="ml-auto h-4 w-4" />
 			</UiSidebarMenuButton>
 		</UiDropdownMenuTrigger>
 
 		<UiDropdownMenuTrigger v-else as="button" :class="triggerClass">
-			{{ variant === 'hero' ? 'Start now' : 'Login' }}
+			{{ variant === 'hero' ? t('landing.nav.startNow') : t('landing.nav.login') }}
 			<Icon name="lucide:chevron-down" class="h-4 w-4" />
 		</UiDropdownMenuTrigger>
 
