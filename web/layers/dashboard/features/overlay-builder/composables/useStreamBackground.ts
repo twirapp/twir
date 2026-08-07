@@ -19,9 +19,9 @@ type StreamPlayerUrlFactory = (login: string) => string
 
 const streamPlayerUrlFactories = {
 	[Platform.Twitch]: (login: string) =>
-		`https://player.twitch.tv/?channel=${encodeURIComponent(login)}&parent=${encodeURIComponent(window.location.hostname)}&autoplay=true&muted=true`,
+		`https://player.twitch.tv/?channel=${encodeURIComponent(login)}&parent=${encodeURIComponent(window.location.hostname)}&autoplay=true&muted=true&controls=false`,
 	[Platform.Kick]: (login: string) =>
-		`https://player.kick.com/${encodeURIComponent(login)}?autoplay=true&muted=true`,
+		`https://player.kick.com/${encodeURIComponent(login)}?autoplay=true&muted=true&controls=false`,
 	[Platform.VkVideoLive]: null,
 	[Platform.Youtube]: null,
 } satisfies Record<Platform, StreamPlayerUrlFactory | null>
