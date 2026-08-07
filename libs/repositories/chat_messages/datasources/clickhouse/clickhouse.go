@@ -221,6 +221,18 @@ func (c *Clickhouse) GetMany(
 		builder = builder.Where(squirrel.ILike{"text": fmt.Sprintf("%%%s%%", *input.TextLike)})
 	}
 
+	if input.TextFuzzy != nil && input.TextFuzzy.Phrase != "" {
+		builder = builder.Where(
+			`(positionCaseInsensitiveUTF8(text, ?) > 0 OR arrayExists(t -> editDistanceUTF8(t, ?) <= ? OR editDistanceUTF8(substringUTF8(t, 1, ?), ?) <= ?, extractAll(lowerUTF8(text), '[\\p{L}0-9]+')))`,
+			input.TextFuzzy.Phrase,
+			input.TextFuzzy.Phrase,
+			input.TextFuzzy.MaxDistance,
+			input.TextFuzzy.Length,
+			input.TextFuzzy.Phrase,
+			input.TextFuzzy.MaxDistance,
+		)
+	}
+
 	if input.TimeGte != nil {
 		builder = builder.Where(squirrel.GtOrEq{"created_at": *input.TimeGte})
 	}

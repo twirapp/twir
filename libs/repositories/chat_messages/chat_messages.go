@@ -42,9 +42,21 @@ type GetManyInput struct {
 	PlatformChannelID *string
 	UserNameLike      *string
 	TextLike          *string
+	TextFuzzy         *TextFuzzyFilter
 	UserIDs           []string
 
 	TimeGte *time.Time
+}
+
+// TextFuzzyFilter matches message texts against a phrase using the chat wall
+// fuzzy semantics: exact case-insensitive substring, or a token whose
+// Levenshtein distance (whole token or token prefix of phrase length) to the
+// phrase is within MaxDistance. Semantics must stay in sync with the live
+// matcher in apps/bots/internal/chatwallmatcher.
+type TextFuzzyFilter struct {
+	Phrase      string
+	Length      int
+	MaxDistance int
 }
 
 type GetLatestByUserInput struct {

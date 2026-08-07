@@ -107,3 +107,101 @@ func TestHandleChatWall_UsesProviderMessageIDForDeleteAndDedup(t *testing.T) {
 		t.Fatalf("deleted message IDs = %#v, want %#v", deletedMessageIDs, []string{message.MessageID})
 	}
 }
+
+func TestHandleChatWall_FuzzyMatching(t *testing.T) {
+	// Given
+	deletedMessageIDs := make([]string, 0, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		deletedMessageIDs = append(deletedMessageIDs, request.URL.Query().Get("message_id"))
+		writer.Header().Set("Content-Type", "application/json")
+		_, _ = writer.Write([]byte(`{"data":[]}`))
+	}))
+	t.Cleanup(server.Close)
+
+	redisClient, _ := newMessageIDRedisClient(t)
+	bus := buscore.NewNatsBus(nil)
+	bus.Tokens.RequestBotToken = &chatMessageEmoteQueue[
+		buscoretokens.GetBotTokenRequest,
+		buscoretokens.TokenResponse,
+	]{response: &buscore.QueueResponse[buscoretokens.TokenResponse]{
+		Data: buscoretokens.TokenResponse{AccessToken: "test-token"},
+	}}
+	channelID := uuid.New()
+	handler := &MessageHandler{
+		redis: redisClient,
+		twitchActions: twitchactions.New(
+			nil,
+			nil,
+			nil,
+			nil,
+			nil,
+			redisClient,
+			nil,
+			cfg.Config{
+				TwitchMockEnabled: true,
+				TwitchMockApiUrl:  server.URL,
+				TwitchClientId:    "test-client",
+			},
+			nil,
+			bus,
+			nil,
+			nil,
+			nil,
+		),
+		chatWallCacher: genericcacher.New(genericcacher.Opts[[]chatwallmodel.ChatWall]{
+			KV: messageIDCache{},
+			LoadFn: func(context.Context, string) ([]chatwallmodel.ChatWall, error) {
+				return []chatwallmodel.ChatWall{{
+					ID:      uuid.New(),
+					Enabled: true,
+					Phrase:  "blocked",
+					Action:  chatwallmodel.ChatWallActionDelete,
+				}}, nil
+			},
+		}),
+		chatWallSettingsCacher: genericcacher.New(genericcacher.Opts[chatwallmodel.ChatWallSettings]{
+			KV: messageIDCache{},
+			LoadFn: func(context.Context, string) (chatwallmodel.ChatWallSettings, error) {
+				return chatwallmodel.ChatWallSettings{}, nil
+			},
+		}),
+		chatWallRepository: messageIDChatWallRepository{},
+	}
+
+	send := func(messageID, text string) {
+		t.Helper()
+
+		err := handler.handleChatWall(
+			context.Background(), enrichedChatMessage{
+				ChatMessage: generic.ChatMessage{
+					ID:                uuid.NewString(),
+					MessageID:         messageID,
+					BroadcasterUserId: "channel-provider-id",
+					ChatterUserId:     "chatter-provider-id",
+					Message:           &generic.ChatMessageMessage{Text: text},
+				},
+				EnrichedData: chatMessageEnrichedData{
+					DbChannel:     channelentity.Channel{ID: channelID},
+					DbUser:        &usersmodel.User{ID: uuid.New()},
+					BotPlatformID: "bot-provider-id",
+				},
+			},
+		)
+		if err != nil {
+			t.Fatalf("handle chat wall message %q: %v", text, err)
+		}
+	}
+
+	// When
+	send("fuzzy-digit-substitution", "you are bl0cked now")
+	send("guard-two-edits-away", "blocky spam")
+
+	// Then
+	if !reflect.DeepEqual(deletedMessageIDs, []string{"fuzzy-digit-substitution"}) {
+		t.Fatalf(
+			"deleted message IDs = %#v, want %#v",
+			deletedMessageIDs,
+			[]string{"fuzzy-digit-substitution"},
+		)
+	}
+}
