@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
-	"strings"
 	"time"
-	"unicode"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -173,7 +171,7 @@ func (c *Service) HandlePastMessages(
 		TimeGte:           &timeGte,
 	}
 
-	if fuzzyFilter := fuzzySQLFilter(input.Phrase); fuzzyFilter != nil {
+	if fuzzyFilter := chatmessagesrepository.NewTextFuzzyFilter(input.Phrase); fuzzyFilter != nil {
 		getManyInput.TextFuzzy = fuzzyFilter
 	} else {
 		getManyInput.TextLike = &input.Phrase
@@ -444,34 +442,6 @@ func (c *Service) HandlePastMessages(
 type StopInput struct {
 	DBChannelID string
 	Phrase      string
-}
-
-// fuzzySQLFilter builds the ClickHouse fuzzy filter for single-word phrases;
-// thresholds must stay in sync with apps/bots/internal/chatwallmatcher.
-func fuzzySQLFilter(phrase string) *chatmessagesrepository.TextFuzzyFilter {
-	tokens := strings.FieldsFunc(
-		strings.ToLower(strings.TrimSpace(phrase)),
-		func(r rune) bool { return !unicode.IsLetter(r) && !unicode.IsDigit(r) },
-	)
-	if len(tokens) != 1 {
-		return nil
-	}
-
-	runes := len([]rune(tokens[0]))
-	if runes < 5 {
-		return nil
-	}
-
-	threshold := 1
-	if runes > 8 {
-		threshold = 2
-	}
-
-	return &chatmessagesrepository.TextFuzzyFilter{
-		Phrase:      tokens[0],
-		Length:      runes,
-		MaxDistance: threshold,
-	}
 }
 
 var ErrChatWallNotFound = errors.New("chat wall not found")
