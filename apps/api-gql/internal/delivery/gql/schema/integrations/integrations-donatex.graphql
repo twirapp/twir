@@ -1,0 +1,15 @@
+extend type Query {
+	donatex: DonateXIntegration! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	donatexAuthLink: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+extend type Mutation {
+	donatexPostCode(code: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+	donatexLogout: Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
+}
+
+type DonateXIntegration {
+	enabled: Boolean!
+	userName: String
+	avatar: String
+}

@@ -9,6 +9,7 @@
     "build": "bun build --compile --minify --sourcemap src/index.ts --outfile=.out/twir-integrations"
   },
   "dependencies": {
+    "@microsoft/signalr": "10.0.11",
     "@twir/bus-core": "workspace:*",
     "@twir/config": "workspace:*",
     "@twir/pubsub": "workspace:*",

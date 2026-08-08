@@ -64,6 +64,14 @@ const IntegrationsPageQuery = graphql(`
 		}
 		donationAlertsAuthLink
 
+		# DonateX
+		donatex {
+			enabled
+			userName
+			avatar
+		}
+		donatexAuthLink
+
 		# Donatello
 		donatello {
 			integrationId
@@ -139,6 +147,10 @@ export const useIntegrationsPageData = createGlobalState(() => {
 	const donationAlertsData = computed(() => query.data.value?.donationAlerts ?? null)
 	const donationAlertsAuthLink = computed(() => query.data.value?.donationAlertsAuthLink ?? null)
 
+	// DonateX
+	const donatexData = computed(() => query.data.value?.donatex ?? null)
+	const donatexAuthLink = computed(() => query.data.value?.donatexAuthLink ?? null)
+
 	// Donatello
 	const donatelloData = computed(() => query.data.value?.donatello ?? null)
 
@@ -200,6 +212,10 @@ export const useIntegrationsPageData = createGlobalState(() => {
 		// DonationAlerts
 		donationAlertsData,
 		donationAlertsAuthLink,
+
+		// DonateX
+		donatexData,
+		donatexAuthLink,
 
 		// Donatello
 		donatelloData,

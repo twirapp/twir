@@ -41,6 +41,26 @@ export const useIntegrations = createGlobalState(() => {
 			[integrationsPageCacheKey]
 		)
 
+	const donatexPostCode = () =>
+		useMutation(
+			graphql(`
+				mutation DonateXPostCode($code: String!) {
+					donatexPostCode(code: $code)
+				}
+			`),
+			[integrationsPageCacheKey]
+		)
+
+	const donatexLogout = () =>
+		useMutation(
+			graphql(`
+				mutation DonateXLogout {
+					donatexLogout
+				}
+			`),
+			[integrationsPageCacheKey]
+		)
+
 	const vkPostCode = () =>
 		useMutation(
 			graphql(`
@@ -94,6 +114,8 @@ export const useIntegrations = createGlobalState(() => {
 		donateStreamPostCode,
 		donationAlertsPostCode,
 		donationAlertsLogout,
+		donatexPostCode,
+		donatexLogout,
 		vkPostCode,
 		vkLogout,
 		streamlabsPostCode,
