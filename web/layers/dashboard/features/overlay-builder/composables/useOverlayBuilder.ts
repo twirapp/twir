@@ -380,18 +380,18 @@ export function useOverlayBuilder() {
 				case 'left':
 					layer.posX = 0
 					break
-				case 'center':
-					layer.posX = (project.width - layer.width) / 2
-					break
+			case 'center':
+				layer.posX = Math.round((project.width - layer.width) / 2)
+				break
 				case 'right':
 					layer.posX = project.width - layer.width
 					break
 				case 'top':
 					layer.posY = 0
 					break
-				case 'middle':
-					layer.posY = (project.height - layer.height) / 2
-					break
+			case 'middle':
+				layer.posY = Math.round((project.height - layer.height) / 2)
+				break
 				case 'bottom':
 					layer.posY = project.height - layer.height
 					break
@@ -407,18 +407,18 @@ export function useOverlayBuilder() {
 				case 'left':
 					layer.posX = bounds.left
 					break
-				case 'center':
-					layer.posX = bounds.left + (bounds.width - layer.width) / 2
-					break
+			case 'center':
+				layer.posX = Math.round(bounds.left + (bounds.width - layer.width) / 2)
+				break
 				case 'right':
 					layer.posX = bounds.left + bounds.width - layer.width
 					break
 				case 'top':
 					layer.posY = bounds.top
 					break
-				case 'middle':
-					layer.posY = bounds.top + (bounds.height - layer.height) / 2
-					break
+			case 'middle':
+				layer.posY = Math.round(bounds.top + (bounds.height - layer.height) / 2)
+				break
 				case 'bottom':
 					layer.posY = bounds.top + bounds.height - layer.height
 					break
@@ -436,7 +436,7 @@ export function useOverlayBuilder() {
 		if (!first || !last) return
 		const totalWidth = last.posX + last.width - first.posX
 		const totalLayerWidth = sorted.reduce((sum, layer) => sum + layer.width, 0)
-		const spacing = (totalWidth - totalLayerWidth) / (sorted.length - 1)
+		const spacing = Math.round((totalWidth - totalLayerWidth) / (sorted.length - 1))
 
 		let currentX = first.posX + first.width
 		for (let i = 1; i < sorted.length - 1; i++) {
@@ -457,7 +457,7 @@ export function useOverlayBuilder() {
 		if (!first || !last) return
 		const totalHeight = last.posY + last.height - first.posY
 		const totalLayerHeight = sorted.reduce((sum, layer) => sum + layer.height, 0)
-		const spacing = (totalHeight - totalLayerHeight) / (sorted.length - 1)
+		const spacing = Math.round((totalHeight - totalLayerHeight) / (sorted.length - 1))
 
 		let currentY = first.posY + first.height
 		for (let i = 1; i < sorted.length - 1; i++) {
@@ -576,7 +576,7 @@ export function useOverlayBuilder() {
 			}
 		})
 
-		return { x: snappedX, y: snappedY }
+		return { x: Math.round(snappedX), y: Math.round(snappedY) }
 	}
 
 	function findAlignmentGuides(layer: Layer): AlignmentGuide[] {

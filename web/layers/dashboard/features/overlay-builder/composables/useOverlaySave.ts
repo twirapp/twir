@@ -26,16 +26,16 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 	// Convert project to GraphQL input
 	function projectToLayersInput(project: OverlayProject): ChannelOverlayLayerInput[] {
 		return project.layers.map((layer, index) => {
-			const rotation = Number(layer.rotation ?? 0)
 			return {
 				id: layer.id ?? undefined, // Include layer ID for updates
 				type: layer.type,
 				name: layer.name,
-				posX: layer.posX,
-				posY: layer.posY,
-				width: layer.width,
-				height: layer.height,
-				rotation: rotation,
+				// GraphQL Int! fields reject fractional pixels
+				posX: Math.round(layer.posX),
+				posY: Math.round(layer.posY),
+				width: Math.round(layer.width),
+				height: Math.round(layer.height),
+				rotation: Math.round(Number(layer.rotation ?? 0)),
 				periodicallyRefetchData: layer.periodicallyRefetchData,
 				locked: layer.locked ?? false,
 				visible: layer.visible ?? true,
