@@ -11,8 +11,11 @@ import {
 	type OverlayProject,
 	createLayerSettings,
 } from '../types'
+import type { OverlaySyncLayerPosition } from './useOverlaySync'
 
 const MAX_HISTORY_SIZE = 50
+const LOCAL_GEOMETRY_GUARD_MS = 600
+const GEOMETRY_KEYS = new Set(['posX', 'posY', 'width', 'height', 'rotation'])
 
 export function useOverlayBuilder() {
 	const { t } = useI18n()
@@ -51,6 +54,9 @@ export function useOverlayBuilder() {
 
 	// Alignment guides
 	const alignmentGuides = ref<AlignmentGuide[]>([])
+
+	// Guard against remote ops fighting an in-progress local drag/resize.
+	const localGeometryEdits = new Map<string, number>()
 
 	// Selected layers
 	const selectedLayers = computed(() => {
@@ -178,6 +184,9 @@ export function useOverlayBuilder() {
 
 		saveToHistory()
 		Object.assign(layer, updates)
+		if (Object.keys(updates).some((key) => GEOMETRY_KEYS.has(key))) {
+			localGeometryEdits.set(layerId, Date.now())
+		}
 	}
 
 	function updateLayers(layerIds: string[], updates: Partial<Layer>) {
@@ -192,7 +201,7 @@ export function useOverlayBuilder() {
 
 	function duplicateLayer(layerId: string) {
 		const layer = project.layers.find((l) => l.id === layerId)
-		if (!layer) return
+		if (!layer) return null
 
 		saveToHistory()
 		const duplicated: Layer = {
@@ -206,11 +215,14 @@ export function useOverlayBuilder() {
 
 		project.layers.push(duplicated)
 		selectLayers([duplicated.id])
+
+		return duplicated
 	}
 
 	function duplicateLayers(layerIds: string[]) {
 		saveToHistory()
 		const newIds: string[] = []
+		const created: Layer[] = []
 
 		layerIds.forEach((id) => {
 			const layer = project.layers.find((l) => l.id === id)
@@ -227,9 +239,11 @@ export function useOverlayBuilder() {
 
 			project.layers.push(duplicated)
 			newIds.push(duplicated.id)
+			created.push(duplicated)
 		})
 
 		selectLayers(newIds)
+		return created
 	}
 
 	// Layer ordering
@@ -327,10 +341,11 @@ export function useOverlayBuilder() {
 	}
 
 	function pasteFromClipboard() {
-		if (canvasState.clipboardLayers.length === 0) return
+		if (canvasState.clipboardLayers.length === 0) return []
 
 		saveToHistory()
 		const newIds: string[] = []
+		const created: Layer[] = []
 
 		canvasState.clipboardLayers.forEach((layer) => {
 			const pasted: Layer = {
@@ -344,9 +359,11 @@ export function useOverlayBuilder() {
 
 			project.layers.push(pasted)
 			newIds.push(pasted.id)
+			created.push(pasted)
 		})
 
 		selectLayers(newIds)
+		return created
 	}
 
 	// Alignment
@@ -681,6 +698,106 @@ export function useOverlayBuilder() {
 		deselectAll()
 	}
 
+	// Remote collaboration ops (applied without touching undo history)
+	function commitRemoteState() {
+		history.present = JSON.parse(JSON.stringify(toRaw(project)))
+	}
+
+	function isLocallyTouched(layerId: string) {
+		const at = localGeometryEdits.get(layerId)
+		return at !== undefined && Date.now() - at < LOCAL_GEOMETRY_GUARD_MS
+	}
+
+	function reindexLayers() {
+		project.layers.forEach((layer, index) => {
+			layer.zIndex = index
+		})
+	}
+
+	function applyRemoteLayerAdd(raw: Layer) {
+		if (project.layers.some((l) => l.id === raw.id)) {
+			applyRemoteLayerUpdate(raw)
+			return
+		}
+		project.layers.push(JSON.parse(JSON.stringify(raw)))
+		reindexLayers()
+		commitRemoteState()
+	}
+
+	function applyRemoteLayerRemove(layerId: string) {
+		if (!project.layers.some((l) => l.id === layerId)) return
+		project.layers = project.layers.filter((layer) => layer.id !== layerId)
+		canvasState.selectedLayerIds = canvasState.selectedLayerIds.filter((id) => id !== layerId)
+		reindexLayers()
+		commitRemoteState()
+	}
+
+	function applyRemoteLayerUpdate(raw: Layer) {
+		const existing = project.layers.find((l) => l.id === raw.id)
+		if (!existing) {
+			applyRemoteLayerAdd(raw)
+			return
+		}
+
+		const incoming = JSON.parse(JSON.stringify(raw)) as Layer
+		if (isLocallyTouched(incoming.id)) {
+			incoming.posX = existing.posX
+			incoming.posY = existing.posY
+			incoming.width = existing.width
+			incoming.height = existing.height
+			incoming.rotation = existing.rotation
+		}
+		incoming.zIndex = existing.zIndex
+		Object.assign(existing, incoming)
+		commitRemoteState()
+	}
+
+	function applyRemoteLayerPositions(positions: OverlaySyncLayerPosition[]) {
+		let changed = false
+		for (const position of positions) {
+			const layer = project.layers.find((l) => l.id === position.id)
+			if (!layer || isLocallyTouched(layer.id)) continue
+			layer.posX = position.posX
+			layer.posY = position.posY
+			layer.rotation = position.rotation
+			layer.width = position.width
+			layer.height = position.height
+			layer.visible = position.visible
+			layer.opacity = position.opacity
+			changed = true
+		}
+		if (changed) commitRemoteState()
+	}
+
+	function applyRemoteLayersReorder(layerIds: string[]) {
+		const byId = new Map(project.layers.map((layer) => [layer.id, layer]))
+		const reordered: Layer[] = []
+		for (const id of layerIds) {
+			const layer = byId.get(id)
+			if (!layer) continue
+			reordered.push(layer)
+			byId.delete(id)
+		}
+		reordered.push(...byId.values())
+		project.layers = reordered
+		reindexLayers()
+		commitRemoteState()
+	}
+
+	function applyRemoteProject(data: OverlayProject) {
+		const incoming = JSON.parse(JSON.stringify(data)) as OverlayProject
+		project.name = incoming.name
+		project.width = incoming.width
+		project.height = incoming.height
+		project.instaSave = incoming.instaSave
+		project.layers = incoming.layers
+		constrainLayersToCanvas()
+		canvasState.selectedLayerIds = canvasState.selectedLayerIds.filter((id) =>
+			project.layers.some((layer) => layer.id === id)
+		)
+		commitRemoteState()
+	}
+
 	// Export project data
 	function exportProject(): OverlayProject {
 		return JSON.parse(JSON.stringify(toRaw(project)))
@@ -749,5 +866,13 @@ export function useOverlayBuilder() {
 		loadProject,
 		exportProject,
 		constrainLayersToCanvas,
+
+		// Remote collaboration
+		applyRemoteLayerAdd,
+		applyRemoteLayerRemove,
+		applyRemoteLayerUpdate,
+		applyRemoteLayerPositions,
+		applyRemoteLayersReorder,
+		applyRemoteProject,
 	}
 }

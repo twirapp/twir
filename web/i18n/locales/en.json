@@ -2069,6 +2069,11 @@
   "overlayBuilder": {
     "loading": "Loading overlay...",
     "overlayEdit": "Overlay Edit",
+    "sync": {
+      "connected": "Live sync: connected. Changes sync across tabs editing this overlay.",
+      "connecting": "Live sync: connecting...",
+      "disconnected": "Live sync: disconnected. Changes won't sync to other tabs."
+    },
     "layerTypes": {
       "widget": "Widget",
       "widgetDescription": "Embeddable URL",

@@ -32,6 +32,7 @@ const {
 	addLayersHidden,
 	showCodeEditor,
 	editorLayer,
+	syncStatus,
 	hasSelection,
 	canAlign,
 	canDistribute,
@@ -45,6 +46,14 @@ const {
 	handleToggleVisibility,
 	handleToggleLock,
 	handleRemoveLayer,
+	handleRemoveLayers,
+	handleDuplicateLayers,
+	handleCutSelection,
+	handlePaste,
+	handleAlign,
+	handleDistribute,
+	handleUndo,
+	handleRedo,
 	handleOpenLayerSettings,
 	handleReorderLayers,
 	handleUpdateLayerProperties,
@@ -68,22 +77,23 @@ const {
 			:add-layers-hidden="addLayersHidden"
 			:overlay-id="initialProject?.id"
 			:overlay-name="overlayName"
+			:sync-status="syncStatus"
 			@save="handleSave"
-			@undo="builder.undo"
-			@redo="builder.redo"
+			@undo="handleUndo"
+			@redo="handleRedo"
 			@copy="builder.copyToClipboard"
-			@cut="builder.cutToClipboard"
-			@paste="builder.pasteFromClipboard"
-			@delete="builder.removeLayers(builder.canvasState.selectedLayerIds)"
-			@duplicate="builder.duplicateLayers(builder.canvasState.selectedLayerIds)"
-			@align-left="builder.alignLayers('left')"
-			@align-center="builder.alignLayers('center')"
-			@align-right="builder.alignLayers('right')"
-			@align-top="builder.alignLayers('top')"
-			@align-middle="builder.alignLayers('middle')"
-			@align-bottom="builder.alignLayers('bottom')"
-			@distribute-horizontal="builder.distributeLayersHorizontally"
-			@distribute-vertical="builder.distributeLayersVertically"
+			@cut="handleCutSelection"
+			@paste="handlePaste"
+			@delete="handleRemoveLayers(builder.canvasState.selectedLayerIds)"
+			@duplicate="handleDuplicateLayers(builder.canvasState.selectedLayerIds)"
+			@align-left="handleAlign('left')"
+			@align-center="handleAlign('center')"
+			@align-right="handleAlign('right')"
+			@align-top="handleAlign('top')"
+			@align-middle="handleAlign('middle')"
+			@align-bottom="handleAlign('bottom')"
+			@distribute-horizontal="handleDistribute('horizontal')"
+			@distribute-vertical="handleDistribute('vertical')"
 			@zoom-in="builder.zoomIn"
 			@zoom-out="builder.zoomOut"
 			@reset-zoom="builder.resetZoom"

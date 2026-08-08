@@ -16,16 +16,14 @@ interface LayerPosition {
 	opacity: number
 }
 
-interface InstantSaveMessage {
-	eventName: string
-	data: {
-		overlayId: string
-		layers: LayerPosition[]
-	}
-}
+export type OverlayEditorEventHandler = (
+	eventName: string,
+	data: Record<string, unknown>,
+) => void
 
 export const useOverlayInstantSaveGlobal = createGlobalState(() => {
 	const { data: profile } = useProfile()
+	const requestUrl = useRequestURL()
 
 	const selectedDashboard = computed(() => {
 		return profile.value?.availableDashboards.find(
@@ -35,27 +33,16 @@ export const useOverlayInstantSaveGlobal = createGlobalState(() => {
 
 	const apiKey = computed(() => selectedDashboard.value?.channelApiKey || profile.value?.channelApiKey || '')
 
-	return {
-		apiKey,
-	}
-})
+	// Random per-tab id; echoed back in broadcasts so we can ignore our own events.
+	const clientId = crypto.randomUUID()
 
-export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
-	const { apiKey } = useOverlayInstantSaveGlobal()
-	const requestUrl = useRequestURL()
-
-	const currentOverlayId = computed(() => toValue(overlayId))
-	const isEnabled = ref(false)
-
-	// Build WebSocket URL
 	const wsUrl = computed(() => {
-		if (!currentOverlayId.value || !apiKey.value) return null
+		if (!apiKey.value) return null
 
 		const wsProtocol = requestUrl.protocol === 'https:' ? 'wss:' : 'ws:'
 		return `${wsProtocol}//${requestUrl.host}/socket/overlays/registry/overlays?apiKey=${apiKey.value}`
 	})
 
-	// Use VueUse WebSocket with auto-reconnect
 	const {
 		status,
 		data: wsData,
@@ -74,25 +61,67 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 			message: JSON.stringify({ eventName: 'ping' }),
 			interval: 30000,
 		},
-		immediate: false, // Don't connect immediately, wait for overlay ID
+		immediate: false,
 	})
 
-	// Watch for WebSocket messages
+	const editorEventHandlers = new Set<OverlayEditorEventHandler>()
+
 	watch(wsData, (message) => {
 		if (!message) return
 
 		try {
 			const parsed = JSON.parse(message)
+			if (typeof parsed?.eventName !== 'string') return
+			if (!parsed.eventName.startsWith('overlayEditor')) return
 
-			if (parsed.eventName === 'instantSaveAck') {
-				// Acknowledgment received
+			const data = parsed.data
+			if (!data || typeof data !== 'object') return
+			if (data.clientId === clientId) return
+
+			for (const handler of editorEventHandlers) {
+				handler(parsed.eventName, data as Record<string, unknown>)
 			}
 		} catch (error) {
 			console.error('[InstantSave] Failed to parse WebSocket message:', error)
 		}
 	})
 
-	// Auto-connect when overlay ID is available
+	function addEditorEventHandler(handler: OverlayEditorEventHandler) {
+		editorEventHandlers.add(handler)
+		return () => {
+			editorEventHandlers.delete(handler)
+		}
+	}
+
+	function sendEvent(eventName: string, data: Record<string, unknown>): boolean {
+		if (status.value !== 'OPEN') return false
+
+		try {
+			send(JSON.stringify({ eventName, data: { ...data, clientId } }))
+			return true
+		} catch (error) {
+			console.error('[InstantSave] Failed to send message:', error)
+			return false
+		}
+	}
+
+	return {
+		apiKey,
+		clientId,
+		status,
+		open,
+		close,
+		sendEvent,
+		addEditorEventHandler,
+	}
+})
+
+export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
+	const { apiKey, status, open, close, sendEvent } = useOverlayInstantSaveGlobal()
+
+	const currentOverlayId = computed(() => toValue(overlayId))
+	const isEnabled = ref(false)
+
 	watch(
 		[currentOverlayId, apiKey],
 		([id, key]) => {
@@ -103,17 +132,11 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 		{ immediate: true }
 	)
 
-	// Send layer positions via WebSocket
 	function sendLayerPositions(project: OverlayProject) {
 		const overlayIdValue = currentOverlayId.value
 
 		if (!overlayIdValue) {
 			console.warn('[InstantSave] No overlay ID')
-			return false
-		}
-
-		if (status.value !== 'OPEN') {
-			console.warn('[InstantSave] WebSocket not connected, status:', status.value)
 			return false
 		}
 
@@ -130,21 +153,10 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 			}
 		})
 
-		const message: InstantSaveMessage = {
-			eventName: 'instantSaveLayerPositions',
-			data: {
-				overlayId: overlayIdValue,
-				layers: layersData,
-			},
-		}
-
-		try {
-			send(JSON.stringify(message))
-			return true
-		} catch (error) {
-			console.error('[InstantSave] Failed to send message:', error)
-			return false
-		}
+		return sendEvent('instantSaveLayerPositions', {
+			overlayId: overlayIdValue,
+			layers: layersData,
+		})
 	}
 
 	return {
