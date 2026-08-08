@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import EmoteSettingsEditor from './EmoteSettingsEditor.vue'
 import IframeSettingsEditor from './IframeSettingsEditor.vue'
 import type { Layer, LayerSettings } from '../../types'
+import FieldColor from '../fields/FieldColor.vue'
 import FieldInput from '../fields/FieldInput.vue'
 import FieldNumber from '../fields/FieldNumber.vue'
 import FieldSelect from '../fields/FieldSelect.vue'
@@ -135,7 +136,7 @@ const textTransformOptions = [
 		</div>
 		<div class="grid grid-cols-2 gap-3">
 			<FieldSelect :id="fieldId('text-style')" v-model="textFontStyle" :label="t('overlayBuilder.editors.text.fontStyle')" :options="fontStyleOptions.map((option) => ({ value: option.value, label: t(option.labelKey) }))" />
-			<FieldInput :id="fieldId('text-color')" v-model="textColor" :label="t('overlayBuilder.editors.text.color')" type="color" input-class="h-9 p-1" />
+			<FieldColor :id="fieldId('text-color')" v-model="textColor" :label="t('overlayBuilder.editors.text.color')" />
 		</div>
 
 		<h4 class="text-sm font-medium">{{ t('overlayBuilder.editors.text.layout') }}</h4>
@@ -152,12 +153,12 @@ const textTransformOptions = [
 		<h4 class="text-sm font-medium">{{ t('overlayBuilder.editors.text.stroke') }}</h4>
 		<div class="grid grid-cols-2 gap-3">
 			<FieldNumber :id="fieldId('text-stroke-width')" v-model="textStrokeWidth" :label="t('overlayBuilder.editors.text.strokeWidth')" :min="0" :step="0.5" />
-			<FieldInput :id="fieldId('text-stroke-color')" v-model="textStrokeColor" :label="t('overlayBuilder.editors.text.strokeColor')" type="color" input-class="h-9 p-1" />
+			<FieldColor :id="fieldId('text-stroke-color')" v-model="textStrokeColor" :label="t('overlayBuilder.editors.text.strokeColor')" />
 		</div>
 
 		<h4 class="text-sm font-medium">{{ t('overlayBuilder.editors.text.shadow') }}</h4>
 		<div class="grid grid-cols-2 gap-3">
-			<FieldInput :id="fieldId('text-shadow-color')" v-model="textShadowColor" :label="t('overlayBuilder.editors.text.shadowColor')" type="color" input-class="h-9 p-1" />
+			<FieldColor :id="fieldId('text-shadow-color')" v-model="textShadowColor" :label="t('overlayBuilder.editors.text.shadowColor')" />
 			<FieldNumber :id="fieldId('text-shadow-blur')" v-model="textShadowBlur" :label="t('overlayBuilder.editors.text.shadowBlur')" :min="0" :step="1" />
 		</div>
 		<div class="grid grid-cols-2 gap-3">

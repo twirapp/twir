@@ -24,7 +24,7 @@ export function useLayerSettingsEditor(layer: Ref<Layer>, updateSettings: Update
 	})
 
 	const textColor = computed({
-		get: () => layer.value.settings.textColor,
+		get: () => layer.value.settings.textColor || '#ffffff',
 		set: (value: string) => updateSettings({ textColor: value }),
 	})
 
@@ -57,12 +57,12 @@ export function useLayerSettingsEditor(layer: Ref<Layer>, updateSettings: Update
 	})
 
 	const textStrokeColor = computed({
-		get: () => layer.value.settings.textStrokeColor,
+		get: () => layer.value.settings.textStrokeColor || '#000000',
 		set: (value: string) => updateSettings({ textStrokeColor: value }),
 	})
 
 	const textShadowColor = computed({
-		get: () => layer.value.settings.textShadowColor,
+		get: () => layer.value.settings.textShadowColor || '#000000',
 		set: (value: string) => updateSettings({ textShadowColor: value }),
 	})
 
