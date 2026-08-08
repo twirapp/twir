@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 
 import { assetsLoaderOptions, dudesSounds } from '@/composables/dudes/dudes-config.js'
 import { useDudesIframe } from '@/composables/dudes/use-dudes-iframe.js'
+import { useDudesPreview } from '@/composables/dudes/use-dudes-preview.js'
 import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js'
 import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js'
 import { useDudes } from '@/composables/dudes/use-dudes.js'
@@ -16,6 +17,8 @@ const { dudes, isDudeOverlayReady, createDude } = useDudes()
 const { channelData, dudesSettings } = useDudesSettings()
 const dudesSocketStore = useDudesSocket()
 const iframe = useDudesIframe()
+const preview = useDudesPreview()
+const isPreviewMode = route.query.preview === '1'
 
 watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
 	if (!isReady || !settings || !dudes.value?.dudes) return
@@ -23,6 +26,10 @@ watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
 
 	if (iframe.isIframe) {
 		iframe.spawnIframeDude()
+	}
+
+	if (isPreviewMode) {
+		preview.start()
 	}
 })
 
@@ -70,6 +77,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+	preview.stop()
 	destroy()
 	iframe.destroy()
 })

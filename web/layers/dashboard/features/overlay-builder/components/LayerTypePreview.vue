@@ -12,6 +12,20 @@ const props = defineProps<Props>()
 const { t } = useI18n()
 
 const { textStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(toRef(props, 'layer'))
+
+const iframePreviewUrl = computed(() => {
+	const raw = props.layer.settings.iframeUrl
+	if (!raw) return ''
+
+	try {
+		const url = new URL(raw)
+		if (url.origin !== window.location.origin) return raw
+		url.searchParams.set('preview', '1')
+		return url.toString()
+	} catch {
+		return raw
+	}
+})
 </script>
 
 <template>
@@ -29,8 +43,8 @@ const { textStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(toRef(pr
 	/>
 	<template v-else-if="layer.type === 'IFRAME'">
 		<iframe
-			v-if="layer.settings.iframeUrl"
-			:src="layer.settings.iframeUrl"
+			v-if="iframePreviewUrl"
+			:src="iframePreviewUrl"
 			:title="layer.name"
 			:style="iframeStyle"
 			class="pointer-events-none border-0"
