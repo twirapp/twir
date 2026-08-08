@@ -667,6 +667,14 @@ services:
         - "traefik.http.middlewares.shortener-rewrite.replacepathregex.regex=^/s/(.*)"
         - "traefik.http.middlewares.shortener-rewrite.replacepathregex.replacement=/v1/short-links/$${1}"
 
+        - "traefik.http.routers.twir-uploader.rule=Host(`twir.app`) && PathPrefix(`/u/`)"
+        - "traefik.http.routers.twir-uploader.entrypoints=web"
+        - "traefik.http.routers.twir-uploader.service=twir-api-gql"
+        - "traefik.http.routers.twir-uploader.middlewares=uploader-rewrite,gzip,rate-limit"
+        - "traefik.http.routers.twir-uploader.priority=20"
+        - "traefik.http.middlewares.uploader-rewrite.replacepathregex.regex=^/u/(.*)"
+        - "traefik.http.middlewares.uploader-rewrite.replacepathregex.replacement=/v1/u/$${1}"
+
         # /api route for cf.twir.app
         - "traefik.http.routers.cf-api.rule=Host(`cf.twir.app`) && PathPrefix(`/api`)"
         - "traefik.http.routers.cf-api.entrypoints=web"
@@ -680,6 +688,12 @@ services:
         - "traefik.http.routers.cf-shortener.service=twir-api-gql"
         - "traefik.http.routers.cf-shortener.middlewares=shortener-rewrite,gzip,rate-limit"
         - "traefik.http.routers.cf-shortener.priority=20"
+
+        - "traefik.http.routers.cf-uploader.rule=Host(`cf.twir.app`) && PathPrefix(`/u/`)"
+        - "traefik.http.routers.cf-uploader.entrypoints=web"
+        - "traefik.http.routers.cf-uploader.service=twir-api-gql"
+        - "traefik.http.routers.cf-uploader.middlewares=uploader-rewrite,gzip,rate-limit"
+        - "traefik.http.routers.cf-uploader.priority=20"
 
         # Catch-all: any unmatched host → /v1/short-links{path} (lowest priority)
         - "traefik.http.routers.twir-custom-domain.rule=HostRegexp(`.+`)"

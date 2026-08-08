@@ -41,6 +41,12 @@
 				reverse_proxy http://127.0.0.1:3030
     }
 
+    # Uploader public links
+    handle_path /u/* {
+        rewrite * /v1/u{path}
+        reverse_proxy 127.0.0.1:3009
+    }
+
     handle_path /s* {
 				rewrite * /v1/short-links{path}
 				reverse_proxy http://127.0.0.1:3009
