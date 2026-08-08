@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UploadedFileWithDeleteLink } from '../../composables/use-uploader'
+import type { UploadedFileWithDeleteLinkDto } from '@twir/api/openapi'
 
 const { t } = useI18n()
 const uploader = useUploader()
@@ -17,7 +17,7 @@ const acceptAttribute = ACCEPTED_MIME_TYPES.join(',')
 const maxFileSizeBytes = 26_214_400
 
 const isDragging = ref(false)
-const currentUpload = ref<UploadedFileWithDeleteLink | null>(null)
+const currentUpload = ref<UploadedFileWithDeleteLinkDto | null>(null)
 const currentError = ref<string | null>(null)
 
 const maxFileSizeLabel = computed(() => formatBytes(maxFileSizeBytes, 0))

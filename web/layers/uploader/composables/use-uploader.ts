@@ -4,12 +4,6 @@ import { useOapi } from '~/composables/use-oapi'
 
 export type UploadedFile = UploadedFileOutputDto
 
-// The upload response carries the full file DTO plus delete_link at runtime,
-// but the generated client type only declares delete_link (unexported Go embed).
-export type UploadedFileWithDeleteLink = UploadedFileOutputDto & {
-	delete_link: string
-}
-
 export const useUploader = defineStore('uploader', () => {
 	const api = useOapi()
 	const latestUploads = ref<UploadedFile[]>([])
@@ -19,7 +13,7 @@ export const useUploader = defineStore('uploader', () => {
 		isUploading.value = true
 		try {
 			const response = await api.v1.uploaderUploadFile({ file })
-			const uploaded = response.data.data as UploadedFileWithDeleteLink
+			const uploaded = response.data.data
 
 			latestUploads.value = [uploaded, ...latestUploads.value.slice(0, 2)]
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { UploadedFileWithDeleteLink } from '../../composables/use-uploader'
+import type { UploadedFileWithDeleteLinkDto } from '@twir/api/openapi'
 
 const props = defineProps<{
-	upload: UploadedFileWithDeleteLink
+	upload: UploadedFileWithDeleteLinkDto
 }>()
 
 const { t, locale } = useI18n()
