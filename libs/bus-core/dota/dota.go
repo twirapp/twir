@@ -34,6 +34,7 @@ type GetDataResponse struct {
 	HeroName                string
 	MatchID                 int64
 	TeamIsRadiant           bool
+	TeamKnown               bool
 	RadiantScore            int
 	DireScore               int
 	GameTime                int

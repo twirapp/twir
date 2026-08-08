@@ -167,6 +167,7 @@ func (l *BusListener) GetData(
 	response.HeroName = snapshot.HeroName
 	response.MatchID = snapshot.MatchID
 	response.TeamIsRadiant = snapshot.IsRadiant
+	response.TeamKnown = snapshot.TeamKnown
 	response.RadiantScore = snapshot.RadiantScore
 	response.DireScore = snapshot.DireScore
 	response.GameTime = snapshot.GameTime

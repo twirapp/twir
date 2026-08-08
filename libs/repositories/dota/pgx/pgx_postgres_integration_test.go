@@ -603,7 +603,7 @@ func TestPgxLifecyclePostgres(t *testing.T) {
 		}
 	})
 
-	t.Run("outbox insert failure rolls back its state update", func(t *testing.T) {
+	t.Run("re-emitted outbox action is skipped without failing the transition", func(t *testing.T) {
 		resetPgxLifecycleData(t, ctx, pool)
 		channelID := insertPgxLifecycleChannel(t, ctx, pool)
 		if _, err := pool.Exec(
@@ -625,23 +625,35 @@ func TestPgxLifecyclePostgres(t *testing.T) {
 				[]model.OutboxActionInput{pgxLifecycleAction(channelID, 371, model.OutboxActionCreate, 10)},
 			),
 		)
-		if err == nil {
-			t.Fatal("ApplyMatchStateTransition() error = nil, want outbox uniqueness error")
+		if err != nil {
+			t.Fatalf("ApplyMatchStateTransition() error = %v, want re-emitted action skipped", err)
 		}
-		if committed {
-			t.Fatal("ApplyMatchStateTransition() committed = true, want false")
+		if !committed {
+			t.Fatal("ApplyMatchStateTransition() committed = false, want true")
 		}
 
-		var stateCount int
+		var actionCount int
 		if err := pool.QueryRow(
 			ctx,
-			`SELECT count(*) FROM dota_channel_match_states WHERE channel_id = $1`,
+			`SELECT count(*) FROM dota_prediction_outbox WHERE channel_id = $1`,
 			channelID,
-		).Scan(&stateCount); err != nil {
-			t.Fatalf("count match states after rollback: %v", err)
+		).Scan(&actionCount); err != nil {
+			t.Fatalf("count outbox actions after re-emission: %v", err)
 		}
-		if stateCount != 0 {
-			t.Errorf("match state rows after rollback = %d, want 0", stateCount)
+		if actionCount != 1 {
+			t.Errorf("outbox actions after re-emission = %d, want 1", actionCount)
+		}
+
+		var revision int64
+		if err := pool.QueryRow(
+			ctx,
+			`SELECT revision FROM dota_channel_match_states WHERE channel_id = $1`,
+			channelID,
+		).Scan(&revision); err != nil {
+			t.Fatalf("get state revision after re-emission: %v", err)
+		}
+		if revision != 1 {
+			t.Errorf("state revision after re-emission = %d, want 1", revision)
 		}
 	})
 

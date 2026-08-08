@@ -124,6 +124,18 @@ func TestWinProbabilityOutputRequiresActiveAvailableData(t *testing.T) {
 		},
 		{
 			name:          "active match with probability",
+			data:          &busdota.GetDataResponse{InGame: true, TeamKnown: true, TeamIsRadiant: true, WinProbabilityAvailable: true, WinProbability: 0.625},
+			wantOutput:    "62.5%",
+			wantAvailable: true,
+		},
+		{
+			name:          "dire streamer flips radiant probability",
+			data:          &busdota.GetDataResponse{InGame: true, TeamKnown: true, TeamIsRadiant: false, WinProbabilityAvailable: true, WinProbability: 0.625},
+			wantOutput:    "37.5%",
+			wantAvailable: true,
+		},
+		{
+			name:          "unknown team shows radiant probability as is",
 			data:          &busdota.GetDataResponse{InGame: true, WinProbabilityAvailable: true, WinProbability: 0.625},
 			wantOutput:    "62.5%",
 			wantAvailable: true,

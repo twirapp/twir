@@ -5,7 +5,7 @@ descriptions:
   lg: Show the latest Dota 2 game
   gm: Show the current Dota 2 medal
   np: Show notable players in the active Dota 2 match
-  wp: Show radiant win probability in the active Dota 2 match
+  wp: Show the streamer's win probability in the active Dota 2 match
 errors:
   settings_not_found: Dota 2 is not configured for this channel.
   disabled: Dota 2 is disabled for this channel.
@@ -36,7 +36,7 @@ outputs:
   last_game: "Latest game: {hero}, {kda}, {result}, {duration}"
   gm: "{medal}"
   notable_players: "{players}"
-  win_probability: "Radiant win probability: {probability}"
+  win_probability: "Win chance: {probability}"
   win: Win
   loss: Loss
 success:

@@ -439,7 +439,7 @@ func inGamePayloadWithGameTime(matchID int64, providerTimestamp int64, gameTime 
 		Player: &gsi.Player{
 			Activity:  gsi.PlayerActivityPlaying,
 			TeamName:  "radiant",
-			AccountID: 12345,
+			AccountIDRaw: "12345",
 		},
 		Hero: &gsi.Hero{Name: "npc_dota_hero_axe"},
 	}
@@ -461,7 +461,7 @@ func postGamePayloadAt(
 		Player: &gsi.Player{
 			Activity:  gsi.PlayerActivityPlaying,
 			TeamName:  "radiant",
-			AccountID: 12345,
+			AccountIDRaw: "12345",
 		},
 	}
 }

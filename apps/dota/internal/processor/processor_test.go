@@ -351,7 +351,7 @@ func inGamePayload(matchID int64) gsi.Payload {
 		Player: &gsi.Player{
 			Activity:  gsi.PlayerActivityPlaying,
 			TeamName:  "radiant",
-			AccountID: 12345,
+			AccountIDRaw: "12345",
 		},
 	}
 }

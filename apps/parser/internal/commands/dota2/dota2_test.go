@@ -29,7 +29,8 @@ func TestMedalTierBoundaries(t *testing.T) {
 		{name: "ancient ends at 4619", mmr: 4619, want: medalAncient},
 		{name: "divine starts at 4620", mmr: 4620, want: medalDivine},
 		{name: "divine ends at 5419", mmr: 5419, want: medalDivine},
-		{name: "immortal starts at 5420", mmr: 5420, want: medalImmortal},
+		{name: "divine still at 5619", mmr: 5619, want: medalDivine},
+		{name: "immortal starts at 5620", mmr: 5620, want: medalImmortal},
 	}
 
 	for _, tt := range tests {

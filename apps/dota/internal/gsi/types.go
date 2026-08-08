@@ -1,5 +1,10 @@
 package gsi
 
+import (
+	"encoding/json"
+	"strconv"
+)
+
 type GameState string
 
 const (
@@ -47,15 +52,36 @@ type Map struct {
 	DireScore    int       `json:"dire_score"`
 }
 
+// steamID64Base is the SteamID64 individual account base; the 32-bit Dota
+// account ID is steamID64 - steamID64Base.
+const steamID64Base int64 = 76561197960265728
+
 type Player struct {
-	SteamID   string         `json:"steamid"`
-	AccountID int64          `json:"account_id"`
-	Name      string         `json:"name"`
-	Activity  PlayerActivity `json:"activity"`
-	Kills     int            `json:"kills"`
-	Deaths    int            `json:"deaths"`
-	Assists   int            `json:"assists"`
-	TeamName  string         `json:"team_name"`
+	SteamID string `json:"steamid"`
+	// Real GSI payloads carry the account id as "accountid" (a quoted decimal
+	// string in observed captures); "account_id" does not exist in the wire
+	// format. json.Number accepts both quoted and unquoted forms.
+	AccountIDRaw json.Number    `json:"accountid"`
+	Name         string         `json:"name"`
+	Activity     PlayerActivity `json:"activity"`
+	Kills        int            `json:"kills"`
+	Deaths       int            `json:"deaths"`
+	Assists      int            `json:"assists"`
+	TeamName     string         `json:"team_name"`
+}
+
+// DotaAccountID resolves the 32-bit Dota account ID, preferring the
+// always-present SteamID64 and falling back to the raw "accountid" field.
+// Returns 0 when neither source is usable.
+func (p Player) DotaAccountID() int64 {
+	if steamID, err := strconv.ParseInt(p.SteamID, 10, 64); err == nil && steamID >= steamID64Base {
+		return steamID - steamID64Base
+	}
+	if accountID, err := p.AccountIDRaw.Int64(); err == nil && accountID > 0 {
+		return accountID
+	}
+
+	return 0
 }
 
 type Hero struct {

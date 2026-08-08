@@ -535,6 +535,8 @@ func transitionInactive(
 	next := current
 	next.LastProviderTimestamp = providerTimestamp
 	if current.MatchID == 0 && current.State == StateIdle && !current.InGame {
+		// Still commit the timestamp so stale in-game payloads are rejected,
+		// but nothing observable changed: no state update event.
 		return next, nil, nil, false, true
 	}
 
@@ -615,7 +617,10 @@ func startMatch(snapshot *Snapshot, payload gsi.Payload) {
 	snapshot.HeroName = heroName
 	snapshot.TeamKnown = payload.Player.TeamName == "radiant" || payload.Player.TeamName == "dire"
 	snapshot.IsRadiant = payload.Player.TeamName == "radiant"
-	snapshot.SteamAccountID = strconv.FormatInt(payload.Player.AccountID, 10)
+	snapshot.SteamAccountID = ""
+	if accountID := payload.Player.DotaAccountID(); accountID > 0 {
+		snapshot.SteamAccountID = strconv.FormatInt(accountID, 10)
+	}
 	snapshot.State = StateInGame
 	snapshot.InGame = true
 	snapshot.SeenEvents = nil

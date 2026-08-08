@@ -872,6 +872,9 @@ services:
       - twir_doppler_token
     networks:
       - twir
+      # GSI payloads come from streamers' Dota clients over the internet,
+      # so the service must be reachable through the tunnel like eventsub.
+      - cloudflared
     deploy:
       update_config:
         parallelism: 2

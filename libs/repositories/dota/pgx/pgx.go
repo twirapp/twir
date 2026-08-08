@@ -386,9 +386,15 @@ WHERE channel_id = $1;
 		return false, errors.New("dota match state update affected no rows")
 	}
 
+	// Re-emission of an action for the same match is legal when a tracked match
+	// is abandoned (cancel) and later re-joined (create): the state machine
+	// clears the match on abandon, so a rejoin emits the pair again. Skipping
+	// on the action key keeps the transition alive; the sequence constraint
+	// still rejects genuine ordering violations.
 	insertActionQuery := `
 INSERT INTO dota_prediction_outbox (channel_id, match_id, action, sequence, payload)
-VALUES ($1, $2, $3, $4, $5);
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (channel_id, match_id, action) DO NOTHING;
 `
 	for _, action := range input.Actions {
 		if _, err := conn.Exec(

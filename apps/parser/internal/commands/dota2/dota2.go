@@ -46,7 +46,7 @@ func medalForMMR(mmr int) medalTier {
 		return medalLegend
 	case mmr < 4620:
 		return medalAncient
-	case mmr < 5420:
+	case mmr < 5620:
 		return medalDivine
 	default:
 		return medalImmortal
@@ -104,7 +104,13 @@ func winProbabilityOutput(data *busdota.GetDataResponse) (string, bool) {
 		return "", false
 	}
 
-	return formatWinProbability(data.WinProbability), true
+	// Stratz reports the radiant win rate; viewers expect the streamer's team.
+	probability := data.WinProbability
+	if data.TeamKnown && !data.TeamIsRadiant {
+		probability = 1 - probability
+	}
+
+	return formatWinProbability(probability), true
 }
 
 func joinNotablePlayers(players []string) string {
