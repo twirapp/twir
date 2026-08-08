@@ -6,6 +6,7 @@ info:
   get_spotify_integration: 'Не удается получить интеграцию со spotify: {причина}'
   history: '{trackTitle} - {trackArtist} (~{minutes}м назад)'
   no_needed_scope: 'Если область действия не требуется, повторно подключите spotify в dashboard'
+  spotify_token_expired: Spotify token expired, please reconnect Spotify in the dashboard
   no_integrations: Никакие интеграции не подключены
 errors:
   get_recent_tracks: 'Не удается получить последние треки: {reason}'
