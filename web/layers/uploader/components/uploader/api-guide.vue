@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
+
 import UploaderCodeBlock from './code-block.vue'
+
+const { t } = useI18n()
+const clipboard = useClipboard()
 
 const requestUrl = useRequestURL()
 const origin = computed(() => requestUrl.origin)
@@ -55,6 +60,45 @@ Form field: file
 Image URL (JSON path): data.link
 Deletion URL (JSON path): data.delete_link`
 )
+
+// Chatterino import format (src/util/ImageUploader.cpp exportSettings):
+// native {property} dot-notation against the { "data": { ... } } envelope.
+const chatterinoConfigSnippet = computed(() =>
+	JSON.stringify(
+		{
+			Version: '1.0.0',
+			Name: 'Twir Image Uploader',
+			RequestMethod: 'POST',
+			RequestURL: uploadEndpoint.value,
+			Body: 'MultipartFormData',
+			FileFormName: 'file',
+			URL: '{data.link}',
+			DeletionURL: '{data.delete_link}',
+		},
+		null,
+		2
+	)
+)
+
+const chatterinoConfigCopied = ref(false)
+let chatterinoCopiedTimer: ReturnType<typeof setTimeout> | undefined
+
+function copyChatterinoConfig() {
+	clipboard.copy(chatterinoConfigSnippet.value)
+	chatterinoConfigCopied.value = true
+	clearTimeout(chatterinoCopiedTimer)
+	chatterinoCopiedTimer = setTimeout(() => {
+		chatterinoConfigCopied.value = false
+	}, 2000)
+	toast.success(t('uploader.copied'), {
+		description: t('uploader.guide.copyJsonSuccess'),
+		duration: 2000,
+	})
+}
+
+onUnmounted(() => {
+	clearTimeout(chatterinoCopiedTimer)
+})
 
 type GuideTab = 'curl' | 'sharex' | 'chatterino'
 
@@ -124,6 +168,18 @@ const activeTab = ref<GuideTab>('curl')
 			<p class="text-xs text-[hsl(240,11%,65%)]">
 				{{ $t('uploader.guide.chatterinoDescription') }}
 			</p>
+			<button
+				type="button"
+				class="flex items-center justify-center gap-2 py-1.5 px-3 rounded-lg text-sm font-semibold border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,25%)] hover:bg-[hsl(240,11%,35%)] text-[hsl(240,11%,90%)] transition-colors"
+				@click="copyChatterinoConfig"
+			>
+				<Icon :name="chatterinoConfigCopied ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />
+				{{ $t('uploader.guide.copyJson') }}
+			</button>
+			<p class="text-xs text-[hsl(240,11%,55%)]">
+				{{ $t('uploader.guide.copyJsonHint') }}
+			</p>
+			<UploaderCodeBlock :code="chatterinoConfigSnippet" />
 			<UploaderCodeBlock :code="chatterinoSnippet" />
 		</div>
 	</div>

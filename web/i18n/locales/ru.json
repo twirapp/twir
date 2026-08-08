@@ -2248,6 +2248,7 @@
     "untitled": "Без названия",
     "created": "Загружено {date}",
     "expires": "Истекает {date}",
+    "expiresIn": "Истекает {time}",
     "guide": {
       "title": "Для разработчиков",
       "description": "Загружайте изображения из терминала или привычных инструментов через то же API, которое использует эта страница.",
@@ -2260,7 +2261,10 @@
       "curlResponse": "Ответ",
       "sharexDescription": "Добавьте собственный загрузчик изображений в ShareX (Destinations → Custom uploader settings → Import → From clipboard) с этой конфигурацией:",
       "chatterinoDescription": "Укажите тот же endpoint в настройках загрузчика изображений вашего чат-клиента:",
-      "copy": "Скопировать"
+      "copy": "Скопировать",
+      "copyJson": "Скопировать JSON-конфиг",
+      "copyJsonHint": "Chatterino → Настройки → External Tools → Image Uploader → вставить из буфера обмена",
+      "copyJsonSuccess": "JSON-конфиг скопирован в буфер обмена."
     }
   }
 }

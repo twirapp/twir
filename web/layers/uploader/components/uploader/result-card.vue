@@ -5,9 +5,37 @@ const props = defineProps<{
 	upload: UploadedFileWithDeleteLink
 }>()
 
+const { t, locale } = useI18n()
+
 const showDeleteLink = ref(false)
 
 const displayLink = computed(() => props.upload.link.replace(/^https?:\/\//, ''))
+
+const expiresAtAbsolute = computed(() => {
+	const date = new Date(props.upload.expires_at)
+	if (Number.isNaN(date.getTime())) {
+		return ''
+	}
+
+	return date.toLocaleString(import.meta.client ? navigator.language : 'en-US', {
+		month: 'short',
+		day: '2-digit',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	})
+})
+
+const expiresIn = computed(() => formatTimeUntil(props.upload.expires_at, locale.value))
+const expiresLabel = computed(() => {
+	if (expiresIn.value) {
+		return t('uploader.expiresIn', { time: expiresIn.value })
+	}
+	if (expiresAtAbsolute.value) {
+		return t('uploader.expires', { date: expiresAtAbsolute.value })
+	}
+	return ''
+})
 </script>
 
 <template>
@@ -31,9 +59,17 @@ const displayLink = computed(() => props.upload.link.replace(/^https?:\/\//, '')
 				>
 					{{ displayLink }}
 				</a>
-				<UiCopyInput :text="upload.link" class="mt-2" />
+				<UploaderCopyInput :text="upload.link" class="mt-2" />
 			</div>
 		</div>
+
+		<p
+			v-if="expiresLabel"
+			class="text-xs text-[hsl(240,11%,55%)]"
+			:title="$t('uploader.expires', { date: expiresAtAbsolute })"
+		>
+			{{ expiresLabel }}
+		</p>
 
 		<div class="border-t border-[hsl(240,11%,18%)] pt-2">
 			<button
@@ -52,7 +88,7 @@ const displayLink = computed(() => props.upload.link.replace(/^https?:\/\//, '')
 				<p class="text-xs text-[hsl(240,11%,55%)]">
 					{{ $t('uploader.result.deleteLinkHint') }}
 				</p>
-				<UiCopyInput :text="upload.delete_link" />
+				<UploaderCopyInput :text="upload.delete_link" />
 			</div>
 		</div>
 	</div>

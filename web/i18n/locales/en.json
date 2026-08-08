@@ -2419,6 +2419,7 @@
     "untitled": "Untitled",
     "created": "Created {date}",
     "expires": "Expires {date}",
+    "expiresIn": "Expires {time}",
     "guide": {
       "title": "For developers",
       "description": "Upload images from your terminal or favorite tools using the same API this page uses.",
@@ -2431,7 +2432,10 @@
       "curlResponse": "Response",
       "sharexDescription": "Add a custom image uploader in ShareX (Destinations → Custom uploader settings → Import → From clipboard) with this config:",
       "chatterinoDescription": "Point your chat client's image uploader at the same endpoint:",
-      "copy": "Copy"
+      "copy": "Copy",
+      "copyJson": "Copy JSON config",
+      "copyJsonHint": "Chatterino → Settings → External Tools → Image Uploader → paste from clipboard",
+      "copyJsonSuccess": "JSON config copied to clipboard."
     }
   }
 }

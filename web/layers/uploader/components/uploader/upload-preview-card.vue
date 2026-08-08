@@ -13,7 +13,7 @@ const emit = defineEmits<{
 	(e: 'deleted'): void
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const uploader = useUploader()
 const clipboard = useClipboard()
 
@@ -38,6 +38,17 @@ function formatDate(value: string) {
 
 const createdAt = computed(() => formatDate(props.upload.created_at))
 const expiresAt = computed(() => formatDate(props.upload.expires_at))
+
+const expiresIn = computed(() => formatTimeUntil(props.upload.expires_at, locale.value))
+const expiresLabel = computed(() => {
+	if (expiresIn.value) {
+		return t('uploader.expiresIn', { time: expiresIn.value })
+	}
+	if (expiresAt.value) {
+		return t('uploader.expires', { date: expiresAt.value })
+	}
+	return ''
+})
 
 function copyLink() {
 	clipboard.copy(props.upload.link)
@@ -89,7 +100,9 @@ async function handleDelete() {
 			</div>
 			<div class="flex flex-col text-xs text-[hsl(240,11%,55%)]">
 				<span v-if="createdAt">{{ $t('uploader.created', { date: createdAt }) }}</span>
-				<span v-if="expiresAt">{{ $t('uploader.expires', { date: expiresAt }) }}</span>
+				<span v-if="expiresLabel" :title="$t('uploader.expires', { date: expiresAt })">
+					{{ expiresLabel }}
+				</span>
 			</div>
 			<div class="flex items-center gap-2 pt-1">
 				<button
