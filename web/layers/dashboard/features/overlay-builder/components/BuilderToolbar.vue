@@ -21,6 +21,7 @@ interface Props {
 	addLayersHidden: boolean
 	overlayId?: string
 	overlayName?: string
+	syncStatus?: 'OPEN' | 'CONNECTING' | 'CLOSED'
 }
 
 const props = defineProps<Props>()
@@ -53,6 +54,17 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, 'overlayId'))
 const { enabled: widgetsPreview } = useWidgetPreviewMode()
+
+const syncStatusMeta = computed(() => {
+	switch (props.syncStatus) {
+		case 'OPEN':
+			return { class: 'bg-green-500', label: t('overlayBuilder.sync.connected') }
+		case 'CONNECTING':
+			return { class: 'bg-yellow-500 animate-pulse', label: t('overlayBuilder.sync.connecting') }
+		default:
+			return { class: 'bg-muted-foreground/40', label: t('overlayBuilder.sync.disconnected') }
+	}
+})
 </script>
 
 <template>
@@ -538,6 +550,19 @@ const { enabled: widgetsPreview } = useWidgetPreviewMode()
 		<div class="flex-1" />
 
 		<!-- Right Side Actions -->
+		<TooltipProvider v-if="overlayId && syncStatus">
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<div class="flex items-center px-1">
+						<span class="h-2 w-2 rounded-full" :class="syncStatusMeta.class" />
+					</div>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ syncStatusMeta.label }}</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
 		<TooltipProvider v-if="overlayId">
 			<Tooltip>
 				<TooltipTrigger as-child>

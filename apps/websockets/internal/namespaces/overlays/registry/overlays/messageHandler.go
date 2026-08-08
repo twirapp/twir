@@ -37,6 +37,13 @@ type instantSaveLayerMessage struct {
 	Layers    []instantSaveLayerData `json:"layers"`
 }
 
+// overlayEditorEventMeta models only the routing fields of editor collaboration
+// events; the rest of the payload is forwarded to peers opaquely.
+type overlayEditorEventMeta struct {
+	OverlayID string `json:"overlayId"`
+	ClientID  string `json:"clientId"`
+}
+
 type instantSaveLayerData struct {
 	ID       string  `json:"id"`
 	PosX     int     `json:"posX"`
@@ -314,5 +321,71 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 		); err != nil {
 			c.logger.Error(err.Error())
 		}
+	case
+		"overlayEditorLayerAdd",
+		"overlayEditorLayerRemove",
+		"overlayEditorLayerUpdate",
+		"overlayEditorLayerPositions",
+		"overlayEditorLayersReorder",
+		"overlayEditorSettingsUpdate",
+		"overlayEditorProjectReplace",
+		"overlayEditorSyncRequest",
+		"overlayEditorSyncState":
+		c.handleOverlayEditorEvent(session, message)
+	}
+}
+
+// handleOverlayEditorEvent rebroadcasts overlay editor collaboration events to
+// every session of the same channel (including the sender, which filters its own
+// echo by clientId), so multiple browser tabs editing one overlay stay in sync.
+func (c *Registry) handleOverlayEditorEvent(session *melody.Session, message types.WebSocketMessage) {
+	var meta overlayEditorEventMeta
+	bytes, err := json.Marshal(message.Data)
+	if err != nil {
+		c.logger.Error("failed to marshal overlay editor event data", twirlogger.Error(err))
+		return
+	}
+	if err := json.Unmarshal(bytes, &meta); err != nil {
+		c.logger.Error("failed to unmarshal overlay editor event meta", twirlogger.Error(err))
+		return
+	}
+
+	socketUserId, ok := session.Get("userId")
+	if !ok {
+		return
+	}
+	channelID, ok := socketUserId.(string)
+	if !ok {
+		return
+	}
+
+	cacheKey := fmt.Sprintf("overlayEditorAccess:%s", meta.OverlayID)
+	if _, ok := session.Get(cacheKey); !ok {
+		overlayID, err := uuid.Parse(meta.OverlayID)
+		if err != nil {
+			c.logger.Error("invalid overlay ID in editor event", twirlogger.Error(err))
+			return
+		}
+
+		overlay, err := c.channelsOverlaysRepository.GetByID(context.Background(), overlayID)
+		if err != nil {
+			c.logger.Error("failed to get overlay for editor event", twirlogger.Error(err))
+			return
+		}
+
+		if overlay.ChannelID != channelID {
+			c.logger.Error(
+				"overlay editor event rejected: overlay does not belong to user",
+				slog.String("user_id", channelID),
+				slog.String("overlay_id", meta.OverlayID),
+			)
+			return
+		}
+
+		session.Set(cacheKey, struct{}{})
+	}
+
+	if err := c.SendEvent(channelID, message.EventName, message.Data); err != nil {
+		c.logger.Error("failed to broadcast overlay editor event", twirlogger.Error(err))
 	}
 }
