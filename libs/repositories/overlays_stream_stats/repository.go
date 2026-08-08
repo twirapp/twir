@@ -5,13 +5,13 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/repositories/overlays_stream_stats/model"
+	entity "github.com/twirapp/twir/libs/entities/overlays_stream_stats"
 )
 
 type Repository interface {
-	GetByChannelID(ctx context.Context, channelID uuid.UUID) (model.StreamStatsOverlay, error)
-	Create(ctx context.Context, input CreateInput) (model.StreamStatsOverlay, error)
-	Update(ctx context.Context, channelID uuid.UUID, input UpdateInput) (model.StreamStatsOverlay, error)
+	GetByChannelID(ctx context.Context, channelID uuid.UUID) (entity.StreamStatsOverlay, error)
+	Create(ctx context.Context, input CreateInput) (entity.StreamStatsOverlay, error)
+	Update(ctx context.Context, channelID uuid.UUID, input UpdateInput) (entity.StreamStatsOverlay, error)
 }
 
 type CreateInput struct {

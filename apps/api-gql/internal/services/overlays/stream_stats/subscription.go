@@ -7,7 +7,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	entity "github.com/twirapp/twir/libs/entities/overlays_stream_stats"
 	"github.com/twirapp/twir/libs/logger"
 )
 

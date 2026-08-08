@@ -13,8 +13,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/stream_stats"
+	entity "github.com/twirapp/twir/libs/entities/overlays_stream_stats"
 )
 
 // OverlaysStreamStatsUpdate is the resolver for the overlaysStreamStatsUpdate field.

@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	entity "github.com/twirapp/twir/libs/entities/overlays_stream_stats"
 )
 
 func MapStreamStatsCounterOrderToEntity(

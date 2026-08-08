@@ -1,4 +1,4 @@
-package entity
+package overlays_stream_stats
 
 import (
 	"time"
@@ -27,6 +27,13 @@ const (
 	StreamStatsOverlayVariantVertical          StreamStatsOverlayVariant = "VERTICAL"
 	StreamStatsOverlayVariantVerticalCompact   StreamStatsOverlayVariant = "VERTICAL_COMPACT"
 	StreamStatsOverlayVariantLarge             StreamStatsOverlayVariant = "LARGE"
+)
+
+type StreamStatsOverlayViewersMode string
+
+const (
+	StreamStatsOverlayViewersModeCumulative StreamStatsOverlayViewersMode = "CUMULATIVE"
+	StreamStatsOverlayViewersModeSeparate   StreamStatsOverlayViewersMode = "SEPARATE"
 )
 
 type StreamStatsOverlayCounter string
@@ -81,13 +88,6 @@ func NormalizeCounterOrder(order []StreamStatsOverlayCounter) []StreamStatsOverl
 	return result
 }
 
-type StreamStatsOverlayViewersMode string
-
-const (
-	StreamStatsOverlayViewersModeCumulative StreamStatsOverlayViewersMode = "CUMULATIVE"
-	StreamStatsOverlayViewersModeSeparate   StreamStatsOverlayViewersMode = "SEPARATE"
-)
-
 type StreamStatsOverlay struct {
 	ID                   uuid.UUID
 	ChannelID            string
@@ -111,6 +111,16 @@ type StreamStatsOverlay struct {
 	CustomCSS            string
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+
+	isNil bool
+}
+
+func (s StreamStatsOverlay) IsNil() bool {
+	return s.isNil || s.ID == uuid.Nil
+}
+
+var Nil = StreamStatsOverlay{
+	isNil: true,
 }
 
 type StreamStatsOverlayPlatformViewers struct {

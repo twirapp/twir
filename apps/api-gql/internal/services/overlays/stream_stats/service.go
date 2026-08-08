@@ -8,14 +8,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/kv"
-	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	entity "github.com/twirapp/twir/libs/entities/overlays_stream_stats"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/overlays_stream_stats"
-	"github.com/twirapp/twir/libs/repositories/overlays_stream_stats/model"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
@@ -62,18 +61,13 @@ func (s *Service) GetOrCreate(ctx context.Context, channelID uuid.UUID) (entity.
 	overlay, err := s.repository.GetByChannelID(ctx, channelID)
 	if err != nil {
 		if errors.Is(err, overlays_stream_stats.ErrNotFound) {
-			created, createErr := s.repository.Create(ctx, createDefaultOverlayInput(channelID))
-			if createErr != nil {
-				return entity.StreamStatsOverlay{}, createErr
-			}
-
-			return mapModelToEntity(created), nil
+			return s.repository.Create(ctx, createDefaultOverlayInput(channelID))
 		}
 
-		return entity.StreamStatsOverlay{}, err
+		return entity.Nil, err
 	}
 
-	return mapModelToEntity(overlay), nil
+	return overlay, nil
 }
 
 type UpdateInput struct {
@@ -83,7 +77,7 @@ type UpdateInput struct {
 
 func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.StreamStatsOverlay, error) {
 	if _, err := s.GetOrCreate(ctx, input.ChannelID); err != nil {
-		return entity.StreamStatsOverlay{}, err
+		return entity.Nil, err
 	}
 
 	updated, err := s.repository.Update(ctx, input.ChannelID, overlays_stream_stats.UpdateInput{
@@ -107,15 +101,14 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.StreamS
 		CustomCSS:            input.Settings.CustomCSS,
 	})
 	if err != nil {
-		return entity.StreamStatsOverlay{}, err
+		return entity.Nil, err
 	}
 
-	updatedEntity := mapModelToEntity(updated)
-	if err := s.wsRouter.Publish(createSettingsSubscriptionKey(input.ChannelID), updatedEntity); err != nil {
-		return entity.StreamStatsOverlay{}, err
+	if err := s.wsRouter.Publish(createSettingsSubscriptionKey(input.ChannelID), updated); err != nil {
+		return entity.Nil, err
 	}
 
-	return updatedEntity, nil
+	return updated, nil
 }
 
 func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (uuid.UUID, error) {
@@ -217,41 +210,6 @@ func counterOrderToStrings(order []entity.StreamStatsOverlayCounter) []string {
 		result = append(result, string(counter))
 	}
 	return result
-}
-
-func counterOrderFromStrings(order []string) []entity.StreamStatsOverlayCounter {
-	result := make([]entity.StreamStatsOverlayCounter, 0, len(order))
-	for _, counter := range order {
-		result = append(result, entity.StreamStatsOverlayCounter(counter))
-	}
-	return entity.NormalizeCounterOrder(result)
-}
-
-func mapModelToEntity(m model.StreamStatsOverlay) entity.StreamStatsOverlay {
-	return entity.StreamStatsOverlay{
-		ID:                   m.ID,
-		ChannelID:            m.ChannelID.String(),
-		Design:               entity.StreamStatsOverlayDesign(m.Design),
-		Variant:              entity.StreamStatsOverlayVariant(m.Variant),
-		ViewersEnabled:       m.ViewersEnabled,
-		ViewersMode:          entity.StreamStatsOverlayViewersMode(m.ViewersMode),
-		PlatformIconsEnabled: m.PlatformIconsEnabled,
-		MessagesEnabled:      m.MessagesEnabled,
-		UptimeEnabled:        m.UptimeEnabled,
-		SubscribersEnabled:   m.SubscribersEnabled,
-		FollowersEnabled:     m.FollowersEnabled,
-		ViewersColor:         m.ViewersColor,
-		MessagesColor:        m.MessagesColor,
-		UptimeColor:          m.UptimeColor,
-		SubscribersColor:     m.SubscribersColor,
-		FollowersColor:       m.FollowersColor,
-		CounterOrder:         counterOrderFromStrings(m.CounterOrder),
-		CustomHTMLEnabled:    m.CustomHTMLEnabled,
-		CustomHTML:           m.CustomHTML,
-		CustomCSS:            m.CustomCSS,
-		CreatedAt:            m.CreatedAt,
-		UpdatedAt:            m.UpdatedAt,
-	}
 }
 
 func createDefaultOverlayInput(channelID uuid.UUID) overlays_stream_stats.CreateInput {
