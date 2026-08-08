@@ -496,6 +496,7 @@ export function useOverlayBuilderController(
 	function handleReorderLayers(layers: Layer[]) {
 		builder.reorderLayers(layers)
 		sync.sendLayersReorder(builder.project.layers.map((layer) => layer.id))
+		void handleLayerUpdate()
 	}
 
 	function handleUpdateLayerProperties(layerId: string, updates: Partial<Layer>) {

@@ -25,7 +25,7 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 
 	// Convert project to GraphQL input
 	function projectToLayersInput(project: OverlayProject): ChannelOverlayLayerInput[] {
-		return project.layers.map((layer) => {
+		return project.layers.map((layer, index) => {
 			const rotation = Number(layer.rotation ?? 0)
 			return {
 				id: layer.id ?? undefined, // Include layer ID for updates
@@ -40,6 +40,8 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 				locked: layer.locked ?? false,
 				visible: layer.visible ?? true,
 				opacity: layer.opacity ?? 1.0,
+				// index is canonical: layer.zIndex mirrors it only after reindexLayers() runs
+				zIndex: index,
 				settings: {
 					htmlOverlayHtml: layer.settings.htmlOverlayHtml,
 					htmlOverlayCss: layer.settings.htmlOverlayCss,

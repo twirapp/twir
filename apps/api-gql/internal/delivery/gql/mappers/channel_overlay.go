@@ -94,6 +94,7 @@ func ChannelOverlayLayerEntityToGql(l customoverlayentity.ChannelOverlayLayer) g
 		Locked:                  l.Locked,
 		Visible:                 l.Visible,
 		Opacity:                 l.Opacity,
+		ZIndex:                  l.ZIndex,
 	}
 }
 

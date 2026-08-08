@@ -76,6 +76,7 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 
@@ -162,6 +163,7 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 

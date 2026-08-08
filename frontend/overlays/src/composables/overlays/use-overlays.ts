@@ -21,6 +21,7 @@ export interface Layer {
 	updatedAt: string
 	periodicallyRefetchData: boolean
 	visible: boolean
+	zIndex: number
 }
 
 export interface LayerSettings {
@@ -122,6 +123,7 @@ export const useOverlays = createGlobalState(() => {
 						updatedAt
 						periodicallyRefetchData
 						visible
+						zIndex
 					}
 				}
 			}
@@ -183,6 +185,7 @@ export const useOverlays = createGlobalState(() => {
 				updatedAt: layer.updatedAt,
 				periodicallyRefetchData: layer.periodicallyRefetchData,
 				visible: layer.visible,
+				zIndex: layer.zIndex,
 			}))
 	})
 

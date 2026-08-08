@@ -14,6 +14,7 @@ interface LayerPosition {
 	height: number
 	visible: boolean
 	opacity: number
+	zIndex: number
 }
 
 export type OverlayEditorEventHandler = (
@@ -140,7 +141,7 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 			return false
 		}
 
-		const layersData: LayerPosition[] = project.layers.map((layer) => {
+		const layersData: LayerPosition[] = project.layers.map((layer, index) => {
 			return {
 				id: layer.id,
 				posX: layer.posX,
@@ -150,6 +151,7 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 				rotation: layer.rotation ?? 0,
 				visible: layer.visible ?? true,
 				opacity: layer.opacity ?? 1.0,
+				zIndex: index,
 			}
 		})
 
