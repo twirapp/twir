@@ -22,6 +22,10 @@ export const anchorLinks: AnchorLink[] = [
 		label: 'landing.nav.urlShortener',
 	},
 	{
+		href: '/uploader',
+		label: 'landing.nav.uploader',
+	},
+	{
 		href: '/h',
 		label: 'landing.nav.hastebin',
 	},
