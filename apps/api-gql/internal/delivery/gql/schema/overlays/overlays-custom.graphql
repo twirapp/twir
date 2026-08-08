@@ -55,8 +55,19 @@ type ChannelOverlayLayerSettings {
   textFontFamily: String!
   textFontSize: Int!
   textFontWeight: Int!
+  textFontStyle: String!
   textColor: String!
   textAlign: String!
+  textAlignVertical: String!
+  textStrokeWidth: Float!
+  textStrokeColor: String!
+  textShadowColor: String!
+  textShadowBlur: Int!
+  textShadowOffsetX: Int!
+  textShadowOffsetY: Int!
+  textLineHeight: Float!
+  textLetterSpacing: Float!
+  textTransform: String!
   videoUrl: String!
   videoLoop: Boolean!
   videoMuted: Boolean!
@@ -115,8 +126,19 @@ input ChannelOverlayLayerSettingsInput {
   textFontFamily: String!
   textFontSize: Int!
   textFontWeight: Int!
+  textFontStyle: String!
   textColor: String!
   textAlign: String!
+  textAlignVertical: String!
+  textStrokeWidth: Float!
+  textStrokeColor: String!
+  textShadowColor: String!
+  textShadowBlur: Int!
+  textShadowOffsetX: Int!
+  textShadowOffsetY: Int!
+  textLineHeight: Float!
+  textLetterSpacing: Float!
+  textTransform: String!
   videoUrl: String!
   videoLoop: Boolean!
   videoMuted: Boolean!

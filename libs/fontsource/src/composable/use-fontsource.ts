@@ -18,10 +18,14 @@ function firefoxWorkaroundIterFonts(target: FontFaceSet) {
 	return results
 }
 
+// FontFace registration lives in the page-global document.fonts, so the
+// metadata cache must be shared too: otherwise an instance whose local cache
+// is empty resolves an already-loaded font to undefined.
+const fonts = ref<Font[]>([])
+
 export function useFontSource(preloadFonts = true) {
 	const loading = ref(true)
 	const fontList = ref<FontItem[]>([])
-	const fonts = ref<Font[]>([])
 
 	async function loadFonts() {
 		try {
@@ -54,7 +58,9 @@ export function useFontSource(preloadFonts = true) {
 		try {
 			const font = await loadFontById(fontId, fontWeight, fontStyle)
 			if (!font) return
-			fonts.value.push(font)
+			if (!getFont(font.id)) {
+				fonts.value.push(font)
+			}
 			return font
 		} catch (err) {
 			console.error(err)

@@ -25,12 +25,23 @@ type OverlayLayerSettings struct {
 	HtmlOverlayDataPollSecondsInterval int    `json:"htmlOverlayDataPollSecondsInterval"`
 	ImageUrl                           string `json:"imageUrl"`
 
-	TextContent    string `json:"textContent"`
-	TextFontFamily string `json:"textFontFamily"`
-	TextFontSize   int    `json:"textFontSize"`
-	TextFontWeight int    `json:"textFontWeight"`
-	TextColor      string `json:"textColor"`
-	TextAlign      string `json:"textAlign"`
+	TextContent       string  `json:"textContent"`
+	TextFontFamily    string  `json:"textFontFamily"`
+	TextFontSize      int     `json:"textFontSize"`
+	TextFontWeight    int     `json:"textFontWeight"`
+	TextFontStyle     string  `json:"textFontStyle"`
+	TextColor         string  `json:"textColor"`
+	TextAlign         string  `json:"textAlign"`
+	TextAlignVertical string  `json:"textAlignVertical"`
+	TextStrokeWidth   float64 `json:"textStrokeWidth"`
+	TextStrokeColor   string  `json:"textStrokeColor"`
+	TextShadowColor   string  `json:"textShadowColor"`
+	TextShadowBlur    int     `json:"textShadowBlur"`
+	TextShadowOffsetX int     `json:"textShadowOffsetX"`
+	TextShadowOffsetY int     `json:"textShadowOffsetY"`
+	TextLineHeight    float64 `json:"textLineHeight"`
+	TextLetterSpacing float64 `json:"textLetterSpacing"`
+	TextTransform     string  `json:"textTransform"`
 
 	VideoUrl   string `json:"videoUrl"`
 	VideoLoop  bool   `json:"videoLoop"`

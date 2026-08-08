@@ -24,7 +24,7 @@ export function useLayerSettingsEditor(layer: Ref<Layer>, updateSettings: Update
 	})
 
 	const textColor = computed({
-		get: () => layer.value.settings.textColor,
+		get: () => layer.value.settings.textColor || '#ffffff',
 		set: (value: string) => updateSettings({ textColor: value }),
 	})
 
@@ -36,6 +36,81 @@ export function useLayerSettingsEditor(layer: Ref<Layer>, updateSettings: Update
 	const textFontFamily = computed({
 		get: () => layer.value.settings.textFontFamily,
 		set: (value: string) => updateSettings({ textFontFamily: value }),
+	})
+
+	const textFontStyle = computed({
+		get: () => layer.value.settings.textFontStyle,
+		set: (value: string) => updateSettings({ textFontStyle: value }),
+	})
+
+	const textAlignVertical = computed({
+		get: () => layer.value.settings.textAlignVertical,
+		set: (value: string) => updateSettings({ textAlignVertical: value }),
+	})
+
+	const textStrokeWidth = computed({
+		get: () => layer.value.settings.textStrokeWidth,
+		set: (value: string | number) => {
+			const parsed = Number(value)
+			if (Number.isFinite(parsed)) updateSettings({ textStrokeWidth: Math.max(0, parsed) })
+		},
+	})
+
+	const textStrokeColor = computed({
+		get: () => layer.value.settings.textStrokeColor || '#000000',
+		set: (value: string) => updateSettings({ textStrokeColor: value }),
+	})
+
+	const textShadowColor = computed({
+		get: () => layer.value.settings.textShadowColor || '#000000',
+		set: (value: string) => updateSettings({ textShadowColor: value }),
+	})
+
+	const textShadowBlur = computed({
+		get: () => layer.value.settings.textShadowBlur,
+		set: (value: string | number) => {
+			const parsed = Number(value)
+			if (Number.isFinite(parsed))
+				updateSettings({ textShadowBlur: Math.max(0, Math.round(parsed)) })
+		},
+	})
+
+	const textShadowOffsetX = computed({
+		get: () => layer.value.settings.textShadowOffsetX,
+		set: (value: string | number) => {
+			const parsed = Number(value)
+			if (Number.isFinite(parsed)) updateSettings({ textShadowOffsetX: Math.round(parsed) })
+		},
+	})
+
+	const textShadowOffsetY = computed({
+		get: () => layer.value.settings.textShadowOffsetY,
+		set: (value: string | number) => {
+			const parsed = Number(value)
+			if (Number.isFinite(parsed)) updateSettings({ textShadowOffsetY: Math.round(parsed) })
+		},
+	})
+
+	const textLineHeight = computed({
+		get: () => layer.value.settings.textLineHeight,
+		set: (value: string | number) => {
+			const parsed = Number(value)
+			if (Number.isFinite(parsed))
+				updateSettings({ textLineHeight: Math.min(5, Math.max(0.5, parsed)) })
+		},
+	})
+
+	const textLetterSpacing = computed({
+		get: () => layer.value.settings.textLetterSpacing,
+		set: (value: string | number) => {
+			const parsed = Number(value)
+			if (Number.isFinite(parsed)) updateSettings({ textLetterSpacing: parsed })
+		},
+	})
+
+	const textTransform = computed({
+		get: () => layer.value.settings.textTransform,
+		set: (value: string) => updateSettings({ textTransform: value }),
 	})
 
 	const videoUrl = computed({
@@ -88,9 +163,20 @@ export function useLayerSettingsEditor(layer: Ref<Layer>, updateSettings: Update
 		textContent,
 		textFontSize,
 		textFontWeight,
+		textFontStyle,
 		textColor,
 		textAlign,
+		textAlignVertical,
 		textFontFamily,
+		textStrokeWidth,
+		textStrokeColor,
+		textShadowColor,
+		textShadowBlur,
+		textShadowOffsetX,
+		textShadowOffsetY,
+		textLineHeight,
+		textLetterSpacing,
+		textTransform,
 		videoUrl,
 		videoLoop,
 		videoMuted,

@@ -25,12 +25,23 @@ type ChannelOverlayLayerSettings struct {
 	HtmlOverlayDataPollSecondsInterval int
 	ImageUrl                           string
 
-	TextContent    string
-	TextFontFamily string
-	TextFontSize   int
-	TextFontWeight int
-	TextColor      string
-	TextAlign      string
+	TextContent       string
+	TextFontFamily    string
+	TextFontSize      int
+	TextFontWeight    int
+	TextFontStyle     string
+	TextColor         string
+	TextAlign         string
+	TextAlignVertical string
+	TextStrokeWidth   float64
+	TextStrokeColor   string
+	TextShadowColor   string
+	TextShadowBlur    int
+	TextShadowOffsetX int
+	TextShadowOffsetY int
+	TextLineHeight    float64
+	TextLetterSpacing float64
+	TextTransform     string
 
 	VideoUrl   string
 	VideoLoop  bool

@@ -12,7 +12,9 @@ interface Props {
 const props = defineProps<Props>()
 const { t } = useI18n()
 
-const { textStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(toRef(props, 'layer'))
+const { textStyle, textContainerStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(
+	toRef(props, 'layer')
+)
 const { enabled: previewEnabled } = useWidgetPreviewMode()
 
 const iframePreviewUrl = computed(() => {
@@ -31,8 +33,14 @@ const iframePreviewUrl = computed(() => {
 </script>
 
 <template>
-	<div v-if="layer.type === 'TEXT'" class="flex h-full w-full items-center justify-center overflow-hidden px-2" :style="textStyle">
-		{{ layer.settings.textContent }}
+	<div
+		v-if="layer.type === 'TEXT'"
+		class="flex h-full w-full flex-col overflow-hidden px-2"
+		:style="textContainerStyle"
+	>
+		<div :style="textStyle">
+			{{ layer.settings.textContent }}
+		</div>
 	</div>
 	<video
 		v-else-if="layer.type === 'VIDEO'"

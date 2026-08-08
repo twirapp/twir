@@ -36,6 +36,17 @@ export interface LayerSettings {
 	textFontWeight: number
 	textColor: string
 	textAlign: 'left' | 'center' | 'right'
+	textFontStyle: string
+	textAlignVertical: string
+	textStrokeWidth: number
+	textStrokeColor: string
+	textShadowColor: string
+	textShadowBlur: number
+	textShadowOffsetX: number
+	textShadowOffsetY: number
+	textLineHeight: number
+	textLetterSpacing: number
+	textTransform: string
 	videoUrl: string
 	videoLoop: boolean
 	videoMuted: boolean
@@ -99,6 +110,17 @@ export const useOverlays = createGlobalState(() => {
 							textFontWeight
 							textColor
 							textAlign
+							textFontStyle
+							textAlignVertical
+							textStrokeWidth
+							textStrokeColor
+							textShadowColor
+							textShadowBlur
+							textShadowOffsetX
+							textShadowOffsetY
+							textLineHeight
+							textLetterSpacing
+							textTransform
 							videoUrl
 							videoLoop
 							videoMuted
@@ -161,6 +183,17 @@ export const useOverlays = createGlobalState(() => {
 					textFontWeight: layer.settings.textFontWeight,
 					textColor: layer.settings.textColor,
 					textAlign: normalizeTextAlign(layer.settings.textAlign),
+					textFontStyle: layer.settings.textFontStyle,
+					textAlignVertical: layer.settings.textAlignVertical,
+					textStrokeWidth: layer.settings.textStrokeWidth,
+					textStrokeColor: layer.settings.textStrokeColor,
+					textShadowColor: layer.settings.textShadowColor,
+					textShadowBlur: layer.settings.textShadowBlur,
+					textShadowOffsetX: layer.settings.textShadowOffsetX,
+					textShadowOffsetY: layer.settings.textShadowOffsetY,
+					textLineHeight: layer.settings.textLineHeight,
+					textLetterSpacing: layer.settings.textLetterSpacing,
+					textTransform: layer.settings.textTransform,
 					videoUrl: layer.settings.videoUrl,
 					videoLoop: layer.settings.videoLoop,
 					videoMuted: layer.settings.videoMuted,

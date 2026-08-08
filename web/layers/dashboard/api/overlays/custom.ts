@@ -14,8 +14,19 @@ const _channelOverlayLayerSettingsFragment = graphql(`
 		textFontFamily
 		textFontSize
 		textFontWeight
+		textFontStyle
 		textColor
 		textAlign
+		textAlignVertical
+		textStrokeWidth
+		textStrokeColor
+		textShadowColor
+		textShadowBlur
+		textShadowOffsetX
+		textShadowOffsetY
+		textLineHeight
+		textLetterSpacing
+		textTransform
 		videoUrl
 		videoLoop
 		videoMuted
