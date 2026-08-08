@@ -4,6 +4,7 @@ import process from 'node:process';
 import {
 	getDonationAlertsIntegrations,
 	getDonationPayIntegrations,
+	getDonateXIntegrations,
 	getStreamlabsIntegrations,
 } from './libs/db';
 import { twirBus } from './libs/twirbus.ts';
@@ -15,6 +16,10 @@ import {
 	addIntegration as addDonationAlertsIntegration,
 	removeIntegration as removeDonationAlertsIntegration,
 } from './store/donationAlerts';
+import {
+	addIntegration as addDonateXIntegration,
+	removeIntegration as removeDonateXIntegration,
+} from './store/donatex';
 import {
 	addIntegration as addStreamlabsIntegration,
 	removeIntegration as removeStreamlabsIntegration,
@@ -31,6 +36,10 @@ for (const integration of await getDonationAlertsIntegrations()) {
 
 for (const integration of await getStreamlabsIntegrations()) {
 	addStreamlabsIntegration(integration);
+}
+
+for (const integration of await getDonateXIntegrations()) {
+	addDonateXIntegration(integration);
 }
 
 twirBus.Integrations.Add.subscribe(async (data) => {
@@ -66,6 +75,16 @@ twirBus.Integrations.Add.subscribe(async (data) => {
 		return;
 	}
 
+	if (data.service === IntegrationService.DONATEX) {
+		const integration = await getDonateXIntegrations({ id: Number(data.id) });
+		if (!integration) {
+			console.error(`Integration with id ${data.id} not found for DonateX`);
+			return null;
+		}
+		await addDonateXIntegration(integration);
+		return;
+	}
+
 	return null;
 });
 
@@ -84,6 +103,11 @@ twirBus.Integrations.Remove.subscribe(async (data) => {
 
 	if (data.service === IntegrationService.STREAMLABS) {
 		await removeStreamlabsIntegration(data.id); // channelId
+		return null;
+	}
+
+	if (data.service === IntegrationService.DONATEX) {
+		await removeDonateXIntegration(data.id); // channelId
 		return null;
 	}
 

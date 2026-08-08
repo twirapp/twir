@@ -281,3 +281,56 @@ export async function updateStreamlabsIntegration(opts: {
 }) {
 	await sql`UPDATE channels_integrations_streamlabs SET ${sql(opts)}	WHERE channel_id = ${opts.channel_id}`
 }
+
+export async function getDonateXIntegrations(opts: {
+	id: number
+}): Promise<DonateXIntegration | null>
+export async function getDonateXIntegrations(opts: {
+	channelId: string
+}): Promise<DonateXIntegration | null>
+export async function getDonateXIntegrations(): Promise<DonateXIntegration[]>
+export async function getDonateXIntegrations(opts?: {
+	channelId?: string
+	id?: number
+}): Promise<DonateXIntegration[] | DonateXIntegration | null> {
+	let where
+	if (opts?.id) {
+		where = sql`WHERE id = ${opts.id}`
+	} else if (opts?.channelId) {
+		where = sql`WHERE channel_id = ${String(opts.channelId)}`
+	} else {
+		where = sql``
+	}
+
+	const result = await sql`
+	SELECT id, channel_id, access_token, refresh_token, donatex_user_id, username, avatar, enabled
+	FROM channels_integrations_donatex
+	${where}
+	`
+
+	if (opts?.id || opts?.channelId) {
+		return result[0] ?? null
+	}
+
+	return result || []
+}
+
+export interface DonateXIntegration {
+	id: number
+	enabled: boolean
+	channel_id: string
+	access_token: string
+	refresh_token: string
+	donatex_user_id: string
+	username: string
+	avatar: string
+}
+
+export async function updateDonateXIntegration(opts: {
+	channel_id: string
+	access_token?: string
+	refresh_token?: string
+	enabled?: string
+}) {
+	await sql`UPDATE channels_integrations_donatex SET ${sql(opts)} WHERE channel_id = ${opts.channel_id}`
+}
