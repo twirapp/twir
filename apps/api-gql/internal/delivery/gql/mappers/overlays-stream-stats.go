@@ -7,6 +7,16 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
+func MapStreamStatsCounterOrderToEntity(
+	order []gqlmodel.StreamStatsOverlayCounter,
+) []entity.StreamStatsOverlayCounter {
+	result := make([]entity.StreamStatsOverlayCounter, 0, len(order))
+	for _, counter := range order {
+		result = append(result, entity.StreamStatsOverlayCounter(counter))
+	}
+	return result
+}
+
 func MapStreamStatsEntityToGQL(e entity.StreamStatsOverlay) gqlmodel.StreamStatsOverlay {
 	counterOrder := make([]gqlmodel.StreamStatsOverlayCounter, 0, len(e.CounterOrder))
 	for _, counter := range e.CounterOrder {
