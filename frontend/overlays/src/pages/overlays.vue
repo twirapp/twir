@@ -77,10 +77,11 @@ watch(layers, (newLayers) => {
 			// Запрашиваем данные
 			requestLayerData(layer.id)
 
-			// Создаём новый интервал
+			// Создаём новый интервал (не чаще раза в секунду, чтобы не спамить сокет)
+			const pollSeconds = Math.max(1, layer.settings.htmlOverlayDataPollSecondsInterval)
 			const interval = setInterval(
 				() => requestLayerData(layer.id),
-				layer.settings.htmlOverlayDataPollSecondsInterval * 1000
+				pollSeconds * 1000
 			)
 			layerIntervals.value.set(layer.id, interval)
 		}

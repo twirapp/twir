@@ -17,8 +17,15 @@ import (
 	"github.com/twirapp/twir/libs/repositories/channels_overlays"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/wsrouter"
+	"golang.org/x/time/rate"
 	"gorm.io/gorm"
 )
+
+// maxMessagesPerSecond caps one connection to 60 events ("frames") per second,
+// so overlays cannot spam expensive handlers like parseLayerVariables (DB + parser call per message).
+const maxMessagesPerSecond = 60
+
+const rateLimiterSessionKey = "messagesRateLimiter"
 
 type Registry struct {
 	manager  *melody.Melody
@@ -55,6 +62,11 @@ func New(
 
 	overlaysRegistry.manager.HandleConnect(
 		func(session *melody.Session) {
+			session.Set(
+				rateLimiterSessionKey,
+				rate.NewLimiter(maxMessagesPerSecond, maxMessagesPerSecond),
+			)
+
 			err := helpers.CheckChannelByApiKey(session, channelsRepository, usersRepository)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
@@ -68,6 +80,12 @@ func New(
 
 	overlaysRegistry.manager.HandleMessage(
 		func(session *melody.Session, msg []byte) {
+			if value, ok := session.Get(rateLimiterSessionKey); ok {
+				if limiter, ok := value.(*rate.Limiter); ok && !limiter.Allow() {
+					return
+				}
+			}
+
 			overlaysRegistry.handleMessage(session, msg)
 		},
 	)
