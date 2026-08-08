@@ -121,10 +121,6 @@ func NewUploaderS3(l *slog.Logger, config cfg.Config, lc *lifecycle.Lifecycle) (
 	if secretToken == "" {
 		secretToken = config.S3SecretToken
 	}
-	publicURL := config.UploaderS3PublicURL
-	if publicURL == "" {
-		publicURL = config.S3PublicUrl
-	}
 
 	var creds *credentials.Credentials
 	if config.AppEnv != "production" {
@@ -138,7 +134,6 @@ func NewUploaderS3(l *slog.Logger, config cfg.Config, lc *lifecycle.Lifecycle) (
 		slog.String("host", host),
 		slog.String("region", region),
 		slog.String("bucket", config.UploaderS3Bucket),
-		slog.String("public_url", publicURL),
 	)
 
 	client, err := minio.New(

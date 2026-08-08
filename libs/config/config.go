@@ -62,7 +62,6 @@ type Config struct {
 	UploaderS3Region             string        `required:"false" envconfig:"UPLOADER_S3_REGION"`
 	UploaderS3AccessToken        string        `required:"false" envconfig:"UPLOADER_S3_ACCESS_TOKEN"`
 	UploaderS3SecretToken        string        `required:"false" envconfig:"UPLOADER_S3_SECRET_TOKEN"`
-	UploaderS3PublicURL          string        `required:"false" envconfig:"UPLOADER_S3_PUBLIC_URL"`
 
 	DiscordClientID                        string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
 	DiscordClientSecret                    string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
