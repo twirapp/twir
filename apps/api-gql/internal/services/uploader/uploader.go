@@ -121,22 +121,25 @@ func (c *Service) Upload(ctx context.Context, input UploadInput) (uploadedfile.E
 	}
 
 	var publicID string
-	for range 5 {
-		publicID, err := gonanoid.Generate(publicIDAlphabet, publicIDLength)
+	for attempts := 0; ; attempts++ {
+		candidate, err := gonanoid.Generate(publicIDAlphabet, publicIDLength)
 		if err != nil {
 			return uploadedfile.Nil, fmt.Errorf("generate public ID: %w", err)
 		}
-		existing, err := c.repository.GetByPublicID(ctx, publicID)
-		if err == nil && !existing.IsNil() {
+
+		existing, err := c.repository.GetByPublicID(ctx, candidate)
+		switch {
+		case err == nil && !existing.IsNil():
+			if attempts >= 4 {
+				return uploadedfile.Nil, ErrPublicIDUnavailable
+			}
 			continue
-		}
-		if err != nil && !errors.Is(err, uploadedfiles.ErrNotFound) {
+		case err != nil && !errors.Is(err, uploadedfiles.ErrNotFound):
 			return uploadedfile.Nil, fmt.Errorf("check public ID: %w", err)
 		}
+
+		publicID = candidate
 		break
-	}
-	if publicID == "" {
-		return uploadedfile.Nil, ErrPublicIDUnavailable
 	}
 
 	deleteKey, err := gonanoid.New(deleteIDLength)
