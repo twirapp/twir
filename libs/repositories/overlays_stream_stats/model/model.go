@@ -7,20 +7,27 @@ import (
 )
 
 type StreamStatsOverlay struct {
-	ID                 uuid.UUID
-	ChannelID          string
-	Design             string
-	ViewersEnabled     bool
-	ViewersMode        string
-	MessagesEnabled    bool
-	UptimeEnabled      bool
-	SubscribersEnabled bool
-	FollowersEnabled   bool
-	CustomHTMLEnabled  bool
-	CustomHTML         string
-	CustomCSS          string
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
+	ID                   uuid.UUID
+	ChannelID            string
+	Design               string
+	Variant              string
+	ViewersEnabled       bool
+	ViewersMode          string
+	PlatformIconsEnabled bool
+	MessagesEnabled      bool
+	UptimeEnabled        bool
+	SubscribersEnabled   bool
+	FollowersEnabled     bool
+	ViewersColor         string
+	MessagesColor        string
+	UptimeColor          string
+	SubscribersColor     string
+	FollowersColor       string
+	CustomHTMLEnabled    bool
+	CustomHTML           string
+	CustomCSS            string
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 
 	isNil bool
 }

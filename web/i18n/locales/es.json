@@ -657,18 +657,42 @@
       "settings": {
         "design": {
           "label": "Design",
-          "bar": {
-            "name": "Bar",
-            "description": "Single horizontal bar with all counters in a row."
+          "glass": {
+            "name": "Glass",
+            "description": "Frosted glass bar with all counters in a row."
           },
           "cards": {
             "name": "Cards",
-            "description": "Each counter in its own card."
+            "description": "Separate cards with a colored accent per counter."
+          },
+          "neon": {
+            "name": "Neon",
+            "description": "Dark cards with a neon violet glow."
+          },
+          "solid": {
+            "name": "Solid",
+            "description": "Bright gradient chips."
           },
           "minimal": {
             "name": "Minimal",
             "description": "Plain text line without decoration."
+          },
+          "terminal": {
+            "name": "Terminal",
+            "description": "Monospace hacker-style readout."
+          },
+          "outline": {
+            "name": "Outline",
+            "description": "Transparent chips with colored outlines."
           }
+        },
+        "variant": {
+          "label": "Layout",
+          "horizontal": "Horizontal",
+          "horizontalCompact": "Horizontal compact",
+          "vertical": "Vertical",
+          "verticalCompact": "Vertical compact",
+          "large": "Large"
         },
         "counters": {
           "label": "Counters",
@@ -688,7 +712,12 @@
               "description": "Separate counter per platform"
             }
           },
-          "twitchOnlyNote": "Subscribers and followers totals are Twitch-only; the counter is hidden for other platforms."
+          "twitchOnlyNote": "Subscribers and followers totals are Twitch-only; the counter is hidden for other platforms.",
+          "platformIcons": "Platform icons instead of labels"
+        },
+        "colors": {
+          "label": "Counter colors",
+          "hint": "Leave empty to use the design default."
         },
         "customTemplate": {
           "label": "Custom Template",

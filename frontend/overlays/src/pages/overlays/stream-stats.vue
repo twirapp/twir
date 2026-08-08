@@ -4,9 +4,13 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import CustomTemplate from '@/components/stream-stats/custom-template.vue'
-import DesignBar from '@/components/stream-stats/design-bar.vue'
 import DesignCards from '@/components/stream-stats/design-cards.vue'
+import DesignGlass from '@/components/stream-stats/design-glass.vue'
 import DesignMinimal from '@/components/stream-stats/design-minimal.vue'
+import DesignNeon from '@/components/stream-stats/design-neon.vue'
+import DesignOutline from '@/components/stream-stats/design-outline.vue'
+import DesignSolid from '@/components/stream-stats/design-solid.vue'
+import DesignTerminal from '@/components/stream-stats/design-terminal.vue'
 import {
 	type StreamStatsCounters,
 	type StreamStatsSettings,
@@ -51,13 +55,21 @@ const { items, placeholders } = useStreamStatsCounters(settings, counters, now)
 
 const designComponent = computed(() => {
 	switch (settings.value?.design) {
-		case StreamStatsOverlayDesign.Bar:
-			return DesignBar
+		case StreamStatsOverlayDesign.Cards:
+			return DesignCards
+		case StreamStatsOverlayDesign.Neon:
+			return DesignNeon
+		case StreamStatsOverlayDesign.Solid:
+			return DesignSolid
 		case StreamStatsOverlayDesign.Minimal:
 			return DesignMinimal
-		case StreamStatsOverlayDesign.Cards:
+		case StreamStatsOverlayDesign.Terminal:
+			return DesignTerminal
+		case StreamStatsOverlayDesign.Outline:
+			return DesignOutline
+		case StreamStatsOverlayDesign.Glass:
 		default:
-			return DesignCards
+			return DesignGlass
 	}
 })
 
@@ -106,6 +118,12 @@ onUnmounted(() => {
 			:css="settings.customCss"
 			:values="placeholders"
 		/>
-		<component :is="designComponent" v-else :items="items" />
+		<component
+			:is="designComponent"
+			v-else
+			:items="items"
+			:variant="settings.variant"
+			:platform-icons="settings.platformIconsEnabled"
+		/>
 	</template>
 </template>

@@ -2,6 +2,7 @@ import { computed, toValue } from 'vue'
 
 import type { MaybeRefOrGetter } from 'vue'
 
+import { counterColors } from '@/components/stream-stats/counter-meta.js'
 import { Platform, StreamStatsOverlayViewersMode } from '@/gql/graphql'
 
 import type {
@@ -19,6 +20,8 @@ export type StreamStatsCounterItem = {
 	key: StreamStatsCounterKey
 	label: string
 	value: string
+	color: string
+	platform?: Platform
 	platformColor?: string
 }
 
@@ -66,6 +69,16 @@ export function useStreamStatsCounters(
 		const currentCounters = toValue(counters)
 		if (!currentSettings || !currentCounters) return []
 
+		const userColors: Record<StreamStatsCounterKey, string> = {
+			viewers: currentSettings.viewersColor,
+			messages: currentSettings.messagesColor,
+			uptime: currentSettings.uptimeColor,
+			subscribers: currentSettings.subscribersColor,
+			followers: currentSettings.followersColor,
+		}
+		const resolveColor = (key: StreamStatsCounterKey): string =>
+			userColors[key] || counterColors[key]
+
 		const result: StreamStatsCounterItem[] = []
 
 		if (currentSettings.viewersEnabled) {
@@ -80,6 +93,8 @@ export function useStreamStatsCounters(
 						key: 'viewers',
 						label: meta?.label ?? entry.platform,
 						value: formatStatNumber(entry.viewers),
+						color: resolveColor('viewers'),
+						platform: entry.platform,
 						...(meta ? { platformColor: meta.color } : {}),
 					})
 				}
@@ -89,6 +104,7 @@ export function useStreamStatsCounters(
 					key: 'viewers',
 					label: 'Viewers',
 					value: formatStatNumber(currentCounters.viewers),
+					color: resolveColor('viewers'),
 				})
 			}
 		}
@@ -99,6 +115,7 @@ export function useStreamStatsCounters(
 				key: 'messages',
 				label: 'Messages',
 				value: formatStatNumber(currentCounters.messages),
+				color: resolveColor('messages'),
 			})
 		}
 
@@ -108,6 +125,7 @@ export function useStreamStatsCounters(
 				key: 'uptime',
 				label: 'Uptime',
 				value: uptime.value,
+				color: resolveColor('uptime'),
 			})
 		}
 
@@ -117,6 +135,7 @@ export function useStreamStatsCounters(
 				key: 'subscribers',
 				label: 'Subscribers',
 				value: formatStatNumber(currentCounters.subscribers),
+				color: resolveColor('subscribers'),
 			})
 		}
 
@@ -126,6 +145,7 @@ export function useStreamStatsCounters(
 				key: 'followers',
 				label: 'Followers',
 				value: formatStatNumber(currentCounters.followers),
+				color: resolveColor('followers'),
 			})
 		}
 

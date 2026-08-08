@@ -10,9 +10,23 @@ import (
 type StreamStatsOverlayDesign string
 
 const (
-	StreamStatsOverlayDesignBar     StreamStatsOverlayDesign = "BAR"
-	StreamStatsOverlayDesignCards   StreamStatsOverlayDesign = "CARDS"
-	StreamStatsOverlayDesignMinimal StreamStatsOverlayDesign = "MINIMAL"
+	StreamStatsOverlayDesignGlass    StreamStatsOverlayDesign = "GLASS"
+	StreamStatsOverlayDesignCards    StreamStatsOverlayDesign = "CARDS"
+	StreamStatsOverlayDesignNeon     StreamStatsOverlayDesign = "NEON"
+	StreamStatsOverlayDesignSolid    StreamStatsOverlayDesign = "SOLID"
+	StreamStatsOverlayDesignMinimal  StreamStatsOverlayDesign = "MINIMAL"
+	StreamStatsOverlayDesignTerminal StreamStatsOverlayDesign = "TERMINAL"
+	StreamStatsOverlayDesignOutline  StreamStatsOverlayDesign = "OUTLINE"
+)
+
+type StreamStatsOverlayVariant string
+
+const (
+	StreamStatsOverlayVariantHorizontal        StreamStatsOverlayVariant = "HORIZONTAL"
+	StreamStatsOverlayVariantHorizontalCompact StreamStatsOverlayVariant = "HORIZONTAL_COMPACT"
+	StreamStatsOverlayVariantVertical          StreamStatsOverlayVariant = "VERTICAL"
+	StreamStatsOverlayVariantVerticalCompact   StreamStatsOverlayVariant = "VERTICAL_COMPACT"
+	StreamStatsOverlayVariantLarge             StreamStatsOverlayVariant = "LARGE"
 )
 
 type StreamStatsOverlayViewersMode string
@@ -23,20 +37,27 @@ const (
 )
 
 type StreamStatsOverlay struct {
-	ID                 uuid.UUID
-	ChannelID          string
-	Design             StreamStatsOverlayDesign
-	ViewersEnabled     bool
-	ViewersMode        StreamStatsOverlayViewersMode
-	MessagesEnabled    bool
-	UptimeEnabled      bool
-	SubscribersEnabled bool
-	FollowersEnabled   bool
-	CustomHTMLEnabled  bool
-	CustomHTML         string
-	CustomCSS          string
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
+	ID                   uuid.UUID
+	ChannelID            string
+	Design               StreamStatsOverlayDesign
+	Variant              StreamStatsOverlayVariant
+	ViewersEnabled       bool
+	ViewersMode          StreamStatsOverlayViewersMode
+	PlatformIconsEnabled bool
+	MessagesEnabled      bool
+	UptimeEnabled        bool
+	SubscribersEnabled   bool
+	FollowersEnabled     bool
+	ViewersColor         string
+	MessagesColor        string
+	UptimeColor          string
+	SubscribersColor     string
+	FollowersColor       string
+	CustomHTMLEnabled    bool
+	CustomHTML           string
+	CustomCSS            string
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }
 
 type StreamStatsOverlayPlatformViewers struct {

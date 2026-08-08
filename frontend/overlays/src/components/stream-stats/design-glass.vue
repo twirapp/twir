@@ -28,80 +28,101 @@ const iconSize = computed(() => {
 		case StreamStatsOverlayVariant.VerticalCompact:
 			return 13
 		case StreamStatsOverlayVariant.Large:
-			return 19
+			return 18
 		default:
 			return 15
 	}
 })
+
+const platformIconSize = computed(() => iconSize.value - 2)
 </script>
 
 <template>
-	<div class="minimal" :class="rootClass">
-		<div v-for="item in items" :key="item.id" class="item">
-			<component
-				:is="counterIcons[item.key]"
-				:size="iconSize"
-				:stroke-width="2.5"
-				class="icon"
-				:style="{ color: item.color }"
-			/>
-			<RollingNumber :value="item.value" class="value" />
-			<template v-if="item.platformColor">
-				<PlatformIcon
-					v-if="platformIcons && item.platform"
-					:platform="item.platform"
-					:size="iconSize - 2"
-					:style="{ color: item.platformColor }"
+	<div class="glass" :class="rootClass">
+		<template v-for="(item, index) in items" :key="item.id">
+			<div v-if="index > 0" class="divider" />
+			<div class="item">
+				<component
+					:is="counterIcons[item.key]"
+					:size="iconSize"
+					:stroke-width="2.25"
+					class="icon"
+					:style="{ color: item.color }"
 				/>
-				<span v-else class="platform-label" :style="{ color: item.platformColor }">
-					{{ item.label }}
-				</span>
-			</template>
-		</div>
+				<RollingNumber :value="item.value" class="value" />
+				<template v-if="item.platformColor">
+					<PlatformIcon
+						v-if="platformIcons && item.platform"
+						:platform="item.platform"
+						:size="platformIconSize"
+						:style="{ color: item.platformColor }"
+					/>
+					<span v-else class="platform-label" :style="{ color: item.platformColor }">
+						{{ item.label }}
+					</span>
+				</template>
+			</div>
+		</template>
 	</div>
 </template>
 
 <style scoped>
-.minimal {
+.glass {
 	display: inline-flex;
 	align-items: center;
-	gap: 18px;
+	gap: 14px;
+	padding: 9px 18px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 9999px;
+	background-color: rgba(10, 10, 14, 0.5);
+	backdrop-filter: blur(10px);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.08),
+		0 4px 16px rgba(0, 0, 0, 0.35);
 	color: #fff;
 	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.divider {
+	width: 1px;
+	height: 16px;
+	background-color: rgba(255, 255, 255, 0.14);
 }
 
 .item {
 	display: flex;
 	align-items: center;
-	gap: 6px;
-	text-shadow:
-		0 1px 3px rgba(0, 0, 0, 0.9),
-		0 0 2px rgba(0, 0, 0, 0.9);
+	gap: 7px;
 }
 
 .icon {
 	flex-shrink: 0;
-	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
 }
 
 .value {
 	font-size: 14px;
 	font-weight: 600;
 	line-height: 1;
+	letter-spacing: 0.01em;
 }
 
 .platform-label {
 	font-size: 11px;
-	font-weight: 600;
+	font-weight: 500;
 	line-height: 1;
 }
 
 .root--compact {
-	gap: 13px;
+	gap: 10px;
+	padding: 7px 14px;
+}
+
+.root--compact .divider {
+	height: 13px;
 }
 
 .root--compact .item {
-	gap: 5px;
+	gap: 6px;
 }
 
 .root--compact .value {
@@ -113,11 +134,16 @@ const iconSize = computed(() => {
 }
 
 .root--large {
-	gap: 24px;
+	gap: 18px;
+	padding: 12px 24px;
+}
+
+.root--large .divider {
+	height: 20px;
 }
 
 .root--large .item {
-	gap: 8px;
+	gap: 9px;
 }
 
 .root--large .value {
@@ -130,11 +156,25 @@ const iconSize = computed(() => {
 
 .root--vertical {
 	flex-direction: column;
-	align-items: flex-start;
-	gap: 8px;
+	align-items: stretch;
+	gap: 10px;
+	border-radius: 16px;
+}
+
+.root--vertical .divider {
+	width: auto;
+	height: 1px;
+}
+
+.root--vertical .item {
+	justify-content: flex-start;
+}
+
+.root--vertical .value {
+	margin-right: auto;
 }
 
 .root--vertical.root--compact {
-	gap: 6px;
+	gap: 7px;
 }
 </style>

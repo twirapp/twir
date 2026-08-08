@@ -5,32 +5,42 @@ import { toast } from 'vue-sonner'
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink.js'
 
-import { useStreamStatsOverlayApi } from './api'
-
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import InputWithIcon from '@/components/ui/InputWithIcon/InputWithIcon.vue'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import {
 	ChannelRolePermissionEnum,
 	StreamStatsOverlayDesign,
+	StreamStatsOverlayVariant,
 	StreamStatsOverlayViewersMode,
 } from '~/gql/graphql.js'
 import { StreamStatsOverlayUpdateInputSchema } from '~/gql/validation-schemas.js'
+
+import { useStreamStatsOverlayApi } from './api'
 
 const { t } = useI18n()
 
 const { data: profile } = useProfile()
 
 const defaultSettings = {
-	design: StreamStatsOverlayDesign.Bar,
+	design: StreamStatsOverlayDesign.Glass,
+	variant: StreamStatsOverlayVariant.Horizontal,
 	viewersEnabled: true,
 	viewersMode: StreamStatsOverlayViewersMode.Cumulative,
+	platformIconsEnabled: false,
 	messagesEnabled: true,
 	uptimeEnabled: true,
 	subscribersEnabled: true,
 	followersEnabled: true,
+	viewersColor: '',
+	messagesColor: '',
+	uptimeColor: '',
+	subscribersColor: '',
+	followersColor: '',
 	customHtmlEnabled: false,
 	customHtml: '',
 	customCss: '',
@@ -69,12 +79,19 @@ watch(
 		const overlay = v.overlaysStreamStats
 		form.setValues({
 			design: overlay.design,
+			variant: overlay.variant,
 			viewersEnabled: overlay.viewersEnabled,
 			viewersMode: overlay.viewersMode,
+			platformIconsEnabled: overlay.platformIconsEnabled,
 			messagesEnabled: overlay.messagesEnabled,
 			uptimeEnabled: overlay.uptimeEnabled,
 			subscribersEnabled: overlay.subscribersEnabled,
 			followersEnabled: overlay.followersEnabled,
+			viewersColor: overlay.viewersColor,
+			messagesColor: overlay.messagesColor,
+			uptimeColor: overlay.uptimeColor,
+			subscribersColor: overlay.subscribersColor,
+			followersColor: overlay.followersColor,
 			customHtmlEnabled: overlay.customHtmlEnabled,
 			customHtml: overlay.customHtml,
 			customCss: overlay.customCss,
@@ -135,12 +152,19 @@ const save = form.handleSubmit(async (values) => {
 		await updateMutation.executeMutation({
 			input: {
 				design: values.design as StreamStatsOverlayDesign,
+				variant: values.variant as StreamStatsOverlayVariant,
 				viewersEnabled: values.viewersEnabled,
 				viewersMode: values.viewersMode as StreamStatsOverlayViewersMode,
+				platformIconsEnabled: values.platformIconsEnabled,
 				messagesEnabled: values.messagesEnabled,
 				uptimeEnabled: values.uptimeEnabled,
 				subscribersEnabled: values.subscribersEnabled,
 				followersEnabled: values.followersEnabled,
+				viewersColor: values.viewersColor,
+				messagesColor: values.messagesColor,
+				uptimeColor: values.uptimeColor,
+				subscribersColor: values.subscribersColor,
+				followersColor: values.followersColor,
 				customHtmlEnabled: values.customHtmlEnabled,
 				customHtml: values.customHtml,
 				customCss: values.customCss,
@@ -165,9 +189,23 @@ function setDefaultSettings() {
 }
 
 const designOptions = [
-	{ value: StreamStatsOverlayDesign.Bar, labelKey: 'bar' },
+	{ value: StreamStatsOverlayDesign.Glass, labelKey: 'glass' },
 	{ value: StreamStatsOverlayDesign.Cards, labelKey: 'cards' },
+	{ value: StreamStatsOverlayDesign.Neon, labelKey: 'neon' },
+	{ value: StreamStatsOverlayDesign.Solid, labelKey: 'solid' },
 	{ value: StreamStatsOverlayDesign.Minimal, labelKey: 'minimal' },
+	{ value: StreamStatsOverlayDesign.Terminal, labelKey: 'terminal' },
+	{ value: StreamStatsOverlayDesign.Outline, labelKey: 'outline' },
+] as const
+
+const cardsMockAccents = ['#8b5cf6', '#38bdf8', '#fbbf24'] as const
+
+const variantOptions = [
+	{ value: StreamStatsOverlayVariant.Horizontal, labelKey: 'horizontal' },
+	{ value: StreamStatsOverlayVariant.HorizontalCompact, labelKey: 'horizontalCompact' },
+	{ value: StreamStatsOverlayVariant.Vertical, labelKey: 'vertical' },
+	{ value: StreamStatsOverlayVariant.VerticalCompact, labelKey: 'verticalCompact' },
+	{ value: StreamStatsOverlayVariant.Large, labelKey: 'large' },
 ] as const
 
 const counters = [
@@ -176,6 +214,14 @@ const counters = [
 	{ name: 'uptimeEnabled', icon: 'lucide:clock', labelKey: 'uptime' },
 	{ name: 'subscribersEnabled', icon: 'lucide:star', labelKey: 'subscribers' },
 	{ name: 'followersEnabled', icon: 'lucide:user-plus', labelKey: 'followers' },
+] as const
+
+const colorCounters = [
+	{ name: 'viewersColor', icon: 'lucide:users', labelKey: 'viewers' },
+	{ name: 'messagesColor', icon: 'lucide:message-square', labelKey: 'messages' },
+	{ name: 'uptimeColor', icon: 'lucide:clock', labelKey: 'uptime' },
+	{ name: 'subscribersColor', icon: 'lucide:star', labelKey: 'subscribers' },
+	{ name: 'followersColor', icon: 'lucide:user-plus', labelKey: 'followers' },
 ] as const
 
 const viewersModeOptions = [
@@ -246,7 +292,7 @@ const monacoOptions = {
 						>
 							<FormItem>
 								<FormControl>
-									<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+									<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
 										<button
 											v-for="option of designOptions"
 											:key="option.value"
@@ -258,17 +304,21 @@ const monacoOptions = {
 											<div
 												class="bg-muted/30 flex h-16 items-center justify-center rounded-md border"
 											>
-												<!-- bar design mock -->
+												<!-- glass design mock -->
 												<div
-													v-if="option.value === StreamStatsOverlayDesign.Bar"
-													class="bg-muted flex h-7 items-center gap-2 rounded-full border px-3"
+													v-if="option.value === StreamStatsOverlayDesign.Glass"
+													class="bg-muted/60 flex h-7 items-center gap-2 rounded-full border px-3 backdrop-blur-sm"
 												>
 													<template
 														v-for="i of 3"
 														:key="i"
 													>
+														<span
+															v-if="i > 1"
+															class="bg-muted-foreground/30 h-3 w-px"
+														/>
 														<span class="bg-primary/70 size-1.5 rounded-full" />
-														<span class="bg-muted-foreground/40 h-1 w-5 rounded" />
+														<span class="bg-muted-foreground/40 h-1 w-4 rounded" />
 													</template>
 												</div>
 
@@ -278,13 +328,54 @@ const monacoOptions = {
 													class="flex gap-1.5"
 												>
 													<div
-														v-for="i of 3"
-														:key="i"
-														class="bg-muted flex h-8 w-9 flex-col items-center justify-center gap-1 rounded-md border"
+														v-for="accent of cardsMockAccents"
+														:key="accent"
+														class="bg-muted flex h-8 w-9 flex-col items-center justify-center gap-1 rounded-md border border-t-2"
+														:style="{ borderTopColor: accent }"
 													>
 														<span class="bg-primary/70 size-1.5 rounded-full" />
 														<span class="bg-muted-foreground/40 h-1 w-5 rounded" />
 													</div>
+												</div>
+
+												<!-- neon design mock -->
+												<div
+													v-else-if="option.value === StreamStatsOverlayDesign.Neon"
+													class="bg-muted flex h-8 w-9 flex-col items-center justify-center gap-1 rounded-md border border-[#c084fc] shadow-[0_0_8px_rgba(192,132,252,0.5)]"
+												>
+													<span class="size-1.5 rounded-full bg-[#c084fc]" />
+													<span class="bg-muted-foreground/40 h-1 w-5 rounded" />
+												</div>
+
+												<!-- solid design mock -->
+												<div
+													v-else-if="option.value === StreamStatsOverlayDesign.Solid"
+													class="flex h-7 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#7c3aed,#db2777)] px-3"
+												>
+													<template
+														v-for="i of 3"
+														:key="i"
+													>
+														<span class="size-1.5 rounded-full bg-white/80" />
+														<span class="h-1 w-4 rounded bg-white/60" />
+													</template>
+												</div>
+
+												<!-- terminal design mock -->
+												<div
+													v-else-if="option.value === StreamStatsOverlayDesign.Terminal"
+													class="flex h-7 items-center rounded-md bg-[#0a0f0a] px-2"
+												>
+													<span class="font-mono text-[10px] text-[#22c55e]">> 1,342_</span>
+												</div>
+
+												<!-- outline design mock -->
+												<div
+													v-else-if="option.value === StreamStatsOverlayDesign.Outline"
+													class="flex h-7 items-center gap-2 rounded-full border-2 border-[#8b5cf6] px-3"
+												>
+													<span class="size-1.5 rounded-full bg-[#8b5cf6]" />
+													<span class="bg-muted-foreground/40 h-1 w-4 rounded" />
 												</div>
 
 												<!-- minimal design mock -->
@@ -316,6 +407,34 @@ const monacoOptions = {
 
 						<Separator />
 						<h3 class="text-lg font-semibold">
+							{{ t('overlays.streamStats.settings.variant.label') }}
+						</h3>
+
+						<FormField
+							v-slot="{ value, handleChange }"
+							name="variant"
+						>
+							<FormItem>
+								<FormControl>
+									<div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+										<button
+											v-for="option of variantOptions"
+											:key="option.value"
+											type="button"
+											class="hover:border-primary/50 rounded-lg border p-3 text-left text-sm font-medium transition-colors"
+											:class="value === option.value ? 'ring-primary border-primary ring-2' : ''"
+											@click="handleChange(option.value)"
+										>
+											{{ t(`overlays.streamStats.settings.variant.${option.labelKey}`) }}
+										</button>
+									</div>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						</FormField>
+
+						<Separator />
+						<h3 class="text-lg font-semibold">
 							{{ t('overlays.streamStats.settings.counters.label') }}
 						</h3>
 
@@ -335,9 +454,7 @@ const monacoOptions = {
 													:name="counter.icon"
 													class="text-muted-foreground size-4"
 												/>
-												{{
-													t(`overlays.streamStats.settings.counters.${counter.labelKey}`)
-												}}
+												{{ t(`overlays.streamStats.settings.counters.${counter.labelKey}`) }}
 											</FormLabel>
 											<FormControl>
 												<Switch
@@ -355,7 +472,7 @@ const monacoOptions = {
 									v-slot="{ value, handleChange }"
 									name="viewersMode"
 								>
-									<FormItem class="border-l pl-4 ml-2">
+									<FormItem class="ml-2 border-l pl-4">
 										<FormLabel>{{
 											t('overlays.streamStats.settings.counters.viewersMode.label')
 										}}</FormLabel>
@@ -391,10 +508,76 @@ const monacoOptions = {
 										<FormMessage />
 									</FormItem>
 								</FormField>
+
+								<FormField
+									v-if="
+										counter.name === 'viewersEnabled' &&
+										form.values.viewersEnabled &&
+										form.values.viewersMode === StreamStatsOverlayViewersMode.Separate
+									"
+									v-slot="{ value, handleChange }"
+									name="platformIconsEnabled"
+								>
+									<FormItem class="ml-2 border-l pl-4">
+										<div class="flex items-center justify-between gap-2">
+											<FormLabel class="mt-0!">
+												{{ t('overlays.streamStats.settings.counters.platformIcons') }}
+											</FormLabel>
+											<FormControl>
+												<Switch
+													:model-value="value"
+													@update:model-value="handleChange"
+												/>
+											</FormControl>
+										</div>
+										<FormMessage />
+									</FormItem>
+								</FormField>
 							</template>
 
 							<p class="text-muted-foreground text-xs">
 								{{ t('overlays.streamStats.settings.counters.twitchOnlyNote') }}
+							</p>
+						</div>
+
+						<Separator />
+						<h3 class="text-lg font-semibold">
+							{{ t('overlays.streamStats.settings.colors.label') }}
+						</h3>
+
+						<div class="space-y-4">
+							<FormField
+								v-for="colorCounter of colorCounters"
+								:key="colorCounter.name"
+								v-slot="{ componentField }"
+								:name="colorCounter.name"
+							>
+								<FormItem>
+									<FormLabel class="flex items-center gap-2">
+										<Icon
+											:name="colorCounter.icon"
+											class="text-muted-foreground size-4"
+										/>
+										{{ t(`overlays.streamStats.settings.counters.${colorCounter.labelKey}`) }}
+									</FormLabel>
+									<FormControl>
+										<InputWithIcon
+											v-model="componentField.modelValue"
+											@update:model-value="componentField['onUpdate:modelValue']"
+										>
+											<ColorPicker
+												output-format="hex"
+												v-model="componentField.modelValue"
+												@update:model-value="componentField['onUpdate:modelValue']"
+											/>
+										</InputWithIcon>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							</FormField>
+
+							<p class="text-muted-foreground text-xs">
+								{{ t('overlays.streamStats.settings.colors.hint') }}
 							</p>
 						</div>
 
@@ -432,7 +615,7 @@ const monacoOptions = {
 										:key="placeholder"
 										class="bg-muted mx-0.5 rounded px-1 py-0.5 font-mono text-[11px]"
 									>
-														{{ placeholder }}
+										{{ placeholder }}
 									</code>
 									{{ t('overlays.streamStats.settings.customTemplate.replacesDesign') }}
 								</p>

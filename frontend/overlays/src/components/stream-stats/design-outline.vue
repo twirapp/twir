@@ -26,19 +26,29 @@ const iconSize = computed(() => {
 	switch (props.variant) {
 		case StreamStatsOverlayVariant.HorizontalCompact:
 		case StreamStatsOverlayVariant.VerticalCompact:
-			return 14
+			return 12
 		case StreamStatsOverlayVariant.Large:
-			return 20
+			return 18
 		default:
-			return 16
+			return 14
 	}
 })
+
+function chipStyle(color: string) {
+	return {
+		borderColor: color,
+		backgroundColor: `color-mix(in srgb, ${color} 5%, transparent)`,
+	}
+}
+
+function faded(color: string): string {
+	return `color-mix(in srgb, ${color} 60%, transparent)`
+}
 </script>
 
 <template>
-	<div class="cards" :class="rootClass">
-		<div v-for="item in items" :key="item.id" class="card">
-			<div class="accent" :style="{ backgroundColor: item.color }" />
+	<div class="outline" :class="rootClass">
+		<div v-for="item in items" :key="item.id" class="chip" :style="chipStyle(item.color)">
 			<component
 				:is="counterIcons[item.key]"
 				:size="iconSize"
@@ -46,18 +56,17 @@ const iconSize = computed(() => {
 				class="icon"
 				:style="{ color: item.color }"
 			/>
-			<RollingNumber :value="item.value" class="value" />
+			<RollingNumber :value="item.value" class="value" :style="{ color: item.color }" />
 			<PlatformIcon
 				v-if="platformIcons && item.platform && item.platformColor"
 				:platform="item.platform"
-				:size="iconSize - 3"
+				:size="iconSize - 2"
 				:style="{ color: item.platformColor }"
 			/>
 			<span
 				v-else
 				class="label"
-				:class="{ 'label-platform': item.platformColor }"
-				:style="item.platformColor ? { color: item.platformColor } : {}"
+				:style="{ color: item.platformColor ? item.platformColor : faded(item.color) }"
 			>
 				{{ item.label }}
 			</span>
@@ -66,36 +75,21 @@ const iconSize = computed(() => {
 </template>
 
 <style scoped>
-.cards {
+.outline {
 	display: inline-flex;
-	align-items: stretch;
-	gap: 10px;
+	align-items: center;
+	gap: 8px;
 	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-.card {
-	position: relative;
+.chip {
 	display: flex;
-	flex-direction: column;
 	align-items: center;
-	gap: 4px;
-	min-width: 76px;
-	padding: 12px 16px 10px;
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	border-radius: 12px;
-	background-color: rgba(10, 10, 14, 0.6);
-	backdrop-filter: blur(10px);
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-	color: #fff;
-	overflow: hidden;
-}
-
-.accent {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 2px;
+	gap: 7px;
+	padding: 5px 13px;
+	border: 1.5px solid transparent;
+	border-radius: 9999px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
 .icon {
@@ -103,9 +97,9 @@ const iconSize = computed(() => {
 }
 
 .value {
-	font-size: 18px;
+	font-size: 14px;
 	font-weight: 700;
-	line-height: 1.1;
+	line-height: 1;
 }
 
 .label {
@@ -114,55 +108,40 @@ const iconSize = computed(() => {
 	line-height: 1;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: rgba(255, 255, 255, 0.5);
-}
-
-.label-platform {
-	font-size: 10px;
 }
 
 .root--compact {
-	gap: 8px;
+	gap: 6px;
 }
 
-.root--compact .card {
-	min-width: 64px;
-	padding: 10px 12px 8px;
-	gap: 3px;
+.root--compact .chip {
+	gap: 5px;
+	padding: 4px 10px;
 }
 
 .root--compact .value {
-	font-size: 16px;
+	font-size: 12px;
 }
 
 .root--compact .label {
 	font-size: 8px;
 }
 
-.root--compact .label-platform {
-	font-size: 9px;
-}
-
 .root--large {
-	gap: 12px;
+	gap: 10px;
 }
 
-.root--large .card {
-	min-width: 96px;
-	padding: 14px 20px 12px;
-	gap: 5px;
+.root--large .chip {
+	gap: 9px;
+	padding: 7px 17px;
 }
 
 .root--large .value {
-	font-size: 22px;
+	font-size: 19px;
 }
 
 .root--large .label {
 	font-size: 11px;
-}
-
-.root--large .label-platform {
-	font-size: 12px;
 }
 
 .root--vertical {
@@ -170,21 +149,8 @@ const iconSize = computed(() => {
 	align-items: stretch;
 }
 
-.root--vertical .card {
-	flex-direction: row;
-	align-items: center;
+.root--vertical .chip {
 	justify-content: flex-start;
-	gap: 8px;
-	min-width: 0;
-	padding: 8px 14px;
-}
-
-.root--vertical .card .accent {
-	top: 0;
-	bottom: 0;
-	right: auto;
-	width: 2px;
-	height: auto;
 }
 
 .root--vertical .value {

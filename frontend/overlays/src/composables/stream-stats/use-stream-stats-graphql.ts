@@ -19,12 +19,19 @@ export function useStreamStatsGraphQL() {
 					id
 					channelId
 					design
+					variant
+					platformIconsEnabled
 					viewersEnabled
 					viewersMode
+					viewersColor
 					messagesEnabled
+					messagesColor
 					uptimeEnabled
+					uptimeColor
 					subscribersEnabled
+					subscribersColor
 					followersEnabled
+					followersColor
 					customHtmlEnabled
 					customHtml
 					customCss

@@ -1,15 +1,12 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
+import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 
 import type { OverlaysStreamStatsQuery } from '~/gql/graphql.js'
 
-import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/gql.js'
 
-export type StreamStatsOverlay = Omit<
-	OverlaysStreamStatsQuery['overlaysStreamStats'],
-	'__typename'
->
+export type StreamStatsOverlay = Omit<OverlaysStreamStatsQuery['overlaysStreamStats'], '__typename'>
 
 const invalidationKey = 'StreamStatsOverlayInvalidateKey'
 
@@ -24,12 +21,19 @@ export const useStreamStatsOverlayApi = createGlobalState(() => {
 						id
 						channelId
 						design
+						variant
 						viewersEnabled
 						viewersMode
+						platformIconsEnabled
 						messagesEnabled
 						uptimeEnabled
 						subscribersEnabled
 						followersEnabled
+						viewersColor
+						messagesColor
+						uptimeColor
+						subscribersColor
+						followersColor
 						customHtmlEnabled
 						customHtml
 						customCss
@@ -48,12 +52,19 @@ export const useStreamStatsOverlayApi = createGlobalState(() => {
 						id
 						channelId
 						design
+						variant
 						viewersEnabled
 						viewersMode
+						platformIconsEnabled
 						messagesEnabled
 						uptimeEnabled
 						subscribersEnabled
 						followersEnabled
+						viewersColor
+						messagesColor
+						uptimeColor
+						subscribersColor
+						followersColor
 						customHtmlEnabled
 						customHtml
 						customCss

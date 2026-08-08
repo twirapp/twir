@@ -12,9 +12,21 @@ extend type Subscription {
 }
 
 enum StreamStatsOverlayDesign {
-	BAR
+	GLASS
 	CARDS
+	NEON
+	SOLID
 	MINIMAL
+	TERMINAL
+	OUTLINE
+}
+
+enum StreamStatsOverlayVariant {
+	HORIZONTAL
+	HORIZONTAL_COMPACT
+	VERTICAL
+	VERTICAL_COMPACT
+	LARGE
 }
 
 enum StreamStatsOverlayViewersMode {
@@ -26,12 +38,19 @@ type StreamStatsOverlay {
 	id: UUID!
 	channelId: String!
 	design: StreamStatsOverlayDesign!
+	variant: StreamStatsOverlayVariant!
 	viewersEnabled: Boolean!
 	viewersMode: StreamStatsOverlayViewersMode!
+	platformIconsEnabled: Boolean!
 	messagesEnabled: Boolean!
 	uptimeEnabled: Boolean!
 	subscribersEnabled: Boolean!
 	followersEnabled: Boolean!
+	viewersColor: String!
+	messagesColor: String!
+	uptimeColor: String!
+	subscribersColor: String!
+	followersColor: String!
 	customHtmlEnabled: Boolean!
 	customHtml: String!
 	customCss: String!
@@ -41,12 +60,19 @@ type StreamStatsOverlay {
 
 input StreamStatsOverlayUpdateInput {
 	design: StreamStatsOverlayDesign!
+	variant: StreamStatsOverlayVariant!
 	viewersEnabled: Boolean!
 	viewersMode: StreamStatsOverlayViewersMode!
+	platformIconsEnabled: Boolean!
 	messagesEnabled: Boolean!
 	uptimeEnabled: Boolean!
 	subscribersEnabled: Boolean!
 	followersEnabled: Boolean!
+	viewersColor: String! @validate(constraint: "max=50")
+	messagesColor: String! @validate(constraint: "max=50")
+	uptimeColor: String! @validate(constraint: "max=50")
+	subscribersColor: String! @validate(constraint: "max=50")
+	followersColor: String! @validate(constraint: "max=50")
 	customHtmlEnabled: Boolean!
 	customHtml: String! @validate(constraint: "max=20000")
 	customCss: String! @validate(constraint: "max=20000")

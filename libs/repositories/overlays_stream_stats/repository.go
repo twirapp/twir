@@ -14,30 +14,44 @@ type Repository interface {
 }
 
 type CreateInput struct {
-	ChannelID          string
-	Design             string
-	ViewersEnabled     bool
-	ViewersMode        string
-	MessagesEnabled    bool
-	UptimeEnabled      bool
-	SubscribersEnabled bool
-	FollowersEnabled   bool
-	CustomHTMLEnabled  bool
-	CustomHTML         string
-	CustomCSS          string
+	ChannelID            string
+	Design               string
+	Variant              string
+	ViewersEnabled       bool
+	ViewersMode          string
+	PlatformIconsEnabled bool
+	MessagesEnabled      bool
+	UptimeEnabled        bool
+	SubscribersEnabled   bool
+	FollowersEnabled     bool
+	ViewersColor         string
+	MessagesColor        string
+	UptimeColor          string
+	SubscribersColor     string
+	FollowersColor       string
+	CustomHTMLEnabled    bool
+	CustomHTML           string
+	CustomCSS            string
 }
 
 type UpdateInput struct {
-	Design             string
-	ViewersEnabled     bool
-	ViewersMode        string
-	MessagesEnabled    bool
-	UptimeEnabled      bool
-	SubscribersEnabled bool
-	FollowersEnabled   bool
-	CustomHTMLEnabled  bool
-	CustomHTML         string
-	CustomCSS          string
+	Design               string
+	Variant              string
+	ViewersEnabled       bool
+	ViewersMode          string
+	PlatformIconsEnabled bool
+	MessagesEnabled      bool
+	UptimeEnabled        bool
+	SubscribersEnabled   bool
+	FollowersEnabled     bool
+	ViewersColor         string
+	MessagesColor        string
+	UptimeColor          string
+	SubscribersColor     string
+	FollowersColor       string
+	CustomHTMLEnabled    bool
+	CustomHTML           string
+	CustomCSS            string
 }
 
 var ErrNotFound = errors.New("not found")

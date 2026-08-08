@@ -33,18 +33,24 @@ const iconSize = computed(() => {
 			return 16
 	}
 })
+
+function iconStyle(color: string) {
+	return {
+		color,
+		filter: `drop-shadow(0 0 6px color-mix(in srgb, ${color} 60%, transparent))`,
+	}
+}
 </script>
 
 <template>
-	<div class="cards" :class="rootClass">
+	<div class="neon" :class="rootClass">
 		<div v-for="item in items" :key="item.id" class="card">
-			<div class="accent" :style="{ backgroundColor: item.color }" />
 			<component
 				:is="counterIcons[item.key]"
 				:size="iconSize"
 				:stroke-width="2.25"
 				class="icon"
-				:style="{ color: item.color }"
+				:style="iconStyle(item.color)"
 			/>
 			<RollingNumber :value="item.value" class="value" />
 			<PlatformIcon
@@ -66,7 +72,7 @@ const iconSize = computed(() => {
 </template>
 
 <style scoped>
-.cards {
+.neon {
 	display: inline-flex;
 	align-items: stretch;
 	gap: 10px;
@@ -74,28 +80,20 @@ const iconSize = computed(() => {
 }
 
 .card {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 4px;
 	min-width: 76px;
-	padding: 12px 16px 10px;
-	border: 1px solid rgba(255, 255, 255, 0.08);
+	padding: 10px 16px;
+	border: 1px solid rgba(192, 132, 252, 0.6);
 	border-radius: 12px;
-	background-color: rgba(10, 10, 14, 0.6);
-	backdrop-filter: blur(10px);
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-	color: #fff;
-	overflow: hidden;
-}
-
-.accent {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 2px;
+	background-color: rgba(5, 5, 8, 0.85);
+	backdrop-filter: blur(4px);
+	box-shadow:
+		0 0 16px rgba(192, 132, 252, 0.35),
+		inset 0 0 12px rgba(192, 132, 252, 0.12);
+	color: #e9d5ff;
 }
 
 .icon {
@@ -106,6 +104,7 @@ const iconSize = computed(() => {
 	font-size: 18px;
 	font-weight: 700;
 	line-height: 1.1;
+	text-shadow: 0 0 8px rgba(192, 132, 252, 0.8);
 }
 
 .label {
@@ -114,7 +113,7 @@ const iconSize = computed(() => {
 	line-height: 1;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: rgba(255, 255, 255, 0.5);
+	color: rgba(167, 139, 250, 0.6);
 }
 
 .label-platform {
@@ -127,7 +126,7 @@ const iconSize = computed(() => {
 
 .root--compact .card {
 	min-width: 64px;
-	padding: 10px 12px 8px;
+	padding: 8px 12px;
 	gap: 3px;
 }
 
@@ -149,7 +148,7 @@ const iconSize = computed(() => {
 
 .root--large .card {
 	min-width: 96px;
-	padding: 14px 20px 12px;
+	padding: 12px 20px;
 	gap: 5px;
 }
 
@@ -177,14 +176,6 @@ const iconSize = computed(() => {
 	gap: 8px;
 	min-width: 0;
 	padding: 8px 14px;
-}
-
-.root--vertical .card .accent {
-	top: 0;
-	bottom: 0;
-	right: auto;
-	width: 2px;
-	height: auto;
 }
 
 .root--vertical .value {
