@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useBuilderToolbar } from '../composables/useBuilderToolbar'
+import { useWidgetPreviewMode } from '../composables/useWidgetPreviewMode'
 
 interface Props {
 	canUndo: boolean
@@ -51,6 +52,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, 'overlayId'))
+const { enabled: widgetsPreview } = useWidgetPreviewMode()
 </script>
 
 <template>
@@ -499,6 +501,27 @@ const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, '
 				</TooltipTrigger>
 				<TooltipContent>
 					<p>{{ t('overlayBuilder.toolbar.snapToGrid') }}</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button
+						variant="ghost"
+						size="icon"
+						:class="{ 'bg-accent': widgetsPreview }"
+						@click="widgetsPreview = !widgetsPreview"
+					>
+						<Icon
+							name="lucide:play"
+							class="h-4 w-4"
+						/>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ t('overlayBuilder.toolbar.widgetsPreview') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>

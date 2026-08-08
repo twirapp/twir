@@ -3,6 +3,7 @@ import { toRef } from 'vue'
 
 import type { Layer } from '../types'
 import { useLayerTypePreview } from '../composables/useLayerTypePreview'
+import { useWidgetPreviewMode } from '../composables/useWidgetPreviewMode'
 
 interface Props {
 	layer: Layer
@@ -12,10 +13,11 @@ const props = defineProps<Props>()
 const { t } = useI18n()
 
 const { textStyle, iframeStyle, youtubeEmbedUrl } = useLayerTypePreview(toRef(props, 'layer'))
+const { enabled: previewEnabled } = useWidgetPreviewMode()
 
 const iframePreviewUrl = computed(() => {
 	const raw = props.layer.settings.iframeUrl
-	if (!raw) return ''
+	if (!raw || !previewEnabled.value) return raw
 
 	try {
 		const url = new URL(raw)
