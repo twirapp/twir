@@ -60,7 +60,7 @@ function handleUploadDeleted() {
 				<div class="space-y-4">
 					<NuxtLink
 						to="/uploader"
-						class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)] transition-colors text-sm font-medium"
+						class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)] transition-colors text-sm font-medium text-[hsl(240,11%,90%)]"
 					>
 						<Icon
 							name="lucide:arrow-left"
@@ -70,7 +70,7 @@ function handleUploadDeleted() {
 					</NuxtLink>
 
 					<div>
-						<h1 class="text-3xl font-bold">{{ $t('uploader.profile.title') }}</h1>
+						<h1 class="text-3xl font-bold text-[hsl(240,11%,90%)]">{{ $t('uploader.profile.title') }}</h1>
 						<p class="text-[hsl(240,11%,65%)]">
 							{{ $t('uploader.profile.description') }}
 						</p>

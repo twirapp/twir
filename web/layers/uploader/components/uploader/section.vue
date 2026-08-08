@@ -8,7 +8,7 @@ import UploaderRecentUploads from './recent-uploads.vue'
 			<UploaderHeader />
 			<UploaderDropzone />
 			<UploaderRecentUploads />
-			<UploaderApiGuide />
+			<UploaderApiGuide class="mt-8" />
 		</div>
 	</div>
 </template>

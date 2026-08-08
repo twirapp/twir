@@ -111,7 +111,9 @@ useEventListener('paste', (event: ClipboardEvent) => {
 				for="uploader-file-input"
 				class="flex flex-col items-center justify-center gap-3 w-full h-full cursor-pointer text-[hsl(240,11%,90%)]"
 			>
-				<div class="flex rounded-xl border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,10%)] p-4">
+				<div
+					class="flex rounded-xl border border-[hsl(240,11%,18%)] bg-[hsl(240,11%,10%)] p-4 text-[hsl(240,11%,90%)]"
+				>
 					<Icon
 						v-if="uploader.isUploading"
 						name="lucide:loader-2"
@@ -151,7 +153,7 @@ useEventListener('paste', (event: ClipboardEvent) => {
 				v-if="isDragging"
 				class="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(240,11%,6%)]/80 pointer-events-none"
 			>
-				<span class="text-xl font-semibold">{{ $t('uploader.dropzone.dropHere') }}</span>
+				<span class="text-xl font-semibold text-[hsl(240,11%,90%)]">{{ $t('uploader.dropzone.dropHere') }}</span>
 			</div>
 		</Teleport>
 	</div>

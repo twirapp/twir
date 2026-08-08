@@ -69,7 +69,7 @@ const visiblePages = computed(() => {
 		<div class="flex items-center gap-2">
 			<button
 				:disabled="currentPage === 0"
-				class="px-3 py-2 rounded-lg border border-[hsl(240,11%,30%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+				class="px-3 py-2 rounded-lg border border-[hsl(240,11%,30%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-[hsl(240,11%,80%)]"
 				aria-label="Previous page"
 				@click="emit('previousPage')"
 			>
@@ -84,7 +84,7 @@ const visiblePages = computed(() => {
 							'min-w-[40px] px-3 py-2 rounded-lg border transition-colors',
 							currentPage === page - 1
 								? 'border-[hsl(240,11%,45%)] bg-[hsl(240,11%,25%)] text-white'
-								: 'border-[hsl(240,11%,30%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)]',
+								: 'border-[hsl(240,11%,30%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)] text-[hsl(240,11%,80%)]',
 						]"
 						:aria-label="`Go to page ${page}`"
 						:aria-current="currentPage === page - 1 ? 'page' : undefined"
@@ -98,7 +98,7 @@ const visiblePages = computed(() => {
 
 			<button
 				:disabled="currentPage >= totalPages - 1"
-				class="px-3 py-2 rounded-lg border border-[hsl(240,11%,30%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+				class="px-3 py-2 rounded-lg border border-[hsl(240,11%,30%)] bg-[hsl(240,11%,15%)] hover:bg-[hsl(240,11%,25%)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-[hsl(240,11%,80%)]"
 				aria-label="Next page"
 				@click="emit('nextPage')"
 			>
