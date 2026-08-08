@@ -38,8 +38,5 @@ jobs:
       - name: Build
         run: bun cli build
 
-      - name: Typecheck web
-        run: bun --cwd web run typecheck
-
       - name: Lint
         run: bun lint

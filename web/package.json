@@ -9,7 +9,6 @@
     "generate": "bun ./node_modules/nuxt/bin/nuxt.mjs generate",
     "preview": "bun ./node_modules/nuxt/bin/nuxt.mjs preview",
     "nuxt-prepare": "bun ./node_modules/nuxt/bin/nuxt.mjs prepare",
-    "typecheck": "bun ./node_modules/nuxt/bin/nuxt.mjs typecheck",
     "prebuild": "bun run nuxt-prepare",
     "graphql-codegen": "bun ./node_modules/@graphql-codegen/cli/cjs/bin.js --config codegen.ts",
     "shadcn-vue": "bun ./node_modules/shadcn-vue/dist/index.js",

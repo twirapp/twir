@@ -141,6 +141,10 @@ export default defineNuxtConfig({
 		dts: true,
 	},
 
+	typescript: {
+		typeCheck: true,
+	},
+
 	icon: {
 		mode: 'svg',
 		localApiEndpoint: '/_nuxt_icon',
