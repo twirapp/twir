@@ -28,6 +28,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/shortlinks"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/stream"
 	ttsroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/tts"
+	uploaderoutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/uploader"
 	mcpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/mcp"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
@@ -102,6 +103,7 @@ import (
 	twir_events "github.com/twirapp/twir/apps/api-gql/internal/services/twir-events"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
+	uploaderservice "github.com/twirapp/twir/apps/api-gql/internal/services/uploader"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	valorantintegrationservice "github.com/twirapp/twir/apps/api-gql/internal/services/valorant_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
@@ -207,6 +209,7 @@ var ProviderSet = wire.NewSet(
 		chat_translation.New,
 		shortlinkscustomdomains.New,
 		shortenedurls.New,
+		uploaderservice.New,
 		giveaways.New,
 		overlays_dudes.New,
 		channels_moderation_settings.New,
@@ -274,6 +277,7 @@ var ProviderSet = wire.NewSet(
 		mcpdelivery.New,
 	),
 	shortlinks.RegisterRoutes,
+	uploaderoutes.RegisterRoutes,
 	pastebins.RegisterRoutes,
 	commandshttp.RegisterRoutes,
 	ttsroutes.RegisterRoutes,
@@ -352,6 +356,7 @@ type ApplicationDeps struct {
 	StreamRoute                   StreamRouteRegistration
 	MCP                           MCPRegistration
 	ShortlinksRoutes              shortlinks.Registration
+	UploaderRoutes                uploaderoutes.Registration
 	PastebinsRoutes               pastebins.Registration
 	CommandsRoutes                commandshttp.Registration
 	TTSRoutes                     ttsroutes.Registration
