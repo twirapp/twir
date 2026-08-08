@@ -9,6 +9,8 @@ definePageMeta({
 	layout: 'landing',
 })
 
+const { t } = useI18n()
+
 useAppSeo({
 	titleKey: 'landing.meta.title',
 	descriptionKey: 'landing.meta.description',
@@ -23,6 +25,10 @@ useSchemaOrg([
 			price: 0,
 			priceCurrency: 'USD',
 		}),
+	}),
+	defineWebPage({
+		name: () => t('landing.meta.title'),
+		description: () => t('site.description'),
 	}),
 ])
 </script>

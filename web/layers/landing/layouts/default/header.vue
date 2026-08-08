@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Nav from './header-nav.vue'
 import HeaderProfile from './header-profile.vue'
+import LocaleSwitcher from './locale-switcher.vue'
 
 import TwirLogo from '~/components/twir-logo.vue'
 
@@ -34,7 +35,10 @@ const title = `Twir${import.meta.dev ? ' dev' : ''}`
 
 				<Nav />
 
-				<HeaderProfile />
+				<div class="flex items-center gap-2">
+					<LocaleSwitcher />
+					<HeaderProfile />
+				</div>
 			</div>
 		</div>
 	</header>

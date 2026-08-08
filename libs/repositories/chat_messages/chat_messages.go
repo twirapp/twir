@@ -42,6 +42,7 @@ type GetManyInput struct {
 	PlatformChannelID *string
 	UserNameLike      *string
 	TextLike          *string
+	TextFuzzy         *TextFuzzyFilter
 	UserIDs           []string
 
 	TimeGte *time.Time

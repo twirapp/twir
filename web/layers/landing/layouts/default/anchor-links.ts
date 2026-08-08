@@ -1,30 +1,40 @@
-export const anchorLinks = [
+interface AnchorLink {
+	href: string
+	label: string
+	header?: boolean
+}
+
+export const anchorLinks: AnchorLink[] = [
 	{
 		href: '/#features',
-		label: 'Features',
+		label: 'landing.nav.features',
 	},
 	{
 		href: '/#integrations',
-		label: 'Integrations',
+		label: 'landing.nav.integrations',
 	},
 	{
 		href: '/compare',
-		label: 'Compare',
+		label: 'landing.nav.compare',
 	},
 	{
 		href: '/url-shortener',
-		label: 'URL Shortener',
+		label: 'landing.nav.urlShortener',
 	},
 	{
 		href: '/h',
-		label: 'Hastebin',
+		label: 'landing.nav.hastebin',
 	},
 	{
 		href: '/terms',
-		label: 'Terms of Service',
+		label: 'landing.nav.terms',
+		header: false,
 	},
 	{
 		href: '/privacy',
-		label: 'Privacy Policy',
+		label: 'landing.nav.privacy',
+		header: false,
 	},
 ]
+
+export const headerLinks = anchorLinks.filter((link) => link.header !== false)

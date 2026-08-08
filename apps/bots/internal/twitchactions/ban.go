@@ -11,7 +11,6 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	kvoptions "github.com/twirapp/kv/options"
 	mod_task_queue "github.com/twirapp/twir/apps/bots/internal/mod-task-queue"
-	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/twitch"
 )
@@ -76,12 +75,6 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 		return fmt.Errorf("cannot create helix client: %w", err)
 	}
 
-	botHelixClient, err := c.createBotClient(ctx, moderatorID)
-	if err != nil {
-		c.logger.Error("cannot create helix client", logger.Error(err))
-		return fmt.Errorf("cannot create helix client: %w", err)
-	}
-
 	if opts.IsModerator && opts.AddModAfterBan {
 		err := c.modTaskDistributor.DistributeModUser(
 			ctx,
@@ -122,24 +115,30 @@ func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
 		}
 	}
 
-	resp, err := botHelixClient.BanUser(
-		&helix.BanUserParams{
-			BroadcasterID: opts.BroadcasterID,
-			ModeratorId:   moderatorID,
-			Body: helix.BanUserRequestBody{
-				Duration: opts.Duration,
-				Reason:   opts.Reason,
-				UserId:   opts.UserID,
-			},
+	return c.withBotClient(
+		ctx,
+		moderatorID,
+		func(client *helix.Client) (int, error) {
+			resp, err := client.BanUser(
+				&helix.BanUserParams{
+					BroadcasterID: opts.BroadcasterID,
+					ModeratorId:   moderatorID,
+					Body: helix.BanUserRequestBody{
+						Duration: opts.Duration,
+						Reason:   opts.Reason,
+						UserId:   opts.UserID,
+					},
+				},
+			)
+			if err != nil {
+				return 0, err
+			}
+
+			if resp.ErrorMessage != "" {
+				return resp.StatusCode, errors.New(resp.ErrorMessage)
+			}
+
+			return resp.StatusCode, nil
 		},
 	)
-	if err != nil {
-		return err
-	}
-
-	if resp.ErrorMessage != "" {
-		return errors.New(resp.ErrorMessage)
-	}
-
-	return nil
 }

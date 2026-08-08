@@ -2,6 +2,7 @@
 import { UserStoreKey } from '~/stores/user'
 
 const userStore = useAuth()
+const { t } = useI18n()
 
 const currentPlatform = computed(() => {
 	return userStore.userWithoutDashboards?.currentPlatform.toLowerCase() ?? ''
@@ -40,7 +41,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 			<UiDropdownMenuItem as-child>
 				<a href="/dashboard" class="flex w-full items-center">
 					<Icon name="lucide:layout-dashboard" class="mr-2 h-4 w-4" />
-					Dashboard
+					{{ t('landing.nav.dashboard') }}
 				</a>
 			</UiDropdownMenuItem>
 
@@ -52,7 +53,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 				@click="userStore.logout"
 			>
 				<Icon name="lucide:log-out" class="mr-2 h-4 w-4" />
-				Logout
+					{{ t('landing.nav.logout') }}
 			</UiDropdownMenuItem>
 		</UiDropdownMenuContent>
 	</UiDropdownMenu>

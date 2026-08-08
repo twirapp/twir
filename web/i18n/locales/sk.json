@@ -1390,11 +1390,46 @@
       }
     }
   },
+  "site": {
+    "description": "Výkonný a užitočný chatbot pre Twitch, Kick, VK Video Live a YouTube, ktorý pomáha spravovať chat na veľkých kanáloch. Vyvinuté streamermi pre streamerov s láskou."
+  },
   "landing": {
     "meta": {
       "title": "Twir — chatbot pre Twitch, Kick, VK a YouTube",
       "description": "Výkonný a užitočný bot pre Twitch, Kick, VK Video Live a YouTube, ktorý pomáha spravovať chat na veľkých kanáloch. Príkazy, časovače, moderácia, song requesty, giveawaye, overlaye a viac — zadarmo a open source."
     },
+    "hero": {
+      "updates": "🚀 Zobraziť najnovšie aktualizácie", "title": "Zaujmite svoje publikum ako nikdy predtým", "description": "Twir je bezplatný open-source chatbot pre Twitch, Kick, VK Video Live a YouTube. Streamerom pomáha spravovať a rozvíjať kanály pomocou vlastných príkazov, časovačov, moderácie chatu, song requestov, giveawayov, alertov a overlayov — všetko na jednom mieste.",
+      "platforms": { "twitch": "Twitch", "kick": "Kick", "vk": "VK Video Live", "youtube": "YouTube" }, "learnMore": "Zistiť viac", "dashboard": "Dashboard"
+    },
+    "stats": { "activeChannels": "Aktívne kanály", "createdCommands": "Vytvorené príkazy", "usersSeen": "Videní používatelia", "messagesProcessed": "Spracované správy", "emotesProcessed": "Spracované emoty", "commandsProcessed": "Spracované príkazy", "platformChannels": { "twitch": "Kanály Twitch", "kick": "Kanály Kick", "vk": "Kanály VK Video Live", "youtube": "Kanály YouTube" } },
+    "features": {
+      "badge": "Funkcie", "title": "Objavte skvelé funkcie nášho bota", "description": "Objavte množstvo funkcií, ktoré posunú váš stream na vyššiu úroveň. Náš bot má nástroje na premenu vášho streamu!", "disclaimer": "Toto ani zďaleka nie je úplný zoznam funkcií bota; priebežne ho aktualizujeme o nové a inovatívne možnosti.", "discord": "Pripojte sa na náš Discord a zostaňte v obraze",
+      "items": {
+        "music-recognition": { "title": "Rozpoznávanie hudby", "description": "Shazam pre váš Twitch stream! Zadarmo a bez pripájania hudobných služieb" },
+        "vips": { "title": "VIP", "description": "Spravujte VIP cez bota a naplánujte ich odstránenie na konkrétny čas" },
+        "giveaways": { "title": "Giveawaye", "description": "Vytvárajte giveawaye, spravujte účastníkov, vyberajte víťazov a archivujte výsledky" },
+        "commands": { "title": "Príkazy", "description": "Výkonný systém príkazov s viacerými odpoveďami, kategóriami, platnosťou, aliasmi, počítadlami a premennými. Príkazy možno viazať na kategórie hier a automaticky mazať alebo vypínať" },
+        "variables": { "title": "Vlastné premenné", "description": "Píšte vlastné premenné v JavaScripte alebo Pythone a rozšírte funkcie bota" },
+        "mcp": { "title": "Ovládanie pomocou AI (MCP)", "description": "Ovládajte bota pomocou AI asistentov: spravujte príkazy, časovače, kľúčové slová a premenné z Claude Code, Codexu alebo OpenCode cez MCP" },
+        "timers": { "title": "Časovače", "description": "Jednoduchý, no flexibilný systém automatických oznámení pre Twitch" },
+        "greetings": { "title": "Privítania", "description": "Chcete zvýrazniť obľúbených divákov? Pridajte privítanie!" },
+        "song-requests": { "title": "Song requesty", "description": "Diváci si pýtajú skladby cez chatové príkazy. Bot spravuje front a prehrávanie a zvyšuje zapojenie" },
+        "keywords": { "title": "Kľúčové slová", "description": "Rozpoznáva kľúčové slová v chate a spúšťa automatické správy pre interakciu alebo informácie" },
+        "events": { "title": "Udalosti", "description": "Nastavte vlastných poslucháčov pre udalosti v chate alebo systéme a spúšťajte akcie" },
+        "moderation": { "title": "Moderácia", "description": "Vytvárajte a spravujte chatové filtre pre bezpečnú a priateľskú komunikáciu" },
+        "obs": { "title": "OBS WebSockets", "description": "Integrujte OBS Studio cez WebSockets: meňte scény, stlmte zvuk a prepínajte zdroje pomocou bota" },
+        "stats": { "title": "Sledovanie štatistík", "description": "Sledujte čas pozerania, správy a použité body kanála" },
+        "overlays": { "title": "Overlaye", "description": "Hotové overlaye pre štatistiky Faceit a Valorant, Now Playing, Chat, Emote Wall, Pixel Dudes a AFK" },
+        "alerts": { "title": "Alerty", "description": "Vytvárajte vlastné zvukové alerty pre body kanála, príkazy a kľúčové slová" },
+        "games": { "title": "Hry", "description": "Pridajte do chatu zábavu s ruskou ruletou, duelmi, seppuku, votebanom a magickou osmičkou" },
+        "short-urls": { "title": "Krátke URL", "description": "Skracujte a zdieľajte odkazy cez Twir URL shortener — vytvorených už viac ako {landingStatsCreatedShortUrls}" },
+        "hastebins": { "title": "HasteBins", "description": "Vytvárajte a zdieľajte rýchle, bezpečné texty cez HasteBins — vytvorených {landingStatsCreatedHastebins}" }
+      }
+    },
+    "integrations": { "badge": "Integrácie", "title": "Vylepšite stream bezproblémovými integráciami", "description": "Pripojte obľúbené nástroje a platformy, aby ste zvýšili výkon a zapojenie na streame. Integrácie Twiru ponúkajú nekonečné možnosti." },
+    "nav": { "features": "Funkcie", "integrations": "Integrácie", "compare": "Porovnanie", "urlShortener": "Skracovač URL", "hastebin": "Hastebin", "terms": "Podmienky používania", "privacy": "Zásady ochrany súkromia", "login": "Prihlásiť sa", "startNow": "Začať teraz", "dashboard": "Dashboard", "logout": "Odhlásiť sa", "vkLive": "VK Live" },
+    "footer": { "navigation": "Navigácia päty", "github": "Repozitár Github", "discord": "Discord kanál pre otázky a novinky" },
     "compareLink": "Porovnať Twir s inými botmi",
     "faq": {
       "badge": "FAQ",

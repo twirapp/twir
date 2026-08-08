@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -28,6 +30,7 @@ import (
 )
 
 func New(
+	logger *slog.Logger,
 	chatWallRepository chatwallrepository.Repository,
 	chatMessagesRepo chat_messages.Repository,
 	gormDB *gorm.DB,
@@ -37,6 +40,7 @@ func New(
 	twirBus *buscore.Bus,
 ) *Service {
 	return &Service{
+		logger:           logger,
 		repo:             chatWallRepository,
 		chatMessagesRepo: chatMessagesRepo,
 		gorm:             gormDB,
@@ -48,6 +52,7 @@ func New(
 }
 
 type Service struct {
+	logger           *slog.Logger
 	repo             chatwallrepository.Repository
 	chatMessagesRepo chat_messages.Repository
 	gorm             *gorm.DB
@@ -122,7 +127,13 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 		)
 	}
 
-	c.chatWallCache.Invalidate(ctx, input.DBChannelID)
+	if err := c.chatWallCache.Invalidate(ctx, input.DBChannelID); err != nil {
+		c.logger.ErrorContext(
+			ctx,
+			"cannot invalidate chat wall cache on create",
+			logger.Error(err),
+		)
+	}
 
 	return wall, nil
 }
@@ -163,20 +174,34 @@ func (c *Service) HandlePastMessages(
 
 	timeGte := time.Now().Add(-10 * time.Minute)
 
-	messages, err := c.chatMessagesRepo.GetMany(
-		ctx,
-		chatmessagesrepository.GetManyInput{
-			Platform:          lo.ToPtr(string(input.Platform)),
-			PlatformChannelID: &input.PlatformChannelID,
-			TextLike:          &input.Phrase,
-			Page:              0,
-			PerPage:           1000,
-			TimeGte:           &timeGte,
-		},
-	)
+	getManyInput := chatmessagesrepository.GetManyInput{
+		Platform:          lo.ToPtr(string(input.Platform)),
+		PlatformChannelID: &input.PlatformChannelID,
+		Page:              0,
+		PerPage:           1000,
+		TimeGte:           &timeGte,
+	}
+
+	if fuzzyFilter := chatmessagesrepository.NewTextFuzzyFilter(input.Phrase); fuzzyFilter != nil {
+		getManyInput.TextFuzzy = fuzzyFilter
+	} else {
+		getManyInput.TextLike = &input.Phrase
+	}
+
+	messages, err := c.chatMessagesRepo.GetMany(ctx, getManyInput)
 	if err != nil {
 		return err
 	}
+
+	c.logger.InfoContext(
+		ctx,
+		"chat wall past messages lookup",
+		slog.String("phrase", input.Phrase),
+		slog.String("channel_id", input.DBChannelID),
+		slog.Bool("fuzzy", getManyInput.TextFuzzy != nil),
+		slog.Int("messages_found", len(messages)),
+	)
+
 	if len(messages) == 0 {
 		return nil
 	}
@@ -304,6 +329,14 @@ func (c *Service) HandlePastMessages(
 		if len(mappedMessagesIDs) == 0 {
 			return nil
 		}
+
+		c.logger.InfoContext(
+			ctx,
+			"chat wall past messages deletion publish",
+			slog.String("phrase", input.Phrase),
+			slog.String("channel_id", input.DBChannelID),
+			slog.Int("messages_count", len(mappedMessagesIDs)),
+		)
 
 		err = c.twirBus.Bots.DeleteMessage.Publish(
 			ctx,
@@ -486,7 +519,14 @@ func (c *Service) Stop(ctx context.Context, input StopInput) error {
 				)
 			}
 
-			c.chatWallCache.Invalidate(ctx, input.DBChannelID)
+			if err := c.chatWallCache.Invalidate(ctx, input.DBChannelID); err != nil {
+				c.logger.ErrorContext(
+					ctx,
+					"cannot invalidate chat wall cache on stop",
+					logger.Error(err),
+				)
+			}
+
 			return nil
 		}
 	}

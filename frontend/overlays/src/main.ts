@@ -10,6 +10,11 @@ import './style.css'
 
 const app = createApp(MainApp)
 
+// Keep the overlay alive in OBS: a single faulty message render must not kill app-wide reactivity.
+app.config.errorHandler = (err, _instance, info) => {
+	console.error('[overlays] unhandled error', err, info)
+}
+
 app.use(router).use(urql, urqlClientOptions)
 
 app.mount('#app')

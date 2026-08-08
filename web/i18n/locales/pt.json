@@ -1390,11 +1390,46 @@
       }
     }
   },
+  "site": {
+    "description": "Bot de chat poderoso e útil para Twitch, Kick, VK Video Live e YouTube que ajuda a gerenciar o chat em canais grandes. Desenvolvido por streamers para streamers com carinho."
+  },
   "landing": {
     "meta": {
       "title": "Twir — bot de chat para Twitch, Kick, VK e YouTube",
       "description": "Bot poderoso e útil para Twitch, Kick, VK Video Live e YouTube que ajuda a gerenciar o chat em canais grandes. Comandos, temporizadores, moderação, pedidos de músicas, sorteios, overlays e muito mais — grátis e de código aberto."
     },
+    "hero": {
+      "updates": "🚀 Ver as últimas novidades", "title": "Envolva seu público como nunca", "description": "O Twir é um bot de chat gratuito e de código aberto para Twitch, Kick, VK Video Live e YouTube. Ele ajuda streamers a gerenciar e desenvolver seus canais com comandos personalizados, temporizadores, moderação do chat, pedidos de músicas, sorteios, alertas e overlays — tudo em um só lugar.",
+      "platforms": { "twitch": "Twitch", "kick": "Kick", "vk": "VK Video Live", "youtube": "YouTube" }, "learnMore": "Saiba mais", "dashboard": "Painel"
+    },
+    "stats": { "activeChannels": "Canais ativos", "createdCommands": "Comandos criados", "usersSeen": "Usuários vistos", "messagesProcessed": "Mensagens processadas", "emotesProcessed": "Emotes processados", "commandsProcessed": "Comandos processados", "platformChannels": { "twitch": "Canais da Twitch", "kick": "Canais do Kick", "vk": "Canais do VK Video Live", "youtube": "Canais do YouTube" } },
+    "features": {
+      "badge": "Recursos", "title": "Explore os recursos incríveis do nosso bot", "description": "Descubra uma grande variedade de recursos que levarão sua transmissão ao próximo nível. Nosso bot tem as ferramentas para transformar sua experiência!", "disclaimer": "Esta está longe de ser uma lista completa das capacidades do bot; ela será atualizada continuamente com recursos novos e inovadores.", "discord": "Entre no nosso servidor do Discord para ficar por dentro",
+      "items": {
+        "music-recognition": { "title": "Reconhecimento de música", "description": "Shazam para sua transmissão da Twitch! Grátis e sem precisar conectar serviços de música" },
+        "vips": { "title": "VIPs", "description": "Gerencie VIPs pelo bot e programe quando eles devem ser removidos" },
+        "giveaways": { "title": "Sorteios", "description": "Crie sorteios, gerencie participantes, escolha vencedores e arquive os resultados" },
+        "commands": { "title": "Comandos", "description": "Um sistema poderoso de comandos com várias respostas, ativação por categoria, validade, aliases, contadores e variáveis. Vincule comandos a categorias de jogos e configure exclusão ou desativação automática" },
+        "variables": { "title": "Variáveis personalizadas", "description": "Escreva variáveis personalizadas com JavaScript ou Python para ampliar as funções do bot" },
+        "mcp": { "title": "Controle por IA (MCP)", "description": "Controle seu bot com assistentes de IA: gerencie comandos, temporizadores, palavras-chave e variáveis pelo Claude Code, Codex ou OpenCode via MCP" },
+        "timers": { "title": "Temporizadores", "description": "Um sistema simples, mas versátil, para anúncios automáticos na Twitch" },
+        "greetings": { "title": "Saudações", "description": "Quer destacar seus espectadores favoritos? Adicione uma saudação!" },
+        "song-requests": { "title": "Pedidos de músicas", "description": "Espectadores pedem músicas por comandos no chat. O bot gerencia a fila e a reprodução para aumentar o envolvimento" },
+        "keywords": { "title": "Palavras-chave", "description": "Identifica palavras-chave no chat e ativa mensagens automáticas para informar ou estimular a participação" },
+        "events": { "title": "Eventos", "description": "Configure ouvintes personalizados para acompanhar eventos do chat ou do sistema e disparar ações" },
+        "moderation": { "title": "Moderação", "description": "Crie e gerencie filtros do chat para manter uma comunicação segura e gentil" },
+        "obs": { "title": "OBS WebSockets", "description": "Integre o OBS Studio via WebSockets: altere cenas, silencie o áudio e controle fontes pelo bot" },
+        "stats": { "title": "Acompanhamento de estatísticas", "description": "Acompanhe tempo assistido, mensagens e pontos do canal utilizados" },
+        "overlays": { "title": "Overlays", "description": "Overlays prontos para estatísticas do Faceit e Valorant, Now Playing, Chat, Emote Wall, Pixel Dudes e AFK" },
+        "alerts": { "title": "Alertas", "description": "Crie alertas sonoros personalizados para pontos do canal, comandos e palavras-chave" },
+        "games": { "title": "Jogos", "description": "Adicione diversão ao chat com roleta russa, duelos, seppuku, voteban e a bola 8 mágica" },
+        "short-urls": { "title": "URLs curtas", "description": "Encurte e compartilhe links na hora com o encurtador do Twir — mais de {landingStatsCreatedShortUrls} criados" },
+        "hastebins": { "title": "HasteBins", "description": "Crie e compartilhe textos rápidos e seguros com HasteBins — {landingStatsCreatedHastebins} criados" }
+      }
+    },
+    "integrations": { "badge": "Integrações", "title": "Potencialize sua transmissão com integrações perfeitas", "description": "Conecte suas ferramentas e plataformas favoritas para melhorar o desempenho e o envolvimento da transmissão. As integrações do Twir oferecem possibilidades infinitas." },
+    "nav": { "features": "Recursos", "integrations": "Integrações", "compare": "Comparar", "urlShortener": "Encurtador de URL", "hastebin": "Hastebin", "terms": "Termos de serviço", "privacy": "Política de privacidade", "login": "Entrar", "startNow": "Começar agora", "dashboard": "Painel", "logout": "Sair", "vkLive": "VK Live" },
+    "footer": { "navigation": "Navegação do rodapé", "github": "Repositório do Github", "discord": "Canal do Discord para perguntas e novidades" },
     "compareLink": "Comparar o Twir com outros bots",
     "faq": {
       "badge": "FAQ",

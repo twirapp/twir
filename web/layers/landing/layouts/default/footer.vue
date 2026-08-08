@@ -3,6 +3,8 @@ import { DISCORD_INVITE_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
 import { anchorLinks } from '~~/layers/landing/layouts/default/anchor-links'
 
 import TwirLogo from '../../../../../libs/brand/src/logo.svg?component'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -18,7 +20,7 @@ import TwirLogo from '../../../../../libs/brand/src/logo.svg?component'
 				</div>
 				<nav
 					class="flex items-center justify-center"
-					aria-label="Footer Navigation"
+					:aria-label="t('landing.footer.navigation')"
 				>
 					<ul class="m-0 flex list-none flex-wrap gap-4 p-0">
 						<NuxtLink
@@ -28,7 +30,7 @@ import TwirLogo from '../../../../../libs/brand/src/logo.svg?component'
 							class="navigation-link rounded-md px-3 py-2 leading-6 font-medium text-[#ADB0B8] hover:text-[#D5D8DF] focus-visible:text-[#D5D8DF]"
 							prefetch-on="interaction"
 						>
-							{{ anchor.label }}
+							{{ t(anchor.label) }}
 						</NuxtLink>
 					</ul>
 				</nav>
@@ -42,7 +44,7 @@ import TwirLogo from '../../../../../libs/brand/src/logo.svg?component'
 						:href="GITHUB_REPOSITORY_URL"
 						target="_blank"
 						rel="noopener noreferrer"
-						aria-label="Github repository"
+						:aria-label="t('landing.footer.github')"
 					>
 						<SvgoSocialGithub
 							:fontControlled="false"
@@ -54,7 +56,7 @@ import TwirLogo from '../../../../../libs/brand/src/logo.svg?component'
 						:href="DISCORD_INVITE_URL"
 						target="_blank"
 						rel="noopener noreferrer"
-						aria-label="Discord channel for asking a question and keeping up with updates"
+						:aria-label="t('landing.footer.discord')"
 					>
 						<SvgoSocialDiscord
 							:fontControlled="false"

@@ -47,6 +47,12 @@ func New[T any](opts Opts[T]) *GenericCacher[T] {
 		receiver := opts.InvalidateSignaler.Receiver()
 
 		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Printf("cache invalidation receiver for prefix %s stopped by panic: %v \n", opts.KeyPrefix, r)
+				}
+			}()
+
 			for key := range receiver {
 				if err := opts.KV.Delete(context.TODO(), opts.KeyPrefix+key); err != nil {
 					fmt.Printf("failed to delete key %s from cache: %v \n", key, err)
