@@ -61,6 +61,7 @@ require (
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.2 // indirect
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.2 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/exaring/otelpgx v0.9.3 // indirect
 	github.com/getsentry/sentry-go v0.42.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
@@ -86,6 +87,7 @@ require (
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.17.1 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.17.1 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect

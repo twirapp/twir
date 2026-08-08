@@ -151,6 +151,7 @@ var ProviderSet = wire.NewSet(
 	OverlaysBeRightBackProviderSet,
 	OverlaysStreamStatsProviderSet,
 	OverlaysTTSProviderSet,
+	DotaProviderSet,
 	repositoriesSet,
 	// services
 	wire.NewSet(

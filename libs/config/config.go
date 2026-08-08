@@ -107,9 +107,10 @@ type Config struct {
 	EventsubHttpPort                     int    `required:"false" default:"3030"  envconfig:"EVENTSUB_HTTP_PORT"`
 	EventSubCallbackBaseUrl              string `required:"false" envconfig:"EVENTSUB_CALLBACK_BASE_URL"`
 
-	DotaHttpPort    int    `required:"false" default:"3031"  envconfig:"DOTA_HTTP_PORT"`
-	DotaStratzToken string `required:"false" envconfig:"DOTA_STRATZ_TOKEN"`
-	DotaSteamAPIKey string `required:"false" envconfig:"DOTA_STEAM_API_KEY"`
+	DotaHttpPort     int    `required:"false" default:"3031"  envconfig:"DOTA_HTTP_PORT"`
+	DotaGsiPublicUrl string `required:"false" envconfig:"DOTA_GSI_PUBLIC_URL"`
+	DotaStratzToken  string `required:"false" envconfig:"DOTA_STRATZ_TOKEN"`
+	DotaSteamAPIKey  string `required:"false" envconfig:"DOTA_STEAM_API_KEY"`
 
 	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
 	DonationAlertsSecret   string `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`

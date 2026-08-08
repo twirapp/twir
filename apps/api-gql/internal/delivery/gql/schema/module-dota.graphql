@@ -1,0 +1,102 @@
+extend type Query {
+	dota: DotaSettings! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODULES)
+	dotaSteamAuthLink: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODULES)
+}
+
+extend type Mutation {
+	dotaUpdate(input: DotaUpdateInput!): DotaSettings! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+	dotaSteamLink(queryString: String!): DotaSettings! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+	dotaSteamUnlink: DotaSettings! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+	dotaResetSession: DotaSettings! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+	dotaRegenerateGsiToken: DotaSettings! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
+}
+
+type DotaSettings {
+	id: UUID!
+	channelID: String!
+	enabled: Boolean!
+	steamAccountId: String
+	steamProfile: DotaSteamProfile @goField(forceResolver: true)
+	gsiToken: String!
+	gsiConfig: String! @goField(forceResolver: true)
+	mmr: Int!
+	mmrDelta: Int!
+	sessionWins: Int!
+	sessionLosses: Int!
+	predictionSettings: DotaPredictionSettings!
+	chatEvents: DotaChatEvents!
+	commandsSettings: DotaCommandsSettings!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+type DotaSteamProfile {
+	name: String!
+	avatar: String!
+	profileUrl: String!
+}
+
+type DotaPredictionSettings {
+	enabled: Boolean!
+	titleTemplate: String!
+	windowSeconds: Int!
+}
+
+type DotaChatEventSettings {
+	enabled: Boolean!
+	template: String!
+	cooldown: Int!
+}
+
+type DotaChatEvents {
+	matchStarted: DotaChatEventSettings!
+	matchEnded: DotaChatEventSettings!
+	roshanKilled: DotaChatEventSettings!
+	aegisPickup: DotaChatEventSettings!
+}
+
+type DotaCommandsSettings {
+	mmr: Boolean!
+	wl: Boolean!
+	lg: Boolean!
+	gm: Boolean!
+	np: Boolean!
+	wp: Boolean!
+}
+
+input DotaUpdateInput {
+	enabled: Boolean!
+	mmr: Int!
+	mmrDelta: Int!
+	predictionSettings: DotaPredictionSettingsInput!
+	chatEvents: DotaChatEventsInput!
+	commandsSettings: DotaCommandsSettingsInput!
+}
+
+input DotaPredictionSettingsInput {
+	enabled: Boolean!
+	titleTemplate: String!
+	windowSeconds: Int!
+}
+
+input DotaChatEventSettingsInput {
+	enabled: Boolean!
+	template: String!
+	cooldown: Int!
+}
+
+input DotaChatEventsInput {
+	matchStarted: DotaChatEventSettingsInput!
+	matchEnded: DotaChatEventSettingsInput!
+	roshanKilled: DotaChatEventSettingsInput!
+	aegisPickup: DotaChatEventSettingsInput!
+}
+
+input DotaCommandsSettingsInput {
+	mmr: Boolean!
+	wl: Boolean!
+	lg: Boolean!
+	gm: Boolean!
+	np: Boolean!
+	wp: Boolean!
+}

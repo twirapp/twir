@@ -40,6 +40,10 @@ export const router = createRouter({
 			component: () => import('@/pages/overlays/now-playing.vue'),
 		},
 		{
+			path: '/:apiKey/dota/:widget(medal|wl|wp)',
+			component: () => import('@/pages/overlays/dota.vue'),
+		},
+		{
 			path: '/faceit-stats',
 			component: () => import('@/pages/overlays/faceit-stats.vue'),
 		}
