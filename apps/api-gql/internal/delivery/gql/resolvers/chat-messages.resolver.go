@@ -79,11 +79,15 @@ func (r *subscriptionResolver) ChatMessages(ctx context.Context) (<-chan *gqlmod
 	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {
+		defer close(gqlCh)
 		for msg := range ch {
 			converted := mappers.ChatMessageToGQL(msg)
-			gqlCh <- &converted
+			select {
+			case gqlCh <- &converted:
+			case <-ctx.Done():
+				return
+			}
 		}
-		close(gqlCh)
 	}()
 
 	return gqlCh, nil
@@ -107,11 +111,15 @@ func (r *subscriptionResolver) ChatMessagesByAPIKey(ctx context.Context, apiKey 
 	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {
+		defer close(gqlCh)
 		for msg := range ch {
 			converted := mappers.ChatMessageToGQL(msg)
-			gqlCh <- &converted
+			select {
+			case gqlCh <- &converted:
+			case <-ctx.Done():
+				return
+			}
 		}
-		close(gqlCh)
 	}()
 
 	return gqlCh, nil
@@ -123,11 +131,15 @@ func (r *subscriptionResolver) AdminChatMessages(ctx context.Context) (<-chan *g
 	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {
+		defer close(gqlCh)
 		for msg := range ch {
 			converted := mappers.ChatMessageToGQL(msg)
-			gqlCh <- &converted
+			select {
+			case gqlCh <- &converted:
+			case <-ctx.Done():
+				return
+			}
 		}
-		close(gqlCh)
 	}()
 
 	return gqlCh, nil

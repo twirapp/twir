@@ -151,7 +151,11 @@ func (r *subscriptionResolver) OverlaysChatModerationEvents(ctx context.Context,
 
 		for event := range moderationCh {
 			converted := mappers.ChatOverlayModerationEventEntityToGQL(event)
-			outCh <- &converted
+			select {
+			case outCh <- &converted:
+			case <-ctx.Done():
+				return
+			}
 		}
 	}()
 
