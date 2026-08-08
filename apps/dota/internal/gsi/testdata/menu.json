@@ -1,0 +1,10 @@
+{
+  "provider": {"name": "Dota 2", "appid": 570, "version": 47, "timestamp": 1721437200},
+  "auth": {"token": "test-token"},
+  "player": {
+    "steamid": "76561198083722517",
+    "accountid": "123456789",
+    "name": "Streamer",
+    "activity": "idle"
+  }
+}

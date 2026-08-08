@@ -1438,6 +1438,87 @@
           "create": "Create Settings"
         }
       }
+    },
+    "dota": {
+      "title": "Dota 2",
+      "description": "Dota 2 chat commands, automatic predictions and match events",
+      "settings": {
+        "title": "Dota 2 Settings",
+        "enabled": {
+          "label": "Enabled",
+          "description": "Enable Dota 2 integration for your channel"
+        },
+        "buttons": {
+          "save": "Save Settings"
+        }
+      },
+      "steam": {
+        "title": "Steam Account",
+        "notLinked": "Link your Steam account to track your Dota 2 matches.",
+        "link": "Link Steam account",
+        "unlink": "Unlink",
+        "linked": "Steam account linked",
+        "unlinked": "Steam account unlinked"
+      },
+      "gsi": {
+        "title": "Game State Integration",
+        "token": "GSI Token",
+        "regenerate": "Regenerate",
+        "instructions": "Put the config file into your Dota 2 folder: Steam/steamapps/common/dota 2 beta/game/dota/cfg/gamestate_integration. Restart Dota 2 after that.",
+        "download": "Download config",
+        "notConfigured": "GSI endpoint is not configured on this instance. Contact the administrator."
+      },
+      "mmr": {
+        "title": "MMR",
+        "mmr": {
+          "label": "MMR"
+        },
+        "mmrDelta": {
+          "label": "MMR per game",
+          "description": "How much MMR is added or subtracted after each match"
+        },
+        "session": "Session score",
+        "resetSession": "Reset session"
+      },
+      "predictions": {
+        "title": "Automatic Predictions",
+        "enabled": {
+          "label": "Enable predictions",
+          "description": "Automatically create a Twitch prediction when a match starts"
+        },
+        "titleTemplate": {
+          "label": "Prediction title"
+        },
+        "windowSeconds": {
+          "label": "Prediction window (seconds)",
+          "description": "How long viewers can vote, from 30 to 1800 seconds"
+        }
+      },
+      "chatEvents": {
+        "title": "Chat Events",
+        "cooldown": {
+          "label": "Cooldown (seconds)"
+        },
+        "matchStarted": {
+          "label": "Match started",
+          "variables": "Variables: {hero}"
+        },
+        "matchEnded": {
+          "label": "Match ended",
+          "variables": "Variables: {hero}, {mmr}, {wins}, {losses}"
+        },
+        "roshanKilled": {
+          "label": "Roshan killed",
+          "variables": "Variables: {team}, {time}"
+        },
+        "aegisPickup": {
+          "label": "Aegis picked up",
+          "variables": "Variables: {time}, {player} (only if the player is known)"
+        }
+      },
+      "commands": {
+        "title": "Chat Commands"
+      }
     }
   },
   "community": {

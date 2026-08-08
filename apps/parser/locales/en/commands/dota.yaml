@@ -1,0 +1,35 @@
+errors:
+  settings_not_found: Dota 2 is not configured for this channel.
+  disabled: Dota 2 is disabled for this channel.
+  command_disabled: This Dota 2 command is disabled.
+  get_settings: Unable to read Dota 2 settings right now.
+  get_data: Unable to get Dota 2 data right now.
+  mmr_required: MMR is required.
+  mmr_negative: MMR cannot be negative.
+  update_mmr: Unable to update MMR right now.
+  no_last_game: No recent Dota 2 game is available.
+  no_active_match: No active Dota 2 match is available.
+  no_notable_players: No notable players found in the active match.
+  win_probability_unavailable: Win probability is unavailable right now.
+hints:
+  mmr: MMR
+medals:
+  herald: Herald
+  guardian: Guardian
+  crusader: Crusader
+  archon: Archon
+  legend: Legend
+  ancient: Ancient
+  divine: Divine
+  immortal: Immortal
+outputs:
+  mmr: "MMR: {mmr} ({medal})"
+  wl: "{record} ({winRate})"
+  last_game: "Latest game: {hero}, {kda}, {result}, {duration}"
+  gm: "{medal}"
+  notable_players: "{players}"
+  win_probability: "Win chance: {probability}"
+  win: Win
+  loss: Loss
+success:
+  mmr_updated: "MMR updated to {mmr}."

@@ -5,6 +5,7 @@ import (
 	auditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/discord"
+	"github.com/twirapp/twir/libs/bus-core/dota"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -151,6 +152,16 @@ type apiBus struct {
 	SongRequestAddToQueue      Queue[api.SongRequestAddToQueue, struct{}]
 	SongRequestRemoveFromQueue Queue[api.SongRequestRemoveFromQueue, struct{}]
 	SongRequestPlaybackState   Queue[api.SongRequestPlaybackState, struct{}]
+	DotaStateUpdate            Queue[api.DotaStateUpdateMessage, struct{}]
+}
+
+type dotaBus struct {
+	GetData        Queue[dota.GetDataRequest, dota.GetDataResponse]
+	MatchStarted   Queue[dota.MatchStartedMessage, struct{}]
+	MatchEnded     Queue[dota.MatchEndedMessage, struct{}]
+	MatchAbandoned Queue[dota.MatchAbandonedMessage, struct{}]
+	RoshanKilled   Queue[dota.RoshanKilledMessage, struct{}]
+	AegisPickup    Queue[dota.AegisPickupMessage, struct{}]
 }
 
 type discordBus struct {

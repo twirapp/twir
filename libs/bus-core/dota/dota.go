@@ -1,0 +1,86 @@
+package dota
+
+const (
+	GetDataSubject        = "dota.get_data"
+	MatchStartedSubject   = "dota.match_started"
+	MatchEndedSubject     = "dota.match_ended"
+	MatchAbandonedSubject = "dota.match_abandoned"
+	RoshanKilledSubject   = "dota.roshan_killed"
+	AegisPickupSubject    = "dota.aegis_pickup"
+)
+
+type GetDataRequest struct {
+	ChannelID      string
+	TwitchUserID   string
+	SteamAccountID string
+}
+
+type LastGameInfo struct {
+	HeroName  string
+	Kills     int
+	Deaths    int
+	Assists   int
+	Win       bool
+	DurationS int
+}
+
+type GetDataResponse struct {
+	Enabled                 bool
+	Linked                  bool
+	InGame                  bool
+	Mmr                     int
+	SessionWins             int
+	SessionLosses           int
+	HeroName                string
+	MatchID                 int64
+	TeamIsRadiant           bool
+	TeamKnown               bool
+	RadiantScore            int
+	DireScore               int
+	GameTime                int
+	WinProbability          float64
+	WinProbabilityAvailable bool
+	NotablePlayers          []string
+	LastGame                *LastGameInfo
+}
+
+type MatchStartedMessage struct {
+	ChannelID      string
+	TwitchUserID   string
+	SteamAccountID string
+	HeroName       string
+	MatchID        int64
+	TeamKnown      bool
+}
+
+type MatchEndedMessage struct {
+	ChannelID      string
+	TwitchUserID   string
+	SteamAccountID string
+	Win            bool
+	HeroName       string
+	Mmr            int
+	SessionWins    int
+	SessionLosses  int
+	MatchID        int64
+}
+
+type MatchAbandonedMessage struct {
+	ChannelID string
+	MatchID   int64
+}
+
+type RoshanKilledMessage struct {
+	ChannelID    string
+	TwitchUserID string
+	Team         string
+	GameTime     int
+}
+
+type AegisPickupMessage struct {
+	ChannelID    string
+	TwitchUserID string
+	PlayerName   string
+	PlayerID     *int
+	GameTime     int
+}

@@ -20,6 +20,7 @@ import (
 	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Commands struct {
@@ -47,6 +48,35 @@ func NewCommands(
 type channelWithCommandsToCreate struct {
 	ChannelID        string         `gorm:"column:channelId"        db:"channelId"`
 	CommandsToCreate pq.StringArray `gorm:"column:commandsToCreate" db:"commandsToCreate"`
+}
+
+func hasCommandConflict(defaultName string, defaultAliases []string, existing []model.ChannelsCommands) bool {
+	proposedTokens := append([]string{defaultName}, defaultAliases...)
+
+	for _, token := range proposedTokens {
+		for _, command := range existing {
+			if strings.EqualFold(token, command.Name) {
+				return true
+			}
+
+			for _, alias := range command.Aliases {
+				if strings.EqualFold(token, alias) {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+func defaultCommandsOnConflict() clause.OnConflict {
+	// Alias uniqueness is not database-enforced; preflight handles known token collisions,
+	// while this keeps a concurrent command-name insert from failing the scheduler batch.
+	return clause.OnConflict{
+		Columns:   []clause.Column{{Name: "channelId"}, {Name: "name"}},
+		DoNothing: true,
+	}
 }
 
 func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
@@ -111,6 +141,16 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
 
 	createModels := make([]model.ChannelsCommands, 0)
 	for _, channel := range channelsWithCommandsToCreate {
+		var existingCommands []model.ChannelsCommands
+		if err := c.db.
+			WithContext(ctx).
+			Select("name", "aliases").
+			Where(`"channelId" = ?::uuid`, channel.ChannelID).
+			Find(&existingCommands).
+			Error; err != nil {
+			return fmt.Errorf("cannot get existing commands: %w", err)
+		}
+
 		var channelRoles []model.ChannelRole
 		if err := c.db.Where(
 			`"channelId" = ?::uuid`,
@@ -127,6 +167,15 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
 				},
 			)
 			if !ok {
+				continue
+			}
+
+			if hasCommandConflict(defaultCommand.Name, defaultCommand.Aliases, existingCommands) {
+				c.logger.Warn(
+					"skipping default command due to existing command conflict",
+					slog.String("channelId", channel.ChannelID),
+					slog.String("defaultCommand", defaultCommand.Name),
+				)
 				continue
 			}
 
@@ -172,7 +221,11 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context) error {
 		return nil
 	}
 
-	if err := c.db.WithContext(ctx).CreateInBatches(&createModels, 1000).Error; err != nil {
+	if err := c.db.
+		WithContext(ctx).
+		Clauses(defaultCommandsOnConflict()).
+		CreateInBatches(&createModels, 1000).
+		Error; err != nil {
 		return fmt.Errorf("cannot create default commands: %w", err)
 	}
 

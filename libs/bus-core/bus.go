@@ -9,6 +9,7 @@ import (
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	cache_invalidator "github.com/twirapp/twir/libs/bus-core/cache-invalidator"
 	"github.com/twirapp/twir/libs/bus-core/discord"
+	"github.com/twirapp/twir/libs/bus-core/dota"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/events"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -52,6 +53,7 @@ type Bus struct {
 	KickStreamOnline  Queue[kickbus.KickStreamOnline, struct{}]
 	KickStreamOffline Queue[kickbus.KickStreamOffline, struct{}]
 	Executron         *executronBus
+	Dota              *dotaBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -619,6 +621,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				time.Second,
 				GobEncoder,
 			),
+			DotaStateUpdate: NewNatsQueue[api.DotaStateUpdateMessage, struct{}](
+				nc,
+				api.DotaStateUpdateSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
 		},
 
 		CacheInvalidator: NewNatsQueue[cache_invalidator.InvalidateRequest, struct{}](
@@ -660,6 +668,44 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				executron.ExecuteSubject,
 				30*time.Second,
 				JsonEncoder,
+			),
+		},
+		Dota: &dotaBus{
+			GetData: NewNatsQueue[dota.GetDataRequest, dota.GetDataResponse](
+				nc,
+				dota.GetDataSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			MatchStarted: NewNatsQueue[dota.MatchStartedMessage, struct{}](
+				nc,
+				dota.MatchStartedSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			MatchEnded: NewNatsQueue[dota.MatchEndedMessage, struct{}](
+				nc,
+				dota.MatchEndedSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			MatchAbandoned: NewNatsQueue[dota.MatchAbandonedMessage, struct{}](
+				nc,
+				dota.MatchAbandonedSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			RoshanKilled: NewNatsQueue[dota.RoshanKilledMessage, struct{}](
+				nc,
+				dota.RoshanKilledSubject,
+				1*time.Minute,
+				GobEncoder,
+			),
+			AegisPickup: NewNatsQueue[dota.AegisPickupMessage, struct{}](
+				nc,
+				dota.AegisPickupSubject,
+				1*time.Minute,
+				GobEncoder,
 			),
 		},
 	}

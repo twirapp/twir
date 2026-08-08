@@ -3,6 +3,7 @@ go 1.26.1
 use (
 	./apps/api-gql
 	./apps/bots
+	./apps/dota
 	./apps/emotes-cacher
 	./apps/events
 	./apps/eventsub

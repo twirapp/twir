@@ -49,6 +49,7 @@ var serviceImages = map[string]string{
 	"tokens":         "tokens",
 	"emotes-cacher":  "emotes-cacher",
 	"events":         "events",
+	"dota":           "dota",
 	"deploy-webhook": "deploy-receiver",
 	"executron":      "executron",
 	"ytsub":          "ytsub",
@@ -69,6 +70,7 @@ var releaseServices = []string{
 	"tokens",
 	"emotes-cacher",
 	"events",
+	"dota",
 	"executron",
 	"ytsub",
 }
