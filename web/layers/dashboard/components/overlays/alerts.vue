@@ -6,7 +6,7 @@ const { t } = useI18n()
 
 <template>
 	<card
-		:icon="'tabler:icon-bell'"
+		:icon="'tabler:bell'"
 		title="Alerts"
 		:description="t('overlays.alerts.description')"
 		overlay-path="alerts"

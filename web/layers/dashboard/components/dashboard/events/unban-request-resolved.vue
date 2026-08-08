@@ -16,7 +16,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userLogin && userName && message && moderatorUserLogin && moderatorUserName"
-		:icon="'tabler:icon-user-cancel'"
+		:icon="'tabler:user-cancel'"
 		:icon-color="['#ff4f4d', '#ffaaa8']"
 		:created-at="createdAt"
 	>

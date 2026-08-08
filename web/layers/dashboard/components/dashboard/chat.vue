@@ -48,7 +48,7 @@ const chatUrl = computed(() => {
 				<Tooltip>
 					<TooltipTrigger as-child>
 						<Button size="sm" variant="ghost" @click="openFrankerFaceZ = !openFrankerFaceZ">
-							<Icon name="tabler:icon-dog" />
+							<Icon name="tabler:dog" />
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
@@ -58,8 +58,8 @@ const chatUrl = computed(() => {
 			</TooltipProvider>
 
 			<Button size="sm" variant="ghost" @click="toggleTheme">
-				<Icon name="tabler:icon-sun" v-if="chatTheme === 'dark'" color="orange" />
-				<Icon name="tabler:icon-moon" v-else />
+				<Icon name="tabler:sun" v-if="chatTheme === 'dark'" color="orange" />
+				<Icon name="tabler:moon" v-else />
 			</Button>
 		</template>
 

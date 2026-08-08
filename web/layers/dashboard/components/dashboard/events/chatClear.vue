@@ -9,7 +9,7 @@ defineProps<{
 
 <template>
 	<Base
-		:icon="'tabler:icon-eraser'"
+		:icon="'tabler:eraser'"
 		:icon-color="['#ff4f4d', '#ffaaa8']"
 		:created-at="createdAt"
 	>

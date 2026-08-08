@@ -16,7 +16,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && targetUserName && targetUserDisplayName"
-		:icon="'tabler:icon-gift'"
+		:icon="'tabler:gift'"
 		:icon-color="['#1756d3', '#1f69ff']"
 		:created-at="createdAt"
 	>

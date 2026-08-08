@@ -13,7 +13,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName"
-		:icon="'tabler:icon-heart-filled'"
+		:icon="'tabler:heart-filled'"
 		:icon-color="['#c516a5', '#ff38db']"
 		:created-at="createdAt"
 	>

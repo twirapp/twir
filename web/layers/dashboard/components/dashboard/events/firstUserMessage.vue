@@ -14,7 +14,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && message"
-		:icon="'tabler:icon-mood-plus'"
+		:icon="'tabler:mood-plus'"
 		:icon-color="['#772ce8', '#9147ff']"
 		:created-at="createdAt"
 	>

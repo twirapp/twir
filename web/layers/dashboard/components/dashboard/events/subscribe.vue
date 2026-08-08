@@ -14,7 +14,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && level"
-		:icon="'tabler:icon-star-filled'"
+		:icon="'tabler:star-filled'"
 		:icon-color="['#1756d3', '#1f69ff']"
 		:created-at="createdAt"
 	>
