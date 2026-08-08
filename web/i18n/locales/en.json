@@ -2435,7 +2435,12 @@
       "copy": "Copy",
       "copyJson": "Copy JSON config",
       "copyJsonHint": "Chatterino → Settings → External Tools → Image Uploader → paste from clipboard",
-      "copyJsonSuccess": "JSON config copied to clipboard."
+      "copyJsonSuccess": "JSON config copied to clipboard.",
+      "copyJsonLoginHint": "Log in to attach uploads to your account history",
+      "copyJsonAuthedNote": "Logged in — your personal token is included; uploads will be stored in your account history. Keep this config secret.",
+      "copyJsonSuccessAuthed": "Copied config includes your token.",
+      "showToken": "Show token",
+      "hideToken": "Hide token"
     }
   }
 }

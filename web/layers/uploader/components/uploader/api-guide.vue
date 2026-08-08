@@ -6,6 +6,37 @@ import UploaderCodeBlock from './code-block.vue'
 const { t } = useI18n()
 const clipboard = useClipboard()
 
+// The landing layout (header-profile) already fetches authenticatedUser via
+// callOnce on every landing page; for anonymous visitors the query errors
+// gracefully and userWithoutDashboards stays undefined.
+const userStore = useAuth()
+
+// The token must never appear in SSR HTML of this public page: the gate stays
+// closed during SSR and hydration, and flips only after client mount.
+const isClientMounted = ref(false)
+onMounted(() => {
+	isClientMounted.value = true
+})
+
+const uploaderApiKey = computed(() => {
+	if (!isClientMounted.value) return null
+	return userStore.userWithoutDashboards?.apiKey ?? null
+})
+
+// Streamer safety: the token renders masked by default; the reveal toggle
+// controls both visible spots at once.
+const isTokenRevealed = ref(false)
+
+function maskToken(token: string) {
+	if (token.length <= 8) return '••••••••'
+	return `${token.slice(0, 4)}••••••••${token.slice(-4)}`
+}
+
+const visibleApiKey = computed(() => {
+	if (!uploaderApiKey.value) return null
+	return isTokenRevealed.value ? uploaderApiKey.value : maskToken(uploaderApiKey.value)
+})
+
 const requestUrl = useRequestURL()
 const origin = computed(() => requestUrl.origin)
 
@@ -58,13 +89,16 @@ const chatterinoSnippet = computed(
 	() => `Request URL: ${uploadEndpoint.value}
 Form field: file
 Image URL (JSON path): data.link
-Deletion URL (JSON path): data.delete_link`
+Deletion URL (JSON path): data.delete_link${
+		visibleApiKey.value ? `\nExtra headers: api-key: ${visibleApiKey.value}` : ''
+	}`
 )
 
 // Chatterino import format (src/util/ImageUploader.cpp exportSettings):
 // native {property} dot-notation against the { "data": { ... } } envelope.
-const chatterinoConfigSnippet = computed(() =>
-	JSON.stringify(
+// Chatterino converts the Headers object into extra headers on import.
+function buildChatterinoConfig(token: string | null) {
+	return JSON.stringify(
 		{
 			Version: '1.0.0',
 			Name: 'Twir Image Uploader',
@@ -74,11 +108,17 @@ const chatterinoConfigSnippet = computed(() =>
 			FileFormName: 'file',
 			URL: '{data.link}',
 			DeletionURL: '{data.delete_link}',
+			...(token ? { Headers: { 'api-key': token } } : {}),
 		},
 		null,
 		2
 	)
-)
+}
+
+// What the copy button writes: always the real token. Never render this one.
+const chatterinoConfigSnippet = computed(() => buildChatterinoConfig(uploaderApiKey.value))
+// What the code block shows: masked until revealed.
+const chatterinoConfigDisplaySnippet = computed(() => buildChatterinoConfig(visibleApiKey.value))
 
 const chatterinoConfigCopied = ref(false)
 let chatterinoCopiedTimer: ReturnType<typeof setTimeout> | undefined
@@ -91,7 +131,9 @@ function copyChatterinoConfig() {
 		chatterinoConfigCopied.value = false
 	}, 2000)
 	toast.success(t('uploader.copied'), {
-		description: t('uploader.guide.copyJsonSuccess'),
+		description: uploaderApiKey.value
+			? t('uploader.guide.copyJsonSuccessAuthed')
+			: t('uploader.guide.copyJsonSuccess'),
 		duration: 2000,
 	})
 }
@@ -168,6 +210,26 @@ const activeTab = ref<GuideTab>('curl')
 			<p class="text-xs text-[hsl(240,11%,65%)]">
 				{{ $t('uploader.guide.chatterinoDescription') }}
 			</p>
+			<div
+				v-if="uploaderApiKey"
+				class="flex items-start gap-1.5 text-xs text-yellow-300/80"
+			>
+				<Icon name="lucide:shield-alert" class="h-3.5 w-3.5 flex-none mt-px" />
+				<span class="flex-1">{{ $t('uploader.guide.copyJsonAuthedNote') }}</span>
+				<button
+					type="button"
+					class="flex-none flex items-center justify-center rounded-lg border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] p-1.5 text-[hsl(240,11%,80%)] hover:border-[hsl(240,11%,40%)] hover:bg-[hsl(240,11%,25%)] transition-colors"
+					:aria-label="$t(isTokenRevealed ? 'uploader.guide.hideToken' : 'uploader.guide.showToken')"
+					:title="$t(isTokenRevealed ? 'uploader.guide.hideToken' : 'uploader.guide.showToken')"
+					@click="isTokenRevealed = !isTokenRevealed"
+				>
+					<Icon :name="isTokenRevealed ? 'lucide:eye-off' : 'lucide:eye'" class="h-3.5 w-3.5" />
+				</button>
+			</div>
+			<p v-else class="flex items-start gap-1.5 text-xs text-[hsl(240,11%,55%)]">
+				<Icon name="lucide:info" class="h-3.5 w-3.5 flex-none mt-px" />
+				{{ $t('uploader.guide.copyJsonLoginHint') }}
+			</p>
 			<button
 				type="button"
 				class="flex items-center justify-center gap-2 py-1.5 px-3 rounded-lg text-sm font-semibold border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,25%)] hover:bg-[hsl(240,11%,35%)] text-[hsl(240,11%,90%)] transition-colors"
@@ -179,7 +241,7 @@ const activeTab = ref<GuideTab>('curl')
 			<p class="text-xs text-[hsl(240,11%,55%)]">
 				{{ $t('uploader.guide.copyJsonHint') }}
 			</p>
-			<UploaderCodeBlock :code="chatterinoConfigSnippet" />
+			<UploaderCodeBlock :code="chatterinoConfigDisplaySnippet" :copy-text="chatterinoConfigSnippet" />
 			<UploaderCodeBlock :code="chatterinoSnippet" />
 		</div>
 	</div>

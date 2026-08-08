@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
 	code: string
+	/** What actually lands in the clipboard when it differs from the visible code (e.g. unmasked secrets). */
+	copyText?: string
 }>()
 
 const clipboard = useClipboard()
@@ -9,7 +11,7 @@ const copied = ref(false)
 let copiedTimer: ReturnType<typeof setTimeout> | undefined
 
 function copyCode() {
-	clipboard.copy(props.code)
+	clipboard.copy(props.copyText ?? props.code)
 	copied.value = true
 	clearTimeout(copiedTimer)
 	copiedTimer = setTimeout(() => {
