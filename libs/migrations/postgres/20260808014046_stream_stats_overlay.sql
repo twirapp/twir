@@ -3,10 +3,10 @@
 CREATE TABLE channels_overlays_stream_stats (
     id                  UUID PRIMARY KEY DEFAULT uuidv7(),
     channel_id          UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-    design              TEXT NOT NULL DEFAULT 'GLASS',
-    variant             TEXT NOT NULL DEFAULT 'HORIZONTAL',
+    design              channels_overlays_stream_stats_design NOT NULL DEFAULT 'GLASS',
+    variant             channels_overlays_stream_stats_variant NOT NULL DEFAULT 'HORIZONTAL',
     viewers_enabled     BOOLEAN NOT NULL DEFAULT TRUE,
-    viewers_mode        TEXT NOT NULL DEFAULT 'CUMULATIVE',
+    viewers_mode        channels_overlays_stream_stats_viewers_mode NOT NULL DEFAULT 'CUMULATIVE',
     platform_icons_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     messages_enabled    BOOLEAN NOT NULL DEFAULT TRUE,
     uptime_enabled      BOOLEAN NOT NULL DEFAULT TRUE,
