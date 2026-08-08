@@ -101,6 +101,7 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.StreamS
 		UptimeColor:          input.Settings.UptimeColor,
 		SubscribersColor:     input.Settings.SubscribersColor,
 		FollowersColor:       input.Settings.FollowersColor,
+		CounterOrder:         counterOrderToStrings(entity.NormalizeCounterOrder(input.Settings.CounterOrder)),
 		CustomHTMLEnabled:    input.Settings.CustomHTMLEnabled,
 		CustomHTML:           input.Settings.CustomHTML,
 		CustomCSS:            input.Settings.CustomCSS,
@@ -215,6 +216,22 @@ func (s *Service) buildCounters(ctx context.Context, channelID string) (entity.S
 	return counters, nil
 }
 
+func counterOrderToStrings(order []entity.StreamStatsOverlayCounter) []string {
+	result := make([]string, 0, len(order))
+	for _, counter := range order {
+		result = append(result, string(counter))
+	}
+	return result
+}
+
+func counterOrderFromStrings(order []string) []entity.StreamStatsOverlayCounter {
+	result := make([]entity.StreamStatsOverlayCounter, 0, len(order))
+	for _, counter := range order {
+		result = append(result, entity.StreamStatsOverlayCounter(counter))
+	}
+	return entity.NormalizeCounterOrder(result)
+}
+
 func mapModelToEntity(m model.StreamStatsOverlay) entity.StreamStatsOverlay {
 	return entity.StreamStatsOverlay{
 		ID:                   m.ID,
@@ -233,6 +250,7 @@ func mapModelToEntity(m model.StreamStatsOverlay) entity.StreamStatsOverlay {
 		UptimeColor:          m.UptimeColor,
 		SubscribersColor:     m.SubscribersColor,
 		FollowersColor:       m.FollowersColor,
+		CounterOrder:         counterOrderFromStrings(m.CounterOrder),
 		CustomHTMLEnabled:    m.CustomHTMLEnabled,
 		CustomHTML:           m.CustomHTML,
 		CustomCSS:            m.CustomCSS,
@@ -258,6 +276,7 @@ func createDefaultOverlayInput(channelID string) overlays_stream_stats.CreateInp
 		UptimeColor:          "",
 		SubscribersColor:     "",
 		FollowersColor:       "",
+		CounterOrder:         counterOrderToStrings(entity.StreamStatsOverlayCountersDefaultOrder),
 		CustomHTMLEnabled:    false,
 		CustomHTML:           "",
 		CustomCSS:            "",

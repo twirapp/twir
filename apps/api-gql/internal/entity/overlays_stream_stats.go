@@ -29,6 +29,58 @@ const (
 	StreamStatsOverlayVariantLarge             StreamStatsOverlayVariant = "LARGE"
 )
 
+type StreamStatsOverlayCounter string
+
+const (
+	StreamStatsOverlayCounterViewers     StreamStatsOverlayCounter = "VIEWERS"
+	StreamStatsOverlayCounterMessages    StreamStatsOverlayCounter = "MESSAGES"
+	StreamStatsOverlayCounterUptime      StreamStatsOverlayCounter = "UPTIME"
+	StreamStatsOverlayCounterSubscribers StreamStatsOverlayCounter = "SUBSCRIBERS"
+	StreamStatsOverlayCounterFollowers   StreamStatsOverlayCounter = "FOLLOWERS"
+)
+
+func (c StreamStatsOverlayCounter) IsValid() bool {
+	switch c {
+	case StreamStatsOverlayCounterViewers,
+		StreamStatsOverlayCounterMessages,
+		StreamStatsOverlayCounterUptime,
+		StreamStatsOverlayCounterSubscribers,
+		StreamStatsOverlayCounterFollowers:
+		return true
+	}
+	return false
+}
+
+var StreamStatsOverlayCountersDefaultOrder = []StreamStatsOverlayCounter{
+	StreamStatsOverlayCounterViewers,
+	StreamStatsOverlayCounterMessages,
+	StreamStatsOverlayCounterUptime,
+	StreamStatsOverlayCounterSubscribers,
+	StreamStatsOverlayCounterFollowers,
+}
+
+// NormalizeCounterOrder returns every counter exactly once: input order first, then missing ones.
+func NormalizeCounterOrder(order []StreamStatsOverlayCounter) []StreamStatsOverlayCounter {
+	seen := make(map[StreamStatsOverlayCounter]bool, len(StreamStatsOverlayCountersDefaultOrder))
+	result := make([]StreamStatsOverlayCounter, 0, len(StreamStatsOverlayCountersDefaultOrder))
+
+	for _, counter := range order {
+		if !counter.IsValid() || seen[counter] {
+			continue
+		}
+		seen[counter] = true
+		result = append(result, counter)
+	}
+
+	for _, counter := range StreamStatsOverlayCountersDefaultOrder {
+		if !seen[counter] {
+			result = append(result, counter)
+		}
+	}
+
+	return result
+}
+
 type StreamStatsOverlayViewersMode string
 
 const (
@@ -53,6 +105,7 @@ type StreamStatsOverlay struct {
 	UptimeColor          string
 	SubscribersColor     string
 	FollowersColor       string
+	CounterOrder         []StreamStatsOverlayCounter
 	CustomHTMLEnabled    bool
 	CustomHTML           string
 	CustomCSS            string

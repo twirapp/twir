@@ -32,6 +32,7 @@ export function useStreamStatsGraphQL() {
 					subscribersColor
 					followersEnabled
 					followersColor
+					counterOrder
 					customHtmlEnabled
 					customHtml
 					customCss

@@ -3,7 +3,7 @@ import { computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 
 import { counterColors } from '@/components/stream-stats/counter-meta.js'
-import { Platform, StreamStatsOverlayViewersMode } from '@/gql/graphql'
+import { Platform, StreamStatsOverlayCounter, StreamStatsOverlayViewersMode } from '@/gql/graphql'
 
 import type {
 	StreamStatsOverlayCountersSubscription,
@@ -31,6 +31,22 @@ const platformMeta: Partial<Record<Platform, { label: string, color: string }>> 
 	[Platform.VkVideoLive]: { label: 'VK', color: '#0077FF' },
 	[Platform.Youtube]: { label: 'YouTube', color: '#FF0000' },
 }
+
+const counterOrderToKey: Record<StreamStatsOverlayCounter, StreamStatsCounterKey> = {
+	[StreamStatsOverlayCounter.Viewers]: 'viewers',
+	[StreamStatsOverlayCounter.Messages]: 'messages',
+	[StreamStatsOverlayCounter.Uptime]: 'uptime',
+	[StreamStatsOverlayCounter.Subscribers]: 'subscribers',
+	[StreamStatsOverlayCounter.Followers]: 'followers',
+}
+
+const canonicalCounterOrder: StreamStatsCounterKey[] = [
+	'viewers',
+	'messages',
+	'uptime',
+	'subscribers',
+	'followers',
+]
 
 const numberFormatter = new Intl.NumberFormat('en-US')
 
@@ -79,16 +95,18 @@ export function useStreamStatsCounters(
 		const resolveColor = (key: StreamStatsCounterKey): string =>
 			userColors[key] || counterColors[key]
 
-		const result: StreamStatsCounterItem[] = []
+		const groups = new Map<StreamStatsCounterKey, StreamStatsCounterItem[]>()
 
 		if (currentSettings.viewersEnabled) {
+			const viewersItems: StreamStatsCounterItem[] = []
+
 			if (
 				currentSettings.viewersMode === StreamStatsOverlayViewersMode.Separate &&
 				currentCounters.platformViewers.length > 0
 			) {
 				for (const entry of currentCounters.platformViewers) {
 					const meta = platformMeta[entry.platform]
-					result.push({
+					viewersItems.push({
 						id: `viewers-${entry.platform}`,
 						key: 'viewers',
 						label: meta?.label ?? entry.platform,
@@ -99,7 +117,7 @@ export function useStreamStatsCounters(
 					})
 				}
 			} else {
-				result.push({
+				viewersItems.push({
 					id: 'viewers',
 					key: 'viewers',
 					label: 'Viewers',
@@ -107,46 +125,66 @@ export function useStreamStatsCounters(
 					color: resolveColor('viewers'),
 				})
 			}
+
+			groups.set('viewers', viewersItems)
 		}
 
 		if (currentSettings.messagesEnabled) {
-			result.push({
-				id: 'messages',
-				key: 'messages',
-				label: 'Messages',
-				value: formatStatNumber(currentCounters.messages),
-				color: resolveColor('messages'),
-			})
+			groups.set('messages', [
+				{
+					id: 'messages',
+					key: 'messages',
+					label: 'Messages',
+					value: formatStatNumber(currentCounters.messages),
+					color: resolveColor('messages'),
+				},
+			])
 		}
 
 		if (currentSettings.uptimeEnabled && uptime.value) {
-			result.push({
-				id: 'uptime',
-				key: 'uptime',
-				label: 'Uptime',
-				value: uptime.value,
-				color: resolveColor('uptime'),
-			})
+			groups.set('uptime', [
+				{
+					id: 'uptime',
+					key: 'uptime',
+					label: 'Uptime',
+					value: uptime.value,
+					color: resolveColor('uptime'),
+				},
+			])
 		}
 
 		if (currentSettings.subscribersEnabled && currentCounters.subscribers != null) {
-			result.push({
-				id: 'subscribers',
-				key: 'subscribers',
-				label: 'Subscribers',
-				value: formatStatNumber(currentCounters.subscribers),
-				color: resolveColor('subscribers'),
-			})
+			groups.set('subscribers', [
+				{
+					id: 'subscribers',
+					key: 'subscribers',
+					label: 'Subscribers',
+					value: formatStatNumber(currentCounters.subscribers),
+					color: resolveColor('subscribers'),
+				},
+			])
 		}
 
 		if (currentSettings.followersEnabled && currentCounters.followers != null) {
-			result.push({
-				id: 'followers',
-				key: 'followers',
-				label: 'Followers',
-				value: formatStatNumber(currentCounters.followers),
-				color: resolveColor('followers'),
-			})
+			groups.set('followers', [
+				{
+					id: 'followers',
+					key: 'followers',
+					label: 'Followers',
+					value: formatStatNumber(currentCounters.followers),
+					color: resolveColor('followers'),
+				},
+			])
+		}
+
+		const order: StreamStatsCounterKey[] = currentSettings.counterOrder?.length
+			? currentSettings.counterOrder.map((counter) => counterOrderToKey[counter])
+			: canonicalCounterOrder
+
+		const result: StreamStatsCounterItem[] = []
+		for (const key of order) {
+			const group = groups.get(key)
+			if (group) result.push(...group)
 		}
 
 		return result

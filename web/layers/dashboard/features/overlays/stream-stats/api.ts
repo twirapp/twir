@@ -34,6 +34,7 @@ export const useStreamStatsOverlayApi = createGlobalState(() => {
 						uptimeColor
 						subscribersColor
 						followersColor
+						counterOrder
 						customHtmlEnabled
 						customHtml
 						customCss
@@ -65,6 +66,7 @@ export const useStreamStatsOverlayApi = createGlobalState(() => {
 						uptimeColor
 						subscribersColor
 						followersColor
+						counterOrder
 						customHtmlEnabled
 						customHtml
 						customCss

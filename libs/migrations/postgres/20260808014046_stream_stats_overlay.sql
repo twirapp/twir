@@ -17,6 +17,7 @@ CREATE TABLE channels_overlays_stream_stats (
     uptime_color        TEXT NOT NULL DEFAULT '',
     subscribers_color   TEXT NOT NULL DEFAULT '',
     followers_color     TEXT NOT NULL DEFAULT '',
+    counter_order       TEXT[] NOT NULL DEFAULT '{viewers,messages,uptime,subscribers,followers}',
     custom_html_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     custom_html         TEXT NOT NULL DEFAULT '',
     custom_css          TEXT NOT NULL DEFAULT '',

@@ -69,7 +69,8 @@ export const overlayWidgetRegistry = [
 		nameKey: 'overlayBuilder.widgets.nowPlaying.name',
 		descriptionKey: 'overlayBuilder.widgets.nowPlaying.description',
 		icon: 'lucide:audio-lines',
-		buildUrl: ({ origin, apiKey, params }) => withParams(`${origin}/overlays/${apiKey}/now-playing`, params),
+		buildUrl: ({ origin, apiKey, params }) =>
+			withParams(`${origin}/overlays/${apiKey}/now-playing`, params),
 		settingsComponent: NowPlayingWidgetSettings,
 	},
 	{
@@ -91,6 +92,13 @@ export const overlayWidgetRegistry = [
 		settingsComponent: ValorantStatsWidgetSettings,
 	},
 	{
+		key: 'stream-stats',
+		nameKey: 'overlayBuilder.widgets.streamStats.name',
+		descriptionKey: 'overlayBuilder.widgets.streamStats.description',
+		icon: 'lucide:chart-column',
+		buildUrl: ({ origin, apiKey }) => `${origin}/overlays/${apiKey}/stream-stats`,
+	},
+	{
 		key: 'kappagen',
 		nameKey: 'overlayBuilder.widgets.kappagen.name',
 		descriptionKey: 'overlayBuilder.widgets.kappagen.description',
@@ -102,7 +110,8 @@ export const overlayWidgetRegistry = [
 		nameKey: 'overlayBuilder.widgets.dudes.name',
 		descriptionKey: 'overlayBuilder.widgets.dudes.description',
 		icon: 'lucide:users',
-		buildUrl: ({ origin, apiKey, params }) => withParams(`${origin}/overlays/${apiKey}/dudes`, params),
+		buildUrl: ({ origin, apiKey, params }) =>
+			withParams(`${origin}/overlays/${apiKey}/dudes`, params),
 		settingsComponent: DudesWidgetSettings,
 	},
 	{

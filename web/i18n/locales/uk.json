@@ -714,7 +714,8 @@
             }
           },
           "twitchOnlyNote": "Subscribers and followers totals are Twitch-only; the counter is hidden for other platforms.",
-          "platformIcons": "Platform icons instead of labels"
+          "platformIcons": "Platform icons instead of labels",
+          "dragHint": "Drag to reorder counters."
         },
         "colors": {
           "label": "Counter colors",

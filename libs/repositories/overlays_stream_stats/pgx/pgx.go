@@ -53,6 +53,7 @@ SELECT
 	uptime_color,
 	subscribers_color,
 	followers_color,
+	counter_order,
 	custom_html_enabled,
 	custom_html,
 	custom_css,
@@ -82,6 +83,7 @@ LIMIT 1;
 		&overlay.UptimeColor,
 		&overlay.SubscribersColor,
 		&overlay.FollowersColor,
+		&overlay.CounterOrder,
 		&overlay.CustomHTMLEnabled,
 		&overlay.CustomHTML,
 		&overlay.CustomCSS,
@@ -117,11 +119,12 @@ INSERT INTO channels_overlays_stream_stats (
 	uptime_color,
 	subscribers_color,
 	followers_color,
+	counter_order,
 	custom_html_enabled,
 	custom_html,
 	custom_css
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18);
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
 `
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
@@ -143,6 +146,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $
 		input.UptimeColor,
 		input.SubscribersColor,
 		input.FollowersColor,
+		input.CounterOrder,
 		input.CustomHTMLEnabled,
 		input.CustomHTML,
 		input.CustomCSS,
@@ -172,11 +176,12 @@ SET
 	uptime_color = $12,
 	subscribers_color = $13,
 	followers_color = $14,
-	custom_html_enabled = $15,
-	custom_html = $16,
-	custom_css = $17,
+	counter_order = $15,
+	custom_html_enabled = $16,
+	custom_html = $17,
+	custom_css = $18,
 	updated_at = now()
-WHERE channel_id = $18
+WHERE channel_id = $19
 RETURNING channel_id;
 `
 
@@ -199,6 +204,7 @@ RETURNING channel_id;
 		input.UptimeColor,
 		input.SubscribersColor,
 		input.FollowersColor,
+		input.CounterOrder,
 		input.CustomHTMLEnabled,
 		input.CustomHTML,
 		input.CustomCSS,

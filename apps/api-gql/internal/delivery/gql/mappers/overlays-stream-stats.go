@@ -8,6 +8,11 @@ import (
 )
 
 func MapStreamStatsEntityToGQL(e entity.StreamStatsOverlay) gqlmodel.StreamStatsOverlay {
+	counterOrder := make([]gqlmodel.StreamStatsOverlayCounter, 0, len(e.CounterOrder))
+	for _, counter := range e.CounterOrder {
+		counterOrder = append(counterOrder, gqlmodel.StreamStatsOverlayCounter(counter))
+	}
+
 	return gqlmodel.StreamStatsOverlay{
 		ID:                   e.ID,
 		ChannelID:            e.ChannelID,
@@ -25,6 +30,7 @@ func MapStreamStatsEntityToGQL(e entity.StreamStatsOverlay) gqlmodel.StreamStats
 		UptimeColor:          e.UptimeColor,
 		SubscribersColor:     e.SubscribersColor,
 		FollowersColor:       e.FollowersColor,
+		CounterOrder:         counterOrder,
 		CustomHTMLEnabled:    e.CustomHTMLEnabled,
 		CustomHTML:           e.CustomHTML,
 		CustomCSS:            e.CustomCSS,

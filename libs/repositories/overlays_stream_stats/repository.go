@@ -29,6 +29,7 @@ type CreateInput struct {
 	UptimeColor          string
 	SubscribersColor     string
 	FollowersColor       string
+	CounterOrder         []string
 	CustomHTMLEnabled    bool
 	CustomHTML           string
 	CustomCSS            string
@@ -49,6 +50,7 @@ type UpdateInput struct {
 	UptimeColor          string
 	SubscribersColor     string
 	FollowersColor       string
+	CounterOrder         []string
 	CustomHTMLEnabled    bool
 	CustomHTML           string
 	CustomCSS            string

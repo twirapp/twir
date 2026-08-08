@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { useForm } from 'vee-validate'
+import { VueDraggable } from 'vue-draggable-plus'
 import { toast } from 'vue-sonner'
 import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink.js'
@@ -14,6 +15,7 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import {
 	ChannelRolePermissionEnum,
+	StreamStatsOverlayCounter,
 	StreamStatsOverlayDesign,
 	StreamStatsOverlayVariant,
 	StreamStatsOverlayViewersMode,
@@ -36,6 +38,13 @@ const defaultSettings = {
 	uptimeEnabled: true,
 	subscribersEnabled: true,
 	followersEnabled: true,
+	counterOrder: [
+		StreamStatsOverlayCounter.Viewers,
+		StreamStatsOverlayCounter.Messages,
+		StreamStatsOverlayCounter.Uptime,
+		StreamStatsOverlayCounter.Subscribers,
+		StreamStatsOverlayCounter.Followers,
+	],
 	viewersColor: '',
 	messagesColor: '',
 	uptimeColor: '',
@@ -87,6 +96,7 @@ watch(
 			uptimeEnabled: overlay.uptimeEnabled,
 			subscribersEnabled: overlay.subscribersEnabled,
 			followersEnabled: overlay.followersEnabled,
+			counterOrder: overlay.counterOrder,
 			viewersColor: overlay.viewersColor,
 			messagesColor: overlay.messagesColor,
 			uptimeColor: overlay.uptimeColor,
@@ -160,6 +170,7 @@ const save = form.handleSubmit(async (values) => {
 				uptimeEnabled: values.uptimeEnabled,
 				subscribersEnabled: values.subscribersEnabled,
 				followersEnabled: values.followersEnabled,
+				counterOrder: values.counterOrder as StreamStatsOverlayCounter[],
 				viewersColor: values.viewersColor,
 				messagesColor: values.messagesColor,
 				uptimeColor: values.uptimeColor,
@@ -208,13 +219,38 @@ const variantOptions = [
 	{ value: StreamStatsOverlayVariant.Large, labelKey: 'large' },
 ] as const
 
-const counters = [
-	{ name: 'viewersEnabled', icon: 'lucide:users', labelKey: 'viewers' },
-	{ name: 'messagesEnabled', icon: 'lucide:message-square', labelKey: 'messages' },
-	{ name: 'uptimeEnabled', icon: 'lucide:clock', labelKey: 'uptime' },
-	{ name: 'subscribersEnabled', icon: 'lucide:star', labelKey: 'subscribers' },
-	{ name: 'followersEnabled', icon: 'lucide:user-plus', labelKey: 'followers' },
-] as const
+const countersMeta = {
+	[StreamStatsOverlayCounter.Viewers]: {
+		enabledField: 'viewersEnabled',
+		icon: 'lucide:users',
+		labelKey: 'viewers',
+	},
+	[StreamStatsOverlayCounter.Messages]: {
+		enabledField: 'messagesEnabled',
+		icon: 'lucide:message-square',
+		labelKey: 'messages',
+	},
+	[StreamStatsOverlayCounter.Uptime]: {
+		enabledField: 'uptimeEnabled',
+		icon: 'lucide:clock',
+		labelKey: 'uptime',
+	},
+	[StreamStatsOverlayCounter.Subscribers]: {
+		enabledField: 'subscribersEnabled',
+		icon: 'lucide:star',
+		labelKey: 'subscribers',
+	},
+	[StreamStatsOverlayCounter.Followers]: {
+		enabledField: 'followersEnabled',
+		icon: 'lucide:user-plus',
+		labelKey: 'followers',
+	},
+} as const
+
+const counterOrder = computed<StreamStatsOverlayCounter[]>({
+	get: () => (form.values.counterOrder ?? []) as StreamStatsOverlayCounter[],
+	set: (value) => form.setFieldValue('counterOrder', value),
+})
 
 const colorCounters = [
 	{ name: 'viewersColor', icon: 'lucide:users', labelKey: 'viewers' },
@@ -439,101 +475,124 @@ const monacoOptions = {
 						</h3>
 
 						<div class="space-y-4">
-							<template
-								v-for="counter of counters"
-								:key="counter.name"
+							<VueDraggable
+								v-model="counterOrder"
+								:animation="150"
+								handle=".drag-handle"
+								ghost-class="opacity-30"
+								class="space-y-4"
 							>
-								<FormField
-									v-slot="{ value, handleChange }"
-									:name="counter.name"
+								<div
+									v-for="counter of counterOrder"
+									:key="counter"
+									class="space-y-4"
 								>
-									<FormItem>
-										<div class="flex items-center justify-between gap-2">
-											<FormLabel class="mt-0! flex items-center gap-2">
-												<Icon
-													:name="counter.icon"
-													class="text-muted-foreground size-4"
-												/>
-												{{ t(`overlays.streamStats.settings.counters.${counter.labelKey}`) }}
-											</FormLabel>
-											<FormControl>
-												<Switch
-													:model-value="value"
-													@update:model-value="handleChange"
-												/>
-											</FormControl>
-										</div>
-										<FormMessage />
-									</FormItem>
-								</FormField>
-
-								<FormField
-									v-if="counter.name === 'viewersEnabled' && form.values.viewersEnabled"
-									v-slot="{ value, handleChange }"
-									name="viewersMode"
-								>
-									<FormItem class="ml-2 border-l pl-4">
-										<FormLabel>{{
-											t('overlays.streamStats.settings.counters.viewersMode.label')
-										}}</FormLabel>
-										<FormControl>
-											<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-												<button
-													v-for="option of viewersModeOptions"
-													:key="option.value"
-													type="button"
-													class="hover:border-primary/50 flex flex-col gap-0.5 rounded-lg border p-3 text-left transition-colors"
-													:class="
-														value === option.value ? 'ring-primary border-primary ring-2' : ''
-													"
-													@click="handleChange(option.value)"
-												>
-													<span class="text-sm font-medium">
-														{{
-															t(
-																`overlays.streamStats.settings.counters.viewersMode.${option.labelKey}.name`
-															)
-														}}
-													</span>
-													<span class="text-muted-foreground text-xs">
-														{{
-															t(
-																`overlays.streamStats.settings.counters.viewersMode.${option.labelKey}.description`
-															)
-														}}
-													</span>
-												</button>
+									<FormField
+										v-slot="{ value, handleChange }"
+										:name="countersMeta[counter].enabledField"
+									>
+										<FormItem>
+											<div class="flex items-center justify-between gap-2">
+												<FormLabel class="mt-0! flex items-center gap-2">
+													<Icon
+														name="lucide:grip-vertical"
+														class="drag-handle text-muted-foreground size-4 cursor-grab"
+													/>
+													<Icon
+														:name="countersMeta[counter].icon"
+														class="text-muted-foreground size-4"
+													/>
+													{{
+														t(
+															`overlays.streamStats.settings.counters.${countersMeta[counter].labelKey}`
+														)
+													}}
+												</FormLabel>
+												<FormControl>
+													<Switch
+														:model-value="value"
+														@update:model-value="handleChange"
+													/>
+												</FormControl>
 											</div>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								</FormField>
+											<FormMessage />
+										</FormItem>
+									</FormField>
 
-								<FormField
-									v-if="
-										counter.name === 'viewersEnabled' &&
-										form.values.viewersEnabled &&
-										form.values.viewersMode === StreamStatsOverlayViewersMode.Separate
-									"
-									v-slot="{ value, handleChange }"
-									name="platformIconsEnabled"
-								>
-									<FormItem class="ml-2 border-l pl-4">
-										<div class="flex items-center justify-between gap-2">
-											<FormLabel class="mt-0!">
-												{{ t('overlays.streamStats.settings.counters.platformIcons') }}
-											</FormLabel>
+									<FormField
+										v-if="
+											counter === StreamStatsOverlayCounter.Viewers && form.values.viewersEnabled
+										"
+										v-slot="{ value, handleChange }"
+										name="viewersMode"
+									>
+										<FormItem class="ml-2 border-l pl-4">
+											<FormLabel>{{
+												t('overlays.streamStats.settings.counters.viewersMode.label')
+											}}</FormLabel>
 											<FormControl>
-												<Switch
-													:model-value="value"
-													@update:model-value="handleChange"
-												/>
+												<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+													<button
+														v-for="option of viewersModeOptions"
+														:key="option.value"
+														type="button"
+														class="hover:border-primary/50 flex flex-col gap-0.5 rounded-lg border p-3 text-left transition-colors"
+														:class="
+															value === option.value ? 'ring-primary border-primary ring-2' : ''
+														"
+														@click="handleChange(option.value)"
+													>
+														<span class="text-sm font-medium">
+															{{
+																t(
+																	`overlays.streamStats.settings.counters.viewersMode.${option.labelKey}.name`
+																)
+															}}
+														</span>
+														<span class="text-muted-foreground text-xs">
+															{{
+																t(
+																	`overlays.streamStats.settings.counters.viewersMode.${option.labelKey}.description`
+																)
+															}}
+														</span>
+													</button>
+												</div>
 											</FormControl>
-										</div>
-										<FormMessage />
-									</FormItem>
-								</FormField>
-							</template>
+											<FormMessage />
+										</FormItem>
+									</FormField>
+
+									<FormField
+										v-if="
+											counter === StreamStatsOverlayCounter.Viewers &&
+											form.values.viewersEnabled &&
+											form.values.viewersMode === StreamStatsOverlayViewersMode.Separate
+										"
+										v-slot="{ value, handleChange }"
+										name="platformIconsEnabled"
+									>
+										<FormItem class="ml-2 border-l pl-4">
+											<div class="flex items-center justify-between gap-2">
+												<FormLabel class="mt-0!">
+													{{ t('overlays.streamStats.settings.counters.platformIcons') }}
+												</FormLabel>
+												<FormControl>
+													<Switch
+														:model-value="value"
+														@update:model-value="handleChange"
+													/>
+												</FormControl>
+											</div>
+											<FormMessage />
+										</FormItem>
+									</FormField>
+								</div>
+							</VueDraggable>
+
+							<p class="text-muted-foreground text-xs">
+								{{ t('overlays.streamStats.settings.counters.dragHint') }}
+							</p>
 
 							<p class="text-muted-foreground text-xs">
 								{{ t('overlays.streamStats.settings.counters.twitchOnlyNote') }}

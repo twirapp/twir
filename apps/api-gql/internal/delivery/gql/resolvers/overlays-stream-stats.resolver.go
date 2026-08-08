@@ -40,6 +40,7 @@ func (r *mutationResolver) OverlaysStreamStatsUpdate(ctx context.Context, input 
 			UptimeColor:          input.UptimeColor,
 			SubscribersColor:     input.SubscribersColor,
 			FollowersColor:       input.FollowersColor,
+			CounterOrder:         counterOrderToEntity(input.CounterOrder),
 			CustomHTMLEnabled:    input.CustomHTMLEnabled,
 			CustomHTML:           input.CustomHTML,
 			CustomCSS:            input.CustomCSS,
@@ -132,3 +133,19 @@ func (r *subscriptionResolver) OverlaysStreamStatsCounters(ctx context.Context, 
 
 	return outputChan, nil
 }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func counterOrderToEntity(order []gqlmodel.StreamStatsOverlayCounter) []entity.StreamStatsOverlayCounter {
+	result := make([]entity.StreamStatsOverlayCounter, 0, len(order))
+	for _, counter := range order {
+		result = append(result, entity.StreamStatsOverlayCounter(counter))
+	}
+	return result
+}
+*/

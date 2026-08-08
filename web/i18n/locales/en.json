@@ -927,7 +927,8 @@
             }
           },
           "twitchOnlyNote": "Subscribers and followers totals are Twitch-only; the counter is hidden for other platforms.",
-          "platformIcons": "Platform icons instead of labels"
+          "platformIcons": "Platform icons instead of labels",
+          "dragHint": "Drag to reorder counters."
         },
         "colors": {
           "label": "Counter colors",
@@ -2193,6 +2194,10 @@
       "afk": {
         "name": "AFK (BRB)",
         "description": "Show an away screen"
+      },
+      "streamStats": {
+        "name": "Stream Stats",
+        "description": "Live stream counters: viewers, messages, uptime, subscribers, followers."
       }
     },
     "layers": {
