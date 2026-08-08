@@ -1428,7 +1428,7 @@
       }
     },
     "integrations": { "badge": "Integrácie", "title": "Vylepšite stream bezproblémovými integráciami", "description": "Pripojte obľúbené nástroje a platformy, aby ste zvýšili výkon a zapojenie na streame. Integrácie Twiru ponúkajú nekonečné možnosti." },
-    "nav": { "features": "Funkcie", "integrations": "Integrácie", "compare": "Porovnanie", "urlShortener": "Skracovač URL", "hastebin": "Hastebin", "terms": "Podmienky používania", "privacy": "Zásady ochrany súkromia", "login": "Prihlásiť sa", "startNow": "Začať teraz", "dashboard": "Dashboard", "logout": "Odhlásiť sa", "vkLive": "VK Live" },
+    "nav": { "features": "Funkcie", "integrations": "Integrácie", "compare": "Porovnanie", "urlShortener": "Skracovač URL", "uploader": "Nahrávač obrázkov", "hastebin": "Hastebin", "terms": "Podmienky používania", "privacy": "Zásady ochrany súkromia", "login": "Prihlásiť sa", "startNow": "Začať teraz", "dashboard": "Dashboard", "logout": "Odhlásiť sa", "vkLive": "VK Live" },
     "footer": { "navigation": "Navigácia päty", "github": "Repozitár Github", "discord": "Discord kanál pre otázky a novinky" },
     "compareLink": "Porovnať Twir s inými botmi",
     "faq": {

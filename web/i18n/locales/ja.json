@@ -60,7 +60,7 @@
       }
     },
     "integrations": { "badge": "連携", "title": "シームレスな連携で配信をパワーアップ", "description": "お気に入りのツールやプラットフォームを接続して、配信のパフォーマンスと交流を高めましょう。Twir の連携が可能性を広げます。" },
-    "nav": { "features": "機能", "integrations": "連携", "compare": "比較", "urlShortener": "URL 短縮", "hastebin": "Hastebin", "terms": "利用規約", "privacy": "プライバシーポリシー", "login": "ログイン", "startNow": "今すぐ始める", "dashboard": "ダッシュボード", "logout": "ログアウト", "vkLive": "VK Live" },
+    "nav": { "features": "機能", "integrations": "連携", "compare": "比較", "urlShortener": "URL 短縮", "uploader": "画像アップローダー", "hastebin": "Hastebin", "terms": "利用規約", "privacy": "プライバシーポリシー", "login": "ログイン", "startNow": "今すぐ始める", "dashboard": "ダッシュボード", "logout": "ログアウト", "vkLive": "VK Live" },
     "footer": { "navigation": "フッターナビゲーション", "github": "Github リポジトリ", "discord": "質問や最新情報のための Discord チャンネル" },
     "compareLink": "Twir を他のボットと比較する",
     "faq": {
