@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -52,6 +53,10 @@ type Config struct {
 	S3Region      string `required:"false" envconfig:"CDN_REGION"`
 	S3AccessToken string `required:"false" envconfig:"CDN_ACCESS_TOKEN"`
 	S3SecretToken string `required:"false" envconfig:"CDN_SECRET_TOKEN"`
+
+	UploaderMaxFileSizeBytes     int64         `required:"false" default:"26214400" envconfig:"UPLOADER_MAX_FILE_SIZE_BYTES"`
+	UploaderAnonymousFileTTL     time.Duration `required:"false" default:"720h" envconfig:"UPLOADER_ANONYMOUS_FILE_TTL"`
+	UploaderAuthenticatedFileTTL time.Duration `required:"false" default:"4320h" envconfig:"UPLOADER_AUTHENTICATED_FILE_TTL"`
 
 	DiscordClientID                        string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
 	DiscordClientSecret                    string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
