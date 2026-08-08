@@ -7,11 +7,13 @@ import ImageLayerPreview from './ImageLayerPreview.vue'
 import LayerTypePreview from './LayerTypePreview.vue'
 import type { Layer } from '../types'
 import { type CanvasInteractionProps, useCanvasInteraction } from '../composables/useCanvasInteraction'
+import { useWidgetPreviewMode } from '../composables/useWidgetPreviewMode'
 
 import { Button } from '@/components/ui/button'
 
 const props = defineProps<CanvasInteractionProps>()
 const { t } = useI18n()
+const { enabled: widgetsPreview } = useWidgetPreviewMode()
 
 const emit = defineEmits<{
 	updateLayer: [layerId: string, updates: Partial<Layer>]
@@ -217,10 +219,21 @@ const {
 									<Icon v-else name="lucide:lock" class="text-muted-foreground h-3.5 w-3.5" />
 								</Button>
 								<Button
+									v-if="quickActionsLayer.type === 'IFRAME' && quickActionsLayer.settings.widgetKey"
 									variant="ghost"
 									size="icon"
 									class="h-7 w-7"
-					:title="t('overlayBuilder.layers.settings')"
+									:class="{ 'bg-accent': widgetsPreview }"
+									:title="t('overlayBuilder.toolbar.widgetsPreview')"
+									@click="widgetsPreview = !widgetsPreview"
+								>
+									<Icon name="lucide:play" class="h-3.5 w-3.5" />
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon"
+									class="h-7 w-7"
+									:title="t('overlayBuilder.layers.settings')"
 									@click="emit('openLayerSettings', quickActionsLayer.id)"
 								>
 									<Icon name="lucide:settings-2" class="h-3.5 w-3.5" />
