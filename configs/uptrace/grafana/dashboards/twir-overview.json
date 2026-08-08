@@ -19,7 +19,7 @@
   "panels": [
     {
       "datasource": { "type": "postgres", "uid": "twir-postgres" },
-      "description": "Approximate PostgreSQL row count. The value is complete and locale-formatted; the estimate avoids scanning millions of rows every refresh.",
+      "description": "Exact row count from the users table. Runs a real count(*) instead of the pg_class.reltuples planner estimate, which only updates on ANALYZE and appeared frozen.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "fixed", "fixedColor": "blue" },
@@ -50,11 +50,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT reltuples::double precision AS \"Users\" FROM pg_class WHERE oid = 'public.users'::regclass",
+          "rawSql": "SELECT count(*)::double precision AS \"Users\" FROM users",
           "refId": "A"
         }
       ],
-      "title": "Users ≈",
+      "title": "Users",
       "type": "stat"
     },
     {
@@ -714,5 +714,5 @@
   "timezone": "browser",
   "title": "Twir Live Overview",
   "uid": "twir-stream-overview",
-  "version": 10
+  "version": 11
 }
