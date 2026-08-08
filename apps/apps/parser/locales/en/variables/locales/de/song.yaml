@@ -6,6 +6,7 @@ info:
   get_spotify_integration: 'Kann Spotify-Integration nicht erreichen: {reason}'
   history: '{trackTitle} - {trackArtist} (~{minutes}m)'
   no_needed_scope: 'Kein benötigter Bereich, Spotify im Dashboard erneut verbinden'
+  spotify_token_expired: Spotify token expired, please reconnect Spotify in the dashboard
   no_integrations: Keine Integrationen verbunden
 errors:
   get_recent_tracks: 'Letzte Songs können nicht abgerufen werden: {reason}'
