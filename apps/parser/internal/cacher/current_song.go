@@ -7,11 +7,14 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
@@ -57,6 +60,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 	}
 
 	var spotifyService *spotify.Spotify
+	spotifyNeedsReconnect := false
 	spotifyEntity, err := c.services.SpotifyRepo.GetByChannelID(ctx, c.parseCtxChannel.DBChannelID)
 	if err != nil {
 		c.services.Logger.Error("failed to get spotify entity", zap.Error(err))
@@ -72,6 +76,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		)
 		if err != nil {
 			c.services.Logger.Error("failed to get spotify integration", zap.Error(err))
+			spotifyNeedsReconnect = isSpotifyInvalidGrantError(err)
 		} else {
 			spotifyService = spotify.NewStatic(spotifyToken.Data.AccessToken, spotifyEntity.Scopes)
 		}
@@ -270,5 +275,17 @@ checkServices:
 		}
 	}
 
+	if c.cache.currentSong == nil && spotifyNeedsReconnect {
+		c.cache.currentSong = &types.CurrentSong{
+			Name: i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.SpotifyTokenExpired),
+		}
+	}
+
 	return c.cache.currentSong
+}
+
+// isSpotifyInvalidGrantError detects spotify rejecting the refresh token (180-day
+// expiry or user revocation); typed errors don't survive the bus, only message strings.
+func isSpotifyInvalidGrantError(err error) bool {
+	return strings.Contains(err.Error(), "invalid_grant")
 }
