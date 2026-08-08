@@ -40,6 +40,10 @@ export const router = createRouter({
 			component: () => import('@/pages/overlays/now-playing.vue'),
 		},
 		{
+			path: '/:apiKey/stream-stats',
+			component: () => import('@/pages/overlays/stream-stats.vue'),
+		},
+		{
 			path: '/faceit-stats',
 			component: () => import('@/pages/overlays/faceit-stats.vue'),
 		}

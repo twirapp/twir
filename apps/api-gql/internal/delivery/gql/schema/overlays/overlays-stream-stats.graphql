@@ -1,0 +1,68 @@
+extend type Query {
+	overlaysStreamStats: StreamStatsOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	overlaysStreamStatsUpdate(input: StreamStatsOverlayUpdateInput!): StreamStatsOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	overlaysStreamStats(apiKey: String!): StreamStatsOverlay!
+	overlaysStreamStatsCounters(apiKey: String!): StreamStatsOverlayCounters!
+}
+
+enum StreamStatsOverlayDesign {
+	BAR
+	CARDS
+	MINIMAL
+}
+
+enum StreamStatsOverlayViewersMode {
+	CUMULATIVE
+	SEPARATE
+}
+
+type StreamStatsOverlay {
+	id: UUID!
+	channelId: String!
+	design: StreamStatsOverlayDesign!
+	viewersEnabled: Boolean!
+	viewersMode: StreamStatsOverlayViewersMode!
+	messagesEnabled: Boolean!
+	uptimeEnabled: Boolean!
+	subscribersEnabled: Boolean!
+	followersEnabled: Boolean!
+	customHtmlEnabled: Boolean!
+	customHtml: String!
+	customCss: String!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+input StreamStatsOverlayUpdateInput {
+	design: StreamStatsOverlayDesign!
+	viewersEnabled: Boolean!
+	viewersMode: StreamStatsOverlayViewersMode!
+	messagesEnabled: Boolean!
+	uptimeEnabled: Boolean!
+	subscribersEnabled: Boolean!
+	followersEnabled: Boolean!
+	customHtmlEnabled: Boolean!
+	customHtml: String! @validate(constraint: "max=20000")
+	customCss: String! @validate(constraint: "max=20000")
+}
+
+type StreamStatsOverlayPlatformViewers {
+	platform: Platform!
+	viewers: Int!
+}
+
+type StreamStatsOverlayCounters {
+	live: Boolean!
+	viewers: Int!
+	platformViewers: [StreamStatsOverlayPlatformViewers!]!
+	messages: Int!
+	startedAt: Time
+	subscribers: Int
+	followers: Int
+}

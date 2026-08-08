@@ -24,6 +24,7 @@
     "emoji-regex": "10.3.0",
     "graphql": "catalog:",
     "graphql-ws": "catalog:",
+    "lucide-vue-next": "0.368.0",
     "nested-css-to-flat": "1.0.5",
     "obs-websocket-js": "5.0.5",
     "tmi.js": "1.8.5",

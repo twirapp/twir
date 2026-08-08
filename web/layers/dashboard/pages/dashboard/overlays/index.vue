@@ -14,6 +14,7 @@ import { convertOverlayLayerTypeToText } from '~~/layers/dashboard/components/re
 import Brb from '~~/layers/dashboard/features/overlays/brb/card.vue'
 import FaceitStats from '~~/layers/dashboard/features/overlays/faceit-stats/ui/card.vue'
 import OBS from '~~/layers/dashboard/features/overlays/obs/card.vue'
+import StreamStats from '~~/layers/dashboard/features/overlays/stream-stats/card.vue'
 import TTS from '~~/layers/dashboard/features/overlays/tts/card.vue'
 import ValorantStats from '~~/layers/dashboard/features/overlays/valorant-stats/ui/card.vue'
 import { copyToClipBoard } from '~~/layers/dashboard/helpers/index.ts'
@@ -125,6 +126,9 @@ function editCustomOverlay(id?: string) {
 			</div>
 			<div>
 				<Brb />
+			</div>
+			<div>
+				<StreamStats />
 			</div>
 
 			<ShadCard
