@@ -1,4 +1,5 @@
 import { type Ref, computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { toast } from 'vue-sonner'
 import type { ChannelOverlayLayer, ChannelOverlayLayerType } from '~/gql/graphql.js'
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { useDudesOverlayApi } from '~~/layers/dashboard/api/overlays/dudes.js'
@@ -59,6 +60,8 @@ export function useOverlayBuilderController(
 	const isLoadingProject = ref(false)
 	const addLayersHidden = ref(false)
 	const showCodeEditor = ref(false)
+	const showShortcuts = ref(false)
+	const coveredLayerHintShown = ref(false)
 	const editorLayer = ref<Layer | null>(null)
 	const { data: profile } = useProfile()
 	const requestUrl = useRequestURL()
@@ -282,6 +285,29 @@ export function useOverlayBuilderController(
 		builder.selectLayers([layerId], addToSelection)
 	}
 
+	function handleLayersPanelSelect(layerId: string, addToSelection: boolean) {
+		builder.selectLayers([layerId], addToSelection)
+		if (coveredLayerHintShown.value) return
+
+		const layer = builder.project.layers.find((item) => item.id === layerId)
+		if (!layer) return
+
+		const isCovered = builder.project.layers.some((other) =>
+			other.id !== layer.id &&
+			other.visible &&
+			!other.locked &&
+			other.zIndex > layer.zIndex &&
+			layer.posX < other.posX + other.width &&
+			layer.posX + layer.width > other.posX &&
+			layer.posY < other.posY + other.height &&
+			layer.posY + layer.height > other.posY
+		)
+		if (!isCovered) return
+
+		coveredLayerHintShown.value = true
+		toast.info(t('overlayBuilder.canvas.coveredLayerHint'), { duration: 6000 })
+	}
+
 	function handleDeselectAll() {
 		builder.deselectAll()
 	}
@@ -377,6 +403,11 @@ export function useOverlayBuilderController(
 		} else if ((event.ctrlKey || event.metaKey) && event.key === 'd' && !isInputFocused) {
 			event.preventDefault()
 			if (builder.canvasState.selectedLayerIds.length > 0) builder.duplicateLayers(builder.canvasState.selectedLayerIds)
+		} else if (event.key === 'Escape' && !isInputFocused && !showShortcuts.value) {
+			builder.deselectAll()
+		} else if (event.key === '?' && !isInputFocused) {
+			event.preventDefault()
+			showShortcuts.value = !showShortcuts.value
 		} else if ((event.key === 'Delete' || event.key === 'Backspace') && !isInputFocused) {
 			if (builder.canvasState.selectedLayerIds.length > 0) {
 				event.preventDefault()
@@ -398,6 +429,7 @@ export function useOverlayBuilderController(
 		canvasAreaRef,
 		addLayersHidden,
 		showCodeEditor,
+		showShortcuts,
 		editorLayer,
 		hasSelection: computed(() => builder.canvasState.selectedLayerIds.length > 0),
 		canAlign: computed(() => builder.canvasState.selectedLayerIds.length >= 1),
@@ -406,6 +438,7 @@ export function useOverlayBuilderController(
 		handleSave,
 		handleUpdateLayer,
 		handleSelectLayer,
+		handleLayersPanelSelect,
 		handleDeselectAll,
 		handleFindGuides,
 		handleClearGuides,

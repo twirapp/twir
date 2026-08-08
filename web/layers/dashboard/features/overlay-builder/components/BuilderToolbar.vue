@@ -48,6 +48,7 @@ const emit = defineEmits<{
 	toggleGrid: []
 	toggleSnap: []
 	toggleAddLayersHidden: []
+	openShortcuts: []
 }>()
 
 const { t } = useI18n()
@@ -538,6 +539,26 @@ const { enabled: widgetsPreview } = useWidgetPreviewMode()
 		<div class="flex-1" />
 
 		<!-- Right Side Actions -->
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button
+						variant="ghost"
+						size="icon"
+						@click="emit('openShortcuts')"
+					>
+						<Icon
+							name="lucide:keyboard"
+							class="h-4 w-4"
+						/>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ t('overlayBuilder.toolbar.shortcuts') }}</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
 		<TooltipProvider v-if="overlayId">
 			<Tooltip>
 				<TooltipTrigger as-child>

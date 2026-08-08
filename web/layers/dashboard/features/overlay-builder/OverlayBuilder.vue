@@ -6,6 +6,7 @@ import LayersPanel from './components/LayersPanel.vue'
 import LayerPropertiesCard from './components/LayerPropertiesCard.vue'
 import Canvas from './components/Canvas.vue'
 import CodeEditorDialog from './components/CodeEditorDialog.vue'
+import ShortcutsDialog from './components/ShortcutsDialog.vue'
 import OverlaySettings from './components/OverlaySettings.vue'
 import type { OverlayProject } from './types'
 import {
@@ -31,6 +32,7 @@ const {
 	canvasAreaRef,
 	addLayersHidden,
 	showCodeEditor,
+	showShortcuts,
 	editorLayer,
 	hasSelection,
 	canAlign,
@@ -39,6 +41,7 @@ const {
 	handleSave,
 	handleUpdateLayer,
 	handleSelectLayer,
+	handleLayersPanelSelect,
 	handleDeselectAll,
 	handleFindGuides,
 	handleClearGuides,
@@ -90,6 +93,7 @@ const {
 			@toggle-grid="builder.canvasState.showGrid = !builder.canvasState.showGrid"
 			@toggle-snap="builder.canvasState.snapToGrid = !builder.canvasState.snapToGrid"
 			@toggle-add-layers-hidden="addLayersHidden = !addLayersHidden"
+			@open-shortcuts="showShortcuts = true"
 		/>
 
 		<div class="flex-1 flex overflow-hidden">
@@ -131,8 +135,8 @@ const {
 					<div class="flex-1 min-h-0 overflow-hidden p-2">
 						<LayersPanel
 							:layers="builder.project.layers"
-							:selected-layer-ids="builder.canvasState.selectedLayerIds"
-							@select="handleSelectLayer"
+						:selected-layer-ids="builder.canvasState.selectedLayerIds"
+						@select="handleLayersPanelSelect"
 							@toggle-visibility="handleToggleVisibility"
 							@toggle-lock="handleToggleLock"
 							@reorder="handleReorderLayers"
@@ -158,5 +162,7 @@ const {
 			:refresh-interval="editorLayer?.settings?.htmlOverlayDataPollSecondsInterval"
 			@save="handleSaveCode"
 		/>
+
+		<ShortcutsDialog v-model:open="showShortcuts" />
 	</div>
 </template>

@@ -201,22 +201,78 @@ export function useCanvasInteraction(
 		return { x: snappedX, y: snappedY }
 	}
 
+	function getLayersAtPoint(event: MouseEvent): Layer[] {
+		if (!canvasElement.value) return []
+
+		const seen = new Set<string>()
+		const result: Layer[] = []
+		for (const element of document.elementsFromPoint(event.clientX, event.clientY)) {
+			const wrapper = element.closest('[data-layer-id]')
+			if (!(wrapper instanceof HTMLElement) || !canvasElement.value.contains(wrapper)) continue
+			const id = wrapper.dataset.layerId
+			if (!id || seen.has(id)) continue
+			seen.add(id)
+			const layer = props.layers.find((item) => item.id === id)
+			if (!layer || layer.locked || !layer.visible) continue
+			result.push(layer)
+		}
+		return result
+	}
+
+	function cycleLayerSelection(event: MouseEvent) {
+		const stack = getLayersAtPoint(event)
+		if (stack.length === 0) return
+
+		const currentIndex = stack.findIndex((item) => props.selectedLayerIds.includes(item.id))
+		const nextLayer = currentIndex === -1 ? stack[0] : stack[(currentIndex + 1) % stack.length]
+		if (!nextLayer) return
+
+		emit('selectLayer', nextLayer.id, event.ctrlKey || event.metaKey)
+		nextTick(() => moveableRef.value?.dragStart(event))
+	}
+
+	// Grab priority: a selected layer keeps selection within its bounds even when covered.
+	function hasSelectedLayerAtPoint(event: MouseEvent, excludeLayerId: string): boolean {
+		return getLayersAtPoint(event).some(
+			(item) => item.id !== excludeLayerId && props.selectedLayerIds.includes(item.id)
+		)
+	}
+
 	function handleLayerClick(layerId: string, event: MouseEvent) {
 		event.stopPropagation()
+		if (event.altKey) return
 		const layer = props.layers.find((item) => item.id === layerId)
 		if (layer?.locked) return
 
 		const addToSelection = event.ctrlKey || event.metaKey
-		if (!addToSelection && props.selectedLayerIds.length === 1 && props.selectedLayerIds[0] === layerId) return
+		if (!addToSelection) {
+			if (props.selectedLayerIds.length === 1 && props.selectedLayerIds[0] === layerId) return
+			if (!props.selectedLayerIds.includes(layerId) && hasSelectedLayerAtPoint(event, layerId)) return
+		}
 		emit('selectLayer', layerId, addToSelection)
 	}
 
 	function handleLayerMouseDown(layerId: string, event: MouseEvent) {
 		if (event.button !== 0) return
-		const layer = props.layers.find((item) => item.id === layerId)
-		if (!layer || layer.locked || props.selectedLayerIds.includes(layerId)) return
 
-		emit('selectLayer', layerId, event.ctrlKey || event.metaKey)
+		if (event.altKey) {
+			event.preventDefault()
+			cycleLayerSelection(event)
+			return
+		}
+
+		const layer = props.layers.find((item) => item.id === layerId)
+		if (!layer || layer.locked) return
+
+		if (props.selectedLayerIds.includes(layerId)) return
+
+		const addToSelection = event.ctrlKey || event.metaKey
+		if (!addToSelection && hasSelectedLayerAtPoint(event, layerId)) {
+			nextTick(() => moveableRef.value?.dragStart(event))
+			return
+		}
+
+		emit('selectLayer', layerId, addToSelection)
 		nextTick(() => moveableRef.value?.dragStart(event))
 	}
 
@@ -303,6 +359,7 @@ export function useCanvasInteraction(
 			opacity: layer.opacity,
 			zIndex: layer.zIndex + 1,
 			cursor: layer.locked ? 'not-allowed' : 'move',
+			pointerEvents: layer.locked || !layer.visible ? 'none' as const : 'auto' as const,
 		}
 	}
 
