@@ -984,7 +984,18 @@ export interface UploadedFileOutputDto {
 }
 
 export interface UploadedFileWithDeleteLinkDto {
+  /** @format date-time */
+  created_at: string;
   delete_link: string;
+  /** @format date-time */
+  expires_at: string;
+  ext: string;
+  id: string;
+  link: string;
+  name: string | null;
+  /** @format int64 */
+  size: number;
+  type: string;
 }
 
 export enum CommandResponseDtoCooldownTypeEnum {
