@@ -18,6 +18,7 @@ const localePath = useLocalePath()
 		:title="t('overlays.streamStats.title')"
 		:description="t('overlays.streamStats.description')"
 		overlay-path="stream-stats"
+		overlay-base-path="/o"
 		:copy-disabled="!settings || !!error || !!fetching"
 		@open-settings="router.push(localePath('/dashboard/overlays/stream-stats'))"
 	>

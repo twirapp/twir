@@ -2,13 +2,17 @@ import { computed, toValue } from 'vue'
 
 import type { MaybeRefOrGetter } from 'vue'
 
-import { counterColors } from '@/components/stream-stats/counter-meta.js'
-import { Platform, StreamStatsOverlayCounter, StreamStatsOverlayViewersMode } from '@/gql/graphql'
-
+import { counterColors } from '../../components/stream-stats/counter-meta.js'
+import {
+	Platform,
+	StreamStatsOverlayCounter,
+	StreamStatsOverlayViewersMode,
+} from '~/gql/graphql.js'
 import type {
 	StreamStatsOverlayCountersSubscription,
 	StreamStatsOverlaySettingsSubscription,
-} from '@/gql/graphql'
+} from '~/gql/graphql.js'
+import { PLATFORM_META } from '~/utils/platforms.js'
 
 export type StreamStatsSettings = StreamStatsOverlaySettingsSubscription['overlaysStreamStats']
 export type StreamStatsCounters = StreamStatsOverlayCountersSubscription['overlaysStreamStatsCounters']
@@ -23,13 +27,6 @@ export type StreamStatsCounterItem = {
 	color: string
 	platform?: Platform
 	platformColor?: string
-}
-
-const platformMeta: Partial<Record<Platform, { label: string, color: string }>> = {
-	[Platform.Twitch]: { label: 'Twitch', color: '#9146FF' },
-	[Platform.Kick]: { label: 'Kick', color: '#53FC18' },
-	[Platform.VkVideoLive]: { label: 'VK', color: '#0077FF' },
-	[Platform.Youtube]: { label: 'YouTube', color: '#FF0000' },
 }
 
 const counterOrderToKey: Record<StreamStatsOverlayCounter, StreamStatsCounterKey> = {
@@ -105,7 +102,7 @@ export function useStreamStatsCounters(
 				currentCounters.platformViewers.length > 0
 			) {
 				for (const entry of currentCounters.platformViewers) {
-					const meta = platformMeta[entry.platform]
+					const meta = PLATFORM_META[entry.platform]
 					viewersItems.push({
 						id: `viewers-${entry.platform}`,
 						key: 'viewers',

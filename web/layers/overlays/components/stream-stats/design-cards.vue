@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
-import type { StreamStatsCounterItem } from '@/composables/stream-stats/use-stream-stats-counters.js'
-import { StreamStatsOverlayVariant } from '@/gql/graphql'
+import type { StreamStatsCounterItem } from '../../composables/stream-stats/use-stream-stats-counters.js'
+import { StreamStatsOverlayVariant } from '~/gql/graphql.js'
 
 import { counterIcons, variantRootClass } from './counter-meta.js'
 import PlatformIcon from './platform-icon.vue'
@@ -39,12 +37,10 @@ const iconSize = computed(() => {
 	<div class="cards" :class="rootClass">
 		<div v-for="item in items" :key="item.id" class="card">
 			<div class="accent" :style="{ backgroundColor: item.color }" />
-			<component
-				:is="counterIcons[item.key]"
-				:size="iconSize"
-				:stroke-width="2.25"
+			<Icon
+				:name="counterIcons[item.key]"
 				class="icon"
-				:style="{ color: item.color }"
+				:style="{ width: iconSize + 'px', height: iconSize + 'px', color: item.color }"
 			/>
 			<RollingNumber :value="item.value" class="value" />
 			<PlatformIcon

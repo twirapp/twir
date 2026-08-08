@@ -1,23 +1,33 @@
 <script setup lang="ts">
 import { useNow } from '@vueuse/core'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-import CustomTemplate from '@/components/stream-stats/custom-template.vue'
-import DesignCards from '@/components/stream-stats/design-cards.vue'
-import DesignGlass from '@/components/stream-stats/design-glass.vue'
-import DesignMinimal from '@/components/stream-stats/design-minimal.vue'
-import DesignNeon from '@/components/stream-stats/design-neon.vue'
-import DesignOutline from '@/components/stream-stats/design-outline.vue'
-import DesignSolid from '@/components/stream-stats/design-solid.vue'
-import DesignTerminal from '@/components/stream-stats/design-terminal.vue'
+import CustomTemplate from '../../../components/stream-stats/custom-template.vue'
+import DesignCards from '../../../components/stream-stats/design-cards.vue'
+import DesignGlass from '../../../components/stream-stats/design-glass.vue'
+import DesignMinimal from '../../../components/stream-stats/design-minimal.vue'
+import DesignNeon from '../../../components/stream-stats/design-neon.vue'
+import DesignOutline from '../../../components/stream-stats/design-outline.vue'
+import DesignSolid from '../../../components/stream-stats/design-solid.vue'
+import DesignTerminal from '../../../components/stream-stats/design-terminal.vue'
 import {
 	type StreamStatsCounters,
 	type StreamStatsSettings,
 	useStreamStatsCounters,
-} from '@/composables/stream-stats/use-stream-stats-counters.js'
-import { useStreamStatsGraphQL } from '@/composables/stream-stats/use-stream-stats-graphql.js'
-import { Platform, StreamStatsOverlayDesign } from '@/gql/graphql'
+} from '../../../composables/stream-stats/use-stream-stats-counters.js'
+import { useStreamStatsGraphQL } from '../../../composables/stream-stats/use-stream-stats-graphql.js'
+import {
+	Platform,
+	StreamStatsOverlayCounter,
+	StreamStatsOverlayDesign,
+	StreamStatsOverlayVariant,
+	StreamStatsOverlayViewersMode,
+} from '~/gql/graphql.js'
+
+definePageMeta({
+	layout: 'clean',
+	colorMode: 'light',
+})
 
 const route = useRoute()
 const isPreviewMode = route.query.preview === '1'
@@ -39,8 +49,41 @@ const previewCounters: StreamStatsCounters = {
 	],
 }
 
+// Fallback for preview mode when the backend is unreachable, so dashboard/builder
+// previews still render instead of a blank page.
+const previewDefaultSettings: StreamStatsSettings = {
+	id: 'preview',
+	channelId: 'preview',
+	design: StreamStatsOverlayDesign.Glass,
+	variant: StreamStatsOverlayVariant.Horizontal,
+	platformIconsEnabled: false,
+	viewersEnabled: true,
+	viewersMode: StreamStatsOverlayViewersMode.Cumulative,
+	viewersColor: '',
+	messagesEnabled: true,
+	messagesColor: '',
+	uptimeEnabled: true,
+	uptimeColor: '',
+	subscribersEnabled: true,
+	subscribersColor: '',
+	followersEnabled: true,
+	followersColor: '',
+	counterOrder: [
+		StreamStatsOverlayCounter.Viewers,
+		StreamStatsOverlayCounter.Messages,
+		StreamStatsOverlayCounter.Uptime,
+		StreamStatsOverlayCounter.Subscribers,
+		StreamStatsOverlayCounter.Followers,
+	],
+	customHtmlEnabled: false,
+	customHtml: '',
+	customCss: '',
+	createdAt: '',
+	updatedAt: '',
+}
+
 const settings = computed<StreamStatsSettings | null>(() => {
-	const base = graphql.settings.value
+	const base = graphql.settings.value ?? (isPreviewMode ? previewDefaultSettings : null)
 	if (!base) return null
 	return { ...base, ...settingsOverrides.value }
 })
@@ -127,3 +170,12 @@ onUnmounted(() => {
 		/>
 	</template>
 </template>
+
+<style>
+html,
+body,
+#__nuxt {
+	background: transparent !important;
+	overflow: hidden;
+}
+</style>

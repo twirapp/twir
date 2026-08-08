@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import type {
 	StreamStatsCounterItem,
 	StreamStatsCounterKey,
-} from '@/composables/stream-stats/use-stream-stats-counters.js'
-import { StreamStatsOverlayVariant } from '@/gql/graphql'
+} from '../../composables/stream-stats/use-stream-stats-counters.js'
+import { StreamStatsOverlayVariant } from '~/gql/graphql.js'
 
 import { variantRootClass } from './counter-meta.js'
 import RollingNumber from './rolling-number.vue'

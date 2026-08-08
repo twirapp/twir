@@ -1,7 +1,7 @@
 import { useSubscription } from '@urql/vue'
 import { computed, ref } from 'vue'
 
-import { graphql } from '@/gql'
+import { graphql } from '~/gql/gql.js'
 
 export function useStreamStatsGraphQL() {
 	const apiKey = ref<string>('')

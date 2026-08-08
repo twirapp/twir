@@ -1,16 +1,13 @@
-import { Clock, Eye, Heart, MessageSquare, Star } from 'lucide-vue-next'
+import type { StreamStatsCounterKey } from '../../composables/stream-stats/use-stream-stats-counters.js'
+import { StreamStatsOverlayVariant } from '~/gql/graphql.js'
 
-import type { FunctionalComponent } from 'vue'
-
-import type { StreamStatsCounterKey } from '@/composables/stream-stats/use-stream-stats-counters.js'
-import { StreamStatsOverlayVariant } from '@/gql/graphql'
-
-export const counterIcons: Record<StreamStatsCounterKey, FunctionalComponent> = {
-	viewers: Eye,
-	messages: MessageSquare,
-	uptime: Clock,
-	subscribers: Star,
-	followers: Heart,
+// lucide icon names for the Nuxt <Icon /> component
+export const counterIcons: Record<StreamStatsCounterKey, string> = {
+	viewers: 'lucide:eye',
+	messages: 'lucide:message-square',
+	uptime: 'lucide:clock',
+	subscribers: 'lucide:star',
+	followers: 'lucide:heart',
 }
 
 export const counterColors: Record<StreamStatsCounterKey, string> = {

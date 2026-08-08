@@ -96,7 +96,7 @@ export const overlayWidgetRegistry = [
 		nameKey: 'overlayBuilder.widgets.streamStats.name',
 		descriptionKey: 'overlayBuilder.widgets.streamStats.description',
 		icon: 'lucide:chart-column',
-		buildUrl: ({ origin, apiKey }) => `${origin}/overlays/${apiKey}/stream-stats`,
+		buildUrl: ({ origin, apiKey }) => `${origin}/o/${apiKey}/stream-stats`,
 	},
 	{
 		key: 'kappagen',

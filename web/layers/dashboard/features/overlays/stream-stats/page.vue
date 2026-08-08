@@ -115,7 +115,7 @@ const requestUrl = useRequestURL()
 const iframeUrl = computed(() => {
 	if (!selectedDashboardApiKey.value) return null
 
-	return `${requestUrl.origin}/overlays/${selectedDashboardApiKey.value}/stream-stats?preview=1`
+	return `${requestUrl.origin}/o/${selectedDashboardApiKey.value}/stream-stats?preview=1`
 })
 
 function sendIframeMessage(key: string, data?: any) {
@@ -155,7 +155,7 @@ watch(
 	{ deep: true }
 )
 
-const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('stream-stats')
+const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('stream-stats', '/o')
 
 const save = form.handleSubmit(async (values) => {
 	try {

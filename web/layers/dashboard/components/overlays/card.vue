@@ -13,6 +13,7 @@ const props = withDefaults(
 		description: string
 		title: string
 		overlayPath?: string
+		overlayBasePath?: '/overlays' | '/o'
 		icon: string
 		iconStroke?: number
 		iconFill?: string
@@ -26,6 +27,7 @@ const props = withDefaults(
 		showCopy: true,
 		iconStroke: 1,
 		overlayPath: '',
+		overlayBasePath: '/overlays',
 	}
 )
 
@@ -34,7 +36,7 @@ defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { copyOverlayLink } = useCopyOverlayLink(props.overlayPath)
+const { copyOverlayLink } = useCopyOverlayLink(props.overlayPath, props.overlayBasePath)
 
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 </script>
