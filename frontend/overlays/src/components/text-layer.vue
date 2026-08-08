@@ -18,11 +18,7 @@ const fontStyle = computed(() => {
 const loadedFontKey = ref('')
 
 watch(
-	[
-		() => props.layer.settings.textFontFamily,
-		() => props.layer.settings.textFontWeight,
-		fontStyle,
-	],
+	[() => props.layer.settings.textFontFamily, () => props.layer.settings.textFontWeight, fontStyle],
 	async ([fontFamily, fontWeight, style]) => {
 		loadedFontKey.value = ''
 		if (!fontFamily) return
@@ -73,7 +69,7 @@ const textShadow = computed(() => {
 <template>
 	<div
 		:id="'layer' + layer.id"
-		style="position: absolute; overflow: hidden;"
+		style="position: absolute; overflow: hidden"
 		:style="{
 			top: `${layer.posY}px`,
 			left: `${layer.posX}px`,

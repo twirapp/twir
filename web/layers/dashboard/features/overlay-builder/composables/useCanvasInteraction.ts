@@ -1,8 +1,11 @@
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import Moveable from 'vue3-moveable'
 import type { OnDrag, OnResize, OnRotate } from 'vue3-moveable'
 
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import Moveable from 'vue3-moveable'
+
 import type { AlignmentGuide, Layer } from '../types'
+
+import { isEditableHotkeyTarget } from './isEditableHotkeyTarget'
 
 export interface CanvasInteractionProps {
 	layers: Layer[]
@@ -27,10 +30,7 @@ export interface CanvasInteractionEmit {
 	(event: 'clearGuides'): void
 }
 
-export function useCanvasInteraction(
-	props: CanvasInteractionProps,
-	emit: CanvasInteractionEmit,
-) {
+export function useCanvasInteraction(props: CanvasInteractionProps, emit: CanvasInteractionEmit) {
 	const canvasElement = ref<HTMLElement>()
 	const moveableRef = ref<InstanceType<typeof Moveable>>()
 
@@ -74,7 +74,9 @@ export function useCanvasInteraction(
 		transformOrigin: 'center',
 	}))
 
-	const selectedLayers = computed(() => props.layers.filter((layer) => props.selectedLayerIds.includes(layer.id)))
+	const selectedLayers = computed(() =>
+		props.layers.filter((layer) => props.selectedLayerIds.includes(layer.id))
+	)
 	const moveableTargets = computed(() => props.selectedLayerIds.map((id) => `#layer-${id}`))
 	const isDragging = ref(false)
 
@@ -85,7 +87,8 @@ export function useCanvasInteraction(
 	}
 
 	function handleCanvasClick(event: MouseEvent) {
-		if (event.target === canvasElement.value && canvasMouseDownTarget === canvasElement.value) emit('deselectAll')
+		if (event.target === canvasElement.value && canvasMouseDownTarget === canvasElement.value)
+			emit('deselectAll')
 	}
 
 	function snapToGuides(layer: Layer, posX: number, posY: number): { x: number; y: number } {
@@ -112,12 +115,14 @@ export function useCanvasInteraction(
 
 		const checkVerticalSnap = (targetPos: number, snapTo: number) => {
 			const distance = Math.abs(targetPos - snapTo)
-			if (wasSnappedX && snappedState.value.snapPositionX === snapTo) return distance < releaseThreshold
+			if (wasSnappedX && snappedState.value.snapPositionX === snapTo)
+				return distance < releaseThreshold
 			return distance < snapThreshold
 		}
 		const checkHorizontalSnap = (targetPos: number, snapTo: number) => {
 			const distance = Math.abs(targetPos - snapTo)
-			if (wasSnappedY && snappedState.value.snapPositionY === snapTo) return distance < releaseThreshold
+			if (wasSnappedY && snappedState.value.snapPositionY === snapTo)
+				return distance < releaseThreshold
 			return distance < snapThreshold
 		}
 
@@ -247,7 +252,8 @@ export function useCanvasInteraction(
 		const addToSelection = event.ctrlKey || event.metaKey
 		if (!addToSelection) {
 			if (props.selectedLayerIds.length === 1 && props.selectedLayerIds[0] === layerId) return
-			if (!props.selectedLayerIds.includes(layerId) && hasSelectedLayerAtPoint(event, layerId)) return
+			if (!props.selectedLayerIds.includes(layerId) && hasSelectedLayerAtPoint(event, layerId))
+				return
 		}
 		emit('selectLayer', layerId, addToSelection)
 	}
@@ -359,12 +365,14 @@ export function useCanvasInteraction(
 			opacity: layer.opacity,
 			zIndex: layer.zIndex + 1,
 			cursor: layer.locked ? 'not-allowed' : 'move',
-			pointerEvents: layer.locked || !layer.visible ? 'none' as const : 'auto' as const,
+			pointerEvents: layer.locked || !layer.visible ? ('none' as const) : ('auto' as const),
 		}
 	}
 
 	const isLayerSelected = (layerId: string) => props.selectedLayerIds.includes(layerId)
-	const quickActionsLayer = computed(() => selectedLayers.value.length === 1 ? selectedLayers.value[0] ?? null : null)
+	const quickActionsLayer = computed(() =>
+		selectedLayers.value.length === 1 ? (selectedLayers.value[0] ?? null) : null
+	)
 	const QUICK_ACTIONS_WIDTH = 150
 	const QUICK_ACTIONS_HEIGHT = 36
 	const QUICK_ACTIONS_GAP = 8
@@ -395,11 +403,21 @@ export function useCanvasInteraction(
 	}))
 
 	function handleKeyDown(event: KeyboardEvent) {
-		if ((event.key === 'Delete' || event.key === 'Backspace') && props.selectedLayerIds.length > 0) event.preventDefault()
+		if (isEditableHotkeyTarget(event.target)) return
+		if ((event.key === 'Delete' || event.key === 'Backspace') && props.selectedLayerIds.length > 0)
+			event.preventDefault()
 	}
 
 	watch(
-		() => props.layers.map((layer) => ({ id: layer.id, posX: layer.posX, posY: layer.posY, width: layer.width, height: layer.height, rotation: layer.rotation })),
+		() =>
+			props.layers.map((layer) => ({
+				id: layer.id,
+				posX: layer.posX,
+				posY: layer.posY,
+				width: layer.width,
+				height: layer.height,
+				rotation: layer.rotation,
+			})),
 		() => {
 			if (!isDragging.value && moveableRef.value) nextTick(() => moveableRef.value?.updateRect())
 		},
