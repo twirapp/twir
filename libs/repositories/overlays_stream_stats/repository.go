@@ -4,17 +4,18 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/repositories/overlays_stream_stats/model"
 )
 
 type Repository interface {
-	GetByChannelID(ctx context.Context, channelID string) (model.StreamStatsOverlay, error)
+	GetByChannelID(ctx context.Context, channelID uuid.UUID) (model.StreamStatsOverlay, error)
 	Create(ctx context.Context, input CreateInput) (model.StreamStatsOverlay, error)
-	Update(ctx context.Context, channelID string, input UpdateInput) (model.StreamStatsOverlay, error)
+	Update(ctx context.Context, channelID uuid.UUID, input UpdateInput) (model.StreamStatsOverlay, error)
 }
 
 type CreateInput struct {
-	ChannelID            string
+	ChannelID            uuid.UUID
 	Design               string
 	Variant              string
 	ViewersEnabled       bool

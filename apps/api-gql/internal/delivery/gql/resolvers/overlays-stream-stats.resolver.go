@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -23,8 +24,13 @@ func (r *mutationResolver) OverlaysStreamStatsUpdate(ctx context.Context, input 
 		return nil, gqlerrors.HandleError(err)
 	}
 
+	parsedDashboardID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	updatedOverlay, err := r.deps.StreamStatsService.Update(ctx, stream_stats.UpdateInput{
-		ChannelID: dashboardID,
+		ChannelID: parsedDashboardID,
 		Settings: entity.StreamStatsOverlay{
 			Design:               entity.StreamStatsOverlayDesign(input.Design),
 			Variant:              entity.StreamStatsOverlayVariant(input.Variant),
@@ -61,7 +67,12 @@ func (r *queryResolver) OverlaysStreamStats(ctx context.Context) (*gqlmodel.Stre
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	overlay, err := r.deps.StreamStatsService.GetOrCreate(ctx, dashboardID)
+	parsedDashboardID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	overlay, err := r.deps.StreamStatsService.GetOrCreate(ctx, parsedDashboardID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get stream stats overlay: %w", err)
 	}

@@ -6,11 +6,12 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/logger"
 )
 
-func createSettingsSubscriptionKey(channelID string) string {
+func createSettingsSubscriptionKey(channelID uuid.UUID) string {
 	return fmt.Sprintf("overlays:stream_stats:settings:%s", channelID)
 }
 

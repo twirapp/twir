@@ -58,7 +58,7 @@ type Service struct {
 	logger             *slog.Logger
 }
 
-func (s *Service) GetOrCreate(ctx context.Context, channelID string) (entity.StreamStatsOverlay, error) {
+func (s *Service) GetOrCreate(ctx context.Context, channelID uuid.UUID) (entity.StreamStatsOverlay, error) {
 	overlay, err := s.repository.GetByChannelID(ctx, channelID)
 	if err != nil {
 		if errors.Is(err, overlays_stream_stats.ErrNotFound) {
@@ -77,7 +77,7 @@ func (s *Service) GetOrCreate(ctx context.Context, channelID string) (entity.Str
 }
 
 type UpdateInput struct {
-	ChannelID string
+	ChannelID uuid.UUID
 	Settings  entity.StreamStatsOverlay
 }
 
@@ -118,40 +118,35 @@ func (s *Service) Update(ctx context.Context, input UpdateInput) (entity.StreamS
 	return updatedEntity, nil
 }
 
-func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {
+func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (uuid.UUID, error) {
 	if s.channelsRepository != nil {
 		channel, err := s.channelsRepository.GetByApiKey(ctx, apiKey)
 		if err != nil && !errors.Is(err, channels.ErrNotFound) {
-			return "", err
+			return uuid.Nil, err
 		}
 		if !channel.IsNil() {
-			return channel.ID.String(), nil
+			return channel.ID, nil
 		}
 	}
 
 	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
 	if err != nil {
-		return "", err
+		return uuid.Nil, err
 	}
 	if user.IsNil() {
-		return "", errors.New("user not found for provided api key")
+		return uuid.Nil, errors.New("user not found for provided api key")
 	}
 
 	channel, err := s.channelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
 	if err != nil {
-		return "", err
+		return uuid.Nil, err
 	}
 
-	return channel.ID.String(), nil
+	return channel.ID, nil
 }
 
-func (s *Service) buildCounters(ctx context.Context, channelID string) (entity.StreamStatsOverlayCounters, error) {
-	parsedChannelID, err := uuid.Parse(channelID)
-	if err != nil {
-		return entity.StreamStatsOverlayCounters{}, fmt.Errorf("parse channel ID: %w", err)
-	}
-
-	streamList, err := s.streamsRepository.GetListByChannelID(ctx, parsedChannelID)
+func (s *Service) buildCounters(ctx context.Context, channelID uuid.UUID) (entity.StreamStatsOverlayCounters, error) {
+	streamList, err := s.streamsRepository.GetListByChannelID(ctx, channelID)
 	if err != nil {
 		return entity.StreamStatsOverlayCounters{}, fmt.Errorf("get streams by channel ID: %w", err)
 	}
@@ -178,7 +173,7 @@ func (s *Service) buildCounters(ctx context.Context, channelID string) (entity.S
 		}
 	}
 
-	channel, err := s.channelService.GetChannelByID(ctx, parsedChannelID)
+	channel, err := s.channelService.GetChannelByID(ctx, channelID)
 	if err != nil {
 		return entity.StreamStatsOverlayCounters{}, fmt.Errorf("get channel by ID: %w", err)
 	}
@@ -197,7 +192,7 @@ func (s *Service) buildCounters(ctx context.Context, channelID string) (entity.S
 		twitchBinding.PlatformChannelID,
 	)
 	if err != nil {
-		s.logger.Error("failed to get channel subscribers count", logger.Error(err), slog.String("channel_id", channelID))
+		s.logger.Error("failed to get channel subscribers count", logger.Error(err), slog.String("channel_id", channelID.String()))
 	} else {
 		counters.Subscribers = &subscribers
 	}
@@ -208,7 +203,7 @@ func (s *Service) buildCounters(ctx context.Context, channelID string) (entity.S
 		twitchBinding.PlatformChannelID,
 	)
 	if err != nil {
-		s.logger.Error("failed to get channel followers count", logger.Error(err), slog.String("channel_id", channelID))
+		s.logger.Error("failed to get channel followers count", logger.Error(err), slog.String("channel_id", channelID.String()))
 	} else {
 		counters.Followers = &followers
 	}
@@ -235,7 +230,7 @@ func counterOrderFromStrings(order []string) []entity.StreamStatsOverlayCounter 
 func mapModelToEntity(m model.StreamStatsOverlay) entity.StreamStatsOverlay {
 	return entity.StreamStatsOverlay{
 		ID:                   m.ID,
-		ChannelID:            m.ChannelID,
+		ChannelID:            m.ChannelID.String(),
 		Design:               entity.StreamStatsOverlayDesign(m.Design),
 		Variant:              entity.StreamStatsOverlayVariant(m.Variant),
 		ViewersEnabled:       m.ViewersEnabled,
@@ -259,7 +254,7 @@ func mapModelToEntity(m model.StreamStatsOverlay) entity.StreamStatsOverlay {
 	}
 }
 
-func createDefaultOverlayInput(channelID string) overlays_stream_stats.CreateInput {
+func createDefaultOverlayInput(channelID uuid.UUID) overlays_stream_stats.CreateInput {
 	return overlays_stream_stats.CreateInput{
 		ChannelID:            channelID,
 		Design:               string(entity.StreamStatsOverlayDesignGlass),

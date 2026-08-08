@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories/overlays_stream_stats"
@@ -34,9 +35,7 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
-func (p *Pgx) GetByChannelID(ctx context.Context, channelID string) (model.StreamStatsOverlay, error) {
-	const query = `
-SELECT
+const columns = `
 	id,
 	channel_id,
 	design,
@@ -59,37 +58,26 @@ SELECT
 	custom_css,
 	created_at,
 	updated_at
+`
+
+func (p *Pgx) GetByChannelID(
+	ctx context.Context,
+	channelID uuid.UUID,
+) (model.StreamStatsOverlay, error) {
+	query := `
+SELECT ` + columns + `
 FROM channels_overlays_stream_stats
-WHERE channel_id = $1
+WHERE channel_id = @channelID
 LIMIT 1;
 `
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	overlay := model.StreamStatsOverlay{}
-	err := conn.QueryRow(ctx, query, channelID).Scan(
-		&overlay.ID,
-		&overlay.ChannelID,
-		&overlay.Design,
-		&overlay.Variant,
-		&overlay.ViewersEnabled,
-		&overlay.ViewersMode,
-		&overlay.PlatformIconsEnabled,
-		&overlay.MessagesEnabled,
-		&overlay.UptimeEnabled,
-		&overlay.SubscribersEnabled,
-		&overlay.FollowersEnabled,
-		&overlay.ViewersColor,
-		&overlay.MessagesColor,
-		&overlay.UptimeColor,
-		&overlay.SubscribersColor,
-		&overlay.FollowersColor,
-		&overlay.CounterOrder,
-		&overlay.CustomHTMLEnabled,
-		&overlay.CustomHTML,
-		&overlay.CustomCSS,
-		&overlay.CreatedAt,
-		&overlay.UpdatedAt,
-	)
+	rows, err := conn.Query(ctx, query, pgx.NamedArgs{"channelID": channelID})
+	if err != nil {
+		return model.Nil, fmt.Errorf("stream stats overlay get by channel ID: %w", err)
+	}
+
+	overlay, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.StreamStatsOverlay])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Nil, overlays_stream_stats.ErrNotFound
@@ -101,8 +89,11 @@ LIMIT 1;
 	return overlay, nil
 }
 
-func (p *Pgx) Create(ctx context.Context, input overlays_stream_stats.CreateInput) (model.StreamStatsOverlay, error) {
-	const query = `
+func (p *Pgx) Create(
+	ctx context.Context,
+	input overlays_stream_stats.CreateInput,
+) (model.StreamStatsOverlay, error) {
+	query := `
 INSERT INTO channels_overlays_stream_stats (
 	channel_id,
 	design,
@@ -124,92 +115,130 @@ INSERT INTO channels_overlays_stream_stats (
 	custom_html,
 	custom_css
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
+VALUES (
+	@channelID,
+	@design,
+	@variant,
+	@viewersEnabled,
+	@viewersMode,
+	@platformIconsEnabled,
+	@messagesEnabled,
+	@uptimeEnabled,
+	@subscribersEnabled,
+	@followersEnabled,
+	@viewersColor,
+	@messagesColor,
+	@uptimeColor,
+	@subscribersColor,
+	@followersColor,
+	@counterOrder,
+	@customHTMLEnabled,
+	@customHTML,
+	@customCSS
+)
+RETURNING ` + columns + `;
 `
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	_, err := conn.Exec(
+	rows, err := conn.Query(
 		ctx,
 		query,
-		input.ChannelID,
-		input.Design,
-		input.Variant,
-		input.ViewersEnabled,
-		input.ViewersMode,
-		input.PlatformIconsEnabled,
-		input.MessagesEnabled,
-		input.UptimeEnabled,
-		input.SubscribersEnabled,
-		input.FollowersEnabled,
-		input.ViewersColor,
-		input.MessagesColor,
-		input.UptimeColor,
-		input.SubscribersColor,
-		input.FollowersColor,
-		input.CounterOrder,
-		input.CustomHTMLEnabled,
-		input.CustomHTML,
-		input.CustomCSS,
+		pgx.NamedArgs{
+			"channelID":            input.ChannelID,
+			"design":               input.Design,
+			"variant":              input.Variant,
+			"viewersEnabled":       input.ViewersEnabled,
+			"viewersMode":          input.ViewersMode,
+			"platformIconsEnabled": input.PlatformIconsEnabled,
+			"messagesEnabled":      input.MessagesEnabled,
+			"uptimeEnabled":        input.UptimeEnabled,
+			"subscribersEnabled":   input.SubscribersEnabled,
+			"followersEnabled":     input.FollowersEnabled,
+			"viewersColor":         input.ViewersColor,
+			"messagesColor":        input.MessagesColor,
+			"uptimeColor":          input.UptimeColor,
+			"subscribersColor":     input.SubscribersColor,
+			"followersColor":       input.FollowersColor,
+			"counterOrder":         input.CounterOrder,
+			"customHTMLEnabled":    input.CustomHTMLEnabled,
+			"customHTML":           input.CustomHTML,
+			"customCSS":            input.CustomCSS,
+		},
 	)
 	if err != nil {
 		return model.Nil, fmt.Errorf("stream stats overlay create: %w", err)
 	}
 
-	return p.GetByChannelID(ctx, input.ChannelID)
+	created, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.StreamStatsOverlay])
+	if err != nil {
+		return model.Nil, fmt.Errorf("stream stats overlay create: %w", err)
+	}
+
+	return created, nil
 }
 
-func (p *Pgx) Update(ctx context.Context, channelID string, input overlays_stream_stats.UpdateInput) (model.StreamStatsOverlay, error) {
-	const query = `
+func (p *Pgx) Update(
+	ctx context.Context,
+	channelID uuid.UUID,
+	input overlays_stream_stats.UpdateInput,
+) (model.StreamStatsOverlay, error) {
+	query := `
 UPDATE channels_overlays_stream_stats
 SET
-	design = $1,
-	variant = $2,
-	viewers_enabled = $3,
-	viewers_mode = $4,
-	platform_icons_enabled = $5,
-	messages_enabled = $6,
-	uptime_enabled = $7,
-	subscribers_enabled = $8,
-	followers_enabled = $9,
-	viewers_color = $10,
-	messages_color = $11,
-	uptime_color = $12,
-	subscribers_color = $13,
-	followers_color = $14,
-	counter_order = $15,
-	custom_html_enabled = $16,
-	custom_html = $17,
-	custom_css = $18,
+	design = @design,
+	variant = @variant,
+	viewers_enabled = @viewersEnabled,
+	viewers_mode = @viewersMode,
+	platform_icons_enabled = @platformIconsEnabled,
+	messages_enabled = @messagesEnabled,
+	uptime_enabled = @uptimeEnabled,
+	subscribers_enabled = @subscribersEnabled,
+	followers_enabled = @followersEnabled,
+	viewers_color = @viewersColor,
+	messages_color = @messagesColor,
+	uptime_color = @uptimeColor,
+	subscribers_color = @subscribersColor,
+	followers_color = @followersColor,
+	counter_order = @counterOrder,
+	custom_html_enabled = @customHTMLEnabled,
+	custom_html = @customHTML,
+	custom_css = @customCSS,
 	updated_at = now()
-WHERE channel_id = $19
-RETURNING channel_id;
+WHERE channel_id = @channelID
+RETURNING ` + columns + `;
 `
 
 	conn := p.getter.DefaultTrOrDB(ctx, p.pool)
-	var updatedChannelID string
-	err := conn.QueryRow(
+	rows, err := conn.Query(
 		ctx,
 		query,
-		input.Design,
-		input.Variant,
-		input.ViewersEnabled,
-		input.ViewersMode,
-		input.PlatformIconsEnabled,
-		input.MessagesEnabled,
-		input.UptimeEnabled,
-		input.SubscribersEnabled,
-		input.FollowersEnabled,
-		input.ViewersColor,
-		input.MessagesColor,
-		input.UptimeColor,
-		input.SubscribersColor,
-		input.FollowersColor,
-		input.CounterOrder,
-		input.CustomHTMLEnabled,
-		input.CustomHTML,
-		input.CustomCSS,
-		channelID,
-	).Scan(&updatedChannelID)
+		pgx.NamedArgs{
+			"channelID":            channelID,
+			"design":               input.Design,
+			"variant":              input.Variant,
+			"viewersEnabled":       input.ViewersEnabled,
+			"viewersMode":          input.ViewersMode,
+			"platformIconsEnabled": input.PlatformIconsEnabled,
+			"messagesEnabled":      input.MessagesEnabled,
+			"uptimeEnabled":        input.UptimeEnabled,
+			"subscribersEnabled":   input.SubscribersEnabled,
+			"followersEnabled":     input.FollowersEnabled,
+			"viewersColor":         input.ViewersColor,
+			"messagesColor":        input.MessagesColor,
+			"uptimeColor":          input.UptimeColor,
+			"subscribersColor":     input.SubscribersColor,
+			"followersColor":       input.FollowersColor,
+			"counterOrder":         input.CounterOrder,
+			"customHTMLEnabled":    input.CustomHTMLEnabled,
+			"customHTML":           input.CustomHTML,
+			"customCSS":            input.CustomCSS,
+		},
+	)
+	if err != nil {
+		return model.Nil, fmt.Errorf("stream stats overlay update: %w", err)
+	}
+
+	updated, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.StreamStatsOverlay])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Nil, overlays_stream_stats.ErrNotFound
@@ -218,5 +247,5 @@ RETURNING channel_id;
 		return model.Nil, fmt.Errorf("stream stats overlay update: %w", err)
 	}
 
-	return p.GetByChannelID(ctx, updatedChannelID)
+	return updated, nil
 }
