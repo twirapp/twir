@@ -34,6 +34,8 @@ const envSchema = z.object({
 		.default('false'),
 	DONATIONALERTS_CLIENT_ID: z.string().optional(),
 	DONATIONALERTS_CLIENT_SECRET: z.string().optional(),
+	DONATEX_CLIENT_ID: z.string().optional(),
+	DONATEX_CLIENT_SECRET: z.string().optional(),
 	STREAMLABS_CLIENT_ID: z.string().optional(),
 	STREAMLABS_CLIENT_SECRET: z.string().optional(),
 	SECRETS_ENCRYPTION_KEY: z.string().optional().default('0123456789abcdef0123456789abcdef'), // 32 bytes, must match Go config

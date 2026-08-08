@@ -110,6 +110,9 @@ type Config struct {
 	DonationAlertsClientId string `required:"false" envconfig:"DONATIONALERTS_CLIENT_ID"`
 	DonationAlertsSecret   string `required:"false" envconfig:"DONATIONALERTS_CLIENT_SECRET"`
 
+	DonateXClientId     string `required:"false" envconfig:"DONATEX_CLIENT_ID"`
+	DonateXClientSecret string `required:"false" envconfig:"DONATEX_CLIENT_SECRET"`
+
 	VKClientId       string `required:"false" envconfig:"VK_CLIENT_ID"`
 	VKClientSecret   string `required:"false" envconfig:"VK_CLIENT_SECRET"`
 	VkAppAccessToken string `required:"false" envconfig:"VK_APP_ACCESS_TOKEN"`
