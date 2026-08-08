@@ -1519,7 +1519,7 @@
       }
     },
     "integrations": { "badge": "Інтеграції", "title": "Підсилюйте стрим безшовними інтеграціями", "description": "Підключайте улюблені інструменти й платформи, щоб покращити ефективність і залучення на стримі. Інтеграції Twir відкривають безмежні можливості." },
-    "nav": { "features": "Можливості", "integrations": "Інтеграції", "compare": "Порівняння", "urlShortener": "Скорочувач URL", "hastebin": "Hastebin", "terms": "Умови використання", "privacy": "Політика конфіденційності", "login": "Увійти", "startNow": "Почати", "dashboard": "Дашборд", "logout": "Вийти", "vkLive": "VK Live" },
+    "nav": { "features": "Можливості", "integrations": "Інтеграції", "compare": "Порівняння", "urlShortener": "Скорочувач URL", "uploader": "Завантажувач зображень", "hastebin": "Hastebin", "terms": "Умови використання", "privacy": "Політика конфіденційності", "login": "Увійти", "startNow": "Почати", "dashboard": "Дашборд", "logout": "Вийти", "vkLive": "VK Live" },
     "footer": { "navigation": "Навігація футера", "github": "Репозиторій Github", "discord": "Discord-канал для запитань і новин" },
     "compareLink": "Порівняти Twir з іншими ботами",
     "faq": {

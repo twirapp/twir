@@ -1507,7 +1507,7 @@
       }
     },
     "integrations": { "badge": "Integrações", "title": "Potencialize sua transmissão com integrações perfeitas", "description": "Conecte suas ferramentas e plataformas favoritas para melhorar o desempenho e o envolvimento da transmissão. As integrações do Twir oferecem possibilidades infinitas." },
-    "nav": { "features": "Recursos", "integrations": "Integrações", "compare": "Comparar", "urlShortener": "Encurtador de URL", "hastebin": "Hastebin", "terms": "Termos de serviço", "privacy": "Política de privacidade", "login": "Entrar", "startNow": "Começar agora", "dashboard": "Painel", "logout": "Sair", "vkLive": "VK Live" },
+    "nav": { "features": "Recursos", "integrations": "Integrações", "compare": "Comparar", "urlShortener": "Encurtador de URL", "uploader": "Uploader de imagens", "hastebin": "Hastebin", "terms": "Termos de serviço", "privacy": "Política de privacidade", "login": "Entrar", "startNow": "Começar agora", "dashboard": "Painel", "logout": "Sair", "vkLive": "VK Live" },
     "footer": { "navigation": "Navegação do rodapé", "github": "Repositório do Github", "discord": "Canal do Discord para perguntas e novidades" },
     "compareLink": "Comparar o Twir com outros bots",
     "faq": {

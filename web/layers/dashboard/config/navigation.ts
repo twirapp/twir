@@ -224,6 +224,13 @@ export const footerNavigationItems: FooterNavigationItem[] = [
 		isPublicPageDependent: true,
 	},
 	{
+		name: 'Uploader',
+		icon: 'lucide:image-up',
+		href: '/uploader',
+		isExternal: true,
+		isPublicPageDependent: true,
+	},
+	{
 		name: 'Hastebin',
 		icon: 'lucide:clipboard-pen-line',
 		href: '/h',

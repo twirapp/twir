@@ -1507,7 +1507,7 @@
       }
     },
     "integrations": { "badge": "Integraciones", "title": "Potencia tu stream con integraciones fluidas", "description": "Conecta tus herramientas y plataformas favoritas para mejorar el rendimiento y la interacción de tu stream. Las integraciones de Twir ofrecen posibilidades infinitas." },
-    "nav": { "features": "Funciones", "integrations": "Integraciones", "compare": "Comparar", "urlShortener": "Acortador de URL", "hastebin": "Hastebin", "terms": "Términos de servicio", "privacy": "Política de privacidad", "login": "Iniciar sesión", "startNow": "Empezar ahora", "dashboard": "Panel", "logout": "Cerrar sesión", "vkLive": "VK Live" },
+    "nav": { "features": "Funciones", "integrations": "Integraciones", "compare": "Comparar", "urlShortener": "Acortador de URL", "uploader": "Subidor de imágenes", "hastebin": "Hastebin", "terms": "Términos de servicio", "privacy": "Política de privacidad", "login": "Iniciar sesión", "startNow": "Empezar ahora", "dashboard": "Panel", "logout": "Cerrar sesión", "vkLive": "VK Live" },
     "footer": { "navigation": "Navegación del pie de página", "github": "Repositorio de Github", "discord": "Canal de Discord para preguntas y novedades" },
     "compareLink": "Comparar Twir con otros bots",
     "faq": {

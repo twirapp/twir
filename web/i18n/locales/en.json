@@ -1969,6 +1969,7 @@
       "integrations": "Integrations",
       "compare": "Compare",
       "urlShortener": "URL Shortener",
+      "uploader": "Uploader",
       "hastebin": "Hastebin",
       "terms": "Terms of Service",
       "privacy": "Privacy Policy",
@@ -2452,6 +2453,77 @@
       "apiStatus": "7TV request failed ({status}).",
       "loadGlobal": "Failed to load emotes.",
       "loadChannel": "Failed to load channel emotes."
+    }
+  },
+  "uploader": {
+    "title": "Image Uploader",
+    "tagline": "Free lightning-fast image hosting for modern web sharing",
+    "viewMyUploads": "View My Uploads",
+    "dropzone": {
+      "hint": "Paste image, drag & drop, or click to choose",
+      "formats": "PNG, JPEG, GIF, WebP, AVIF or BMP up to {maxSize}",
+      "uploading": "Uploading...",
+      "dropHere": "Drop the image anywhere to upload"
+    },
+    "result": {
+      "title": "Upload complete",
+      "showDeleteLink": "Advanced (ShareX delete link)",
+      "deleteLinkHint": "Keep this link private — anyone who has it can delete the file. Use it as the deletion URL in ShareX."
+    },
+    "recent": {
+      "title": "Recent uploads",
+      "viewAll": "View all",
+      "empty": "No recent uploads yet. Upload your first image above."
+    },
+    "profile": {
+      "back": "Back to Uploader",
+      "title": "My Uploads",
+      "description": "Manage your uploaded images",
+      "empty": "You don't have any uploads yet",
+      "createFirst": "Upload your first image",
+      "pageOf": "Page {page} of {totalPages} ({total} total files)"
+    },
+    "actions": {
+      "copyLink": "Copy link",
+      "open": "Open image",
+      "delete": "Delete image"
+    },
+    "delete": {
+      "confirmText": "Are you sure you want to delete this image? This action cannot be undone.",
+      "success": "Image deleted successfully"
+    },
+    "errors": {
+      "title": "Error",
+      "unsupportedType": "Unsupported file type. Only PNG, JPEG, GIF, WebP, AVIF and BMP images are allowed.",
+      "tooLarge": "File is too large. Maximum size is {maxSize}."
+    },
+    "copied": "Copied",
+    "copiedDescription": "Link copied to clipboard.",
+    "untitled": "Untitled",
+    "created": "Created {date}",
+    "expires": "Expires {date}",
+    "expiresIn": "Expires {time}",
+    "guide": {
+      "title": "For developers",
+      "description": "Upload images from your terminal or favorite tools using the same API this page uses.",
+      "tabs": {
+        "curl": "curl",
+        "sharex": "ShareX",
+        "chatterino": "Chatterino / DankChat"
+      },
+      "curlDescription": "Upload an image with multipart form data:",
+      "curlResponse": "Response",
+      "sharexDescription": "Add a custom image uploader in ShareX (Destinations → Custom uploader settings → Import → From clipboard) with this config:",
+      "chatterinoDescription": "Point your chat client's image uploader at the same endpoint:",
+      "copy": "Copy",
+      "copyJson": "Copy JSON config",
+      "copyJsonHint": "Chatterino → Settings → External Tools → Image Uploader → paste from clipboard",
+      "copyJsonSuccess": "JSON config copied to clipboard.",
+      "copyJsonLoginHint": "Log in to attach uploads to your account history",
+      "copyJsonAuthedNote": "Logged in — your personal token is included; uploads will be stored in your account history. Keep this config secret.",
+      "copyJsonSuccessAuthed": "Copied config includes your token.",
+      "showToken": "Show token",
+      "hideToken": "Hide token"
     }
   }
 }

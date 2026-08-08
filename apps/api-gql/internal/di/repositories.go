@@ -139,6 +139,8 @@ import (
 	tokensrepositorypgx "github.com/twirapp/twir/libs/repositories/tokens/datasources/postgres"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
+	uploadedfilesrepository "github.com/twirapp/twir/libs/repositories/uploaded_files"
+	uploadedfilespgx "github.com/twirapp/twir/libs/repositories/uploaded_files/pgx"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 	userswithchannelrepository "github.com/twirapp/twir/libs/repositories/users_with_channel"
@@ -253,6 +255,8 @@ var repositoriesSet = wire.NewSet(
 	wire.Bind(new(toxicmessagesrepository.Repository), new(*toxicmessagesrepositorypgx.Pgx)),
 	channelsfilesrepositorypgx.NewFx,
 	wire.Bind(new(channelsfilesrepository.Repository), new(*channelsfilesrepositorypgx.Pgx)),
+	uploadedfilespgx.NewFx,
+	wire.Bind(new(uploadedfilesrepository.Repository), new(*uploadedfilespgx.Pgx)),
 	plansrepositorypgx.NewFx,
 	dashboardwidgetsrepositorypgx.NewFx,
 	wire.Bind(new(dashboardwidgetsrepository.Repository), new(*dashboardwidgetsrepositorypgx.Pgx)),

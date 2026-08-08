@@ -86,6 +86,15 @@ export interface BaseOutputBodyJsonCustomDomainOutputDto {
   data: CustomDomainOutputDto;
 }
 
+export interface BaseOutputBodyJsonDeleteOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: DeleteOutputDto;
+}
+
 export interface BaseOutputBodyJsonIntegrationsValorantStatsOutput {
   /**
    * A URL to the JSON Schema for this object.
@@ -228,6 +237,15 @@ export interface BaseOutputBodyJsonPresetPatternDto {
    */
   $schema?: string;
   data: PresetPatternDto;
+}
+
+export interface BaseOutputBodyJsonProfileOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: ProfileOutputDto;
 }
 
 export interface BaseOutputBodyJsonProfileResponseDto {
@@ -425,6 +443,15 @@ export interface CreateLinkInputDto {
   use_custom_domain?: boolean;
 }
 
+export interface CreateOutputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: UploadedFileWithDeleteLinkDto;
+}
+
 export interface CreatePresetInputBody {
   /**
    * A URL to the JSON Schema for this object.
@@ -484,6 +511,10 @@ export interface CustomDomainOutputDto {
   verification_target: string;
   verification_token: string;
   verified: boolean;
+}
+
+export interface DeleteOutputDto {
+  success: boolean;
 }
 
 export interface EndTierStruct {
@@ -709,6 +740,12 @@ export interface PresetPatternDto {
   preset_id: string;
 }
 
+export interface ProfileOutputDto {
+  files: UploadedFileOutputDto[];
+  /** @format int64 */
+  total: number;
+}
+
 export interface ProfileResponseDto {
   items: PasteBinOutputDto[];
   /** @format int64 */
@@ -930,6 +967,35 @@ export interface UpdateRequestDtoBody {
    */
   url?: string;
   use_custom_domain?: boolean;
+}
+
+export interface UploadedFileOutputDto {
+  /** @format date-time */
+  created_at: string;
+  /** @format date-time */
+  expires_at: string;
+  ext: string;
+  id: string;
+  link: string;
+  name: string | null;
+  /** @format int64 */
+  size: number;
+  type: string;
+}
+
+export interface UploadedFileWithDeleteLinkDto {
+  /** @format date-time */
+  created_at: string;
+  delete_link: string;
+  /** @format date-time */
+  expires_at: string;
+  ext: string;
+  id: string;
+  link: string;
+  name: string | null;
+  /** @format int64 */
+  size: number;
+  type: string;
 }
 
 export enum CommandResponseDtoCooldownTypeEnum {
@@ -2924,6 +2990,135 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<TwirStatsResponseBody, any>({
         path: `/v1/twir/stats`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderServeFile
+     * @summary Serve an uploaded file
+     * @request GET:/v1/u/{publicId}
+     * @response `200` `void` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderServeFile: (publicId: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/v1/u/${publicId}`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderGetFiles
+     * @summary Get uploaded files
+     * @request GET:/v1/uploader/files
+     * @response `200` `BaseOutputBodyJsonProfileOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderGetFiles: (
+      query?: {
+        /**
+         * @format int64
+         * @min 0
+         * @default 0
+         */
+        page?: number;
+        /**
+         * @format int64
+         * @min 1
+         * @max 50
+         * @default 10
+         */
+        per_page?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonProfileOutputDto, any>({
+        path: `/v1/uploader/files`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderUploadFile
+     * @summary Upload a file
+     * @request POST:/v1/uploader/files
+     * @response `200` `CreateOutputBody` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderUploadFile: (
+      data: {
+        /** @format binary */
+        file: File;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<CreateOutputBody, any>({
+        path: `/v1/uploader/files`,
+        method: "POST",
+        body: data,
+        type: ContentType.FormData,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderDeleteFileByKey
+     * @summary Delete an uploaded file by key
+     * @request GET:/v1/uploader/files/delete
+     * @response `200` `BaseOutputBodyJsonDeleteOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderDeleteFileByKey: (
+      query: {
+        key: string;
+        id: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonDeleteOutputDto, any>({
+        path: `/v1/uploader/files/delete`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderDeleteFile
+     * @summary Delete an uploaded file
+     * @request DELETE:/v1/uploader/files/{publicId}
+     * @response `200` `BaseOutputBodyJsonDeleteOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderDeleteFile: (
+      publicId: string,
+      query?: {
+        key?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonDeleteOutputDto, any>({
+        path: `/v1/uploader/files/${publicId}`,
+        method: "DELETE",
+        query: query,
         format: "json",
         ...params,
       }),
