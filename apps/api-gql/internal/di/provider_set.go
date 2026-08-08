@@ -147,6 +147,7 @@ var ProviderSet = wire.NewSet(
 	baseapp.ProviderSet,
 	OverlaysKappagenProviderSet,
 	OverlaysBeRightBackProviderSet,
+	OverlaysStreamStatsProviderSet,
 	OverlaysTTSProviderSet,
 	repositoriesSet,
 	// services
