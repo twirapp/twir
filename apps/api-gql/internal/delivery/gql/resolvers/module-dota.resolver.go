@@ -9,13 +9,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dota"
-	dotaentity "github.com/twirapp/twir/libs/entities/dota"
 )
 
 // SteamProfile is the resolver for the steamProfile field.
@@ -162,35 +160,50 @@ func (r *queryResolver) DotaSteamAuthLink(ctx context.Context) (string, error) {
 	return link, nil
 }
 
+// DotaState is the resolver for the dotaState field.
+func (r *subscriptionResolver) DotaState(ctx context.Context, apiKey string) (<-chan *gqlmodel.DotaState, error) {
+	updateChan, err := r.deps.DotaService.StateSubscriptionByApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
+	outputChan := make(chan *gqlmodel.DotaState, 1)
+	go func() {
+		defer close(outputChan)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case msg, ok := <-updateChan:
+				if !ok {
+					return
+				}
+
+				converted := &gqlmodel.DotaState{
+					ChannelID:      msg.ChannelID,
+					InGame:         msg.InGame,
+					Mmr:            msg.Mmr,
+					SessionWins:    msg.SessionWins,
+					SessionLosses:  msg.SessionLosses,
+					WinProbability: msg.WinProbability,
+					HeroName:       msg.HeroName,
+					MatchID:        fmt.Sprintf("%d", msg.MatchID),
+					TeamIsRadiant:  msg.TeamIsRadiant,
+					TeamKnown:      msg.TeamKnown,
+				}
+				select {
+				case outputChan <- converted:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
+
+	return outputChan, nil
+}
+
 // DotaSettings returns graph.DotaSettingsResolver implementation.
 func (r *Resolver) DotaSettings() graph.DotaSettingsResolver { return &dotaSettingsResolver{r} }
 
 type dotaSettingsResolver struct{ *Resolver }
-
-func getDotaDashboardID(ctx context.Context, sessions SessionReader) (uuid.UUID, error) {
-	dashboardID, err := sessions.GetSelectedDashboard(ctx)
-	if err != nil {
-		return uuid.Nil, gqlerrors.HandleError(err)
-	}
-
-	parsed, err := uuid.Parse(dashboardID)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("invalid selected dashboard id: %w", err)
-	}
-
-	return parsed, nil
-}
-
-func getDotaSettings(ctx context.Context, deps *Deps) (dotaentity.ChannelDotaSettings, error) {
-	dashboardID, err := getDotaDashboardID(ctx, deps.Sessions)
-	if err != nil {
-		return dotaentity.Nil, err
-	}
-
-	settings, err := deps.DotaService.GetOrCreate(ctx, dashboardID)
-	if err != nil {
-		return dotaentity.Nil, fmt.Errorf("failed to get dota settings: %w", err)
-	}
-
-	return settings, nil
-}

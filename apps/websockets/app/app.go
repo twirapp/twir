@@ -9,7 +9,6 @@ import (
 	buslistener "github.com/twirapp/twir/apps/websockets/internal/bus-listener"
 	"github.com/twirapp/twir/apps/websockets/internal/grpc_impl"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/alerts"
-	dotanamespace "github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dota"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/twirapp/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -49,7 +48,6 @@ var ProviderSet = wire.NewSet(
 	alerts.NewAlerts,
 	overlays.New,
 	dudes.New,
-	dotanamespace.New,
 	buslistener.New,
 	grpc_impl.NewGrpcImplementation,
 	NewApplication,

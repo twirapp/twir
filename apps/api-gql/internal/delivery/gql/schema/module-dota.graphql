@@ -11,6 +11,23 @@ extend type Mutation {
 	dotaRegenerateGsiToken: DotaSettings! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
 }
 
+extend type Subscription {
+	dotaState(apiKey: String!): DotaState!
+}
+
+type DotaState {
+	channelId: String!
+	inGame: Boolean!
+	mmr: Int!
+	sessionWins: Int!
+	sessionLosses: Int!
+	winProbability: Float!
+	heroName: String!
+	matchId: String!
+	teamIsRadiant: Boolean!
+	teamKnown: Boolean!
+}
+
 type DotaSettings {
 	id: UUID!
 	channelID: String!

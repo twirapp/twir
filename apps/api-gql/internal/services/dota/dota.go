@@ -9,12 +9,17 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	channelsservice "github.com/twirapp/twir/apps/api-gql/internal/services/channels"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	busapi "github.com/twirapp/twir/libs/bus-core/api"
 	cfg "github.com/twirapp/twir/libs/config"
 	dotaentity "github.com/twirapp/twir/libs/entities/dota"
 	"github.com/twirapp/twir/libs/integrations/steam"
 	"github.com/twirapp/twir/libs/logger"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	"github.com/twirapp/twir/libs/repositories/dota/model"
+	"github.com/twirapp/twir/libs/wsrouter"
 )
 
 const steamCallbackPath = "/dashboard/modules?dotaSteamCallback=1"
@@ -24,6 +29,9 @@ type Service struct {
 	steam      *steam.Client
 	config     cfg.Config
 	logger     *slog.Logger
+	wsRouter   wsrouter.WsRouter
+	channels   *channelsservice.Service
+	twirBus    *buscore.Bus
 }
 
 func New(
@@ -31,13 +39,46 @@ func New(
 	steamClient *steam.Client,
 	config cfg.Config,
 	logger *slog.Logger,
+	lc *lifecycle.Lifecycle,
+	wsRouter wsrouter.WsRouter,
+	channelsService *channelsservice.Service,
+	twirBus *buscore.Bus,
 ) *Service {
-	return &Service{
+	s := &Service{
 		repository: repository,
 		steam:      steamClient,
 		config:     config,
 		logger:     logger,
+		wsRouter:   wsRouter,
+		channels:   channelsService,
+		twirBus:    twirBus,
 	}
+
+	lc.Append(
+		lifecycle.Hook{
+			OnStart: func(ctx context.Context) error {
+				return twirBus.Api.DotaStateUpdate.SubscribeGroup("api", s.handleStateUpdate)
+			},
+			OnStop: func(ctx context.Context) error {
+				twirBus.Api.DotaStateUpdate.Unsubscribe()
+				return nil
+			},
+		},
+	)
+
+	return s
+}
+
+func (s *Service) handleStateUpdate(
+	ctx context.Context,
+	msg busapi.DotaStateUpdateMessage,
+) (struct{}, error) {
+	channelID, err := uuid.Parse(msg.ChannelID)
+	if err != nil {
+		return struct{}{}, fmt.Errorf("parse dota state update channel id: %w", err)
+	}
+
+	return struct{}{}, s.wsRouter.Publish(createStateSubscriptionKey(channelID), msg)
 }
 
 func (s *Service) GetOrCreate(ctx context.Context, channelID uuid.UUID) (dotaentity.ChannelDotaSettings, error) {
