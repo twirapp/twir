@@ -72,6 +72,8 @@ import (
 	dashboardwidgetsrepositorypgx "github.com/twirapp/twir/libs/repositories/dashboard_widgets/pgx"
 	donatepayrepository "github.com/twirapp/twir/libs/repositories/donatepay_integration"
 	donatepayrepositorypostgres "github.com/twirapp/twir/libs/repositories/donatepay_integration/datasource/postgres"
+	donatexrepository "github.com/twirapp/twir/libs/repositories/donatex_integration"
+	donatexrepositorypostgres "github.com/twirapp/twir/libs/repositories/donatex_integration/datasource/postgres"
 	donationalertsrepository "github.com/twirapp/twir/libs/repositories/donationalerts_integration"
 	donationalertsrepoitorypostgres "github.com/twirapp/twir/libs/repositories/donationalerts_integration/datasource/postgres"
 	eventsrepository "github.com/twirapp/twir/libs/repositories/events"
@@ -278,6 +280,8 @@ var repositoriesSet = wire.NewSet(
 	wire.Bind(new(streamsrepository.Repository), new(*streamsrepositorypostgres.Pgx)),
 	donationalertsrepoitorypostgres.NewFx,
 	wire.Bind(new(donationalertsrepository.Repository), new(*donationalertsrepoitorypostgres.Pgx)),
+	donatexrepositorypostgres.NewFx,
+	wire.Bind(new(donatexrepository.Repository), new(*donatexrepositorypostgres.Pgx)),
 	faceitrepositorypostgres.NewFx,
 	wire.Bind(new(faceitrepository.Repository), new(*faceitrepositorypostgres.Pgx)),
 	channelsgamesvotebanpgx.NewFx,

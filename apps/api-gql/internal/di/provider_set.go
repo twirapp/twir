@@ -71,6 +71,7 @@ import (
 	donatellointegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatello_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/donatepay_integration"
 	donatestreamintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatestream_integration"
+	donatexintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donatex_integration"
 	donationalertsintegration "github.com/twirapp/twir/apps/api-gql/internal/services/donationalerts_integration"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/events"
 	faceitintegration "github.com/twirapp/twir/apps/api-gql/internal/services/faceit_integration"
@@ -231,6 +232,7 @@ var ProviderSet = wire.NewSet(
 		channels_files.New,
 		channels_redemptions_history.New,
 		donationalertsintegration.New,
+		donatexintegration.New,
 		donatestreamintegration.New,
 		donatellointegration.New,
 		vkintegration.New,
