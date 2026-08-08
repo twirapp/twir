@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import UploaderUploadCard from './upload-card.vue'
+import UploaderUploadPreviewCard from './upload-preview-card.vue'
 
 const uploader = useUploader()
 const recentUploadsError = ref<string | null>(null)
@@ -30,9 +30,9 @@ if (response.error) {
 		<p v-else-if="uploader.latestUploads.length === 0" class="text-sm text-[hsl(240,11%,65%)]">
 			{{ $t('uploader.recent.empty') }}
 		</p>
-		<TransitionGroup v-else name="list" tag="div" class="flex flex-col gap-3">
+		<TransitionGroup v-else name="list" tag="div" class="grid gap-3 sm:grid-cols-3">
 			<div v-for="upload in uploader.latestUploads" :key="upload.id">
-				<UploaderUploadCard :upload="upload" />
+				<UploaderUploadPreviewCard :upload="upload" />
 			</div>
 		</TransitionGroup>
 	</div>

@@ -2247,6 +2247,20 @@
     "copiedDescription": "Ссылка скопирована в буфер обмена.",
     "untitled": "Без названия",
     "created": "Загружено {date}",
-    "expires": "Истекает {date}"
+    "expires": "Истекает {date}",
+    "guide": {
+      "title": "Для разработчиков",
+      "description": "Загружайте изображения из терминала или привычных инструментов через то же API, которое использует эта страница.",
+      "tabs": {
+        "curl": "curl",
+        "sharex": "ShareX",
+        "chatterino": "Chatterino / DankChat"
+      },
+      "curlDescription": "Загрузите изображение с помощью multipart form data:",
+      "curlResponse": "Ответ",
+      "sharexDescription": "Добавьте собственный загрузчик изображений в ShareX (Destinations → Custom uploader settings → Import → From clipboard) с этой конфигурацией:",
+      "chatterinoDescription": "Укажите тот же endpoint в настройках загрузчика изображений вашего чат-клиента:",
+      "copy": "Скопировать"
+    }
   }
 }

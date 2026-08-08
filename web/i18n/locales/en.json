@@ -2418,6 +2418,20 @@
     "copiedDescription": "Link copied to clipboard.",
     "untitled": "Untitled",
     "created": "Created {date}",
-    "expires": "Expires {date}"
+    "expires": "Expires {date}",
+    "guide": {
+      "title": "For developers",
+      "description": "Upload images from your terminal or favorite tools using the same API this page uses.",
+      "tabs": {
+        "curl": "curl",
+        "sharex": "ShareX",
+        "chatterino": "Chatterino / DankChat"
+      },
+      "curlDescription": "Upload an image with multipart form data:",
+      "curlResponse": "Response",
+      "sharexDescription": "Add a custom image uploader in ShareX (Destinations → Custom uploader settings → Import → From clipboard) with this config:",
+      "chatterinoDescription": "Point your chat client's image uploader at the same endpoint:",
+      "copy": "Copy"
+    }
   }
 }
