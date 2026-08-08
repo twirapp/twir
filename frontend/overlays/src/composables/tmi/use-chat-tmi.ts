@@ -82,6 +82,31 @@ export function useChatTmi(options: Ref<ChatSettings>) {
 		})
 	}
 
+	function messageReply(tags: ChatUserstate): Message['reply'] {
+		const parentMessageId: string | undefined = tags['reply-parent-msg-id']
+		if (!parentMessageId) return undefined
+
+		const parentMessageBody: string = tags['reply-parent-msg-body'] ?? ''
+		const parentUserId: string = tags['reply-parent-user-id'] ?? ''
+		const parentUserName: string = tags['reply-parent-display-name'] ?? ''
+		const parentUserLogin: string = tags['reply-parent-user-login'] ?? ''
+
+		return {
+			parentMessageId,
+			parentMessageBody,
+			parentUserId,
+			parentUserName,
+			parentUserLogin,
+		}
+	}
+
+	function stripReplyMention(message: string, reply: Message['reply']): string {
+		if (!reply?.parentUserName) return message
+
+		const escaped = reply.parentUserName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+		return message.replace(new RegExp(`^@${escaped}\\s*`, 'i'), '')
+	}
+
 	async function destroy() {
 		if (!client) return
 
@@ -103,18 +128,22 @@ export function useChatTmi(options: Ref<ChatSettings>) {
 		})
 
 		client.on('message', (_channel, tags, message) => {
+			const reply = messageReply(tags)
+			const text = stripReplyMention(message, reply)
+
 			options.value.onMessage(createMessage({
 				id: tags.id,
 				type: 'message',
 				platform: 'twitch',
-				rawMessage: message,
-				chunks: messageChunks(message, tags),
+				rawMessage: text,
+				chunks: messageChunks(text, tags),
 				sender: tags.username,
 				senderId: tags['user-id']!,
 				senderColor: tags.color,
 				senderDisplayName: tags['display-name'],
 				badges: tags.badges as Record<string, string> | undefined,
 				isItalic: tags['message-type'] === 'action',
+				reply,
 			}))
 		})
 

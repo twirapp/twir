@@ -9,7 +9,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type getCustomDomain struct {
@@ -19,8 +18,6 @@ type getCustomDomain struct {
 }
 
 type GetCustomDomainOpts struct {
-	fx.In
-
 	CustomDomainsService *shortlinkscustomdomains.Service
 	Sessions             *auth.Auth
 	Config               config.Config

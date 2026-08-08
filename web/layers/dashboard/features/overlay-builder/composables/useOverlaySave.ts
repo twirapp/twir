@@ -13,6 +13,11 @@ import type { OverlayProject } from '../types'
 
 import { useOverlayInstantSave } from './useOverlayInstantSave'
 
+interface SaveOptions {
+	/** Auto-saves (instaSave) skip the success toast; errors always toast. */
+	silent?: boolean
+}
+
 export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 	const createOverlayMutation = useChannelOverlayCreate()
 	const updateOverlayMutation = useChannelOverlayUpdate()
@@ -25,34 +30,56 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 
 	// Convert project to GraphQL input
 	function projectToLayersInput(project: OverlayProject): ChannelOverlayLayerInput[] {
-		return project.layers.map((layer) => {
-			const rotation = Number(layer.rotation ?? 0)
+		return project.layers.map((layer, index) => {
 			return {
 				id: layer.id ?? undefined, // Include layer ID for updates
 				type: layer.type,
-				posX: layer.posX,
-				posY: layer.posY,
-				width: layer.width,
-				height: layer.height,
-				rotation: rotation,
+				name: layer.name,
+				// GraphQL Int! fields reject fractional pixels
+				posX: Math.round(layer.posX),
+				posY: Math.round(layer.posY),
+				width: Math.round(layer.width),
+				height: Math.round(layer.height),
+				rotation: Math.round(Number(layer.rotation ?? 0)),
 				periodicallyRefetchData: layer.periodicallyRefetchData,
 				locked: layer.locked ?? false,
 				visible: layer.visible ?? true,
 				opacity: layer.opacity ?? 1.0,
+				// index is canonical: layer.zIndex mirrors it only after reindexLayers() runs
+				zIndex: index,
 				settings: {
-					htmlOverlayHtml: layer.settings?.htmlOverlayHtml ?? '',
-					htmlOverlayCss: layer.settings?.htmlOverlayCss ?? '',
-					htmlOverlayJs: layer.settings?.htmlOverlayJs ?? '',
+					htmlOverlayHtml: layer.settings.htmlOverlayHtml,
+					htmlOverlayCss: layer.settings.htmlOverlayCss,
+					htmlOverlayJs: layer.settings.htmlOverlayJs,
 					htmlOverlayDataPollSecondsInterval:
-						layer.settings?.htmlOverlayDataPollSecondsInterval ?? 5,
-					imageUrl: layer.settings?.imageUrl ?? '',
+						layer.settings.htmlOverlayDataPollSecondsInterval,
+					imageUrl: layer.settings.imageUrl,
+					textContent: layer.settings.textContent,
+					textFontFamily: layer.settings.textFontFamily,
+					textFontSize: layer.settings.textFontSize,
+					textFontWeight: layer.settings.textFontWeight,
+					textColor: layer.settings.textColor,
+					textAlign: layer.settings.textAlign,
+					videoUrl: layer.settings.videoUrl,
+					videoLoop: layer.settings.videoLoop,
+					videoMuted: layer.settings.videoMuted,
+					iframeUrl: layer.settings.iframeUrl,
+					iframeScale: layer.settings.iframeScale,
+					widgetKey: layer.settings.widgetKey,
+					youtubeVideoId: layer.settings.youtubeVideoId,
+					youtubeAutoplay: layer.settings.youtubeAutoplay,
+					youtubeLoop: layer.settings.youtubeLoop,
+					youtubeMuted: layer.settings.youtubeMuted,
+					emoteUrl: layer.settings.emoteUrl,
+					emoteName: layer.settings.emoteName,
+					emoteProvider: layer.settings.emoteProvider,
 				},
 			}
 		})
 	}
 
 	// Save full overlay (creates new or updates existing)
-	async function saveOverlay(project: OverlayProject): Promise<string | null> {
+	async function saveOverlay(project: OverlayProject, options?: SaveOptions): Promise<string | null> {
 		// Validate project data
 		if (!project.name || project.name.length > 30) {
 			toast.error('Overlay name is required and must be less than 30 characters')
@@ -75,8 +102,8 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 					id: project.id,
 					input: {
 						name: project.name,
-						width: 1920,
-						height: 1080,
+						width: project.width,
+						height: project.height,
 						instaSave: project.instaSave || false,
 						layers: layersInput,
 					},
@@ -87,7 +114,7 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 					return null
 				}
 
-				toast.success('Overlay updated successfully!')
+				if (!options?.silent) toast.success('Overlay updated successfully!')
 				refetchOverlays({ requestPolicy: 'network-only' })
 				return project.id
 			} else {
@@ -95,8 +122,8 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 				const result = await createOverlayMutation.executeMutation({
 					input: {
 						name: project.name,
-						width: 1920,
-						height: 1080,
+						width: project.width,
+						height: project.height,
 						instaSave: project.instaSave || false,
 						layers: layersInput,
 					},
@@ -134,8 +161,8 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 				id: project.id,
 				input: {
 					name: project.name,
-					width: 1920,
-					height: 1080,
+					width: project.width,
+					height: project.height,
 					instaSave: project.instaSave || false,
 					layers: layersInput,
 				},

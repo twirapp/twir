@@ -7,20 +7,15 @@ import (
 	"github.com/twirapp/twir/libs/cache/twitch"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	channelsredemptionshistory "github.com/twirapp/twir/libs/repositories/channels_redemptions_history"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	ChannelsRedemptionsHistory channelsredemptionshistory.Repository
-	CachedTwitchClient         *twitch.CachedTwitchClient
-}
-
-func New(opts Opts) *Service {
+func New(
+	channelsRedemptionsHistory channelsredemptionshistory.Repository,
+	cachedTwitchClient *twitch.CachedTwitchClient,
+) *Service {
 	return &Service{
-		channelsRedemptionsHistory: opts.ChannelsRedemptionsHistory,
-		cachedTwitchClient:         opts.CachedTwitchClient,
+		channelsRedemptionsHistory: channelsRedemptionsHistory,
+		cachedTwitchClient:         cachedTwitchClient,
 	}
 }
 

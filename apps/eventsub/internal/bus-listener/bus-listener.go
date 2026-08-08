@@ -10,6 +10,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/twirapp/twir/apps/eventsub/internal/manager"
 	eventplatforms "github.com/twirapp/twir/apps/eventsub/internal/platforms"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	config "github.com/twirapp/twir/libs/config"
@@ -23,7 +24,6 @@ import (
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -48,34 +48,30 @@ type BusListener struct {
 	config         config.Config
 }
 
-type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Manager        *manager.Manager
-	Transports     *platformsregistry.Registry[eventplatforms.EventTransport]
-	Gorm           *gorm.DB
-	Bus            *buscore.Bus
-	Logger         *slog.Logger
-	ChannelsRepo   channels.Repository
-	ChannelService *channelservice.ChannelService
-	Config         config.Config
-}
-
-func New(opts Opts) (*BusListener, error) {
+func New(
+	lc *lifecycle.Lifecycle,
+	manager *manager.Manager,
+	transports *platformsregistry.Registry[eventplatforms.EventTransport],
+	db *gorm.DB,
+	bus *buscore.Bus,
+	logger *slog.Logger,
+	channelsRepo channels.Repository,
+	channelService *channelservice.ChannelService,
+	config config.Config,
+) (*BusListener, error) {
 	impl := &BusListener{
-		eventSubClient: opts.Manager,
-		transports:     opts.Transports,
-		gorm:           opts.Gorm,
-		bus:            opts.Bus,
-		logger:         opts.Logger,
-		channelsRepo:   opts.ChannelsRepo,
-		channelService: opts.ChannelService,
-		config:         opts.Config,
+		eventSubClient: manager,
+		transports:     transports,
+		gorm:           db,
+		bus:            bus,
+		logger:         logger,
+		channelsRepo:   channelsRepo,
+		channelService: channelService,
+		config:         config,
 	}
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.bus.EventSub.SubscribeToAllEvents.SubscribeGroup(
 					"eventsub",

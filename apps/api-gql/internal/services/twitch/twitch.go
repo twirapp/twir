@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
@@ -12,37 +13,37 @@ import (
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchclient "github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	TwirBus            *buscore.Bus
-	Config             config.Config
-	CachedTwitchClient *twitchcahe.CachedTwitchClient
-	UsersRepository    users.Repository
-	ChannelService     *channelservice.ChannelService
-}
-
-func New(opts Opts) *Service {
+func New(
+	twirBus *buscore.Bus,
+	cfg config.Config,
+	cachedTwitchClient *twitchcahe.CachedTwitchClient,
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+	kickProvider *kickplatform.Provider,
+) *Service {
 	return &Service{
-		twirBus:            opts.TwirBus,
-		config:             opts.Config,
-		cachedTwitchClient: opts.CachedTwitchClient,
-		usersRepository:    opts.UsersRepository,
-		channelService:     opts.ChannelService,
+		twirBus:            twirBus,
+		config:             cfg,
+		cachedTwitchClient: cachedTwitchClient,
+		usersRepository:    usersRepository,
+		channelService:     channelService,
+		kickProvider:       kickProvider,
 	}
 }
 
 type Service struct {
-	twirBus            *buscore.Bus
-	config             config.Config
-	cachedTwitchClient *twitchcahe.CachedTwitchClient
-	usersRepository    users.Repository
-	channelService     channelLookup
-	newAppClient       twitchAppClientFactory
-	newUserClient      twitchUserClientFactory
+	twirBus                     *buscore.Bus
+	config                      config.Config
+	cachedTwitchClient          *twitchcahe.CachedTwitchClient
+	usersRepository             users.Repository
+	channelService              channelLookup
+	kickProvider                *kickplatform.Provider
+	newAppClient                twitchAppClientFactory
+	newUserClient               twitchUserClientFactory
+	requestKickUserToken        kickUserTokenRequester
+	updateKickStreamInformation kickStreamInformationUpdater
 }
 
 type channelLookup interface {

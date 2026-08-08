@@ -2,6 +2,8 @@ package types
 
 import (
 	"context"
+
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type VariableHandlerResult struct {
@@ -32,6 +34,8 @@ type Variable struct {
 	NotCachable              bool
 	Priority                 int // Higher number = higher priority, default 0
 	Links                    []VariableLink
+	// Platforms restricts this variable to specific platforms; empty means all platforms.
+	Platforms []platformentity.Platform
 }
 
 type VariableLink struct {

@@ -11,21 +11,13 @@ import (
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
 	model "github.com/twirapp/twir/libs/gomodels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	fx.In
-
-	Gorm *gorm.DB
-	KV   kv.KV
-}
-
-func New(opts Opts) *Service {
+func New(gorm *gorm.DB, kv kv.KV) *Service {
 	return &Service{
-		gorm: opts.Gorm,
-		kv:   opts.KV,
+		gorm: gorm,
+		kv:   kv,
 	}
 }
 

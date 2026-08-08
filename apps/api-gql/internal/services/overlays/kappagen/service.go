@@ -3,38 +3,34 @@ package kappagen
 import (
 	"context"
 	"errors"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	eventmodel "github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen"
 	"github.com/twirapp/twir/libs/repositories/overlays_kappagen/model"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	Repository overlays_kappagen.Repository
-	WsRouter   wsrouter.WsRouter
-	TwirBus    *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	repository overlays_kappagen.Repository,
+	wsRouter wsrouter.WsRouter,
+	twirBus *buscore.Bus,
+) *Service {
 	s := &Service{
-		repository: opts.Repository,
-		wsRouter:   opts.WsRouter,
-		twirBus:    opts.TwirBus,
+		repository: repository,
+		wsRouter:   wsRouter,
+		twirBus:    twirBus,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				opts.TwirBus.Api.TriggerKappagen.SubscribeGroup(
+				twirBus.Api.TriggerKappagen.SubscribeGroup(
 					"api",
 					s.handleTriggerKappagenEvent,
 				)
@@ -42,7 +38,7 @@ func New(opts Opts) *Service {
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				opts.TwirBus.Api.TriggerKappagen.Unsubscribe()
+				twirBus.Api.TriggerKappagen.Unsubscribe()
 				return nil
 			},
 		},

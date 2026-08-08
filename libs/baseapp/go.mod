@@ -7,14 +7,16 @@ require (
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.2
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.2
 	github.com/exaring/otelpgx v0.9.3
+	github.com/getsentry/sentry-go v0.42.0
+	github.com/goforj/wire v1.2.0
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/redis/go-redis/extra/redisotel/v9 v9.17.1
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/twirapp/kv v0.5.1
+	github.com/twirapp/twir/libs/uptime v0.0.0-20260730153723-d75d97e0affa
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2
 	go.opentelemetry.io/otel v1.41.0
 	go.opentelemetry.io/otel/trace v1.41.0
-	go.uber.org/fx v1.24.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
@@ -43,17 +45,18 @@ require (
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.17.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
+	github.com/twirapp/twir/libs/redis_keys v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
 	github.com/xyproto/randomstring v1.2.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel/metric v1.41.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.39.0 // indirect
-	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.27.1 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 )
+
+replace github.com/twirapp/twir/libs/uptime => ../uptime

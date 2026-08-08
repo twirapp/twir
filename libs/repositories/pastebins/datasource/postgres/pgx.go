@@ -80,6 +80,35 @@ RETURNING id, created_at, content, "expire_at", "owner_user_id", "user_ip", "use
 	return result, nil
 }
 
+func (c *Pgx) Update(
+	ctx context.Context,
+	id string,
+	input pastebins.UpdateInput,
+) (model.Pastebin, error) {
+	query := `
+UPDATE pastebins
+SET content = $2, expire_at = $3
+WHERE id = $1
+RETURNING id, created_at, content, expire_at, owner_user_id, user_ip, user_agent
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, id, input.Content, input.ExpireAt)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Pastebin])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return model.Nil, pastebins.ErrNotFound
+	}
+	if err != nil {
+		return model.Nil, err
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.Pastebin, error) {
 	query := `
 SELECT id, created_at, content, "expire_at", "owner_user_id", "user_ip", "user_agent"

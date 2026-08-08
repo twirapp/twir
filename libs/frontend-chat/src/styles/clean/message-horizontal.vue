@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MessageBadges from '../../components/message-badges.vue'
 import MessageContent from '../../components/message-content.vue'
+import MessageReply from '../../components/message-reply.vue'
 import { normalizeDisplayName } from '../../helpers'
 
 import type { MessageComponentProps } from '../../types'
@@ -10,6 +11,7 @@ defineProps<MessageComponentProps>()
 
 <template>
 	<div class="message">
+		<MessageReply v-if="msg.reply" :reply="msg.reply" variant="inline" />
 		<div class="profile">
 			<MessageBadges :msg="msg" :settings="settings" />
 			<div v-if="msg.sender" class="username">

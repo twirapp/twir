@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { useLogout, useProfile } from '~~/layers/dashboard/api/auth'
 import { useTheme } from '~~/layers/dashboard/composables/use-theme.js'
 import { AVAILABLE_LOCALES } from '~~/layers/dashboard/config/i18n-locales.js'
+import { PLATFORM_META_BY_SLUG } from '~/utils/platforms.js'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -63,14 +64,11 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 						:key="account.platform"
 					>
 						<Icon
-							v-if="account.platform === 'kick'"
-							name="simple-icons:kick"
-							class="size-4 text-[#53FC18]"
-						/>
-						<Icon
-							v-else-if="account.platform === 'twitch'"
-							name="simple-icons:twitch"
-							class="size-4 text-[#9146FF]"
+							v-if="PLATFORM_META_BY_SLUG[account.platform]"
+							:name="PLATFORM_META_BY_SLUG[account.platform]?.icon"
+							:title="PLATFORM_META_BY_SLUG[account.platform]?.label"
+							class="size-4"
+							:class="PLATFORM_META_BY_SLUG[account.platform]?.colorClass"
 						/>
 					</template>
 				</div>

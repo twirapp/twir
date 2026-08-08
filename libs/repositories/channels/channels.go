@@ -13,6 +13,7 @@ type Repository interface {
 	// GetAllByBindingPlatform returns every channel with a binding for p.
 	GetAllByBindingPlatform(ctx context.Context, p platform.Platform) ([]channelentity.Channel, error)
 	GetByID(ctx context.Context, channelID uuid.UUID) (channelentity.Channel, error)
+	GetByIDs(ctx context.Context, channelIDs []uuid.UUID) ([]channelentity.Channel, error)
 	GetByApiKey(ctx context.Context, apiKey string) (channelentity.Channel, error)
 	// GetByBindingUserID resolves a channel from a platform-scoped linked user ID.
 	GetByBindingUserID(ctx context.Context, p platform.Platform, userID uuid.UUID) (channelentity.Channel, error)
@@ -25,6 +26,7 @@ type Repository interface {
 
 type UpdateInput struct {
 	IsEnabled *bool
+	ApiKey    *string
 }
 
 type GetManyInput struct {

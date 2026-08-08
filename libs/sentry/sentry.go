@@ -1,13 +1,9 @@
 package twirsentry
 
 import (
-	"context"
 	"log/slog"
-	"time"
 
 	"github.com/getsentry/sentry-go"
-	cfg "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 func New(dsn, service string) (*sentry.Client, error) {
@@ -26,7 +22,7 @@ func New(dsn, service string) (*sentry.Client, error) {
 		Dsn:              dsn,
 		AttachStacktrace: true,
 		Tags:             tags,
-		Debug:            true,
+		Debug:            false,
 		SendDefaultPII:   true,
 		EnableLogs:       true,
 		EnableTracing:    true,
@@ -41,27 +37,4 @@ func New(dsn, service string) (*sentry.Client, error) {
 	}
 
 	return s, nil
-}
-
-type NewFxOpts struct {
-	Service string
-}
-
-func NewFx(opts NewFxOpts) func(config cfg.Config, lc fx.Lifecycle) error {
-	return func(config cfg.Config, lc fx.Lifecycle) error {
-		_, err := New(config.SentryDsn, opts.Service)
-		if err != nil {
-			return err
-		}
-
-		lc.Append(
-			fx.Hook{OnStop: func(ctx context.Context) error {
-				sentry.Flush(2 * time.Second)
-
-				return nil
-			}},
-		)
-
-		return err
-	}
 }

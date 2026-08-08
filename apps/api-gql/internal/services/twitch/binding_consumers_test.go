@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
+	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
@@ -185,6 +186,117 @@ func TestSetChannelInformationUsesSelectedTwitchBinding(t *testing.T) {
 	}
 	if got := transport.query.Get("broadcaster_id"); got != "twitch-channel" {
 		t.Fatalf("broadcaster ID = %q, want selected Twitch channel", got)
+	}
+}
+
+func TestSetStreamInformationRoutesTwitchToExistingPath(t *testing.T) {
+	channelID := uuid.New()
+	ownerID := uuid.New()
+	transport := &twitchCaptureTransport{}
+	categoryID := "game-id"
+	service := &Service{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{
+			Bindings: mixedTwitchBindings(ownerID),
+		}},
+		newUserClient: func(_ context.Context, userID uuid.UUID) (*helix.Client, error) {
+			if userID != ownerID {
+				t.Fatalf("Twitch client owner ID = %s, want %s", userID, ownerID)
+			}
+			return newTwitchServiceTestClient(t, transport), nil
+		},
+	}
+
+	err := service.SetStreamInformation(context.Background(), SetStreamInformationInput{
+		ChannelID:  channelID.String(),
+		Platform:   platform.PlatformTwitch,
+		CategoryID: &categoryID,
+	})
+
+	if err != nil {
+		t.Fatalf("set Twitch stream information: %v", err)
+	}
+	if transport.method != http.MethodPatch || transport.path != "/helix/channels" {
+		t.Fatalf("request = %s %s, want PATCH /helix/channels", transport.method, transport.path)
+	}
+}
+
+func TestSetStreamInformationRoutesKickToKickUpdater(t *testing.T) {
+	channelID := uuid.New()
+	kickOwnerID := uuid.New()
+	title := "new title"
+	categoryID := "117"
+	var updatedToken string
+	var updatedTitle *string
+	var updatedCategoryID *string
+	service := &Service{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{Bindings: []channelplatformentity.ChannelPlatform{{
+			Platform: platform.PlatformKick,
+			UserID:   kickOwnerID,
+		}}}},
+		requestKickUserToken: func(_ context.Context, userID uuid.UUID) (buscoretokens.TokenResponse, error) {
+			if userID != kickOwnerID {
+				t.Fatalf("Kick token owner ID = %s, want %s", userID, kickOwnerID)
+			}
+			return buscoretokens.TokenResponse{AccessToken: "kick-token", Scopes: []string{"channel:write"}}, nil
+		},
+		updateKickStreamInformation: func(_ context.Context, token string, gotTitle, gotCategoryID *string) error {
+			updatedToken = token
+			updatedTitle = gotTitle
+			updatedCategoryID = gotCategoryID
+			return nil
+		},
+	}
+
+	err := service.SetStreamInformation(context.Background(), SetStreamInformationInput{
+		ChannelID:  channelID.String(),
+		ActorID:    kickOwnerID,
+		Platform:   platform.PlatformKick,
+		CategoryID: &categoryID,
+		Title:      &title,
+	})
+
+	if err != nil {
+		t.Fatalf("set Kick stream information: %v", err)
+	}
+	if updatedToken != "kick-token" || updatedTitle != &title || updatedCategoryID != &categoryID {
+		t.Fatalf("Kick update = token %q, title %p, category %p", updatedToken, updatedTitle, updatedCategoryID)
+	}
+}
+
+func TestSetStreamInformationRejectsKickTokenWithoutWriteScope(t *testing.T) {
+	kickOwnerID := uuid.New()
+	service := &Service{
+		channelService: twitchChannelLookupStub{channel: channelentity.Channel{Bindings: []channelplatformentity.ChannelPlatform{{
+			Platform: platform.PlatformKick,
+			UserID:   kickOwnerID,
+		}}}},
+		requestKickUserToken: func(context.Context, uuid.UUID) (buscoretokens.TokenResponse, error) {
+			return buscoretokens.TokenResponse{AccessToken: "kick-token", Scopes: []string{"channel:read"}}, nil
+		},
+		updateKickStreamInformation: func(context.Context, string, *string, *string) error {
+			t.Fatal("Kick updater must not run without channel:write")
+			return nil
+		},
+	}
+
+	err := service.SetStreamInformation(context.Background(), SetStreamInformationInput{
+		ChannelID: uuid.NewString(),
+		ActorID:   kickOwnerID,
+		Platform:  platform.PlatformKick,
+		Title:     new("title"),
+	})
+	if err == nil || !strings.Contains(err.Error(), "channel:write") {
+		t.Fatalf("error = %v, want channel:write scope error", err)
+	}
+}
+
+func TestSetStreamInformationRejectsVK(t *testing.T) {
+	err := (&Service{}).SetStreamInformation(context.Background(), SetStreamInformationInput{
+		Platform: platform.PlatformVKVideoLive,
+		Title:    new("title"),
+	})
+	if err == nil || !strings.Contains(err.Error(), "unsupported platform") {
+		t.Fatalf("error = %v, want unsupported platform error", err)
 	}
 }
 

@@ -9,20 +9,15 @@ import (
 	apperrors "github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/dashboard_widgets"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	DashboardWidgetsRepository dashboard_widgets.Repository
-	WsRouter                   wsrouter.WsRouter
-}
-
-func New(opts Opts) *Service {
+func New(
+	dashboardWidgetsRepository dashboard_widgets.Repository,
+	wsRouter wsrouter.WsRouter,
+) *Service {
 	return &Service{
-		dashboardWidgetsRepository: opts.DashboardWidgetsRepository,
-		wsRouter:                   opts.WsRouter,
+		dashboardWidgetsRepository: dashboardWidgetsRepository,
+		wsRouter:                   wsRouter,
 	}
 }
 

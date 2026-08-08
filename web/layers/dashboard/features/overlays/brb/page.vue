@@ -61,7 +61,7 @@ const selectedDashboard = computed(() => {
 })
 
 const selectedDashboardApiKey = computed(() => {
-	return selectedDashboard.value?.apiKey || profile.value?.apiKey || ''
+	return selectedDashboard.value?.channelApiKey || profile.value?.channelApiKey || ''
 })
 
 const selectedDashboardChannelName = computed(() => {
@@ -98,7 +98,7 @@ const requestUrl = useRequestURL()
 const brbIframeUrl = computed(() => {
 	if (!selectedDashboardApiKey.value) return null
 
-	return `${requestUrl.origin}/overlays/${selectedDashboardApiKey.value}/brb`
+	return `${requestUrl.origin}/overlays/${selectedDashboardApiKey.value}/brb?embed=settings`
 })
 
 function sendIframeMessage(key: string, data?: any) {

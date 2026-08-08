@@ -15,56 +15,57 @@ import (
 	"github.com/twirapp/twir/apps/websockets/types"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
+	twirlogger "github.com/twirapp/twir/libs/logger"
+	"github.com/twirapp/twir/libs/repositories/channels"
+	"github.com/twirapp/twir/libs/repositories/users"
 	"gorm.io/gorm"
 )
 
 type Dudes struct {
 	manager *melody.Melody
 
-	gorm    *gorm.DB
-	logger  *slog.Logger
-	redis   *redis.Client
-	config  config.Config
-	counter prometheus.Gauge
-	twirBus *buscore.Bus
+	gorm            *gorm.DB
+	logger          *slog.Logger
+	redis           *redis.Client
+	config          config.Config
+	counter         prometheus.Gauge
+	twirBus         *buscore.Bus
+	usersRepository users.Repository
 }
 
-type Opts struct {
-	fx.In
-
-	Gorm    *gorm.DB
-	Logger  *slog.Logger
-	Redis   *redis.Client
-	Config  config.Config
-	TwirBus *buscore.Bus
-}
-
-func New(opts Opts) *Dudes {
+func New(
+	gorm *gorm.DB,
+	logger *slog.Logger,
+	redis *redis.Client,
+	cfg config.Config,
+	twirBus *buscore.Bus,
+	channelsRepository channels.Repository,
+	usersRepository users.Repository,
+) *Dudes {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	dudes := &Dudes{
 		manager: m,
-		gorm:    opts.Gorm,
-		logger:  opts.Logger,
-		redis:   opts.Redis,
-		config:  opts.Config,
+		gorm:    gorm,
+		logger:  logger,
+		redis:   redis,
+		config:  cfg,
 		counter: promauto.NewGauge(
 			prometheus.GaugeOpts{
 				Name:        "websockets_connections_count",
 				ConstLabels: prometheus.Labels{"overlay": "dudes"},
 			},
 		),
-		twirBus: opts.TwirBus,
+		twirBus:         twirBus,
+		usersRepository: usersRepository,
 	}
 
 	dudes.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckUserByApiKey(opts.Gorm, session)
+			err := helpers.CheckChannelByApiKey(session, channelsRepository, usersRepository)
 			if err != nil {
 				if !errors.Is(err, helpers.ErrUserNotFound) {
-					opts.Logger.Error("cannot check user by api key", logger.Error(err))
+					logger.Error("cannot check user by api key", twirlogger.Error(err))
 				}
 				return
 			}
@@ -106,7 +107,7 @@ func (c *Dudes) SendEvent(channelId, eventName string, data any) error {
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.logger.Error("cannot process message", logger.Error(err))
+		c.logger.Error("cannot process message", twirlogger.Error(err))
 		return err
 	}
 
@@ -119,7 +120,7 @@ func (c *Dudes) SendEvent(channelId, eventName string, data any) error {
 	)
 
 	if err != nil {
-		c.logger.Error("cannot broadcast message", logger.Error(err))
+		c.logger.Error("cannot broadcast message", twirlogger.Error(err))
 		return err
 	}
 

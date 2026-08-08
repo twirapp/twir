@@ -11,11 +11,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/dota/internal/match"
 	"github.com/twirapp/twir/apps/dota/internal/stats"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	"github.com/twirapp/twir/libs/logger"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
-	"go.uber.org/fx"
 )
 
 const steamID64Base int64 = 76561197960265728
@@ -39,17 +39,6 @@ type getDataQueue interface {
 	Unsubscribe()
 }
 
-type Opts struct {
-	fx.In
-
-	Bus        *buscore.Bus
-	State      *match.StateMachine
-	Repository dotarepository.Repository
-	Stats      StatsProvider
-	Logger     *slog.Logger
-	Lifecycle  fx.Lifecycle
-}
-
 type BusListener struct {
 	state      SnapshotProvider
 	repository dotarepository.Repository
@@ -61,14 +50,21 @@ type BusListener struct {
 	stopping   bool
 }
 
-func New(opts Opts) *BusListener {
+func New(
+	state *match.StateMachine,
+	repository dotarepository.Repository,
+	statsProvider StatsProvider,
+	logger *slog.Logger,
+	lc *lifecycle.Lifecycle,
+	bus *buscore.Bus,
+) *BusListener {
 	return newBusListener(
-		opts.State,
-		opts.Repository,
-		opts.Stats,
-		opts.Logger,
-		opts.Lifecycle,
-		opts.Bus.Dota.GetData,
+		state,
+		repository,
+		statsProvider,
+		logger,
+		lc,
+		bus.Dota.GetData,
 	)
 }
 
@@ -77,7 +73,7 @@ func newBusListener(
 	repository dotarepository.Repository,
 	stats StatsProvider,
 	logger *slog.Logger,
-	lifecycle fx.Lifecycle,
+	lc *lifecycle.Lifecycle,
 	queue getDataQueue,
 ) *BusListener {
 	listener := &BusListener{
@@ -87,7 +83,7 @@ func newBusListener(
 		logger:     logger,
 	}
 
-	lifecycle.Append(fx.Hook{
+	lc.Append(lifecycle.Hook{
 		OnStart: func(context.Context) error {
 			return queue.SubscribeGroup("dota", listener.handleGetData)
 		},

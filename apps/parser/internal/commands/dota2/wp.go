@@ -3,6 +3,7 @@ package dota2
 import (
 	"context"
 
+	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	model "github.com/twirapp/twir/libs/gomodels"
@@ -11,10 +12,11 @@ import (
 
 var Wp = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
-		Name:    "wp",
-		Module:  "DOTA",
-		Visible: true,
-		IsReply: true,
+		Name:        "wp",
+		Description: null.StringFrom("Show the streamer's win probability in the active Dota 2 match"),
+		Module:      "DOTA",
+		Visible:     true,
+		IsReply:     true,
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,

@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	"go.uber.org/fx"
 )
 
 type SubscriptionLister interface {
@@ -27,28 +27,23 @@ type ResubscribeJob struct {
 	interval     time.Duration
 }
 
-type ResubscribeJobOpts struct {
-	fx.In
-
-	Lc fx.Lifecycle
-
-	SubManager   *SubscriptionManager
-	ChannelsRepo channels.Repository
-	Logger       *slog.Logger
-	Config       cfg.Config
-}
-
-func NewResubscribeJob(opts ResubscribeJobOpts) *ResubscribeJob {
+func NewResubscribeJob(
+	lc *lifecycle.Lifecycle,
+	subManager *SubscriptionManager,
+	channelsRepo channels.Repository,
+	logger *slog.Logger,
+	config cfg.Config,
+) *ResubscribeJob {
 	j := &ResubscribeJob{
-		subManager:   opts.SubManager,
-		channelsRepo: opts.ChannelsRepo,
-		logger:       opts.Logger,
-		config:       opts.Config,
+		subManager:   subManager,
+		channelsRepo: channelsRepo,
+		logger:       logger,
+		config:       config,
 		interval:     23 * time.Hour,
 	}
 
 	stopCh := make(chan struct{})
-	opts.Lc.Append(fx.Hook{
+	lc.Append(lifecycle.Hook{
 		OnStart: func(_ context.Context) error {
 			go j.Start(stopCh)
 			return nil

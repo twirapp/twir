@@ -9,6 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	batchprocessor "github.com/twirapp/batch-processor"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -27,7 +28,6 @@ import (
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 
 	alertmodel "github.com/twirapp/twir/libs/repositories/alerts/model"
@@ -65,64 +65,56 @@ type Handler struct {
 	redemptionsBatcher *batchprocessor.BatchProcessor[eventsub.ChannelPointsCustomRewardRedemptionAddEvent]
 }
 
-type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Logger *slog.Logger
-
-	WebsocketsGrpc                      websockets.WebsocketClient
-	ChannelPlatformsRepository          channelplatforms.Repository
-	ChannelsRepository                  channelsrepository.Repository
-	ScheduledVipsRepo                   scheduledvipsrepository.Repository
-	ChannelsRepo                        *generic_cacher.GenericCacher[channelentity.Channel]
-	ChannelsInfoHistoryRepo             channelsinfohistory.Repository
-	StreamsRepository                   streams.Repository
-	RedemptionsHistoryRepository        channelsredemptionshistory.Repository
-	EventsListRepository                channelseventslist.Repository
-	CommandsCache                       *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	ChannelSongRequestsSettingsCache    *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings]
-	ChannelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv]
-	UserCreatorService                  *user_creator.UserCreatorService
-	ChannelService                      *channelservice.ChannelService
-
-	Tracer    trace.Tracer
-	Gorm      *gorm.DB
-	Redis     *redis.Client
-	UsersRepo usersrepository.Repository
-
-	Bus                *bus_core.Bus
-	PrefixCache        *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
-	ChannelAlertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert]
-
-	Config cfg.Config
-}
-
-func New(opts Opts) *Handler {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	websocketsGrpc websockets.WebsocketClient,
+	channelPlatformsRepository channelplatforms.Repository,
+	channelsRepository channelsrepository.Repository,
+	scheduledVipsRepo scheduledvipsrepository.Repository,
+	channelsRepo *generic_cacher.GenericCacher[channelentity.Channel],
+	channelsInfoHistoryRepo channelsinfohistory.Repository,
+	streamsRepository streams.Repository,
+	redemptionsHistoryRepository channelsredemptionshistory.Repository,
+	eventsListRepository channelseventslist.Repository,
+	commandsCache *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses],
+	channelSongRequestsSettingsCache *generic_cacher.GenericCacher[deprecatedmodel.ChannelSongRequestsSettings],
+	channelsIntegrationsSettingsSeventv *generic_cacher.GenericCacher[deprecatedmodel.ChannelsIntegrationsSettingsSeventv],
+	userCreatorService *user_creator.UserCreatorService,
+	channelService *channelservice.ChannelService,
+	tracer trace.Tracer,
+	db *gorm.DB,
+	redisClient *redis.Client,
+	usersRepo usersrepository.Repository,
+	bus *bus_core.Bus,
+	prefixCache *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix],
+	channelAlertsCache *generic_cacher.GenericCacher[[]alertmodel.Alert],
+	config cfg.Config,
+) *Handler {
 	myHandler := &Handler{
-		logger:                              opts.Logger,
-		config:                              opts.Config,
-		gorm:                                opts.Gorm,
-		redisClient:                         opts.Redis,
-		usersRepo:                           opts.UsersRepo,
-		websocketsGrpc:                      opts.WebsocketsGrpc,
-		tracer:                              opts.Tracer,
-		twirBus:                             opts.Bus,
-		prefixCache:                         opts.PrefixCache,
-		scheduledVipsRepo:                   opts.ScheduledVipsRepo,
-		channelPlatformsRepo:                opts.ChannelPlatformsRepository,
-		channelsRepo:                        opts.ChannelsRepository,
-		channelsCache:                       opts.ChannelsRepo,
-		channelsInfoHistoryRepo:             opts.ChannelsInfoHistoryRepo,
-		streamsrepository:                   opts.StreamsRepository,
-		redemptionsHistoryRepository:        opts.RedemptionsHistoryRepository,
-		eventsListRepository:                opts.EventsListRepository,
-		alertsCache:                         opts.ChannelAlertsCache,
-		commandsCache:                       opts.CommandsCache,
-		channelSongRequestsSettingsCache:    opts.ChannelSongRequestsSettingsCache,
-		channelsIntegrationsSettingsSeventv: opts.ChannelsIntegrationsSettingsSeventv,
-		userCreatorService:                  opts.UserCreatorService,
-		channelService:                      opts.ChannelService,
+		logger:                              logger,
+		config:                              config,
+		gorm:                                db,
+		redisClient:                         redisClient,
+		usersRepo:                           usersRepo,
+		websocketsGrpc:                      websocketsGrpc,
+		tracer:                              tracer,
+		twirBus:                             bus,
+		prefixCache:                         prefixCache,
+		scheduledVipsRepo:                   scheduledVipsRepo,
+		channelPlatformsRepo:                channelPlatformsRepository,
+		channelsRepo:                        channelsRepository,
+		channelsCache:                       channelsRepo,
+		channelsInfoHistoryRepo:             channelsInfoHistoryRepo,
+		streamsrepository:                   streamsRepository,
+		redemptionsHistoryRepository:        redemptionsHistoryRepository,
+		eventsListRepository:                eventsListRepository,
+		alertsCache:                         channelAlertsCache,
+		commandsCache:                       commandsCache,
+		channelSongRequestsSettingsCache:    channelSongRequestsSettingsCache,
+		channelsIntegrationsSettingsSeventv: channelsIntegrationsSettingsSeventv,
+		userCreatorService:                  userCreatorService,
+		channelService:                      channelService,
 	}
 
 	batcherCtx, batcherStop := context.WithCancel(context.Background())
@@ -135,14 +127,14 @@ func New(opts Opts) *Handler {
 		},
 	)
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
 					myHandler.redemptionsBatcher.Start(batcherCtx)
 				}()
 
-				opts.Logger.Info("Handler started")
+				logger.Info("Handler started")
 
 				return nil
 			},

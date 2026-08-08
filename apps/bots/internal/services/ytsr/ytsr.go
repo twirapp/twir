@@ -15,39 +15,35 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/raitonoberu/ytsearch"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/ytsr"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Config  cfg.Config
-	Logger  *slog.Logger
-	TwirBus *buscore.Bus
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	cfg cfg.Config,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+) error {
 	s := &Service{
 		ytRegexp: *regexp.MustCompile(
 			`(?m)http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?`,
 		),
-		config: opts.Config,
-		logger: opts.Logger,
+		config: cfg,
+		logger: logger,
 	}
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				opts.Logger.Info("ytsr started")
-				return opts.TwirBus.YTSRSearch.SubscribeGroup("ytsr", s.search)
+				logger.Info("ytsr started")
+				return twirBus.YTSRSearch.SubscribeGroup("ytsr", s.search)
 			},
 			OnStop: func(ctx context.Context) error {
-				opts.TwirBus.YTSRSearch.Unsubscribe()
+				twirBus.YTSRSearch.Unsubscribe()
 				return nil
 			},
 		},

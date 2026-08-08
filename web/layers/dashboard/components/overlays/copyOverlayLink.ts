@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { toast } from 'vue-sonner'
 
-	export function useCopyOverlayLink(overlayPath: string) {
+	export function useCopyOverlayLink(overlayPath: string, basePath: '/overlays' | '/o' = '/overlays') {
 		const { data: profile } = useProfile()
 		const { t } = useI18n()
 		const requestUrl = useRequestURL()
@@ -16,7 +16,7 @@ import { toast } from 'vue-sonner'
 	})
 
 	const overlayApiKey = computed(() => {
-		return selectedDashboardUser.value?.apiKey || profile.value?.apiKey || ''
+		return selectedDashboardUser.value?.channelApiKey || profile.value?.channelApiKey || ''
 	})
 
 	const overlayLink = computed(() => {
@@ -24,7 +24,7 @@ import { toast } from 'vue-sonner'
 			return ''
 		}
 
-		return `${requestUrl.origin}/overlays/${overlayApiKey.value}/${overlayPath}`
+		return `${requestUrl.origin}${basePath}/${overlayApiKey.value}/${overlayPath}`
 	})
 
 		const canCopyOverlayLink = computed(() => Boolean(overlayLink.value))

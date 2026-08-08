@@ -11,25 +11,15 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	fx.In
-
-	KV                 kv.KV
-	ChannelsRepository channels.Repository
-	TwirBus            *buscore.Bus
-	Gorm               *gorm.DB
-}
-
-func New(opts Opts) *Service {
+func New(kv kv.KV, channelsRepository channels.Repository, twirBus *buscore.Bus, gorm *gorm.DB) *Service {
 	return &Service{
-		kv:                 opts.KV,
-		channelsRepository: opts.ChannelsRepository,
-		twirbus:            opts.TwirBus,
-		gorm:               opts.Gorm,
+		kv:                 kv,
+		channelsRepository: channelsRepository,
+		twirbus:            twirBus,
+		gorm:               gorm,
 	}
 }
 
@@ -62,27 +52,35 @@ type EventSubSubscribeInput struct {
 }
 
 func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribeInput) error {
-	ch, err := c.channelsRepository.GetMany(
-		ctx,
-		channels.GetManyInput{
-			Enabled: lo.ToPtr(true),
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to get channels: %w", err)
-	}
+	for page := 0; ; page++ {
+		ch, err := c.channelsRepository.GetMany(
+			ctx,
+			channels.GetManyInput{
+				Enabled: lo.ToPtr(true),
+				PerPage: 100,
+				Page:    page,
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("failed to get channels: %w", err)
+		}
 
-	for _, channel := range ch {
-		go func() {
-			c.twirbus.EventSub.Subscribe.Publish(
-				ctx,
-				eventsub.EventsubSubscribeRequest{
-					ChannelID: channel.ID.String(),
-					Topic:     input.Type,
-					Version:   input.Version,
-				},
-			)
-		}()
+		for _, channel := range ch {
+			go func() {
+				c.twirbus.EventSub.Subscribe.Publish(
+					ctx,
+					eventsub.EventsubSubscribeRequest{
+						ChannelID: channel.ID.String(),
+						Topic:     input.Type,
+						Version:   input.Version,
+					},
+				)
+			}()
+		}
+
+		if len(ch) < 100 {
+			break
+		}
 	}
 
 	return nil

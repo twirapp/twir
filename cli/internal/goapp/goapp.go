@@ -149,6 +149,9 @@ func (c *TwirGoApp) Build() error {
 			c.debugEnabled,
 		),
 	)
+	if err := c.GenerateWire(); err != nil {
+		return fmt.Errorf("generate Wire injector for %s: %w", c.Name, err)
+	}
 
 	args := []string{"build", "-o", c.getAppPath()}
 	if c.debugEnabled {
@@ -156,7 +159,7 @@ func (c *TwirGoApp) Build() error {
 	} else {
 		args = append(args, "-ldflags=-s -w")
 	}
-	args = append(args, "./cmd/main.go")
+	args = append(args, "./cmd")
 
 	buildCmd := exec.Command("go", args...)
 	buildCmd.Dir = c.Path
@@ -169,6 +172,70 @@ func (c *TwirGoApp) Build() error {
 	}
 
 	return nil
+}
+
+func (c *TwirGoApp) GenerateWire() error {
+	repositoryRoot := filepath.Dir(filepath.Dir(c.Path))
+	targets, err := wireTargets(repositoryRoot, c.Path)
+	if err != nil {
+		return err
+	}
+
+	// goforj/wire keeps a persistent analysis cache (~/.cache/wire) that can
+	// return stale provider signatures when several packages are generated in
+	// a single process (observed: outdated Opts-based injectors right after
+	// constructor signature changes). Generate each target in its own process
+	// and key the cache by file content instead of modtime to keep generation
+	// deterministic.
+	for _, target := range targets {
+		args := []string{"tool", "github.com/goforj/wire/cmd/wire", "gen", target}
+		wireCmd := exec.Command("go", args...)
+		wireCmd.Dir = filepath.Join(repositoryRoot, "cli")
+		wireCmd.Env = append(os.Environ(), "WIRE_CACHE_MODE=content")
+		wireCmd.Stdout = os.Stdout
+		wireCmd.Stderr = os.Stderr
+
+		if err := wireCmd.Run(); err != nil {
+			return fmt.Errorf("generate Wire injector for %s: %w", target, err)
+		}
+	}
+
+	return nil
+}
+
+func wireTargets(repositoryRoot, appPath string) ([]string, error) {
+	wireWorkingDirectory := filepath.Join(repositoryRoot, "cli")
+	candidates := []struct {
+		injector string
+		target   string
+	}{
+		{
+			injector: filepath.Join(repositoryRoot, "libs", "baseapp", "wire.go"),
+			target:   filepath.Join(repositoryRoot, "libs", "baseapp"),
+		},
+		{
+			injector: filepath.Join(appPath, "cmd", "wire.go"),
+			target:   filepath.Join(appPath, "cmd"),
+		},
+	}
+
+	var targets []string
+	for _, candidate := range candidates {
+		if _, err := os.Stat(candidate.injector); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return nil, fmt.Errorf("stat Wire injector %s: %w", candidate.injector, err)
+		}
+
+		relativeTarget, err := filepath.Rel(wireWorkingDirectory, candidate.target)
+		if err != nil {
+			return nil, fmt.Errorf("make Wire target %s relative to %s: %w", candidate.target, wireWorkingDirectory, err)
+		}
+		targets = append(targets, relativeTarget)
+	}
+
+	return targets, nil
 }
 
 func (c *TwirGoApp) CreateAppCommand() (*exec.Cmd, error) {

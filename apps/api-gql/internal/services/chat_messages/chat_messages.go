@@ -3,6 +3,7 @@ package chat_messages
 import (
 	"context"
 	"encoding/json"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"strings"
 	"sync"
@@ -20,19 +21,7 @@ import (
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
-
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	ChatMessagesRepository chat_messages.Repository
-	ChannelService         *channelservice.ChannelService
-	TwirBus                *buscore.Bus
-	WsRouter               wsrouter.WsRouter
-	Logger                 *slog.Logger
-}
 
 const (
 	chatMessagesSubscriptionKey          = "api.chatMessages"
@@ -48,36 +37,43 @@ func chatOverlayModerationSubscriptionKeyCreate(platform string, channelId strin
 	return chatOverlayModerationSubscriptionKey + "." + platform + "." + channelId
 }
 
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	chatMessagesRepository chat_messages.Repository,
+	channelService *channelservice.ChannelService,
+	twirBus *buscore.Bus,
+	wsRouter wsrouter.WsRouter,
+	logger *slog.Logger,
+) *Service {
 	s := &Service{
-		chatMessagesRepository: opts.ChatMessagesRepository,
-		channelService:         opts.ChannelService,
-		wsRouter:               opts.WsRouter,
-		logger:                 opts.Logger,
-		chanSubs:               make(map[string]struct{}),
+		chatMessagesRepository: chatMessagesRepository,
+		channelService:         channelService,
+		wsRouter:               wsRouter,
+		logger:                 logger,
+		chanSubs:               make(map[string]int),
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				if err := opts.TwirBus.ChatMessages.Subscribe(s.handleBusEvent); err != nil {
+				if err := twirBus.ChatMessages.Subscribe(s.handleBusEvent); err != nil {
 					return err
 				}
-				if err := opts.TwirBus.Events.ChannelBan.Subscribe(s.handleChannelBanEvent); err != nil {
+				if err := twirBus.Events.ChannelBan.Subscribe(s.handleChannelBanEvent); err != nil {
 					return err
 				}
-				if err := opts.TwirBus.Events.ChannelMessageDelete.Subscribe(
+				if err := twirBus.Events.ChannelMessageDelete.Subscribe(
 					s.handleChannelMessageDeleteEvent,
 				); err != nil {
 					return err
 				}
-				return opts.TwirBus.Events.ChatClear.Subscribe(s.handleChatClearEvent)
+				return twirBus.Events.ChatClear.Subscribe(s.handleChatClearEvent)
 			},
 			OnStop: func(ctx context.Context) error {
-				opts.TwirBus.ChatMessages.Unsubscribe()
-				opts.TwirBus.Events.ChannelBan.Unsubscribe()
-				opts.TwirBus.Events.ChannelMessageDelete.Unsubscribe()
-				opts.TwirBus.Events.ChatClear.Unsubscribe()
+				twirBus.ChatMessages.Unsubscribe()
+				twirBus.Events.ChannelBan.Unsubscribe()
+				twirBus.Events.ChannelMessageDelete.Unsubscribe()
+				twirBus.Events.ChatClear.Unsubscribe()
 				return nil
 			},
 		},
@@ -92,8 +88,40 @@ type Service struct {
 
 	wsRouter   wsrouter.WsRouter
 	logger     *slog.Logger
-	chanSubs   map[string]struct{}
+	chanSubs   map[string]int
 	chanSubsMu sync.RWMutex
+}
+
+func (c *Service) addChanSubs(keys []string) {
+	c.chanSubsMu.Lock()
+	for _, key := range keys {
+		c.chanSubs[key]++
+	}
+	c.chanSubsMu.Unlock()
+}
+
+// The key must survive until its last subscriber leaves: removing it early
+// silently stops publishing for every other live subscriber of the same channel.
+func (c *Service) removeChanSubs(keys []string) {
+	c.chanSubsMu.Lock()
+	for _, key := range keys {
+		if count, ok := c.chanSubs[key]; ok {
+			if count <= 1 {
+				delete(c.chanSubs, key)
+			} else {
+				c.chanSubs[key] = count - 1
+			}
+		}
+	}
+	c.chanSubsMu.Unlock()
+}
+
+func (c *Service) hasChanSub(key string) bool {
+	c.chanSubsMu.RLock()
+	_, ok := c.chanSubs[key]
+	c.chanSubsMu.RUnlock()
+
+	return ok
 }
 
 type chatMessagesChannelLookup interface {
@@ -131,6 +159,20 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 			textBuilder.WriteString(data.Text)
 		}
 	}
+	var reply *entity.ChatMessageReply
+	if data.Reply != nil {
+		reply = &entity.ChatMessageReply{
+			ParentMessageID:   data.Reply.ParentMessageId,
+			ParentMessageBody: data.Reply.ParentMessageBody,
+			ParentUserID:      data.Reply.ParentUserId,
+			ParentUserName:    data.Reply.ParentUserName,
+			ParentUserLogin:   data.Reply.ParentUserLogin,
+			ThreadMessageID:   data.Reply.ThreadMessageId,
+			ThreadUserID:      data.Reply.ThreadUserId,
+			ThreadUserName:    data.Reply.ThreadUserName,
+			ThreadUserLogin:   data.Reply.ThreadUserLogin,
+		}
+	}
 	msg := entity.ChatMessage{
 		ID:              uuid.New(),
 		Platform:        data.Platform,
@@ -149,11 +191,11 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 		AnnounceColor:   data.AnnounceColor,
 		Badges:          mapChatMessageBadges(data.Badges),
 		Fragments:       mapChatMessageFragments(data.Message),
+		Reply:           reply,
 	}
 
 	channelSubKey := chatMessagesSubscriptionKeyCreate(data.Platform, data.PlatformChannelID)
-	c.chanSubsMu.RLock()
-	if _, ok := c.chanSubs[channelSubKey]; ok {
+	if c.hasChanSub(channelSubKey) {
 		err := c.wsRouter.Publish(channelSubKey, msg)
 		if err != nil {
 			c.logger.Error(
@@ -162,7 +204,6 @@ func (c *Service) handleBusEvent(_ context.Context, data generic.ChatMessage) (
 			)
 		}
 	}
-	c.chanSubsMu.RUnlock()
 
 	err := c.wsRouter.Publish(chatMessagesSubscriptionKeyAll, msg)
 	if err != nil {
@@ -185,11 +226,7 @@ func (c *Service) SubscribeToNewMessagesByChannelIDs(
 		)
 	}
 
-	c.chanSubsMu.Lock()
-	for _, channelSubKey := range channelSubKeys {
-		c.chanSubs[channelSubKey] = struct{}{}
-	}
-	c.chanSubsMu.Unlock()
+	c.addChanSubs(channelSubKeys)
 
 	channel := make(chan entity.ChatMessage)
 	go func() {
@@ -198,11 +235,7 @@ func (c *Service) SubscribeToNewMessagesByChannelIDs(
 			panic(err)
 		}
 		defer func() {
-			c.chanSubsMu.Lock()
-			for _, channelSubKey := range channelSubKeys {
-				delete(c.chanSubs, channelSubKey)
-			}
-			c.chanSubsMu.Unlock()
+			c.removeChanSubs(channelSubKeys)
 			sub.Unsubscribe()
 			close(channel)
 		}()
@@ -221,7 +254,11 @@ func (c *Service) SubscribeToNewMessagesByChannelIDs(
 					panic(err)
 				}
 
-				channel <- msg
+				select {
+				case channel <- msg:
+				case <-ctx.Done():
+					return
+				}
 			}
 		}
 	}()
@@ -320,10 +357,7 @@ func (c *Service) publishModerationEvent(
 
 	key := chatOverlayModerationSubscriptionKeyCreate(platform, platformChannelID)
 
-	c.chanSubsMu.RLock()
-	_, ok := c.chanSubs[key]
-	c.chanSubsMu.RUnlock()
-	if !ok {
+	if !c.hasChanSub(key) {
 		return
 	}
 
@@ -437,11 +471,7 @@ func (c *Service) SubscribeToOverlayModerationEvents(
 		)
 	}
 
-	c.chanSubsMu.Lock()
-	for _, channelSubKey := range channelSubKeys {
-		c.chanSubs[channelSubKey] = struct{}{}
-	}
-	c.chanSubsMu.Unlock()
+	c.addChanSubs(channelSubKeys)
 
 	channel := make(chan entity.ChatOverlayModerationEvent)
 	go func() {
@@ -450,11 +480,7 @@ func (c *Service) SubscribeToOverlayModerationEvents(
 			panic(err)
 		}
 		defer func() {
-			c.chanSubsMu.Lock()
-			for _, channelSubKey := range channelSubKeys {
-				delete(c.chanSubs, channelSubKey)
-			}
-			c.chanSubsMu.Unlock()
+			c.removeChanSubs(channelSubKeys)
 			sub.Unsubscribe()
 			close(channel)
 		}()
@@ -473,7 +499,11 @@ func (c *Service) SubscribeToOverlayModerationEvents(
 					panic(err)
 				}
 
-				channel <- event
+				select {
+				case channel <- event:
+				case <-ctx.Done():
+					return
+				}
 			}
 		}
 	}()

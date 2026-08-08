@@ -14,20 +14,12 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/entities/vk_integration"
 	vkintegrationrepo "github.com/twirapp/twir/libs/repositories/vk_integration"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	VKRepository vkintegrationrepo.Repository
-	Config       config.Config
-}
-
-func New(opts Opts) *Service {
+func New(vkRepository vkintegrationrepo.Repository, cfg config.Config) *Service {
 	return &Service{
-		vkRepository: opts.VKRepository,
-		config:       opts.Config,
+		vkRepository: vkRepository,
+		config:       cfg,
 	}
 }
 

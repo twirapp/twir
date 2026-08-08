@@ -84,7 +84,8 @@ RETURNING id`
 
 const updateChannelQuery = `
 UPDATE channels
-SET "isEnabled" = COALESCE($2, "isEnabled")
+SET "isEnabled" = COALESCE($2, "isEnabled"),
+	api_key = COALESCE($3, api_key)
 WHERE id = $1
 RETURNING id`
 
@@ -106,6 +107,36 @@ func (c *Pgx) Create(ctx context.Context) (channelentity.Channel, error) {
 
 func (c *Pgx) GetByID(ctx context.Context, channelID uuid.UUID) (channelentity.Channel, error) {
 	return c.getOne(ctx, selectQuery+` WHERE c."id" = $1`, channelID)
+}
+
+func (c *Pgx) GetByIDs(ctx context.Context, channelIDs []uuid.UUID) ([]channelentity.Channel, error) {
+	if len(channelIDs) == 0 {
+		return []channelentity.Channel{}, nil
+	}
+
+	rows, err := c.getter.DefaultTrOrDB(ctx, c.pool).Query(
+		ctx,
+		selectQuery+` WHERE c.id = ANY($1) ORDER BY c.id`,
+		channelIDs,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make([]channelentity.Channel, 0, len(channelIDs))
+	for rows.Next() {
+		channel, err := scanChannel(rows)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, mapChannelToEntity(channel))
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (c *Pgx) GetAllByBindingPlatform(
@@ -169,6 +200,7 @@ func (c *Pgx) Update(ctx context.Context, channelID uuid.UUID, input channels.Up
 		updateChannelQuery,
 		channelID,
 		valueOrNil(input.IsEnabled),
+		valueOrNil(input.ApiKey),
 	)
 
 	var channelId uuid.UUID

@@ -42,7 +42,7 @@ const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 const { t } = useI18n()
 
 function toSettingsOpts(settings: Record<string, unknown>): SongRequestsSettingsOpts {
-	const { channelApiKey, __typename, ...rest } = settings
+	const { channelApiKey, spotifyCapabilities, __typename, ...rest } = settings
 	return rest as unknown as SongRequestsSettingsOpts
 }
 
@@ -123,7 +123,7 @@ function formatRelativeTime(dateStr: string) {
 					@click="showConfirmClear = true"
 				>
 					<Icon
-						name="lucide:trash2"
+						name="lucide:trash"
 						class="size-4"
 					/>
 				</Button>

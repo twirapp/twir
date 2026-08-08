@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
@@ -33,6 +34,48 @@ var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 type Pgx struct {
 	pool   *pgxpool.Pool
 	getter *trmpgx.CtxGetter
+}
+
+func (c *Pgx) GetLatestByUser(
+	ctx context.Context,
+	input chat_messages.GetLatestByUserInput,
+) (model.ChatMessage, error) {
+	query, args, err := sq.Select(
+		"id",
+		"channel_id",
+		"user_id",
+		"user_name",
+		"user_display_name",
+		"user_color",
+		"text",
+		"created_at",
+		"updated_at",
+	).
+		From("chat_messages").
+		Where(squirrel.Expr("channel_id::text = ?::text", input.PlatformChannelID)).
+		Where("lower(user_name) = lower(?)", input.UserName).
+		OrderBy("created_at DESC", "id DESC").
+		Limit(1).
+		ToSql()
+	if err != nil {
+		return model.ChatMessage{}, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return model.ChatMessage{}, fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	m, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.ChatMessage])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.ChatMessage{}, chat_messages.ErrNotFound
+		}
+		return model.ChatMessage{}, fmt.Errorf("failed to collect row: %w", err)
+	}
+
+	return m, nil
 }
 
 func (c *Pgx) GetMany(ctx context.Context, input chat_messages.GetManyInput) (
@@ -70,6 +113,10 @@ func (c *Pgx) GetMany(ctx context.Context, input chat_messages.GetManyInput) (
 
 	if input.TextLike != nil && *input.TextLike != "" {
 		builder = builder.Where(squirrel.ILike{"text": fmt.Sprintf("%%%s%%", *input.TextLike)})
+	}
+
+	if input.TextFuzzy != nil && input.TextFuzzy.Phrase != "" {
+		return nil, errors.New("TextFuzzy filter is only supported by the clickhouse datasource")
 	}
 
 	if len(input.UserIDs) > 0 {

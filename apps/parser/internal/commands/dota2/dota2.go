@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -218,28 +217,4 @@ func medalName(ctx context.Context, medal medalTier) string {
 	default:
 		return i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Medals.Immortal)
 	}
-}
-
-func LocalizeDescriptions(ctx context.Context) {
-	Mmr.ChannelsCommands.Description = null.StringFrom(
-		i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Descriptions.Mmr),
-	)
-	MmrSet.ChannelsCommands.Description = null.StringFrom(
-		i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Descriptions.MmrSet),
-	)
-	Wl.ChannelsCommands.Description = null.StringFrom(
-		i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Descriptions.Wl),
-	)
-	Lg.ChannelsCommands.Description = null.StringFrom(
-		i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Descriptions.Lg),
-	)
-	Gm.ChannelsCommands.Description = null.StringFrom(
-		i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Descriptions.Gm),
-	)
-	Np.ChannelsCommands.Description = null.StringFrom(
-		i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Descriptions.Np),
-	)
-	Wp.ChannelsCommands.Description = null.StringFrom(
-		i18n.GetCtx(ctx, locales.Translations.Commands.Dota.Descriptions.Wp),
-	)
 }

@@ -32,6 +32,16 @@ import * as faker from '../faker.ts'
 import { defaultChatSettings } from './default-settings'
 import { useChatOverlayForm } from './form.ts'
 
+interface Props {
+	// Embedded inside another surface (e.g. overlay builder modal): hides the
+	// standalone "Copy Link" action because the widget is used via custom overlays.
+	embedded?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+	embedded: false,
+})
+
 const { t } = useI18n()
 const { copyOverlayLink } = useCopyOverlayLink('chat')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
@@ -74,6 +84,9 @@ watch(
 )
 
 // Generate mock messages
+let mockTick = 0
+const recentMockMessages: Array<{ sender: string; senderDisplayName: string; body: string }> = []
+
 useIntervalFn(() => {
 	if (!formValue.value) return
 
@@ -94,8 +107,15 @@ useIntervalFn(() => {
 
 	const isKickMessage = messagesMock.value.length % 2 === 1
 
+	mockTick++
+	const replyParent =
+		mockTick % 3 === 0 ? faker.randomArrayItem(recentMockMessages) : undefined
+
+	const sender = faker.firstName()!
+	const senderDisplayName = faker.firstName()!
+
 	messagesMock.value.push({
-		sender: faker.firstName(),
+		sender,
 		chunks: [{ type: 'text', value: randomWord! }],
 		createdAt: new Date(),
 		internalId,
@@ -115,8 +135,22 @@ useIntervalFn(() => {
 				]
 			: undefined,
 		id: crypto.randomUUID(),
-		senderDisplayName: faker.firstName(),
+		senderDisplayName,
+		reply: replyParent
+			? {
+					parentMessageId: crypto.randomUUID(),
+					parentMessageBody: replyParent.body,
+					parentUserId: crypto.randomUUID(),
+					parentUserName: replyParent.senderDisplayName,
+					parentUserLogin: replyParent.sender,
+				}
+			: undefined,
 	})
+
+	recentMockMessages.push({ sender, senderDisplayName, body: randomWord! })
+	if (recentMockMessages.length > 10) {
+		recentMockMessages.shift()
+	}
 
 	if (formValue.value.messageHideTimeout !== 0) {
 		setTimeout(() => {
@@ -351,6 +385,7 @@ function handleReset() {
 							variant="outline"
 							size="sm"
 							class="transition-all hover:scale-[1.02]"
+							:class="{ 'col-span-2': embedded }"
 							:disabled="!userCanEditOverlays"
 							@click="handleReset"
 						>
@@ -361,6 +396,7 @@ function handleReset() {
 							{{ t('sharedButtons.reset') || 'Reset' }}
 						</Button>
 						<Button
+							v-if="!embedded"
 							type="button"
 							variant="outline"
 							size="sm"

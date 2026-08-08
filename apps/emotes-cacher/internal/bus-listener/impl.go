@@ -6,9 +6,9 @@ import (
 	"slices"
 
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
-	"go.uber.org/fx"
 )
 
 type BusListener struct {
@@ -17,24 +17,20 @@ type BusListener struct {
 	store  *emotes_store.EmotesStore
 }
 
-type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Logger *slog.Logger
-	Bus    *buscore.Bus
-	Store  *emotes_store.EmotesStore
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	bus *buscore.Bus,
+	store *emotes_store.EmotesStore,
+) error {
 	impl := &BusListener{
-		logger: opts.Logger,
-		bus:    opts.Bus,
-		store:  opts.Store,
+		logger: logger,
+		bus:    bus,
+		store:  store,
 	}
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.bus.EmotesCacher.GetChannelEmotes.SubscribeGroup(
 					emotes_cacher.EmotesCacherGetChannelEmotesSubject,

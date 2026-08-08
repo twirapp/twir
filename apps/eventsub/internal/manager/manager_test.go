@@ -62,6 +62,10 @@ func (f *fakeChannelsRepo) GetByApiKey(context.Context, string) (channelsmodel.C
 	return channelsmodel.Nil, nil
 }
 
+func (*fakeChannelsRepo) GetByIDs(context.Context, []uuid.UUID) ([]channelsmodel.Channel, error) {
+	return nil, nil
+}
+
 func newTestManager(repo channelsrepo.Repository) *Manager {
 	return &Manager{
 		channelsRepo: repo,

@@ -64,7 +64,8 @@
     "create": "Create",
     "edit": "Edit",
     "noData": "No data",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "show": "Show"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -97,7 +98,130 @@
     "darkTheme": "Dark Theme",
     "lightTheme": "Light Theme",
     "notifications": "Notifications",
-    "giveaways": "Giveaways"
+    "giveaways": "Giveaways",
+    "quotes": "Quotes"
+  },
+  "mcpGuide": {
+    "title": "AI access",
+    "description": "Connect an AI coding agent to your channel through Twir MCP.",
+    "copyError": "Failed to copy",
+    "copyEndpoint": "Copy endpoint",
+    "copyConfig": "Copy ready configuration",
+    "documentation": "Documentation",
+    "clientsTitle": "Choose your client",
+    "clientsDescription": "Each configuration uses the MCP endpoint and starts the standard OAuth flow in your browser.",
+    "credentials": {
+      "title": "Connection details",
+      "description": "Use this Streamable HTTP endpoint with a client that supports OAuth discovery.",
+      "endpoint": "MCP endpoint"
+    },
+    "clients": {
+      "claude": {
+        "description": "Add Twir as a user-scoped remote HTTP server. Claude Code discovers OAuth automatically.",
+        "step1": "Run the generated command in your terminal.",
+        "step2": "Restart Claude Code and complete the OAuth sign-in when prompted."
+      },
+      "codex": {
+        "description": "Configure Twir as a Streamable HTTP server. Codex discovers OAuth automatically.",
+        "step1": "Add the generated block to your user or trusted-project config.toml.",
+        "step2": "Restart Codex and complete the OAuth sign-in when prompted."
+      },
+      "opencode": {
+        "description": "Add Twir as a remote MCP server and authenticate it with OpenCode.",
+        "step1": "Run the generated command in your terminal.",
+        "step2": "Run the authentication command to complete the OAuth sign-in."
+      },
+      "cursor": {
+        "description": "Add Twir as a remote MCP server. Cursor discovers OAuth automatically.",
+        "step1": "Merge the generated object into your Cursor MCP configuration.",
+        "step2": "Restart Cursor and complete the OAuth sign-in when prompted."
+      }
+    },
+    "oauth": {
+      "title": "OAuth flow",
+      "description": "Twir implements the standard MCP OAuth 2.0 flow: discovery, dynamic client registration, authorization code with PKCE, rotating refresh tokens, and revocation.",
+      "stepsTitle": "How the flow works",
+      "steps": {
+        "discovery": {
+          "title": "Discovery",
+          "description": "The client reads the protected-resource and authorization-server metadata to learn endpoints and supported features."
+        },
+        "register": {
+          "title": "Client registration",
+          "description": "The client registers itself dynamically (RFC 7591). No client secret is used; public clients are identified by their redirect URIs."
+        },
+        "authorize": {
+          "title": "Authorization",
+          "description": "The client opens the authorization URL with a PKCE S256 challenge and the MCP resource. You approve or deny access in the browser."
+        },
+        "token": {
+          "title": "Token exchange",
+          "description": "The client exchanges the authorization code together with its code verifier for tokens bound to the MCP resource."
+        },
+        "refresh": {
+          "title": "Refresh",
+          "description": "Refresh tokens rotate on every use. Reusing an old refresh token revokes the entire grant for that client."
+        },
+        "revoke": {
+          "title": "Revocation",
+          "description": "The client can revoke its own tokens at any time. Revoking an unknown token succeeds silently."
+        }
+      },
+      "endpointsTitle": "Endpoints",
+      "endpoints": {
+        "resourceMetadata": "Protected resource metadata (RFC 9728)",
+        "serverMetadata": "Authorization server metadata (RFC 8414)",
+        "register": "Dynamic client registration (RFC 7591)",
+        "authorize": "Start the authorization code flow",
+        "token": "Exchange or refresh tokens",
+        "revoke": "Revoke an access or refresh token"
+      },
+      "tokenLifetimes": "Access tokens expire after 1 hour. Refresh tokens expire after 30 days and rotate on every refresh. Consent requires permission to manage bot settings.",
+      "authTitle": "Re-run the OAuth flow",
+      "authDescription": "Ask your client to authenticate again if the token expired or you want to switch access level.",
+      "authHint": "Open MCP settings in the client and reconnect Twir."
+    }
+  },
+  "mcpConsent": {
+    "title": "Authorize AI access",
+    "description": "Review the requested MCP access for your selected dashboard.",
+    "requestTitle": "{client} wants to access your channel",
+    "requestDescription": "Choose the least access this client needs. You can deny this request at any time.",
+    "client": "Client",
+    "clientUri": "Client website",
+    "dashboard": "Selected dashboard",
+    "scopes": {
+      "title": "Requested permissions",
+      "description": "Choose what this client may do in each area. Read access is on by default; enable edit only where the client truly needs it.",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "read": "Read",
+      "edit": "Edit",
+      "editIncludesRead": "Edit access includes read access.",
+      "emptySelection": "Select at least one permission before approving.",
+      "none": "None"
+    },
+    "writeWarning": {
+      "title": "Sensitive access enabled",
+      "description": "Full access can manage secrets, integrations, moderation, and uploaded files. Only approve a client you trust."
+    },
+    "approve": "Approve access",
+    "deny": "Deny",
+    "retry": "Try again",
+    "errors": {
+      "expired": {
+        "title": "This request is no longer valid",
+        "description": "Reload or reopen this consent request before continuing."
+      },
+      "permission": {
+        "title": "You cannot authorize this request",
+        "description": "Select a dashboard where you can manage bot settings, then try again."
+      },
+      "network": {
+        "title": "We could not load this request",
+        "description": "Check your connection and try again."
+      }
+    }
   },
   "deleteConfirmation": {
     "title": "Are you sure?",
@@ -257,6 +381,26 @@
       "usedEmotes": "Emotes Sent",
       "viewers": "Viewers",
       "requestedSongs": "Requested Songs"
+    },
+    "statsLayouts": {
+      "label": "Header stats layout",
+      "rows": "Rows",
+      "rowsDescription": "Per-platform values inside each widget",
+      "aggregate": "Aggregate",
+      "aggregateDescription": "Totals with a per-platform breakdown popover",
+      "grid": "Grid",
+      "gridDescription": "Platform cards only, no global widgets"
+    },
+    "platformStats": {
+      "platform": "Platform",
+      "streamTitles": "Stream titles",
+      "livePlatforms": "{live} live · {total} platforms",
+      "breakdown": "Platforms breakdown",
+      "live": "LIVE",
+      "offline": "Offline",
+      "noTitle": "No title",
+      "noCategory": "No category",
+      "editUnavailable": "Editing unavailable"
     },
     "widgets": {
       "chat": {
@@ -721,6 +865,85 @@
         "stop": "Stop Overlay Preview"
       }
     },
+    "streamStats": {
+      "title": "Stream Stats",
+      "description": "Display live stream counters: viewers, messages, uptime, subscribers and followers.",
+      "settings": {
+        "design": {
+          "label": "Design",
+          "glass": {
+            "name": "Glass",
+            "description": "Frosted glass bar with all counters in a row."
+          },
+          "cards": {
+            "name": "Cards",
+            "description": "Separate cards with a colored accent per counter."
+          },
+          "neon": {
+            "name": "Neon",
+            "description": "Dark cards with a neon violet glow."
+          },
+          "solid": {
+            "name": "Solid",
+            "description": "Bright gradient chips."
+          },
+          "minimal": {
+            "name": "Minimal",
+            "description": "Plain text line without decoration."
+          },
+          "terminal": {
+            "name": "Terminal",
+            "description": "Monospace hacker-style readout."
+          },
+          "outline": {
+            "name": "Outline",
+            "description": "Transparent chips with colored outlines."
+          }
+        },
+        "variant": {
+          "label": "Layout",
+          "horizontal": "Horizontal",
+          "horizontalCompact": "Horizontal compact",
+          "vertical": "Vertical",
+          "verticalCompact": "Vertical compact",
+          "large": "Large"
+        },
+        "counters": {
+          "label": "Counters",
+          "viewers": "Viewers",
+          "messages": "Messages on stream",
+          "uptime": "Uptime",
+          "subscribers": "Subscribers",
+          "followers": "Followers",
+          "viewersMode": {
+            "label": "Viewers Counter Mode",
+            "cumulative": {
+              "name": "Total",
+              "description": "Total viewers across all platforms"
+            },
+            "separate": {
+              "name": "Per Platform",
+              "description": "Separate counter per platform"
+            }
+          },
+          "twitchOnlyNote": "Subscribers and followers totals are Twitch-only; the counter is hidden for other platforms.",
+          "platformIcons": "Platform icons instead of labels",
+          "dragHint": "Drag to reorder counters."
+        },
+        "colors": {
+          "label": "Counter colors",
+          "hint": "Leave empty to use the design default."
+        },
+        "customTemplate": {
+          "label": "Custom Template",
+          "enabled": "Enable custom template",
+          "html": "HTML",
+          "css": "CSS",
+          "placeholders": "Available placeholders:",
+          "replacesDesign": "The custom template replaces the chosen design."
+        }
+      }
+    },
     "faceit": {
       "title": "Faceit Stats Builder",
       "description": "Set up an overlay to display your Faceit statistics. Customize it according to your preferences.",
@@ -825,7 +1048,38 @@
         "minViews": "Minimal Views Amount"
       },
       "takeSongFromDonationMessageDescription": "Enabling this option will make the bot to try to find song links in donation messages and add them to the queue automatically.",
-      "onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live."
+      "onlineOnlyDescription": "Enabling this option will allow viewers to request songs ONLY when the stream is live.",
+      "mode": "Song request source",
+      "modeDescription": "Choose where song requests are played: YouTube player widget or your Spotify queue."
+    },
+    "spotify": {
+      "notConnected": "Spotify is not connected. Connect Spotify to use Spotify song requests.",
+      "connect": "Connect Spotify",
+      "missingScope": "Spotify playback permissions are missing. Reconnect Spotify to grant queue access.",
+      "reconnect": "Reconnect Spotify",
+      "device": "Device: {name} ({type})",
+      "noDevice": "No active Spotify device found. Open Spotify on any device.",
+      "refreshDevice": "Refresh device",
+      "deviceRefreshed": "Spotify device refreshed",
+      "emptyQueue": "No active Spotify requests",
+      "skip": "Skip request",
+      "cancel": "Cancel request",
+      "confirmSkip": "Are you sure you want to skip this Spotify request?",
+      "confirmCancel": "Are you sure you want to cancel this Spotify request?",
+      "columns": {
+        "artist": "Artist",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "QUEUED": "Queued",
+        "PLAYING": "Playing",
+        "PLAYED": "Played",
+        "CANCELLED_PENDING_SKIP": "Cancelling",
+        "SKIPPED_BY_TWIR": "Skipped",
+        "REMOVED_OR_RECONCILED": "Removed",
+        "UNKNOWN": "Unknown"
+      }
     },
     "overlaySettings": {
       "button": "Overlay settings",
@@ -1375,7 +1629,17 @@
       "showMeOnLanding": "Show yourself on the Landing Page?",
       "regenerateApiKey": {
         "button": "Regenerate Private API key",
-        "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+        "info": "This legacy user key was previously used for overlays, MCP and public API links. It is deprecated — use the channel API key instead."
+      },
+      "channelApiKey": {
+        "title": "Channel API key",
+        "button": "Regenerate channel API key",
+        "info": "This key is used for all overlays, MCP and public API links of the selected channel. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+      },
+      "legacyApiKey": {
+        "title": "Legacy user API key",
+        "badge": "Deprecated",
+        "info": "This key is deprecated and will be removed in the future. Use the channel API key above instead."
       }
     },
     "public": {
@@ -1632,10 +1896,93 @@
       }
     }
   },
+  "site": {
+    "description": "Powerful and useful chat bot for Twitch, Kick, VK Video Live and YouTube that helps manage chat on big channels. Developed from streamers for streamers with love."
+  },
   "landing": {
     "meta": {
-      "title": "Twir — Twitch & Kick chat bot for your community",
-      "description": "Powerful and useful Twitch bot that helps manage chat on big channels. Commands, timers, moderation, song requests, giveaways, overlays and more — free and open source."
+      "title": "Twir — Twitch, Kick, VK & YouTube chat bot for your community",
+      "description": "Powerful and useful chat bot for Twitch, Kick, VK Video Live and YouTube that helps manage chat on big channels. Commands, timers, moderation, song requests, giveaways, overlays and more — free and open source."
+    },
+    "hero": {
+      "updates": "🚀 View latest updates",
+      "title": "Engage your audience like never before",
+      "description": "Twir is a free, open-source chat bot for Twitch, Kick, VK Video Live and YouTube. It helps streamers manage and grow their channels with custom commands, timers, chat moderation, song requests, giveaways, alerts and overlays — all in one place.",
+      "platforms": {
+        "twitch": "Twitch",
+        "kick": "Kick",
+        "vk": "VK Video Live",
+        "youtube": "YouTube"
+      },
+      "learnMore": "Learn more",
+      "dashboard": "Dashboard"
+    },
+    "stats": {
+      "activeChannels": "Active Channels",
+      "createdCommands": "Created Commands",
+      "usersSeen": "Users Seen",
+      "messagesProcessed": "Messages Processed",
+      "emotesProcessed": "Emotes Processed",
+      "commandsProcessed": "Commands Processed",
+      "platformChannels": {
+        "twitch": "Twitch Channels",
+        "kick": "Kick Channels",
+        "vk": "VK Video Live Channels",
+        "youtube": "YouTube Channels"
+      }
+    },
+    "features": {
+      "badge": "Features",
+      "title": "Explore our bot's awesome features",
+      "description": "Uncover a treasure trove of features that'll take your stream to the next level. Our bot got the tools to transform your stream adventure!",
+      "disclaimer": "This is by no means an exhaustive list of the bot's capabilities; it will be continuously updated for you as we strive to bring forth new and innovative features.",
+      "discord": "Join our Discord server to stay up to date",
+      "items": {
+        "music-recognition": { "title": "Music Recognition", "description": "Shazam for your twitch stream! Free, without the need to connect any music services" },
+        "vips": { "title": "Vips", "description": "Manage your vips through bot, schedule vips to be removed at a specific time" },
+        "giveaways": { "title": "Giveaways", "description": "Create giveaways, manage participants, choose winners, and archive giveaways for future reference" },
+        "commands": { "title": "Commands", "description": "A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling" },
+        "variables": { "title": "Custom variables", "description": "Write custom variables with JavaScript or Python for expand bot functionality" },
+        "mcp": { "title": "AI control (MCP)", "description": "Control your bot with AI assistants: manage commands, timers, keywords, variables and more from Claude Code, Codex or OpenCode via MCP" },
+        "timers": { "title": "Timers", "description": "A simple system, but with verve, has become a popular announcement system from Twitch" },
+        "greetings": { "title": "Greetings", "description": "Do you want to somehow highlight your favorite viewers? Add a greeting!" },
+        "song-requests": { "title": "Song requests", "description": "Viewers request songs via chat commands. Bot manages queue, plays songs, and offers controls. Enhances stream with viewer engagement" },
+        "keywords": { "title": "Keywords", "description": "Identifies specified keywords in chat, triggers automated messages for engagement or information. Enhances interaction and delivers targeted content during live stream" },
+        "events": { "title": "Events", "description": "With this powerful tool, you can easily set up customized listeners to keep track of specific events happening in the chat, or even trigger actions based on system events" },
+        "moderation": { "title": "Moderation", "description": "Create and manage chat filters to keep safe and kind communication" },
+        "obs": { "title": "OBS Websockets", "description": "Highly integrate with obs studio via websockets. Change scenes, mute audio, toggle source visibility via bot" },
+        "stats": { "title": "Stats tracking", "description": "Track users watch time, messages, used channel points" },
+        "overlays": { "title": "Overlays", "description": "An assortment of pre-designed overlays, including Faceit Stats, Valorant Stats, Now Playing, Chat, Emote Wall, Pixel Dudes, and AFK displays" },
+        "alerts": { "title": "Alerts", "description": "Want to sound alerts on rewards? We got you covered! Create custom alerts for your channel points, commands, keywords triggers" },
+        "games": { "title": "Games", "description": "Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment" },
+        "short-urls": { "title": "Short urls", "description": "Shrink and share links instantly with Twir's sleek URL shortener – over {landingStatsCreatedShortUrls} created and counting" },
+        "hastebins": { "title": "HasteBins", "description": "Create and share quick, secure text snippets with HasteBins – {landingStatsCreatedHastebins} created and growing" }
+      }
+    },
+    "integrations": {
+      "badge": "Integrations",
+      "title": "Power-up your stream with seamless integrations",
+      "description": "Connect with your favorite tools and platforms to supercharge your stream's performance and engagement. Twir's integrations provide endless possibilities."
+    },
+    "nav": {
+      "features": "Features",
+      "integrations": "Integrations",
+      "compare": "Compare",
+      "urlShortener": "URL Shortener",
+      "uploader": "Uploader",
+      "hastebin": "Hastebin",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "login": "Login",
+      "startNow": "Start now",
+      "dashboard": "Dashboard",
+      "logout": "Logout",
+      "vkLive": "VK Live"
+    },
+    "footer": {
+      "navigation": "Footer Navigation",
+      "github": "Github repository",
+      "discord": "Discord channel for asking a question and keeping up with updates"
     },
     "compareLink": "Compare Twir with other bots",
     "faq": {
@@ -1647,15 +1994,15 @@
       },
       "q2": {
         "question": "How do I add Twir to my channel?",
-        "answer": "Sign in with your Twitch or Kick account, press \"Add bot\" on the dashboard, and Twir joins your chat within a minute. No downloads or installation required."
+        "answer": "Sign in with your Twitch, Kick, VK or YouTube account, press \"Add bot\" on the dashboard, and Twir joins your chat within a minute. No downloads or installation required."
       },
       "q3": {
         "question": "Can I move from Nightbot or StreamElements?",
         "answer": "Yes. Twir has a built-in import tool that transfers your commands and settings from Nightbot, StreamElements and Streamlabs in a few clicks."
       },
       "q4": {
-        "question": "Does Twir work on Kick?",
-        "answer": "Yes, Twir supports both Twitch and Kick. You can connect your Kick channel and manage it from the same dashboard."
+        "question": "Does Twir work on Kick, VK and YouTube?",
+        "answer": "Yes, Twir supports Twitch, Kick, VK Video Live and YouTube. You can connect your channels and manage them from the same dashboard."
       },
       "q5": {
         "question": "Is Twir open source?",
@@ -1667,6 +2014,12 @@
     "meta": {
       "title": "Terms of Service",
       "description": "Terms of Service for the Twir chat bot and twir.app website."
+    }
+  },
+  "privacy": {
+    "meta": {
+      "title": "Privacy Policy",
+      "description": "Privacy Policy for the Twir chat bot and twir.app website."
     }
   },
   "compare": {
@@ -1710,7 +2063,8 @@
       "vipManagement": "VIP management",
       "emoteStats": "Emote statistics",
       "musicRecognition": "Music recognition (Shazam-like)",
-      "obsIntegration": "OBS integration"
+      "obsIntegration": "OBS integration",
+      "aiMcp": "AI control (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing, Chat, Faceit & Valorant stats, Emote Wall, Pixel Dudes, AFK and more",
@@ -1732,11 +2086,12 @@
       "rolesMoobot": "1 permission group on the free plan",
       "vipTwir": "Manage VIPs and schedule VIP expiration",
       "vipMoobot": "First Wave VIP only, MoobotPlus (paid)",
-      "obsTwir": "Change scenes, mute audio, toggle sources via websockets"
+      "obsTwir": "Change scenes, mute audio, toggle sources via websockets",
+      "aiMcpTwir": "Manage the bot from Claude Code, Codex, OpenCode and other AI assistants via MCP"
     },
     "values": {
       "platforms": {
-        "twir": "Twitch, Kick",
+        "twir": "Twitch, Kick, VK Video Live, YouTube",
         "nightbot": "Twitch, YouTube",
         "streamelements": "Twitch, YouTube, Kick",
         "moobot": "Twitch",
@@ -1769,10 +2124,406 @@
         "answer": "Yes. Every feature listed in the comparison table is free, including overlays, giveaways and song requests. Twir is open source and developed by streamers for streamers."
       },
       "q4": {
-        "question": "Does Twir support Kick?",
-        "answer": "Yes. Twir works with both Twitch and Kick from a single dashboard, so you can manage both channels in one place."
+        "question": "Does Twir support Kick, VK and YouTube?",
+        "answer": "Yes. Twir works with Twitch, Kick, VK Video Live and YouTube from a single dashboard, so you can manage all your channels in one place."
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot and Fossabot are trademarks of their respective owners. Twir is not affiliated with or endorsed by them. Feature data is based on public information and may change over time."
+  },
+  "quotes": {
+    "title": "Quotes",
+    "create": "Create quote",
+    "edit": "Edit quote",
+    "text": "Quote",
+    "number": "Number",
+    "creator": "Creator",
+    "game": "Game",
+    "createdAt": "Created at",
+    "deleteConfirmation": "Are you sure you want to delete this quote?",
+    "created": "Quote created",
+    "updated": "Quote updated",
+    "deleted": "Quote deleted",
+    "errorOnSave": "Unable to save quote",
+    "errorOnDelete": "Unable to delete quote"
+  },
+  "overlayBuilder": {
+    "loading": "Loading overlay...",
+    "overlayEdit": "Overlay Edit",
+    "sync": {
+      "connected": "Live sync: connected. Changes sync across tabs editing this overlay.",
+      "connecting": "Live sync: connecting...",
+      "disconnected": "Live sync: disconnected. Changes won't sync to other tabs."
+    },
+    "layerTypes": {
+      "widget": "Widget",
+      "widgetDescription": "Embeddable URL",
+      "text": "Text",
+      "textDescription": "Text layer",
+      "emote": "Emote",
+      "emoteDescription": "One emote per layer",
+      "youtube": "YouTube",
+      "youtubeDescription": "YouTube video",
+      "video": "Video",
+      "videoDescription": "Video from URL",
+      "image": "Image",
+      "imageDescription": "Image from URL",
+      "html": "HTML",
+      "htmlDescription": "HTML, CSS, and JavaScript"
+    },
+    "widgets": {
+      "chat": {
+        "name": "Chat",
+        "description": "Twir channel chat"
+      },
+      "nowPlaying": {
+        "name": "Now Playing",
+        "description": "Display the currently playing track"
+      },
+      "faceitStats": {
+        "name": "FACEIT Stats",
+        "description": "Display FACEIT player statistics",
+        "settingsHint": "Changes update this widget URL immediately."
+      },
+      "valorantStats": {
+        "name": "VALORANT Stats",
+        "description": "Display VALORANT player statistics",
+        "settingsHint": "Changes update this widget URL immediately."
+      },
+      "kappagen": {
+        "name": "Kappagen",
+        "description": "Flying emotes overlay"
+      },
+      "dudes": {
+        "name": "Dudes",
+        "description": "Animated chat avatars"
+      },
+      "afk": {
+        "name": "AFK (BRB)",
+        "description": "Show an away screen"
+      },
+      "streamStats": {
+        "name": "Stream Stats",
+        "description": "Live stream counters: viewers, messages, uptime, subscribers, followers."
+      }
+    },
+    "layers": {
+      "title": "Layers",
+      "add": "Add",
+      "empty": "No layers yet",
+      "emptyHint": "Click “Add” to create a layer",
+      "settings": "Settings",
+      "delete": "Delete",
+      "visibility": {
+        "hide": "Hide",
+        "show": "Show"
+      },
+      "lock": {
+        "lock": "Lock",
+        "unlock": "Unlock"
+      }
+    },
+    "canvas": {
+      "hidden": "Hidden",
+      "coveredLayerHint": "This layer is covered by another one on the canvas. Hold Alt and click to cycle through overlapping layers."
+    },
+    "shortcuts": {
+      "title": "Keyboard shortcuts",
+      "description": "All hotkeys available in the overlay builder.",
+      "deepSelect": "Cycle through overlapping layers under the cursor",
+      "clearSelection": "Clear selection",
+      "paste": "Paste",
+      "selectAll": "Select all layers",
+      "toggleDialog": "Show or hide this dialog"
+    },
+    "layerNames": {
+      "default": "{type} Layer {count}",
+      "fallback": "Layer {count}",
+      "copySuffix": "(Copy)",
+      "pastedSuffix": "(Pasted)"
+    },
+    "defaults": {
+      "textContent": "Text"
+    },
+    "overlayNames": {
+      "default": "Overlay #{count}"
+    },
+    "properties": {
+      "title": "Properties",
+      "name": "Name",
+      "namePlaceholder": "Layer name",
+      "positionSize": "Position and size",
+      "width": "W",
+      "height": "H",
+      "rotation": "Rotation",
+      "opacity": "Opacity",
+      "visible": "Visibility",
+      "visibleDescription": "Show layer",
+      "locked": "Lock",
+      "lockedDescription": "Prevent editing",
+      "code": "Code",
+      "autoRefresh": "Auto Refresh",
+      "autoRefreshDescription": "Periodically update data",
+      "pollInterval": "Interval (seconds)"
+    },
+    "propertyPanel": {
+      "title": "Properties",
+      "noLayer": "No layer selected",
+      "noLayerHint": "Select a layer to edit its properties",
+      "multipleLayers": "Multiple layers selected",
+      "multipleLayersHint": "Select a single layer to edit properties",
+      "name": "Name",
+      "namePlaceholder": "Layer name",
+      "position": "Position",
+      "appearance": "Appearance",
+      "width": "Width",
+      "height": "Height",
+      "rotation": "Rotation",
+      "opacity": "Opacity",
+      "visible": "Visible",
+      "visibleDescription": "Show layer on canvas",
+      "locked": "Locked",
+      "lockedDescription": "Prevent editing",
+      "htmlSettings": "HTML Settings",
+      "editCode": "Edit Code",
+      "autoRefresh": "Auto Refresh",
+      "autoRefreshDescription": "Periodically update data",
+      "updateInterval": "Update Interval (seconds)"
+    },
+    "overlaySettings": {
+      "title": "Overlay Settings",
+      "name": "Name",
+      "namePlaceholder": "My Overlay",
+      "characterCount": "{count}/30 characters",
+      "canvasSize": "Canvas Size",
+      "fullHd": "1920 × 1080 (Full HD)",
+      "instantSave": "Instant Save",
+      "instantSaveDescription": "Automatically save position and rotation changes in real time"
+    },
+    "canvasSize": {
+      "label": "Canvas Size",
+      "fullHd": "1920 × 1080 (Full HD)",
+      "hd": "1280 × 720 (HD)",
+      "qhd": "2560 × 1440 (QHD)",
+      "fourK": "3840 × 2160 (4K)",
+      "custom": "Custom",
+      "width": "Width",
+      "height": "Height"
+    },
+    "preview": {
+      "widgetUrl": "Enter a widget URL",
+      "youtubeId": "Enter a YouTube video ID",
+      "emoteAlt": "Emote",
+      "selectEmote": "Select an emote",
+      "imageAlt": "Overlay image",
+      "imageLoadFailed": "Failed to load image",
+      "checkImageUrl": "Check the image URL",
+      "noImageUrl": "No image URL"
+    },
+    "editors": {
+      "image": {
+        "title": "Image Settings",
+        "url": "Image URL",
+        "urlDescription": "Enter a direct URL to an image (PNG, JPG, GIF, etc.)",
+        "selectFromFiles": "Select from uploaded files",
+        "usePlaceholder": "Use Placeholder Image",
+        "tip": "Tip:",
+        "variablesTip": "You can use Twir variables in the URL, like"
+      },
+      "iframe": {
+        "title": "Widget",
+        "source": "Source",
+        "customUrl": "Custom URL",
+        "twirWidget": "Twir Widget",
+        "widgetPlaceholder": "Select a widget",
+        "widgetDescription": "Select a built-in Twir widget.",
+        "configure": "Configure",
+        "apiKeyMissing": "No channel API key found. The widget URL will not work.",
+        "url": "URL",
+        "scale": "Scale",
+        "dialogDescription": "Settings for the {name} widget"
+      },
+      "text": {
+        "title": "Text",
+        "content": "Content",
+        "size": "Size",
+        "weight": "Weight",
+        "color": "Color",
+        "align": "Alignment",
+        "font": "Font",
+        "alignLeft": "Left",
+        "alignCenter": "Center",
+        "alignRight": "Right"
+      },
+      "video": {
+        "title": "Video",
+        "url": "Video URL",
+        "loop": "Loop",
+        "muted": "Muted"
+      },
+      "youtube": {
+        "videoLink": "Video link or ID",
+        "videoPlaceholder": "https://youtu.be/... or ID",
+        "autoplay": "Autoplay",
+        "loop": "Loop",
+        "muted": "Muted"
+      },
+      "emote": {
+        "title": "Emote",
+        "select": "Select emote",
+        "manualUrl": "Enter URL manually",
+        "directUrl": "Direct link",
+        "urlDescription": "If the emote you need is not in 7TV, paste an image URL manually.",
+        "previewAlt": "Emote preview"
+      }
+    },
+    "chatPresets": {
+      "loading": "Loading presets...",
+      "empty": "No chat presets",
+      "emptyHint": "Create a preset to configure the widget.",
+      "create": "Create preset",
+      "label": "Preset",
+      "placeholder": "Select a preset",
+      "item": "Preset #{count}"
+    },
+    "codeEditor": {
+      "title": "Edit HTML Layer",
+      "description": "Edit HTML, CSS, and JavaScript for this layer. Changes are previewed in real time.",
+      "refreshInterval": "Refresh interval (seconds):",
+      "variables": "Variables",
+      "preview": "Preview",
+      "availableVariables": "Available Variables",
+      "searchVariables": "Search variables...",
+      "builtIn": "Built-in",
+      "custom": "Custom",
+      "copied": "Copied!",
+      "copyToClipboard": "Copy to clipboard",
+      "noVariables": "No variables found",
+      "variableCount": "{count} variable | {count} variables",
+      "emptyHtml": "Enter HTML to preview",
+      "parsing": "Parsing...",
+      "live": "Live",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes"
+    },
+    "toolbar": {
+      "back": "Back to Overlays",
+      "undo": "Undo",
+      "redo": "Redo",
+      "copy": "Copy",
+      "cut": "Cut",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "alignLeft": "Align Left",
+      "alignCenter": "Align Center",
+      "alignRight": "Align Right",
+      "alignTop": "Align Top",
+      "alignMiddle": "Align Middle",
+      "alignBottom": "Align Bottom",
+      "distributeHorizontal": "Distribute Horizontally",
+      "distributeVertical": "Distribute Vertically",
+      "zoomOut": "Zoom Out",
+      "zoomIn": "Zoom In",
+      "toggleGrid": "Toggle Grid",
+      "snapToGrid": "Snap to Grid",
+      "addLayersHidden": "Add layers hidden",
+      "widgetsPreview": "Widgets demo preview",
+      "shortcuts": "Keyboard shortcuts",
+      "save": "Save"
+    }
+  },
+  "emotePicker": {
+    "title": "Emotes",
+    "description": "Choose an emote from the 7TV sets.",
+    "tabs": {
+      "global": "7TV",
+      "channel": "7TV Channel"
+    },
+    "search": {
+      "placeholder": "Search by name",
+      "ariaLabel": "Search emotes"
+    },
+    "retry": "Retry",
+    "empty": {
+      "search": "No emotes found for your search.",
+      "noChannel": "Select a Twitch channel to see its 7TV set.",
+      "channelNoSet": "The current channel has no connected 7TV set.",
+      "noEmotes": "This set does not contain any emotes yet."
+    },
+    "errors": {
+      "apiStatus": "7TV request failed ({status}).",
+      "loadGlobal": "Failed to load emotes.",
+      "loadChannel": "Failed to load channel emotes."
+    }
+  },
+  "uploader": {
+    "title": "Image Uploader",
+    "tagline": "Free lightning-fast image hosting for modern web sharing",
+    "viewMyUploads": "View My Uploads",
+    "dropzone": {
+      "hint": "Paste image, drag & drop, or click to choose",
+      "formats": "PNG, JPEG, GIF, WebP, AVIF or BMP up to {maxSize}",
+      "uploading": "Uploading...",
+      "dropHere": "Drop the image anywhere to upload"
+    },
+    "result": {
+      "title": "Upload complete",
+      "showDeleteLink": "Advanced (ShareX delete link)",
+      "deleteLinkHint": "Keep this link private — anyone who has it can delete the file. Use it as the deletion URL in ShareX."
+    },
+    "recent": {
+      "title": "Recent uploads",
+      "viewAll": "View all",
+      "empty": "No recent uploads yet. Upload your first image above."
+    },
+    "profile": {
+      "back": "Back to Uploader",
+      "title": "My Uploads",
+      "description": "Manage your uploaded images",
+      "empty": "You don't have any uploads yet",
+      "createFirst": "Upload your first image",
+      "pageOf": "Page {page} of {totalPages} ({total} total files)"
+    },
+    "actions": {
+      "copyLink": "Copy link",
+      "open": "Open image",
+      "delete": "Delete image"
+    },
+    "delete": {
+      "confirmText": "Are you sure you want to delete this image? This action cannot be undone.",
+      "success": "Image deleted successfully"
+    },
+    "errors": {
+      "title": "Error",
+      "unsupportedType": "Unsupported file type. Only PNG, JPEG, GIF, WebP, AVIF and BMP images are allowed.",
+      "tooLarge": "File is too large. Maximum size is {maxSize}."
+    },
+    "copied": "Copied",
+    "copiedDescription": "Link copied to clipboard.",
+    "untitled": "Untitled",
+    "created": "Created {date}",
+    "expires": "Expires {date}",
+    "expiresIn": "Expires {time}",
+    "guide": {
+      "title": "For developers",
+      "description": "Upload images from your terminal or favorite tools using the same API this page uses.",
+      "tabs": {
+        "curl": "curl",
+        "sharex": "ShareX",
+        "chatterino": "Chatterino / DankChat"
+      },
+      "curlDescription": "Upload an image with multipart form data:",
+      "curlResponse": "Response",
+      "sharexDescription": "Add a custom image uploader in ShareX (Destinations → Custom uploader settings → Import → From clipboard) with this config:",
+      "chatterinoDescription": "Point your chat client's image uploader at the same endpoint:",
+      "copy": "Copy",
+      "copyJson": "Copy JSON config",
+      "copyJsonHint": "Chatterino → Settings → External Tools → Image Uploader → paste from clipboard",
+      "copyJsonSuccess": "JSON config copied to clipboard.",
+      "copyJsonLoginHint": "Log in to attach uploads to your account history",
+      "copyJsonAuthedNote": "Logged in — your personal token is included; uploads will be stored in your account history. Keep this config secret.",
+      "copyJsonSuccessAuthed": "Copied config includes your token.",
+      "showToken": "Show token",
+      "hideToken": "Hide token"
+    }
   }
 }

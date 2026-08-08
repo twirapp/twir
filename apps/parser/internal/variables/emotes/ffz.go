@@ -9,6 +9,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 type frankerFaceZEmote struct {
@@ -26,6 +27,7 @@ type frankerFaceZResponse struct {
 var FrankerFaceZ = &types.Variable{
 	Name:        "emotes.ffz",
 	Description: lo.ToPtr("Emotes of channel from https://frankerfacez.com"),
+	Platforms:   []platformentity.Platform{platformentity.PlatformTwitch},
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

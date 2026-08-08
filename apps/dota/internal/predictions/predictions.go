@@ -25,7 +25,6 @@ import (
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 )
 
 const (
@@ -218,18 +217,6 @@ func (f twitchClientFactory) New(ctx context.Context, userID uuid.UUID) (predict
 	return twitch.NewUserClientWithContext(ctx, userID, f.config, f.bus)
 }
 
-type Opts struct {
-	fx.In
-
-	Bus    *buscore.Bus
-	Config cfg.Config
-	Logger *slog.Logger
-
-	SettingsRepository dotarepository.Repository
-	ChannelsRepository channelsrepository.Repository
-	Store              Store
-}
-
 type Predictions struct {
 	settings      settingsRepository
 	channels      channelRepository
@@ -239,17 +226,22 @@ type Predictions struct {
 	terminalLease terminalLease
 }
 
-func New(opts Opts) *Predictions {
-	predictions := newPredictions(
-		opts.SettingsRepository,
-		opts.ChannelsRepository,
-		twitchClientFactory{config: opts.Config, bus: opts.Bus},
-		opts.Store,
-		opts.Logger,
+func New(
+	settingsRepository dotarepository.Repository,
+	channelsRepository channelsrepository.Repository,
+	config cfg.Config,
+	bus *buscore.Bus,
+	store Store,
+	logger *slog.Logger,
+) *Predictions {
+	return newPredictions(
+		settingsRepository,
+		channelsRepository,
+		twitchClientFactory{config: config, bus: bus},
+		store,
+		logger,
 		defaultTerminalLease(),
 	)
-
-	return predictions
 }
 
 func newPredictions(

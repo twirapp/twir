@@ -11,6 +11,10 @@ type Repository interface {
 	Create(ctx context.Context, input CreateInput) error
 	CreateMany(ctx context.Context, input []CreateInput) error
 	GetMany(ctx context.Context, input GetManyInput) ([]model.ChatMessage, error)
+	GetLatestByUser(
+		ctx context.Context,
+		input GetLatestByUserInput,
+	) (model.ChatMessage, error)
 }
 
 type PlatformChannelIdentity struct {
@@ -19,14 +23,14 @@ type PlatformChannelIdentity struct {
 }
 
 type CreateInput struct {
-	ID              string
-	Platform        string
+	ID                string
+	Platform          string
 	PlatformChannelID string
-	UserID          string
-	Text            string
-	UserName        string
-	UserDisplayName string
-	UserColor       string
+	UserID            string
+	Text              string
+	UserName          string
+	UserDisplayName   string
+	UserColor         string
 }
 
 type GetManyInput struct {
@@ -36,9 +40,16 @@ type GetManyInput struct {
 	ChannelPairs      []PlatformChannelIdentity
 	Platform          *string
 	PlatformChannelID *string
-	UserNameLike *string
-	TextLike     *string
-	UserIDs      []string
+	UserNameLike      *string
+	TextLike          *string
+	TextFuzzy         *TextFuzzyFilter
+	UserIDs           []string
 
 	TimeGte *time.Time
+}
+
+type GetLatestByUserInput struct {
+	Platform          string
+	PlatformChannelID string
+	UserName          string
 }

@@ -6,30 +6,25 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/entities/platform"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/events"
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	EventsRepository events.Repository
-	PlansRepository  plans.Repository
-	Logger           *slog.Logger
-	Cacher           *generic_cacher.GenericCacher[[]model.Event]
-}
-
-func New(opts Opts) *Service {
+func New(
+	eventsRepository events.Repository,
+	plansRepository plans.Repository,
+	logger *slog.Logger,
+	cacher *generic_cacher.GenericCacher[[]model.Event],
+) *Service {
 	return &Service{
-		eventsRepository: opts.EventsRepository,
-		plansRepository:  opts.PlansRepository,
-		logger:           opts.Logger,
-		cacher:           opts.Cacher,
+		eventsRepository: eventsRepository,
+		plansRepository:  plansRepository,
+		logger:           logger,
+		cacher:           cacher,
 	}
 }
 
@@ -185,6 +180,17 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (entity.Event, 
 }
 
 func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (entity.Event, error) {
+	existing, err := s.eventsRepository.GetByID(ctx, id)
+	if err != nil {
+		if err == events.ErrNotFound {
+			return entity.EventNil, errors.NewNotFoundError("Event with this ID was not found")
+		}
+		return entity.EventNil, errors.NewInternalError("Failed to get event", err)
+	}
+	if existing.ChannelID != input.ChannelID {
+		return entity.EventNil, errors.NewNotFoundError("Event with this ID was not found")
+	}
+
 	var convertedType *model.EventType
 	if input.Type != nil {
 		convertedType = (*model.EventType)(input.Type)
@@ -249,7 +255,18 @@ func (s *Service) Update(ctx context.Context, id string, input UpdateInput) (ent
 }
 
 func (s *Service) Delete(ctx context.Context, id, channelID string) error {
-	err := s.eventsRepository.Delete(ctx, id)
+	existing, err := s.eventsRepository.GetByID(ctx, id)
+	if err != nil {
+		if err == events.ErrNotFound {
+			return errors.NewNotFoundError("Event with this ID was not found")
+		}
+		return errors.NewInternalError("Failed to get event", err)
+	}
+	if existing.ChannelID != channelID {
+		return errors.NewNotFoundError("Event with this ID was not found")
+	}
+
+	err = s.eventsRepository.Delete(ctx, id)
 	if err != nil {
 		return errors.NewInternalError("Failed to delete event", err)
 	}

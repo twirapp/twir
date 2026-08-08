@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	"github.com/twirapp/twir/libs/repositories/dota/model"
@@ -159,7 +160,7 @@ const testToken = "test-token"
 
 var testChannelID = uuid.MustParse("11111111-1111-1111-1111-111111111111")
 
-func newTestServer(t *testing.T, processor *fakeProcessor, opts ...Option) *httptest.Server {
+func newTestServer(t *testing.T, processor *fakeProcessor, mutate ...func(*Server)) *httptest.Server {
 	t.Helper()
 
 	repo := &fakeRepo{
@@ -173,8 +174,11 @@ func newTestServer(t *testing.T, processor *fakeProcessor, opts ...Option) *http
 		slog.New(slog.NewTextHandler(io.Discard, nil)),
 		repo,
 		processor,
-		opts...,
+		lifecycle.New(),
 	)
+	for _, m := range mutate {
+		m(srv)
+	}
 
 	ts := httptest.NewServer(srv.httpServer.Handler)
 	t.Cleanup(ts.Close)
@@ -334,7 +338,10 @@ func TestMalformedJSON(t *testing.T) {
 
 func TestRateLimit(t *testing.T) {
 	processor := &fakeProcessor{}
-	ts := newTestServer(t, processor, WithRateLimit(rate.Every(time.Hour), 1))
+	ts := newTestServer(t, processor, func(s *Server) {
+		s.rateLimit = rate.Every(time.Hour)
+		s.rateBurst = 1
+	})
 
 	resp := postFixture(t, ts, testToken, "in_game.json")
 	resp.Body.Close()

@@ -6,20 +6,11 @@ import (
 	"log/slog"
 
 	"github.com/twirapp/twir/apps/bots/internal/discord/discord_go"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/discord"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
-
-type Opts struct {
-	fx.In
-
-	LC      fx.Lifecycle
-	Logger  *slog.Logger
-	Discord *discord_go.Discord
-	Bus     *buscore.Bus
-}
 
 type Handler struct {
 	discord *discord_go.Discord
@@ -27,20 +18,25 @@ type Handler struct {
 	logger  *slog.Logger
 }
 
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	discord *discord_go.Discord,
+	bus *buscore.Bus,
+) error {
 	h := &Handler{
-		discord: opts.Discord,
-		bus:     opts.Bus,
-		logger:  opts.Logger,
+		discord: discord,
+		bus:     bus,
+		logger:  logger,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := h.subscribe(); err != nil {
 					return err
 				}
-				opts.Logger.Info("Discord bus handler is running")
+				logger.Info("Discord bus handler is running")
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {

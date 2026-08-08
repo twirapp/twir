@@ -12,6 +12,7 @@ require (
 	github.com/jackc/pgconn v1.14.3
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/lib/pq v1.10.9
+	github.com/samber/lo v1.52.0
 	github.com/testcontainers/testcontainers-go v0.40.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.40.0
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20260105021550-59420996421f

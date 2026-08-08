@@ -10,20 +10,15 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 	cfg "github.com/twirapp/twir/libs/config"
 	channelsintegrationslastfm "github.com/twirapp/twir/libs/repositories/channels_integrations_lastfm"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	LastfmRepository channelsintegrationslastfm.Repository
-	Config           cfg.Config
-}
-
-func New(opts Opts) *Service {
+func New(
+	lastfmRepository channelsintegrationslastfm.Repository,
+	cfg cfg.Config,
+) *Service {
 	return &Service{
-		repo:   opts.LastfmRepository,
-		config: opts.Config,
+		repo:   lastfmRepository,
+		config: cfg,
 	}
 }
 

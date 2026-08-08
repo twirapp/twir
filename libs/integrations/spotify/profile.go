@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -36,35 +35,17 @@ type SpotifyProfile struct {
 }
 
 func (c *Spotify) GetProfile(ctx context.Context) (*SpotifyProfile, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.spotify.com/v1/me", nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+c.channelIntegration.AccessToken)
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.doRequest(ctx, http.MethodGet, "https://api.spotify.com/v1/me", nil)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == 401 && !c.isRetry && c.canRefresh() {
-		c.isRetry = true
-		c.refreshToken(ctx)
-		return c.GetProfile(ctx)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("cannot get profile: %s", string(body))
+		return nil, fmt.Errorf("cannot get profile: %s", string(resp.Body))
 	}
 
 	var data SpotifyProfile
-	if err := json.Unmarshal(body, &data); err != nil {
+	if err := json.Unmarshal(resp.Body, &data); err != nil {
 		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 

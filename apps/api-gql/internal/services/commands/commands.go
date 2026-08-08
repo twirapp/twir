@@ -17,30 +17,25 @@ import (
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 	commandswithgroupsandresponsesmodel "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	TrManager                      trm.Manager
-	CommandsRepository             commands.Repository
-	CommandsResponsesService       *commands_responses.Service
-	AuditRecorder                  audit.Recorder
-	CachedCommandsClient           *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses]
-	PlansRepository                plans.Repository
-	CommandRoleCooldownsRepository command_role_cooldown.Repository
-}
-
-func New(opts Opts) *Service {
+func New(
+	trManager trm.Manager,
+	commandsRepository commands.Repository,
+	commandsResponsesService *commands_responses.Service,
+	auditRecorder audit.Recorder,
+	cachedCommandsClient *generic_cacher.GenericCacher[[]commandswithgroupsandresponsesmodel.CommandWithGroupAndResponses],
+	plansRepository plans.Repository,
+	commandRoleCooldownsRepository command_role_cooldown.Repository,
+) *Service {
 	return &Service{
-		commandsRepository:             opts.CommandsRepository,
-		commandsResponsesService:       opts.CommandsResponsesService,
-		trManager:                      opts.TrManager,
-		auditRecorder:                  opts.AuditRecorder,
-		cachedCommandsClient:           opts.CachedCommandsClient,
-		plansRepository:                opts.PlansRepository,
-		commandRoleCooldownsRepository: opts.CommandRoleCooldownsRepository,
+		commandsRepository:             commandsRepository,
+		commandsResponsesService:       commandsResponsesService,
+		trManager:                      trManager,
+		auditRecorder:                  auditRecorder,
+		cachedCommandsClient:           cachedCommandsClient,
+		plansRepository:                plansRepository,
+		commandRoleCooldownsRepository: commandRoleCooldownsRepository,
 	}
 }
 

@@ -3,16 +3,18 @@ import { computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import OverlayBuilder from '~~/layers/dashboard/features/overlay-builder/OverlayBuilder.vue'
+import { getLayerTypeMeta } from '~~/layers/dashboard/features/overlay-builder/layer-type-meta'
 import {
 	useChannelOverlayByIdQuery,
 	useChannelOverlaysQuery,
 } from '~~/layers/dashboard/api/overlays/custom'
-import type { OverlayProject } from '~~/layers/dashboard/features/overlay-builder/types'
+import { type OverlayProject, createLayerSettings } from '~~/layers/dashboard/features/overlay-builder/types'
 import { useOverlaySave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlaySave'
 import { useOverlayInstantSave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlayInstantSave'
 
 const route = useRoute<'dashboard-registry-overlays-id'>()
 const router = useRouter()
+const { t } = useI18n()
 
 // Get overlay ID from route
 const overlayId = computed(() => {
@@ -49,7 +51,7 @@ const projectData = computed(() => {
 	if (isNewOverlay.value) {
 		return {
 			id: '',
-			name: `Overlay #${overlayCount.value + 1}`,
+			name: t('overlayBuilder.overlayNames.default', { count: overlayCount.value + 1 }),
 			width: 1920,
 			height: 1080,
 			instaSave: false,
@@ -65,18 +67,20 @@ const projectData = computed(() => {
 	// Sync instaSave state with composable
 	instaSaveEnabled.value = overlay.value.instaSave || false
 
-	// Convert existing overlay data to builder format (canvas size fixed at 1920x1080)
 	const converted = {
 		id: overlay.value.id,
 		name: overlay.value.name,
-		width: 1920,
-		height: 1080,
+		width: overlay.value.width,
+		height: overlay.value.height,
 		instaSave: overlay.value.instaSave || false,
 		layers: overlay.value.layers.map((layer, index) => {
 			return {
 				id: layer.id, // Use real layer ID from backend
 				type: layer.type,
-				name: `${layer.type} Layer ${index + 1}`,
+				name: layer.name || t('overlayBuilder.layerNames.default', {
+					type: t(getLayerTypeMeta(layer.type).labelKey),
+					count: index + 1,
+				}),
 				posX: layer.posX,
 				posY: layer.posY,
 				width: layer.width,
@@ -87,13 +91,7 @@ const projectData = computed(() => {
 				locked: layer.locked ?? false,
 				zIndex: index,
 				periodicallyRefetchData: layer.periodicallyRefetchData,
-				settings: {
-					htmlOverlayHtml: layer.settings.htmlOverlayHtml || '',
-					htmlOverlayCss: layer.settings.htmlOverlayCss || '',
-					htmlOverlayJs: layer.settings.htmlOverlayJs || '',
-					htmlOverlayDataPollSecondsInterval: layer.settings.htmlOverlayDataPollSecondsInterval || 5,
-					imageUrl: layer.settings.imageUrl || '',
-				},
+				settings: createLayerSettings(layer.settings, t('overlayBuilder.defaults.textContent')),
 			}
 		}),
 	}
@@ -102,8 +100,8 @@ const projectData = computed(() => {
 })
 
 // Handle save from builder
-async function handleSave(project: OverlayProject) {
-	const newId = await saveOverlay(project)
+async function handleSave(project: OverlayProject, options?: { silent?: boolean }) {
+	const newId = await saveOverlay(project, options)
 
 	// If created new overlay, redirect to edit page
 	if (!project.id && newId) {
@@ -136,7 +134,7 @@ onUnmounted(() => {
 			@instant-save="handleInstantSave"
 		/>
 		<div v-else class="flex items-center justify-center w-full h-full">
-			<p class="text-muted-foreground">Loading overlay...</p>
+			<p class="text-muted-foreground">{{ t('overlayBuilder.loading') }}</p>
 		</div>
 	</div>
 </template>

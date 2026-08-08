@@ -16,7 +16,6 @@ import (
 
 	gojson "github.com/goccy/go-json"
 	"github.com/google/uuid"
-	"github.com/guregu/null"
 	"github.com/raitonoberu/ytsearch"
 	"github.com/samber/lo"
 	loParallel "github.com/samber/lo/parallel"
@@ -29,12 +28,13 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/libs/audit"
 	"github.com/twirapp/twir/libs/bus-core/api"
+	"github.com/twirapp/twir/libs/entities/song_request_mode"
 	songrequestoverlaysettingsentity "github.com/twirapp/twir/libs/entities/song_request_overlay_settings"
-	model "github.com/twirapp/twir/libs/gomodels"
+	songrequestssettingsentity "github.com/twirapp/twir/libs/entities/song_requests_settings"
 	"github.com/twirapp/twir/libs/logger"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
-	"gorm.io/gorm"
 )
 
 // SongRequestsUpdate is the resolver for the songRequestsUpdate field.
@@ -49,27 +49,20 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		return false, gqlerrors.HandleError(err)
 	}
 
-	entity := model.ChannelSongRequestsSettings{
-		ChannelID: dashboardId,
-	}
-	err = r.deps.Gorm.WithContext(ctx).Where(
-		`"channel_id" = ?`,
-		dashboardId,
-	).FirstOrCreate(&entity).Error
+	dashboardUUID, err := uuid.Parse(dashboardId)
 	if err != nil {
-		return false, fmt.Errorf("failed to update song requests settings: %w", err)
+		return false, gqlerrors.HandleError(fmt.Errorf("invalid dashboard id: %w", err))
 	}
 
-	oldEntity := entity
-	entity = model.ChannelSongRequestsSettings{
-		ID:                                   entity.ID,
-		ChannelID:                            dashboardId,
+	settings := songrequestssettingsentity.Settings{
+		ChannelID:                            dashboardUUID,
+		Mode:                                 song_request_mode.Mode(opts.Mode),
 		Enabled:                              opts.Enabled,
 		AcceptOnlyWhenOnline:                 opts.AcceptOnlyWhenOnline,
 		PlayerNoCookieMode:                   opts.PlayerNoCookieMode,
 		TakeSongFromDonationMessage:          opts.TakeSongFromDonationMessages,
 		MaxRequests:                          opts.MaxRequests,
-		ChannelPointsRewardID:                null.StringFromPtr(opts.ChannelPointsRewardID.Value()),
+		ChannelPointsRewardID:                opts.ChannelPointsRewardID.Value(),
 		AnnouncePlay:                         opts.AnnouncePlay,
 		NeededVotesForSkip:                   float64(opts.NeededVotesForSkip),
 		UserMaxRequests:                      opts.User.MaxRequests,
@@ -80,7 +73,6 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		SongMaxLength:                        opts.Song.MaxLength,
 		SongMinViews:                         opts.Song.MinViews,
 		SongAcceptedCategories:               opts.Song.AcceptedCategories,
-		SongWordsDenyList:                    opts.DenyList.Words,
 		DenyListUsers:                        opts.DenyList.Users,
 		DenyListSongs:                        opts.DenyList.Songs,
 		DenyListChannels:                     opts.DenyList.Channels,
@@ -110,9 +102,9 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		Volume:                               opts.Volume,
 	}
 
-	err = r.deps.Gorm.WithContext(ctx).Save(&entity).Error
+	oldSettings, newSettings, err := r.deps.SongRequestsService.UpsertSettings(ctx, settings)
 	if err != nil {
-		return false, fmt.Errorf("failed to update song requests settings: %w", err)
+		return false, gqlerrors.HandleError(err)
 	}
 
 	_ = r.deps.AuditRecorder.RecordUpdateOperation(
@@ -122,10 +114,10 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 				System:    mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelSongRequests),
 				ActorID:   lo.ToPtr(user.ID),
 				ChannelID: lo.ToPtr(dashboardId),
-				ObjectID:  &entity.ID,
+				ObjectID:  lo.ToPtr(newSettings.ID.String()),
 			},
-			NewValue: entity,
-			OldValue: oldEntity,
+			NewValue: newSettings,
+			OldValue: oldSettings,
 		},
 	)
 
@@ -138,12 +130,14 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 
 // SongRequestPlay is the resolver for the songRequestPlay field.
 func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.UUID, videoID string) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
-	var song model.RequestedSong
-	if err := r.deps.Gorm.WithContext(ctx).
-		Where(`"videoId" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, videoID, channelIDStr).
-		First(&song).Error; err != nil {
+	song, err := r.deps.SongRequestsService.GetSongByVideoID(ctx, channelIDStr, videoID)
+	if err != nil {
 		return false, gqlerrors.HandleError(fmt.Errorf("song not found: %w", err))
 	}
 
@@ -153,24 +147,37 @@ func (r *mutationResolver) SongRequestPlay(ctx context.Context, channelID uuid.U
 		return true, nil
 	}
 
+	// Resume from pause must not trigger a new "now playing" announcement
+	isNewTrack := currentState == nil || currentState.VideoID != videoID
+
 	// If resuming from pause, keep paused position
 	var position float64
 	if currentState != nil && currentState.VideoID == videoID {
 		position = currentState.Position
 	}
 
-	volume := getSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr)
+	volume := r.deps.SongRequestsService.GetVolume(ctx, channelIDStr)
 	if err := r.deps.SongRequestPlaybackStateService.SetPlaying(ctx, channelIDStr, videoID, song.Title, position, volume); err != nil {
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to set playing: %w", err))
 	}
 
 	r.deps.SongRequestPlaybackStateService.PublishState(ctx, channelIDStr)
 
+	if isNewTrack {
+		if err := r.deps.SongRequestsService.AnnounceNowPlaying(ctx, channelIDStr, song); err != nil {
+			r.deps.Logger.Error("failed to announce now playing song", slog.Any("error", err))
+		}
+	}
+
 	return true, nil
 }
 
 // SongRequestPause is the resolver for the songRequestPause field.
 func (r *mutationResolver) SongRequestPause(ctx context.Context, channelID uuid.UUID) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	if err := r.deps.SongRequestPlaybackStateService.SetPaused(ctx, channelIDStr); err != nil {
@@ -184,45 +191,29 @@ func (r *mutationResolver) SongRequestPause(ctx context.Context, channelID uuid.
 
 // SongRequestSkip is the resolver for the songRequestSkip field.
 func (r *mutationResolver) SongRequestSkip(ctx context.Context, channelID uuid.UUID) (bool, error) {
-	channelIDStr := channelID.String()
-
-	state, err := r.deps.SongRequestPlaybackStateService.GetState(ctx, channelIDStr)
-	if err != nil {
-		return false, gqlerrors.HandleError(fmt.Errorf("failed to get state: %w", err))
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
 	}
 
-	if state != nil {
-		now := time.Now()
-		if err := r.deps.Gorm.WithContext(ctx).
-			Model(&model.RequestedSong{}).
-			Where(`"videoId" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, state.VideoID, channelIDStr).
-			Update("deletedAt", now).Error; err != nil {
-			return false, gqlerrors.HandleError(fmt.Errorf("failed to soft-delete song: %w", err))
-		}
-
-		_ = r.deps.TwirBus.Api.SongRequestRemoveFromQueue.Publish(ctx, api.SongRequestRemoveFromQueue{
-			ChannelID: channelIDStr,
-			VideoID:   state.VideoID,
-		})
+	if err := r.deps.SongRequestsService.Skip(ctx, channelID.String()); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to skip: %w", err))
 	}
-
-	if err := r.deps.SongRequestPlaybackStateService.ClearState(ctx, channelIDStr); err != nil {
-		return false, gqlerrors.HandleError(fmt.Errorf("failed to clear state: %w", err))
-	}
-
-	r.deps.SongRequestPlaybackStateService.PublishClearedState(channelIDStr)
 
 	return true, nil
 }
 
 // SongRequestSetVolume is the resolver for the songRequestSetVolume field.
 func (r *mutationResolver) SongRequestSetVolume(ctx context.Context, channelID uuid.UUID, volume int) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 	if volume < 0 || volume > 100 {
 		return false, gqlerrors.HandleError(fmt.Errorf("volume must be between 0 and 100"))
 	}
 
-	if err := saveSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr, volume); err != nil {
+	if err := r.deps.SongRequestsService.SetVolume(ctx, channelIDStr, volume); err != nil {
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to save volume setting: %w", err))
 	}
 
@@ -237,6 +228,10 @@ func (r *mutationResolver) SongRequestSetVolume(ctx context.Context, channelID u
 
 // SongRequestUpdatePosition is the resolver for the songRequestUpdatePosition field.
 func (r *mutationResolver) SongRequestUpdatePosition(ctx context.Context, channelID uuid.UUID, position float64) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
 	if err := r.deps.SongRequestPlaybackStateService.UpdatePosition(ctx, channelIDStr, position); err != nil {
@@ -250,61 +245,45 @@ func (r *mutationResolver) SongRequestUpdatePosition(ctx context.Context, channe
 
 // SongRequestReorder is the resolver for the songRequestReorder field.
 func (r *mutationResolver) SongRequestReorder(ctx context.Context, channelID uuid.UUID, videoIds []string) (bool, error) {
-	channelIDStr := channelID.String()
-
-	for i, videoID := range videoIds {
-		if err := r.deps.Gorm.WithContext(ctx).
-			Model(&model.RequestedSong{}).
-			Where(`"videoId" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, videoID, channelIDStr).
-			Update("queuePosition", i).Error; err != nil {
-			return false, gqlerrors.HandleError(fmt.Errorf("failed to reorder song %s: %w", videoID, err))
-		}
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
 	}
 
-	_ = r.deps.TwirBus.Api.SongRequestAddToQueue.Publish(ctx, api.SongRequestAddToQueue{
-		ChannelID: channelIDStr,
-	})
+	channelIDStr := channelID.String()
+
+	if err := r.deps.SongRequestsService.ReorderQueue(ctx, channelIDStr, videoIds); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to reorder queue: %w", err))
+	}
 
 	return true, nil
 }
 
 // SongRequestDeleteFromQueue is the resolver for the songRequestDeleteFromQueue field.
 func (r *mutationResolver) SongRequestDeleteFromQueue(ctx context.Context, channelID uuid.UUID, videoID string) (bool, error) {
-	channelIDStr := channelID.String()
-
-	now := time.Now()
-	if err := r.deps.Gorm.WithContext(ctx).
-		Model(&model.RequestedSong{}).
-		Where(`"videoId" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, videoID, channelIDStr).
-		Update("deletedAt", now).Error; err != nil {
-		return false, gqlerrors.HandleError(fmt.Errorf("failed to delete from queue: %w", err))
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
 	}
 
-	_ = r.deps.TwirBus.Api.SongRequestRemoveFromQueue.Publish(ctx, api.SongRequestRemoveFromQueue{
-		ChannelID: channelIDStr,
-		VideoID:   videoID,
-	})
+	channelIDStr := channelID.String()
+
+	if err := r.deps.SongRequestsService.DeleteFromQueue(ctx, channelIDStr, videoID); err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("failed to delete from queue: %w", err))
+	}
 
 	return true, nil
 }
 
 // SongRequestClearQueue is the resolver for the songRequestClearQueue field.
 func (r *mutationResolver) SongRequestClearQueue(ctx context.Context, channelID uuid.UUID) (bool, error) {
+	if err := r.ensureSongRequestsChannelAccess(ctx, channelID); err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	channelIDStr := channelID.String()
 
-	now := time.Now()
-	if err := r.deps.Gorm.WithContext(ctx).
-		Model(&model.RequestedSong{}).
-		Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelIDStr).
-		Update("deletedAt", now).Error; err != nil {
+	if err := r.deps.SongRequestsService.ClearQueue(ctx, channelIDStr); err != nil {
 		return false, gqlerrors.HandleError(fmt.Errorf("failed to clear queue: %w", err))
 	}
-
-	if err := r.deps.SongRequestPlaybackStateService.ClearState(ctx, channelIDStr); err != nil {
-		return false, gqlerrors.HandleError(fmt.Errorf("failed to clear playback state: %w", err))
-	}
-
-	r.deps.SongRequestPlaybackStateService.PublishClearedState(channelIDStr)
 
 	return true, nil
 }
@@ -336,6 +315,26 @@ func (r *mutationResolver) SongRequestOverlaySettingsUpdate(ctx context.Context,
 	return &mapped, nil
 }
 
+// SpotifySongRequestSelectDevice is the resolver for the spotifySongRequestSelectDevice field.
+func (r *mutationResolver) SpotifySongRequestSelectDevice(ctx context.Context, deviceID string) (bool, error) {
+	return r.spotifySongRequestSelectDevice(ctx, deviceID)
+}
+
+// SpotifySongRequestRefreshDevice is the resolver for the spotifySongRequestRefreshDevice field.
+func (r *mutationResolver) SpotifySongRequestRefreshDevice(ctx context.Context) (*gqlmodel.SpotifySongRequestDevice, error) {
+	return r.spotifySongRequestRefreshDevice(ctx)
+}
+
+// SpotifySongRequestSkip is the resolver for the spotifySongRequestSkip field.
+func (r *mutationResolver) SpotifySongRequestSkip(ctx context.Context, requestID uuid.UUID) (bool, error) {
+	return r.spotifySongRequestSkip(ctx, requestID)
+}
+
+// SpotifySongRequestCancel is the resolver for the spotifySongRequestCancel field.
+func (r *mutationResolver) SpotifySongRequestCancel(ctx context.Context, requestID uuid.UUID) (bool, error) {
+	return r.spotifySongRequestCancel(ctx, requestID)
+}
+
 // SongRequests is the resolver for the songRequests field.
 func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequestsSettings, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
@@ -343,12 +342,12 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	entity := model.ChannelSongRequestsSettings{}
-	err = r.deps.Gorm.WithContext(ctx).Where(`"channel_id" = ?`, dashboardId).First(&entity).Error
+	settings, err := r.deps.SongRequestsService.GetSettings(ctx, dashboardId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, songrequestssettingsrepository.ErrNotFound) {
 			return nil, nil
 		}
+
 		return nil, fmt.Errorf("failed to get song requests settings: %w", err)
 	}
 
@@ -368,64 +367,65 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 	}
 
 	return &gqlmodel.SongRequestsSettings{
-		Enabled:               entity.Enabled,
-		AcceptOnlyWhenOnline:  entity.AcceptOnlyWhenOnline,
-		MaxRequests:           entity.MaxRequests,
-		ChannelPointsRewardID: entity.ChannelPointsRewardID.Ptr(),
-		AnnouncePlay:          entity.AnnouncePlay,
-		NeededVotesForSkip:    int(entity.NeededVotesForSkip),
+		Mode:                  gqlmodel.SongRequestMode(settings.Mode),
+		Enabled:               settings.Enabled,
+		AcceptOnlyWhenOnline:  settings.AcceptOnlyWhenOnline,
+		MaxRequests:           settings.MaxRequests,
+		ChannelPointsRewardID: settings.ChannelPointsRewardID,
+		AnnouncePlay:          settings.AnnouncePlay,
+		NeededVotesForSkip:    int(settings.NeededVotesForSkip),
 		User: &gqlmodel.SongRequestsUserSettings{
-			MaxRequests:   entity.UserMaxRequests,
-			MinWatchTime:  int(entity.UserMinWatchTime),
-			MinMessages:   entity.UserMinMessages,
-			MinFollowTime: entity.UserMinFollowTime,
+			MaxRequests:   settings.UserMaxRequests,
+			MinWatchTime:  int(settings.UserMinWatchTime),
+			MinMessages:   settings.UserMinMessages,
+			MinFollowTime: settings.UserMinFollowTime,
 		},
 		Song: &gqlmodel.SongRequestsSongSettings{
-			MinLength:          entity.SongMinLength,
-			MaxLength:          entity.SongMaxLength,
-			MinViews:           entity.SongMinViews,
-			AcceptedCategories: entity.SongAcceptedCategories,
+			MinLength:          settings.SongMinLength,
+			MaxLength:          settings.SongMaxLength,
+			MinViews:           settings.SongMinViews,
+			AcceptedCategories: settings.SongAcceptedCategories,
 		},
 		DenyList: &gqlmodel.SongRequestsDenyList{
-			Users:        entity.DenyListUsers,
-			Songs:        entity.DenyListSongs,
-			Channels:     entity.DenyListChannels,
-			ArtistsNames: entity.DenyListArtistsNames,
-			Words:        entity.DenyListWords,
+			Users:        settings.DenyListUsers,
+			Songs:        settings.DenyListSongs,
+			Channels:     settings.DenyListChannels,
+			ArtistsNames: settings.DenyListArtistsNames,
+			Words:        settings.DenyListWords,
 		},
 		Translations: &gqlmodel.SongRequestsTranslations{
-			NowPlaying:           entity.TranslationsNowPlaying,
-			NotEnabled:           entity.TranslationsNotEnabled,
-			NoText:               entity.TranslationsNoText,
-			AcceptOnlyWhenOnline: entity.TranslationsAcceptOnlineWhenOnline,
+			NowPlaying:           settings.TranslationsNowPlaying,
+			NotEnabled:           settings.TranslationsNotEnabled,
+			NoText:               settings.TranslationsNoText,
+			AcceptOnlyWhenOnline: settings.TranslationsAcceptOnlineWhenOnline,
 			User: &gqlmodel.SongRequestsUserTranslations{
-				Denied:      entity.TranslationsUserDenied,
-				MaxRequests: entity.TranslationsUserMaxRequests,
-				MinMessages: entity.TranslationsUserMinMessages,
-				MinWatched:  entity.TranslationsUserMinWatched,
-				MinFollow:   entity.TranslationsUserMinFollow,
+				Denied:      settings.TranslationsUserDenied,
+				MaxRequests: settings.TranslationsUserMaxRequests,
+				MinMessages: settings.TranslationsUserMinMessages,
+				MinWatched:  settings.TranslationsUserMinWatched,
+				MinFollow:   settings.TranslationsUserMinFollow,
 			},
 			Song: &gqlmodel.SongRequestsSongTranslations{
-				Denied:               entity.TranslationsSongDenied,
-				NotFound:             entity.TranslationsSongNotFound,
-				AlreadyInQueue:       entity.TranslationsSongAlreadyInQueue,
-				AgeRestrictions:      entity.TranslationsSongAgeRestrictions,
-				CannotGetInformation: entity.TranslationsSongCannotGetInformation,
-				Live:                 entity.TranslationsSongLive,
-				MaxLength:            entity.TranslationsSongMaxLength,
-				MinLength:            entity.TranslationsSongMinLength,
-				RequestedMessage:     entity.TranslationsSongRequestedMessage,
-				MaximumOrdered:       entity.TranslationsSongMaximumOrdered,
-				MinViews:             entity.TranslationsSongMinViews,
+				Denied:               settings.TranslationsSongDenied,
+				NotFound:             settings.TranslationsSongNotFound,
+				AlreadyInQueue:       settings.TranslationsSongAlreadyInQueue,
+				AgeRestrictions:      settings.TranslationsSongAgeRestrictions,
+				CannotGetInformation: settings.TranslationsSongCannotGetInformation,
+				Live:                 settings.TranslationsSongLive,
+				MaxLength:            settings.TranslationsSongMaxLength,
+				MinLength:            settings.TranslationsSongMinLength,
+				RequestedMessage:     settings.TranslationsSongRequestedMessage,
+				MaximumOrdered:       settings.TranslationsSongMaximumOrdered,
+				MinViews:             settings.TranslationsSongMinViews,
 			},
 			Channel: &gqlmodel.SongRequestsChannelTranslations{
-				Denied: entity.TranslationsChannelDenied,
+				Denied: settings.TranslationsChannelDenied,
 			},
 		},
-		TakeSongFromDonationMessages: entity.TakeSongFromDonationMessage,
-		PlayerNoCookieMode:           entity.PlayerNoCookieMode,
+		TakeSongFromDonationMessages: settings.TakeSongFromDonationMessage,
+		PlayerNoCookieMode:           settings.PlayerNoCookieMode,
 		ChannelAPIKey:                channelApiKey,
-		Volume:                       entity.Volume,
+		Volume:                       settings.Volume,
 	}, nil
 }
 
@@ -532,7 +532,7 @@ func (r *queryResolver) SongRequestWidgetData(ctx context.Context, channelID uui
 	if err != nil {
 		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get playback state: %w", err))
 	}
-	settingsVolume := getSongRequestSettingsVolume(ctx, r.deps.Gorm, channelIDStr)
+	settingsVolume := r.deps.SongRequestsService.GetVolume(ctx, channelIDStr)
 
 	var gqlPlaybackState *gqlmodel.SongRequestPlaybackState
 	if playbackState != nil {
@@ -546,28 +546,20 @@ func (r *queryResolver) SongRequestWidgetData(ctx context.Context, channelID uui
 		}
 	}
 
-	var queue []model.RequestedSong
-	if err := r.deps.Gorm.WithContext(ctx).
-		Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelIDStr).
-		Order(`"queuePosition" asc`).
-		Find(&queue).Error; err != nil {
+	queue, err := r.deps.SongRequestsService.GetQueue(ctx, channelIDStr)
+	if err != nil {
 		return nil, gqlerrors.HandleError(fmt.Errorf("failed to get queue: %w", err))
 	}
 
 	gqlQueue := make([]gqlmodel.SongRequestQueueItem, 0, len(queue))
 	for _, song := range queue {
-		songLink := fmt.Sprintf("https://youtu.be/%s", song.VideoID)
-		if song.SongLink.Valid {
-			songLink = song.SongLink.String
-		}
-
 		gqlQueue = append(gqlQueue, gqlmodel.SongRequestQueueItem{
-			ID:                   song.VideoID,
+			ID:                   song.ID,
 			Title:                song.Title,
-			SongLink:             songLink,
-			DurationSeconds:      int(song.Duration),
+			SongLink:             song.SongLink,
+			DurationSeconds:      song.DurationSeconds,
 			OrderedByName:        song.OrderedByName,
-			OrderedByDisplayName: song.OrderedByDisplayName.String,
+			OrderedByDisplayName: song.OrderedByDisplayName,
 			QueuePosition:        song.QueuePosition,
 			CreatedAt:            song.CreatedAt,
 		})
@@ -603,6 +595,7 @@ func (r *queryResolver) ChannelByAPIKey(ctx context.Context, apiKey string) (*gq
 	if user.IsNil() {
 		return nil, nil
 	}
+	r.deps.Logger.WarnContext(ctx, "user API key is deprecated, use channel API key")
 
 	channel, err = r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
 	if err != nil {
@@ -634,9 +627,24 @@ func (r *queryResolver) SongRequestOverlaySettings(ctx context.Context) (*gqlmod
 	return &mapped, nil
 }
 
+// SpotifySongRequestsQueue is the resolver for the spotifySongRequestsQueue field.
+func (r *queryResolver) SpotifySongRequestsQueue(ctx context.Context) (*gqlmodel.SpotifySongRequestQueue, error) {
+	return r.spotifySongRequestsQueue(ctx)
+}
+
+// SpotifySongRequestsSearch is the resolver for the spotifySongRequestsSearch field.
+func (r *queryResolver) SpotifySongRequestsSearch(ctx context.Context, query string, limit *int) ([]gqlmodel.SpotifySongRequestSearchResult, error) {
+	return r.spotifySongRequestsSearch(ctx, query, limit)
+}
+
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *songRequestPublicResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.SongRequestPublic) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
+}
+
+// SpotifyCapabilities is the resolver for the spotifyCapabilities field.
+func (r *songRequestsSettingsResolver) SpotifyCapabilities(ctx context.Context, obj *gqlmodel.SongRequestsSettings) (*gqlmodel.SpotifySongRequestCapabilities, error) {
+	return r.spotifyCapabilities(ctx, obj)
 }
 
 // SongRequestPlaybackState is the resolver for the songRequestPlaybackState field.
@@ -729,29 +737,21 @@ func (r *subscriptionResolver) SongRequestQueueUpdated(ctx context.Context, chan
 		}()
 
 		sendQueue := func() {
-			var queue []model.RequestedSong
-			if err := r.deps.Gorm.WithContext(ctx).
-				Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelIDStr).
-				Order(`"queuePosition" asc`).
-				Find(&queue).Error; err != nil {
+			queue, err := r.deps.SongRequestsService.GetQueue(ctx, channelIDStr)
+			if err != nil {
 				r.deps.Logger.Error("failed to get queue", slog.Any("error", err))
 				return
 			}
 
 			gqlQueue := make([]gqlmodel.SongRequestQueueItem, 0, len(queue))
 			for _, song := range queue {
-				songLink := fmt.Sprintf("https://youtu.be/%s", song.VideoID)
-				if song.SongLink.Valid {
-					songLink = song.SongLink.String
-				}
-
 				gqlQueue = append(gqlQueue, gqlmodel.SongRequestQueueItem{
-					ID:                   song.VideoID,
+					ID:                   song.ID,
 					Title:                song.Title,
-					SongLink:             songLink,
-					DurationSeconds:      int(song.Duration),
+					SongLink:             song.SongLink,
+					DurationSeconds:      song.DurationSeconds,
 					OrderedByName:        song.OrderedByName,
-					OrderedByDisplayName: song.OrderedByDisplayName.String,
+					OrderedByDisplayName: song.OrderedByDisplayName,
 					QueuePosition:        song.QueuePosition,
 					CreatedAt:            song.CreatedAt,
 				})
@@ -841,9 +841,20 @@ func (r *subscriptionResolver) SongRequestOverlaySettings(ctx context.Context, a
 	return outputChan, nil
 }
 
+// SpotifySongRequestsQueueUpdated is the resolver for the spotifySongRequestsQueueUpdated field.
+func (r *subscriptionResolver) SpotifySongRequestsQueueUpdated(ctx context.Context, channelID uuid.UUID) (<-chan *gqlmodel.SpotifySongRequestQueue, error) {
+	return r.spotifySongRequestsQueueUpdated(ctx, channelID)
+}
+
 // SongRequestPublic returns graph.SongRequestPublicResolver implementation.
 func (r *Resolver) SongRequestPublic() graph.SongRequestPublicResolver {
 	return &songRequestPublicResolver{r}
 }
 
+// SongRequestsSettings returns graph.SongRequestsSettingsResolver implementation.
+func (r *Resolver) SongRequestsSettings() graph.SongRequestsSettingsResolver {
+	return &songRequestsSettingsResolver{r}
+}
+
 type songRequestPublicResolver struct{ *Resolver }
+type songRequestsSettingsResolver struct{ *Resolver }

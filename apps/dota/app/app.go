@@ -1,8 +1,9 @@
 package app
 
 import (
-	"context"
 	"log/slog"
+
+	"github.com/goforj/wire"
 
 	"github.com/twirapp/twir/apps/dota/internal/buslistener"
 	"github.com/twirapp/twir/apps/dota/internal/chatalerts"
@@ -12,72 +13,73 @@ import (
 	"github.com/twirapp/twir/apps/dota/internal/processor"
 	"github.com/twirapp/twir/apps/dota/internal/stats"
 	"github.com/twirapp/twir/libs/baseapp"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/opendota"
 	"github.com/twirapp/twir/libs/integrations/stratz"
-	"github.com/twirapp/twir/libs/otel"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotarepositorypgx "github.com/twirapp/twir/libs/repositories/dota/pgx"
-	"go.uber.org/fx"
 )
 
-var App = fx.Module(
-	"dota",
-	baseapp.CreateBaseApp(baseapp.Opts{AppName: "dota"}),
-	fx.Provide(
-		fx.Annotate(
-			dotarepositorypgx.NewFx,
-			fx.As(new(dotarepository.Repository)),
-		),
-		fx.Annotate(
-			channelsrepositorypgx.NewFx,
-			fx.As(new(channelsrepository.Repository)),
-		),
-		fx.Annotate(
-			match.NewBusEmitter,
-			fx.As(new(match.EventEmitter)),
-		),
-		func(config cfg.Config) *stratz.Client {
-			return stratz.New(config.DotaStratzToken)
-		},
-		opendota.New,
-		stats.New,
-		func(s *stats.Stats) processor.WinProbabilityProvider { return s },
-		func(s *stats.Stats) buslistener.StatsProvider { return s },
-		match.New,
-		fx.Annotate(
-			processor.New,
-			fx.As(new(gsi.MatchProcessor)),
-		),
-		gsi.New,
-		buslistener.New,
-		fx.Annotate(
-			chatalerts.NewRedisCooldownStore,
-			fx.As(new(chatalerts.CooldownStore)),
-		),
-		chatalerts.New,
-		fx.Annotate(
-			predictions.NewRedisPredictionStore,
-			fx.As(new(predictions.Store)),
-		),
-		predictions.New,
-		predictions.NewLifecycleWorker,
-	),
-	fx.Invoke(
-		otel.NewFx("dota"),
-		func(*buslistener.BusListener) {},
-		func(*chatalerts.ChatAlerts) {},
-		func(*predictions.LifecycleWorker) {},
-		func(s *gsi.Server, lc fx.Lifecycle) {
-			lc.Append(fx.Hook{
-				OnStart: func(_ context.Context) error { return s.Start() },
-				OnStop:  func(ctx context.Context) error { return s.Stop(ctx) },
-			})
-		},
-		func(l *slog.Logger) {
-			l.Info("🤖 Dota service started")
-		},
-	),
+const Service = "dota"
+
+var ProviderSet = wire.NewSet(
+	wire.Value(baseapp.Opts{AppName: Service}),
+	baseapp.ProviderSet,
+	dotarepositorypgx.NewFx,
+	wire.Bind(new(dotarepository.Repository), new(*dotarepositorypgx.Pgx)),
+	channelsrepositorypgx.NewFx,
+	wire.Bind(new(channelsrepository.Repository), new(*channelsrepositorypgx.Pgx)),
+	match.NewBusEmitter,
+	wire.Bind(new(match.EventEmitter), new(*match.BusEmitter)),
+	NewStratzClient,
+	NewOpenDotaClient,
+	stats.New,
+	wire.Bind(new(processor.WinProbabilityProvider), new(*stats.Stats)),
+	wire.Bind(new(buslistener.StatsProvider), new(*stats.Stats)),
+	match.New,
+	processor.New,
+	wire.Bind(new(gsi.MatchProcessor), new(*processor.Processor)),
+	gsi.New,
+	buslistener.New,
+	chatalerts.NewRedisCooldownStore,
+	wire.Bind(new(chatalerts.CooldownStore), new(*chatalerts.RedisCooldownStore)),
+	chatalerts.New,
+	predictions.NewRedisPredictionStore,
+	wire.Bind(new(predictions.Store), new(*predictions.RedisPredictionStore)),
+	predictions.New,
+	predictions.NewLifecycleWorker,
+	NewApplication,
 )
+
+func NewStratzClient(config cfg.Config) *stratz.Client {
+	return stratz.New(config.DotaStratzToken)
+}
+
+// wire cannot inject variadic options; the default client has none.
+func NewOpenDotaClient() *opendota.Client {
+	return opendota.New()
+}
+
+type Application struct {
+	lifecycle *lifecycle.Lifecycle
+}
+
+func NewApplication(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	_ *gsi.Server,
+	_ *buslistener.BusListener,
+	_ *chatalerts.ChatAlerts,
+	_ *predictions.LifecycleWorker,
+) *Application {
+	logger.Info("🤖 Dota service started")
+
+	return &Application{lifecycle: lc}
+}
+
+func (a *Application) Run() error {
+	return a.lifecycle.Run()
+}

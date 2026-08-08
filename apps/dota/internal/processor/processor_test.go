@@ -13,11 +13,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/twirapp/twir/apps/dota/internal/gsi"
 	"github.com/twirapp/twir/apps/dota/internal/match"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	busapi "github.com/twirapp/twir/libs/bus-core/api"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	"github.com/twirapp/twir/libs/repositories/dota/model"
-	"go.uber.org/fx"
 )
 
 type fakeWinProbabilityProvider struct {
@@ -50,14 +50,6 @@ type stagedWinProbabilityProvider struct {
 	probabilities map[int64]float64
 	started       chan int64
 	release       map[int64]chan struct{}
-}
-
-type fakeLifecycle struct {
-	hooks []fx.Hook
-}
-
-func (f *fakeLifecycle) Append(hook fx.Hook) {
-	f.hooks = append(f.hooks, hook)
 }
 
 func (f *blockingWinProbabilityProvider) WinProbability(
@@ -394,7 +386,7 @@ func TestProcessReturnsBeforeBlockedWinProbabilityAndCommitsResult(t *testing.T)
 		release:     make(chan struct{}),
 	}
 	t.Cleanup(provider.Release)
-	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
+	processor := New(sm, provider, slog.Default(), lifecycle.New())
 
 	processDone := make(chan error, 1)
 	go func() {
@@ -429,7 +421,7 @@ func TestProcessCoalescesBlockedWinProbabilityFetches(t *testing.T) {
 		release:     make(chan struct{}),
 	}
 	t.Cleanup(provider.Release)
-	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
+	processor := New(sm, provider, slog.Default(), lifecycle.New())
 	payload := inGamePayload(2005)
 
 	require.NoError(t, processor.Process(context.Background(), channelID, payload))
@@ -458,7 +450,7 @@ func TestProcessRefreshesWinProbabilityAfterProcessingLiveMatch(t *testing.T) {
 		probability: 0.625,
 		callCh:      make(chan int64, 1),
 	}
-	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
+	processor := New(sm, provider, slog.Default(), lifecycle.New())
 	ctx := context.Background()
 
 	require.NoError(t, processor.Process(ctx, channelID, inGamePayload(2001)))
@@ -484,7 +476,7 @@ func TestProcessKeepsGsiAvailableWhenWinProbabilityFails(t *testing.T) {
 		err:    errors.New("stratz unavailable"),
 		callCh: make(chan int64, 1),
 	}
-	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
+	processor := New(sm, provider, slog.Default(), lifecycle.New())
 
 	require.NoError(t, processor.Process(context.Background(), channelID, inGamePayload(2002)))
 	require.Equal(t, int64(2002), waitFor(t, provider.callCh, "win probability request"))
@@ -505,7 +497,7 @@ func TestProcessKeepsStateCommittedWhenRoshanPublicationFails(t *testing.T) {
 		probability: 0.625,
 		callCh:      make(chan int64, 1),
 	}
-	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
+	processor := New(sm, provider, slog.Default(), lifecycle.New())
 	payload := inGamePayload(2003)
 	payload.Events = []gsi.Event{{EventType: "roshan_killed", GameTime: 300}}
 
@@ -520,21 +512,22 @@ func TestProcessKeepsStateCommittedWhenRoshanPublicationFails(t *testing.T) {
 
 func TestOnStopCancelsAndWaitsForWinProbabilityJob(t *testing.T) {
 	sm, _, channelID := newStateMachine()
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	provider := &cancellationBlockingWinProbabilityProvider{
 		started:  make(chan struct{}, 1),
 		canceled: make(chan struct{}, 1),
 		release:  make(chan struct{}),
 	}
 	t.Cleanup(provider.Release)
-	processor := New(sm, provider, slog.Default(), lifecycle)
+	processor := New(sm, provider, slog.Default(), lc)
+	require.NoError(t, lc.Start(context.Background()))
 
 	require.NoError(t, processor.Process(context.Background(), channelID, inGamePayload(2006)))
 	waitFor(t, provider.started, "win probability request to start")
 
 	stopResult := make(chan error, 1)
 	go func() {
-		stopResult <- lifecycle.hooks[0].OnStop(context.Background())
+		stopResult <- lc.Stop(context.Background())
 	}()
 
 	waitFor(t, provider.canceled, "win probability request cancellation")
@@ -546,7 +539,7 @@ func TestOnStopCancelsAndWaitsForWinProbabilityJob(t *testing.T) {
 func TestOnStopSkipsSuccessfulWinProbabilityResultAfterCancellation(t *testing.T) {
 	sm, emitter, channelID := newStateMachine()
 	emitter.stateUpdateCh = make(chan busapi.DotaStateUpdateMessage, 2)
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	provider := &cancellationBlockingWinProbabilityProvider{
 		probability:              0.625,
 		returnSuccessAfterCancel: true,
@@ -555,7 +548,8 @@ func TestOnStopSkipsSuccessfulWinProbabilityResultAfterCancellation(t *testing.T
 		release:                  make(chan struct{}),
 	}
 	t.Cleanup(provider.Release)
-	processor := New(sm, provider, slog.Default(), lifecycle)
+	processor := New(sm, provider, slog.Default(), lc)
+	require.NoError(t, lc.Start(context.Background()))
 
 	require.NoError(t, processor.Process(context.Background(), channelID, inGamePayload(2007)))
 	waitFor(t, emitter.stateUpdateCh, "initial state update")
@@ -563,7 +557,7 @@ func TestOnStopSkipsSuccessfulWinProbabilityResultAfterCancellation(t *testing.T
 
 	stopResult := make(chan error, 1)
 	go func() {
-		stopResult <- lifecycle.hooks[0].OnStop(context.Background())
+		stopResult <- lc.Stop(context.Background())
 	}()
 
 	waitFor(t, provider.canceled, "win probability request cancellation")
@@ -579,12 +573,13 @@ func TestOnStopSkipsSuccessfulWinProbabilityResultAfterCancellation(t *testing.T
 func TestProcessDoesNotScheduleWinProbabilityAfterStop(t *testing.T) {
 	sm, emitter, channelID := newStateMachine()
 	emitter.stateUpdateCh = make(chan busapi.DotaStateUpdateMessage, 3)
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	provider := &fakeWinProbabilityProvider{
 		probability: 0.625,
 		callCh:      make(chan int64, 2),
 	}
-	processor := New(sm, provider, slog.Default(), lifecycle)
+	processor := New(sm, provider, slog.Default(), lc)
+	require.NoError(t, lc.Start(context.Background()))
 
 	require.NoError(t, processor.Process(context.Background(), channelID, inGamePayload(2008)))
 	waitFor(t, emitter.stateUpdateCh, "initial state update")
@@ -592,7 +587,7 @@ func TestProcessDoesNotScheduleWinProbabilityAfterStop(t *testing.T) {
 	waitFor(t, emitter.stateUpdateCh, "initial win probability state update")
 	callsBefore := len(provider.MatchIDs())
 
-	require.NoError(t, lifecycle.hooks[0].OnStop(context.Background()))
+	require.NoError(t, lc.Stop(context.Background()))
 	require.NoError(t, processor.Process(context.Background(), channelID, inGamePayload(2009)))
 	requireNoReceive(t, provider.callCh, "post-stop win probability request")
 	require.Equal(t, callsBefore, len(provider.MatchIDs()))
@@ -612,7 +607,7 @@ func TestProcessDiscardsDelayedWinProbabilityForPreviousMatch(t *testing.T) {
 		started:       make(chan int64, 2),
 		release:       map[int64]chan struct{}{2010: releaseA, 2011: releaseB},
 	}
-	processor := New(sm, provider, slog.Default(), &fakeLifecycle{})
+	processor := New(sm, provider, slog.Default(), lifecycle.New())
 
 	require.NoError(t, processor.Process(context.Background(), channelID, inGamePayload(2010)))
 	waitFor(t, emitter.stateUpdateCh, "match A initial state update")

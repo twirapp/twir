@@ -7,22 +7,15 @@ import (
 
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/integrations/streamelements"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	fx.In
-
-	Config config.Config
-}
-
-func New(opts Opts) (*Service, error) {
+func New(cfg config.Config) (*Service, error) {
 	s := &Service{
-		config: opts.Config,
+		config: cfg,
 	}
 
-	siteBaseUrl, err := url.Parse(opts.Config.SiteBaseUrl)
+	siteBaseUrl, err := url.Parse(cfg.SiteBaseUrl)
 	if err != nil {
 		return nil, err
 	}

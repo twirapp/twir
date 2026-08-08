@@ -24,22 +24,17 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	faceitintegrationentity "github.com/twirapp/twir/libs/entities/faceit_integration"
 	faceitintegration "github.com/twirapp/twir/libs/repositories/faceit_integration"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	FaceitRepository faceitintegration.Repository
-	Config           config.Config
-	KV               kv.KV
-}
-
-func New(opts Opts) *Service {
+func New(
+	faceitRepository faceitintegration.Repository,
+	cfg config.Config,
+	kvClient kv.KV,
+) *Service {
 	return &Service{
-		faceitRepository: opts.FaceitRepository,
-		config:           opts.Config,
-		kv:               opts.KV,
+		faceitRepository: faceitRepository,
+		config:           cfg,
+		kv:               kvClient,
 	}
 }
 

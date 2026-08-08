@@ -1,12 +1,14 @@
 package main
 
-import (
-	"github.com/twirapp/twir/apps/dota/app"
-	"go.uber.org/fx"
-)
+import "log"
 
 func main() {
-	fx.New(
-		app.App,
-	).Run()
+	application, err := initializeApplication()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := application.Run(); err != nil {
+		log.Fatal(err)
+	}
 }

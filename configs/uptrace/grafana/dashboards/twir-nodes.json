@@ -1,0 +1,1443 @@
+{
+	"annotations": {
+		"list": []
+	},
+	"description": "Node-level metrics from node-exporter, grouped by Swarm node.",
+	"editable": true,
+	"graphTooltip": 1,
+	"links": [
+		{
+			"asDropdown": true,
+			"icon": "dashboards",
+			"includeVars": true,
+			"keepTime": true,
+			"tags": ["twir-infra"],
+			"title": "Infra dashboards",
+			"type": "dashboard"
+		},
+		{
+			"icon": "external link",
+			"includeVars": true,
+			"keepTime": true,
+			"tags": [],
+			"targetBlank": true,
+			"title": "Open Uptrace",
+			"type": "link",
+			"url": "https://uptrace.twir.app"
+		}
+	],
+	"panels": [
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "fixed",
+						"fixedColor": "blue"
+					},
+					"decimals": 0,
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "blue",
+								"value": null
+							}
+						]
+					},
+					"unit": "locale"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 0,
+				"y": 0
+			},
+			"id": 1,
+			"options": {
+				"colorMode": "background_solid",
+				"graphMode": "area",
+				"justifyMode": "center",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "count(node_uname_info)",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Nodes online",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"decimals": 1,
+					"mappings": [],
+					"max": 100,
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "orange",
+								"value": 70
+							},
+							{
+								"color": "red",
+								"value": 90
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 5,
+				"x": 4,
+				"y": 0
+			},
+			"id": 2,
+			"options": {
+				"colorMode": "background_solid",
+				"graphMode": "area",
+				"justifyMode": "center",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "avg(clamp(100 * (1 - avg by (service_instance_id) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))), 0, 100))",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Cluster CPU",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"decimals": 1,
+					"mappings": [],
+					"max": 100,
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "orange",
+								"value": 70
+							},
+							{
+								"color": "red",
+								"value": 90
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 5,
+				"x": 9,
+				"y": 0
+			},
+			"id": 3,
+			"options": {
+				"colorMode": "background_solid",
+				"graphMode": "area",
+				"justifyMode": "center",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "100 * (1 - sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes))",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Cluster RAM",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"decimals": 1,
+					"mappings": [],
+					"max": 100,
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "orange",
+								"value": 70
+							},
+							{
+								"color": "red",
+								"value": 90
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 5,
+				"x": 14,
+				"y": 0
+			},
+			"id": 4,
+			"options": {
+				"colorMode": "background_solid",
+				"graphMode": "area",
+				"justifyMode": "center",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "max(100 * (1 - node_filesystem_avail_bytes{mountpoint=~\"^(/host)?/$\"} / node_filesystem_size_bytes{mountpoint=~\"^(/host)?/$\"}))",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Max root disk used",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "fixed",
+						"fixedColor": "purple"
+					},
+					"decimals": 2,
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "purple",
+								"value": null
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 5,
+				"x": 19,
+				"y": 0
+			},
+			"id": 5,
+			"options": {
+				"colorMode": "background_solid",
+				"graphMode": "area",
+				"justifyMode": "center",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "max(node_load5)",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Max load · 5m",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"max": 100,
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "orange",
+								"value": 70
+							},
+							{
+								"color": "red",
+								"value": 90
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 3
+			},
+			"id": 6,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "clamp(100 * (1 - avg by (service_instance_id) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))), 0, 100) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}}",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "CPU usage",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 3
+			},
+			"id": 7,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "node_load5 * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}}",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Load average · 5m",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"max": 100,
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "orange",
+								"value": 70
+							},
+							{
+								"color": "red",
+								"value": 90
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 11
+			},
+			"id": 8,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}}",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Memory used",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							}
+						]
+					},
+					"unit": "bytes"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 11
+			},
+			"id": 9,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}}",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Memory usage",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"max": 100,
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "orange",
+								"value": 70
+							},
+							{
+								"color": "red",
+								"value": 90
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 19
+			},
+			"id": 10,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=~\"^(/host)?/$\"} / node_filesystem_size_bytes{mountpoint=~\"^(/host)?/$\"}) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}}",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Root filesystem used",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							}
+						]
+					},
+					"unit": "Bps"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 19
+			},
+			"id": 11,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "sum by (service_instance_id) (rate(node_disk_read_bytes_total{device!~\"loop.*|ram.*|sr.*\"}[5m])) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}} · read",
+					"range": true,
+					"refId": "A"
+				},
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "sum by (service_instance_id) (rate(node_disk_written_bytes_total{device!~\"loop.*|ram.*|sr.*\"}[5m])) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}} · write",
+					"range": true,
+					"refId": "B"
+				}
+			],
+			"title": "Disk I/O",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							}
+						]
+					},
+					"unit": "iops"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 27
+			},
+			"id": 12,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "sum by (service_instance_id) (rate(node_disk_reads_completed_total{device!~\"loop.*|ram.*|sr.*\"}[5m])) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}} · read",
+					"range": true,
+					"refId": "A"
+				},
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "sum by (service_instance_id) (rate(node_disk_writes_completed_total{device!~\"loop.*|ram.*|sr.*\"}[5m])) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}} · write",
+					"range": true,
+					"refId": "B"
+				}
+			],
+			"title": "Disk IOPS",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							}
+						]
+					},
+					"unit": "Bps"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 27
+			},
+			"id": 13,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "sum by (service_instance_id) (rate(node_network_receive_bytes_total{device!~\"lo|veth.*|docker.*|br-.*|dummy.*\"}[5m])) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}} · rx",
+					"range": true,
+					"refId": "A"
+				},
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "sum by (service_instance_id) (rate(node_network_transmit_bytes_total{device!~\"lo|veth.*|docker.*|br-.*|dummy.*\"}[5m])) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}} · tx",
+					"range": true,
+					"refId": "B"
+				}
+			],
+			"title": "Network throughput",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"max": 100,
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "orange",
+								"value": 70
+							},
+							{
+								"color": "red",
+								"value": 90
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 35
+			},
+			"id": 14,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "100 * (node_filefd_allocated / node_filefd_maximum) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}}",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "File descriptors used",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "uptrace-prometheus"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 25,
+						"gradientMode": "opacity",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "smooth",
+						"lineWidth": 2,
+						"pointSize": 4,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": true,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "line"
+						}
+					},
+					"mappings": [],
+					"max": 100,
+					"min": 0,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green",
+								"value": null
+							},
+							{
+								"color": "orange",
+								"value": 70
+							},
+							{
+								"color": "red",
+								"value": 90
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 35
+			},
+			"id": 15,
+			"options": {
+				"legend": {
+					"calcs": ["lastNotNull", "max"],
+					"displayMode": "table",
+					"placement": "right",
+					"showLegend": true,
+					"width": 330
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "multi",
+					"sort": "desc"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "uptrace-prometheus"
+					},
+					"editorMode": "code",
+					"expr": "100 * node_nf_conntrack_entries / node_nf_conntrack_entries_limit * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\"$node\"} + 1)",
+					"legendFormat": "{{nodename}}",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "Conntrack usage",
+			"type": "timeseries"
+		}
+	],
+	"refresh": "30s",
+	"schemaVersion": 41,
+	"tags": ["twir", "production", "twir-infra", "nodes"],
+	"templating": {
+		"list": [
+			{
+				"current": {
+					"selected": true,
+					"text": ["All"],
+					"value": ["$__all"]
+				},
+				"datasource": {
+					"type": "prometheus",
+					"uid": "uptrace-prometheus"
+				},
+				"definition": "label_values(node_uname_info{nodename=~\".+\"}, nodename)",
+				"includeAll": true,
+				"label": "Node",
+				"multi": true,
+				"name": "node",
+				"options": [],
+				"query": {
+					"qryType": 1,
+					"query": "label_values(node_uname_info{nodename=~\".+\"}, nodename)",
+					"refId": "PrometheusVariableQueryEditor-VariableQuery"
+				},
+				"refresh": 2,
+				"regex": "",
+				"sort": 1,
+				"type": "query"
+			}
+		]
+	},
+	"time": {
+		"from": "now-24h",
+		"to": "now"
+	},
+	"timepicker": {},
+	"timezone": "browser",
+	"title": "Twir Nodes",
+	"uid": "twir-nodes",
+	"version": 1
+}

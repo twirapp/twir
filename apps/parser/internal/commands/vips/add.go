@@ -32,6 +32,7 @@ var Add = &types.DefaultCommand{
 		Visible: true,
 		IsReply: true,
 	},
+	Platforms:         []platformentity.Platform{platformentity.PlatformTwitch},
 	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.String{

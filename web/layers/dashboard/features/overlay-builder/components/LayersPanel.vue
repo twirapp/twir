@@ -1,24 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { toRef } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-} from '@/components/ui/accordion'
+import type { ChannelOverlayLayerType } from '~/gql/graphql.js'
 
-import LayerPropertiesInline from './LayerPropertiesInline.vue'
 import type { Layer } from '../types'
+import { getLayerTypeMeta } from '../layer-type-meta'
+import { useLayersPanel } from '../composables/useLayersPanel'
 
 interface Props {
 	layers: Layer[]
@@ -26,244 +18,140 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	select: [layerId: string, addToSelection: boolean]
 	toggleVisibility: [layerId: string]
 	toggleLock: [layerId: string]
-	duplicate: [layerId: string]
-	remove: [layerId: string]
-	moveUp: [layerId: string]
-	moveDown: [layerId: string]
 	reorder: [layers: Layer[]]
-	addLayer: []
+	addLayer: [type: ChannelOverlayLayerType]
 	updateLayerProperties: [layerId: string, updates: Partial<Layer>]
-	openCodeEditor: []
 }>()
 
-// Reverse layers for display (top layer shown first)
-const displayLayers = ref<Layer[]>([])
-
-// Track expanded accordion items
-const expandedLayerId = ref<string>()
-
-// Watch for prop changes and update local ref
-watch(() => props.layers, (newLayers) => {
-	displayLayers.value = [...newLayers].reverse()
-}, { immediate: true, deep: true })
-
-
-
-// Handle reordering when drag ends
-function handleReorder() {
-	// Reverse back to original order before emitting
-	const newOrder = [...displayLayers.value].reverse()
-	emit('reorder', newOrder)
-}
-
-function handleLayerClick(layerId: string, event: MouseEvent) {
-	const addToSelection = event.ctrlKey || event.metaKey
-	const wasSelected = isLayerSelected(layerId)
-
-	emit('select', layerId, addToSelection)
-
-	// Toggle accordion: close if already open and selected, open if not
-	if (wasSelected && expandedLayerId.value === layerId) {
-		expandedLayerId.value = undefined
-	} else if (!addToSelection) {
-		expandedLayerId.value = layerId
-	}
-}
-
-function isLayerSelected(layerId: string) {
-	return props.selectedLayerIds.includes(layerId)
-}
-
-function getLayerTypeIcon(type: string): string {
-	switch (type) {
-		case 'HTML':
-			return '🌐'
-		default:
-			return '📄'
-	}
-}
+const {
+	displayLayers,
+	isAddPopoverOpen,
+	layerTypeOptions,
+	handleAddLayerType,
+	handleReorder,
+	handleLayerClick,
+	isLayerSelected,
+	renameDraft,
+	renamingLayerId,
+	startRename,
+	commitRename,
+	cancelRename,
+} = useLayersPanel(
+	toRef(props, 'layers'),
+	toRef(props, 'selectedLayerIds'),
+	(layerId, addToSelection) => emit('select', layerId, addToSelection),
+	(type) => emit('addLayer', type),
+	(layers) => emit('reorder', layers),
+	(layerId, updates) => emit('updateLayerProperties', layerId, updates),
+)
 </script>
 
 <template>
-	<Card class="h-full flex flex-col border-0 p-0">
-		<div class="border-b p-2 flex flex-row items-center justify-between space-y-0">
-			<CardTitle class="text-sm font-medium">Layers</CardTitle>
-			<Button
-				variant="default"
-				size="sm"
-				class="h-7 text-xs"
-				@click="emit('addLayer')"
-			>
-				<Icon name="lucide:plus" class="h-3 w-3 mr-1" />
-				Add
-			</Button>
+	<Card class="flex h-full flex-col border-0 p-0">
+		<div class="flex items-center justify-between border-b p-2">
+			<div class="flex items-center gap-2">
+					<CardTitle class="text-sm font-medium">{{ t('overlayBuilder.layers.title') }}</CardTitle>
+				<span class="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+					{{ layers.length }}
+				</span>
+			</div>
+			<Popover v-model:open="isAddPopoverOpen">
+				<PopoverTrigger as-child>
+					<Button size="sm" class="h-7 gap-1 bg-emerald-600 px-2.5 text-xs font-medium text-white hover:bg-emerald-500">
+						<Icon name="lucide:plus" class="h-3.5 w-3.5" />
+						{{ t('overlayBuilder.layers.add') }}
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent align="end" class="w-80 p-2">
+					<div class="grid grid-cols-2 gap-1">
+						<button
+							v-for="option in layerTypeOptions"
+							:key="option.type"
+							type="button"
+							class="hover:bg-accent flex flex-col items-start gap-1 rounded-md p-2 text-left transition-colors"
+							@click="handleAddLayerType(option.type)"
+						>
+							<div class="flex items-center gap-1.5">
+								<Icon :name="option.icon" class="h-4 w-4 shrink-0" />
+								<span class="text-sm font-medium">{{ t(option.labelKey) }}</span>
+							</div>
+							<p class="text-muted-foreground text-xs">{{ t(option.descriptionKey) }}</p>
+						</button>
+					</div>
+				</PopoverContent>
+			</Popover>
 		</div>
-		<CardContent class="flex-1 p-0 overflow-hidden">
+		<CardContent class="flex-1 overflow-hidden p-0">
 			<ScrollArea class="h-full">
 				<div v-if="layers.length === 0" class="p-8 text-center text-muted-foreground">
-					<p class="text-sm">No layers yet</p>
-					<p class="text-xs mt-1">Click "Add Layer" to get started</p>
+					<p class="text-sm">{{ t('overlayBuilder.layers.empty') }}</p>
+					<p class="mt-1 text-xs">{{ t('overlayBuilder.layers.emptyHint') }}</p>
 				</div>
 				<VueDraggable
 					v-if="displayLayers.length > 0"
 					v-model="displayLayers"
 					:animation="150"
-					handle=".drag-handle"
+					:filter="'input, button'"
+					:prevent-on-filter="false"
 					ghost-class="opacity-30"
-					class="p-2 space-y-1"
+					class="space-y-0.5 p-1.5"
 					@end="handleReorder"
 				>
-					<Accordion
+					<div
 						v-for="layer in displayLayers"
+						:id="`layer-row-${layer.id}`"
 						:key="layer.id"
-						type="single"
-						collapsible
-						:model-value="expandedLayerId === layer.id ? layer.id : undefined"
-						class="layer-item"
+						class="group flex h-8 cursor-pointer items-center gap-2 rounded-md px-1.5 transition-colors"
+						:class="[
+							isLayerSelected(layer.id)
+								? 'bg-emerald-500/10 text-emerald-700 shadow-[inset_2px_0_0_#10b981] hover:bg-emerald-500/[0.13] dark:text-emerald-300'
+								: 'text-foreground hover:bg-accent/70',
+							{ 'opacity-50': !layer.visible },
+						]"
+						@click="handleLayerClick(layer.id, $event)"
 					>
-						<AccordionItem :value="layer.id" class="border-0">
-							<div class="relative group">
-								<div
-									class="flex items-center gap-2 px-2 py-2 rounded-md border transition-all"
-									:class="{
-										'bg-accent border-primary': isLayerSelected(layer.id),
-										'hover:bg-accent/50': !isLayerSelected(layer.id) && !layer.locked,
-										'opacity-50': !layer.visible || layer.locked,
-									}"
-								>
-									<!-- Drag Handle -->
-									<div class="drag-handle cursor-grab active:cursor-grabbing">
-										<Icon name="lucide:grip-vertical" class="h-4 w-4 text-muted-foreground" />
-									</div>
+						<span class="inline-flex size-[22px] flex-none items-center justify-center rounded-md" :class="getLayerTypeMeta(layer.type).chipClass">
+							<Icon :name="getLayerTypeMeta(layer.type).icon" class="h-3.5 w-3.5" />
+						</span>
 
-									<!-- Layer Type Icon -->
-									<span
-										class="text-lg select-none cursor-pointer"
-										@click="handleLayerClick(layer.id, $event)"
-									>
-										{{ getLayerTypeIcon(layer.type) }}
-									</span>
+						<input
+							v-if="renamingLayerId === layer.id"
+							id="layer-rename-input"
+							v-model="renameDraft"
+							type="text"
+							class="h-5 min-w-0 flex-1 rounded border border-emerald-500/70 bg-background px-1 text-xs text-foreground outline-none ring-2 ring-emerald-500/15"
+							@click.stop
+							@dblclick.stop
+							@keydown.stop
+							@keydown.enter.prevent="commitRename"
+							@keydown.esc.prevent="cancelRename"
+							@blur="commitRename"
+						/>
+						<span v-else class="min-w-0 flex-1 select-none truncate text-xs" @dblclick.stop="startRename(layer)">{{ layer.name }}</span>
 
-									<!-- Layer Name -->
-									<div
-										class="flex-1 min-w-0 cursor-pointer"
-										@click="handleLayerClick(layer.id, $event)"
-									>
-										<p class="text-sm font-medium truncate">{{ layer.name }}</p>
-										<p class="text-xs text-muted-foreground">
-											{{ layer.width }}x{{ layer.height }}
-										</p>
-									</div>
+						<span class="flex flex-none items-center gap-1.5 group-hover:hidden">
+							<span class="text-[10px] tabular-nums text-muted-foreground">{{ layer.width }}×{{ layer.height }}</span>
+							<Icon v-if="layer.locked" name="lucide:lock" class="h-3 w-3 text-muted-foreground/60" />
+							<Icon v-if="!layer.visible" name="lucide:eye-off" class="h-3 w-3 text-muted-foreground" />
+						</span>
 
-									<!-- Actions -->
-									<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-										<!-- Visibility Toggle -->
-										<TooltipProvider>
-											<Tooltip>
-												<TooltipTrigger as-child>
-													<Button
-														variant="ghost"
-														size="icon"
-														class="h-7 w-7"
-														@click.stop="emit('toggleVisibility', layer.id)"
-													>
-														<Icon name="lucide:eye" v-if="layer.visible" class="h-3.5 w-3.5" />
-														<Icon name="lucide:eye-off" v-else class="h-3.5 w-3.5 text-muted-foreground" />
-													</Button>
-												</TooltipTrigger>
-												<TooltipContent>
-													<p>{{ layer.visible ? 'Hide' : 'Show' }}</p>
-												</TooltipContent>
-											</Tooltip>
-										</TooltipProvider>
-
-										<!-- Lock Toggle -->
-										<TooltipProvider>
-											<Tooltip>
-												<TooltipTrigger as-child>
-													<Button
-														variant="ghost"
-														size="icon"
-														class="h-7 w-7"
-														@click.stop="emit('toggleLock', layer.id)"
-													>
-														<Icon name="lucide:lock-open" v-if="!layer.locked" class="h-3.5 w-3.5" />
-														<Icon name="lucide:lock" v-else class="h-3.5 w-3.5 text-muted-foreground" />
-													</Button>
-												</TooltipTrigger>
-												<TooltipContent>
-													<p>{{ layer.locked ? 'Unlock' : 'Lock' }}</p>
-												</TooltipContent>
-											</Tooltip>
-										</TooltipProvider>
-
-										<!-- Duplicate -->
-										<TooltipProvider>
-											<Tooltip>
-												<TooltipTrigger as-child>
-													<Button
-														variant="ghost"
-														size="icon"
-														class="h-7 w-7"
-														@click.stop="emit('duplicate', layer.id)"
-													>
-														<Icon name="lucide:copy" class="h-3.5 w-3.5" />
-													</Button>
-												</TooltipTrigger>
-												<TooltipContent>
-													<p>Duplicate</p>
-												</TooltipContent>
-											</Tooltip>
-										</TooltipProvider>
-
-										<!-- Delete -->
-										<TooltipProvider>
-											<Tooltip>
-												<TooltipTrigger as-child>
-													<Button
-														variant="ghost"
-														size="icon"
-														class="h-7 w-7 text-destructive hover:text-destructive"
-														@click.stop="emit('remove', layer.id)"
-													>
-														<Icon name="lucide:trash2" class="h-3.5 w-3.5" />
-													</Button>
-												</TooltipTrigger>
-												<TooltipContent>
-													<p>Delete</p>
-												</TooltipContent>
-											</Tooltip>
-										</TooltipProvider>
-									</div>
-								</div>
-							</div>
-
-							<!-- Properties in Accordion Content -->
-							<AccordionContent class="pt-2 pb-0">
-								<div class="pl-6 pr-2">
-									<LayerPropertiesInline
-										:layer="layer"
-										@update="emit('updateLayerProperties', layer.id, $event)"
-										@open-code-editor="emit('openCodeEditor')"
-									/>
-								</div>
-							</AccordionContent>
-						</AccordionItem>
-					</Accordion>
+						<span class="hidden flex-none items-center gap-0.5 group-hover:flex">
+							<button type="button" class="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" :title="layer.visible ? t('overlayBuilder.layers.visibility.hide') : t('overlayBuilder.layers.visibility.show')" @click.stop="emit('toggleVisibility', layer.id)">
+								<Icon :name="layer.visible ? 'lucide:eye' : 'lucide:eye-off'" class="h-3.5 w-3.5" />
+							</button>
+							<button type="button" class="inline-flex size-6 items-center justify-center rounded-md transition-colors hover:bg-accent" :class="layer.locked ? 'text-amber-600 hover:text-amber-700 dark:text-amber-400/80 dark:hover:text-amber-300' : 'text-muted-foreground hover:text-foreground'" :title="layer.locked ? t('overlayBuilder.layers.lock.unlock') : t('overlayBuilder.layers.lock.lock')" @click.stop="emit('toggleLock', layer.id)">
+								<Icon :name="layer.locked ? 'lucide:lock' : 'lucide:lock-open'" class="h-3.5 w-3.5" />
+							</button>
+						</span>
+					</div>
 				</VueDraggable>
 			</ScrollArea>
 		</CardContent>
 	</Card>
 </template>
-
-<style scoped>
-.layer-item {
-	position: relative;
-	margin-bottom: 0.25rem;
-}
-</style>

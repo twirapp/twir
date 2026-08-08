@@ -1,0 +1,21 @@
+extend type Query {
+	kickSearchCategories(query: String!): KickSearchCategoriesResponse!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	channelSetStreamInformation(platform: Platform!, categoryId: String, title: String): Boolean!
+		@isAuthenticated
+		@hasAccessToSelectedDashboard
+}
+
+type KickSearchCategoriesResponse {
+	categories: [KickCategory!]!
+}
+
+type KickCategory {
+	id: ID!
+	name: String!
+	thumbnail: String!
+}

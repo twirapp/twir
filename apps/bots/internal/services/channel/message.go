@@ -125,6 +125,11 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 	user, err := s.usersRepo.GetByPlatformID(ctx, platform.PlatformTwitch, twitchUserID)
 	if err != nil {
 		if errors.Is(err, usersmodel.ErrNotFound) {
+			s.logger.Warn(
+				"cannot delete message: twitch user not found",
+				slog.String("twitch_user_id", twitchUserID),
+			)
+
 			return deleteMessageChannel{}, false, nil
 		}
 
@@ -134,6 +139,12 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 	channel, err := s.channelService.GetChannelByBindingUserID(ctx, platform.PlatformTwitch, user.ID)
 	if err != nil {
 		if errors.Is(err, channelsrepository.ErrNotFound) {
+			s.logger.Warn(
+				"cannot delete message: channel not found for user",
+				slog.String("twitch_user_id", twitchUserID),
+				slog.String("user_id", user.ID.String()),
+			)
+
 			return deleteMessageChannel{}, false, nil
 		}
 
@@ -145,6 +156,13 @@ func (s *Service) getDeleteMessageChannel(ctx context.Context, twitchUserID stri
 		return deleteMessageChannel{}, false, fmt.Errorf("parse Twitch bot config: %w", err)
 	}
 	if !found || !twitchBinding.Enabled || twitchBinding.PlatformChannelID == "" || botConfig.BotID == "" {
+		s.logger.Warn(
+			"cannot delete message: channel has no enabled twitch binding with bot",
+			slog.String("twitch_user_id", twitchUserID),
+			slog.Bool("binding_found", found),
+			slog.Bool("binding_enabled", twitchBinding.Enabled),
+		)
+
 		return deleteMessageChannel{}, false, nil
 	}
 

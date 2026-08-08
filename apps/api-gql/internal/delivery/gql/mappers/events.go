@@ -1,11 +1,23 @@
 package mappers
 
 import (
+	"fmt"
+
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-func MapEventToGQL(event entity.Event) gqlmodel.Event {
+func MapEventToGQL(event entity.Event) (gqlmodel.Event, error) {
+	platforms := make([]gqlmodel.Platform, 0, len(event.Platforms))
+	for _, p := range event.Platforms {
+		mappedPlatform, err := EntityPlatformToGraphQL(p)
+		if err != nil {
+			return gqlmodel.Event{}, fmt.Errorf("map event platform: %w", err)
+		}
+
+		platforms = append(platforms, mappedPlatform)
+	}
+
 	operations := make([]gqlmodel.EventOperation, 0, len(event.Operations))
 	for _, op := range event.Operations {
 		filters := make([]gqlmodel.EventOperationFilter, 0, len(op.Filters))
@@ -40,7 +52,7 @@ func MapEventToGQL(event entity.Event) gqlmodel.Event {
 	return gqlmodel.Event{
 		ID:          event.ID,
 		ChannelID:   event.ChannelID,
-		Platforms:   PlatformsToStrings(event.Platforms),
+		Platforms:   platforms,
 		Type:        gqlmodel.EventType(event.Type),
 		RewardID:    event.RewardID,
 		CommandID:   event.CommandID,
@@ -49,5 +61,5 @@ func MapEventToGQL(event entity.Event) gqlmodel.Event {
 		Enabled:     event.Enabled,
 		OnlineOnly:  event.OnlineOnly,
 		Operations:  operations,
-	}
+	}, nil
 }

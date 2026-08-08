@@ -60,7 +60,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.labels.databases != true
+          - node.hostname == traefik-1
       labels:
         - "traefik.enable=true"
         - "traefik.swarm.network=traefik-public"
@@ -116,22 +116,187 @@ services:
         - "traefik.http.routers.twir-nats.service=twir-nats"
         - "traefik.http.services.twir-nats.loadbalancer.server.port=8222"
 
-#  otel-collector:
-#    image: otel/opentelemetry-collector-contrib:0.121.0
-#    user: "0:0"
-#    volumes:
-#      - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
-#      - /var/run/docker.sock:/var/run/docker.sock:ro
-#      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-#    networks:
-#      - twir
-#    deploy:
-#      mode: global
-#      restart_policy:
-#        condition: any
-#        delay: 3s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
+  uptrace:
+    image: uptrace/uptrace:2.1.0-beta.5
+    entrypoint: ["/bin/sh", "/etc/uptrace/entrypoint.sh"]
+    configs:
+      - source: uptrace_config
+        target: /etc/uptrace/config.yml.tmpl
+      - source: uptrace_entrypoint
+        target: /etc/uptrace/entrypoint.sh
+    secrets:
+      - uptrace_dsn
+      - uptrace_service_secret
+      - uptrace_admin_password
+      - uptrace_clickhouse_password
+      - uptrace_postgres_password
+    networks:
+      - twir
+      - traefik-public
+      - cloudflared
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 30
+      placement:
+        constraints:
+          - node.labels.databases != true
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=traefik-public"
+        - "traefik.http.routers.twir-uptrace.rule=Host(`uptrace.twir.app`)"
+        - "traefik.http.routers.twir-uptrace.entrypoints=web"
+        - "traefik.http.routers.twir-uptrace.service=twir-uptrace"
+        - "traefik.http.routers.twir-uptrace.middlewares=gzip,rate-limit"
+        - "traefik.http.services.twir-uptrace.loadbalancer.server.port=80"
+
+  grafana:
+    image: grafana/grafana:12.0.0
+    entrypoint: ["/bin/sh", "/etc/grafana/entrypoint.sh"]
+    environment:
+      GF_PLUGINS_PREINSTALL: grafana-clickhouse-datasource@4.20.0
+    configs:
+      - source: uptrace_grafana_datasource_v2
+        target: /etc/grafana/provisioning/datasources/uptrace.yml
+      - source: uptrace_grafana_dashboard_provider
+        target: /etc/grafana/provisioning/dashboards/twir.yml
+      - source: uptrace_grafana_dashboard_twir_overview_v13
+        target: /etc/grafana/dashboards/twir-overview.json
+      - source: uptrace_grafana_dashboard_nodes
+        target: /etc/grafana/dashboards/twir-nodes.json
+      - source: uptrace_grafana_dashboard_containers
+        target: /etc/grafana/dashboards/twir-containers.json
+      - source: uptrace_grafana_dashboard_swarm
+        target: /etc/grafana/dashboards/twir-swarm.json
+      - source: uptrace_grafana_config
+        target: /etc/grafana/grafana.ini
+      - source: uptrace_grafana_entrypoint_v2
+        target: /etc/grafana/entrypoint.sh
+    secrets:
+      - grafana_admin_password
+      - uptrace_grafana_token
+      - grafana_postgres_password
+      - source: grafana_uptrace_clickhouse_password_v2
+        target: grafana_uptrace_clickhouse_password
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - twir
+      - traefik-public
+      - cloudflared
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      placement:
+        constraints:
+          - node.labels.databases != true
+      resources:
+        limits:
+          memory: 512M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=traefik-public"
+        - "traefik.http.routers.twir-grafana.rule=Host(`grafana.twir.app`)"
+        - "traefik.http.routers.twir-grafana.entrypoints=web"
+        - "traefik.http.routers.twir-grafana.service=twir-grafana"
+        - "traefik.http.routers.twir-grafana.middlewares=gzip,rate-limit"
+        - "traefik.http.services.twir-grafana.loadbalancer.server.port=3000"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.157.0
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    configs:
+      - source: uptrace_otel_collector_config
+        target: /etc/otelcol-contrib/config.yaml
+    secrets:
+      - uptrace_dsn
+    networks:
+      - twir
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 512M
+
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    hostname: "{{.Node.Hostname}}"
+    command:
+      - "--path.rootfs=/host"
+      - "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($$|/)"
+    pid: host
+    volumes:
+      - type: bind
+        source: /
+        target: /host
+        read_only: true
+        bind:
+          propagation: rslave
+    networks:
+      - twir
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      resources:
+        limits:
+          memory: 128M
+
+  cadvisor:
+    image: ghcr.io/google/cadvisor:v0.57.0
+    hostname: "{{.Node.Hostname}}"
+    command:
+      - "--docker_only=true"
+      - "--housekeeping_interval=15s"
+    privileged: true
+    volumes:
+      - type: bind
+        source: /
+        target: /rootfs
+        read_only: true
+      - type: bind
+        source: /var/run
+        target: /var/run
+        read_only: true
+      - type: bind
+        source: /sys
+        target: /sys
+        read_only: true
+      - type: bind
+        source: /var/lib/docker
+        target: /var/lib/docker
+        read_only: true
+    networks:
+      - twir
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      resources:
+        limits:
+          memory: 256M
 
   postgres:
     image: postgres:18.1
@@ -175,7 +340,7 @@ services:
           - node.labels.databases == true
 
   pgdog:
-    image: ghcr.io/pgdogdev/pgdog:v0.1.34
+    image: ghcr.io/pgdogdev/pgdog:v0.1.50
     entrypoint:
       [
         "/bin/sh",
@@ -201,38 +366,6 @@ services:
         order: stop-first
       mode: replicated
       replicas: 3
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-
-  pgbouncer:
-    image: bitnamilegacy/pgbouncer:1.23.1
-    secrets:
-      - twir_postgres_user
-      - twir_postgres_password
-      - twir_postgres_db
-    environment:
-      - POSTGRESQL_HOST=postgres
-      - POSTGRESQL_USERNAME_FILE=/run/secrets/twir_postgres_user
-      - POSTGRESQL_PASSWORD_FILE=/run/secrets/twir_postgres_password
-      - POSTGRESQL_DATABASE_FILE=/run/secrets/twir_postgres_db
-
-      - PGBOUNCER_AUTH_USER=twir
-      - PGBOUNCER_DATABASE=twir
-      - PGBOUNCER_DEFAULT_POOL_SIZE=19
-      - PGBOUNCER_MIN_POOL_SIZE=10
-      - PGBOUNCER_MAX_CLIENT_CONN=4000
-      - PGBOUNCER_POOL_MODE=transaction
-    networks:
-      - twir
-    deploy:
-      update_config:
-        parallelism: 2
-        order: start-first
-      mode: replicated
-      replicas: 5
       restart_policy:
         condition: any
         delay: 30s
@@ -272,6 +405,138 @@ services:
       - SYS_NICE
       - NET_ADMIN
       - IPC_LOCK
+
+  uptrace-clickhouse:
+    image: clickhouse/clickhouse-server:26.3
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'export CLICKHOUSE_PASSWORD="$$(tr -d ''\r\n'' < /run/secrets/uptrace_clickhouse_password)"; exec /entrypoint.sh'
+    environment:
+      CLICKHOUSE_USER: uptrace
+      CLICKHOUSE_DB: uptrace
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    secrets:
+      - uptrace_clickhouse_password
+    configs:
+      - source: uptrace_clickhouse_listen_config
+        target: /etc/clickhouse-server/config.d/00-listen.xml
+      - source: uptrace_clickhouse_optimization_config
+        target: /etc/clickhouse-server/config.d/90-disable-system-logs.xml
+    volumes:
+      - uptrace-clickhouse-data:/var/lib/clickhouse
+    networks:
+      - twir
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    ulimits:
+      nofile: 262144
+    cap_add:
+      - SYS_NICE
+      - NET_ADMIN
+      - IPC_LOCK
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases == true
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 3G
+
+  uptrace-postgres:
+    image: postgres:17-alpine
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: uptrace
+      POSTGRES_PASSWORD_FILE: /run/secrets/uptrace_postgres_password
+      POSTGRES_DB: uptrace
+    secrets:
+      - uptrace_postgres_password
+    volumes:
+      - uptrace-postgres-data:/var/lib/postgresql/data
+    networks:
+      - twir
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uptrace -d uptrace"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases == true
+
+  uptrace-redis:
+    image: redis:7-alpine
+    command: redis-server --save "" --appendonly no --loglevel warning
+    networks:
+      - twir
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases == true
+
+  uptrace-clickhouse-ttl:
+    image: clickhouse/clickhouse-server:26.3
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        password="$$(tr -d '\r\n' < /run/secrets/uptrace_clickhouse_password)"
+        attempt=1
+        until [ "$$(clickhouse-client --host uptrace-clickhouse --user uptrace --password "$$password" --database uptrace --query 'EXISTS TABLE spans_index' 2>/dev/null)" = "1" ]; do
+          if [ "$$attempt" -ge 60 ]; then
+            echo "Uptrace schema was not ready after $$attempt attempts" >&2
+            exit 1
+          fi
+          attempt=$$((attempt + 1))
+          sleep 5
+        done
+        exec clickhouse-client --host uptrace-clickhouse --user uptrace --password "$$password" --database uptrace --multiquery < /etc/uptrace/apply-ttl.sql
+    secrets:
+      - uptrace_clickhouse_password
+    configs:
+      - source: uptrace_clickhouse_ttl
+        target: /etc/uptrace/apply-ttl.sql
+    networks:
+      - twir
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 10
+      placement:
+        constraints:
+          - node.labels.databases == true
 
   temporal-postgres:
     image: "bitnamilegacy/postgresql:17"
@@ -371,6 +636,8 @@ services:
     image: registry.twir.app/twirapp/api-gql:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
       - traefik-public
@@ -390,6 +657,13 @@ services:
         - "traefik.http.routers.twir-api.priority=20"
         - "traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api"
 
+        # MCP OAuth discovery for twir.app (api-gql serves root .well-known paths)
+        - "traefik.http.routers.twir-oauth-discovery.rule=Host(`twir.app`) && (PathPrefix(`/.well-known/oauth`) || Path(`/.well-known/openid-configuration`))"
+        - "traefik.http.routers.twir-oauth-discovery.entrypoints=web"
+        - "traefik.http.routers.twir-oauth-discovery.service=twir-api-gql"
+        - "traefik.http.routers.twir-oauth-discovery.middlewares=gzip,rate-limit"
+        - "traefik.http.routers.twir-oauth-discovery.priority=20"
+
         # /s shortener route for twir.app
         - "traefik.http.routers.twir-shortener.rule=Host(`twir.app`) && PathPrefix(`/s/`)"
         - "traefik.http.routers.twir-shortener.entrypoints=web"
@@ -398,6 +672,14 @@ services:
         - "traefik.http.routers.twir-shortener.priority=20"
         - "traefik.http.middlewares.shortener-rewrite.replacepathregex.regex=^/s/(.*)"
         - "traefik.http.middlewares.shortener-rewrite.replacepathregex.replacement=/v1/short-links/$${1}"
+
+        - "traefik.http.routers.twir-uploader.rule=Host(`twir.app`) && PathPrefix(`/u/`)"
+        - "traefik.http.routers.twir-uploader.entrypoints=web"
+        - "traefik.http.routers.twir-uploader.service=twir-api-gql"
+        - "traefik.http.routers.twir-uploader.middlewares=uploader-rewrite,gzip,rate-limit"
+        - "traefik.http.routers.twir-uploader.priority=20"
+        - "traefik.http.middlewares.uploader-rewrite.replacepathregex.regex=^/u/(.*)"
+        - "traefik.http.middlewares.uploader-rewrite.replacepathregex.replacement=/v1/u/$${1}"
 
         # /api route for cf.twir.app
         - "traefik.http.routers.cf-api.rule=Host(`cf.twir.app`) && PathPrefix(`/api`)"
@@ -412,6 +694,12 @@ services:
         - "traefik.http.routers.cf-shortener.service=twir-api-gql"
         - "traefik.http.routers.cf-shortener.middlewares=shortener-rewrite,gzip,rate-limit"
         - "traefik.http.routers.cf-shortener.priority=20"
+
+        - "traefik.http.routers.cf-uploader.rule=Host(`cf.twir.app`) && PathPrefix(`/u/`)"
+        - "traefik.http.routers.cf-uploader.entrypoints=web"
+        - "traefik.http.routers.cf-uploader.service=twir-api-gql"
+        - "traefik.http.routers.cf-uploader.middlewares=uploader-rewrite,gzip,rate-limit"
+        - "traefik.http.routers.cf-uploader.priority=20"
 
         # Catch-all: any unmatched host → /v1/short-links{path} (lowest priority)
         - "traefik.http.routers.twir-custom-domain.rule=HostRegexp(`.+`)"
@@ -444,6 +732,8 @@ services:
     image: registry.twir.app/twirapp/bots:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - traefik-public
       - twir
@@ -474,6 +764,8 @@ services:
     image: registry.twir.app/twirapp/parser:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     deploy:
       update_config:
         parallelism: 2
@@ -495,6 +787,8 @@ services:
     image: registry.twir.app/twirapp/timers:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -516,6 +810,8 @@ services:
     image: registry.twir.app/twirapp/scheduler:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -604,6 +900,28 @@ services:
           cpus: "1.0"
           memory: 512M
 
+  ytsub:
+    image: registry.twir.app/twirapp/ytsub:${TWIR_IMAGE_TAG:-latest}
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
+
   warp-proxy:
     image: ghcr.io/mon-ius/docker-warp-socks
     cap_add:
@@ -634,30 +952,10 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-  # Anubis (https://anubis.techaro.lol) sits between Traefik and the public site:
-  #   Traefik -> anubis (proof-of-work anti-bot challenge) -> web
-  # Only the public catch-all routers go through it. /api, /s/, /overlays and /socket
-  # keep their priority-20 routes straight to the backing services: API clients,
-  # OBS browser sources and websockets cannot solve proof-of-work.
-  #
-  # Required one-time setup on the swarm manager:
-  #   printf %s "$(openssl rand -hex 32)" | docker secret create twir_anubis_ed25519_key -
-  # All replicas must share the same key, otherwise a pass-cookie issued by one
-  # replica is rejected by another and clients loop on the challenge page.
-  anubis:
-    image: ghcr.io/techarohq/anubis:v1.26.0
-    environment:
-      BIND: ":8923"
-      TARGET: http://web:3000
-      POLICY_FNAME: /etc/anubis/botPolicies.yaml
-      ED25519_PRIVATE_KEY_HEX_FILE: /run/secrets/twir_anubis_ed25519_key
-      COOKIE_DOMAIN: twir.app
-      COOKIE_SAME_SITE: Lax
+  web:
+    image: registry.twir.app/twirapp/web:${TWIR_IMAGE_TAG:-latest}
     secrets:
-      - twir_anubis_ed25519_key
-    configs:
-      - source: anubis_bot_policies
-        target: /etc/anubis/botPolicies.yaml
+      - twir_doppler_token
     networks:
       - twir
       - traefik-public
@@ -677,36 +975,7 @@ services:
         - "traefik.http.routers.cf-web.service=twir-web"
         - "traefik.http.routers.cf-web.middlewares=gzip,rate-limit"
         - "traefik.http.routers.cf-web.priority=10"
-        - "traefik.http.services.twir-web.loadbalancer.server.port=8923"
-      update_config:
-        order: start-first
-        parallelism: 1
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 256M
-        reservations:
-          cpus: "0.1"
-          memory: 128M
-      mode: replicated
-      replicas: 3
-      endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.labels.databases != true
-
-  # Intentionally has no Traefik labels: public traffic reaches the site through `anubis`.
-  web:
-    image: registry.twir.app/twirapp/web:${TWIR_IMAGE_TAG:-latest}
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-    deploy:
+        - "traefik.http.services.twir-web.loadbalancer.server.port=3000"
       update_config:
         order: start-first
         parallelism: 2
@@ -764,6 +1033,8 @@ services:
     image: registry.twir.app/twirapp/websockets:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
       - traefik-public
@@ -787,8 +1058,8 @@ services:
         - "traefik.http.services.twir-websockets.loadbalancer.server.port=3004"
       resources:
         limits:
-          cpus: "1.0"
-          memory: 3G
+          cpus: "1"
+          memory: 200M
       update_config:
         order: start-first
       restart_policy:
@@ -804,6 +1075,8 @@ services:
     image: registry.twir.app/twirapp/tokens:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -825,6 +1098,8 @@ services:
     image: registry.twir.app/twirapp/emotes-cacher:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -849,6 +1124,8 @@ services:
     image: registry.twir.app/twirapp/events:${TWIR_IMAGE_TAG:-latest}
     secrets:
       - twir_doppler_token
+    environment:
+      REPLICA: "{{.Task.Slot}}"
     networks:
       - twir
     deploy:
@@ -895,6 +1172,10 @@ services:
     networks:
       - twir
     deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512MB
       update_config:
         parallelism: 2
         order: start-first
@@ -916,11 +1197,15 @@ services:
     environment:
       - APP_ENV=production
     deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1.5G
       update_config:
         parallelism: 2
         order: start-first
       mode: replicated
-      replicas: 4
+      replicas: 1
       endpoint_mode: dnsrr
       restart_policy:
         condition: any
@@ -1021,8 +1306,34 @@ configs:
   clickhouse_config:
     file: ./configs/clickhouse-config.xml
 
-  anubis_bot_policies:
-    file: ./configs/anubis/botPolicies.yaml
+  uptrace_config:
+    file: ./configs/uptrace/uptrace.yml
+  uptrace_entrypoint:
+    file: ./configs/uptrace/entrypoint.sh
+  uptrace_otel_collector_config:
+    file: ./configs/uptrace/otel-collector.yml
+  uptrace_clickhouse_listen_config:
+    file: ./configs/uptrace/clickhouse/00-listen.xml
+  uptrace_clickhouse_optimization_config:
+    file: ./configs/uptrace/clickhouse/90-disable-system-logs.xml
+  uptrace_clickhouse_ttl:
+    file: ./configs/uptrace/apply-ttl.sql
+  uptrace_grafana_datasource_v2:
+    file: ./configs/uptrace/grafana/datasource.yml
+  uptrace_grafana_dashboard_provider:
+    file: ./configs/uptrace/grafana/dashboard-provider.yml
+  uptrace_grafana_dashboard_twir_overview_v13:
+    file: ./configs/uptrace/grafana/dashboards/twir-overview.json
+  uptrace_grafana_dashboard_nodes:
+    file: ./configs/uptrace/grafana/dashboards/twir-nodes.json
+  uptrace_grafana_dashboard_containers:
+    file: ./configs/uptrace/grafana/dashboards/twir-containers.json
+  uptrace_grafana_dashboard_swarm:
+    file: ./configs/uptrace/grafana/dashboards/twir-swarm.json
+  uptrace_grafana_config:
+    file: ./configs/uptrace/grafana/grafana.ini
+  uptrace_grafana_entrypoint_v2:
+    file: ./configs/uptrace/grafana/entrypoint.sh
 
   pgdog_users_config:
     file: ./configs/pgdog/users.toml
@@ -1037,6 +1348,9 @@ volumes:
   minio-data:
   temporal-postgres-data:
   clickhouse-data:
+  uptrace-clickhouse-data:
+  uptrace-postgres-data:
+  grafana-data:
   dbx-data:
 
 networks:
@@ -1059,5 +1373,21 @@ secrets:
     external: true
   twir_deploy_webhook_token:
     external: true
-  twir_anubis_ed25519_key:
+  uptrace_dsn:
+    external: true
+  uptrace_service_secret:
+    external: true
+  uptrace_admin_password:
+    external: true
+  uptrace_clickhouse_password:
+    external: true
+  uptrace_postgres_password:
+    external: true
+  grafana_admin_password:
+    external: true
+  uptrace_grafana_token:
+    external: true
+  grafana_postgres_password:
+    external: true
+  grafana_uptrace_clickhouse_password_v2:
     external: true

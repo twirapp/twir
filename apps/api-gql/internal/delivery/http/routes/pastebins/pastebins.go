@@ -5,27 +5,22 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
-	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/clientinfo"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
+type Registration struct{}
 
-	Api      huma.API
-	Config   config.Config
-	Service  *pastebins.Service
-	Sessions *auth.Auth
+func RegisterRoutes(api huma.API, config config.Config, service *pastebins.Service, sessions *auth.Auth, clientInfoService *clientinfo.Service) Registration {
+	newProfile(ProfileOpts{Service: service, Sessions: sessions}).Register(api)
+	newGetById(GetByIdOpts{Service: service}).Register(api)
+	newCreate(CreateOpts{
+		Service: service, Sessions: sessions, ClientInfoService: clientInfoService,
+	}).Register(api)
+	newDelete(CreateOpts{Service: service, Sessions: sessions, ClientInfoService: clientInfoService}).Register(api)
+	return Registration{}
 }
-
-var FxModule = fx.Provide(
-	httpbase.AsFxRoute(newProfile),
-	httpbase.AsFxRoute(newGetById),
-	httpbase.AsFxRoute(newCreate),
-	httpbase.AsFxRoute(newDelete),
-)
 
 type pasteBinOutputDto struct {
 	ID          string     `json:"id" example:"KKMEa"`

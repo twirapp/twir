@@ -2,6 +2,7 @@
 import { UserStoreKey } from '~/stores/user'
 
 const userStore = useAuth()
+const { t } = useI18n()
 
 const currentPlatform = computed(() => {
 	return userStore.userWithoutDashboards?.currentPlatform.toLowerCase() ?? ''
@@ -12,20 +13,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 
 <template>
 	<div v-if="!userStore.userWithoutDashboards" class="flex flex-row items-center gap-2">
-		<button
-			class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
-			@click="() => userStore.login()"
-		>
-			Twitch
-			<Icon name="simple-icons:twitch" class="w-5 h-5 text-white" />
-		</button>
-		<button
-			class="flex flex-row px-4 py-2 items-center gap-2 bg-[#27272a] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 cursor-pointer hover:bg-[#27272a]/80 transition-shadow"
-			@click="() => userStore.loginWithKick()"
-		>
-			Kick
-			<Icon name="simple-icons:kick" class="w-5 h-5 text-[#53FC18]" />
-		</button>
+		<LoginDropdown />
 	</div>
 
 	<UiDropdownMenu v-else-if="userStore.userWithoutDashboards">
@@ -44,6 +32,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 			</span>
 				<Icon v-if="currentPlatform === 'kick'" name="simple-icons:kick" class="w-4 h-4 text-[#53FC18] shrink-0" />
 				<Icon v-else-if="currentPlatform === 'vk_video_live'" name="simple-icons:vk" class="w-4 h-4 text-[#0077FF] shrink-0" />
+			<Icon v-else-if="currentPlatform === 'youtube'" name="simple-icons:youtube" class="w-4 h-4 text-[#FF0000] shrink-0" />
 				<Icon name="lucide:chevron-down" class="w-4 h-4 shrink-0" />
 			</div>
 		</UiDropdownMenuTrigger>
@@ -52,7 +41,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 			<UiDropdownMenuItem as-child>
 				<a href="/dashboard" class="flex w-full items-center">
 					<Icon name="lucide:layout-dashboard" class="mr-2 h-4 w-4" />
-					Dashboard
+					{{ t('landing.nav.dashboard') }}
 				</a>
 			</UiDropdownMenuItem>
 
@@ -64,7 +53,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 				@click="userStore.logout"
 			>
 				<Icon name="lucide:log-out" class="mr-2 h-4 w-4" />
-				Logout
+					{{ t('landing.nav.logout') }}
 			</UiDropdownMenuItem>
 		</UiDropdownMenuContent>
 	</UiDropdownMenu>

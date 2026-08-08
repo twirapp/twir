@@ -18,6 +18,7 @@ import (
 var LatestSubscriberUsername = &types.Variable{
 	Name:                "subscribers.latest.userName",
 	Description:         lo.ToPtr("Latest subscriber username"),
+	Platforms:           []platformentity.Platform{platformentity.PlatformTwitch},
 	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context,
@@ -70,6 +71,7 @@ var LatestSubscriberUsername = &types.Variable{
 var Count = &types.Variable{
 	Name:                "subscribers.count",
 	Description:         lo.ToPtr("Subscribers count"),
+	Platforms:           []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CanBeUsedInRegistry: true,
 	Handler: shared.HandlerByPlatform(map[platformentity.Platform]types.VariableHandler{
 		shared.PlatformTwitch: func(

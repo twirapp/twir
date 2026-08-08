@@ -11,20 +11,11 @@ import (
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	streammodel "github.com/twirapp/twir/libs/repositories/streams/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	StreamsRepository streams.Repository
-	Api               huma.API
-	Sessions          *auth.Auth
-}
-
-func New(opts Opts) {
+func New(streamsRepository streams.Repository, api huma.API, sessions *auth.Auth) {
 	huma.Register(
-		opts.Api,
+		api,
 		huma.Operation{
 			OperationID: "channels-streams-current",
 			Method:      http.MethodGet,
@@ -45,12 +36,12 @@ func New(opts Opts) {
 			*httpdelivery.BaseOutputJson[streammodel.Stream],
 			error,
 		) {
-			user, err := opts.Sessions.GetAuthenticatedUserModel(ctx)
+			user, err := sessions.GetAuthenticatedUserModel(ctx)
 			if user == nil || err != nil {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
 
-			selectedDashboardID, err := opts.Sessions.GetSelectedDashboard(ctx)
+			selectedDashboardID, err := sessions.GetSelectedDashboard(ctx)
 			if err != nil {
 				return nil, huma.NewError(http.StatusUnauthorized, "Not authenticated", err)
 			}
@@ -60,7 +51,7 @@ func New(opts Opts) {
 				return nil, huma.NewError(http.StatusBadRequest, "Invalid dashboard id", err)
 			}
 
-			stream, err := opts.StreamsRepository.GetByChannelID(
+			stream, err := streamsRepository.GetByChannelID(
 				ctx,
 				parsedDashboardID,
 				platform.PlatformTwitch,

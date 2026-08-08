@@ -10,6 +10,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/events/internal/shared"
 	"github.com/twirapp/twir/libs/repositories/events/model"
+	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	"go.temporal.io/sdk/activity"
 
 	variablesmodel "github.com/twirapp/twir/libs/repositories/variables/model"
@@ -59,8 +60,12 @@ func (c *Activity) ChangeVariableValue(
 		variable.Response = hydratedInput
 	}
 
-	if err = c.db.WithContext(ctx).Save(variable).Error; err != nil {
-		return err
+	if _, err = c.variablesRepository.Update(
+		ctx,
+		variable.ID,
+		variablesrepository.UpdateInput{Response: &variable.Response},
+	); err != nil {
+		return fmt.Errorf("cannot update variable: %w", err)
 	}
 
 	return nil
@@ -120,8 +125,12 @@ func (c *Activity) IncrementORDecrementVariable(
 			Else(currentVariableNumber-newVariableNumber),
 	)
 
-	if err = c.db.WithContext(ctx).Save(variable).Error; err != nil {
-		return err
+	if _, err = c.variablesRepository.Update(
+		ctx,
+		variable.ID,
+		variablesrepository.UpdateInput{Response: &variable.Response},
+	); err != nil {
+		return fmt.Errorf("cannot update variable: %w", err)
 	}
 
 	return nil

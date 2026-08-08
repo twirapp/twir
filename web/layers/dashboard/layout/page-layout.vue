@@ -110,7 +110,7 @@ watch(y, (value) => {
 			]"
 		>
 			<div
-				class="container mx-auto flex flex-col gap-2"
+				class="container mx-auto flex flex-col gap-2 px-6"
 				:class="[
 					activeTab ? 'pt-9' : 'py-9',
 					{
@@ -156,7 +156,7 @@ watch(y, (value) => {
 		</div>
 
 		<div class="relative">
-			<div :class="[{ 'container mx-auto py-8': !cleanBody }, contentClass]">
+			<div :class="[{ 'container mx-auto px-6 py-8': !cleanBody }, contentClass]">
 				<template v-if="activeTab">
 					<TabsContent
 						v-for="tab of props.tabs"

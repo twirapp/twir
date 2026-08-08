@@ -135,6 +135,6 @@ onMounted(async () => {
 
 <template>
 	<div class="flex items-center justify-center w-full h-full bg-[#0f0f14]">
-		<Icon name="lucide:loader2" class="h-12 w-12 animate-spin text-primary" />
+		<Icon name="lucide:loader-2" class="h-12 w-12 animate-spin text-primary" />
 	</div>
 </template>

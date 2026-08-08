@@ -6,23 +6,18 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/libs/wsrouter"
 	"github.com/twirapp/twir/libs/repositories/overlays_dudes"
 	"github.com/twirapp/twir/libs/repositories/overlays_dudes/model"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/wsrouter"
 )
 
-type Opts struct {
-	fx.In
-
-	OverlaysDudesRepository overlays_dudes.Repository
-	WsRouter                wsrouter.WsRouter
-}
-
-func New(opts Opts) *Service {
+func New(
+	overlaysDudesRepository overlays_dudes.Repository,
+	wsRouter wsrouter.WsRouter,
+) *Service {
 	return &Service{
-		overlaysDudesRepository: opts.OverlaysDudesRepository,
-		wsRouter:                opts.WsRouter,
+		overlaysDudesRepository: overlaysDudesRepository,
+		wsRouter:                wsRouter,
 	}
 }
 

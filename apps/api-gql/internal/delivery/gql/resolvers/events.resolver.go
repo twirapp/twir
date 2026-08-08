@@ -7,6 +7,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -53,10 +54,15 @@ func (r *mutationResolver) EventCreate(ctx context.Context, input gqlmodel.Event
 		)
 	}
 
+	platforms, err := mappers.GraphQLPlatformsToEntities(input.Platforms)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	event, err := r.deps.EventsService.Create(
 		ctx, events.CreateInput{
 			ChannelID:   dashboardID,
-			Platforms:   mappers.StringsToPlatforms(input.Platforms),
+			Platforms:   platforms,
 			Type:        entity.EventType(input.Type),
 			RewardID:    input.RewardID.Value(),
 			CommandID:   input.CommandID.Value(),
@@ -71,7 +77,11 @@ func (r *mutationResolver) EventCreate(ctx context.Context, input gqlmodel.Event
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	converted := mappers.MapEventToGQL(event)
+	converted, err := mappers.MapEventToGQL(event)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	return &converted, nil
 }
 
@@ -121,7 +131,11 @@ func (r *mutationResolver) EventUpdate(ctx context.Context, id string, input gql
 
 	var convertedPlatforms *[]platform.Platform
 	if input.Platforms.IsSet() {
-		platforms := mappers.StringsToPlatforms(input.Platforms.Value())
+		platforms, err := mappers.GraphQLPlatformsToEntitiesOrEmpty(input.Platforms.Value())
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
 		convertedPlatforms = &platforms
 	}
 
@@ -143,7 +157,11 @@ func (r *mutationResolver) EventUpdate(ctx context.Context, id string, input gql
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	converted := mappers.MapEventToGQL(event)
+	converted, err := mappers.MapEventToGQL(event)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	return &converted, nil
 }
 
@@ -164,16 +182,26 @@ func (r *mutationResolver) EventDelete(ctx context.Context, id string) (bool, er
 
 // EventEnableOrDisable is the resolver for the eventEnableOrDisable field.
 func (r *mutationResolver) EventEnableOrDisable(ctx context.Context, id string, enabled bool) (*gqlmodel.Event, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	event, err := r.deps.EventsService.Update(
 		ctx, id, events.UpdateInput{
-			Enabled: &enabled,
+			ChannelID: dashboardID,
+			Enabled:   &enabled,
 		},
 	)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	converted := mappers.MapEventToGQL(event)
+	converted, err := mappers.MapEventToGQL(event)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	return &converted, nil
 }
 
@@ -191,7 +219,12 @@ func (r *queryResolver) Events(ctx context.Context) ([]gqlmodel.Event, error) {
 
 	result := make([]gqlmodel.Event, 0, len(eventsData))
 	for _, event := range eventsData {
-		result = append(result, mappers.MapEventToGQL(event))
+		converted, err := mappers.MapEventToGQL(event)
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		result = append(result, converted)
 	}
 
 	return result, nil
@@ -199,11 +232,23 @@ func (r *queryResolver) Events(ctx context.Context) ([]gqlmodel.Event, error) {
 
 // EventByID is the resolver for the eventById field.
 func (r *queryResolver) EventByID(ctx context.Context, id string) (*gqlmodel.Event, error) {
-	event, err := r.deps.EventsService.GetByID(ctx, id)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	converted := mappers.MapEventToGQL(event)
+	event, err := r.deps.EventsService.GetByID(ctx, id)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+	if event.ChannelID != dashboardID {
+		return nil, gqlerrors.HandleError(fmt.Errorf("event with this ID was not found"))
+	}
+
+	converted, err := mappers.MapEventToGQL(event)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	return &converted, nil
 }

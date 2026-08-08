@@ -11,7 +11,6 @@ import (
 	humahelpers "github.com/twirapp/twir/apps/api-gql/internal/server/huma_helpers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type infoRequestDto struct {
@@ -21,8 +20,6 @@ type infoRequestDto struct {
 var _ httpbase.Route[*infoRequestDto, *httpbase.BaseOutputJson[linkOutputDto]] = (*info)(nil)
 
 type InfoOpts struct {
-	fx.In
-
 	Service *shortenedurls.Service
 	Config  config.Config
 }

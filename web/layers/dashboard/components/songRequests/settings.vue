@@ -40,7 +40,7 @@ import {
 	TagsInputItemText,
 } from '@/components/ui/tags-input'
 import { Textarea } from '@/components/ui/textarea'
-import { SongRequestsSearchChannelOrVideoOptsType } from '~/gql/graphql.js'
+import { SongRequestMode, SongRequestsSearchChannelOrVideoOptsType } from '~/gql/graphql.js'
 
 import RewardsSelector from '../rewardsSelector.vue'
 
@@ -76,6 +76,7 @@ const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
 const formValue = ref<SongRequestsSettingsOpts>({
 	enabled: false,
+	mode: SongRequestMode.Youtube,
 	acceptOnlyWhenOnline: true,
 	takeSongFromDonationMessages: false,
 	playerNoCookieMode: false,
@@ -149,7 +150,10 @@ watch(
 )
 
 async function save() {
-	const { channelApiKey, __typename, ...data } = unref(formValue) as Record<string, unknown>
+	const { channelApiKey, spotifyCapabilities, __typename, ...data } = unref(formValue) as Record<
+		string,
+		unknown
+	>
 	await youtubeModuleUpdater.executeMutation({ opts: data as SongRequestsSettingsOpts })
 	toast.success(t('sharedTexts.saved'))
 	isOpen.value = false
@@ -259,6 +263,39 @@ function findSongImage(id: string): string {
 									<div class="flex-1 space-y-0.5">
 										<Label class="text-base font-medium">{{ t('sharedTexts.enabled') }}</Label>
 									</div>
+								</div>
+
+								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">
+									<div class="flex-1 space-y-0.5">
+										<Label class="text-base font-medium">{{ t('songRequests.settings.mode') }}</Label>
+										<p class="text-muted-foreground text-sm">
+											{{ t('songRequests.settings.modeDescription') }}
+										</p>
+									</div>
+									<Tabs v-model="formValue.mode">
+										<TabsList class="grid w-56 grid-cols-2">
+											<TabsTrigger
+												:value="SongRequestMode.Youtube"
+												class="flex items-center gap-2"
+											>
+												<Icon
+													name="simple-icons:youtube"
+													class="size-4 text-[#FF0000]"
+												/>
+												<span>YouTube</span>
+											</TabsTrigger>
+											<TabsTrigger
+												:value="SongRequestMode.Spotify"
+												class="flex items-center gap-2"
+											>
+												<Icon
+													name="simple-icons:spotify"
+													class="size-4 text-[#1DB954]"
+												/>
+												<span>Spotify</span>
+											</TabsTrigger>
+										</TabsList>
+									</Tabs>
 								</div>
 
 								<div class="flex flex-row items-center gap-4 rounded-lg border p-4">

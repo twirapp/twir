@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
@@ -45,21 +46,12 @@ type Server struct {
 	sweepCancel context.CancelFunc
 }
 
-type Option func(*Server)
-
-func WithRateLimit(limit rate.Limit, burst int) Option {
-	return func(s *Server) {
-		s.rateLimit = limit
-		s.rateBurst = burst
-	}
-}
-
 func New(
 	config cfg.Config,
 	logger *slog.Logger,
 	repo dotarepository.Repository,
 	processor MatchProcessor,
-	opts ...Option,
+	lc *lifecycle.Lifecycle,
 ) *Server {
 	s := &Server{
 		logger:    logger,
@@ -68,10 +60,6 @@ func New(
 		rateLimit: rate.Limit(10),
 		rateBurst: 10,
 		limiters:  make(map[string]*rateLimiterEntry),
-	}
-
-	for _, opt := range opts {
-		opt(s)
 	}
 
 	mux := http.NewServeMux()
@@ -84,6 +72,11 @@ func New(
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       15 * time.Second,
 	}
+
+	lc.Append(lifecycle.Hook{
+		OnStart: func(context.Context) error { return s.Start() },
+		OnStop:  func(ctx context.Context) error { return s.Stop(ctx) },
+	})
 
 	return s
 }

@@ -3,16 +3,21 @@ package overlays
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
+	"log/slog"
+	"math"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/olahol/melody"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/websockets/types"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
 	"github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
+	twirlogger "github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/channels_overlays"
 )
 
@@ -34,15 +39,29 @@ type instantSaveLayerMessage struct {
 	Layers    []instantSaveLayerData `json:"layers"`
 }
 
+// overlayEditorEventMeta models only the routing fields of editor collaboration
+// events; the rest of the payload is forwarded to peers opaquely.
+type overlayEditorEventMeta struct {
+	OverlayID string `json:"overlayId"`
+	ClientID  string `json:"clientId"`
+}
+
+// Geometry fields are float64 because browsers can send fractional pixels
+// (center snapping, align, distribute); they are rounded before persisting.
 type instantSaveLayerData struct {
-	ID       string  `json:"id"`
-	PosX     int     `json:"posX"`
-	PosY     int     `json:"posY"`
-	Rotation int     `json:"rotation"`
-	Width    int     `json:"width"`
-	Height   int     `json:"height"`
-	Visible  bool    `json:"visible"`
-	Opacity  float64 `json:"opacity"`
+	ID       string   `json:"id"`
+	PosX     float64  `json:"posX"`
+	PosY     float64  `json:"posY"`
+	Rotation float64  `json:"rotation"`
+	Width    float64  `json:"width"`
+	Height   float64  `json:"height"`
+	Visible  bool     `json:"visible"`
+	Opacity  float64  `json:"opacity"`
+	ZIndex   *float64 `json:"zIndex"`
+}
+
+func roundToInt(v float64) int {
+	return int(math.Round(v))
 }
 
 func textToBase64(text string) string {
@@ -224,28 +243,53 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				continue
 			}
 
+			zIndex := layer.ZIndex
+			if foundInputLayer.ZIndex != nil {
+				zIndex = roundToInt(*foundInputLayer.ZIndex)
+			}
+
 			e.Layers = append(e.Layers, customoverlayentity.ChannelOverlayLayer{
 				ID:        layer.ID,
 				OverlayID: layer.OverlayID,
 				Type:      customoverlayentity.ChannelOverlayType(layer.Type),
-				PosX:      foundInputLayer.PosX,
-				PosY:      foundInputLayer.PosY,
-				Rotation:  foundInputLayer.Rotation,
-				Settings: customoverlayentity.ChannelOverlayLayerSettings{
-					HtmlOverlayHTML:                    layer.Settings.HtmlOverlayHTML,
-					HtmlOverlayCSS:                     layer.Settings.HtmlOverlayCSS,
-					HtmlOverlayJS:                      layer.Settings.HtmlOverlayJS,
-					HtmlOverlayDataPollSecondsInterval: layer.Settings.HtmlOverlayDataPollSecondsInterval,
-					ImageUrl:                           layer.Settings.ImageUrl,
-				},
+				PosX:      roundToInt(foundInputLayer.PosX),
+				PosY:      roundToInt(foundInputLayer.PosY),
+				Rotation:  roundToInt(foundInputLayer.Rotation),
+			Settings: customoverlayentity.ChannelOverlayLayerSettings{
+				HtmlOverlayHTML:                    layer.Settings.HtmlOverlayHTML,
+				HtmlOverlayCSS:                     layer.Settings.HtmlOverlayCSS,
+				HtmlOverlayJS:                      layer.Settings.HtmlOverlayJS,
+				HtmlOverlayDataPollSecondsInterval: layer.Settings.HtmlOverlayDataPollSecondsInterval,
+				ImageUrl:                           layer.Settings.ImageUrl,
+				TextContent:                        layer.Settings.TextContent,
+				TextFontFamily:                     layer.Settings.TextFontFamily,
+				TextFontSize:                       layer.Settings.TextFontSize,
+				TextFontWeight:                     layer.Settings.TextFontWeight,
+				TextColor:                          layer.Settings.TextColor,
+				TextAlign:                          layer.Settings.TextAlign,
+				VideoUrl:                           layer.Settings.VideoUrl,
+				VideoLoop:                          layer.Settings.VideoLoop,
+				VideoMuted:                         layer.Settings.VideoMuted,
+				IframeUrl:                          layer.Settings.IframeUrl,
+				IframeScale:                        layer.Settings.IframeScale,
+				WidgetKey:                          layer.Settings.WidgetKey,
+				YoutubeVideoID:                     layer.Settings.YoutubeVideoID,
+				YoutubeAutoplay:                    layer.Settings.YoutubeAutoplay,
+				YoutubeLoop:                        layer.Settings.YoutubeLoop,
+				YoutubeMuted:                       layer.Settings.YoutubeMuted,
+				EmoteUrl:                           layer.Settings.EmoteUrl,
+				EmoteName:                          layer.Settings.EmoteName,
+				EmoteProvider:                      layer.Settings.EmoteProvider,
+			},
 				CreatedAt:               layer.CreatedAt,
 				UpdatedAt:               layer.UpdatedAt,
-				Width:                   foundInputLayer.Width,
-				Height:                  foundInputLayer.Height,
+				Width:                   roundToInt(foundInputLayer.Width),
+				Height:                  roundToInt(foundInputLayer.Height),
 				PeriodicallyRefetchData: layer.PeriodicallyRefetchData,
 				Locked:                  layer.Locked,
 				Visible:                 foundInputLayer.Visible,
 				Opacity:                 foundInputLayer.Opacity,
+				ZIndex:                  zIndex,
 			})
 		}
 
@@ -260,18 +304,39 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				continue
 			}
 
+			posX := roundToInt(layerData.PosX)
+			posY := roundToInt(layerData.PosY)
+			rotation := roundToInt(layerData.Rotation)
+			width := roundToInt(layerData.Width)
+			height := roundToInt(layerData.Height)
+			var zIndex *int
+			if layerData.ZIndex != nil {
+				zIndex = lo.ToPtr(roundToInt(*layerData.ZIndex))
+			}
+
 			go func() {
-				_, e := c.channelsOverlaysRepository.UpdateLayer(context.TODO(), layerID, channels_overlays.LayerUpdateInput{
-					PosX:     &layerData.PosX,
-					PosY:     &layerData.PosY,
-					Rotation: &layerData.Rotation,
-					Width:    &layerData.Width,
-					Height:   &layerData.Height,
-					Visible:  &layerData.Visible,
-					Opacity:  &layerData.Opacity,
-				})
+			_, e := c.channelsOverlaysRepository.UpdateLayer(context.TODO(), layerID, channels_overlays.LayerUpdateInput{
+				PosX:     &posX,
+				PosY:     &posY,
+				Rotation: &rotation,
+				Width:    &width,
+				Height:   &height,
+				Visible:  &layerData.Visible,
+				Opacity:  &layerData.Opacity,
+				ZIndex:   zIndex,
+			})
 				if e != nil {
-					c.logger.Error("failed to update layer", "error", e)
+					// Layers created on the client exist only in the builder state until
+					// the overlay is fully saved, so a missing row here is expected.
+					if errors.Is(e, channels_overlays.ErrNotFound) {
+						c.logger.Debug(
+							"skipping instant save for not yet persisted layer",
+							twirlogger.Error(e),
+							slog.String("layer_id", layerID.String()),
+						)
+					} else {
+						c.logger.Error("failed to update layer", twirlogger.Error(e))
+					}
 				}
 			}()
 		}
@@ -282,5 +347,71 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 		); err != nil {
 			c.logger.Error(err.Error())
 		}
+	case
+		"overlayEditorLayerAdd",
+		"overlayEditorLayerRemove",
+		"overlayEditorLayerUpdate",
+		"overlayEditorLayerPositions",
+		"overlayEditorLayersReorder",
+		"overlayEditorSettingsUpdate",
+		"overlayEditorProjectReplace",
+		"overlayEditorSyncRequest",
+		"overlayEditorSyncState":
+		c.handleOverlayEditorEvent(session, message)
+	}
+}
+
+// handleOverlayEditorEvent rebroadcasts overlay editor collaboration events to
+// every session of the same channel (including the sender, which filters its own
+// echo by clientId), so multiple browser tabs editing one overlay stay in sync.
+func (c *Registry) handleOverlayEditorEvent(session *melody.Session, message types.WebSocketMessage) {
+	var meta overlayEditorEventMeta
+	bytes, err := json.Marshal(message.Data)
+	if err != nil {
+		c.logger.Error("failed to marshal overlay editor event data", twirlogger.Error(err))
+		return
+	}
+	if err := json.Unmarshal(bytes, &meta); err != nil {
+		c.logger.Error("failed to unmarshal overlay editor event meta", twirlogger.Error(err))
+		return
+	}
+
+	socketUserId, ok := session.Get("userId")
+	if !ok {
+		return
+	}
+	channelID, ok := socketUserId.(string)
+	if !ok {
+		return
+	}
+
+	cacheKey := fmt.Sprintf("overlayEditorAccess:%s", meta.OverlayID)
+	if _, ok := session.Get(cacheKey); !ok {
+		overlayID, err := uuid.Parse(meta.OverlayID)
+		if err != nil {
+			c.logger.Error("invalid overlay ID in editor event", twirlogger.Error(err))
+			return
+		}
+
+		overlay, err := c.channelsOverlaysRepository.GetByID(context.Background(), overlayID)
+		if err != nil {
+			c.logger.Error("failed to get overlay for editor event", twirlogger.Error(err))
+			return
+		}
+
+		if overlay.ChannelID != channelID {
+			c.logger.Error(
+				"overlay editor event rejected: overlay does not belong to user",
+				slog.String("user_id", channelID),
+				slog.String("overlay_id", meta.OverlayID),
+			)
+			return
+		}
+
+		session.Set(cacheKey, struct{}{})
+	}
+
+	if err := c.SendEvent(channelID, message.EventName, message.Data); err != nil {
+		c.logger.Error("failed to broadcast overlay editor event", twirlogger.Error(err))
 	}
 }

@@ -10,10 +10,10 @@ import (
 )
 
 func TestGetAuthURLUsesLegacyProductionScopes(t *testing.T) {
-	provider := New(Opts{Config: cfg.Config{
+	provider := New(cfg.Config{
 		SiteBaseUrl:    "https://twir.example.test",
 		TwitchClientId: "client-id",
-	}})
+	})
 
 	authorizeURL, err := url.Parse(provider.GetAuthURL("state-value", ""))
 	if err != nil {
@@ -49,14 +49,14 @@ func TestGetAuthURLUsesLegacyProductionScopes(t *testing.T) {
 }
 
 func TestGetAuthURLUsesMockAuthorizationEndpoint(t *testing.T) {
-	provider := New(Opts{Config: cfg.Config{
+	provider := New(cfg.Config{
 		SiteBaseUrl:        "https://twir.example.test",
 		TwitchClientId:     "client-id",
 		TwitchMockEnabled:  true,
 		TwitchMockAuthUrl:  "https://twitch-mock.example.test",
 		TwitchMockApiUrl:   "https://twitch-mock.example.test/helix",
 		TwitchClientSecret: "client-secret",
-	}})
+	})
 
 	authorizeURL, err := url.Parse(provider.GetAuthURL("state-value", ""))
 	if err != nil {

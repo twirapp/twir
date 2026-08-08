@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -19,22 +20,8 @@ import (
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"github.com/twirapp/twir/libs/twitch"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
-
-type OnlineUsersOpts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Logger *slog.Logger
-	Config config.Config
-
-	Gorm    *gorm.DB
-	TwirBus *buscore.Bus
-
-	StreamsRepo streamsrepository.Repository
-}
 
 type onlineUsers struct {
 	config      config.Config
@@ -108,9 +95,16 @@ func orderChattersForUserInsert(chatters []helix.ChatChatter) []helix.ChatChatte
 	return ordered
 }
 
-func NewOnlineUsers(opts OnlineUsersOpts) {
+func NewOnlineUsers(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	cfg config.Config,
+	gorm *gorm.DB,
+	twirBus *buscore.Bus,
+	streamsRepo streamsrepository.Repository,
+) {
 	timeTick := 15 * time.Second
-	if opts.Config.AppEnv == "production" {
+	if cfg.AppEnv == "production" {
 		timeTick = 5 * time.Minute
 	}
 	ticker := time.NewTicker(timeTick)
@@ -118,15 +112,15 @@ func NewOnlineUsers(opts OnlineUsersOpts) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s := &onlineUsers{
-		config:      opts.Config,
-		logger:      opts.Logger,
-		db:          opts.Gorm,
-		twirBus:     opts.TwirBus,
-		streamsRepo: opts.StreamsRepo,
+		config:      cfg,
+		logger:      logger,
+		db:          gorm,
+		twirBus:     twirBus,
+		streamsRepo: streamsRepo,
 	}
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
 					for {

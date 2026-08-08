@@ -12,19 +12,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/libs/audit"
+	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/repositories/channels_secret"
 	"github.com/twirapp/twir/libs/repositories/channels_secret/model"
-	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
-
-type Opts struct {
-	fx.In
-
-	Config            config.Config
-	AuditRecorder     audit.Recorder
-	SecretsRepository channels_secret.Repository
-}
 
 type Service struct {
 	config            config.Config
@@ -35,8 +26,8 @@ type Service struct {
 
 var ErrNotFound = errors.New("secret not found")
 
-func New(opts Opts) (*Service, error) {
-	key := opts.Config.SecretsEncryptionKey
+func New(config config.Config, auditRecorder audit.Recorder, secretsRepository channels_secret.Repository) (*Service, error) {
+	key := config.SecretsEncryptionKey
 	if key == "" {
 		return nil, fmt.Errorf("SECRETS_ENCRYPTION_KEY is required")
 	}
@@ -46,9 +37,9 @@ func New(opts Opts) (*Service, error) {
 	}
 
 	return &Service{
-		config:            opts.Config,
-		auditRecorder:     opts.AuditRecorder,
-		secretsRepository: opts.SecretsRepository,
+		config:            config,
+		auditRecorder:     auditRecorder,
+		secretsRepository: secretsRepository,
 		encryptionKey:     []byte(key),
 	}, nil
 }
@@ -157,6 +148,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (
 }
 
 type UpdateInput struct {
+	ChannelID   string
 	Name        *string
 	Description *string
 	Value       *string
@@ -166,6 +158,14 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 	model.ChannelSecret,
 	error,
 ) {
+	existing, err := s.secretsRepository.GetByID(ctx, id)
+	if err != nil {
+		return model.Nil, err
+	}
+	if existing.IsNil() || existing.ChannelID.String() != input.ChannelID {
+		return model.Nil, ErrNotFound
+	}
+
 	repoInput := channels_secret.UpdateInput{
 		Name:        input.Name,
 		Description: input.Description,
@@ -187,7 +187,15 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 	return secret, nil
 }
 
-func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
+func (s *Service) Delete(ctx context.Context, id uuid.UUID, channelID string) error {
+	existing, err := s.secretsRepository.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if existing.IsNil() || existing.ChannelID.String() != channelID {
+		return ErrNotFound
+	}
+
 	return s.secretsRepository.Delete(ctx, id)
 }
 

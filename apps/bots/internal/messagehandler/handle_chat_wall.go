@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/apps/bots/internal/chatwallmatcher"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/redis_keys"
 	chatwallrepository "github.com/twirapp/twir/libs/repositories/chat_wall"
@@ -74,10 +74,7 @@ func (c *MessageHandler) handleChatWall(ctx context.Context, msg enrichedChatMes
 			continue
 		}
 
-		msgLowerCased := strings.ToLower(msg.Message.Text)
-		phraseLowerCased := strings.ToLower(wall.Phrase)
-
-		if !strings.Contains(msgLowerCased, phraseLowerCased) {
+		if !chatwallmatcher.New(wall.Phrase).Matches(msg.Message.Text) {
 			continue
 		}
 

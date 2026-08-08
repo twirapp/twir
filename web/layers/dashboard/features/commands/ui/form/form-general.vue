@@ -2,7 +2,7 @@
 import { useCommandsGroupsApi } from '~~/layers/dashboard/api/commands/commands-groups'
 import ManageGroups from '~~/layers/dashboard/components/commands/manageGroups.vue'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
-import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
+import PlatformSelector from '@/components/platform/platform-selector.vue'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'

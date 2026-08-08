@@ -11,33 +11,28 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/audit"
-	"github.com/twirapp/twir/libs/entities/platform"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/greetings/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	GreetingsRepository greetings.Repository
-	UsersRepository     usersrepository.Repository
-	PlansRepository     plans.Repository
-	AuditRecorder       audit.Recorder
-	GreetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
-}
-
-func New(opts Opts) *Service {
+func New(
+	greetingsRepository greetings.Repository,
+	usersRepository usersrepository.Repository,
+	plansRepository plans.Repository,
+	auditRecorder audit.Recorder,
+	greetingsCache *generic_cacher.GenericCacher[[]model.Greeting],
+) *Service {
 	return &Service{
-		greetingsRepository: opts.GreetingsRepository,
-		usersRepository:     opts.UsersRepository,
-		plansRepository:     opts.PlansRepository,
-		auditRecorder:       opts.AuditRecorder,
-		greetingsCache:      opts.GreetingsCache,
+		greetingsRepository: greetingsRepository,
+		usersRepository:     usersRepository,
+		plansRepository:     plansRepository,
+		auditRecorder:       auditRecorder,
+		greetingsCache:      greetingsCache,
 	}
 }
 

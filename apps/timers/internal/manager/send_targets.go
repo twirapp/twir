@@ -21,6 +21,7 @@ func getTimerSendTargets(
 		platformentity.PlatformTwitch,
 		platformentity.PlatformKick,
 		platformentity.PlatformVKVideoLive,
+		platformentity.PlatformYouTube,
 	} {
 		if !platformentity.ShouldExecute(timerPlatforms, p) {
 			continue
@@ -49,6 +50,7 @@ func hasSupportedTimerBinding(channel channelentity.Channel) bool {
 		platformentity.PlatformTwitch,
 		platformentity.PlatformKick,
 		platformentity.PlatformVKVideoLive,
+		platformentity.PlatformYouTube,
 	} {
 		if _, ok := channel.Binding(p); ok {
 			return true

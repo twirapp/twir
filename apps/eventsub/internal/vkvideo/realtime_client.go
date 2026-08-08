@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
+	"net/url"
 
 	centrifuge "github.com/centrifugal/centrifuge-go"
 	"github.com/google/uuid"
@@ -30,6 +32,9 @@ type RealtimeClientConfig struct {
 	BindingID     uuid.UUID
 	Logger        *slog.Logger
 	Tokens        TokenCallbacks
+	// ProxyUrl is an optional proxy URL for the Centrifugo WebSocket
+	// connection. When empty, http.ProxyFromEnvironment behavior is used.
+	ProxyUrl string
 }
 
 type RealtimeClient struct {
@@ -64,6 +69,15 @@ func newRealtimeClient(config RealtimeClientConfig, endpoint string) (*RealtimeC
 		return nil, fmt.Errorf("create publication session: %w", err)
 	}
 
+	var proxy func(*http.Request) (*url.URL, error)
+	if config.ProxyUrl != "" {
+		proxyURL, err := url.Parse(config.ProxyUrl)
+		if err != nil {
+			return nil, fmt.Errorf("parse proxy url: %w: %w", err, ErrInvalidRealtimeClientConfig)
+		}
+		proxy = http.ProxyURL(proxyURL)
+	}
+
 	realtimeClient := &RealtimeClient{
 		session:   session,
 		channel:   config.Channel,
@@ -72,6 +86,7 @@ func newRealtimeClient(config RealtimeClientConfig, endpoint string) (*RealtimeC
 		logger:    config.Logger,
 	}
 	realtimeClient.client = centrifuge.NewJsonClient(endpoint, centrifuge.Config{
+		Proxy: proxy,
 		GetToken: func(centrifuge.ConnectionTokenEvent) (string, error) {
 			return realtimeClient.tokens.Connection(realtimeClient.tokens.Context)
 		},

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import PlatformBadge from '~/components/platform/platform-badge.vue'
 import Avatar from '~/components/ui/avatar/Avatar.vue'
 import AvatarFallback from '~/components/ui/avatar/AvatarFallback.vue'
 import AvatarImage from '~/components/ui/avatar/AvatarImage.vue'
-import Badge from '~/components/ui/badge/Badge.vue'
-import { Platform } from '~/gql/graphql.js'
+import type { Platform } from '~/gql/graphql.js'
 
 const props = defineProps<{
 	name: string
@@ -30,24 +30,6 @@ const linkAttrs = computed(() => {
 })
 
 const fallbackLetter = computed(() => userName.value.charAt(0).toUpperCase() || '?')
-
-const platformMeta = computed(() => {
-	if (props.platform === Platform.Kick) {
-		return {
-			label: 'Kick',
-			className: 'border-[#53FC18]/30 bg-[#53FC18]/10 text-[#3CB30F]',
-		}
-	}
-
-	if (props.platform === Platform.Twitch) {
-		return {
-			label: 'Twitch',
-			className: 'border-[#9146FF]/30 bg-[#9146FF]/10 text-[#7C3AED]',
-		}
-	}
-
-	return null
-})
 </script>
 
 <template>
@@ -62,14 +44,10 @@ const platformMeta = computed(() => {
 		</Avatar>
 		<div class="flex min-w-0 flex-col gap-1">
 			<span class="truncate">{{ userName }}</span>
-			<Badge
-				v-if="platformMeta"
-				variant="outline"
-				class="w-fit text-[10px] uppercase tracking-wide"
-				:class="platformMeta.className"
-			>
-				{{ platformMeta.label }}
-			</Badge>
+			<PlatformBadge
+				v-if="platform"
+				:platform="platform"
+			/>
 		</div>
 	</component>
 </template>

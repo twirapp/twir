@@ -5,6 +5,8 @@ extend type Query {
 	songRequestWidgetData(channelId: UUID!): SongRequestWidgetData @noRateLimit
 	channelByApiKey(apiKey: String!): ChannelByApiKeyResult @noRateLimit
 	songRequestOverlaySettings: SongRequestOverlaySettings! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
+	spotifySongRequestsQueue: SpotifySongRequestQueue! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
+	spotifySongRequestsSearch(query: String!, limit: Int): [SpotifySongRequestSearchResult!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
 }
 
 extend type Mutation {
@@ -18,9 +20,19 @@ extend type Mutation {
 	songRequestDeleteFromQueue(channelId: UUID!, videoId: String!): Boolean! @isAuthenticated
 	songRequestClearQueue(channelId: UUID!): Boolean! @isAuthenticated
 	songRequestOverlaySettingsUpdate(opts: SongRequestOverlaySettingsUpdateInput!): SongRequestOverlaySettings! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
+	spotifySongRequestSelectDevice(deviceId: String!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
+	spotifySongRequestRefreshDevice: SpotifySongRequestDevice @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
+	spotifySongRequestSkip(requestId: UUID!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
+	spotifySongRequestCancel(requestId: UUID!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
+}
+
+enum SongRequestMode {
+	YOUTUBE
+	SPOTIFY
 }
 
 type SongRequestsSettings {
+	mode: SongRequestMode!
 	enabled: Boolean!
 	acceptOnlyWhenOnline: Boolean!
 	maxRequests: Int!
@@ -35,6 +47,7 @@ type SongRequestsSettings {
 	playerNoCookieMode: Boolean!
 	volume: Int!
 	channelApiKey: String!
+	spotifyCapabilities: SpotifySongRequestCapabilities! @goField(forceResolver: true)
 }
 
 type SongRequestsUserSettings {
@@ -96,6 +109,7 @@ type SongRequestsChannelTranslations {
 }
 
 input SongRequestsSettingsOpts {
+	mode: SongRequestMode! = YOUTUBE
 	enabled: Boolean!
 	acceptOnlyWhenOnline: Boolean!
 	maxRequests: Int! @validate(constraint: "max=500")
@@ -109,6 +123,59 @@ input SongRequestsSettingsOpts {
 	takeSongFromDonationMessages: Boolean!
 	playerNoCookieMode: Boolean!
 	volume: Int! @validate(constraint: "min=0,max=100")
+}
+
+type SpotifySongRequestCapabilities {
+	connected: Boolean!
+	hasPlaybackScope: Boolean!
+	activeDevice: SpotifySongRequestDevice
+	selectedDevice: SpotifySongRequestDevice
+	canUseSpotify: Boolean!
+}
+
+type SpotifySongRequestDevice {
+	id: String!
+	name: String!
+	type: String!
+	isActive: Boolean!
+}
+
+type SpotifySongRequest {
+	id: UUID!
+	title: String!
+	artist: String!
+	album: String!
+	durationMs: Int!
+	requesterName: String!
+	requesterDisplayName: String
+	source: String!
+	queuePosition: Int!
+	status: SpotifySongRequestStatus!
+	createdAt: Time!
+}
+
+enum SpotifySongRequestStatus {
+	QUEUED
+	PLAYING
+	PLAYED
+	CANCELLED_PENDING_SKIP
+	SKIPPED_BY_TWIR
+	REMOVED_OR_RECONCILED
+	UNKNOWN
+}
+
+type SpotifySongRequestQueue {
+	requests: [SpotifySongRequest!]!
+	currentDevice: SpotifySongRequestDevice
+}
+
+type SpotifySongRequestSearchResult {
+	id: String!
+	title: String!
+	artist: String!
+	album: String!
+	durationMs: Int!
+	imageUrl: String
 }
 
 enum SongRequestOverlayStyle {
@@ -261,4 +328,5 @@ extend type Subscription {
 	songRequestPlaybackState(channelId: UUID!): SongRequestPlaybackState @noRateLimit
 	songRequestQueueUpdated(channelId: UUID!): [SongRequestQueueItem!]! @noRateLimit
 	songRequestOverlaySettings(apiKey: String!): SongRequestOverlaySettings! @noRateLimit
+	spotifySongRequestsQueueUpdated(channelId: UUID!): SpotifySongRequestQueue! @noRateLimit
 }

@@ -187,6 +187,7 @@ function handleCopyPreview() {
 					<div class="flex flex-row items-center gap-2 mt-3">
 						<UiButton @click="userStore.login">Login with Twitch</UiButton>
 						<UiButton variant="outline" @click="userStore.loginWithKick()">Login with Kick</UiButton>
+						<UiButton variant="outline" @click="userStore.loginWithYoutube()">Login with YouTube</UiButton>
 					</div>
 				</div>
 

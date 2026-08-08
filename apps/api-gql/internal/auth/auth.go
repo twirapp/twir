@@ -15,34 +15,27 @@ import (
 	model "github.com/twirapp/twir/libs/gomodels"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
-
-type Opts struct {
-	fx.In
-
-	Redis          *redis.Client
-	UsersRepo      usersrepository.Repository
-	ChannelService *channelservice.ChannelService
-}
 
 type Auth struct {
 	sessionManager *scs.SessionManager
 	usersRepo      usersrepository.Repository
 	channelService *channelservice.ChannelService
+	now            func() time.Time
 }
 
-func NewSessions(opts Opts) *Auth {
+func NewSessions(redis *redis.Client, usersRepo usersrepository.Repository, channelService *channelservice.ChannelService) *Auth {
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 24 * time.Hour * 31
-	sessionManager.Store = goredisstore.New(opts.Redis)
+	sessionManager.Store = goredisstore.New(redis)
 
 	registerSessionTypes()
 
 	return &Auth{
 		sessionManager: sessionManager,
-		usersRepo:      opts.UsersRepo,
-		channelService: opts.ChannelService,
+		usersRepo:      usersRepo,
+		channelService: channelService,
+		now:            time.Now,
 	}
 }
 
@@ -50,9 +43,12 @@ func registerSessionTypes() {
 	gob.Register(model.Users{})
 	gob.Register(helix.User{})
 	gob.Register(uuid.UUID{})
+	gob.Register([]string{})
 	gob.Register(KickSessionUser{})
 	gob.Register(OAuthAttempt{})
 	gob.Register(map[string]OAuthAttempt{})
+	gob.Register(MCPOAuthAttempt{})
+	gob.Register(map[string]MCPOAuthAttempt{})
 }
 
 const SESSION_KEY = "__session__"

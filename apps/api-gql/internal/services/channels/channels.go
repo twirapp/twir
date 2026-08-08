@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
@@ -13,22 +14,17 @@ import (
 	chatmessagesrepo "github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/users"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	ChannelsRepository channels.Repository
-	UsersRepository    users.Repository
-	ChannelService     *channelservice.ChannelService
-}
-
-func New(opts Opts) *Service {
+func New(
+	channelsRepository channels.Repository,
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+) *Service {
 	return &Service{
-		channelsRepository: opts.ChannelsRepository,
-		usersRepository:    opts.UsersRepository,
-		channelService:     opts.ChannelService,
+		channelsRepository: channelsRepository,
+		usersRepository:    usersRepository,
+		channelService:     channelService,
 	}
 }
 
@@ -172,6 +168,8 @@ func (c *Service) ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
 		if err != nil {
 			return ApiKeyChannelIdentity{}, fmt.Errorf("failed to get %s channel: %w", user.Platform, err)
 		}
+
+		slog.WarnContext(ctx, "user API key is deprecated, use channel API key")
 	}
 
 	targets := make([]chatmessagesrepo.PlatformChannelIdentity, 0, 2)

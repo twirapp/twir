@@ -1,6 +1,8 @@
+import { AuthPlatformAuthorizeParamsEnum } from '@twir/api/openapi'
 import { createRequest } from '@urql/vue'
 
 import { graphql } from '~/gql/gql.js'
+import { getMcpConsentAuthorizePath, parseMcpConsentAttempt } from '~/utils/mcp-consent.js'
 
 export const userProfileWithoutDashboards = createRequest(
 	graphql(`
@@ -88,6 +90,11 @@ export const useAuth = defineStore('auth-store', () => {
 
 	const redirectTo = computed(() => {
 		const currentRoute = router.currentRoute.value
+		const mcpConsentAttempt = parseMcpConsentAttempt(currentRoute.query.mcp_attempt)
+
+		if (mcpConsentAttempt !== null) {
+			return getMcpConsentAuthorizePath(mcpConsentAttempt)
+		}
 
 		const isPublic = currentRoute.matched.at(0)?.path.startsWith('/p/:channelName()')
 		const isPaste = currentRoute.matched.at(0)?.path.startsWith('/h')
@@ -135,6 +142,35 @@ export const useAuth = defineStore('auth-store', () => {
 		}
 	}
 
+	async function loginWithVk() {
+		const api = useOapi()
+		try {
+			const res = await api.auth.authPlatformAuthorize(
+				AuthPlatformAuthorizeParamsEnum.VkVideoLive,
+				{ redirect_to: redirectTo.value }
+			)
+			if (res.data && res.data.authorize_url) {
+				window.location.replace(res.data.authorize_url)
+			}
+		} catch (err) {
+			console.error('VK login failed:', err)
+		}
+	}
+
+	async function loginWithYoutube() {
+		const api = useOapi()
+		try {
+			const res = await api.auth.authPlatformAuthorize(AuthPlatformAuthorizeParamsEnum.Youtube, {
+				redirect_to: redirectTo.value,
+			})
+			if (res.data && res.data.authorize_url) {
+				window.location.replace(res.data.authorize_url)
+			}
+		} catch (err) {
+			console.error('YouTube login failed:', err)
+		}
+	}
+
 	return {
 		userWithoutDashboards,
 		currentAccount,
@@ -144,6 +180,8 @@ export const useAuth = defineStore('auth-store', () => {
 		logout,
 		login,
 		loginWithKick,
+		loginWithVk,
+		loginWithYoutube,
 	}
 })
 

@@ -2,8 +2,10 @@ package server
 
 import (
 	"context"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -14,46 +16,25 @@ import (
 	"github.com/twirapp/twir/libs/cache/twitch"
 	config "github.com/twirapp/twir/libs/config"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.uber.org/fx"
 )
-
-type Opts struct {
-	fx.In
-	LC                 fx.Lifecycle
-	Sessions           *auth.Auth
-	CachedTwitchClient *twitch.CachedTwitchClient
-	Logger             *slog.Logger
-	Middlewares        *middlewares.Middlewares
-	Config             config.Config
-}
 
 type Server struct {
 	*gin.Engine
 }
 
-func New(opts Opts) (*Server, error) {
+func New(lc *lifecycle.Lifecycle, sessions *auth.Auth, cachedTwitchClient *twitch.CachedTwitchClient, logger *slog.Logger, middlewaresService *middlewares.Middlewares, config config.Config) (*Server, error) {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
-	r.Use(opts.Middlewares.Logger())
-	r.Use(
-		cors.New(
-			cors.Config{
-				AllowAllOrigins:  true,
-				AllowMethods:     []string{"*"},
-				AllowHeaders:     []string{"*"},
-				ExposeHeaders:    []string{"*"},
-				AllowCredentials: true,
-			},
-		),
-	)
+	r.Use(middlewaresService.Logger())
+	r.Use(newGlobalCORS(r))
 
 	r.Use(otelgin.Middleware("api-gql"))
-	r.Use(opts.Sessions.Middleware())
-	r.Use(opts.Middlewares.DashboardID)
+	r.Use(sessions.Middleware())
+	r.Use(middlewaresService.DashboardID)
 	r.Use(gin.Recovery())
 	r.Use(gincontext.Middleware())
-	r.Use(opts.Middlewares.RateLimit("global", 1000, 60*time.Second))
+	r.Use(middlewaresService.RateLimit("global", 1000, 60*time.Second))
 
 	r.NoRoute(
 		func(c *gin.Context) {
@@ -67,36 +48,73 @@ func New(opts Opts) (*Server, error) {
 					"ip":      c.ClientIP(),
 				},
 			)
-			return
 		},
 	)
 
-	server := &Server{
+	srv := &Server{
 		r,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				opts.Logger.Info("Starting server")
+				logger.Info("Starting server")
 				go func() {
-					server.StartServer()
+					srv.StartServer()
 				}()
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				server.StopServer()
+				srv.StopServer()
 				return nil
 			},
 		},
 	)
 
-	return server, nil
+	return srv, nil
 }
 
 func (c *Server) StartServer() {
-	c.Run(":3009")
+	port := os.Getenv("API_GQL_PORT")
+	if port == "" {
+		port = "3009"
+	}
+	c.Run(":" + port)
 }
 
 func (c *Server) StopServer() {
+}
+
+func newGlobalCORS(router *gin.Engine) gin.HandlerFunc {
+	fallback := cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
+		AllowCredentials: true,
+	})
+
+	return func(c *gin.Context) {
+		if c.Request.Method == http.MethodOptions {
+			if hasExplicitRoute(router, http.MethodOptions, c.Request.URL.Path) {
+				c.Next()
+				return
+			}
+
+			fallback(c)
+			return
+		}
+
+		fallback(c)
+	}
+}
+
+func hasExplicitRoute(router *gin.Engine, method, path string) bool {
+	for _, route := range router.Routes() {
+		if route.Method == method && route.Path == path {
+			return true
+		}
+	}
+
+	return false
 }

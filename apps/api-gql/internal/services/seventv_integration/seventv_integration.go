@@ -14,27 +14,22 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/bots"
 	seventvintegrationrepository "github.com/twirapp/twir/libs/repositories/seventv_integration"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	fx.In
-
-	SeventvRepository seventvintegrationrepository.Repository
-	BotsRepository    bots.Repository
-	Config            config.Config
-	Cacher            *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv]
-	Logger            *slog.Logger
-}
-
-func New(opts Opts) *Service {
+func New(
+	seventvRepository seventvintegrationrepository.Repository,
+	botsRepository bots.Repository,
+	cfg config.Config,
+	cacher *generic_cacher.GenericCacher[model.ChannelsIntegrationsSettingsSeventv],
+	logger *slog.Logger,
+) *Service {
 	return &Service{
-		seventvRepository: opts.SeventvRepository,
-		botsRepository:    opts.BotsRepository,
-		config:            opts.Config,
-		cacher:            opts.Cacher,
-		logger:            opts.Logger,
+		seventvRepository: seventvRepository,
+		botsRepository:    botsRepository,
+		config:            cfg,
+		cacher:            cacher,
+		logger:            logger,
 	}
 }
 

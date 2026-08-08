@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ChannelPlatformBinding, Platform } from '~/gql/graphql.js'
+import type { PlatformMeta } from '~/utils/platforms.js'
 
 import {
 	AlertDialog,
@@ -21,7 +22,7 @@ import { Switch } from '@/components/ui/switch'
 const props = withDefaults(
 	defineProps<{
 		platform: Platform
-		presentation: { label: string; icon: string; iconClass?: string }
+		presentation: Pick<PlatformMeta, 'label' | 'icon'> & Partial<PlatformMeta>
 		capabilities: { name: string }[]
 		binding: ChannelPlatformBinding | null
 		busy?: boolean
@@ -62,7 +63,7 @@ function setEnabled(enabled: boolean) {
 			<Icon
 				:name="presentation.icon"
 				class="size-5 shrink-0"
-				:class="presentation.iconClass"
+					:class="presentation.colorClass"
 			/>
 			<div class="flex min-w-0 flex-1 flex-col gap-1">
 				<CardTitle>{{ presentation.label }}</CardTitle>

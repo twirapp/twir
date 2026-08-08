@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/bots/internal/services/voteban"
 	"github.com/twirapp/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/apps/bots/internal/workers"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -43,46 +44,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
-
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	Logger                           *slog.Logger
-	WebsocketsGrpc                   websockets.WebsocketClient
-	GreetingsRepository              greetings.Repository
-	ChatMessagesRepository           chat_messages.Repository
-	ChannelsEmotesUsagesRepository   channels_emotes_usages.Repository
-	UsersstatsRepository             usersstats.Repository
-	UsersRepository                  users.Repository
-	Gorm                             *gorm.DB
-	Redis                            *redis.Client
-	TwitchActions                    *twitchactions.TwitchActions
-	ModerationHelpers                *moderationhelpers.ModerationHelpers
-	Bus                              *buscore.Bus
-	KeywordsService                  *keywords.Service
-	GreetingsCache                   *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
-	TTSService                       *tts.Service
-	Config                           cfg.Config
-	ChatWallCacher                   *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall]
-	ChatWallRepository               chatwallrepository.Repository
-	ChatWallSettingsCacher           *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings]
-	ChannelsRepository               channelsrepository.Repository
-	StreamsRepository                streamsrepository.Repository
-	PrefixCache                      *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
-	GiveawaysCacher                  *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
-	ChannelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings]
-	VotebanService                   *voteban.Service
-	ChatTranslatorService            *chattranslationsservice.Service
-	GiveawaysService                 *giveaways.Service
-
-	TrmManager trm.Manager
-
-	WorkersPool *workers.Pool
-}
 
 type MessageHandler struct {
 	logger                           *slog.Logger
@@ -141,39 +104,70 @@ var handlersForExecute = []func(
 	(*MessageHandler).handleGiveaways,
 }
 
-func New(opts Opts) *MessageHandler {
+func New(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	websocketsGrpc websockets.WebsocketClient,
+	greetingsRepository greetings.Repository,
+	chatMessagesRepository chat_messages.Repository,
+	channelsEmotesUsagesRepository channels_emotes_usages.Repository,
+	usersstatsRepository usersstats.Repository,
+	usersRepository users.Repository,
+	gormDB *gorm.DB,
+	redisClient *redis.Client,
+	twitchActions *twitchactions.TwitchActions,
+	moderationHelpers *moderationhelpers.ModerationHelpers,
+	bus *buscore.Bus,
+	keywordsService *keywords.Service,
+	greetingsCache *generic_cacher.GenericCacher[[]greetingsmodel.Greeting],
+	ttsService *tts.Service,
+	cfg cfg.Config,
+	chatWallCacher *generic_cacher.GenericCacher[[]chatwallmodel.ChatWall],
+	chatWallRepository chatwallrepository.Repository,
+	chatWallSettingsCacher *generic_cacher.GenericCacher[chatwallmodel.ChatWallSettings],
+	channelsRepository channelsrepository.Repository,
+	streamsRepository streamsrepository.Repository,
+	prefixCache *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix],
+	giveawaysCacher *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway],
+	channelsModerationSettingsCacher *generic_cacher.GenericCacher[[]channelsmoderationsettingsmodel.ChannelModerationSettings],
+	votebanService *voteban.Service,
+	chatTranslatorService *chattranslationsservice.Service,
+	giveawaysService *giveaways.Service,
+	trmManager trm.Manager,
+	workersPool *workers.Pool,
+) *MessageHandler {
 	handler := &MessageHandler{
-		logger:            opts.Logger,
-		gorm:              opts.Gorm,
-		redis:             opts.Redis,
-		twitchActions:     opts.TwitchActions,
-		websocketsGrpc:    opts.WebsocketsGrpc,
-		moderationHelpers: opts.ModerationHelpers,
-		config:            opts.Config,
-		twirBus:           opts.Bus,
+		logger:            logger,
+		gorm:              gormDB,
+		redis:             redisClient,
+		twitchActions:     twitchActions,
+		websocketsGrpc:    websocketsGrpc,
+		moderationHelpers: moderationHelpers,
+		config:            cfg,
+		twirBus:           bus,
 
-		keywordsService:                  opts.KeywordsService,
-		greetingsRepository:              opts.GreetingsRepository,
-		chatMessagesRepository:           opts.ChatMessagesRepository,
-		channelsEmotesUsagesRepository:   opts.ChannelsEmotesUsagesRepository,
-		usersstatsRepository:             opts.UsersstatsRepository,
-		greetingsCache:                   opts.GreetingsCache,
-		ttsService:                       opts.TTSService,
-		chatWallCacher:                   opts.ChatWallCacher,
-		chatWallRepository:               opts.ChatWallRepository,
-		chatWallSettingsCacher:           opts.ChatWallSettingsCacher,
-		giveawaysCacher:                  opts.GiveawaysCacher,
-		channelsModerationSettingsCacher: opts.ChannelsModerationSettingsCacher,
-		channelsRepository:               opts.ChannelsRepository,
-		streamsRepository:                opts.StreamsRepository,
-		prefixCache:                      opts.PrefixCache,
-		trmManager:                       opts.TrmManager,
-		usersRepository:                  opts.UsersRepository,
-		votebanService:                   opts.VotebanService,
-		chatTranslatorService:            opts.ChatTranslatorService,
-		giveawaysService:                 opts.GiveawaysService,
+		keywordsService:                  keywordsService,
+		greetingsRepository:              greetingsRepository,
+		chatMessagesRepository:           chatMessagesRepository,
+		channelsEmotesUsagesRepository:   channelsEmotesUsagesRepository,
+		usersstatsRepository:             usersstatsRepository,
+		greetingsCache:                   greetingsCache,
+		ttsService:                       ttsService,
+		chatWallCacher:                   chatWallCacher,
+		chatWallRepository:               chatWallRepository,
+		chatWallSettingsCacher:           chatWallSettingsCacher,
+		giveawaysCacher:                  giveawaysCacher,
+		channelsModerationSettingsCacher: channelsModerationSettingsCacher,
+		channelsRepository:               channelsRepository,
+		streamsRepository:                streamsRepository,
+		prefixCache:                      prefixCache,
+		trmManager:                       trmManager,
+		usersRepository:                  usersRepository,
+		votebanService:                   votebanService,
+		chatTranslatorService:            chatTranslatorService,
+		giveawaysService:                 giveawaysService,
 
-		workersPool: opts.WorkersPool,
+		workersPool: workersPool,
 	}
 
 	batcherCtx, batcherCancel := context.WithCancel(context.Background())
@@ -200,8 +194,8 @@ func New(opts Opts) *MessageHandler {
 		},
 	)
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
 					handler.messagesSaveBatcher.Start(batcherCtx)

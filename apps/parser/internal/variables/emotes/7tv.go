@@ -26,6 +26,7 @@ type sevenUserTvResponse struct {
 var SevenTv = &types.Variable{
 	Name:                "emotes.7tv",
 	Description:         lo.ToPtr("Emotes of channel from https://7tv.app"),
+	Platforms:           []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CanBeUsedInRegistry: true,
 	Handler: shared.HandlerByPlatform(map[platformentity.Platform]types.VariableHandler{
 		shared.PlatformTwitch: sevenTVHandler(shared.PlatformTwitch),

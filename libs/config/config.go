@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -53,11 +54,23 @@ type Config struct {
 	S3AccessToken string `required:"false" envconfig:"CDN_ACCESS_TOKEN"`
 	S3SecretToken string `required:"false" envconfig:"CDN_SECRET_TOKEN"`
 
-	DiscordClientID     string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
-	DiscordClientSecret string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
-	DiscordBotToken     string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
-	DiscordFeedbackUrl  string `required:"false" envconfig:"DISCORD_FEEDBACK_URL"`
-	GithubWebhookSecret string `required:"false" envconfig:"GITHUB_WEBHOOK_SECRET"`
+	UploaderMaxFileSizeBytes     int64         `required:"false" default:"26214400" envconfig:"UPLOADER_MAX_FILE_SIZE_BYTES"`
+	UploaderAnonymousFileTTL     time.Duration `required:"false" default:"720h" envconfig:"UPLOADER_ANONYMOUS_FILE_TTL"`
+	UploaderAuthenticatedFileTTL time.Duration `required:"false" default:"4320h" envconfig:"UPLOADER_AUTHENTICATED_FILE_TTL"`
+	UploaderS3Host               string        `required:"false" envconfig:"UPLOADER_S3_HOST"`
+	UploaderS3Bucket             string        `required:"false" default:"uploader-s3" envconfig:"UPLOADER_S3_BUCKET"`
+	UploaderS3Region             string        `required:"false" envconfig:"UPLOADER_S3_REGION"`
+	UploaderS3AccessToken        string        `required:"false" envconfig:"UPLOADER_S3_ACCESS_TOKEN"`
+	UploaderS3SecretToken        string        `required:"false" envconfig:"UPLOADER_S3_SECRET_TOKEN"`
+
+	DiscordClientID                        string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
+	DiscordClientSecret                    string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
+	DiscordBotToken                        string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
+	DiscordFeedbackUrl                     string `required:"false" envconfig:"DISCORD_FEEDBACK_URL"`
+	DiscordNotificationsChannelID          string `required:"false" envconfig:"DISCORD_NOTIFICATIONS_CHANNEL_ID"`
+	DiscordNotificationsHistoryLimit       uint   `required:"false" default:"100" envconfig:"DISCORD_NOTIFICATIONS_HISTORY_LIMIT"`
+	DiscordNotificationsMaxAttachmentBytes int64  `required:"false" default:"26214400" envconfig:"DISCORD_NOTIFICATIONS_MAX_ATTACHMENT_BYTES"`
+	GithubWebhookSecret                    string `required:"false" envconfig:"GITHUB_WEBHOOK_SECRET"`
 
 	OpenWeatherMapApiKey string `required:"false" envconfig:"OPENWEATHERMAP_API_KEY"`
 
@@ -112,6 +125,14 @@ type Config struct {
 	VKVideoAuthBaseURL   string `required:"false" default:"https://auth.live.vkvideo.ru" envconfig:"VK_VIDEO_AUTH_BASE_URL"`
 	VKVideoDevAPIBaseURL string `required:"false" default:"https://apidev.live.vkvideo.ru" envconfig:"VK_VIDEO_DEVAPI_BASE_URL"`
 
+	// VkProxyUrl is an optional HTTP/SOCKS5 proxy URL used for the VK Video
+	// Live Centrifugo (pubsub) WebSocket connection, e.g. "http://host:port"
+	// or "socks5://user:pass@host:port".
+	VkProxyUrl string `required:"false" envconfig:"VK_PROXY_URL"`
+
+	YouTubeClientID     string `required:"false" envconfig:"YOUTUBE_CLIENT_ID"`
+	YouTubeClientSecret string `required:"false" envconfig:"YOUTUBE_CLIENT_SECRET"`
+
 	FaceitClientId     string `required:"false" envconfig:"FACEIT_CLIENT_ID"`
 	FaceitClientSecret string `required:"false" envconfig:"FACEIT_CLIENT_SECRET"`
 	FaceitApiKey       string `required:"false" envconfig:"FACEIT_API_KEY"`
@@ -129,6 +150,17 @@ type Config struct {
 	SecretsEncryptionKey string `required:"false" default:"0123456789abcdef0123456789abcdef" envconfig:"SECRETS_ENCRYPTION_KEY"`
 }
 
+func (c Config) BuildS3PublicURL(objectPath string) string {
+	parts := []string{strings.TrimRight(c.S3PublicUrl, "/")}
+	if c.AppEnv == "development" {
+		parts = append(parts, strings.Trim(c.S3Bucket, "/"))
+	}
+	if objectPath = strings.TrimLeft(objectPath, "/"); objectPath != "" {
+		parts = append(parts, objectPath)
+	}
+	return strings.Join(parts, "/")
+}
+
 func (c *Config) IsProduction() bool {
 	return c.AppEnv == "production"
 }
@@ -139,6 +171,10 @@ func (c *Config) IsDevelopment() bool {
 
 func (c *Config) IsVkVideoEnabled() bool {
 	return c.VKVideoClientID != "" && c.VKVideoClientSecret != ""
+}
+
+func (c *Config) IsYouTubeEnabled() bool {
+	return c.YouTubeClientID != "" && c.YouTubeClientSecret != ""
 }
 
 func (c *Config) GetTwitchCallbackUrl() string {
@@ -175,6 +211,24 @@ func (c *Config) GetKickCallbackUrl() string {
 	}
 
 	return u.JoinPath("login", "kick").String()
+}
+
+func (c *Config) GetYouTubeCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("login", "youtube").String()
+}
+
+func (c *Config) GetYouTubeBotCallbackUrl() string {
+	u, err := url.Parse(c.SiteBaseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	return u.JoinPath("api", "auth", "youtube", "bot-callback").String()
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

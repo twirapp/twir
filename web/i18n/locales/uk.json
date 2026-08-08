@@ -94,7 +94,8 @@
     "darkTheme": "Темна тема",
     "lightTheme": "Світла тема",
     "notifications": "Сповіщення",
-    "giveaways": "Розіграші"
+    "giveaways": "Розіграші",
+    "quotes": "Цитати"
   },
   "deleteConfirmation": {
     "text": "Ви впевнені, що хочете видалити це?",
@@ -241,6 +242,26 @@
       "usedEmotes": "Використано емодзі",
       "viewers": "Глядачі",
       "requestedSongs": "Замовлено пісень"
+    },
+    "statsLayouts": {
+      "label": "Макет статистики в шапці",
+      "rows": "Рядки",
+      "rowsDescription": "Значення за кожною платформою всередині віджетів",
+      "aggregate": "Агрегат",
+      "aggregateDescription": "Суми з деталізацією за платформами у спливному вікні",
+      "grid": "Сітка",
+      "gridDescription": "Лише картки платформ, без глобальних віджетів"
+    },
+    "platformStats": {
+      "platform": "Платформа",
+      "streamTitles": "Назви трансляцій",
+      "livePlatforms": "{live} в ефірі · платформ: {total}",
+      "breakdown": "Деталізація за платформами",
+      "live": "LIVE",
+      "offline": "Офлайн",
+      "noTitle": "Без назви",
+      "noCategory": "Без категорії",
+      "editUnavailable": "Редагування недоступне"
     },
     "widgets": {
       "chat": {
@@ -631,6 +652,85 @@
         "stop": "Зупинити попередній перегляд"
       }
     },
+    "streamStats": {
+      "title": "Stream Stats",
+      "description": "Display live stream counters: viewers, messages, uptime, subscribers and followers.",
+      "settings": {
+        "design": {
+          "label": "Design",
+          "glass": {
+            "name": "Glass",
+            "description": "Frosted glass bar with all counters in a row."
+          },
+          "cards": {
+            "name": "Cards",
+            "description": "Separate cards with a colored accent per counter."
+          },
+          "neon": {
+            "name": "Neon",
+            "description": "Dark cards with a neon violet glow."
+          },
+          "solid": {
+            "name": "Solid",
+            "description": "Bright gradient chips."
+          },
+          "minimal": {
+            "name": "Minimal",
+            "description": "Plain text line without decoration."
+          },
+          "terminal": {
+            "name": "Terminal",
+            "description": "Monospace hacker-style readout."
+          },
+          "outline": {
+            "name": "Outline",
+            "description": "Transparent chips with colored outlines."
+          }
+        },
+        "variant": {
+          "label": "Layout",
+          "horizontal": "Horizontal",
+          "horizontalCompact": "Horizontal compact",
+          "vertical": "Vertical",
+          "verticalCompact": "Vertical compact",
+          "large": "Large"
+        },
+        "counters": {
+          "label": "Counters",
+          "viewers": "Viewers",
+          "messages": "Messages on stream",
+          "uptime": "Uptime",
+          "subscribers": "Subscribers",
+          "followers": "Followers",
+          "viewersMode": {
+            "label": "Viewers Counter Mode",
+            "cumulative": {
+              "name": "Total",
+              "description": "Total viewers across all platforms"
+            },
+            "separate": {
+              "name": "Per Platform",
+              "description": "Separate counter per platform"
+            }
+          },
+          "twitchOnlyNote": "Subscribers and followers totals are Twitch-only; the counter is hidden for other platforms.",
+          "platformIcons": "Platform icons instead of labels",
+          "dragHint": "Drag to reorder counters."
+        },
+        "colors": {
+          "label": "Counter colors",
+          "hint": "Leave empty to use the design default."
+        },
+        "customTemplate": {
+          "label": "Custom Template",
+          "enabled": "Enable custom template",
+          "html": "HTML",
+          "css": "CSS",
+          "placeholders": "Available placeholders:",
+          "replacesDesign": "The custom template replaces the chosen design."
+        }
+      }
+    },
     "faceit": {
       "title": "Налаштування Faceit оверлею",
       "description": "Налаштуйте оверлей для відображення вашої Faceit статистики. Налаштуйте його відповідно до ваших вподобань.",
@@ -724,7 +824,9 @@
         "minLength": "Мінімальна тривалість пісні для замовлення (у хвилинах)",
         "maxLength": "Максимальна тривалість пісні для замовлення (у хвилинах)",
         "minViews": "Мінімальна кількість переглядів пісні для замовлення"
-      }
+      },
+      "hideOnPause": "Ховати оверлей при паузі",
+      "hideOnPauseDescription": "Коли увімкнено, OBS оверлей буде ховатися при паузі відтворення. Коли вимкнено, оверлей залишається видимим зі станом паузи."
     },
     "tabs": {
       "general": "Загальні",
@@ -737,6 +839,15 @@
       "song": "Заборонити пісню",
       "userConfirm": "Ви впевнені, що хочете заблокувати цього користувача?",
       "songConfirm": "Ви впевнені, що хочете заблокувати цю пісню?"
+    },
+    "links": {
+      "title": "Посилання на віджет та оверлей",
+      "apiKey": "API ключ",
+      "widget": "Віджет",
+      "overlay": "OBS оверлей",
+      "notConfigured": "Налаштуйте замовлення пісень, щоб отримати посилання на віджет та оверлей.",
+      "copied": "Посилання на {label} скопійовано!",
+      "copyError": "Не вдалося скопіювати посилання"
     }
   },
   "timers": {
@@ -1170,7 +1281,17 @@
       "showMeOnLanding": "Показувати себе на головній сторінці?",
       "regenerateApiKey": {
         "button": "Згенерувати приватний API ключ",
-        "info": "Цей ключ використовується у посиланнях на всі оверлеї. Коли ви генеруєте новий ключ, вам необхідно перевірити всі ваші оверлеї у вашому додатку для трансляцій та замінити посилання на нові."
+        "info": "Цей застарілий ключ користувача раніше використовувався у посиланнях на оверлеї, MCP та публічному API. Він застарів — використовуйте API ключ каналу."
+      },
+      "channelApiKey": {
+        "title": "API ключ каналу",
+        "button": "Згенерувати новий API ключ каналу",
+        "info": "Цей ключ використовується у посиланнях на оверлеї, MCP та публічному API вибраного каналу. Після генерації нового ключа вам необхідно оновити посилання на оверлеї у вашому додатку для трансляцій."
+      },
+      "legacyApiKey": {
+        "title": "Застарілий API ключ користувача",
+        "badge": "Застарілий",
+        "info": "Цей ключ застарів і буде видалений у майбутньому. Використовуйте натомість API ключ каналу вище."
       }
     },
     "public": {
@@ -1360,11 +1481,46 @@
       }
     }
   },
+  "site": {
+    "description": "Потужний і корисний чат-бот для Twitch, Kick, VK Video Live та YouTube, що допомагає керувати чатом на великих каналах. Створений стримерами для стримерів із любовʼю."
+  },
   "landing": {
     "meta": {
-      "title": "Twir — бот для чату Twitch та Kick",
-      "description": "Потужний і корисний бот для Twitch, що допомагає керувати чатом на великих каналах. Команди, таймери, модерація, замовлення музики, розіграші, оверлеї та багато іншого — безкоштовно і з відкритим кодом."
+      "title": "Twir — бот для чату Twitch, Kick, VK та YouTube",
+      "description": "Потужний і корисний бот для Twitch, Kick, VK Video Live та YouTube, що допомагає керувати чатом на великих каналах. Команди, таймери, модерація, замовлення музики, розіграші, оверлеї та багато іншого — безкоштовно і з відкритим кодом."
     },
+    "hero": {
+      "updates": "🚀 Переглянути останні оновлення", "title": "Залучайте свою аудиторію як ніколи раніше", "description": "Twir — безкоштовний чат-бот із відкритим кодом для Twitch, Kick, VK Video Live та YouTube. Він допомагає стримерам керувати й розвивати канали за допомогою власних команд, таймерів, модерації чату, замовлень музики, розіграшів, алертів і оверлеїв — усе в одному місці.",
+      "platforms": { "twitch": "Twitch", "kick": "Kick", "vk": "VK Video Live", "youtube": "YouTube" }, "learnMore": "Дізнатися більше", "dashboard": "Дашборд"
+    },
+    "stats": { "activeChannels": "Активні канали", "createdCommands": "Створені команди", "usersSeen": "Побачені користувачі", "messagesProcessed": "Оброблені повідомлення", "emotesProcessed": "Оброблені смайли", "commandsProcessed": "Оброблені команди", "platformChannels": { "twitch": "Канали Twitch", "kick": "Канали Kick", "vk": "Канали VK Video Live", "youtube": "Канали YouTube" } },
+    "features": {
+      "badge": "Можливості", "title": "Відкрийте чудові можливості нашого бота", "description": "Дослідіть безліч функцій, які виведуть ваш стрим на новий рівень. Наш бот має інструменти для незабутнього ефіру!", "disclaimer": "Це далеко не повний список можливостей бота: ми постійно оновлюємо його та додаємо нові інноваційні функції.", "discord": "Приєднатися до Discord і стежити за новинами",
+      "items": {
+        "music-recognition": { "title": "Розпізнавання музики", "description": "Shazam для вашого Twitch-стриму! Безкоштовно, без підключення музичних сервісів" },
+        "vips": { "title": "VIP", "description": "Керуйте VIP через бота та плануйте їхнє зняття на потрібний час" },
+        "giveaways": { "title": "Розіграші", "description": "Створюйте розіграші, керуйте учасниками, обирайте переможців і зберігайте результати" },
+        "commands": { "title": "Команди", "description": "Потужна система команд із кількома відповідями, категоріями активації, терміном дії, аліасами, лічильниками та змінними. Команди можна привʼязувати до категорій і автоматично видаляти або вимикати" },
+        "variables": { "title": "Власні змінні", "description": "Пишіть власні змінні на JavaScript або Python, щоб розширити функціональність бота" },
+        "mcp": { "title": "Керування через ШІ (MCP)", "description": "Керуйте ботом за допомогою ШІ-асистентів: змінюйте команди, таймери, ключові слова та змінні з Claude Code, Codex або OpenCode через MCP" },
+        "timers": { "title": "Таймери", "description": "Проста, але гнучка система автоматичних оголошень для Twitch" },
+        "greetings": { "title": "Привітання", "description": "Хочете виділити улюблених глядачів? Додайте привітання!" },
+        "song-requests": { "title": "Замовлення музики", "description": "Глядачі замовляють пісні командами в чаті. Бот керує чергою та відтворенням, підвищуючи залучення" },
+        "keywords": { "title": "Ключові слова", "description": "Виявляє ключові слова в чаті та запускає автоматичні повідомлення для взаємодії чи інформування" },
+        "events": { "title": "Події", "description": "Налаштовуйте власні слухачі для подій у чаті чи системі та запускайте потрібні дії" },
+        "moderation": { "title": "Модерація", "description": "Створюйте й керуйте фільтрами чату для безпечного та доброзичливого спілкування" },
+        "obs": { "title": "OBS WebSockets", "description": "Інтегруйте OBS Studio через WebSockets: змінюйте сцени, вимикайте звук і перемикайте джерела ботом" },
+        "stats": { "title": "Статистика", "description": "Відстежуйте час перегляду, повідомлення та використані бали каналу" },
+        "overlays": { "title": "Оверлеї", "description": "Готові оверлеї для статистики Faceit і Valorant, Now Playing, чату, стіни смайлів, Pixel Dudes та AFK" },
+        "alerts": { "title": "Алерти", "description": "Створюйте власні звукові алерти для балів каналу, команд і ключових слів" },
+        "games": { "title": "Ігри", "description": "Додайте розваг у чат: російська рулетка, дуелі, сеппуку, voteban і магічна вісімка" },
+        "short-urls": { "title": "Короткі URL", "description": "Миттєво скорочуйте й поширюйте посилання через Twir — створено понад {landingStatsCreatedShortUrls}" },
+        "hastebins": { "title": "HasteBins", "description": "Створюйте й поширюйте швидкі захищені тексти через HasteBins — створено {landingStatsCreatedHastebins}" }
+      }
+    },
+    "integrations": { "badge": "Інтеграції", "title": "Підсилюйте стрим безшовними інтеграціями", "description": "Підключайте улюблені інструменти й платформи, щоб покращити ефективність і залучення на стримі. Інтеграції Twir відкривають безмежні можливості." },
+    "nav": { "features": "Можливості", "integrations": "Інтеграції", "compare": "Порівняння", "urlShortener": "Скорочувач URL", "uploader": "Завантажувач зображень", "hastebin": "Hastebin", "terms": "Умови використання", "privacy": "Політика конфіденційності", "login": "Увійти", "startNow": "Почати", "dashboard": "Дашборд", "logout": "Вийти", "vkLive": "VK Live" },
+    "footer": { "navigation": "Навігація футера", "github": "Репозиторій Github", "discord": "Discord-канал для запитань і новин" },
     "compareLink": "Порівняти Twir з іншими ботами",
     "faq": {
       "badge": "FAQ",
@@ -1375,15 +1531,15 @@
       },
       "q2": {
         "question": "Як додати Twir на канал?",
-        "answer": "Увійдіть через Twitch або Kick акаунт, натисніть «Додати бота» у дашборді, і Twir приєднається до вашого чату протягом хвилини. Нічого завантажувати не потрібно."
+        "answer": "Увійдіть через акаунт Twitch, Kick, VK або YouTube, натисніть «Додати бота» у дашборді, і Twir приєднається до вашого чату протягом хвилини. Нічого завантажувати не потрібно."
       },
       "q3": {
         "question": "Чи можна переїхати з Nightbot або StreamElements?",
         "answer": "Так. У Twir є вбудований імпорт, який переносить команди та налаштування з Nightbot, StreamElements і Streamlabs за кілька кліків."
       },
       "q4": {
-        "question": "Twir працює на Kick?",
-        "answer": "Так, Twir підтримує і Twitch, і Kick. Ви можете підключити Kick-канал і керувати ним з того ж дашборда."
+        "question": "Twir працює на Kick, VK і YouTube?",
+        "answer": "Так, Twir підтримує Twitch, Kick, VK Video Live та YouTube. Ви можете підключити свої канали й керувати ними з того ж дашборда."
       },
       "q5": {
         "question": "Twir — open source?",
@@ -1438,7 +1594,8 @@
       "vipManagement": "Керування VIP",
       "emoteStats": "Статистика смайлів",
       "musicRecognition": "Розпізнавання музики (як Shazam)",
-      "obsIntegration": "Інтеграція з OBS"
+      "obsIntegration": "Інтеграція з OBS",
+      "aiMcp": "Керування через ШІ (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing, Чат, статистика Faceit та Valorant, Emote Wall, Pixel Dudes, AFK та інші",
@@ -1460,11 +1617,12 @@
       "rolesMoobot": "1 група прав на безкоштовному плані",
       "vipTwir": "Керування VIP та планування зняття за часом",
       "vipMoobot": "Лише First Wave VIP, MoobotPlus (платно)",
-      "obsTwir": "Зміна сцен, мʼют звуку, видимість джерел через websockets"
+      "obsTwir": "Зміна сцен, мʼют звуку, видимість джерел через websockets",
+      "aiMcpTwir": "Керуйте ботом із Claude Code, Codex, OpenCode та інших ШІ-асистентів через MCP"
     },
     "values": {
       "platforms": {
-        "twir": "Twitch, Kick",
+        "twir": "Twitch, Kick, VK Video Live, YouTube",
         "nightbot": "Twitch, YouTube",
         "streamelements": "Twitch, YouTube, Kick",
         "moobot": "Twitch",
@@ -1497,10 +1655,26 @@
         "answer": "Так. Усі функції з таблиці порівняння безкоштовні, включно з оверлеями, розіграшами та замовленням музики. Twir — open source проєкт, розроблений стрімерами для стрімерів."
       },
       "q4": {
-        "question": "Twir підтримує Kick?",
-        "answer": "Так. Twir працює і з Twitch, і з Kick з одного дашборда — можна керувати обома каналами в одному місці."
+        "question": "Twir підтримує Kick, VK і YouTube?",
+        "answer": "Так. Twir працює з Twitch, Kick, VK Video Live та YouTube з одного дашборда — можна керувати всіма каналами в одному місці."
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot та Fossabot — торгові марки їхніх відповідних власників. Twir не афілійований з ними та не має їхнього схвалення. Дані про функції базуються на публічній інформації та можуть змінюватися з часом."
+  },
+  "quotes": {
+    "title": "Цитати",
+    "create": "Створити цитату",
+    "edit": "Редагувати цитату",
+    "text": "Цитата",
+    "number": "Номер",
+    "creator": "Автор",
+    "game": "Гра",
+    "createdAt": "Створено",
+    "deleteConfirmation": "Ви впевнені, що хочете видалити цю цитату?",
+    "created": "Цитату створено",
+    "updated": "Цитату оновлено",
+    "deleted": "Цитату видалено",
+    "errorOnSave": "Не вдалося зберегти цитату",
+    "errorOnDelete": "Не вдалося видалити цитату"
   }
 }

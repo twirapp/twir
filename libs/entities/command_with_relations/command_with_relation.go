@@ -75,6 +75,7 @@ type CommandResponse struct {
 	TwitchCategoryIDs []string
 	OnlineOnly        bool
 	OfflineOnly       bool
+	Platforms         []platform.Platform
 
 	isNil bool
 }

@@ -5,7 +5,7 @@ import { useCommandsApi } from '~~/layers/dashboard/api/commands/commands'
 // oxlint-disable-next-line consistent-type-imports
 import { EventType } from '~~/layers/dashboard/api/events.js'
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
-import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
+import PlatformSelector from '@/components/platform/platform-selector.vue'
 import TwitchRewardsSelector from '~~/layers/dashboard/components/rewardsSelector.vue'
 import { EventsOptions } from '~~/layers/dashboard/features/events/constants/events.js'
 import { getEventName } from '~~/layers/dashboard/features/events/constants/helpers.js'

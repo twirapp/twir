@@ -6,6 +6,7 @@ import EventsubSubscribe from './ui/eventsub-subscribe.vue'
 import RescheduleTimers from './ui/reschedule-timers.vue'
 import SetupKickBot from './ui/setup-kick-bot.vue'
 import SetupVKVideoBot from './ui/setup-vk-video-bot.vue'
+import SetupYouTubeBot from './ui/setup-youtube-bot.vue'
 
 const { t } = useI18n()
 </script>
@@ -15,6 +16,7 @@ const { t } = useI18n()
 		<EventsubSubscribe />
 		<SetupKickBot />
 		<SetupVKVideoBot />
+		<SetupYouTubeBot />
 
 		<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
 			{{ t('adminPanel.adminActions.dangerZone.title') }}

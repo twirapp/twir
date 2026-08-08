@@ -3,33 +3,21 @@ package obs_websocket_module
 import (
 	"context"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"time"
 
 	gojson "github.com/goccy/go-json"
 	"github.com/twirapp/kv"
 	kvoptions "github.com/twirapp/kv/options"
-	"github.com/twirapp/twir/libs/wsrouter"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/api"
 	obsentity "github.com/twirapp/twir/libs/entities/obs"
 	"github.com/twirapp/twir/libs/redis_keys"
 	channelsmodulesobswebsocket "github.com/twirapp/twir/libs/repositories/channels_modules_obs_websocket"
 	"github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/wsrouter"
 )
-
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	ObsWebsocketRepository channelsmodulesobswebsocket.Repository
-	WsRouter               wsrouter.WsRouter
-	UsersRepository        users.Repository
-	Bus                    *buscore.Bus
-	Logger                 *slog.Logger
-	KV                     kv.KV
-}
 
 type Service struct {
 	obsWebsocketRepository channelsmodulesobswebsocket.Repository
@@ -39,17 +27,25 @@ type Service struct {
 	kv                     kv.KV
 }
 
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	obsWebsocketRepository channelsmodulesobswebsocket.Repository,
+	wsRouter wsrouter.WsRouter,
+	usersRepository users.Repository,
+	bus *buscore.Bus,
+	logger *slog.Logger,
+	kvClient kv.KV,
+) *Service {
 	s := &Service{
-		obsWebsocketRepository: opts.ObsWebsocketRepository,
-		wsRouter:               opts.WsRouter,
-		usersRepository:        opts.UsersRepository,
-		bus:                    opts.Bus,
-		kv:                     opts.KV,
+		obsWebsocketRepository: obsWebsocketRepository,
+		wsRouter:               wsRouter,
+		usersRepository:        usersRepository,
+		bus:                    bus,
+		kv:                     kvClient,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				s.bus.Api.TriggerObsCommand.SubscribeGroup(
 					"api",
@@ -62,14 +58,14 @@ func New(opts Opts) *Service {
 					},
 				)
 
-				opts.Logger.Info("Subscribed to TriggerObsCommand events")
+				logger.Info("Subscribed to TriggerObsCommand events")
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
 				s.bus.Api.TriggerObsCommand.Unsubscribe()
 
-				opts.Logger.Info("Unsubscribed from TriggerObsCommand events")
+				logger.Info("Unsubscribed from TriggerObsCommand events")
 
 				return nil
 			},

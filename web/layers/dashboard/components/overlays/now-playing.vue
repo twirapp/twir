@@ -12,7 +12,8 @@ const isModalOpened = ref(false)
 
 <template>
 	<Card
-		icon="lucide:broadcast"
+		icon="lucide:audio-lines"
+		icon-fill="#61e8bb"
 		title="Now Playing"
 		:description="t('overlays.nowPlaying.description')"
 		:show-copy="false"

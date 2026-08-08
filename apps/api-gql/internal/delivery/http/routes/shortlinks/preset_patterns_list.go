@@ -2,6 +2,7 @@ package shortlinks
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
-	"go.uber.org/fx"
 )
 
 type presetPatternDto struct {
@@ -26,8 +26,6 @@ type listPresetPatterns struct {
 }
 
 type ListPresetPatternsOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }
@@ -60,9 +58,18 @@ func (c *listPresetPatterns) Handler(
 	ctx context.Context,
 	input *listPresetPatternsInput,
 ) (*httpbase.BaseOutputJson[[]presetPatternDto], error) {
-	_, err := c.sessions.GetAuthenticatedUserModel(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	if err := resolveOwnedPreset(ctx, c.service, user.ID, input.PresetID); err != nil {
+		switch {
+		case errors.Is(err, errPresetNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Preset not found")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get preset", err)
+		}
 	}
 
 	items, err := c.service.GetPresetPatterns(ctx, input.PresetID)

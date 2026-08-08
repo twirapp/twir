@@ -13,22 +13,13 @@ import (
 	"github.com/twirapp/twir/libs/errors"
 	"github.com/twirapp/twir/libs/repositories/badges"
 	"github.com/twirapp/twir/libs/repositories/badges/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	BadgesRepository badges.Repository
-	Config           config.Config
-	MinioClient      *minio.Client
-}
-
-func New(opts Opts) *Service {
+func New(badgesRepository badges.Repository, config config.Config, minioClient *minio.Client) *Service {
 	return &Service{
-		badgesRepository: opts.BadgesRepository,
-		config:           opts.Config,
-		minioClient:      opts.MinioClient,
+		badgesRepository: badgesRepository,
+		config:           config,
+		minioClient:      minioClient,
 	}
 }
 
@@ -70,11 +61,7 @@ func (c *Service) computeBadgeFileName(file entity.Upload, fileID uuid.UUID) (st
 }
 
 func (c *Service) computeBadgeUrl(fileName string) string {
-	if c.config.AppEnv == "development" {
-		return c.config.S3PublicUrl + "/" + c.config.S3Bucket + "/badges/" + fileName
-	}
-
-	return c.config.S3PublicUrl + "/badges/" + fileName
+	return c.config.BuildS3PublicURL("badges/" + fileName)
 }
 
 func (c *Service) GetByID(ctx context.Context, id uuid.UUID) (entity.Badge, error) {

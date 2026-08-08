@@ -18,7 +18,7 @@ import (
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 )
 
 type fakeCooldownStore struct {
@@ -273,14 +273,6 @@ func (s *notifyingSubscription) Subscribe(_ string) error {
 
 func (s *notifyingSubscription) Unsubscribe() {
 	close(s.unsubscribed)
-}
-
-type fakeLifecycle struct {
-	hooks []fx.Hook
-}
-
-func (l *fakeLifecycle) Append(hook fx.Hook) {
-	l.hooks = append(l.hooks, hook)
 }
 
 type capturedLogRecord struct {
@@ -973,7 +965,7 @@ func TestHandlerReturnsCooldownReservationError(t *testing.T) {
 }
 
 func TestLifecycleSubscribesAndUnsubscribesAllQueues(t *testing.T) {
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	subscriptions := []*fakeSubscription{{}, {}, {}, {}}
 	newChatAlerts(
 		&fakeSettingsRepository{},
@@ -981,26 +973,23 @@ func TestLifecycleSubscribesAndUnsubscribesAllQueues(t *testing.T) {
 		&fakeMessagePublisher{},
 		testLogger(t),
 		[]subscription{subscriptions[0], subscriptions[1], subscriptions[2], subscriptions[3]},
-		lifecycle,
+		lc,
 	)
 
-	require.Len(t, lifecycle.hooks, 1)
-	require.NotNil(t, lifecycle.hooks[0].OnStart)
-	require.NotNil(t, lifecycle.hooks[0].OnStop)
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	require.NoError(t, lc.Start(context.Background()))
 
 	for _, subscription := range subscriptions {
 		require.Equal(t, []string{"dota"}, subscription.groups)
 	}
 
-	require.NoError(t, lifecycle.hooks[0].OnStop(context.Background()))
+	require.NoError(t, lc.Stop(context.Background()))
 	for _, subscription := range subscriptions {
 		require.Equal(t, 1, subscription.unsubscribes)
 	}
 }
 
 func TestLifecycleCleansUpAfterPartialSubscriptionFailure(t *testing.T) {
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	subscriptionErr := errors.New("subscription failed")
 	subscriptions := []*fakeSubscription{{}, {}, {err: subscriptionErr}, {}}
 	newChatAlerts(
@@ -1009,10 +998,10 @@ func TestLifecycleCleansUpAfterPartialSubscriptionFailure(t *testing.T) {
 		&fakeMessagePublisher{},
 		testLogger(t),
 		[]subscription{subscriptions[0], subscriptions[1], subscriptions[2], subscriptions[3]},
-		lifecycle,
+		lc,
 	)
 
-	err := lifecycle.hooks[0].OnStart(context.Background())
+	err := lc.Start(context.Background())
 
 	require.ErrorIs(t, err, subscriptionErr)
 	require.Equal(t, []string{"dota"}, subscriptions[0].groups)
@@ -1031,7 +1020,7 @@ func TestLifecycleStopWaitsForActiveHandlerAfterUnsubscribe(t *testing.T) {
 		Enabled:  true,
 		Template: "match ended",
 	}
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	publisher := &blockingFailedPublisher{
 		started: make(chan struct{}),
 		release: make(chan struct{}),
@@ -1043,7 +1032,7 @@ func TestLifecycleStopWaitsForActiveHandlerAfterUnsubscribe(t *testing.T) {
 		publisher,
 		testLogger(t),
 		[]subscription{sub},
-		lifecycle,
+		lc,
 	)
 	released := false
 	defer func() {
@@ -1052,7 +1041,7 @@ func TestLifecycleStopWaitsForActiveHandlerAfterUnsubscribe(t *testing.T) {
 		}
 	}()
 
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	require.NoError(t, lc.Start(context.Background()))
 	handlerResult := make(chan error, 1)
 	go func() {
 		_, err := alerts.handleMatchEnded(
@@ -1065,7 +1054,7 @@ func TestLifecycleStopWaitsForActiveHandlerAfterUnsubscribe(t *testing.T) {
 
 	stopResult := make(chan error, 1)
 	go func() {
-		stopResult <- lifecycle.hooks[0].OnStop(context.Background())
+		stopResult <- lc.Stop(context.Background())
 	}()
 	<-sub.unsubscribed
 	select {
@@ -1087,7 +1076,7 @@ func TestLifecycleStopRejectsCallbacksBeforeDependencies(t *testing.T) {
 		Template: "match ended",
 		Cooldown: 30,
 	}
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	store := newFakeCooldownStore()
 	publisher := &fakeMessagePublisher{}
 	repository := &fakeSettingsRepository{settings: settings}
@@ -1097,11 +1086,11 @@ func TestLifecycleStopRejectsCallbacksBeforeDependencies(t *testing.T) {
 		publisher,
 		testLogger(t),
 		[]subscription{&notifyingSubscription{unsubscribed: make(chan struct{})}},
-		lifecycle,
+		lc,
 	)
 
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
-	require.NoError(t, lifecycle.hooks[0].OnStop(context.Background()))
+	require.NoError(t, lc.Start(context.Background()))
+	require.NoError(t, lc.Stop(context.Background()))
 	_, err := alerts.handleMatchEnded(
 		context.Background(),
 		busdota.MatchEndedMessage{ChannelID: uuid.NewString()},

@@ -188,6 +188,19 @@ func (c *TwitchActions) SendMessage(
 					ReplyParentMessageID: opts.ReplyParentMessageID,
 				},
 			)
+
+			// Reply target may be deleted by mods; fall back to a plain message.
+			if resp != nil && opts.ReplyParentMessageID != "" &&
+				strings.Contains(resp.ErrorMessage, "Message cannot be replied to") {
+				resp, err = twitchClient.SendChatMessage(
+					&helix.SendChatMessageParams{
+						BroadcasterID: opts.BroadcasterID,
+						SenderID:      opts.SenderID,
+						Message:       validateResponseSlashes(message),
+					},
+				)
+			}
+
 			msgErr = err
 			if resp == nil {
 				return fmt.Errorf("cannot send message with unknown reason: %w", err)

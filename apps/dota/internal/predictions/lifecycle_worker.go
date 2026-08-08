@@ -11,11 +11,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/dota/internal/match"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	"github.com/twirapp/twir/libs/logger"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	"github.com/twirapp/twir/libs/repositories/dota/model"
-	"go.uber.org/fx"
 )
 
 const (
@@ -65,18 +65,6 @@ var (
 	errMatchEndedDeliveryHeartbeatStop = errors.New("match ended delivery heartbeat stopped")
 )
 
-type LifecycleWorkerOpts struct {
-	fx.In
-
-	Lifecycle   fx.Lifecycle
-	Repository  dotarepository.Repository
-	Predictions *Predictions
-	State       *match.StateMachine
-	Store       Store
-	Emitter     match.EventEmitter
-	Logger      *slog.Logger
-}
-
 // LifecycleWorker drains durable prediction actions without coupling their delivery to GSI processing.
 type LifecycleWorker struct {
 	repository       predictionActionRepository
@@ -94,15 +82,23 @@ type LifecycleWorker struct {
 	done   chan struct{}
 }
 
-func NewLifecycleWorker(opts LifecycleWorkerOpts) *LifecycleWorker {
+func NewLifecycleWorker(
+	repository dotarepository.Repository,
+	predictions *Predictions,
+	state *match.StateMachine,
+	store Store,
+	emitter match.EventEmitter,
+	logger *slog.Logger,
+	lc *lifecycle.Lifecycle,
+) *LifecycleWorker {
 	return newLifecycleWorker(
-		opts.Repository,
-		opts.Predictions,
-		opts.State,
-		opts.Store,
-		opts.Emitter,
-		opts.Logger,
-		opts.Lifecycle,
+		repository,
+		predictions,
+		state,
+		store,
+		emitter,
+		logger,
+		lc,
 		predictionActionPoll,
 	)
 }
@@ -114,7 +110,7 @@ func newLifecycleWorker(
 	deliveryStore matchEndedDeliveryStore,
 	emitter matchEndedEmitter,
 	logger *slog.Logger,
-	lifecycle fx.Lifecycle,
+	lc *lifecycle.Lifecycle,
 	pollEvery time.Duration,
 ) *LifecycleWorker {
 	if logger == nil {
@@ -135,8 +131,8 @@ func newLifecycleWorker(
 		actionLease:      predictionActionLease,
 		actionRenewEvery: predictionActionRenewEvery,
 	}
-	if lifecycle != nil {
-		lifecycle.Append(fx.Hook{
+	if lc != nil {
+		lc.Append(lifecycle.Hook{
 			OnStart: worker.start,
 			OnStop:  worker.stop,
 		})

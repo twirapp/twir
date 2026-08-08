@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories/commands_response/model"
 )
 
@@ -22,6 +23,7 @@ type CreateInput struct {
 	TwitchCategoryIDs []string
 	OnlineOnly        bool
 	OfflineOnly       bool
+	Platforms         []platform.Platform
 }
 
 type UpdateInput struct {
@@ -30,4 +32,5 @@ type UpdateInput struct {
 	TwitchCategoryIDs []string
 	OnlineOnly        *bool
 	OfflineOnly       *bool
+	Platforms         []platform.Platform
 }

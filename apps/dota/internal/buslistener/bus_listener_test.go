@@ -19,7 +19,7 @@ import (
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	"github.com/twirapp/twir/libs/repositories/dota/model"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 )
 
 var errNotImplemented = errors.New("not implemented")
@@ -317,14 +317,6 @@ func (f *fakeStatsProvider) callCounts() (winProbability, notablePlayers, lastGa
 	defer f.mu.Unlock()
 
 	return len(f.winProbabilityCalls), len(f.notablePlayersCalls), len(f.lastGameCalls)
-}
-
-type fakeLifecycle struct {
-	hooks []fx.Hook
-}
-
-func (f *fakeLifecycle) Append(hook fx.Hook) {
-	f.hooks = append(f.hooks, hook)
 }
 
 type fakeGetDataQueue struct {
@@ -934,7 +926,7 @@ func TestBusListenerOnStopWaitsForActiveGetData(t *testing.T) {
 	releaseRequest := make(chan struct{})
 	unsubscribeStarted := make(chan struct{})
 	allowUnsubscribe := make(chan struct{})
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	queue := &fakeGetDataQueue{
 		unsubscribed:     unsubscribeStarted,
 		allowUnsubscribe: allowUnsubscribe,
@@ -956,11 +948,11 @@ func TestBusListenerOnStopWaitsForActiveGetData(t *testing.T) {
 		}},
 		statsProvider,
 		testLogger(),
-		lifecycle,
+		lc,
 		queue,
 	)
 
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	require.NoError(t, lc.Start(context.Background()))
 	callback := queue.Callback()
 	require.NotNil(t, callback)
 
@@ -979,7 +971,7 @@ func TestBusListenerOnStopWaitsForActiveGetData(t *testing.T) {
 	defer cancelStop()
 	stopResult := make(chan error, 1)
 	go func() {
-		stopResult <- lifecycle.hooks[0].OnStop(stopContext)
+		stopResult <- lc.Stop(stopContext)
 	}()
 	<-unsubscribeStarted
 	cancelStop()
@@ -997,7 +989,7 @@ func TestBusListenerOnStopCompletesAfterActiveGetDataFinishes(t *testing.T) {
 	unsubscribeStarted := make(chan struct{})
 	allowUnsubscribe := make(chan struct{})
 	unsubscribeReturned := make(chan struct{})
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	queue := &fakeGetDataQueue{
 		unsubscribed:        unsubscribeStarted,
 		allowUnsubscribe:    allowUnsubscribe,
@@ -1020,11 +1012,11 @@ func TestBusListenerOnStopCompletesAfterActiveGetDataFinishes(t *testing.T) {
 		}},
 		statsProvider,
 		testLogger(),
-		lifecycle,
+		lc,
 		queue,
 	)
 
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	require.NoError(t, lc.Start(context.Background()))
 	callback := queue.Callback()
 	require.NotNil(t, callback)
 
@@ -1037,7 +1029,7 @@ func TestBusListenerOnStopCompletesAfterActiveGetDataFinishes(t *testing.T) {
 
 	stopResult := make(chan error, 1)
 	go func() {
-		stopResult <- lifecycle.hooks[0].OnStop(context.Background())
+		stopResult <- lc.Stop(context.Background())
 	}()
 	<-unsubscribeStarted
 	close(allowUnsubscribe)
@@ -1066,7 +1058,7 @@ func TestBusListenerOnStopCompletesAfterActiveGetDataFinishes(t *testing.T) {
 func TestBusListenerRejectsGetDataRequestsAfterStop(t *testing.T) {
 	channelID := uuid.New()
 	accountID := "12345"
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	queue := &fakeGetDataQueue{}
 	statsProvider := &fakeStatsProvider{}
 
@@ -1082,12 +1074,12 @@ func TestBusListenerRejectsGetDataRequestsAfterStop(t *testing.T) {
 		}},
 		statsProvider,
 		testLogger(),
-		lifecycle,
+		lc,
 		queue,
 	)
 
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
-	require.NoError(t, lifecycle.hooks[0].OnStop(context.Background()))
+	require.NoError(t, lc.Start(context.Background()))
+	require.NoError(t, lc.Stop(context.Background()))
 
 	callback := queue.Callback()
 	require.NotNil(t, callback)
@@ -1099,7 +1091,7 @@ func TestBusListenerRejectsGetDataRequestsAfterStop(t *testing.T) {
 }
 
 func TestBusListenerLifecycleSubscribesAndUnsubscribesGetData(t *testing.T) {
-	lifecycle := &fakeLifecycle{}
+	lc := lifecycle.New()
 	queue := &fakeGetDataQueue{}
 
 	newBusListener(
@@ -1107,15 +1099,14 @@ func TestBusListenerLifecycleSubscribesAndUnsubscribesGetData(t *testing.T) {
 		&fakeRepository{},
 		&fakeStatsProvider{},
 		testLogger(),
-		lifecycle,
+		lc,
 		queue,
 	)
 
-	require.Len(t, lifecycle.hooks, 1)
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	require.NoError(t, lc.Start(context.Background()))
 	require.Equal(t, "dota", queue.Group())
 	require.NotNil(t, queue.Callback())
-	require.NoError(t, lifecycle.hooks[0].OnStop(context.Background()))
+	require.NoError(t, lc.Stop(context.Background()))
 	require.Equal(t, 1, queue.UnsubscribeCount())
 }
 

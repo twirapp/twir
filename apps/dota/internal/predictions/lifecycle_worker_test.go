@@ -17,7 +17,7 @@ import (
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	"github.com/twirapp/twir/libs/repositories/dota/model"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 )
 
 type workerCallRecorder struct {
@@ -573,20 +573,12 @@ func (e *fakeWorkerMatchEndedEmitter) all() []busdota.MatchEndedMessage {
 	return append([]busdota.MatchEndedMessage(nil), e.messages...)
 }
 
-type fakeWorkerLifecycle struct {
-	hooks []fx.Hook
-}
-
-func (l *fakeWorkerLifecycle) Append(hook fx.Hook) {
-	l.hooks = append(l.hooks, hook)
-}
-
 func newWorkerForTest(
 	repository *fakeWorkerRepository,
 	predictionActions *fakeWorkerPredictions,
 	stats *fakeWorkerStatsUpdater,
 	emitter *fakeWorkerMatchEndedEmitter,
-	lifecycle fx.Lifecycle,
+	lc *lifecycle.Lifecycle,
 ) *LifecycleWorker {
 	return newLifecycleWorker(
 		repository,
@@ -595,7 +587,7 @@ func newWorkerForTest(
 		newFakeWorkerMatchEndedDeliveryStore(),
 		emitter,
 		slog.New(slog.NewTextHandler(io.Discard, nil)),
-		lifecycle,
+		lc,
 		time.Hour,
 	)
 }
@@ -1602,18 +1594,17 @@ func TestLifecycleWorkerLifecycleStopsCancellablePollLoop(t *testing.T) {
 		<-ctx.Done()
 		return nil, ctx.Err()
 	}
-	lifecycle := &fakeWorkerLifecycle{}
+	lc := lifecycle.New()
 	worker := newWorkerForTest(
 		repository,
 		&fakeWorkerPredictions{},
 		&fakeWorkerStatsUpdater{},
 		&fakeWorkerMatchEndedEmitter{},
-		lifecycle,
+		lc,
 	)
 
 	require.NotNil(t, worker)
-	require.Len(t, lifecycle.hooks, 1)
-	require.NoError(t, lifecycle.hooks[0].OnStart(context.Background()))
+	require.NoError(t, lc.Start(context.Background()))
 	select {
 	case <-started:
 	case <-time.After(time.Second):
@@ -1622,5 +1613,5 @@ func TestLifecycleWorkerLifecycleStopsCancellablePollLoop(t *testing.T) {
 
 	stopCtx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	require.NoError(t, lifecycle.hooks[0].OnStop(stopCtx))
+	require.NoError(t, lc.Stop(stopCtx))
 }

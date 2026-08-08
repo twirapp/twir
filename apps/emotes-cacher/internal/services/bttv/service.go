@@ -10,21 +10,12 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emote"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/socket_client"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
-
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	Gorm       *gorm.DB
-	Logger     *slog.Logger
-	EmoteStore *emotes_store.EmotesStore
-}
 
 type Service struct {
 	gorm               *gorm.DB
@@ -34,18 +25,23 @@ type Service struct {
 	emotesStore        *emotes_store.EmotesStore
 }
 
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	gorm *gorm.DB,
+	logger *slog.Logger,
+	emoteStore *emotes_store.EmotesStore,
+) error {
 	c := Service{
-		gorm:               opts.Gorm,
-		logger:             opts.Logger,
+		gorm:               gorm,
+		logger:             logger,
 		registeredChannels: make(map[string]struct{}),
-		emotesStore:        opts.EmoteStore,
+		emotesStore:        emoteStore,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				socket, err := socket_client.New(
 					ctx,

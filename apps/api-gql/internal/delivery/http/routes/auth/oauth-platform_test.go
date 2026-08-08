@@ -696,10 +696,10 @@ func TestCompletePlatformAuthReusesExistingBindingForLoggedOutUser(t *testing.T)
 				},
 			}
 			channels := &oauthChannelsRepository{
-			createFunc: func(context.Context) (channelentity.Channel, error) {
-				t.Fatal("logged-out reauthentication must not create a channel")
-				return channelentity.Nil, nil
-			},
+				createFunc: func(context.Context) (channelentity.Channel, error) {
+					t.Fatal("logged-out reauthentication must not create a channel")
+					return channelentity.Nil, nil
+				},
 				getByBindingUserIDFunc: func(_ context.Context, gotPlatform platformentity.Platform, gotUserID uuid.UUID) (channelentity.Channel, error) {
 					if gotPlatform != platform || gotUserID != platformUserID {
 						t.Fatalf("channel binding lookup = (%s, %s), want (%s, %s)", gotPlatform, gotUserID, platform, platformUserID)
@@ -1650,7 +1650,12 @@ func TestStartPlatformAuthRejectsUnregisteredProvider(t *testing.T) {
 
 func TestNewRegistersGenericAuthorizeRouteForUnregisteredProviders(t *testing.T) {
 	_, api := humatest.New(t)
-	New(Opts{Huma: api})
+	New(api,
+		cfg.Config{}, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil, nil,
+		nil, nil, nil)
 
 	response := api.Get("/auth/vk_video_live/authorize")
 	if response.Code != 404 || !strings.Contains(response.Body.String(), "Platform is not available") {
@@ -2037,6 +2042,10 @@ func (r *oauthChannelsRepository) GetByID(ctx context.Context, channelID uuid.UU
 	return r.getByIDFunc(ctx, channelID)
 }
 
+func (*oauthChannelsRepository) GetByIDs(context.Context, []uuid.UUID) ([]channelentity.Channel, error) {
+	return nil, errors.New("unexpected GetByIDs call")
+}
+
 func (*oauthChannelsRepository) GetByApiKey(context.Context, string) (channelentity.Channel, error) {
 	return channelentity.Nil, errors.New("unexpected GetByApiKey call")
 }
@@ -2063,6 +2072,10 @@ type oauthChannelPlatformsRepository struct {
 
 func (*oauthChannelPlatformsRepository) AssignVKVideoLiveBot(context.Context, uuid.UUID) ([]uuid.UUID, error) {
 	return nil, errors.New("unexpected AssignVKVideoLiveBot call")
+}
+
+func (*oauthChannelPlatformsRepository) AssignYouTubeBot(context.Context, uuid.UUID) ([]uuid.UUID, error) {
+	return nil, errors.New("unexpected AssignYouTubeBot call")
 }
 
 func (*oauthChannelPlatformsRepository) LockByChannelID(context.Context, uuid.UUID) error {

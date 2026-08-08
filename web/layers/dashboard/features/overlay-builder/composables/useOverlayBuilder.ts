@@ -2,12 +2,23 @@ import { computed, reactive, ref, toRaw } from 'vue'
 
 import { ChannelOverlayLayerType } from '~/gql/graphql.js'
 
-import type { AlignmentGuide, CanvasState, HistoryState, Layer, OverlayProject } from '../types'
+import {
+	type AlignmentGuide,
+	type CanvasState,
+	type HistoryState,
+	type Layer,
+	type LayerSettings,
+	type OverlayProject,
+	createLayerSettings,
+} from '../types'
+import type { OverlaySyncLayerPosition } from './useOverlaySync'
 
 const MAX_HISTORY_SIZE = 50
+const LOCAL_GEOMETRY_GUARD_MS = 600
+const GEOMETRY_KEYS = new Set(['posX', 'posY', 'width', 'height', 'rotation'])
 
 export function useOverlayBuilder() {
-	// Project state (canvas size fixed at 1920x1080)
+	const { t } = useI18n()
 	const project = reactive<OverlayProject>({
 		id: '',
 		name: '',
@@ -43,6 +54,9 @@ export function useOverlayBuilder() {
 
 	// Alignment guides
 	const alignmentGuides = ref<AlignmentGuide[]>([])
+
+	// Guard against remote ops fighting an in-progress local drag/resize.
+	const localGeometryEdits = new Map<string, number>()
 
 	// Selected layers
 	const selectedLayers = computed(() => {
@@ -88,44 +102,64 @@ export function useOverlayBuilder() {
 	}
 
 	// Layer operations
-	function addLayer(type: ChannelOverlayLayerType, options?: Partial<Layer>) {
+	type AddLayerOptions = Omit<Partial<Layer>, 'settings'> & {
+		settings?: Partial<LayerSettings>
+	}
+
+	function addLayer(type: ChannelOverlayLayerType, options?: AddLayerOptions) {
+		const defaultSize = {
+			[ChannelOverlayLayerType.Html]: { width: 200, height: 200 },
+			[ChannelOverlayLayerType.Image]: { width: 200, height: 200 },
+			[ChannelOverlayLayerType.Text]: { width: 400, height: 120 },
+			[ChannelOverlayLayerType.Video]: { width: 560, height: 315 },
+			[ChannelOverlayLayerType.Iframe]: { width: 400, height: 300 },
+			[ChannelOverlayLayerType.Youtube]: { width: 560, height: 315 },
+			[ChannelOverlayLayerType.Emote]: { width: 128, height: 128 },
+		}[type]
+
+		const typeDefaults: Partial<LayerSettings> = {
+			...(type === ChannelOverlayLayerType.Html
+				? {
+						htmlOverlayHtml: '<span class="text">$(stream.uptime)</span>',
+						htmlOverlayCss: '.text { color: #fff; font-size: 24px; }',
+						htmlOverlayJs: 'function onDataUpdate() { console.log("updated") }',
+					}
+				: {}),
+			...(type === ChannelOverlayLayerType.Image
+				? { imageUrl: 'https://via.placeholder.com/300x200' }
+				: {}),
+		}
+
+		const width = Math.min(options?.width ?? defaultSize.width, project.width)
+		const height = Math.min(options?.height ?? defaultSize.height, project.height)
+		const posX = Math.min(options?.posX ?? 100, Math.max(0, project.width - width))
+		const posY = Math.min(options?.posY ?? 100, Math.max(0, project.height - height))
 		const newLayer: Layer = {
 			id: crypto.randomUUID(),
 			type,
-			name: `${type} Layer ${project.layers.length + 1}`,
-			posX: options?.posX ?? 100,
-			posY: options?.posY ?? 100,
-			width: options?.width ?? 200,
-			height: options?.height ?? 200,
+			name: options?.name ?? t('overlayBuilder.layerNames.default', {
+				type: t(`overlayBuilder.layerTypes.${type.toLowerCase()}`),
+				count: project.layers.length + 1,
+			}),
+			posX,
+			posY,
+			width,
+			height,
 			rotation: 0,
 			opacity: 1,
-			visible: true,
+			visible: options?.visible ?? true,
 			locked: false,
 			zIndex: project.layers.length,
 			periodicallyRefetchData:
 				options?.periodicallyRefetchData ?? type === ChannelOverlayLayerType.Html,
-			settings:
-				options?.settings ??
-				(type === ChannelOverlayLayerType.Image
-					? {
-							imageUrl: 'https://via.placeholder.com/300x200',
-							htmlOverlayHtml: '',
-							htmlOverlayCss: '',
-							htmlOverlayJs: '',
-							htmlOverlayDataPollSecondsInterval: 5,
-						}
-					: {
-							htmlOverlayHtml: '<span class="text">$(stream.uptime)</span>',
-							htmlOverlayCss: '.text { color: #fff; font-size: 24px; }',
-							htmlOverlayJs: 'function onDataUpdate() { console.log("updated") }',
-							htmlOverlayDataPollSecondsInterval: 5,
-							imageUrl: '',
-						}),
+			settings: createLayerSettings({ ...typeDefaults, ...options?.settings }),
 		}
 
 		saveToHistory()
 		project.layers.push(newLayer)
 		selectLayers([newLayer.id])
+
+		return newLayer
 	}
 
 	function removeLayer(layerId: string) {
@@ -150,6 +184,9 @@ export function useOverlayBuilder() {
 
 		saveToHistory()
 		Object.assign(layer, updates)
+		if (Object.keys(updates).some((key) => GEOMETRY_KEYS.has(key))) {
+			localGeometryEdits.set(layerId, Date.now())
+		}
 	}
 
 	function updateLayers(layerIds: string[], updates: Partial<Layer>) {
@@ -164,13 +201,13 @@ export function useOverlayBuilder() {
 
 	function duplicateLayer(layerId: string) {
 		const layer = project.layers.find((l) => l.id === layerId)
-		if (!layer) return
+		if (!layer) return null
 
 		saveToHistory()
 		const duplicated: Layer = {
 			...JSON.parse(JSON.stringify(toRaw(layer))),
 			id: crypto.randomUUID(),
-			name: `${layer.name} (Copy)`,
+			name: `${layer.name} ${t('overlayBuilder.layerNames.copySuffix')}`,
 			posX: layer.posX + 20,
 			posY: layer.posY + 20,
 			zIndex: project.layers.length,
@@ -178,11 +215,14 @@ export function useOverlayBuilder() {
 
 		project.layers.push(duplicated)
 		selectLayers([duplicated.id])
+
+		return duplicated
 	}
 
 	function duplicateLayers(layerIds: string[]) {
 		saveToHistory()
 		const newIds: string[] = []
+		const created: Layer[] = []
 
 		layerIds.forEach((id) => {
 			const layer = project.layers.find((l) => l.id === id)
@@ -191,7 +231,7 @@ export function useOverlayBuilder() {
 			const duplicated: Layer = {
 				...JSON.parse(JSON.stringify(toRaw(layer))),
 				id: crypto.randomUUID(),
-				name: `${layer.name} (Copy)`,
+				name: `${layer.name} ${t('overlayBuilder.layerNames.copySuffix')}`,
 				posX: layer.posX + 20,
 				posY: layer.posY + 20,
 				zIndex: project.layers.length + newIds.length,
@@ -199,31 +239,37 @@ export function useOverlayBuilder() {
 
 			project.layers.push(duplicated)
 			newIds.push(duplicated.id)
+			created.push(duplicated)
 		})
 
 		selectLayers(newIds)
+		return created
 	}
 
 	// Layer ordering
 	function moveLayerUp(layerId: string) {
 		const index = project.layers.findIndex((l) => l.id === layerId)
 		if (index === project.layers.length - 1) return
+		const current = project.layers[index]
+		const next = project.layers[index + 1]
+		if (!current || !next) return
 
 		saveToHistory()
-		const temp = project.layers[index + 1]
-		project.layers[index + 1] = project.layers[index]
-		project.layers[index] = temp
+		project.layers[index + 1] = current
+		project.layers[index] = next
 		reorderLayers()
 	}
 
 	function moveLayerDown(layerId: string) {
 		const index = project.layers.findIndex((l) => l.id === layerId)
 		if (index === 0) return
+		const current = project.layers[index]
+		const previous = project.layers[index - 1]
+		if (!current || !previous) return
 
 		saveToHistory()
-		const temp = project.layers[index - 1]
-		project.layers[index - 1] = project.layers[index]
-		project.layers[index] = temp
+		project.layers[index - 1] = current
+		project.layers[index] = previous
 		reorderLayers()
 	}
 
@@ -295,16 +341,17 @@ export function useOverlayBuilder() {
 	}
 
 	function pasteFromClipboard() {
-		if (canvasState.clipboardLayers.length === 0) return
+		if (canvasState.clipboardLayers.length === 0) return []
 
 		saveToHistory()
 		const newIds: string[] = []
+		const created: Layer[] = []
 
 		canvasState.clipboardLayers.forEach((layer) => {
 			const pasted: Layer = {
 				...JSON.parse(JSON.stringify(toRaw(layer))),
 				id: crypto.randomUUID(),
-				name: `${layer.name} (Pasted)`,
+				name: `${layer.name} ${t('overlayBuilder.layerNames.pastedSuffix')}`,
 				posX: layer.posX + 20,
 				posY: layer.posY + 20,
 				zIndex: project.layers.length + newIds.length,
@@ -312,9 +359,11 @@ export function useOverlayBuilder() {
 
 			project.layers.push(pasted)
 			newIds.push(pasted.id)
+			created.push(pasted)
 		})
 
 		selectLayers(newIds)
+		return created
 	}
 
 	// Alignment
@@ -326,22 +375,23 @@ export function useOverlayBuilder() {
 		// If only one layer selected, align to canvas
 		if (selectedLayers.value.length === 1) {
 			const layer = selectedLayers.value[0]
+			if (!layer) return
 			switch (alignment) {
 				case 'left':
 					layer.posX = 0
 					break
-				case 'center':
-					layer.posX = (project.width - layer.width) / 2
-					break
+			case 'center':
+				layer.posX = Math.round((project.width - layer.width) / 2)
+				break
 				case 'right':
 					layer.posX = project.width - layer.width
 					break
 				case 'top':
 					layer.posY = 0
 					break
-				case 'middle':
-					layer.posY = (project.height - layer.height) / 2
-					break
+			case 'middle':
+				layer.posY = Math.round((project.height - layer.height) / 2)
+				break
 				case 'bottom':
 					layer.posY = project.height - layer.height
 					break
@@ -357,18 +407,18 @@ export function useOverlayBuilder() {
 				case 'left':
 					layer.posX = bounds.left
 					break
-				case 'center':
-					layer.posX = bounds.left + (bounds.width - layer.width) / 2
-					break
+			case 'center':
+				layer.posX = Math.round(bounds.left + (bounds.width - layer.width) / 2)
+				break
 				case 'right':
 					layer.posX = bounds.left + bounds.width - layer.width
 					break
 				case 'top':
 					layer.posY = bounds.top
 					break
-				case 'middle':
-					layer.posY = bounds.top + (bounds.height - layer.height) / 2
-					break
+			case 'middle':
+				layer.posY = Math.round(bounds.top + (bounds.height - layer.height) / 2)
+				break
 				case 'bottom':
 					layer.posY = bounds.top + bounds.height - layer.height
 					break
@@ -383,14 +433,17 @@ export function useOverlayBuilder() {
 		const sorted = [...selectedLayers.value].sort((a, b) => a.posX - b.posX)
 		const first = sorted[0]
 		const last = sorted[sorted.length - 1]
+		if (!first || !last) return
 		const totalWidth = last.posX + last.width - first.posX
 		const totalLayerWidth = sorted.reduce((sum, layer) => sum + layer.width, 0)
-		const spacing = (totalWidth - totalLayerWidth) / (sorted.length - 1)
+		const spacing = Math.round((totalWidth - totalLayerWidth) / (sorted.length - 1))
 
 		let currentX = first.posX + first.width
 		for (let i = 1; i < sorted.length - 1; i++) {
-			sorted[i].posX = currentX + spacing
-			currentX = sorted[i].posX + sorted[i].width
+			const layer = sorted[i]
+			if (!layer) continue
+			layer.posX = currentX + spacing
+			currentX = layer.posX + layer.width
 		}
 	}
 
@@ -401,14 +454,17 @@ export function useOverlayBuilder() {
 		const sorted = [...selectedLayers.value].sort((a, b) => a.posY - b.posY)
 		const first = sorted[0]
 		const last = sorted[sorted.length - 1]
+		if (!first || !last) return
 		const totalHeight = last.posY + last.height - first.posY
 		const totalLayerHeight = sorted.reduce((sum, layer) => sum + layer.height, 0)
-		const spacing = (totalHeight - totalLayerHeight) / (sorted.length - 1)
+		const spacing = Math.round((totalHeight - totalLayerHeight) / (sorted.length - 1))
 
 		let currentY = first.posY + first.height
 		for (let i = 1; i < sorted.length - 1; i++) {
-			sorted[i].posY = currentY + spacing
-			currentY = sorted[i].posY + sorted[i].height
+			const layer = sorted[i]
+			if (!layer) continue
+			layer.posY = currentY + spacing
+			currentY = layer.posY + layer.height
 		}
 	}
 
@@ -520,7 +576,7 @@ export function useOverlayBuilder() {
 			}
 		})
 
-		return { x: snappedX, y: snappedY }
+		return { x: Math.round(snappedX), y: Math.round(snappedY) }
 	}
 
 	function findAlignmentGuides(layer: Layer): AlignmentGuide[] {
@@ -635,10 +691,111 @@ export function useOverlayBuilder() {
 	// Load project
 	function loadProject(data: OverlayProject) {
 		Object.assign(project, JSON.parse(JSON.stringify(data)))
+		constrainLayersToCanvas()
 		history.present = JSON.parse(JSON.stringify(toRaw(project)))
 		history.past = []
 		history.future = []
 		deselectAll()
+	}
+
+	// Remote collaboration ops (applied without touching undo history)
+	function commitRemoteState() {
+		history.present = JSON.parse(JSON.stringify(toRaw(project)))
+	}
+
+	function isLocallyTouched(layerId: string) {
+		const at = localGeometryEdits.get(layerId)
+		return at !== undefined && Date.now() - at < LOCAL_GEOMETRY_GUARD_MS
+	}
+
+	function reindexLayers() {
+		project.layers.forEach((layer, index) => {
+			layer.zIndex = index
+		})
+	}
+
+	function applyRemoteLayerAdd(raw: Layer) {
+		if (project.layers.some((l) => l.id === raw.id)) {
+			applyRemoteLayerUpdate(raw)
+			return
+		}
+		project.layers.push(JSON.parse(JSON.stringify(raw)))
+		reindexLayers()
+		commitRemoteState()
+	}
+
+	function applyRemoteLayerRemove(layerId: string) {
+		if (!project.layers.some((l) => l.id === layerId)) return
+		project.layers = project.layers.filter((layer) => layer.id !== layerId)
+		canvasState.selectedLayerIds = canvasState.selectedLayerIds.filter((id) => id !== layerId)
+		reindexLayers()
+		commitRemoteState()
+	}
+
+	function applyRemoteLayerUpdate(raw: Layer) {
+		const existing = project.layers.find((l) => l.id === raw.id)
+		if (!existing) {
+			applyRemoteLayerAdd(raw)
+			return
+		}
+
+		const incoming = JSON.parse(JSON.stringify(raw)) as Layer
+		if (isLocallyTouched(incoming.id)) {
+			incoming.posX = existing.posX
+			incoming.posY = existing.posY
+			incoming.width = existing.width
+			incoming.height = existing.height
+			incoming.rotation = existing.rotation
+		}
+		incoming.zIndex = existing.zIndex
+		Object.assign(existing, incoming)
+		commitRemoteState()
+	}
+
+	function applyRemoteLayerPositions(positions: OverlaySyncLayerPosition[]) {
+		let changed = false
+		for (const position of positions) {
+			const layer = project.layers.find((l) => l.id === position.id)
+			if (!layer || isLocallyTouched(layer.id)) continue
+			layer.posX = position.posX
+			layer.posY = position.posY
+			layer.rotation = position.rotation
+			layer.width = position.width
+			layer.height = position.height
+			layer.visible = position.visible
+			layer.opacity = position.opacity
+			changed = true
+		}
+		if (changed) commitRemoteState()
+	}
+
+	function applyRemoteLayersReorder(layerIds: string[]) {
+		const byId = new Map(project.layers.map((layer) => [layer.id, layer]))
+		const reordered: Layer[] = []
+		for (const id of layerIds) {
+			const layer = byId.get(id)
+			if (!layer) continue
+			reordered.push(layer)
+			byId.delete(id)
+		}
+		reordered.push(...byId.values())
+		project.layers = reordered
+		reindexLayers()
+		commitRemoteState()
+	}
+
+	function applyRemoteProject(data: OverlayProject) {
+		const incoming = JSON.parse(JSON.stringify(data)) as OverlayProject
+		project.name = incoming.name
+		project.width = incoming.width
+		project.height = incoming.height
+		project.instaSave = incoming.instaSave
+		project.layers = incoming.layers
+		constrainLayersToCanvas()
+		canvasState.selectedLayerIds = canvasState.selectedLayerIds.filter((id) =>
+			project.layers.some((layer) => layer.id === id)
+		)
+		commitRemoteState()
 	}
 
 	// Export project data
@@ -709,5 +866,13 @@ export function useOverlayBuilder() {
 		loadProject,
 		exportProject,
 		constrainLayersToCanvas,
+
+		// Remote collaboration
+		applyRemoteLayerAdd,
+		applyRemoteLayerRemove,
+		applyRemoteLayerUpdate,
+		applyRemoteLayerPositions,
+		applyRemoteLayersReorder,
+		applyRemoteProject,
 	}
 }

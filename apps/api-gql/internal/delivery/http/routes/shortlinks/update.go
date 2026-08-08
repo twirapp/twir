@@ -14,7 +14,6 @@ import (
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
 	shortenedurlsrepository "github.com/twirapp/twir/libs/repositories/shortened_urls"
-	"go.uber.org/fx"
 )
 
 type updateRequestDto struct {
@@ -29,8 +28,6 @@ type updateRequestDto struct {
 var _ httpbase.Route[*updateRequestDto, *httpbase.BaseOutputJson[linkOutputDto]] = (*updateRoute)(nil)
 
 type UpdateOpts struct {
-	fx.In
-
 	Service              *shortenedurls.Service
 	CustomDomainsService *shortlinkscustomdomains.Service
 	Sessions             *auth.Auth

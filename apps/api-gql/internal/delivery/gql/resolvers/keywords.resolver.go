@@ -62,7 +62,12 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 	}
 
 	if opts.Platforms.IsSet() {
-		input.Platforms = mappers.StringsToPlatforms(opts.Platforms.Value())
+		platforms, err := mappers.GraphQLPlatformsToEntities(opts.Platforms.Value())
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		input.Platforms = platforms
 	}
 
 	k, err := r.deps.KeywordsService.Create(ctx, input)
@@ -70,7 +75,11 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	converted := mappers.KeywordsFrom(k)
+	converted, err := mappers.KeywordsFrom(k)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	return &converted, nil
 }
 
@@ -133,7 +142,12 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts
 	}
 
 	if opts.Platforms.IsSet() {
-		input.Platforms = mappers.StringsToPlatforms(opts.Platforms.Value())
+		platforms, err := mappers.GraphQLPlatformsToEntitiesOrEmpty(opts.Platforms.Value())
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		input.Platforms = platforms
 	}
 
 	keyword, err := r.deps.KeywordsService.Update(ctx, input)
@@ -141,7 +155,11 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	converted := mappers.KeywordsFrom(keyword)
+	converted, err := mappers.KeywordsFrom(keyword)
+	if err != nil {
+		return nil, gqlerrors.HandleError(err)
+	}
+
 	return &converted, nil
 }
 
@@ -178,7 +196,12 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 
 	converted := make([]gqlmodel.Keyword, 0, len(channelKeywords))
 	for _, k := range channelKeywords {
-		converted = append(converted, mappers.KeywordsFrom(k))
+		mapped, err := mappers.KeywordsFrom(k)
+		if err != nil {
+			return nil, gqlerrors.HandleError(err)
+		}
+
+		converted = append(converted, mapped)
 	}
 
 	return converted, nil

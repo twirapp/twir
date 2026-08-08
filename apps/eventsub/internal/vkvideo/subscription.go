@@ -27,6 +27,7 @@ func (t *Transport) startBinding(
 		QueueCapacity: 128,
 		BindingID:     binding.ID,
 		Logger:        t.logger,
+		ProxyUrl:      t.proxyUrl,
 		Tokens: TokenCallbacks{
 			Context: lease.Context(),
 			Connection: func(ctx context.Context) (string, error) {

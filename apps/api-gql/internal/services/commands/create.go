@@ -35,6 +35,7 @@ type CreateInput struct {
 	AllowedUsersIDS           []string
 	RolesIDS                  []string
 	OnlineOnly                bool
+	OfflineOnly               bool
 	EnabledCategories         []string
 	RequiredWatchTime         int
 	RequiredMessages          int
@@ -53,6 +54,7 @@ type CreateInputResponse struct {
 	TwitchCategoryIDs []string
 	OnlineOnly        bool
 	OfflineOnly       bool
+	Platforms         []platform.Platform
 }
 
 type CreateInputRoleCooldown struct {
@@ -140,6 +142,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 					AllowedUsersIDS:           input.AllowedUsersIDS,
 					RolesIDS:                  input.RolesIDS,
 					OnlineOnly:                input.OnlineOnly,
+					OfflineOnly:               input.OfflineOnly,
 					EnabledCategories:         input.EnabledCategories,
 					RequiredWatchTime:         input.RequiredWatchTime,
 					RequiredMessages:          input.RequiredMessages,
@@ -166,6 +169,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (commandwithrel
 						TwitchCategoryIDs: response.TwitchCategoryIDs,
 						OnlineOnly:        response.OnlineOnly,
 						OfflineOnly:       response.OfflineOnly,
+						Platforms:         response.Platforms,
 					},
 				)
 				if err != nil {

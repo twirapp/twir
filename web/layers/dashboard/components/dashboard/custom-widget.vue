@@ -1,66 +1,67 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { toast } from "vue-sonner";
+import { useForm } from 'vee-validate'
+import { ref } from 'vue'
+import { toast } from 'vue-sonner'
+import { z } from 'zod'
 
-import Card from "./card.vue";
-import type { WidgetItem } from "@/components/dashboard/widgets.js";
+import type { WidgetItem } from '@/components/dashboard/widgets.js'
+
 import {
 	useDashboardWidgetsDelete,
 	useDashboardWidgetsUpdateCustom,
-} from "@/api/dashboard-widgets-layout.js";
-import { Button } from "@/components/ui/button";
-import { CardContent } from "@/components/ui/card";
+} from '@/api/dashboard-widgets-layout.js'
+import { Button } from '@/components/ui/button'
+import { CardContent } from '@/components/ui/card'
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "vee-validate";
+} from '@/components/ui/dialog'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
-import { z } from "zod";
+import Card from './card.vue'
 
 defineOptions({
 	inheritAttrs: false,
-});
+})
 
 interface Props {
-	item: WidgetItem;
-	url: string;
+	item: WidgetItem
+	url: string
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
-const isEditDialogOpen = ref(false);
-const updateMutation = useDashboardWidgetsUpdateCustom();
-const deleteMutation = useDashboardWidgetsDelete();
+const isEditDialogOpen = ref(false)
+const updateMutation = useDashboardWidgetsUpdateCustom()
+const deleteMutation = useDashboardWidgetsDelete()
 
 // The widgetId is already the full identifier (e.g., "custom-{uuid}")
-const widgetId = props.item.i.toString();
+const widgetId = props.item.i.toString()
 
 const formSchema = z.object({
-	name: z.string().min(2, "Name must be at least 2 characters."),
-	url: z.string().url("Must be a valid URL"),
-});
+	name: z.string().min(2, 'Name must be at least 2 characters.'),
+	url: z.string().url('Must be a valid URL'),
+})
 
 const { handleSubmit, setValues } = useForm({
 	validationSchema: formSchema,
 	initialValues: {
-		name: props.item.displayName || "",
+		name: props.item.displayName || '',
 		url: props.url,
 	},
-});
+})
 
 const onEdit = () => {
 	setValues({
-		name: props.item.displayName || "",
+		name: props.item.displayName || '',
 		url: props.url,
-	});
-	isEditDialogOpen.value = true;
-};
+	})
+	isEditDialogOpen.value = true
+}
 
 const onSubmitEdit = handleSubmit(async (values) => {
 	const result = await updateMutation.executeMutation({
@@ -69,51 +70,68 @@ const onSubmitEdit = handleSubmit(async (values) => {
 			name: values.name,
 			url: values.url,
 		},
-	});
+	})
 
 	if (result.error) {
-		toast.error("Failed to update widget", {
+		toast.error('Failed to update widget', {
 			description: result.error.message,
-		});
+		})
 	} else {
-		toast.success("Widget updated successfully");
-		isEditDialogOpen.value = false;
+		toast.success('Widget updated successfully')
+		isEditDialogOpen.value = false
 	}
-});
+})
 
 const onDelete = async () => {
 	if (!confirm(`Are you sure you want to delete widget "${props.item.displayName}"?`)) {
-		return;
+		return
 	}
 
-	const result = await deleteMutation.executeMutation({ widgetId: widgetId });
+	const result = await deleteMutation.executeMutation({ widgetId: widgetId })
 
 	if (result.error) {
-		toast.error("Failed to delete widget", {
+		toast.error('Failed to delete widget', {
 			description: result.error.message,
-		});
+		})
 	} else {
-		toast.success("Widget deleted successfully");
+		toast.success('Widget deleted successfully')
 	}
-};
+}
 </script>
 
 <template>
 	<div v-bind="$attrs">
-		<Card :item="item" class="h-full">
+		<Card
+			:item="item"
+			class="h-full"
+		>
 			<template #header-extra>
-				<Button size="sm" variant="ghost" @click="onEdit">
-					<Icon name="lucide:pencil" class="h-4 w-4" />
+				<Button
+					size="sm"
+					variant="ghost"
+					@click="onEdit"
+				>
+					<Icon
+						name="lucide:pencil"
+						class="h-4 w-4"
+					/>
 				</Button>
-				<Button size="sm" variant="ghost" @click="onDelete">
-					<Icon name="lucide:trash2" class="h-4 w-4" />
+				<Button
+					size="sm"
+					variant="ghost"
+					@click="onDelete"
+				>
+					<Icon
+						name="lucide:trash"
+						class="h-4 w-4"
+					/>
 				</Button>
 			</template>
 
-			<CardContent class="p-0 flex-1">
+			<CardContent class="flex-1 p-0">
 				<iframe
 					:src="url"
-					class="w-full h-full border-0"
+					class="h-full w-full border-0"
 					sandbox="allow-scripts allow-same-origin"
 					loading="lazy"
 				/>
@@ -128,33 +146,55 @@ const onDelete = async () => {
 					<DialogDescription> Update the name and URL of your custom widget. </DialogDescription>
 				</DialogHeader>
 
-				<form @submit="onSubmitEdit" class="space-y-4">
-					<FormField v-slot="{ componentField }" name="name">
+				<form
+					@submit="onSubmitEdit"
+					class="space-y-4"
+				>
+					<FormField
+						v-slot="{ componentField }"
+						name="name"
+					>
 						<FormItem>
 							<FormLabel>Widget Name</FormLabel>
 							<FormControl>
-								<Input v-bind="componentField" placeholder="My Custom Widget" />
+								<Input
+									v-bind="componentField"
+									placeholder="My Custom Widget"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 
-					<FormField v-slot="{ componentField }" name="url">
+					<FormField
+						v-slot="{ componentField }"
+						name="url"
+					>
 						<FormItem>
 							<FormLabel>Website URL</FormLabel>
 							<FormControl>
-								<Input v-bind="componentField" placeholder="https://example.com" />
+								<Input
+									v-bind="componentField"
+									placeholder="https://example.com"
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					</FormField>
 
 					<div class="flex justify-end gap-2">
-						<Button type="button" variant="outline" @click="isEditDialogOpen = false">
+						<Button
+							type="button"
+							variant="outline"
+							@click="isEditDialogOpen = false"
+						>
 							Cancel
 						</Button>
-						<Button type="submit" :disabled="updateMutation.fetching.value">
-							{{ updateMutation.fetching.value ? "Updating..." : "Update Widget" }}
+						<Button
+							type="submit"
+							:disabled="updateMutation.fetching.value"
+						>
+							{{ updateMutation.fetching.value ? 'Updating...' : 'Update Widget' }}
 						</Button>
 					</div>
 				</form>

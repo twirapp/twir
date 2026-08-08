@@ -18,7 +18,7 @@ type Timer {
 	timeInterval: Int!
 	messageInterval: Int!
 	responses: [TimerResponse!]!
-	platforms: [String!]!
+	platforms: [Platform!]!
 }
 
 type TimerResponse {
@@ -37,7 +37,7 @@ input TimerCreateInput {
 	timeInterval: Int! @validate(constraint: "min=0,max=999999")
 	messageInterval: Int! @validate(constraint: "min=0,max=999999")
 	responses: [TimerResponseCreateInput!]!
-	platforms: [String!]
+	platforms: [Platform!]
 }
 
 input TimerResponseCreateInput {
@@ -55,7 +55,7 @@ input TimerUpdateInput {
 	timeInterval: Int @validate(constraint: "min=1,max=999999")
 	messageInterval: Int @validate(constraint: "min=0,max=999999")
 	responses: [TimerResponseUpdateInput!]
-	platforms: [String!]
+	platforms: [Platform!]
 }
 
 input TimerResponseUpdateInput {

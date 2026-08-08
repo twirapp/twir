@@ -9,26 +9,21 @@ import (
 	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 	"github.com/twirapp/twir/libs/repositories/plans"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	KeywordsRepository keywords.Repository
-	AuditRecorder      audit.Recorder
-	Logger             *slog.Logger
-	KeywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
-	PlansRepository    plans.Repository
-}
-
-func New(opts Opts) *Service {
+func New(
+	keywordsRepository keywords.Repository,
+	auditRecorder audit.Recorder,
+	logger *slog.Logger,
+	keywordsCacher *generic_cacher.GenericCacher[[]model.Keyword],
+	plansRepository plans.Repository,
+) *Service {
 	return &Service{
-		keywordsRepository: opts.KeywordsRepository,
-		auditRecorder:      opts.AuditRecorder,
-		logger:             opts.Logger,
-		keywordsCacher:     opts.KeywordsCacher,
-		plansRepository:    opts.PlansRepository,
+		keywordsRepository: keywordsRepository,
+		auditRecorder:      auditRecorder,
+		logger:             logger,
+		keywordsCacher:     keywordsCacher,
+		plansRepository:    plansRepository,
 	}
 }
 

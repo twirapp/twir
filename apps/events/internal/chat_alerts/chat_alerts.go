@@ -21,7 +21,6 @@ import (
 	"github.com/twirapp/twir/libs/repositories/events/model"
 	streamsrepository "github.com/twirapp/twir/libs/repositories/streams"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -38,33 +37,29 @@ type ChatAlerts struct {
 	streamsRepo           streamsrepository.Repository
 }
 
-type Opts struct {
-	fx.In
-
-	DB                    *gorm.DB
-	Redis                 *redis.Client
-	Logger                *slog.Logger
-	Cfg                   cfg.Config
-	WebsocketsGrpc        websockets.WebsocketClient
-	Bus                   *buscore.Bus
-	ChatAlertsCache       *generic_cacher.GenericCacher[chatalertscache.ChatAlert]
-	ChannelEventListsRepo channelseventslist.Repository
-	UsersRepo             usersrepository.Repository
-	StreamsRepo           streamsrepository.Repository
-}
-
-func New(opts Opts) (*ChatAlerts, error) {
+func New(
+	db *gorm.DB,
+	redisClient *redis.Client,
+	logger *slog.Logger,
+	cfg cfg.Config,
+	websocketsGrpc websockets.WebsocketClient,
+	bus *buscore.Bus,
+	chatAlertsCache *generic_cacher.GenericCacher[chatalertscache.ChatAlert],
+	channelEventListsRepo channelseventslist.Repository,
+	usersRepo usersrepository.Repository,
+	streamsRepo streamsrepository.Repository,
+) (*ChatAlerts, error) {
 	return &ChatAlerts{
-		db:                    opts.DB,
-		redis:                 opts.Redis,
-		logger:                opts.Logger,
-		cfg:                   opts.Cfg,
-		bus:                   opts.Bus,
-		websocketsGrpc:        opts.WebsocketsGrpc,
-		chatAlertsCache:       opts.ChatAlertsCache,
-		channelEventListsRepo: opts.ChannelEventListsRepo,
-		usersRepo:             opts.UsersRepo,
-		streamsRepo:           opts.StreamsRepo,
+		db:                    db,
+		redis:                 redisClient,
+		logger:                logger,
+		cfg:                   cfg,
+		bus:                   bus,
+		websocketsGrpc:        websocketsGrpc,
+		chatAlertsCache:       chatAlertsCache,
+		channelEventListsRepo: channelEventListsRepo,
+		usersRepo:             usersRepo,
+		streamsRepo:           streamsRepo,
 	}, nil
 }
 

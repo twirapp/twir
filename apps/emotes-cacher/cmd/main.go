@@ -1,12 +1,16 @@
 package main
 
 import (
-	"github.com/twirapp/twir/apps/emotes-cacher/app"
-	"go.uber.org/fx"
+	"log"
 )
 
 func main() {
-	fx.New(
-		app.App,
-	).Run()
+	application, err := initializeApplication()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := application.Run(); err != nil {
+		log.Fatal(err)
+	}
 }

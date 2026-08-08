@@ -9,14 +9,86 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	googletranslate "cloud.google.com/go/translate"
 	"github.com/lkretschmer/deepl-go"
 	kvoptions "github.com/twirapp/kv/options"
 	"golang.org/x/text/language"
 )
+
+var translationURLPattern = regexp.MustCompile(`(?i)(?:https?://|www\.)\S+`)
+
+func prepareTextForTranslation(text string) string {
+	text = translationURLPattern.ReplaceAllString(text, " ")
+	return strings.Join(strings.Fields(text), " ")
+}
+
+func hasTranslatableText(text string) bool {
+	letters := 0
+	for _, r := range text {
+		if unicode.IsLetter(r) {
+			letters++
+		}
+	}
+
+	return letters >= 3
+}
+
+// translationsEquivalent reports whether a translation is a near-copy of the
+// source, which happens when the source language was misdetected.
+func translationsEquivalent(source, translated string) bool {
+	src := lettersOnlyRunes(source)
+	dst := lettersOnlyRunes(translated)
+
+	if len(src) == 0 || len(dst) == 0 {
+		return false
+	}
+
+	distance := levenshteinDistance(src, dst)
+	similarity := 1 - float64(distance)/float64(max(len(src), len(dst)))
+
+	return similarity >= 0.8
+}
+
+func lettersOnlyRunes(text string) []rune {
+	runes := make([]rune, 0, len(text))
+	for _, r := range strings.ToLower(text) {
+		if unicode.IsLetter(r) {
+			runes = append(runes, r)
+		}
+	}
+	return runes
+}
+
+func levenshteinDistance(s1, s2 []rune) int {
+	previous := make([]int, len(s2)+1)
+	for j := range previous {
+		previous[j] = j
+	}
+
+	for i := 1; i <= len(s1); i++ {
+		current := make([]int, len(s2)+1)
+		current[0] = i
+		for j := 1; j <= len(s2); j++ {
+			cost := 1
+			if s1[i-1] == s2[j-1] {
+				cost = 0
+			}
+			current[j] = min(
+				previous[j-1]+cost,
+				previous[j]+1,
+				current[j-1]+1,
+			)
+		}
+		previous = current
+	}
+
+	return previous[len(s2)]
+}
 
 type translateRequest struct {
 	Text          string   `json:"text"`
@@ -39,7 +111,7 @@ func (c *Service) translate(
 	start := time.Now()
 
 	cacheKey := fmt.Sprintf(
-		"chat-translator:%s",
+		"chat-translator:v2:%s",
 		base64.StdEncoding.EncodeToString(
 			[]byte(fmt.Sprintf(
 				"%s:%s:%s",

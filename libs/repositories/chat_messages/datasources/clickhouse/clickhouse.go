@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	twirclickhouse "github.com/twirapp/twir/libs/baseapp/clickhouse"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
@@ -24,6 +25,13 @@ func NewFx(client *twirclickhouse.ClickhouseClient) *Clickhouse {
 	return New(Opts{Client: client})
 }
 
+func normalizeRowID(id string) string {
+	if _, err := uuid.Parse(id); err != nil {
+		return uuid.NewString()
+	}
+	return id
+}
+
 var _ chat_messages.Repository = (*Clickhouse)(nil)
 var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Question)
 
@@ -40,7 +48,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 	err := c.client.Exec(
 		ctx,
 		query,
-		input.ID,
+		normalizeRowID(input.ID),
 		input.Platform,
 		input.PlatformChannelID,
 		input.UserID,
@@ -87,7 +95,7 @@ func (c *Clickhouse) createBatch(ctx context.Context, input []chat_messages.Crea
 
 	for _, i := range input {
 		err := batch.Append(
-			i.ID,
+			normalizeRowID(i.ID),
 			i.Platform,
 			i.PlatformChannelID,
 			i.UserID,
@@ -107,6 +115,60 @@ func (c *Clickhouse) createBatch(ctx context.Context, input []chat_messages.Crea
 	}
 
 	return nil
+}
+
+func (c *Clickhouse) GetLatestByUser(
+	ctx context.Context,
+	input chat_messages.GetLatestByUserInput,
+) (model.ChatMessage, error) {
+	query, args, err := sq.Select(
+		"id",
+		"platform",
+		"platform_channel_id",
+		"user_id",
+		"user_name",
+		"user_display_name",
+		"user_color",
+		"text",
+		"created_at",
+	).
+		From("chat_messages").
+		Where(squirrel.Eq{"platform": input.Platform}).
+		Where(squirrel.Eq{"platform_channel_id": input.PlatformChannelID}).
+		Where("lower(user_name) = lower(?)", input.UserName).
+		OrderBy("created_at DESC", "id DESC").
+		Limit(1).
+		ToSql()
+	if err != nil {
+		return model.ChatMessage{}, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := c.client.Query(ctx, query, args...)
+	if err != nil {
+		return model.ChatMessage{}, fmt.Errorf("failed to query: %w", err)
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return model.ChatMessage{}, chat_messages.ErrNotFound
+	}
+
+	var m model.ChatMessage
+	if err := rows.Scan(
+		&m.ID,
+		&m.Platform,
+		&m.ChannelID,
+		&m.UserID,
+		&m.UserName,
+		&m.UserDisplayName,
+		&m.UserColor,
+		&m.Text,
+		&m.CreatedAt,
+	); err != nil {
+		return model.ChatMessage{}, fmt.Errorf("failed to scan: %w", err)
+	}
+
+	return m, nil
 }
 
 func (c *Clickhouse) GetMany(
@@ -157,6 +219,18 @@ func (c *Clickhouse) GetMany(
 
 	if input.TextLike != nil && *input.TextLike != "" {
 		builder = builder.Where(squirrel.ILike{"text": fmt.Sprintf("%%%s%%", *input.TextLike)})
+	}
+
+	if input.TextFuzzy != nil && input.TextFuzzy.Phrase != "" {
+		builder = builder.Where(
+			`(positionCaseInsensitiveUTF8(text, ?) > 0 OR arrayExists(t -> editDistanceUTF8(t, ?) <= ? OR editDistanceUTF8(substringUTF8(t, 1, ?), ?) <= ?, extractAll(lowerUTF8(text), '[\\p{L}0-9]+')))`,
+			input.TextFuzzy.Phrase,
+			input.TextFuzzy.Phrase,
+			input.TextFuzzy.MaxDistance,
+			input.TextFuzzy.Length,
+			input.TextFuzzy.Phrase,
+			input.TextFuzzy.MaxDistance,
+		)
 	}
 
 	if input.TimeGte != nil {

@@ -4,7 +4,7 @@ import { toast } from 'vue-sonner'
 import { type TypeOf, array, boolean, nativeEnum, number, object, string } from 'zod'
 import { useTimersApi } from '~~/layers/dashboard/api/timers'
 
-import { TwitchAnnounceColor } from '~/gql/graphql.js'
+import { Platform, TwitchAnnounceColor } from '~/gql/graphql.js'
 
 export const formSchema = object({
 	id: string().optional(),
@@ -22,7 +22,7 @@ export const formSchema = object({
 	enabled: boolean().default(true),
 	offlineEnabled: boolean().default(false),
 	onlineEnabled: boolean().default(true),
-	platforms: array(string()).default([]),
+	platforms: array(nativeEnum(Platform)).default([]),
 })
 
 type FormSchema = TypeOf<typeof formSchema>

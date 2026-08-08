@@ -7,6 +7,7 @@ import { useFilter } from 'reka-ui'
 import type { PopoverContentProps } from 'reka-ui'
 
 import { useDashboard, useProfile } from '~~/layers/dashboard/api/auth'
+import { PLATFORM_META_BY_SLUG } from '~/utils/platforms.js'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
@@ -111,9 +112,13 @@ const {
 						<span class="truncate font-semibold">{{ getDashboardName(currentDashboard) }}</span>
 						<span class="truncate text-xs flex items-center gap-1">
 							{{ t(`dashboard.header.managingUser`) }}
-							<Icon v-if="currentDashboard.platform === 'kick'" name="simple-icons:kick" class="size-4 text-[#53FC18]" />
-							<Icon v-else-if="currentDashboard.platform === 'twitch'" name="simple-icons:twitch" class="size-4 text-[#9146FF]" />
-							<Icon v-else-if="currentDashboard.platform === 'vk_video_live'" name="simple-icons:vk" class="size-4 text-[#0077FF]" />
+							<Icon
+								v-if="PLATFORM_META_BY_SLUG[currentDashboard.platform]"
+								:name="PLATFORM_META_BY_SLUG[currentDashboard.platform]?.icon"
+								:title="PLATFORM_META_BY_SLUG[currentDashboard.platform]?.label"
+								class="size-4"
+								:class="PLATFORM_META_BY_SLUG[currentDashboard.platform]?.colorClass"
+							/>
 						</span>
 					</div>
 						<Icon name="lucide:chevrons-up-down" class="ml-auto" />
@@ -147,21 +152,13 @@ const {
 									</AvatarFallback>
 								</Avatar>
 								<span class="truncate">{{ getDashboardLogin(option.data) }}</span>
-								<Icon
-									v-if="option.data.platform === 'kick'"
-									name="simple-icons:kick"
-									class="size-4 text-[#53FC18] ml-auto"
-								/>
-								<Icon
-									v-else-if="option.data.platform === 'twitch'"
-									name="simple-icons:twitch"
-									class="size-4 text-[#9146FF] ml-auto"
-								/>
-								<Icon
-									v-else-if="option.data.platform === 'vk_video_live'"
-									name="simple-icons:vk"
-									class="size-4 text-[#0077FF] ml-auto"
-								/>
+							<Icon
+								v-if="PLATFORM_META_BY_SLUG[option.data.platform]"
+								:name="PLATFORM_META_BY_SLUG[option.data.platform]?.icon"
+								:title="PLATFORM_META_BY_SLUG[option.data.platform]?.label"
+								class="size-4 ml-auto"
+								:class="PLATFORM_META_BY_SLUG[option.data.platform]?.colorClass"
+							/>
 							</Button>
 						</div>
 					</div>

@@ -16,6 +16,7 @@ import (
 	appplatform "github.com/twirapp/twir/apps/api-gql/internal/platform"
 	kickplatform "github.com/twirapp/twir/apps/api-gql/internal/platform/kick"
 	vkvideo "github.com/twirapp/twir/apps/api-gql/internal/platform/vkvideo"
+	youtube "github.com/twirapp/twir/apps/api-gql/internal/platform/youtube"
 	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	config "github.com/twirapp/twir/libs/config"
@@ -27,31 +28,8 @@ import (
 	"github.com/twirapp/twir/libs/repositories/tokens"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	vkvideobotsrepo "github.com/twirapp/twir/libs/repositories/vk_video_bots"
-	"go.uber.org/fx"
+	youtubebotsrepo "github.com/twirapp/twir/libs/repositories/youtube_bots"
 )
-
-type Opts struct {
-	fx.In
-
-	Huma                 huma.API
-	Config               config.Config
-	Bus                  *buscore.Bus
-	Sessions             *sessions.Auth
-	Logger               *slog.Logger
-	TrmManager           trm.Manager
-	PlatformRegistry     *appplatform.Registry
-	TokensRepository     tokens.Repository
-	ChannelsRepo         channelsrepo.Repository
-	ChannelPlatformsRepo channelplatformsrepo.Repository
-	BotsRepo             botsrepo.Repository
-	UsersRepo            usersrepository.Repository
-	KickProvider         *kickplatform.Provider
-	KickBotsRepo         kickbotsrepo.Repository
-	VKVideoBotProvider   *vkvideo.BotSetupProvider
-	VKVideoBotsRepo      vkvideobotsrepo.Repository
-	KV                   kv.KV
-	DashboardAccess      *dashboardaccess.Service
-}
 
 type Auth struct {
 	config                 config.Config
@@ -69,12 +47,20 @@ type Auth struct {
 	kickBotsRepo           kickbotsrepo.Repository
 	vkVideoBotProvider     vkVideoBotSetupProvider
 	vkVideoBotsRepo        vkvideobotsrepo.Repository
+	youtubeBotProvider     youtubeBotSetupProvider
+	youtubeBotsRepo        youtubebotsrepo.Repository
 	kv                     kv.KV
 	vkVideoBotSetupStateMu sync.Mutex
+	youtubeBotSetupStateMu sync.Mutex
 	dashboardAccess        dashboardAccessChecker
 	eventSubPublisher      eventSubPublisher
 	bindingConfigResolvers map[platformentity.Platform]platformBindingConfigResolver
 	postPlatformAuthHooks  map[platformentity.Platform]postPlatformAuthHook
+}
+
+type youtubeBotCallbackOutput struct {
+	Status   int
+	Location string `header:"Location"`
 }
 
 type dashboardAccessChecker interface {
@@ -93,40 +79,43 @@ type sessionStore interface {
 	DeleteOAuthAttempt(context.Context, string) error
 }
 
-func New(opts Opts) *Auth {
+func New(humaAPI huma.API, config config.Config, bus *buscore.Bus, sessionAuth *sessions.Auth, logger *slog.Logger, trmManager trm.Manager, platformRegistry *appplatform.Registry, tokensRepository tokens.Repository, channelsRepo channelsrepo.Repository, channelPlatformsRepo channelplatformsrepo.Repository, botsRepo botsrepo.Repository, usersRepo usersrepository.Repository, kickProvider *kickplatform.Provider, kickBotsRepo kickbotsrepo.Repository, vkVideoBotProvider *vkvideo.BotSetupProvider, vkVideoBotsRepo vkvideobotsrepo.Repository, youtubeBotProvider *youtube.Provider, youtubeBotsRepo youtubebotsrepo.Repository, kvClient kv.KV, dashboardAccess *dashboardaccess.Service) *Auth {
 	p := &Auth{
-		config:               opts.Config,
-		bus:                  opts.Bus,
-		sessions:             opts.Sessions,
-		logger:               opts.Logger,
-		transactionRunner:    opts.TrmManager,
-		platformRegistry:     opts.PlatformRegistry,
-		tokensRepository:     opts.TokensRepository,
-		channelsRepo:         opts.ChannelsRepo,
-		channelPlatformsRepo: opts.ChannelPlatformsRepo,
-		botsRepo:             opts.BotsRepo,
-		usersRepo:            opts.UsersRepo,
-		kickProvider:         opts.KickProvider,
-		kickBotsRepo:         opts.KickBotsRepo,
-		vkVideoBotProvider:   opts.VKVideoBotProvider,
-		vkVideoBotsRepo:      opts.VKVideoBotsRepo,
-		kv:                   opts.KV,
-		dashboardAccess:      opts.DashboardAccess,
+		config:               config,
+		bus:                  bus,
+		sessions:             sessionAuth,
+		logger:               logger,
+		transactionRunner:    trmManager,
+		platformRegistry:     platformRegistry,
+		tokensRepository:     tokensRepository,
+		channelsRepo:         channelsRepo,
+		channelPlatformsRepo: channelPlatformsRepo,
+		botsRepo:             botsRepo,
+		usersRepo:            usersRepo,
+		kickProvider:         kickProvider,
+		kickBotsRepo:         kickBotsRepo,
+		vkVideoBotProvider:   vkVideoBotProvider,
+		vkVideoBotsRepo:      vkVideoBotsRepo,
+		youtubeBotProvider:   youtubeBotProvider,
+		youtubeBotsRepo:      youtubeBotsRepo,
+		kv:                   kvClient,
+		dashboardAccess:      dashboardAccess,
 	}
-	if opts.Bus != nil && opts.Bus.EventSub != nil {
-		p.eventSubPublisher = opts.Bus.EventSub.SubscribeToAllEvents
+	if bus != nil && bus.EventSub != nil {
+		p.eventSubPublisher = bus.EventSub.SubscribeToAllEvents
 	}
 	p.bindingConfigResolvers = map[platformentity.Platform]platformBindingConfigResolver{
 		platformentity.PlatformTwitch:      p.twitchBindingConfig,
 		platformentity.PlatformKick:        p.kickBindingConfig,
 		platformentity.PlatformVKVideoLive: p.vkVideoBotBindingConfig,
+		platformentity.PlatformYouTube:     p.youtubeBotBindingConfig,
 	}
 	p.postPlatformAuthHooks = map[platformentity.Platform]postPlatformAuthHook{
 		platformentity.PlatformKick: p.updateKickBotTokenAfterAuth,
 	}
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "auth-post-code",
 			Method:      http.MethodPost,
@@ -144,7 +133,7 @@ func New(opts Opts) *Auth {
 	)
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "auth-platform-code",
 			Method:      http.MethodPost,
@@ -168,7 +157,7 @@ func New(opts Opts) *Auth {
 	)
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "auth-kick-code",
 			Method:      http.MethodPost,
@@ -186,7 +175,7 @@ func New(opts Opts) *Auth {
 	)
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "auth-platform-authorize",
 			Method:      http.MethodGet,
@@ -203,7 +192,7 @@ func New(opts Opts) *Auth {
 	)
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "auth-kick-authorize",
 			Method:      http.MethodGet,
@@ -220,7 +209,7 @@ func New(opts Opts) *Auth {
 	)
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "auth-kick-bot-callback",
 			Method:      http.MethodGet,
@@ -238,7 +227,7 @@ func New(opts Opts) *Auth {
 	)
 
 	huma.Register(
-		opts.Huma,
+		humaAPI,
 		huma.Operation{
 			OperationID: "auth-vk-video-bot-callback",
 			Method:      http.MethodGet,
@@ -258,5 +247,30 @@ func New(opts Opts) *Auth {
 		},
 	)
 
+	huma.Register(
+		humaAPI,
+		huma.Operation{
+			OperationID: "auth-youtube-bot-callback",
+			Method:      http.MethodGet,
+			Path:        "/auth/youtube/bot-callback",
+			Tags:        []string{"Auth"},
+			Summary:     "YouTube bot setup callback",
+		},
+		func(ctx context.Context, i *struct {
+			Code  string `query:"code"`
+			State string `query:"state"`
+		}) (*youtubeBotCallbackOutput, error) {
+			return p.completeYouTubeBotCallback(ctx, i.Code, i.State)
+		},
+	)
+
 	return p
+}
+
+func (a *Auth) completeYouTubeBotCallback(ctx context.Context, code, state string) (*youtubeBotCallbackOutput, error) {
+	if err := a.CompleteYouTubeBotSetup(ctx, code, state); err != nil {
+		return nil, huma.Error400BadRequest("Cannot complete YouTube bot setup", err)
+	}
+
+	return &youtubeBotCallbackOutput{Status: http.StatusFound, Location: "/dashboard/admin"}, nil
 }

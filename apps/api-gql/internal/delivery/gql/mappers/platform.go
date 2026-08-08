@@ -7,28 +7,6 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
-func PlatformsToStrings(platforms []platformentity.Platform) []string {
-	if platforms == nil {
-		return []string{}
-	}
-	result := make([]string, len(platforms))
-	for i, p := range platforms {
-		result[i] = p.String()
-	}
-	return result
-}
-
-func StringsToPlatforms(ss []string) []platformentity.Platform {
-	if ss == nil {
-		return []platformentity.Platform{}
-	}
-	result := make([]platformentity.Platform, len(ss))
-	for i, s := range ss {
-		result[i] = platformentity.Platform(s)
-	}
-	return result
-}
-
 func GraphQLPlatformToEntity(platform gqlmodel.Platform) (platformentity.Platform, error) {
 	switch platform {
 	case gqlmodel.PlatformTwitch:
@@ -37,6 +15,8 @@ func GraphQLPlatformToEntity(platform gqlmodel.Platform) (platformentity.Platfor
 		return platformentity.PlatformKick, nil
 	case gqlmodel.PlatformVkVideoLive:
 		return platformentity.PlatformVKVideoLive, nil
+	case gqlmodel.PlatformYoutube:
+		return platformentity.PlatformYouTube, nil
 	default:
 		return "", fmt.Errorf("unknown graphql platform: %s", platform)
 	}
@@ -60,6 +40,18 @@ func GraphQLPlatformsToEntities(platforms []gqlmodel.Platform) ([]platformentity
 	return result, nil
 }
 
+// GraphQLPlatformsToEntitiesOrEmpty is GraphQLPlatformsToEntities for update inputs:
+// repositories treat a nil slice as "field not set", so an explicitly cleared
+// selection must stay an empty non-nil slice to be persisted.
+func GraphQLPlatformsToEntitiesOrEmpty(platforms []gqlmodel.Platform) ([]platformentity.Platform, error) {
+	result, err := GraphQLPlatformsToEntities(platforms)
+	if result == nil {
+		result = []platformentity.Platform{}
+	}
+
+	return result, err
+}
+
 func EntityPlatformToGraphQL(platform platformentity.Platform) (gqlmodel.Platform, error) {
 	switch platform {
 	case platformentity.PlatformTwitch:
@@ -68,7 +60,23 @@ func EntityPlatformToGraphQL(platform platformentity.Platform) (gqlmodel.Platfor
 		return gqlmodel.PlatformKick, nil
 	case platformentity.PlatformVKVideoLive:
 		return gqlmodel.PlatformVkVideoLive, nil
+	case platformentity.PlatformYouTube:
+		return gqlmodel.PlatformYoutube, nil
 	default:
 		return "", fmt.Errorf("unknown entity platform: %s", platform)
 	}
+}
+
+func EntityPlatformsToGraphQL(platforms []platformentity.Platform) []gqlmodel.Platform {
+	result := make([]gqlmodel.Platform, 0, len(platforms))
+	for _, p := range platforms {
+		mapped, err := EntityPlatformToGraphQL(p)
+		if err != nil {
+			continue
+		}
+
+		result = append(result, mapped)
+	}
+
+	return result
 }

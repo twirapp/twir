@@ -33,14 +33,39 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 
 	layers := make([]channels_overlays.CreateLayerInput, len(input.Layers))
 	for i, l := range input.Layers {
+		var layerName string
+		if l.Name.IsSet() {
+			layerName = *l.Name.Value()
+		}
+
 		layers[i] = channels_overlays.CreateLayerInput{
 			Type: mappers.ChannelOverlayLayerTypeGqlToEntity(l.Type),
+			Name: layerName,
 			Settings: customoverlayentity.ChannelOverlayLayerSettings{
 				HtmlOverlayHTML:                    l.Settings.HTMLOverlayHTML,
 				HtmlOverlayCSS:                     l.Settings.HTMLOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HTMLOverlayJs,
 				HtmlOverlayDataPollSecondsInterval: l.Settings.HTMLOverlayDataPollSecondsInterval,
 				ImageUrl:                           l.Settings.ImageURL,
+				TextContent:                        l.Settings.TextContent,
+				TextFontFamily:                     l.Settings.TextFontFamily,
+				TextFontSize:                       l.Settings.TextFontSize,
+				TextFontWeight:                     l.Settings.TextFontWeight,
+				TextColor:                          l.Settings.TextColor,
+				TextAlign:                          l.Settings.TextAlign,
+				VideoUrl:                           l.Settings.VideoURL,
+				VideoLoop:                          l.Settings.VideoLoop,
+				VideoMuted:                         l.Settings.VideoMuted,
+				IframeUrl:                          l.Settings.IframeURL,
+				IframeScale:                        l.Settings.IframeScale,
+				WidgetKey:                          l.Settings.WidgetKey,
+				YoutubeVideoID:                     l.Settings.YoutubeVideoID,
+				YoutubeAutoplay:                    l.Settings.YoutubeAutoplay,
+				YoutubeLoop:                        l.Settings.YoutubeLoop,
+				YoutubeMuted:                       l.Settings.YoutubeMuted,
+				EmoteUrl:                           l.Settings.EmoteURL,
+				EmoteName:                          l.Settings.EmoteName,
+				EmoteProvider:                      l.Settings.EmoteProvider,
 			},
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
@@ -51,6 +76,7 @@ func (r *mutationResolver) ChannelOverlayCreate(ctx context.Context, input gqlmo
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 
@@ -93,15 +119,40 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 			layerID = l.ID.Value()
 		}
 
+		var layerName string
+		if l.Name.IsSet() {
+			layerName = *l.Name.Value()
+		}
+
 		layers[i] = channels_overlays.UpdateLayerInput{
 			ID:   layerID,
 			Type: mappers.ChannelOverlayLayerTypeGqlToEntity(l.Type),
+			Name: layerName,
 			Settings: customoverlayentity.ChannelOverlayLayerSettings{
 				HtmlOverlayHTML:                    l.Settings.HTMLOverlayHTML,
 				HtmlOverlayCSS:                     l.Settings.HTMLOverlayCSS,
 				HtmlOverlayJS:                      l.Settings.HTMLOverlayJs,
 				HtmlOverlayDataPollSecondsInterval: l.Settings.HTMLOverlayDataPollSecondsInterval,
 				ImageUrl:                           l.Settings.ImageURL,
+				TextContent:                        l.Settings.TextContent,
+				TextFontFamily:                     l.Settings.TextFontFamily,
+				TextFontSize:                       l.Settings.TextFontSize,
+				TextFontWeight:                     l.Settings.TextFontWeight,
+				TextColor:                          l.Settings.TextColor,
+				TextAlign:                          l.Settings.TextAlign,
+				VideoUrl:                           l.Settings.VideoURL,
+				VideoLoop:                          l.Settings.VideoLoop,
+				VideoMuted:                         l.Settings.VideoMuted,
+				IframeUrl:                          l.Settings.IframeURL,
+				IframeScale:                        l.Settings.IframeScale,
+				WidgetKey:                          l.Settings.WidgetKey,
+				YoutubeVideoID:                     l.Settings.YoutubeVideoID,
+				YoutubeAutoplay:                    l.Settings.YoutubeAutoplay,
+				YoutubeLoop:                        l.Settings.YoutubeLoop,
+				YoutubeMuted:                       l.Settings.YoutubeMuted,
+				EmoteUrl:                           l.Settings.EmoteURL,
+				EmoteName:                          l.Settings.EmoteName,
+				EmoteProvider:                      l.Settings.EmoteProvider,
 			},
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
@@ -112,6 +163,7 @@ func (r *mutationResolver) ChannelOverlayUpdate(ctx context.Context, id uuid.UUI
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 
@@ -219,7 +271,10 @@ func (r *queryResolver) ChannelOverlayByID(ctx context.Context, id uuid.UUID) (*
 
 // CustomOverlaySettings is the resolver for the customOverlaySettings field.
 func (r *subscriptionResolver) CustomOverlaySettings(ctx context.Context, id uuid.UUID, apiKey string) (<-chan *gqlmodel.ChannelOverlay, error) {
-	user, err := r.deps.UsersService.GetByApiKey(ctx, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(
+		ctx,
+		apiKey,
+	)
 	if err != nil {
 		return nil, gqlerrors.HandleError(err)
 	}
@@ -232,15 +287,15 @@ func (r *subscriptionResolver) CustomOverlaySettings(ctx context.Context, id uui
 		return nil, gqlerrors.HandleError(err)
 	}
 
-	// Verify that the overlay belongs to the user's channel
-	if initialOverlay.ChannelID != user.ID {
+	// Verify that the overlay belongs to the resolved channel
+	if initialOverlay.ChannelID != identity.InternalChannelID {
 		return nil, fmt.Errorf("overlay not found")
 	}
 
 	go func() {
 		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
-				channels_overlays.CreateCustomOverlayWsRouterKey(user.ID, id),
+				channels_overlays.CreateCustomOverlayWsRouterKey(identity.InternalChannelID, id),
 			},
 		)
 		if err != nil {

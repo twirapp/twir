@@ -8,7 +8,7 @@ import (
 )
 
 func TestNew_whenQuoteCommandsAreRegistered(t *testing.T) {
-	commands := New(&Opts{})
+	commands := New(nil, nil)
 	for _, name := range []string{"quote", "quote add", "quote remove"} {
 		if _, ok := commands.DefaultCommands[name]; !ok {
 			t.Fatalf("expected %q to be registered", name)

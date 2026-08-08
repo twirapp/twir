@@ -20,6 +20,7 @@ func (r *queryResolver) TwirStats(ctx context.Context) (*gqlmodel.TwirStats, err
 		TwitchChannels:  data.TwitchChannels,
 		KickChannels:    data.KickChannels,
 		VkChannels:      data.VkChannels,
+		YoutubeChannels: data.YoutubeChannels,
 		CreatedCommands: data.CreatedCommands,
 		Viewers:         data.Viewers,
 		Messages:        data.Messages,

@@ -213,6 +213,16 @@ export const compareFeatureRows: CompareFeatureRow[] = [
 		},
 	},
 	{
+		labelKey: 'compare.features.aiMcp',
+		cells: {
+			twir: yes('compare.notes.aiMcpTwir'),
+			nightbot: no(),
+			streamelements: no(),
+			moobot: no(),
+			fossabot: no(),
+		},
+	},
+	{
 		labelKey: 'compare.features.openSource',
 		cells: {
 			twir: yes('compare.notes.openSourceTwir'),

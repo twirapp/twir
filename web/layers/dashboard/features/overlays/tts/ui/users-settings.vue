@@ -107,7 +107,7 @@ function testUserVoice(user: (typeof users.value)[0]) {
 							@click="showDeleteDialog = true"
 						>
 							<Icon
-								name="lucide:trash2"
+								name="lucide:trash"
 								class="mr-2 h-4 w-4"
 							/>
 							{{ t('sharedButtons.delete') }} ({{ selectedCount }})
@@ -189,7 +189,7 @@ function testUserVoice(user: (typeof users.value)[0]) {
 										@click="testUserVoice(user)"
 									>
 										<Icon
-											name="lucide:volume2"
+											name="lucide:volume-2"
 											class="h-4 w-4"
 										/>
 									</Button>

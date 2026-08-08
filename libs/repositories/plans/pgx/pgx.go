@@ -205,6 +205,48 @@ func (r *repository) GetByChannelID(ctx context.Context, channelID string) (plan
 	return r.dbToEntity(dbPlan), nil
 }
 
+const getByUserIDQuery = `
+SELECT
+	p.id,
+	p.name,
+	p.max_commands,
+	p.max_timers,
+	p.max_variables,
+	p.max_alerts,
+	p.max_events,
+	p.max_chat_alerts_messages,
+	p.max_custom_overlays,
+	p.max_eightball_answers,
+	p.max_commands_responses,
+	p.max_moderation_rules,
+	p.max_keywords,
+	p.max_greetings,
+	p.links_shortener_custom_domains,
+	p.created_at,
+	p.updated_at
+FROM plans p
+JOIN channels c ON c.plan_id = p.id
+JOIN channel_platforms cp ON cp.channel_id = c.id
+WHERE cp.user_id = $1
+LIMIT 1`
+
+func (r *repository) GetByUserID(ctx context.Context, userID string) (plan.Plan, error) {
+	rows, err := r.db.Query(ctx, getByUserIDQuery, userID)
+	if err != nil {
+		return plan.Nil, fmt.Errorf("failed to query plan: %w", err)
+	}
+
+	dbPlan, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Plan])
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return plan.Nil, nil
+		}
+		return plan.Nil, fmt.Errorf("failed to get plan: %w", err)
+	}
+
+	return r.dbToEntity(dbPlan), nil
+}
+
 func (r *repository) GetManyByIDs(ctx context.Context, ids []string) ([]plan.Plan, error) {
 	if len(ids) == 0 {
 		return []plan.Plan{}, nil

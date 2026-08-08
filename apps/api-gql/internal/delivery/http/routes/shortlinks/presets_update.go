@@ -10,7 +10,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinksbanneduapresetsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_presets"
-	"go.uber.org/fx"
 )
 
 type updatePreset struct {
@@ -19,8 +18,6 @@ type updatePreset struct {
 }
 
 type UpdatePresetOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }
@@ -57,9 +54,18 @@ func (c *updatePreset) Handler(
 	ctx context.Context,
 	input *updatePresetInput,
 ) (*httpbase.BaseOutputJson[presetDto], error) {
-	_, err := c.sessions.GetAuthenticatedUserModel(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	if err := resolveOwnedPreset(ctx, c.service, user.ID, input.PresetID); err != nil {
+		switch {
+		case errors.Is(err, errPresetNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Preset not found")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get preset", err)
+		}
 	}
 
 	item, err := c.service.UpdatePreset(

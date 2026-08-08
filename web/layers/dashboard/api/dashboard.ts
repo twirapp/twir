@@ -91,6 +91,19 @@ export function useRealtimeDashboardStats() {
 					usedEmotes
 					requestedSongs
 					subs
+					platforms {
+						platform
+						isLive
+						title
+						categoryId
+						categoryName
+						viewers
+						followers
+						startedAt
+						chatMessages
+						usedEmotes
+						canEditInfo
+					}
 				}
 			}
 		`),

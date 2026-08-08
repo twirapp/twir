@@ -15,6 +15,7 @@ import (
 	"github.com/kvizyx/twitchy/eventsub"
 	goredislib "github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/eventsub/internal/handler"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -25,7 +26,6 @@ import (
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	twitchlib "github.com/twirapp/twir/libs/twitch"
 	"go.uber.org/atomic"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -47,66 +47,79 @@ type Manager struct {
 
 	wsCurrentSessionId *string
 	currentConduit     *conduitsResponseConduit
+
+	workerCancel context.CancelFunc
+	workerDone   chan struct{}
 }
 
-type Opts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Config             cfg.Config
-	Logger             *slog.Logger
-	Gorm               *gorm.DB
-	TwirBus            *buscore.Bus
-	ChannelsRepo       channelsrepo.Repository
-	ChannelService     *channelservice.ChannelService
-	ConduitsRepository twitchconduits.Repository
-	Redis              *goredislib.Client
-	Handler            *handler.Handler
-}
-
-func NewManager(opts Opts) (*Manager, error) {
+func NewManager(
+	lc *lifecycle.Lifecycle,
+	config cfg.Config,
+	logger *slog.Logger,
+	db *gorm.DB,
+	twirBus *buscore.Bus,
+	channelsRepo channelsrepo.Repository,
+	channelService *channelservice.ChannelService,
+	conduitsRepository twitchconduits.Repository,
+	redisClient *goredislib.Client,
+	handler *handler.Handler,
+) (*Manager, error) {
 	var httpClient *http.Client
 	var apiBaseUrl string
 	var wsOpts []eventsub.WebsocketOption
 
-	if opts.Config.TwitchMockEnabled {
+	if config.TwitchMockEnabled {
 		httpClient = &http.Client{
-			Transport: twitchlib.NewMockRoundTripper(http.DefaultTransport, opts.Config),
+			Transport: twitchlib.NewMockRoundTripper(http.DefaultTransport, config),
 		}
-		apiBaseUrl = strings.TrimSuffix(opts.Config.TwitchMockApiUrl, "/helix")
-		wsOpts = append(wsOpts, eventsub.WebsocketWithServerURL(opts.Config.TwitchMockWsUrl))
+		apiBaseUrl = strings.TrimSuffix(config.TwitchMockApiUrl, "/helix")
+		wsOpts = append(wsOpts, eventsub.WebsocketWithServerURL(config.TwitchMockWsUrl))
 	} else {
 		httpClient = http.DefaultClient
 		apiBaseUrl = "https://api.twitch.tv"
 	}
 
+	workerCtx, workerCancel := context.WithCancel(context.Background())
+
 	manager := &Manager{
-		config:             opts.Config,
-		logger:             opts.Logger,
-		gorm:               opts.Gorm,
-		twirBus:            opts.TwirBus,
-		channelsRepo:       opts.ChannelsRepo,
-		channelService:     opts.ChannelService,
-		conduitsRepository: opts.ConduitsRepository,
-		redSync:            redsync.New(goredis.NewPool(opts.Redis)),
+		config:             config,
+		logger:             logger,
+		gorm:               db,
+		twirBus:            twirBus,
+		channelsRepo:       channelsRepo,
+		channelService:     channelService,
+		conduitsRepository: conduitsRepository,
+		redSync:            redsync.New(goredis.NewPool(redisClient)),
 		eventsub:           eventsub.New(),
-		handler:            opts.Handler,
+		handler:            handler,
 		httpClient:         httpClient,
 		apiBaseUrl:         apiBaseUrl,
 		wsOpts:             wsOpts,
 		wsCurrentSessionId: nil,
 		currentConduit:     nil,
+		workerCancel:       workerCancel,
+		workerDone:         make(chan struct{}),
 	}
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
-				if err := manager.createConduit(); err != nil {
-					return err
-				}
-				go manager.startWebSocket()
+				go func() {
+					defer close(manager.workerDone)
+					manager.runStartup(workerCtx)
+				}()
 
 				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				workerCancel()
+
+				select {
+				case <-manager.workerDone:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
 			},
 		},
 	)

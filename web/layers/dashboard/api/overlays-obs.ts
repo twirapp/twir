@@ -61,7 +61,7 @@ export const useObsWebsocketApi = createGlobalState(() => {
 			const selectedDashboard = profile.value?.availableDashboards.find(
 				(d) => d.id === profile.value?.selectedDashboardId
 			)
-			return selectedDashboard?.apiKey ?? ''
+			return selectedDashboard?.channelApiKey ?? ''
 		})
 
 		const paused = computed(() => !apiKey.value)

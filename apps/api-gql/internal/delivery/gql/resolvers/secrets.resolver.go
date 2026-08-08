@@ -47,7 +47,13 @@ func (r *mutationResolver) SecretCreate(ctx context.Context, opts gqlmodel.Secre
 
 // SecretUpdate is the resolver for the secretUpdate field.
 func (r *mutationResolver) SecretUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.SecretUpdateInput) (*gqlmodel.Secret, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	input := channels_secret.UpdateInput{
+		ChannelID:   dashboardId,
 		Name:        opts.Name.Value(),
 		Description: opts.Description.Value(),
 		Value:       opts.Value.Value(),
@@ -64,7 +70,12 @@ func (r *mutationResolver) SecretUpdate(ctx context.Context, id uuid.UUID, opts 
 
 // SecretDelete is the resolver for the secretDelete field.
 func (r *mutationResolver) SecretDelete(ctx context.Context, id uuid.UUID) (bool, error) {
-	if err := r.deps.ChannelsSecretService.Delete(ctx, id); err != nil {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	if err := r.deps.ChannelsSecretService.Delete(ctx, id, dashboardId); err != nil {
 		return false, gqlerrors.HandleError(err)
 	}
 

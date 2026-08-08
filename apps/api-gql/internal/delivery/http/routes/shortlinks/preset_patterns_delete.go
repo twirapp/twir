@@ -10,7 +10,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinksbanneduapresetpatternsrepository "github.com/twirapp/twir/libs/repositories/short_links_banned_ua_preset_patterns"
-	"go.uber.org/fx"
 )
 
 type deletePresetPattern struct {
@@ -19,8 +18,6 @@ type deletePresetPattern struct {
 }
 
 type DeletePresetPatternOpts struct {
-	fx.In
-
 	Service  *shortenedurls.Service
 	Sessions *auth.Auth
 }
@@ -54,9 +51,18 @@ func (c *deletePresetPattern) Handler(
 	ctx context.Context,
 	input *deletePresetPatternInput,
 ) (*httpbase.BaseOutputJson[any], error) {
-	_, err := c.sessions.GetAuthenticatedUserModel(ctx)
+	user, err := c.sessions.GetAuthenticatedUserModel(ctx)
 	if err != nil {
 		return nil, huma.NewError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	if err := resolveOwnedPreset(ctx, c.service, user.ID, input.PresetID); err != nil {
+		switch {
+		case errors.Is(err, errPresetNotFound):
+			return nil, huma.NewError(http.StatusNotFound, "Preset not found")
+		default:
+			return nil, huma.NewError(http.StatusInternalServerError, "Cannot get preset", err)
+		}
 	}
 
 	if err := c.service.DeletePresetPattern(ctx, input.ID, input.PresetID); err != nil {

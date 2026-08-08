@@ -46,6 +46,7 @@ type overlayRow struct {
 type layerRow struct {
 	ID                      uuid.UUID `json:"id"`
 	Type                    string    `json:"type"`
+	Name                    string    `json:"name"`
 	Settings                []byte    `json:"settings"`
 	OverlayID               uuid.UUID `json:"overlay_id"`
 	PosX                    int       `json:"pos_x"`
@@ -59,14 +60,15 @@ type layerRow struct {
 	Locked                  bool      `json:"locked"`
 	Visible                 bool      `json:"visible"`
 	Opacity                 float64   `json:"opacity"`
+	ZIndex                  int       `json:"z_index"`
 }
 
 func (c *Pgx) getLayers(ctx context.Context, overlayID uuid.UUID) ([]model.OverlayLayer, error) {
 	query := `
-SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
+SELECT id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity, z_index
 FROM channels_overlays_layers
 WHERE overlay_id = $1
-ORDER BY created_at ASC
+ORDER BY z_index ASC, created_at ASC
 `
 	rows, err := c.pool.Query(ctx, query, overlayID)
 	if err != nil {
@@ -80,6 +82,7 @@ ORDER BY created_at ASC
 		if err := rows.Scan(
 			&row.ID,
 			&row.Type,
+			&row.Name,
 			&row.Settings,
 			&row.OverlayID,
 			&row.PosX,
@@ -93,6 +96,7 @@ ORDER BY created_at ASC
 			&row.Locked,
 			&row.Visible,
 			&row.Opacity,
+			&row.ZIndex,
 		); err != nil {
 			return nil, err
 		}
@@ -106,6 +110,7 @@ ORDER BY created_at ASC
 			layers, model.OverlayLayer{
 				ID:                      row.ID,
 				Type:                    model.OverlayType(row.Type),
+				Name:                    row.Name,
 				Settings:                settings,
 				OverlayID:               row.OverlayID,
 				PosX:                    row.PosX,
@@ -119,6 +124,7 @@ ORDER BY created_at ASC
 				Locked:                  row.Locked,
 				Visible:                 row.Visible,
 				Opacity:                 row.Opacity,
+				ZIndex:                  row.ZIndex,
 			},
 		)
 	}
@@ -285,8 +291,8 @@ func (c *Pgx) insertLayer(
 	}
 
 	layerQuery := `
-INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+INSERT INTO channels_overlays_layers (id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity, z_index)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 `
 
 	_, err = tx.Exec(
@@ -294,6 +300,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		layerQuery,
 		layerID,
 		string(layer.Type),
+		layer.Name,
 		settingsJSON,
 		overlayID,
 		layer.PosX,
@@ -307,6 +314,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		layer.Locked,
 		layer.Visible,
 		layer.Opacity,
+		layer.ZIndex,
 	)
 	return err
 }
@@ -394,39 +402,31 @@ func (c *Pgx) upsertLayer(
 		return err
 	}
 
+	// Clients may generate ids for new layers on their side, so a plain UPDATE
+	// would silently drop them. A real upsert handles both cases.
+	layerID := uuid.New()
 	if layer.ID != nil {
-		// Update existing layer
-		layerQuery := `
-UPDATE channels_overlays_layers
-SET type = $1, settings = $2, pos_x = $3, pos_y = $4, width = $5, height = $6, rotation = $7, updated_at = $8, periodically_refetch_data = $9, locked = $10, visible = $11, opacity = $12
-WHERE id = $13 AND overlay_id = $14
-`
-		_, err = tx.Exec(
-			ctx,
-			layerQuery,
-			string(layer.Type),
-			settingsJSON,
-			layer.PosX,
-			layer.PosY,
-			layer.Width,
-			layer.Height,
-			layer.Rotation,
-			now,
-			layer.PeriodicallyRefetchData,
-			layer.Locked,
-			layer.Visible,
-			layer.Opacity,
-			*layer.ID,
-			overlayID,
-		)
-		return err
+		layerID = *layer.ID
 	}
 
-	// Insert new layer
-	layerID := uuid.New()
 	layerQuery := `
-INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+INSERT INTO channels_overlays_layers (id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity, z_index)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+ON CONFLICT (id) DO UPDATE SET
+	type = EXCLUDED.type,
+	name = EXCLUDED.name,
+	settings = EXCLUDED.settings,
+	pos_x = EXCLUDED.pos_x,
+	pos_y = EXCLUDED.pos_y,
+	width = EXCLUDED.width,
+	height = EXCLUDED.height,
+	rotation = EXCLUDED.rotation,
+	updated_at = EXCLUDED.updated_at,
+	periodically_refetch_data = EXCLUDED.periodically_refetch_data,
+	locked = EXCLUDED.locked,
+	visible = EXCLUDED.visible,
+	opacity = EXCLUDED.opacity,
+	z_index = EXCLUDED.z_index
 `
 
 	_, err = tx.Exec(
@@ -434,6 +434,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		layerQuery,
 		layerID,
 		string(layer.Type),
+		layer.Name,
 		settingsJSON,
 		overlayID,
 		layer.PosX,
@@ -447,6 +448,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		layer.Locked,
 		layer.Visible,
 		layer.Opacity,
+		layer.ZIndex,
 	)
 	return err
 }
@@ -469,15 +471,16 @@ func (c *Pgx) UpdateLayer(ctx context.Context, layerId uuid.UUID, input channels
 	query := `
 UPDATE channels_overlays_layers
 SET pos_x = COALESCE($1, pos_x),
-		pos_y = COALESCE($2, pos_y),
-		updated_at = $3,
-		width = COALESCE($4, width),
-		height = COALESCE($5, height),
-		rotation = COALESCE($6, rotation),
-		visible = COALESCE($7, visible),
-		opacity = COALESCE($8, opacity)
+	pos_y = COALESCE($2, pos_y),
+	updated_at = $3,
+	width = COALESCE($4, width),
+	height = COALESCE($5, height),
+	rotation = COALESCE($6, rotation),
+	visible = COALESCE($7, visible),
+	opacity = COALESCE($8, opacity),
+	z_index = COALESCE($10, z_index)
 WHERE id = $9
-RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
+RETURNING id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity, z_index
 `
 
 	now := time.Now().UTC()
@@ -493,6 +496,7 @@ RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation,
 		input.Visible,
 		input.Opacity,
 		layerId,
+		input.ZIndex,
 	)
 	if err != nil {
 		return model.OverlayLayer{}, err
@@ -503,7 +507,7 @@ RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation,
 	}
 
 	getQuery := `
-SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
+SELECT id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity, z_index
 FROM channels_overlays_layers
 WHERE id = $1
 `
@@ -514,6 +518,7 @@ WHERE id = $1
 	if err := row.Scan(
 		&layer.ID,
 		&layer.Type,
+		&layer.Name,
 		&layer.Settings,
 		&layer.OverlayID,
 		&layer.PosX,
@@ -527,6 +532,7 @@ WHERE id = $1
 		&layer.Locked,
 		&layer.Visible,
 		&layer.Opacity,
+		&layer.ZIndex,
 	); err != nil {
 		return model.OverlayLayer{}, err
 	}
@@ -539,6 +545,7 @@ WHERE id = $1
 	return model.OverlayLayer{
 		ID:                      layer.ID,
 		Type:                    model.OverlayType(layer.Type),
+		Name:                    layer.Name,
 		Settings:                settings,
 		OverlayID:               layer.OverlayID,
 		PosX:                    layer.PosX,
@@ -552,5 +559,6 @@ WHERE id = $1
 		Locked:                  layer.Locked,
 		Visible:                 layer.Visible,
 		Opacity:                 layer.Opacity,
+		ZIndex:                  layer.ZIndex,
 	}, nil
 }

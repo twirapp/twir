@@ -3,13 +3,13 @@ module github.com/twirapp/twir/apps/dota
 go 1.26.0
 
 require (
+	github.com/goforj/wire v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
 	github.com/stretchr/testify v1.11.1
 	github.com/twirapp/kv v0.5.1
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
-	go.uber.org/fx v1.24.0
 	golang.org/x/time v0.15.0
 )
 

@@ -12,7 +12,7 @@ export function useAlertsInformation() {
 	})
 
 	const overlayApiKey = computed(() => {
-		return selectedDashboardTwitchUser.value?.apiKey || profile.value?.apiKey || ''
+		return selectedDashboardTwitchUser.value?.channelApiKey || profile.value?.channelApiKey || ''
 	})
 
 	const overlayLink = computed(() => {

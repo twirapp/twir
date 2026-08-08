@@ -10,9 +10,13 @@ import type { Command } from '~/gql/graphql.js'
 
 import Table from '~~/layers/dashboard/components/table.vue'
 import TextWithVariables from '~~/layers/dashboard/components/text-with-variables.vue'
+import PlatformIcons from '@/components/platform/platform-icons.vue'
+import { useDefaultCommandsApi } from '~~/layers/dashboard/api/commands/default-commands.js'
 
 import ColumnActions from './list-actions.vue'
 import { type Group, createGroups, isCommand } from './list-groups.js'
+
+const { defaultCommandPlatforms } = useDefaultCommandsApi()
 
 const props = withDefaults(
 	defineProps<{
@@ -37,9 +41,18 @@ const columns: ColumnDef<Command | Group>[] = [
 				: null
 
 			if (isCommand(row.original)) {
+				const platformIcons = row.original.default
+					? h(PlatformIcons, {
+							platforms:
+								defaultCommandPlatforms.value.get(row.original.defaultName ?? row.original.name) ??
+								[],
+						})
+					: null
+
 				return h('div', { class: 'flex gap-2 items-center' }, [
 					chevron,
 					`!${row.getValue('name')}` as string,
+					platformIcons,
 				])
 			}
 

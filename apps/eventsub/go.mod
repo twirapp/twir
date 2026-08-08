@@ -8,6 +8,7 @@ require (
 	github.com/centrifugal/centrifuge-go v0.12.0
 	github.com/go-redsync/redsync/v4 v4.14.1
 	github.com/goccy/go-json v0.10.5
+	github.com/goforj/wire v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/kr/pretty v0.3.1
 	github.com/kvizyx/twitchy v0.1.7
@@ -31,7 +32,6 @@ require (
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
 	go.uber.org/atomic v1.11.0
-	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.1
 	golang.org/x/sync v0.19.0
 	gorm.io/gorm v1.31.1

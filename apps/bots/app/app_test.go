@@ -8,14 +8,7 @@ import (
 
 	cfg "github.com/twirapp/twir/libs/config"
 	vkintegrations "github.com/twirapp/twir/libs/integrations/vk"
-	"go.uber.org/fx"
 )
-
-func TestAppHasCompleteDependencyGraph(t *testing.T) {
-	if err := fx.ValidateApp(App); err != nil {
-		t.Fatalf("validate bots dependency graph: %v", err)
-	}
-}
 
 func TestNewVKVideoChatClientUsesConfiguredDevAPIBaseURL(t *testing.T) {
 	// Given
@@ -33,7 +26,7 @@ func TestNewVKVideoChatClientUsesConfiguredDevAPIBaseURL(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, err := newVKVideoChatClient(cfg.Config{VKVideoDevAPIBaseURL: server.URL})
+	client, err := NewVKVideoChatClient(cfg.Config{VKVideoDevAPIBaseURL: server.URL})
 	if err != nil {
 		t.Fatalf("create VK Video chat client: %v", err)
 	}

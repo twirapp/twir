@@ -7,6 +7,9 @@ extend type Mutation {
 	vkVideoBotSetupLink: String! @isAuthenticated @isAdmin
 	vkVideoBotSetupStatus: Boolean! @isAuthenticated @isAdmin
 	vkVideoBotSetupComplete(code: String!, state: String!): Boolean! @isAuthenticated @isAdmin
+	youtubeBotSetupLink: String! @isAuthenticated @isAdmin
+	youtubeBotSetupStatus: Boolean! @isAuthenticated @isAdmin
+	youtubeBotSetupComplete(code: String!, state: String!): Boolean! @isAuthenticated @isAdmin
 }
 
 input EventsubSubscribeInput {

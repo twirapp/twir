@@ -158,6 +158,10 @@ func (m *mockChannelsRepo) GetByID(_ context.Context, _ uuid.UUID) (channelsmode
 	return m.channel, m.err
 }
 
+func (*mockChannelsRepo) GetByIDs(context.Context, []uuid.UUID) ([]channelsmodel.Channel, error) {
+	return nil, nil
+}
+
 func (m *mockChannelsRepo) GetByBindingUserID(
 	_ context.Context,
 	p platform.Platform,

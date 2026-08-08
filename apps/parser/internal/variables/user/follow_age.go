@@ -16,6 +16,7 @@ import (
 var FollowAge = &types.Variable{
 	Name:         "user.followage",
 	Description:  new(`User followage duration in "1y 3mo 22d" format`),
+	Platforms:    []platformentity.Platform{platformentity.PlatformTwitch, platformentity.PlatformKick},
 	CommandsOnly: true,
 	Handler: shared.HandlerByPlatform(map[platformentity.Platform]types.VariableHandler{
 		shared.PlatformTwitch: func(

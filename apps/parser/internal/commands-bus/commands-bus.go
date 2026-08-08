@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/streams"
 	streamsmodel "github.com/twirapp/twir/libs/repositories/streams/model"
 	"github.com/twirapp/twir/libs/repositories/userswithstats"
@@ -127,6 +128,44 @@ func (c *CommandsBus) enrichChatMessage(
 	}, nil
 }
 
+func (c *CommandsBus) findLatestMessageIdForReply(
+	ctx context.Context,
+	data generic.ChatMessage,
+	messagePlatform platformentity.Platform,
+	userLogin string,
+) string {
+	platformChannelID := data.PlatformChannelID
+	if platformChannelID == "" {
+		platformChannelID = data.BroadcasterUserId
+	}
+	if platformChannelID == "" {
+		return ""
+	}
+
+	latestMessage, err := c.services.ChatMessagesRepo.GetLatestByUser(
+		ctx,
+		chatmessagesrepository.GetLatestByUserInput{
+			Platform:          string(messagePlatform),
+			PlatformChannelID: platformChannelID,
+			UserName:          userLogin,
+		},
+	)
+	if err != nil {
+		if !errors.Is(err, chatmessagesrepository.ErrNotFound) {
+			c.services.Logger.Error(
+				"cannot find latest chat message for touser reply",
+				zap.Error(err),
+				zap.String("channel_id", platformChannelID),
+				zap.String("user_login", userLogin),
+			)
+		}
+
+		return ""
+	}
+
+	return latestMessage.ID.String()
+}
+
 func (c *CommandsBus) Subscribe() error {
 	c.bus.Parser.GetDefaultCommands.SubscribeGroup(
 		"parser",
@@ -152,6 +191,7 @@ func (c *CommandsBus) Subscribe() error {
 						IsReply:            cmd.IsReply,
 						KeepResponsesOrder: cmd.KeepResponsesOrder,
 						Aliases:            cmd.Aliases,
+						Platforms:          cmd.Platforms,
 					},
 				)
 			}
@@ -293,14 +333,19 @@ func (c *CommandsBus) Subscribe() error {
 				return struct{}{}, nil
 			}
 
-			var replyTo string
-			if res.IsReply {
-				replyTo = data.MessageID
-			}
-
 			messagePlatform := platformentity.Platform(data.Platform)
 			if messagePlatform == "" {
 				messagePlatform = platformentity.PlatformTwitch
+			}
+
+			var replyTo string
+			replyToUserNotFound := false
+			if res.ReplyToUserLogin != "" {
+				replyTo = c.findLatestMessageIdForReply(ctx, data, messagePlatform, res.ReplyToUserLogin)
+				replyToUserNotFound = replyTo == ""
+			}
+			if replyTo == "" && res.IsReply && !replyToUserNotFound {
+				replyTo = data.MessageID
 			}
 
 			for _, r := range res.Responses {

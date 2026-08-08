@@ -215,7 +215,7 @@ func newChannelPlatformBindingExecutionServer(
 ) *handler.Server {
 	t.Helper()
 
-	resolver, err := resolvers.New(resolvers.Deps{
+	resolver, err := resolvers.NewFromDeps(resolvers.Deps{
 		ChannelPlatformBindingsService: operations,
 		ChannelPlatformDashboard:       channelPlatformBindingExecutionDashboard{dashboardID: dashboardID},
 		Sessions:                       channelPlatformBindingExecutionSession{user: &user},
@@ -355,4 +355,8 @@ func (channelPlatformBindingExecutionSession) SetSessionSelectedDashboard(contex
 
 func (channelPlatformBindingExecutionSession) SessionLogout(context.Context) error {
 	return nil
+}
+
+func (channelPlatformBindingExecutionSession) GetChannelFromApiKey(context.Context) (channelentity.Channel, error) {
+	return channelentity.Nil, context.Canceled
 }

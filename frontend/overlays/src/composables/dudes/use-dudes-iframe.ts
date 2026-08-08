@@ -21,7 +21,12 @@ export const useDudesIframe = createGlobalState(() => {
 	async function onPostMessage(msg: MessageEvent<string>) {
 		if (!dudes.value?.dudes) return
 
-		const parsedData = JSON.parse(msg.data) as DudesPostMessage
+		let parsedData: DudesPostMessage
+		try {
+			parsedData = JSON.parse(msg.data) as DudesPostMessage
+		} catch {
+			return
+		}
 		const dude = dudes.value.dudes.getDude(dudeMock.id)
 
 		if (parsedData.action === 'reset') {

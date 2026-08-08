@@ -34,6 +34,7 @@ const { handleSubmit, setValues, values } = useForm({
 				twitchCategoriesIds: [],
 				onlineOnly: false,
 				offlineOnly: false,
+				platforms: [],
 			},
 		],
 		description: '',
@@ -74,6 +75,7 @@ onMounted(async () => {
 					twitchCategoriesIds: [],
 					onlineOnly: r.onlineOnly,
 					offlineOnly: r.offlineOnly,
+					platforms: [],
 				})),
 				aliases: [],
 			}))

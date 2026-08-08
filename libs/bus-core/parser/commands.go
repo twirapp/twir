@@ -11,6 +11,7 @@ type CommandParseResponse struct {
 	IsReply           bool
 	KeepOrder         bool
 	SkipToxicityCheck bool
+	ReplyToUserLogin  string
 }
 
 type ParseVariablesInTextRequest struct {
@@ -45,4 +46,5 @@ type DefaultCommand struct {
 	IsReply            bool
 	KeepResponsesOrder bool
 	Aliases            []string
+	Platforms          []platformentity.Platform
 }

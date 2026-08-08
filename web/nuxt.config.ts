@@ -12,9 +12,20 @@ const { resolve } = createResolver(import.meta.url)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const localeCodes = fs
-	.readdirSync(resolve('./locales'))
+	.readdirSync(resolve('./i18n/locales'))
 	.filter((f) => f.endsWith('.json'))
 	.map((f) => f.replace('.json', ''))
+
+const localeNames: Record<string, string> = {
+	de: 'Deutsch',
+	en: 'English',
+	es: 'Español',
+	ja: '日本語',
+	pt: 'Português',
+	ru: 'Русский',
+	sk: 'Slovenčina',
+	uk: 'Українська',
+}
 
 function buildDiagnosticsPlugin(): any {
 	if (process.env.TWIR_BUILD_DIAGNOSTICS !== '1') return null
@@ -41,7 +52,7 @@ function buildDiagnosticsPlugin(): any {
 
 const diagnosticsPlugin = buildDiagnosticsPlugin()
 
-const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://twir.app'
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || process.env.SITE_BASE_URL || 'https://twir.app'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -56,12 +67,18 @@ export default defineNuxtConfig({
 		},
 	},
 
+	runtimeConfig: {
+		public: {
+			siteUrl,
+		},
+	},
+
 	site: {
 		indexable: true,
 		url: siteUrl,
 		name: 'Twir',
 		description:
-			'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.',
+			'Powerful and useful chat bot for Twitch, Kick, VK Video Live and YouTube that helps manage chat on big channels. Developed from streamers for streamers with love.',
 		defaultLocale: 'en',
 	},
 
@@ -93,16 +110,19 @@ export default defineNuxtConfig({
 		'@nuxtjs/i18n',
 		'@nuxtjs/seo',
 		'@nuxtjs/fontaine',
+		'@plugin-web-update-notification/nuxt',
 	],
 
 	i18n: {
 		baseUrl: siteUrl,
 		locales: localeCodes.map((code) => ({
 			code,
+			name: localeNames[code],
 			file: `${code}.json`,
 			language: code,
 		})) as any, // TODO: remove any, no ai written xd
 		defaultLocale: 'en',
+		vueI18n: './i18n.config.ts',
 		langDir: 'locales',
 		compilation: {
 			strictMessage: false,
@@ -112,6 +132,8 @@ export default defineNuxtConfig({
 			useCookie: true,
 			cookieKey: 'i18n_redirected',
 			redirectOn: 'root',
+			fallbackLocale: 'en',
+			cookieSecure: true,
 		},
 	},
 
@@ -121,11 +143,11 @@ export default defineNuxtConfig({
 		clientBundle: {
 			includeCustomCollections: true,
 		},
-	customCollections: [
-		{
-			prefix: 'twir-overlays',
-			dir: resolve('./layers/dashboard/assets/overlays'),
-		},
+		customCollections: [
+			{
+				prefix: 'twir-overlays',
+				dir: resolve('./layers/dashboard/assets/overlays'),
+			},
 			{
 				prefix: 'twir-integrations',
 				dir: resolve('./layers/dashboard/assets/integrations'),
@@ -182,7 +204,7 @@ export default defineNuxtConfig({
 			],
 		},
 		server: {
-			allowedHosts: ['dev.twir.app', 'localhost'],
+			allowedHosts: ['dev.twir.app', 'localhost', 'twir.dev'],
 			// fs: {
 			// 	allow: [
 			// 		'/home/satont/Documents/Projects/twir',
@@ -265,6 +287,8 @@ export default defineNuxtConfig({
 		disallow: [
 			'/s/',
 			'/s/**',
+			'/u/',
+			'/u/**',
 			'/dashboard',
 			'/dashboard/**',
 			'/h/',
@@ -284,6 +308,8 @@ export default defineNuxtConfig({
 			'/dashboard/**',
 			'/s',
 			'/s/**',
+			'/u',
+			'/u/**',
 			'/h/**',
 			'/o',
 			'/o/**',
@@ -300,6 +326,7 @@ export default defineNuxtConfig({
 			'/**/dashboard',
 			'/**/dashboard/**',
 			'/**/s/**',
+			'/**/u/**',
 			'/**/h/**',
 			'/**/o',
 			'/**/o/**',
@@ -307,6 +334,7 @@ export default defineNuxtConfig({
 			'/**/overlays/**',
 			'/**/login',
 			'/**/login/**',
+			'/url-shortener/profile',
 			'/**/url-shortener/profile',
 			'/**/import',
 			'/**/import/**',
@@ -319,5 +347,16 @@ export default defineNuxtConfig({
 	telemetry: {
 		enabled: true,
 		consent: 1,
+	},
+
+	webUpdateNotification: {
+		logVersion: true,
+		checkInterval: 60 * 1000,
+		notificationProps: {
+			title: 'system update',
+			description: 'System update, please refresh the page',
+			buttonText: 'refresh',
+			dismissButtonText: 'dismiss',
+		},
 	},
 })

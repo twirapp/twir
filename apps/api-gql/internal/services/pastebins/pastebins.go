@@ -16,22 +16,17 @@ import (
 	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/repositories/pastebins"
 	pastebinsmodel "github.com/twirapp/twir/libs/repositories/pastebins/model"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Repo   pastebins.Repository
-	KV     kv.KV
-	Logger *slog.Logger
-}
-
-func New(opts Opts) *Service {
+func New(
+	repo pastebins.Repository,
+	kvClient kv.KV,
+	logger *slog.Logger,
+) *Service {
 	return &Service{
-		repo:   opts.Repo,
-		kv:     opts.KV,
-		logger: opts.Logger,
+		repo:   repo,
+		kv:     kvClient,
+		logger: logger,
 	}
 }
 
@@ -151,6 +146,24 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Pastebi
 		},
 	)
 	if err != nil {
+		return entity.PastebinNil, err
+	}
+
+	return c.mapToEntity(bin), nil
+}
+
+func (c *Service) Update(
+	ctx context.Context,
+	id string,
+	content string,
+	expireAt *time.Time,
+) (entity.Pastebin, error) {
+	bin, err := c.repo.Update(ctx, id, pastebins.UpdateInput{Content: content, ExpireAt: expireAt})
+	if err != nil {
+		return entity.PastebinNil, err
+	}
+
+	if err := c.kv.Delete(ctx, makeKvStoreKey(id)); err != nil && !errors.Is(err, redis.Nil) {
 		return entity.PastebinNil, err
 	}
 

@@ -1,29 +1,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-
-import {
-	useProfile,
-	useUserAccessFlagChecker,
-} from '~~/layers/dashboard/api/auth'
+import { toast } from 'vue-sonner'
+import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import {
 	useChannelOverlayDelete,
 	useChannelOverlaysQuery,
 } from '~~/layers/dashboard/api/overlays/custom'
-import Brb from '~~/layers/dashboard/features/overlays/brb/card.vue'
 import Chat from '~~/layers/dashboard/components/overlays/chat.vue'
 import Dudes from '~~/layers/dashboard/components/overlays/dudes.vue'
 import Kappagen from '~~/layers/dashboard/components/overlays/kappagen.vue'
 import NowPlaying from '~~/layers/dashboard/components/overlays/now-playing.vue'
-import OBS from '~~/layers/dashboard/features/overlays/obs/card.vue'
-import TTS from '~~/layers/dashboard/features/overlays/tts/card.vue'
 import { convertOverlayLayerTypeToText } from '~~/layers/dashboard/components/registry/overlays/helpers.ts'
+import Brb from '~~/layers/dashboard/features/overlays/brb/card.vue'
 import FaceitStats from '~~/layers/dashboard/features/overlays/faceit-stats/ui/card.vue'
+import OBS from '~~/layers/dashboard/features/overlays/obs/card.vue'
+import StreamStats from '~~/layers/dashboard/features/overlays/stream-stats/card.vue'
+import TTS from '~~/layers/dashboard/features/overlays/tts/card.vue'
 import ValorantStats from '~~/layers/dashboard/features/overlays/valorant-stats/ui/card.vue'
-import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
 import { copyToClipBoard } from '~~/layers/dashboard/helpers/index.ts'
-import { Button } from '@/components/ui/button'
-import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Card as ShadCard } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
 	AlertDialog,
@@ -36,7 +31,17 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { toast } from 'vue-sonner'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+	Card as ShadCard,
+} from '@/components/ui/card'
+import { ChannelRolePermissionEnum } from '~/gql/graphql.ts'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
@@ -49,14 +54,12 @@ const selectedDashboardTwitchUser = computed(() => {
 })
 
 async function copyUrl(id: string) {
-	const apiKey = selectedDashboardTwitchUser.value?.apiKey || profile.value?.apiKey || ''
+	const apiKey = selectedDashboardTwitchUser.value?.channelApiKey || profile.value?.channelApiKey || ''
 	if (!apiKey) {
 		toast.error('No API key found')
 		return
 	}
-	await copyToClipBoard(
-		`${requestUrl.origin}/overlays/${apiKey}/registry/overlays/${id}`
-	)
+	await copyToClipBoard(`${requestUrl.origin}/overlays/${apiKey}/registry/overlays/${id}`)
 	toast.success(t('overlays.copied'))
 }
 
@@ -95,8 +98,8 @@ function editCustomOverlay(id?: string) {
 </script>
 
 <template>
-	<div class="flex items-center justify-center max-w-[60vw] mx-auto my-0">
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+	<div class="mx-auto my-0 flex max-w-[60vw] items-center justify-center">
+		<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 			<div>
 				<FaceitStats />
 			</div>
@@ -124,16 +127,22 @@ function editCustomOverlay(id?: string) {
 			<div>
 				<Brb />
 			</div>
+			<div>
+				<StreamStats />
+			</div>
 
 			<ShadCard
 				v-for="overlay of customOverlays"
 				:key="overlay.id"
-				class="flex flex-col h-full"
+				class="flex h-full flex-col"
 			>
 				<CardHeader>
 					<CardTitle class="flex items-center justify-between">
 						<span>{{ overlay.name }}</span>
-						<Badge variant="outline" class="ml-2">
+						<Badge
+							variant="outline"
+							class="ml-2"
+						>
 							{{ overlay.layers.length }} {{ overlay.layers.length === 1 ? 'layer' : 'layers' }}
 						</Badge>
 					</CardTitle>
@@ -143,7 +152,10 @@ function editCustomOverlay(id?: string) {
 				</CardHeader>
 
 				<CardContent class="flex-1">
-					<div v-if="overlay.layers.length" class="flex gap-2 flex-wrap">
+					<div
+						v-if="overlay.layers.length"
+						class="flex flex-wrap gap-2"
+					>
 						<Badge
 							v-for="layer of overlay.layers"
 							:key="layer.id"
@@ -152,7 +164,11 @@ function editCustomOverlay(id?: string) {
 							{{ convertOverlayLayerTypeToText(layer.type) }}
 						</Badge>
 					</div>
-					<Alert v-else variant="default" class="border-yellow-500/50">
+					<Alert
+						v-else
+						variant="default"
+						class="border-yellow-500/50"
+					>
 						<AlertTitle>{{ t('overlaysRegistry.noLayersCreated.title') }}</AlertTitle>
 						<AlertDescription>
 							{{ t('overlaysRegistry.noLayersCreated.description') }}
@@ -160,14 +176,17 @@ function editCustomOverlay(id?: string) {
 					</Alert>
 				</CardContent>
 
-				<CardFooter class="flex gap-2 flex-wrap">
+				<CardFooter class="flex flex-wrap gap-2">
 					<Button
 						variant="outline"
 						size="sm"
 						:disabled="!userCanManageOverlays"
 						@click="editCustomOverlay(overlay.id)"
 					>
-						<Icon name="lucide:pencil" class="h-4 w-4 mr-2" />
+						<Icon
+							name="lucide:pencil"
+							class="mr-2 h-4 w-4"
+						/>
 						<span>{{ t('sharedButtons.settings') }}</span>
 					</Button>
 
@@ -177,7 +196,10 @@ function editCustomOverlay(id?: string) {
 						:disabled="!userCanManageOverlays"
 						@click="copyUrl(overlay.id)"
 					>
-						<Icon name="lucide:copy" class="h-4 w-4 mr-2" />
+						<Icon
+							name="lucide:copy"
+							class="mr-2 h-4 w-4"
+						/>
 						<span>{{ t('overlays.copyOverlayLink') }}</span>
 					</Button>
 
@@ -189,7 +211,10 @@ function editCustomOverlay(id?: string) {
 								:disabled="!userCanManageOverlays"
 								class="text-destructive hover:text-destructive"
 							>
-								<Icon name="lucide:trash2" class="h-4 w-4 mr-2" />
+								<Icon
+									name="lucide:trash"
+									class="mr-2 h-4 w-4"
+								/>
 								<span>{{ t('sharedButtons.delete') }}</span>
 							</Button>
 						</AlertDialogTrigger>
@@ -212,15 +237,22 @@ function editCustomOverlay(id?: string) {
 			</ShadCard>
 
 			<ShadCard
-				class="flex flex-col h-full cursor-pointer hover:bg-accent/50 transition-colors"
+				class="hover:bg-accent/50 flex h-full cursor-pointer flex-col transition-colors"
 				:class="{ 'cursor-not-allowed opacity-50': isCreateDisabled }"
 				@click="() => !isCreateDisabled && editCustomOverlay()"
 			>
-				<CardContent class="flex-1 flex items-center justify-center p-6">
-					<div class="flex flex-col items-center justify-center text-muted-foreground">
-						<Icon name="lucide:plus" class="size-16 mb-4" />
+				<CardContent class="flex flex-1 items-center justify-center p-6">
+					<div class="text-muted-foreground flex flex-col items-center justify-center">
+						<Icon
+							name="lucide:plus"
+							class="mb-4 size-16"
+						/>
 						<p class="text-sm font-medium">
-							{{ customOverlays.length >= maxCustomOverlays ? t('overlaysRegistry.limitExceeded') : t('overlaysRegistry.createNew') }}
+							{{
+								customOverlays.length >= maxCustomOverlays
+									? t('overlaysRegistry.limitExceeded')
+									: t('overlaysRegistry.createNew')
+							}}
 							({{ customOverlays.length }}/{{ maxCustomOverlays }})
 						</p>
 					</div>

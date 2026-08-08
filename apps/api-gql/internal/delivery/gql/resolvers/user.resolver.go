@@ -17,6 +17,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	dashboardaccess "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard_access"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	channelpublicsettingsentity "github.com/twirapp/twir/libs/entities/channel_public_settings"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
@@ -111,6 +112,36 @@ func (r *dashboardResolver) Plan(ctx context.Context, obj *gqlmodel.Dashboard) (
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
 func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
+	user, err := r.deps.Sessions.GetAuthenticatedUserModel(ctx)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
+	dashboardUUID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("invalid dashboard id: %w", err))
+	}
+
+	if r.deps.DashboardAccess == nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("dashboard access service is not configured"))
+	}
+
+	hasAccess, err := r.deps.DashboardAccess.CanAccess(
+		ctx,
+		dashboardaccess.Subject{
+			ID:         user.ID,
+			IsBotAdmin: user.IsBotAdmin,
+		},
+		dashboardUUID,
+		"",
+	)
+	if err != nil {
+		return false, gqlerrors.HandleError(fmt.Errorf("cannot check dashboard access: %w", err))
+	}
+	if !hasAccess {
+		return false, gqlerrors.HandleError(fmt.Errorf("user has no access to this dashboard"))
+	}
+
 	if err := r.deps.Sessions.SetSessionSelectedDashboard(ctx, dashboardID); err != nil {
 		return false, gqlerrors.HandleError(err)
 	}
@@ -168,6 +199,30 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 		},
 	); err != nil {
 		return "", fmt.Errorf("failed to save user: %w", err)
+	}
+
+	return newAPIKey, nil
+}
+
+// AuthenticatedUserRegenerateChannelAPIKey is the resolver for the authenticatedUserRegenerateChannelApiKey field.
+func (r *mutationResolver) AuthenticatedUserRegenerateChannelAPIKey(ctx context.Context) (string, error) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return "", gqlerrors.HandleError(err)
+	}
+
+	channelID, err := uuid.Parse(dashboardID)
+	if err != nil {
+		return "", fmt.Errorf("parse selected dashboard id: %w", err)
+	}
+
+	newAPIKey := uuid.NewString()
+	if _, err := r.deps.ChannelsRepository.Update(
+		ctx,
+		channelID,
+		channelsrepository.UpdateInput{ApiKey: &newAPIKey},
+	); err != nil {
+		return "", fmt.Errorf("regenerate channel api key: %w", err)
 	}
 
 	return newAPIKey, nil
@@ -321,6 +376,10 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 	if parsedDashboardID, parseErr := uuid.Parse(dashboardId); parseErr == nil {
 		channel, channelErr := r.deps.ChannelService.GetChannelByID(ctx, parsedDashboardID)
 		if channelErr == nil && !channel.IsNil() {
+			if channel.ApiKey != nil {
+				authedUser.ChannelAPIKey = *channel.ApiKey
+			}
+
 			twitchBinding, twitchConfig, found, configErr := channel.TwitchBinding()
 			if configErr != nil {
 				return nil, fmt.Errorf("parse Twitch channel binding configuration: %w", configErr)

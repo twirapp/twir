@@ -130,6 +130,13 @@ func (a *Auth) completePlatformAuth(
 				return fmt.Errorf("get VK Video bot binding configuration: %w", configErr)
 			}
 		}
+		if input.Platform == platformentity.PlatformYouTube {
+			var configErr error
+			bindingConfig, configErr = a.youtubeBotBindingConfig(txCtx)
+			if configErr != nil {
+				return fmt.Errorf("get YouTube bot binding configuration: %w", configErr)
+			}
+		}
 		if input.TargetChannelID != nil {
 			channel, getChannelErr := a.channelsRepo.GetByID(txCtx, *input.TargetChannelID)
 			if getChannelErr != nil {

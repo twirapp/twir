@@ -6,35 +6,30 @@ import (
 	"time"
 
 	"github.com/twirapp/twir/apps/scheduler/internal/services"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	config "github.com/twirapp/twir/libs/config"
-	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
+	twirlogger "github.com/twirapp/twir/libs/logger"
 	"gorm.io/gorm"
 )
 
-type CommandsAndRolesOpts struct {
-	fx.In
-	Lc fx.Lifecycle
-
-	Logger *slog.Logger
-	Config config.Config
-
-	RolesService    *services.Roles
-	CommandsService *services.Commands
-	Gorm            *gorm.DB
-}
-
-func NewCommandsAndRoles(opts CommandsAndRolesOpts) {
+func NewCommandsAndRoles(
+	lc *lifecycle.Lifecycle,
+	logger *slog.Logger,
+	cfg config.Config,
+	rolesService *services.Roles,
+	commandsService *services.Commands,
+	_ *gorm.DB,
+) {
 	timeTick := 15 * time.Second
-	if opts.Config.AppEnv == "production" {
+	if cfg.AppEnv == "production" {
 		timeTick = 5 * time.Minute
 	}
 	ticker := time.NewTicker(timeTick)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	opts.Lc.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
 					for {
@@ -43,13 +38,13 @@ func NewCommandsAndRoles(opts CommandsAndRolesOpts) {
 							ticker.Stop()
 							return
 						case <-ticker.C:
-							if err := opts.RolesService.CreateDefaultRoles(ctx); err != nil {
-								opts.Logger.Error("error while creating default roles", logger.Error(err))
+							if err := rolesService.CreateDefaultRoles(ctx); err != nil {
+								logger.Error("error while creating default roles", twirlogger.Error(err))
 								return
 							}
 
-							if err := opts.CommandsService.CreateDefaultCommands(ctx); err != nil {
-								opts.Logger.Error("error while creating default commands", logger.Error(err))
+							if err := commandsService.CreateDefaultCommands(ctx); err != nil {
+								logger.Error("error while creating default commands", twirlogger.Error(err))
 								return
 							}
 						}

@@ -13,12 +13,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busdota "github.com/twirapp/twir/libs/bus-core/dota"
 	dotarepository "github.com/twirapp/twir/libs/repositories/dota"
 	dotamodel "github.com/twirapp/twir/libs/repositories/dota/model"
-	"go.uber.org/fx"
 )
 
 const (
@@ -120,17 +120,6 @@ func (p busMessagePublisher) Publish(ctx context.Context, request bots.SendMessa
 	return p.bus.Bots.SendMessage.Publish(ctx, request)
 }
 
-type Opts struct {
-	fx.In
-
-	Lifecycle     fx.Lifecycle
-	Bus           *buscore.Bus
-	CooldownStore CooldownStore
-	Logger        *slog.Logger
-
-	SettingsRepository dotarepository.Repository
-}
-
 type ChatAlerts struct {
 	repository    settingsRepository
 	cooldownStore CooldownStore
@@ -143,16 +132,22 @@ type ChatAlerts struct {
 	stopping   bool
 }
 
-func New(opts Opts) *ChatAlerts {
+func New(
+	settingsRepository dotarepository.Repository,
+	cooldownStore CooldownStore,
+	bus *buscore.Bus,
+	logger *slog.Logger,
+	lc *lifecycle.Lifecycle,
+) *ChatAlerts {
 	alerts := newChatAlerts(
-		opts.SettingsRepository,
-		opts.CooldownStore,
-		busMessagePublisher{bus: opts.Bus},
-		opts.Logger,
+		settingsRepository,
+		cooldownStore,
+		busMessagePublisher{bus: bus},
+		logger,
 		nil,
-		opts.Lifecycle,
+		lc,
 	)
-	alerts.subscriptions = newBusSubscriptions(opts.Bus, alerts)
+	alerts.subscriptions = newBusSubscriptions(bus, alerts)
 
 	return alerts
 }
@@ -163,7 +158,7 @@ func newChatAlerts(
 	messages messagePublisher,
 	logger *slog.Logger,
 	subscriptions []subscription,
-	lifecycle fx.Lifecycle,
+	lc *lifecycle.Lifecycle,
 ) *ChatAlerts {
 	alerts := &ChatAlerts{
 		repository:    repository,
@@ -173,9 +168,9 @@ func newChatAlerts(
 		subscriptions: subscriptions,
 	}
 
-	if lifecycle != nil {
-		lifecycle.Append(
-			fx.Hook{
+	if lc != nil {
+		lc.Append(
+			lifecycle.Hook{
 				OnStart: alerts.Start,
 				OnStop:  alerts.Stop,
 			},

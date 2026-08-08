@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	giveawaysbusmodel "github.com/twirapp/twir/libs/bus-core/giveaways"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -24,43 +25,38 @@ import (
 	"github.com/twirapp/twir/libs/repositories/users"
 	usersstats "github.com/twirapp/twir/libs/repositories/users_stats"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	TxManager                       trm.Manager
-	GiveawaysRepository             giveaways.Repository
-	GiveawaysParticipantsRepository giveaways_participants.Repository
-	GiveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
-	UsersRepository                 users.Repository
-	UsersStatsRepository            usersstats.Repository
-	ChannelService                  *channelservice.ChannelService
-	TwitchCache                     *twitchcache.CachedTwitchClient
-	Logger                          *slog.Logger
-	Redis                           *redis.Client
-	TwirBus                         *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	txManager trm.Manager,
+	giveawaysRepository giveaways.Repository,
+	giveawaysParticipantsRepository giveaways_participants.Repository,
+	giveawaysCacher *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway],
+	usersRepository users.Repository,
+	usersStatsRepository usersstats.Repository,
+	channelService *channelservice.ChannelService,
+	twitchCache *twitchcache.CachedTwitchClient,
+	logger *slog.Logger,
+	redisClient *redis.Client,
+	twirBus *buscore.Bus,
+) *Service {
 	s := &Service{
-		txManager:                       opts.TxManager,
-		giveawaysRepository:             opts.GiveawaysRepository,
-		giveawaysParticipantsRepository: opts.GiveawaysParticipantsRepository,
-		giveawaysCacher:                 opts.GiveawaysCacher,
-		usersRepository:                 opts.UsersRepository,
-		usersStatsRepository:            opts.UsersStatsRepository,
-		channelService:                  opts.ChannelService,
-		twitchCache:                     opts.TwitchCache,
-		logger:                          opts.Logger,
-		redis:                           opts.Redis,
-		twirBus:                         opts.TwirBus,
+		txManager:                       txManager,
+		giveawaysRepository:             giveawaysRepository,
+		giveawaysParticipantsRepository: giveawaysParticipantsRepository,
+		giveawaysCacher:                 giveawaysCacher,
+		usersRepository:                 usersRepository,
+		usersStatsRepository:            usersStatsRepository,
+		channelService:                  channelService,
+		twitchCache:                     twitchCache,
+		logger:                          logger,
+		redis:                           redisClient,
+		twirBus:                         twirBus,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				return s.twirBus.Giveaways.ChooseWinner.SubscribeGroup(
 					"giveaways",

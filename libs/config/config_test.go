@@ -67,6 +67,44 @@ func TestNewWithEnvPath_LoadsVKVideoConfiguration(t *testing.T) {
 	}
 }
 
+func TestBuildS3PublicURL(t *testing.T) {
+	tests := []struct {
+		name       string
+		config     Config
+		objectPath string
+		expected   string
+	}{
+		{
+			name: "development includes bucket",
+			config: Config{
+				AppEnv:      "development",
+				S3PublicUrl: "http://localhost:8000/",
+				S3Bucket:    "twir",
+			},
+			objectPath: "/notifications/image.png",
+			expected:   "http://localhost:8000/twir/notifications/image.png",
+		},
+		{
+			name: "production custom domain omits bucket",
+			config: Config{
+				AppEnv:      "production",
+				S3PublicUrl: "https://cdn.twir.app/",
+				S3Bucket:    "twir",
+			},
+			objectPath: "notifications/image.png",
+			expected:   "https://cdn.twir.app/notifications/image.png",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if actual := test.config.BuildS3PublicURL(test.objectPath); actual != test.expected {
+				t.Fatalf("BuildS3PublicURL() = %q, want %q", actual, test.expected)
+			}
+		})
+	}
+}
+
 func setRequiredConfigEnv(t *testing.T) {
 	t.Helper()
 	t.Setenv("TWITCH_CLIENTID", "twitch-client-id")

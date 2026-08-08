@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/dota/internal/gsi"
 	"github.com/twirapp/twir/apps/dota/internal/match"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 )
 
 const winProbabilityTimeout = 5 * time.Second
@@ -43,7 +43,7 @@ func New(
 	matchState *match.StateMachine,
 	stats WinProbabilityProvider,
 	logger *slog.Logger,
-	lifecycle fx.Lifecycle,
+	lc *lifecycle.Lifecycle,
 ) *Processor {
 	serviceCtx, cancel := context.WithCancel(context.Background())
 	p := &Processor{
@@ -53,7 +53,7 @@ func New(
 		serviceCtx: serviceCtx,
 		inFlight:   make(map[winProbabilityKey]struct{}),
 	}
-	lifecycle.Append(fx.Hook{
+	lc.Append(lifecycle.Hook{
 		OnStop: func(ctx context.Context) error {
 			p.jobsMu.Lock()
 			p.stopping = true

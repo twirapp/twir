@@ -21,7 +21,12 @@ func (c *dataLoader) getCommandsResponsesByIDs(ctx context.Context, commandsIDs 
 	for i, commandResponses := range responses {
 		mappedCommandResponses := make([]gqlmodel.CommandResponse, 0, len(commandResponses))
 		for _, r := range commandResponses {
-			mappedCommandResponses = append(mappedCommandResponses, mappers.CommandResponseTo(r))
+			mappedResponse, err := mappers.CommandResponseTo(r)
+			if err != nil {
+				return nil, []error{err}
+			}
+
+			mappedCommandResponses = append(mappedCommandResponses, mappedResponse)
 		}
 
 		mappedResponses[i] = mappedCommandResponses

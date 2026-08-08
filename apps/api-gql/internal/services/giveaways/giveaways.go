@@ -3,6 +3,7 @@ package giveaways
 import (
 	"context"
 	"fmt"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 	"strings"
 	"time"
@@ -25,40 +26,35 @@ import (
 	giveawaysparticipantsmodel "github.com/twirapp/twir/libs/repositories/giveaways_participants/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	GiveawaysRepository             giveaways.Repository
-	GiveawaysParticipantsRepository giveaways_participants.Repository
-	GiveawaysSettingsRepository     channels_giveaways_settings.Repository
-	ChannelService                  *channelservice.ChannelService
-	GiveawaysCacher                 *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway]
-	TwirBus                         *buscore.Bus
-	Logger                          *slog.Logger
-	WsRouter                        wsrouter.WsRouter
-	TwitchCache                     *twitchcache.CachedTwitchClient
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	giveawaysRepository giveaways.Repository,
+	giveawaysParticipantsRepository giveaways_participants.Repository,
+	giveawaysSettingsRepository channels_giveaways_settings.Repository,
+	channelService *channelservice.ChannelService,
+	giveawaysCacher *generic_cacher.GenericCacher[[]channels_giveaways.Giveaway],
+	twirBus *buscore.Bus,
+	logger *slog.Logger,
+	wsRouter wsrouter.WsRouter,
+	twitchCache *twitchcache.CachedTwitchClient,
+) *Service {
 	s := &Service{
-		giveawaysRepository:             opts.GiveawaysRepository,
-		giveawaysParticipantsRepository: opts.GiveawaysParticipantsRepository,
-		giveawaysSettingsRepository:     opts.GiveawaysSettingsRepository,
-		channelService:                  opts.ChannelService,
-		giveawaysCacher:                 opts.GiveawaysCacher,
-		twirBus:                         opts.TwirBus,
-		winnerMessagePublisher:          opts.TwirBus.Bots.SendMessage,
-		logger:                          opts.Logger,
-		wsRouter:                        opts.WsRouter,
-		twitchCache:                     opts.TwitchCache,
+		giveawaysRepository:             giveawaysRepository,
+		giveawaysParticipantsRepository: giveawaysParticipantsRepository,
+		giveawaysSettingsRepository:     giveawaysSettingsRepository,
+		channelService:                  channelService,
+		giveawaysCacher:                 giveawaysCacher,
+		twirBus:                         twirBus,
+		winnerMessagePublisher:          twirBus.Bots.SendMessage,
+		logger:                          logger,
+		wsRouter:                        wsRouter,
+		twitchCache:                     twitchCache,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				return s.twirBus.Giveaways.NewParticipants.SubscribeGroup(
 					"api-gql",

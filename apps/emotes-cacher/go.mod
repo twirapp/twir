@@ -6,15 +6,15 @@ require (
 	github.com/avast/retry-go/v4 v4.7.0
 	github.com/coder/websocket v1.8.15
 	github.com/goccy/go-json v0.10.6
+	github.com/goforj/wire v1.2.0
 	github.com/samber/lo v1.52.0
 	github.com/twirapp/twir/libs/baseapp v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/config v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/integrations v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/logger v0.0.0-20251127124349-67ad7fa0003f
-	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
+	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f // indirect
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20251127124349-67ad7fa0003f // indirect
-	go.uber.org/fx v1.24.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
@@ -98,6 +98,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.41.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.uber.org/dig v1.19.0 // indirect
+	go.uber.org/fx v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect

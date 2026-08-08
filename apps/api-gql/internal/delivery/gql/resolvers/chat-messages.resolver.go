@@ -19,7 +19,15 @@ import (
 func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMessageInput) ([]gqlmodel.ChatMessage, error) {
 	var platformFilter []string
 	if input.PlatformIn.IsSet() {
-		platformFilter = input.PlatformIn.Value()
+		platforms, err := mappers.GraphQLPlatformsToEntities(input.PlatformIn.Value())
+		if err != nil {
+			return nil, fmt.Errorf("failed to map platforms filter: %w", err)
+		}
+
+		platformFilter = make([]string, 0, len(platforms))
+		for _, p := range platforms {
+			platformFilter = append(platformFilter, p.String())
+		}
 	}
 
 	targets, err := resolveSelectedDashboardChatMessageTargets(ctx, r.deps, platformFilter)
@@ -71,11 +79,15 @@ func (r *subscriptionResolver) ChatMessages(ctx context.Context) (<-chan *gqlmod
 	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {
+		defer close(gqlCh)
 		for msg := range ch {
 			converted := mappers.ChatMessageToGQL(msg)
-			gqlCh <- &converted
+			select {
+			case gqlCh <- &converted:
+			case <-ctx.Done():
+				return
+			}
 		}
-		close(gqlCh)
 	}()
 
 	return gqlCh, nil
@@ -99,11 +111,15 @@ func (r *subscriptionResolver) ChatMessagesByAPIKey(ctx context.Context, apiKey 
 	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {
+		defer close(gqlCh)
 		for msg := range ch {
 			converted := mappers.ChatMessageToGQL(msg)
-			gqlCh <- &converted
+			select {
+			case gqlCh <- &converted:
+			case <-ctx.Done():
+				return
+			}
 		}
-		close(gqlCh)
 	}()
 
 	return gqlCh, nil
@@ -115,11 +131,15 @@ func (r *subscriptionResolver) AdminChatMessages(ctx context.Context) (<-chan *g
 	gqlCh := make(chan *gqlmodel.ChatMessage, 1)
 
 	go func() {
+		defer close(gqlCh)
 		for msg := range ch {
 			converted := mappers.ChatMessageToGQL(msg)
-			gqlCh <- &converted
+			select {
+			case gqlCh <- &converted:
+			case <-ctx.Done():
+				return
+			}
 		}
-		close(gqlCh)
 	}()
 
 	return gqlCh, nil

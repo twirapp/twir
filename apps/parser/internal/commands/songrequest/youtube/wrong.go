@@ -2,6 +2,8 @@ package sr_youtube
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/guregu/null"
@@ -10,8 +12,11 @@ import (
 	"github.com/twirapp/twir/apps/parser/locales"
 
 	"github.com/twirapp/twir/libs/bus-core/api"
+	buscorespotify "github.com/twirapp/twir/libs/bus-core/spotify"
+	song_request_mode "github.com/twirapp/twir/libs/entities/song_request_mode"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 
 	"github.com/samber/lo"
 )
@@ -41,8 +46,58 @@ var WrongCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
+		moduleSettings, err := parseCtx.Services.SongRequestsSettingsRepo.GetByChannelID(ctx, parseCtx.Channel.DBChannelID)
+		if err != nil {
+			if errors.Is(err, songrequestssettingsrepository.ErrNotFound) {
+				return result, nil
+			}
+
+			return nil, &types.CommandHandlerError{
+				Message: i18n.GetCtx(ctx, locales.Translations.Commands.Songrequest.Errors.GetSettings),
+				Err:     err,
+			}
+		}
+
+		if !moduleSettings.Enabled {
+			return result, nil
+		}
+
+		if moduleSettings.Mode == song_request_mode.ModeSpotify {
+			request, err := parseCtx.Services.Bus.Spotify.CancelSongRequest.Request(
+				ctx,
+				buscorespotify.CancelSongRequestRequest{
+					ChannelID:     parseCtx.Channel.DBChannelID,
+					RequesterName: parseCtx.Sender.Name,
+				},
+			)
+			if err != nil {
+				message := spotifySongRequestErrorMessage(err)
+				if errors.Is(normalizeSpotifySongRequestError(err), errSpotifyTrackNotFound) {
+					message = "No active Spotify request to cancel"
+				}
+				if message == "" {
+					parseCtx.Services.Logger.Sugar().Errorw(
+						"spotify song request cancel failed",
+						"error", err,
+						"channel_id", parseCtx.Channel.DBChannelID,
+						"user_id", parseCtx.Sender.DbUser.ID,
+					)
+					message = "Spotify request cancel failed"
+				}
+
+				result.Result = append(result.Result, message)
+				return result, nil
+			}
+
+			result.Result = append(
+				result.Result,
+				fmt.Sprintf("Removed Spotify request: %s", request.Data.Request.Title),
+			)
+			return result, nil
+		}
+
 		var songs []*model.RequestedSong
-		err := parseCtx.Services.Gorm.WithContext(ctx).
+		err = parseCtx.Services.Gorm.WithContext(ctx).
 			Where(
 				`"channelId" = ?::uuid AND "orderedById" = ? AND "deletedAt" IS NULL`,
 				parseCtx.Channel.DBChannelID,
@@ -70,7 +125,7 @@ var WrongCommand = &types.DefaultCommand{
 			number = songSkipArg.Int()
 		}
 
-		if number > len(songs)+1 {
+		if number < 1 || number > len(songs) {
 			result.Result = append(
 				result.Result,
 				i18n.GetCtx(

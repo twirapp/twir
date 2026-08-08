@@ -102,15 +102,26 @@ export const useChatOverlaySocket = createGlobalState(() => {
 						versionId
 						text
 					}
-					fragments {
-						type
-						text
-						emoteId
-						emoteUrl
-					}
+				fragments {
+					type
+					text
+					emoteId
+					emoteUrl
+				}
+				reply {
+					parentMessageId
+					parentMessageBody
+					parentUserId
+					parentUserName
+					parentUserLogin
+					threadMessageId
+					threadUserId
+					threadUserName
+					threadUserLogin
 				}
 			}
-		`),
+		}
+	`),
 		variables: {
 			apiKey: route.params.apiKey as string,
 		},
@@ -140,21 +151,37 @@ export const useChatOverlaySocket = createGlobalState(() => {
 		}
 	})
 
+	// urql completes the operation forever on a GraphQL-level error, so re-execute it.
+	function restartSubscriptionOnError(errorRef: typeof sub.error, restart: () => void, label: string) {
+		watch(errorRef, (err) => {
+			if (!err) return
+			console.error(`[chat-overlay] ${label} subscription error, restarting in 3s`, err)
+			setTimeout(restart, 3000)
+		})
+	}
+
+	restartSubscriptionOnError(sub.error, () => sub.executeSubscription(), 'settings')
+	restartSubscriptionOnError(messagesSub.error, () => messagesSub.executeSubscription(), 'messages')
+	restartSubscriptionOnError(moderationSub.error, () => moderationSub.executeSubscription(), 'moderation')
+
 	const chatLibSettings = computed<Settings | null>(() => {
 		if (!overlaySettings.value || !neededData.value) return null
 
 		const accounts = neededData.value.authenticatedUser.linkedAccounts
-		const twitchProfile = accounts.find((account) => account.platform === 'twitch')
-		const kickProfile = accounts.find((account) => account.platform === 'kick')
-		if (!twitchProfile && !kickProfile) return null
+		const primaryAccount =
+			accounts.find((account) => account.platform === 'twitch') ??
+			accounts.find((account) => account.platform === 'kick') ??
+			accounts.find((account) => account.platform === 'vk_video_live') ??
+			accounts.find((account) => account.platform === 'youtube')
+		if (!primaryAccount) return null
 
 		return {
 			...overlaySettings.value,
 			channelBadges: neededData.value.twitchGetChannelBadges.badges,
 			globalBadges: neededData.value.twitchGetGlobalBadges.badges,
-			channelId: twitchProfile?.platformUserId ?? kickProfile?.platformUserId ?? '',
-			channelName: twitchProfile?.platformLogin ?? kickProfile?.platformLogin ?? '',
-			channelDisplayName: twitchProfile?.platformDisplayName ?? kickProfile?.platformDisplayName ?? '',
+			channelId: primaryAccount.platformUserId,
+			channelName: primaryAccount.platformLogin,
+			channelDisplayName: primaryAccount.platformDisplayName,
 		}
 	})
 

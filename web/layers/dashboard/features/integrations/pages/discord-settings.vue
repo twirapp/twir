@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-
 import { useRoute } from 'vue-router'
+import { toast } from 'vue-sonner'
 import DiscordSvg from '~~/layers/dashboard/assets/integrations/discord.svg'
-
-import DiscordGuildSettingsForm from '../ui/discord/guild-settings-form.vue'
+import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
+import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
 
 import {
 	AlertDialog,
@@ -20,9 +20,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'vue-sonner'
-import { useDiscordIntegration } from '~~/layers/dashboard/features/integrations/composables/discord/use-discord-integration.js'
-import PageLayout from '~~/layers/dashboard/layout/page-layout.vue'
+
+import DiscordGuildSettingsForm from '../ui/discord/guild-settings-form.vue'
 
 const { t } = useI18n()
 const route = useRoute<'dashboard-integrations-discord'>()
@@ -90,16 +89,25 @@ if (typeof window !== 'undefined') {
 </script>
 
 <template>
-	<PageLayout show-back back-redirect-to="/dashboard/integrations">
+	<PageLayout
+		show-back
+		back-redirect-to="/dashboard/integrations"
+	>
 		<template #title>
 			<div class="flex items-center gap-3">
-				<DiscordSvg class="h-8 w-8 text-white" alt="Discord" />
+				<DiscordSvg
+					class="h-8 w-8 text-white"
+					alt="Discord"
+				/>
 				Discord
 			</div>
 		</template>
 
 		<template #title-footer>
-			<span v-if="guilds.length > 0" class="text-sm text-muted-foreground">
+			<span
+				v-if="guilds.length > 0"
+				class="text-muted-foreground text-sm"
+			>
 				{{
 					t('integrations.discord.connectedGuilds', {
 						guilds: t('integrations.discord.guildPluralization', guilds.length),
@@ -116,28 +124,53 @@ if (typeof window !== 'undefined') {
 					size="sm"
 					@click="handleConnectGuild"
 				>
-					<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
+					<Icon
+						name="lucide:plus"
+						class="mr-2 h-4 w-4"
+					/>
 					{{ t('integrations.discord.connectGuild') }}
 				</Button>
 			</div>
 		</template>
 
 		<template #content>
-			<div v-if="guilds.length === 0" class="flex flex-col items-center justify-center py-12 gap-4">
+			<div
+				v-if="guilds.length === 0"
+				class="flex flex-col items-center justify-center gap-4 py-12"
+			>
 				<p class="text-muted-foreground">{{ t('integrations.discord.noGuilds') }}</p>
-				<Button variant="default" @click="handleConnectGuild">
-					<Icon name="lucide:plus" class="h-4 w-4 mr-2" />
+				<Button
+					variant="default"
+					@click="handleConnectGuild"
+				>
+					<Icon
+						name="lucide:plus"
+						class="mr-2 h-4 w-4"
+					/>
 					{{ t('integrations.discord.connectGuild') }}
 				</Button>
 			</div>
 
-			<div v-else class="flex flex-col gap-6">
-				<Tabs v-model="activeGuildId" class="w-full">
+			<div
+				v-else
+				class="flex flex-col gap-6"
+			>
+				<Tabs
+					v-model="activeGuildId"
+					class="w-full"
+				>
 					<TabsList class="mb-4">
-						<TabsTrigger v-for="guild in guilds" :key="guild.id" :value="guild.id">
+						<TabsTrigger
+							v-for="guild in guilds"
+							:key="guild.id"
+							:value="guild.id"
+						>
 							<div class="flex items-center justify-center gap-2">
 								<Avatar class="h-5 w-5">
-									<AvatarImage v-if="guild.icon" :src="getGuildIconUrl(guild.id, guild.icon)!" />
+									<AvatarImage
+										v-if="guild.icon"
+										:src="getGuildIconUrl(guild.id, guild.icon)!"
+									/>
 									<AvatarFallback class="text-xs">{{ guild.name.charAt(0) }}</AvatarFallback>
 								</Avatar>
 								<span>{{ guild.name }}</span>
@@ -145,20 +178,27 @@ if (typeof window !== 'undefined') {
 						</TabsTrigger>
 					</TabsList>
 
-					<TabsContent v-for="guild in guilds" :key="guild.id" :value="guild.id">
+					<TabsContent
+						v-for="guild in guilds"
+						:key="guild.id"
+						:value="guild.id"
+					>
 						<div class="flex flex-col gap-6">
 							<DiscordGuildSettingsForm :guild-id="guild.id" />
 
 							<!-- Danger Zone -->
-							<div class="border border-destructive/50 rounded-lg p-4">
-								<h3 class="text-lg font-medium text-destructive mb-4">
+							<div class="border-destructive/50 rounded-lg border p-4">
+								<h3 class="text-destructive mb-4 text-lg font-medium">
 									{{ t('sharedTexts.dangerZone') }}
 								</h3>
 
 								<AlertDialog>
 									<AlertDialogTrigger as-child>
 										<Button variant="destructive">
-											<Icon name="lucide:trash2" class="h-4 w-4 mr-2" />
+											<Icon
+												name="lucide:trash"
+												class="mr-2 h-4 w-4"
+											/>
 											{{ t('integrations.discord.disconnectGuild') }}
 										</Button>
 									</AlertDialogTrigger>

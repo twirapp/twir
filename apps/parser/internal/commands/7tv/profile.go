@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	seventvvariables "github.com/twirapp/twir/apps/parser/internal/variables/7tv"
 	"github.com/twirapp/twir/apps/parser/locales"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
 )
@@ -27,6 +28,7 @@ var Profile = &types.DefaultCommand{
 		Aliases:     []string{},
 		Enabled:     false,
 	},
+	Platforms:         []platformentity.Platform{platformentity.PlatformTwitch},
 	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.String{

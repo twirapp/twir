@@ -37,6 +37,14 @@ import { type Font, FontSelector } from '@/lib/fontsource'
 import { useDudesForm } from './use-dudes-form.ts'
 import { useDudesIframe } from './use-dudes-frame.ts'
 
+interface Props {
+	readonly embedded?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	embedded: false,
+})
+
 const { t } = useI18n()
 const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('dudes')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
@@ -211,6 +219,7 @@ function removeGradientStop(index: number) {
 			<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div class="flex flex-wrap gap-2">
 					<Button
+						v-if="!props.embedded"
 						variant="destructive"
 						size="sm"
 						@click="reset"
@@ -218,6 +227,7 @@ function removeGradientStop(index: number) {
 						{{ t('sharedButtons.setDefaultSettings') }}
 					</Button>
 					<Button
+						v-if="!props.embedded"
 						variant="secondary"
 						size="sm"
 						:disabled="!formValue.id || !canCopyLink"

@@ -17,7 +17,6 @@ import (
 	config "github.com/twirapp/twir/libs/config"
 	"github.com/twirapp/twir/libs/logger"
 	shortlinksviewsrepository "github.com/twirapp/twir/libs/repositories/short_links_views"
-	"go.uber.org/fx"
 )
 
 type redirectRequestDto struct {
@@ -32,8 +31,6 @@ type redirectResponseDto struct {
 var _ httpbase.Route[*redirectRequestDto, *redirectResponseDto] = (*redirect)(nil)
 
 type RedirectOpts struct {
-	fx.In
-
 	Service           *shortenedurls.Service
 	Config            config.Config
 	Sessions          *auth.Auth

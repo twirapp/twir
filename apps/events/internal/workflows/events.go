@@ -22,30 +22,25 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type EventsWorkflowOpts struct {
-	fx.In
-
-	Cfg                               config.Config
-	EventsActivity                    *eventsActivity.Activity
-	Gorm                              *gorm.DB
-	Redis                             *redis.Client
-	Hydrator                          *hydrator.Hydrator
-	Logger                            *slog.Logger
-	ChannelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event]
-	ChannelsCache                     *generic_cacher.GenericCacher[channelentity.Channel]
-	ChannelService                    *channelservice.ChannelService
-	StreamsRepo                       streamsrepository.Repository
-}
-
-func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
+func NewEventsWorkflow(
+	cfg config.Config,
+	eventsActivity *eventsActivity.Activity,
+	db *gorm.DB,
+	redisClient *redis.Client,
+	hydrator *hydrator.Hydrator,
+	logger *slog.Logger,
+	channelsEventsWithOperationsCache *generic_cacher.GenericCacher[[]model.Event],
+	channelsCache *generic_cacher.GenericCacher[channelentity.Channel],
+	channelService *channelservice.ChannelService,
+	streamsRepo streamsrepository.Repository,
+) (*EventWorkflow, error) {
 	c, err := client.Dial(
 		client.Options{
-			HostPort: opts.Cfg.TemporalHost,
-			Logger:   log.NewStructuredLogger(opts.Logger),
+			HostPort: cfg.TemporalHost,
+			Logger:   log.NewStructuredLogger(logger),
 		},
 	)
 	if err != nil {
@@ -53,16 +48,16 @@ func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 	}
 
 	return &EventWorkflow{
-		cfg:                               opts.Cfg,
+		cfg:                               cfg,
 		cl:                                c,
-		eventsActivity:                    opts.EventsActivity,
-		db:                                opts.Gorm,
-		redis:                             opts.Redis,
-		hydrator:                          opts.Hydrator,
-		channelsEventsWithOperationsCache: opts.ChannelsEventsWithOperationsCache,
-		channelsCache:                     opts.ChannelsCache,
-		channelService:                    opts.ChannelService,
-		streamsRepo:                       opts.StreamsRepo,
+		eventsActivity:                    eventsActivity,
+		db:                                db,
+		redis:                             redisClient,
+		hydrator:                          hydrator,
+		channelsEventsWithOperationsCache: channelsEventsWithOperationsCache,
+		channelsCache:                     channelsCache,
+		channelService:                    channelService,
+		streamsRepo:                       streamsRepo,
 	}, nil
 }
 

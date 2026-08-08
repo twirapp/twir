@@ -9,6 +9,8 @@ import EventsTableOperations from '~~/layers/dashboard/features/events/ui/events
 
 import { Badge } from '@/components/ui/badge'
 
+import { getPlatformLabel } from '~/utils/platforms.js'
+
 import EventsTableActions from '../ui/events-table-actions.vue'
 
 function getPlatformBadges(platforms: string[]) {
@@ -17,7 +19,7 @@ function getPlatformBadges(platforms: string[]) {
 	}
 
 	return platforms.map((platform) =>
-		h(Badge, { variant: 'outline' }, () => platform.charAt(0).toUpperCase() + platform.slice(1))
+		h(Badge, { variant: 'outline' }, () => getPlatformLabel(platform))
 	)
 }
 

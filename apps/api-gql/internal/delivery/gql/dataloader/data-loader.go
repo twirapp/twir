@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/vikstrous/dataloadgen"
-	"go.uber.org/fx"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -28,8 +27,6 @@ const (
 )
 
 type Opts struct {
-	fx.In
-
 	AuthService              *auth.Auth
 	ChannelsRepository       channelsrepository.Repository
 	ChannelService           *channelservice.ChannelService
@@ -57,9 +54,19 @@ type LoaderFactory struct {
 	deps Opts
 }
 
-func New(opts Opts) *LoaderFactory {
+func New(authService *auth.Auth, channelsRepository channelsrepository.Repository, channelService *channelservice.ChannelService, cachedTwitchClient *twitch.CachedTwitchClient, commandsGroupsService *commands_groups.Service, commandsResponsesService *commands_responses.Service, twitchService *twitchservice.Service, emoteStatisticService *channelsemotesusages.Service, plansRepository plansrepository.Repository) *LoaderFactory {
 	return &LoaderFactory{
-		deps: opts,
+		deps: Opts{
+			AuthService:              authService,
+			ChannelsRepository:       channelsRepository,
+			ChannelService:           channelService,
+			CachedTwitchClient:       cachedTwitchClient,
+			CommandsGroupsService:    commandsGroupsService,
+			CommandsResponsesService: commandsResponsesService,
+			TwitchService:            twitchService,
+			EmoteStatisticService:    emoteStatisticService,
+			PlansRepository:          plansRepository,
+		},
 	}
 }
 

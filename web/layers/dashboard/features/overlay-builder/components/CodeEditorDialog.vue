@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { VueMonacoEditor, useMonaco } from '@guolao/vue-monaco-editor'
-import { useClipboard } from '@vueuse/core'
-
-import { useChannelOverlayParseHtml } from '~~/layers/dashboard/api/overlays/custom'
-import { useVariablesApi } from '~~/layers/dashboard/api/variables'
+import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
+import type { CodeEditorDialogProps } from '../composables/useCodeEditorDialog'
+import { useCodeEditorDialog } from '../composables/useCodeEditorDialog'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -19,273 +16,20 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 
-interface Props {
-	open: boolean
-	layerId?: string
-	layerName?: string
-	html?: string
-	css?: string
-	js?: string
-	refreshInterval?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<CodeEditorDialogProps>(), {
 	html: '',
 	css: '',
 	js: '',
 	refreshInterval: 5,
 })
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	'update:open': [value: boolean]
 	save: [data: { html: string; css: string; js: string; refreshInterval: number }]
 }>()
 
-const { monacoRef } = useMonaco()
-const parseHtmlMutation = useChannelOverlayParseHtml()
-const variablesApi = useVariablesApi()
-const { copy } = useClipboard()
-
-// Local state
-const localHtml = ref(props.html)
-const localCss = ref(props.css)
-const localJs = ref(props.js)
-const localRefreshInterval = ref(props.refreshInterval)
-const showPreview = ref(true)
-const activeTab = ref('html')
-const parsedHtml = ref('')
-const pollInterval = ref<ReturnType<typeof setInterval>>()
-const isLoading = ref(false)
-
-// Variables panel state
-const showVariablesPanel = ref(false)
-const variablesSearchQuery = ref('')
-const htmlEditorRef = ref<any>(null)
-const copiedVariableId = ref<string | null>(null)
-
-// Watch props changes
-watch(() => props.html, (newVal) => { localHtml.value = newVal })
-watch(() => props.css, (newVal) => { localCss.value = newVal })
-watch(() => props.js, (newVal) => { localJs.value = newVal })
-watch(() => props.refreshInterval, (newVal) => { localRefreshInterval.value = newVal })
-
-// Filtered variables based on search query
-const filteredVariables = computed(() => {
-	const query = variablesSearchQuery.value.toLowerCase().trim()
-	if (!query) return variablesApi.allVariables.value
-
-	return variablesApi.allVariables.value.filter((v) => {
-		return (
-			v.name.toLowerCase().includes(query) ||
-			v.description?.toLowerCase().includes(query) ||
-			v.example?.toLowerCase().includes(query)
-		)
-	})
-})
-
-// Format variable for insertion
-function formatVariableForInsertion(variable: typeof variablesApi.allVariables.value[number]) {
-	return `$(${variable.example})`
-}
-
-// Copy variable to clipboard
-async function copyVariable(variable: typeof variablesApi.allVariables.value[number]) {
-	const text = formatVariableForInsertion(variable)
-	await copy(text)
-
-	// Show copied feedback
-	copiedVariableId.value = variable.name
-	setTimeout(() => {
-		copiedVariableId.value = null
-	}, 2000)
-}
-
-// Preview refs
-const previewContainer = ref<HTMLDivElement>()
-const previewContent = ref<HTMLDivElement>()
-const styleElement = ref<HTMLStyleElement>()
-
-const sanitizedHtml = computed(() => {
-	// Use parsed HTML if available, otherwise use raw HTML
-	const html = parsedHtml.value || localHtml.value
-	return html || '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.5); font-size: 14px;">Enter HTML to preview</div>'
-})
-
-// Parse HTML with variables
-async function parseHtml() {
-	console.log('[Preview] parseHtml called')
-
-	if (!localHtml.value) {
-		console.log('[Preview] No HTML to parse')
-		parsedHtml.value = ''
-		return
-	}
-
-	console.log('[Preview] Parsing HTML:', localHtml.value.substring(0, 100))
-
-	isLoading.value = true
-	try {
-		const result = await parseHtmlMutation.executeMutation({ html: localHtml.value })
-		console.log('[Preview] Parse result:', result.data?.channelOverlayParseHtml?.substring(0, 100))
-
-		parsedHtml.value = result.data?.channelOverlayParseHtml ?? localHtml.value
-
-		console.log('[Preview] Calling executeScript after parse')
-		// Call onDataUpdate after parsing
-		executeScript()
-	} catch (e) {
-		console.error('[Preview] Failed to parse HTML:', e)
-		parsedHtml.value = localHtml.value
-	} finally {
-		isLoading.value = false
-	}
-}
-
-// Start periodic polling
-function startPolling() {
-	console.log('[Preview] startPolling called, interval:', localRefreshInterval.value)
-	stopPolling()
-
-	// Initial parse
-	parseHtml()
-
-	// Set up interval
-	if (localRefreshInterval.value > 0) {
-		console.log('[Preview] Setting up interval:', localRefreshInterval.value * 1000, 'ms')
-		pollInterval.value = setInterval(() => {
-			console.log('[Preview] Interval tick - parsing HTML')
-			parseHtml()
-		}, localRefreshInterval.value * 1000)
-	}
-}
-
-// Stop polling
-function stopPolling() {
-	if (pollInterval.value) {
-		console.log('[Preview] Stopping polling')
-		clearInterval(pollInterval.value)
-		pollInterval.value = undefined
-	}
-}
-
-// Apply CSS by injecting a style element
-function updateStyles() {
-	if (!previewContainer.value) return
-
-	// Remove old style element if exists
-	if (styleElement.value) {
-		styleElement.value.remove()
-		styleElement.value = undefined
-	}
-
-	// Create new style element with scoped styles
-	if (localCss.value) {
-		const style = document.createElement('style')
-		style.textContent = localCss.value
-		styleElement.value = style
-		previewContainer.value.appendChild(style)
-	}
-}
-
-// Execute JavaScript
-function executeScript() {
-	if (!localJs.value) return
-
-	try {
-		// eslint-disable-next-line no-new-func
-		const scriptFunc = new Function('container', localJs.value)
-		scriptFunc(previewContent.value)
-	} catch (e) {
-		console.error('Preview JS Error:', e)
-	}
-}
-
-// Watch for code changes
-watch([localHtml, localCss, localJs], () => {
-	setTimeout(() => {
-		updateStyles()
-		// Re-parse HTML when it changes
-		if (showPreview.value) {
-			parseHtml()
-		}
-	}, 50)
-})
-
-// Watch refresh interval changes
-watch(localRefreshInterval, () => {
-	if (showPreview.value && props.open) {
-		startPolling()
-	}
-})
-
-// Watch when dialog opens to initialize preview
-watch(() => props.open, (isOpen) => {
-	if (isOpen && showPreview.value) {
-		setTimeout(() => {
-			updateStyles()
-			startPolling()
-		}, 100)
-	} else {
-		stopPolling()
-	}
-})
-
-// Watch preview toggle
-watch(showPreview, (show) => {
-	if (show && props.open) {
-		startPolling()
-	} else {
-		stopPolling()
-	}
-})
-
-function handleSave() {
-	emit('save', {
-		html: localHtml.value,
-		css: localCss.value,
-		js: localJs.value,
-		refreshInterval: localRefreshInterval.value,
-	})
-	emit('update:open', false)
-}
-
-function handleCancel() {
-	// Reset to props values
-	localHtml.value = props.html
-	localCss.value = props.css
-	localJs.value = props.js
-	localRefreshInterval.value = props.refreshInterval
-	emit('update:open', false)
-}
-
-onMounted(() => {
-	// Configure Monaco themes if needed
-	if (monacoRef.value) {
-		monacoRef.value.editor.defineTheme('twir-dark', {
-			base: 'vs-dark',
-			inherit: true,
-			rules: [],
-			colors: {
-				'editor.background': '#0b0b0c',
-			},
-		})
-	}
-
-	// Initialize preview
-	setTimeout(() => {
-		if (showPreview.value && props.open) {
-			updateStyles()
-			startPolling()
-		}
-	}, 200)
-})
-
-onUnmounted(() => {
-	stopPolling()
-	if (styleElement.value) {
-		styleElement.value.remove()
-	}
-})
+const { localHtml, localCss, localJs, localRefreshInterval, showPreview, activeTab, isLoading, showVariablesPanel, variablesSearchQuery, htmlEditorRef, copiedVariableId, filteredVariables, parsedHtml, sanitizedHtml, previewContainer, previewContent, handleSave, handleCancel, copyVariable } = useCodeEditorDialog(props, emit)
 </script>
 
 <template>
@@ -299,14 +43,14 @@ onUnmounted(() => {
 		>
 			<DialogHeader class="px-6 pt-6 pb-4 border-b">
 				<DialogTitle class="flex items-center gap-2">
-					<Icon name="lucide:code2" class="h-5 w-5" />
-					<span>Edit HTML Layer</span>
+					<Icon name="lucide:code-xml" class="h-5 w-5" />
+					<span>{{ t('overlayBuilder.codeEditor.title') }}</span>
 					<span v-if="layerName" class="text-muted-foreground font-normal">
 						- {{ layerName }}
 					</span>
 				</DialogTitle>
 				<DialogDescription>
-					Edit HTML, CSS, and JavaScript for this layer. Changes are previewed in real-time.
+					{{ t('overlayBuilder.codeEditor.description') }}
 				</DialogDescription>
 			</DialogHeader>
 
@@ -316,7 +60,7 @@ onUnmounted(() => {
 					<!-- Settings Bar -->
 					<div class="flex items-center gap-4 px-4 py-3 border-b bg-muted/30">
 						<div class="flex items-center gap-2">
-							<Label for="refresh-interval" class="text-xs">Refresh Interval (seconds):</Label>
+							<Label for="refresh-interval" class="text-xs">{{ t('overlayBuilder.codeEditor.refreshInterval') }}</Label>
 							<input
 								id="refresh-interval"
 								v-model.number="localRefreshInterval"
@@ -337,7 +81,7 @@ onUnmounted(() => {
 							>
 								<Icon name="lucide:chevron-left" v-if="showVariablesPanel" class="h-3 w-3" />
 								<Icon name="lucide:chevron-right" v-else class="h-3 w-3" />
-								Variables
+								{{ t('overlayBuilder.codeEditor.variables') }}
 							</Button>
 
 							<Switch
@@ -348,7 +92,7 @@ onUnmounted(() => {
 							<Label for="preview-toggle" class="text-xs cursor-pointer flex items-center gap-1">
 								<Icon name="lucide:eye" v-if="showPreview" class="h-3 w-3" />
 								<Icon name="lucide:eye-off" v-else class="h-3 w-3" />
-								Preview
+								{{ t('overlayBuilder.codeEditor.preview') }}
 							</Label>
 						</div>
 					</div>
@@ -449,12 +193,12 @@ onUnmounted(() => {
 					style="width: 400px;"
 				>
 					<div class="px-4 py-3 border-b shrink-0">
-						<h3 class="text-sm font-semibold mb-2">Available Variables</h3>
+										<h3 class="text-sm font-semibold mb-2">{{ t('overlayBuilder.codeEditor.availableVariables') }}</h3>
 						<div class="relative">
 							<Icon name="lucide:search" class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 							<Input
 								v-model="variablesSearchQuery"
-								placeholder="Search variables..."
+														:placeholder="t('overlayBuilder.codeEditor.searchVariables')"
 								class="pl-8 h-8 text-xs"
 								@keydown.stop
 							/>
@@ -477,13 +221,13 @@ onUnmounted(() => {
 												v-if="'isBuiltIn' in variable && variable.isBuiltIn"
 												class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-medium"
 											>
-												Built-in
+														{{ t('overlayBuilder.codeEditor.builtIn') }}
 											</span>
 											<span
 												v-else
 												class="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-500 font-medium"
 											>
-												Custom
+														{{ t('overlayBuilder.codeEditor.custom') }}
 											</span>
 										</div>
 										<p v-if="variable.description" class="text-xs text-muted-foreground mt-1 line-clamp-2">
@@ -500,7 +244,7 @@ onUnmounted(() => {
 										variant="ghost"
 										size="icon"
 										class="h-6 w-6 shrink-0"
-										:title="copiedVariableId === variable.name ? 'Copied!' : 'Copy to clipboard'"
+										:title="copiedVariableId === variable.name ? t('overlayBuilder.codeEditor.copied') : t('overlayBuilder.codeEditor.copyToClipboard')"
 										@click="copyVariable(variable)"
 									>
 										<Icon name="lucide:check" v-if="copiedVariableId === variable.name" class="h-3 w-3 text-green-500" />
@@ -528,25 +272,25 @@ onUnmounted(() => {
 							class="text-center py-8 text-sm text-muted-foreground"
 						>
 							<Icon name="lucide:search" class="h-8 w-8 mx-auto mb-2 opacity-50" />
-							<p>No variables found</p>
+							<p>{{ t('overlayBuilder.codeEditor.noVariables') }}</p>
 						</div>
 					</div>
 
 					<div class="px-4 py-2 border-t text-xs text-muted-foreground shrink-0">
-						{{ filteredVariables.length }} variable{{ filteredVariables.length !== 1 ? 's' : '' }}
+						{{ t('overlayBuilder.codeEditor.variableCount', filteredVariables.length) }}
 					</div>
 				</div>
 
 				<!-- Preview Side -->
 				<div v-if="showPreview" class="w-150 flex flex-col bg-slate-900">
 					<div class="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
-						<h3 class="text-sm font-medium">Preview</h3>
+						<h3 class="text-sm font-medium">{{ t('overlayBuilder.codeEditor.preview') }}</h3>
 						<div v-if="isLoading" class="flex items-center gap-2 text-xs text-muted-foreground">
 							<div class="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-							<span>Parsing...</span>
+							<span>{{ t('overlayBuilder.codeEditor.parsing') }}</span>
 						</div>
 						<div v-else-if="parsedHtml" class="text-xs text-green-500">
-							✓ Live
+							{{ t('overlayBuilder.codeEditor.live') }}
 						</div>
 					</div>
 					<div class="flex-1 p-4 overflow-auto">
@@ -566,10 +310,10 @@ onUnmounted(() => {
 
 			<DialogFooter class="px-6 py-4 border-t">
 				<Button variant="outline" @click="handleCancel">
-					Cancel
+					{{ t('overlayBuilder.codeEditor.cancel') }}
 				</Button>
 				<Button @click="handleSave">
-					Save Changes
+					{{ t('overlayBuilder.codeEditor.saveChanges') }}
 				</Button>
 			</DialogFooter>
 		</DialogContent>

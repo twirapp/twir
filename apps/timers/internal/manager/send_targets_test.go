@@ -28,6 +28,11 @@ func TestGetTimerSendTargetsUsesBindingsByPlatform(t *testing.T) {
 				PlatformChannelID: "vk-channel",
 				Enabled:           true,
 			},
+			{
+				Platform:          platformentity.PlatformYouTube,
+				PlatformChannelID: "youtube-channel",
+				Enabled:           true,
+			},
 		},
 	}
 
@@ -35,6 +40,7 @@ func TestGetTimerSendTargetsUsesBindingsByPlatform(t *testing.T) {
 		{platform: platformentity.PlatformTwitch, channelID: "twitch-channel"},
 		{platform: platformentity.PlatformKick, channelID: "kick-channel"},
 		{platform: platformentity.PlatformVKVideoLive, channelID: "vk-channel"},
+		{platform: platformentity.PlatformYouTube, channelID: "youtube-channel"},
 	}
 
 	for _, timerPlatforms := range [][]platformentity.Platform{nil, {}} {
@@ -168,6 +174,17 @@ func TestGetTimerSendTargetsFiltersBindingState(t *testing.T) {
 			want: []timerSendTarget{},
 		},
 		{
+			name: "includes enabled YouTube binding with chat.write",
+			channel: channelentity.Channel{
+				Bindings: []channelplatformentity.ChannelPlatform{{
+					Platform:          platformentity.PlatformYouTube,
+					PlatformChannelID: "youtube-channel",
+					Enabled:           true,
+				}},
+			},
+			want: []timerSendTarget{{platform: platformentity.PlatformYouTube, channelID: "youtube-channel"}},
+		},
+		{
 			name: "skips binding without chat.write",
 			channel: channelentity.Channel{
 				Bindings: []channelplatformentity.ChannelPlatform{
@@ -206,6 +223,13 @@ func TestHasSupportedTimerBinding(t *testing.T) {
 			name: "recognizes a VK binding",
 			bindings: []channelplatformentity.ChannelPlatform{
 				{Platform: platformentity.PlatformVKVideoLive, PlatformChannelID: "vk-channel"},
+			},
+			want: true,
+		},
+		{
+			name: "recognizes a YouTube binding",
+			bindings: []channelplatformentity.ChannelPlatform{
+				{Platform: platformentity.PlatformYouTube, PlatformChannelID: "youtube-channel"},
 			},
 			want: true,
 		},

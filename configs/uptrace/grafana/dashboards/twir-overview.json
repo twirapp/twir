@@ -1,0 +1,718 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Open Uptrace",
+      "type": "link",
+      "url": "https://uptrace.twir.app"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "description": "Exact row count from the users table. Runs a real count(*) instead of the pg_class.reltuples planner estimate, which only updates on ANALYZE and appeared frozen.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "twir-postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*)::double precision AS \"Users\" FROM users",
+          "refId": "A"
+        }
+      ],
+      "title": "Users",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "purple" },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 0 },
+      "id": 2,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "twir-postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*)::double precision AS \"Channels\" FROM channels",
+          "refId": "A"
+        }
+      ],
+      "title": "Channels",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 0 },
+      "id": 3,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "twir-postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*)::double precision AS \"Enabled\" FROM channels WHERE \"isEnabled\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Enabled channels",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "semi-dark-gray", "value": null },
+              { "color": "green", "value": 1 },
+              { "color": "orange", "value": 50 }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 3, "x": 12, "y": 0 },
+      "id": 4,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "twir-postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*)::double precision AS \"Live\" FROM channels_streams",
+          "refId": "A"
+        }
+      ],
+      "title": "Live now",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "orange" },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 15, "y": 0 },
+      "id": 5,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+          "editorType": "sql",
+          "format": 1,
+          "pluginVersion": "4.20.0",
+          "rawSql": "SELECT sum(count_x100) / 100 AS \"Events\" FROM spans_index WHERE project_id = 1 AND time >= now() - INTERVAL 5 MINUTE AND service_name = 'eventsub' AND name = 'eventsub.websocket.handler'",
+          "refId": "A"
+        }
+      ],
+      "title": "EventSub · 5 min",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "description": "Same total as the Twir landing page: SUM(users_stats.messages).",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "yellow" },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "yellow", "value": null }] },
+          "unit": "suffix:M"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 5, "x": 19, "y": 0 },
+      "id": 16,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "twir-postgres" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT (COALESCE(sum(messages), 0) / 1000000.0)::double precision AS \"Messages processed\" FROM users_stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Messages processed",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.72, "drawStyle": "bars",
+            "fillOpacity": 55, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 1, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 3 },
+      "id": 6,
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "twir-postgres" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroupAlias(created_at, $__interval), count(*)::double precision AS \"New users\" FROM users WHERE $__timeFilter(created_at) GROUP BY 1 ORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "New users",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "twir-postgres" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "purple" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.72, "drawStyle": "bars",
+            "fillOpacity": 55, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 1, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 3 },
+      "id": 7,
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "twir-postgres" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroupAlias(created_at, $__interval), count(*)::double precision AS \"New channels\" FROM channels WHERE $__timeFilter(created_at) GROUP BY 1 ORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "New channels",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "orange" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "events",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.72, "drawStyle": "bars",
+            "fillOpacity": 50, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 1, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 7 },
+      "id": 8,
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+          "editorType": "sql",
+          "format": 0,
+          "pluginVersion": "4.20.0",
+          "rawSql": "SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS time, sum(count_x100) / 100 AS \"Events\" FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND service_name = 'eventsub' AND name = 'eventsub.websocket.handler' GROUP BY time ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Incoming EventSub events",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-GrYlRd" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 7 },
+      "id": 9,
+      "options": {
+        "displayMode": "gradient",
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+          "editorType": "sql",
+          "format": 1,
+          "pluginVersion": "4.20.0",
+          "rawSql": "SELECT if(empty(attrs.twitcheventsub_subscription_type::String), 'unknown', attrs.twitcheventsub_subscription_type::String) AS \"Event type\", sum(count_x100) / 100 AS \"Events\" FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND service_name = 'eventsub' AND name = 'eventsub.websocket.handler' GROUP BY \"Event type\" ORDER BY \"Events\" DESC LIMIT 8",
+          "refId": "A"
+        }
+      ],
+      "title": "Top EventSub types",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "description": "Application p95 from OTel spans. One view combines command parsing, EventSub delivery, and the most useful bot message handlers.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "p95",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 18, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "log", "log": 2 }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 100 },
+              { "color": "red", "value": 500 }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 12 },
+      "id": 10,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right", "showLegend": true, "width": 390 },
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+          "editorType": "sql",
+          "format": 0,
+          "pluginVersion": "4.20.0",
+          "rawSql": "SELECT bucket AS time, operation, quantileTDigestWeighted(0.95)(duration, count_x100) AS p95 FROM (SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS bucket, count_x100, duration, multiIf(service_name = 'parser' AND system = 'messaging:nats' AND name = 'Read parser.process_message_as_command', 'Command · total', service_name = 'eventsub' AND system = 'funcs' AND name IN ('eventsub.websocket.handler', 'HandleChannelChatMessage'), 'EventSub · pipeline', service_name = 'bots' AND system = 'funcs' AND name = 'handle', 'Bot · message', service_name = 'bots' AND system = 'funcs' AND name = 'handleTts', 'Bot · TTS', service_name = 'bots' AND system = 'funcs' AND name IN ('handleModeration', 'handleGiveaways', 'handleKeywords', 'handleChatWall', 'handleGreetings', 'handleEmotesUsages', 'handleRemoveLurker', 'handleFirstStreamUserJoin'), 'Bot · features', '') AS operation FROM spans_index WHERE project_id = 1 AND $__timeFilter(time)) WHERE operation != '' GROUP BY bucket, operation ORDER BY bucket",
+          "refId": "A"
+        }
+      ],
+      "title": "Operation performance · p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "description": "Application-observed PostgreSQL operations from OTel spans. Pool acquisition and transaction bookkeeping are excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "ops/s",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 30, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "db", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "ops"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Reads" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 18 },
+      "id": 11,
+      "options": {
+        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true, "width": 190 },
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+          "editorType": "sql",
+          "format": 0,
+          "pluginVersion": "4.20.0",
+          "rawSql": "SELECT bucket AS time, operation, sum(count_x100) / 100 / greatest($__interval_s, 1) AS rate FROM (SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS bucket, count_x100, multiIf(upperUTF8(attrs.db_operation_name::String) = 'SELECT' OR name IN ('gorm.Query', 'gorm.Row') OR positionCaseInsensitive(name, 'SELECT') > 0, 'Reads', upperUTF8(attrs.db_operation_name::String) IN ('INSERT', 'UPDATE', 'DELETE') OR positionCaseInsensitive(name, 'INSERT') > 0 OR positionCaseInsensitive(name, 'UPDATE') > 0 OR positionCaseInsensitive(name, 'DELETE') > 0, 'Writes', '') AS operation FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND system = 'db:postgresql') WHERE operation != '' GROUP BY bucket, operation ORDER BY bucket",
+          "refId": "A"
+        }
+      ],
+      "title": "PostgreSQL · read/write",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "description": "Application-observed ClickHouse SELECT and INSERT operations from OTel spans.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "ops/s",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 30, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "db", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "ops"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Reads" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 18 },
+      "id": 12,
+      "options": {
+        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true, "width": 190 },
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+          "editorType": "sql",
+          "format": 0,
+          "pluginVersion": "4.20.0",
+          "rawSql": "SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS time, if(upperUTF8(attrs.db_operation_name::String) = 'SELECT', 'Reads', 'Writes') AS operation, sum(count_x100) / 100 / greatest($__interval_s, 1) AS rate FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND system = 'db:clickhouse' AND upperUTF8(attrs.db_operation_name::String) IN ('SELECT', 'INSERT') GROUP BY time, operation ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "ClickHouse · read/write",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+      "description": "Application-observed Redis operations from OTel spans. Read-only commands are separated; scripts and pipelines are classified as writes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "ops/s",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 30, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "db", "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "ops"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Reads" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Writes" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 18 },
+      "id": 13,
+      "options": {
+        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true, "width": 190 },
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "uptrace-clickhouse" },
+          "editorType": "sql",
+          "format": 0,
+          "pluginVersion": "4.20.0",
+          "rawSql": "SELECT toStartOfInterval(time, INTERVAL $__interval_s SECOND) AS time, if(lowerUTF8(name) IN ('get', 'mget', 'hget', 'hmget', 'exists', 'ttl', 'pttl', 'scan', 'sscan', 'hscan', 'zscan', 'strlen', 'llen', 'scard', 'smembers', 'sismember', 'zrange', 'zscore', 'zcard'), 'Reads', 'Writes') AS operation, sum(count_x100) / 100 / greatest($__interval_s, 1) AS rate FROM spans_index WHERE project_id = 1 AND $__timeFilter(time) AND system = 'db:redis' GROUP BY time, operation ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Redis · read/write",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
+      "description": "CPU busy by Swarm node from node-exporter.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 25, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" }
+          },
+          "max": 100,
+          "min": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "red", "value": 90 }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 23 },
+      "id": 14,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right", "showLegend": true, "width": 330 },
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
+          "editorMode": "code",
+          "expr": "clamp(100 * (1 - avg by (service_instance_id) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))), 0, 100) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\".+-[0-9]+\"} + 1)",
+          "legendFormat": "{{nodename}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Server CPU",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
+      "description": "Memory used by Swarm node from node-exporter.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "",
+            "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line",
+            "fillOpacity": 25, "gradientMode": "opacity",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4,
+            "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true,
+            "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" }
+          },
+          "max": 100,
+          "min": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 75 },
+              { "color": "red", "value": 90 }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 23 },
+      "id": 15,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right", "showLegend": true, "width": 330 },
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "uptrace-prometheus" },
+          "editorMode": "code",
+          "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * on(service_instance_id) group_left(nodename) (0 * node_uname_info{nodename=~\".+-[0-9]+\"} + 1)",
+          "legendFormat": "{{nodename}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Server RAM",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["twir", "production", "stream"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {
+    "refresh_intervals": ["10s", "30s", "1m", "5m"],
+    "time_options": ["1h", "6h", "12h", "24h", "2d", "7d"]
+  },
+  "timezone": "browser",
+  "title": "Twir Live Overview",
+  "uid": "twir-stream-overview",
+  "version": 11
+}

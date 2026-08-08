@@ -7,11 +7,14 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/twirapp/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/apps/parser/locales"
 	buscoretokens "github.com/twirapp/twir/libs/bus-core/tokens"
 	model "github.com/twirapp/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/i18n"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
@@ -57,6 +60,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 	}
 
 	var spotifyService *spotify.Spotify
+	spotifyNeedsReconnect := false
 	spotifyEntity, err := c.services.SpotifyRepo.GetByChannelID(ctx, c.parseCtxChannel.DBChannelID)
 	if err != nil {
 		c.services.Logger.Error("failed to get spotify entity", zap.Error(err))
@@ -66,12 +70,13 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		spotifyToken, err := c.services.Bus.Tokens.RequestChannelIntegrationToken.Request(
 			ctx,
 			buscoretokens.GetChannelIntegrationTokenRequest{
-					ChannelID: c.parseCtxChannel.DBChannelID,
+				ChannelID: c.parseCtxChannel.DBChannelID,
 				Service:   integrationsmodel.ServiceSpotify,
 			},
 		)
 		if err != nil {
 			c.services.Logger.Error("failed to get spotify integration", zap.Error(err))
+			spotifyNeedsReconnect = isSpotifyInvalidGrantError(err)
 		} else {
 			spotifyService = spotify.NewStatic(spotifyToken.Data.AccessToken, spotifyEntity.Scopes)
 		}
@@ -168,7 +173,7 @@ checkServices:
 		case "YOUTUBE_SR":
 			redisData, err := c.services.Redis.Get(
 				context.Background(),
-				fmt.Sprintf("songrequests:youtube:%s:currentPlaying", c.parseCtxChannel.DBChannelID),
+				fmt.Sprintf("songrequests:playback:%s", c.parseCtxChannel.DBChannelID),
 			).Result()
 			if err == redis.Nil {
 				continue
@@ -176,13 +181,34 @@ checkServices:
 			if err != nil {
 				continue
 			}
+
+			var playbackState struct {
+				VideoID string `json:"videoId"`
+				Title   string `json:"title"`
+			}
+			if err := json.Unmarshal([]byte(redisData), &playbackState); err != nil {
+				c.services.Logger.Error("failed to unmarshal youtube sr playback state", zap.Error(err))
+				continue
+			}
+			if playbackState.VideoID == "" {
+				continue
+			}
+
 			song := model.RequestedSong{}
 			if err = c.services.Gorm.
 				WithContext(ctx).
-				Where("id = ?", redisData).
-				First(&song).Error; err != nil {
-				fmt.Println("song nog found", err)
-				continue
+				Where(
+					`"channelId" = ?::uuid AND "videoId" = ? AND "deletedAt" IS NULL`,
+					c.parseCtxChannel.DBChannelID,
+					playbackState.VideoID,
+				).
+				Order(`"createdAt" desc`).
+				First(&song).Error; err != nil || song.ID == "" {
+				// deleting a song from the queue does not stop playback, so the row may be gone
+				c.cache.currentSong = &types.CurrentSong{
+					Name: fmt.Sprintf(`"%s" youtu.be/%s`, playbackState.Title, playbackState.VideoID),
+				}
+				break checkServices
 			}
 
 			c.cache.currentSong = &types.CurrentSong{
@@ -249,5 +275,17 @@ checkServices:
 		}
 	}
 
+	if c.cache.currentSong == nil && spotifyNeedsReconnect {
+		c.cache.currentSong = &types.CurrentSong{
+			Name: i18n.GetCtx(ctx, locales.Translations.Variables.Song.Info.SpotifyTokenExpired),
+		}
+	}
+
 	return c.cache.currentSong
+}
+
+// isSpotifyInvalidGrantError detects spotify rejecting the refresh token (180-day
+// expiry or user revocation); typed errors don't survive the bus, only message strings.
+func isSpotifyInvalidGrantError(err error) bool {
+	return strings.Contains(err.Error(), "invalid_grant")
 }

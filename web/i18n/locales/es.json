@@ -94,7 +94,8 @@
     "darkTheme": "Tema Oscuro",
     "lightTheme": "Tema Claro",
     "notifications": "Notificaciones",
-    "giveaways": "Sorteos"
+    "giveaways": "Sorteos",
+    "quotes": "Citas"
   },
   "deleteConfirmation": {
     "text": "¿Está Usted seguro de borrar esta cosa?",
@@ -240,6 +241,26 @@
       "usedEmotes": "Emoticonos enviados",
       "viewers": "Espectadores",
       "requestedSongs": "Canciones solicitadas"
+    },
+    "statsLayouts": {
+      "label": "Diseño de estadísticas del encabezado",
+      "rows": "Filas",
+      "rowsDescription": "Valores por plataforma dentro de cada widget",
+      "aggregate": "Agregado",
+      "aggregateDescription": "Totales con desglose por plataforma en un popover",
+      "grid": "Cuadrícula",
+      "gridDescription": "Solo tarjetas de plataforma, sin widgets globales"
+    },
+    "platformStats": {
+      "platform": "Plataforma",
+      "streamTitles": "Títulos de transmisión",
+      "livePlatforms": "{live} en vivo · {total} plataformas",
+      "breakdown": "Desglose por plataforma",
+      "live": "EN VIVO",
+      "offline": "Desconectado",
+      "noTitle": "Sin título",
+      "noCategory": "Sin categoría",
+      "editUnavailable": "Edición no disponible"
     },
     "widgets": {
       "chat": {
@@ -628,6 +649,85 @@
       "preview": {
         "start": "Iniciar vista previa de superposición",
         "stop": "Detener vista previa de superposición"
+      }
+    },
+    "streamStats": {
+      "title": "Stream Stats",
+      "description": "Display live stream counters: viewers, messages, uptime, subscribers and followers.",
+      "settings": {
+        "design": {
+          "label": "Design",
+          "glass": {
+            "name": "Glass",
+            "description": "Frosted glass bar with all counters in a row."
+          },
+          "cards": {
+            "name": "Cards",
+            "description": "Separate cards with a colored accent per counter."
+          },
+          "neon": {
+            "name": "Neon",
+            "description": "Dark cards with a neon violet glow."
+          },
+          "solid": {
+            "name": "Solid",
+            "description": "Bright gradient chips."
+          },
+          "minimal": {
+            "name": "Minimal",
+            "description": "Plain text line without decoration."
+          },
+          "terminal": {
+            "name": "Terminal",
+            "description": "Monospace hacker-style readout."
+          },
+          "outline": {
+            "name": "Outline",
+            "description": "Transparent chips with colored outlines."
+          }
+        },
+        "variant": {
+          "label": "Layout",
+          "horizontal": "Horizontal",
+          "horizontalCompact": "Horizontal compact",
+          "vertical": "Vertical",
+          "verticalCompact": "Vertical compact",
+          "large": "Large"
+        },
+        "counters": {
+          "label": "Counters",
+          "viewers": "Viewers",
+          "messages": "Messages on stream",
+          "uptime": "Uptime",
+          "subscribers": "Subscribers",
+          "followers": "Followers",
+          "viewersMode": {
+            "label": "Viewers Counter Mode",
+            "cumulative": {
+              "name": "Total",
+              "description": "Total viewers across all platforms"
+            },
+            "separate": {
+              "name": "Per Platform",
+              "description": "Separate counter per platform"
+            }
+          },
+          "twitchOnlyNote": "Subscribers and followers totals are Twitch-only; the counter is hidden for other platforms.",
+          "platformIcons": "Platform icons instead of labels",
+          "dragHint": "Drag to reorder counters."
+        },
+        "colors": {
+          "label": "Counter colors",
+          "hint": "Leave empty to use the design default."
+        },
+        "customTemplate": {
+          "label": "Custom Template",
+          "enabled": "Enable custom template",
+          "html": "HTML",
+          "css": "CSS",
+          "placeholders": "Available placeholders:",
+          "replacesDesign": "The custom template replaces the chosen design."
+        }
       }
     },
     "faceit": {
@@ -1169,7 +1269,17 @@
       "showMeOnLanding": "¿Mostrarte en la Landing Page?",
       "regenerateApiKey": {
         "button": "Regenerar clave de API privada",
-        "info": "Esta clave se utiliza para todos los enlaces superpuestos. Cuando lo regenere, debe verificar todas las superposiciones en su software de transmisión y reemplazar las URL con los nuevos enlaces."
+        "info": "Esta clave de usuario obsoleta se usaba anteriormente para los enlaces de overlays, MCP y API pública. Está obsoleta: usa la clave API del canal."
+      },
+      "channelApiKey": {
+        "title": "Clave API del canal",
+        "button": "Regenerar clave API del canal",
+        "info": "Esta clave se utiliza para todos los enlaces de overlays, MCP y API pública del canal seleccionado. Cuando la regenere, debe verificar todas las superposiciones en su software de transmisión y reemplazar las URL con los nuevos enlaces."
+      },
+      "legacyApiKey": {
+        "title": "Clave API de usuario obsoleta",
+        "badge": "Obsoleta",
+        "info": "Esta clave está obsoleta y se eliminará en el futuro. Usa la clave API del canal de arriba."
       }
     },
     "public": {
@@ -1359,11 +1469,46 @@
       }
     }
   },
+  "site": {
+    "description": "Bot de chat potente y útil para Twitch, Kick, VK Video Live y YouTube que ayuda a gestionar el chat en canales grandes. Desarrollado por streamers para streamers con cariño."
+  },
   "landing": {
     "meta": {
-      "title": "Twir — bot de chat para Twitch y Kick",
-      "description": "Bot de Twitch potente y útil que ayuda a gestionar el chat en canales grandes. Comandos, temporizadores, moderación, peticiones de canciones, sorteos, overlays y más — gratis y de código abierto."
+      "title": "Twir — bot de chat para Twitch, Kick, VK y YouTube",
+      "description": "Bot potente y útil para Twitch, Kick, VK Video Live y YouTube que ayuda a gestionar el chat en canales grandes. Comandos, temporizadores, moderación, peticiones de canciones, sorteos, overlays y más — gratis y de código abierto."
     },
+    "hero": {
+      "updates": "🚀 Ver las últimas novedades", "title": "Conecta con tu audiencia como nunca antes", "description": "Twir es un bot de chat gratuito y de código abierto para Twitch, Kick, VK Video Live y YouTube. Ayuda a los streamers a gestionar y hacer crecer sus canales con comandos personalizados, temporizadores, moderación del chat, peticiones de canciones, sorteos, alertas y overlays — todo en un solo lugar.",
+      "platforms": { "twitch": "Twitch", "kick": "Kick", "vk": "VK Video Live", "youtube": "YouTube" }, "learnMore": "Más información", "dashboard": "Panel"
+    },
+    "stats": { "activeChannels": "Canales activos", "createdCommands": "Comandos creados", "usersSeen": "Usuarios vistos", "messagesProcessed": "Mensajes procesados", "emotesProcessed": "Emotes procesados", "commandsProcessed": "Comandos procesados", "platformChannels": { "twitch": "Canales de Twitch", "kick": "Canales de Kick", "vk": "Canales de VK Video Live", "youtube": "Canales de YouTube" } },
+    "features": {
+      "badge": "Funciones", "title": "Descubre las increíbles funciones de nuestro bot", "description": "Descubre un tesoro de funciones que llevará tu stream al siguiente nivel. ¡Nuestro bot tiene las herramientas para transformar tu experiencia!", "disclaimer": "Esta no es ni mucho menos una lista completa de las capacidades del bot; la actualizamos continuamente mientras desarrollamos funciones nuevas e innovadoras.", "discord": "Únete a nuestro servidor de Discord para estar al día",
+      "items": {
+        "music-recognition": { "title": "Reconocimiento de música", "description": "¡Shazam para tu stream de Twitch! Gratis y sin conectar ningún servicio musical" },
+        "vips": { "title": "VIPs", "description": "Gestiona tus VIP mediante el bot y programa cuándo deben eliminarse" },
+        "giveaways": { "title": "Sorteos", "description": "Crea sorteos, gestiona participantes, elige ganadores y archiva los resultados" },
+        "commands": { "title": "Comandos", "description": "Un potente sistema de comandos con varias respuestas, activación por categorías, caducidad, alias, contadores y variables. Vincula comandos a categorías de juegos y configura su borrado o desactivación automática" },
+        "variables": { "title": "Variables personalizadas", "description": "Escribe variables personalizadas con JavaScript o Python para ampliar las funciones del bot" },
+        "mcp": { "title": "Control con IA (MCP)", "description": "Controla tu bot con asistentes de IA: gestiona comandos, temporizadores, palabras clave y variables desde Claude Code, Codex u OpenCode mediante MCP" },
+        "timers": { "title": "Temporizadores", "description": "Un sistema sencillo pero potente para anuncios automáticos en Twitch" },
+        "greetings": { "title": "Saludos", "description": "¿Quieres destacar a tus espectadores favoritos? ¡Añade un saludo!" },
+        "song-requests": { "title": "Peticiones de canciones", "description": "Los espectadores piden canciones mediante comandos. El bot gestiona la cola y la reproducción para mejorar la interacción" },
+        "keywords": { "title": "Palabras clave", "description": "Identifica palabras clave en el chat y activa mensajes automáticos para informar o fomentar la participación" },
+        "events": { "title": "Eventos", "description": "Configura escuchas personalizados para seguir eventos del chat o del sistema y activar acciones" },
+        "moderation": { "title": "Moderación", "description": "Crea y gestiona filtros del chat para mantener una comunicación segura y amable" },
+        "obs": { "title": "OBS WebSockets", "description": "Integra OBS Studio mediante WebSockets: cambia escenas, silencia el audio y controla fuentes desde el bot" },
+        "stats": { "title": "Seguimiento de estadísticas", "description": "Consulta el tiempo de visualización, los mensajes y los puntos del canal utilizados" },
+        "overlays": { "title": "Overlays", "description": "Overlays prediseñados para estadísticas de Faceit y Valorant, Now Playing, Chat, Emote Wall, Pixel Dudes y AFK" },
+        "alerts": { "title": "Alertas", "description": "Crea alertas de sonido personalizadas para puntos del canal, comandos y palabras clave" },
+        "games": { "title": "Juegos", "description": "Añade diversión al chat con ruleta rusa, duelos, seppuku, voteban y la bola 8 mágica" },
+        "short-urls": { "title": "URLs cortas", "description": "Acorta y comparte enlaces al instante con el acortador de Twir — más de {landingStatsCreatedShortUrls} creados" },
+        "hastebins": { "title": "HasteBins", "description": "Crea y comparte textos rápidos y seguros con HasteBins — {landingStatsCreatedHastebins} creados" }
+      }
+    },
+    "integrations": { "badge": "Integraciones", "title": "Potencia tu stream con integraciones fluidas", "description": "Conecta tus herramientas y plataformas favoritas para mejorar el rendimiento y la interacción de tu stream. Las integraciones de Twir ofrecen posibilidades infinitas." },
+    "nav": { "features": "Funciones", "integrations": "Integraciones", "compare": "Comparar", "urlShortener": "Acortador de URL", "uploader": "Subidor de imágenes", "hastebin": "Hastebin", "terms": "Términos de servicio", "privacy": "Política de privacidad", "login": "Iniciar sesión", "startNow": "Empezar ahora", "dashboard": "Panel", "logout": "Cerrar sesión", "vkLive": "VK Live" },
+    "footer": { "navigation": "Navegación del pie de página", "github": "Repositorio de Github", "discord": "Canal de Discord para preguntas y novedades" },
     "compareLink": "Comparar Twir con otros bots",
     "faq": {
       "badge": "FAQ",
@@ -1374,15 +1519,15 @@
       },
       "q2": {
         "question": "¿Cómo añado Twir a mi canal?",
-        "answer": "Inicia sesión con tu cuenta de Twitch o Kick, pulsa «Añadir bot» en el panel y Twir se unirá a tu chat en menos de un minuto. Sin descargas ni instalación."
+        "answer": "Inicia sesión con tu cuenta de Twitch, Kick, VK o YouTube, pulsa «Añadir bot» en el panel y Twir se unirá a tu chat en menos de un minuto. Sin descargas ni instalación."
       },
       "q3": {
         "question": "¿Puedo migrar desde Nightbot o StreamElements?",
         "answer": "Sí. Twir tiene una herramienta de importación que traslada tus comandos y ajustes desde Nightbot, StreamElements y Streamlabs en pocos clics."
       },
       "q4": {
-        "question": "¿Twir funciona en Kick?",
-        "answer": "Sí, Twir es compatible tanto con Twitch como con Kick. Puedes conectar tu canal de Kick y gestionarlo desde el mismo panel."
+        "question": "¿Twir funciona en Kick, VK y YouTube?",
+        "answer": "Sí, Twir es compatible con Twitch, Kick, VK Video Live y YouTube. Puedes conectar tus canales y gestionarlos desde el mismo panel."
       },
       "q5": {
         "question": "¿Twir es de código abierto?",
@@ -1437,7 +1582,8 @@
       "vipManagement": "Gestión de VIP",
       "emoteStats": "Estadísticas de emotes",
       "musicRecognition": "Reconocimiento de música (tipo Shazam)",
-      "obsIntegration": "Integración con OBS"
+      "obsIntegration": "Integración con OBS",
+      "aiMcp": "Control con IA (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing, Chat, estadísticas de Faceit y Valorant, Emote Wall, Pixel Dudes, AFK y más",
@@ -1459,11 +1605,12 @@
       "rolesMoobot": "1 grupo de permisos en el plan gratuito",
       "vipTwir": "Gestiona VIPs y programa su expiración",
       "vipMoobot": "Solo First Wave VIP, MoobotPlus (de pago)",
-      "obsTwir": "Cambia escenas, silencia audio y alterna fuentes vía websockets"
+      "obsTwir": "Cambia escenas, silencia audio y alterna fuentes vía websockets",
+      "aiMcpTwir": "Gestiona el bot desde Claude Code, Codex, OpenCode y otros asistentes de IA mediante MCP"
     },
     "values": {
       "platforms": {
-        "twir": "Twitch, Kick",
+        "twir": "Twitch, Kick, VK Video Live, YouTube",
         "nightbot": "Twitch, YouTube",
         "streamelements": "Twitch, YouTube, Kick",
         "moobot": "Twitch",
@@ -1496,10 +1643,26 @@
         "answer": "Sí. Todas las funciones de la tabla comparativa son gratis, incluidos overlays, sorteos y peticiones de canciones. Twir es de código abierto y está desarrollado por streamers para streamers."
       },
       "q4": {
-        "question": "¿Twir es compatible con Kick?",
-        "answer": "Sí. Twir funciona con Twitch y Kick desde un solo panel, para que gestiones ambos canales en un mismo lugar."
+        "question": "¿Twir es compatible con Kick, VK y YouTube?",
+        "answer": "Sí. Twir funciona con Twitch, Kick, VK Video Live y YouTube desde un solo panel, para que gestiones todos tus canales en un mismo lugar."
       }
     },
     "disclaimer": "Nightbot, StreamElements, Moobot y Fossabot son marcas de sus respectivos propietarios. Twir no está afiliado a ellos ni cuenta con su respaldo. Los datos de funciones se basan en información pública y pueden cambiar con el tiempo."
+  },
+  "quotes": {
+    "title": "Citas",
+    "create": "Crear cita",
+    "edit": "Editar cita",
+    "text": "Cita",
+    "number": "Número",
+    "creator": "Creador",
+    "game": "Juego",
+    "createdAt": "Creado el",
+    "deleteConfirmation": "¿Seguro que quieres eliminar esta cita?",
+    "created": "Cita creada",
+    "updated": "Cita actualizada",
+    "deleted": "Cita eliminada",
+    "errorOnSave": "No se pudo guardar la cita",
+    "errorOnDelete": "No se pudo eliminar la cita"
   }
 }

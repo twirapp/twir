@@ -5,12 +5,10 @@ go 1.26.1
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.2
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.2
-	github.com/exaring/otelpgx v0.9.3
-	github.com/getsentry/sentry-go v0.42.0
 	github.com/go-redis/redis_rate/v10 v10.0.1
 	github.com/go-redsync/redsync/v4 v4.14.1
+	github.com/goforj/wire v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/jackc/pgx/v5 v5.7.6
@@ -26,6 +24,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/scorfly/gokick v1.17.0
 	github.com/tidwall/gjson v1.18.0
+	github.com/twirapp/twir/libs/uptime v0.0.0-20260730153723-d75d97e0affa
 	github.com/valyala/fasttemplate v1.2.2
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	go.uber.org/zap v1.27.1
@@ -65,7 +64,6 @@ require (
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel v1.41.0
 	go.opentelemetry.io/otel/metric v1.41.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.39.0 // indirect
 	go.opentelemetry.io/otel/trace v1.41.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.52.0 // indirect
@@ -75,14 +73,15 @@ require (
 
 require (
 	github.com/stretchr/testify v1.11.1
-	github.com/twirapp/kv v0.5.1
+	github.com/twirapp/twir/libs/redis_keys v0.0.0-20251127124349-67ad7fa0003f
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
-	github.com/golang/mock v1.7.0-rc.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/twirapp/twir/libs/uptime => ../../libs/uptime

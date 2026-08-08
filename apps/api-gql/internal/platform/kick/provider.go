@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/platform"
 	cfg "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
-	"go.uber.org/fx"
 )
 
 var scopes = []gokick.Scope{
@@ -19,12 +18,7 @@ var scopes = []gokick.Scope{
 	gokick.ScopeEventSubscribe,
 	gokick.ScopeChatWrite,
 	gokick.ScopeChannelRead,
-}
-
-type Opts struct {
-	fx.In
-
-	Config cfg.Config
+	gokick.ScopeChannelWrite,
 }
 
 type Provider struct {
@@ -34,15 +28,15 @@ type Provider struct {
 
 var _ platform.PlatformProvider = (*Provider)(nil)
 
-func New(opts Opts) *Provider {
+func New(config cfg.Config) *Provider {
 	client, _ := gokick.NewClient(
 		&gokick.ClientOptions{
-			ClientID:     opts.Config.KickClientId,
-			ClientSecret: opts.Config.KickClientSecret,
+			ClientID:     config.KickClientId,
+			ClientSecret: config.KickClientSecret,
 		})
 
 	return &Provider{
-		config: opts.Config,
+		config: config,
 		client: client,
 	}
 }
@@ -99,6 +93,57 @@ func (p *Provider) exchangeCodeWithRedirectURI(ctx context.Context, code, codeVe
 		ExpiresIn:    token.ExpiresIn,
 		Scopes:       parseScopes(token.Scope),
 	}, nil
+}
+
+func (p *Provider) UpdateStreamInformation(
+	ctx context.Context,
+	accessToken string,
+	title *string,
+	categoryID *string,
+) error {
+	client, err := gokick.NewClient(&gokick.ClientOptions{UserAccessToken: accessToken})
+	if err != nil {
+		return fmt.Errorf("create kick client: %w", err)
+	}
+
+	if title != nil {
+		if _, err := client.UpdateStreamTitle(ctx, *title); err != nil {
+			return fmt.Errorf("update Kick stream title: %w", err)
+		}
+	}
+
+	if categoryID != nil {
+		parsedCategoryID, err := strconv.Atoi(*categoryID)
+		if err != nil {
+			return fmt.Errorf("parse Kick category id: %w", err)
+		}
+		if _, err := client.UpdateStreamCategory(ctx, parsedCategoryID); err != nil {
+			return fmt.Errorf("update Kick stream category: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (p *Provider) SearchCategories(
+	ctx context.Context,
+	accessToken string,
+	query string,
+) ([]gokick.CategoryResponse, error) {
+	client, err := gokick.NewClient(&gokick.ClientOptions{AppAccessToken: accessToken})
+	if err != nil {
+		return nil, fmt.Errorf("create kick client: %w", err)
+	}
+
+	response, err := client.GetCategories(
+		ctx,
+		gokick.NewCategoryListFilter().AddName(query).SetLimit(25),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("search Kick categories: %w", err)
+	}
+
+	return response.Result, nil
 }
 
 func (p *Provider) RefreshToken(ctx context.Context, input platform.RefreshTokenInput) (*platform.PlatformTokens, error) {

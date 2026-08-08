@@ -122,13 +122,18 @@ export interface TitleOrCategoryChangedMessage {
 }
 
 export interface StreamOnlineMessage {
-	base_info: BaseInfo
+	startedAt: string
+	channelId: string
+	streamId: string
+	categoryName: string
+	categoryId: string
 	title: string
-	category: string
+	viewers: number
 }
 
 export interface StreamOfflineMessage {
-	base_info: BaseInfo
+	startedAt: string
+	channelId: string
 }
 
 export interface ChatClearMessage {

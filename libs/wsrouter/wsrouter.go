@@ -2,12 +2,9 @@ package wsrouter
 
 import (
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type Opts struct {
-	fx.In
-
 	Config config.Config
 }
 

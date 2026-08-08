@@ -14,7 +14,7 @@ const props = withDefaults(
 		mode?: 'list' | 'picker'
 	}>(),
 	{
-		tab: 'Audios',
+		tab: 'audios',
 		mode: 'list',
 	}
 )
@@ -39,31 +39,39 @@ const uploadedFilesSize = computed(() => {
 })
 
 interface Tab {
+	id: 'audios' | 'images'
 	name: string
-	disabled?: boolean
 	accept: string
+	icon: string
 }
 const tabs: Array<Tab> = [
 	{
+		id: 'audios',
 		name: 'Audios',
 		accept: 'audio/*',
+		icon: 'lucide:music',
 	},
 	{
-		name: 'Images (soon)',
-		disabled: true,
+		id: 'images',
+		name: 'Images',
 		accept: 'image/*',
+		icon: 'lucide:image',
 	},
 ]
 const activeTab = ref<Tab>(tabs.at(0)!)
 
 onMounted(() => {
-	const neededTab = tabs.find((t) => t.name === props.tab)
+	const neededTab = tabs.find((t) => t.id === props.tab?.toLowerCase())
 	if (!neededTab) return
 	activeTab.value = neededTab
 })
 
 const audios = computed(
 	() => files.value?.files.filter((f) => f.mimetype.startsWith('audio')) ?? []
+)
+
+const images = computed(
+	() => files.value?.files.filter((f) => f.mimetype.startsWith('image')) ?? []
 )
 
 async function upload(f: File) {
@@ -96,27 +104,18 @@ const uploadedFilesSizeSlider = computed(() => {
 		>
 			<div class="flex w-full flex-col gap-1">
 				<Button
+					v-for="tab of tabs"
+					:key="tab.id"
 					class="flex w-full items-center justify-center gap-2"
 					size="sm"
-					variant="secondary"
+					:variant="activeTab.id === tab.id ? 'default' : 'secondary'"
+					@click="activeTab = tab"
 				>
 					<Icon
-						name="lucide:music"
+						:name="tab.icon"
 						class="size-4"
 					/>
-					Audios
-				</Button>
-				<Button
-					class="flex w-full items-center justify-center gap-2"
-					size="sm"
-					variant="secondary"
-					disabled
-				>
-					<Icon
-						name="lucide:image"
-						class="size-4"
-					/>
-					Images (soon)
+					{{ tab.name }}
 				</Button>
 			</div>
 			<div class="flex flex-col items-center justify-center gap-2">
@@ -177,7 +176,7 @@ const uploadedFilesSizeSlider = computed(() => {
 		</div>
 
 		<div class="min-h-0 w-full overflow-auto p-4">
-			<div v-if="activeTab.name === 'Audios'">
+			<div v-if="activeTab.id === 'audios'">
 				<Alert v-if="!audios.length">
 					<AlertDescription>
 						{{ t('filePicker.emptyText', { type: 'audios' }) }}
@@ -222,6 +221,64 @@ const uploadedFilesSizeSlider = computed(() => {
 									size="sm"
 									variant="secondary"
 									@click="$emit('select', audio.id)"
+								>
+									{{ t('sharedButtons.select') }}
+								</Button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div v-else-if="activeTab.id === 'images'">
+				<Alert v-if="!images.length">
+					<AlertDescription>
+						{{ t('filePicker.emptyText', { type: 'images' }) }}
+					</AlertDescription>
+				</Alert>
+
+				<div
+					v-else
+					class="grid grid-cols-1 gap-4 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3"
+				>
+					<div
+						v-for="image of images"
+						:key="image.id"
+						class="bg-card border-border flex flex-col gap-2 rounded-md border-2 p-2"
+					>
+						<div class="bg-muted flex h-32 items-center justify-center overflow-hidden rounded-md">
+							<img
+								:src="api.computeFileUrl(image.channelId, image.id)"
+								:alt="image.name"
+								loading="lazy"
+								class="h-full w-full object-contain"
+							/>
+						</div>
+
+						<h1 class="break-all text-sm">
+							{{ image.name }}
+						</h1>
+
+						<div class="mt-auto flex flex-wrap items-end justify-between">
+							<span>{{ convertBytesToSize(image.size) }}</span>
+
+							<div class="flex gap-1">
+								<Button
+									variant="destructive"
+									size="sm"
+									@click="
+										async () => {
+											await deleter.executeMutation({ id: image.id })
+											$emit('delete', image.id)
+										}
+									"
+								>
+									{{ t('sharedButtons.delete') }}
+								</Button>
+								<Button
+									size="sm"
+									variant="secondary"
+									@click="$emit('select', image.id)"
 								>
 									{{ t('sharedButtons.select') }}
 								</Button>

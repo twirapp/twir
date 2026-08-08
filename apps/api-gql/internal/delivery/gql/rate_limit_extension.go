@@ -26,6 +26,13 @@ func (r *rateLimitExtension) Validate(schema graphql.ExecutableSchema) error {
 func (r *rateLimitExtension) InterceptResponse(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
 	rc := graphql.GetOperationContext(ctx)
 
+	// Subscriptions are long-lived streams: gqlgen runs response interceptors
+	// for every pushed event, so each event would consume a token and the
+	// stream would die with rate limit errors under any real traffic.
+	if rc.Operation != nil && rc.Operation.Operation == ast.Subscription {
+		return next(ctx)
+	}
+
 	// Skip rate limit if operation or selected schema field has @noRateLimit directive.
 	if hasNoRateLimit(rc.Operation) {
 		return next(ctx)

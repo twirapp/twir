@@ -76,6 +76,10 @@ func (f *fakeChannelsRepository) GetByID(context.Context, uuid.UUID) (channelent
 	return channelentity.Nil, nil
 }
 
+func (f *fakeChannelsRepository) GetByIDs(context.Context, []uuid.UUID) ([]channelentity.Channel, error) {
+	return nil, nil
+}
+
 func (f *fakeChannelsRepository) GetByApiKey(context.Context, string) (channelentity.Channel, error) {
 	return channelentity.Nil, nil
 }

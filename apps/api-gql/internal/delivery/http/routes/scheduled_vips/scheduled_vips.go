@@ -3,15 +3,19 @@ package scheduled_vips
 import (
 	"time"
 
-	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
-	"go.uber.org/fx"
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/scheduledvips"
 )
 
-var FxModule = fx.Provide(
-	httpbase.AsFxRoute(newCreate),
-	httpbase.AsFxRoute(newList),
-	httpbase.AsFxRoute(newDelete),
-)
+type Registration struct{}
+
+func RegisterRoutes(api huma.API, service *scheduledvips.Service, sessions *auth.Auth) Registration {
+	newCreate(CreateOpts{Service: service, Sessions: sessions}).Register(api)
+	newList(ListOpts{Service: service, Sessions: sessions}).Register(api)
+	newDelete(DeleteOpts{Service: service, Sessions: sessions}).Register(api)
+	return Registration{}
+}
 
 type scheduledVipOutputDto struct {
 	ID         string     `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`

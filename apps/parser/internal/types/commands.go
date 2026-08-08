@@ -4,6 +4,7 @@ import (
 	"context"
 
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
+	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	model "github.com/twirapp/twir/libs/gomodels"
 )
 
@@ -30,4 +31,6 @@ type DefaultCommand struct {
 	Args              []command_arguments.Arg
 	ArgsDelimiter     string
 	SkipToxicityCheck bool
+	// Platforms restricts this command to specific platforms; empty means all platforms.
+	Platforms []platformentity.Platform
 }

@@ -114,7 +114,7 @@ async function removeItem() {
 				>
 					{{ t('sharedButtons.delete') }}
 					<Icon
-						name="lucide:trash2"
+						name="lucide:trash"
 						class="ml-2 h-4 w-4"
 					/>
 				</Button>

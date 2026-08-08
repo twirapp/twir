@@ -1,11 +1,3 @@
-descriptions:
-  mmr: Show current Dota 2 MMR and medal
-  mmr_set: Set Dota 2 MMR
-  wl: Show Dota 2 session wins, losses, and win rate
-  lg: Show the latest Dota 2 game
-  gm: Show the current Dota 2 medal
-  np: Show notable players in the active Dota 2 match
-  wp: Show the streamer's win probability in the active Dota 2 match
 errors:
   settings_not_found: Dota 2 is not configured for this channel.
   disabled: Dota 2 is disabled for this channel.

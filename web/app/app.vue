@@ -3,6 +3,7 @@ import { DISCORD_INVITE_URL, GITHUB_ORG_URL, GITHUB_REPOSITORY_URL } from '@twir
 import 'vue-sonner/style.css'
 import { Toaster } from '@/components/ui/sonner'
 
+import { useAutoUpdate } from './composables/use-auto-update'
 import { ogEnMessages } from './utils/og-en-messages'
 
 interface OgImageRoute {
@@ -10,11 +11,9 @@ interface OgImageRoute {
 	readonly descriptionKey: string
 }
 
-const description =
-	'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.'
 const siteName = `Twir${import.meta.dev ? ' dev' : ''}`
 const keywords =
-	'twitch, bot, chat, moderation, moderation bot, twitch bot, twitch chat, twitch moderation, twitch moderation bot'
+	'twitch, twitch bot, twitch chat, twitch moderation, twitch moderation bot, kick, kick bot, kick chat bot, vk, vk video live, vk video live bot, vk live chat bot, youtube, youtube bot, youtube chat bot, youtube live chat bot, chat bot, moderation bot, stream bot, chat commands, chat timers, giveaways, song requests'
 
 const metaImg = '/meta.webp'
 
@@ -39,6 +38,7 @@ const route = useRoute()
 const routeBaseName = useRouteBaseName()(route)
 const ogImageRoute = routeBaseName ? ogImageRoutes[routeBaseName.toString()] : undefined
 const { t } = useI18n()
+const description = computed(() => t('site.description'))
 
 if (ogImageRoute && import.meta.server) {
 	defineOgImage('Twir', {
@@ -48,6 +48,8 @@ if (ogImageRoute && import.meta.server) {
 } else if (import.meta.server) {
 	defineOgImage('Twir', undefined, { url: metaImg })
 }
+
+useAutoUpdate()
 
 const i18nHead = useLocaleHead({ seo: true })
 useHead(() => ({
@@ -61,7 +63,7 @@ useHead(() => ({
 
 useHead({
 	title: siteName,
-	titleTemplate: (title) => (!title || title === siteName ? siteName : `${title} - ${siteName}`),
+	titleTemplate: (title) => (!title ? siteName : title.includes('Twir') ? title : `${title} - ${siteName}`),
 	meta: [
 		{ name: 'darkreader-lock', content: '' },
 		{ name: 'author', content: 'Satont, me@satont.dev' },
@@ -70,6 +72,7 @@ useHead({
 		{ name: 'description', content: description },
 	],
 	link: [
+		{ rel: 'icon', type: 'image/svg+xml', href: '/twir.svg' },
 		{ rel: 'dns-prefetch', href: 'https://static-cdn.jtvnw.net' },
 		{ rel: 'dns-prefetch', href: 'https://avatars.githubusercontent.com' },
 	],
@@ -103,7 +106,7 @@ useSchemaOrg([
 	defineWebSite({
 		name: 'Twir',
 		url: siteConfig.url,
-		description,
+		description: () => description.value,
 	}),
 ])
 </script>

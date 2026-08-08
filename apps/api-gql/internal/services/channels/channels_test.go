@@ -366,17 +366,15 @@ func channelWithBindings(
 
 func newTestService(users usersrepo.Repository, channels channelsrepo.Repository) *Service {
 	return New(
-		Opts{
-			UsersRepository:    users,
-			ChannelsRepository: channels,
-			ChannelService: channelservice.NewChannelService(
-				channels,
-				&buscore.Bus{},
-				config.Config{},
-				nil,
-				nil,
-			),
-		},
+		channels,
+		users,
+		channelservice.NewChannelService(
+			channels,
+			&buscore.Bus{},
+			config.Config{},
+			nil,
+			nil,
+		),
 	)
 }
 
@@ -463,6 +461,10 @@ func (f *fakeChannelsRepository) GetAllByBindingPlatform(context.Context, platfo
 
 func (f *fakeChannelsRepository) GetByID(context.Context, uuid.UUID) (channelentity.Channel, error) {
 	return f.channel, nil
+}
+
+func (*fakeChannelsRepository) GetByIDs(context.Context, []uuid.UUID) ([]channelentity.Channel, error) {
+	return nil, nil
 }
 
 func (f *fakeChannelsRepository) GetBySlug(context.Context, channelsrepo.GetBySlugInput) (channelentity.Channel, error) {

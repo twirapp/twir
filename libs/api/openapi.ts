@@ -37,6 +37,19 @@ export interface AuthResponseDto {
   redirect_to: string;
 }
 
+export interface AuthorizationServerMetadataResponse {
+  authorization_endpoint: string;
+  code_challenge_methods_supported: string[];
+  grant_types_supported: string[];
+  issuer: string;
+  registration_endpoint: string;
+  response_types_supported: string[];
+  revocation_endpoint: string;
+  scopes_supported: string[];
+  token_endpoint: string;
+  token_endpoint_auth_methods_supported: string[];
+}
+
 export interface BadgeWithUsers {
   /** @format int64 */
   ffzSlot: number;
@@ -71,6 +84,15 @@ export interface BaseOutputBodyJsonCustomDomainOutputDto {
    */
   $schema?: string;
   data: CustomDomainOutputDto;
+}
+
+export interface BaseOutputBodyJsonDeleteOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: DeleteOutputDto;
 }
 
 export interface BaseOutputBodyJsonIntegrationsValorantStatsOutput {
@@ -217,6 +239,15 @@ export interface BaseOutputBodyJsonPresetPatternDto {
   data: PresetPatternDto;
 }
 
+export interface BaseOutputBodyJsonProfileOutputDto {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: ProfileOutputDto;
+}
+
 export interface BaseOutputBodyJsonProfileResponseDto {
   /**
    * A URL to the JSON Schema for this object.
@@ -340,6 +371,19 @@ export interface CommandV2Dto {
   responses: KickCommandDtoResponse[];
 }
 
+export interface ConsentClientResponse {
+  id: string;
+  name: string;
+  uri?: string;
+}
+
+export interface ConsentScopeResponse {
+  actions: string[];
+  description: string;
+  group: string;
+  name: string;
+}
+
 export interface CountryStatsDto {
   /**
    * @format int64
@@ -397,6 +441,15 @@ export interface CreateLinkInputDto {
    */
   url: string;
   use_custom_domain?: boolean;
+}
+
+export interface CreateOutputBody {
+  /**
+   * A URL to the JSON Schema for this object.
+   * @format uri
+   */
+  $schema?: string;
+  data: UploadedFileWithDeleteLinkDto;
 }
 
 export interface CreatePresetInputBody {
@@ -458,6 +511,10 @@ export interface CustomDomainOutputDto {
   verification_target: string;
   verification_token: string;
   verified: boolean;
+}
+
+export interface DeleteOutputDto {
+  success: boolean;
 }
 
 export interface EndTierStruct {
@@ -683,10 +740,23 @@ export interface PresetPatternDto {
   preset_id: string;
 }
 
+export interface ProfileOutputDto {
+  files: UploadedFileOutputDto[];
+  /** @format int64 */
+  total: number;
+}
+
 export interface ProfileResponseDto {
   items: PasteBinOutputDto[];
   /** @format int64 */
   total: number;
+}
+
+export interface ProtectedResourceMetadataResponse {
+  authorization_servers: string[];
+  bearer_methods_supported: string[];
+  resource: string;
+  scopes_supported: string[];
 }
 
 export interface ScheduledVipOutputDto {
@@ -698,6 +768,17 @@ export interface ScheduledVipOutputDto {
   remove_at?: string | null;
   remove_type?: ScheduledVipOutputDtoRemoveTypeEnum;
   user_id: string;
+}
+
+export interface ScopeCatalogItem {
+  actions: string[];
+  description: string;
+  group: string;
+  name: string;
+}
+
+export interface ScopeCatalogResponse {
+  scopes: ScopeCatalogItem[];
 }
 
 export interface SeasonStruct {
@@ -888,6 +969,35 @@ export interface UpdateRequestDtoBody {
   use_custom_domain?: boolean;
 }
 
+export interface UploadedFileOutputDto {
+  /** @format date-time */
+  created_at: string;
+  /** @format date-time */
+  expires_at: string;
+  ext: string;
+  id: string;
+  link: string;
+  name: string | null;
+  /** @format int64 */
+  size: number;
+  type: string;
+}
+
+export interface UploadedFileWithDeleteLinkDto {
+  /** @format date-time */
+  created_at: string;
+  delete_link: string;
+  /** @format date-time */
+  expires_at: string;
+  ext: string;
+  id: string;
+  link: string;
+  name: string | null;
+  /** @format int64 */
+  size: number;
+  type: string;
+}
+
 export enum CommandResponseDtoCooldownTypeEnum {
   GLOBAL = "GLOBAL",
   PER_USER = "PER_USER",
@@ -913,30 +1023,35 @@ export enum StreamPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformAuthorizeParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformAuthorizeParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformCodeParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum AuthPlatformCodeParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 /** @default "views" */
@@ -955,12 +1070,14 @@ export enum PublicV2ChannelCommandsByPlatformIdParamsPlatformEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export enum PublicV2ChannelCommandsByPlatformIdParamsEnum {
   Twitch = "twitch",
   Kick = "kick",
   VkVideoLive = "vk_video_live",
+  Youtube = "youtube",
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -1185,6 +1302,83 @@ export class Api<SecurityDataType extends unknown> {
     this.http = http;
   }
 
+  wellKnown = {
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthAuthorizationServer
+ * @summary OAuth authorization server metadata
+ * @request GET:/.well-known/oauth-authorization-server
+ * @response `200` `{
+    authorization_endpoint: string,
+    code_challenge_methods_supported: (string)[],
+    grant_types_supported: (string)[],
+    issuer: string,
+    registration_endpoint: string,
+    response_types_supported: (string)[],
+    revocation_endpoint: string,
+    scopes_supported: (string)[],
+    token_endpoint: string,
+    token_endpoint_auth_methods_supported: (string)[],
+
+}` OAuth authorization server metadata
+ * @response `default` `ErrorModel` Error
+ */
+    mcpOauthAuthorizationServer: (params: RequestParams = {}) =>
+      this.http.request<
+        {
+          authorization_endpoint: string;
+          code_challenge_methods_supported: string[];
+          grant_types_supported: string[];
+          issuer: string;
+          registration_endpoint: string;
+          response_types_supported: string[];
+          revocation_endpoint: string;
+          scopes_supported: string[];
+          token_endpoint: string;
+          token_endpoint_auth_methods_supported: string[];
+        },
+        any
+      >({
+        path: `/.well-known/oauth-authorization-server`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthProtectedResource
+ * @summary OAuth protected resource metadata
+ * @request GET:/.well-known/oauth-protected-resource
+ * @response `200` `{
+    authorization_servers: (string)[],
+    bearer_methods_supported: (string)[],
+    resource: string,
+    scopes_supported: (string)[],
+
+}` OAuth protected resource metadata
+ * @response `default` `ErrorModel` Error
+ */
+    mcpOauthProtectedResource: (params: RequestParams = {}) =>
+      this.http.request<
+        {
+          authorization_servers: string[];
+          bearer_methods_supported: string[];
+          resource: string;
+          scopes_supported: string[];
+        },
+        any
+      >({
+        path: `/.well-known/oauth-protected-resource`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
   auth = {
     /**
      * No description
@@ -1304,6 +1498,30 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
+     * @name AuthYoutubeBotCallback
+     * @summary YouTube bot setup callback
+     * @request GET:/auth/youtube/bot-callback
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    authYoutubeBotCallback: (
+      query?: {
+        code?: string;
+        state?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<void, any>({
+        path: `/auth/youtube/bot-callback`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
      * @name AuthPlatformAuthorize
      * @summary Get platform OAuth authorize URL
      * @request GET:/auth/{platform}/authorize
@@ -1341,6 +1559,448 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
+  oauth = {
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthAuthorize
+ * @summary Begin OAuth authorization
+ * @request GET:/oauth/authorize
+ * @response `302` `void` Redirect to consent or the validated client callback
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid request
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Unauthorized
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthAuthorize: (
+      query?: {
+        client_id?: string;
+        redirect_uri?: string;
+        response_type?: string;
+        scope?: string;
+        state?: string;
+        resource?: string;
+        code_challenge?: string;
+        code_challenge_method?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        any,
+        void | {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/authorize`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthConsent
+ * @summary Get OAuth consent details
+ * @request GET:/oauth/consent
+ * @response `200` `{
+    channel_id: string,
+    client: ConsentClientResponse,
+    csrf_token: string,
+    requested_scopes: (ConsentScopeResponse)[],
+
+}` Consent details
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Unauthorized
+ * @response `403` `{
+    error: string,
+    error_description: string,
+
+}` Forbidden
+ * @response `404` `{
+    error: string,
+    error_description: string,
+
+}` Not found
+ * @response `410` `{
+    error: string,
+    error_description: string,
+
+}` Gone
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthConsent: (
+      query?: {
+        attempt?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        {
+          channel_id: string;
+          client: ConsentClientResponse;
+          csrf_token: string;
+          requested_scopes: ConsentScopeResponse[];
+        },
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/consent`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthConsentSubmit
+ * @summary Submit OAuth consent
+ * @request POST:/oauth/consent
+ * @response `200` `{
+    redirect_to: string,
+
+}` Authorization callback redirect
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid consent
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Unauthorized
+ * @response `403` `{
+    error: string,
+    error_description: string,
+
+}` Forbidden
+ * @response `404` `{
+    error: string,
+    error_description: string,
+
+}` Not found
+ * @response `409` `{
+    error: string,
+    error_description: string,
+
+}` Conflict
+ * @response `410` `{
+    error: string,
+    error_description: string,
+
+}` Gone
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthConsentSubmit: (
+      data: {
+        approved_scopes?: string[];
+        attempt: string;
+        channel_id: string;
+        csrf_token: string;
+        decision: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        {
+          redirect_to: string;
+        },
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/consent`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name McpOauthRegisterOptions
+     * @request OPTIONS:/oauth/register
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    mcpOauthRegisterOptions: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/oauth/register`,
+        method: "OPTIONS",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthRegister
+ * @summary Register an OAuth client
+ * @request POST:/oauth/register
+ * @response `201` `{
+    client_id: string,
+  \** @format int64 *\
+    client_id_issued_at: number,
+    client_name: string,
+    client_uri?: string,
+    grant_types: (string)[],
+    redirect_uris: (string)[],
+    response_types: (string)[],
+    scope: string,
+    token_endpoint_auth_method: string,
+
+}` Registered client
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid client metadata
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthRegister: (
+      data: {
+        client_name: string;
+        client_uri?: string;
+        grant_types: string[];
+        redirect_uris: string[];
+        response_types: string[];
+        scope: string;
+        token_endpoint_auth_method: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        {
+          client_id: string;
+          /** @format int64 */
+          client_id_issued_at: number;
+          client_name: string;
+          client_uri?: string;
+          grant_types: string[];
+          redirect_uris: string[];
+          response_types: string[];
+          scope: string;
+          token_endpoint_auth_method: string;
+        },
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/register`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name McpOauthRevokeOptions
+     * @request OPTIONS:/oauth/revoke
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    mcpOauthRevokeOptions: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/oauth/revoke`,
+        method: "OPTIONS",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthRevoke
+ * @summary Revoke an OAuth token
+ * @request POST:/oauth/revoke
+ * @response `200` `void` Token revoked
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid revoke request
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Invalid client
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthRevoke: (
+      data: {
+        client_id: string;
+        token: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        void,
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/revoke`,
+        method: "POST",
+        body: data,
+        type: ContentType.UrlEncoded,
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthScopes
+ * @summary OAuth scope catalog
+ * @request GET:/oauth/scopes
+ * @response `200` `{
+    scopes: (ScopeCatalogItem)[],
+
+}` OAuth scope catalog
+ * @response `default` `ErrorModel` Error
+ */
+    mcpOauthScopes: (params: RequestParams = {}) =>
+      this.http.request<
+        {
+          scopes: ScopeCatalogItem[];
+        },
+        any
+      >({
+        path: `/oauth/scopes`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name McpOauthTokenOptions
+     * @request OPTIONS:/oauth/token
+     * @response `204` `void` No Content
+     * @response `default` `ErrorModel` Error
+     */
+    mcpOauthTokenOptions: (params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/oauth/token`,
+        method: "OPTIONS",
+        ...params,
+      }),
+
+    /**
+ * No description
+ *
+ * @tags MCP OAuth
+ * @name McpOauthToken
+ * @summary Issue OAuth tokens
+ * @request POST:/oauth/token
+ * @response `200` `{
+    access_token: string,
+  \** @format int64 *\
+    expires_in: number,
+    refresh_token: string,
+    scope: string,
+    token_type: string,
+
+}` OAuth token set
+ * @response `400` `{
+    error: string,
+    error_description: string,
+
+}` Invalid token request
+ * @response `401` `{
+    error: string,
+    error_description: string,
+
+}` Invalid client
+ * @response `500` `{
+    error: string,
+    error_description: string,
+
+}` Server error
+ */
+    mcpOauthToken: (
+      data: {
+        client_id: string;
+        code: string;
+        code_verifier: string;
+        grant_type: string;
+        redirect_uri: string;
+        refresh_token: string;
+        resource?: string;
+        scope: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<
+        {
+          access_token: string;
+          /** @format int64 */
+          expires_in: number;
+          refresh_token: string;
+          scope: string;
+          token_type: string;
+        },
+        {
+          error: string;
+          error_description: string;
+        }
+      >({
+        path: `/oauth/token`,
+        method: "POST",
+        body: data,
+        type: ContentType.UrlEncoded,
         format: "json",
         ...params,
       }),
@@ -2330,6 +2990,135 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<TwirStatsResponseBody, any>({
         path: `/v1/twir/stats`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderServeFile
+     * @summary Serve an uploaded file
+     * @request GET:/v1/u/{publicId}
+     * @response `200` `void` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderServeFile: (publicId: string, params: RequestParams = {}) =>
+      this.http.request<void, any>({
+        path: `/v1/u/${publicId}`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderGetFiles
+     * @summary Get uploaded files
+     * @request GET:/v1/uploader/files
+     * @response `200` `BaseOutputBodyJsonProfileOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderGetFiles: (
+      query?: {
+        /**
+         * @format int64
+         * @min 0
+         * @default 0
+         */
+        page?: number;
+        /**
+         * @format int64
+         * @min 1
+         * @max 50
+         * @default 10
+         */
+        per_page?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonProfileOutputDto, any>({
+        path: `/v1/uploader/files`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderUploadFile
+     * @summary Upload a file
+     * @request POST:/v1/uploader/files
+     * @response `200` `CreateOutputBody` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderUploadFile: (
+      data: {
+        /** @format binary */
+        file: File;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<CreateOutputBody, any>({
+        path: `/v1/uploader/files`,
+        method: "POST",
+        body: data,
+        type: ContentType.FormData,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderDeleteFileByKey
+     * @summary Delete an uploaded file by key
+     * @request GET:/v1/uploader/files/delete
+     * @response `200` `BaseOutputBodyJsonDeleteOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderDeleteFileByKey: (
+      query: {
+        key: string;
+        id: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonDeleteOutputDto, any>({
+        path: `/v1/uploader/files/delete`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Uploader
+     * @name UploaderDeleteFile
+     * @summary Delete an uploaded file
+     * @request DELETE:/v1/uploader/files/{publicId}
+     * @response `200` `BaseOutputBodyJsonDeleteOutputDto` OK
+     * @response `default` `ErrorModel` Error
+     */
+    uploaderDeleteFile: (
+      publicId: string,
+      query?: {
+        key?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.http.request<BaseOutputBodyJsonDeleteOutputDto, any>({
+        path: `/v1/uploader/files/${publicId}`,
+        method: "DELETE",
+        query: query,
         format: "json",
         ...params,
       }),

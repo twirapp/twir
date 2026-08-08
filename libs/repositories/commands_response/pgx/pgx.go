@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_response/model"
@@ -44,9 +45,9 @@ func (c *Pgx) Create(ctx context.Context, input commands_response.CreateInput) (
 	error,
 ) {
 	query := `
-INSERT INTO channels_commands_responses("commandId", "order", text, twitch_category_id, online_only, offline_only)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, "commandId", "order", text, twitch_category_id, online_only, offline_only;
+INSERT INTO channels_commands_responses("commandId", "order", text, twitch_category_id, online_only, offline_only, platforms)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, "commandId", "order", text, twitch_category_id, online_only, offline_only, platforms;
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -59,6 +60,7 @@ RETURNING id, "commandId", "order", text, twitch_category_id, online_only, offli
 		append([]string{}, input.TwitchCategoryIDs...),
 		input.OnlineOnly,
 		input.OfflineOnly,
+		append([]platform.Platform{}, input.Platforms...),
 	)
 	if err != nil {
 		return model.Nil, err
@@ -81,7 +83,7 @@ func (c *Pgx) GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
 	}
 
 	query := `
-SELECT id, "commandId", "order", text, twitch_category_id, online_only, offline_only
+SELECT id, "commandId", "order", text, twitch_category_id, online_only, offline_only, platforms
 FROM channels_commands_responses
 WHERE "commandId" = any($1);
 `
@@ -138,6 +140,7 @@ func (c *Pgx) Update(
 			`RETURNING id, "commandId", "order", text, twitch_category_id`,
 			"online_only",
 			"offline_only",
+			"platforms",
 		)
 	updateBuilder = repositories.SquirrelApplyPatch(
 		updateBuilder,
@@ -147,6 +150,7 @@ func (c *Pgx) Update(
 			"twitch_category_id": input.TwitchCategoryIDs,
 			"online_only":        input.OnlineOnly,
 			"offline_only":       input.OfflineOnly,
+			"platforms":          input.Platforms,
 		},
 	)
 

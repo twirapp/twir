@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twir — Multi-platform navbar variants</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --card:#131313;
+    --card2:#0d0d0d;
+    --pop:#181818;
+    --border:rgba(255,255,255,.1);
+    --border-soft:rgba(255,255,255,.08);
+    --widget:rgba(255,255,255,.05);
+    --text:#fafafa;
+    --muted:#a1a1aa;
+    --dim:#71717a;
+    --twitch:#9146FF;
+    --kick:#53FC18;
+    --vk:#0077FF;
+    --live:#ef4444;
+    --ok:#22c55e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg)}
+  body{
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  button{background:none;border:none;font:inherit;color:inherit;cursor:pointer}
+
+  .page{max-width:1500px;margin:0 auto;padding:48px 28px 110px}
+
+  /* ---------- page head ---------- */
+  .page-head h1{font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .page-head p{margin-top:6px;font-size:13px;color:var(--muted);line-height:1.55;max-width:880px}
+  .page-head{margin-bottom:44px}
+
+  /* ---------- variant sections ---------- */
+  .variant{margin-bottom:84px}
+  /* clearance for popovers rendered in open state */
+  .variant.v-open-sm{margin-bottom:280px}
+  .variant.v-open-lg{margin-bottom:480px}
+  .v-head{display:flex;align-items:center;gap:10px}
+  .v-num{
+    width:26px;height:26px;flex:none;border-radius:8px;
+    background:rgba(255,255,255,.06);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;color:var(--muted);
+  }
+  .v-head h2{font-size:16px;font-weight:650;letter-spacing:-.01em}
+  .v-cap{
+    margin:10px 0 22px 36px;
+    font-size:13px;line-height:1.65;color:var(--muted);max-width:900px;
+  }
+  .v-cap b{color:#d4d4d8;font-weight:600}
+
+  /* ---------- navbar frame ---------- */
+  .navbar{
+    display:flex;align-items:center;gap:8px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:8px 14px;
+    position:relative;
+  }
+  .navbar.two-tier{flex-direction:column;align-items:stretch;gap:0;padding:0}
+  .tier-1{display:flex;align-items:center;gap:8px;padding:8px 14px}
+  .spacer{flex:1;min-width:8px}
+  .divider{width:1px;align-self:stretch;margin:7px 4px;background:var(--border);flex:none}
+
+  /* ---------- logo ---------- */
+  .logo{display:flex;align-items:center;gap:9px;margin-right:6px;flex:none}
+  .logo-mark{
+    width:30px;height:30px;border-radius:8px;
+    background:linear-gradient(135deg,#7c3aed,#4f46e5);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;
+    box-shadow:0 2px 10px rgba(124,58,237,.35);
+  }
+  .logo-name{font-size:15px;font-weight:700;letter-spacing:.01em}
+
+  /* ---------- stat widget ---------- */
+  .stat{
+    display:flex;flex-direction:column;justify-content:center;gap:2px;
+    background:var(--widget);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:8px 12px;
+    min-height:52px;
+    flex:none;
+  }
+  .stat.clickable{cursor:pointer;transition:border-color .12s ease}
+  .stat.clickable:hover{border-color:rgba(255,255,255,.22)}
+  .stat-value{
+    font-size:16px;font-weight:600;line-height:1.2;color:var(--text);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .stat-label{font-size:11px;line-height:1.25;color:var(--muted);white-space:nowrap}
+  .v-line{display:flex;align-items:center;gap:7px}
+  .chev{width:13px;height:13px;color:var(--dim);flex:none}
+
+  /* ---------- per-platform rows inside widgets (V2) ---------- */
+  .prow{
+    display:flex;align-items:center;gap:6px;
+    font-size:13px;font-weight:600;line-height:1.3;
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .prow .bi{width:11px;height:11px;flex:none}
+  .prow.dim{opacity:.42}
+  .stat-rows{display:flex;flex-direction:column;gap:3px;margin-top:3px}
+
+  /* ---------- platform icon chips ---------- */
+  .pchip{
+    width:22px;height:22px;border-radius:6px;flex:none;
+    display:inline-flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .pchip .bi{width:12px;height:12px}
+  .p-twitch{background:rgba(145,70,255,.16);color:var(--twitch)}
+  .p-kick{background:rgba(83,252,24,.12);color:var(--kick)}
+  .p-vk{background:rgba(0,119,255,.16);color:var(--vk)}
+  .has-live::after{
+    content:"";position:absolute;top:-3px;right:-3px;
+    width:8px;height:8px;border-radius:50%;
+    background:var(--live);border:2px solid var(--card);
+  }
+  .pop .has-live::after{border-color:var(--pop)}
+
+  /* ---------- overlapping cluster ---------- */
+  .cluster{display:inline-flex;align-items:center;flex:none}
+  .cluster .pchip{width:20px;height:20px;border-radius:7px;border:2px solid var(--card);margin-left:-7px}
+  .cluster .pchip:first-child{margin-left:0}
+  .cluster .pchip .bi{width:10px;height:10px}
+  .mini-cluster{display:inline-flex;align-items:center;flex:none}
+  .mini-cluster .pchip{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--card);margin-left:-5px}
+  .mini-cluster .pchip:first-child{margin-left:0}
+  .mini-cluster .pchip .bi{width:7px;height:7px}
+
+  /* ---------- title widget ---------- */
+  .title-widget{
+    display:flex;align-items:center;gap:10px;
+    background:var(--widget);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:8px 10px 8px 12px;
+    min-height:52px;
+    max-width:290px;min-width:0;flex:none;
+  }
+  .title-widget.trigger{cursor:pointer;transition:border-color .12s ease}
+  .title-widget.trigger:hover{border-color:rgba(255,255,255,.22)}
+  .tw-text{min-width:0;display:flex;flex-direction:column;gap:1px;flex:1}
+  .tw-title{
+    font-size:13px;font-weight:600;line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .tw-cat{
+    font-size:11px;line-height:1.3;color:var(--muted);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .icon-btn{
+    width:28px;height:28px;border-radius:6px;flex:none;
+    display:inline-flex;align-items:center;justify-content:center;
+    color:var(--muted);transition:background .12s ease,color .12s ease;
+  }
+  .icon-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+  .icon-btn .li{width:13px;height:13px}
+
+  /* ---------- segmented control (V1) ---------- */
+  .seg{
+    display:flex;gap:2px;flex:none;
+    background:var(--widget);border:1px solid var(--border);
+    border-radius:8px;padding:3px;
+  }
+  .seg-btn{
+    position:relative;width:34px;height:30px;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .12s ease;
+  }
+  .seg-btn:hover{background:rgba(255,255,255,.06)}
+  .seg-btn .bi{width:15px;height:15px;opacity:.4;transition:opacity .12s ease}
+  .seg-btn.active{background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+  .seg-btn.active .bi{opacity:1}
+  .off-dot{
+    position:absolute;top:4px;right:4px;width:6px;height:6px;
+    border-radius:50%;background:#52525b;border:1.5px solid var(--card);
+  }
+
+  /* ---------- popovers ---------- */
+  .anchor{position:relative;flex:none}
+  .pop{
+    position:absolute;top:calc(100% + 8px);left:0;z-index:30;
+    background:var(--pop);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:12px;
+    box-shadow:0 18px 50px rgba(0,0,0,.65),0 2px 8px rgba(0,0,0,.4);
+    padding:8px;
+  }
+  .pop.w-titles{width:392px}
+  .pop.w-breakdown{width:472px}
+  .pop-title{
+    font-size:10px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--dim);
+    padding:6px 8px 4px;
+  }
+  .pop-row{
+    display:flex;align-items:center;gap:10px;
+    padding:8px;border-radius:8px;
+    transition:background .12s ease;
+  }
+  .pop-row:hover{background:rgba(255,255,255,.045)}
+  .pop-row.off{opacity:.55}
+  .pop-div{height:1px;background:var(--border-soft);margin:6px 4px}
+
+  /* ---------- breakdown table (V3) ---------- */
+  .bd-row{
+    display:grid;grid-template-columns:1fr 64px 78px 76px;
+    align-items:center;gap:8px;
+    padding:7px 8px;font-size:13px;border-radius:8px;
+  }
+  .bd-row:not(.bd-head):hover{background:rgba(255,255,255,.045)}
+  .bd-row > span:not(:first-child){
+    text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .bd-head{
+    font-size:10px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--dim);padding:4px 8px 6px;
+  }
+  .bd-head > span:not(:first-child){font-weight:700}
+  .bd-plat{display:flex;align-items:center;gap:8px;font-weight:600;min-width:0}
+  .bd-row.off{opacity:.5}
+
+  /* ---------- live / offline ---------- */
+  .live{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--live);
+  }
+  .live .dot{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 0 3px rgba(239,68,68,.16)}
+  .live-pill{
+    font-size:9px;font-weight:800;letter-spacing:.07em;color:#fff;
+    background:var(--live);border-radius:4px;padding:2.5px 6px;flex:none;
+  }
+  .off-badge{
+    font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--muted);
+    background:rgba(255,255,255,.07);border-radius:4px;padding:2px 7px;flex:none;
+  }
+
+  /* ---------- right cluster ---------- */
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;flex:none;
+    padding:6px 11px;border-radius:999px;
+    background:var(--widget);border:1px solid var(--border);
+    font-size:12px;color:#e4e4e7;white-space:nowrap;
+  }
+  .dot-green{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+  .user{display:flex;align-items:center;gap:9px;flex:none;margin-left:4px}
+  .avatar{
+    width:32px;height:32px;border-radius:50%;flex:none;
+    background:linear-gradient(135deg,#52525b,#3f3f46);
+    border:1px solid rgba(255,255,255,.12);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:#d4d4d8;
+  }
+  .username{font-size:13px;font-weight:500;color:#e4e4e7;white-space:nowrap}
+
+  /* ---------- two-tier subbar (V4) ---------- */
+  .subbar{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 10px;
+    border-top:1px solid var(--border-soft);
+    background:var(--card2);
+    border-radius:0 0 11px 11px;
+    overflow-x:auto;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(255,255,255,.14) transparent;
+  }
+  .subbar::-webkit-scrollbar{height:6px}
+  .subbar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:3px}
+  .subbar::-webkit-scrollbar-track{background:transparent}
+  .strip{
+    display:flex;align-items:center;gap:8px;flex:none;min-width:0;
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--border-soft);
+    border-radius:8px;
+    padding:5px 8px;
+  }
+  .strip.off{opacity:.55}
+  .st-title{
+    font-size:12px;font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    max-width:135px;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .mini-edit{
+    display:inline-flex;align-items:center;color:var(--dim);flex:none;
+    transition:color .12s ease;
+  }
+  .mini-edit:hover{color:var(--text)}
+  .mini-edit .li{width:11px;height:11px}
+  .cat-chip{
+    font-size:11px;color:var(--muted);white-space:nowrap;flex:none;
+    max-width:120px;overflow:hidden;text-overflow:ellipsis;
+    background:rgba(255,255,255,.05);border:1px solid var(--border-soft);
+    border-radius:999px;padding:2px 8px;
+  }
+  .meta{
+    display:inline-flex;align-items:center;gap:5px;flex:none;
+    font-size:12px;font-weight:600;color:#e4e4e7;
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .meta .li{width:12px;height:12px;color:var(--dim)}
+  .strip-sep{width:1px;height:18px;background:var(--border-soft);flex:none}
+
+  /* ---------- icon primitives ---------- */
+  .bi{fill:currentColor;stroke:none;display:block}
+  .li{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+</style>
+</head>
+<body>
+
+<!-- ==================== ICON DEFS ==================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo-twitch" viewBox="0 0 24 24">
+      <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+    </symbol>
+    <symbol id="logo-kick" viewBox="0 0 24 24">
+      <path d="M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8v-8H4v-2.667H1.333v-2.666H4V8H1.333V0z"/>
+    </symbol>
+    <symbol id="logo-vk" viewBox="0 0 24 24">
+      <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.254-1.406 2.151-3.574 2.151-3.574.119-.254.322-.491.763-.491h1.744c.525 0 .644.27.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.78 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.745-.576.745z"/>
+    </symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24">
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>
+    </symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </symbol>
+    <symbol id="i-userplus" viewBox="0 0 24 24">
+      <path d="M2 21a8 8 0 0 1 13.292-6"/><circle cx="10" cy="8" r="5"/>
+      <path d="M19 16v6"/><path d="M22 19h-6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <div class="page-head">
+    <h1>Twir — navbar variants for multi-platform streams</h1>
+    <p>Стример одновременно в эфире на <b>Twitch</b> и <b>Kick</b>, VK — офлайн. Четыре варианта редизайна шапки дашборда: одинаковые мок-данные, одинаковые токены, различается только подход к per-platform данным. Поповеры отрендерены в открытом состоянии.</p>
+  </div>
+
+  <!-- ==================== VARIANT 1 ==================== -->
+  <section class="variant">
+    <div class="v-head">
+      <span class="v-num">1</span>
+      <h2>Вариант 1 — Переключатель платформ (segmented tabs)</h2>
+    </div>
+    <p class="v-cap">
+      Навбар всегда показывает <b>одну выбранную платформу</b> — вид максимально чистый и знакомый по текущему дизайну, ширина шапки не растёт с числом платформ. Глобальные метрики (сообщения, эмоуты, песни) отделены divider'ом и не меняются при переключении.
+      <b>Минус:</b> зрителей Twitch и Kick нельзя сравнить одновременно — нужно переключаться туда-сюда.
+    </p>
+
+    <header class="navbar">
+      <div class="logo"><span class="logo-mark">T</span><span class="logo-name">Twir</span></div>
+
+      <div class="seg" role="tablist" aria-label="Platform">
+        <button class="seg-btn active" role="tab" aria-selected="true" title="Twitch — live">
+          <svg class="bi" style="color:var(--twitch)"><use href="#logo-twitch"/></svg>
+        </button>
+        <button class="seg-btn" role="tab" aria-selected="false" title="Kick — live">
+          <svg class="bi" style="color:var(--kick)"><use href="#logo-kick"/></svg>
+        </button>
+        <button class="seg-btn" role="tab" aria-selected="false" title="VK — offline">
+          <svg class="bi" style="color:var(--vk)"><use href="#logo-vk"/></svg>
+          <span class="off-dot"></span>
+        </button>
+      </div>
+
+      <div class="title-widget">
+        <span class="pchip p-twitch has-live"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+        <div class="tw-text">
+          <span class="tw-title">Go, Vue · гнить в комнате вертикально</span>
+          <span class="tw-cat">Software and Game Development</span>
+        </div>
+        <button class="icon-btn" title="Edit title &amp; category"><svg class="li"><use href="#i-pencil"/></svg></button>
+      </div>
+
+      <span class="divider"></span>
+
+      <div class="stat"><span class="stat-value">03:06:37</span><span class="stat-label">Uptime</span></div>
+      <div class="stat"><span class="stat-value">21</span><span class="stat-label">Viewers</span></div>
+      <div class="stat"><span class="stat-value">126</span><span class="stat-label">Followers</span></div>
+
+      <span class="divider"></span>
+
+      <div class="stat"><span class="stat-value">164</span><span class="stat-label">Messages</span></div>
+      <div class="stat"><span class="stat-value">3</span><span class="stat-label">Subs</span></div>
+      <div class="stat"><span class="stat-value">0</span><span class="stat-label">Emotes sent</span></div>
+      <div class="stat"><span class="stat-value">0</span><span class="stat-label">Songs</span></div>
+
+      <div class="spacer"></div>
+
+      <span class="chip"><span class="dot-green"></span>Bot online</span>
+      <div class="user"><span class="avatar">J</span><span class="username">justovich221337</span></div>
+    </header>
+  </section>
+
+  <!-- ==================== VARIANT 2 ==================== -->
+  <section class="variant v-open-sm">
+    <div class="v-head">
+      <span class="v-num">2</span>
+      <h2>Вариант 2 — Значения по платформам внутри виджетов</h2>
+    </div>
+    <p class="v-cap">
+      Все данные видны <b>сразу, без кликов</b>: внутри виджетов Viewers и Followers — компактные строки по каждой платформе с брендовыми иконками. Редактирование тайтлов вынесено в поповер (на скриншоте открыт): у каждой платформы своя строка с названием, категорией и карандашом.
+      <b>Минус:</b> виджеты становятся выше, навбар визуально тяжелее; при 4+ платформах строки придётся обрезать.
+    </p>
+
+    <header class="navbar">
+      <div class="logo"><span class="logo-mark">T</span><span class="logo-name">Twir</span></div>
+
+      <div class="anchor">
+        <button class="title-widget trigger">
+          <span class="cluster">
+            <span class="pchip p-twitch"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+            <span class="pchip p-kick"><svg class="bi"><use href="#logo-kick"/></svg></span>
+            <span class="pchip p-vk"><svg class="bi"><use href="#logo-vk"/></svg></span>
+          </span>
+          <div class="tw-text">
+            <span class="tw-title">Stream titles</span>
+            <span class="tw-cat">2 live · 3 platforms</span>
+          </div>
+          <svg class="li chev"><use href="#i-chevron"/></svg>
+        </button>
+
+        <div class="pop w-titles">
+          <div class="pop-title">Stream titles &amp; categories</div>
+
+          <div class="pop-row">
+            <span class="pchip p-twitch has-live"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+            <div class="tw-text">
+              <span class="tw-title">Go, Vue · гнить в комнате вертикально</span>
+              <span class="tw-cat">Software and Game Development · 03:06:37</span>
+            </div>
+            <button class="icon-btn" title="Edit Twitch title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          </div>
+
+          <div class="pop-row">
+            <span class="pchip p-kick has-live"><svg class="bi"><use href="#logo-kick"/></svg></span>
+            <div class="tw-text">
+              <span class="tw-title">Coding stream · !bot</span>
+              <span class="tw-cat">Just Chatting · 01:12:40</span>
+            </div>
+            <button class="icon-btn" title="Edit Kick title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          </div>
+
+          <div class="pop-row off">
+            <span class="pchip p-vk"><svg class="bi"><use href="#logo-vk"/></svg></span>
+            <div class="tw-text">
+              <span class="tw-title">Вечерний стрим</span>
+              <span class="tw-cat">Programming · Offline</span>
+            </div>
+            <button class="icon-btn" title="Edit VK title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <span class="divider"></span>
+
+      <div class="stat">
+        <span class="stat-label">Viewers</span>
+        <div class="stat-rows">
+          <span class="prow"><svg class="bi" style="color:var(--twitch)"><use href="#logo-twitch"/></svg>21</span>
+          <span class="prow"><svg class="bi" style="color:var(--kick)"><use href="#logo-kick"/></svg>12</span>
+        </div>
+      </div>
+
+      <div class="stat">
+        <span class="stat-label">Followers</span>
+        <div class="stat-rows">
+          <span class="prow"><svg class="bi" style="color:var(--twitch)"><use href="#logo-twitch"/></svg>126</span>
+          <span class="prow"><svg class="bi" style="color:var(--kick)"><use href="#logo-kick"/></svg>48</span>
+          <span class="prow dim"><svg class="bi" style="color:var(--vk)"><use href="#logo-vk"/></svg>512</span>
+        </div>
+      </div>
+
+      <span class="divider"></span>
+
+      <div class="stat"><span class="stat-value">164</span><span class="stat-label">Messages</span></div>
+      <div class="stat"><span class="stat-value">3</span><span class="stat-label">Subs</span></div>
+      <div class="stat"><span class="stat-value">0</span><span class="stat-label">Emotes sent</span></div>
+      <div class="stat"><span class="stat-value">0</span><span class="stat-label">Songs</span></div>
+
+      <div class="spacer"></div>
+
+      <span class="chip"><span class="dot-green"></span>Bot online</span>
+      <div class="user"><span class="avatar">J</span><span class="username">justovich221337</span></div>
+    </header>
+  </section>
+
+  <!-- ==================== VARIANT 3 ==================== -->
+  <section class="variant v-open-lg">
+    <div class="v-head">
+      <span class="v-num">3</span>
+      <h2>Вариант 3 — Агрегированная сумма + поповер с деталями</h2>
+    </div>
+    <p class="v-cap">
+      <b>Самый чистый навбар:</b> в шапке только суммы (33 зрителя, 686 фолловеров) и кластер иконок платформ, а вся детализация — в поповере по клику: зрители, фолловеры, аптайм и редактирование тайтлов каждой платформы. Отлично масштабируется на любое число платформ.
+      <b>Минус:</b> per-platform данные скрыты за кликом, а сумма зрителей с разных площадок может вводить в заблуждение.
+    </p>
+
+    <header class="navbar">
+      <div class="logo"><span class="logo-mark">T</span><span class="logo-name">Twir</span></div>
+
+      <button class="title-widget trigger">
+        <span class="cluster">
+          <span class="pchip p-twitch"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+          <span class="pchip p-kick"><svg class="bi"><use href="#logo-kick"/></svg></span>
+          <span class="pchip p-vk"><svg class="bi"><use href="#logo-vk"/></svg></span>
+        </span>
+        <div class="tw-text">
+          <span class="tw-title">Stream titles</span>
+          <span class="tw-cat">2 live · 3 platforms</span>
+        </div>
+        <svg class="li chev"><use href="#i-chevron"/></svg>
+      </button>
+
+      <span class="divider"></span>
+
+      <div class="stat"><span class="stat-value">03:06:37</span><span class="stat-label">Max uptime</span></div>
+
+      <div class="anchor">
+        <div class="stat clickable">
+          <div class="v-line">
+            <span class="stat-value">33</span>
+            <span class="mini-cluster">
+              <span class="pchip p-twitch"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+              <span class="pchip p-kick"><svg class="bi"><use href="#logo-kick"/></svg></span>
+              <span class="pchip p-vk"><svg class="bi"><use href="#logo-vk"/></svg></span>
+            </span>
+            <svg class="li chev"><use href="#i-chevron"/></svg>
+          </div>
+          <span class="stat-label">Viewers · all platforms</span>
+        </div>
+
+        <div class="pop w-breakdown">
+          <div class="pop-title">Platforms breakdown</div>
+
+          <div class="bd-row bd-head"><span>Platform</span><span>Viewers</span><span>Followers</span><span>Uptime</span></div>
+
+          <div class="bd-row">
+            <span class="bd-plat">
+              <span class="pchip p-twitch has-live"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+              Twitch
+            </span>
+            <span>21</span><span>126</span><span>03:06:37</span>
+          </div>
+          <div class="bd-row">
+            <span class="bd-plat">
+              <span class="pchip p-kick has-live"><svg class="bi"><use href="#logo-kick"/></svg></span>
+              Kick
+            </span>
+            <span>12</span><span>48</span><span>01:12:40</span>
+          </div>
+          <div class="bd-row off">
+            <span class="bd-plat">
+              <span class="pchip p-vk"><svg class="bi"><use href="#logo-vk"/></svg></span>
+              VK&nbsp;<span class="off-badge">Offline</span>
+            </span>
+            <span>0</span><span>512</span><span>—</span>
+          </div>
+
+          <div class="pop-div"></div>
+          <div class="pop-title">Stream titles &amp; categories</div>
+
+          <div class="pop-row">
+            <span class="pchip p-twitch"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+            <div class="tw-text">
+              <span class="tw-title">Go, Vue · гнить в комнате вертикально</span>
+              <span class="tw-cat">Software and Game Development</span>
+            </div>
+            <button class="icon-btn" title="Edit Twitch title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          </div>
+          <div class="pop-row">
+            <span class="pchip p-kick"><svg class="bi"><use href="#logo-kick"/></svg></span>
+            <div class="tw-text">
+              <span class="tw-title">Coding stream · !bot</span>
+              <span class="tw-cat">Just Chatting</span>
+            </div>
+            <button class="icon-btn" title="Edit Kick title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          </div>
+          <div class="pop-row off">
+            <span class="pchip p-vk"><svg class="bi"><use href="#logo-vk"/></svg></span>
+            <div class="tw-text">
+              <span class="tw-title">Вечерний стрим</span>
+              <span class="tw-cat">Programming</span>
+            </div>
+            <button class="icon-btn" title="Edit VK title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat clickable">
+        <div class="v-line">
+          <span class="stat-value">686</span>
+          <span class="mini-cluster">
+            <span class="pchip p-twitch"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+            <span class="pchip p-kick"><svg class="bi"><use href="#logo-kick"/></svg></span>
+            <span class="pchip p-vk"><svg class="bi"><use href="#logo-vk"/></svg></span>
+          </span>
+          <svg class="li chev"><use href="#i-chevron"/></svg>
+        </div>
+        <span class="stat-label">Followers · all platforms</span>
+      </div>
+
+      <span class="divider"></span>
+
+      <div class="stat"><span class="stat-value">164</span><span class="stat-label">Messages</span></div>
+      <div class="stat"><span class="stat-value">3</span><span class="stat-label">Subs</span></div>
+      <div class="stat"><span class="stat-value">0</span><span class="stat-label">Emotes sent</span></div>
+      <div class="stat"><span class="stat-value">0</span><span class="stat-label">Songs</span></div>
+
+      <div class="spacer"></div>
+
+      <span class="chip"><span class="dot-green"></span>Bot online</span>
+      <div class="user"><span class="avatar">J</span><span class="username">justovich221337</span></div>
+    </header>
+  </section>
+
+  <!-- ==================== VARIANT 4 ==================== -->
+  <section class="variant">
+    <div class="v-head">
+      <span class="v-num">4</span>
+      <h2>Вариант 4 — Двухъярусный хедер</h2>
+    </div>
+    <p class="v-cap">
+      Верхняя строка — только <b>глобальные метрики</b> и профиль; нижняя — компактная лента со <b>всеми платформами сразу</b>: статус, тайтл с инлайн-редактированием, категория, аптайм, зрители и фолловеры. Офлайн-платформа (VK) приглушена и помечена бейджом.
+      При большом числе платформ лента скроллится горизонтально. <b>Минус:</b> максимальная высота хедера из всех вариантов.
+    </p>
+
+    <header class="navbar two-tier">
+      <div class="tier-1">
+        <div class="logo"><span class="logo-mark">T</span><span class="logo-name">Twir</span></div>
+
+        <div class="stat"><span class="stat-value">164</span><span class="stat-label">Messages</span></div>
+        <div class="stat"><span class="stat-value">3</span><span class="stat-label">Subs</span></div>
+        <div class="stat"><span class="stat-value">0</span><span class="stat-label">Emotes sent</span></div>
+        <div class="stat"><span class="stat-value">0</span><span class="stat-label">Songs</span></div>
+
+        <div class="spacer"></div>
+
+        <span class="chip"><span class="dot-green"></span>Bot online</span>
+        <div class="user"><span class="avatar">J</span><span class="username">justovich221337</span></div>
+      </div>
+
+      <div class="subbar">
+        <div class="strip">
+          <span class="pchip p-twitch"><svg class="bi"><use href="#logo-twitch"/></svg></span>
+          <span class="live-pill">LIVE</span>
+          <span class="st-title">Go, Vue · гнить в комнате вертикально</span>
+          <button class="mini-edit" title="Edit title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          <span class="cat-chip">Software and Game Development</span>
+          <span class="meta"><svg class="li"><use href="#i-clock"/></svg>03:06:37</span>
+          <span class="meta"><svg class="li"><use href="#i-users"/></svg>21</span>
+          <span class="meta"><svg class="li"><use href="#i-userplus"/></svg>126</span>
+        </div>
+
+        <div class="strip">
+          <span class="pchip p-kick"><svg class="bi"><use href="#logo-kick"/></svg></span>
+          <span class="live-pill">LIVE</span>
+          <span class="st-title">Coding stream · !bot</span>
+          <button class="mini-edit" title="Edit title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          <span class="cat-chip">Just Chatting</span>
+          <span class="meta"><svg class="li"><use href="#i-clock"/></svg>01:12:40</span>
+          <span class="meta"><svg class="li"><use href="#i-users"/></svg>12</span>
+          <span class="meta"><svg class="li"><use href="#i-userplus"/></svg>48</span>
+        </div>
+
+        <div class="strip off">
+          <span class="pchip p-vk"><svg class="bi"><use href="#logo-vk"/></svg></span>
+          <span class="off-badge">Offline</span>
+          <span class="st-title">Вечерний стрим</span>
+          <button class="mini-edit" title="Edit title"><svg class="li"><use href="#i-pencil"/></svg></button>
+          <span class="cat-chip">Programming</span>
+          <span class="meta"><svg class="li"><use href="#i-users"/></svg>0</span>
+          <span class="meta"><svg class="li"><use href="#i-userplus"/></svg>512</span>
+        </div>
+      </div>
+    </header>
+  </section>
+
+</div>
+</body>
+</html>

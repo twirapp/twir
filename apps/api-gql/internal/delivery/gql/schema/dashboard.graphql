@@ -19,6 +19,21 @@ type DashboardStats {
 	usedEmotes: Int!
 	requestedSongs: Int!
 	subs: Int!
+	platforms: [DashboardPlatformStats!]!
+}
+
+type DashboardPlatformStats {
+	platform: Platform!
+	isLive: Boolean!
+	title: String
+	categoryId: ID
+	categoryName: String
+	viewers: Int
+	followers: Int
+	startedAt: Time
+	chatMessages: Int!
+	usedEmotes: Int!
+	canEditInfo: Boolean!
 }
 
 type BotStatus {

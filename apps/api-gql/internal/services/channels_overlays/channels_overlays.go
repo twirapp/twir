@@ -19,28 +19,23 @@ import (
 	"github.com/twirapp/twir/libs/repositories/plans"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	OverlaysRepository channels_overlays.Repository
-	ChannelService     *channelservice.ChannelService
-	PlansRepository    plans.Repository
-	AuditRecorder      audit.Recorder
-	Bus                *buscore.Bus
-	WsRouter           wsrouter.WsRouter
-}
-
-func New(opts Opts) *Service {
+func New(
+	overlaysRepository channels_overlays.Repository,
+	channelService *channelservice.ChannelService,
+	plansRepository plans.Repository,
+	auditRecorder audit.Recorder,
+	bus *buscore.Bus,
+	wsRouter wsrouter.WsRouter,
+) *Service {
 	return &Service{
-		overlaysRepository: opts.OverlaysRepository,
-		channelService:     opts.ChannelService,
-		plansRepository:    opts.PlansRepository,
-		auditRecorder:      opts.AuditRecorder,
-		bus:                opts.Bus,
-		wsRouter:           opts.WsRouter,
+		overlaysRepository: overlaysRepository,
+		channelService:     channelService,
+		plansRepository:    plansRepository,
+		auditRecorder:      auditRecorder,
+		bus:                bus,
+		wsRouter:           wsRouter,
 	}
 }
 
@@ -59,12 +54,32 @@ func (s *Service) modelToEntity(m model.Overlay) customoverlayentity.ChannelOver
 		layers[i] = customoverlayentity.ChannelOverlayLayer{
 			ID:   l.ID,
 			Type: customoverlayentity.ChannelOverlayType(l.Type),
+			Name: l.Name,
 			Settings: customoverlayentity.ChannelOverlayLayerSettings{
-				HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
-				HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
-				HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
-				HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
-				ImageUrl:                           l.Settings.ImageUrl,
+			HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
+			HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
+			HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
+			HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
+			ImageUrl:                           l.Settings.ImageUrl,
+			TextContent:                        l.Settings.TextContent,
+			TextFontFamily:                     l.Settings.TextFontFamily,
+			TextFontSize:                       l.Settings.TextFontSize,
+			TextFontWeight:                     l.Settings.TextFontWeight,
+			TextColor:                          l.Settings.TextColor,
+			TextAlign:                          l.Settings.TextAlign,
+			VideoUrl:                           l.Settings.VideoUrl,
+			VideoLoop:                          l.Settings.VideoLoop,
+			VideoMuted:                         l.Settings.VideoMuted,
+			IframeUrl:                          l.Settings.IframeUrl,
+			IframeScale:                        l.Settings.IframeScale,
+			WidgetKey:                          l.Settings.WidgetKey,
+			YoutubeVideoID:                     l.Settings.YoutubeVideoID,
+			YoutubeAutoplay:                    l.Settings.YoutubeAutoplay,
+			YoutubeLoop:                        l.Settings.YoutubeLoop,
+			YoutubeMuted:                       l.Settings.YoutubeMuted,
+			EmoteUrl:                           l.Settings.EmoteUrl,
+			EmoteName:                          l.Settings.EmoteName,
+			EmoteProvider:                      l.Settings.EmoteProvider,
 			},
 			OverlayID:               l.OverlayID,
 			PosX:                    l.PosX,
@@ -78,6 +93,7 @@ func (s *Service) modelToEntity(m model.Overlay) customoverlayentity.ChannelOver
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 
@@ -122,6 +138,7 @@ func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (customoverlayentit
 
 type CreateLayerInput struct {
 	Type                    customoverlayentity.ChannelOverlayType
+	Name                    string
 	Settings                customoverlayentity.ChannelOverlayLayerSettings
 	PosX                    int
 	PosY                    int
@@ -132,11 +149,13 @@ type CreateLayerInput struct {
 	Locked                  bool
 	Visible                 bool
 	Opacity                 float64
+	ZIndex                  int
 }
 
 type UpdateLayerInput struct {
 	ID                      *uuid.UUID
 	Type                    customoverlayentity.ChannelOverlayType
+	Name                    string
 	Settings                customoverlayentity.ChannelOverlayLayerSettings
 	PosX                    int
 	PosY                    int
@@ -147,6 +166,7 @@ type UpdateLayerInput struct {
 	Locked                  bool
 	Visible                 bool
 	Opacity                 float64
+	ZIndex                  int
 }
 
 type CreateInput struct {
@@ -183,12 +203,32 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (customoverlaye
 	for i, l := range input.Layers {
 		repoLayers[i] = channels_overlays.CreateLayerInput{
 			Type: model.OverlayType(l.Type),
+			Name: l.Name,
 			Settings: model.OverlayLayerSettings{
-				HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
-				HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
-				HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
-				HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
-				ImageUrl:                           l.Settings.ImageUrl,
+			HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
+			HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
+			HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
+			HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
+			ImageUrl:                           l.Settings.ImageUrl,
+			TextContent:                        l.Settings.TextContent,
+			TextFontFamily:                     l.Settings.TextFontFamily,
+			TextFontSize:                       l.Settings.TextFontSize,
+			TextFontWeight:                     l.Settings.TextFontWeight,
+			TextColor:                          l.Settings.TextColor,
+			TextAlign:                          l.Settings.TextAlign,
+			VideoUrl:                           l.Settings.VideoUrl,
+			VideoLoop:                          l.Settings.VideoLoop,
+			VideoMuted:                         l.Settings.VideoMuted,
+			IframeUrl:                          l.Settings.IframeUrl,
+			IframeScale:                        l.Settings.IframeScale,
+			WidgetKey:                          l.Settings.WidgetKey,
+			YoutubeVideoID:                     l.Settings.YoutubeVideoID,
+			YoutubeAutoplay:                    l.Settings.YoutubeAutoplay,
+			YoutubeLoop:                        l.Settings.YoutubeLoop,
+			YoutubeMuted:                       l.Settings.YoutubeMuted,
+			EmoteUrl:                           l.Settings.EmoteUrl,
+			EmoteName:                          l.Settings.EmoteName,
+			EmoteProvider:                      l.Settings.EmoteProvider,
 			},
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
@@ -199,6 +239,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (customoverlaye
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 
@@ -261,12 +302,32 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		repoLayers[i] = channels_overlays.UpdateLayerInputWithID{
 			ID:   l.ID,
 			Type: model.OverlayType(l.Type),
+			Name: l.Name,
 			Settings: model.OverlayLayerSettings{
-				HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
-				HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
-				HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
-				HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
-				ImageUrl:                           l.Settings.ImageUrl,
+			HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
+			HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
+			HtmlOverlayJS:                      l.Settings.HtmlOverlayJS,
+			HtmlOverlayDataPollSecondsInterval: l.Settings.HtmlOverlayDataPollSecondsInterval,
+			ImageUrl:                           l.Settings.ImageUrl,
+			TextContent:                        l.Settings.TextContent,
+			TextFontFamily:                     l.Settings.TextFontFamily,
+			TextFontSize:                       l.Settings.TextFontSize,
+			TextFontWeight:                     l.Settings.TextFontWeight,
+			TextColor:                          l.Settings.TextColor,
+			TextAlign:                          l.Settings.TextAlign,
+			VideoUrl:                           l.Settings.VideoUrl,
+			VideoLoop:                          l.Settings.VideoLoop,
+			VideoMuted:                         l.Settings.VideoMuted,
+			IframeUrl:                          l.Settings.IframeUrl,
+			IframeScale:                        l.Settings.IframeScale,
+			WidgetKey:                          l.Settings.WidgetKey,
+			YoutubeVideoID:                     l.Settings.YoutubeVideoID,
+			YoutubeAutoplay:                    l.Settings.YoutubeAutoplay,
+			YoutubeLoop:                        l.Settings.YoutubeLoop,
+			YoutubeMuted:                       l.Settings.YoutubeMuted,
+			EmoteUrl:                           l.Settings.EmoteUrl,
+			EmoteName:                          l.Settings.EmoteName,
+			EmoteProvider:                      l.Settings.EmoteProvider,
 			},
 			PosX:                    l.PosX,
 			PosY:                    l.PosY,
@@ -277,6 +338,7 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 

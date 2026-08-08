@@ -36,6 +36,7 @@ import (
 	quotesrepository "github.com/twirapp/twir/libs/repositories/quotes"
 	quotesmodel "github.com/twirapp/twir/libs/repositories/quotes/model"
 	scheduledvipsrepository "github.com/twirapp/twir/libs/repositories/scheduled_vips"
+	songrequestssettingsrepository "github.com/twirapp/twir/libs/repositories/song_requests_settings"
 	"github.com/twirapp/twir/libs/repositories/users"
 	"github.com/twirapp/twir/libs/repositories/userswithstats"
 	vkintegration "github.com/twirapp/twir/libs/repositories/vk_integration"
@@ -73,6 +74,7 @@ type Services struct {
 	TTSRepository              overlays_tts.Repository
 	TTSService                 *ttsservice.Service
 	SpotifyRepo                channelsintegrationsspotify.Repository
+	SongRequestsSettingsRepo   songrequestssettingsrepository.Repository
 	UsersRepo                  users.Repository
 	CategoriesAliasesRepo      channelscategoriesaliases.Repository
 	ScheduledVipsRepo          scheduledvipsrepository.Repository

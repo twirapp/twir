@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Textarea } from '@/components/ui/textarea'
 
+import PlatformIcons from '@/components/platform/platform-icons.vue'
+
 withDefaults(
 	defineProps<{
 		inputType?: 'text' | 'textarea'
@@ -44,6 +46,7 @@ const selectVariables = computed(() => {
 		value: `$(${variable.example})`,
 		description: variable.description,
 		links: variable.links,
+		platforms: variable.platforms,
 	}))
 })
 
@@ -99,7 +102,10 @@ function handleSelect(value: string) {
 							@select="handleSelect(option.value)"
 						>
 							<div class="flex flex-col flex-wrap gap-0.5">
-								<span>{{ option.label }}</span>
+								<div class="flex items-center gap-1.5">
+									<span>{{ option.label }}</span>
+									<PlatformIcons :platforms="option.platforms" />
+								</div>
 								<span
 									v-if="option.description"
 									class="text-xs"

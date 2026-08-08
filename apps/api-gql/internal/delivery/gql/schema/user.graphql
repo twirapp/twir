@@ -9,6 +9,7 @@ extend type Mutation {
 	authenticatedUserSelectDashboard(dashboardId: String!): Boolean! @isAuthenticated
 	authenticatedUserUpdateSettings(opts: UserUpdateSettingsInput!): Boolean! @isAuthenticated
 	authenticatedUserRegenerateApiKey: String! @isAuthenticated
+	authenticatedUserRegenerateChannelApiKey: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)
 	authenticatedUserUpdatePublicPage(opts: UserUpdatePublicSettingsInput!): Boolean! @isAuthenticated
 	logout: Boolean! @isAuthenticated
 	unlinkPlatformAccount(platform: String!): Boolean!

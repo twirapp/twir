@@ -26,7 +26,7 @@ services:
       - twir-dev
 
   pgdog:
-    image: ghcr.io/pgdogdev/pgdog:v0.1.25
+    image: ghcr.io/pgdogdev/pgdog:v0.1.50
     restart: unless-stopped
     volumes:
       - ./configs/pgdog/pgdog.dev.toml:/pgdog/pgdog.toml
@@ -144,6 +144,12 @@ services:
     ports:
       - "7003:8080"
     pids_limit: 256
+    restart: unless-stopped
+    networks:
+      - twir-dev
+
+  ytsub:
+    image: twirapp/ytsub:latest
     restart: unless-stopped
     networks:
       - twir-dev

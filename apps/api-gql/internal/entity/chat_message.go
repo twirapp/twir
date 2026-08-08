@@ -25,6 +25,19 @@ type ChatMessage struct {
 	AnnounceColor string                `json:"announceColor,omitempty"`
 	Badges        []ChatMessageBadge    `json:"badges,omitempty"`
 	Fragments     []ChatMessageFragment `json:"fragments,omitempty"`
+	Reply         *ChatMessageReply     `json:"reply,omitempty"`
+}
+
+type ChatMessageReply struct {
+	ParentMessageID   string `json:"parentMessageId,omitempty"`
+	ParentMessageBody string `json:"parentMessageBody,omitempty"`
+	ParentUserID      string `json:"parentUserId,omitempty"`
+	ParentUserName    string `json:"parentUserName,omitempty"`
+	ParentUserLogin   string `json:"parentUserLogin,omitempty"`
+	ThreadMessageID   string `json:"threadMessageId,omitempty"`
+	ThreadUserID      string `json:"threadUserId,omitempty"`
+	ThreadUserName    string `json:"threadUserName,omitempty"`
+	ThreadUserLogin   string `json:"threadUserLogin,omitempty"`
 }
 
 type ChatMessageBadge struct {

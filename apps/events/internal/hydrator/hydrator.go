@@ -13,21 +13,13 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/entities/platform"
 	"github.com/valyala/fasttemplate"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	fx.In
-
-	Db      *gorm.DB
-	TwirBus *bus_core.Bus
-}
-
-func New(opts Opts) *Hydrator {
+func New(db *gorm.DB, twirBus *bus_core.Bus) *Hydrator {
 	return &Hydrator{
-		db:      opts.Db,
-		twirBus: opts.TwirBus,
+		db:      db,
+		twirBus: twirBus,
 	}
 }
 

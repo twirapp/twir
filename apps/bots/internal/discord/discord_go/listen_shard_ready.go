@@ -7,6 +7,11 @@ import (
 )
 
 func (c *Discord) handleShardReady(e *gateway.ReadyEvent) {
+	shardID := 0
+	if e.Shard != nil {
+		shardID = e.Shard.ShardID()
+	}
+
 	c.logger.Info(
 		"Discord shard is ready",
 		slog.Group(
@@ -15,6 +20,6 @@ func (c *Discord) handleShardReady(e *gateway.ReadyEvent) {
 			slog.String("name", e.User.Username),
 		),
 		slog.Int("guilds", len(e.Guilds)),
-		slog.Int("shard_id", e.Shard.ShardID()),
+		slog.Int("shard_id", shardID),
 	)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	deprecatedgormmodel "github.com/twirapp/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/i18n"
+	"github.com/twirapp/twir/libs/logger"
 	"github.com/twirapp/twir/libs/redis_keys"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
@@ -27,30 +29,30 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	ChatWallRepository chatwallrepository.Repository
-	ChatMessagesRepo   chat_messages.Repository
-
-	Gorm          *gorm.DB
-	ChatWallCache *generic_cacher.GenericCacher[[]model.ChatWall]
-	Redis         *redis.Client
-	Config        config.Config
-	TwirBus       *buscore.Bus
-}
-
-func New(opts Opts) *Service {
+func New(
+	logger *slog.Logger,
+	chatWallRepository chatwallrepository.Repository,
+	chatMessagesRepo chat_messages.Repository,
+	gormDB *gorm.DB,
+	chatWallCache *generic_cacher.GenericCacher[[]model.ChatWall],
+	redisClient *redis.Client,
+	applicationConfig config.Config,
+	twirBus *buscore.Bus,
+) *Service {
 	return &Service{
-		repo:             opts.ChatWallRepository,
-		chatMessagesRepo: opts.ChatMessagesRepo,
-		gorm:             opts.Gorm,
-		chatWallCache:    opts.ChatWallCache,
-		redis:            opts.Redis,
-		config:           opts.Config,
-		twirBus:          opts.TwirBus,
+		logger:           logger,
+		repo:             chatWallRepository,
+		chatMessagesRepo: chatMessagesRepo,
+		gorm:             gormDB,
+		chatWallCache:    chatWallCache,
+		redis:            redisClient,
+		config:           applicationConfig,
+		twirBus:          twirBus,
 	}
 }
 
 type Service struct {
+	logger           *slog.Logger
 	repo             chatwallrepository.Repository
 	chatMessagesRepo chat_messages.Repository
 	gorm             *gorm.DB
@@ -125,18 +127,24 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (model.ChatWall
 		)
 	}
 
-	c.chatWallCache.Invalidate(ctx, input.DBChannelID)
+	if err := c.chatWallCache.Invalidate(ctx, input.DBChannelID); err != nil {
+		c.logger.ErrorContext(
+			ctx,
+			"cannot invalidate chat wall cache on create",
+			logger.Error(err),
+		)
+	}
 
 	return wall, nil
 }
 
 type HandlePastMessagesInput struct {
-	DBChannelID     string
+	DBChannelID       string
 	PlatformChannelID string
-	Platform        platformentity.Platform
-	Phrase          string
-	Action          model.ChatWallAction
-	TimeoutDuration *time.Duration
+	Platform          platformentity.Platform
+	Phrase            string
+	Action            model.ChatWallAction
+	TimeoutDuration   *time.Duration
 }
 
 func (c *Service) HandlePastMessages(
@@ -166,20 +174,34 @@ func (c *Service) HandlePastMessages(
 
 	timeGte := time.Now().Add(-10 * time.Minute)
 
-	messages, err := c.chatMessagesRepo.GetMany(
-		ctx,
-		chatmessagesrepository.GetManyInput{
-			Platform:          lo.ToPtr(string(input.Platform)),
-			PlatformChannelID: &input.PlatformChannelID,
-			TextLike:          &input.Phrase,
-			Page:              0,
-			PerPage:           1000,
-			TimeGte:           &timeGte,
-		},
-	)
+	getManyInput := chatmessagesrepository.GetManyInput{
+		Platform:          lo.ToPtr(string(input.Platform)),
+		PlatformChannelID: &input.PlatformChannelID,
+		Page:              0,
+		PerPage:           1000,
+		TimeGte:           &timeGte,
+	}
+
+	if fuzzyFilter := chatmessagesrepository.NewTextFuzzyFilter(input.Phrase); fuzzyFilter != nil {
+		getManyInput.TextFuzzy = fuzzyFilter
+	} else {
+		getManyInput.TextLike = &input.Phrase
+	}
+
+	messages, err := c.chatMessagesRepo.GetMany(ctx, getManyInput)
 	if err != nil {
 		return err
 	}
+
+	c.logger.InfoContext(
+		ctx,
+		"chat wall past messages lookup",
+		slog.String("phrase", input.Phrase),
+		slog.String("channel_id", input.DBChannelID),
+		slog.Bool("fuzzy", getManyInput.TextFuzzy != nil),
+		slog.Int("messages_found", len(messages)),
+	)
+
 	if len(messages) == 0 {
 		return nil
 	}
@@ -308,11 +330,19 @@ func (c *Service) HandlePastMessages(
 			return nil
 		}
 
-			err = c.twirBus.Bots.DeleteMessage.Publish(
-				ctx,
-				botsservice.DeleteMessageRequest{
-					ChannelId:  input.PlatformChannelID,
-					MessageIds: mappedMessagesIDs,
+		c.logger.InfoContext(
+			ctx,
+			"chat wall past messages deletion publish",
+			slog.String("phrase", input.Phrase),
+			slog.String("channel_id", input.DBChannelID),
+			slog.Int("messages_count", len(mappedMessagesIDs)),
+		)
+
+		err = c.twirBus.Bots.DeleteMessage.Publish(
+			ctx,
+			botsservice.DeleteMessageRequest{
+				ChannelId:  input.PlatformChannelID,
+				MessageIds: mappedMessagesIDs,
 			},
 		)
 		if err != nil {
@@ -489,7 +519,14 @@ func (c *Service) Stop(ctx context.Context, input StopInput) error {
 				)
 			}
 
-			c.chatWallCache.Invalidate(ctx, input.DBChannelID)
+			if err := c.chatWallCache.Invalidate(ctx, input.DBChannelID); err != nil {
+				c.logger.ErrorContext(
+					ctx,
+					"cannot invalidate chat wall cache on stop",
+					logger.Error(err),
+				)
+			}
+
 			return nil
 		}
 	}

@@ -1,11 +1,11 @@
-FROM mirror.gcr.io/oven/bun:1-alpine AS base
+FROM mirror.gcr.io/oven/bun:canary-alpine AS base
 WORKDIR /app
 
 FROM base AS builder
 COPY . .
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN bun install --frozen-lockfile
+RUN bun install
 RUN bun --filter=@twir/web run build
 
 FROM base AS prod-base

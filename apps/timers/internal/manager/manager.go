@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	cfg "github.com/twirapp/twir/libs/config"
@@ -17,39 +18,34 @@ import (
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/timers"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	Repository        timers.Repository
-	Logger            *slog.Logger
-	ChannelCachedRepo *generic_cacher.GenericCacher[channelentity.Channel]
-	Redis             *redis.Client
-	TwirBus           *buscore.Bus
-	Config            cfg.Config
-	ChannelsRepo      channelsrepository.Repository
-	ChannelsService   *channelservice.ChannelService
-}
-
-func New(opts Opts) *Manager {
+func New(
+	lc *lifecycle.Lifecycle,
+	repository timers.Repository,
+	logger *slog.Logger,
+	channelCachedRepo *generic_cacher.GenericCacher[channelentity.Channel],
+	redis *redis.Client,
+	twirBus *buscore.Bus,
+	cfg cfg.Config,
+	channelsRepo channelsrepository.Repository,
+	channelsService *channelservice.ChannelService,
+) *Manager {
 	m := &Manager{
 		timers:            make(map[TimerID]*Timer),
-		repository:        opts.Repository,
-		logger:            opts.Logger,
+		repository:        repository,
+		logger:            logger,
 		stopChan:          make(chan struct{}, 1),
-		channelCachedRepo: opts.ChannelCachedRepo,
-		redis:             opts.Redis,
-		twirBus:           opts.TwirBus,
-		config:            opts.Config,
-		channelsRepo:      opts.ChannelsRepo,
-		channelservice:    opts.ChannelsService,
+		channelCachedRepo: channelCachedRepo,
+		redis:             redis,
+		twirBus:           twirBus,
+		config:            cfg,
+		channelsRepo:      channelsRepo,
+		channelservice:    channelsService,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				return m.initialize(ctx)
 			},
@@ -96,19 +92,27 @@ func (c *Manager) initialize(ctx context.Context) error {
 		return nil
 	}
 
-	channels, err := c.channelsRepo.GetMany(
-		ctx,
-		channelsrepository.GetManyInput{
-			Enabled: new(true),
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("cannot get channels: %w", err)
-	}
+	channelsByID := make(map[string]channelentity.Channel)
+	for page := 0; ; page++ {
+		channels, err := c.channelsRepo.GetMany(
+			ctx,
+			channelsrepository.GetManyInput{
+				Enabled: new(true),
+				PerPage: 100,
+				Page:    page,
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("cannot get channels: %w", err)
+		}
 
-	channelsByID := make(map[string]channelentity.Channel, len(channels))
-	for _, ch := range channels {
-		channelsByID[ch.ID.String()] = ch
+		for _, ch := range channels {
+			channelsByID[ch.ID.String()] = ch
+		}
+
+		if len(channels) < 100 {
+			break
+		}
 	}
 
 	for offset := int64(0); offset < totalTimers; {

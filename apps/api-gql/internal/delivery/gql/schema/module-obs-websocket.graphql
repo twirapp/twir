@@ -1,9 +1,9 @@
 extend type Query {
-	obsWebsocketData: ObsWebsocketModule @isAuthenticated
+	obsWebsocketData: ObsWebsocketModule @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODULES)
 }
 
 extend type Mutation {
-	obsWebsocketUpdate(input: ObsWebsocketUpdateInput!): Boolean! @isAuthenticated
+	obsWebsocketUpdate(input: ObsWebsocketUpdateInput!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_MODULES)
 	obsWebsocketUpdateFromOverlay(apiKey: String!, input: ObsWebsocketOverlayInput!): Boolean!
 	obsWebsocketSetConnected(apiKey: String!): Boolean!
 }
@@ -11,7 +11,7 @@ extend type Mutation {
 extend type Subscription {
 	obsWebsocketData(apiKey: String!): ObsWebsocketModule!
 	obsWebsocketCommands(apiKey: String!): ObsWebsocketCommand!
-	obsWebsocketIsConnected: Boolean! @isAuthenticated
+	obsWebsocketIsConnected: Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_MODULES)
 }
 
 type ObsWebsocketModule {

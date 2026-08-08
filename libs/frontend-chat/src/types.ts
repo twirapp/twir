@@ -45,11 +45,19 @@ export interface ChatBadge {
 	versions: Array<BadgeVersion>
 }
 
-export type MessagePlatform = 'twitch' | 'kick' | 'vk_video_live'
+export type MessagePlatform = 'twitch' | 'kick' | 'vk_video_live' | 'youtube'
 
 export interface KickBadge {
 	type: string
 	text: string
+}
+
+export interface MessageReply {
+	parentMessageId: string
+	parentMessageBody: string
+	parentUserId: string
+	parentUserName: string
+	parentUserLogin: string
 }
 
 export interface Message {
@@ -67,6 +75,7 @@ export interface Message {
 	createdAt: Date
 	announceColor?: string
 	isAnnounce: boolean
+	reply?: MessageReply
 }
 
 export interface Settings {

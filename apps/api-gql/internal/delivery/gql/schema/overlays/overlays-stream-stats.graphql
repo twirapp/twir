@@ -1,0 +1,104 @@
+extend type Query {
+	overlaysStreamStats: StreamStatsOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	overlaysStreamStatsUpdate(input: StreamStatsOverlayUpdateInput!): StreamStatsOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	overlaysStreamStats(apiKey: String!): StreamStatsOverlay!
+	overlaysStreamStatsCounters(apiKey: String!): StreamStatsOverlayCounters!
+}
+
+enum StreamStatsOverlayDesign {
+	GLASS
+	CARDS
+	NEON
+	SOLID
+	MINIMAL
+	TERMINAL
+	OUTLINE
+}
+
+enum StreamStatsOverlayVariant {
+	HORIZONTAL
+	HORIZONTAL_COMPACT
+	VERTICAL
+	VERTICAL_COMPACT
+	LARGE
+}
+
+enum StreamStatsOverlayViewersMode {
+	CUMULATIVE
+	SEPARATE
+}
+
+enum StreamStatsOverlayCounter {
+	VIEWERS
+	MESSAGES
+	UPTIME
+	SUBSCRIBERS
+	FOLLOWERS
+}
+
+type StreamStatsOverlay {
+	id: UUID!
+	channelId: String!
+	design: StreamStatsOverlayDesign!
+	variant: StreamStatsOverlayVariant!
+	viewersEnabled: Boolean!
+	viewersMode: StreamStatsOverlayViewersMode!
+	platformIconsEnabled: Boolean!
+	messagesEnabled: Boolean!
+	uptimeEnabled: Boolean!
+	subscribersEnabled: Boolean!
+	followersEnabled: Boolean!
+	viewersColor: String!
+	messagesColor: String!
+	uptimeColor: String!
+	subscribersColor: String!
+	followersColor: String!
+	counterOrder: [StreamStatsOverlayCounter!]!
+	customHtmlEnabled: Boolean!
+	customHtml: String!
+	customCss: String!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+input StreamStatsOverlayUpdateInput {
+	design: StreamStatsOverlayDesign!
+	variant: StreamStatsOverlayVariant!
+	viewersEnabled: Boolean!
+	viewersMode: StreamStatsOverlayViewersMode!
+	platformIconsEnabled: Boolean!
+	messagesEnabled: Boolean!
+	uptimeEnabled: Boolean!
+	subscribersEnabled: Boolean!
+	followersEnabled: Boolean!
+	viewersColor: String! @validate(constraint: "max=50")
+	messagesColor: String! @validate(constraint: "max=50")
+	uptimeColor: String! @validate(constraint: "max=50")
+	subscribersColor: String! @validate(constraint: "max=50")
+	followersColor: String! @validate(constraint: "max=50")
+	counterOrder: [StreamStatsOverlayCounter!]! @validate(constraint: "max=5")
+	customHtmlEnabled: Boolean!
+	customHtml: String! @validate(constraint: "max=20000")
+	customCss: String! @validate(constraint: "max=20000")
+}
+
+type StreamStatsOverlayPlatformViewers {
+	platform: Platform!
+	viewers: Int!
+}
+
+type StreamStatsOverlayCounters {
+	live: Boolean!
+	viewers: Int!
+	platformViewers: [StreamStatsOverlayPlatformViewers!]!
+	messages: Int!
+	startedAt: Time
+	subscribers: Int
+	followers: Int
+}

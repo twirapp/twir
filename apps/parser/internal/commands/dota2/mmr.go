@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/lib/pq"
+	"github.com/guregu/null"
 	command_arguments "github.com/twirapp/twir/apps/parser/internal/command-arguments"
 	"github.com/twirapp/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/apps/parser/locales"
@@ -25,10 +26,11 @@ func updateDotaMmr(ctx context.Context, db *gorm.DB, channelID string, mmr int) 
 
 var Mmr = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
-		Name:    "mmr",
-		Module:  "DOTA",
-		Visible: true,
-		IsReply: true,
+		Name:        "mmr",
+		Description: null.StringFrom("Show current Dota 2 MMR and medal"),
+		Module:      "DOTA",
+		Visible:     true,
+		IsReply:     true,
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -65,10 +67,11 @@ var Mmr = &types.DefaultCommand{
 
 var MmrSet = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
-		Name:     "mmr set",
-		RolesIDS: pq.StringArray{model.ChannelRoleTypeModerator.String()},
-		Module:   "DOTA",
-		IsReply:  true,
+		Name:        "mmr set",
+		Description: null.StringFrom("Set Dota 2 MMR"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "DOTA",
+		IsReply:     true,
 	},
 	Args: []command_arguments.Arg{
 		command_arguments.Int{

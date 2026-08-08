@@ -5,6 +5,7 @@ go 1.26.1
 require (
 	github.com/avito-tech/go-transaction-manager/trm/v2 v2.0.2
 	github.com/go-redsync/redsync/v4 v4.14.1
+	github.com/goforj/wire v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
@@ -15,7 +16,7 @@ require (
 	github.com/twirapp/twir/libs/crypto v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/integrations v0.0.0-20251127124349-67ad7fa0003f
 	github.com/twirapp/twir/libs/repositories v0.0.0-20251127124349-67ad7fa0003f
-	go.uber.org/fx v1.24.0
+	golang.org/x/oauth2 v0.36.0
 	gorm.io/gorm v1.31.1
 )
 
@@ -110,6 +111,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.39.0 // indirect
 	go.opentelemetry.io/otel/trace v1.41.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
+	go.uber.org/fx v1.24.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.52.0 // indirect

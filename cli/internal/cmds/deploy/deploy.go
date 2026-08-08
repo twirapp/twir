@@ -21,9 +21,18 @@ import (
 )
 
 const (
-	defaultStackName = "twir"
-	defaultRegistry  = "registry.twir.app"
+	defaultStackName          = "twir"
+	defaultRegistry           = "registry.twir.app"
+	serviceUpdatePollInterval = time.Second
 )
+
+type serviceInspector interface {
+	ServiceInspectWithRaw(
+		context.Context,
+		string,
+		swarm.ServiceInspectOptions,
+	) (swarm.Service, []byte, error)
+}
 
 var serviceImages = map[string]string{
 	"migrations":     "migrations",
@@ -43,6 +52,7 @@ var serviceImages = map[string]string{
 	"dota":           "dota",
 	"deploy-webhook": "deploy-receiver",
 	"executron":      "executron",
+	"ytsub":          "ytsub",
 }
 
 var releaseServices = []string{
@@ -62,6 +72,7 @@ var releaseServices = []string{
 	"events",
 	"dota",
 	"executron",
+	"ytsub",
 }
 
 type deployConfig struct {
@@ -389,8 +400,68 @@ func updateServiceImage(ctx context.Context, cfg deployConfig, serviceName strin
 	if err != nil {
 		return deployResult{Service: serviceName, Image: image, Status: "failed"}, fmt.Errorf("update swarm service: %w", err)
 	}
+	if err := waitForServiceUpdate(
+		ctx,
+		dockerClient,
+		service.ID,
+		service.Version.Index,
+		serviceUpdatePollInterval,
+	); err != nil {
+		return deployResult{Service: serviceName, Image: image, Status: "failed"}, err
+	}
 
 	return deployResult{Service: serviceName, Image: image, Status: "updated"}, nil
+}
+
+func waitForServiceUpdate(
+	ctx context.Context,
+	inspector serviceInspector,
+	serviceID string,
+	previousVersion uint64,
+	pollInterval time.Duration,
+) error {
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+
+	var lastStatus string
+	for {
+		service, _, err := inspector.ServiceInspectWithRaw(
+			ctx,
+			serviceID,
+			swarm.ServiceInspectOptions{},
+		)
+		if err != nil {
+			return fmt.Errorf("inspect swarm service update: %w", err)
+		}
+
+		if service.Version.Index > previousVersion && service.UpdateStatus != nil {
+			status := service.UpdateStatus
+			lastStatus = string(status.State)
+			if status.Message != "" {
+				lastStatus += ": " + status.Message
+			}
+
+			switch status.State {
+			case swarm.UpdateStateCompleted:
+				return nil
+			case swarm.UpdateStatePaused:
+				return fmt.Errorf("swarm service update paused: %s", status.Message)
+			case swarm.UpdateStateRollbackPaused:
+				return fmt.Errorf("swarm service rollback paused: %s", status.Message)
+			case swarm.UpdateStateRollbackCompleted:
+				return fmt.Errorf("swarm service update rolled back: %s", status.Message)
+			}
+		}
+
+		select {
+		case <-ctx.Done():
+			if lastStatus == "" {
+				lastStatus = "status unavailable"
+			}
+			return fmt.Errorf("wait for swarm service update (%s): %w", lastStatus, ctx.Err())
+		case <-ticker.C:
+		}
+	}
 }
 
 func findService(ctx context.Context, dockerClient *client.Client, stackName string, serviceName string) (swarm.Service, error) {

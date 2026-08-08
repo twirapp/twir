@@ -1,10 +1,67 @@
 {
+  "dashboard": {
+    "statsLayouts": {
+      "label": "ヘッダー統計レイアウト",
+      "rows": "行",
+      "rowsDescription": "各ウィジェット内にプラットフォーム別の値を表示",
+      "aggregate": "集計",
+      "aggregateDescription": "合計値とプラットフォーム別内訳のポップオーバー",
+      "grid": "グリッド",
+      "gridDescription": "プラットフォームカードのみ、グローバルウィジェットなし"
+    },
+    "platformStats": {
+      "platform": "プラットフォーム",
+      "streamTitles": "配信タイトル",
+      "livePlatforms": "{live} ライブ · {total} プラットフォーム",
+      "breakdown": "プラットフォーム別内訳",
+      "live": "LIVE",
+      "offline": "オフライン",
+      "noTitle": "タイトルなし",
+      "noCategory": "カテゴリなし",
+      "editUnavailable": "編集できません"
+    }
+  },
   "languageName": "日本語",
+  "site": {
+    "description": "大規模チャンネルのチャット管理を助ける、Twitch・Kick・VK Video Live・YouTube 対応のパワフルで便利なチャットボット。ストリーマーがストリーマーのために心を込めて開発しています。"
+  },
   "landing": {
     "meta": {
-      "title": "Twir — Twitch・Kick 対応チャットボット",
-      "description": "大規模チャンネルのチャット管理を助ける、パワフルで便利な Twitch ボット。コマンド、タイマー、モデレーション、ソングリクエスト、ギブアウェイ、オーバーレイなど — 無料でオープンソース。"
+      "title": "Twir — Twitch・Kick・VK・YouTube 対応チャットボット",
+      "description": "大規模チャンネルのチャット管理を助ける、パワフルで便利な Twitch・Kick・VK Video Live・YouTube 対応ボット。コマンド、タイマー、モデレーション、ソングリクエスト、ギブアウェイ、オーバーレイなど — 無料でオープンソース。"
     },
+    "hero": {
+      "updates": "🚀 最新情報を見る", "title": "これまでにない方法で視聴者を惹きつけよう", "description": "Twir は Twitch、Kick、VK Video Live、YouTube に対応した無料のオープンソースチャットボットです。カスタムコマンド、タイマー、チャットモデレーション、曲のリクエスト、ギブアウェイ、アラート、オーバーレイで配信を管理・成長させられます — すべてを一か所で。",
+      "platforms": { "twitch": "Twitch", "kick": "Kick", "vk": "VK Video Live", "youtube": "YouTube" }, "learnMore": "詳しく見る", "dashboard": "ダッシュボード"
+    },
+    "stats": { "activeChannels": "アクティブなチャンネル", "createdCommands": "作成されたコマンド", "usersSeen": "閲覧ユーザー数", "messagesProcessed": "処理したメッセージ", "emotesProcessed": "処理したエモート", "commandsProcessed": "処理したコマンド", "platformChannels": { "twitch": "Twitch チャンネル", "kick": "Kick チャンネル", "vk": "VK Video Live チャンネル", "youtube": "YouTube チャンネル" } },
+    "features": {
+      "badge": "機能", "title": "ボットの便利な機能を見つけよう", "description": "配信を次のレベルへ引き上げる豊富な機能をご紹介します。配信を変えるツールが Twir にはそろっています！", "disclaimer": "これはボットの機能の一部にすぎません。新しい便利な機能を追加しながら、継続的に更新していきます。", "discord": "Discord に参加して最新情報を受け取る",
+      "items": {
+        "music-recognition": { "title": "音楽認識", "description": "配信のための Shazam！音楽サービスへの接続不要で無料" },
+        "vips": { "title": "VIP", "description": "ボットで VIP を管理し、削除する時刻を予約できます" },
+        "giveaways": { "title": "ギブアウェイ", "description": "ギブアウェイの作成、参加者管理、当選者選択、結果の保存ができます" },
+        "commands": { "title": "コマンド", "description": "複数の応答、カテゴリ、期限、エイリアス、カウンター、変数に対応した強力なコマンドシステム。ゲームカテゴリへの紐付けや自動削除・無効化も可能です" },
+        "variables": { "title": "カスタム変数", "description": "JavaScript や Python で変数を作成し、ボットの機能を拡張できます" },
+        "mcp": { "title": "AI コントロール (MCP)", "description": "Claude Code、Codex、OpenCode などの AI アシスタントから MCP 経由でコマンド、タイマー、キーワード、変数を管理できます" },
+        "timers": { "title": "タイマー", "description": "Twitch 用のシンプルで柔軟な自動告知システム" },
+        "greetings": { "title": "グリーティング", "description": "お気に入りの視聴者を目立たせたい？グリーティングを追加しましょう！" },
+        "song-requests": { "title": "ソングリクエスト", "description": "視聴者がチャットコマンドで曲をリクエスト。ボットがキューと再生を管理し、交流を高めます" },
+        "keywords": { "title": "キーワード", "description": "チャット内の指定キーワードを検出し、交流や案内のための自動メッセージを送信します" },
+        "events": { "title": "イベント", "description": "チャットやシステムのイベントを監視するリスナーを設定し、アクションを実行できます" },
+        "moderation": { "title": "モデレーション", "description": "チャットフィルターを作成・管理し、安全で親切なコミュニケーションを保ちます" },
+        "obs": { "title": "OBS WebSockets", "description": "WebSockets で OBS Studio と連携し、ボットからシーン変更、ミュート、ソース切替ができます" },
+        "stats": { "title": "統計トラッキング", "description": "視聴時間、メッセージ、使用したチャンネルポイントを追跡します" },
+        "overlays": { "title": "オーバーレイ", "description": "Faceit・Valorant スタッツ、Now Playing、チャット、Emote Wall、Pixel Dudes、AFK などのオーバーレイ" },
+        "alerts": { "title": "アラート", "description": "チャンネルポイント、コマンド、キーワード用のカスタムサウンドアラートを作成できます" },
+        "games": { "title": "ゲーム", "description": "ロシアンルーレット、デュエル、切腹、voteban、マジック 8 ボールでチャットを楽しくします" },
+        "short-urls": { "title": "短縮 URL", "description": "Twir の URL 短縮機能でリンクをすぐに短縮・共有 — 作成数 {landingStatsCreatedShortUrls} 以上" },
+        "hastebins": { "title": "HasteBins", "description": "HasteBins で安全なテキストをすばやく作成・共有 — 作成数 {landingStatsCreatedHastebins}" }
+      }
+    },
+    "integrations": { "badge": "連携", "title": "シームレスな連携で配信をパワーアップ", "description": "お気に入りのツールやプラットフォームを接続して、配信のパフォーマンスと交流を高めましょう。Twir の連携が可能性を広げます。" },
+    "nav": { "features": "機能", "integrations": "連携", "compare": "比較", "urlShortener": "URL 短縮", "uploader": "画像アップローダー", "hastebin": "Hastebin", "terms": "利用規約", "privacy": "プライバシーポリシー", "login": "ログイン", "startNow": "今すぐ始める", "dashboard": "ダッシュボード", "logout": "ログアウト", "vkLive": "VK Live" },
+    "footer": { "navigation": "フッターナビゲーション", "github": "Github リポジトリ", "discord": "質問や最新情報のための Discord チャンネル" },
     "compareLink": "Twir を他のボットと比較する",
     "faq": {
       "badge": "FAQ",
@@ -15,15 +72,15 @@
       },
       "q2": {
         "question": "チャンネルに Twir を追加するには？",
-        "answer": "Twitch または Kick アカウントでログインし、ダッシュボードで「ボットを追加」を押すだけ。1 分以内に Twir がチャットに参加します。ダウンロードやインストールは不要です。"
+        "answer": "Twitch、Kick、VK、または YouTube アカウントでログインし、ダッシュボードで「ボットを追加」を押すだけ。1 分以内に Twir がチャットに参加します。ダウンロードやインストールは不要です。"
       },
       "q3": {
         "question": "Nightbot や StreamElements から移行できますか？",
         "answer": "はい。Twir には Nightbot、StreamElements、Streamlabs からコマンドや設定を数クリックで移行できるインポートツールがあります。"
       },
       "q4": {
-        "question": "Kick でも使えますか？",
-        "answer": "はい、Twir は Twitch と Kick の両方に対応しています。Kick チャンネルを接続し、同じダッシュボードから管理できます。"
+        "question": "Kick、VK、YouTube でも使えますか？",
+        "answer": "はい、Twir は Twitch、Kick、VK Video Live、YouTube に対応しています。チャンネルを接続し、同じダッシュボードから管理できます。"
       },
       "q5": {
         "question": "Twir はオープンソースですか？",
@@ -78,7 +135,8 @@
       "vipManagement": "VIP 管理",
       "emoteStats": "エモート統計",
       "musicRecognition": "音楽認識（Shazam 風）",
-      "obsIntegration": "OBS 連携"
+      "obsIntegration": "OBS 連携",
+      "aiMcp": "AI コントロール (MCP)"
     },
     "notes": {
       "overlaysTwir": "Now Playing、チャット、Faceit・Valorant スタッツ、Emote Wall、Pixel Dudes、AFK など",
@@ -100,11 +158,12 @@
       "rolesMoobot": "無料プランでは権限グループ1つ",
       "vipTwir": "VIP の管理と有効期限のスケジュール",
       "vipMoobot": "First Wave VIP のみ、MoobotPlus（有料）",
-      "obsTwir": "WebSockets でシーン切替・ミュート・ソース表示切替"
+      "obsTwir": "WebSockets でシーン切替・ミュート・ソース表示切替",
+      "aiMcpTwir": "Claude Code、Codex、OpenCode などの AI アシスタントから MCP 経由でボットを管理"
     },
     "values": {
       "platforms": {
-        "twir": "Twitch, Kick",
+        "twir": "Twitch, Kick, VK Video Live, YouTube",
         "nightbot": "Twitch, YouTube",
         "streamelements": "Twitch, YouTube, Kick",
         "moobot": "Twitch",
@@ -137,10 +196,29 @@
         "answer": "はい。比較表のすべての機能 — オーバーレイ、ギブアウェイ、ソングリクエストを含め — 無料です。Twir はストリーマーによるストリーマーのためのオープンソースプロジェクトです。"
       },
       "q4": {
-        "question": "Twir は Kick に対応していますか？",
-        "answer": "はい。Twir は Twitch と Kick の両方を 1 つのダッシュボードから管理できます。"
+        "question": "Twir は Kick、VK、YouTube に対応していますか？",
+        "answer": "はい。Twir は Twitch、Kick、VK Video Live、YouTube に対応しており、1 つのダッシュボードからすべてのチャンネルを管理できます。"
       }
     },
     "disclaimer": "Nightbot、StreamElements、Moobot、Fossabot は各社の商標です。Twir はこれらと提携・承認されているわけではありません。機能データは公開情報に基づいており、変更される場合があります。"
+  },
+  "sidebar": {
+    "quotes": "引用"
+  },
+  "quotes": {
+    "title": "引用",
+    "create": "引用を作成",
+    "edit": "引用を編集",
+    "text": "引用",
+    "number": "番号",
+    "creator": "作成者",
+    "game": "ゲーム",
+    "createdAt": "作成日",
+    "deleteConfirmation": "この引用を削除してもよろしいですか？",
+    "created": "引用を作成しました",
+    "updated": "引用を更新しました",
+    "deleted": "引用を削除しました",
+    "errorOnSave": "引用を保存できませんでした",
+    "errorOnDelete": "引用を削除できませんでした"
   }
 }

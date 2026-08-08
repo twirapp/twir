@@ -9,7 +9,6 @@ import (
 	httpbase "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/pastebins"
 	apperrors "github.com/twirapp/twir/libs/errors"
-	"go.uber.org/fx"
 )
 
 type getByIdRequestDto struct {
@@ -19,8 +18,6 @@ type getByIdRequestDto struct {
 var _ httpbase.Route[*getByIdRequestDto, *httpbase.BaseOutputJson[pasteBinOutputDto]] = (*getById)(nil)
 
 type GetByIdOpts struct {
-	fx.In
-
 	Service *pastebins.Service
 }
 

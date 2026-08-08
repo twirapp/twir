@@ -13,12 +13,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	user_creator "github.com/twirapp/twir/apps/eventsub/internal/services/user-creator"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/vk"
 	"github.com/twirapp/twir/libs/repositories/channels"
-	"go.uber.org/fx"
 )
 
 const (
@@ -27,15 +27,14 @@ const (
 )
 
 type Opts struct {
-	fx.In
-
 	Logger               *slog.Logger
 	Redis                *redis.Client
 	Bus                  *buscore.Bus
 	UserCreator          *user_creator.UserCreatorService
 	WebSocketTokenClient *vk.WebSocketTokenClient
 	ChannelsRepo         channels.Repository
-	Lc                   fx.Lifecycle
+	Lc                   *lifecycle.Lifecycle
+	ProxyUrl             string
 }
 
 type Transport struct {
@@ -48,6 +47,7 @@ type Transport struct {
 	deduplicator     messageDeduplicator
 	newConnection    realtimeConnectionFactory
 	databaseBindings bindingsProvider
+	proxyUrl         string
 
 	mu               sync.Mutex
 	bindings         map[uuid.UUID]*activeBinding
@@ -64,6 +64,7 @@ type transportDependencies struct {
 	deduplicator     messageDeduplicator
 	newConnection    realtimeConnectionFactory
 	databaseBindings bindingsProvider
+	proxyUrl         string
 }
 
 func New(opts Opts) (*Transport, error) {
@@ -86,10 +87,11 @@ func New(opts Opts) (*Transport, error) {
 		deduplicator:     redisDeduplicator{redis: opts.Redis},
 		newConnection:    newCentrifugoConnection,
 		databaseBindings: newDatabaseBindingsProvider(opts.ChannelsRepo),
+		proxyUrl:         opts.ProxyUrl,
 	})
 	reconcileCtx, stopReconcile := context.WithCancel(context.Background())
 	go transport.reconcileLoop(reconcileCtx)
-	opts.Lc.Append(fx.Hook{
+	opts.Lc.Append(lifecycle.Hook{
 		OnStop: func(ctx context.Context) error {
 			stopReconcile()
 			shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), leaseExpiry)
@@ -112,6 +114,7 @@ func newTransport(deps transportDependencies) *Transport {
 		deduplicator:     deps.deduplicator,
 		newConnection:    deps.newConnection,
 		databaseBindings: deps.databaseBindings,
+		proxyUrl:         deps.proxyUrl,
 		bindings:         make(map[uuid.UUID]*activeBinding),
 		contentionLogged: make(map[uuid.UUID]bool),
 	}

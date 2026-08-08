@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { toRef } from 'vue'
 
-import { useRouter } from 'vue-router'
-
-import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Switch } from '@/components/ui/switch'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useBuilderToolbar } from '../composables/useBuilderToolbar'
+import { useWidgetPreviewMode } from '../composables/useWidgetPreviewMode'
 
 interface Props {
 	canUndo: boolean
@@ -22,8 +18,10 @@ interface Props {
 	zoom: number
 	showGrid: boolean
 	snapToGrid: boolean
+	addLayersHidden: boolean
 	overlayId?: string
 	overlayName?: string
+	syncStatus?: 'OPEN' | 'CONNECTING' | 'CLOSED'
 }
 
 const props = defineProps<Props>()
@@ -50,74 +48,72 @@ const emit = defineEmits<{
 	resetZoom: []
 	toggleGrid: []
 	toggleSnap: []
+	toggleAddLayersHidden: []
+	openShortcuts: []
 }>()
 
 const { t } = useI18n()
-const router = useRouter()
-const localePath = useLocalePath()
-const { data: profile } = useProfile()
-const requestUrl = useRequestURL()
+const { formatZoom, goBack, copyOverlayLink } = useBuilderToolbar(toRef(props, 'overlayId'))
+const { enabled: widgetsPreview } = useWidgetPreviewMode()
 
-const selectedDashboardUser = computed(() => {
-	return profile.value?.availableDashboards.find(
-		(dashboard) => dashboard.id === profile.value?.selectedDashboardId
-	)
+const syncStatusMeta = computed(() => {
+	switch (props.syncStatus) {
+		case 'OPEN':
+			return { class: 'bg-green-500', label: t('overlayBuilder.sync.connected') }
+		case 'CONNECTING':
+			return { class: 'bg-yellow-500 animate-pulse', label: t('overlayBuilder.sync.connecting') }
+		default:
+			return { class: 'bg-muted-foreground/40', label: t('overlayBuilder.sync.disconnected') }
+	}
 })
-
-const formatZoom = computed(() => (zoom: number) => `${Math.round(zoom * 100)}%`)
-
-function goBack() {
-	router.push(localePath('/dashboard/overlays'))
-}
-
-function copyOverlayLink() {
-	if (!props.overlayId || !selectedDashboardUser.value?.apiKey) return
-
-	const baseUrl = requestUrl.origin
-	const overlayUrl = `${baseUrl}/overlays/${selectedDashboardUser.value.apiKey}/registry/overlays/${props.overlayId}`
-
-	navigator.clipboard.writeText(overlayUrl).then(() => {
-		// Use vue-sonner toast if available, fallback to message
-		const toastModule = import('vue-sonner')
-		toastModule.then(({ toast }) => {
-			toast.success(t('sharedTexts.copied') || 'Link copied to clipboard!')
-		}).catch(() => {
-			console.log('Link copied to clipboard!')
-		})
-	}).catch(() => {
-		console.error('Failed to copy link')
-	})
-}
 </script>
 
 <template>
-	<div class="flex items-center gap-2 bg-background border-b px-4 py-2 h-14">
+	<div class="bg-background flex h-14 items-center gap-2 border-b px-4 py-2">
 		<!-- Back Button -->
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" @click="goBack">
-						<Icon name="lucide:arrow-left" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						@click="goBack"
+					>
+						<Icon
+							name="lucide:arrow-left"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>{{ t('sharedButtons.back') || 'Back to Overlays' }}</p>
+					<p>{{ t('overlayBuilder.toolbar.back') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 
-		<Separator orientation="vertical" class="h-6" />
+		<Separator
+			orientation="vertical"
+			class="h-6"
+		/>
 
 		<!-- Undo/Redo -->
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!canUndo" @click="emit('undo')">
-						<Icon name="lucide:undo" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!canUndo"
+						@click="emit('undo')"
+					>
+						<Icon
+							name="lucide:undo"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Undo (Ctrl+Z)</p>
+					<p>{{ t('overlayBuilder.toolbar.undo') }} (Ctrl+Z)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -125,28 +121,47 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!canRedo" @click="emit('redo')">
-						<Icon name="lucide:redo" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!canRedo"
+						@click="emit('redo')"
+					>
+						<Icon
+							name="lucide:redo"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Redo (Ctrl+Y)</p>
+					<p>{{ t('overlayBuilder.toolbar.redo') }} (Ctrl+Y)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 
-		<Separator orientation="vertical" class="h-6" />
+		<Separator
+			orientation="vertical"
+			class="h-6"
+		/>
 
 		<!-- Clipboard -->
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('copy')">
-						<Icon name="lucide:copy" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!hasSelection"
+						@click="emit('copy')"
+					>
+						<Icon
+							name="lucide:copy"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Copy (Ctrl+C)</p>
+					<p>{{ t('overlayBuilder.toolbar.copy') }} (Ctrl+C)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -154,12 +169,20 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('cut')">
-						<Icon name="lucide:scissors" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!hasSelection"
+						@click="emit('cut')"
+					>
+						<Icon
+							name="lucide:scissors"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Cut (Ctrl+X)</p>
+					<p>{{ t('overlayBuilder.toolbar.cut') }} (Ctrl+X)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -167,12 +190,20 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('duplicate')">
-						<Icon name="lucide:copy-plus" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!hasSelection"
+						@click="emit('duplicate')"
+					>
+						<Icon
+							name="lucide:copy-plus"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Duplicate (Ctrl+D)</p>
+					<p>{{ t('overlayBuilder.toolbar.duplicate') }} (Ctrl+D)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -180,28 +211,47 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!hasSelection" @click="emit('delete')">
-						<Icon name="lucide:trash2" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!hasSelection"
+						@click="emit('delete')"
+					>
+						<Icon
+							name="lucide:trash"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Delete (Del)</p>
+					<p>{{ t('overlayBuilder.toolbar.delete') }} (Del)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 
-		<Separator orientation="vertical" class="h-6" />
+		<Separator
+			orientation="vertical"
+			class="h-6"
+		/>
 
 		<!-- Alignment -->
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignLeft')">
-						<Icon name="lucide:align-left" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!canAlign"
+						@click="emit('alignLeft')"
+					>
+						<Icon
+							name="lucide:align-left"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Left</p>
+					<p>{{ t('overlayBuilder.toolbar.alignLeft') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -209,12 +259,20 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignCenter')">
-						<Icon name="lucide:align-center" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!canAlign"
+						@click="emit('alignCenter')"
+					>
+						<Icon
+							name="lucide:align-center"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Center</p>
+					<p>{{ t('overlayBuilder.toolbar.alignCenter') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -222,28 +280,47 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignRight')">
-						<Icon name="lucide:align-right" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!canAlign"
+						@click="emit('alignRight')"
+					>
+						<Icon
+							name="lucide:align-right"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Right</p>
+					<p>{{ t('overlayBuilder.toolbar.alignRight') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 
-		<Separator orientation="vertical" class="h-6" />
+		<Separator
+			orientation="vertical"
+			class="h-6"
+		/>
 
 		<!-- Vertical Alignment -->
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignTop')">
-						<Icon name="lucide:align-start-vertical" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!canAlign"
+						@click="emit('alignTop')"
+					>
+						<Icon
+							name="lucide:align-start-vertical"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Top</p>
+					<p>{{ t('overlayBuilder.toolbar.alignTop') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -251,12 +328,20 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignMiddle')">
-						<Icon name="lucide:align-center-vertical" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!canAlign"
+						@click="emit('alignMiddle')"
+					>
+						<Icon
+							name="lucide:align-center-vertical"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Middle</p>
+					<p>{{ t('overlayBuilder.toolbar.alignMiddle') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -264,17 +349,28 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" :disabled="!canAlign" @click="emit('alignBottom')">
-						<Icon name="lucide:align-end-vertical" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:disabled="!canAlign"
+						@click="emit('alignBottom')"
+					>
+						<Icon
+							name="lucide:align-end-vertical"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Align Bottom</p>
+					<p>{{ t('overlayBuilder.toolbar.alignBottom') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 
-		<Separator orientation="vertical" class="h-6" />
+		<Separator
+			orientation="vertical"
+			class="h-6"
+		/>
 
 		<!-- Distribution -->
 		<TooltipProvider>
@@ -286,11 +382,14 @@ function copyOverlayLink() {
 						:disabled="!canDistribute"
 						@click="emit('distributeHorizontal')"
 					>
-						<Icon name="lucide:align-horizontal-distribute-center" class="h-4 w-4" />
+						<Icon
+							name="lucide:align-horizontal-distribute-center"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Distribute Horizontally</p>
+					<p>{{ t('overlayBuilder.toolbar.distributeHorizontal') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -304,49 +403,77 @@ function copyOverlayLink() {
 						:disabled="!canDistribute"
 						@click="emit('distributeVertical')"
 					>
-						<Icon name="lucide:align-vertical-distribute-center" class="h-4 w-4" />
+						<Icon
+							name="lucide:align-vertical-distribute-center"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Distribute Vertically</p>
+					<p>{{ t('overlayBuilder.toolbar.distributeVertical') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 
-		<Separator orientation="vertical" class="h-6" />
+		<Separator
+			orientation="vertical"
+			class="h-6"
+		/>
 
 		<!-- Zoom -->
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" @click="emit('zoomOut')">
-						<Icon name="lucide:minus" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						@click="emit('zoomOut')"
+					>
+						<Icon
+							name="lucide:minus"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Zoom Out</p>
+					<p>{{ t('overlayBuilder.toolbar.zoomOut') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 
-		<Button variant="ghost" size="sm" class="min-w-16" @click="emit('resetZoom')">
+		<Button
+			variant="ghost"
+			size="sm"
+			class="min-w-16"
+			@click="emit('resetZoom')"
+		>
 			{{ formatZoom(zoom) }}
 		</Button>
 
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" @click="emit('zoomIn')">
-						<Icon name="lucide:plus" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						@click="emit('zoomIn')"
+					>
+						<Icon
+							name="lucide:plus"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Zoom In</p>
+					<p>{{ t('overlayBuilder.toolbar.zoomIn') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 
-		<Separator orientation="vertical" class="h-6" />
+		<Separator
+			orientation="vertical"
+			class="h-6"
+		/>
 
 		<!-- Grid -->
 		<TooltipProvider>
@@ -358,11 +485,14 @@ function copyOverlayLink() {
 						:class="{ 'bg-accent': showGrid }"
 						@click="emit('toggleGrid')"
 					>
-						<Icon name="lucide:grid3x3" class="h-4 w-4" />
+						<Icon
+							name="lucide:grid-3x3"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Toggle Grid</p>
+					<p>{{ t('overlayBuilder.toolbar.toggleGrid') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -376,27 +506,14 @@ function copyOverlayLink() {
 						:class="{ 'bg-accent': snapToGrid }"
 						@click="emit('toggleSnap')"
 					>
-						<Icon name="lucide:layers" class="h-4 w-4" />
+						<Icon
+							name="lucide:layers"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Snap to Grid</p>
-				</TooltipContent>
-			</Tooltip>
-		</TooltipProvider>
-
-		<div class="flex-1" />
-
-		<!-- Right Side Actions -->
-		<TooltipProvider v-if="overlayId">
-			<Tooltip>
-				<TooltipTrigger as-child>
-					<Button variant="ghost" size="icon" @click="copyOverlayLink">
-						<Icon name="lucide:external-link" class="h-4 w-4" />
-					</Button>
-				</TooltipTrigger>
-				<TooltipContent>
-					<p>{{ t('overlaysRegistry.copyLink') || 'Copy Overlay Link' }}</p>
+					<p>{{ t('overlayBuilder.toolbar.snapToGrid') }}</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
@@ -404,12 +521,105 @@ function copyOverlayLink() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger as-child>
-					<Button variant="default" size="icon" @click="emit('save')">
-						<Icon name="lucide:save" class="h-4 w-4" />
+					<Button
+						variant="ghost"
+						size="icon"
+						:class="{ 'bg-accent': widgetsPreview }"
+						@click="widgetsPreview = !widgetsPreview"
+					>
+						<Icon
+							name="lucide:play"
+							class="h-4 w-4"
+						/>
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>{{ t('sharedButtons.save') || 'Save' }} (Ctrl+S)</p>
+					<p>{{ t('overlayBuilder.toolbar.widgetsPreview') }}</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<div class="flex items-center gap-2 px-2 text-xs text-muted-foreground">
+			<Switch
+				id="add-layers-hidden"
+				:model-value="addLayersHidden"
+				@update:model-value="emit('toggleAddLayersHidden')"
+			/>
+			<Label for="add-layers-hidden" class="cursor-pointer whitespace-nowrap">{{ t('overlayBuilder.toolbar.addLayersHidden') }}</Label>
+		</div>
+
+		<div class="flex-1" />
+
+		<!-- Right Side Actions -->
+		<TooltipProvider v-if="overlayId && syncStatus">
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<div class="flex items-center px-1">
+						<span class="h-2 w-2 rounded-full" :class="syncStatusMeta.class" />
+					</div>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ syncStatusMeta.label }}</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button
+						variant="ghost"
+						size="icon"
+						@click="emit('openShortcuts')"
+					>
+						<Icon
+							name="lucide:keyboard"
+							class="h-4 w-4"
+						/>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ t('overlayBuilder.toolbar.shortcuts') }}</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<TooltipProvider v-if="overlayId">
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button
+						variant="ghost"
+						size="icon"
+						@click="copyOverlayLink"
+					>
+						<Icon
+							name="lucide:external-link"
+							class="h-4 w-4"
+						/>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ t('overlays.copyOverlayLink') }}</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
+
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger as-child>
+					<Button
+						variant="default"
+						size="icon"
+						@click="emit('save')"
+					>
+						<Icon
+							name="lucide:save"
+							class="h-4 w-4"
+						/>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>{{ t('overlayBuilder.toolbar.save') }} (Ctrl+S)</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>

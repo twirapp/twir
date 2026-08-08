@@ -7,7 +7,7 @@ import { toast } from 'vue-sonner'
 import * as z from 'zod'
 import { useKeywordsApi } from '~~/layers/dashboard/api/keywords'
 import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
-import PlatformSelector from '~~/layers/dashboard/components/platform-selector.vue'
+import PlatformSelector from '@/components/platform/platform-selector.vue'
 import VariableInput from '~~/layers/dashboard/components/variable-input.vue'
 import FormRolesSelector from '~~/layers/dashboard/features/commands/ui/form-roles-selector.vue'
 
@@ -26,6 +26,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+
+import { Platform } from '~/gql/graphql.js'
 
 const props = defineProps<{
 	keyword?: Omit<KeywordResponse, 'id'> & { id?: string }
@@ -50,7 +52,7 @@ const keywordsForm = useForm({
 		usageCount: z.number().min(0).optional(),
 		rolesIds: z.array(z.string()).optional(),
 		enabled: z.boolean().optional().default(true),
-		platforms: z.array(z.string()).default([]),
+		platforms: z.array(z.nativeEnum(Platform)).default([]),
 	}),
 	initialValues: {
 		text: '',
@@ -85,7 +87,6 @@ function resetFormValue() {
 watch(
 	() => props.keyword,
 	(k) => {
-		console.log(k)
 		if (!k) return
 
 		keywordsForm.setValues(structuredClone(toRaw(k)))
@@ -131,7 +132,7 @@ const save = keywordsForm.handleSubmit(async (values) => {
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
 		</DialogTrigger>
-		<DialogOrSheet class="sm:max-w-[424px]">
+		<DialogOrSheet class="sm:max-w-lg">
 			<DialogHeader>
 				<DialogTitle>
 					{{ keyword ? t('keywords.edit') : t('keywords.create') }}

@@ -1,6 +1,7 @@
 package entity
 
 type SpotifyIntegrationData struct {
-    UserName string
-    Avatar   string
+	UserName string
+	Avatar   string
+	Scopes   []string
 }

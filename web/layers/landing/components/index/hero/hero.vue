@@ -8,6 +8,7 @@ import HeroChat from './hero-chat.vue'
 
 const userStore = useAuth()
 const localePath = useLocalePath()
+const { t } = useI18n()
 
 await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDashboards())])
 </script>
@@ -24,7 +25,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 						:href="DISCORD_INVITE_URL"
 						target="_blank"
 					>
-						🚀 View latest updates
+						{{ t('landing.hero.updates') }}
 						<SvgoArrowRight
 							:fontControlled="false"
 							class="h-4 w-4 shrink-0 stroke-white/50 stroke-[1.5]"
@@ -33,15 +34,45 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 					<h1
 						class="max-w-2xl pt-4 text-[min(48px,11vw)] leading-[1.2] font-bold tracking-tight text-white lg:text-[64px]"
 					>
-						Engage your audience like never before
+						{{ t('landing.hero.title') }}
 					</h1>
 
 					<p
 						class="max-w-xl pt-6 text-[min(18px,5vw)] leading-normal text-[#ADB0B8] lg:text-[20px]"
 					>
-						Our bot is the ultimate all-in-one solution for streamers looking to take their channel
-						to the next level.
+						{{ t('landing.hero.description') }}
 					</p>
+
+					<div class="flex gap-4 pt-8 text-sm font-medium text-[#ADB0B8] md:text-base">
+						<div class="flex items-center gap-1.5">
+							<Icon
+								name="simple-icons:twitch"
+								class="h-4 w-4 text-[#9146FF]"
+							/>
+							<span>{{ t('landing.hero.platforms.twitch') }}</span>
+						</div>
+						<div class="flex items-center gap-1.5">
+							<Icon
+								name="simple-icons:kick"
+								class="h-4 w-4 text-[#53FC18]"
+							/>
+							<span>{{ t('landing.hero.platforms.kick') }}</span>
+						</div>
+						<div class="flex items-center gap-1.5">
+							<Icon
+								name="simple-icons:vk"
+								class="h-4 w-4 text-[#0077FF]"
+							/>
+							<span>{{ t('landing.hero.platforms.vk') }}</span>
+						</div>
+						<div class="flex items-center gap-1.5">
+							<Icon
+								name="simple-icons:youtube"
+								class="h-4 w-4 text-[#FF0000]"
+							/>
+							<span>{{ t('landing.hero.platforms.youtube') }}</span>
+						</div>
+					</div>
 
 					<div class="inline-flex w-full flex-col gap-3 pt-[48px] lg:flex-row">
 						<NuxtLink
@@ -54,7 +85,7 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 								variant="secondary"
 								@click="navigate"
 							>
-								Learn more
+								{{ t('landing.hero.learnMore') }}
 							</UiButton>
 						</NuxtLink>
 
@@ -69,26 +100,14 @@ await Promise.all([callOnce(UserStoreKey, () => userStore.getUserDataWithoutDash
 								variant="primary"
 								@click="navigate"
 							>
-								Dashboard
+								{{ t('landing.hero.dashboard') }}
 							</UiButton>
 						</NuxtLink>
 
-						<template v-else>
-							<UiButton
-								as="button"
-								variant="primary"
-								@click="userStore.login()"
-							>
-								Start with Twitch
-							</UiButton>
-							<button
-								class="xs:py-4 inline-flex items-center justify-center gap-2 rounded-lg bg-[#27272a] px-7 py-3 text-center text-base font-semibold whitespace-nowrap text-white transition-[background,box-shadow] hover:bg-[#27272a]/80 focus-visible:ring-4 focus-visible:ring-[#53FC18]/50 focus-visible:outline-none sm:text-lg"
-								@click="userStore.loginWithKick()"
-							>
-								Start with Kick
-								<Icon name="simple-icons:kick" class="h-5 w-5 text-[#53FC18]" />
-							</button>
-						</template>
+						<LoginDropdown
+							v-else
+							variant="hero"
+						/>
 					</div>
 				</div>
 

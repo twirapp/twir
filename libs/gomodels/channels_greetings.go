@@ -18,7 +18,7 @@ var (
 type ChannelsGreetings struct {
 	ID        string `gorm:"primaryKey;AUTO_INCREMENT;column:id;type:TEXT;default:uuid_generate_v4()" json:"id"`
 	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channelId"`
-	UserID    string `gorm:"column:userId;type:TEXT;"                        json:"userId"`
+	UserID    string `gorm:"column:user_id;type:uuid;"                        json:"userId"`
 	Enabled   bool   `gorm:"column:enabled;type:bool;"                       json:"enabled"`
 	Text      string `gorm:"column:text;type:TEXT;"                          json:"text"`
 	IsReply   bool   `gorm:"column:isReply;type:bool"                        json:"isReply"`

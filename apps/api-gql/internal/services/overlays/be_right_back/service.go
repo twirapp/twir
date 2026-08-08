@@ -3,6 +3,7 @@ package be_right_back
 import (
 	"context"
 	"errors"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -11,38 +12,36 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/api"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back"
 	"github.com/twirapp/twir/libs/repositories/overlays_be_right_back/model"
 	"github.com/twirapp/twir/libs/repositories/users"
 	usersmodel "github.com/twirapp/twir/libs/repositories/users/model"
 	channelservice "github.com/twirapp/twir/libs/services/channels"
 	"github.com/twirapp/twir/libs/wsrouter"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	Repository      overlays_be_right_back.Repository
-	WsRouter        wsrouter.WsRouter
-	TwirBus         *buscore.Bus
-	Logger          *slog.Logger
-	UsersRepository users.Repository
-	ChannelService  *channelservice.ChannelService
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	repository overlays_be_right_back.Repository,
+	wsRouter wsrouter.WsRouter,
+	twirBus *buscore.Bus,
+	logger *slog.Logger,
+	channelsRepository channels.Repository,
+	usersRepository users.Repository,
+	channelService *channelservice.ChannelService,
+) *Service {
 	s := &Service{
-		repository:      opts.Repository,
-		wsRouter:        opts.WsRouter,
-		twirBus:         opts.TwirBus,
-		usersRepository: opts.UsersRepository,
-		channelService:  opts.ChannelService,
+		repository:         repository,
+		wsRouter:           wsRouter,
+		twirBus:            twirBus,
+		channelsRepository: channelsRepository,
+		usersRepository:    usersRepository,
+		channelService:     channelService,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				s.twirBus.Api.TriggerBrbStart.SubscribeGroup(
 					"api",
@@ -51,7 +50,7 @@ func New(opts Opts) *Service {
 					},
 				)
 
-				opts.Logger.Info("Subscribed to TriggerBrbStart events")
+				logger.Info("Subscribed to TriggerBrbStart events")
 
 				s.twirBus.Api.TriggerBrbStop.SubscribeGroup(
 					"api",
@@ -60,7 +59,7 @@ func New(opts Opts) *Service {
 					},
 				)
 
-				opts.Logger.Info("Subscribed to TriggerBrbStop events")
+				logger.Info("Subscribed to TriggerBrbStop events")
 
 				return nil
 			},
@@ -68,7 +67,7 @@ func New(opts Opts) *Service {
 				s.twirBus.Api.TriggerBrbStart.Unsubscribe()
 				s.twirBus.Api.TriggerBrbStop.Unsubscribe()
 
-				opts.Logger.Info("Unsubscribed from TriggerBrbStart and TriggerBrbStop events")
+				logger.Info("Unsubscribed from TriggerBrbStart and TriggerBrbStop events")
 
 				return nil
 			},
@@ -83,8 +82,13 @@ type Service struct {
 	wsRouter   wsrouter.WsRouter
 	twirBus    *buscore.Bus
 
-	usersRepository apiKeyUserLookup
-	channelService  bindingUserChannelLookup
+	channelsRepository apiKeyChannelLookup
+	usersRepository    apiKeyUserLookup
+	channelService     bindingUserChannelLookup
+}
+
+type apiKeyChannelLookup interface {
+	GetByApiKey(context.Context, string) (channelentity.Channel, error)
 }
 
 type apiKeyUserLookup interface {
@@ -96,6 +100,16 @@ type bindingUserChannelLookup interface {
 }
 
 func (s *Service) resolveChannelIDByAPIKey(ctx context.Context, apiKey string) (string, error) {
+	if s.channelsRepository != nil {
+		channel, err := s.channelsRepository.GetByApiKey(ctx, apiKey)
+		if err != nil && !errors.Is(err, channels.ErrNotFound) {
+			return "", err
+		}
+		if !channel.IsNil() {
+			return channel.ID.String(), nil
+		}
+	}
+
 	user, err := s.usersRepository.GetByApiKey(ctx, apiKey)
 	if err != nil {
 		return "", err
@@ -212,7 +226,7 @@ func createDefaultOverlayInput(channelID string) overlays_be_right_back.CreateIn
 			BackgroundColor: "#000000",
 			FontSize:        48,
 			FontColor:       "#FFFFFF",
-			FontFamily:      "Roboto",
+			FontFamily:      "roboto",
 		},
 	}
 }

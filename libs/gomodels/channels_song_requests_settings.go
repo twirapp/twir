@@ -8,6 +8,7 @@ import (
 type ChannelSongRequestsSettings struct {
 	ID                                   string         `gorm:"column:id;type:uuid;primary_key;default:gen_random_uuid()"`
 	ChannelID                            string         `gorm:"column:channel_id;type:text;not null"`
+	Mode                                 string         `gorm:"column:mode;type:varchar(20);not null;default:YOUTUBE"`
 	Enabled                              bool           `gorm:"column:enabled;type:boolean;not null"`
 	AcceptOnlyWhenOnline                 bool           `gorm:"column:accept_only_when_online;type:boolean;not null"`
 	PlayerNoCookieMode                   bool           `gorm:"column:player_no_cookie_mode;type:boolean;not null"`

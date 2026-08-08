@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/integrations"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
+	buscorespotify "github.com/twirapp/twir/libs/bus-core/spotify"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/tokens"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -100,6 +101,12 @@ type integrationsBus struct {
 
 type executronBus struct {
 	Execute Queue[executron.ExecuteRequest, executron.ExecuteResponse]
+}
+
+type spotifyBus struct {
+	Search            Queue[buscorespotify.SearchRequest, buscorespotify.SearchResponse]
+	CreateSongRequest Queue[buscorespotify.CreateSongRequestRequest, buscorespotify.CreateSongRequestResponse]
+	CancelSongRequest Queue[buscorespotify.CancelSongRequestRequest, buscorespotify.CancelSongRequestResponse]
 }
 
 type eventsBus struct {

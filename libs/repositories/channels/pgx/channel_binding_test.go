@@ -41,10 +41,11 @@ func TestCreateChannelQueryDoesNotWriteProviderLinkage(t *testing.T) {
 	}
 }
 
-func TestUpdateChannelQueryOnlyTouchesIsEnabled(t *testing.T) {
+func TestUpdateChannelQueryUpdatesMutableChannelSettings(t *testing.T) {
 	for _, fragment := range []string{
 		"UPDATE channels",
 		`SET "isEnabled" = COALESCE($2, "isEnabled")`,
+		"api_key = COALESCE($3, api_key)",
 		"WHERE id = $1",
 		"RETURNING id",
 	} {

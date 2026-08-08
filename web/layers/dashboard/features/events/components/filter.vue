@@ -31,7 +31,7 @@ const { t } = useI18n()
 				@click="onRemove(operationIndex, filterIndex)"
 			>
 				<Icon
-					name="lucide:trash2"
+					name="lucide:trash"
 					class="h-4 w-4"
 				/>
 			</Button>

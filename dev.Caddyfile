@@ -3,9 +3,19 @@
 }
 
 {$SITE_BASE_URL} http://localhost:3005 {
+    tls internal
     reverse_proxy http://127.0.0.1:3010
 
     handle_path /api/* {
+        reverse_proxy 127.0.0.1:3009
+    }
+
+    # MCP OAuth discovery (served by api-gql at root paths, keep prefix)
+    handle /.well-known/oauth* {
+        reverse_proxy 127.0.0.1:3009
+    }
+
+    handle /.well-known/openid-configuration {
         reverse_proxy 127.0.0.1:3009
     }
 
@@ -29,6 +39,12 @@
     handle_path /webhook/kick* {
 				rewrite * /webhook/kick{path}
 				reverse_proxy http://127.0.0.1:3030
+    }
+
+    # Uploader public links
+    handle_path /u/* {
+        rewrite * /v1/u{path}
+        reverse_proxy 127.0.0.1:3009
     }
 
     handle_path /s* {

@@ -1,6 +1,8 @@
 package mappers
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -30,10 +32,20 @@ var commandsEntityExpiresAtMap = map[commandwithrelationentity.CommandExpireType
 	commandwithrelationentity.CommandExpireTypeDisable: gqlmodel.CommandExpiresTypeDisable,
 }
 
-func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) gqlmodel.Command {
+func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) (gqlmodel.Command, error) {
 	rolesIds := make([]string, len(e.Command.RolesIDS))
 	for i, v := range e.Command.RolesIDS {
 		rolesIds[i] = v.String()
+	}
+
+	platforms := make([]gqlmodel.Platform, 0, len(e.Command.Platforms))
+	for _, p := range e.Command.Platforms {
+		mappedPlatform, err := EntityPlatformToGraphQL(p)
+		if err != nil {
+			return gqlmodel.Command{}, fmt.Errorf("map command platform: %w", err)
+		}
+
+		platforms = append(platforms, mappedPlatform)
 	}
 
 	m := gqlmodel.Command{
@@ -65,7 +77,7 @@ func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) g
 		ExpiresAt:                 nil, // will be set later
 		ExpiresType:               nil, // will be set later
 		RoleCooldowns:             nil, // will be set later
-		Platforms:                 PlatformsToStrings(e.Command.Platforms),
+		Platforms:                 platforms,
 	}
 
 	if e.Command.Cooldown != nil {
@@ -104,7 +116,7 @@ func CommandEntityTo(e commandwithrelationentity.CommandWithGroupAndResponses) g
 	}
 	m.RoleCooldowns = rolesCooldowns
 
-	return m
+	return m, nil
 }
 
 func CommandGroupTo(e commandwithrelationentity.CommandGroup) gqlmodel.CommandGroup {
@@ -115,7 +127,17 @@ func CommandGroupTo(e commandwithrelationentity.CommandGroup) gqlmodel.CommandGr
 	}
 }
 
-func CommandResponseTo(e commandwithrelationentity.CommandResponse) gqlmodel.CommandResponse {
+func CommandResponseTo(e commandwithrelationentity.CommandResponse) (gqlmodel.CommandResponse, error) {
+	platforms := make([]gqlmodel.Platform, 0, len(e.Platforms))
+	for _, p := range e.Platforms {
+		mappedPlatform, err := EntityPlatformToGraphQL(p)
+		if err != nil {
+			return gqlmodel.CommandResponse{}, fmt.Errorf("map response platform: %w", err)
+		}
+
+		platforms = append(platforms, mappedPlatform)
+	}
+
 	m := gqlmodel.CommandResponse{
 		ID:                  e.ID,
 		CommandID:           e.CommandID.String(),
@@ -123,27 +145,34 @@ func CommandResponseTo(e commandwithrelationentity.CommandResponse) gqlmodel.Com
 		TwitchCategoriesIds: e.TwitchCategoryIDs,
 		OnlineOnly:          e.OnlineOnly,
 		OfflineOnly:         e.OfflineOnly,
+		Platforms:           platforms,
 	}
 
 	if e.Text != nil {
 		m.Text = *e.Text
 	}
 
-	return m
+	return m, nil
 }
 
 func CommandGqlInputToService(
 	channelID, actorID string,
 	input gqlmodel.CommandsCreateOpts,
-) commands.CreateInput {
+) (commands.CreateInput, error) {
 	responses := make([]commands.CreateInputResponse, len(input.Responses))
 	for idx, res := range input.Responses {
+		platforms, err := GraphQLPlatformsToEntities(res.Platforms.Value())
+		if err != nil {
+			return commands.CreateInput{}, fmt.Errorf("map response platforms: %w", err)
+		}
+
 		responses[idx] = commands.CreateInputResponse{
 			Text:              &res.Text,
 			Order:             idx,
 			TwitchCategoryIDs: res.TwitchCategoriesIds,
 			OnlineOnly:        res.OnlineOnly,
 			OfflineOnly:       res.OfflineOnly,
+			Platforms:         platforms,
 		}
 	}
 
@@ -170,6 +199,11 @@ func CommandGqlInputToService(
 		)
 	}
 
+	commandPlatforms, err := GraphQLPlatformsToEntities(input.Platforms.Value())
+	if err != nil {
+		return commands.CreateInput{}, fmt.Errorf("map command platforms: %w", err)
+	}
+
 	return commands.CreateInput{
 		ChannelID:                 channelID,
 		ActorID:                   actorID,
@@ -186,6 +220,7 @@ func CommandGqlInputToService(
 		AllowedUsersIDS:           input.AllowedUsersIds,
 		RolesIDS:                  input.RolesIds,
 		OnlineOnly:                input.OnlineOnly,
+		OfflineOnly:               input.OfflineOnly,
 		EnabledCategories:         input.EnabledCategories,
 		RequiredWatchTime:         input.RequiredWatchTime,
 		RequiredMessages:          input.RequiredMessages,
@@ -195,8 +230,8 @@ func CommandGqlInputToService(
 		ExpiresType:               expiresType,
 		Responses:                 responses,
 		RoleCooldowns:             roleCooldowns,
-		Platforms:                 StringsToPlatforms(input.Platforms.Value()),
-	}
+		Platforms:                 commandPlatforms,
+	}, nil
 }
 
 func StreamElementsCommandToGql(m streamelements.Command) gqlmodel.StreamElementsCommand {

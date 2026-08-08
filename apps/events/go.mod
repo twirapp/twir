@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/goccy/go-json v0.10.6
+	github.com/goforj/wire v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix/v2 v2.32.0
 	github.com/redis/go-redis/v9 v9.17.1
@@ -23,7 +24,6 @@ require (
 	github.com/twirapp/twir/libs/utils v0.0.0-20251127124349-67ad7fa0003f
 	github.com/valyala/fasttemplate v1.2.2
 	go.temporal.io/sdk v1.38.0
-	go.uber.org/fx v1.24.0
 	golang.org/x/sync v0.20.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
@@ -140,6 +140,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.39.0 // indirect
 	go.opentelemetry.io/otel/trace v1.41.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
+	go.uber.org/fx v1.24.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.52.0 // indirect

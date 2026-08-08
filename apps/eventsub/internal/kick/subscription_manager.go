@@ -19,7 +19,6 @@ import (
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/logger"
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	"go.uber.org/fx"
 )
 
 const (
@@ -60,23 +59,19 @@ type SubscriptionManager struct {
 	callbackBaseURL string
 }
 
-type Opts struct {
-	fx.In
-
-	Config    cfg.Config
-	Redis     *goredis.Client
-	Logger    *slog.Logger
-	TwirBus   *buscore.Bus
-	UsersRepo usersrepository.Repository
-}
-
-func New(opts Opts) *SubscriptionManager {
+func New(
+	config cfg.Config,
+	redisClient *goredis.Client,
+	logger *slog.Logger,
+	twirBus *buscore.Bus,
+	usersRepo usersrepository.Repository,
+) *SubscriptionManager {
 	return &SubscriptionManager{
-		config:    opts.Config,
-		redis:     opts.Redis,
-		logger:    opts.Logger,
-		twirBus:   opts.TwirBus,
-		usersRepo: opts.UsersRepo,
+		config:    config,
+		redis:     redisClient,
+		logger:    logger,
+		twirBus:   twirBus,
+		usersRepo: usersRepo,
 	}
 }
 

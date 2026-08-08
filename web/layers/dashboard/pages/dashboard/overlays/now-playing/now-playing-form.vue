@@ -26,6 +26,14 @@ import { type Font, FontSelector } from '@/lib/fontsource'
 
 import { useNowPlayingForm } from './use-now-playing-form'
 
+interface Props {
+	readonly embedded?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	embedded: false,
+})
+
 const { t } = useI18n()
 const { canCopyOverlayLink, copyOverlayLink } = useCopyOverlayLink('now-playing')
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
@@ -188,12 +196,14 @@ const fontWeightOptions = computed(() => {
 
 		<CardFooter class="flex justify-end gap-2">
 			<Button
+				v-if="!props.embedded"
 				variant="destructive"
 				@click="deleter.executeMutation({ id: formValue.id! })"
 			>
 				{{ t('sharedButtons.delete') }}
 			</Button>
 			<Button
+				v-if="!props.embedded"
 				:disabled="!formValue.id || !canCopyLink"
 				variant="secondary"
 				@click="copyOverlayLink({ id: formValue.id! })"

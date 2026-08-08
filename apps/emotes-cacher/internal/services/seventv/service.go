@@ -9,38 +9,34 @@ import (
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/emotes_store"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/messages"
 	"github.com/twirapp/twir/apps/emotes-cacher/internal/services/seventv/operations"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	config "github.com/twirapp/twir/libs/config"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
 	"github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	Gorm        *gorm.DB
-	Config      config.Config
-	Logger      *slog.Logger
-	EmotesStore *emotes_store.EmotesStore
-}
-
-func New(opts Opts) error {
+func New(
+	lc *lifecycle.Lifecycle,
+	gorm *gorm.DB,
+	cfg config.Config,
+	logger *slog.Logger,
+	emotesStore *emotes_store.EmotesStore,
+) error {
 	s := Service{
 		sockets:              nil,
-		gorm:                 opts.Gorm,
-		sevenTvApiClient:     seventv.NewClient(opts.Config.SevenTvToken),
-		logger:               opts.Logger,
-		emotesStore:          opts.EmotesStore,
+		gorm:                 gorm,
+		sevenTvApiClient:     seventv.NewClient(cfg.SevenTvToken),
+		logger:               logger,
+		emotesStore:          emotesStore,
 		registeredChannelIDs: make(map[string]bool),
 		emoteSetToChannelID:  make(map[string]emotes_store.ChannelKey),
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				go s.start(context.Background())
 				return nil

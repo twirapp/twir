@@ -9,33 +9,29 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/bots/internal/services/channel"
+	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/generic"
 	"github.com/twirapp/twir/libs/logger"
-	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 )
 
-type Opts struct {
-	fx.In
-	LC fx.Lifecycle
-
-	TwirBus        *buscore.Bus
-	Logger         *slog.Logger
-	ChannelService *channel.Service
-}
-
-func New(opts Opts) *Service {
+func New(
+	lc *lifecycle.Lifecycle,
+	twirBus *buscore.Bus,
+	logger *slog.Logger,
+	channelService *channel.Service,
+) *Service {
 	s := &Service{
 		inProgressVotebans: make(map[voteBanChannelId]*session),
-		twirBus:            opts.TwirBus,
-		logger:             opts.Logger,
-		channelService:     opts.ChannelService,
+		twirBus:            twirBus,
+		logger:             logger,
+		channelService:     channelService,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
+	lc.Append(
+		lifecycle.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := s.twirBus.Bots.VotebanRegister.SubscribeGroup(
 					"bots",

@@ -12,7 +12,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/shortenedurls"
 	shortlinkscustomdomains "github.com/twirapp/twir/apps/api-gql/internal/services/shortlinkscustomdomains"
 	config "github.com/twirapp/twir/libs/config"
-	"go.uber.org/fx"
 )
 
 type statisticsRequestDto struct {
@@ -30,8 +29,6 @@ type statisticsPointDto struct {
 var _ httpbase.Route[*statisticsRequestDto, *httpbase.BaseOutputJson[[]statisticsPointDto]] = (*statistics)(nil)
 
 type StatisticsOpts struct {
-	fx.In
-
 	Service              *shortenedurls.Service
 	Sessions             *auth.Auth
 	CustomDomainsService *shortlinkscustomdomains.Service

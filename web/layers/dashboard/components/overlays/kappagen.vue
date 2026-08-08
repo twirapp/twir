@@ -10,7 +10,8 @@ const localePath = useLocalePath()
 
 <template>
 	<card
-		:icon="'tabler:icon-mood-wink'"
+		:icon="'tabler:mood-wink'"
+		icon-fill="#61e8bb"
 		:icon-stroke="1"
 		title="Kappagen"
 		:description="t('overlays.kappagen.description')"
