@@ -35,7 +35,7 @@ async function handleEyeDropperClick() {
 		aria-label="Pick color from screen"
 		title="Pick color from screen"
 		variant="outline"
-		size="custom"
+		size="icon"
 		@click="handleEyeDropperClick"
 	>
 		<Icon name="lucide:pipette" class="w-4 h-4" />
@@ -45,7 +45,7 @@ async function handleEyeDropperClick() {
 		v-else
 		:disabled="true"
 		variant="outline"
-		size="custom"
+		size="icon"
 		:class="props.class"
 		title="EyeDropper API don't supported in this browser"
 	>

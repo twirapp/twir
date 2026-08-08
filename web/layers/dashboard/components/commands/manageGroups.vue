@@ -48,7 +48,7 @@ async function update(index: number) {
 	})
 }
 
-const swatches = ['#74f2ca', '#d03050']
+const swatches: [string, ...string[]] = ['#74f2ca', '#d03050']
 </script>
 
 <template>

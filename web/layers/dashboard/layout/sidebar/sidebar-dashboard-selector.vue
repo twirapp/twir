@@ -114,7 +114,7 @@ const {
 							{{ t(`dashboard.header.managingUser`) }}
 							<Icon
 								v-if="PLATFORM_META_BY_SLUG[currentDashboard.platform]"
-								:name="PLATFORM_META_BY_SLUG[currentDashboard.platform]?.icon"
+								:name="PLATFORM_META_BY_SLUG[currentDashboard.platform]?.icon ?? ''"
 								:title="PLATFORM_META_BY_SLUG[currentDashboard.platform]?.label"
 								class="size-4"
 								:class="PLATFORM_META_BY_SLUG[currentDashboard.platform]?.colorClass"
@@ -154,7 +154,7 @@ const {
 								<span class="truncate">{{ getDashboardLogin(option.data) }}</span>
 							<Icon
 								v-if="PLATFORM_META_BY_SLUG[option.data.platform]"
-								:name="PLATFORM_META_BY_SLUG[option.data.platform]?.icon"
+								:name="PLATFORM_META_BY_SLUG[option.data.platform]?.icon ?? ''"
 								:title="PLATFORM_META_BY_SLUG[option.data.platform]?.label"
 								class="size-4 ml-auto"
 								:class="PLATFORM_META_BY_SLUG[option.data.platform]?.colorClass"

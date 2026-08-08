@@ -151,8 +151,10 @@ export function useWidgetStacks(
 		// If stack has only one widget left, remove its stackId too
 		const remainingInStack = widgets.value.filter((w) => w.stackId === stackId);
 		if (remainingInStack.length === 1) {
-			remainingInStack[0].stackId = undefined;
-			remainingInStack[0].stackOrder = 0;
+			const remainingWidget = remainingInStack[0];
+			if (!remainingWidget) return;
+			remainingWidget.stackId = undefined;
+			remainingWidget.stackOrder = 0;
 			delete activeStackTabs.value[stackId];
 		}
 	}

@@ -18,7 +18,7 @@ export interface NavigationConfig {
 
 // Base navigation items without translations
 // Name will be populated from i18n in components
-export const baseNavigationItems: Array<Partial<NavigationItem>> = [
+export const baseNavigationItems: NavigationItem[] = [
 	{
 		translationKey: 'sidebar.dashboard',
 		icon: 'lucide:layout-dashboard',
@@ -174,7 +174,7 @@ export const baseNavigationItems: Array<Partial<NavigationItem>> = [
 
 export interface FooterNavigationItem {
 	name?: string
-	icon: Component | string // Component or SVG asset path
+	icon: string
 	href: string
 	translationKey?: string
 	isExternal?: boolean
@@ -244,7 +244,7 @@ export function getFlatNavigationItems() {
 	const result: Array<{
 		name?: string
 		translationKey?: string | string[]
-		icon: Component
+		icon: string
 		path: string
 		disabled?: boolean
 		isNew?: boolean

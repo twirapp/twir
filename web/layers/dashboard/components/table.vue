@@ -10,8 +10,8 @@ import {
 	Table as TableRoot,
 	TableRow,
 } from '@/components/ui/table'
-import { useIsMobile } from '@/composables/use-is-mobile'
-import ShadcnLayout from '@/layout/shadcn-layout.vue'
+import { useIsMobile } from '~~/layers/dashboard/composables/use-is-mobile'
+import ShadcnLayout from '~~/layers/dashboard/layout/shadcn-layout.vue'
 
 defineProps<{
 	table: Table<T>

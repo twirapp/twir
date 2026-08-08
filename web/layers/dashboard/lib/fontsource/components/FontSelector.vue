@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useVirtualizer } from '@tanstack/vue-virtual'
-import { type Font, generateFontKey, useFontSource } from '@twir/fontsource'
+import { type Font, type FontStyle, generateFontKey, useFontSource } from '@twir/fontsource'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { cn } from '~~/layers/dashboard/lib/utils'
 
@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 const props = defineProps<{
 	fontFamily: string
 	fontWeight: number
-	fontStyle: string
+	fontStyle: FontStyle
 }>()
 
 const { t } = useI18n()
@@ -68,7 +68,7 @@ interface FontOption {
 	label: string
 	value: string
 	fontWeight: number
-	fontStyle: string
+	fontStyle: FontStyle
 }
 
 const fontOptions = computed((): FontOption[] => {
@@ -83,12 +83,19 @@ const fontOptions = computed((): FontOption[] => {
 
 			return true
 		})
-		.map((font) => ({
-			label: font.family,
-			value: font.id,
-			fontWeight: font.weights.includes(400) ? 400 : font.weights[0],
-			fontStyle: font.styles.includes('normal') ? 'normal' : font.styles[0],
-		}))
+		.map((font) => {
+			const fontWeight = font.weights.includes(400) ? 400 : font.weights[0]
+			const fontStyle = font.styles.includes('normal') ? 'normal' : font.styles[0]
+			if (fontWeight === undefined || fontStyle === undefined) return undefined
+
+			return {
+				label: font.family,
+				value: font.id,
+				fontWeight,
+				fontStyle,
+			}
+		})
+		.filter((option): option is FontOption => option !== undefined)
 })
 
 const selectedFontLabel = computed(() => {
@@ -119,6 +126,29 @@ function getFontFamily(option: FontOption): string {
 function selectFont(optionValue: string) {
 	selectedFont.value = optionValue
 	open.value = false
+}
+
+function isSelectedFont(index: number): boolean {
+	return fontOptions.value[index]?.value === selectedFont.value
+}
+
+function loadFontPreviewAt(index: number) {
+	const option = fontOptions.value[index]
+	if (option) loadFontPreview(option)
+}
+
+function selectFontAt(index: number) {
+	const option = fontOptions.value[index]
+	if (option) selectFont(option.value)
+}
+
+function getFontFamilyAt(index: number): string {
+	const option = fontOptions.value[index]
+	return option ? getFontFamily(option) : ''
+}
+
+function getFontLabelAt(index: number): string {
+	return fontOptions.value[index]?.label ?? ''
 }
 
 // Scroll to selected item when opening popover
@@ -231,29 +261,27 @@ onMounted(async () => {
 									class="hover:bg-accent hover:text-accent-foreground flex cursor-pointer items-center gap-2 rounded-sm px-2 py-2 transition-colors"
 									:class="{
 										'bg-accent text-accent-foreground':
-											selectedFont === fontOptions[virtualRow.index].value,
+											isSelectedFont(virtualRow.index),
 									}"
-									@mouseenter="loadFontPreview(fontOptions[virtualRow.index])"
-									@click="selectFont(fontOptions[virtualRow.index].value)"
+									@mouseenter="loadFontPreviewAt(virtualRow.index)"
+									@click="selectFontAt(virtualRow.index)"
 								>
 									<Icon
 										name="lucide:check"
-										:class="
-											cn(
-												'h-4 w-4 shrink-0',
-												selectedFont === fontOptions[virtualRow.index].value
-													? 'opacity-100'
-													: 'opacity-0'
-											)
-										"
+									:class="
+										cn(
+											'h-4 w-4 shrink-0',
+											isSelectedFont(virtualRow.index) ? 'opacity-100' : 'opacity-0'
+										)
+									"
 									/>
 									<span
 										class="truncate text-sm"
 										:style="{
-											fontFamily: `'${getFontFamily(fontOptions[virtualRow.index])}'`,
+											fontFamily: `'${getFontFamilyAt(virtualRow.index)}'`,
 										}"
 									>
-										{{ fontOptions[virtualRow.index].label }}
+										{{ getFontLabelAt(virtualRow.index) }}
 									</span>
 								</div>
 							</div>

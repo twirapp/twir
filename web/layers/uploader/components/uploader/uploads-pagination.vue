@@ -6,6 +6,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const emit = defineEmits<{
 	(e: 'goToPage', page: number): void
@@ -58,7 +59,7 @@ const visiblePages = computed(() => {
 	<div class="flex items-center justify-between border-t border-[hsl(240,11%,30%)] pt-4">
 		<div class="text-sm text-[hsl(240,11%,65%)]">
 			{{
-				$t('uploader.profile.pageOf', {
+				t('uploader.profile.pageOf', {
 					page: currentPage + 1,
 					totalPages,
 					total,

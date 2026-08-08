@@ -2,7 +2,7 @@ function getRequestLanguage() {
 	const nuxtApp = useNuxtApp()
 
 	if (import.meta.server) {
-		const reqLocale = nuxtApp.ssrContext?.event.node.req.headers['accept-language']?.split(',')[0]
+		const reqLocale = nuxtApp.ssrContext?.event.node?.req.headers['accept-language']?.split(',')[0]
 		return reqLocale || 'en-US'
 	}
 

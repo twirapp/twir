@@ -2,9 +2,9 @@
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import { useNowPlayingOverlayApi } from '@/api/overlays/now-playing'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useNowPlayingOverlayApi } from '~~/layers/dashboard/api/overlays/now-playing'
+import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { ColorPicker } from '@/components/ui/color-picker'
@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
-import { type Font, FontSelector } from '@/lib/fontsource'
+import { type Font, FontSelector } from '~~/layers/dashboard/lib/fontsource'
 
 import { useNowPlayingForm } from './use-now-playing-form'
 
@@ -80,7 +80,7 @@ watch(
 
 const fontWeightOptions = computed(() => {
 	if (!fontData.value) return []
-	return fontData.value.weights.map((weight) => ({ label: `${weight}`, value: weight }))
+	return fontData.value.weights.map((weight: Font['weights'][number]) => ({ label: `${weight}`, value: weight }))
 })
 </script>
 

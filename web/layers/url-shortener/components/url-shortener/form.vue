@@ -119,6 +119,10 @@ const onSubmit = form.handleSubmit(async (values) => {
 		currentError.value = error
 		return
 	}
+	if (!data) {
+		currentError.value = 'Failed to create short link'
+		return
+	}
 
 	currentUrl.value = data.data
 

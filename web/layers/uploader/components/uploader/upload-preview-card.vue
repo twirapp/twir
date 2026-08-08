@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import type { UploadedFileOutputDto } from '@twir/api/openapi'
 
 import ActionConfirm from '@/components/ui/action-confirm'
+import { formatBytes } from '../../utils/format-bytes'
 
 const props = defineProps<{
 	upload: UploadedFileOutputDto
@@ -94,20 +95,20 @@ async function handleDelete() {
 				{{ displayLink }}
 			</a>
 			<div class="flex items-center gap-1 text-xs text-[hsl(240,11%,60%)]">
-				<span class="truncate">{{ upload.name ?? $t('uploader.untitled') }}</span>
+				<span class="truncate">{{ upload.name ?? t('uploader.untitled') }}</span>
 				<span aria-hidden="true">·</span>
 				<span class="flex-none">{{ formatBytes(upload.size) }}</span>
 			</div>
 			<div class="flex flex-col text-xs text-[hsl(240,11%,55%)]">
-				<span v-if="createdAt">{{ $t('uploader.created', { date: createdAt }) }}</span>
-				<span v-if="expiresLabel" :title="$t('uploader.expires', { date: expiresAt })">
+				<span v-if="createdAt">{{ t('uploader.created', { date: createdAt }) }}</span>
+				<span v-if="expiresLabel" :title="t('uploader.expires', { date: expiresAt })">
 					{{ expiresLabel }}
 				</span>
 			</div>
 			<div class="flex items-center gap-2 pt-1">
 				<button
 					class="flex items-center justify-center rounded-lg border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] p-1.5 text-[hsl(240,11%,80%)] hover:border-[hsl(240,11%,40%)] hover:bg-[hsl(240,11%,25%)] transition-colors"
-					:title="$t('uploader.actions.copyLink')"
+					:title="t('uploader.actions.copyLink')"
 					@click="copyLink"
 				>
 					<Icon name="lucide:copy" class="h-3.5 w-3.5" />
@@ -116,13 +117,13 @@ async function handleDelete() {
 					:href="upload.link"
 					target="_blank"
 					class="flex items-center justify-center rounded-lg border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] p-1.5 text-[hsl(240,11%,80%)] hover:border-[hsl(240,11%,40%)] hover:bg-[hsl(240,11%,25%)] transition-colors"
-					:title="$t('uploader.actions.open')"
+					:title="t('uploader.actions.open')"
 				>
 					<Icon name="lucide:external-link" class="h-3.5 w-3.5" />
 				</a>
 				<button
 					class="flex items-center justify-center rounded-lg border border-red-900/50 bg-red-950/30 p-1.5 text-red-400 hover:border-red-700 hover:bg-red-950/50 hover:text-red-300 transition-colors"
-					:title="$t('uploader.actions.delete')"
+					:title="t('uploader.actions.delete')"
 					@click="showDeleteConfirm = true"
 				>
 					<Icon name="lucide:trash-2" class="h-3.5 w-3.5" />

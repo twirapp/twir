@@ -12,7 +12,7 @@ function getRandomNum(min: number, max: number) {
 
 export function useChat(isEnabled: Ref<boolean>) {
 	const currentMessageIndex = ref(0)
-	const timeoutId = ref<ReturnType<typeof setTimeout>>(null)
+	const timeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 	const messages = ref<Message[]>(initialChatMessages)
 
 	watch(() => messages.value, async (msg) => {
@@ -28,7 +28,7 @@ export function useChat(isEnabled: Ref<boolean>) {
 	}
 
 	function stopTimeout() {
-		if (!timeoutId.value) return
+		if (timeoutId.value === null) return
 		clearTimeout(timeoutId.value)
 		timeoutId.value = null
 	}
@@ -39,6 +39,7 @@ export function useChat(isEnabled: Ref<boolean>) {
 		currentMessageIndex.value = currentMessageIndex.value % liveChatMessages.length
 		const message = liveChatMessages[currentMessageIndex.value]
 		currentMessageIndex.value += 1
+		if (!message) return
 
 		if (message.type === 'sleep') {
 			await sleep(message.ms)
@@ -47,7 +48,7 @@ export function useChat(isEnabled: Ref<boolean>) {
 		if (message.type === 'message') {
 			messages.value.push(message)
 
-			for (const msg of message.replyMessages) {
+			for (const msg of message.replyMessages ?? []) {
 				if (msg.type === 'sleep') {
 					await sleep(msg.ms)
 					continue

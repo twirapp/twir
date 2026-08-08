@@ -163,10 +163,10 @@ const activeTab = ref<GuideTab>('curl')
 			</div>
 			<div>
 				<h3 class="text-sm font-semibold text-[hsl(240,11%,90%)]">
-					{{ $t('uploader.guide.title') }}
+					{{ t('uploader.guide.title') }}
 				</h3>
 				<p class="text-xs text-[hsl(240,11%,55%)]">
-					{{ $t('uploader.guide.description') }}
+					{{ t('uploader.guide.description') }}
 				</p>
 			</div>
 		</div>
@@ -184,43 +184,43 @@ const activeTab = ref<GuideTab>('curl')
 				"
 				@click="activeTab = tab.id"
 			>
-				{{ $t(tab.labelKey) }}
+				{{ t(tab.labelKey) }}
 			</button>
 		</div>
 
 		<div v-if="activeTab === 'curl'" class="flex flex-col gap-2">
 			<p class="text-xs text-[hsl(240,11%,65%)]">
-				{{ $t('uploader.guide.curlDescription') }}
+				{{ t('uploader.guide.curlDescription') }}
 			</p>
 			<UploaderCodeBlock :code="curlSnippet" />
 			<p class="text-xs font-medium text-[hsl(240,11%,65%)]">
-				{{ $t('uploader.guide.curlResponse') }}
+				{{ t('uploader.guide.curlResponse') }}
 			</p>
 			<UploaderCodeBlock :code="curlResponseSnippet" />
 		</div>
 
 		<div v-else-if="activeTab === 'sharex'" class="flex flex-col gap-2">
 			<p class="text-xs text-[hsl(240,11%,65%)]">
-				{{ $t('uploader.guide.sharexDescription') }}
+				{{ t('uploader.guide.sharexDescription') }}
 			</p>
 			<UploaderCodeBlock :code="sharexSnippet" />
 		</div>
 
 		<div v-else class="flex flex-col gap-2">
 			<p class="text-xs text-[hsl(240,11%,65%)]">
-				{{ $t('uploader.guide.chatterinoDescription') }}
+				{{ t('uploader.guide.chatterinoDescription') }}
 			</p>
 			<div
 				v-if="uploaderApiKey"
 				class="flex items-start gap-1.5 text-xs text-yellow-300/80"
 			>
 				<Icon name="lucide:shield-alert" class="h-3.5 w-3.5 flex-none mt-px" />
-				<span class="flex-1">{{ $t('uploader.guide.copyJsonAuthedNote') }}</span>
+				<span class="flex-1">{{ t('uploader.guide.copyJsonAuthedNote') }}</span>
 				<button
 					type="button"
 					class="flex-none flex items-center justify-center rounded-lg border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] p-1.5 text-[hsl(240,11%,80%)] hover:border-[hsl(240,11%,40%)] hover:bg-[hsl(240,11%,25%)] transition-colors"
-					:aria-label="$t(isTokenRevealed ? 'uploader.guide.hideToken' : 'uploader.guide.showToken')"
-					:title="$t(isTokenRevealed ? 'uploader.guide.hideToken' : 'uploader.guide.showToken')"
+					:aria-label="t(isTokenRevealed ? 'uploader.guide.hideToken' : 'uploader.guide.showToken')"
+					:title="t(isTokenRevealed ? 'uploader.guide.hideToken' : 'uploader.guide.showToken')"
 					@click="isTokenRevealed = !isTokenRevealed"
 				>
 					<Icon :name="isTokenRevealed ? 'lucide:eye-off' : 'lucide:eye'" class="h-3.5 w-3.5" />
@@ -228,7 +228,7 @@ const activeTab = ref<GuideTab>('curl')
 			</div>
 			<p v-else class="flex items-start gap-1.5 text-xs text-[hsl(240,11%,55%)]">
 				<Icon name="lucide:info" class="h-3.5 w-3.5 flex-none mt-px" />
-				{{ $t('uploader.guide.copyJsonLoginHint') }}
+				{{ t('uploader.guide.copyJsonLoginHint') }}
 			</p>
 			<button
 				type="button"
@@ -236,10 +236,10 @@ const activeTab = ref<GuideTab>('curl')
 				@click="copyChatterinoConfig"
 			>
 				<Icon :name="chatterinoConfigCopied ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />
-				{{ $t('uploader.guide.copyJson') }}
+				{{ t('uploader.guide.copyJson') }}
 			</button>
 			<p class="text-xs text-[hsl(240,11%,55%)]">
-				{{ $t('uploader.guide.copyJsonHint') }}
+				{{ t('uploader.guide.copyJsonHint') }}
 			</p>
 			<UploaderCodeBlock :code="chatterinoConfigDisplaySnippet" :copy-text="chatterinoConfigSnippet" />
 			<UploaderCodeBlock :code="chatterinoSnippet" />

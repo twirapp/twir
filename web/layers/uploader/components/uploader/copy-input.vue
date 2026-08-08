@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { t } = useI18n()
+
 const props = defineProps<{
 	text: string
 }>()
@@ -40,7 +42,7 @@ function selectText(event: FocusEvent) {
 		<button
 			type="button"
 			class="flex-none flex items-center justify-center py-1.5 px-3 rounded-lg font-semibold border border-[hsl(240,11%,30%)] hover:border-[hsl(240,11%,45%)] bg-[hsl(240,11%,25%)] hover:bg-[hsl(240,11%,35%)] text-[hsl(240,11%,90%)] transition-colors"
-			:title="$t('uploader.actions.copyLink')"
+			:title="t('uploader.actions.copyLink')"
 			@click="copyText"
 		>
 			<Icon :name="copied ? 'lucide:check' : 'lucide:copy'" class="w-4 h-4" />

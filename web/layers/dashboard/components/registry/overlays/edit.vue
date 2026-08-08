@@ -11,6 +11,8 @@ import {
 import { type OverlayProject, createLayerSettings } from '~~/layers/dashboard/features/overlay-builder/types'
 import { useOverlaySave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlaySave'
 import { useOverlayInstantSave } from '~~/layers/dashboard/features/overlay-builder/composables/useOverlayInstantSave'
+import { useFragment } from '~/gql/fragment-masking.js'
+import { ChannelOverlayLayerSettingsFieldsFragmentDoc } from '~/gql/graphql.js'
 
 const route = useRoute<'dashboard-registry-overlays-id'>()
 const router = useRouter()
@@ -91,7 +93,10 @@ const projectData = computed(() => {
 				locked: layer.locked ?? false,
 				zIndex: index,
 				periodicallyRefetchData: layer.periodicallyRefetchData,
-				settings: createLayerSettings(layer.settings, t('overlayBuilder.defaults.textContent')),
+				settings: createLayerSettings(
+					useFragment(ChannelOverlayLayerSettingsFieldsFragmentDoc, layer.settings),
+					t('overlayBuilder.defaults.textContent'),
+				),
 			}
 		}),
 	}

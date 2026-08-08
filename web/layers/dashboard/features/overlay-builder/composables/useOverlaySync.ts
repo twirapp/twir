@@ -98,7 +98,7 @@ export function useOverlaySync(
 	}
 
 	function sendSettingsUpdate(settings: OverlaySyncSettingsUpdate) {
-		send('overlayEditorSettingsUpdate', settings)
+		send('overlayEditorSettingsUpdate', { ...settings })
 	}
 
 	function sendProjectReplace(project: OverlayProject) {

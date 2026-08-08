@@ -2,6 +2,9 @@
 import { computed } from 'vue'
 
 import type { PaginationState, RowData, Table } from '@tanstack/vue-table'
+import type { AcceptableValue } from 'reka-ui'
+
+import { formatNumber } from '~/utils/format-number.js'
 
 const props = defineProps<{
 	total: number
@@ -25,9 +28,9 @@ function handleGoToPage(event: any) {
 	emits('update:page', page < 0 ? 0 : page)
 }
 
-function handlePageSizeChange(pageSize: string) {
+function handlePageSizeChange(pageSize: AcceptableValue) {
 	emits('update:page', 0)
-	emits('update:pageSize', Number(pageSize))
+	emits('update:pageSize', Number(String(pageSize)))
 }
 </script>
 

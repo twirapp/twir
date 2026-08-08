@@ -5,10 +5,10 @@ import { intervalToDuration } from 'date-fns'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 
-import { useUserAccessFlagChecker } from '@/api/auth'
-import { useDudesOverlayManager } from '@/api/overlays/dudes'
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.ts'
-import SelectTwitchUsers from '@/components/twitchUsers/twitch-users-select.vue'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
+import { useDudesOverlayManager } from '~~/layers/dashboard/api/overlays/dudes'
+import { useCopyOverlayLink } from '~~/layers/dashboard/components/overlays/copyOverlayLink'
+import SelectTwitchUsers from '~~/layers/dashboard/components/twitchUsers/twitch-users-select.vue'
 import {
 	Accordion,
 	AccordionContent,
@@ -32,7 +32,7 @@ import {
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
-import { type Font, FontSelector } from '@/lib/fontsource'
+import { type Font, FontSelector } from '~~/layers/dashboard/lib/fontsource'
 
 import { useDudesForm } from './use-dudes-form.ts'
 import { useDudesIframe } from './use-dudes-frame.ts'
@@ -136,7 +136,7 @@ watch(
 
 const fontWeightOptions = computed(() => {
 	if (!fontData.value) return []
-	return fontData.value.weights.map((weight) => ({
+	return fontData.value.weights.map((weight: Font['weights'][number]) => ({
 		label: `${weight}`,
 		value: weight,
 	}))
@@ -144,7 +144,7 @@ const fontWeightOptions = computed(() => {
 
 const fontStyleOptions = computed(() => {
 	if (!fontData.value) return []
-	return fontData.value.styles.map((style) => ({
+	return fontData.value.styles.map((style: Font['styles'][number]) => ({
 		label: capitalize(style),
 		value: style,
 	}))
@@ -665,7 +665,7 @@ function removeGradientStop(index: number) {
 										:disabled="isNameBoxDisabled"
 										:font-family="formValue.nameBoxSettings.fontFamily"
 										:font-weight="formValue.nameBoxSettings.fontWeight"
-										:font-style="formValue.nameBoxSettings.fontStyle"
+										:font-style="formValue.nameBoxSettings.fontStyle === 'italic' ? 'italic' : 'normal'"
 										:subsets="['latin', 'cyrillic']"
 									/>
 								</div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { DropdownMenuContentProps } from 'radix-vue'
+import type { DropdownMenuContentProps } from 'reka-ui'
 
 import { UserStoreKey } from '~/stores/user'
 

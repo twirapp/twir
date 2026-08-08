@@ -78,7 +78,7 @@ const regularItems = computed(() =>
 				>
 					<SidebarMenuButton
 						class="flex justify-center"
-						variant="active"
+						variant="default"
 						as-child
 						:tooltip="item.name"
 					>

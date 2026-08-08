@@ -60,7 +60,7 @@ async function save() {
 					<Label>Game</Label>
 					<Select v-model:modelValue="game">
 						<SelectTrigger>
-							<SelectValue :placeholder="gameOptions[0].label" />
+							<SelectValue :placeholder="gameOptions[0]?.label ?? 'Counter-Strike'" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem v-for="option in gameOptions" :key="option.value" :value="option.value">

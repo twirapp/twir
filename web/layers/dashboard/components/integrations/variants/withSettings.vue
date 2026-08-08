@@ -8,7 +8,7 @@ import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
 
 const props = withDefaults(defineProps<{
 	title: string
-	icon?: string
+	icon: string
 	iconFill?: string
 	save?: () => void | Promise<void>
 	isLoading?: boolean
