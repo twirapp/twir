@@ -46,7 +46,7 @@ func RegisterRoutes(
 	return Registration{}
 }
 
-type uploadedFileOutputDto struct {
+type UploadedFileOutputDto struct {
 	Id        string    `json:"id"`
 	Name      *string   `json:"name"`
 	Type      string    `json:"type"`
@@ -58,12 +58,12 @@ type uploadedFileOutputDto struct {
 }
 
 type uploadedFileWithDeleteLinkDto struct {
-	uploadedFileOutputDto
+	UploadedFileOutputDto
 	DeleteLink string `json:"delete_link"`
 }
 
 type profileOutputDto struct {
-	Files []uploadedFileOutputDto `json:"files"`
+	Files []UploadedFileOutputDto `json:"files"`
 	Total int                     `json:"total"`
 }
 
@@ -71,8 +71,8 @@ type deleteOutputDto struct {
 	Success bool `json:"success"`
 }
 
-func toOutput(service *uploaderservice.Service, file uploadedfile.Entity) uploadedFileOutputDto {
-	return uploadedFileOutputDto{
+func toOutput(service *uploaderservice.Service, file uploadedfile.Entity) UploadedFileOutputDto {
+	return UploadedFileOutputDto{
 		Id:        file.PublicID,
 		Name:      file.FileName,
 		Type:      file.MimeType,

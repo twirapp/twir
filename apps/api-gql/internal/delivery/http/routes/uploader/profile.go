@@ -48,7 +48,7 @@ func (p *profile) Register(api huma.API) {
 }
 
 func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (*httpbase.BaseOutputJson[profileOutputDto], error) {
-	files := make([]uploadedFileOutputDto, 0)
+	files := make([]UploadedFileOutputDto, 0)
 	total := 0
 	user, userErr := p.sessions.GetAuthenticatedUserModel(ctx)
 	if userErr == nil && user != nil {
@@ -75,7 +75,7 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (*httpb
 	}
 
 	seen := make(map[string]struct{}, len(files))
-	unique := make([]uploadedFileOutputDto, 0, len(files))
+	unique := make([]UploadedFileOutputDto, 0, len(files))
 	for _, file := range files {
 		if _, ok := seen[file.Id]; ok {
 			continue
@@ -83,7 +83,7 @@ func (p *profile) Handler(ctx context.Context, input *profileRequestDto) (*httpb
 		seen[file.Id] = struct{}{}
 		unique = append(unique, file)
 	}
-	slices.SortFunc(unique, func(left, right uploadedFileOutputDto) int {
+	slices.SortFunc(unique, func(left, right UploadedFileOutputDto) int {
 		return right.CreatedAt.Compare(left.CreatedAt)
 	})
 	if len(unique) > input.PerPage {

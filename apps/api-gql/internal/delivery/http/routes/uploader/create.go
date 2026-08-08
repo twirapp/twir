@@ -144,7 +144,7 @@ func (c *create) Handler(ctx context.Context, input *createInput) (*createOutput
 	return &createOutput{Body: struct {
 		Data uploadedFileWithDeleteLinkDto `json:"data"`
 	}{Data: uploadedFileWithDeleteLinkDto{
-		uploadedFileOutputDto: toOutput(c.service, entity),
+		UploadedFileOutputDto: toOutput(c.service, entity),
 		DeleteLink:            deleteURL,
 	}}}, nil
 }
