@@ -53,6 +53,7 @@ type instantSaveLayerData struct {
 	Height   int     `json:"height"`
 	Visible  bool    `json:"visible"`
 	Opacity  float64 `json:"opacity"`
+	ZIndex   *int    `json:"zIndex"`
 }
 
 func textToBase64(text string) string {
@@ -234,6 +235,11 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				continue
 			}
 
+			zIndex := layer.ZIndex
+			if foundInputLayer.ZIndex != nil {
+				zIndex = *foundInputLayer.ZIndex
+			}
+
 			e.Layers = append(e.Layers, customoverlayentity.ChannelOverlayLayer{
 				ID:        layer.ID,
 				OverlayID: layer.OverlayID,
@@ -275,6 +281,7 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				Locked:                  layer.Locked,
 				Visible:                 foundInputLayer.Visible,
 				Opacity:                 foundInputLayer.Opacity,
+				ZIndex:                  zIndex,
 			})
 		}
 
@@ -290,15 +297,16 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			}
 
 			go func() {
-				_, e := c.channelsOverlaysRepository.UpdateLayer(context.TODO(), layerID, channels_overlays.LayerUpdateInput{
-					PosX:     &layerData.PosX,
-					PosY:     &layerData.PosY,
-					Rotation: &layerData.Rotation,
-					Width:    &layerData.Width,
-					Height:   &layerData.Height,
-					Visible:  &layerData.Visible,
-					Opacity:  &layerData.Opacity,
-				})
+			_, e := c.channelsOverlaysRepository.UpdateLayer(context.TODO(), layerID, channels_overlays.LayerUpdateInput{
+				PosX:     &layerData.PosX,
+				PosY:     &layerData.PosY,
+				Rotation: &layerData.Rotation,
+				Width:    &layerData.Width,
+				Height:   &layerData.Height,
+				Visible:  &layerData.Visible,
+				Opacity:  &layerData.Opacity,
+				ZIndex:   layerData.ZIndex,
+			})
 				if e != nil {
 					// Layers created on the client exist only in the builder state until
 					// the overlay is fully saved, so a missing row here is expected.

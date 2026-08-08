@@ -74,4 +74,5 @@ type LayerUpdateInput struct {
 	Rotation *int
 	Visible  *bool
 	Opacity  *float64
+	ZIndex   *int
 }

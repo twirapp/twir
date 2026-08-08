@@ -471,13 +471,14 @@ func (c *Pgx) UpdateLayer(ctx context.Context, layerId uuid.UUID, input channels
 	query := `
 UPDATE channels_overlays_layers
 SET pos_x = COALESCE($1, pos_x),
-		pos_y = COALESCE($2, pos_y),
-		updated_at = $3,
-		width = COALESCE($4, width),
-		height = COALESCE($5, height),
-		rotation = COALESCE($6, rotation),
-		visible = COALESCE($7, visible),
-		opacity = COALESCE($8, opacity)
+	pos_y = COALESCE($2, pos_y),
+	updated_at = $3,
+	width = COALESCE($4, width),
+	height = COALESCE($5, height),
+	rotation = COALESCE($6, rotation),
+	visible = COALESCE($7, visible),
+	opacity = COALESCE($8, opacity),
+	z_index = COALESCE($10, z_index)
 WHERE id = $9
 RETURNING id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity, z_index
 `
@@ -495,6 +496,7 @@ RETURNING id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rot
 		input.Visible,
 		input.Opacity,
 		layerId,
+		input.ZIndex,
 	)
 	if err != nil {
 		return model.OverlayLayer{}, err
