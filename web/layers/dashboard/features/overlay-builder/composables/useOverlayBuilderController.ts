@@ -9,6 +9,7 @@ import { defaultSettings as defaultNowPlayingSettings } from '~~/layers/dashboar
 
 import { useOverlayBuilder } from './useOverlayBuilder'
 import { useChatOverlayPresetQuery } from './useChatOverlayPresets'
+import { type OverlaySyncLayerPosition, type OverlaySyncSettingsUpdate, useOverlaySync } from './useOverlaySync'
 import { createWidgetEntityResolver } from './useWidgetEntityId'
 import { buildWidgetUrl as buildRegisteredWidgetUrl, getWidgetUrlParams, resolveWidgetLayerUrl } from './widget-url'
 import type { Layer, OverlayProject } from '../types'
@@ -58,6 +59,7 @@ export function useOverlayBuilderController(
 	const canvasAreaRef = ref<CanvasRef>()
 	const loadedProjectId = ref('')
 	const isLoadingProject = ref(false)
+	const isApplyingRemote = ref(false)
 	const addLayersHidden = ref(false)
 	const showCodeEditor = ref(false)
 	const showShortcuts = ref(false)
@@ -72,6 +74,90 @@ export function useOverlayBuilderController(
 	const overlayApiKey = computed(() => selectedDashboard.value?.channelApiKey || profile.value?.channelApiKey || '')
 	const chatPresetIds = computed(() => chatOverlaysData.value?.chatOverlays.map((preset) => preset.id) ?? [])
 	const chatPresetsReady = computed(() => !fetchingChatPresets.value && chatOverlaysData.value !== undefined)
+
+	function applyRemote(mutate: () => void) {
+		isApplyingRemote.value = true
+		try {
+			mutate()
+		} finally {
+			void nextTick(() => {
+				isApplyingRemote.value = false
+			})
+		}
+	}
+
+	function applyRemoteProject(project: OverlayProject) {
+		applyRemote(() => {
+			builder.applyRemoteProject(project)
+			overlayName.value = project.name
+			instaSave.value = project.instaSave
+		})
+	}
+
+	const sync = useOverlaySync(loadedProjectId, {
+		onLayerAdd: (layer) => applyRemote(() => builder.applyRemoteLayerAdd(layer)),
+		onLayerRemove: (layerId) => applyRemote(() => builder.applyRemoteLayerRemove(layerId)),
+		onLayerUpdate: (layer) => applyRemote(() => builder.applyRemoteLayerUpdate(layer)),
+		onLayerPositions: (positions) => applyRemote(() => builder.applyRemoteLayerPositions(positions)),
+		onLayersReorder: (layerIds) => applyRemote(() => builder.applyRemoteLayersReorder(layerIds)),
+		onSettingsUpdate: (settings: OverlaySyncSettingsUpdate) =>
+			applyRemote(() => {
+				if (settings.name !== undefined) overlayName.value = settings.name
+				if (settings.instaSave !== undefined) instaSave.value = settings.instaSave
+				if (settings.width !== undefined) builder.project.width = settings.width
+				if (settings.height !== undefined) builder.project.height = settings.height
+			}),
+		onProjectReplace: (project) => {
+			if (isLoadingProject.value) {
+				const stop = watch(isLoadingProject, (loading) => {
+					if (loading) return
+					stop()
+					applyRemoteProject(project)
+				})
+				return
+			}
+			applyRemoteProject(project)
+		},
+		getSyncState: () => {
+			if (!loadedProjectId.value || isLoadingProject.value) return null
+			return projectSnapshot(overlayName.value, instaSave.value)
+		},
+	})
+
+	function positionsOfLayers(layerIds: string[]): OverlaySyncLayerPosition[] {
+		return builder.project.layers
+			.filter((layer) => layerIds.includes(layer.id))
+			.map((layer) => ({
+				id: layer.id,
+				posX: layer.posX,
+				posY: layer.posY,
+				rotation: layer.rotation ?? 0,
+				width: layer.width,
+				height: layer.height,
+				visible: layer.visible ?? true,
+				opacity: layer.opacity ?? 1.0,
+			}))
+	}
+
+	const GEOMETRY_ONLY_KEYS = new Set(['posX', 'posY', 'width', 'height', 'rotation'])
+
+	function broadcastLayerMutation(layerId: string, updates: Partial<Layer>) {
+		const hasNonGeometryChange = Object.keys(updates).some((key) => !GEOMETRY_ONLY_KEYS.has(key))
+		if (hasNonGeometryChange) {
+			const layer = builder.project.layers.find((item) => item.id === layerId)
+			if (layer) sync.sendLayerUpdate(layer)
+			return
+		}
+		sync.sendLayerPositions(positionsOfLayers([layerId]))
+	}
+
+	function broadcastAddedLayers(layers: Layer[] | null | undefined) {
+		layers?.forEach((layer) => sync.sendLayerAdd(layer))
+	}
+
+	function broadcastRemovedLayers(layerIds: string[]) {
+		layerIds.forEach((layerId) => sync.sendLayerRemove(layerId))
+	}
 
 	function calculateFitZoom() {
 		const canvasArea = canvasAreaRef.value instanceof HTMLElement ? canvasAreaRef.value : canvasAreaRef.value?.$el
@@ -239,7 +325,7 @@ export function useOverlayBuilderController(
 	onUnmounted(() => window.removeEventListener('resize', calculateFitZoom))
 
 	function addLayer(type: ChannelOverlayLayerType) {
-		builder.addLayer(type, {
+		const layer = builder.addLayer(type, {
 			name: t('overlayBuilder.layerNames.default', {
 				type: t(getLayerTypeMeta(type).labelKey),
 				count: builder.project.layers.length + 1,
@@ -247,6 +333,7 @@ export function useOverlayBuilderController(
 			settings: { textContent: t('overlayBuilder.defaults.textContent') },
 			visible: !addLayersHidden.value,
 		})
+		if (layer) sync.sendLayerAdd(layer)
 	}
 
 	function projectSnapshot(name: string, instantSave: boolean): OverlayProject {
@@ -267,17 +354,31 @@ export function useOverlayBuilderController(
 	}
 
 	watch(instaSave, (newValue, oldValue) => {
-		if (newValue !== oldValue && loadedProjectId.value) emit('instantSave', projectSnapshot(overlayName.value, newValue))
+		if (newValue === oldValue || isApplyingRemote.value || isLoadingProject.value) return
+		if (loadedProjectId.value) emit('instantSave', projectSnapshot(overlayName.value, newValue))
+		sync.sendSettingsUpdate({ instaSave: newValue })
 	})
 	watch([() => builder.project.width, () => builder.project.height], () => {
 		if (isLoadingProject.value) return
 		builder.constrainLayersToCanvas()
 		void nextTick(calculateFitZoom)
+		if (isApplyingRemote.value) return
 		if (instaSave.value && loadedProjectId.value) emit('save', projectSnapshot(overlayName.value, instaSave.value))
+		if (loadedProjectId.value) {
+			sync.sendSettingsUpdate({ width: builder.project.width, height: builder.project.height })
+		}
+	})
+
+	let nameSyncTimer: ReturnType<typeof setTimeout> | null = null
+	watch(overlayName, (value) => {
+		if (isApplyingRemote.value || isLoadingProject.value || !loadedProjectId.value) return
+		if (nameSyncTimer) clearTimeout(nameSyncTimer)
+		nameSyncTimer = setTimeout(() => sync.sendSettingsUpdate({ name: value }), 400)
 	})
 
 	function handleUpdateLayer(layerId: string, updates: Partial<Layer>) {
 		builder.updateLayer(layerId, updates)
+		broadcastLayerMutation(layerId, updates)
 		if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined || updates.opacity !== undefined || updates.visible !== undefined) void handleLayerUpdate()
 	}
 
@@ -324,16 +425,63 @@ export function useOverlayBuilderController(
 		const layer = builder.project.layers.find((item) => item.id === layerId)
 		if (!layer) return
 		builder.updateLayer(layerId, { visible: !layer.visible })
+		sync.sendLayerUpdate(layer)
 		void handleLayerUpdate()
 	}
 
 	function handleToggleLock(layerId: string) {
 		const layer = builder.project.layers.find((item) => item.id === layerId)
-		if (layer) builder.updateLayer(layerId, { locked: !layer.locked })
+		if (!layer) return
+		builder.updateLayer(layerId, { locked: !layer.locked })
+		sync.sendLayerUpdate(layer)
 	}
 
 	function handleRemoveLayer(layerId: string) {
 		builder.removeLayer(layerId)
+		broadcastRemovedLayers([layerId])
+	}
+
+	function handleRemoveLayers(layerIds: string[]) {
+		builder.removeLayers(layerIds)
+		broadcastRemovedLayers(layerIds)
+	}
+
+	function handleDuplicateLayers(layerIds: string[]) {
+		broadcastAddedLayers(builder.duplicateLayers(layerIds))
+	}
+
+	function handleCutSelection() {
+		const layerIds = [...builder.canvasState.selectedLayerIds]
+		builder.cutToClipboard()
+		broadcastRemovedLayers(layerIds)
+	}
+
+	function handlePaste() {
+		broadcastAddedLayers(builder.pasteFromClipboard())
+	}
+
+	function handleAlign(alignment: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') {
+		builder.alignLayers(alignment)
+		sync.sendLayerPositions(positionsOfLayers(builder.canvasState.selectedLayerIds))
+	}
+
+	function handleDistribute(direction: 'horizontal' | 'vertical') {
+		if (direction === 'horizontal') {
+			builder.distributeLayersHorizontally()
+		} else {
+			builder.distributeLayersVertically()
+		}
+		sync.sendLayerPositions(positionsOfLayers(builder.canvasState.selectedLayerIds))
+	}
+
+	function handleUndo() {
+		builder.undo()
+		sync.sendProjectReplace(projectSnapshot(overlayName.value, instaSave.value))
+	}
+
+	function handleRedo() {
+		builder.redo()
+		sync.sendProjectReplace(projectSnapshot(overlayName.value, instaSave.value))
 	}
 
 	function handleOpenLayerSettings(layerId: string) {
@@ -347,10 +495,12 @@ export function useOverlayBuilderController(
 
 	function handleReorderLayers(layers: Layer[]) {
 		builder.reorderLayers(layers)
+		sync.sendLayersReorder(builder.project.layers.map((layer) => layer.id))
 	}
 
 	function handleUpdateLayerProperties(layerId: string, updates: Partial<Layer>) {
 		builder.updateLayer(layerId, updates)
+		broadcastLayerMutation(layerId, updates)
 		if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined || updates.opacity !== undefined || updates.visible !== undefined) void handleLayerUpdate()
 	}
 
@@ -377,6 +527,8 @@ export function useOverlayBuilderController(
 				htmlOverlayDataPollSecondsInterval: data.refreshInterval,
 			},
 		})
+		const layer = builder.project.layers.find((item) => item.id === editorLayer.value?.id)
+		if (layer) sync.sendLayerUpdate(layer)
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
@@ -387,22 +539,22 @@ export function useOverlayBuilderController(
 			handleSave()
 		} else if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey && !isInputFocused) {
 			event.preventDefault()
-			builder.undo()
+			handleUndo()
 		} else if ((event.ctrlKey || event.metaKey) && (event.key === 'y' || (event.key === 'z' && event.shiftKey)) && !isInputFocused) {
 			event.preventDefault()
-			builder.redo()
+			handleRedo()
 		} else if ((event.ctrlKey || event.metaKey) && event.key === 'c' && !isInputFocused) {
 			event.preventDefault()
 			builder.copyToClipboard()
 		} else if ((event.ctrlKey || event.metaKey) && event.key === 'x' && !isInputFocused) {
 			event.preventDefault()
-			builder.cutToClipboard()
+			handleCutSelection()
 		} else if ((event.ctrlKey || event.metaKey) && event.key === 'v' && !isInputFocused) {
 			event.preventDefault()
-			builder.pasteFromClipboard()
+			handlePaste()
 		} else if ((event.ctrlKey || event.metaKey) && event.key === 'd' && !isInputFocused) {
 			event.preventDefault()
-			if (builder.canvasState.selectedLayerIds.length > 0) builder.duplicateLayers(builder.canvasState.selectedLayerIds)
+			if (builder.canvasState.selectedLayerIds.length > 0) handleDuplicateLayers(builder.canvasState.selectedLayerIds)
 		} else if (event.key === 'Escape' && !isInputFocused && !showShortcuts.value) {
 			builder.deselectAll()
 		} else if (event.key === '?' && !isInputFocused) {
@@ -411,7 +563,7 @@ export function useOverlayBuilderController(
 		} else if ((event.key === 'Delete' || event.key === 'Backspace') && !isInputFocused) {
 			if (builder.canvasState.selectedLayerIds.length > 0) {
 				event.preventDefault()
-				builder.removeLayers(builder.canvasState.selectedLayerIds)
+				handleRemoveLayers(builder.canvasState.selectedLayerIds)
 			}
 		} else if ((event.ctrlKey || event.metaKey) && event.key === 'a' && !isInputFocused) {
 			event.preventDefault()
@@ -431,6 +583,7 @@ export function useOverlayBuilderController(
 		showCodeEditor,
 		showShortcuts,
 		editorLayer,
+		syncStatus: sync.status,
 		hasSelection: computed(() => builder.canvasState.selectedLayerIds.length > 0),
 		canAlign: computed(() => builder.canvasState.selectedLayerIds.length >= 1),
 		canDistribute: computed(() => builder.canvasState.selectedLayerIds.length >= 3),
@@ -445,6 +598,14 @@ export function useOverlayBuilderController(
 		handleToggleVisibility,
 		handleToggleLock,
 		handleRemoveLayer,
+		handleRemoveLayers,
+		handleDuplicateLayers,
+		handleCutSelection,
+		handlePaste,
+		handleAlign,
+		handleDistribute,
+		handleUndo,
+		handleRedo,
 		handleOpenLayerSettings,
 		handleReorderLayers,
 		handleUpdateLayerProperties,
