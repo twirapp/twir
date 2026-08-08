@@ -35,6 +35,9 @@ jobs:
       - name: Install go dependencies
         run: bun cli deps
 
+      - name: Typecheck web
+        run: bun --cwd web run nuxt-prepare && bun --cwd web run typecheck
+
       - name: Build
         run: bun cli build
 
