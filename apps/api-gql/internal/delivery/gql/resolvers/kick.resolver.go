@@ -12,8 +12,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlerrors"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
-	platformentity "github.com/twirapp/twir/libs/entities/platform"
 )
 
 // ChannelSetStreamInformation is the resolver for the channelSetStreamInformation field.
@@ -32,10 +32,15 @@ func (r *mutationResolver) ChannelSetStreamInformation(ctx context.Context, plat
 		return false, fmt.Errorf("parse authenticated user id: %w", err)
 	}
 
+	entityPlatform, err := mappers.GraphQLPlatformToEntity(platform)
+	if err != nil {
+		return false, gqlerrors.HandleError(err)
+	}
+
 	err = r.deps.TwitchService.SetStreamInformation(ctx, twitch.SetStreamInformationInput{
 		ChannelID:  dashboardID,
 		ActorID:    actorID,
-		Platform:   platformentity.Platform(platform.String()),
+		Platform:   entityPlatform,
 		CategoryID: categoryID,
 		Title:      title,
 	})
