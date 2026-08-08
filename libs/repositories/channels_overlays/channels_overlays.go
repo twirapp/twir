@@ -29,6 +29,7 @@ type CreateLayerInput struct {
 	Locked                  bool
 	Visible                 bool
 	Opacity                 float64
+	ZIndex                  int
 }
 
 type CreateInput struct {
@@ -54,6 +55,7 @@ type UpdateLayerInputWithID struct {
 	Locked                  bool
 	Visible                 bool
 	Opacity                 float64
+	ZIndex                  int
 }
 
 type UpdateInput struct {

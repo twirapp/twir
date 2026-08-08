@@ -67,6 +67,7 @@ type OverlayLayer struct {
 	Locked                  bool                 `json:"locked"`
 	Visible                 bool                 `json:"visible"`
 	Opacity                 float64              `json:"opacity"`
+	ZIndex                  int                  `json:"z_index"`
 
 	isNil bool
 }

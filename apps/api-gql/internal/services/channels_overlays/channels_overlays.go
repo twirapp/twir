@@ -93,6 +93,7 @@ func (s *Service) modelToEntity(m model.Overlay) customoverlayentity.ChannelOver
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 
@@ -148,6 +149,7 @@ type CreateLayerInput struct {
 	Locked                  bool
 	Visible                 bool
 	Opacity                 float64
+	ZIndex                  int
 }
 
 type UpdateLayerInput struct {
@@ -164,6 +166,7 @@ type UpdateLayerInput struct {
 	Locked                  bool
 	Visible                 bool
 	Opacity                 float64
+	ZIndex                  int
 }
 
 type CreateInput struct {
@@ -236,6 +239,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (customoverlaye
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 
@@ -334,6 +338,7 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 			Locked:                  l.Locked,
 			Visible:                 l.Visible,
 			Opacity:                 l.Opacity,
+			ZIndex:                  l.ZIndex,
 		}
 	}
 

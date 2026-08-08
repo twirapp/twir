@@ -103,15 +103,15 @@ watch(layers, (newLayers) => {
 
 <template>
 	<div class="container mx-auto">
-		<template v-for="(layer, index) of layers" :key="layer.id">
-			<htmlLayer v-if="layer.type === 'HTML'" :layer="layer" :parsedData="parsedLayersData[layer.id]" :z-index="index" />
-			<imageLayer v-else-if="layer.type === 'IMAGE'" :layer="layer" :z-index="index" />
-			<textLayer v-else-if="layer.type === 'TEXT'" :layer="layer" :z-index="index" />
-			<videoLayer v-else-if="layer.type === 'VIDEO'" :layer="layer" :z-index="index" />
-			<iframeLayer v-else-if="layer.type === 'IFRAME'" :layer="layer" :z-index="index" />
-			<youtubeLayer v-else-if="layer.type === 'YOUTUBE'" :layer="layer" :z-index="index" />
-			<emoteLayer v-else-if="layer.type === 'EMOTE'" :layer="layer" :z-index="index" />
-		</template>
+	<template v-for="layer of layers" :key="layer.id">
+		<htmlLayer v-if="layer.type === 'HTML'" :layer="layer" :parsedData="parsedLayersData[layer.id]" :z-index="layer.zIndex" />
+		<imageLayer v-else-if="layer.type === 'IMAGE'" :layer="layer" :z-index="layer.zIndex" />
+		<textLayer v-else-if="layer.type === 'TEXT'" :layer="layer" :z-index="layer.zIndex" />
+		<videoLayer v-else-if="layer.type === 'VIDEO'" :layer="layer" :z-index="layer.zIndex" />
+		<iframeLayer v-else-if="layer.type === 'IFRAME'" :layer="layer" :z-index="layer.zIndex" />
+		<youtubeLayer v-else-if="layer.type === 'YOUTUBE'" :layer="layer" :z-index="layer.zIndex" />
+		<emoteLayer v-else-if="layer.type === 'EMOTE'" :layer="layer" :z-index="layer.zIndex" />
+	</template>
 	</div>
 </template>
 

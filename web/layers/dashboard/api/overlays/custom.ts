@@ -62,6 +62,7 @@ const channelOverlaysQuery = graphql(`
 				locked
 				visible
 				opacity
+				zIndex
 			}
 		}
 	}
@@ -97,6 +98,7 @@ const channelOverlayByIdQuery = graphql(`
 				locked
 				visible
 				opacity
+				zIndex
 			}
 		}
 	}
@@ -131,6 +133,7 @@ const channelOverlayCreateMutation = graphql(`
 				periodicallyRefetchData
 				locked
 				visible
+				zIndex
 			}
 		}
 	}
@@ -165,6 +168,7 @@ const channelOverlayUpdateMutation = graphql(`
 				periodicallyRefetchData
 				locked
 				visible
+				zIndex
 			}
 		}
 	}

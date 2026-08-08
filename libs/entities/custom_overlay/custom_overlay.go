@@ -67,6 +67,7 @@ type ChannelOverlayLayer struct {
 	Locked                  bool
 	Visible                 bool
 	Opacity                 float64
+	ZIndex                  int
 }
 
 type ChannelOverlay struct {

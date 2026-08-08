@@ -89,6 +89,7 @@ type ChannelOverlayLayer {
   locked: Boolean!
   visible: Boolean!
   opacity: Float!
+  zIndex: Int!
 }
 
 type ChannelOverlay {
@@ -145,6 +146,7 @@ input ChannelOverlayLayerInput {
   locked: Boolean!
   visible: Boolean!
   opacity: Float!
+  zIndex: Int!
 }
 
 input ChannelOverlayCreateInput {
