@@ -168,8 +168,14 @@ services:
         target: /etc/grafana/provisioning/datasources/uptrace.yml
       - source: uptrace_grafana_dashboard_provider
         target: /etc/grafana/provisioning/dashboards/twir.yml
-      - source: uptrace_grafana_dashboard_twir_overview_v12
+      - source: uptrace_grafana_dashboard_twir_overview_v13
         target: /etc/grafana/dashboards/twir-overview.json
+      - source: uptrace_grafana_dashboard_nodes
+        target: /etc/grafana/dashboards/twir-nodes.json
+      - source: uptrace_grafana_dashboard_containers
+        target: /etc/grafana/dashboards/twir-containers.json
+      - source: uptrace_grafana_dashboard_swarm
+        target: /etc/grafana/dashboards/twir-swarm.json
       - source: uptrace_grafana_config
         target: /etc/grafana/grafana.ini
       - source: uptrace_grafana_entrypoint_v2
@@ -1292,8 +1298,14 @@ configs:
     file: ./configs/uptrace/grafana/datasource.yml
   uptrace_grafana_dashboard_provider:
     file: ./configs/uptrace/grafana/dashboard-provider.yml
-  uptrace_grafana_dashboard_twir_overview_v12:
+  uptrace_grafana_dashboard_twir_overview_v13:
     file: ./configs/uptrace/grafana/dashboards/twir-overview.json
+  uptrace_grafana_dashboard_nodes:
+    file: ./configs/uptrace/grafana/dashboards/twir-nodes.json
+  uptrace_grafana_dashboard_containers:
+    file: ./configs/uptrace/grafana/dashboards/twir-containers.json
+  uptrace_grafana_dashboard_swarm:
+    file: ./configs/uptrace/grafana/dashboards/twir-swarm.json
   uptrace_grafana_config:
     file: ./configs/uptrace/grafana/grafana.ini
   uptrace_grafana_entrypoint_v2:
