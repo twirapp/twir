@@ -18,6 +18,7 @@ type Repository interface {
 
 type CreateLayerInput struct {
 	Type                    model.OverlayType
+	Name                    string
 	Settings                model.OverlayLayerSettings
 	PosX                    int
 	PosY                    int
@@ -42,6 +43,7 @@ type CreateInput struct {
 type UpdateLayerInputWithID struct {
 	ID                      *uuid.UUID // nil for new layers, set for existing layers
 	Type                    model.OverlayType
+	Name                    string
 	Settings                model.OverlayLayerSettings
 	PosX                    int
 	PosY                    int

@@ -46,6 +46,7 @@ type overlayRow struct {
 type layerRow struct {
 	ID                      uuid.UUID `json:"id"`
 	Type                    string    `json:"type"`
+	Name                    string    `json:"name"`
 	Settings                []byte    `json:"settings"`
 	OverlayID               uuid.UUID `json:"overlay_id"`
 	PosX                    int       `json:"pos_x"`
@@ -63,7 +64,7 @@ type layerRow struct {
 
 func (c *Pgx) getLayers(ctx context.Context, overlayID uuid.UUID) ([]model.OverlayLayer, error) {
 	query := `
-SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
+SELECT id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
 FROM channels_overlays_layers
 WHERE overlay_id = $1
 ORDER BY created_at ASC
@@ -80,6 +81,7 @@ ORDER BY created_at ASC
 		if err := rows.Scan(
 			&row.ID,
 			&row.Type,
+			&row.Name,
 			&row.Settings,
 			&row.OverlayID,
 			&row.PosX,
@@ -106,6 +108,7 @@ ORDER BY created_at ASC
 			layers, model.OverlayLayer{
 				ID:                      row.ID,
 				Type:                    model.OverlayType(row.Type),
+				Name:                    row.Name,
 				Settings:                settings,
 				OverlayID:               row.OverlayID,
 				PosX:                    row.PosX,
@@ -285,8 +288,8 @@ func (c *Pgx) insertLayer(
 	}
 
 	layerQuery := `
-INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+INSERT INTO channels_overlays_layers (id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 `
 
 	_, err = tx.Exec(
@@ -294,6 +297,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		layerQuery,
 		layerID,
 		string(layer.Type),
+		layer.Name,
 		settingsJSON,
 		overlayID,
 		layer.PosX,
@@ -402,10 +406,11 @@ func (c *Pgx) upsertLayer(
 	}
 
 	layerQuery := `
-INSERT INTO channels_overlays_layers (id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+INSERT INTO channels_overlays_layers (id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 ON CONFLICT (id) DO UPDATE SET
 	type = EXCLUDED.type,
+	name = EXCLUDED.name,
 	settings = EXCLUDED.settings,
 	pos_x = EXCLUDED.pos_x,
 	pos_y = EXCLUDED.pos_y,
@@ -424,6 +429,7 @@ ON CONFLICT (id) DO UPDATE SET
 		layerQuery,
 		layerID,
 		string(layer.Type),
+		layer.Name,
 		settingsJSON,
 		overlayID,
 		layer.PosX,
@@ -467,7 +473,7 @@ SET pos_x = COALESCE($1, pos_x),
 		visible = COALESCE($7, visible),
 		opacity = COALESCE($8, opacity)
 WHERE id = $9
-RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
+RETURNING id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
 `
 
 	now := time.Now().UTC()
@@ -493,7 +499,7 @@ RETURNING id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation,
 	}
 
 	getQuery := `
-SELECT id, type, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
+SELECT id, type, name, settings, overlay_id, pos_x, pos_y, width, height, rotation, created_at, updated_at, periodically_refetch_data, locked, visible, opacity
 FROM channels_overlays_layers
 WHERE id = $1
 `
@@ -504,6 +510,7 @@ WHERE id = $1
 	if err := row.Scan(
 		&layer.ID,
 		&layer.Type,
+		&layer.Name,
 		&layer.Settings,
 		&layer.OverlayID,
 		&layer.PosX,
@@ -529,6 +536,7 @@ WHERE id = $1
 	return model.OverlayLayer{
 		ID:                      layer.ID,
 		Type:                    model.OverlayType(layer.Type),
+		Name:                    layer.Name,
 		Settings:                settings,
 		OverlayID:               layer.OverlayID,
 		PosX:                    layer.PosX,

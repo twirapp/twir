@@ -2326,6 +2326,7 @@
       "toggleGrid": "Toggle Grid",
       "snapToGrid": "Snap to Grid",
       "addLayersHidden": "Add layers hidden",
+      "widgetsPreview": "Widgets demo preview",
       "save": "Save"
     }
   },

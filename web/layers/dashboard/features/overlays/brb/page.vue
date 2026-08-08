@@ -98,7 +98,7 @@ const requestUrl = useRequestURL()
 const brbIframeUrl = computed(() => {
 	if (!selectedDashboardApiKey.value) return null
 
-	return `${requestUrl.origin}/overlays/${selectedDashboardApiKey.value}/brb`
+	return `${requestUrl.origin}/overlays/${selectedDashboardApiKey.value}/brb?embed=settings`
 })
 
 function sendIframeMessage(key: string, data?: any) {

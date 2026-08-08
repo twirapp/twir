@@ -11,7 +11,12 @@ export const useBrbIframe = (options: Options) => {
 	const { setSettings } = useBrbSettings();
 
 	const onWindowMessage = (msg: MessageEvent<string>) => {
-		const parsedData = JSON.parse(msg.data);
+		let parsedData: any;
+		try {
+			parsedData = JSON.parse(msg.data);
+		} catch {
+			return;
+		}
 		if (parsedData.key === 'settings') {
 			setSettings(parsedData.data);
 		}

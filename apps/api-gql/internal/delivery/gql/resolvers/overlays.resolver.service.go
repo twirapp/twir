@@ -667,16 +667,11 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 	id string,
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlay, error) {
-	user, err := r.deps.UsersRepository.GetByApiKey(ctx, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(ctx, apiKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
+		return nil, err
 	}
-
-	ch, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get channel by platform user id: %w", err)
-	}
-	channelID := ch.ID.String()
+	channelID := identity.InternalChannelID
 
 	channel := make(chan *gqlmodel.NowPlayingOverlay)
 
@@ -721,16 +716,11 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 	ctx context.Context,
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
-	user, err := r.deps.UsersRepository.GetByApiKey(ctx, apiKey)
+	identity, err := r.deps.ChannelsService.ResolveApiKeyChannelIdentityByUserOrChannelApiKey(ctx, apiKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
+		return nil, err
 	}
-
-	resolvedChannel, err := r.deps.ChannelService.GetChannelByBindingUserID(ctx, user.Platform, user.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get channel by platform user id: %w", err)
-	}
-	channelID := resolvedChannel.ID.String()
+	channelID := identity.InternalChannelID
 
 	npService, err := now_playing_fetcher.New(
 		now_playing_fetcher.Opts{

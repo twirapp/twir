@@ -77,7 +77,7 @@ const projectData = computed(() => {
 			return {
 				id: layer.id, // Use real layer ID from backend
 				type: layer.type,
-				name: t('overlayBuilder.layerNames.default', {
+				name: layer.name || t('overlayBuilder.layerNames.default', {
 					type: t(getLayerTypeMeta(layer.type).labelKey),
 					count: index + 1,
 				}),

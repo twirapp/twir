@@ -46,6 +46,7 @@ const channelOverlaysQuery = graphql(`
 			layers {
 				id
 				type
+				name
 			settings {
 					...ChannelOverlayLayerSettingsFields
 				}
@@ -80,6 +81,7 @@ const channelOverlayByIdQuery = graphql(`
 			layers {
 				id
 				type
+				name
 				settings {
 					...ChannelOverlayLayerSettingsFields
 				}
@@ -114,6 +116,7 @@ const channelOverlayCreateMutation = graphql(`
 			layers {
 				id
 				type
+				name
 				settings {
 					...ChannelOverlayLayerSettingsFields
 				}
@@ -147,6 +150,7 @@ const channelOverlayUpdateMutation = graphql(`
 			layers {
 				id
 				type
+				name
 				settings {
 					...ChannelOverlayLayerSettingsFields
 				}

@@ -37,7 +37,7 @@ func New(
 						struct{},
 						error,
 					) {
-						return struct{}{}, listener.dudes.SendUserSettings(data.ChannelID, data.UserID)
+						return struct{}{}, listener.dudes.SendUserSettings(ctx, data.ChannelID, data.UserID)
 					},
 				); err != nil {
 					return err

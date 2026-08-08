@@ -57,11 +57,13 @@ const start: BrbOnStartFn = (incomingMinutes, incomingText) => {
 export interface BrbTimerMethods {
 	start: BrbOnStartFn
 	stop: BrbOnStopFn
+	isActive: () => boolean
 }
 
 defineExpose<BrbTimerMethods>({
 	start,
 	stop,
+	isActive: () => countDownInterval.isActive.value || countUpInterval.isActive.value,
 })
 
 const showCountDown = computed(() => {

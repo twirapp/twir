@@ -30,6 +30,7 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 			return {
 				id: layer.id ?? undefined, // Include layer ID for updates
 				type: layer.type,
+				name: layer.name,
 				posX: layer.posX,
 				posY: layer.posY,
 				width: layer.width,

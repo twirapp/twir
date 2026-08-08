@@ -24,12 +24,13 @@ import (
 type Dudes struct {
 	manager *melody.Melody
 
-	gorm    *gorm.DB
-	logger  *slog.Logger
-	redis   *redis.Client
-	config  config.Config
-	counter prometheus.Gauge
-	twirBus *buscore.Bus
+	gorm            *gorm.DB
+	logger          *slog.Logger
+	redis           *redis.Client
+	config          config.Config
+	counter         prometheus.Gauge
+	twirBus         *buscore.Bus
+	usersRepository users.Repository
 }
 
 func New(
@@ -55,7 +56,8 @@ func New(
 				ConstLabels: prometheus.Labels{"overlay": "dudes"},
 			},
 		),
-		twirBus: twirBus,
+		twirBus:         twirBus,
+		usersRepository: usersRepository,
 	}
 
 	dudes.manager.HandleConnect(

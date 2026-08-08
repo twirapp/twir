@@ -2,13 +2,14 @@ import { createGlobalState } from '@vueuse/core'
 
 import { graphql } from '~/gql/gql.js'
 import { useQuery } from '@urql/vue'
+import type { Ref } from 'vue'
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
 import type { DudesOverlaySettings, DudesOverlaySettingsInput } from '~/gql/graphql.js'
 
 export const useDudesOverlayApi = createGlobalState(() => {
 	const cacheKey = ['dudesOverlay']
 
-	const useDudesQuery = () =>
+	const useDudesQuery = (pause?: Ref<boolean>) =>
 		useQuery({
 			query: graphql(`
 				query DudesOverlays {
@@ -73,6 +74,7 @@ export const useDudesOverlayApi = createGlobalState(() => {
 				additionalTypenames: cacheKey,
 			},
 			variables: {},
+			pause,
 		})
 
 	const useDudesByIdQuery = (id: string) =>

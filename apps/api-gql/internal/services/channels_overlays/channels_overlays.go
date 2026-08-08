@@ -54,6 +54,7 @@ func (s *Service) modelToEntity(m model.Overlay) customoverlayentity.ChannelOver
 		layers[i] = customoverlayentity.ChannelOverlayLayer{
 			ID:   l.ID,
 			Type: customoverlayentity.ChannelOverlayType(l.Type),
+			Name: l.Name,
 			Settings: customoverlayentity.ChannelOverlayLayerSettings{
 			HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
 			HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
@@ -136,6 +137,7 @@ func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (customoverlayentit
 
 type CreateLayerInput struct {
 	Type                    customoverlayentity.ChannelOverlayType
+	Name                    string
 	Settings                customoverlayentity.ChannelOverlayLayerSettings
 	PosX                    int
 	PosY                    int
@@ -151,6 +153,7 @@ type CreateLayerInput struct {
 type UpdateLayerInput struct {
 	ID                      *uuid.UUID
 	Type                    customoverlayentity.ChannelOverlayType
+	Name                    string
 	Settings                customoverlayentity.ChannelOverlayLayerSettings
 	PosX                    int
 	PosY                    int
@@ -197,6 +200,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (customoverlaye
 	for i, l := range input.Layers {
 		repoLayers[i] = channels_overlays.CreateLayerInput{
 			Type: model.OverlayType(l.Type),
+			Name: l.Name,
 			Settings: model.OverlayLayerSettings{
 			HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
 			HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,
@@ -294,6 +298,7 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		repoLayers[i] = channels_overlays.UpdateLayerInputWithID{
 			ID:   l.ID,
 			Type: model.OverlayType(l.Type),
+			Name: l.Name,
 			Settings: model.OverlayLayerSettings{
 			HtmlOverlayHTML:                    l.Settings.HtmlOverlayHTML,
 			HtmlOverlayCSS:                     l.Settings.HtmlOverlayCSS,

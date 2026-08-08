@@ -75,6 +75,7 @@ type ChannelOverlayLayerSettings {
 type ChannelOverlayLayer {
   id: UUID!
   type: ChannelOverlayLayerType!
+  name: String!
   settings: ChannelOverlayLayerSettings!
   overlayId: UUID!
   posX: Int!
@@ -133,6 +134,7 @@ input ChannelOverlayLayerSettingsInput {
 input ChannelOverlayLayerInput {
   id: UUID
   type: ChannelOverlayLayerType!
+  name: String
   settings: ChannelOverlayLayerSettingsInput!
   posX: Int!
   posY: Int!

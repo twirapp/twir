@@ -1,10 +1,15 @@
 import { type Ref, computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { ChannelOverlayLayer, ChannelOverlayLayerType } from '~/gql/graphql.js'
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
+import { useDudesOverlayApi } from '~~/layers/dashboard/api/overlays/dudes.js'
+import { useNowPlayingOverlayApi } from '~~/layers/dashboard/api/overlays/now-playing.js'
+import { defaultDudesSettings } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/dudes-settings.js'
+import { defaultSettings as defaultNowPlayingSettings } from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/use-now-playing-form.js'
 
 import { useOverlayBuilder } from './useOverlayBuilder'
 import { useChatOverlayPresetQuery } from './useChatOverlayPresets'
-import { resolveWidgetLayerUrl } from './widget-url'
+import { createWidgetEntityResolver } from './useWidgetEntityId'
+import { buildWidgetUrl as buildRegisteredWidgetUrl, getWidgetUrlParams, resolveWidgetLayerUrl } from './widget-url'
 import type { Layer, OverlayProject } from '../types'
 import { createLayerSettings } from '../types'
 import { getLayerTypeMeta } from '../layer-type-meta'
@@ -93,6 +98,86 @@ export function useOverlayBuilderController(
 			}
 		})
 	}
+
+	const hasDudesWidget = computed(() => builder.project.layers.some((layer) => layer.settings.widgetKey === 'dudes'))
+	const hasNowPlayingWidget = computed(() => builder.project.layers.some((layer) => layer.settings.widgetKey === 'now-playing'))
+
+	const dudesApi = useDudesOverlayApi()
+	const dudesQuery = dudesApi.useDudesQuery(computed(() => !hasDudesWidget.value))
+	const dudesCreator = dudesApi.useDudesCreate()
+	const dudesResolver = createWidgetEntityResolver({
+		widgetKey: 'dudes',
+		entities: computed(() => dudesQuery.data.value?.dudesGetAll),
+		refetch: async () => {
+			const result = await dudesQuery.executeQuery({ requestPolicy: 'network-only' })
+			return result.data.value?.dudesGetAll ?? []
+		},
+		create: () => {
+			const { id: _id, ...input } = defaultDudesSettings
+			return dudesCreator.executeMutation({ input })
+		},
+	})
+
+	const nowPlayingApi = useNowPlayingOverlayApi()
+	const nowPlayingQuery = nowPlayingApi.useNowPlayingQuery(computed(() => !hasNowPlayingWidget.value))
+	const nowPlayingCreator = nowPlayingApi.useNowPlayingCreate()
+	const nowPlayingResolver = createWidgetEntityResolver({
+		widgetKey: 'now-playing',
+		entities: computed(() => nowPlayingQuery.data.value?.nowPlayingOverlays),
+		refetch: async () => {
+			const result = await nowPlayingQuery.executeQuery({ requestPolicy: 'network-only' })
+			return result.data.value?.nowPlayingOverlays ?? []
+		},
+		create: () => {
+			const { id: _id, channelId: _channelId, ...input } = defaultNowPlayingSettings
+			return nowPlayingCreator.executeMutation({ input })
+		},
+	})
+
+	function healWidgetEntityIds() {
+		if (!overlayApiKey.value) return
+
+		const context = {
+			origin: requestUrl.origin,
+			apiKey: overlayApiKey.value,
+			chatPresetIds: chatPresetIds.value,
+			chatPresetsReady: chatPresetsReady.value,
+		}
+
+		builder.project.layers.forEach((layer) => {
+			const widgetKey = layer.settings.widgetKey
+			const resolver = widgetKey === 'dudes'
+				? dudesResolver
+				: widgetKey === 'now-playing'
+					? nowPlayingResolver
+					: null
+			if (!resolver) return
+
+			void (async () => {
+				const currentId = getWidgetUrlParams(layer.settings.iframeUrl).id
+				const id = await resolver.resolveId(currentId)
+				if (!id || id === currentId) return
+
+				const iframeUrl = buildRegisteredWidgetUrl(widgetKey, context, { id })
+				if (iframeUrl && iframeUrl !== layer.settings.iframeUrl) {
+					builder.updateLayer(layer.id, { settings: { ...layer.settings, iframeUrl } })
+				}
+			})()
+		})
+	}
+
+	watch(
+		[
+			loadedProjectId,
+			overlayApiKey,
+			hasDudesWidget,
+			hasNowPlayingWidget,
+			() => dudesQuery.data.value?.dudesGetAll,
+			() => nowPlayingQuery.data.value?.nowPlayingOverlays,
+		],
+		healWidgetEntityIds,
+		{ immediate: true },
+	)
 
 	function loadInitialProject() {
 		const project = initialProject.value
