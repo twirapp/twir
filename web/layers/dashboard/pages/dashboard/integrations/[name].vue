@@ -60,6 +60,14 @@ const integrationsHooks: {
 			integrationsManager.broadcastRefresh()
 		},
 	},
+	donatex: {
+		custom: true,
+		closeWindow: true,
+		handler: async (code: string) => {
+			await integrationsManager.donatexPostCode().executeMutation({ code })
+			integrationsManager.broadcastRefresh()
+		},
+	},
 	faceit: {
 		custom: true,
 		closeWindow: true,

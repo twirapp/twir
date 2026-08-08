@@ -3,6 +3,7 @@ import Donatello from '~~/layers/dashboard/components/integrations/donatello.vue
 import Donatepay from '~~/layers/dashboard/components/integrations/donatepay.vue'
 import Donatestream from '~~/layers/dashboard/components/integrations/donatestream.vue'
 import Donationalerts from '~~/layers/dashboard/components/integrations/donationalerts.vue'
+import Donatex from '~~/layers/dashboard/components/integrations/donatex.vue'
 import Faceit from '~~/layers/dashboard/components/integrations/faceit.vue'
 import Spotify from '~~/layers/dashboard/components/integrations/spotify.vue'
 import Lastfm from '~~/layers/dashboard/features/integrations/ui/lastfm/lastfm.vue'
@@ -28,6 +29,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 				<Lastfm />
 				<Vk />
 				<Donationalerts />
+				<Donatex />
 				<Streamlabs />
 				<Donatello />
 				<Donatepay />
