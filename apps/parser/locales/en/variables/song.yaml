@@ -6,6 +6,7 @@ info:
   get_spotify_integration: 'Cannot get spotify integration: {reason}'
   history: '{trackTitle} - {trackArtist} (~{minutes}m ago)'
   no_needed_scope: 'No needed scope, reconnect spotify in dashboard'
+  spotify_token_expired: Spotify token expired, please reconnect Spotify in the dashboard
   no_integrations: No integrations connected
 
 errors:
