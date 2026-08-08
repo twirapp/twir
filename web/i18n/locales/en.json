@@ -2225,6 +2225,7 @@
         "title": "Image Settings",
         "url": "Image URL",
         "urlDescription": "Enter a direct URL to an image (PNG, JPG, GIF, etc.)",
+        "selectFromFiles": "Select from uploaded files",
         "usePlaceholder": "Use Placeholder Image",
         "tip": "Tip:",
         "variablesTip": "You can use Twir variables in the URL, like"
