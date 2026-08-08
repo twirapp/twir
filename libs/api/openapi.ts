@@ -1,3 +1,5 @@
+/* eslint-disable */
+/* tslint:disable */
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -566,14 +568,6 @@ export interface Expire {
   expires_type: ExpireExpiresTypeEnum;
 }
 
-export interface FormFile {
-  ContentType: string;
-  Filename: string;
-  IsSet: boolean;
-  /** @format int64 */
-  Size: number;
-}
-
 export interface IntegrationsValorantStatsOutput {
   matches: StoredMatchesResponseMatch[];
   mmr: MmrResponseData;
@@ -1097,22 +1091,16 @@ export interface FullRequestParams extends Omit<RequestInit, "body"> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<
-  FullRequestParams,
-  "body" | "method" | "query" | "path"
->;
+export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
-  securityWorker?: (
-    securityData: SecurityDataType | null,
-  ) => Promise<RequestParams | void> | RequestParams | void;
+  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
   data: D;
   error: E;
 }
@@ -1121,7 +1109,6 @@ type CancelToken = Symbol | string | number;
 
 export enum ContentType {
   Json = "application/json",
-  JsonApi = "application/vnd.api+json",
   FormData = "multipart/form-data",
   UrlEncoded = "application/x-www-form-urlencoded",
   Text = "text/plain",
@@ -1132,8 +1119,7 @@ export class HttpClient<SecurityDataType = unknown> {
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
-    fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
     credentials: "same-origin",
@@ -1166,15 +1152,9 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter(
-      (key) => "undefined" !== typeof query[key],
-    );
+    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
     return keys
-      .map((key) =>
-        Array.isArray(query[key])
-          ? this.addArrayQueryParam(query, key)
-          : this.addQueryParam(query, key),
-      )
+      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
       .join("&");
   }
 
@@ -1185,23 +1165,10 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string")
-        ? JSON.stringify(input)
-        : input,
-    [ContentType.JsonApi]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string")
-        ? JSON.stringify(input)
-        : input,
-    [ContentType.Text]: (input: any) =>
-      input !== null && typeof input !== "string"
-        ? JSON.stringify(input)
-        : input,
-    [ContentType.FormData]: (input: any) => {
-      if (input instanceof FormData) {
-        return input;
-      }
-
-      return Object.keys(input || {}).reduce((formData, key) => {
+      input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
+    [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
+    [ContentType.FormData]: (input: any) =>
+      Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
         formData.append(
           key,
@@ -1212,15 +1179,11 @@ export class HttpClient<SecurityDataType = unknown> {
               : `${property}`,
         );
         return formData;
-      }, new FormData());
-    },
+      }, new FormData()),
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
-  protected mergeRequestParams(
-    params1: RequestParams,
-    params2?: RequestParams,
-  ): RequestParams {
+  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -1233,9 +1196,7 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (
-    cancelToken: CancelToken,
-  ): AbortSignal | undefined => {
+  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -1279,34 +1240,22 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(
-      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
-      {
-        ...requestParams,
-        headers: {
-          ...(requestParams.headers || {}),
-          ...(type && type !== ContentType.FormData
-            ? { "Content-Type": type }
-            : {}),
-        },
-        signal:
-          (cancelToken
-            ? this.createAbortSignal(cancelToken)
-            : requestParams.signal) || null,
-        body:
-          typeof body === "undefined" || body === null
-            ? null
-            : payloadFormatter(body),
+    return this.customFetch(`${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`, {
+      ...requestParams,
+      headers: {
+        ...(requestParams.headers || {}),
+        ...(type && type !== ContentType.FormData ? { "Content-Type": type } : {}),
       },
-    ).then(async (response) => {
-      const r = response as HttpResponse<T, E>;
+      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
+      body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
+    }).then(async (response) => {
+      const r = response.clone() as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
-      const responseToParse = responseFormat ? response.clone() : response;
       const data = !responseFormat
         ? r
-        : await responseToParse[responseFormat]()
+        : await response[responseFormat]()
             .then((data) => {
               if (r.ok) {
                 r.data = data;
@@ -1593,11 +1542,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonAuthResponseDto` OK
      * @response `default` `ErrorModel` Error
      */
-    authPlatformCode: (
-      platform: AuthPlatformCodeParamsEnum,
-      data: PlatformCodeBody,
-      params: RequestParams = {},
-    ) =>
+    authPlatformCode: (platform: AuthPlatformCodeParamsEnum, data: PlatformCodeBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonAuthResponseDto, any>({
         path: `/auth/${platform}/code`,
         method: "POST",
@@ -1821,7 +1766,7 @@ export class Api<SecurityDataType extends unknown> {
  * @request POST:/oauth/register
  * @response `201` `{
     client_id: string,
-  /** @format int64 *\/
+  \** @format int64 *\
     client_id_issued_at: number,
     client_name: string,
     client_uri?: string,
@@ -1991,7 +1936,7 @@ export class Api<SecurityDataType extends unknown> {
  * @request POST:/oauth/token
  * @response `200` `{
     access_token: string,
-  /** @format int64 *\/
+  \** @format int64 *\
     expires_in: number,
     refresh_token: string,
     scope: string,
@@ -2148,12 +2093,8 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `File` File content
      * @response `default` `ErrorModel` Error
      */
-    channelsFilesContentDetail: (
-      channelId: string,
-      fileId: string,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<Blob, any>({
+    channelsFilesContentDetail: (channelId: string, fileId: string, params: RequestParams = {}) =>
+      this.http.request<File, any>({
         path: `/v1/channels/${channelId}/files/content/${fileId}`,
         method: "GET",
         ...params,
@@ -2171,15 +2112,13 @@ export class Api<SecurityDataType extends unknown> {
      * @response `default` `ErrorModel` Error
      */
     integrationsValorantStats: (params: RequestParams = {}) =>
-      this.http.request<BaseOutputBodyJsonIntegrationsValorantStatsOutput, any>(
-        {
-          path: `/v1/integrations/valorant/stats`,
-          method: "GET",
-          secure: true,
-          format: "json",
-          ...params,
-        },
-      ),
+      this.http.request<BaseOutputBodyJsonIntegrationsValorantStatsOutput, any>({
+        path: `/v1/integrations/valorant/stats`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
 
     /**
      * @description Requires api-key header.
@@ -2230,10 +2169,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonPasteBinOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
-    pastebinCreate: (
-      data: PasteBinCreateRequestDtoBody,
-      params: RequestParams = {},
-    ) =>
+    pastebinCreate: (data: PasteBinCreateRequestDtoBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonPasteBinOutputDto, any>({
         path: `/v1/pastebin`,
         method: "POST",
@@ -2308,10 +2244,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `(CommandDto)[]` OK
      * @response `default` `ErrorModel` Error
      */
-    publicChannelPublicCommands: (
-      channelId: string,
-      params: RequestParams = {},
-    ) =>
+    publicChannelPublicCommands: (channelId: string, params: RequestParams = {}) =>
       this.http.request<CommandDto[], any>({
         path: `/v1/public/channels/${channelId}/commands`,
         method: "GET",
@@ -2350,10 +2283,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonScheduledVipOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
-    scheduledVipsCreate: (
-      data: CreateRequestDtoBody,
-      params: RequestParams = {},
-    ) =>
+    scheduledVipsCreate: (data: CreateRequestDtoBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonScheduledVipOutputDto, any>({
         path: `/v1/scheduled-vips`,
         method: "POST",
@@ -2452,10 +2382,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonListLinkBannedUserAgentDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksListLinkBannedUserAgents: (
-      linkId: string,
-      params: RequestParams = {},
-    ) =>
+    shortLinksListLinkBannedUserAgents: (linkId: string, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonListLinkBannedUserAgentDto, any>({
         path: `/v1/short-links/by-id/${linkId}/banned-user-agents`,
         method: "GET",
@@ -2501,11 +2428,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonInterface` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksDeleteLinkBannedUserAgent: (
-      linkId: string,
-      id: string,
-      params: RequestParams = {},
-    ) =>
+    shortLinksDeleteLinkBannedUserAgent: (linkId: string, id: string, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonInterface, any>({
         path: `/v1/short-links/by-id/${linkId}/banned-user-agents/${id}`,
         method: "DELETE",
@@ -2545,11 +2468,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonLinkPresetDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksApplyPresetToLink: (
-      linkId: string,
-      data: ApplyPresetToLinkInputBody,
-      params: RequestParams = {},
-    ) =>
+    shortLinksApplyPresetToLink: (linkId: string, data: ApplyPresetToLinkInputBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonLinkPresetDto, any>({
         path: `/v1/short-links/by-id/${linkId}/presets`,
         method: "POST",
@@ -2571,11 +2490,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonInterface` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksRemovePresetFromLink: (
-      linkId: string,
-      presetId: string,
-      params: RequestParams = {},
-    ) =>
+    shortLinksRemovePresetFromLink: (linkId: string, presetId: string, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonInterface, any>({
         path: `/v1/short-links/by-id/${linkId}/presets/${presetId}`,
         method: "DELETE",
@@ -2635,10 +2550,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonCustomDomainOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksCreateCustomDomain: (
-      data: CreateCustomDomainInputBody,
-      params: RequestParams = {},
-    ) =>
+    shortLinksCreateCustomDomain: (data: CreateCustomDomainInputBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonCustomDomainOutputDto, any>({
         path: `/v1/short-links/custom-domain`,
         method: "POST",
@@ -2725,10 +2637,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonPresetDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksCreatePreset: (
-      data: CreatePresetInputBody,
-      params: RequestParams = {},
-    ) =>
+    shortLinksCreatePreset: (data: CreatePresetInputBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonPresetDto, any>({
         path: `/v1/short-links/presets`,
         method: "POST",
@@ -2770,11 +2679,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonPresetDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksUpdatePreset: (
-      presetId: string,
-      data: UpdatePresetInputBody,
-      params: RequestParams = {},
-    ) =>
+    shortLinksUpdatePreset: (presetId: string, data: UpdatePresetInputBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonPresetDto, any>({
         path: `/v1/short-links/presets/${presetId}`,
         method: "PATCH",
@@ -2796,10 +2701,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonListPresetPatternDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksListPresetPatterns: (
-      presetId: string,
-      params: RequestParams = {},
-    ) =>
+    shortLinksListPresetPatterns: (presetId: string, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonListPresetPatternDto, any>({
         path: `/v1/short-links/presets/${presetId}/patterns`,
         method: "GET",
@@ -2819,11 +2721,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonPresetPatternDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksCreatePresetPattern: (
-      presetId: string,
-      data: CreatePresetPatternInputBody,
-      params: RequestParams = {},
-    ) =>
+    shortLinksCreatePresetPattern: (presetId: string, data: CreatePresetPatternInputBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonPresetPatternDto, any>({
         path: `/v1/short-links/presets/${presetId}/patterns`,
         method: "POST",
@@ -2845,11 +2743,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonInterface` OK
      * @response `default` `ErrorModel` Error
      */
-    shortLinksDeletePresetPattern: (
-      presetId: string,
-      id: string,
-      params: RequestParams = {},
-    ) =>
+    shortLinksDeletePresetPattern: (presetId: string, id: string, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonInterface, any>({
         path: `/v1/short-links/presets/${presetId}/patterns/${id}`,
         method: "DELETE",
@@ -2907,11 +2801,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `BaseOutputBodyJsonLinkOutputDto` OK
      * @response `default` `ErrorModel` Error
      */
-    shortUrlUpdate: (
-      shortId: string,
-      data: UpdateRequestDtoBody,
-      params: RequestParams = {},
-    ) =>
+    shortUrlUpdate: (shortId: string, data: UpdateRequestDtoBody, params: RequestParams = {}) =>
       this.http.request<BaseOutputBodyJsonLinkOutputDto, any>({
         path: `/v1/short-links/${shortId}`,
         method: "PATCH",
@@ -3068,7 +2958,7 @@ export class Api<SecurityDataType extends unknown> {
       },
       params: RequestParams = {},
     ) =>
-      this.http.request<Blob, any>({
+      this.http.request<File, any>({
         path: `/v1/tts/say`,
         method: "GET",
         query: query,
@@ -3100,14 +2990,13 @@ export class Api<SecurityDataType extends unknown> {
      * @name UploaderServeFile
      * @summary Serve an uploaded file
      * @request GET:/v1/u/{publicId}
-     * @response `302` `void` Found
+     * @response `200` `void` OK
      * @response `default` `ErrorModel` Error
      */
     uploaderServeFile: (publicId: string, params: RequestParams = {}) =>
-      this.http.request<ErrorModel, void>({
+      this.http.request<void, any>({
         path: `/v1/u/${publicId}`,
         method: "GET",
-        format: "json",
         ...params,
       }),
 
@@ -3234,10 +3123,7 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `(CommandV2Dto)[]` OK
      * @response `default` `ErrorModel` Error
      */
-    publicV2ChannelCommandsByUuid: (
-      channelUuid: string,
-      params: RequestParams = {},
-    ) =>
+    publicV2ChannelCommandsByUuid: (channelUuid: string, params: RequestParams = {}) =>
       this.http.request<CommandV2Dto[], any>({
         path: `/v2/channels/${channelUuid}/commands`,
         method: "GET",
