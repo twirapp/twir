@@ -4,13 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/libs/bus-core/events"
+	"github.com/twirapp/twir/libs/bus-core/generic"
 	channelentity "github.com/twirapp/twir/libs/entities/channel"
 	channelplatformentity "github.com/twirapp/twir/libs/entities/channel_platform"
 	platformentity "github.com/twirapp/twir/libs/entities/platform"
+	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/wsrouter"
 )
 
@@ -47,7 +50,7 @@ func TestHandleChannelBanEventUsesSelectedEventPlatformBinding(t *testing.T) {
 	service := &Service{
 		channelService: lookup,
 		wsRouter:       router,
-		chanSubs:       map[string]struct{}{key: {}},
+		chanSubs:       map[string]int{key: 1},
 	}
 
 	_, err := service.handleChannelBanEvent(context.Background(), events.ChannelBanMessage{
@@ -107,9 +110,9 @@ func TestHandleChannelBanEventSkipsMissingEventPlatformBinding(t *testing.T) {
 	service := &Service{
 		channelService: lookup,
 		wsRouter:       router,
-		chanSubs: map[string]struct{}{
-			wrongProviderRoute:       {},
-			wrongProviderLookupRoute: {},
+		chanSubs: map[string]int{
+			wrongProviderRoute:       1,
+			wrongProviderLookupRoute: 1,
 		},
 	}
 
@@ -158,10 +161,109 @@ type chatMessagesTestWsRouter struct {
 }
 
 func (*chatMessagesTestWsRouter) Subscribe([]string) (wsrouter.WsRouterSubscription, error) {
-	return nil, nil
+	return &chatMessagesTestSubscription{ch: make(chan []byte)}, nil
 }
 
 func (r *chatMessagesTestWsRouter) Publish(key string, data any) error {
 	r.published = append(r.published, chatMessagesPublishedEvent{key: key, data: data})
 	return nil
+}
+
+type chatMessagesTestSubscription struct {
+	ch chan []byte
+}
+
+func (s *chatMessagesTestSubscription) GetChannel() chan []byte {
+	return s.ch
+}
+
+func (s *chatMessagesTestSubscription) Unsubscribe() error {
+	return nil
+}
+
+func TestChannelMessagesKeepPublishingUntilLastSubscriberLeaves(t *testing.T) {
+	platform := platformentity.PlatformTwitch.String()
+	platformChannelID := "twitch-channel"
+	key := chatMessagesSubscriptionKeyCreate(platform, platformChannelID)
+	pairs := []chat_messages.PlatformChannelIdentity{
+		{Platform: platform, PlatformChannelID: platformChannelID},
+	}
+
+	router := &chatMessagesTestWsRouter{}
+	service := &Service{
+		wsRouter: router,
+		chanSubs: map[string]int{},
+	}
+
+	firstCtx, cancelFirst := context.WithCancel(context.Background())
+	secondCtx, cancelSecond := context.WithCancel(context.Background())
+	defer cancelFirst()
+	defer cancelSecond()
+
+	first := service.SubscribeToNewMessagesByChannelIDs(firstCtx, pairs)
+	second := service.SubscribeToNewMessagesByChannelIDs(secondCtx, pairs)
+
+	publishedWithKey := func() int {
+		count := 0
+		for _, p := range router.published {
+			if p.key == key {
+				count++
+			}
+		}
+		return count
+	}
+
+	publishBusMessage := func() {
+		t.Helper()
+		_, err := service.handleBusEvent(
+			context.Background(),
+			generic.ChatMessage{
+				Platform:          platform,
+				PlatformChannelID: platformChannelID,
+				Text:              "hello",
+			},
+		)
+		if err != nil {
+			t.Fatalf("handle bus event: %v", err)
+		}
+	}
+
+	waitClosed := func(ch <-chan entity.ChatMessage) {
+		t.Helper()
+		timeout := time.After(5 * time.Second)
+		for {
+			select {
+			case _, ok := <-ch:
+				if !ok {
+					return
+				}
+			case <-timeout:
+				t.Fatal("timed out waiting for subscription channel to close")
+			}
+		}
+	}
+
+	publishBusMessage()
+	if got := publishedWithKey(); got != 1 {
+		t.Fatalf("publishes with both subscribers = %d, want 1", got)
+	}
+
+	cancelFirst()
+	waitClosed(first)
+
+	publishBusMessage()
+	if got := publishedWithKey(); got != 2 {
+		t.Fatalf(
+			"publishes after first subscriber left = %d, want 2 (second subscriber must still receive messages)",
+			got,
+		)
+	}
+
+	cancelSecond()
+	waitClosed(second)
+
+	publishBusMessage()
+	if got := publishedWithKey(); got != 2 {
+		t.Fatalf("publishes after last subscriber left = %d, want 2 (no subscribers remain)", got)
+	}
 }
