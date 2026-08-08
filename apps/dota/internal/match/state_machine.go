@@ -975,6 +975,8 @@ func (m *StateMachine) publishStateUpdate(ctx context.Context, snapshot Snapshot
 		WinProbability: snapshot.WinProbability,
 		HeroName:       snapshot.HeroName,
 		MatchID:        snapshot.MatchID,
+		TeamIsRadiant:  snapshot.IsRadiant,
+		TeamKnown:      snapshot.TeamKnown,
 	})
 }
 

@@ -11,4 +11,6 @@ type DotaStateUpdateMessage struct {
 	WinProbability float64 `json:"winProbability"`
 	HeroName       string  `json:"heroName"`
 	MatchID        int64   `json:"matchId"`
+	TeamIsRadiant  bool    `json:"teamIsRadiant"`
+	TeamKnown      bool    `json:"teamKnown"`
 }

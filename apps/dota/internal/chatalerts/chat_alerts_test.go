@@ -548,9 +548,12 @@ func TestAegisPlayerTemplate(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "uses player ID when name is unavailable",
+			// The GSI player_id is not a dependable roster slot (Dota reshuffles
+			// it in ranked-roles games), so without a resolved name we render no
+			// player at all rather than a wrong one.
+			name:     "omits player when name is unavailable",
 			message:  busdota.AegisPickupMessage{PlayerID: &playerID},
-			expected: "Aegis: player #2",
+			expected: "Aegis:",
 		},
 		{
 			name:     "prefers player name",

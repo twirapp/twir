@@ -25,7 +25,16 @@ const (
 	predictionActionRenewTimeout = 5 * time.Second
 	predictionActionPoll         = time.Second
 	predictionActionRetryCap     = time.Minute
+	// maxPredictionActionAttempts dead-letters an action that keeps failing
+	// (e.g. revoked Twitch token), so one poison action cannot block the
+	// whole per-channel outbox queue forever.
+	maxPredictionActionAttempts = 30
+	// claimPollMaxBackoff caps the poll slowdown when the outbox itself is
+	// unreadable (e.g. migrations not applied yet or Postgres down).
+	claimPollMaxBackoff = 30 * time.Second
 )
+
+var errClaimPredictionActions = errors.New("claim prediction actions")
 
 type predictionActionRepository interface {
 	GetMatchState(context.Context, uuid.UUID) (model.MatchState, error)
@@ -184,18 +193,30 @@ func (w *LifecycleWorker) stop(ctx context.Context) error {
 }
 
 func (w *LifecycleWorker) run(ctx context.Context) {
-	ticker := time.NewTicker(w.pollEvery)
-	defer ticker.Stop()
+	claimFailures := 0
 
 	for {
-		if err := w.ProcessOnce(ctx); err != nil && !errors.Is(err, context.Canceled) {
+		err := w.ProcessOnce(ctx)
+		switch {
+		case err == nil || errors.Is(err, context.Canceled):
+			claimFailures = 0
+		case errors.Is(err, errClaimPredictionActions):
+			claimFailures++
+			w.logger.ErrorContext(ctx, "dota prediction outbox claim failed", logger.Error(err))
+		default:
+			claimFailures = 0
 			w.logger.ErrorContext(ctx, "dota prediction outbox worker failed", logger.Error(err))
+		}
+
+		wait := w.pollEvery
+		if claimFailures > 0 {
+			wait = min(w.pollEvery<<min(claimFailures, 5), claimPollMaxBackoff)
 		}
 
 		select {
 		case <-ctx.Done():
 			return
-		case <-ticker.C:
+		case <-time.After(wait):
 		}
 	}
 }
@@ -207,7 +228,7 @@ func (w *LifecycleWorker) ProcessOnce(ctx context.Context) error {
 		Lease: w.actionLease,
 	})
 	if err != nil {
-		return fmt.Errorf("claim prediction actions: %w", err)
+		return fmt.Errorf("%w: %w", errClaimPredictionActions, err)
 	}
 
 	heartbeats := make([]*actionHeartbeat, len(actions))
@@ -243,6 +264,9 @@ func (w *LifecycleWorker) processAction(
 		err = heartbeatErr
 	}
 	if err != nil {
+		if claimed.Attempts >= maxPredictionActionAttempts {
+			return w.deadLetter(ctx, claimed, err)
+		}
 		return w.retry(ctx, claimed, err)
 	}
 
@@ -252,6 +276,26 @@ func (w *LifecycleWorker) processAction(
 			return nil
 		}
 		return fmt.Errorf("complete prediction action: %w", err)
+	}
+
+	return nil
+}
+
+func (w *LifecycleWorker) deadLetter(ctx context.Context, claimed model.ClaimedOutboxAction, cause error) error {
+	w.logger.ErrorContext(
+		ctx,
+		"dota prediction action exhausted attempts; dead-lettering",
+		logger.Error(cause),
+		slog.String("channel_id", claimed.ChannelID.String()),
+		slog.Int64("match_id", claimed.MatchID),
+		slog.String("action", string(claimed.Action)),
+		slog.Int("attempts", claimed.Attempts),
+	)
+	if err := w.repository.CompletePredictionAction(ctx, claimed.ID, claimed.LockToken); err != nil {
+		if errors.Is(err, dotarepository.ErrPredictionActionOwnershipLost) {
+			return nil
+		}
+		return fmt.Errorf("dead-letter prediction action: %w", err)
 	}
 
 	return nil

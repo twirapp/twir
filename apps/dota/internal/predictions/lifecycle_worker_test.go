@@ -707,6 +707,38 @@ func TestLifecycleWorkerProcessOnceRetriesDispatchFailureWithClaimToken(t *testi
 	require.GreaterOrEqual(t, retries[0].availableAt, before.Add(time.Second))
 }
 
+func TestLifecycleWorkerProcessOnceDeadLettersActionAfterMaxAttempts(t *testing.T) {
+	channelID := uuid.New()
+	action := match.LifecycleAction{
+		Kind:      match.ActionCreate,
+		ChannelID: channelID,
+		MatchID:   103,
+		TeamKnown: true,
+	}
+	repository := newFakeWorkerRepository()
+	claim := lifecycleActionClaim(t, model.OutboxActionCreate, action)
+	claim.Attempts = maxPredictionActionAttempts
+	repository.claimed = []model.ClaimedOutboxAction{claim}
+	repository.states[channelID] = workerState(t, match.Snapshot{
+		ChannelID: channelID,
+		State:     match.StateInGame,
+		InGame:    true,
+		MatchID:   action.MatchID,
+	})
+	predictionActions := &fakeWorkerPredictions{
+		createErr: errors.New("Twitch token revoked"),
+	}
+	worker := newWorkerForTest(repository, predictionActions, &fakeWorkerStatsUpdater{}, &fakeWorkerMatchEndedEmitter{}, nil)
+
+	require.NoError(t, worker.ProcessOnce(context.Background()))
+
+	require.Empty(t, repository.retried())
+	completions := repository.completed()
+	require.Len(t, completions, 1)
+	require.Equal(t, claim.ID, completions[0].actionID)
+	require.Equal(t, claim.LockToken, completions[0].lockToken)
+}
+
 func TestLifecycleWorkerProcessOnceCompletesStaleCreateWithoutDispatch(t *testing.T) {
 	channelID := uuid.New()
 	action := match.LifecycleAction{
