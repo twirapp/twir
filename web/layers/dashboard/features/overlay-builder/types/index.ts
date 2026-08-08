@@ -27,8 +27,19 @@ export interface LayerSettings {
 	textFontFamily: string
 	textFontSize: number
 	textFontWeight: number
+	textFontStyle: string
 	textColor: string
 	textAlign: string
+	textAlignVertical: string
+	textStrokeWidth: number
+	textStrokeColor: string
+	textShadowColor: string
+	textShadowBlur: number
+	textShadowOffsetX: number
+	textShadowOffsetY: number
+	textLineHeight: number
+	textLetterSpacing: number
+	textTransform: string
 	videoUrl: string
 	videoLoop: boolean
 	videoMuted: boolean
@@ -52,11 +63,22 @@ export function createLayerSettings(overrides: Partial<LayerSettings> = {}, defa
 		htmlOverlayDataPollSecondsInterval: 5,
 		imageUrl: '',
 		textContent: defaultTextContent,
-		textFontFamily: 'sans-serif',
+		textFontFamily: 'inter',
 		textFontSize: 48,
 		textFontWeight: 700,
+		textFontStyle: 'normal',
 		textColor: '#ffffff',
 		textAlign: 'center',
+		textAlignVertical: 'top',
+		textStrokeWidth: 0,
+		textStrokeColor: '#000000',
+		textShadowColor: '#000000',
+		textShadowBlur: 0,
+		textShadowOffsetX: 0,
+		textShadowOffsetY: 0,
+		textLineHeight: 1.2,
+		textLetterSpacing: 0,
+		textTransform: 'none',
 		videoUrl: '',
 		videoLoop: true,
 		videoMuted: true,
