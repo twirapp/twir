@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { toRef } from 'vue'
+import { ref, toRef } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { Dialog, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import DialogOrSheet from '~~/layers/dashboard/components/dialog-or-sheet.vue'
+import FilesPicker from '~~/layers/dashboard/components/files/files.vue'
 
 import type { Layer } from '../../types'
 import FieldInput from '../fields/FieldInput.vue'
@@ -18,9 +21,19 @@ const emit = defineEmits<{
 	update: [updates: Partial<Layer>]
 }>()
 
-const { imageUrl, setPlaceholder } = useImageLayerEditor(toRef(props, 'layer'), (updates) => {
-	emit('update', { settings: { ...props.layer.settings, ...updates } })
-})
+const { imageUrl, setPlaceholder, selectUploadedFile, onUploadedFileDelete } = useImageLayerEditor(
+	toRef(props, 'layer'),
+	(updates) => {
+		emit('update', { settings: { ...props.layer.settings, ...updates } })
+	},
+)
+
+const showFilesDialog = ref(false)
+
+function onFileSelect(fileId: string) {
+	selectUploadedFile(fileId)
+	showFilesDialog.value = false
+}
 </script>
 
 <template>
@@ -31,6 +44,29 @@ const { imageUrl, setPlaceholder } = useImageLayerEditor(toRef(props, 'layer'), 
 		</div>
 
 		<Separator />
+
+		<Dialog v-model:open="showFilesDialog">
+			<Button variant="outline" size="sm" class="w-full" @click="showFilesDialog = true">
+				<Icon name="lucide:folder-open" class="h-4 w-4 mr-2" />
+				{{ t('overlayBuilder.editors.image.selectFromFiles') }}
+			</Button>
+
+			<DialogOrSheet class="h-[80dvh] min-w-[50%] gap-0 p-0 md:h-auto">
+				<DialogHeader class="border-b p-6">
+					<DialogTitle>
+						{{ t('overlayBuilder.editors.image.selectFromFiles') }}
+					</DialogTitle>
+				</DialogHeader>
+
+				<FilesPicker
+					class="h-auto md:max-h-[50dvh]"
+					mode="picker"
+					tab="images"
+					@select="onFileSelect"
+					@delete="onUploadedFileDelete"
+				/>
+			</DialogOrSheet>
+		</Dialog>
 
 		<FieldInput
 			id="image-url"
