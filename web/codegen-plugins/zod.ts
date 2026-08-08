@@ -86,34 +86,27 @@ function generateZodSchema(input: InputObjectTypeDefinitionNode, schema: GraphQL
 					.filter((s) => s !== 'omitempty')
 			: []
 
-		const hasDive = constraints.includes('dive')
+		// go-playground validator: constraints before `dive` target the list, after — each element
+		const diveIndex = constraints.indexOf('dive')
+		const hasDive = diveIndex !== -1
+		const listConstraints = hasDive
+			? constraints.slice(0, diveIndex)
+			: constraints.filter((c) => c !== 'dive')
+		const elementConstraints = hasDive ? constraints.slice(diveIndex + 1) : []
+
 		const isList =
 			field.type.kind === 'ListType' ||
 			(field.type.kind === 'NonNullType' && field.type.type.kind === 'ListType')
 
-		// Length-related tags
-		const lengthTags = new Set(['min', 'max', 'len', 'lte', 'gte'])
-		const lengthParts = constraints.filter((part) => {
-			const [tag] = part.split('=')
-			return lengthTags.has(tag!)
-		})
-
-		// Parts to apply to outer validator
-		const partsToApply = isList && hasDive ? lengthParts : constraints.filter((c) => c !== 'dive')
-
 		// ---- base validator ---------------------------------------------- //
 		let validator: string
-		let inner: string | null = null
 		if (isList) {
 			const listNode = (
 				field.type.kind === 'ListType' ? field.type : field.type.type
 			) as ListTypeNode
-			inner = getBaseZodType(listNode.type, schema)
-			if (hasDive) {
-				inner = applyConstraints(
-					inner,
-					constraints.filter((c) => c !== 'dive')
-				)
+			let inner = getBaseZodType(listNode.type, schema)
+			if (elementConstraints.length > 0 && !inner.startsWith('z.lazy(')) {
+				inner = applyConstraints(inner, elementConstraints)
 			}
 			validator = `z.array(${inner})`
 		} else {
@@ -121,7 +114,7 @@ function generateZodSchema(input: InputObjectTypeDefinitionNode, schema: GraphQL
 		}
 
 		// Apply constraints to outer
-		validator = applyConstraints(validator, partsToApply)
+		validator = applyConstraints(validator, listConstraints)
 
 		// ---- make optional ------------------------------------------------ //
 		if (isOptional) {
