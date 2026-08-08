@@ -198,7 +198,7 @@ export function useCanvasInteraction(
 			snapPositionY: newSnapPosY,
 		}
 
-		return { x: snappedX, y: snappedY }
+		return { x: Math.round(snappedX), y: Math.round(snappedY) }
 	}
 
 	function getLayersAtPoint(event: MouseEvent): Layer[] {

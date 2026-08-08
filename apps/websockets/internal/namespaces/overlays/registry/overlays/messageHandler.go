@@ -6,10 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/olahol/melody"
+	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/websockets/types"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	customoverlayentity "github.com/twirapp/twir/libs/entities/custom_overlay"
@@ -44,16 +46,22 @@ type overlayEditorEventMeta struct {
 	ClientID  string `json:"clientId"`
 }
 
+// Geometry fields are float64 because browsers can send fractional pixels
+// (center snapping, align, distribute); they are rounded before persisting.
 type instantSaveLayerData struct {
-	ID       string  `json:"id"`
-	PosX     int     `json:"posX"`
-	PosY     int     `json:"posY"`
-	Rotation int     `json:"rotation"`
-	Width    int     `json:"width"`
-	Height   int     `json:"height"`
-	Visible  bool    `json:"visible"`
-	Opacity  float64 `json:"opacity"`
-	ZIndex   *int    `json:"zIndex"`
+	ID       string   `json:"id"`
+	PosX     float64  `json:"posX"`
+	PosY     float64  `json:"posY"`
+	Rotation float64  `json:"rotation"`
+	Width    float64  `json:"width"`
+	Height   float64  `json:"height"`
+	Visible  bool     `json:"visible"`
+	Opacity  float64  `json:"opacity"`
+	ZIndex   *float64 `json:"zIndex"`
+}
+
+func roundToInt(v float64) int {
+	return int(math.Round(v))
 }
 
 func textToBase64(text string) string {
@@ -237,16 +245,16 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 
 			zIndex := layer.ZIndex
 			if foundInputLayer.ZIndex != nil {
-				zIndex = *foundInputLayer.ZIndex
+				zIndex = roundToInt(*foundInputLayer.ZIndex)
 			}
 
 			e.Layers = append(e.Layers, customoverlayentity.ChannelOverlayLayer{
 				ID:        layer.ID,
 				OverlayID: layer.OverlayID,
 				Type:      customoverlayentity.ChannelOverlayType(layer.Type),
-				PosX:      foundInputLayer.PosX,
-				PosY:      foundInputLayer.PosY,
-				Rotation:  foundInputLayer.Rotation,
+				PosX:      roundToInt(foundInputLayer.PosX),
+				PosY:      roundToInt(foundInputLayer.PosY),
+				Rotation:  roundToInt(foundInputLayer.Rotation),
 			Settings: customoverlayentity.ChannelOverlayLayerSettings{
 				HtmlOverlayHTML:                    layer.Settings.HtmlOverlayHTML,
 				HtmlOverlayCSS:                     layer.Settings.HtmlOverlayCSS,
@@ -275,8 +283,8 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			},
 				CreatedAt:               layer.CreatedAt,
 				UpdatedAt:               layer.UpdatedAt,
-				Width:                   foundInputLayer.Width,
-				Height:                  foundInputLayer.Height,
+				Width:                   roundToInt(foundInputLayer.Width),
+				Height:                  roundToInt(foundInputLayer.Height),
 				PeriodicallyRefetchData: layer.PeriodicallyRefetchData,
 				Locked:                  layer.Locked,
 				Visible:                 foundInputLayer.Visible,
@@ -296,16 +304,26 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				continue
 			}
 
+			posX := roundToInt(layerData.PosX)
+			posY := roundToInt(layerData.PosY)
+			rotation := roundToInt(layerData.Rotation)
+			width := roundToInt(layerData.Width)
+			height := roundToInt(layerData.Height)
+			var zIndex *int
+			if layerData.ZIndex != nil {
+				zIndex = lo.ToPtr(roundToInt(*layerData.ZIndex))
+			}
+
 			go func() {
 			_, e := c.channelsOverlaysRepository.UpdateLayer(context.TODO(), layerID, channels_overlays.LayerUpdateInput{
-				PosX:     &layerData.PosX,
-				PosY:     &layerData.PosY,
-				Rotation: &layerData.Rotation,
-				Width:    &layerData.Width,
-				Height:   &layerData.Height,
+				PosX:     &posX,
+				PosY:     &posY,
+				Rotation: &rotation,
+				Width:    &width,
+				Height:   &height,
 				Visible:  &layerData.Visible,
 				Opacity:  &layerData.Opacity,
-				ZIndex:   layerData.ZIndex,
+				ZIndex:   zIndex,
 			})
 				if e != nil {
 					// Layers created on the client exist only in the builder state until

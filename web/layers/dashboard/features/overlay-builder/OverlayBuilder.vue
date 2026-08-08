@@ -21,7 +21,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-	save: [project: OverlayProject]
+	save: [project: OverlayProject, options?: { silent?: boolean }]
 	instantSave: [project: OverlayProject]
 }>()
 

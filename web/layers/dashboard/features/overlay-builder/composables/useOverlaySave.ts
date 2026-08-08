@@ -13,6 +13,11 @@ import type { OverlayProject } from '../types'
 
 import { useOverlayInstantSave } from './useOverlayInstantSave'
 
+interface SaveOptions {
+	/** Auto-saves (instaSave) skip the success toast; errors always toast. */
+	silent?: boolean
+}
+
 export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 	const createOverlayMutation = useChannelOverlayCreate()
 	const updateOverlayMutation = useChannelOverlayUpdate()
@@ -26,16 +31,16 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 	// Convert project to GraphQL input
 	function projectToLayersInput(project: OverlayProject): ChannelOverlayLayerInput[] {
 		return project.layers.map((layer, index) => {
-			const rotation = Number(layer.rotation ?? 0)
 			return {
 				id: layer.id ?? undefined, // Include layer ID for updates
 				type: layer.type,
 				name: layer.name,
-				posX: layer.posX,
-				posY: layer.posY,
-				width: layer.width,
-				height: layer.height,
-				rotation: rotation,
+				// GraphQL Int! fields reject fractional pixels
+				posX: Math.round(layer.posX),
+				posY: Math.round(layer.posY),
+				width: Math.round(layer.width),
+				height: Math.round(layer.height),
+				rotation: Math.round(Number(layer.rotation ?? 0)),
 				periodicallyRefetchData: layer.periodicallyRefetchData,
 				locked: layer.locked ?? false,
 				visible: layer.visible ?? true,
@@ -74,7 +79,7 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 	}
 
 	// Save full overlay (creates new or updates existing)
-	async function saveOverlay(project: OverlayProject): Promise<string | null> {
+	async function saveOverlay(project: OverlayProject, options?: SaveOptions): Promise<string | null> {
 		// Validate project data
 		if (!project.name || project.name.length > 30) {
 			toast.error('Overlay name is required and must be less than 30 characters')
@@ -109,7 +114,7 @@ export function useOverlaySave(overlayId: MaybeRefOrGetter<string>) {
 					return null
 				}
 
-				toast.success('Overlay updated successfully!')
+				if (!options?.silent) toast.success('Overlay updated successfully!')
 				refetchOverlays({ requestPolicy: 'network-only' })
 				return project.id
 			} else {

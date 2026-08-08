@@ -42,7 +42,7 @@ export interface InitialOverlayProject {
 }
 
 interface OverlayBuilderEmit {
-	(event: 'save', project: OverlayProject): void
+	(event: 'save', project: OverlayProject, options?: { silent?: boolean }): void
 	(event: 'instantSave', project: OverlayProject): void
 }
 
@@ -334,6 +334,7 @@ export function useOverlayBuilderController(
 			visible: !addLayersHidden.value,
 		})
 		if (layer) sync.sendLayerAdd(layer)
+		scheduleInstantFullSave()
 	}
 
 	function projectSnapshot(name: string, instantSave: boolean): OverlayProject {
@@ -343,7 +344,38 @@ export function useOverlayBuilderController(
 		return project
 	}
 
+	// Mirrors the WS instantSaveLayerPositions contract; other fields persist via full save
+	const INSTANT_SAVE_WS_KEYS = new Set(['posX', 'posY', 'width', 'height', 'rotation', 'visible', 'opacity'])
+
+	let instantFullSaveTimer: ReturnType<typeof setTimeout> | null = null
+
+	function cancelScheduledFullSave() {
+		if (instantFullSaveTimer === null) return
+		clearTimeout(instantFullSaveTimer)
+		instantFullSaveTimer = null
+	}
+
+	function scheduleInstantFullSave() {
+		if (!instaSave.value || !loadedProjectId.value) return
+		if (isApplyingRemote.value || isLoadingProject.value) return
+
+		cancelScheduledFullSave()
+		instantFullSaveTimer = setTimeout(() => {
+			instantFullSaveTimer = null
+			emit('save', projectSnapshot(overlayName.value, instaSave.value), { silent: true })
+		}, 1000)
+	}
+
+	onUnmounted(cancelScheduledFullSave)
+
+	function scheduleSaveForNonGeometryUpdates(updates: Partial<Layer>) {
+		if (Object.keys(updates).some((key) => !INSTANT_SAVE_WS_KEYS.has(key))) {
+			scheduleInstantFullSave()
+		}
+	}
+
 	function handleSave() {
+		cancelScheduledFullSave()
 		emit('save', projectSnapshot(overlayName.value, instaSave.value))
 	}
 
@@ -355,7 +387,7 @@ export function useOverlayBuilderController(
 
 	watch(instaSave, (newValue, oldValue) => {
 		if (newValue === oldValue || isApplyingRemote.value || isLoadingProject.value) return
-		if (loadedProjectId.value) emit('instantSave', projectSnapshot(overlayName.value, newValue))
+		if (loadedProjectId.value) emit('save', projectSnapshot(overlayName.value, newValue), { silent: true })
 		sync.sendSettingsUpdate({ instaSave: newValue })
 	})
 	watch([() => builder.project.width, () => builder.project.height], () => {
@@ -363,7 +395,7 @@ export function useOverlayBuilderController(
 		builder.constrainLayersToCanvas()
 		void nextTick(calculateFitZoom)
 		if (isApplyingRemote.value) return
-		if (instaSave.value && loadedProjectId.value) emit('save', projectSnapshot(overlayName.value, instaSave.value))
+		scheduleInstantFullSave()
 		if (loadedProjectId.value) {
 			sync.sendSettingsUpdate({ width: builder.project.width, height: builder.project.height })
 		}
@@ -380,6 +412,7 @@ export function useOverlayBuilderController(
 		builder.updateLayer(layerId, updates)
 		broadcastLayerMutation(layerId, updates)
 		if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined || updates.opacity !== undefined || updates.visible !== undefined) void handleLayerUpdate()
+		scheduleSaveForNonGeometryUpdates(updates)
 	}
 
 	function handleSelectLayer(layerId: string, addToSelection: boolean) {
@@ -439,25 +472,30 @@ export function useOverlayBuilderController(
 	function handleRemoveLayer(layerId: string) {
 		builder.removeLayer(layerId)
 		broadcastRemovedLayers([layerId])
+		scheduleInstantFullSave()
 	}
 
 	function handleRemoveLayers(layerIds: string[]) {
 		builder.removeLayers(layerIds)
 		broadcastRemovedLayers(layerIds)
+		scheduleInstantFullSave()
 	}
 
 	function handleDuplicateLayers(layerIds: string[]) {
 		broadcastAddedLayers(builder.duplicateLayers(layerIds))
+		scheduleInstantFullSave()
 	}
 
 	function handleCutSelection() {
 		const layerIds = [...builder.canvasState.selectedLayerIds]
 		builder.cutToClipboard()
 		broadcastRemovedLayers(layerIds)
+		scheduleInstantFullSave()
 	}
 
 	function handlePaste() {
 		broadcastAddedLayers(builder.pasteFromClipboard())
+		scheduleInstantFullSave()
 	}
 
 	function handleAlign(alignment: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') {
@@ -477,11 +515,13 @@ export function useOverlayBuilderController(
 	function handleUndo() {
 		builder.undo()
 		sync.sendProjectReplace(projectSnapshot(overlayName.value, instaSave.value))
+		scheduleInstantFullSave()
 	}
 
 	function handleRedo() {
 		builder.redo()
 		sync.sendProjectReplace(projectSnapshot(overlayName.value, instaSave.value))
+		scheduleInstantFullSave()
 	}
 
 	function handleOpenLayerSettings(layerId: string) {
@@ -503,6 +543,7 @@ export function useOverlayBuilderController(
 		builder.updateLayer(layerId, updates)
 		broadcastLayerMutation(layerId, updates)
 		if (updates.posX !== undefined || updates.posY !== undefined || updates.rotation !== undefined || updates.width !== undefined || updates.height !== undefined || updates.opacity !== undefined || updates.visible !== undefined) void handleLayerUpdate()
+		scheduleSaveForNonGeometryUpdates(updates)
 	}
 
 	function handleActiveLayerUpdate(updates: Partial<Layer>) {
@@ -530,6 +571,7 @@ export function useOverlayBuilderController(
 		})
 		const layer = builder.project.layers.find((item) => item.id === editorLayer.value?.id)
 		if (layer) sync.sendLayerUpdate(layer)
+		scheduleInstantFullSave()
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {

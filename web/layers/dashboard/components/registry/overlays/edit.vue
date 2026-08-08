@@ -100,8 +100,8 @@ const projectData = computed(() => {
 })
 
 // Handle save from builder
-async function handleSave(project: OverlayProject) {
-	const newId = await saveOverlay(project)
+async function handleSave(project: OverlayProject, options?: { silent?: boolean }) {
+	const newId = await saveOverlay(project, options)
 
 	// If created new overlay, redirect to edit page
 	if (!project.id && newId) {

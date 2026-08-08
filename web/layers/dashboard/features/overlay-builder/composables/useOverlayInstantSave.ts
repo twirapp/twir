@@ -144,11 +144,12 @@ export function useOverlayInstantSave(overlayId: MaybeRefOrGetter<string>) {
 		const layersData: LayerPosition[] = project.layers.map((layer, index) => {
 			return {
 				id: layer.id,
-				posX: layer.posX,
-				posY: layer.posY,
-				width: layer.width,
-				height: layer.height,
-				rotation: layer.rotation ?? 0,
+				// ws contract is strict int fields; fractional pixels must not leak over the wire
+				posX: Math.round(layer.posX),
+				posY: Math.round(layer.posY),
+				width: Math.round(layer.width),
+				height: Math.round(layer.height),
+				rotation: Math.round(layer.rotation ?? 0),
 				visible: layer.visible ?? true,
 				opacity: layer.opacity ?? 1.0,
 				zIndex: index,
