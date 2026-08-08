@@ -16,7 +16,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && title && cost"
-		:icon="'tabler:icon-award'"
+		:icon="'tabler:award'"
 		:icon-color="['#c28100', '#ffd37a']"
 		:created-at="createdAt"
 	>

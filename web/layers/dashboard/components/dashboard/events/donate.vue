@@ -13,7 +13,7 @@ defineProps<{
 
 <template>
 	<Base
-		:icon="'tabler:icon-currency-dollar'"
+		:icon="'tabler:currency-dollar'"
 		:icon-color="['#00a865', '#5cffbe']"
 		:created-at="createdAt"
 	>

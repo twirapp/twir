@@ -15,8 +15,8 @@ const props = defineProps<{
 }>()
 
 const iconBan = computed(() => {
-	if (props.endsIn === 'permanent') return 'tabler:icon-ban'
-	return 'tabler:icon-clock-cancel'
+	if (props.endsIn === 'permanent') return 'tabler:ban'
+	return 'tabler:clock-cancel'
 })
 </script>
 

@@ -14,7 +14,7 @@ defineProps<{
 <template>
 	<Base
 		v-if="userName && userDisplayName && viewers"
-		:icon="'tabler:icon-pick'"
+		:icon="'tabler:pick'"
 		:icon-color="['#949400', '#ebeb00']"
 		:created-at="createdAt"
 	>
