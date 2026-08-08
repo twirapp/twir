@@ -53,6 +53,7 @@ type ChannelOverlayLayerSettings struct {
 type ChannelOverlayLayer struct {
 	ID                      uuid.UUID
 	Type                    ChannelOverlayType
+	Name                    string
 	Settings                ChannelOverlayLayerSettings
 	OverlayID               uuid.UUID
 	PosX                    int

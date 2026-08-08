@@ -80,6 +80,7 @@ func ChannelOverlayLayerEntityToGql(l customoverlayentity.ChannelOverlayLayer) g
 	return gqlmodel.ChannelOverlayLayer{
 		ID:                      l.ID,
 		Type:                    ChannelOverlayLayerTypeEntityToGql(l.Type),
+		Name:                    l.Name,
 		Settings:                ChannelOverlayLayerSettingsEntityToGql(l.Settings),
 		OverlayID:               l.OverlayID,
 		PosX:                    l.PosX,

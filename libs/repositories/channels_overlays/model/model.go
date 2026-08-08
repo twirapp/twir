@@ -53,6 +53,7 @@ type OverlayLayerSettings struct {
 type OverlayLayer struct {
 	ID                      uuid.UUID            `json:"id"`
 	Type                    OverlayType          `json:"type"`
+	Name                    string               `json:"name"`
 	Settings                OverlayLayerSettings `json:"settings"`
 	OverlayID               uuid.UUID            `json:"overlay_id"`
 	PosX                    int                  `json:"pos_x"`
