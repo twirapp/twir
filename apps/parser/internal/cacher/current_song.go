@@ -66,7 +66,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		spotifyToken, err := c.services.Bus.Tokens.RequestChannelIntegrationToken.Request(
 			ctx,
 			buscoretokens.GetChannelIntegrationTokenRequest{
-					ChannelID: c.parseCtxChannel.DBChannelID,
+				ChannelID: c.parseCtxChannel.DBChannelID,
 				Service:   integrationsmodel.ServiceSpotify,
 			},
 		)
@@ -168,7 +168,7 @@ checkServices:
 		case "YOUTUBE_SR":
 			redisData, err := c.services.Redis.Get(
 				context.Background(),
-				fmt.Sprintf("songrequests:youtube:%s:currentPlaying", c.parseCtxChannel.DBChannelID),
+				fmt.Sprintf("songrequests:playback:%s", c.parseCtxChannel.DBChannelID),
 			).Result()
 			if err == redis.Nil {
 				continue
@@ -176,13 +176,34 @@ checkServices:
 			if err != nil {
 				continue
 			}
+
+			var playbackState struct {
+				VideoID string `json:"videoId"`
+				Title   string `json:"title"`
+			}
+			if err := json.Unmarshal([]byte(redisData), &playbackState); err != nil {
+				c.services.Logger.Error("failed to unmarshal youtube sr playback state", zap.Error(err))
+				continue
+			}
+			if playbackState.VideoID == "" {
+				continue
+			}
+
 			song := model.RequestedSong{}
 			if err = c.services.Gorm.
 				WithContext(ctx).
-				Where("id = ?", redisData).
-				First(&song).Error; err != nil {
-				fmt.Println("song nog found", err)
-				continue
+				Where(
+					`"channelId" = ?::uuid AND "videoId" = ? AND "deletedAt" IS NULL`,
+					c.parseCtxChannel.DBChannelID,
+					playbackState.VideoID,
+				).
+				Order(`"createdAt" desc`).
+				First(&song).Error; err != nil || song.ID == "" {
+				// deleting a song from the queue does not stop playback, so the row may be gone
+				c.cache.currentSong = &types.CurrentSong{
+					Name: fmt.Sprintf(`"%s" youtu.be/%s`, playbackState.Title, playbackState.VideoID),
+				}
+				break checkServices
 			}
 
 			c.cache.currentSong = &types.CurrentSong{
