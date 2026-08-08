@@ -15,6 +15,7 @@ import (
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/minio/minio-go/v7"
+	minioclient "github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/libs/baseapp/lifecycle"
 	cfg "github.com/twirapp/twir/libs/config"
 	uploadedfile "github.com/twirapp/twir/libs/entities/uploaded_file"
@@ -54,10 +55,10 @@ type UploadInput struct {
 }
 
 type Service struct {
-	config     cfg.Config
-	logger     *slog.Logger
-	s3Client   *minio.Client
-	repository uploadedfiles.Repository
+	config         cfg.Config
+	logger         *slog.Logger
+	uploaderClient *minioclient.UploaderS3Client
+	repository     uploadedfiles.Repository
 
 	cleanupCtx    context.Context
 	cleanupCancel context.CancelFunc
@@ -67,18 +68,18 @@ type Service struct {
 func New(
 	config cfg.Config,
 	logger *slog.Logger,
-	s3Client *minio.Client,
+	uploaderClient *minioclient.UploaderS3Client,
 	repository uploadedfiles.Repository,
 	lc *lifecycle.Lifecycle,
 ) *Service {
 	cleanupCtx, cleanupCancel := context.WithCancel(context.Background())
 	service := &Service{
-		config:        config,
-		logger:        logger,
-		s3Client:      s3Client,
-		repository:    repository,
-		cleanupCtx:    cleanupCtx,
-		cleanupCancel: cleanupCancel,
+		config:         config,
+		logger:         logger,
+		uploaderClient: uploaderClient,
+		repository:     repository,
+		cleanupCtx:     cleanupCtx,
+		cleanupCancel:  cleanupCancel,
 	}
 
 	lc.Append(lifecycle.Hook{
@@ -147,9 +148,9 @@ func (c *Service) Upload(ctx context.Context, input UploadInput) (uploadedfile.E
 		return uploadedfile.Nil, fmt.Errorf("generate delete key: %w", err)
 	}
 	s3Key := "uploads/" + publicID + extension
-	if _, err := c.s3Client.PutObject(
+	if _, err := c.uploaderClient.PutObject(
 		ctx,
-		c.config.S3Bucket,
+		c.uploaderClient.Bucket,
 		s3Key,
 		reader,
 		input.Size,
@@ -207,8 +208,8 @@ func (c *Service) BuildPublicURL(entity uploadedfile.Entity) string {
 	return strings.TrimRight(c.config.SiteBaseUrl, "/") + "/u/" + entity.PublicID
 }
 
-func (c *Service) BuildS3URL(entity uploadedfile.Entity) string {
-	return c.config.BuildS3PublicURL(entity.S3Key)
+func (c *Service) GetObject(ctx context.Context, entity uploadedfile.Entity) (io.ReadCloser, error) {
+	return c.uploaderClient.GetObject(ctx, c.uploaderClient.Bucket, entity.S3Key, minio.GetObjectOptions{})
 }
 
 func (c *Service) CleanupExpired(ctx context.Context) error {
@@ -247,7 +248,7 @@ func (c *Service) cleanupLoop() {
 }
 
 func (c *Service) removeObject(ctx context.Context, key string) error {
-	err := c.s3Client.RemoveObject(ctx, c.config.S3Bucket, key, minio.RemoveObjectOptions{})
+	err := c.uploaderClient.RemoveObject(ctx, c.uploaderClient.Bucket, key, minio.RemoveObjectOptions{})
 	if err != nil && !isObjectNotFound(err) {
 		return err
 	}

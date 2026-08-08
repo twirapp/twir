@@ -245,6 +245,7 @@ var ProviderSet = wire.NewSet(
 		auth.NewSessions,
 		authroutes.New,
 		minio.New,
+		minio.NewUploaderS3,
 		twitchcache.New,
 		channelcache.New,
 		channelscommandsprefixcache.New,
