@@ -2139,7 +2139,17 @@
       }
     },
     "canvas": {
-      "hidden": "Hidden"
+      "hidden": "Hidden",
+      "coveredLayerHint": "This layer is covered by another one on the canvas. Hold Alt and click to cycle through overlapping layers."
+    },
+    "shortcuts": {
+      "title": "Keyboard shortcuts",
+      "description": "All hotkeys available in the overlay builder.",
+      "deepSelect": "Cycle through overlapping layers under the cursor",
+      "clearSelection": "Clear selection",
+      "paste": "Paste",
+      "selectAll": "Select all layers",
+      "toggleDialog": "Show or hide this dialog"
     },
     "layerNames": {
       "default": "{type} Layer {count}",
@@ -2333,6 +2343,7 @@
       "snapToGrid": "Snap to Grid",
       "addLayersHidden": "Add layers hidden",
       "widgetsPreview": "Widgets demo preview",
+      "shortcuts": "Keyboard shortcuts",
       "save": "Save"
     }
   },

@@ -87,6 +87,7 @@ const {
 						v-for="layer in layers"
 						:id="`layer-${layer.id}`"
 						:key="layer.id"
+						:data-layer-id="layer.id"
 						class="absolute border-2 transition-colors"
 						:class="{
 							'border-primary bg-primary/5': isLayerSelected(layer.id),
