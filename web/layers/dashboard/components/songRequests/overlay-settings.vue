@@ -9,6 +9,7 @@ import type {
 	SongRequestOverlaySettingsDashboardQuery,
 	SongRequestOverlaySettingsUpdateInput,
 } from '~/gql/graphql.js'
+import { SongRequestOverlayStyle as GraphqlSongRequestOverlayStyle } from '~/gql/graphql.js'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -36,7 +37,7 @@ import SongRequestOverlayRenderer from '~/components/song-request-overlay/SongRe
 import {
 	SONG_REQUEST_OVERLAY_DEFAULTS,
 	SONG_REQUEST_OVERLAY_STYLES,
-	type SongRequestOverlayStyle,
+	normalizeSongRequestOverlayStyle,
 } from '~/components/song-request-overlay/types'
 
 type OverlaySettings = SongRequestOverlaySettingsDashboardQuery['songRequestOverlaySettings']
@@ -72,7 +73,7 @@ const formSchema = computed(() =>
 )
 
 const defaultValues: SongRequestOverlaySettingsUpdateInput = {
-	style: SONG_REQUEST_OVERLAY_DEFAULTS.style,
+	style: GraphqlSongRequestOverlayStyle.Cinema,
 	accentColor: SONG_REQUEST_OVERLAY_DEFAULTS.accentColor,
 	tickerBackgroundColor: SONG_REQUEST_OVERLAY_DEFAULTS.tickerBackgroundColor,
 	tickerTextColor: SONG_REQUEST_OVERLAY_DEFAULTS.tickerTextColor,
@@ -86,7 +87,7 @@ const { handleSubmit, resetForm, values } = useForm({
 	keepValuesOnUnmount: true,
 })
 
-const previewStyle = computed(() => values.style as SongRequestOverlayStyle)
+const previewStyle = computed(() => normalizeSongRequestOverlayStyle(values.style))
 const styleOptions = computed(() =>
 	SONG_REQUEST_OVERLAY_STYLES.map((style) => ({
 		value: style,

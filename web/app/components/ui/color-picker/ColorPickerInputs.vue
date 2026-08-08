@@ -288,7 +288,7 @@ const inputClass =
 		<UiButton
 			v-if="props.showCopy"
 			variant="outline"
-			size="custom"
+			size="icon"
 			class="h-8 w-8 bg-transparent"
 			@click="copyColor"
 		>

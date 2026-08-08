@@ -1,5 +1,5 @@
 import { useQuery, useSubscription } from '@urql/vue'
-import { computed, type Ref } from 'vue'
+import { type Ref, computed } from 'vue'
 
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation.js'
 import { graphql } from '~/gql/gql.js'

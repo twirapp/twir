@@ -44,7 +44,7 @@ const routes = computed(() => {
 						custom #="{ isActive, href, navigate }"
 						prefetch-on="interaction"
 					>
-						<UiSidebarMenuButton as="a" :href="href" :variant="isActive ? 'active' : 'default'" @click="navigate">
+						<UiSidebarMenuButton as="a" :href="href" :is-active="isActive" @click="navigate">
 							<Icon :name="route.icon" />
 							{{ route.name }}
 						</UiSidebarMenuButton>

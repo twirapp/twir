@@ -39,6 +39,13 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 })
 
 const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
+
+type SupportedLocale = 'de' | 'en' | 'es' | 'ja' | 'pt' | 'ru' | 'sk' | 'uk'
+const supportedLocales: readonly SupportedLocale[] = ['de', 'en', 'es', 'ja', 'pt', 'ru', 'sk', 'uk']
+
+function isSupportedLocale(code: string): code is SupportedLocale {
+	return supportedLocales.some((localeCode) => localeCode === code)
+}
 </script>
 
 <template>
@@ -65,7 +72,7 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 					>
 						<Icon
 							v-if="PLATFORM_META_BY_SLUG[account.platform]"
-							:name="PLATFORM_META_BY_SLUG[account.platform]?.icon"
+							:name="PLATFORM_META_BY_SLUG[account.platform]?.icon ?? ''"
 							:title="PLATFORM_META_BY_SLUG[account.platform]?.label"
 							class="size-4"
 							:class="PLATFORM_META_BY_SLUG[account.platform]?.colorClass"
@@ -110,7 +117,7 @@ const linkedAccounts = computed(() => profileData.value?.linkedAccounts ?? [])
 							<DropdownMenuItem
 								v-for="lang of AVAILABLE_LOCALES"
 								:key="lang.code"
-								@select="setLocale(lang.code)"
+								@select="isSupportedLocale(lang.code) ? setLocale(lang.code) : undefined"
 							>
 								<DropdownMenuCheckboxItem :checked="locale === lang.code" />
 								{{ lang.name }}

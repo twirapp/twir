@@ -124,12 +124,12 @@ useEventListener('paste', (event: ClipboardEvent) => {
 				<span class="font-semibold">
 					{{
 						uploader.isUploading
-							? $t('uploader.dropzone.uploading')
-							: $t('uploader.dropzone.hint')
+							? t('uploader.dropzone.uploading')
+							: t('uploader.dropzone.hint')
 					}}
 				</span>
 				<span class="text-xs text-[hsl(240,11%,55%)]">
-					{{ $t('uploader.dropzone.formats', { maxSize: maxFileSizeLabel }) }}
+					{{ t('uploader.dropzone.formats', { maxSize: maxFileSizeLabel }) }}
 				</span>
 			</label>
 			<input
@@ -153,7 +153,7 @@ useEventListener('paste', (event: ClipboardEvent) => {
 				v-if="isDragging"
 				class="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(240,11%,6%)]/80 pointer-events-none"
 			>
-				<span class="text-xl font-semibold text-[hsl(240,11%,90%)]">{{ $t('uploader.dropzone.dropHere') }}</span>
+				<span class="text-xl font-semibold text-[hsl(240,11%,90%)]">{{ t('uploader.dropzone.dropHere') }}</span>
 			</div>
 		</Teleport>
 	</div>

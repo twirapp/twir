@@ -54,11 +54,27 @@ useAutoUpdate()
 const i18nHead = useLocaleHead({ seo: true })
 useHead(() => ({
 	htmlAttrs: {
-		lang: i18nHead.value.htmlAttrs!.lang,
-		dir: i18nHead.value.htmlAttrs!.dir,
+		...i18nHead.value.htmlAttrs,
+		lang: i18nHead.value.htmlAttrs.lang ?? '',
+		dir:
+			i18nHead.value.htmlAttrs.dir === 'rtl'
+			? 'rtl'
+			: i18nHead.value.htmlAttrs.dir === 'auto'
+				? 'auto'
+				: 'ltr',
 	},
-	link: [...(i18nHead.value.link || [])],
-	meta: [...(i18nHead.value.meta || [])],
+	link: i18nHead.value.link.map((link) => {
+		if (link.rel === 'canonical') return { ...link, rel: 'canonical', href: link.href ?? '' }
+		return { ...link, rel: 'alternate', href: link.href ?? '', hreflang: link.hreflang ?? '' }
+	}),
+	meta: i18nHead.value.meta.map((meta) => {
+		if (meta.charset) return { ...meta, charset: meta.charset }
+		if (meta['http-equiv']) {
+			return { ...meta, 'http-equiv': meta['http-equiv'], content: meta.content ?? '' }
+		}
+		if (meta.property) return { ...meta, property: meta.property, content: meta.content ?? '' }
+		return { ...meta, name: meta.name ?? '', content: meta.content ?? '' }
+	}),
 }))
 
 useHead({

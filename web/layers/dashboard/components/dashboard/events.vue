@@ -104,8 +104,8 @@ function openPopup() {
 									:id="`event-${option.value}`"
 									:model-value="enabledEvents.includes(option.value)"
 									@update:model-value="
-										(checked: boolean) => {
-											if (checked) {
+										(checked: boolean | 'indeterminate') => {
+											if (checked === true) {
 												enabledEvents.push(option.value)
 											} else {
 												const index = enabledEvents.indexOf(option.value)

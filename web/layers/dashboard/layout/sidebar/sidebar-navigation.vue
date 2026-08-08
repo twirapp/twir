@@ -117,7 +117,7 @@ function isTopLevelActive(path?: string): boolean {
 					:is-active="isTopLevelActive(item.path)"
 					@click="goToRoute"
 				>
-					<RouterLink :to="localePath(item.path!)">
+					<RouterLink :to="localePath(item.path)">
 						<Icon
 							:name="item.icon"
 							:class="item.accent ? 'text-amber-400' : undefined"
@@ -170,7 +170,7 @@ function isTopLevelActive(path?: string): boolean {
 										"
 										@click="goToRoute"
 									>
-										<RouterLink :to="localePath(child.path!)">
+										<RouterLink :to="localePath(child.path)">
 											<Icon :name="child.icon" />
 											<span>{{ child.name }}</span>
 											<Badge

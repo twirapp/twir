@@ -21,13 +21,14 @@ export const useCommunityUsersSorting = defineStore('community-users-sorting', (
 	const rowSelection = ref({})
 
 	const tableOrder = computed(() => {
-		return sorting.value[0].desc
+		return sorting.value[0]?.desc ?? false
 			? CommunityUsersOrder.Desc
 			: CommunityUsersOrder.Asc
 	})
 
 	const tableSortBy = computed(() => {
 		const sortingItem = sorting.value[0]
+		if (!sortingItem) return CommunityUsersSortBy.Watched
 		switch (sortingItem.id) {
 			case TABLE_ACCESSOR_KEYS.messages:
 				return CommunityUsersSortBy.Messages

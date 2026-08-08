@@ -4,7 +4,7 @@ export default defineNuxtPlugin(() => {
 	const origCreate = document.createElement.bind(document)
 	document.createElement = function (name: string, options?: ElementCreationOptions) {
 		if (!name || typeof name !== 'string' || name.includes(':') || name.includes(' ') || /^[0-9]/.test(name) || name.length > 50) {
-			console.error('[DEBUG] Invalid createElement name:', JSON.stringify(name?.slice?.(0, 100)), new Error().stack)
+			console.error('[DEBUG] Invalid createElement name:', JSON.stringify(name?.slice?.(0, 100)), new Error('Invalid createElement name').stack)
 		}
 		return origCreate(name, options)
 	}

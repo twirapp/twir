@@ -4,8 +4,8 @@ import {
 	buildMcpScopeToken,
 	flattenMcpScopes,
 	mcpApprovedScopesSchema,
-	mcpRequestedScopesSchema,
 	mcpRequestedScopeSchema,
+	mcpRequestedScopesSchema,
 	mcpScopeGroupSchema,
 	mcpScopeTokenSchema,
 } from './mcp-scopes.ts'

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { t } = useI18n()
+
 const props = defineProps<{
 	code: string
 	/** What actually lands in the clipboard when it differs from the visible code (e.g. unmasked secrets). */
@@ -30,7 +32,7 @@ onUnmounted(() => {
 		<button
 			type="button"
 			class="absolute top-2 right-2 flex items-center justify-center rounded-lg border border-[hsl(240,11%,25%)] bg-[hsl(240,11%,15%)] p-1.5 text-[hsl(240,11%,80%)] hover:border-[hsl(240,11%,40%)] hover:bg-[hsl(240,11%,25%)] transition-colors"
-			:title="$t('uploader.guide.copy')"
+			:title="t('uploader.guide.copy')"
 			@click="copyCode"
 		>
 			<Icon :name="copied ? 'lucide:check' : 'lucide:copy'" class="h-3.5 w-3.5" />

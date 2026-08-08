@@ -4,6 +4,10 @@ import { computed, watch } from 'vue'
 
 import { graphql } from '~/gql/gql.js'
 import { ChannelRolePermissionEnum } from '~/gql/graphql.js'
+import type {
+	UserPublicSettingsUpdateMutationVariables,
+	UserUpdateSettingsMutationVariables,
+} from '~/gql/graphql.js'
 
 export const profileQuery = graphql(`
 	query DashboardAuthenticatedUser {
@@ -193,7 +197,7 @@ export const useUserSettings = createGlobalState(() => {
 			`)
 		)
 		return {
-			executeMutation: (variables: { opts: unknown }) =>
+			executeMutation: (variables: UserPublicSettingsUpdateMutationVariables) =>
 				executeMutation(variables, { additionalTypenames: [userPublicSettingsInvalidateKey] }),
 		}
 	}
@@ -235,7 +239,7 @@ export const useUserSettings = createGlobalState(() => {
 			`)
 		)
 		return {
-			executeMutation: (variables: { opts: unknown }) =>
+			executeMutation: (variables: UserUpdateSettingsMutationVariables) =>
 				executeMutation(variables, {
 					additionalTypenames: [userInvalidateQueryKey, userPublicSettingsInvalidateKey],
 				}),

@@ -53,10 +53,8 @@ export async function computeStats(nickname: string, game: string): Promise<Stat
 
 	result.avgKdr = playerStats.lifetime['Average K/D Ratio']
 
-	// @ts-expect-error
-	const totals: Record<FaceitMatchStatsKeys, number> = {}
-	// @ts-expect-error
-	const counts: Record<FaceitMatchStatsKeys, number> = {}
+	const totals: Record<string, number> = {}
+	const counts: Record<string, number> = {}
 
 	lastGames.items.forEach((item: any) => {
 		const stats = item.stats
@@ -75,20 +73,22 @@ export async function computeStats(nickname: string, game: string): Promise<Stat
 		counts[result] = (counts[result] || 0) + 1 // Increment count based on result
 	})
 
-	// @ts-expect-error
-	const averages: Record<FaceitMatchStatsKeys, number> = new Map()
+	const averages: Record<string, number> = {}
 	for (const key in totals) {
-		averages[key] = totals[key] / counts[key]
+		const total = totals[key]
+		const count = counts[key]
+		if (total === undefined || count === undefined || count === 0) continue
+		averages[key] = total / count
 	}
 
 	const winRate = ((counts['1'] || 0) / lastGames.items.length) * 100 // Multiply by 100 to get percentage
 
 	result.lastMatches = {
-		avgKills: averages.Kills.toFixed(),
-		headshots: averages['Headshots %'].toFixed(),
+		avgKills: averages.Kills?.toFixed() ?? '0',
+		headshots: averages['Headshots %']?.toFixed() ?? '0',
 		winRate: winRate.toFixed(), // This will now be a proper percentage value
-		avgKd: averages['K/D Ratio'].toFixed(2),
-		avgKr: averages['K/R Ratio'].toFixed(2), // Remove % as this is not a percentage
+		avgKd: averages['K/D Ratio']?.toFixed(2) ?? '0.00',
+		avgKr: averages['K/R Ratio']?.toFixed(2) ?? '0.00', // Remove % as this is not a percentage
 	}
 
 	result.worldRanking = positionResponse ?? ''

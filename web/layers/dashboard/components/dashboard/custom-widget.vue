@@ -4,12 +4,12 @@ import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { z } from 'zod'
 
-import type { WidgetItem } from '@/components/dashboard/widgets.js'
+import type { WidgetItem } from '~~/layers/dashboard/components/dashboard/widgets.js'
 
 import {
 	useDashboardWidgetsDelete,
 	useDashboardWidgetsUpdateCustom,
-} from '@/api/dashboard-widgets-layout.js'
+} from '~~/layers/dashboard/api/dashboard-widgets-layout.js'
 import { Button } from '@/components/ui/button'
 import { CardContent } from '@/components/ui/card'
 import {
@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/dialog'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+
+import ActionConfirm from '@/components/ui/action-confirm'
 
 import Card from './card.vue'
 
@@ -36,6 +38,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const isEditDialogOpen = ref(false)
+const isDeleteConfirmOpen = ref(false)
 const updateMutation = useDashboardWidgetsUpdateCustom()
 const deleteMutation = useDashboardWidgetsDelete()
 
@@ -82,11 +85,11 @@ const onSubmitEdit = handleSubmit(async (values) => {
 	}
 })
 
-const onDelete = async () => {
-	if (!confirm(`Are you sure you want to delete widget "${props.item.displayName}"?`)) {
-		return
-	}
+const onDelete = () => {
+	isDeleteConfirmOpen.value = true
+}
 
+const confirmDelete = async () => {
 	const result = await deleteMutation.executeMutation({ widgetId: widgetId })
 
 	if (result.error) {
@@ -200,5 +203,11 @@ const onDelete = async () => {
 				</form>
 			</DialogContent>
 		</Dialog>
+
+		<ActionConfirm
+			v-model:open="isDeleteConfirmOpen"
+			:confirm-text="`Are you sure you want to delete widget &quot;${props.item.displayName}&quot;?`"
+			@confirm="confirmDelete"
+		/>
 	</div>
 </template>

@@ -9,6 +9,7 @@ import {
 	useDashboardWidgetsLayout,
 } from '~~/layers/dashboard/api/dashboard-widgets-layout.js'
 
+import ActionConfirm from '@/components/ui/action-confirm'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -71,12 +72,18 @@ const onSubmit = handleSubmit(async (values) => {
 	}
 })
 
-async function deleteWidget(id: string, name: string) {
-	if (!confirm(`Are you sure you want to delete widget "${name}"?`)) {
-		return
-	}
+const widgetToDelete = ref<{ id: string; name: string } | null>(null)
+const isDeleteConfirmOpen = ref(false)
 
-	const result = await deleteMutation.executeMutation({ widgetId: id })
+function deleteWidget(id: string, name: string) {
+	widgetToDelete.value = { id, name }
+	isDeleteConfirmOpen.value = true
+}
+
+async function confirmDeleteWidget() {
+	if (!widgetToDelete.value) return
+
+	const result = await deleteMutation.executeMutation({ widgetId: widgetToDelete.value.id })
 
 	if (result.error) {
 		toast.error('Failed to delete widget', {
@@ -85,6 +92,8 @@ async function deleteWidget(id: string, name: string) {
 	} else {
 		toast.success('Widget deleted successfully')
 	}
+
+	widgetToDelete.value = null
 }
 </script>
 
@@ -227,4 +236,10 @@ async function deleteWidget(id: string, name: string) {
 			</form>
 		</DialogContent>
 	</Dialog>
+
+	<ActionConfirm
+		v-model:open="isDeleteConfirmOpen"
+		:confirm-text="widgetToDelete ? `Are you sure you want to delete widget &quot;${widgetToDelete.name}&quot;?` : undefined"
+		@confirm="confirmDeleteWidget"
+	/>
 </template>

@@ -5,7 +5,7 @@ import {
   type SwitchRootProps,
   SwitchThumb,
   useForwardPropsEmits,
-} from 'radix-vue';
+} from 'reka-ui';
 import { type HTMLAttributes, computed } from 'vue';
 
 import { cn } from '@/lib/utils';

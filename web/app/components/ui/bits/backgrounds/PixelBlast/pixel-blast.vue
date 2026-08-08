@@ -133,13 +133,17 @@ function createTouchTexture() {
 		clear()
 		for (let i = trail.length - 1; i >= 0; i--) {
 			const point = trail[i]
+			if (!point) continue
 			const f = point.force * speed * (1 - point.age / maxAge)
 			point.x += point.vx * f
 			point.y += point.vy * f
 			point.age++
 			if (point.age > maxAge) trail.splice(i, 1)
 		}
-		for (let i = 0; i < trail.length; i++) drawPoint(trail[i])
+		for (let i = 0; i < trail.length; i++) {
+			const point = trail[i]
+			if (point) drawPoint(point)
+		}
 		texture.needsUpdate = true
 	}
 	return {
@@ -502,7 +506,7 @@ function setup() {
 			if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
 				const u32 = new Uint32Array(1)
 				window.crypto.getRandomValues(u32)
-				return u32[0] / 0xFFFFFFFF
+				return (u32[0] ?? 0) / 0xFFFFFFFF
 			}
 			return Math.random()
 		}
@@ -565,7 +569,9 @@ function setup() {
 		const onPointerDown = (e: PointerEvent) => {
 			const { fx, fy } = mapToPixels(e)
 			const ix = threeRef.value?.clickIx ?? 0
-			uniforms.uClickPos.value[ix].set(fx, fy)
+			const clickPosition = uniforms.uClickPos.value[ix]
+			if (!clickPosition) return
+			clickPosition.set(fx, fy)
 			uniforms.uClickTimes.value[ix] = uniforms.uTime.value
 			if (threeRef.value) threeRef.value.clickIx = (ix + 1) % MAX_CLICKS
 		}

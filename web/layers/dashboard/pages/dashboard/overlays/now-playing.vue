@@ -107,7 +107,12 @@ watch(openedTab, async (v) => {
 			:default-value="0"
 			orientation="vertical"
 			class="min-h-[45dvh]"
-			@update:model-value="(e) => (openedTab = entities?.nowPlayingOverlays[e].id)"
+			@update:model-value="
+				(e) => {
+					const overlay = entities?.nowPlayingOverlays[Number(e)]
+					openedTab = overlay?.id
+				}
+			"
 		>
 			<TabsList
 				aria-label="tabs example"

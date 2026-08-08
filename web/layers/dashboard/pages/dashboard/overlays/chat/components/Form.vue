@@ -645,7 +645,7 @@ function handleReset() {
 						<FontSelector
 							:font-family="formValue.fontFamily"
 							:font-weight="formValue.fontWeight"
-							:font-style="formValue.fontStyle"
+							:font-style="formValue.fontStyle === 'italic' ? 'italic' : 'normal'"
 							@update:font="
 								(font) => {
 									if (font) fontData = font

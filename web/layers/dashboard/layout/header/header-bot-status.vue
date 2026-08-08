@@ -50,6 +50,7 @@ const statusSummary = computed(() => {
 
 	if (sortedBotStatuses.value.length === 1) {
 		const status = sortedBotStatuses.value[0]
+		if (!status) return 'Bot offline'
 		return `${formatPlatformName(status.platform)} ${status.enabled ? 'online' : 'disabled'}`
 	}
 

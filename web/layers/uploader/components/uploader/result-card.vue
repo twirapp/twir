@@ -51,7 +51,7 @@ const expiresLabel = computed(() => {
 				/>
 			</a>
 			<div class="min-w-0 flex-1">
-				<p class="text-sm font-semibold text-[hsl(240,11%,90%)]">{{ $t('uploader.result.title') }}</p>
+				<p class="text-sm font-semibold text-[hsl(240,11%,90%)]">{{ t('uploader.result.title') }}</p>
 				<a
 					:href="upload.link"
 					target="_blank"
@@ -66,7 +66,7 @@ const expiresLabel = computed(() => {
 		<p
 			v-if="expiresLabel"
 			class="text-xs text-[hsl(240,11%,55%)]"
-			:title="$t('uploader.expires', { date: expiresAtAbsolute })"
+			:title="t('uploader.expires', { date: expiresAtAbsolute })"
 		>
 			{{ expiresLabel }}
 		</p>
@@ -82,11 +82,11 @@ const expiresLabel = computed(() => {
 					class="h-3.5 w-3.5 transition-transform"
 					:class="{ 'rotate-180': showDeleteLink }"
 				/>
-				{{ $t('uploader.result.showDeleteLink') }}
+				{{ t('uploader.result.showDeleteLink') }}
 			</button>
 			<div v-if="showDeleteLink" class="flex flex-col gap-1.5 mt-2">
 				<p class="text-xs text-[hsl(240,11%,55%)]">
-					{{ $t('uploader.result.deleteLinkHint') }}
+					{{ t('uploader.result.deleteLinkHint') }}
 				</p>
 				<UploaderCopyInput :text="upload.delete_link" />
 			</div>

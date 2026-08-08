@@ -2,33 +2,36 @@ import { AuthPlatformAuthorizeParamsEnum } from '@twir/api/openapi'
 import { createRequest } from '@urql/vue'
 
 import { graphql } from '~/gql/gql.js'
+import { type AuthenticatedUserQuery, type AuthenticatedUserQueryVariables } from '~/gql/graphql.js'
 import { getMcpConsentAuthorizePath, parseMcpConsentAttempt } from '~/utils/mcp-consent.js'
 
-export const userProfileWithoutDashboards = createRequest(
-	graphql(`
-		query AuthenticatedUser {
-			authenticatedUser {
-				id
-				isBotAdmin
-				isBanned
-				isEnabled
-				isBotModerator
-				hideOnLandingPage
-				botId
-				apiKey
-				currentPlatform
-				linkedAccounts {
-					platform
-					platformUserId
-					platformLogin
-					platformDisplayName
-					platformAvatar
-				}
+const userProfileQuery = graphql(`
+	query AuthenticatedUser {
+		authenticatedUser {
+			id
+			isBotAdmin
+			isBanned
+			isEnabled
+			isBotModerator
+			hideOnLandingPage
+			botId
+			apiKey
+			currentPlatform
+			linkedAccounts {
+				platform
+				platformUserId
+				platformLogin
+				platformDisplayName
+				platformAvatar
 			}
 		}
-	`),
-	{}
-)
+	}
+`)
+
+export const userProfileWithoutDashboards = createRequest<
+	AuthenticatedUserQuery,
+	AuthenticatedUserQueryVariables
+>(userProfileQuery, {})
 
 export const UserStoreKey = 'auth-store-user'
 
@@ -40,7 +43,7 @@ export const useAuth = defineStore('auth-store', () => {
 		executeQuery: fetchUser,
 		fetching,
 	} = useQuery({
-		query: userProfileWithoutDashboards.query,
+		query: userProfileQuery,
 		context: {
 			key: userProfileWithoutDashboards.key,
 			additionalTypenames: [UserStoreKey],
