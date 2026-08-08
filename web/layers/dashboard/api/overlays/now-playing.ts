@@ -1,4 +1,5 @@
 import { useQuery } from '@urql/vue'
+import type { Ref } from 'vue'
 
 import { useMutation } from '~~/layers/dashboard/composables/use-mutation'
 import { graphql } from '~/gql/gql.js'
@@ -6,7 +7,7 @@ import { graphql } from '~/gql/gql.js'
 export function useNowPlayingOverlayApi() {
 	const cacheKey = ['nowPlayingOverlay']
 
-	const useNowPlayingQuery = () => useQuery({
+	const useNowPlayingQuery = (pause?: Ref<boolean>) => useQuery({
 		query: graphql(`
 			query NowPlayingOverlays {
 				nowPlayingOverlays {
@@ -25,6 +26,7 @@ export function useNowPlayingOverlayApi() {
 			additionalTypenames: cacheKey,
 		},
 		variables: {},
+		pause,
 	})
 
 	const useNowPlayingCreate = () => useMutation(

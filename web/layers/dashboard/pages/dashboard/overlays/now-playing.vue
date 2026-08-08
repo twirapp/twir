@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { NowPlaying, Preset } from '@twir/frontend-now-playing'
-import { useSubscription } from '@urql/vue'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
-import { useProfile, useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
-import { useIntegrationsPageData } from '~~/layers/dashboard/api/integrations/integrations-page'
+import { useUserAccessFlagChecker } from '~~/layers/dashboard/api/auth'
 import { useNowPlayingOverlayApi } from '~~/layers/dashboard/api/overlays/now-playing'
 import { useTheme } from '~~/layers/dashboard/composables/use-theme'
 import NowPlayingForm from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/now-playing-form.vue'
@@ -12,32 +10,23 @@ import {
 	defaultSettings,
 	useNowPlayingForm,
 } from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/use-now-playing-form'
+import { useNowPlayingPreviewTrack } from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/use-now-playing-track'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { graphql } from '~/gql/gql'
 import { ChannelRolePermissionEnum } from '~/gql/graphql'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth', noPadding: true })
 
 const { theme } = useTheme()
 const { t } = useI18n()
-const profile = useProfile()
 
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 const nowPlayingOverlayManager = useNowPlayingOverlayApi()
 const creator = nowPlayingOverlayManager.useNowPlayingCreate()
 
-const integrationsPage = useIntegrationsPageData()
-
-const isSomeSongIntegrationEnabled = computed(() => {
-	return (
-		integrationsPage.spotifyData.value?.userName ||
-		integrationsPage.lastfmData.value?.userName ||
-		integrationsPage.vkData.value?.userName
-	)
-})
+const { track: nowPlayingTrack, isSomeSongIntegrationEnabled } = useNowPlayingPreviewTrack()
 
 const { data: settings, setData } = useNowPlayingForm()
 
@@ -81,52 +70,6 @@ watch(openedTab, async (v) => {
 	const entity = entities.value?.nowPlayingOverlays.find((s) => s.id === v)
 	if (!entity) return
 	setData(entity)
-})
-
-const currentTrackPaused = computed(() => {
-	return !isSomeSongIntegrationEnabled.value || !profile.data.value?.channelApiKey
-})
-
-const { data: currentTrackSub } = useSubscription({
-	query: graphql(`
-		subscription NowPlayingOverlayNowPlaying($apiKey: String!) {
-			nowPlayingCurrentTrack(apiKey: $apiKey) {
-				title
-				artist
-				imageUrl
-				progressMs
-				durationMs
-			}
-		}
-	`),
-	get variables() {
-		return {
-			apiKey: profile.data.value!.channelApiKey!,
-		}
-	},
-	pause: currentTrackPaused,
-})
-
-const defaultNowPlayingTrack = {
-	imageUrl: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
-	artist: 'Slipknot',
-	title: 'Psychosocial',
-	progressMs: 70_000,
-	durationMs: 238_000,
-}
-
-const nowPlayingTrack = computed(() => {
-	if (currentTrackSub.value?.nowPlayingCurrentTrack) {
-		return {
-			imageUrl: currentTrackSub.value.nowPlayingCurrentTrack.imageUrl,
-			artist: currentTrackSub.value.nowPlayingCurrentTrack.artist,
-			title: currentTrackSub.value.nowPlayingCurrentTrack.title,
-			progressMs: currentTrackSub.value.nowPlayingCurrentTrack.progressMs,
-			durationMs: currentTrackSub.value.nowPlayingCurrentTrack.durationMs,
-		}
-	}
-
-	return defaultNowPlayingTrack
 })
 </script>
 

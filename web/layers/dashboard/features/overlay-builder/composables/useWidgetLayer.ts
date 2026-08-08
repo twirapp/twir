@@ -3,9 +3,14 @@ import { type Ref, computed, ref, watch } from 'vue'
 
 import { useProfile } from '~~/layers/dashboard/api/auth.js'
 import { useChatOverlayApi } from '~~/layers/dashboard/api/overlays/chat.js'
+import { useDudesOverlayApi } from '~~/layers/dashboard/api/overlays/dudes.js'
+import { useNowPlayingOverlayApi } from '~~/layers/dashboard/api/overlays/now-playing.js'
+import { defaultDudesSettings } from '~~/layers/dashboard/pages/dashboard/overlays/dudes/dudes-settings.js'
+import { defaultSettings as defaultNowPlayingSettings } from '~~/layers/dashboard/pages/dashboard/overlays/now-playing/use-now-playing-form.js'
 
 import { overlayWidgetRegistry } from '../widgets-registry'
 import type { Layer, LayerSettings } from '../types'
+import { useWidgetEntityId } from './useWidgetEntityId'
 import {
 	buildWidgetUrl as buildRegisteredWidgetUrl,
 	getWidgetUrlParams,
@@ -43,6 +48,48 @@ export function useWidgetLayer(layer: Ref<Layer>, updateLayer: UpdateLayer) {
 	const firstChatPresetId = computed(() => {
 		if (layer.value.settings.widgetKey !== 'chat') return undefined
 		return chatOverlaysData.value?.chatOverlays[0]?.id ?? undefined
+	})
+
+	const dudesApi = useDudesOverlayApi()
+	const dudesQuery = dudesApi.useDudesQuery(computed(() => layer.value.settings.widgetKey !== 'dudes'))
+	const dudesCreator = dudesApi.useDudesCreate()
+
+	useWidgetEntityId({
+		layer,
+		widgetKey: 'dudes',
+		entities: computed(() => dudesQuery.data.value?.dudesGetAll),
+		refetch: async () => {
+			const result = await dudesQuery.executeQuery({ requestPolicy: 'network-only' })
+			return result.data.value?.dudesGetAll ?? []
+		},
+		create: () => {
+			const { id: _id, ...input } = defaultDudesSettings
+			return dudesCreator.executeMutation({ input })
+		},
+		buildUrl: (id) => buildWidgetUrl({ id }),
+		updateSettings,
+	})
+
+	const nowPlayingApi = useNowPlayingOverlayApi()
+	const nowPlayingQuery = nowPlayingApi.useNowPlayingQuery(
+		computed(() => layer.value.settings.widgetKey !== 'now-playing')
+	)
+	const nowPlayingCreator = nowPlayingApi.useNowPlayingCreate()
+
+	useWidgetEntityId({
+		layer,
+		widgetKey: 'now-playing',
+		entities: computed(() => nowPlayingQuery.data.value?.nowPlayingOverlays),
+		refetch: async () => {
+			const result = await nowPlayingQuery.executeQuery({ requestPolicy: 'network-only' })
+			return result.data.value?.nowPlayingOverlays ?? []
+		},
+		create: () => {
+			const { id: _id, channelId: _channelId, ...input } = defaultNowPlayingSettings
+			return nowPlayingCreator.executeMutation({ input })
+		},
+		buildUrl: (id) => buildWidgetUrl({ id }),
+		updateSettings,
 	})
 
 	function updateSettings(updates: Partial<LayerSettings>) {
