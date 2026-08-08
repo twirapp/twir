@@ -43,6 +43,7 @@ func registerSessionTypes() {
 	gob.Register(model.Users{})
 	gob.Register(helix.User{})
 	gob.Register(uuid.UUID{})
+	gob.Register([]string{})
 	gob.Register(KickSessionUser{})
 	gob.Register(OAuthAttempt{})
 	gob.Register(map[string]OAuthAttempt{})
