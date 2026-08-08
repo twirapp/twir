@@ -107,8 +107,30 @@ The provisioned `Twir Live Overview` dashboard is stored at
 `configs/uptrace/grafana/dashboards/twir-overview.json`. Its application panels use OTel spans from
 Uptrace for command/handler p95 and PostgreSQL, ClickHouse, and Redis read/write rates. These rates
 describe operations observed from Twir applications, not every server-side background query. CPU
-and RAM are grouped by Swarm node from node-exporter. cAdvisor remains available for future
-container-level panels, but the overview intentionally does not show individual containers.
+and RAM are grouped by Swarm node from node-exporter.
+
+Three more provisioned dashboards cover infrastructure metrics:
+
+- `Twir Nodes` (`twir-nodes.json`) — per-node CPU, load, memory, root filesystem, disk I/O and
+  IOPS, network throughput, file descriptors, and conntrack usage from node-exporter, with a
+  `Node` variable. Series are joined to `node_uname_info` for readable node names.
+- `Twir Containers` (`twir-containers.json`) — per-container CPU (including CFS throttling),
+  memory usage and % of limit, network, and disk I/O from cAdvisor, filterable by `Service` and
+  `Container` variables.
+- `Twir Swarm Services` (`twir-swarm.json`) — cluster stats aggregated per Swarm service
+  (replicas, CPU, memory, % of limit, network, disk I/O). The `Service` variable selects one or
+  more services; the bottom section then drills into individual tasks of the selection
+  (CPU/memory/network/throttling per task plus task age for spotting crash loops).
+
+The container and swarm dashboards rely on cAdvisor's default label export
+(`--store_container_labels=true`, the default since long before v0.57): Swarm automatically stamps
+task containers with `com.docker.swarm.service.name` / `com.docker.swarm.task.name`, which appear
+in Prometheus as `container_label_com_docker_swarm_service_name` and
+`container_label_com_docker_swarm_task_name`. No extra cAdvisor flags are needed.
+
+New dashboards are added as new Swarm config keys (e.g. `uptrace_grafana_dashboard_nodes`) mounted
+into `/etc/grafana/dashboards/`; the file provider picks them up on service update. As with any
+other config, once a dashboard config exists, edits require a new key (see the note below).
 
 The streamer opens the dashboard over the attachable
 `twir` overlay network using `http://twir_grafana:3000`, so it does not depend on Cloudflare or
@@ -125,6 +147,11 @@ Apply the committed PostgreSQL migration before relying on the 30-day new-users 
 ```sh
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_created_at ON users (created_at);
 ```
+
+The `Users` stat runs an exact `count(*)` on the users table (the previous
+`pg_class.reltuples` estimate only moved when ANALYZE ran and looked frozen). On multi-million-row
+tables this takes on the order of a second; the `grafana_ro` role already has `SELECT` on `users`
+and a 15s statement timeout, which is sufficient.
 
 For a fresh streamer host:
 
